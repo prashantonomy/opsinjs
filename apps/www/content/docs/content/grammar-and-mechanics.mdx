@@ -43,8 +43,14 @@ wins.
   Diabetes".
 - **Preserve the case of clinical terms and units.** "HbA1c", "mmHg", "mmol/L",
   "SpO2". These are not sentence-cased and are not upper-cased for emphasis.
-- **The four status words are lower case** in running text and rendered by the
-  component in its own style: `expected`, `watch`, `act`, `urgent`.
+- **Two spellings, and they are not interchangeable.** The four level ids are
+  lower case wherever you write about them — `steady`, `watch`, `attention`,
+  `urgent` — and the component renders its own sentence-case word beside the
+  colour and the icon: "Steady", "Watch", "Needs attention", "Urgent", plus
+  "Not known" where there is no reading. Never re-case, abbreviate or
+  translate the rendered word; it comes from `CLINICAL_STATUS_META` in
+  `lib/status.ts` and it is the thing the colour is not allowed to carry
+  alone.
 
 ### Punctuation
 

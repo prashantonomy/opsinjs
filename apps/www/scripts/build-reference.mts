@@ -76,6 +76,17 @@ const GENERATED_DIR = join(APP_DIR, "content", "docs", "reference", "generated")
  */
 const API_DIR = join(APP_DIR, "content", "docs", "reference", "api")
 const LIB_DIR = join(APP_DIR, "lib")
+/**
+ * The component sources, and the module the props tables are emitted to.
+ *
+ * These are separate from LIB_DIR on purpose. lib/ is scanned for a page per
+ * exported type; registry/bases/ is scanned for one thing only - the props
+ * interface of each component - and giving every internal helper type in a
+ * component file its own reference page would bury the forty-three symbols
+ * that earned one.
+ */
+const BASES_DIR = join(APP_DIR, "registry", "bases")
+const PROPS_MODULE = join(APP_DIR, "lib", "generated", "props.ts")
 
 /* The MDX comment markers. Assembled from parts so that this file can describe
    them in prose above without closing its own block comment. */
@@ -926,6 +937,421 @@ function apiPage(symbol: ExportedSymbol, file: string): string {
 }
 
 /* ------------------------------------------------------------------ *
+ * Component prop interfaces: the source <PropsTable> reads.            *
+ *                                                                      *
+ * <PropsTable name="StatusPillProps" /> had no producer at all: the    *
+ * component took a `type` prop in fumadocs' TypeTable shape and         *
+ * nothing in the repository built one, so every API table on the site   *
+ * rendered <NoDataYet> whatever was built. This is the producer.        *
+ *                                                                      *
+ * WHY NOT fumadocs-typescript. `<auto-type-table>` is wired through     *
+ * source.config.ts and would work, but it THROWS when the interface it  *
+ * names is absent, which fails the whole build from inside a page. The  *
+ * honest failure for a table with no data is <NoDataYet>, and a         *
+ * generated map degrades to exactly that. It also renders fumadocs'     *
+ * bare TypeTable rather than the opsinjs one, which is why              *
+ * components/mdx.tsx registers TypeTable but tells pages to use         *
+ * <PropsTable>.                                                         *
+ *                                                                      *
+ * The extraction is textual, like the symbol walk above, and for the    *
+ * same reasons: it runs before anything compiles, it imports no         *
+ * application code into a build step, and it is identical on every      *
+ * machine.                                                              *
+ * ------------------------------------------------------------------ */
+
+/** One row of a generated props table, in fumadocs' TypeNode shape. */
+interface PropRow {
+  name: string
+  /** The type exactly as written. Never reconstructed, never normalised. */
+  type: string
+  description?: string
+  /** From an `@default` or `@defaultValue` tag on the prop's doc comment. */
+  defaultValue?: string
+  required: boolean
+}
+
+interface PropsInterface {
+  /** The exported interface name: `StatusPillProps`. */
+  name: string
+  /** Path relative to apps/www. */
+  file: string
+  rows: PropRow[]
+}
+
+/**
+ * Only `<Pascal>Props`. A component file may export other interfaces, and they
+ * are none of this table's business: the contract is that a component's public
+ * API is one named exported interface ending in `Props`, and narrowing here is
+ * what stops an internal helper type turning up in the API reference of a page.
+ */
+const PROPS_DECLARATION = /^export\s+interface\s+([A-Za-z_$][\w$]*Props)\b/
+
+/**
+ * Bracket depth contributed by one line.
+ *
+ * `=>` is stripped first. Its `>` would otherwise close a generic that was
+ * never opened, and a single miscounted arrow type sends the whole member
+ * chunker off by one for the rest of the interface.
+ */
+function bracketDelta(line: string): number {
+  const text = line.replace(/=>/g, "")
+  const open = text.match(/[{([<]/g)?.length ?? 0
+  const close = text.match(/[})\]>]/g)?.length ?? 0
+  return open - close
+}
+
+/**
+ * A member declaration that is obviously unfinished at the end of its line.
+ *
+ * A trailing comma is deliberately NOT in this set. It used to be, and it meant
+ * that an interface written with comma separators — legal TypeScript, and what a
+ * contributor coming from a semicolon-less house style might reach for — merged
+ * every one of its members into a single chunk, which parsed as one row whose
+ * type was the rest of the interface. The table came out with one prop in it and
+ * nothing said a word. A comma inside a bracket is already covered by the
+ * caller's `depth > 0` test, which is where that case belongs.
+ */
+function awaitsMore(line: string): boolean {
+  return /(?:[:|&([<=?+-]|=>|\bextends)$/.test(line)
+}
+
+/** A line that continues the previous member rather than starting a new one. */
+function continuesPrevious(line: string): boolean {
+  return /^(?:[|&?:.]|extends\b)/.test(line)
+}
+
+/**
+ * Turn a `/** ... *\/` block into a description and, if it has one, a default.
+ *
+ * Tag lines are removed from the description rather than kept, because the
+ * description is a table cell: `@deprecated` and `@see` read as noise in a
+ * column six words wide, and `@default` has a column of its own.
+ */
+function parseDoc(lines: string[]): { description?: string; defaultValue?: string } {
+  const text = lines
+    .join("\n")
+    .replace(/^\/\*\*/, "")
+    .replace(/\*\/$/, "")
+    .split("\n")
+    .map((line) => line.trim().replace(/^\*\s?/, ""))
+    .join("\n")
+
+  let defaultValue: string | undefined
+  const description: string[] = []
+  for (const line of text.split("\n")) {
+    const tag = /^@(default|defaultValue)\s+(.+)$/.exec(line.trim())
+    if (tag) {
+      /* First one wins. Two @default tags on one prop is a source bug, and
+         silently taking the last would hide it. */
+      defaultValue ??= (tag[2] ?? "").trim().replace(/^`|`$/g, "")
+      continue
+    }
+    if (line.trim().startsWith("@")) continue
+    description.push(line)
+  }
+
+  const joined = description.join(" ").replace(/\s+/g, " ").trim()
+  return {
+    description: joined.length > 0 ? joined : undefined,
+    defaultValue,
+  }
+}
+
+/**
+ * Flatten a member's lines back to one line without losing its separators.
+ *
+ * A plain `join(" ")` turns a multi-line object type into
+ * `{ low: number high: number }`, which is not a type anybody can read or
+ * paste. Two adjacent lines that are each complete get a `; ` between them; a
+ * line that ended mid-expression, or one whose successor opens with `|`, `&` or
+ * a closing bracket, is joined with a space as written.
+ */
+function joinChunk(chunk: string[]): string {
+  let text = ""
+  for (const line of chunk) {
+    if (text === "") {
+      text = line
+      continue
+    }
+    const separated =
+      !/(?:[{([<,;|&:]|=>)$/.test(text) && !/^[)\]}>,;|&]/.test(line)
+    text += separated ? `; ${line}` : ` ${line}`
+  }
+  return text.replace(/\s+/g, " ").trim()
+}
+
+/** Parse one accumulated member chunk. Returns null for anything not a prop. */
+function parseMember(
+  chunk: string[],
+  doc: string[]
+): PropRow | null {
+  const text = joinChunk(chunk).replace(/[;,]$/, "")
+  /* An index signature (`[key: string]: unknown`) and a method signature
+     (`onChange(value: string): void`) both fail this deliberately. Neither is a
+     prop a reader sets, and the contract asks for `onChange?: (v) => void`
+     instead of a method anyway. */
+  const match = /^(?:readonly\s+)?([A-Za-z_$][\w$]*)(\?)?\s*:\s*(.+)$/.exec(text)
+  if (!match) return null
+  const [, name, optional, type] = match
+  if (!name || !type) return null
+  const { description, defaultValue } = parseDoc(doc)
+  return {
+    name,
+    /* A leading `|` is how Prettier writes a union that had to wrap. It is
+       legal TypeScript and meaningless to a reader in a table cell. */
+    type: type.trim().replace(/^\|\s*/, ""),
+    description,
+    defaultValue,
+    required: optional === undefined,
+  }
+}
+
+/** Every `export interface <Pascal>Props` under registry/bases/, in file order. */
+function extractPropsInterfaces(): PropsInterface[] {
+  const files: string[] = []
+  walkFiles(BASES_DIR, files)
+
+  const found: PropsInterface[] = []
+  for (const file of files) {
+    const contents = readMaybe(file)
+    if (contents === undefined) continue
+    const lines = contents.split("\n")
+
+    for (let index = 0; index < lines.length; index += 1) {
+      const match = PROPS_DECLARATION.exec(lines[index] ?? "")
+      if (!match) continue
+      const name = match[1]
+      if (!name) continue
+
+      /* Find the interface body by brace depth. Only `{}` is counted here:
+         an `extends Something<"span">` on the declaration line carries angle
+         brackets that have nothing to do with where the body ends. */
+      let depth = 0
+      let opened = false
+      let last = -1
+      for (let scan = index; scan < lines.length; scan += 1) {
+        for (const character of lines[scan] ?? "") {
+          if (character === "{") {
+            depth += 1
+            opened = true
+          } else if (character === "}") {
+            depth -= 1
+          }
+        }
+        if (opened && depth <= 0) {
+          last = scan
+          break
+        }
+      }
+      if (last === -1) continue
+
+      const region = lines.slice(index, last + 1).join("\n")
+      const body = region.slice(region.indexOf("{") + 1, region.lastIndexOf("}"))
+      const rows = readMembers(body)
+      const obvious = countObviousMembers(body)
+      if (rows.length !== obvious) {
+        console.error(
+          [
+            `build-reference: could not read ${name} in ${relative(APP_DIR, file)}.`,
+            `  The chunker found ${rows.length} prop(s); a straight line count found ${obvious}.`,
+            "",
+            "  A props table is published under a heading that says it was generated, so",
+            "  emitting the smaller number would put a page on the site claiming to",
+            "  document an interface it had only partly read. Rather than do that, this",
+            "  script stops.",
+            "",
+            "  Usual causes: a member whose type wraps in a shape the chunker does not",
+            "  expect, a method signature (write `onChange?: (v: string) => void`, not",
+            "  `onChange(v: string): void`), or an index signature. Both of the last two",
+            "  are refused on purpose - neither is a prop a reader sets.",
+          ].join("\n"),
+        )
+        process.exit(1)
+      }
+      found.push({ name, file: relative(APP_DIR, file), rows })
+      index = last
+    }
+  }
+
+  return found
+}
+
+/**
+ * Split an interface body into members.
+ *
+ * Line-based rather than character-based because this repository's Prettier
+ * config omits semicolons, so a newline is the terminator and a chunk has to be
+ * judged complete by what it ends with and what follows it. A union split over
+ * four lines is the shape this has to survive.
+ */
+function readMembers(body: string): PropRow[] {
+  const lines = body.split("\n")
+  const rows: PropRow[] = []
+
+  let doc: string[] = []
+  let inDoc = false
+  let chunk: string[] = []
+  let depth = 0
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = (lines[index] ?? "").trim()
+
+    if (inDoc) {
+      doc.push(line)
+      if (line.endsWith("*/")) inDoc = false
+      continue
+    }
+    if (line.startsWith("/**")) {
+      /* A new doc comment discards a previous one that never reached a member,
+         which happens when a commented-out prop is left behind. */
+      doc = [line]
+      inDoc = !line.endsWith("*/")
+      continue
+    }
+    if (line === "" || line.startsWith("//") || line.startsWith("/*")) continue
+
+    chunk.push(line)
+    depth += bracketDelta(line)
+
+    const next = (lines[index + 1] ?? "").trim()
+    if (depth > 0 || awaitsMore(line) || continuesPrevious(next)) continue
+
+    const row = parseMember(chunk, doc)
+    if (row) rows.push(row)
+    chunk = []
+    doc = []
+    depth = 0
+  }
+
+  return rows
+}
+
+/**
+ * How many members the body OBVIOUSLY has, counted by a different method.
+ *
+ * `readMembers` is a chunker, and every chunker has shapes it silently merges or
+ * silently drops. The failure mode is not a crash: it is a props table with two
+ * rows in it on a page that claims to document six, published under a heading
+ * that says it was generated. So the count is taken twice, by two methods that
+ * fail differently, and `extractPropsInterfaces` refuses to emit when they
+ * disagree. This one is deliberately naive — a line that starts with a name and
+ * a colon, at brace depth zero, outside a comment.
+ */
+function countObviousMembers(body: string): number {
+  let count = 0
+  let depth = 0
+  let inBlockComment = false
+  for (const raw of body.split("\n")) {
+    const line = raw.trim()
+    if (inBlockComment) {
+      if (line.includes("*/")) inBlockComment = false
+      continue
+    }
+    if (line.startsWith("/*")) {
+      if (!line.includes("*/")) inBlockComment = true
+      continue
+    }
+    if (line === "" || line.startsWith("//") || line.startsWith("*")) continue
+    if (depth === 0 && /^(?:readonly\s+)?[A-Za-z_$][\w$]*\??\s*:/.test(line)) count += 1
+    depth += bracketDelta(line)
+    if (depth < 0) depth = 0
+  }
+  return count
+}
+
+/**
+ * The generated module, as text.
+ *
+ * Interfaces are sorted by name so the file is stable whatever order the
+ * filesystem hands them back; props keep DECLARATION order, because that order
+ * is the author's argument about which prop matters most and re-sorting it
+ * alphabetically would throw that away.
+ */
+function propsModule(interfaces: PropsInterface[]): string {
+  /* Sort first, then keep the first of any duplicate name, so a collision
+     resolves the same way on every machine rather than by directory order.
+     main() reports the collision; this only decides what the file says. */
+  const seen = new Set<string>()
+  const sorted = [...interfaces]
+    .sort((a, b) => a.name.localeCompare(b.name) || a.file.localeCompare(b.file))
+    .filter((entry) => (seen.has(entry.name) ? false : (seen.add(entry.name), true)))
+  const q = (value: string): string => JSON.stringify(value)
+
+  const tables = sorted.map((entry) => {
+    const rows = entry.rows.map((row) =>
+      [
+        `    ${q(row.name)}: {`,
+        `      type: ${q(row.type)},`,
+        row.description === undefined ? null : `      description: ${q(row.description)},`,
+        row.defaultValue === undefined ? null : `      default: ${q(row.defaultValue)},`,
+        `      required: ${row.required},`,
+        `    },`,
+      ]
+        .filter((line): line is string => line !== null)
+        .join("\n"),
+    )
+    return [`  ${q(entry.name)}: {`, ...rows, `  },`].join("\n")
+  })
+
+  const sources = sorted.map((entry) => `  ${q(entry.name)}: ${q(entry.file)},`)
+  const propCount = sorted.reduce((total, entry) => total + entry.rows.length, 0)
+
+  return `/* eslint-disable */
+/**
+ * GENERATED FILE - DO NOT EDIT.
+ *
+ * Source:    every \`export interface <Pascal>Props\` under registry/bases/
+ * Generator: scripts/build-reference.mts   (\`pnpm run generate\`)
+ * Gate:      \`pnpm check:generated\` regenerates this file and fails on a diff.
+ *
+ * <PropsTable name="StatusPillProps" /> in components/docs/tables.tsx reads this
+ * map, and it is the only reader. No page writes a prop row by hand: a typed row
+ * is correct on the day it is written and wrong from the next commit onwards,
+ * with nothing anywhere to say so.
+ *
+ * The shape is fumadocs' TypeTable \`type\` prop - prop name to
+ * { type, description, default, required } - so the entry is passed straight
+ * through with no translation layer of its own to drift.
+ *
+ * Only the interface's OWN members are here. Props inherited through \`extends\`
+ * are deliberately absent: opsinjs re-documents what it adds, and a table that
+ * repeated forty upstream props would bury the four that are decisions.
+ *
+ * No timestamp. This file is behind a byte-for-byte drift gate, and a build time
+ * would fail it on every run made on a different second from the commit.
+ */
+
+/** One row of a generated props table. Assignable to fumadocs' \`TypeNode\`. */
+export interface GeneratedProp {
+  /** The type exactly as the interface writes it. */
+  type: string
+  /** The prop's doc comment with its tags removed. Absent when it has none. */
+  description?: string
+  /** The value of an \`@default\` or \`@defaultValue\` tag, when there is one. */
+  default?: string
+  /** False when the prop is declared optional. */
+  required: boolean
+}
+
+/** One interface's props, keyed by prop name, in declaration order. */
+export type GeneratedPropsTable = Record<string, GeneratedProp>
+
+/** Keyed by the exported interface name: \`StatusPillProps\`. */
+export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
+${tables.join("\n")}${tables.length > 0 ? "\n" : ""}}
+
+/** Interface name to the file it is exported from, relative to apps/www. */
+export const PROPS_SOURCES: Record<string, string> = {
+${sources.join("\n")}${sources.length > 0 ? "\n" : ""}}
+
+export const PROPS_META: { interfaces: number; props: number } = {
+  interfaces: ${sorted.length},
+  props: ${propCount},
+}
+`
+}
+
+/* ------------------------------------------------------------------ *
  * Main                                                                *
  * ------------------------------------------------------------------ */
 
@@ -955,6 +1381,26 @@ async function main(): Promise<void> {
     const file = join(API_DIR, `${symbol.name}.mdx`)
     outputs.push({ file, contents: apiPage(symbol, file) })
   }
+
+  /* The props map goes through the same `outputs` list as the pages, so
+     `--check` covers it without a second code path. It is emitted even when
+     nothing is built: an empty map renders <NoDataYet>, and a module that
+     appears only once a component exists would make the import in
+     components/docs/tables.tsx fail on a clean checkout. */
+  const propsInterfaces = extractPropsInterfaces()
+  const duplicates = propsInterfaces
+    .map((entry) => entry.name)
+    .filter((name, index, all) => all.indexOf(name) !== index)
+  if (duplicates.length > 0) {
+    /* Two files exporting the same interface name would silently collapse into
+       one key, and the surviving one would depend on directory order. Say so
+       rather than publish whichever won. */
+    console.warn(
+      `build-reference: duplicate props interface name(s): ${[...new Set(duplicates)].join(", ")}. ` +
+        "Each component's props interface name must be unique across registry/bases/.",
+    )
+  }
+  outputs.push({ file: PROPS_MODULE, contents: propsModule(propsInterfaces) })
   /* api/meta.json is hand-written and already carries a "..." rest entry, so
      every generated symbol page is picked up without this script owning the
      ordering of a directory it only partly writes. */
@@ -990,7 +1436,8 @@ async function main(): Promise<void> {
   console.log(
     [
       `build-reference: ${specs.length} reference pages, ${documented.length} symbol pages ` +
-        `of ${symbols.length} exported symbols; ${writtenCount} changed.`,
+        `of ${symbols.length} exported symbols, ` +
+        `${propsInterfaces.length} props interfaces; ${writtenCount} changed.`,
       emptyPages > 0
         ? `  ${emptyPages} of ${specs.length} render <NoDataYet>: their source data does not exist yet.`
         : "",

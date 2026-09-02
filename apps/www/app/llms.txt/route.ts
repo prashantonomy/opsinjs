@@ -20,7 +20,7 @@
 
 import {
   SITE_NAME,
-  SITE_SUMMARY,
+  siteSummary,
   SITE_TAGLINE,
   DOCS_VERSION,
   GENERATED_AT,
@@ -56,7 +56,7 @@ export function GET(): Response {
     "",
     `> ${SITE_TAGLINE}`,
     "",
-    SITE_SUMMARY,
+    siteSummary(),
     "",
     `Docs version ${DOCS_VERSION}. Corpus compiled ${GENERATED_AT}. ${pages.length} pages${tally ? ` (${tally})` : ""}.`,
     "",

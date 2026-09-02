@@ -1,0 +1,148 @@
+---
+title: "0009 — The default export is a demo, not the component"
+description: Every registry file exports a named component with its real required props and a separate zero-argument demo as its default export.
+status: stable
+kind: project
+owner: core
+reviewed: 2026-09-03
+reviewer: engineering
+reviewEvery: 12m
+aliases: [default export, demo export, zero prop demo, why two exports]
+---
+
+<PageTemplate kind="project" />
+
+## Status
+
+**Accepted.** 2026-09-03. Verified against the pipeline fixture at
+`registry/bases/base/status-pill.tsx`, which renders at
+`/view/base/base-lyra/component/status-pill` and typechecks against the emitted
+index.
+
+## Context
+
+One file has to satisfy three readers who want incompatible things from it.
+
+**The preview route wants something it can render with no arguments.** The
+isolated `/view` page resolves a registry entry, awaits the dynamic import and
+renders `(await entry.component()).default` as `<Preview />` — with no props at
+all. There is nowhere for a prop to come from: the URL carries a base, a style, a
+kind and a name, and nothing else. Screenshot tooling drives the same URL.
+
+**The specifications want required props with no defaults.** `StatusPillProps`
+documents `status` as "Required. There is no neutral default and no 'unknown'
+level". That is not an oversight to be tidied away with a default value. A
+component that defaults a clinical status has asserted something about a reader
+that nobody decided to say, which is the failure
+[ADR 0003](0003-two-colour-axes.mdx) and
+[Clinical status semantics](../../health/clinical-status-semantics.mdx) exist to
+prevent. `RangeBar`, `ResultCard` and `Value` are the same shape: the required
+props are required because the product owns the answer.
+
+**The consumer wants the file.** Under [ADR 0002](0002-shadcn-registry-distribution.mdx)
+the unit of distribution is the source text, so whatever this file contains is
+what `npx shadcn add` writes into somebody's repository. The page shows the same
+text: `<ComponentSource>` resolves a name against the registry and has no `code`
+prop, deliberately, so a page cannot display a tidied version of a file that
+ships untidy.
+
+There is also a typing constraint that decides the question on its own. The
+generated index types the loader as
+`(() => Promise<{ default: ComponentType<Record<string, unknown>> }>) | null`,
+`registry/bases/**` is typechecked under `strict`, and `Record<string, unknown>`
+is not assignable to an interface with a required `status: ClinicalStatus`. A
+default export that is the component does not compile.
+
+## Decision
+
+**Every file under `registry/bases/<base>/` has exactly three public exports, in
+this order:**
+
+```tsx
+export interface StatusPillProps { /* … */ }
+export function StatusPill(props: StatusPillProps) { /* the real component */ }
+export default function StatusPillDemo() {
+  return <StatusPill status="watch" label="Example measurement" />
+}
+```
+
+- The props interface is a **named exported interface**, never an inline object
+  type and never `ComponentProps<typeof Something>`. It is what the generated
+  props table is built from, and an anonymous type produces an empty table.
+- The component is a **named export** carrying its real required props. Nothing
+  is made optional to suit the preview.
+- The default export is a **zero-argument function declaration** named
+  `<Pascal>Demo`. Never `export default StatusPill`, and never a default export
+  that takes props.
+
+## Consequences
+
+- **The demo is public, reviewed, shipped code.** The source block on the page
+  shows the whole file and `shadcn add` writes the whole file, so the demo is
+  held to the same standard as the component beside it: no placeholder strings,
+  no invented measurements, and only the synthetic example data of
+  [ADR 0012](0012-synthetic-example-data.mdx).
+- **The generated index typechecks.** A zero-argument function is assignable to
+  `ComponentType<Record<string, unknown>>`, so the emitted
+  `component: () => import(…)` compiles without widening the type in
+  `scripts/build-registry.mts`. That is the difference between a preview surface
+  that works and one whose generator has to be loosened to accommodate it.
+- **One preview per component, and it is not configurable.** The `/view` route
+  can only ever show the demo, because it has no channel through which to send
+  anything else. A second state — the empty value, the `urgent` level, the long
+  label — is a file under `registry/examples/`, addressable at
+  `/view/base/base-lyra/example/<name>` and named by `<ComponentPreview>`. This
+  is the constraint that makes the examples directory necessary rather than
+  decorative.
+- **The demo is a second thing to keep true.** When the props change, the demo
+  changes, and nothing checks that it still demonstrates the component's
+  interesting case. It is reviewed as part of the file; there is no gate.
+- **A component whose demo is embarrassing is telling you something.** If the
+  only honest zero-prop rendering of a component is a shrug, either the component
+  needs a state it does not have, or the interesting behaviour belongs in an
+  example. Both are worth knowing before the page reaches `alpha`.
+
+## Alternatives considered
+
+**Export the component as the default and give every prop a default value.**
+Rejected. The defaults would have to include a clinical status, and there is no
+defensible one: `steady` is a verdict, `unknown` is not a fifth level, and
+omitting the prop entirely would make the component render an assertion nobody
+made. The rule that opsinjs never assigns a clinical level is the reason this
+system is worth shipping, and it is not negotiable for the convenience of a
+preview route.
+
+**Let `/view` pass props from the query string, or from a sidecar JSON file.**
+Rejected on two grounds. The props would be authored somewhere that is not
+reviewed alongside the component, so a preview could drift from the interface it
+claims to demonstrate without a compile error. And the encoding would become a
+format we have to version: `scripts/capture-registry.mts`, every documentation
+page and every hand-typed URL would have to agree on how a `ReferenceRange`
+serialises into a query string.
+
+**A sibling file, `status-pill.demo.tsx`, beside the component.** Rejected
+because of how the generator walks the tree. `findBuilt()` registers *every*
+direct child `.ts`/`.tsx` file under `registry/bases/<base>/` as a component, so
+the demo would acquire its own index entry and its own live
+`/view/base/base-lyra/component/status-pill.demo` route with no catalogue row
+behind it. Moving it into a subdirectory is worse: the walk is not recursive, so
+the file would be invisible and the failure silent.
+
+**Two exports, with the demo as a named export the route looks up by
+convention.** Rejected as a private protocol. `default` is the one name a dynamic
+import can rely on without the route and the generator agreeing on a naming
+scheme, and a naming scheme that only the preview surface knows about is the kind
+of thing that survives until somebody renames a file.
+
+## Revisiting this
+
+Revisit when a screenshot requirement cannot be expressed as a demo — capturing
+one component at all four status levels in a single frame is the obvious
+candidate. The answer there is probably a screen under `registry/screens/`, which
+already exists for exactly that job, rather than teaching `/view` to accept
+props. If `/view` does ever learn to pass props, this record is what has to
+change first, because the typing of the generated index follows from it.
+
+<LastUpdated />
+
+<Reviewed />

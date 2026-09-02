@@ -6,19 +6,26 @@ working protocol on top of it.
 
 ## The one-line summary
 
-This repo is a documentation site for a design system whose components do not exist
-yet. Your job is almost never to write a component. It is to write a *specification*
-precise enough that the component could be built from it, and honest enough that
-nobody — human or agent — mistakes it for something shipped.
+This repo is the documentation site for a design system whose component layer is being
+built, against specifications that were written first and are binding. So there are two
+jobs here and you have to know which one you are on. Writing a *specification* precise
+enough that the component could be built from it, and honest enough that nobody — human
+or agent — mistakes it for something shipped, is still most of the work. Building a
+component means building the one its specification already describes: you implement it,
+you do not redesign it, and you do not promote its page past what the code actually
+does.
 
 ## Before you edit
 
 1. `AGENTS.md` §2 (Next 16 has two root layouts and no `app/layout.tsx`) and §4
    (fumadocs 16 / mdx 15 API shapes) are the two places recall will betray you.
 2. Check whether the file you are about to touch is **generated**. If it is under
-   `lib/generated/`, `content/docs/reference/generated/`, `public/r/`, or is
-   `registry/__index__.ts` or `app/tokens.generated.css`, edit its *source* instead —
-   `tokens/*.json`, `registry/catalogue.ts`, or the emitting script.
+   `lib/generated/`, `registry/generated/`, `content/docs/reference/generated/`,
+   `content/docs/reference/api/`, `public/r/`, or is `registry/__index__.ts` or
+   `app/tokens.generated.css`, edit its *source* instead — `tokens/*.json`,
+   `registry/catalogue.ts`, a file under `registry/bases/`, or the emitting script.
+   Those seven paths are exactly what `check:generated` diffs; the authority is
+   `apps/www/package.json`, not this list.
 3. Check the page's `kind` frontmatter. It determines the headings exactly. Do not add
    a heading the outline for that `kind` does not have, and do not drop one it does.
 
@@ -35,9 +42,14 @@ When you say "don't", name what to do instead.
 `<NotBuiltYet>` (nothing renders here yet), `<StubNotice>` (this page is a spec — do not
 generate code against it), `<NoDataYet>` (this generated table has no source data yet,
 here is the script that will fill it), `<Todo>` (a measured gap). Use them instead of
-softening the truth in prose. The MDX vocabulary is **closed**: only the tags listed in
-the anatomy contract exist, `assert-ia` fails the build on any other JSX tag, and content
-work never defines a new one.
+softening the truth in prose. They are still required for everything that is not built,
+which is most of the corpus. A page sheds `<NotBuiltYet>`, `<StubNotice>` and `<Todo>`
+in the same commit that promotes it to `alpha`, and a promoted page carries none of
+those three. `<NoDataYet>` is different and may legitimately survive promotion: it means
+a generator has no source data yet, and an `alpha` page whose contrast pairs have not
+been measured must say so rather than print a table nobody produced. The MDX vocabulary is **closed**: only the
+tags listed in the anatomy contract exist, `assert-ia` fails the build on any other JSX
+tag, and content work never defines a new one.
 
 ## Health writing
 
@@ -80,4 +92,8 @@ do not fix it.
 Correct frontmatter (`status` and `kind` are mandatory) · exactly the headings its `kind`
 prescribes · relative MDX links, never absolute `/docs/` · every component id matched
 against the catalogue · every claim either generated, cited, or marked as opinion · and
-nothing anywhere that implies a component has been built.
+nothing anywhere that implies a component has been built when it has not. A component
+page earns `alpha` only once its file under `registry/bases/base/` renders at
+`/view/base/base-lyra/component/<id>` and `pnpm typecheck`, `pnpm lint` and `pnpm check`
+all pass; the page's `status` and its `registry/catalogue.ts` row move together, in one
+commit.

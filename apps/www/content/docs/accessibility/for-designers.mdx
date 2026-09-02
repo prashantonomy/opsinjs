@@ -22,9 +22,11 @@ free and you do not have to re-derive them per screen:
   token that has been measured against it. You do not choose a text colour to sit
   on a status surface; the pair is a token pair, and the measurement of that pair
   is published on [Contrast conformance](./contrast-conformance.mdx).
-- **Target size.** `--opsin-target-min` is `44px` in the product theme, and the
-  density setting deliberately does not touch it. Compact density moves spacing
-  only. A "compact" screen is never a harder screen to hit.
+- **Target size.** `--opsin-target-minimum` is `2.75rem` in the product theme —
+  44px at the default root font size, and it grows with the type when a reader
+  enlarges it. The density setting deliberately does not touch it either.
+  Compact density moves spacing only. A "compact" screen is never a harder
+  screen to hit.
 - **Chroma is gamut-aware, lightness is not.** The `@supports (color-gamut: p3)`
   block in the stylesheet raises chroma on wide-gamut displays and leaves
   lightness alone, so the measured contrast of every pair is identical on an sRGB

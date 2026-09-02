@@ -1,6 +1,7 @@
 import { isValidElement, type ReactNode } from "react"
 import Link from "next/link"
 
+import { isBuilt } from "@/lib/registry"
 import { apiSymbolPath, componentPath, docsPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import { CopyButton } from "./copy"
@@ -83,29 +84,47 @@ export interface AnatomyPart {
 export interface AnatomyProps {
   name: string
   parts?: AnatomyPart[]
+  /** Behaviour axis, for the registry lookup. */
+  base?: string
+  /** CSS axis, for the registry lookup. */
+  style?: string
   className?: string
 }
 
 /**
  * The labelled parts diagram.
  *
- * While the component is unbuilt there is nothing to overlay labels onto, so
- * the numbered list is rendered on its own beside the empty frame. That is not
- * a degraded version of the diagram — at `status: planned` the list IS the
- * specification of the parts, and it is what an implementation will be reviewed
- * against.
+ * The numbered list is the whole component at every status, and that is not a
+ * degradation. While the component is unbuilt there is nothing to overlay
+ * labels onto, so the list IS the specification of the parts and is what an
+ * implementation gets reviewed against; once it is built, the same list is the
+ * `data-slot` contract, one line per slot, in the order the parts nest. The
+ * not-built marker above it is the only thing that comes and goes, and it is
+ * resolved from the registry rather than assumed — a marker that stayed put
+ * after the component landed would make every built page read as unbuilt, which
+ * is the same defect as the reverse and rather harder to notice.
  */
-export function Anatomy({ name, parts, className }: AnatomyProps) {
+export function Anatomy({
+  name,
+  parts,
+  base,
+  style,
+  className,
+}: AnatomyProps) {
+  const built = isBuilt(name, base, style)
+
   return (
     <div
       className={cn("not-prose my-6", className)}
       data-opsinjs-anatomy={name}
     >
-      <NotBuiltYet name={name} className="mb-3">
-        The labelled diagram is drawn over a real render. There is nothing to
-        render, so the parts are listed instead — which is what the
-        implementation will have to match.
-      </NotBuiltYet>
+      {built ? null : (
+        <NotBuiltYet name={name} className="mb-3">
+          The labelled diagram is drawn over a real render. There is nothing to
+          render, so the parts are listed instead — which is what the
+          implementation will have to match.
+        </NotBuiltYet>
+      )}
 
       {parts?.length ? (
         <ol className="m-0 list-none space-y-2 p-0">

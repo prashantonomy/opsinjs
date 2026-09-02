@@ -54,17 +54,34 @@ axes at once.**
 | Sleep | `--opsin-category-sleep-*` | Duration, timing, quality, disturbance |
 | Nutrition | `--opsin-category-nutrition-*` | Intake, hydration, glucose, weight |
 | Mind | `--opsin-category-mind-*` | Mood, stress, cognition, wellbeing |
-| Cycle | `--opsin-category-cycle-*` | Menstrual and reproductive tracking |
+| Labs | `--opsin-category-labs-*` | Blood and other laboratory results reported by a testing service |
 
-Each category exposes three roles — `-accent`, `-surface`, `-ink` — and nothing
-else. There is no `--opsin-category-heart-danger`, and there never will be.
+Each category exposes four roles — `-surface`, `-line`, `-ink` and `-accent` —
+and nothing else. There is no `--opsin-category-heart-danger`, and there never
+will be.
 
 **Axis 2 — clinical status.** Four ordinal levels that mean "how does this sit
 against what is expected for you" and nothing about which body system produced
-it. Tokens live under `--opsin-status-*`, with roles `-surface`, `-line`, `-ink`:
+it. Tokens live under `--opsin-status-*`, with the same four roles:
 
 `--opsin-status-steady-*` · `--opsin-status-watch-*` ·
 `--opsin-status-attention-*` · `--opsin-status-urgent-*`
+
+There is a fifth stem, `--opsin-status-unknown-*`, and it is deliberately
+**not** a fifth level. `unknown` is the absence of an assertion — no reading,
+a stale reading, or a reading whose reference range the product does not own —
+and colouring it anywhere near `watch` would let a reader take "we do not
+know" for "probably fine".
+
+The two axes share that role vocabulary and disagree about which role the bare
+name means. In Tailwind, `bg-status-urgent` resolves to the **line**;
+`bg-category-heart` resolves to the **accent**. The other three roles are
+always spelt out. The asymmetry follows from what each axis is usually doing —
+a status is a boundary, an icon stroke or a badge edge; a category is a fill —
+and it is the one detail here worth memorising, because the two bare class
+names look symmetrical and are not. `-accent` is chosen for recognition rather
+than for contrast, so it never carries text and is never the sole boundary:
+text is `-ink` on `-surface`, and edges are `-line`.
 
 The meanings, the tone and the assignment rules are on
 [Clinical status semantics](./clinical-status-semantics.mdx).

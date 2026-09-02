@@ -34,6 +34,62 @@ groups; that is acceptable because `(view)` is only ever entered by iframe or di
 Non-page files (`app/icon.svg`, `app/robots.ts`, `app/sitemap.ts`, `app/proxy.ts`, all
 route handlers) stay at `app/` and are unaffected by the grouping.
 
+## Where a built component lives
+
+The component layer is being built against the twenty-four specifications that already
+exist under `content/docs/components/`. Those specifications are binding: you implement
+against them, you do not redesign them, and where one genuinely contradicts itself you
+resolve it deliberately with an ADR and fix the losing side in the same commit.
+
+A component page moves to `alpha` only once its component renders at
+`/view/base/base-lyra/component/<id>` with `data-opsin-view-state="ready"` and the gates
+pass — and its catalogue row's `status` moves in the same commit. Everything not yet
+built keeps the honesty vocabulary (`<NotBuiltYet>`, `<StubNotice>`, `<NoDataYet>`,
+`<Todo>`), which is still most of the corpus.
+
+`registry/` is where the code lands. The mechanics are app-local and easy to get wrong
+from recall:
+
+```
+registry/bases/base/<id>.tsx       one flat file per component; the stem IS the
+                                   catalogue id, the docs URL segment and the
+                                   registry item name — there is no mapping table
+registry/examples/<id>-<name>.tsx  variations rendered by <ComponentPreview kind="example">
+registry/screens/<id>.tsx          whole-screen compositions
+registry/__index__.ts              GENERATED from the three directories above
+```
+
+`findBuilt()` in `scripts/build-registry.mts` walks the **direct children** of those
+directories and nothing deeper. Two consequences that cost an afternoon each:
+
+- **It is not recursive, and it skips `index.*`.** `registry/bases/base/<id>/index.tsx`
+  produces no index entry, no `/view` route and no preview, and every gate stays green
+  while nothing works. One flat file per component.
+- **Every `.ts`/`.tsx` direct child becomes a component.** A helpers file dropped in
+  beside the components gets a registry entry, a live
+  `/view/base/base-lyra/component/<name>` route, and no catalogue row to back it.
+  Shared code goes in `lib/`, not here.
+
+`registry/__index__.ts` is generated and drift-gated: an entry appears there the moment
+a real file exists, and `getRegistryEntry()` returning null is what makes
+`<ComponentPreview>` render `<NotBuiltYet>`. Never hand-edit it — `predev` and
+`prebuild` both run `generate`, so a stale index cannot survive a dev start, and an
+unexpected regeneration diff will appear in `git status` mid-session.
+
+Tailwind already scans the registry from **both** stylesheets — `app/globals.css:49`
+and `app/product.css:25` each declare `@source "../registry/**/*.{ts,tsx}";` — so
+utility classes written in a new component file are in the content graph with no config
+change. The `product.css` one is the one that matters: it is the sheet a component
+actually renders against.
+
+**The palette a component renders against is `app/product.css`, not `app/globals.css`.**
+A preview is an iframe into `(view)`, which imports only `product.css`, so anything
+declared solely in `globals.css` — the lyra docs chrome's `--secondary`, `--accent`,
+`--destructive`, `--popover`, `--sidebar*`, `--chart-*` and the larger radii — resolves
+to nothing there. A component using them looks correct in review and renders unstyled in
+the product. `product.css`'s `@theme inline` block is the whole list of what is
+available.
+
 ## fumadocs 16 API, as used here
 
 - Source map: `import { docs } from "@/.source"` → `loader()` in `lib/source.ts`.

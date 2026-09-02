@@ -11,17 +11,19 @@ aliases: [status colour, redefine status, four levels, urgent colour]
 ## Overview
 
 Every other tier-1 ramp in opsinjs is a starting point. The status ramp is not.
-It has four ordinal levels — token ids `expected`, `watch`, `act` and `urgent` —
-and this page argues that you should leave them alone, then tells you how to
-change them safely if that argument does not survive contact with your
-organisation.
+It has four ordinal levels — token ids `steady`, `watch`, `attention` and
+`urgent` — plus a fifth stem, `unknown`, which is the absence of a verdict rather
+than a fifth degree of one. This page argues that you should leave all of them
+alone, then tells you how to change them safely if that argument does not survive
+contact with your organisation.
 
 What the four levels *mean*, who may assign one, and what word a reader
 actually sees are decided in
 [Clinical status semantics](../health/clinical-status-semantics.mdx), which is
 canonical and which this page does not restate. The token id is a machine
-identifier. It is not a label, and no patient should ever see the string
-`expected`.
+identifier and it is not the label: `attention` is the name of a ramp, "Needs
+attention" is what the reader sees, and no patient should ever be shown the raw
+id.
 
 ## Why this axis is closed
 
@@ -58,18 +60,21 @@ is the safety net, not the design. Do not spend it.
 
 Three things are yours, and none of them are the ramp.
 
-**The words.** `expected` may be rendered as "In range", "Normal for you",
-"Usual" or your clinical reviewer's preferred phrasing. That is a content
-decision governed by
-[Writing status and alerts](../content/writing-status-and-alerts.mdx), not a
-token decision, and changing it costs nothing structurally.
+**The sentence around the word** — not the word. The four status words are fixed
+in `lib/status.ts`, and a component reads them from `CLINICAL_STATUS_META` rather
+than taking them as a prop, for the same reason the ramp is closed: four consumers
+that never talk to each other must not end up saying four different things. What
+is yours is everything else in the sentence — the measurement, the comparison, the
+single action. That is a content decision governed by
+[Writing status and alerts](../content/writing-status-and-alerts.mdx), not a token
+decision, and changing it costs nothing structurally.
 
 **The thresholds.** Which value maps to which level is your product's business
 logic, and opsinjs deliberately owns none of it. See
 [Reference ranges](../health/reference-ranges.mdx).
 
 **Which levels you use.** Nothing requires all four. A logging app that never
-escalates may only ever render `expected` and `watch`. Using two of four is
+escalates may only ever render `steady` and `watch`. Using two of four is
 correct; inventing a third meaning for one of them is not.
 
 ## When you must change the ramp
@@ -106,8 +111,8 @@ reverted by `pnpm run check:generated`.
 ### Preserve the ordering
 
 The four levels are **ordinal**. Whatever you choose, `urgent` must read as more
-urgent than `act`, which must read as more urgent than `watch`. If your palette
-makes `watch` the loudest thing on the screen, you have kept the ids and
+urgent than `attention`, which must read as more urgent than `watch`. If your
+palette makes `watch` the loudest thing on the screen, you have kept the ids and
 inverted the meaning, which is worse than having no status colour at all.
 
 ### Preserve the distance
@@ -186,7 +191,7 @@ category ramp changed, you edited a shared rung.
 Separate them by lightness rather than by chroma; chroma differences collapse
 first under low ambient light and under simulation.
 
-**The docs chrome and my product disagree about what `act` looks like.** They
+**The docs chrome and my product disagree about what `attention` looks like.** They
 are meant to: the chrome renders the docs theme and previews render the product
 theme in a separate document. That is [Lyra and the docs
 chrome](./lyra-and-the-docs-chrome.mdx), not a bug.

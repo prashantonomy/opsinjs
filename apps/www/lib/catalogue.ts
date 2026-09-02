@@ -230,8 +230,17 @@ export interface CatalogueIndexRow {
   status: Status
   since: string
   aliases: string[]
-  implemented: false
+  /**
+   * True when a real source file exists under `registry/bases/<base>/` for this
+   * id. Answered by the caller — see `toIndexRow` — because the only honest
+   * answer is a directory listing, and this module cannot see one.
+   */
+  implemented: boolean
   docs: string | null
+  /** npm packages a consumer's `shadcn add` installs alongside this component. */
+  dependencies?: string[]
+  /** Other opsinjs components this one composes, by bare catalogue id. */
+  registryDependencies?: string[]
   useInstead?: string[]
   why?: string
 }
@@ -239,13 +248,29 @@ export interface CatalogueIndexRow {
 /**
  * One row of `/r/index.json` and of the generated catalogue reference page.
  *
- * `implemented` is hardcoded `false` and typed as the literal, so that the day
- * something ships this projection fails to compile rather than continuing to
- * tell every agent that nothing is built.
+ * `implemented` used to be a hardcoded `false` typed as the literal, with a
+ * comment promising the projection would fail to compile the day something
+ * shipped. It would not have: a constant is not derived from anything, so
+ * shipping a component changed no input and `tsc` stayed green. Something has
+ * now shipped, and the field is a real `boolean` supplied by a caller that can
+ * see the built set.
+ *
+ * `isBuilt` is a REQUIRED parameter and deliberately has no default. Two
+ * defaults were considered and both rejected. Defaulting to `false` reinstates
+ * exactly the lie this change removes. Defaulting to a read of `REGISTRY_INDEX`
+ * from `../registry/__index__.ts` looks better and is worse: this projection's
+ * one caller is `scripts/build-registry.mts`, which is the program that *writes*
+ * that index, so during a generate run it would read the previous run's output —
+ * `lib/generated/catalogue.json` would lag a run behind `registry/__index__.ts`,
+ * two successive generates would differ, and `pnpm check:generated` would fail on
+ * a file nobody edited. A required parameter makes every call site answer the
+ * question from something it can actually see; the generator answers it from the
+ * `findBuilt()` walk it has already done.
  */
 export function toIndexRow(
   entry: CatalogueEntry,
-  docsUrl: (id: string) => string
+  docsUrl: (id: string) => string,
+  isBuilt: (id: string) => boolean
 ): CatalogueIndexRow {
   return {
     name: entry.name,
@@ -256,8 +281,10 @@ export function toIndexRow(
     status: entry.status,
     since: entry.since,
     aliases: entry.aliases,
-    implemented: false,
+    implemented: isBuilt(entry.name),
     docs: entry.status === "considered" ? null : docsUrl(entry.name),
+    dependencies: entry.dependencies,
+    registryDependencies: entry.registryDependencies,
     useInstead: entry.useInstead,
     why: entry.why,
   }

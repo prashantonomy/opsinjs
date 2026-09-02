@@ -42,29 +42,37 @@ Under simulated protanopia and deuteranopia, the perceptual space collapses
 roughly onto a blue–yellow axis. The consequences for the two axes are not
 symmetric:
 
-- **The status axis loses most of its separation.** `expected` (hue 150),
-  `act` (hue 55) and `urgent` (hue 25) converge toward similar yellows and
-  browns. `watch` (hue 85) was already in that region. The four levels do not
-  become identical, but the differences shrink to the point where a reader
-  cannot rely on them at a glance, which is the only way anybody reads a status.
-- **The category axis mostly survives**, because its six hues are spread around
-  the wheel — 12, 60, 150, 225, 275 and 300 — rather than clustered on one arc,
-  and because a category is identity rather than a verdict, so a reader who
-  confuses two of them loses much less.
+- **The status axis loses most of its separation.** Three of its four seeds
+  already sit on one warm arc — `urgent` (hue 27), `attention` (hue 45),
+  `watch` (hue 82) — and `steady` (hue 178) does not stay clear of them under
+  simulation despite sitting half a wheel away. The four levels do not become
+  one colour, but the differences shrink to the point where a reader cannot
+  rely on them at a glance, which is the only way anybody reads a status.
+- **The category axis loses separation too, and it costs less.** Its six hues
+  are spread right around the wheel — heart 15, nutrition 70, activity 140,
+  labs 210, sleep 275, mind 310 — and a wide spread turns out not to be
+  immunity: the audit records category pairs collapsing under every condition
+  it simulates. What differs is the consequence. A category is identity rather
+  than a verdict, so a reader who confuses two of them loses a glance, not a
+  decision.
 
-Under tritanopia the failure is different: the blue–violet end suffers, so
-`sleep` and `metabolic` converge while the status axis holds up better.
+Under tritanopia the failure moves rather than lifts: the blue–violet end suffers,
+so `sleep` and `mind` converge, and the status axis does not get off either —
+`steady` and `urgent` are among the pairs the audit records collapsing there.
 
 Under **greyscale** the status axis fails almost completely, and it is important
 to say so rather than to claim a ladder that does not exist. The four status
-surfaces sit within a few hundredths of each other in lightness, and the four
-`line` values are not monotonic in lightness at all — `watch` is the lightest,
-`urgent` the darkest, and `expected` and `act` fall between them out of order.
-That is a consequence of stage 6 of the derivation, which picks each `line` step
-to maximise chroma while clearing its floor, and available chroma is
-hue-dependent. Making the four levels a lightness ramp *as well* as a hue ramp
-would mean giving up either the chroma the status axis needs or the fixed
-lightness ladder the rest of the system depends on.
+surfaces do not merely sit close together in lightness; they are the same rung.
+One lightness ladder serves every chromatic ramp, so that a given step means the
+same lightness in a heart ramp and in an urgent one, and the role mapping pins
+`surface` to step 50, `line` to 600 and `ink` to 800 in the light theme. Four
+ramps, one rung each: desaturate them and the four surfaces are one grey, and so
+are the four lines. The only status role whose lightness varies at all is
+`accent`, because in light it is the design seed used verbatim — and it is not
+monotonic either. `watch` is the lightest, `urgent` the darkest, and `steady` and
+`attention` fall between them out of order. Making the four levels a lightness
+ramp *as well* as a hue ramp would mean giving up either the chroma the status
+axis needs or the fixed lightness ladder the rest of the system depends on.
 
 <Callout title="What “status must survive greyscale” means here">
   It means the *meaning* survives — that a greyscale screenshot, a photocopy or a
@@ -82,8 +90,11 @@ component-level rule is structural rather than advisory: a component that can
 render a status without its word does not pass review.
 
 1. **The word.** Always present, always adjacent, never a tooltip and never
-   behind a hover. The token names — `expected`, `watch`, `act`, `urgent` — are
-   not the words; the reader-facing language is a content decision made in
+   behind a hover. The token names — `steady`, `watch`, `attention`, `urgent` —
+   are close to the words without being them: `attention` renders as "Needs
+   attention", and the absence of a reading renders as "Not known". The rendered
+   word is fixed in `lib/status.ts`; the sentence around it is the content
+   decision, made in
    [Writing status and alerts](../../content/writing-status-and-alerts.mdx) and
    governed by
    [Clinical status semantics](../../health/clinical-status-semantics.mdx).
@@ -124,9 +135,10 @@ rule. Everything below is an application of it.
 
 <DoDont>
   <DoDont.Do>
-    A status pill that reads `Act now` with a distinct glyph, on the `act`
-    surface. Remove the colour and it still says what it is. Remove the word and
-    it does not — which is why the component will not render without it.
+    A status pill that reads "Needs attention", with its own glyph, on the
+    `attention` surface. Remove the colour and it still says what it is. Remove
+    the word and it does not — which is why the component will not render without
+    it.
   </DoDont.Do>
   <DoDont.Dont>
     A coloured dot in a list of readings, with a key at the bottom of the screen
@@ -171,10 +183,12 @@ category through colour alone; every status ships with a word and a distinct
 glyph; the simulation audit runs over the full declared pair set and is
 published with the theme it was run against.
 
-**What is yours.** The words. We guarantee that there is a slot for one and that
-the component will not render without it; we cannot guarantee that what you put
-in it is meaningful, and "Alert" is not. The same applies to any status you
-compute yourself from a threshold we do not own —
+**What is yours.** The sentence around the word, not the word. The status word
+is fixed — the component reads it from `lib/status.ts` and will not render
+without it — so what you own is the measurement, the comparison and the action
+beside it. We cannot guarantee those are meaningful, and "Alert" is none of
+them. The same applies to any status you compute yourself from a threshold we
+do not own —
 [Reference ranges](../../health/reference-ranges.mdx) draws that boundary.
 
 **What we do not attempt.** We do not ship a colour-blind-safe alternative

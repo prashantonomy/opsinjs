@@ -76,23 +76,73 @@ export const SITE_TAGLINE =
 /**
  * The one paragraph every machine surface opens with. It has to do two jobs at
  * once: say what the system is for, and say — before anything else is read —
- * that none of it is built, so a model does not answer a question about a
+ * how little of it is built, so a model does not answer a question about a
  * component by inventing its API.
+ *
+ * It is computed rather than asserted, and computed LAZILY.
+ *
+ * It cannot be a module-level `const`. `implementedComponents()` reaches through
+ * the reflective `pick()` seam into `lib/registry.ts`, which imports
+ * `lib/catalogue.ts`, which imports back through this module's own import graph;
+ * evaluating it while this module is still initialising throws a ReferenceError
+ * from inside `lib/catalogue.ts` and every `/r/*` route answers 500. Every caller
+ * is a `force-static` route, so this runs once at build time either way — the
+ * only thing eagerness bought was the crash.
  */
-export const SITE_SUMMARY = [
-  "opsinjs is a design system for screens where somebody who is not a clinician",
-  "reads their own health data — a blood-pressure reading, an HbA1c result, a",
-  "symptom log — and has to decide what, if anything, to do about it.",
-  "",
-  "NOTHING IN THIS SYSTEM IS IMPLEMENTED YET. Every component page is a",
-  "specification: intent, when not to use it (naming the alternative), the",
-  "clinical contract, the proposed anatomy and API, and the accessibility bar",
-  "the implementation must clear. Pages carry a machine-readable status. Do not",
-  "generate code against a proposed API and do not describe a component as",
-  "shipping. The tokens, the doctrine (health, accessibility, content,",
-  "foundations) and the measured contrast figures are real today; the React",
-  "components are not.",
-].join("\n")
+export function siteSummary(): string {
+  const built = implementedComponents()
+  const opening = [
+    "opsinjs is a design system for screens where somebody who is not a clinician",
+    "reads their own health data — a blood-pressure reading, an HbA1c result, a",
+    "symptom log — and has to decide what, if anything, to do about it.",
+    "",
+  ]
+
+  /* While nothing is built this is the original paragraph, word for word. It is
+     the string this scaffold exists to publish, and the whole point of it is
+     that a model reads it before it reads a proposed API. */
+  if (built.length === 0) {
+    return [
+      ...opening,
+      "NOTHING IN THIS SYSTEM IS IMPLEMENTED YET. Every component page is a",
+      "specification: intent, when not to use it (naming the alternative), the",
+      "clinical contract, the proposed anatomy and API, and the accessibility bar",
+      "the implementation must clear. Pages carry a machine-readable status. Do not",
+      "generate code against a proposed API and do not describe a component as",
+      "shipping. The tokens, the doctrine (health, accessibility, content,",
+      "foundations) and the measured contrast figures are real today; the React",
+      "components are not.",
+    ].join("\n")
+  }
+
+  /* Once something is built the old paragraph is simply false, on the surface a
+     model trusts most. The replacement has to do the same job in the other
+     direction: say how few, name them, and say that the rest are still
+     specifications — because a reader who saw "nothing is implemented" last week
+     must not now conclude that the roster shipped. The ids are listed here, and
+     only here, because this is the one payload that has no per-item rows to
+     carry the answer instead. */
+  const roster =
+    built.length === 1
+      ? `only one component is implemented: ${built[0]}.`
+      : `${built.length} components are implemented: ${built.join(", ")}.`
+
+  return [
+    ...opening,
+    `MOST OF THIS SYSTEM IS NOT IMPLEMENTED. Of the 24 specified components,`,
+    roster,
+    "Every other component page is a specification: intent, when not to use it",
+    "(naming the alternative), the clinical contract, the proposed anatomy and",
+    "API, and the accessibility bar the implementation must clear. Pages carry a",
+    "machine-readable status, and `/r/index.json` carries `implemented` per id.",
+    "Do not generate code against a proposed API and do not describe an",
+    "unimplemented component as shipping. The tokens, the doctrine (health,",
+    "accessibility, content, foundations) and the measured contrast figures are",
+    "real today.",
+  ].join("\n")
+}
+
+
 
 export const GITHUB_OWNER = "opsinjs"
 export const GITHUB_REPO = "opsinjs"
@@ -139,23 +189,43 @@ export const DOCS_VERSION: string =
  */
 export const GENERATED_AT = new Date().toISOString()
 
-/** Every machine payload carries the same provenance block. */
+/**
+ * Every machine payload carries the same provenance block.
+ *
+ * `implemented` and `notice` are computed from the built set rather than
+ * asserted, and they have to stay honest in both directions. While nothing is
+ * built the notice is the original sentence, word for word, because that is the
+ * string this scaffold exists to publish. Once something is built, "no opsinjs
+ * component is implemented yet" becomes a false statement on the surface an
+ * agent trusts most — and the replacement has to say how many, so that a reader
+ * who saw the old sentence does not conclude the whole roster shipped.
+ *
+ * The notice deliberately does NOT list the implemented ids. Every payload that
+ * carries this block already carries the per-item answer (`implemented` on a
+ * roster row, `meta.opsinjs.implemented` on an item), and a second list in prose
+ * is a second thing to keep in step.
+ */
 export function provenance(): {
   generator: string
   docsVersion: string
   generatedAt: string
   site: string
-  implemented: false
+  implemented: boolean
+  implementedCount: number
   notice: string
 } {
+  const count = implementedComponents().length
   return {
     generator: `${SITE_NAME}-docs`,
     docsVersion: DOCS_VERSION,
     generatedAt: GENERATED_AT,
     site: SITE_URL,
-    implemented: false,
+    implemented: count > 0,
+    implementedCount: count,
     notice:
-      "No opsinjs component is implemented yet. Every entry is a specification. Do not generate code against a proposed API.",
+      count === 0
+        ? "No opsinjs component is implemented yet. Every entry is a specification. Do not generate code against a proposed API."
+        : `${count} opsinjs component${count === 1 ? " is" : "s are"} implemented. Every other entry is a specification or a reserved name, not code. Check \`implemented\` on the roster row, or \`meta.opsinjs.implemented\` on the item, before you assume a component exists, and never generate code against a proposed API.`,
   }
 }
 
@@ -211,6 +281,17 @@ export interface CatalogueRow {
   aliases: string[]
   governedBy: string[]
   usedIn: string[]
+  /**
+   * npm packages a consumer's `shadcn add` must install for this component's
+   * source to compile. Published as the item's `dependencies`.
+   */
+  dependencies: string[]
+  /**
+   * Other opsinjs components this one composes, as bare catalogue ids. They are
+   * namespaced on the way out — see `buildRegistryItem` — because shadcn
+   * resolves a bare dependency name against ui.shadcn.com, not against us.
+   */
+  registryDependencies: string[]
   extra: Record<string, unknown>
 }
 
@@ -241,6 +322,8 @@ const KNOWN_ROW_KEYS = new Set([
   "aliases",
   "governedBy",
   "usedIn",
+  "dependencies",
+  "registryDependencies",
 ])
 
 function normaliseRow(input: unknown): CatalogueRow | null {
@@ -272,6 +355,12 @@ function normaliseRow(input: unknown): CatalogueRow | null {
     aliases: toStringArray(row.aliases),
     governedBy: toStringArray(row.governedBy),
     usedIn: toStringArray(row.usedIn),
+    /* Named here rather than swept into `extra`. `extra` is spread into
+       `meta.opsinjs` verbatim, which is the wrong home for two fields the
+       registry specification has top-level slots for: an installer reads
+       `dependencies`, not `meta.opsinjs.dependencies`. */
+    dependencies: toStringArray(row.dependencies),
+    registryDependencies: toStringArray(row.registryDependencies),
     extra,
   }
 }
@@ -384,13 +473,26 @@ export interface RegistrySourceFile {
   path: string
   type: string
   target?: string
+  /**
+   * The file's own text, inlined.
+   *
+   * THIS FIELD IS THE DIFFERENCE BETWEEN AN INSTALL AND A NO-OP. shadcn 4.20's
+   * installer loop is `for (…) { if (!file.content) continue; … }` — a `files[]`
+   * entry with a path and a type but no content is skipped in silence, with no
+   * warning and a success message at the end. Every entry served from `/r`
+   * therefore carries its bytes; `scripts/build-registry.mts` reads them at
+   * generate time and inlines them into `registry/__index__.ts`, so nothing here
+   * touches the filesystem at request time.
+   */
+  content?: string
 }
 
 /**
  * `lib/registry.ts` — `getRegistryEntry(name, base, style)` over
- * `registry/__index__.ts`, which returns null while nothing is built. Today
- * that is every call; the branch exists so the routes do not have to change
- * when the first component lands.
+ * `registry/__index__.ts`, which returns null for an id nothing is built for.
+ * The lookup is by `kind: "component"`, so examples and screens — which exist in
+ * the index but are never distributed — are unreachable from here by
+ * construction.
  */
 export function getBuiltFiles(
   name: string,
@@ -419,9 +521,59 @@ export function getBuiltFiles(
       path: record.path,
       type: typeof record.type === "string" ? record.type : "registry:ui",
       target: typeof record.target === "string" ? record.target : undefined,
+      content: typeof record.content === "string" ? record.content : undefined,
     })
   }
   return result
+}
+
+/**
+ * Every distinct component id that has a real renderable behind it.
+ *
+ * The one question three separate surfaces need answered — the `implemented`
+ * flag and the notice in `provenance()`, and the `x-opsinjs-implemented` header
+ * on every response — and it is answered once, here, from the generated index
+ * rather than from a constant somebody has to remember to change.
+ *
+ * `REGISTRY_META.count` is deliberately not used: it counts index entries, which
+ * is files × styles, so it would report two implemented components the day a
+ * second style directory appears. Distinct names is the number a reader means.
+ *
+ * Memoised because `registry/__index__.ts` is a compile-time constant and `json`
+ * calls this on every response. The cache has the same lifetime as
+ * `catalogueCache`: the module, and the routes are all `force-static`.
+ */
+let implementedCache: string[] | null = null
+
+export function implementedComponents(): string[] {
+  if (implementedCache) return implementedCache
+
+  const names = new Set<string>()
+  const fn = callable(
+    pick(registryModule, ["listByKind", "listBuilt", "listOfKind"])
+  )
+  if (fn) {
+    let entries: unknown
+    try {
+      entries = fn("component")
+    } catch {
+      entries = undefined
+    }
+    if (Array.isArray(entries)) {
+      for (const entry of entries) {
+        if (typeof entry !== "object" || entry === null) continue
+        const record = entry as Record<string, unknown>
+        if (typeof record.name !== "string") continue
+        /* An entry with a null `component` is a placeholder, not a component.
+           The generator never emits one today, and the guard costs nothing. */
+        if (record.component === null || record.component === undefined) continue
+        names.add(record.name)
+      }
+    }
+  }
+
+  implementedCache = [...names].sort((a, b) => a.localeCompare(b))
+  return implementedCache
 }
 
 /* ------------------------------------------------------------------ *
@@ -465,6 +617,36 @@ export function resolveWcag(): ((fg: string, bg: string) => number) | null {
 export const STATIC_CACHE_CONTROL =
   "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400"
 
+/**
+ * `x-opsinjs-implemented` answers "is the thing at THIS URL implemented".
+ *
+ * On a route that serves one registry item it is that item's answer; everywhere
+ * else — the index, the catalog, the corpus, `/llms.txt` — the URL is the
+ * system, so it is the system's answer. `serveRegistryItem()` supplies the
+ * per-item value through `json()`'s caller-headers-last spread.
+ *
+ * The alternative was to make it uniformly system-scoped on every response, on
+ * the grounds that one header meaning two things is a header nobody can read
+ * without knowing the route. That reasoning is good and the conclusion was
+ * still wrong, because the failure it produces is not confusion but a false
+ * statement: `HEAD /r/card.json` would answer `true` for a component with no
+ * code, and a tool deciding whether to install would be told yes. A header that
+ * is ambiguous is worse than one that is precise; a header that is WRONG is
+ * worse than both. Nothing else in this repository is allowed to claim a
+ * component is built, and neither is this.
+ *
+ * `x-opsinjs-implemented-count` carries the system answer on every response, so
+ * the number the uniform header used to imply is still available and is now
+ * unambiguous about what it counts: distinct component ids with real source.
+ */
+function implementedHeaders(): Record<string, string> {
+  const count = implementedComponents().length
+  return {
+    "x-opsinjs-implemented": count > 0 ? "true" : "false",
+    "x-opsinjs-implemented-count": String(count),
+  }
+}
+
 export function json(
   body: unknown,
   init: { status?: number; headers?: Record<string, string> } = {}
@@ -475,7 +657,7 @@ export function json(
       "content-type": "application/json; charset=utf-8",
       "cache-control": STATIC_CACHE_CONTROL,
       "x-opsinjs-docs-version": DOCS_VERSION,
-      "x-opsinjs-implemented": "false",
+      ...implementedHeaders(),
       ...init.headers,
     },
   })
@@ -491,7 +673,7 @@ export function text(
       "content-type": init.contentType ?? "text/plain; charset=utf-8",
       "cache-control": STATIC_CACHE_CONTROL,
       "x-opsinjs-docs-version": DOCS_VERSION,
-      "x-opsinjs-implemented": "false",
+      ...implementedHeaders(),
     },
   })
 }

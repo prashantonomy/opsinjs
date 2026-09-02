@@ -243,6 +243,7 @@ component; those are unprefixed, undocumented, and may change in a patch.
 | `--opsin-material-card-tint-alpha` | `1` | Rung 1 (card): how opaque that tint is. |
 | `--opsin-material-card-blur` | `0px` | Rung 1 (card): backdrop blur radius. |
 | `--opsin-material-card-saturation` | `1` | Rung 1 (card): backdrop saturation multiplier. |
+| `--opsin-material-card-border` | `var(--opsin-neutral-200)` | Rung 1 (card): the boundary. |
 | `--opsin-material-card-shadow` | `none` | Rung 1 (card): the shadow that separates it from what is behind. |
 | `--opsin-material-card-scrim` | `0` | Rung 1 (card): the minimum scrim opacity needed for text on this rung to clear the contrast floor. |
 | `--opsin-material-card-opaque` | `var(--opsin-neutral-0)` | Rung 1 (card): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
@@ -250,22 +251,28 @@ component; those are unprefixed, undocumented, and may change in a patch.
 | `--opsin-material-raised-tint-alpha` | `1` | Rung 2 (raised): how opaque that tint is. |
 | `--opsin-material-raised-blur` | `0px` | Rung 2 (raised): backdrop blur radius. |
 | `--opsin-material-raised-saturation` | `1` | Rung 2 (raised): backdrop saturation multiplier. |
+| `--opsin-material-raised-border` | `var(--opsin-neutral-200)` | Rung 2 (raised): the boundary. |
 | `--opsin-material-raised-shadow` | `0 1px 2px oklch(0 0 0 / 0.06), 0 4px 12px oklch(0 0 0 / 0.06)` | Rung 2 (raised): the shadow that separates it from what is behind. |
 | `--opsin-material-raised-scrim` | `0` | Rung 2 (raised): the minimum scrim opacity needed for text on this rung to clear the contrast floor. |
 | `--opsin-material-raised-opaque` | `var(--opsin-neutral-0)` | Rung 2 (raised): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
 | `--opsin-material-sheet-tint` | `var(--opsin-neutral-0)` | Rung 3 (sheet): the tint over what is behind it. A bottom sheet or side panel the reader can dismiss by dragging. The blur keeps enough of the page visible that the reader knows where they will return to. |
+| `--opsin-material-sheet-tint-alpha` | `0.82` | Rung 3 (sheet): how opaque that tint is. |
 | `--opsin-material-sheet-blur` | `20px` | Rung 3 (sheet): backdrop blur radius. |
 | `--opsin-material-sheet-saturation` | `1.6` | Rung 3 (sheet): backdrop saturation multiplier. |
+| `--opsin-material-sheet-border` | `oklch(0 0 0 / 0.08)` | Rung 3 (sheet): the boundary. |
 | `--opsin-material-sheet-shadow` | `0 -1px 2px oklch(0 0 0 / 0.05)` | Rung 3 (sheet): the shadow that separates it from what is behind. |
 | `--opsin-material-sheet-scrim` | `0.82` | Rung 3 (sheet): the minimum scrim opacity needed for text on this rung to clear the contrast floor. |
 | `--opsin-material-sheet-opaque` | `var(--opsin-neutral-0)` | Rung 3 (sheet): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
 | `--opsin-material-overlay-tint` | `var(--opsin-neutral-0)` | Rung 4 (overlay): the tint over what is behind it. A pinned toolbar, a tab bar, a floating action bar — chrome that content scrolls beneath. |
+| `--opsin-material-overlay-tint-alpha` | `0.74` | Rung 4 (overlay): how opaque that tint is. |
 | `--opsin-material-overlay-blur` | `28px` | Rung 4 (overlay): backdrop blur radius. |
 | `--opsin-material-overlay-saturation` | `1.8` | Rung 4 (overlay): backdrop saturation multiplier. |
+| `--opsin-material-overlay-border` | `oklch(0 0 0 / 0.10)` | Rung 4 (overlay): the boundary. |
 | `--opsin-material-overlay-shadow` | `0 8px 32px oklch(0 0 0 / 0.12)` | Rung 4 (overlay): the shadow that separates it from what is behind. |
 | `--opsin-material-overlay-scrim` | `0.74` | Rung 4 (overlay): the minimum scrim opacity needed for text on this rung to clear the contrast floor. |
 | `--opsin-material-overlay-opaque` | `var(--opsin-neutral-0)` | Rung 4 (overlay): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
 | `--opsin-material-scrim-tint` | `var(--opsin-neutral-950)` | Rung 5 (scrim): the tint over what is behind it. The dimming layer behind a modal dialog or a consent sheet. Its job is to remove the page from consideration, not to look like glass. |
+| `--opsin-material-scrim-tint-alpha` | `0.44` | Rung 5 (scrim): how opaque that tint is. |
 | `--opsin-material-scrim-blur` | `2px` | Rung 5 (scrim): backdrop blur radius. |
 | `--opsin-material-scrim-saturation` | `1` | Rung 5 (scrim): backdrop saturation multiplier. |
 | `--opsin-material-scrim-border` | `none` | Rung 5 (scrim): the boundary. |
@@ -429,14 +436,21 @@ component; those are unprefixed, undocumented, and may change in a patch.
 | `--opsin-material-canvas-tint` | `var(--opsin-neutral-950)` | Rung 0 (canvas): the tint over what is behind it. The application background. Nothing is behind it, so nothing shows through it. |
 | `--opsin-material-canvas-opaque` | `var(--opsin-neutral-950)` | Rung 0 (canvas): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
 | `--opsin-material-card-tint` | `var(--opsin-neutral-900)` | Rung 1 (card): the tint over what is behind it. The default home for a health value. Opaque, bounded by a line rather than a shadow, and the rung every ResultCard, MetricTile and RangeBar sits on. |
+| `--opsin-material-card-border` | `var(--opsin-neutral-800)` | Rung 1 (card): the boundary. |
 | `--opsin-material-card-opaque` | `var(--opsin-neutral-900)` | Rung 1 (card): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
 | `--opsin-material-raised-tint` | `var(--opsin-neutral-800)` | Rung 2 (raised): the tint over what is behind it. Menus, popovers, tooltips, a dragged card. Still opaque: the shadow, not translucency, is what says 'above'. |
+| `--opsin-material-raised-border` | `var(--opsin-neutral-700)` | Rung 2 (raised): the boundary. |
 | `--opsin-material-raised-opaque` | `var(--opsin-neutral-800)` | Rung 2 (raised): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
 | `--opsin-material-sheet-tint` | `var(--opsin-neutral-900)` | Rung 3 (sheet): the tint over what is behind it. A bottom sheet or side panel the reader can dismiss by dragging. The blur keeps enough of the page visible that the reader knows where they will return to. |
+| `--opsin-material-sheet-tint-alpha` | `0.78` | Rung 3 (sheet): how opaque that tint is. |
+| `--opsin-material-sheet-border` | `oklch(1 0 0 / 0.10)` | Rung 3 (sheet): the boundary. |
 | `--opsin-material-sheet-opaque` | `var(--opsin-neutral-900)` | Rung 3 (sheet): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
 | `--opsin-material-overlay-tint` | `var(--opsin-neutral-900)` | Rung 4 (overlay): the tint over what is behind it. A pinned toolbar, a tab bar, a floating action bar — chrome that content scrolls beneath. |
+| `--opsin-material-overlay-tint-alpha` | `0.7` | Rung 4 (overlay): how opaque that tint is. |
+| `--opsin-material-overlay-border` | `oklch(1 0 0 / 0.12)` | Rung 4 (overlay): the boundary. |
 | `--opsin-material-overlay-opaque` | `var(--opsin-neutral-900)` | Rung 4 (overlay): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
 | `--opsin-material-scrim-tint` | `var(--opsin-neutral-1000)` | Rung 5 (scrim): the tint over what is behind it. The dimming layer behind a modal dialog or a consent sheet. Its job is to remove the page from consideration, not to look like glass. |
+| `--opsin-material-scrim-tint-alpha` | `0.6` | Rung 5 (scrim): how opaque that tint is. |
 | `--opsin-material-scrim-opaque` | `oklch(0 0 0 / 0.8)` | Rung 5 (scrim): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
 
 ### `@supports (color-gamut: p3)`

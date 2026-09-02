@@ -3,14 +3,42 @@
 Read this before writing a line. Several things here contradict what you probably
 learned from older Next.js, fumadocs and shadcn material.
 
-## 1. Nothing is built
+## 1. The component layer is being built
 
-`opsinjs` has **no components yet**. `apps/www/content/docs/components/*.mdx` are
-specifications, not documentation of working code. Do not "finish" them by writing an
-implementation, do not generate code against a proposed API, and never edit a page so
-that it reads as though the component exists. The honest vocabulary is `<NotBuiltYet>`,
-`<StubNotice>`, `<NoDataYet>` and `<Todo>` — and `<Todo>` is counted by the build's
-coverage report, so it is a measurement, not a shrug.
+The component pages under `apps/www/content/docs/components/` were written as
+specifications before any component existed, and those specifications are now being
+implemented against. Both halves of that sentence are load-bearing, and they pull in
+opposite directions, so establish which half you are on before you type.
+
+**A component that exists is documented, not proposed.** Its page carries `status:
+alpha`, a `<ComponentPreview>` that actually renders, and real `parts`/`tree`/`rows`
+data. A page reaches `alpha` only when its file under `registry/bases/base/` renders
+at `/view/base/base-lyra/component/<id>` and the gates pass — `pnpm typecheck`,
+`pnpm lint`, `pnpm check`. "It typechecks" is not "it renders". Frontmatter `status`
+and the `registry/catalogue.ts` row's `status` move in the same commit, because
+nothing cross-checks them for you.
+
+**Everything else is still a specification and must read as one**, and everything
+else is most of the corpus. Do not "finish" a spec by writing an implementation you
+were not assigned, do not generate code against a `## Proposed API`, and never edit a
+page so that it reads as though a component exists when it does not. The honest
+vocabulary is `<NotBuiltYet>`, `<StubNotice>`, `<NoDataYet>` and `<Todo>` — and
+`<Todo>` is counted by the build's coverage report, so it is a measurement, not a
+shrug. Those four markers are removed from a page in the same commit that promotes
+it, and not before.
+
+The directory listing of `registry/bases/base/` is the answer to "does code exist for
+this id". One flat `.tsx` file per component id; `scripts/build-registry.mts` registers
+every direct child and produces the index entry, the `/view` route and the preview. No
+file, no entry, and `<ComponentPreview>` renders `<NotBuiltYet>`. Read the directory
+rather than any prose about it, including this prose.
+
+It is not the answer to "is this ready to use". That takes three things agreeing: a file
+in the directory, the page's `status`, and the catalogue row's `status`. They are moved
+together, in one commit, and only after the component renders at `/view` and the gates
+pass. A file can be in the directory and the component still not be a component — a
+throwaway used to prove the pipeline is exactly that, and the honest signal is that the
+page is still `planned` and still carries its `<StubNotice>`.
 
 ## 2. This is not the Next.js you know
 
@@ -77,10 +105,13 @@ Node type stripping rejects anything that needs code generation.
 Prop tables, token tables, data-attribute tables, CSS-variable tables, contrast numbers,
 bundle sizes, catalogue rows and the glossary are **generated** into committed files.
 `pnpm check:generated` regenerates and then does `git add -N . && git diff --exit-code`
-over `lib/generated`, `registry/__index__.ts`, `app/tokens.generated.css`,
-`content/docs/reference/generated` and `public/r`. If you hand-edit one of those, CI
-fails — which is the point. Change the source (`tokens/*.json`, `registry/catalogue.ts`)
-and regenerate.
+over seven paths — `lib/generated`, `registry/__index__.ts`, `registry/generated`,
+`app/tokens.generated.css`, `content/docs/reference/generated`,
+`content/docs/reference/api` and `public/r`. The list here is the one in
+`apps/www/package.json`'s `check:generated` script; if the two ever disagree, that
+script wins and this line is the bug. If you hand-edit one of those paths, CI fails —
+which is the point. Change the source (`tokens/*.json`, `registry/catalogue.ts`, or the
+file under `registry/bases/` the generator reads) and regenerate.
 
 `app/tokens.generated.css` is emitted by `scripts/build-tokens.mts`. `app/globals.css`
 owns only the one `@import` line that pulls it in, at its fixed position.

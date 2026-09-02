@@ -122,6 +122,32 @@ export interface CatalogueEntry {
    */
   usedIn?: string[]
   /**
+   * npm packages this component's source imports, exactly as they appear in a
+   * `package.json`. `["@base-ui/react"]` for anything built on a Base UI
+   * primitive; `["lucide-react"]` for anything that renders a status icon.
+   *
+   * It is declared on the row rather than inferred from the source because a
+   * consumer's `shadcn add` installs precisely this list, and a list scraped
+   * from import statements would silently follow a refactor into installing
+   * something nobody reviewed. Omit it rather than writing `[]` — a component
+   * whose only imports are `@/lib/utils` and `@/lib/opsinjs` needs nothing.
+   */
+  dependencies?: string[]
+  /**
+   * Other opsinjs components this one composes, by bare catalogue id.
+   *
+   * `result-card` names `status-pill` and `value` here and never inlines a copy
+   * of either: a second copy of a status pill is a second place the two colour
+   * axes can drift apart. Bare ids, because the catalogue does not know what a
+   * registry namespace is — `app/_machine/registry-payload.ts` prefixes
+   * `@opsinjs/` when it serves the item, which is what makes shadcn resolve the
+   * dependency against this registry instead of against ui.shadcn.com.
+   *
+   * Every id must be a real catalogue `name`. A dependency on a `considered`
+   * row is a dependency on something that will never exist.
+   */
+  registryDependencies?: string[]
+  /**
    * Considered rows only: why it is not on the shipped roster, and what to
    * reach for instead. This is what an agent gets back instead of a 404, and it
    * is the reason the considered roster is in the catalogue at all.

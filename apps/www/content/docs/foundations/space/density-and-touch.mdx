@@ -35,10 +35,10 @@ a 44-point button passes. A 44-point icon with no padding and a 20-point hit are
 does not. What is measured is what responds to a tap.
 
 The product theme backstops this: buttons, elements with a button role, checkboxes
-and radios all carry a minimum block and inline size from `--opsin-target-min`.
-That is a safety net for something that slipped through, not a substitute for
-sizing a control properly — a backstop that stretches a control to the floor may
-produce a layout nobody intended.
+and radios all carry a minimum block and inline size from
+`--opsin-target-minimum`. That is a safety net for something that slipped
+through, not a substitute for sizing a control properly — a backstop that
+stretches a control to the floor may produce a layout nobody intended.
 
 **Corners take area away.** A rounded control has less tappable area on its
 diagonals than its bounding box implies, so the floor is measured on the real
@@ -100,8 +100,8 @@ removes a reading somebody recorded, both apply.
 
 ## Tokens
 
-`--opsin-target-min`, the minimum separation step and the per-mode density values
-are generated from `tokens/space.json` by `scripts/build-tokens.mts`.
+`--opsin-target-minimum`, the minimum separation step and the per-mode density
+values are generated from `tokens/space.json` by `scripts/build-tokens.mts`.
 
 <TokenTable scope="space" />
 

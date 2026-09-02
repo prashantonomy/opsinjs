@@ -116,6 +116,7 @@ the documentation site itself is a public type.
 | `deriveRamp` | function | `lib/color/derive.ts` | Build one ramp from a seed, clamping to sRGB and recording the P3 enhancement. |
 | `deriveTheme` | function | `lib/color/derive.ts` | Derive a complete, contrast-validated theme from one brand colour. |
 | [`DeriveWarning`](../api/DeriveWarning.mdx) | interface | `lib/color/derive.ts` | - |
+| [`Detent`](../api/Detent.mdx) | type | `lib/opsinjs.ts` | How far a sheet is open. |
 | `displayP3ToOklch` | function | `lib/color/oklch.ts` | Gamma-encoded Display-P3, 0–1 per channel → OKLCH. |
 | `DOCS_BASE` | const | `lib/routes.ts` | The docs base segment. Everything else derives from it. |
 | `docsMarkdownPath` | function | `lib/routes.ts` | The same page as processed markdown: `/docs/components/range-bar.md`. |
@@ -125,6 +126,7 @@ the documentation site itself is a public type.
 | `encodePreset` | function | `lib/preset.ts` | Encode a theme as a preset code. |
 | `encodeTransfer` | function | `lib/color/oklch.ts` | Light-linear channel → gamma-encoded. |
 | `entriesGovernedBy` | function | `lib/catalogue.ts` | Every component whose `governedBy` names this doctrine page. The reverse of `implements`. |
+| `EXAMPLE_SOURCE` | const | `lib/opsinjs.ts` | The only citation an opsinjs example, demo or preview may carry. |
 | `explainUnresolved` | function | `lib/registry.ts` | Explain an empty lookup. |
 | `findAliasProblems` | function | `lib/catalogue.ts` | The uniqueness check, as a function rather than as a comment. |
 | `findByAlias` | function | `lib/catalogue.ts` | - |
@@ -183,6 +185,7 @@ the documentation site itself is a public type.
 | `listBases` | function | `lib/registry.ts` | - |
 | `listByKind` | function | `lib/registry.ts` | Every entry of a kind, for the examples gallery and the screens index. |
 | `listStyles` | function | `lib/registry.ts` | - |
+| [`MaterialRung`](../api/MaterialRung.mdx) | type | `lib/opsinjs.ts` | A rung of the material ladder — how a surface sits above what is behind it. |
 | `maxChroma` | function | `lib/color/oklch.ts` | The largest chroma that is still inside `gamut` at this lightness and hue. |
 | `minimumFontSize` | function | `lib/color/apca.ts` | The smallest font size, in px, at which this Lc is usable at the given weight — a coarse reading of the APCA font-size guidance, not the full lookup table. |
 | `mixOklch` | function | `lib/color/oklch.ts` | Mix two OKLCH colours. |
@@ -214,6 +217,7 @@ the documentation site itself is a public type.
 | [`RampStep`](../api/RampStep.mdx) | type | `lib/color/derive.ts` | - |
 | [`RampStepValue`](../api/RampStepValue.mdx) | interface | `lib/color/derive.ts` | - |
 | `referencePath` | function | `lib/routes.ts` | - |
+| [`ReferenceRange`](../api/ReferenceRange.mdx) | interface | `lib/opsinjs.ts` | The interval a reading is being compared against, and who says so. |
 | `registryInstallUrl` | function | `lib/routes.ts` | What a consumer types to install an item. Rendered by `\<ComponentInstall\>`. |
 | [`RegistryLookup`](../api/RegistryLookup.mdx) | type | `lib/registry.ts` | Both call shapes are supported on purpose. |
 | `registryMeta` | function | `lib/registry.ts` | Provenance for the registry surfaces: when it was generated and from what. |
@@ -259,6 +263,7 @@ the documentation site itself is a public type.
 | `tokensUsedBy` | function | `lib/tokens.ts` | Every token one component consumes. |
 | `toRgb255` | function | `lib/color/oklch.ts` | 0–1 sRGB → 0–255 integers, clamped. |
 | `toRgb255Input` | function | `lib/color/apca.ts` | Coerce any accepted colour form to an sRGB triple. |
+| [`TrendPoint`](../api/TrendPoint.mdx) | interface | `lib/opsinjs.ts` | One reading in a series, for the components that draw change over time. |
 | `unknownImplementsIds` | function | `lib/catalogue.ts` | Validate a doctrine page's `implements` list. |
 | [`UnknownStatus`](../api/UnknownStatus.mdx) | type | `lib/status.ts` | The absence of an assertion — no reading, a stale reading, or a reading whose reference range the product does not own. |
 | [`UnresolvedReason`](../api/UnresolvedReason.mdx) | interface | `lib/registry.ts` | Why a lookup came back empty. The input to `\<NotBuiltYet\>`. |

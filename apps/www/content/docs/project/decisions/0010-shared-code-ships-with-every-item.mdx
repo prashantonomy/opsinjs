@@ -1,0 +1,181 @@
+---
+title: "0010 — Shared code ships inside every registry item"
+description: One substrate module, appended to every component's files list with its real content, so the same import path resolves in this repository and in a consumer's.
+status: stable
+kind: project
+owner: core
+reviewed: 2026-09-03
+reviewer: engineering
+reviewEvery: 12m
+aliases: [shared code, substrate module, lib opsinjs, shared module]
+---
+
+<PageTemplate kind="project" />
+
+## Status
+
+**Accepted.** 2026-09-03. Verified end to end against shadcn 4.20.0 rather than
+reasoned about: a registry item served from this repository installed into a
+throwaway app outside it, the substrate landed at `lib/opsinjs.ts` and
+`lib/status.ts`, a `registryDependencies` entry pulled its component in
+alongside, and `tsc --noEmit` on the result exited 0.
+
+## Context
+
+[ADR 0002](0002-shadcn-registry-distribution.mdx) makes the unit of distribution
+a file of source text rather than a package. That works cleanly for a component
+that imports nothing but React. It does not work at all for twenty-four
+components that have to agree with each other about what `watch` means.
+
+What they have to share is small, and none of it is decoration: the four clinical
+levels and the words for them, the six health categories, the icon name per
+level, the guard functions, the axis-conflict check, and the shapes that appear
+in more than one interface — a reference range, a trend point, a material rung.
+It already exists, in `lib/status.ts`, and it is already the thing the
+documentation site, the machine routes and the token pipeline all read.
+
+The failure mode of getting this wrong is unusually quiet. A component that
+imports `@/lib/opsinjs` compiles here, because `apps/www/tsconfig.json` maps
+`@/*` onto `./*`. In a consumer's repository the same import resolves only if a
+file exists at their `@/lib/opsinjs`. And shadcn's installer skips, without a
+message, any entry in an item's `files` list that has no `content` — so a
+registry item that names a file it does not carry installs cleanly, reports
+success, and leaves the consumer with a component that cannot compile and no
+error text to search for.
+
+The alternative to sharing is duplication, and duplication has a specific cost
+here rather than a general one. Twenty-four private copies of the status
+vocabulary are twenty-four places somebody can add a fifth level, rename
+`attention`, or quietly reintroduce a word from the banned list — and every one
+of those copies would typecheck.
+
+## Decision
+
+**One substrate module at `apps/www/lib/opsinjs.ts`, and it ships inside every
+component's registry item.**
+
+- The module **re-exports `lib/status.ts` and never re-declares it**. The
+  vocabulary is declared once, in the file the scripts and the site already read.
+  Shapes that only components need — a reference range, a trend point, a
+  material rung, the warning channel, the example-data literal of
+  [ADR 0012](0012-synthetic-example-data.mdx) — are declared in the substrate
+  module itself, once.
+- **A component imports from `@/lib/opsinjs`, from `@/lib/utils`, from
+  `@/registry/base-lyra/ui/<id>` when it composes another opsinjs component, and
+  from nothing else in this repository.** `@/lib/utils` is safe because
+  `shadcn init` writes `lib/utils.ts` into every consumer before anything is
+  installed. The third one needs its own paragraph, below, because it is the
+  specifier a reasonable person would not guess.
+- **`scripts/build-registry.mts` appends the substrate files to every component
+  item's `files` list**, each with `type: "registry:lib"` and real `content`.
+  shadcn resolves `registry:lib` against the `aliases.lib` entry in
+  `components.json`, which is `@/lib` here and `@/lib` in a default consumer, so
+  `@/lib/opsinjs` resolves identically in both trees.
+- **Nothing is rewritten on the way out.** The text a consumer receives is
+  byte-for-byte the text `<ComponentSource>` displays and the text this
+  repository reviews.
+
+The substrate is library code. Component-to-component composition is a different
+mechanism with two halves, and both are required. `registryDependencies` on the
+catalogue row is how `result-card` names `status-pill` and `value`, which is what
+makes `shadcn add` fetch and write them; it never inlines a copy of either. But a
+catalogue row does not compile anything — the importing FILE still has to name
+its dependency, and there is exactly one specifier that works in both trees:
+
+```tsx
+import { StatusPill } from "@/registry/base-lyra/ui/status-pill"
+```
+
+Neither obvious alternative survives. `@/components/ui/status-pill` resolves here
+to `apps/www/components/ui/`, which is the lyra documentation chrome — and
+`components/ui/button.tsx` already lives there and is emphatically not the
+opsinjs Button, so the collision is not hypothetical. `@/registry/bases/base/status-pill`
+resolves here but shadcn rewrites it to `@/components/base/status-pill`, a path
+nothing writes to, so the install reports success and the consumer's build fails
+afterwards — the worst of the available failures.
+
+The form above resolves here because `apps/www/tsconfig.json` maps
+`@/registry/base-lyra/ui/*` to `./registry/bases/base/*`, and it resolves there
+because shadcn's import transform matches `/^@\/registry\/(.+)\/ui/` and
+rewrites it to the consumer's `aliases.ui`. `base-lyra` is the style segment
+shadcn's own convention expects in that position; it is not a directory on disk
+and does not need to be.
+
+## Consequences
+
+- **Every item is self-sufficient**, so installation order does not matter and
+  there is no item a consumer has to know to install first. `shadcn add
+  @opsinjs/status-pill` into an empty project produces something that compiles.
+- **A filename collision is possible, and a prompt is the only thing standing in
+  the way.** `lib/status.ts` is a plausible name in somebody's repository. The
+  `target` is set explicitly so shadcn resolves a real path and prompts before
+  overwriting, but a consumer who accepts the prompt without reading it loses
+  their file. That is a permanent cost of copy-in distribution, it is the same
+  cost [ADR 0002](0002-shadcn-registry-distribution.mdx) accepted for
+  components, and the mitigation is documentation rather than machinery — see
+  [Upgrades and diffs](../../registry/upgrades-and-diffs.mdx).
+- **The substrate must never re-declare what it re-exports.** Two live
+  declarations of `ClinicalStatus` is exactly the drift this decision exists to
+  prevent, and it would typecheck in both trees while meaning two different
+  things in each.
+- **The substrate inherits the erasable-syntax constraint.** `scripts/*.mts` load
+  it under plain Node 24 type stripping, so no `enum`, no parameter properties,
+  no `namespace`, no JSX, and every relative import needs an explicit `.ts`
+  extension. A component file has no such constraint; the substrate does.
+- **Every item's payload grows, and a substrate change is a twenty-four-item
+  diff.** `/r/registry.json` and each `/r/<name>.json` now carry the shared text,
+  and editing one line of the substrate changes every published item. That is
+  visible and reviewable, which is the intended trade against invisible drift.
+- **One install writes the substrate once, however many components it pulls in.**
+  The installer merges the whole resolved tree and dedupes by resolved target
+  path before writing, so a component that names two others through
+  `registryDependencies` does not produce three copies of the same file. Across
+  separate installs the file is simply written again over an identical one.
+
+## Alternatives considered
+
+**A workspace npm package, `@opsinjs/core`.** The workspace is already declared
+for it — `pnpm-workspace.yaml` lists `packages/*` — and the directory does not
+exist on disk. Rejected on the deeper ground rather than that one: a package
+cannot travel through `/r/*.json`, because a registry item carries file contents
+and not a dependency resolver. Adopting one would mean a consumer runs an install
+command *and* adds an npm dependency, and the npm half reintroduces exactly the
+version coupling that [ADR 0002](0002-shadcn-registry-distribution.mdx) exists
+to avoid. The split that record draws — the registry is for components, the
+packages are for functions — puts a vocabulary of unions and words firmly on the
+registry side.
+
+**The substrate as its own registry item, named in every `registryDependencies`.**
+The mechanism is real: shadcn walks `registryDependencies` and merges the
+resulting tree. Rejected because the item route is catalogue-gated — an id with
+no catalogue row answers `unknown-item` with a 404 and a did-you-mean list. So
+making it resolve means a sixty-first catalogue row, and a catalogue row is not a
+cheap thing: it needs a documentation page or the build fails, an entry in
+`components/meta.json`, a slot in the global alias namespace, and it appears on
+the component roster and in `/r/index.json` alongside twenty-four components as
+though it were a twenty-fifth. Paying all of that for a file of type unions is
+the wrong shape.
+
+**Rewrite imports at generation time**, emitting a relative `./status` into the
+shipped copy. Rejected: the emitted file would then differ from the reviewed
+file. `<ComponentSource>` would show one thing and the consumer would receive
+another, and the version stamp described at
+[Version stamps](../../registry/version-stamps.mdx) would be stamped on text that
+nobody in this repository has read.
+
+**Duplicate the small parts into each component.** Rejected above, and worth
+restating as the reason this record exists at all: the cost is not the bytes, it
+is that a vocabulary with twenty-four copies is a vocabulary with no owner.
+
+## Revisiting this
+
+Revisit when the substrate grows past what a consumer would sit down and read, or
+when it acquires something algorithmic rather than declarative. The line is the
+one [ADR 0002](0002-shadcn-registry-distribution.mdx) already drew: a module that
+computes — deriving a ramp, converting between unit systems, scoring a
+questionnaire — belongs in a package that is imported, not in a file that is
+copied. A module that declares belongs here.
+
+<LastUpdated />
+
+<Reviewed />

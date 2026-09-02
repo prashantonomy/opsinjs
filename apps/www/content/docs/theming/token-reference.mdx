@@ -59,23 +59,28 @@ argument in full.
 
 ### Tier 1 — the status ramp
 
-Four ordinal levels. Each has a surface, a line and an ink slot, in light and in
-dark, with a Display-P3 escalation that raises chroma at identical lightness.
+Four ordinal levels, and a fifth stem for the absence of one. Each has a surface,
+a line, an ink and an accent slot, in light and in dark, with a Display-P3
+escalation that raises chroma at identical lightness.
 
-These are listed so you can read them, not so you can set them. The token ids
-are `expected`, `watch`, `act` and `urgent`; what each level *means*, who is
-allowed to assign it, and what word a reader actually sees are decided in
+These are listed so you can read them, not so you can set them. The token ids are
+`steady`, `watch`, `attention` and `urgent`, plus `unknown` — which is not a fifth
+level but the state where there is no reading to make a claim about. What each
+level *means*, who is allowed to assign it, and what word a reader actually sees
+are decided in
 [Clinical status semantics](../health/clinical-status-semantics.mdx), which is
 canonical. A token id is a machine identifier and is never the label you put in
-front of a patient.
+front of a patient: `attention` names a ramp, "Needs attention" is the word.
 
 <TokenTable scope="status" />
 
 ### Tier 1 — the category ramps
 
-Six identity ramps: `cardio`, `metabolic`, `respiratory`, `activity`, `sleep`,
-`body`. Deliberately low-chroma, because a category colour carries no verdict
-and must not be readable as one.
+Six identity ramps: `sleep`, `heart`, `activity`, `nutrition`, `mind`, `labs`.
+Deliberately low-chroma, because a category colour carries no verdict and must not
+be readable as one. Note the asymmetry with the status axis in Tailwind: the bare
+`category-<name>` is the **accent** role, while the bare `status-<level>` is the
+**line**.
 
 <TokenTable scope="category" />
 

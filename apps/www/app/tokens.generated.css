@@ -214,6 +214,7 @@
   --opsin-material-card-tint-alpha: 1;
   --opsin-material-card-blur: 0px;
   --opsin-material-card-saturation: 1;
+  --opsin-material-card-border: var(--opsin-neutral-200);
   --opsin-material-card-shadow: none;
   --opsin-material-card-scrim: 0;
   --opsin-material-card-opaque: var(--opsin-neutral-0);
@@ -221,22 +222,28 @@
   --opsin-material-raised-tint-alpha: 1;
   --opsin-material-raised-blur: 0px;
   --opsin-material-raised-saturation: 1;
+  --opsin-material-raised-border: var(--opsin-neutral-200);
   --opsin-material-raised-shadow: 0 1px 2px oklch(0 0 0 / 0.06), 0 4px 12px oklch(0 0 0 / 0.06);
   --opsin-material-raised-scrim: 0;
   --opsin-material-raised-opaque: var(--opsin-neutral-0);
   --opsin-material-sheet-tint: var(--opsin-neutral-0);
+  --opsin-material-sheet-tint-alpha: 0.82;
   --opsin-material-sheet-blur: 20px;
   --opsin-material-sheet-saturation: 1.6;
+  --opsin-material-sheet-border: oklch(0 0 0 / 0.08);
   --opsin-material-sheet-shadow: 0 -1px 2px oklch(0 0 0 / 0.05);
   --opsin-material-sheet-scrim: 0.82;
   --opsin-material-sheet-opaque: var(--opsin-neutral-0);
   --opsin-material-overlay-tint: var(--opsin-neutral-0);
+  --opsin-material-overlay-tint-alpha: 0.74;
   --opsin-material-overlay-blur: 28px;
   --opsin-material-overlay-saturation: 1.8;
+  --opsin-material-overlay-border: oklch(0 0 0 / 0.10);
   --opsin-material-overlay-shadow: 0 8px 32px oklch(0 0 0 / 0.12);
   --opsin-material-overlay-scrim: 0.74;
   --opsin-material-overlay-opaque: var(--opsin-neutral-0);
   --opsin-material-scrim-tint: var(--opsin-neutral-950);
+  --opsin-material-scrim-tint-alpha: 0.44;
   --opsin-material-scrim-blur: 2px;
   --opsin-material-scrim-saturation: 1;
   --opsin-material-scrim-border: none;
@@ -401,14 +408,21 @@
   --opsin-material-canvas-tint: var(--opsin-neutral-950);
   --opsin-material-canvas-opaque: var(--opsin-neutral-950);
   --opsin-material-card-tint: var(--opsin-neutral-900);
+  --opsin-material-card-border: var(--opsin-neutral-800);
   --opsin-material-card-opaque: var(--opsin-neutral-900);
   --opsin-material-raised-tint: var(--opsin-neutral-800);
+  --opsin-material-raised-border: var(--opsin-neutral-700);
   --opsin-material-raised-opaque: var(--opsin-neutral-800);
   --opsin-material-sheet-tint: var(--opsin-neutral-900);
+  --opsin-material-sheet-tint-alpha: 0.78;
+  --opsin-material-sheet-border: oklch(1 0 0 / 0.10);
   --opsin-material-sheet-opaque: var(--opsin-neutral-900);
   --opsin-material-overlay-tint: var(--opsin-neutral-900);
+  --opsin-material-overlay-tint-alpha: 0.7;
+  --opsin-material-overlay-border: oklch(1 0 0 / 0.12);
   --opsin-material-overlay-opaque: var(--opsin-neutral-900);
   --opsin-material-scrim-tint: var(--opsin-neutral-1000);
+  --opsin-material-scrim-tint-alpha: 0.6;
   --opsin-material-scrim-opaque: oklch(0 0 0 / 0.8);
 }
 
@@ -620,6 +634,89 @@
     --opsin-status-unknown-line: oklch(0.806 0.016 250);
     --opsin-status-unknown-ink: oklch(0.941 0.006 250);
     --opsin-status-unknown-accent: oklch(0.714 0.021 250);
+  }
+}
+
+/* Reduced transparency. A stated operating-system preference, not a hint,
+   and honoured by swapping each rung to its opaque fallback rather than by
+   removing the surface - the layering still has to communicate what is on
+   top of what.
+
+   Four properties move and no others. `-tint` becomes `-opaque`, and since
+   `-opaque` is itself theme-aware one declaration is correct in both
+   themes. `-tint-alpha` becomes 1, because a fallback composited at 0.74
+   is still translucent and the swap would achieve nothing. `-blur` becomes
+   0px. `-saturation` becomes 1 rather than 0: it multiplies the backdrop,
+   so 0 would drain the colour out of whatever is behind rather than leave
+   it alone, and 1 is the identity. `-border`, `-shadow` and `-scrim` are
+   deliberately untouched: they are what carries the layering once the
+   translucency is gone, and moving them would move the layout too.
+
+   Emitted for all six rungs rather than only the three with
+   `translucent: true`. For canvas, card and raised the declarations are
+   identical to the values above, so the block is a no-op for them; what it
+   buys is that a component may read `var(--opsin-material-<rung>-blur)` for
+   ANY rung and be right, with no conditional and no table of which rungs
+   are translucent this month.
+
+   Both selectors are repeated for the reason the P3 block gives:
+   `.opsin-product.dark` is (0,2,0) and outranks a bare `:root`, so a
+   light-only block placed here would leave the dark theme translucent. */
+@media (prefers-reduced-transparency: reduce) {
+  :root,
+  .opsin-product {
+    --opsin-material-canvas-tint: var(--opsin-material-canvas-opaque);
+    --opsin-material-canvas-tint-alpha: 1;
+    --opsin-material-canvas-blur: 0px;
+    --opsin-material-canvas-saturation: 1;
+    --opsin-material-card-tint: var(--opsin-material-card-opaque);
+    --opsin-material-card-tint-alpha: 1;
+    --opsin-material-card-blur: 0px;
+    --opsin-material-card-saturation: 1;
+    --opsin-material-raised-tint: var(--opsin-material-raised-opaque);
+    --opsin-material-raised-tint-alpha: 1;
+    --opsin-material-raised-blur: 0px;
+    --opsin-material-raised-saturation: 1;
+    --opsin-material-sheet-tint: var(--opsin-material-sheet-opaque);
+    --opsin-material-sheet-tint-alpha: 1;
+    --opsin-material-sheet-blur: 0px;
+    --opsin-material-sheet-saturation: 1;
+    --opsin-material-overlay-tint: var(--opsin-material-overlay-opaque);
+    --opsin-material-overlay-tint-alpha: 1;
+    --opsin-material-overlay-blur: 0px;
+    --opsin-material-overlay-saturation: 1;
+    --opsin-material-scrim-tint: var(--opsin-material-scrim-opaque);
+    --opsin-material-scrim-tint-alpha: 1;
+    --opsin-material-scrim-blur: 0px;
+    --opsin-material-scrim-saturation: 1;
+  }
+
+  .dark,
+  .opsin-product.dark {
+    --opsin-material-canvas-tint: var(--opsin-material-canvas-opaque);
+    --opsin-material-canvas-tint-alpha: 1;
+    --opsin-material-canvas-blur: 0px;
+    --opsin-material-canvas-saturation: 1;
+    --opsin-material-card-tint: var(--opsin-material-card-opaque);
+    --opsin-material-card-tint-alpha: 1;
+    --opsin-material-card-blur: 0px;
+    --opsin-material-card-saturation: 1;
+    --opsin-material-raised-tint: var(--opsin-material-raised-opaque);
+    --opsin-material-raised-tint-alpha: 1;
+    --opsin-material-raised-blur: 0px;
+    --opsin-material-raised-saturation: 1;
+    --opsin-material-sheet-tint: var(--opsin-material-sheet-opaque);
+    --opsin-material-sheet-tint-alpha: 1;
+    --opsin-material-sheet-blur: 0px;
+    --opsin-material-sheet-saturation: 1;
+    --opsin-material-overlay-tint: var(--opsin-material-overlay-opaque);
+    --opsin-material-overlay-tint-alpha: 1;
+    --opsin-material-overlay-blur: 0px;
+    --opsin-material-overlay-saturation: 1;
+    --opsin-material-scrim-tint: var(--opsin-material-scrim-opaque);
+    --opsin-material-scrim-tint-alpha: 1;
+    --opsin-material-scrim-blur: 0px;
+    --opsin-material-scrim-saturation: 1;
   }
 }
 

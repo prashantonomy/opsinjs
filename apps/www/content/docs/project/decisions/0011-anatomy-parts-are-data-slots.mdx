@@ -1,0 +1,152 @@
+---
+title: "0011 — Anatomy parts are structure, not a public API"
+description: The part tree in every specification is the DOM contract expressed as data-slot, not a set of exported compound components, and the data attribute vocabulary is four names.
+status: stable
+kind: project
+owner: core
+reviewed: 2026-09-03
+reviewer: engineering
+reviewEvery: 12m
+aliases: [anatomy parts, data-slot, compound components, part names]
+---
+
+<PageTemplate kind="project" />
+
+## Status
+
+**Accepted.** 2026-09-03.
+
+## Context
+
+Every component specification has an `## Anatomy` section, and every one of them
+draws a tree in dot notation: `ResultCard.Header`, `RangeBar.Track`,
+`StatusPill.Icon`. The line above the tree on the `StatusPill` page says what the
+tree is for — "the specification the implementation must match". It does not say
+what the tree *is*, and the two available readings lead to different systems.
+
+Read as an export list, the trees across the twenty-four specifications come to
+well over a hundred exported compound parts, and the system has acquired a
+composition API that nobody designed and no page documents. Read as nothing at
+all, the anatomy section is decoration and the `beta` composition tree has no
+data behind it.
+
+The same specifications also say, repeatedly, that composition is the hazard
+rather than the feature. The `StatusPill` page puts it plainly: the pill "is
+deliberately not composable. Icon, word and colour are one unit, and the API
+offers no way to remove the word, because every way of removing it that has ever
+been offered has been used." That is a general observation about health
+components dressed as a note about one of them. `RangeBar` has a text twin that
+must not be removable. `Field` has a label that must not be hideable. A
+composition API is a list of ways to remove something.
+
+Meanwhile the styling contract has to exist somewhere. A consumer who has copied
+a component into their own repository will restyle a part of it, and the
+generated reference already commits to how: attributes "appear on parts, not on
+components as a whole". And the attribute name is already in this tree —
+`components/ui/button.tsx` stamps `data-slot="button"`, because that is the
+convention every other shadcn component a consumer owns already carries.
+
+## Decision
+
+**The part tree is the DOM contract, expressed as `data-slot`.**
+
+Every part named in a specification's tree renders an element carrying
+`data-slot="<component-id>-<part>"`, kebab-cased and derived mechanically from
+the tree: `ResultCard.Header` becomes `data-slot="result-card-header"`, and the
+root part — `StatusPill.Root`, or the component itself where the tree has no
+explicit root — becomes `data-slot="status-pill"`. There is no mapping table and
+no judgement involved.
+
+**The single exception is a slot whose content the consumer supplies and no prop
+could carry.** A real dot-notation compound export exists there, and only there.
+That is exactly three components: `Card.Header`, `Card.Body` and `Card.Footer`;
+`Sheet.Content`; `Field.Control`. Everywhere else the content arrives as a prop,
+as `children`, or as a `ReactNode` slot prop, and there is no dot-notation
+export. An exported part is still a named export with the assignment made after
+the declaration, never an `Object.assign` over the component.
+
+**The data attribute vocabulary is four names, and a fifth requires an amendment
+to this record.**
+
+| Attribute | Appears on | Values |
+| --- | --- | --- |
+| `data-slot` | every part, without exception | the part name, kebab-cased |
+| `data-status` | every element whose colour, icon or word carries a clinical status | `steady`, `watch`, `attention`, `urgent`, `unknown` |
+| `data-opsinjs-value` | every element rendering a measurement a reader reads as their own | the machine-readable value, or empty when the value is absent |
+| `data-category` | every element tinted from the category axis | the six health categories |
+
+Attributes Base UI puts on its own primitives — `data-open`, `data-closed`,
+`data-starting-style`, `data-ending-style` — pass through untouched and are
+delegated rather than re-documented, as [ADR 0001](0001-base-ui-not-radix.mdx)
+requires. They do not count against this list.
+
+## Consequences
+
+- **Three generated widgets document one answer.** `<CompositionTree>`,
+  `<DataAttributesTable>` and `<CssVariablesTable>` all appear at `beta` and all
+  describe the same tree, from the same source, rather than three hand-written
+  descriptions that can disagree.
+- **The parts are versioned surface.** Removing a `data-slot`, renaming a part or
+  changing the element a part renders is a breaking change under the
+  [versioning policy](../versioning-policy.mdx), because somebody's stylesheet
+  selects on it. That is the real cost of choosing the DOM as the contract, and
+  it is preferable to the alternative, which is a styling surface nobody can rely
+  on and everybody uses anyway.
+- **Styling a part is a CSS selector, not a prop.** This decision is what removes
+  the `classNames` object — one entry per part — from twenty-four interfaces
+  before any of them is written.
+- **`data-status` and `data-category` never appear on the same element.** Putting
+  the two axes in one vocabulary is what makes that statement checkable from
+  source rather than by eye; it is the same rule
+  [ADR 0003](0003-two-colour-axes.mdx) states and the error `OPSIN-0001`
+  reports, at the level where a static check can see it.
+- **A part with no `data-slot` does not exist as far as the documentation is
+  concerned.** The tables are generated from the source, so an unstamped part is
+  silently absent from them, and the absence looks exactly like a component that
+  does not have that part.
+- **The exception list is closed at three components.** Adding a fourth compound
+  export is an amendment to this record, not a design decision taken inside one
+  component's pull request.
+
+## Alternatives considered
+
+**Export every part as a compound component**, which is what most headless
+libraries do. Rejected. It hands a consumer the ability to render a `StatusPill`
+without its word, a `RangeBar` track without its summary, and a `Field` control
+without its label — every one of which the corresponding specification forbids in
+prose, and none of which prose can prevent. The `StatusPill` page names the
+mechanism exactly: every escape hatch that has been offered has been used. In a
+system whose components carry somebody's test results, composition freedom is the
+hazard rather than the selling point.
+
+**No stable contract at all: style through props.** Rejected. It moves every
+styling decision into the interface, which then grows one prop per part per
+property, and it makes the `beta` data-attribute and CSS-variable tables
+undocumentable, because there would be nothing to document. It also fails the
+audience test: a consumer who has copied the source can already edit it, and the
+prop only helps the consumer who has not.
+
+**`data-part` rather than `data-slot`.** Rejected on the weakest sufficient
+ground. `data-slot` is the convention already in this tree and already on every
+other shadcn component a consumer owns, and a system that invents a synonym for a
+convention its own consumers already use has made their stylesheet worse in
+exchange for nothing.
+
+**A class name, or an ARIA attribute, as the hook.** Rejected. A class name is
+exactly what a consumer's build tooling is entitled to rewrite or minify, and
+ARIA is an accessibility contract that assistive technology reads — overloading
+it as a styling hook means a styling change becomes an accessibility change, in
+both directions.
+
+## Revisiting this
+
+Revisit when a component genuinely cannot express its content as a prop, which is
+the trigger for adding to the compound exception list; `Card`, `Sheet` and
+`Field` are the three found so far and a fourth is plausible rather than
+surprising. Do **not** revisit in order to add a fifth data attribute without
+amending the table above: those four are what the static accessibility check and
+the generated tables both read, and a fifth added quietly appears in neither.
+
+<LastUpdated />
+
+<Reviewed />

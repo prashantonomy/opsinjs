@@ -48,33 +48,42 @@ is in the wrong pillar.
 
 Every colour token in opsinjs is named
 `--opsin-<axis>-<name>-<role>`. The axis is `category` or `status`; there is no
-third. The role is one of three, and only three:
+third. The role is one of four, and only four:
 
 | Role | What it is | Contrast obligation |
 | --- | --- | --- |
 | `surface` | the fill behind content | it is the *background* half of a measured pair |
 | `line` | a stroke, a glyph, a chart line, a focus ring | non-text contrast against the surface it sits on |
 | `ink` | text and icons **on the matching surface** | text contrast against that surface |
+| `accent` | an identity fill: a bar fill, a dial track, a legend dot | none, and that is the point — it is chosen for recognition, so it must be bounded by `line` or labelled in `ink` and may never carry text or be the only thing carrying the meaning |
 
 So `--opsin-status-urgent-ink` is guaranteed legible on
 `--opsin-status-urgent-surface`, and on nothing else. Pairs are the unit of
 guarantee; [Colour roles](./colour-roles.mdx) states that rule properly and
 lists what it excludes.
 
-The six categories are `cardio`, `metabolic`, `respiratory`, `activity`,
-`sleep` and `body`. The four status levels are `expected`, `watch`, `act` and
-`urgent`, in that order. Category ramps are deliberately low-chroma so that a
+The six categories are `sleep`, `heart`, `activity`, `nutrition`, `mind` and
+`labs`. The four status levels are `steady`, `watch`, `attention` and `urgent`, in
+that order, plus a fifth stem `unknown` that is the absence of a verdict rather
+than a fifth degree of one. Category ramps are deliberately low-chroma so that a
 category can never be mistaken for a verdict; status ramps are deliberately
 high-chroma because a verdict has to be seen. That asymmetry is the single most
 important thing about the palette.
 
-<Callout title="The status token names are not the words on screen">
-  `expected`, `watch`, `act` and `urgent` are the names of the ramps. The words a
-  reader actually sees are a content decision, made in
+A second asymmetry catches people in code rather than in prose: the bare Tailwind
+name resolves to a different role on each axis. `bg-status-urgent` is the **line**;
+`bg-category-heart` is the **accent**. Every other role is spelt out.
+
+<Callout title="The token id and the word on screen are two different strings">
+  `steady`, `watch`, `attention` and `urgent` are the names of the ramps. The word
+  a reader sees comes from `CLINICAL_STATUS_META` in `lib/status.ts`, and it is
+  close to the id without being it: `attention` renders as "Needs attention", and
+  `unknown` renders as "Not known". The word is fixed; the sentence around it is
+  the content decision, made in
   [Writing status and alerts](../../content/writing-status-and-alerts.mdx) and
   governed by
-  [Clinical status semantics](../../health/clinical-status-semantics.mdx). Do
-  not put a token name in front of a patient.
+  [Clinical status semantics](../../health/clinical-status-semantics.mdx). Do not
+  put a raw token id in front of a patient.
 </Callout>
 
 ### The derivation engine, in one line
@@ -155,8 +164,10 @@ one:
 
 The failure mode that motivates all of this is specific: a reader with a
 red–green colour vision deficiency, on a phone at 40% brightness outdoors,
-glancing at a result. If the only difference between "expected" and "act" is
-hue, that reader gets the wrong answer and acts on it.
+glancing at a result. If the only difference between "Steady" and "Needs
+attention" is hue, that reader gets the wrong answer and acts on it — and those
+two are precisely the pair the generated audit finds indistinguishable under
+deuteranopia.
 
 ## Related
 

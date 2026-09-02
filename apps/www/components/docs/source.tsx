@@ -2,10 +2,11 @@ import type { ReactNode } from "react"
 import { Tab, Tabs } from "fumadocs-ui/components/tabs"
 import { CodeBlock, Pre } from "fumadocs-ui/components/codeblock"
 
+import { getRegistryEntry } from "@/lib/registry"
 import { DEFAULT_BASE, DEFAULT_STYLE, site } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import { CopyButton } from "./copy"
-import { NotBuiltYet } from "./stub"
+import { NoDataYet, NotBuiltYet } from "./stub"
 
 /* ==========================================================================
    source.tsx — <ComponentSource>, <ComponentInstall>, <CodeBlockCommand>,
@@ -20,14 +21,22 @@ import { NotBuiltYet } from "./stub"
    behaviour the rest of the page promises.
 
    So <ComponentSource name="range-bar" /> resolves a NAME against the generated
-   registry index and renders whatever is really there. Today that is nothing,
-   and the honest render is <NotBuiltYet> naming the folder the file will live
-   in — not an illustrative snippet, which an agent would happily consume as the
-   real implementation.
+   registry index and renders whatever is really there — the file's own bytes,
+   inlined by scripts/build-registry.mts, which are the same bytes `shadcn add`
+   writes into a consumer's project. When the name resolves to nothing the
+   honest render is <NotBuiltYet> naming the folder the file will live in, not
+   an illustrative snippet, which an agent would happily consume as the real
+   implementation.
 
    The install block is generated the same way, from the registry item: the
    dependency list, the file paths and the import path all come from data. The
    only hand-written thing is the sentence explaining what the command does.
+
+   <ComponentSource> IS NOT ON ANY PAGE, AND MUST NOT BE. It reaches all 24
+   component pages through <ComponentInstall>'s Manual tab, which is anatomy
+   section 4 and is already on every one of them. A page that also placed the
+   source under its own heading would be showing the same file twice, in two
+   places that can disagree about which one is current.
    ========================================================================== */
 
 /** The four package managers, in the order a reader is most likely to want. */
@@ -221,6 +230,12 @@ export interface ComponentSourceProps {
  * The component's real source, resolved by name through the generated registry
  * index. There is no `code` prop and there never will be one: the moment a page
  * can pass its own source, pages start carrying source.
+ *
+ * `scripts/build-registry.mts` reads the file off disk and inlines its text as
+ * `entry.source`, so what a reader copies from here is the same bytes
+ * `shadcn add` writes into their project. Nothing is re-read, re-formatted or
+ * excerpted on the way — an excerpt is how a snippet starts drifting from the
+ * thing it claims to be.
  */
 export function ComponentSource({
   name,
@@ -230,17 +245,60 @@ export function ComponentSource({
   collapsible,
   className,
 }: ComponentSourceProps) {
-  const path = `registry/bases/${base}/${file ?? `${name}.tsx`}`
+  const entry = getRegistryEntry(name, base, style)
 
-  const body = (
-    <NotBuiltYet name={name} className={cn("my-0", className)}>
-      The source for this component would be read from{" "}
-      <code className="text-xs">{path}</code> (style{" "}
-      <code className="text-xs">{style}</code>) by{" "}
-      <code className="text-xs">scripts/build-registry.mts</code>. That folder
-      is reserved and empty.
-    </NotBuiltYet>
-  )
+  /*
+   * The path comes from the entry's own `files[]` rather than from a formula,
+   * because the generator accepts `.ts` as well as `.tsx` and a path this
+   * component guessed would eventually name a file that does not exist. The
+   * formula stays as the fallback for the unbuilt case, where there is no
+   * entry to ask and naming the folder is the whole point of the empty state.
+   */
+  const registryPath = entry?.files?.[0]?.path ?? `registry/bases/${base}/${name}.tsx`
+  const path = file ? `registry/bases/${base}/${file}` : registryPath
+
+  /*
+   * A registry entry carries exactly one source text: the item's own file.
+   * The shared substrate an item also distributes (lib/opsinjs.ts, lib/status.ts)
+   * is attached to the `/r/<name>.json` payload, not to the index entry, so a
+   * `file` naming one of those has nothing here to render. Saying so is the only
+   * honest answer; showing the component's file under somebody else's filename
+   * is the failure this whole module exists to prevent.
+   */
+  const wantsAnotherFile = Boolean(file) && !registryPath.endsWith(`/${file}`)
+  const source = entry?.source
+
+  /* Order matters. "Nothing is built" is checked first, because a `file` prop
+     on an unbuilt component would otherwise report the narrower problem and
+     bury the one the reader needs to know about. */
+  const body =
+    source == null ? (
+      <NotBuiltYet name={name} className={cn("my-0", className)}>
+        The source for this component would be read from{" "}
+        <code className="text-xs">{path}</code> (style{" "}
+        <code className="text-xs">{style}</code>) by{" "}
+        <code className="text-xs">scripts/build-registry.mts</code>. There is no
+        file with that name under that folder.
+      </NotBuiltYet>
+    ) : wantsAnotherFile ? (
+      <NoDataYet
+        what={`The source of ${file}`}
+        script="scripts/build-registry.mts"
+        className={cn("my-0", className)}
+      >
+        The generated registry index carries one source text per item — the
+        component&rsquo;s own file,{" "}
+        <code className="text-xs">{registryPath}</code>. Everything else an item
+        distributes is in its <code className="text-xs">/r/{name}.json</code>{" "}
+        payload, which is where a second file has to be read from.
+      </NoDataYet>
+    ) : (
+      <div className={cn("not-prose my-0", className)} data-opsinjs-source={name}>
+        <CodeBlock title={path} allowCopy>
+          <Pre>{source}</Pre>
+        </CodeBlock>
+      </div>
+    )
 
   if (!collapsible) return body
   return <CodeCollapsible title={`Source — ${path}`}>{body}</CodeCollapsible>

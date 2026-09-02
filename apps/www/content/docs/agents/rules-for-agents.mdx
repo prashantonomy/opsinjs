@@ -79,7 +79,7 @@ I have not generated an import, because the module does not exist yet.
 
 ### Use the status vocabulary
 
-Four ordinal levels, token ids `expected`, `watch`, `act`, `urgent`. Set the
+Four ordinal levels, token ids `steady`, `watch`, `attention`, `urgent`. Set the
 level; never pick the colour. And never render a status without a word — colour
 is a second channel, not the only one.
 
@@ -133,11 +133,11 @@ theme on exactly one display.
 
 ```tsx
 // Wrong: the tile is both a category and a verdict, in colour, twice.
-<MetricTile category="cardio" className="bg-category-heart-surface"
+<MetricTile category="heart" className="bg-category-heart-surface"
             status="urgent" />
 
 // Right: identity from the glyph, verdict from the surface.
-<MetricTile category="cardio" status="urgent" />
+<MetricTile category="heart" status="urgent" />
 ```
 
 The rule and its rationale are in
@@ -194,9 +194,12 @@ floor. See
 **Aliases are search synonyms, not names.** `lab result` finds `result-card`. It
 is not an importable identifier.
 
-**Two of the tokens' names look like status words and are not.** `expected` is a
-token id. The word a patient reads is a content decision and will usually be
-something else entirely.
+**The token id and the word on screen are not the same string.** `attention`
+renders as "Needs attention", and the fifth stem `unknown` renders as "Not known";
+the other three happen to coincide, which is what makes the two easy to conflate.
+The words are fixed in `lib/status.ts` as `CLINICAL_STATUS_META[level].word`
+and are read from there rather than typed, so substituting a synonym is not a copy
+tweak — it changes what the interface asserts.
 
 ## Related
 

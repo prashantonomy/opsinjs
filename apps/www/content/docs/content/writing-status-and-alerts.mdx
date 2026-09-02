@@ -13,8 +13,8 @@ aliases: [alert copy, warning wording, escalation copy, breaking bad results]
 ## The rule
 
 **Every status surface carries a word from a fixed vocabulary, and the word is
-what makes the colour non-load-bearing.** There are four levels — `expected`,
-`watch`, `act`, `urgent` — and each one has a sentence shape, a permitted
+what makes the colour non-load-bearing.** There are four levels — `steady`,
+`watch`, `attention`, `urgent` — and each one has a sentence shape, a permitted
 vocabulary and a set of words it may not use.
 
 The canonical definition of the levels lives on
@@ -30,7 +30,7 @@ number. The level drives the colour, the icon, the announcement politeness and
 the sentence; if the sentence needs to be stronger, the level was wrong.
 
 **The action is a clause, not an implication.** "Keep an eye on it" is not an
-action. "Take another reading tomorrow morning" is. Every level above `expected`
+action. "Take another reading tomorrow morning" is. Every level above `steady`
 ends with something the reader can do, or with an explicit statement that there
 is nothing to do.
 
@@ -96,7 +96,7 @@ one of them lets the reader find the important one.
 
 One pattern per level. The parts in backticks are variables.
 
-**`expected` — nothing is required of the reader**
+**`steady` — nothing is required of the reader**
 
 > Your `measure` was `value` `unit`. That is in `your usual range / the range
 > your GP set`.
@@ -109,7 +109,7 @@ Stop there. No praise, no streak, no encouragement to keep it up.
 > this is not unusual. `Mention it at your next appointment / We will tell you if
 > it continues`.
 
-**`act` — one specific thing to do**
+**`attention` — one specific thing to do**
 
 > Your `measure` was `value` `unit`, which is `above / below` `the named
 > reference`. `One imperative action`. `What happens if it is the same again`.
@@ -126,11 +126,15 @@ canonical, and disclosure of self-harm has its own rules on
 
 **Any level — the status word itself**
 
-> `expected` · `watch` · `act` · `urgent`
+> Steady · Watch · Needs attention · Urgent
 
-These four words appear verbatim in the interface. They are not decorated, not
-translated into a synonym, and not replaced with a symbol. A `StatusPill` renders
-one of exactly these.
+These four words appear verbatim in the interface, and a fifth — Not known — covers
+the absence of a reading rather than a fifth degree of urgency. They are not
+decorated, not translated into a synonym, and not replaced with a symbol. A
+`StatusPill` renders one of exactly these, read from
+`CLINICAL_STATUS_META[level].word` in `lib/status.ts` rather than typed into the
+component. The word and the token id are not the same string, which is the detail
+people get wrong: the `attention` level says "Needs attention".
 
 **A notification that precedes an in-app alert**
 
@@ -144,11 +148,12 @@ and [On-screen privacy](../health/on-screen-privacy.mdx).
 
 ## Banned words
 
-Banned at every level:
+Banned at every level. The `attention` level's own word, "Needs attention", is
+exempt from the first row: it is a status label, not the opening of a sentence.
 
 | Banned | Why | Use instead |
 | --- | --- | --- |
-| warning, alert, attention (as an opening word) | A label where a sentence is needed; adds urgency without information. | say what happened |
+| warning, alert, attention (as the opening word of a sentence) | A label where a sentence is needed; adds urgency without information. | say what happened |
 | detected, flagged, triggered | Machine register; puts an algorithm between reader and data. | your reading was |
 | could indicate, may suggest, is consistent with | Clinical inference the product is not entitled to make. | describe the reading and name who can interpret it |
 | threshold, exceeded, out of bounds | Systems language for a health fact. | higher than the range your GP set |
@@ -159,9 +164,9 @@ Banned at specific levels:
 
 | Level | Additionally banned | Why |
 | --- | --- | --- |
-| `expected` | well done, great, streak, on track, keep it up | Turns a body into a score, and creates an implicit failure state. |
-| `watch` | any imperative verb | If there is something to do, the level is `act`. |
-| `act` | urgent, emergency, immediately, right now | Reserved for `urgent`. Using them here destroys the distinction. |
+| `steady` | well done, great, streak, on track, keep it up | Turns a body into a score, and creates an implicit failure state. |
+| `watch` | any imperative verb | If there is something to do, the level is `attention`. |
+| `attention` | urgent, emergency, immediately, right now | Reserved for `urgent`. Using them here destroys the distinction. |
 | `urgent` | might, could, consider, we recommend, as soon as possible | Hedging at the one moment hedging costs something. |
 
 ## Related components
@@ -172,6 +177,6 @@ Banned at specific levels:
   announcement politeness together; the patterns above are its content contract.
 - **`CareCard`** — carries the action. The "one imperative action" rule is its
   rule.
-- **`ResultCard`** — the `expected` and `watch` patterns are what its body says.
+- **`ResultCard`** — the `steady` and `watch` patterns are what its body says.
 - **`DisclaimerNote`** — the standing statement of what the product cannot tell
   the reader, which is what makes the restraint above sustainable.

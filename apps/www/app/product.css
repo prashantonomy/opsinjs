@@ -66,11 +66,19 @@
   --radius: 1rem;
   --opsin-corner-shape: superellipse(4);
 
-  /* --- Targets. A minimum for anything a person taps while distracted,
-     one-handed, or with a tremor. The floor here is deliberately above the
-     WCAG 2.2 SC 2.5.8 minimum; accessibility/target-size states which figure
-     comes from where. --- */
-  --opsin-target-min: 44px;
+  /* --- Targets. There is deliberately NO authored target token in this block.
+     The floor is `--opsin-target-minimum`, generated from tokens/space.json
+     into tokens.generated.css and imported at the foot of this file.
+
+     This block used to author `--opsin-target-min: 44px`. That is a different
+     property name from the generated one, so the two never met: the generated
+     floor could not supersede the authored one, and the authored one was a hard
+     pixel value that does not grow when a reader asks for 200% text, while
+     `2.75rem` does. Re-adding a `-min` spelling would silently reintroduce
+     both halves of that. A minimum for anything a person taps while
+     distracted, one-handed or with a tremor is deliberately above the
+     WCAG 2.2 SC 2.5.8 minimum; accessibility/target-size-and-motor states
+     which figure comes from where. --- */
 
   /* --- Axis fallbacks. Identical to the authored defaults in globals.css
      section 8, and superseded by tokens.generated.css, which is imported after
@@ -232,25 +240,56 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  :root,
-  .opsin-product {
-    --opsin-duration-fast: 1ms;
-    --opsin-duration-base: 1ms;
-    --opsin-duration-slow: 1ms;
-    --opsin-ease-spring: linear(0, 1);
-  }
-}
-
 /* The generated ramps. Same source of truth as the docs chrome — the axes do
    not change between the two themes; only the shell does.
 
-   Imported LAST of the opsinjs declarations on purpose. Everything above is an
-   authored fallback so this stylesheet renders on a clean checkout; `:root`
+   Imported after every authored opsinjs value on purpose. Everything above is
+   an authored fallback so this stylesheet renders on a clean checkout; `:root`
    there and `:root` here have identical specificity, so this file has to be
    declared after them to win. It used to be imported at the top, which meant
-   the fallbacks quietly beat the measured values. */
+   the fallbacks quietly beat the measured values.
+
+   The one thing that follows it is the reduced-motion override immediately
+   below, and that ordering is deliberate for exactly the same reason — see the
+   comment on that block. */
 @import "./tokens.generated.css";
+
+/* Reduced motion, and it has to be declared HERE, below the import, rather
+   than beside the authored durations at the top of the file.
+
+   `@media` contributes no specificity. `:root` inside a media query and `:root`
+   in the imported sheet are both (0,1,0), so the one declared last simply wins.
+   This block used to sit above the @import, where tokens.generated.css
+   re-declared --opsin-duration-fast, -base and -slow at their full lengths a
+   few lines later and quietly undid it: a reader who had asked for reduced
+   motion still got 140ms, 220ms and 360ms. Moving this block below the import
+   is the fix. Moving the import is NOT, because the import's position is the
+   only thing that makes the measured values beat the authored fallbacks at all.
+
+   All five standalone durations collapse, not just the three this file happens
+   to author as fallbacks. `instant` (80ms) and `deliberate` (560ms) are
+   generated rather than authored, so they were never in the list — and `/view`
+   is the only surface a component ever renders on, so the docs chrome's
+   equivalent block in globals.css does not reach them either. That left two
+   durations running at full length for a reader who had asked for none.
+
+   `--opsin-ease-spring` is collapsed here because it is authored in this file
+   and the generator does not emit it. The four sampled springs are not: they
+   collapse inside tokens.generated.css's own reduced-motion block, per token,
+   to the settle times tokens/motion.json declares for each of them — 0ms for
+   calm and snap, 100ms for settle, 120ms for sheet — which is a better answer
+   than 1ms for a cue whose job is to say that a value changed. */
+@media (prefers-reduced-motion: reduce) {
+  :root,
+  .opsin-product {
+    --opsin-duration-instant: 1ms;
+    --opsin-duration-fast: 1ms;
+    --opsin-duration-base: 1ms;
+    --opsin-duration-slow: 1ms;
+    --opsin-duration-deliberate: 1ms;
+    --opsin-ease-spring: linear(0, 1);
+  }
+}
 
 @theme inline {
   --color-background: var(--background);
@@ -311,13 +350,188 @@
   --color-category-labs-line: var(--opsin-category-labs-line);
   --color-category-labs-ink: var(--opsin-category-labs-ink);
 
+  /* --- Type. Eleven steps, and each one carries all four of its properties
+     rather than only a size. Tailwind's --text-* namespace takes three
+     sub-keys — --text-<step>--line-height, --text-<step>--letter-spacing and
+     --text-<step>--font-weight — so `text-opsin-body` sets font-size,
+     line-height, letter-spacing and font-weight together.
+
+     Bridging only the size would have been worse than not bridging at all: a
+     component would take its size from the ramp and its leading from whatever
+     Tailwind's default for that size happens to be, and the leading is the part
+     that was tuned for reading a number at arm's length. `headline` and `body`
+     are the proof — same size, same leading, same tracking, and they differ
+     ONLY in weight (600 against 400), so a bridge without the weight sub-key
+     would make them the same step.
+
+     Every size is a rem in tokens/type.json, so the whole ramp scales with
+     [data-text-size] and with the reader's own root font size. Never write a px
+     font size in a component; there is now no reason to. --- */
+  --text-opsin-large-title: var(--opsin-text-large-title-size);
+  --text-opsin-large-title--line-height: var(--opsin-text-large-title-leading);
+  --text-opsin-large-title--letter-spacing: var(--opsin-text-large-title-tracking);
+  --text-opsin-large-title--font-weight: var(--opsin-text-large-title-weight);
+  --text-opsin-title1: var(--opsin-text-title1-size);
+  --text-opsin-title1--line-height: var(--opsin-text-title1-leading);
+  --text-opsin-title1--letter-spacing: var(--opsin-text-title1-tracking);
+  --text-opsin-title1--font-weight: var(--opsin-text-title1-weight);
+  --text-opsin-title2: var(--opsin-text-title2-size);
+  --text-opsin-title2--line-height: var(--opsin-text-title2-leading);
+  --text-opsin-title2--letter-spacing: var(--opsin-text-title2-tracking);
+  --text-opsin-title2--font-weight: var(--opsin-text-title2-weight);
+  --text-opsin-title3: var(--opsin-text-title3-size);
+  --text-opsin-title3--line-height: var(--opsin-text-title3-leading);
+  --text-opsin-title3--letter-spacing: var(--opsin-text-title3-tracking);
+  --text-opsin-title3--font-weight: var(--opsin-text-title3-weight);
+  --text-opsin-headline: var(--opsin-text-headline-size);
+  --text-opsin-headline--line-height: var(--opsin-text-headline-leading);
+  --text-opsin-headline--letter-spacing: var(--opsin-text-headline-tracking);
+  --text-opsin-headline--font-weight: var(--opsin-text-headline-weight);
+  --text-opsin-body: var(--opsin-text-body-size);
+  --text-opsin-body--line-height: var(--opsin-text-body-leading);
+  --text-opsin-body--letter-spacing: var(--opsin-text-body-tracking);
+  --text-opsin-body--font-weight: var(--opsin-text-body-weight);
+  --text-opsin-callout: var(--opsin-text-callout-size);
+  --text-opsin-callout--line-height: var(--opsin-text-callout-leading);
+  --text-opsin-callout--letter-spacing: var(--opsin-text-callout-tracking);
+  --text-opsin-callout--font-weight: var(--opsin-text-callout-weight);
+  --text-opsin-subheadline: var(--opsin-text-subheadline-size);
+  --text-opsin-subheadline--line-height: var(--opsin-text-subheadline-leading);
+  --text-opsin-subheadline--letter-spacing: var(--opsin-text-subheadline-tracking);
+  --text-opsin-subheadline--font-weight: var(--opsin-text-subheadline-weight);
+  --text-opsin-footnote: var(--opsin-text-footnote-size);
+  --text-opsin-footnote--line-height: var(--opsin-text-footnote-leading);
+  --text-opsin-footnote--letter-spacing: var(--opsin-text-footnote-tracking);
+  --text-opsin-footnote--font-weight: var(--opsin-text-footnote-weight);
+  --text-opsin-caption1: var(--opsin-text-caption1-size);
+  --text-opsin-caption1--line-height: var(--opsin-text-caption1-leading);
+  --text-opsin-caption1--letter-spacing: var(--opsin-text-caption1-tracking);
+  --text-opsin-caption1--font-weight: var(--opsin-text-caption1-weight);
+  --text-opsin-caption2: var(--opsin-text-caption2-size);
+  --text-opsin-caption2--line-height: var(--opsin-text-caption2-leading);
+  --text-opsin-caption2--letter-spacing: var(--opsin-text-caption2-tracking);
+  --text-opsin-caption2--font-weight: var(--opsin-text-caption2-weight);
+
+  /* --- Fonts. `--font-sans` above is what <html> actually uses and it keeps a
+     `ui-sans-serif` head that the generated stack does not have; these three
+     are the token-layer stacks, for a component that wants to name the family
+     it is asking for rather than inherit. `font-opsin-numeric` is about the
+     FAMILY only — tabular figures come from `[data-opsinjs-value]` in the base
+     layer below, not from this utility, so setting the family is not a
+     substitute for stamping the attribute on a rendered measurement. --- */
+  --font-opsin-sans: var(--opsin-font-sans);
+  --font-opsin-mono: var(--opsin-font-mono);
+  --font-opsin-numeric: var(--opsin-font-numeric);
+
   --radius-sm: calc(var(--radius) * 0.5);
   --radius-md: calc(var(--radius) * 0.75);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) * 1.5);
 
+  /* --- Radius, the generated ladder, IN ADDITION to the four --radius
+     multiples above rather than instead of them. `rounded-lg` follows
+     `--radius`, so a component takes the shape of whatever shell it is dropped
+     into; `rounded-opsin-lg` follows tokens/shape.json, so a component keeps
+     the system's own shape wherever it lands. Both are legitimate. Pick one per
+     component and say which on its page.
+
+     Note that `--opsin-radius-base` and `--opsin-radius-md` are the same value
+     today (0.875rem); they are separate tokens because they answer different
+     questions, and a component should ask for the one it means.
+
+     There is deliberately no `rounded-opsin-full`. `--opsin-radius-full` is
+     authored in globals.css and never generated, and bridging a name the token
+     pipeline does not own is exactly how `ease-opsin-spring` became a utility
+     backed by a fallback nobody maintains. Use `rounded-full`. --- */
+  --radius-opsin-none: var(--opsin-radius-none);
+  --radius-opsin-xs: var(--opsin-radius-xs);
+  --radius-opsin-sm: var(--opsin-radius-sm);
+  --radius-opsin-base: var(--opsin-radius-base);
+  --radius-opsin-md: var(--opsin-radius-md);
+  --radius-opsin-lg: var(--opsin-radius-lg);
+  --radius-opsin-xl: var(--opsin-radius-xl);
+
   --ease-opsin-standard: var(--opsin-ease-standard);
   --ease-opsin-spring: var(--opsin-ease-spring);
+
+  /* --- Easing, the rest of it. `ease-opsin-spring` above is the curve THIS
+     file authors and the generator does not emit; the four below are the real
+     springs, sampled from the stiffness/damping/mass triples in
+     tokens/motion.json.
+
+     A sampled spring is only itself when it is paired with its own duration. A
+     `linear()` stop list is normalised to 0-1, so running spring-calm's curve
+     over spring-snap's 283ms is a different spring, not a faster one. Write
+     `ease-opsin-spring-calm duration-(--opsin-duration-spring-calm)` and never
+     cross the pairs. `spring-calm` is the one for anything that displays a
+     health value: it is the only spring of the four that neither overshoots nor
+     bounces, and a number that overshoots has displayed, for one frame, a
+     figure that is not true. --- */
+  --ease-opsin-enter: var(--opsin-ease-enter);
+  --ease-opsin-exit: var(--opsin-ease-exit);
+  --ease-opsin-spring-calm: var(--opsin-ease-spring-calm);
+  --ease-opsin-spring-settle: var(--opsin-ease-spring-settle);
+  --ease-opsin-spring-sheet: var(--opsin-ease-spring-sheet);
+  --ease-opsin-spring-snap: var(--opsin-ease-spring-snap);
+
+  /* --- Durations, in the same --animate-duration-* shape globals.css uses for
+     the docs chrome, extended with the four spring settle times. The shape is
+     mirrored rather than improved so that one spelling means the same thing in
+     both stylesheets.
+
+     Know what it does and does not give you. Tailwind 4 has no `--duration-*`
+     theme namespace — `duration-150` is a bare numeric utility — so a named
+     duration cannot become a `duration-*` class. `--animate-*` is an animation
+     shorthand namespace, so `animate-duration-base` sets `animation`, which is
+     almost never what a transition wants. For a transition, reference the token
+     itself: `duration-(--opsin-duration-base)`, or plain
+     `var(--opsin-duration-base)` in a hand-written rule. Both resolve against
+     the real custom property, so both pick up the reduced-motion collapse
+     declared above. --- */
+  --animate-duration-instant: var(--opsin-duration-instant);
+  --animate-duration-fast: var(--opsin-duration-fast);
+  --animate-duration-base: var(--opsin-duration-base);
+  --animate-duration-slow: var(--opsin-duration-slow);
+  --animate-duration-deliberate: var(--opsin-duration-deliberate);
+  --animate-duration-spring-calm: var(--opsin-duration-spring-calm);
+  --animate-duration-spring-settle: var(--opsin-duration-spring-settle);
+  --animate-duration-spring-sheet: var(--opsin-duration-spring-sheet);
+  --animate-duration-spring-snap: var(--opsin-duration-spring-snap);
+
+  /* --- Space, the named steps, ALONGSIDE the density-scaled default scale and
+     never instead of it. Both must coexist, and the choice between them is a
+     real decision:
+
+     `p-4` is 4 x `--spacing`, which is 0.28rem here, 0.24rem under
+     [data-density="compact"] and 0.32rem under [data-density="comfortable"].
+     Use it for padding and gaps that SHOULD breathe or tighten when a reader
+     changes density — the inside of a card, the gap between rows in a list.
+
+     `p-opsin-4` is `--opsin-space-4`, a fixed 1rem that density does not move.
+     Use it where the measurement carries meaning and must not shrink because
+     somebody asked for a denser list: the separation between two touch targets,
+     a focus-ring offset, the gap that stops two tappable rows from merging.
+
+     The half step is `opsin-0-5`, hyphen and not full stop, because
+     `--spacing-opsin-0.5` is not a valid custom property — after `0` the `.5`
+     is a fresh token and the declaration is dropped silently. `p-opsin-px` is
+     `--opsin-space-px` at 0.0625rem, which is 1px at a 16px root and grows with
+     the root; Tailwind's own `p-px` is a device pixel and does not. --- */
+  --spacing-opsin-px: var(--opsin-space-px);
+  --spacing-opsin-0: var(--opsin-space-0);
+  --spacing-opsin-0-5: var(--opsin-space-0-5);
+  --spacing-opsin-1: var(--opsin-space-1);
+  --spacing-opsin-2: var(--opsin-space-2);
+  --spacing-opsin-3: var(--opsin-space-3);
+  --spacing-opsin-4: var(--opsin-space-4);
+  --spacing-opsin-5: var(--opsin-space-5);
+  --spacing-opsin-6: var(--opsin-space-6);
+  --spacing-opsin-8: var(--opsin-space-8);
+  --spacing-opsin-10: var(--opsin-space-10);
+  --spacing-opsin-12: var(--opsin-space-12);
+  --spacing-opsin-16: var(--opsin-space-16);
+  --spacing-opsin-20: var(--opsin-space-20);
+  --spacing-opsin-24: var(--opsin-space-24);
 }
 
 @layer base {
@@ -360,14 +574,28 @@
   }
 
   /* Anything tappable clears the product floor. This is a backstop, not a
-     substitute for sizing the component correctly. */
+     substitute for sizing the component correctly.
+
+     The token is `--opsin-target-minimum`, generated from tokens/space.json,
+     and the unit is the point. It is 2.75rem, not 44px: [data-text-size="200"]
+     changes the ROOT FONT SIZE for real rather than applying a transform, so a
+     rem floor grows with the type and a control that sat exactly on the floor
+     still sits exactly on it. A px floor would stay at 44 device-independent
+     pixels while the label inside it doubled, which turns a control that was
+     merely at the limit into one that overflows or clips. This rule previously
+     read `--opsin-target-min`, a name nothing generated, so the measured floor
+     never reached it.
+
+     The var() fallback is the same 2.75rem rather than 44px, for the same
+     reason: on a clean checkout, before `pnpm run generate` has written
+     tokens.generated.css, the backstop still has to scale. */
   button,
   [role="button"],
   a[data-opsin-target],
   input[type="checkbox"],
   input[type="radio"] {
-    min-block-size: var(--opsin-target-min);
-    min-inline-size: var(--opsin-target-min);
+    min-block-size: var(--opsin-target-minimum, 2.75rem);
+    min-inline-size: var(--opsin-target-minimum, 2.75rem);
   }
 }
 

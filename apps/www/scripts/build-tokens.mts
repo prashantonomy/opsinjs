@@ -117,6 +117,12 @@ interface TokenLeaf {
   description?: string
   /** The reduced-motion fallback, for tokens that have one. */
   reducedMotion?: string
+  /**
+   * The reduced-transparency fallback, for tokens that have one. Only the
+   * material ladder sets it: `prefers-reduced-transparency` is a statement
+   * about surfaces, and no colour, type, space or shape token changes under it.
+   */
+  reducedTransparency?: string
 }
 
 /* ------------------------------------------------------------------ *
@@ -345,8 +351,26 @@ function emitColor(source: JsonObject, out: TokenLeaf[]): void {
  * declared as custom-property NAMES rather than as values, so they are emitted
  * as var() references: the material layer is defined in terms of the neutral
  * ramp and stays correct when the ramp is re-tuned.
+ *
+ * EVERY PROPERTY HERE IS READ THROUGH `themed()`, and that is not tidiness.
+ * material.json writes a property in one of two shapes and the shape varies by
+ * rung: `border` is the string `"none"` on canvas and scrim and a
+ * `{ light, dark }` object on card, raised, sheet and overlay; `tintAlpha` is
+ * the number `1` on the three opaque rungs and a `{ light, dark }` object on the
+ * three translucent ones. This function used to read those two with a bare
+ * `str()`, which returns undefined for an object, and `push()` drops an
+ * undefined value — so seven custom properties were never emitted at all, in
+ * silence. The four rungs that actually have a boundary were exactly the four
+ * with no border token, and the three rungs whose whole point is an alpha were
+ * exactly the three with no tint-alpha token. Do not narrow any of these back to
+ * a bare `str()` or `obj()`: the source is right and the reader was wrong.
  */
 function emitMaterial(source: JsonObject, out: TokenLeaf[]): void {
+  /* Whether the ladder's own reduced-transparency policy is declared beside it.
+     The degradation below is that policy, so it is not emitted for a token file
+     that has not asked for it. */
+  const degrades = obj(source.reducedTransparency) !== undefined
+
   for (const rung of arr(source.ladder)) {
     const name = str(rung.name)
     if (!name) continue
@@ -381,27 +405,67 @@ function emitMaterial(source: JsonObject, out: TokenLeaf[]): void {
       return text.startsWith("--") ? `var(${text})` : text
     }
 
-    const tint = obj(rung.tint)
-    push("tint", asVar(tint?.light), `${label}: the tint over what is behind it. ${use ?? ""}`.trim(), {
-      dark: asVar(tint?.dark),
+    /**
+     * Reads a property in either of the two shapes material.json uses — a bare
+     * scalar meaning "the same in both themes", or `{ light, dark }` meaning
+     * "these differ" — and returns the pair. A `{ light, dark }` value emits
+     * into the light block and the dark block exactly as `tint` always did;
+     * a scalar emits into the light block only, which is what makes the dark
+     * block "redeclares only what actually differs" true.
+     */
+    const themed = (
+      node: Json | undefined,
+      convert: (value: Json | undefined) => string | undefined,
+    ): { light: string | undefined; dark: string | undefined } => {
+      const pair = obj(node)
+      if (pair !== undefined && ("light" in pair || "dark" in pair)) {
+        return { light: convert(pair.light), dark: convert(pair.dark) }
+      }
+      return { light: convert(node), dark: undefined }
+    }
+
+    /* The opaque fallback is read first because the tint's reduced-transparency
+       value is a reference to it. A rung that declared no fallback would get no
+       degradation rather than a var() pointing at nothing. */
+    const fallback = themed(rung.opaqueFallback, asVar)
+    const opaqueRef = fallback.light === undefined ? undefined : `var(${base}-opaque)`
+
+    const tint = themed(rung.tint, asVar)
+    push("tint", tint.light, `${label}: the tint over what is behind it. ${use ?? ""}`.trim(), {
+      dark: tint.dark,
+      reducedTransparency: degrades ? opaqueRef : undefined,
     })
-    push("tint-alpha", str(rung.tintAlpha), `${label}: how opaque that tint is.`)
+    const tintAlpha = themed(rung.tintAlpha, str)
+    push("tint-alpha", tintAlpha.light, `${label}: how opaque that tint is.`, {
+      dark: tintAlpha.dark,
+      /* A fallback composited at 0.74 is still translucent, so the alpha has to
+         go with the tint or the swap achieves nothing. */
+      reducedTransparency: degrades ? "1" : undefined,
+    })
     const blur = num(rung.blurPx)
-    push("blur", blur === undefined ? undefined : `${blur}px`, `${label}: backdrop blur radius.`)
-    push("saturation", str(rung.saturation), `${label}: backdrop saturation multiplier.`)
-    push("border", str(rung.border), `${label}: the boundary.`)
+    push("blur", blur === undefined ? undefined : `${blur}px`, `${label}: backdrop blur radius.`, {
+      reducedTransparency: degrades ? "0px" : undefined,
+    })
+    push("saturation", str(rung.saturation), `${label}: backdrop saturation multiplier.`, {
+      /* 1, not 0. This is a multiplier applied to the backdrop, so 0 would drain
+         the colour out of whatever is behind the surface — a different effect,
+         not a removed one. 1 is the identity, which is what "no treatment"
+         means here. */
+      reducedTransparency: degrades ? "1" : undefined,
+    })
+    const border = themed(rung.border, asVar)
+    push("border", border.light, `${label}: the boundary.`, { dark: border.dark })
     push("shadow", str(rung.shadow), `${label}: the shadow that separates it from what is behind.`)
     push(
       "scrim",
       str(rung.minScrimOpacity),
       `${label}: the minimum scrim opacity needed for text on this rung to clear the contrast floor.`,
     )
-    const fallback = obj(rung.opaqueFallback)
     push(
       "opaque",
-      asVar(fallback?.light),
+      fallback.light,
       `${label}: the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported.`,
-      { dark: asVar(fallback?.dark) },
+      { dark: fallback.dark },
     )
   }
 }
@@ -877,6 +941,46 @@ function emitCss(tokens: TokenLeaf[], hash: string): string {
     )
   }
 
+  const transparency = tokens
+    .filter((token) => token.reducedTransparency !== undefined)
+    .map((token) => `${token.cssVar}: ${token.reducedTransparency};`)
+  if (transparency.length > 0) {
+    parts.push(
+      "/* Reduced transparency. A stated operating-system preference, not a hint,",
+      "   and honoured by swapping each rung to its opaque fallback rather than by",
+      "   removing the surface - the layering still has to communicate what is on",
+      "   top of what.",
+      "",
+      "   Four properties move and no others. `-tint` becomes `-opaque`, and since",
+      "   `-opaque` is itself theme-aware one declaration is correct in both",
+      "   themes. `-tint-alpha` becomes 1, because a fallback composited at 0.74",
+      "   is still translucent and the swap would achieve nothing. `-blur` becomes",
+      "   0px. `-saturation` becomes 1 rather than 0: it multiplies the backdrop,",
+      "   so 0 would drain the colour out of whatever is behind rather than leave",
+      "   it alone, and 1 is the identity. `-border`, `-shadow` and `-scrim` are",
+      "   deliberately untouched: they are what carries the layering once the",
+      "   translucency is gone, and moving them would move the layout too.",
+      "",
+      "   Emitted for all six rungs rather than only the three with",
+      "   `translucent: true`. For canvas, card and raised the declarations are",
+      "   identical to the values above, so the block is a no-op for them; what it",
+      "   buys is that a component may read `var(--opsin-material-<rung>-blur)` for",
+      "   ANY rung and be right, with no conditional and no table of which rungs",
+      "   are translucent this month.",
+      "",
+      "   Both selectors are repeated for the reason the P3 block gives:",
+      "   `.opsin-product.dark` is (0,2,0) and outranks a bare `:root`, so a",
+      "   light-only block placed here would leave the dark theme translucent. */",
+      "@media (prefers-reduced-transparency: reduce) {",
+      [
+        indent(cssBlock(LIGHT_SELECTOR, transparency)),
+        indent(cssBlock(DARK_SELECTOR, transparency)),
+      ].join("\n\n"),
+      "}",
+      "",
+    )
+  }
+
   const reduced = tokens
     .filter((token) => token.reducedMotion !== undefined)
     .map((token) => `${token.cssVar}: ${token.reducedMotion};`)
@@ -933,6 +1037,8 @@ function emitTs(
         fields.push(`darkResolvedValue: ${q(token.darkResolved)}`)
       if (token.reducedMotion !== undefined)
         fields.push(`reducedMotionValue: ${q(token.reducedMotion)}`)
+      if (token.reducedTransparency !== undefined)
+        fields.push(`reducedTransparencyValue: ${q(token.reducedTransparency)}`)
       fields.push(`sourcePath: ${q(`${token.group}.json#${token.path}`)}`)
       return `  { ${fields.join(", ")} },`
     })
@@ -1007,6 +1113,12 @@ export interface GeneratedToken {
   darkResolvedValue?: string
   /** The value this token takes under \`prefers-reduced-motion: reduce\`. */
   reducedMotionValue?: string
+  /**
+   * The value this token takes under \`prefers-reduced-transparency: reduce\`.
+   * Only the material ladder has one: reduced transparency is a statement about
+   * surfaces, so no colour, type, space or shape token moves under it.
+   */
+  reducedTransparencyValue?: string
   /** Where it was authored: \`color.json#status.urgent.roles.ink\`. */
   sourcePath?: string
 }

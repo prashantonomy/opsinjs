@@ -25,6 +25,7 @@ import {
   KNOWN_BASES,
   KNOWN_STYLES,
   REGISTRY_ITEM_SCHEMA_URL,
+  REGISTRY_NAMESPACE,
   SITE_NAME,
   SITE_URL,
   absoluteUrl,
@@ -39,6 +40,12 @@ export interface RegistryItemFile {
   path: string
   type: string
   target?: string
+  /**
+   * The file's bytes. Optional in shadcn's schema and mandatory in practice: its
+   * installer skips any `files[]` entry without one, silently, and still reports
+   * success. See `RegistrySourceFile` in `./contracts`.
+   */
+  content?: string
 }
 
 export interface RegistryItem {
@@ -94,7 +101,7 @@ export function componentIndexUrl(): string | undefined {
  * the only place a "this does not exist yet" can arrive at the exact moment
  * somebody tries to install it.
  */
-function docsSentence(row: CatalogueRow): string {
+function docsSentence(row: CatalogueRow, files: RegistryItemFile[]): string {
   const url = componentDocsUrl(row.name) ?? componentIndexUrl() ?? SITE_URL
 
   if (row.status === "considered") {
@@ -105,7 +112,18 @@ function docsSentence(row: CatalogueRow): string {
     ].join(" ")
   }
 
-  if (row.status === "planned") {
+  /* `planned` has two shapes now, and they need two sentences rather than one
+     sentence with a patched clause.
+
+     A row keeps `status: "planned"` until its page has been rewritten from a
+     specification into documentation, and source can land under
+     `registry/bases/<base>/` before that rewrite happens — which is the state
+     this repository is in. In that window the old sentence is self-contradicting
+     twice over: it opens "is NOT IMPLEMENTED" and it goes on to say "there are
+     no files to install yet", beside a payload that ships three of them. So the
+     branch is chosen on the payload, not on the status, and each branch says one
+     coherent thing. */
+  if (row.status === "planned" && files.length === 0) {
     return [
       `${row.title} is NOT IMPLEMENTED. This registry entry is a specification, not a component:`,
       `it publishes the intended name, category and clinical contract so that tooling gets a`,
@@ -115,7 +133,42 @@ function docsSentence(row: CatalogueRow): string {
     ].join(" ")
   }
 
+  if (row.status === "planned") {
+    return [
+      `${row.title} installs source from this entry, and its documentation page is still marked`,
+      `a specification (status: planned) — the two have not been declared to agree yet.`,
+      `Treat the page as the contract and this code as an implementation under review:`,
+      `read it before you depend on the API, because it names the safety questions the`,
+      `component has to answer — at ${url}`,
+    ].join(" ")
+  }
+
   return `${row.title} — ${url}`
+}
+
+/**
+ * Bare catalogue ids in, namespaced registry references out.
+ *
+ * A catalogue row composes by id — `result-card` names `status-pill` — because
+ * the catalogue is the roster of what opsinjs contains and has no business
+ * knowing what a registry namespace is. shadcn does not read it that way: a
+ * dependency with no namespace is resolved against its own default registry, so
+ * a bare `status-pill` on the wire sends a consumer to
+ * `ui.shadcn.com/r/styles/<style>/status-pill.json` and they get a 404 or, worse,
+ * somebody else's component with the same name. `@opsinjs/status-pill` resolves
+ * through the `registries` entry the consumer already has in `components.json`,
+ * which is how they reached this item in the first place.
+ *
+ * An id that already carries a namespace or is an absolute URL is passed through
+ * untouched — that is how a row would declare a dependency on an upstream
+ * shadcn item, and rewriting it would break exactly that case.
+ */
+function namespaceRegistryDependencies(ids: string[]): string[] {
+  return ids.map((id) =>
+    id.startsWith("@") || /^https?:\/\//.test(id)
+      ? id
+      : `${REGISTRY_NAMESPACE}/${id}`
+  )
 }
 
 /* ------------------------------------------------------------------ *
@@ -152,9 +205,20 @@ function opsinjsMeta(
 
 /**
  * A full `registry-item.json`. `files` is omitted rather than sent empty while
- * nothing is built: an empty array reads as "this component has no source",
- * whereas an absent one, next to `implemented: false`, reads as "there is
- * nothing to install yet" — which is the true statement.
+ * nothing is built for this id: an empty array reads as "this component has no
+ * source", whereas an absent one, next to `implemented: false`, reads as "there
+ * is nothing to install yet" — which is the true statement.
+ *
+ * When there IS something to install, every entry in `files` carries `content`.
+ * That is not a nicety: an entry without it is skipped by shadcn's installer
+ * with no error and no output, so an item published without content resolves,
+ * prints this `docs` sentence, writes nothing, and reports success. The bytes
+ * come from `registry/__index__.ts`, which the generator fills at build time.
+ *
+ * `dependencies` and `registryDependencies` are omitted when empty rather than
+ * sent as `[]`, for the same reason `files` is: shadcn merges dependency arrays
+ * across an item tree, and an empty array adds a key to the payload that says
+ * nothing an absent key does not already say.
  */
 export function buildRegistryItem(
   row: CatalogueRow,
@@ -174,18 +238,37 @@ export function buildRegistryItem(
     description: row.description,
     author: SITE_NAME,
     categories: [row.category],
-    docs: docsSentence(row),
+    docs: docsSentence(row, files),
     meta: opsinjsMeta(row, base, style, files),
+  }
+  if (row.dependencies.length > 0) item.dependencies = [...row.dependencies]
+  if (row.registryDependencies.length > 0) {
+    item.registryDependencies = namespaceRegistryDependencies(
+      row.registryDependencies
+    )
   }
   if (files.length > 0) item.files = files
   return item
 }
 
 /**
- * The catalog form of an item. The registry specification forbids a `content`
- * property inside `files` in a catalog, and there is no reason to repeat the
- * long `docs` sentence on every row of a list, so both are dropped and the
- * per-item URL is published instead.
+ * The catalog form of an item.
+ *
+ * A catalog carries no `content` inside `files`: shadcn's own registry builder
+ * strips it when it publishes one, and repeating every component's whole source
+ * across a sixty-row listing turns a roster into a download. The paths, types
+ * and targets survive, because "what does this item install, and where" is
+ * precisely what a catalog is read for. `$schema` and `author` are dropped
+ * because they belong to the catalog document, not to each of its rows.
+ *
+ * `docs` is kept, deliberately and at the cost of some length. It is the string
+ * `npx shadcn mcp` shows an assistant that asked what opsinjs has, and it is the
+ * sentence that says a given id is a specification rather than a component. A
+ * roster of sixty ids with no such sentence is exactly the silent gap this
+ * surface exists to close.
+ *
+ * NOTE: the comment that stood here before claimed `docs` was dropped. It never
+ * was, and dropping it would have contradicted this module's own header.
  */
 export function buildCatalogEntry(row: CatalogueRow): RegistryItem {
   const item = buildRegistryItem(row, { withSchema: false })
@@ -195,7 +278,13 @@ export function buildCatalogEntry(row: CatalogueRow): RegistryItem {
     title: item.title,
     description: item.description,
     categories: item.categories,
-    files: item.files,
+    dependencies: item.dependencies,
+    registryDependencies: item.registryDependencies,
+    files: item.files?.map((file) => ({
+      path: file.path,
+      type: file.type,
+      ...(file.target === undefined ? {} : { target: file.target }),
+    })),
     docs: item.docs,
     meta: item.meta,
   }
@@ -267,7 +356,21 @@ export function serveRegistryItem(
   }
 
   // Canonical id, not the alias that may have been asked for.
-  return json(buildRegistryItem(row, { base, style }), {
-    headers: { "x-opsinjs-status": row.status },
+  const item = buildRegistryItem(row, { base, style })
+
+  /* This route serves ONE item, so `x-opsinjs-implemented` answers about that
+     item and overrides the system-wide default `json()` sets. Without this
+     override a `HEAD /r/card.json` answered `true` — because something,
+     somewhere, was built — while the body it described carried
+     `implemented: false` and no `files` at all. A tool deciding whether to
+     install would have been told yes about a component that has no code, which
+     is exactly the failure every other surface in this repository is built to
+     prevent. The system-wide answer is still on the response, unambiguously, as
+     `x-opsinjs-implemented-count`. */
+  return json(item, {
+    headers: {
+      "x-opsinjs-status": row.status,
+      "x-opsinjs-implemented": item.files && item.files.length > 0 ? "true" : "false",
+    },
   })
 }

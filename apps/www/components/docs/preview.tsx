@@ -33,11 +33,15 @@ import { NotBuiltYet } from "./stub"
    promise a 200% Dynamic Type demonstration and a promise with no mechanism
    behind it is the kind of accessibility claim this site exists to stop making.
 
-   Text size is a real font-size change on the preview surface, never a
-   `transform: scale()`. Scaling makes a screenshot; changing the font size
+   Text size is a real font-size change on the previewed document's root, never
+   a `transform: scale()`. Scaling makes a screenshot; changing the font size
    makes the layout reflow, wrap and truncate exactly as it does for somebody
    who has set 200% in their operating system — which is the only version of the
-   demonstration that tells you anything.
+   demonstration that tells you anything. The switches reach the framed document
+   as `?text=` and `?density=`, which app/(view)/layout.tsx's inline script
+   stamps onto <html> before first paint; product.css turns them into
+   `font-size` and `--spacing`. The same values are also applied to the surface
+   itself, so a specimen passed as `children` reflows identically.
 
    Density moves `--spacing` and nothing else. Tailwind v4 derives every spacing
    utility from that one custom property, so a container can re-scale its
@@ -45,18 +49,46 @@ import { NotBuiltYet } from "./stub"
    targets deliberately do NOT move: "compact" must never quietly mean "harder
    to hit".
 
-   TWO KINDS OF PREVIEW, AND THE DIFFERENCE MATTERS
+   BOTH PREVIEWS FRAME `/view`. THE DIFFERENCE IS WHAT THEY FRAME IT FOR.
 
-   <ComponentPreview> renders in the page, under the DOCS chrome (lyra: square,
-   dense, Inter). Cheap, indexable, printable, and honest about being an
-   approximation.
+   Both mount a `/view/[base]/[style]/[kind]/[name]` iframe, which is a
+   separate root layout with its own <html> and only product.css. That is the
+   only way to see the opsinjs PRODUCT theme — squircle, platform UI font,
+   generous — because the two stylesheets deliberately never meet.
 
-   <IframePreview> embeds a `/view/...` route, which is a separate root layout
-   with its own <html> and only product.css. That is the only way to see the
-   opsinjs PRODUCT theme — squircle, platform UI font, generous — because the
-   two stylesheets deliberately never meet. It is opt-in via `embed` while
-   nothing is built, so a page never silently frames a route that has nothing
-   in it; the target URL is printed either way so the reader can open it.
+   Rendering a component INLINE here instead would be a quiet lie. `--background`,
+   `--card`, `--radius` and `--spacing` exist in both stylesheets and would
+   resolve; `--secondary`, `--accent`, `--destructive`, `--popover`, `--sidebar*`,
+   `--chart-1..5` and `--radius-2xl/3xl/4xl` exist ONLY in globals.css and
+   resolve to nothing under product.css. An inline preview therefore shows a
+   component that is materially not the component the consumer installs, and
+   shows it in the one place a reviewer would most trust it. ADR 0004 and
+   ADR 0007 exist to stop exactly that.
+
+   <ComponentPreview> is the preview block on a component page: one component,
+   at the page's width, with the theme / density / text / status switches above
+   it. The switches rebuild the iframe's URL through `viewPath`, so flipping to
+   Dark or 200% reframes the document rather than restyling a picture of it.
+   It renders <NotBuiltYet> instead of a frame when the name resolves to
+   nothing — an iframe around an empty route teaches a reader that previews are
+   broken rather than that a component is unwritten. It also accepts `children`,
+   which foundations pages use to put specimen content under the same switches;
+   children win over everything, because a specimen is not a component and has
+   no registry entry to resolve.
+
+   <IframePreview> is the screen-scale one: device widths (390 / 744 / 1180),
+   a fixed frame height, and light/dark only. It is opt-in via `embed`, because
+   a 560px frame is a big thing to mount without the page asking for it. Both
+   print the target URL in the caption either way, so a reader can always open
+   the document a preview is showing them.
+
+   Neither builds a `/view` URL by hand. `viewPath` in lib/routes.ts owns the
+   query-string contract that app/(view)/layout.tsx's inline script reads.
+
+   NEITHER OF THESE IS WHAT MDX RESOLVES TO. `components/mdx.tsx` registers the
+   wrappers in `./preview-server`, which do the registry lookup this module
+   cannot do — see that file for why the boolean, and not the index, crosses
+   the client boundary.
    ========================================================================== */
 
 /** A subscription that never fires. Module-level so its identity is stable. */
@@ -282,25 +314,35 @@ export interface ComponentPreviewProps {
   /**
    * What to render inside the preview surface. Foundations pages pass specimen
    * content here so the density and text-size switches operate on something
-   * real while no component exists. Omit it and the surface renders
-   * <NotBuiltYet>, which is the honest state for all 24 component pages.
+   * real without pretending the specimen is a component. Children win over
+   * `name`: a specimen has no registry entry, and resolving one would be
+   * answering a question nobody asked.
    */
   children?: ReactNode
   /** Centre the content, or let it fill. Health tiles want `start`. */
   align?: "center" | "start"
-  /** Minimum height of the surface. */
+  /** Minimum height of the surface, and the height of the frame inside it. */
   minHeight?: number
   className?: string
+  /**
+   * Whether `name` resolves to something that really renders at `/view`.
+   *
+   * Set by <ComponentPreview> in ./preview-server, which is what MDX resolves
+   * to; a page never passes it and the wrapper's props type does not admit it.
+   * The lookup has to happen on the server because `registry/__index__.ts`
+   * carries every built component's full source text, and importing it here
+   * would ship all of it to the browser on every documentation page.
+   */
+  built?: boolean
 }
 
 /**
  * The preview block on a component page.
  *
- * While nothing is built this renders <NotBuiltYet> inside the frame WITH the
- * switches still present and still working. That is deliberate: the page keeps
- * communicating its intended shape, the controls are exercised from day one
- * rather than bolted on later, and a reader can see that the mechanism exists
- * before the component does.
+ * The switches are present and working whether or not anything is built. That
+ * is deliberate: the page keeps communicating its intended shape, the controls
+ * are exercised from day one rather than bolted on later, and a reader can see
+ * that the mechanism exists before the component does.
  */
 export function ComponentPreview({
   name,
@@ -311,6 +353,7 @@ export function ComponentPreview({
   align = "center",
   minHeight = 220,
   className,
+  built = false,
 }: ComponentPreviewProps) {
   const id = useId()
   const [mode, setMode] = useState<PreviewMode>("light")
@@ -334,14 +377,30 @@ export function ComponentPreview({
   }
 
   /*
-   * WIRING NOTE. When registry/__index__.ts stops being empty, the resolved
-   * entry is looked up here — `getRegistryEntry(name, resolved.base,
-   * resolved.style)` from lib/registry.ts — and its rendered `component`
-   * replaces the <NotBuiltYet> below. That is the only change this file needs.
-   * It is not imported today because the lookup returns null for every one of
-   * the 24 ids, and the import would pull the whole generated index into the
-   * client bundle of every documentation page for nothing.
+   * ONE URL, BUILT ONCE, FROM LIVE TOOLBAR STATE.
+   *
+   * The frame below and the "Open under the product theme" link in the caption
+   * must always address the same document; two constructions would drift the
+   * first time somebody added a parameter to one of them. It is built here
+   * rather than in the server wrapper because `mode`, `density` and `text` are
+   * client state: app/(view)/layout.tsx reads them off the query string before
+   * first paint, so a URL frozen at the server's values would leave every
+   * switch changing the surround and nothing inside it.
+   *
+   * `viewPath` owns the shape. Never write a "/view..." string here — that is
+   * both the decision-6 contract and an assert-ia failure.
    */
+  const viewSrc = name
+    ? viewPath({
+        base: resolved.base,
+        style: resolved.style,
+        kind,
+        name,
+        mode,
+        density: density === "default" ? undefined : density,
+        text: Number(text) as 100 | 125 | 150 | 200,
+      })
+    : null
 
   const surfaceStyle: CSSProperties &
     Record<string, string | number | undefined> = {
@@ -353,6 +412,11 @@ export function ComponentPreview({
   return (
     <figure
       data-opsinjs-preview={name ?? "unnamed"}
+      // The same marker <IframePreview> emits, and for the same reason: the
+      // nightly accessibility job and anything else auditing this page needs
+      // to know which document a preview is actually showing, without parsing
+      // an iframe out of the markup first.
+      data-opsinjs-view-src={children ? undefined : (viewSrc ?? undefined)}
       className={cn("not-prose my-6 border border-border", className)}
     >
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-border/60 px-3 py-2">
@@ -424,7 +488,27 @@ export function ComponentPreview({
         data-status={status === "none" ? undefined : status}
         style={surfaceStyle}
       >
-        {children ?? <NotBuiltYet name={name} className="w-full border-0" />}
+        {children ??
+          (built && viewSrc ? (
+            <iframe
+              // Remounting on every URL change is what keeps the switches
+              // instantaneous: assigning a new `src` to a live iframe pushes an
+              // entry onto the reader's back history, so four switches would
+              // turn one page into a dozen back-button presses.
+              key={viewSrc}
+              src={viewSrc}
+              title={`${name} rendered under the opsinjs product theme`}
+              loading="lazy"
+              className="w-full border-0"
+              // The frame is a viewport, not a canvas. It does not grow with the
+              // text-size switch, because a real reader at 200% does not get a
+              // taller screen either — they scroll, and seeing that happen is
+              // the point of the demonstration.
+              style={{ height: minHeight }}
+            />
+          ) : (
+            <NotBuiltYet name={name} className="w-full border-0" />
+          ))}
       </div>
 
       <figcaption className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 px-3 py-1.5 text-[0.6875rem] text-muted-foreground">
@@ -433,20 +517,8 @@ export function ComponentPreview({
           · base <code className="text-[0.6875rem]">{resolved.base}</code> ·
           style <code className="text-[0.6875rem]">{resolved.style}</code>
         </span>
-        {name ? (
-          <a
-            href={viewPath({
-              base: resolved.base,
-              style: resolved.style,
-              kind,
-              name,
-              mode,
-              density: density === "default" ? undefined : density,
-              text: Number(text) as 100 | 125 | 150 | 200,
-            })}
-            rel="noreferrer noopener"
-            target="_blank"
-          >
+        {viewSrc ? (
+          <a href={viewSrc} rel="noreferrer noopener" target="_blank">
             Open under the product theme
           </a>
         ) : null}
@@ -467,14 +539,27 @@ export interface IframePreviewProps {
   device?: Device
   height?: number
   /**
-   * Mount the iframe. Off while nothing is built: framing a route with nothing
-   * in it teaches a reader that previews are broken rather than that components
-   * are unwritten. The target URL is shown either way.
+   * Mount the iframe. Off by default: framing a route with nothing in it
+   * teaches a reader that previews are broken rather than that components are
+   * unwritten, and a screen-scale frame is the one place on a page where that
+   * mistake is largest. The target URL is shown either way.
+   *
+   * The default stays `false` even for a name that resolves. A screen page
+   * decides for itself whether a 560px frame earns its place, and taking that
+   * decision away from the page to save one attribute would be the wrong
+   * trade.
    */
   embed?: boolean
   /** Caption under the frame. */
   children?: ReactNode
   className?: string
+  /**
+   * Whether `name` resolves to something that really renders at `/view`. Set
+   * by <IframePreview> in ./preview-server; a page never passes it. It changes
+   * only what the UNMOUNTED frame says, so that a page which has not opted in
+   * to `embed` does not go on claiming a built screen does not exist.
+   */
+  built?: boolean
 }
 
 /**
@@ -492,6 +577,7 @@ export function IframePreview({
   embed = false,
   children,
   className,
+  built = false,
 }: IframePreviewProps) {
   const [device, setDevice] = useState<Device>(initialDevice)
   const [mode, setMode] = useState<PreviewMode>("light")
@@ -528,6 +614,26 @@ export function IframePreview({
               loading="lazy"
               className="h-full w-full border-0"
             />
+          </DeviceFrame>
+        ) : built ? (
+          /* A deliberate no-marker branch. <NotBuiltYet> would carry
+             `data-opsinjs-not-implemented` and the sr-only "does not exist in
+             any released version" sentence, and both would be false: this page
+             simply has not asked for the frame. Saying "not implemented" about
+             something implemented is the same defect as the reverse, and it is
+             the one an agent reading the markup would act on. */
+          <DeviceFrame device={device} height={height}>
+            <div
+              role="note"
+              className="flex h-full items-center justify-center border border-dashed border-border p-4 text-xs text-muted-foreground"
+            >
+              <p className="m-0">
+                This page does not mount the frame. Open{" "}
+                <code className="text-xs">{src}</code> to see{" "}
+                <code className="text-xs">{name}</code> under the product theme
+                rather than the documentation chrome.
+              </p>
+            </div>
           </DeviceFrame>
         ) : (
           <DeviceFrame device={device} height={height}>

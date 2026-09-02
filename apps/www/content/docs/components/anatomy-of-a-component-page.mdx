@@ -39,7 +39,7 @@ that is how a clinical contract gets copied onto a component it does not apply t
 | 1 | Header | generated | H1, the one-sentence plain-English definition, status and since badges, category, last accessibility review, the base and style switcher, Copy Page |
 | 2 | Status notice | generated from props | `<StubNotice>` at `planned`: the intended shape, the safety questions the component must answer, the tracking issue, the not-implemented marker |
 | 3 | Preview | generated | `<ComponentPreview>` at a base and style, with theme, density and text-size switches |
-| 4 | Installation | generated | `<ComponentInstall>` — CLI and manual tabs built from the registry item, never typed by hand |
+| 4 | Installation | generated | `<ComponentInstall>` — CLI and manual tabs built from the registry item, never typed by hand. The manual tab hosts `<ComponentSource>`, which resolves the id against the generated registry index and renders the component file's real bytes. That is the only place source appears on a page, and it is why no section owns it separately |
 | 5 | Usage | written | The import line and the minimal JSX. Two code blocks, zero prose |
 | 6 | When to use / when not to use | written | Two lists. Every entry in the *not* list names the component to use instead |
 | 7 | Clinical meaning | written | Mandatory for every `health-*` category, forbidden elsewhere |

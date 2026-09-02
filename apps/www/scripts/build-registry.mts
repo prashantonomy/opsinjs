@@ -18,14 +18,20 @@
  * generated artefact those routes do read is the theme payload, which
  * build-tokens.mts writes to registry/generated/themes/ for the same reason.
  *
- * REGISTRY_INDEX IS EMPTY, AND THAT IS THE DESIGN. An entry is emitted only
- * when a real source file exists under registry/bases/<base>/. Nothing is
- * built, so the index is empty, and `getRegistryEntry()` returns null - which
- * is exactly what makes <ComponentPreview> render <NotBuiltYet>. Emitting a
- * placeholder entry whose `component` is null would make that lookup return an
- * object, and every consumer would have to re-check the same emptiness one
- * level deeper. The shape contract in the committed placeholder says so
- * explicitly, and it is right.
+ * AN ENTRY EXISTS ONLY WHERE A FILE DOES. The index is generated from the
+ * directory listing of registry/bases/<base>/ and nothing else - no placeholder
+ * rows, no entries derived from the catalogue. `getRegistryEntry()` returning
+ * null is what makes <ComponentPreview> render <NotBuiltYet>; an entry whose
+ * `component` was null would make that lookup return an object, and every
+ * consumer would have to re-check the same emptiness one level deeper.
+ *
+ * IT INLINES THE BYTES, NOT ONLY THE PATHS. Each files[] entry carries the file
+ * text as `content`, because shadcn 4.20's installer loop skips any entry
+ * without one - silently, and then reports success. An item published with paths
+ * alone resolves, prints its docs sentence and writes nothing. Every component
+ * additionally ships the shared substrate (SHARED_FILES below), because a
+ * component importing @/lib/opsinjs compiles here and fails in the project that
+ * installed it unless that module travels with it.
  *
  * DETERMINISM: no timestamps. `pnpm check:generated` regenerates and diffs.
  */
@@ -79,6 +85,58 @@ const COMPONENTS_CONTENT_DIR = join(APP_DIR, "content", "docs", "components")
 const DEFAULT_BASE = "base"
 const DEFAULT_STYLE = "base-lyra"
 const KINDS = ["component", "example", "screen"]
+
+/**
+ * The substrate every distributed component ships alongside its own source.
+ *
+ * `shadcn add` copies files into a project that has none of this repository, so
+ * a component that imports `@/lib/opsinjs` compiles here and breaks there unless
+ * that module is in the same payload. Two files cover the whole allowed import
+ * surface: `lib/opsinjs.ts`, which every component imports, and `lib/status.ts`,
+ * which `lib/opsinjs.ts` re-exports and therefore imports. `@/lib/utils` is
+ * absent from this list on purpose - `shadcn init` writes it into every consumer
+ * before any item can be added, so shipping a third copy would collide with a
+ * file they already have and that they may have extended.
+ *
+ * `type: "registry:lib"` puts the file under the consumer's `components.json`
+ * `aliases.lib`, and the same alias is what shadcn rewrites a `@/lib/...` import
+ * specifier to, so `@/lib/opsinjs` names the same module at both ends with no
+ * rewriting by hand. `target` says that explicitly as `@lib/<basename>`: without
+ * one, shadcn derives the destination by looking for the alias directory's last
+ * path segment inside the file's own path and falling back to the basename, and
+ * that heuristic gives a surprising answer for a consumer whose lib alias
+ * happens to end in a segment this path also contains.
+ *
+ * Only `component`-kind items get these. Examples and screens are addressable at
+ * /view and rendered by <ComponentPreview>; they are never served from /r and
+ * never installed, so shipping the substrate with them would be dead weight in a
+ * payload nobody fetches.
+ */
+interface SharedFile {
+  /** Where the file lives, relative to apps/www. */
+  from: string
+  /** The `files[].path` published for it. */
+  path: string
+  /** The `files[].target` published for it. */
+  target: string
+  /** The `files[].type` published for it. */
+  type: string
+}
+
+const SHARED_FILES: SharedFile[] = [
+  {
+    from: join("lib", "opsinjs.ts"),
+    path: "lib/opsinjs.ts",
+    target: "@lib/opsinjs.ts",
+    type: "registry:lib",
+  },
+  {
+    from: join("lib", "status.ts"),
+    path: "lib/status.ts",
+    target: "@lib/status.ts",
+    type: "registry:lib",
+  },
+]
 
 /* ------------------------------------------------------------------ *
  * Helpers                                                             *
@@ -232,6 +290,18 @@ interface BuiltItem {
   kind: string
   /** Import specifier, relative to registry/. */
   specifier: string
+  /**
+   * The real filename, extension included. The published `files[].path` and
+   * `files[].type` are both derived from it rather than assumed: this walk
+   * accepts `.ts` as well as `.tsx`, and an emitted path with the wrong
+   * extension points at a file that does not exist.
+   */
+  file: string
+  source: string
+}
+
+/** A `SharedFile` with its text read off disk. */
+interface LoadedSharedFile extends SharedFile {
   source: string
 }
 
@@ -277,7 +347,7 @@ function findBuilt(bases: string[], styles: string[]): BuiltItem[] {
       const source = readFileSync(join(dir, file), "utf8")
       const specifier = `./${relative(REGISTRY_DIR, join(dir, name)).split("\\").join("/")}`
       for (const style of styles) {
-        built.push({ name, base, style, kind, specifier, source })
+        built.push({ name, base, style, kind, specifier, file, source })
       }
     }
   }
@@ -288,14 +358,216 @@ function findBuilt(bases: string[], styles: string[]): BuiltItem[] {
   return built
 }
 
+/**
+ * Read the shared substrate, or stop.
+ *
+ * A missing file here is not a degraded build, it is a build that publishes
+ * components a consumer cannot compile - and it would do it quietly, because
+ * every other gate in this repository would stay green. So this is one of the
+ * two places the generator exits non-zero, the other being the Node version
+ * guard. Restoring the file, or editing SHARED_FILES if the substrate genuinely
+ * moved, is the fix; there is no fallback that produces an honest payload.
+ */
+function loadSharedFiles(): LoadedSharedFile[] {
+  const loaded: LoadedSharedFile[] = []
+  const missing: string[] = []
+  for (const file of SHARED_FILES) {
+    const absolute = join(APP_DIR, file.from)
+    if (!exists(absolute) || isDirectory(absolute)) {
+      missing.push(file.from)
+      continue
+    }
+    loaded.push({ ...file, source: readFileSync(absolute, "utf8") })
+  }
+  if (missing.length > 0) {
+    console.error(
+      [
+        "",
+        "  build-registry: the shared substrate is missing.",
+        ...missing.map((file) => `    ${file}`),
+        "",
+        "  Every component's registry item ships these files so that a component",
+        "  importing @/lib/opsinjs compiles in the project that installed it. With",
+        "  one of them absent this script can only publish items that install",
+        "  something broken, so it stops here instead.",
+        "",
+      ].join("\n"),
+    )
+    process.exit(1)
+  }
+  return loaded
+}
+
+/**
+ * The one edit made to a shared file on its way into a registry payload: a
+ * relative import's explicit `.ts` extension is dropped.
+ *
+ * THIS EXISTS BECAUSE TWO CORRECT RULES COLLIDE, and both were verified rather
+ * than reasoned about.
+ *
+ * On disk, `lib/opsinjs.ts` imports `./status.ts` with the extension, because
+ * every lib module a `scripts/*.mts` might load under plain node has to carry
+ * one - node's ESM resolver does not guess extensions, and only
+ * build-registry.mts installs a hook that covers it. `import("./lib/opsinjs.ts")`
+ * from bare node with `./status` in it is ERR_MODULE_NOT_FOUND.
+ *
+ * In a project that installed the file, the extension is a compile error:
+ * TS5097, "an import path can only end with a '.ts' extension when
+ * 'allowImportingTsExtensions' is enabled". This repository enables it;
+ * create-next-app's tsconfig does not. Shipping the extension turns
+ * `shadcn add` from an install that writes nothing - the defect this whole
+ * change exists to fix - into an install that writes a project which will not
+ * build. Dropping it resolves identically under `moduleResolution: "bundler"`,
+ * which is what a consumer has.
+ *
+ * So the file keeps the extension and the payload drops it. The rewrite is
+ * deliberately the narrowest thing that works: a `from "…"` specifier that
+ * begins `./` or `../` and ends `.ts`. It is applied ONLY to shared files. A
+ * component's own text is published byte-for-byte, because that text is also its
+ * `source` - what <ComponentSource> renders - and a component whose published
+ * code differed from its displayed code would be lying about itself. Components
+ * need no rewrite anyway: they import `@/lib/utils` and `@/lib/opsinjs` and
+ * nothing else, and shadcn resolves both through the consumer's aliases.
+ */
+function forDistribution(source: string): string {
+  return source.replace(/(\bfrom\s+")(\.{1,2}\/[^"]*?)\.ts(")/g, "$1$2$3")
+}
+
+/**
+ * A stable, unique, readable identifier for a hoisted string constant.
+ *
+ * The emitted file names each file's text once and refers to it by identifier,
+ * so a component's source appears in registry/__index__.ts exactly once even
+ * though `source` and its `files[0].content` are both that text. Two distinct
+ * paths can reduce to the same identifier ("a-b/c" and "a/b-c" both give
+ * A_B_C), which would silently make one entry serve the other's bytes, so a
+ * collision gets a numeric suffix rather than a coin flip.
+ */
+function uniqueIdentifier(prefix: string, key: string, taken: Set<string>): string {
+  const stem = key
+    .replace(/[^A-Za-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .toUpperCase()
+  const base = `${prefix}_${stem === "" ? "FILE" : stem}`
+  let candidate = base
+  let suffix = 2
+  while (taken.has(candidate)) {
+    candidate = `${base}_${suffix}`
+    suffix += 1
+  }
+  taken.add(candidate)
+  return candidate
+}
+
+/**
+ * What one built file publishes as its own `files[]` entry.
+ *
+ * Both halves come from the real filename. `.tsx` is a component and lands under
+ * the consumer's `aliases.ui`; `.ts` is a module and lands under `aliases.lib`.
+ * The previous version of this function hardcoded `.tsx` and `registry:ui` for
+ * everything, which meant a `.ts` file under registry/bases/<base>/ advertised a
+ * path that does not exist on disk.
+ */
+function ownFileEntry(item: BuiltItem): { path: string; type: string; target: string } {
+  const isComponentFile = item.file.endsWith(".tsx")
+  return {
+    path: `registry/${item.specifier.slice(2)}${isComponentFile ? ".tsx" : ".ts"}`,
+    type: isComponentFile ? "registry:ui" : "registry:lib",
+    target: `${isComponentFile ? "@ui" : "@lib"}/${item.file}`,
+  }
+}
+
 /* ------------------------------------------------------------------ *
  * Emitters                                                            *
  * ------------------------------------------------------------------ */
 
-function emitIndex(built: BuiltItem[], bases: string[], styles: string[], hash: string): string {
+function emitIndex(
+  built: BuiltItem[],
+  shared: LoadedSharedFile[],
+  bases: string[],
+  styles: string[],
+  hash: string,
+): string {
+  /* Each distinct file text is named once and referred to by identifier.
+     `source` (what <ComponentSource> renders) and the matching `files[].content`
+     (what `shadcn add` writes to disk) are the same bytes by definition, and one
+     component's source inlined twice would double the size of this file to say
+     the same thing twice. The shared substrate is named once for the whole file
+     rather than once per component, which is the difference between two copies
+     of lib/status.ts and twenty-four. */
+  const taken = new Set<string>()
+
+  const sourceIdentifiers = new Map<string, string>()
+  const sourceConstants: string[] = []
+  for (const item of built) {
+    /* Keyed by specifier, not by index: findBuilt emits one item per style and
+       every style imports the identical module, so two entries share one text. */
+    if (sourceIdentifiers.has(item.specifier)) continue
+    const identifier = uniqueIdentifier("SOURCE", item.specifier.slice(2), taken)
+    sourceIdentifiers.set(item.specifier, identifier)
+    sourceConstants.push(`const ${identifier} = ${q(item.source)}`)
+  }
+
+  const sharedConstants: string[] = []
+  const sharedEntries: string[] = []
+  for (const file of shared) {
+    const identifier = uniqueIdentifier("SHARED", file.path, taken)
+    sharedConstants.push(`const ${identifier} = ${q(forDistribution(file.source))}`)
+    sharedEntries.push(
+      `  { path: ${q(file.path)}, type: ${q(file.type)}, target: ${q(file.target)}, content: ${identifier} },`,
+    )
+  }
+
+  /* THE GATE ON THE SILENT NO-OP.
+   *
+   * shadcn's installer loop is `if (!y.content) continue`. A `files[]` entry
+   * with no content is not an error, not a warning and not a retry: the file is
+   * skipped, the install reports success, and nothing is written. That failure
+   * mode is why this whole emitter exists, and nothing else in the repository
+   * would notice if it came back — `check:generated` only diffs the output
+   * against itself, so an emitter that stopped writing content would regenerate
+   * cleanly and every gate would stay green while `shadcn add` did nothing.
+   *
+   * So the invariant is asserted here, at the only place that can see it.
+   */
+  for (const item of built) {
+    const identifier = sourceIdentifiers.get(item.specifier)
+    if (identifier && (item.source ?? "").length > 0) continue
+    console.error(
+      [
+        `build-registry: ${item.kind} "${item.name}" would be emitted with no file content.`,
+        "",
+        "  shadcn skips a files[] entry that has no `content`, silently, and reports",
+        "  the install as successful. A component published this way resolves, prints",
+        "  its docs sentence, and writes nothing to disk.",
+        "",
+        `  Source read from: registry/${item.specifier.slice(2)}`,
+      ].join("\n"),
+    )
+    process.exit(1)
+  }
+  for (const file of shared) {
+    if (file.source.length > 0) continue
+    console.error(
+      `build-registry: the shared substrate file ${file.path} is empty, so every component would ship an empty ${file.target}.`,
+    )
+    process.exit(1)
+  }
+
   const entries = built
     .map((item) => {
       const key = `${item.base}/${item.style}/${item.kind}/${item.name}`
+      const identifier = sourceIdentifiers.get(item.specifier) ?? "\"\""
+      const own = ownFileEntry(item)
+      const ownLiteral = `{ path: ${q(own.path)}, type: ${q(own.type)}, target: ${q(own.target)}, content: ${identifier} }`
+      /* Only a component is ever installed, so only a component carries the
+         substrate. An example or a screen publishes its own file and nothing
+         else - it is reachable at /view and from <ComponentPreview>, and it is
+         unreachable from /r, which looks entries up as kind "component". */
+      const files =
+        item.kind === "component" && sharedEntries.length > 0
+          ? `[\n      ${ownLiteral},\n      ...SHARED_FILES,\n    ]`
+          : `[${ownLiteral}]`
       return [
         `  ${q(key)}: {`,
         `    name: ${q(item.name)},`,
@@ -303,13 +575,15 @@ function emitIndex(built: BuiltItem[], bases: string[], styles: string[], hash: 
         `    style: ${q(item.style)},`,
         `    kind: ${q(item.kind)},`,
         `    component: () => import(${q(item.specifier)}),`,
-        `    source: ${q(item.source)},`,
+        `    source: ${identifier},`,
         `    meta: null,`,
-        `    files: [{ path: ${q(`registry/${item.specifier.slice(2)}.tsx`)}, type: "registry:ui" }],`,
+        `    files: ${files},`,
         `  },`,
       ].join("\n")
     })
     .join("\n")
+
+  const fileTexts = [...sourceConstants, ...sharedConstants].join("\n\n")
 
   return `/* eslint-disable */
 /**
@@ -319,16 +593,24 @@ function emitIndex(built: BuiltItem[], bases: string[], styles: string[], hash: 
  * Generator: scripts/build-registry.mts   (\`pnpm run generate\`)
  * Gate:      \`pnpm check:generated\` regenerates this file and fails on a diff.
  *
- * REGISTRY_INDEX is EMPTY of entries rather than full of stubs, and that is
- * deliberate. \`getRegistryEntry()\` returning null is what makes
- * <ComponentPreview> render <NotBuiltYet>; an entry whose \`component\` was null
- * would make the same call return an object, and every consumer would have to
- * re-check the same emptiness one level deeper. An entry appears here the
- * moment a real file exists under registry/bases/<base>/, and not before.
+ * REGISTRY_INDEX has an entry for a component and no stub for anything else.
+ * \`getRegistryEntry()\` returning null is what makes <ComponentPreview> render
+ * <NotBuiltYet>; an entry whose \`component\` was null would make the same call
+ * return an object, and every consumer would have to re-check the same emptiness
+ * one level deeper. An entry appears here the moment a real file exists under
+ * registry/bases/<base>/, and not before.
  *
  * \`component\` is a dynamic import rather than a value so the preview surface can
  * code-split per component, and so this file stays free of top-level imports of
  * things that do not exist yet.
+ *
+ * THE FILE TEXTS ARE HOISTED AND NAMED. Each one appears once and is referred to
+ * by identifier, because a component's \`source\` and the \`content\` of its own
+ * files[] entry are the same bytes, and the shared substrate is the same bytes
+ * for every component. \`content\` is what \`shadcn add\` writes to disk: its
+ * installer skips a files[] entry that has none, without an error and without
+ * changing its success message, so an entry with a path and no content installs
+ * nothing at all.
  *
  * \`REGISTRY_META.generatedAt\` carries the source hash rather than a build time:
  * this file is guarded by a byte-for-byte drift gate, and a timestamp would fail
@@ -345,6 +627,11 @@ export interface RegistrySourceFile {
   path: string
   type: string
   target?: string
+  /**
+   * The file's own text. Mandatory in practice: shadcn's installer skips any
+   * entry without one, silently, and still reports the install as a success.
+   */
+  content?: string
 }
 
 export interface RegistryEntry {
@@ -356,17 +643,24 @@ export interface RegistryEntry {
   style: string
   kind: RegistryKind
   /**
-   * Lazily loaded renderable. \`null\` while nothing is built, which is the
-   * current and only state.
+   * Lazily loaded renderable. The type is \`| null\` because the field is part of
+   * the shape a consumer checks, not because a generated entry ever carries one:
+   * an entry exists only where a file does.
    */
   component: (() => Promise<{ default: ComponentType<Record<string, unknown>> }>) | null
-  /** The real source text, for \`<ComponentSource>\`. \`null\` while nothing is built. */
+  /** The real source text, for \`<ComponentSource>\`. */
   source: string | null
-  /** The registry-item.json payload served at \`/r/<name>.json\`. \`null\` while nothing is built. */
+  /**
+   * A pre-built registry-item.json payload. Always \`null\`: the item served at
+   * \`/r/<name>.json\` is assembled from the catalogue row and \`files\` by
+   * \`app/_machine/registry-payload.ts\`, so a second copy here would be a second
+   * thing to keep in step.
+   */
   meta: Record<string, unknown> | null
   /**
-   * The files this item distributes. Empty while nothing is built; the machine
-   * routes read it directly to build a registry-item response.
+   * The files this item distributes, own file first and the shared substrate
+   * after it. The machine routes read this directly to build a registry-item
+   * response, so what is here is what \`shadcn add\` writes to disk.
    */
   files?: RegistrySourceFile[]
 }
@@ -376,6 +670,22 @@ export const REGISTRY_BASES: string[] = [${bases.map(q).join(", ")}]
 
 /** Style variants. Style is a stylesheet and nothing else; see decision 6. */
 export const REGISTRY_STYLES: string[] = [${styles.map(q).join(", ")}]
+
+${fileTexts}
+
+/**
+ * The substrate appended to every component's \`files\`, named once and shared by
+ * reference so that twenty-four components cost one copy of each file rather
+ * than twenty-four. Nothing mutates these; the machine layer copies each entry
+ * into a fresh object on the way out.
+ *
+ * These texts differ from the files on disk in exactly one way: a relative
+ * import's \`.ts\` extension is dropped, because the repository needs it (plain
+ * node resolves no extensions) and a consumer cannot compile with it (TS5097,
+ * unless they enable \`allowImportingTsExtensions\`). See \`forDistribution\` in
+ * scripts/build-registry.mts. A component's own text is never rewritten.
+ */
+const SHARED_FILES: RegistrySourceFile[] = ${sharedEntries.length === 0 ? "[]" : `[\n${sharedEntries.join("\n")}\n]`}
 
 /** Keyed \`\${base}/\${style}/\${kind}/\${name}\`. Empty until something is built. */
 export const REGISTRY_INDEX: Record<string, RegistryEntry> = ${entries === "" ? "{}" : `{\n${entries}\n}`}
@@ -399,6 +709,8 @@ interface IndexRow {
   aliases: string[]
   implemented: boolean
   docs: string | null
+  dependencies?: string[]
+  registryDependencies?: string[]
   useInstead?: string[]
   why?: string
 }
@@ -551,10 +863,46 @@ async function main(): Promise<void> {
       ? (routesLib.componentPath as (id: string) => string)
       : (id: string) => ["", "docs", "components", id].join("/")
 
+  const shared = loadSharedFiles()
+
+  /* The walk happens BEFORE the projection, and it has to. `implemented` on an
+     index row is now a real answer rather than a hardcoded false, and the only
+     honest source for it is this directory listing. Reading registry/__index__.ts
+     instead would read the PREVIOUS run's output - the file this run is about to
+     overwrite - so lib/generated/catalogue.json would lag one generate behind,
+     two successive runs would differ, and `pnpm check:generated` would fail on a
+     file nobody edited. */
+  const bases = (() => {
+    const found = listDirs(join(REGISTRY_DIR, "bases"))
+    return found.length > 0 ? found : [DEFAULT_BASE]
+  })()
+  const styles = (() => {
+    const found = listDirs(join(REGISTRY_DIR, "styles"))
+    return found.length > 0 ? found : [DEFAULT_STYLE]
+  })()
+
+  const built = findBuilt(bases, styles)
+  /* Distinct names, deduplicated across styles AND across bases: two styles of
+     one component are one implemented component. REGISTRY_META.count is the
+     other number - index entries, i.e. files x styles - and the two diverge the
+     day a second style directory exists. */
+  const builtNames = new Set(
+    built.filter((item) => item.kind === "component").map((item) => item.name),
+  )
+  const isBuilt = (id: string): boolean => builtNames.has(id)
+
   const toIndexRow =
     typeof catalogueLib?.toIndexRow === "function"
-      ? (catalogueLib.toIndexRow as (entry: CatalogueRow, docsUrl: (id: string) => string) => IndexRow)
-      : (entry: CatalogueRow): IndexRow => ({
+      ? (catalogueLib.toIndexRow as (
+          entry: CatalogueRow,
+          docsUrl: (id: string) => string,
+          isBuilt: (id: string) => boolean,
+        ) => IndexRow)
+      : (
+          entry: CatalogueRow,
+          docsUrl: (id: string) => string,
+          built: (id: string) => boolean,
+        ): IndexRow => ({
           name: entry.name,
           title: entry.title ?? entry.name,
           description: entry.description ?? "",
@@ -563,13 +911,17 @@ async function main(): Promise<void> {
           status: entry.status ?? "planned",
           since: entry.since ?? "unreleased",
           aliases: entry.aliases ?? [],
-          implemented: false,
-          docs: entry.status === "considered" ? null : componentPath(entry.name),
+          implemented: built(entry.name),
+          docs: entry.status === "considered" ? null : docsUrl(entry.name),
+          dependencies: entry.dependencies as string[] | undefined,
+          registryDependencies: entry.registryDependencies as string[] | undefined,
           useInstead: entry.useInstead,
           why: entry.why,
         })
 
-  const rows = catalogue.map((entry) => toIndexRow(entry, componentPath))
+  const rows = catalogue.map((entry) =>
+    toIndexRow(entry, componentPath, isBuilt),
+  )
 
   const categoryOrder = Array.isArray(catalogueLib?.CATALOGUE_CATEGORIES)
     ? (catalogueLib.CATALOGUE_CATEGORIES as string[])
@@ -612,27 +964,23 @@ async function main(): Promise<void> {
     )
   }
 
-  const bases = (() => {
-    const found = listDirs(join(REGISTRY_DIR, "bases"))
-    return found.length > 0 ? found : [DEFAULT_BASE]
-  })()
-  const styles = (() => {
-    const found = listDirs(join(REGISTRY_DIR, "styles"))
-    return found.length > 0 ? found : [DEFAULT_STYLE]
-  })()
-
-  const built = findBuilt(bases, styles)
-  const builtNames = new Set(built.map((item) => item.name))
-
   const catalogueSource = exists(join(REGISTRY_DIR, "catalogue.ts"))
     ? readFileSync(join(REGISTRY_DIR, "catalogue.ts"), "utf8")
     : ""
+  /* The shared substrate is a hash input because it is part of what this script
+     publishes: editing lib/opsinjs.ts changes the bytes every component's
+     registry item ships, and a hash that ignored that would let the drift gate
+     pass over a real change to installed output. It is hashed unconditionally,
+     including in the state where nothing is built and nothing references it,
+     because a drift key with an exception is a drift key that is sometimes
+     wrong. */
   const hash =
-    catalogueSource === "" && built.length === 0
+    catalogueSource === "" && built.length === 0 && shared.length === 0
       ? "empty"
       : createHash("sha256")
           .update(catalogueSource)
           .update(built.map((item) => item.source).join(" "))
+          .update(shared.map((file) => file.source).join(" "))
           .digest("hex")
           .slice(0, 12)
 
@@ -665,7 +1013,7 @@ async function main(): Promise<void> {
     })
 
   const outputs = [
-    { file: OUT_INDEX, contents: emitIndex(built, bases, styles, hash) },
+    { file: OUT_INDEX, contents: emitIndex(built, shared, bases, styles, hash) },
     {
       file: OUT_CATALOGUE_JSON,
       contents: emitCatalogueJson(rows, categories, aliases, builtNames, hash),
@@ -734,6 +1082,8 @@ async function main(): Promise<void> {
         `${considered} considered, ${built.length} built (hash ${hash}).`,
       `  ${bases.length} base(s): ${bases.join(", ")} | ${styles.length} style(s): ${styles.join(", ")}` +
         ` | kinds: ${KINDS.join(", ")}`,
+      `  ${builtNames.size} component(s) installable, each shipping ${shared.length} shared file(s): ` +
+        `${shared.map((file) => file.path).join(", ")}`,
       ...outputs.map((output) => `  ${relative(APP_DIR, output.file)}`),
       `  ${writtenCount} file(s) changed.`,
     ].join("\n"),

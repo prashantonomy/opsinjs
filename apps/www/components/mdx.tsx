@@ -51,12 +51,14 @@ import {
 } from "./docs/meta"
 import { MotionCurve, MotionDemo } from "./docs/motion"
 import { PageTemplate } from "./docs/page-template"
-import {
-  ComponentPreview,
-  DeviceFrame,
-  IframePreview,
-  ViewportToolbar,
-} from "./docs/preview"
+import { DeviceFrame, ViewportToolbar } from "./docs/preview"
+/* ComponentPreview and IframePreview come from the SERVER wrapper, not from
+   ./docs/preview. The wrapper resolves the name against the generated registry
+   index and hands the client surface a single boolean; importing the index
+   into a "use client" module would put every built component's full source
+   text in the browser bundle of every page on this site. DeviceFrame and
+   ViewportToolbar have no lookup to do and come straight from the surface. */
+import { ComponentPreview, IframePreview } from "./docs/preview-server"
 import { SectionsRail } from "./docs/sections-rail"
 import {
   CodeBlockCommand,
