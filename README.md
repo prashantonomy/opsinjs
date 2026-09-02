@@ -48,7 +48,7 @@ skills/opsinjs    the Agent Skill: rules an assistant must follow to use opsinjs
 | `pnpm dev` | Runs the docs site (regenerates tokens and the registry index first) |
 | `pnpm build` | Generates, compiles MDX, then builds the site |
 | `pnpm typecheck` | Regenerates `.source`, runs `next typegen`, then `tsc --noEmit` |
-| `pnpm check` | Drift gate: generated files, information architecture, `llms.txt` |
+| `pnpm check` | Drift gate: generated files, information architecture, accessibility from source, `llms.txt` |
 | `pnpm lint` | ESLint flat config via `eslint-config-next` |
 
 ## Licences

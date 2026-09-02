@@ -65,8 +65,9 @@ that is a bad trade.
 
 - **Run `pnpm run check` before opening a pull request.** It runs four things:
   `check:generated`, `check:ia`, `check:a11y` and `check:llms`. It does not run
-  `pnpm typecheck` or `pnpm lint`, and CI runs those as separate steps, so run
-  them too — the three together are what the pull-request gate asks.
+  `pnpm typecheck` or `pnpm lint`, and CI runs those as separate steps along with
+  `pnpm build`, so run those too — the four together are what the pull-request
+  gate asks.
 - **Name the interface `<Component>Props` and export it.** This is the one
   convention that has a visible consequence in public if you get it wrong: an
   empty API table.

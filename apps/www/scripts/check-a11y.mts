@@ -72,10 +72,17 @@
  * and a `<code>watch</code>` in a demo are the API value and are left alone, while
  * `<span>Watch</span>` is the word and is not. It reads only whole text: a status
  * word inside a sentence is not reported, because "watch" and "urgent" are
- * ordinary English and a rule that fires on them fires on prose. The two gaps
- * that leaves - a shouted `URGENT`, and the word buried mid-sentence - are named
- * here rather than closed, because closing either one costs the level id or the
- * sentence.
+ * ordinary English and a rule that fires on them fires on prose.
+ *
+ * Three gaps follow, and all three are named rather than closed. A shouted
+ * `URGENT` is not the published casing. A word buried mid-sentence is not whole
+ * text. And the JSX-text scan reads only the FIRST text run after an opening
+ * tag, so `<span><svg />Urgent</span>` — a word placed after a sibling element,
+ * which is exactly how an icon-then-word pill is written — is invisible to it.
+ * The first two cost the level id or the sentence to close. The third is a
+ * limitation of scanning JSX with a regex rather than a parser, and the honest
+ * position is that this rule raises the cost of restating a status word without
+ * making it impossible. What it must never do is claim otherwise.
  *
  * ── SEVERITY, AND WHERE A WARNING ACTUALLY FAILS ──────────────────────────────
  *
@@ -518,8 +525,31 @@ function bannedWordPattern(word: string): RegExp {
     .split(/\s+/)
     .map((part) => escapeForRegExp(part).replace(/'/g, "['’]?"))
     .join("\\s+")
-  return new RegExp(`(?<![\\w-])${body}(?![\\w-])`, "gi")
+  return new RegExp(`\\b${body}\\b`, "gi")
 }
+
+/**
+ * Does this string look like a list of CSS utility classes rather than prose?
+ *
+ * It has to be asked, because this repository composes classes with `cn(...)`,
+ * so a class list is an ordinary string literal and not an attribute value.
+ * A token is utility-shaped when it is lower case, contains no sentence
+ * punctuation, and carries a `-` or a `:` — `whitespace-normal`,
+ * `dark:bg-status-urgent-surface`, `size-[1em]`. A sentence fails on the first
+ * capital or full stop, and a one-word string fails for want of a separator, so
+ * `"normal"` on its own is still copy and is still caught.
+ */
+function looksLikeClassList(text: string): boolean {
+  const tokens = text.trim().split(/\s+/).filter(Boolean)
+  if (tokens.length === 0) return false
+  let separated = 0
+  for (const token of tokens) {
+    if (!/^[a-z0-9:[\]()/.,%_#-]+$/.test(token)) return false
+    if (token.includes("-") || token.includes(":")) separated += 1
+  }
+  return separated > 0
+}
+
 
 /* ------------------------------------------------------------------ *
  * A11Y001-002 - the status carriers                                   *
@@ -556,13 +586,69 @@ function bannedWordPattern(word: string): RegExp {
  * report the wrong one, which for a checker is worse than reporting nothing.
  */
 function withoutComments(source: string): string {
-  const blank = (text: string): string => text.replace(/[^\n]/g, " ")
-  return source
-    .replace(/\/\*[\s\S]*?\*\//g, blank)
-    .replace(
-      /(^|[^:])(\/\/[^\n]*)/g,
-      (_match: string, before: string, comment: string) => before + blank(comment),
-    )
+  /* Character-by-character rather than two regexes, and the reason is a real
+     defect rather than fastidiousness: a `/*` inside one string literal pairs
+     with a `*​/` inside another, and the regex form then blanks every line
+     between them. That silently switched off A11Y001 and both halves of A11Y002
+     over the region — a check that stops checking without saying so, which is
+     the failure mode this whole file exists to avoid.
+
+     Blanks rather than deletes: every character inside a comment becomes a
+     space and newlines are kept, so an offset into the result is the same
+     offset into the source and a reported line number is real. */
+  let out = ""
+  let index = 0
+  const length = source.length
+
+  while (index < length) {
+    const char = source[index] as string
+    const next = source[index + 1]
+
+    if (char === '"' || char === "'" || char === "`") {
+      const quote = char
+      out += char
+      index += 1
+      while (index < length) {
+        const inner = source[index] as string
+        out += inner === "\n" ? "\n" : inner
+        if (inner === "\\") {
+          if (index + 1 < length) out += source[index + 1] as string
+          index += 2
+          continue
+        }
+        index += 1
+        if (inner === quote) break
+      }
+      continue
+    }
+
+    if (char === "/" && next === "*") {
+      while (index < length) {
+        const inner = source[index] as string
+        out += inner === "\n" ? "\n" : " "
+        if (inner === "*" && source[index + 1] === "/") {
+          out += " "
+          index += 2
+          break
+        }
+        index += 1
+      }
+      continue
+    }
+
+    if (char === "/" && next === "/") {
+      while (index < length && source[index] !== "\n") {
+        out += " "
+        index += 1
+      }
+      continue
+    }
+
+    out += char
+    index += 1
+  }
+
+  return out
 }
 
 /**
@@ -621,7 +707,9 @@ function statusColourPattern(levels: string[]): RegExp {
   return new RegExp(
     "(?:--opsin-status-(?:" +
       alternation +
-      ")-|\\b(?:bg|text|border|ring|fill|stroke|from|via|to|decoration|outline|shadow|accent|caret|divide|placeholder)-status-(?:" +
+      ")-|\\b(?:" +
+      COLOUR_UTILITIES +
+      ")-status-(?:" +
       alternation +
       ")\\b)",
   )
@@ -640,12 +728,17 @@ function checkStatusCarriers(
   const readsMeta = /\bCLINICAL_STATUS_META\b/.test(code)
   const importsLucide = /from\s+["']lucide-react["']/.test(code)
   const paintsStatus = statusColourPattern(statusLevels).test(code)
-  /* The escape hatch is narrow on purpose. Delegating the word and the glyph to
-     a composed component is legitimate; painting the status colour YOURSELF and
-     then claiming the component you imported carries the meaning is not, because
-     the colour is on your element and the word is on theirs. */
-  const composesRegistry =
-    /from\s+["']@\/registry\/[^"']+\/ui\/[^"']+["']/.test(code) && !paintsStatus
+  /* THE ESCAPE HATCH, AND WHY IT HAS TO BE THIS WIDE.
+     It was briefly narrowed to exclude a file that paints a status colour
+     itself, on the theory that painting the surface and delegating the word is
+     having it both ways. That is precisely the shape the substrate contract
+     PRESCRIBES: an AlertBanner tints its own surface from the status axis and
+     renders a StatusPill inside for the word and the glyph. Under the narrowed
+     rule that component was a hard error with no repair available except
+     deleting the rule — which is how a gate dies. One file cannot tell the
+     difference, so it says so, at warning severity, and `--strict` is what
+     makes a warning fail. */
+  const composesRegistry = /from\s+["']@\/registry\/[^"']+\/ui\/[^"']+["']/.test(code)
 
   /* Anything that stamps the attribute, reads the vocabulary, or paints the
      colour is a status surface and owes all four carriers. */
@@ -744,9 +837,12 @@ function checkStatusCarriers(
           "owned by CLINICAL_STATUS_META and are read from it, never restated: a " +
           "second copy is a second copy that can drift, and the words are the " +
           "primary carrier of a status for every reader who cannot use the colour. " +
-          "Render CLINICAL_STATUS_META[level].word instead - and if this is a " +
-          "translation or a product's own wording, that is what StatusPill's " +
-          "`label` prop is for.",
+          "Render CLINICAL_STATUS_META[level].word instead. A translation or a " +
+          "product's own wording belongs in the value a CONSUMER passes to " +
+          "StatusPill's `label` prop, not in a literal inside the registry - this " +
+          "rule fires on `label=\"Urgent\"` written here too, and that is " +
+          "deliberate: opsinjs shipping its own override of its own vocabulary is " +
+          "the drift the rule exists to stop.",
         lineAt(starts, candidate.index),
       )
     }
@@ -1022,19 +1118,49 @@ function checkBannedWords(
   starts: number[],
   banned: { word: string; instead: string }[],
 ): void {
+  /* WHAT COUNTS AS COPY, AND WHY IT IS NOT THE WHOLE FILE.
+     This rule reads string literals that are not class lists, plus JSX text.
+     It does not read class names, and it no longer reads comments.
+
+     Both exclusions were forced by real false positives on the first component
+     this repository built. `whitespace-normal` is a Tailwind utility, and `\b`
+     treats a hyphen as a word boundary, so a correct file was reported twice —
+     once for the class and once for the comment explaining the class.
+
+     The first repair attempted was to make the word pattern reject a hyphen on
+     either side. It was caught in review and reverted: it silenced the ban
+     across all hyphenated prose, so "your result is normal-ish" would have
+     passed a health system's own lint. The scope was the defect, not the
+     boundary.
+
+     Dropping comments narrows what this rule used to CLAIM, and the claim was
+     the thing that was wrong. `tokens/glossary.json:19` extends the ban to code
+     identifiers, and `health/reference-ranges.mdx` scopes it to "any
+     user-facing string about a person's own result". Neither mentions comments,
+     and a comment that quotes a banned word in order to explain the ban is not
+     the defect anybody meant. Identifiers are covered, harder than before, by
+     A11Y010 below. */
+  const code = withoutComments(source)
+  const copy = [
+    ...stringLiterals(code).filter((literal) => !looksLikeClassList(literal.text)),
+    ...jsxTextNodes(code),
+  ]
+
   for (const entry of banned) {
-    const pattern = bannedWordPattern(entry.word)
-    let match: RegExpExecArray | null
-    while ((match = pattern.exec(source)) !== null) {
-      fail(
-        "A11Y009",
-        file,
-        `"${match[0]}" is a banned word. Write "${entry.instead}" instead. The ban ` +
-          "covers copy, default labels, prop names, type names, variable names and " +
-          "comments, because a word in a comment becomes a word in the next " +
-          "person's copy.",
-        lineAt(starts, match.index),
-      )
+    for (const region of copy) {
+      const pattern = bannedWordPattern(entry.word)
+      let match: RegExpExecArray | null
+      while ((match = pattern.exec(region.text)) !== null) {
+        fail(
+          "A11Y009",
+          file,
+          `"${match[0]}" is a banned word in reader-facing copy. Write ` +
+            `"${entry.instead}" instead. It reaches somebody who is reading about ` +
+            "their own health, and every word on the list is one that describes " +
+            "the person rather than the measurement.",
+          lineAt(starts, region.index),
+        )
+      }
     }
   }
 

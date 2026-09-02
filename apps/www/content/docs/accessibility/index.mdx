@@ -104,11 +104,21 @@ looks like, because "test with a screen reader" is not a test.
 
 <NoDataYet script="scripts/check-contrast.mts" />
 
-Contrast is the only accessibility property of this system that can be measured
-today, because it is a property of the tokens rather than of a component. Once
-`pnpm run contrast` has run, the measured APCA Lc and WCAG 2.2 ratios for every
-published token pair appear on
+Contrast is the accessibility property this system measures most confidently,
+because it is a property of the tokens rather than of a component: `pnpm run
+contrast` computes it without rendering anything. The measured APCA Lc and WCAG
+2.2 ratios for every published token pair appear on
 [Contrast conformance](./contrast-conformance.mdx), dated, in both themes.
+
+It is no longer the only one. `pnpm run check:a11y` reads every component source
+on each pull request and fails on a status carried by colour alone, a `px` type
+size, a raw colour literal, both colour axes on one element, a banned word in
+copy or in an identifier, and a role that exists only under the documentation
+chrome. It reads text, not a rendered page, so it can prove a component does not
+do those things and cannot prove that what it renders is usable. The
+layout-dependent half — hit area, 1.3× and 200% against the built `/view`
+routes — runs nightly, on a schedule, which means it goes red the morning after
+a merge rather than before it.
 
 Every other measured result on this site is currently absent, and the pages that
 would carry those numbers say so in words rather than filling the gap.
