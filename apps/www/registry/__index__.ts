@@ -65,10 +65,21 @@ export const REGISTRY_BASES: string[] = ["base"]
 export const REGISTRY_STYLES: string[] = ["base-lyra"]
 
 /** Keyed `${base}/${style}/${kind}/${name}`. Empty until something is built. */
-export const REGISTRY_INDEX: Record<string, RegistryEntry> = {}
+export const REGISTRY_INDEX: Record<string, RegistryEntry> = {
+  "base/base-lyra/component/status-pill": {
+    name: "status-pill",
+    base: "base",
+    style: "base-lyra",
+    kind: "component",
+    component: () => import("./bases/base/status-pill"),
+    source: "/**\n * THROWAWAY — pipeline proof only (brief §0.6). Replaced in Phase 2.\n *\n * It exists to answer four questions before anything is designed:\n * does `findBuilt()` see a flat file here, does `REGISTRY_INDEX` gain exactly\n * one entry, does `/view/base/base-lyra/component/status-pill` render with\n * `data-opsin-view-state=\"ready\"`, and does the emitted\n * `ComponentType<Record<string, unknown>>` typing accept a zero-prop default\n * export. Nothing here is the specification.\n */\n\nexport interface StatusPillProps {\n  /** Placeholder. The real interface arrives in Phase 2. */\n  label: string\n}\n\nexport function StatusPill({ label }: StatusPillProps) {\n  return <span data-slot=\"status-pill\">{label}</span>\n}\n\nexport default function StatusPillDemo() {\n  return <StatusPill label=\"Pipeline proof\" />\n}\n",
+    meta: null,
+    files: [{ path: "registry/bases/base/status-pill.tsx", type: "registry:ui" }],
+  },
+}
 
 export const REGISTRY_META: { generatedAt: string | null; sourceHash: string; count: number } = {
-  generatedAt: "94e90e8387af",
-  sourceHash: "94e90e8387af",
-  count: 0,
+  generatedAt: "aa764b08ae37",
+  sourceHash: "aa764b08ae37",
+  count: 1,
 }

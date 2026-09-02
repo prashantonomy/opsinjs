@@ -52,6 +52,28 @@ import { type Dirent, readdirSync, readFileSync, statSync } from "node:fs"
 import { join, relative, sep } from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
 
+/* THE OUTLINE TABLE, READ FROM THE SAME PLACE <PageTemplate> READS IT.
+   A component page's outline depends on its `status` as well as its `kind`, so
+   it cannot be derived from a single template file: the moment one page reaches
+   `alpha`, a template-derived outline demands "Proposed API" while
+   <PageTemplate> demands "Usage", and no page edit satisfies both. Both
+   enforcers now read lib/status.ts, which is also what
+   content/_templates/component.mdx implements - and the template is checked
+   against it below (OUT012) so it cannot rot unnoticed.
+
+   The specifier carries an explicit `.ts` because this file is executed by
+   plain `node` under native type stripping, which does not rewrite specifiers
+   and does not read tsconfig's `@/*` alias. `lib/status.ts` has no imports of
+   its own and no non-erasable syntax, so this costs nothing at load time.
+   `registry/catalogue.ts:36` imports the same module the same way. */
+import {
+  accessibilitySectionFor,
+  componentSections,
+  isStatus,
+  SECTION_OUTLINES,
+  type Status,
+} from "../lib/status.ts"
+
 const APP_DIR = fileURLToPath(new URL("../", import.meta.url))
 const DOCS_DIR = join(APP_DIR, "content", "docs")
 const TEMPLATES_DIR = join(APP_DIR, "content", "_templates")
@@ -687,10 +709,12 @@ const OUTLINE_POLICY: Record<string, "exact" | "fixed" | "header" | "free"> = {
  * H2s that are conditional rather than required. "Clinical meaning" is present
  * if and only if the component's category begins with `health-`, and the
  * anatomy contract enforces both directions.
+ *
+ * `component` is deliberately absent: `componentSections(status, category)`
+ * already drops "Clinical meaning" for a non-`health-` category, and OUT010
+ * below is what reports the two directions with a message worth reading.
  */
-const CONDITIONAL_HEADINGS: Record<string, string[]> = {
-  component: ["Clinical meaning"],
-}
+const CONDITIONAL_HEADINGS: Record<string, string[]> = {}
 
 /**
  * Kinds whose template contains placeholder headings, where only a named subset
@@ -705,12 +729,62 @@ const REQUIRED_HEADINGS: Record<string, string[]> = {
 function loadOutlines(): Record<string, string[]> {
   const outlines: Record<string, string[]> = {}
   for (const kind of Object.keys(OUTLINE_POLICY)) {
+    /* `component` is status-gated and comes from lib/status.ts, not from a
+       template - see the import at the top of this file and OUT012 below. */
+    if (kind === "component") continue
     const file = join(TEMPLATES_DIR, `${kind}.mdx`)
     if (!exists(file)) continue
     const parsed = parsePage(file)
     if (parsed.headings.length > 0) outlines[kind] = parsed.headings
   }
   return outlines
+}
+
+/**
+ * OUT012 - the template must keep implementing the table.
+ *
+ * Sourcing the component outline from `lib/status.ts` removes the only thing
+ * that was checking `content/_templates/component.mdx`, and an unchecked
+ * template rots: a contributor copies it, gets a page that fails the build, and
+ * concludes the enforcer is broken. So the template is now asserted against
+ * `componentSections("planned", "health-")` directly.
+ *
+ * The other exact-outline kinds are checked the same way against
+ * `SECTION_OUTLINES`, because the same argument applies to all of them and the
+ * two lists agree today.
+ */
+function checkTemplateOutlines(): void {
+  const cases: { kind: string; expected: string[] }[] = [
+    { kind: "component", expected: componentSections("planned", "health-") },
+  ]
+  for (const kind of Object.keys(OUTLINE_POLICY)) {
+    if (kind === "component") continue
+    if (OUTLINE_POLICY[kind] !== "exact") continue
+    const expected = SECTION_OUTLINES[kind as keyof typeof SECTION_OUTLINES]
+    if (expected) cases.push({ kind, expected })
+  }
+
+  for (const { kind, expected } of cases) {
+    const file = join(TEMPLATES_DIR, `${kind}.mdx`)
+    if (!exists(file)) {
+      warn(
+        "OUT004",
+        relative(APP_DIR, file),
+        `content/_templates/${kind}.mdx is missing, so nothing checks that the template still implements the outline in lib/status.ts.`,
+      )
+      continue
+    }
+    const found = parsePage(file).headings
+    if (found.join(" ") === expected.join(" ")) continue
+    fail(
+      "OUT012",
+      relative(APP_DIR, file),
+      `the template no longer implements the outline in lib/status.ts. Expected ${expected
+        .map((heading) => `"${heading}"`)
+        .join(" -> ")}, found ${found.map((heading) => `"${heading}"`).join(" -> ")}. Change lib/status.ts and the template together, never one alone.`,
+      1,
+    )
+  }
 }
 
 /* ================================================================== *
@@ -871,6 +945,42 @@ function checkFrontmatter(page: ParsedPage, schema: FrontmatterSchema | undefine
   }
 }
 
+/**
+ * Headings that are legitimately written two ways.
+ *
+ * This table is a deliberate copy of the one in
+ * `components/docs/page-template.tsx:74-81`, and the two must stay identical:
+ * that file runs during `next build` and throws, this one runs in `pnpm check`
+ * and can name a line. A page that satisfies one and fails the other is a page
+ * nobody can write. The table cannot be shared through `lib/status.ts` without
+ * teaching the status vocabulary about heading spellings, which is a different
+ * concern - so it is duplicated, and this comment is the reason.
+ */
+const HEADING_ALIASES: Record<string, string[]> = {
+  "when to use it": ["when to use"],
+  accessibility: ["accessibility requirements"],
+  "accessibility requirements": ["accessibility"],
+  "research and rationale": ["research & rationale", "research"],
+  "approved / rejected": ["approved and rejected"],
+  "why (evidence)": ["why", "why — evidence"],
+}
+
+/** "Approved / Rejected" and "approved  /  rejected" are the same heading. */
+function normaliseHeading(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[‘’]/g, "'")
+    .replace(/\s*\/\s*/g, " / ")
+    .replace(/[.:]+$/, "")
+    .replace(/\s+/g, " ")
+    .trim()
+}
+
+function headingCandidates(heading: string): string[] {
+  const key = normaliseHeading(heading)
+  return [key, ...(HEADING_ALIASES[key] ?? []).map(normaliseHeading)]
+}
+
 function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): void {
   const file = rel(page.file)
   const kind = asText(page.frontmatter.kind)
@@ -878,19 +988,9 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
   const policy = OUTLINE_POLICY[kind]
   if (!policy || policy === "free") return
 
-  const outline = outlines[kind]
-  if (!outline) {
-    warn(
-      "OUT004",
-      file,
-      `content/_templates/${kind}.mdx is missing, so this page's headings could not be checked against its kind.`,
-    )
-    return
-  }
-
-  const conditional = new Set(CONDITIONAL_HEADINGS[kind] ?? [])
   const present = page.headings
   const presentSet = new Set(present)
+  const status = asText(page.frontmatter.status)
 
   /* ADR 0008 - the second status gate. A `considered` component page is not a
      specification and must not be checked as one: it exists so that a guessed
@@ -900,8 +1000,13 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
      Accessibility bar for a component nobody has designed - which is exactly
      the padding-into-substance the ADR rejects. `componentSections()` in
      lib/status.ts already returns [] here for <PageTemplate>; this is the same
-     gate on the authoring side. */
-  if (kind === "component" && asText(page.frontmatter.status) === "considered") {
+     gate on the authoring side.
+
+     This runs BEFORE the outline is resolved, and it has to:
+     `componentSections("considered", …)` returns an empty array, which is
+     truthy, so a considered page would otherwise reach the `exact` branch with
+     an empty allow-list and fail OUT002 on every one of its own headings. */
+  if (kind === "component" && status === "considered") {
     for (const heading of CONSIDERED_COMPONENT_HEADINGS) {
       if (!presentSet.has(heading)) {
         fail(
@@ -924,6 +1029,39 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
     return
   }
 
+  /* THE OUTLINE. For every kind but `component` it is the template's H2 list.
+     For `component` it is status-gated and comes from the same table
+     <PageTemplate> throws on, because a component page's outline is a function
+     of its release phase: `planned` has "Proposed API" and "Accessibility
+     requirements", `alpha` replaces them with "Usage", "Examples", "API
+     reference" and "Accessibility". A single template cannot express that, and
+     a page cannot satisfy two enforcers that disagree about it. */
+  let outline: string[] | undefined
+  let outlineSource: string
+  if (kind === "component") {
+    if (!isStatus(status)) {
+      /* FM003 reports the bad status with a better message; checking a page's
+         headings against an outline we cannot resolve would only add noise. */
+      return
+    }
+    outline = componentSections(status as Status, asText(page.frontmatter.category) ?? "")
+    outlineSource = `componentSections("${status}", …) in lib/status.ts`
+  } else {
+    outline = outlines[kind]
+    outlineSource = `content/_templates/${kind}.mdx`
+  }
+
+  if (!outline) {
+    warn(
+      "OUT004",
+      file,
+      `content/_templates/${kind}.mdx is missing, so this page's headings could not be checked against its kind.`,
+    )
+    return
+  }
+
+  const conditional = new Set(CONDITIONAL_HEADINGS[kind] ?? [])
+
   if (policy === "header") {
     const first = outline[0]
     if (first && !presentSet.has(first)) {
@@ -932,26 +1070,85 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
     return
   }
 
+  /* Heading aliases, mirroring <PageTemplate>. Two enforcers that disagree
+     about whether "## Accessibility" and "## Accessibility requirements" are
+     the same section produce a page nobody can write: this script would demand
+     one spelling and `next build` would throw on the other. So a component
+     page's headings are folded onto their canonical section name here, and
+     every check below runs on the folded list. Nothing is loosened - the
+     canonical section must still be present, in the right place, and a heading
+     that folds onto nothing is still OUT002.
+
+     Only `component` is folded. The other eleven kinds keep the byte-exact
+     matching they have always had. */
+  const canonicalOf = new Map<string, string>()
+  if (kind === "component") {
+    for (const section of outline) {
+      for (const candidate of headingCandidates(section)) canonicalOf.set(candidate, section)
+    }
+    /* Both spellings of section 14 resolve at every status; the canonical one
+       for THIS status is the one the outline already asked for. */
+    const a11y = normaliseHeading(accessibilitySectionFor(status as Status))
+    const a11ySection = outline.find((section) => headingCandidates(section).includes(a11y))
+    if (a11ySection) canonicalOf.set(a11y, a11ySection)
+  }
+  const folded =
+    kind === "component"
+      ? present.map((heading) => canonicalOf.get(normaliseHeading(heading)) ?? heading)
+      : present
+  const foldedSet = new Set(folded)
+
+  /* OUT013 - section 14 is spelled by its status, and only by its status.
+     Folding the two spellings above is what stops a page failing OUT001 and
+     OUT002 for one heading, but it must not make the spelling optional: the
+     section is "Accessibility requirements" at `planned`, because at that
+     status it is a bar the implementation has to clear, and "Accessibility"
+     from `alpha` onwards, when there is something measured to report. That
+     distinction is the whole reason `accessibilitySectionFor()` exists, and
+     <PageTemplate> cannot enforce it - it accepts either spelling at every
+     status by design, because a runtime throw is the wrong place to argue
+     about a word. This is the right place. */
+  if (kind === "component") {
+    const canonicalA11y = accessibilitySectionFor(status as Status)
+    const spellings = headingCandidates(canonicalA11y)
+    for (const heading of present) {
+      const key = normaliseHeading(heading)
+      if (!spellings.includes(key)) continue
+      if (key === normaliseHeading(canonicalA11y)) continue
+      fail(
+        "OUT013",
+        file,
+        `"## ${heading}" carries this component's accessibility contract, but at status: ${status} that section is spelled "## ${canonicalA11y}". accessibilitySectionFor() in lib/status.ts owns the name - "Accessibility requirements" at planned, "Accessibility" from alpha onwards - because at planned it is a bar to clear and afterwards it is a result to report.`,
+      )
+    }
+  }
+
   const required =
     REQUIRED_HEADINGS[kind] ?? outline.filter((heading) => !conditional.has(heading))
   for (const heading of required) {
-    if (!presentSet.has(heading)) {
+    if (!foldedSet.has(heading)) {
       fail(
         "OUT001",
         file,
-        `missing "## ${heading}". The outline for kind: ${kind} is fixed - see content/_templates/${kind}.mdx.`,
+        `missing "## ${heading}". The outline for kind: ${kind} is fixed - see ${outlineSource}.`,
       )
     }
   }
 
   if (policy === "exact") {
     const allowed = new Set(outline)
-    for (const heading of present) {
+    /* A non-health component carrying "## Clinical meaning" is one defect, not
+       two. It is allowed through here so that OUT010 below reports it with the
+       message that says what to do about it. */
+    if (kind === "component") allowed.add("Clinical meaning")
+    for (const heading of folded) {
       if (!allowed.has(heading)) {
         fail(
           "OUT002",
           file,
-          `"## ${heading}" is not part of the outline for kind: ${kind}. Use an H3 inside an existing section, or change the page's kind.`,
+          kind === "component"
+            ? `"## ${heading}" is not part of the outline for a component at status: ${status}. The outline is ${outline.map((section) => `"${section}"`).join(" -> ")}. Use an H3 inside an existing section, or move the page to the status whose outline has it.`
+            : `"## ${heading}" is not part of the outline for kind: ${kind}. Use an H3 inside an existing section, or change the page's kind.`,
         )
       }
     }
@@ -960,8 +1157,8 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
   /* Order. Only the headings the contract names are ordered; a guide's own task
      sections may appear between them. */
   const ordering = REQUIRED_HEADINGS[kind] ?? outline
-  const ordered = present.filter((heading) => ordering.includes(heading))
-  const expected = ordering.filter((heading) => presentSet.has(heading))
+  const ordered = folded.filter((heading) => ordering.includes(heading))
+  const expected = ordering.filter((heading) => foldedSet.has(heading))
   if (ordered.join("\u0000") !== expected.join("\u0000")) {
     fail(
       "OUT003",
@@ -999,7 +1196,7 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
   /* Clinical meaning, in both directions. */
   if (kind === "component") {
     const category = asText(page.frontmatter.category) ?? ""
-    const hasClinical = presentSet.has("Clinical meaning")
+    const hasClinical = foldedSet.has("Clinical meaning")
     if (category.startsWith("health-") && !hasClinical) {
       fail(
         "OUT010",
@@ -1717,6 +1914,7 @@ async function main(): Promise<void> {
     )
   }
   const outlines = loadOutlines()
+  checkTemplateOutlines()
   const { known, drift } = knownMdxTags()
   for (const tag of drift) {
     warn(
