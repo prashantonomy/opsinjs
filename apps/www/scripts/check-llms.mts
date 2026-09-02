@@ -258,6 +258,35 @@ function absoluteUrls(text: string): string[] {
   return [...urls]
 }
 
+/**
+ * The origin llms.txt was generated with.
+ *
+ * Taken from the file itself rather than from the environment: the point of the
+ * check is that the published file resolves, and the published file names its
+ * own origin. The most common absolute origin in the document wins, which makes
+ * a stray link to an external site harmless.
+ */
+function originOf(text: string): string | undefined {
+  const counts = new Map<string, number>()
+  for (const url of absoluteUrls(text)) {
+    try {
+      const origin = new URL(url).origin
+      counts.set(origin, (counts.get(origin) ?? 0) + 1)
+    } catch {
+      /* not a URL we can parse; it cannot be this site's origin either */
+    }
+  }
+  let best: string | undefined
+  let bestCount = 0
+  for (const [origin, count] of counts) {
+    if (count > bestCount) {
+      best = origin
+      bestCount = count
+    }
+  }
+  return best
+}
+
 async function liveChecks(base: string, slugs: string[]): Promise<void> {
   console.log(`check-llms: live mode against ${base}`)
 
@@ -267,7 +296,22 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
     return
   }
 
-  const urls = absoluteUrls(index.body).filter((url) => url.startsWith(base))
+  /* llms.txt is generated with the site's CANONICAL origin, because that is the
+     only origin an agent that fetched the file elsewhere can resolve against.
+     In CI the same file is served from http://127.0.0.1:4000, so a link is
+     "pointing at this site" if it starts with either origin, and it is fetched
+     from the base. Comparing only against the base made every live run report
+     that a correct llms.txt contained no site URLs and that all 343 pages were
+     missing from it. */
+  const canonicalOrigin = originOf(index.body)
+  const toBase = (url: string): string =>
+    canonicalOrigin && url.startsWith(canonicalOrigin)
+      ? base + url.slice(canonicalOrigin.length)
+      : url
+
+  const urls = absoluteUrls(index.body)
+    .filter((url) => url.startsWith(base) || (canonicalOrigin !== undefined && url.startsWith(canonicalOrigin)))
+    .map(toBase)
   if (urls.length === 0) {
     fail(
       "llms.txt contains no absolute URLs pointing at this site. The curated index must use " +
