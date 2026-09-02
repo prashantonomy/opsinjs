@@ -1,0 +1,131 @@
+---
+title: For testing
+description: The manual and automated passes that make up an accessibility test plan for a health screen, and how to reproduce each one.
+status: stable
+kind: accessibility
+a11yDate: 2026-09-02
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 6m
+aliases: [qa, test plan, accessibility testing, axe]
+---
+
+<PageTemplate kind="accessibility" />
+
+## What we guarantee
+
+One thing, and it is worth stating precisely: **automated testing finds a
+minority of accessibility defects, and in health UI it finds the least dangerous
+ones.** An automated pass will catch a missing label and a low-contrast pair. It
+will not catch a status pill whose colour and whose word disagree, a trend arrow
+pointing the wrong way, or a stale reading presented as current. Those are the
+defects that hurt somebody.
+
+So the guarantee is about the shape of the test plan rather than a tool: every
+accessibility property this system claims is written on the relevant page as a
+**reproducible check with an expected result and a described failure**, so a
+tester who has never used a screen reader can still produce a trustworthy answer.
+
+## What you own
+
+The plan itself, its schedule, and the decision about what blocks a release. Also:
+
+- **Choosing the tested matrix.** Which screen reader and browser combinations
+  matter is a function of who uses your product. Ours is on
+  [Screen readers](./screen-readers.mdx) and it is a proposal, not a
+  prescription.
+- **Test data that includes the bad cases.** Most health screens are tested with
+  a comfortable number in the middle of the range. Test the empty case, the
+  single-reading case, the stale case, the out-of-range case, the implausible
+  case (a value no human produces, arriving from a broken sensor) and the case
+  where two sources disagree.
+- **Regression coverage of the announcement contract.** A live region that stops
+  announcing is invisible to every visual test you own.
+
+## How to check
+
+Six passes. Run them in this order; each is cheaper than the one after it and
+catches different defects.
+
+<Steps>
+
+### The automated pass
+
+Run an automated rule engine over every route in a real browser. Treat its output
+as a lower bound: zero violations means "no violations of the rules this engine
+can express", which is a much smaller claim than "accessible". Record the engine
+and its version in the result, because the rule set changes between versions and
+an unversioned pass cannot be reproduced.
+
+### The keyboard pass
+
+Complete the primary task with the keyboard only, then complete the *recovery*
+task — cancel it, correct a validation error, dismiss a dialog. Expected result:
+every stop shows a visible focus indicator, no stop is obscured by sticky chrome,
+and no sequence leaves you unable to progress. Failure looks like a focus
+indicator that disappears behind a bottom bar, which is SC 2.4.11.
+
+### The zoom and text-size pass
+
+Set the browser to 400% zoom at a 1280 px viewport width — this is the SC 1.4.10
+Reflow condition, equivalent to a 320 px viewport — and separately set text size
+to 200% without zooming. Expected result: no horizontal scrolling of the page as
+a whole, no clipped text, no truncated numeric value. Failure in a health screen
+usually looks like a reading truncated to its first two digits. Method on
+[Text resizing and zoom](./text-resizing-and-zoom.mdx).
+
+### The greyscale pass
+
+Apply a full desaturation filter and repeat the primary task. Expected result: the
+status of every value is still readable, because the word and the icon are still
+there. Failure looks like two pills that were red and amber becoming the same
+grey. Method on [Colour independence](./colour-independence.mdx).
+
+### The preference pass
+
+Run the task four times with `prefers-reduced-motion`, `prefers-reduced-transparency`,
+`prefers-contrast` and forced colours turned on in turn. Expected result: the
+information does not change, only its presentation. Failure looks like a state
+change that was carried entirely by a transition, so with motion reduced nothing
+appears to happen at all.
+
+### The screen-reader pass
+
+Complete the task with a screen reader on a device you have actually configured
+— not with the developer-tools accessibility tree, which shows you the data
+rather than the experience. Record what was announced, in what order, and what
+was silent. A silent success is a defect; a reader who submits a log entry and
+hears nothing does not know whether it saved.
+
+</Steps>
+
+<SafetyCallout severity="act" evidence="opinion">
+Add one pass that no general accessibility guide will tell you about: **read the
+screen out loud to somebody who does not work on it and ask them what they should
+do next.** In consumer health the most expensive defects are comprehension
+defects, and no tool measures those. This recommendation is our opinion, not a
+research finding.
+</SafetyCallout>
+
+## Measured results
+
+<NoDataYet script="scripts/run-evals.mts" />
+
+There are no published test results for this system. No component exists to test,
+Playwright is deliberately not installed, and `scripts/capture-registry.mts`
+detects its absence and no-ops rather than pretending to produce artefacts. When
+a suite exists, its dated results appear here and on
+[Conformance report](./conformance-report.mdx).
+
+## Known gaps
+
+- **No test suite exists,** automated or manual, for the design system itself.
+- **There is no accessibility regression gate in CI.** The only accessibility
+  check in the build today is `pnpm run contrast`, which measures token pairs and
+  nothing else.
+- **No assistive technology has been used against this codebase.** The docs site
+  itself is unaudited; see [This site's accessibility](./this-site.mdx).
+
+## Updates to this page
+
+<Reviewed />

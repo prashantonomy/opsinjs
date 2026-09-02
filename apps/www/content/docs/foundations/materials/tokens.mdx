@@ -1,0 +1,128 @@
+---
+title: Material tokens
+description: The generated reference for all six rungs — four properties each, both themes, and the preference overrides that replace them.
+status: stable
+kind: foundation
+aliases: [material tokens, opsin-material, surface tokens, blur token, scrim token]
+owner: engineering
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 6m
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+Six rungs, four properties each, two themes. That is twenty-four declarations in
+the base layer plus the preference overrides, and every one of them is generated
+from `tokens/material.json` by `scripts/build-tokens.mts`. Nothing here is typed
+by a person and `pnpm check:generated` fails the build if the committed output
+and a fresh regeneration disagree.
+
+For what the rungs *mean*, start at [The ladder](./the-ladder.mdx). For which
+one to use, [Choosing a layer](./choosing-a-layer.mdx). For why the alphas are
+what they are, [The contrast floor](./the-contrast-floor.mdx). This page is the
+list.
+
+## How it works
+
+### The naming grammar
+
+```text
+--opsin-material-<n>-bg        backing colour, including alpha
+--opsin-material-<n>-blur      backdrop-filter blur radius
+--opsin-material-<n>-border    hairline colour, or transparent
+--opsin-material-<n>-shadow    drop shadow, or none
+
+<n> ∈ 0..5   →   ground · panel · raised · bar · overlay · scrim
+```
+
+The numeric index is what appears in CSS; the name is what appears in
+conversation, in review and in component props. They are the same thing and the
+mapping never changes — a rung's number is part of its identity, because the
+ordering has to be machine-readable for the compositing budget and the contrast
+job to reason about it.
+
+There is no fifth property and no per-rung variant. A rung is those four
+declarations applied together.
+
+### What the generator emits
+
+1. A `:root` block with all six rungs for the light theme.
+2. A `.dark` block overriding the rungs that differ — in dark, the translucent
+   rungs' tints are near-black rather than near-white, and the borders flip from
+   dark-at-low-alpha to white-at-low-alpha, because a dark border on a dark
+   surface is invisible.
+3. A `@media (prefers-reduced-transparency: reduce)` block collapsing rungs 3, 4
+   and 5 to their opaque fallbacks
+   ([Reduced transparency](./reduced-transparency.mdx)).
+
+The print stylesheet removes `backdrop-filter` and `box-shadow` outright rather
+than overriding the tokens, because a printed page has no backdrop to filter.
+
+### Rungs 0, 1 and 2 reference other tokens
+
+The opaque rungs do not carry their own colours. `ground` takes `--background`,
+`panel` and `raised` take `--card`, and their borders take `--border`. This is
+deliberate: an opaque material is a *composition* of the neutral palette, not a
+parallel palette, and a theme change should move the ladder with it.
+Translucent rungs are the exception — their tint carries an alpha the neutral
+palette does not have, so it is authored on the rung.
+
+## Using it
+
+**Apply all four properties together.** A rung's blur without its backing tint
+is the exact failure the contrast floor exists to prevent, and a rung's tint
+without its border is a surface with no edge under reduced transparency. When
+`Surface` exists, it will apply them as a unit; until then, applying them as a
+unit is your job.
+
+<NotBuiltYet name="surface" />
+
+**Reference the token, never the resolved value.** A copied `oklch(… / 0.82)` is
+a translucent surface outside the ladder: it will not respond to reduced
+transparency, it will not respond to the theme, and it is in no measured pair.
+
+**Do not build a rung out of Tailwind's opacity utilities.**
+`bg-white/70 backdrop-blur-xl` looks like a material and is not one, for the same
+three reasons. If a utility class is genuinely more convenient, expose the token
+as one rather than approximating it.
+
+**Do not add a per-component variant.** "The sheet on this one screen needs a
+slightly stronger blur" is how a six-rung ladder becomes a fourteen-value
+parameter space. If a screen genuinely needs something the ladder does not have,
+that is intake, not CSS — see
+[Contributing tokens](../../handbook/contributing/contributing-tokens.mdx).
+
+## Tokens
+
+<TokenTable scope="material" />
+
+## Accessibility impact
+
+Every translucent rung above is measured against both of its compositing
+extremes, in both themes, on every commit. The published results:
+
+<ContrastReport scope="materials" />
+
+Three properties of the table that matter and are easy to take for granted:
+
+- **The alpha column is a floor, not a style.** It is the smallest value at which
+  the rung's ink clears the contrast floor against a pure-black and a pure-white
+  backdrop. Lowering it in a fork is a safety change, not a visual one.
+- **Borders are measured as non-text pairs.** A hairline that disappears over a
+  particular backdrop is an SC 1.4.11 failure, and it is the failure most often
+  missed because it looks correct in the one mock everybody reviewed.
+- **The reduced-transparency fallbacks are not separately measured, because they
+  do not need to be** — they are the same opaque pairs rungs 1 and 2 already
+  use, which is precisely why the fallback is the card colour rather than a new
+  value.
+
+## Related
+
+- [The ladder](./the-ladder.mdx) — what each rung is for.
+- [The contrast floor](./the-contrast-floor.mdx) — where the alphas come from.
+- [Generated token reference](../../reference/generated/tokens.mdx) — the same
+  data for the whole system, not just materials.

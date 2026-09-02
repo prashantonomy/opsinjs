@@ -1,0 +1,206 @@
+---
+title: Grammar and mechanics
+description: Capitalisation, punctuation, lists, abbreviations and the typography of a number and its unit — the mechanical rules that Value and RelativeTime are built on.
+status: stable
+kind: content
+reviewer: content
+reviewEvery: 12m
+aliases: [capitalisation, sentence case, punctuation, abbreviations, unit formatting]
+---
+
+<PageTemplate kind="content" />
+
+## The rule
+
+**Sentence case everywhere, no full stop on a label, and a space between a number
+and its unit — with a short list of exceptions that is closed.**
+
+This page exists because two components in the roster do nothing but emit
+formatted strings. `Value` renders a number with a unit; `RelativeTime` renders a
+moment. If the mechanics are not written down, each caller invents them, and a
+product ends up saying "72bpm" on one screen and "72 BPM" on the next, which
+looks careless in a context where carelessness reads as unreliability.
+
+### The boundary with the clinical rules
+
+This page owns **typography**: which case, which space, which dash, which
+separator. It does not own **precision**.
+
+How many decimal places a value may carry, when a conversion between unit systems
+is safe, and what rounding is honest are clinical correctness questions and they
+belong to
+[Numbers, units and precision](../health/numbers-units-precision.mdx), which is
+canonical for them. If this page and that page appear to disagree, that page
+wins.
+
+### Capitalisation
+
+- **Sentence case for everything**: headings, buttons, labels, menu items, table
+  headers, notification titles, error messages. Title Case is a decorative
+  convention that costs scanning speed and creates two spellings of every string.
+- **Capitalise proper nouns only**, including brand names of medicines and
+  devices. Condition names are not proper nouns: "type 2 diabetes", not "Type 2
+  Diabetes".
+- **Preserve the case of clinical terms and units.** "HbA1c", "mmHg", "mmol/L",
+  "SpO2". These are not sentence-cased and are not upper-cased for emphasis.
+- **The four status words are lower case** in running text and rendered by the
+  component in its own style: `expected`, `watch`, `act`, `urgent`.
+
+### Punctuation
+
+- **No full stop at the end of a label,** a button, a heading, a table cell or a
+  single-sentence hint. Full stops in full sentences, including single sentences
+  inside a paragraph.
+- **No exclamation marks.** There is no situation in a health interface improved
+  by one.
+- **Ampersand only where it is part of a name.** "Diet and exercise", not "Diet
+  &amp; exercise".
+- **Use a real en dash for ranges** and a real minus sign for negative numbers.
+  A hyphen in "90-120" is a typographic error; a hyphen in "-2 kg" is worse,
+  because it can be misread.
+- **Use a non-breaking space between a number and its unit** so a value never
+  wraps across two lines. A reading split as "148" at the end of one line and
+  "mmHg" at the start of the next is a value the reader has to reassemble.
+- **Serial comma only where it removes ambiguity.** Consistency here is worth
+  less than clarity; do not enforce it mechanically.
+- **Straight quotes and apostrophes in code, typographic ones in prose.**
+
+### Lists
+
+- **Introduce a list with a full sentence ending in a colon.**
+- **Every item starts with a capital and has no terminal punctuation,** unless
+  items are full sentences, in which case all of them are.
+- **Items are grammatically parallel.** If one starts with a verb, all do.
+- **A list of more than seven items is a table or a set of sections.** Health
+  content routinely produces long lists of symptoms or medicines, and past about
+  seven a list stops being scannable.
+
+### Abbreviations and acronyms
+
+- **Expand on first use, in the reader's word order**: "blood pressure (BP)",
+  not "BP (blood pressure)". After that the short form is fine within the same
+  screen — but not across screens, because a reader may not have seen the first
+  one.
+- **Never abbreviate in a notification, an alert or an empty state.** These are
+  the surfaces most likely to be somebody's first encounter with the product.
+- **No full stops in acronyms.** "GP", not "G.P."
+- **Latin abbreviations are banned outright**: e.g., i.e., etc., approx. Write
+  "for example", "that is", "and so on", "about".
+
+### Numbers and units
+
+- **Numerals for all measurements and quantities**, including one through nine.
+  "3 readings", not "three readings". Health content is scanned, and numerals
+  scan.
+- **A space between the number and the unit** — `148 mmHg`, `72 bpm`, `5.4 mmol/L`,
+  `82 kg`. Closed exceptions, which take no space: the degree symbol in `36.8°C`,
+  the percent sign in `98%`, and the prime marks in angles.
+- **Unit symbols are never pluralised and never take a full stop.** `5 kg`, not
+  `5 kgs`.
+- **Digit grouping with a thin space or a comma, consistently, above four
+  digits.** Never group a four-digit number that is a step count and never group
+  a year.
+- **A leading zero on a decimal below one.** `0.8 mmol/L`, not `.8 mmol/L`. The
+  missing zero is a genuine misreading risk.
+- **Write a blood-pressure pair with the word "over" in prose** and with a slash
+  only in a compact numeric display: "148 over 92" in a sentence, `148/92` in a
+  table cell.
+- **Ranges use an en dash with no spaces** for pure numbers (`90–120`) and the
+  word "to" when a unit or a direction is involved ("90 to 120 mmHg").
+
+## Approved / Rejected
+
+<DoDont>
+  <DoDont.Do>Log a reading</DoDont.Do>
+  <DoDont.Dont>Log A Reading.</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>72 bpm</DoDont.Do>
+  <DoDont.Dont>72BPM</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>Your usual range is 90 to 120 mmHg.</DoDont.Do>
+  <DoDont.Dont>Your usual range is 90-120mmHg.</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>0.8 mmol/L</DoDont.Do>
+  <DoDont.Dont>.8 mmol/l</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>Take this in the morning, for example with breakfast.</DoDont.Do>
+  <DoDont.Dont>Take this in the AM (e.g. w/ breakfast).</DoDont.Dont>
+</DoDont>
+
+## Patterns
+
+**A value with a unit**
+
+> `number` + a non-breaking space + `unit symbol`
+
+Rendered by `Value`, which owns the non-breaking space so that no caller has to
+remember it.
+
+**A value with its comparison**
+
+> `value` `unit` — `your usual range is` `low` to `high` `unit`
+
+The unit appears twice on purpose. A range printed without its unit next to a
+value that has one is the sort of asymmetry that makes readers doubt both.
+
+**A blood pressure**
+
+> In prose: `systolic` over `diastolic`
+> In a compact display: `systolic`/`diastolic`
+
+**A first-use abbreviation**
+
+> `full phrase in the reader's words` (`abbreviation`)
+
+**A list introduction**
+
+> `Full sentence describing what the list is`:
+
+**A percentage in a non-actionable context**
+
+> `n`%
+
+Only where the reader is not being asked to act on it. In an actionable sentence,
+use a natural frequency instead — see
+[Health literacy](./health-literacy.mdx).
+
+## Banned words
+
+Constructions rather than words, because that is what mechanics are made of.
+
+| Banned | Why | Use instead |
+| --- | --- | --- |
+| Title Case On Buttons And Headings | Two spellings of every string; slower to scan. | sentence case |
+| Any exclamation mark | Adds volume, never information. | delete |
+| e.g., i.e., etc., approx., w/ | Latin and telegraphic shorthand in a document read under stress. | for example, that is, and so on, about, with |
+| 72bpm, 5kg, 98 % | Missing or misplaced space between number and unit. | 72 bpm, 5 kg, 98% |
+| .5 mmol/L | Missing leading zero; a real misreading risk. | 0.5 mmol/L |
+| kgs, mmHgs, bpms | Unit symbols are never pluralised. | kg, mmHg, bpm |
+| 90-120 | Hyphen where an en dash or "to" belongs. | 90–120, or 90 to 120 |
+| A full stop after a label | Signals a sentence where there is none. | delete |
+| ALL CAPS for emphasis | Slower to read and reads as shouting. | bold, or a stronger sentence |
+| 1st, 2nd, 3rd in a date | Ordinal suffixes are noise in a date. | 1 March |
+
+## Related components
+
+- **`Value`** — owns number-and-unit typography: the non-breaking space, the unit
+  symbol casing, the leading zero and the digit grouping. Every rule in the
+  Numbers section above is a requirement on it.
+- **`RelativeTime`** — owns the choice between a relative phrase and an absolute
+  stamp, and the capitalisation of both. See
+  [Numbers, dates and time](./numbers-dates-and-time.mdx).
+- **`StatusPill`** — renders one of the four status words, whose casing is fixed
+  here.
+- **`Field`** — labels, hints and error text all follow the capitalisation and
+  punctuation rules above; a field whose label ends in a colon on one screen and
+  not the next is the most visible mechanics failure in any product.
+- **`Term`** — preserves the case of a clinical term exactly as the reader will
+  meet it.

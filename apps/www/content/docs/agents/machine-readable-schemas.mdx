@@ -1,0 +1,153 @@
+---
+title: Machine-readable schemas
+description: The catalogue, the token set, the status vocabulary and the glossary as JSON at stable paths, so a tool can resolve a fact instead of parsing prose.
+status: stable
+kind: guide
+icon: FileJson
+aliases: [json api, catalogue json, schemas, structured data]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+Prose is for people. A build script, a linter, a validator or an agent with a
+narrow question should not have to read a paragraph to learn that `urgent` is a
+valid status and `critical` is not.
+
+Four things are published as JSON at stable paths, and each of them is the same
+source the site itself renders from — not an export, not a copy, not a
+periodically refreshed mirror. If the site and the JSON ever disagree, the JSON
+is not the one that is wrong.
+
+## The four surfaces
+
+| Path | Contains | Generated from |
+| --- | --- | --- |
+| `/r/registry.json` | The shadcn-spec catalog: every item, its type, title, description and dependencies | `registry/catalogue.ts` |
+| `/r/index.json` | Name, type, status, category, links and aliases per item — the opsinjs view rather than the shadcn one | `registry/catalogue.ts` |
+| `/r/<name>.json` | One registry item, resolved at the default base and style | `registry/catalogue.ts` |
+| `/r/docs.json` | The whole documentation corpus, versioned — see [the offline bundle](./offline-docs-bundle.mdx) | the page tree |
+
+Two more are files in the repository rather than routes, because their consumers
+are build tools rather than clients:
+
+| File | Contains |
+| --- | --- |
+| `tokens/*.json` | The authored token source: colour, material, motion, type, space, shape |
+| `tokens/glossary.json` | Every clinical term with its plain-English replacement |
+
+## The status vocabulary
+
+Six values, closed, and used identically by frontmatter, the catalogue, the
+registry and this site's chrome:
+
+```ts
+type Status =
+  | "stable"      // shipped, supported, changes go through deprecation
+  | "beta"        // shipped, API may still move
+  | "alpha"       // shipped, expect breakage
+  | "planned"     // specified, not implemented — every component today
+  | "deprecated"  // shipped, being removed
+  | "considered"  // thought about, decided nothing, no implementation
+```
+
+The two at the bottom are the ones a machine must handle correctly. `planned`
+means there is a specification you may read and must not generate against.
+`considered` means there is a catalogue row and nothing else.
+
+The clinical status levels are a **different, unrelated** four-value vocabulary
+— `expected`, `watch`, `act`, `urgent` — and confusing the two is a real failure
+mode worth guarding against in any tool you write. One describes a documentation
+page's maturity; the other describes a person's health data.
+
+## The catalogue
+
+`registry/catalogue.ts` is the single source of truth for component identity:
+id, title, plain-English description, category, status, `since`, aliases, owner
+and the last accessibility-review date. Every id in it resolves somewhere —
+that is enforced by `scripts/assert-ia.mts` rather than by convention.
+
+It is also the sole owner of the **alias namespace**. Aliases are search
+synonyms — `lab result` finds `result-card` — and they are required to be
+globally unique across the corpus, which is only achievable if one file declares
+them all. A documentation page references an alias; it never invents one.
+
+## The glossary
+
+`tokens/glossary.json` pairs a clinical term with a plain-English replacement
+and a short definition written for a reader with no medical training. It drives
+`<Term>`, `<PlainLanguage>` and the filterable A–Z on
+[Plain English A–Z](../content/plain-english-a-z.mdx).
+
+<Callout>
+Every definition in it is original prose. Public health bodies publish excellent
+plain-language glossaries and most of them are under a licence that does not
+permit reuse — the NHS A–Z is Crown copyright. opsinjs cites such sources and
+never copies them, and any contribution that pastes one will be rejected. See
+[Licence and attribution](../project/licence-and-attribution.mdx).
+</Callout>
+
+## Using them well
+
+<Steps>
+
+### Resolve, do not guess
+
+If your tool needs to know whether `symptom-picker` exists, fetch
+`/r/index.json` and look. Do not infer it from a URL pattern and do not ask a
+model.
+
+### Check `status` on every read
+
+Every item is `planned` today. A tool that ignores the field will behave, next
+year, as though half-built components were finished.
+
+### Treat aliases as input, not as output
+
+Match a user's phrasing against aliases. Never emit an alias as an identifier —
+`lab result` is not importable.
+
+### Cache with the version
+
+`/r/docs.json` and every markdown twin carry a version stamp. Cache it alongside
+the data so a stale answer can be identified as stale.
+
+</Steps>
+
+## Verify it worked
+
+```bash
+curl -s https://opsinjs.dev/r/index.json | head -30
+```
+
+You should get JSON with one entry per catalogue row, each carrying a `status`.
+Then confirm the negative: request an id from the considered roster and check
+you get a `considered` item rather than a 404.
+
+## Troubleshooting
+
+**`/r/registry.json` is missing items I can see in the sidebar.** The registry
+lists distributable items. Documentation pages that describe doctrine rather
+than code have no registry entry, by design.
+
+**Aliases in the JSON differ from the ones on a page.** They cannot, unless the
+build is stale — both come from the catalogue. Rebuild, and report it if it
+persists.
+
+**The token JSON does not match the CSS.** `pnpm run generate` has not run. The
+CSS is generated from the JSON, and `--opsin-tokens-generated` will say
+`placeholder` when it has not.
+
+**I want a schema for the frontmatter.** It is
+`content/_templates/frontmatter.schema.json`, and `source.config.ts` is the copy
+the build actually enforces.
+
+## Next
+
+- [Offline docs bundle](./offline-docs-bundle.mdx) — everything above in one
+  request.
+- [Registry overview](../registry/index.mdx) — what the `/r/` surface is and why
+  it follows someone else's spec.
+- [Writing docs for agents](./writing-docs-for-agents.mdx) — how a page becomes
+  well-formed structured data.

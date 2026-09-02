@@ -1,0 +1,124 @@
+---
+title: Colour independence
+description: Clinical status must survive greyscale, colour vision deficiency and a photocopier — and the word is what makes that true.
+status: stable
+kind: accessibility
+a11yDate: 2026-09-02
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+aliases: [1.4.1, greyscale test, use of colour]
+---
+
+<PageTemplate kind="accessibility" />
+
+## What we guarantee
+
+**No opsinjs component may express clinical status through colour alone.** This
+is the strictest rule in the system and it is structural rather than advisory:
+the status axis is defined as a triple of colour, word and icon, and a component
+that renders the colour without the word does not satisfy its own specification
+and cannot leave `planned`.
+
+Concretely, every status surface carries:
+
+- a **word** from the four-level vocabulary — `expected`, `watch`, `act`,
+  `urgent` — rendered as visible text, not as a tooltip;
+- a **`data-status` attribute** with the same value, so the state is available to
+  tests, to styling and to anything reading the DOM;
+- an **icon whose shape differs between levels**, so the levels are
+  distinguishable at a glance without relying on hue;
+- a **token pair** whose measured contrast is published on
+  [Contrast conformance](./contrast-conformance.mdx).
+
+The canonical definition of the four levels — what each one asserts, who is
+allowed to assign it, and what it must never be read as — lives on
+[Clinical status semantics](../health/clinical-status-semantics.mdx). This page
+is only about whether the level survives the loss of colour.
+
+The category axis is treated differently on purpose. Category colour is
+*identity*, not information: it helps a returning reader find the heart section
+faster, and losing it costs recognition speed rather than meaning. That asymmetry
+is the whole argument of
+[The two colour axes](../health/two-colour-axes.mdx).
+
+## What you own
+
+**Anything you colour yourself.** A chart series distinguished only by hue, a
+calendar with coloured day cells, a coloured left border on a list row: all
+common, all failures of SC 1.4.1 the moment the colour is the only carrier.
+
+**Icon choice.** If you replace the shipped status icons with a set that differs
+only in colour — six identically shaped dots — you have removed the redundancy
+while keeping the appearance of it. Icons must differ in *shape*.
+
+**Charts.** Category colours are explicitly not chart colours, and a chart
+distinguished by colour alone needs a second encoding — direct labels, distinct
+markers, or a table twin. See
+[Accessible charts](../foundations/data-visualisation/accessible-charts.mdx).
+
+**Copy that leans on colour.** "Your reading is in the green" is a sentence that
+fails for a reader who cannot see the green. Say what it means:
+[Writing status and alerts](../content/writing-status-and-alerts.mdx).
+
+## How to check
+
+<Steps>
+
+### Desaturate the whole screen
+
+Apply a full greyscale filter — browser developer tools, an operating-system
+colour filter, or a print preview in black and white — and complete the task.
+**Expected result:** every status is still identifiable, because the word is
+still there. **Failure looks like** two pills becoming the same mid-grey, or a
+range bar whose marker is invisible against its track.
+
+### Simulate the three dichromacies
+
+Render the screen under protanopia, deuteranopia and tritanopia. Use the
+simulator at [`/playground/status`](/playground/status), which applies the same
+transforms the docs use. **Expected result:** the status levels remain
+distinguishable from one another, and no category colour becomes confusable with
+a status colour. **Failure looks like** the `watch` amber and the `act` orange
+collapsing into one hue under deuteranopia, which is exactly why they also differ
+in word and icon.
+
+### Photocopy it
+
+Print the screen in black and white and read it. This sounds antique and it
+catches real defects, because a printed record of a reading is a genuine artefact
+in health care and because the print stylesheet in `app/globals.css` deliberately
+puts a `1pt` solid border around every `[data-status]` element for this reason.
+See [Print and export](./print-and-export.mdx).
+
+### Grep for the word
+
+In the rendered DOM, every element carrying a `data-status` attribute should also
+contain the status word as text or as an accessible name. This is mechanisable
+and it is the check we intend to automate first.
+
+</Steps>
+
+## Measured results
+
+<NoDataYet script="scripts/check-contrast.mts" />
+
+The intended generated artefact is a per-level discriminability audit: each
+status colour transformed through the three dichromacy matrices and greyscale,
+with the pairwise distance between levels reported in each condition. The colour
+maths for it exists in `lib/color/cvd.ts`; the audit itself is not yet wired into
+the contrast script.
+
+## Known gaps
+
+- **The CVD audit is not generated,** so the discriminability of the four status
+  hues under dichromacy is currently an assertion rather than a measurement.
+- **Simulation is not experience.** A dichromacy matrix approximates one form of
+  colour vision deficiency; it says nothing about low vision, cataract, or the
+  reader looking at a phone in direct sunlight.
+- **No component enforces the rule yet,** because no component exists. Today the
+  rule is enforced only by the component-page contract.
+
+## Updates to this page
+
+<Reviewed />

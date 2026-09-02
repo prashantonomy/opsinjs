@@ -1,0 +1,140 @@
+---
+title: Body diagrams
+description: The highest-stakes image in a health product — how to draw a body somebody can locate themselves on, resolve the left-and-right problem, and never imply a diagnosis.
+status: planned
+kind: foundation
+aliases: [anatomy diagram, pain location diagram, body outline]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+A body diagram is the image a reader uses to answer a question about their own
+body: where does it hurt, where is the rash, where do I attach this. That makes
+it the highest-stakes image in the system — it is not illustrating a point, it is
+collecting or presenting data — and the one where representation and clinical
+caution meet most directly.
+
+It is also the image most likely to be mistaken for a diagnosis. A body outline
+with a region highlighted and a label reads as a finding, whoever wrote the label.
+The rules below exist mostly to keep that from happening by accident.
+
+<NotBuiltYet />
+
+`BodyMap` is on the [considered roster](../../components/index.mdx) — a
+recognised concept with no specification yet, and nothing built. This page is what
+a specification for it would have to satisfy.
+
+## How it works
+
+**Decide first whether it is an input or an output.** A diagram the reader taps to
+say where something is, and a diagram the product draws on to show what it
+recorded, are different surfaces with different rules, and conflating them
+produces a picture that appears editable and is not, or vice versa.
+
+**Regions are named in plain English, with the clinical term secondary.** "Upper
+arm", not "brachium"; "lower back", not "lumbar region". Where the clinical term
+matters — because the reader will meet it later — it appears alongside, as a
+[Term](../../components/term.mdx) with a plain-English expansion, not instead.
+
+**Solve left and right explicitly, and say which you solved.** A diagram of a
+front-facing body has the reader's left on the viewer's right. Somebody pointing
+at their own sore shoulder will point at the wrong side of an unmirrored diagram
+about half the time. Whichever convention the product picks, the label says it —
+"your left shoulder" — and the label is in text, not implied by the picture.
+
+**Front and back are separate views with an explicit control**, never one image
+the reader is expected to interpret. A reader who cannot find the region they want
+will pick the nearest one that is visible.
+
+**The default outline carries as little as it can.** A body diagram forces a
+decision about sex characteristics, body size and skin tone that the reader has
+not been asked about. The default is the most neutral outline that still lets
+somebody locate themselves; where anatomy genuinely matters, the reader chooses,
+explicitly and revocably, and it is never inferred from a name, a title or an
+avatar — see
+[Ask users for: sex and gender](../../patterns/ask-users-for/sex-and-gender.mdx).
+
+**A region never carries a status colour.** A body outline shaded in the urgent
+colour asserts that a part of somebody's body is urgent, which is a diagnosis. A
+diagram showing recorded data uses the chart ramp with a legend and a table twin —
+[Chart colour](../data-visualisation/chart-colour.mdx) applies here in full.
+
+**Never label a region with a condition.** "Where does it hurt" is a question.
+"Sciatica" written on a diagram is an answer, and opsinjs does not give those.
+
+## Using it
+
+**Give the reader a list as well as a picture, always.** The list is not a
+fallback; for many readers it is the better interface, and it is what makes the
+diagram usable at all with a keyboard, a screen reader or an imprecise tap.
+
+<DoDont>
+  <DoDont.Do>
+    A front and back outline with tappable regions, beside a list of the same
+    regions as labelled controls. Selecting in either updates the other, and the
+    selected region is stated in text: "You selected: your left knee."
+  </DoDont.Do>
+  <DoDont.Dont>
+    A single unlabelled outline with small tap regions and no list. The reader
+    with a tremor cannot hit a region, the reader using a screen reader cannot
+    find one, and nobody can tell whose left is meant.
+  </DoDont.Dont>
+</DoDont>
+
+**Make the regions big, or make them a list.** Anatomical regions do not divide
+into 44-point squares. Where a region is genuinely small — a finger joint — the
+diagram zooms to a sub-view rather than shrinking the target below the floor on
+[Density and touch](../space/density-and-touch.mdx).
+
+**Confirm in words.** After any selection, the chosen region is stated as text.
+This handles the mirroring problem, the mis-tap problem and the screen-reader
+problem in one move.
+
+**Do not animate a region into selection.** A selection that fades in is a
+selection a reader cannot immediately confirm, and this is the one surface where
+they most need to.
+
+**Do not reuse a diagram across cultures without checking it.** How a body is
+depicted, what is acceptable to show, and how regions are named all vary. A
+diagram that works in one market may be unusable in another, and the reader has no
+way to tell you.
+
+## Tokens
+
+Body diagrams consume the neutral roles for the outline, the chart ramp for any
+recorded data, the space scale for target sizing and the shape scale for the
+container. They may not consume the status or category palettes.
+
+<NoDataYet script="scripts/build-tokens.mts" />
+
+## Accessibility impact
+
+- **The list equivalent is mandatory**, and it is the same requirement as the
+  table twin on [Accessible charts](../data-visualisation/accessible-charts.mdx): the data in a picture
+  must be available outside the picture. A diagram with no list is unusable with a
+  keyboard or a screen reader.
+- **Irregular tap regions are a motor-accessibility problem** even for readers
+  with no diagnosed impairment. Regions that cannot meet the target floor get a
+  zoomed sub-view or exist only in the list.
+- **The left-and-right ambiguity is a comprehension failure with a data
+  consequence.** A recorded region on the wrong side is wrong data, and text
+  confirmation is the only reliable fix.
+- **Region names must work as spoken labels.** They are read aloud in isolation,
+  so "left knee, front" is a usable name and "region 7" is not.
+- **Selection state must not be colour alone**, which is principle 2 again — an
+  outline, a fill pattern and the text confirmation together.
+- **Representation is correctness here**, for the reasons on
+  [Skin-tone representation](skin-tone-representation.mdx): a diagram somebody
+  cannot map onto their own body is a diagram they will use wrongly.
+
+## Related
+
+- [Skin-tone representation](skin-tone-representation.mdx) — the coverage
+  requirement, and why it is a correctness rule.
+- [Accessible charts](../data-visualisation/accessible-charts.mdx) — the same picture-plus-equivalent
+  contract, for data graphics.
+- [Asking sensitive questions](../../content/asking-sensitive-questions.mdx) —
+  the wording around a surface that asks somebody about their own body.

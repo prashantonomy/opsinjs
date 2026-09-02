@@ -1,0 +1,140 @@
+---
+title: Shape
+description: Why the corners in a health product are superellipses rather than circular arcs, what shape is allowed to mean, and the one thing it must never carry.
+status: stable
+kind: foundation
+icon: Squircle
+aliases: [corners, corner rounding, corner geometry]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+Shape is the smallest foundation and the one with the largest gap between how
+much it matters and how much thought it usually gets. It comes down to two
+decisions: how big the corners are, and what curve they are made of.
+
+The second is the interesting one. A CSS `border-radius` draws a circular arc,
+and a circular arc meets a straight edge with a discontinuity: the curvature
+jumps from zero to its full value at a single point. At a 4px radius nobody
+notices. At the 16 to 28px radii a generous, iOS-idiom health product actually
+uses, the eye reads that discontinuity as a pinch — the corner looks tighter than
+it is, and a row of cards looks slightly wrong in a way most people cannot name.
+
+A superellipse — a squircle — distributes the curvature continuously into the
+straight edge instead. It is the shape Apple's platform UI has used for years,
+and until recently the web could not draw it without an SVG mask or a clip path.
+The CSS `corner-shape` property changes that, and opsinjs uses it as pure
+progressive enhancement: browsers that have it get squircles, browsers that do
+not get an ordinary rounded rectangle at the same radius. The difference is
+taste, never function.
+
+Shape is often confused with elevation. A rounder card is not a raised card.
+Depth is [material and layer](../materials/index.mdx); shape is geometry.
+
+## How it works
+
+Three pages sit under this one: [the radius scale](radius-scale.mdx), which is a
+ladder derived from a single value plus the rule for nesting one radius inside
+another; [Squircle](squircle.mdx), which is the `corner-shape` mechanism and its
+degradation; and [the generated tokens](tokens.mdx).
+
+Two rules run across all three.
+
+**1. Radius is a ladder, not a set of choices.** Every radius in the system is
+derived from one root value by a fixed multiplier, so changing the character of
+the product from square to generous is one number rather than a search. The rungs
+are named for the size of thing they belong to — a control, a card, a sheet —
+rather than for their value.
+
+**2. Shape never carries clinical meaning.** A rounder card is not a friendlier
+result. A sharper corner is not a more serious one. Radius may express *what kind
+of object* something is — a pill-shaped chip reads as a label, a large-radius
+sheet reads as a surface that came from the bottom edge — and it may express
+nothing at all about the value inside. Status is colour, icon and word, always
+and only: see [Principles](../principles.mdx).
+
+There is a corollary worth stating separately, because it is the one people
+break: **do not use a full radius to mean "small".** A fully rounded pill and a
+large-radius card are different objects, not different sizes of the same one.
+
+## Using it
+
+**Match the rung to the object, then stop.** Controls take the small rungs, cards
+the middle, sheets and modal surfaces the large. If you are choosing between two
+adjacent rungs, the difference does not matter and the smaller one is usually
+right.
+
+**Nest concentrically.** An inner radius equals the outer radius minus the
+padding between them. Get this wrong in either direction and the gap between the
+two curves visibly varies around the corner — the full rule and the failure cases
+are on [Radius scale](radius-scale.mdx).
+
+<DoDont>
+  <DoDont.Do>
+    A result card at the card rung, containing a range bar inset by one space
+    step, with the bar's radius reduced by that step. The two curves stay
+    parallel all the way round the corner.
+  </DoDont.Do>
+  <DoDont.Dont>
+    The same card with the inner element at the same radius as its parent. At the
+    corner the gap between them pinches to nothing on the diagonal, which reads
+    as a rendering fault rather than a design choice.
+  </DoDont.Dont>
+</DoDont>
+
+**Do not square a corner for emphasis.** Emphasis on a health screen is a status
+question. A squared-off urgent card is a second escalation channel that nobody
+can read and that disappears in a screenshot.
+
+**Do not animate a radius.** It is expensive to composite, it draws attention to
+the container rather than the content, and it is one of the more reliable ways to
+make a transition look broken part-way through.
+
+**Do not apply the squircle attribute to everything.** The product theme applies
+`corner-shape` to elements carrying `data-opsin-shape="squircle"`, not to every
+rounded box, so that a browser without support gets an ordinary rounded rectangle
+rather than a fallback that looks wrong.
+
+## Tokens
+
+The root radius, the ladder multipliers, the named rungs and the corner shape
+itself are generated from `tokens/shape.json` by `scripts/build-tokens.mts`. The
+full table with a rendered specimen per rung is on
+[Shape tokens](tokens.mdx).
+
+<TokenTable scope="shape" />
+
+## Accessibility impact
+
+Shape has less accessibility surface than any other foundation, and exactly three
+things on it matter.
+
+- **A radius can eat a touch target.** A heavily rounded control has less
+  clickable area at its corners than its bounding box suggests. The 44pt floor
+  from [Density and touch](../space/density-and-touch.mdx) is measured on the
+  interactive area, not on the visual box, and a large radius on a small control
+  is the most common way that measurement quietly fails.
+- **A radius can eat a focus ring.** The focus outline follows the border radius,
+  and where a control is clipped by an ancestor with a smaller radius the ring is
+  clipped with it. This is why the focus indicator is drawn outside the box with
+  an offset — the rule is on
+  [Interaction states](../interaction-states.mdx).
+- **Shape must never be an information channel**, because it survives no
+  assistive technology at all. There is no way to announce a corner. Anything a
+  radius is carrying is information a screen-reader user does not have.
+
+Radius does not affect contrast, so nothing on this page is measured; the
+`corner-shape` support matrix is published by `<BrowserSupport>` on
+[Squircle](squircle.mdx).
+
+## Related
+
+- [Radius scale](radius-scale.mdx) — the ladder, the rung names and the nesting
+  rule.
+- [Squircle](squircle.mdx) — `corner-shape`, the superellipse parameter and the
+  documented degradation.
+- [Materials](../materials/index.mdx) — the foundation shape is most often
+  confused with, and the one that actually carries depth.

@@ -1,0 +1,139 @@
+---
+title: Increased contrast
+description: What prefers-contrast is meant to change, what forced-colours mode does instead, and an honest account of the fact that neither is implemented yet.
+status: beta
+kind: accessibility
+a11yDate: 2026-09-02
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 3m
+aliases: [high contrast mode, forced-colors, windows contrast themes]
+---
+
+<PageTemplate kind="accessibility" />
+
+## What we guarantee
+
+Today: **nothing.** This page exists because the gap is real and should be
+visible, not because there is a feature to describe. `app/globals.css` implements
+`prefers-reduced-motion` and `prefers-reduced-transparency`; there is no
+`prefers-contrast` block and no `forced-colors` block anywhere in this codebase.
+
+What the system *does* provide that makes the gap survivable in the meantime:
+
+- **Every published token pair is measured** and the results are on
+  [Contrast conformance](./contrast-conformance.mdx), so the baseline is known
+  rather than assumed.
+- **Colour is never the only carrier of clinical status,** which is the property
+  that matters most in a forced-colours environment where the browser will
+  replace your palette with the reader's. See
+  [Colour independence](./colour-independence.mdx).
+- **The colour engine can derive a higher-contrast variant of a ramp,** because
+  the roles are computed in OKLCH from lightness targets rather than hand-picked.
+  That is what makes the intended implementation cheap.
+
+### What it will change
+
+When it lands, `@media (prefers-contrast: more)` will do exactly four things, and
+deliberately not more:
+
+1. **Raise the lightness distance between ink and surface** in every status and
+   category pair, so each pair clears a higher floor than the standard one.
+2. **Make every border explicit.** Hairline dividers at low alpha become solid at
+   full token colour; the material ladder's borders stop being decorative.
+3. **Thicken the focus indicator** and give it a solid outer contour so it
+   survives on any surface.
+4. **Disable translucency and blur,** by reusing the reduced-transparency
+   degradation. High contrast and frosted glass are incompatible requests.
+
+It will *not* change type size, spacing, layout or the meaning of any colour. A
+reader asking for more contrast is not asking for a different product.
+
+<Callout>
+`prefers-contrast: more` and `forced-colors: active` are different mechanisms and
+need different answers. The first is a request to *your* palette. The second
+replaces your palette with a system one, and the correct response is mostly to
+stop fighting it: keep borders declared, avoid conveying anything by background
+colour alone, and use `forced-color-adjust` only where a colour genuinely carries
+information that would otherwise be lost.
+</Callout>
+
+## What you own
+
+**Everything, currently.** Until the block above exists, high-contrast support in
+a product built on opsinjs is entirely the product's responsibility.
+
+Once it exists, these remain yours:
+
+- **Any colour you introduce.** Your brand accent, your chart series, your
+  illustrations. The system can only escalate what it defines.
+- **Images and icons that carry information.** In forced-colours mode a
+  photograph is unchanged while everything around it is recoloured, which can
+  leave it illegible against its new surroundings.
+- **Anything drawn with a shadow instead of a border.** Shadows are removed in
+  forced-colours mode. A card that reads as a card only because of its shadow
+  becomes a flat run of text.
+
+## How to check
+
+<Steps>
+
+### Emulate `prefers-contrast: more`
+
+In Chrome or Edge developer tools, Rendering → Emulate CSS media feature
+`prefers-contrast`. **Expected result today:** nothing changes, because nothing is
+implemented. That is the correct current outcome, and confirming it is the point
+of the check.
+
+### Turn on a Windows contrast theme
+
+Settings → Accessibility → Contrast themes. This activates `forced-colors: active`
+in the browser. **Expected result:** the site remains usable, all text is legible,
+and every control still has a visible boundary. **Failure looks like** invisible
+buttons, a status pill whose text and background have both become the same system
+colour, and disappearing card edges.
+
+### Turn on the macOS and iOS setting
+
+Settings → Accessibility → Display → Increase contrast. This drives
+`prefers-contrast: more` in Safari. Repeat the primary task.
+
+### Measure again in the new state
+
+Any pair the browser has altered needs re-measuring. The published figures
+describe the default themes only.
+
+</Steps>
+
+## Measured results
+
+<NoDataYet script="scripts/check-contrast.mts" />
+
+There is no increased-contrast theme to measure. When the escalation lands, the
+contrast script will emit a third column for every pair — light, dark and
+increased-contrast — because a high-contrast mode that has never been measured is
+a claim, not a mode.
+
+## Known gaps
+
+This page is mostly gap, so the list is the substance rather than a footnote.
+
+- **`prefers-contrast` is not implemented.** No `@media (prefers-contrast: more)`
+  block exists in `app/globals.css` or `app/product.css`.
+- **`forced-colors` is not implemented or tested.** No `@media (forced-colors: active)`
+  block exists, and the site has never been opened under a Windows contrast
+  theme.
+- **There is no increased-contrast token set,** so nothing can be measured.
+- **`prefers-contrast: less` is not considered at all,** and we have no view on
+  what it should do.
+
+<Todo>
+Implement the four-part escalation described above in the opsinjs token layer,
+add a `forced-colors` pass that guarantees a visible boundary on every control,
+and extend `scripts/check-contrast.mts` to emit measurements for the escalated
+theme.
+</Todo>
+
+## Updates to this page
+
+<Reviewed />

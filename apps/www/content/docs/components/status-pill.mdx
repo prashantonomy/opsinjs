@@ -1,0 +1,254 @@
+---
+title: StatusPill
+description: A short label that says which of four levels of attention something needs — shown as a word, an icon and a colour together, never as a colour alone.
+status: planned
+kind: component
+since: "unreleased"
+category: health-data-display
+aliases: [badge, chip, tag, status chip]
+governedBy: [two-colour-axes, clinical-status-semantics, alarm-fatigue, category-identity]
+usedIn: [value-against-a-range, health-metric-card, results-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="status-pill"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "The four levels are fixed. What happens when a product supplies a fifth, and how loudly should the component refuse?",
+    "Is the word ever optional — in a dense table, on a tile, at the smallest size — or is icon-plus-colour always insufficient?",
+    "When a pill's level changes while it is on screen, what is announced, how urgently, and what stops a list of pills from flooding a screen reader?",
+    "Does the pill ever carry a category colour, or is the separation absolute?",
+  ]}
+/>
+
+StatusPill is where the status axis becomes visible. It is a small component with an
+outsized job: it is the only place in the system where a clinical level is stated directly,
+and every other status-bearing component either embeds it or copies its vocabulary.
+
+## Preview
+
+The preview will show all four levels side by side in both themes, under grayscale and under
+each of the three common forms of colour-vision deficiency, because the claim that this
+component survives without colour should be visible rather than asserted.
+
+<ComponentPreview name="status-pill" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail.
+
+<ComponentInstall name="status-pill" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Labelling one result, reading or item with the level of attention the product has assigned to it.",
+    "Making a status scannable in a list, a table or a grid, where reading each row in full is not realistic.",
+    "Summarising a surface whose status the reader would otherwise have to infer from its contents.",
+  ]}
+  avoid={[
+    { case: "The status needs explaining, or the reader needs to know what to do about it.", instead: "care-card" },
+    { case: "The status must interrupt what the reader is doing rather than wait to be noticed.", instead: "alert-banner" },
+    { case: "The label is a category, a data source, a tag or a count rather than a level of attention.", instead: "badge" },
+    { case: "You want to show where a value sits relative to a range, which is a position rather than a level.", instead: "range-bar" },
+    { case: "The message is informational and carries no clinical level at all.", instead: "callout" },
+    { case: "You are labelling a piece of documentation or a release phase rather than a person's data.", instead: "badge" },
+  ]}
+/>
+
+The exclusion that matters is `badge`. A pill and a badge look identical and mean opposite
+things: a badge is a label, a pill is a judgement. Once a product uses the same component
+for *sleep* and for *needs attention*, the status axis has no visual identity left and every
+argument in [The two colour axes](../health/two-colour-axes.mdx) has already been lost.
+
+## Clinical meaning
+
+**What it asserts.** That the product has assigned one of exactly four levels of attention
+to the thing the pill labels. Nothing more. It does not assert what is wrong, why, how
+urgent it is in hours, or what happens next.
+
+**The four levels are fixed** and their meanings are defined once, in
+[Clinical status semantics](../health/clinical-status-semantics.mdx):
+
+| Level | What it means | What it must never mean |
+| --- | --- | --- |
+| **steady** | Nothing here needs attention right now | That the reader is healthy, or that anything has been ruled out |
+| **watch** | Worth knowing about; keep an eye on it | That something is wrong |
+| **attention** | Something needs a decision or an action, not necessarily today | An emergency |
+| **urgent** | Act now, and the surface says exactly how | A diagnosis, or a substitute for calling emergency services |
+
+**What it must never be read as.** A diagnosis, a severity score, or a triage category.
+These levels describe what the interface is asking of the reader, not the state of their
+body. `urgent` on a screen is not the same claim as *urgent* in a clinical handover, and
+copy must never blur the two.
+
+**Which colour axis it may use.** The **status** axis, exclusively and by definition. A
+StatusPill never carries a category colour: a pill tinted for *heart* sitting beside a pill
+tinted for *attention* is precisely the collision the two-axis rule exists to prevent. If
+you need to show which category something belongs to, that is a `badge`, and it belongs
+somewhere else on the surface.
+
+**Colour is never alone.** Every pill renders a word and an icon alongside its colour, and
+the three are redundant by design. The word is the primary carrier; the colour is the
+scanning aid. See [Colour independence](../accessibility/colour-independence.mdx).
+
+**Who assigns the level.** The consuming product, from its own rules or from a clinician.
+StatusPill derives nothing. It has no thresholds, no ranges and no opinions.
+
+<SafetyCallout severity="high" evidence="opinion">
+At most one `urgent` pill may be visible on a screen. If the product's rules produce two,
+the screen is wrong and needs an [AlertBanner](./alert-banner.mdx) that says what to do
+about the most serious one. A screen of red pills teaches the reader that red means nothing,
+and that lesson is permanent — see [Alarm fatigue](../health/alarm-fatigue.mdx).
+</SafetyCallout>
+
+## Anatomy
+
+<Anatomy name="status-pill" />
+
+<CompositionTree name="status-pill" />
+
+The pill is deliberately not composable. Icon, word and colour are one unit, and the API
+offers no way to remove the word, because every way of removing it that has ever been
+offered has been used.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+StatusPill                     root; status is required, not defaulted
+├── StatusPill.Icon            one distinct glyph per level; never a colour swap
+└── StatusPill.Label           the level in words; not removable by any prop
+```
+
+There is no `StatusPill.Category`, no `color` prop and no `variant` prop. The four levels
+are the whole surface.
+
+## Proposed API
+
+<NotBuiltYet name="status-pill" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+/**
+ * The whole clinical status vocabulary. A union, not a string: a component that
+ * accepts an arbitrary status accepts "critical", "abnormal" and "bad" on day
+ * one, and the vocabulary is gone by the end of the week.
+ */
+export type ClinicalStatus = "steady" | "watch" | "attention" | "urgent"
+
+export interface StatusPillProps {
+  /** Required. There is no neutral default and no "unknown" level. */
+  status: ClinicalStatus
+  /**
+   * Overrides the default word for this level — for translation, or for a
+   * product whose readers use different language. It may not change the
+   * meaning, and it may not be an empty string.
+   */
+  label?: string
+  /**
+   * Visual weight only. Both sizes render icon, word and colour; neither drops
+   * the word.
+   */
+  size?: "sm" | "md"
+  /**
+   * What the pill applies to, for the accessible name: "HbA1c result". Without
+   * it a screen-reader user hears a level with no subject.
+   */
+  describes?: string
+}
+```
+
+## Content guidelines
+
+Use the level's own word. Do not substitute synonyms per screen: a reader who has learnt
+that *attention* means one thing should not meet *action needed*, *review* and *flagged*
+meaning the same thing in three places.
+
+Never write a level as a sentence about the person. *Attention* labels a result; *your
+health needs attention* labels a human being, and the pill has no basis for that.
+
+<DoDont>
+  <DoDont.Do>
+    **A pill reading "Attention" beside a result, with a
+    [CareCard](./care-card.mdx) underneath saying what to do.** The pill scans, the card
+    explains, and neither pretends to be the other.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A red dot with no word, explained in a legend at the bottom of the page.** Legends are
+    not read, colour is not universally perceived, and a dot is not a message.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **"Steady"** for a result that needs nothing right now.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Normal"**, **"Healthy"**, **"Good"**, **"All clear"**. Every one of these is a claim
+    about the person rather than about the interface, and the first is banned outright —
+    see [Reference ranges and normal](../health/reference-ranges.mdx).
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **The word is in the accessible name, always.** The pill announces as *attention, HbA1c
+  result* — level plus subject. A pill with no subject is a level floating free.
+- **The icon is decorative** and hidden from assistive technology; the word carries the
+  meaning. Four distinct glyph *shapes*, not one glyph in four colours — see
+  [Iconography](../foundations/iconography.mdx).
+- **Status changes are announced once, politely**, when a pill's level changes on screen.
+  `urgent` is the only level that may use an assertive announcement, and only when the
+  product has also surfaced an [AlertBanner](./alert-banner.mdx). Ten pills updating in a
+  list produce one summary announcement, not ten. See
+  [Screen readers](../accessibility/screen-readers.mdx).
+- **All four levels clear the contrast floor** for label against fill and fill against page,
+  in both themes, and again under increased contrast. Measured, not asserted.
+- **The four levels are distinguishable in grayscale and under protanopia, deuteranopia and
+  tritanopia**, by glyph and word. Verified by the generated CVD audit.
+- **The pill is not interactive** by default. If a product makes it a filter control, it
+  becomes a button with a 44pt target and a name that states what activating it does.
+- **At 200% text the pill grows and wraps**; the word is never truncated to an ellipsis and
+  never replaced by the icon alone.
+
+<KeyboardTable name="status-pill" />
+
+<ContrastReport component="status-pill" />
+
+## Related
+
+<RelatedComponents name="status-pill" />
+
+**Easily confused with**
+
+- `badge` (considered, no page yet — see the [roster](./index.mdx)) — a label, not a
+  judgement. Categories, sources, counts and release phases are badges.
+- [AlertBanner](./alert-banner.mdx) — the same vocabulary, but interruptive. A pill waits to
+  be noticed; a banner does not.
+- [CareCard](./care-card.mdx) — the status with an instruction attached. If the reader has
+  to do something, a pill on its own is not enough.
+- [Callout](./callout.mdx) — deliberately outside the status axis, for information that
+  carries no clinical level.
+
+**Used by**
+
+- [Show a value against a reference range](../recipes/value-against-a-range.mdx)
+- [Build a health metric card](../recipes/health-metric-card.mdx)
+- [Results screen](../screens/results-screen.mdx)
+
+**Governed by**
+
+- [The two colour axes](../health/two-colour-axes.mdx)
+- [Clinical status semantics](../health/clinical-status-semantics.mdx)
+- [Alarm fatigue](../health/alarm-fatigue.mdx)
+- [Category identity](../health/category-identity.mdx)

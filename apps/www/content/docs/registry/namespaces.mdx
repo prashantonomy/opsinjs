@@ -1,0 +1,162 @@
+---
+title: Namespaces
+description: Register @opsinjs in your project, compose it with other registries, and understand what a namespace does and does not guarantee.
+status: stable
+kind: guide
+aliases: ["@opsinjs", registries config, compose registries, private registry]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+A namespace is a short name for a registry URL, declared once in your project so
+that every command afterwards can be short. `@opsinjs/result-card` instead of
+`https://opsinjs.dev/r/result-card.json`.
+
+It is a convenience, and it is also the mechanism that lets a project pull from
+several registries at once — your company's internal one, a third-party one, and
+opsinjs — without ambiguity about which `button` is meant.
+
+## Configure it
+
+```json title="components.json"
+{
+  "registries": {
+    "@opsinjs": "https://opsinjs.dev/r/{name}.json"
+  }
+}
+```
+
+The `{name}` placeholder is required by the specification. The CLI substitutes
+the item name into it, which is why the registry serves one file per item rather
+than one file with everything in it.
+
+That is the whole configuration. There is no authentication, no token and no
+account: the opsinjs registry is public and read-only.
+
+## Compose several registries
+
+Namespaces are how a project uses more than one source without either of them
+knowing about the other.
+
+```json title="components.json"
+{
+  "registries": {
+    "@opsinjs": "https://opsinjs.dev/r/{name}.json",
+    "@acme": "https://design.acme.internal/r/{name}.json",
+    "@private": {
+      "url": "https://registry.acme.com/{name}.json",
+      "headers": {
+        "Authorization": "Bearer ${REGISTRY_TOKEN}"
+      }
+    }
+  }
+}
+```
+
+Three things to notice.
+
+**A namespace can be an object.** The long form takes `url`, and optionally
+`headers` and `params`, which is how a private registry carries credentials.
+
+**Credentials come from the environment.** `${REGISTRY_TOKEN}` is substituted
+from your environment at run time. Never write a token into `components.json`;
+it is a file people commit.
+
+**Resolution is explicit.** `@acme/button` and `@opsinjs/button` are different
+items and there is no precedence order to remember. That is the point of the
+namespace, and it is why an unnamespaced `button` should be read as "whatever
+the default registry has" rather than as "the obvious one".
+
+## Why the namespace is `@opsinjs`
+
+It is the package scope, the registry namespace, the preset prefix and the
+GitHub organisation, all deliberately the same string.
+
+The alternative — a short, memorable namespace such as `@health` or `@ops` — is
+worse in one specific way that matters at exactly the wrong moment: two
+different registries can plausibly both want it, and a developer who has
+configured the other one gets components from a system they have never heard of,
+with different clinical assumptions, at an import path that looks correct.
+Namespace collisions in a health context are not a naming inconvenience.
+
+The same argument governs preset names, which all begin `opsinjs-`. See
+[Presets](../theming/presets.mdx).
+
+## What a namespace does not guarantee
+
+<SafetyCallout severity="watch" evidence="opinion">
+A namespace is a local alias, not a reservation. Configuring `@opsinjs` in your
+project means "this string points at this URL **here**". It does not stop
+somebody else's project mapping `@opsinjs` to something entirely different, and
+it does not authenticate the registry it points at. Before adding a namespace
+you did not write, read the URL. Registry items execute nothing on install, but
+they do write source files into your repository, and a source file is code.
+</SafetyCallout>
+
+The canonical URL for opsinjs is published on
+[Official resources](../project/official-resources.mdx), which exists precisely
+so that "is this the real one?" has an answer.
+
+## Publishing under a namespace
+
+If you run a public registry, you can submit it to the shadcn registry
+directory so that the CLI resolves your namespace without every consumer
+configuring it. The requirements are that it is open source and publicly
+reachable, that it validates against the registry schema, and that the served
+catalog is flat — items at the root, no nested includes, and no inlined file
+contents in the catalog itself.
+
+You do **not** need to do this to be used. A full URL works for anybody, always,
+with no configuration and no directory entry.
+
+## Verify it worked
+
+<Steps>
+
+### The namespace resolves
+
+```npm
+npx shadcn@latest search @opsinjs
+```
+
+A list of items means the mapping is read and the URL is reachable.
+
+### Fall back to prove the diagnosis
+
+If the namespace fails, try the same item by full URL. If the URL works and the
+namespace does not, the problem is `components.json` — usually a missing
+`{name}` or a file at a different root than the one your tool opened.
+
+### Secrets are not in the file
+
+Grep `components.json` for anything token-shaped. Credentials belong in the
+environment.
+
+</Steps>
+
+## Troubleshooting
+
+**`Registry not configured`.** The namespace is absent from `components.json`, or
+the CLI is running in a directory without one.
+
+**`401` or `403` from a private registry.** The environment variable named in
+`headers` is unset in the shell that ran the command. It is not read from
+`.env.local` by every tool.
+
+**Two registries both have `button` and the wrong one was installed.** An
+unnamespaced name resolved against the default registry. Namespace it.
+
+**The MCP server does not see my registries.** It reads the same
+`components.json`. If the CLI can see them and the server cannot, the server is
+running from a different working directory — see
+[MCP server](../agents/mcp-server.mdx).
+
+## Next
+
+- [registry.json](./registry-json.mdx) — what a registry serves at its root.
+- [Self-hosting a fork](./self-hosting-a-fork.mdx) — running `@yourcompany`
+  against a fork of opsinjs.
+- [components.json](../start/installation/components-json.mdx) — every field the
+  CLI reads.

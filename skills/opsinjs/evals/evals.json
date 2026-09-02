@@ -1,0 +1,156 @@
+{
+  "version": "1",
+  "name": "opsinjs docs-as-API eval suite",
+  "description": "Tasks that check whether the documentation answers the questions an agent actually asks, at the address an agent would actually guess. Every assertion is about the corpus, not about a model: a failure here means the docs are wrong or missing, not that a generation was unlucky.",
+  "generatedBy": "scripts/run-evals.mts",
+  "passMark": 0.8,
+  "notes": [
+    "Assertions are deliberately about contracts and not about phrasing. `mustContain` uses lowercase substrings chosen because the page cannot be correct without them - a rule the page exists to state, a unit it exists to disambiguate - rather than because an author happened to write them that way.",
+    "`mustNotContain` is the more important half. This is a design system with no components, and the single worst failure mode is a page that reads as documentation for something shipped: a working import, an install command that would succeed, a measured number nobody measured.",
+    "Scores are advisory. run-evals reports them, writes them to public/r/evals.json and never blocks a pull request; the nightly job runs it with --strict."
+  ],
+  "tasks": [
+    {
+      "id": "value-against-a-range",
+      "question": "Which opsinjs component shows a single measurement against its reference range?",
+      "why": "The most common health-UI task, and the one an agent most often solves by inventing a progress bar with a red zone.",
+      "expect": {
+        "page": "components/range-bar",
+        "mustContain": ["reference range", "when to use"],
+        "mustNotContain": ["npm install @opsinjs/react"],
+        "alsoResolves": ["recipes/value-against-a-range", "health/reference-ranges"]
+      }
+    },
+    {
+      "id": "nothing-is-built",
+      "question": "Show me a working ResultCard example I can paste in.",
+      "why": "The correct answer is that there is not one. A component page must be unmistakably a specification, or an agent will generate code against an API that does not exist.",
+      "expect": {
+        "page": "components/result-card",
+        "mustContain": ["not implemented"],
+        "mustNotContain": ["```tsx\nimport { ResultCard }"],
+        "frontmatter": { "status": "planned", "kind": "component" }
+      }
+    },
+    {
+      "id": "considered-is-an-answer",
+      "question": "Does opsinjs have a Toast component?",
+      "why": "A 404 invites an agent to invent one. A considered row is a definitive negative answer at a guessable address, and it is the single design decision this whole scaffold exists to demonstrate.",
+      "expect": {
+        "catalogueId": "toast",
+        "catalogueStatus": "considered",
+        "alsoResolves": ["reference/generated/catalogue"]
+      }
+    },
+    {
+      "id": "never-mix-the-axes",
+      "question": "What colour should a card showing a high heart rate be?",
+      "why": "The system's headline invariant. Category colour says what kind of measurement this is; status colour says how urgent it is; one element takes its colour from exactly one axis.",
+      "expect": {
+        "page": "health/two-colour-axes",
+        "mustContain": ["category", "status", "never"],
+        "alsoResolves": ["health/category-identity", "health/clinical-status-semantics"]
+      }
+    },
+    {
+      "id": "status-needs-a-word",
+      "question": "Can I show urgency with colour alone?",
+      "why": "No. Colour-blind readers, sunlight, grayscale printing and screen readers all lose it. A status always carries a word.",
+      "expect": {
+        "page": "health/clinical-status-semantics",
+        "mustContain": ["colour"],
+        "alsoResolves": ["accessibility/colour-independence", "content/writing-status-and-alerts"]
+      }
+    },
+    {
+      "id": "normal-is-banned",
+      "question": "How should I label a result that is inside the reference range?",
+      "why": "Not \"normal\". The word carries a verdict opsinjs is not entitled to give, and a reader outside the range hears \"abnormal\" about themselves.",
+      "expect": {
+        "page": "health/reference-ranges",
+        "mustContain": ["normal"],
+        "alsoResolves": ["content/writing-status-and-alerts"]
+      }
+    },
+    {
+      "id": "units-are-correctness",
+      "question": "Should I show blood glucose in mmol/L or mg/dL?",
+      "why": "Unit systems are a correctness surface, not a localisation preference: the same number in the wrong unit is a different clinical picture.",
+      "expect": {
+        "page": "health/unit-systems",
+        "mustContain": ["mmol/l", "mg/dl"],
+        "alsoResolves": ["health/numbers-units-precision"]
+      }
+    },
+    {
+      "id": "tokens-not-values",
+      "question": "Can I use oklch(0.7 0.2 25) directly for an urgent state?",
+      "why": "No. A raw value is unthemeable, unmeasurable and invisible to the contrast gate. Reference the token.",
+      "expect": {
+        "page": "foundations/token-architecture",
+        "mustContain": ["token"],
+        "alsoResolves": ["theming/index", "reference/generated/tokens"]
+      }
+    },
+    {
+      "id": "install-path",
+      "question": "How do I add opsinjs to a Next.js app?",
+      "why": "The ordinary install path must be findable in one hop and must name the file the CLI reads.",
+      "expect": {
+        "page": "start/installation/next",
+        "mustContain": ["components.json"],
+        "alsoResolves": ["start/installation/index", "registry/namespaces"]
+      }
+    },
+    {
+      "id": "which-registry",
+      "question": "Run the shadcn CLI to add a component from opsinjs.",
+      "why": "An agent that assumes a registry is configured produces a command that fails. The namespace has to be registered first, and the docs have to say so before the command.",
+      "expect": {
+        "page": "registry/namespaces",
+        "mustContain": ["@opsinjs"],
+        "alsoResolves": ["agents/mcp-server"]
+      }
+    },
+    {
+      "id": "touch-target-floor",
+      "question": "How small can a tap target be?",
+      "why": "A health app is used one-handed, in a hurry, sometimes by people with tremor. The floor is published and is not negotiable per screen.",
+      "expect": {
+        "page": "accessibility/target-size-and-motor",
+        "mustContain": ["44"],
+        "alsoResolves": ["foundations/space/density-and-touch"]
+      }
+    },
+    {
+      "id": "machine-surface",
+      "question": "Where is the machine-readable version of these docs?",
+      "why": "The agent surface is only useful if it is discoverable from the human surface.",
+      "expect": {
+        "page": "agents/llms-txt",
+        "mustContain": ["llms.txt"],
+        "alsoResolves": ["agents/raw-markdown-api", "agents/machine-readable-schemas"]
+      }
+    },
+    {
+      "id": "no-invented-evidence",
+      "question": "What is the evidence that this presentation format is better?",
+      "why": "Every health page declares whether it is stating evidence or an opinion. A fabricated citation in a health document is the worst thing this repository could contain.",
+      "expect": {
+        "page": "health/evidence-and-references",
+        "mustContain": ["opinion"],
+        "frontmatterAny": { "evidence": ["cited", "opinion", "mixed"] }
+      }
+    },
+    {
+      "id": "scope-and-limits",
+      "question": "Can I use opsinjs for a regulated medical device interface?",
+      "why": "The honest answer is no, and it must be reachable from the first page a new reader opens rather than buried in a legal note.",
+      "expect": {
+        "page": "start/safety-scope-and-limitations",
+        "mustContain": ["not a medical device"],
+        "alsoResolves": ["health/regulatory-context"]
+      }
+    }
+  ]
+}

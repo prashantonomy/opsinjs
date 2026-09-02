@@ -1,0 +1,264 @@
+---
+title: TrendSparkline
+description: A small line showing how one measurement has moved over time, with a caption that says what changed without telling you whether that is good news.
+status: planned
+kind: component
+since: "unreleased"
+category: health-data-display
+aliases: [chart, graph, sparkline, over time, steps]
+governedBy: [trends-and-change, numbers-units-precision, uncertainty-and-staleness, category-identity]
+usedIn: [trend-with-a-caption, trends-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="trend-sparkline"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "What is the minimum number of points, over what window, before a line may be drawn at all?",
+    "How are gaps rendered — interpolated, broken, or shaded — and how does the caption disclose them?",
+    "Direction is a fact and valence is a judgement. How does the component keep them apart when the same arrow carries both for most readers?",
+    "May the y-axis ever be truncated to make a change visible, and if not, what does a real but tiny change look like?",
+  ]}
+/>
+
+A sparkline is a claim that a pattern exists. Four points and a slope look exactly like
+forty points and a slope, and the reader cannot tell them apart. Most of this specification
+is about refusing to draw a line that the data does not support.
+
+## Preview
+
+The preview will show the same series with three window lengths and with gaps present, so
+the difference between a trend and a coincidence is visible.
+
+<ComponentPreview name="trend-sparkline" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail.
+
+<ComponentInstall name="trend-sparkline" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "A series of readings of one measurement over time, where the shape of the change is the point and the individual values are secondary.",
+    "A compact companion to a current reading, showing whether today's number is part of a pattern or an outlier.",
+    "Any place a reader would otherwise ask 'is this new?' about a value you are already showing.",
+  ]}
+  avoid={[
+    { case: "You have fewer readings than your product's stated minimum for the window, so any line would imply a pattern the data cannot support.", instead: "empty-state" },
+    { case: "The reader needs to compare a single value with its reference range rather than with its own history.", instead: "range-bar" },
+    { case: "The reader needs to know which day a value belongs to, so axes, ticks and hover are required — that is a chart, not a glyph.", instead: "table" },
+    { case: "You are showing one number and its change since last time, with no room for a line.", instead: "metric-tile" },
+    { case: "The trend has crossed a threshold and the reader needs to do something about it.", instead: "care-card" },
+  ]}
+/>
+
+The third exclusion is the one products get wrong. A sparkline is a glyph, not a chart: no
+axes, no gridlines, no hover. The moment a reader needs to know *which* day the spike was,
+the component has failed and a real chart belongs there instead — see
+[Chart anatomy](../foundations/data-visualisation/chart-anatomy.mdx).
+
+## Clinical meaning
+
+**What it asserts.** That these readings, of this measurement, in this unit, were recorded
+at these times, and that the line joins them. It asserts the shape of a series and nothing
+about its cause.
+
+**What it must never be read as.** A prediction, an explanation, or a verdict. A line
+sloping upward does not mean the reader is getting worse, and a line sloping downward does
+not mean they are getting better — the valence depends entirely on the measurement, and for
+several common measurements it depends on the person. The component therefore states
+**direction** (up, down, level, unsettled) and leaves valence to whatever the product
+chooses to say beside it, as
+[Trends and change](../health/trends-and-change.mdx) requires.
+
+**Which colour axis it may use.** The **category** axis, on the line itself, because a
+sparkline's job in a dashboard is to be findable among five others and the category tint is
+what makes the heart series distinguishable from the sleep series. The **status** axis may
+appear only on a single emphasised point where the product has assigned a status to that
+reading — never as the colour of the whole line. A line that changes colour along its length
+to show good and bad regions is the two-axis collision in its purest form; see
+[The two colour axes](../health/two-colour-axes.mdx).
+
+**Who owns the window and the minimum.** The product. TrendSparkline has no default window,
+no default minimum point count, and no smoothing. It renders what it is given, and refuses
+to render a line when it is given less than the product said was enough.
+
+**Gaps are data.** Missing readings are drawn as breaks, never bridged by interpolation, and
+the caption says how many are missing. A continuous line over a fortnight of absent data is
+a claim the product cannot support — see
+[Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx).
+
+<SafetyCallout severity="medium" evidence="opinion">
+The y-axis is never truncated to make a change look larger. Health measurements have
+meaningful zero-distance and clinically meaningless variation, and a zoomed axis converts
+ordinary noise into an apparent event. If the change is too small to see on an honest axis,
+the honest answer is that there is nothing to see.
+</SafetyCallout>
+
+## Anatomy
+
+<Anatomy name="trend-sparkline" />
+
+<CompositionTree name="trend-sparkline" />
+
+**Line** is the series. **Band** is the optional shaded reference range behind it, drawn in
+neutral tones so that in-range and out-of-range are visible without becoming a verdict.
+**Point** is an emphasised reading — usually the latest, occasionally one the product has
+flagged. **Caption** is the sentence that carries the whole component when the graphic is
+unavailable, and it is mandatory. **Window** states the period, because a line with no
+period is unreadable.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+TrendSparkline                 root; owns series, window, minimum point count
+├── TrendSparkline.Plot
+│   ├── TrendSparkline.Band    optional reference range behind the line; neutral only
+│   ├── TrendSparkline.Line    the series; category-tinted, broken across gaps
+│   └── TrendSparkline.Point   an emphasised reading; may carry status
+├── TrendSparkline.Caption     direction, magnitude, window, gaps — mandatory
+└── TrendSparkline.Window      the period covered, e.g. "last 14 days"
+```
+
+Never place a `TrendSparkline.Point` on an interpolated position. If the reading does not
+exist, the point does not exist.
+
+## Proposed API
+
+<NotBuiltYet name="trend-sparkline" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+import type { ClinicalStatus, HealthCategory, ReferenceRange } from "opsinjs"
+
+export interface TrendPoint {
+  /** ISO timestamp of the reading. */
+  at: string
+  /** `null` records a known gap. Gaps are drawn as breaks, never bridged. */
+  value: number | null
+  /** Status for this reading only. Never colours the line. */
+  status?: ClinicalStatus
+}
+
+/** Direction is a fact about the series. Valence is a judgement, and not ours. */
+export type TrendDirection = "up" | "down" | "level" | "unsettled"
+
+export interface TrendSparklineProps {
+  label: string
+  unit: string
+  /** Chronological. Gaps are explicit `null` entries, not omissions. */
+  series: TrendPoint[]
+  /**
+   * The minimum number of real readings before a line may be drawn. Supplied by
+   * the product; below it the component renders its not-enough-data state.
+   */
+  minimumPoints: number
+  /** The period the series covers, stated to the reader. */
+  window: string
+  /** Drawn behind the line in neutral tones. Never status-coloured. */
+  range?: ReferenceRange
+  /** Tints the line so it is findable in a grid. */
+  category?: HealthCategory
+  /**
+   * The caption. When omitted the component composes one from direction,
+   * magnitude, window and gap count — and never from valence.
+   */
+  caption?: string
+}
+```
+
+## Content guidelines
+
+Captions state direction, magnitude, window and gaps, in that order, and stop. Leave the
+interpretation to the product's own copy in the surrounding
+[CareCard](./care-card.mdx) or paragraph, where it can be attributed to somebody.
+
+Avoid *improving*, *worsening*, *better*, *worse*, *on track* and *off track* inside the
+component. They are all valence, and valence in a caption is a verdict nobody signed.
+
+<DoDont>
+  <DoDont.Do>
+    **"Down about 4 bpm over the last 14 days. 2 days have no reading."** Direction,
+    magnitude, window, gaps. A reader can check every word of it against the picture.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Trending in the right direction. Keep it up."** Valence with no author, praise for
+    something the reader may not have caused, and no way to tell how much changed or over
+    how long.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **"Not enough readings yet. We show a trend once you have 7 days of data — you have 3."**
+    Names the rule, names the gap, gives the reader something to do.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A line through three points.** It looks exactly like a trend and it is not one, and
+    nothing on screen distinguishes them.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **Every sparkline ships a text twin.** The caption is in the accessibility tree and states
+  direction, magnitude, window and gaps. A reader who cannot see the line loses the picture,
+  not the information. See
+  [Accessible charts](../foundations/data-visualisation/accessible-charts.mdx).
+- **A data-table twin is available** for any sparkline whose underlying readings the reader
+  may need — reachable from the same surface, not a separate page.
+- **The graphic is `role="img"` with the caption as its name**, not focusable, not
+  announced point by point. A fourteen-point series read aloud one point at a time is worse
+  than silence.
+- **The line is distinguishable from the band without colour**, by weight and by the break
+  pattern across gaps, and survives the generated CVD audit.
+- **Category tint never encodes meaning**, so grayscale loses nothing but findability.
+- **At 200% text the caption reflows** to as many lines as it needs and the plot shrinks in
+  height rather than the caption truncating.
+- **Motion is not used to draw the line in.** A path that animates its own length implies
+  progress and reads as time passing; under `prefers-reduced-motion` there is nothing to
+  degrade because there was nothing there.
+- **Print** renders the line as a solid stroke, the band as an outline, gaps as visible
+  breaks, and the caption as text.
+
+<KeyboardTable name="trend-sparkline" />
+
+<ContrastReport component="trend-sparkline" />
+
+## Related
+
+<RelatedComponents name="trend-sparkline" />
+
+**Easily confused with**
+
+- [RangeBar](./range-bar.mdx) — where one value sits, rather than how a series moved. Both
+  frequently belong on the same result, answering different questions.
+- [MetricTile](./metric-tile.mdx) — a tile can embed a sparkline; a sparkline is not a tile.
+- [ScoreDial](./score-dial.mdx) — a state at a point in time, not a shape over time.
+- [EmptyState](./empty-state.mdx) — what belongs there instead when the series is too short
+  to draw.
+
+**Used by**
+
+- [Show a trend with an honest caption](../recipes/trend-with-a-caption.mdx)
+- [Trends screen](../screens/trends-screen.mdx)
+- [Trend review](../patterns/trend-review.mdx)
+
+**Governed by**
+
+- [Trends and change](../health/trends-and-change.mdx)
+- [Numbers, units and precision](../health/numbers-units-precision.mdx)
+- [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx)
+- [Category identity](../health/category-identity.mdx)

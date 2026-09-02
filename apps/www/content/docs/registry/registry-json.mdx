@@ -1,0 +1,169 @@
+---
+title: registry.json
+description: The catalog file annotated field by field, with the opsinjs conventions layered on top of the shadcn specification.
+status: stable
+kind: guide
+aliases: [catalog, registry schema, registry root]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+`registry.json` is the catalog: one file that lists every item a registry
+distributes. It is what the CLI reads first, what the MCP server browses, and
+what a search command indexes.
+
+The authoritative schema is shadcn's, published at
+`https://ui.shadcn.com/schema/registry.json`, and opsinjs implements it without
+extension. Where opsinjs needs a field the schema does not have — status,
+category, aliases, the last accessibility-review date — those go in a second
+file, `/r/index.json`, rather than into a shape other tools validate. An item
+that fails somebody else's validator is a worse outcome than a second request.
+
+## The file
+
+```json title="registry.json"
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "opsinjs",
+  "homepage": "https://opsinjs.dev",
+  "items": [
+    {
+      "name": "result-card",
+      "type": "registry:component",
+      "title": "Result card",
+      "description": "A single test result shown with what it means and how confident you should be.",
+      "files": [
+        { "path": "registry/bases/base/result-card.tsx", "type": "registry:component" }
+      ]
+    }
+  ]
+}
+```
+
+## Field by field
+
+| Field | Required | What it is |
+| --- | --- | --- |
+| `$schema` | No, in practice yes | Points at the schema. Editors validate against it, and a typo becomes an error instead of a mystery |
+| `name` | Yes | The registry's own name. Not a namespace — the namespace is chosen by the consumer in `components.json` |
+| `homepage` | Yes | Where a human goes to understand what this is. Surfaced by `search` and by the MCP server |
+| `items` | Yes | The array. Order is not significant |
+| `items[].name` | Yes | The item id. Kebab-case, and in opsinjs it is exactly the catalogue id and the docs URL segment |
+| `items[].type` | Yes | What kind of thing it is — see below |
+| `items[].title` | Yes | Human-readable. Sentence case |
+| `items[].description` | Yes | One sentence. In opsinjs this is the plain-English definition written for the patient, not the engineer |
+| `items[].files` | For anything with code | Path and type per file. **No `content`** in the catalog — see the rule below |
+| `items[].dependencies` | No | npm packages the item needs |
+| `items[].registryDependencies` | No | Other items it needs, by name or by URL |
+| `items[].categories` | No | Free-form grouping used by search |
+
+### The catalog carries no file contents
+
+`files[].content` must not appear in `registry.json`. The catalog is an index; it
+is fetched constantly, by every tool, for every command, and inlining source
+turns a small file into a large one for no benefit. Contents belong in the
+per-item response at `/r/<name>.json`, which is fetched once, only when
+something is actually being installed.
+
+This is also a requirement for listing in the public registry directory, so it is
+worth getting right even if you never intend to be listed.
+
+### Item types
+
+The types opsinjs uses:
+
+| Type | Used for |
+| --- | --- |
+| `registry:component` | A component, the ordinary case |
+| `registry:ui` | A primitive that lands in the `ui` alias directory |
+| `registry:lib` | Shared non-component code — the colour engine, formatting helpers |
+| `registry:hook` | A hook |
+| `registry:block` | A composed multi-file specimen; opsinjs uses it for screens |
+| `registry:item` | A universal item. Themes are this: `cssVars` and no files |
+
+The specification defines more than opsinjs uses. Consult shadcn's schema rather
+than this table if you are authoring a registry of your own — this list is what
+opsinjs emits, not the full vocabulary.
+
+## opsinjs conventions on top
+
+Four, all of them enforced by `scripts/assert-ia.mts` rather than by review.
+
+**One id everywhere.** A component's registry `name`, its catalogue id, its
+documentation URL segment and its file name are the same kebab-case string.
+There is no mapping table, because a mapping table is a place for two things to
+drift apart.
+
+**Descriptions are plain English.** The `description` field is what appears in a
+search result, in an MCP listing, and as a card subtitle. It is written for
+somebody with no clinical training, in the same voice as the product itself.
+"Shows a value against a reference range" — not "RangeBar component with
+configurable thresholds".
+
+**No private fields.** Status, category, aliases and accessibility dates live in
+`/r/index.json`.
+
+**Every id resolves.** Both the twenty-four specified components and the
+considered roster appear somewhere addressable. An agent asking about a
+considered component gets a definite "considered, not implemented" answer and
+never a 404 — that is the failure the whole design exists to eliminate.
+
+## Generated, not hand-written
+
+`registry.json` is emitted by `scripts/build-registry.mts` from
+`registry/catalogue.ts`, and `pnpm run check:generated` fails the build if the
+committed output no longer matches its source. Hand-editing the JSON is caught
+and reverted.
+
+The catalogue is therefore the file to change. It is also the sole owner of the
+alias namespace, which is what makes global uniqueness achievable while many
+people write pages in parallel.
+
+<RegistryItem name="result-card" />
+
+## Verify it worked
+
+<Steps>
+
+### It validates
+
+Any JSON Schema validator against the `$schema` URL. Editors with schema support
+do this as you type.
+
+### It is flat and content-free
+
+Search the file for `"content"`. There should be no matches.
+
+### Names match the site
+
+Every `items[].name` should correspond to a documentation URL segment. A name
+that does not resolve is caught by `assert-ia`, and if you are building your own
+registry it is worth asserting the same thing.
+
+</Steps>
+
+## Troubleshooting
+
+**The CLI reports an invalid registry.** Usually `files[].content` present in the
+catalog, or an item missing `type`.
+
+**An item resolves but installs nothing.** Correct in opsinjs today — nothing is
+built. In your own registry, check that `files[].path` points at a file that
+exists relative to the registry root.
+
+**Search finds nothing.** `search` matches on `name`, `title` and `description`.
+An item with a terse description is hard to find; that is a content bug.
+
+**`check:generated` fails on `registry.json`.** It was hand-edited. Change
+`registry/catalogue.ts` and regenerate.
+
+## Next
+
+- [registry-item.json](./registry-item-json.mdx) — one distributed item, in
+  full.
+- [Version stamps](./version-stamps.mdx) — what gets written into the files an
+  item emits.
+- [Machine-readable schemas](../agents/machine-readable-schemas.mdx) — the
+  companion `/r/index.json`.

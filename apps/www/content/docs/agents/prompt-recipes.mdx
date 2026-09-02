@@ -1,0 +1,161 @@
+---
+title: Prompt recipes
+description: Prompts that reliably produce correct, safe health UI, with the reasoning for every constraint so you can adapt them rather than copy them.
+status: stable
+kind: guide
+aliases: [prompts, prompt engineering, how to ask, generation recipes]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+A prompt recipe is not a magic phrase. It is a short prompt plus an explicit
+statement of what the output must and must not contain, so that a failure is
+visible instead of plausible.
+
+Every recipe here follows the same shape: the task, the constraints, and the
+tell — the specific thing to look for that distinguishes a correct answer from a
+confident wrong one. The tell is the part worth internalising. Health UI fails
+quietly, and "it looked right" is not a review.
+
+These are written to work alongside the [agent skill](./agent-skill.mdx). Without
+it, prepend the six rules from
+[Rules for agents](./rules-for-agents.mdx) to each one.
+
+<Callout>
+Nothing is built. Every recipe below therefore has the same *correct* outcome
+today: the assistant should describe the specification and refuse to emit
+imports. A recipe that produces working code right now has produced fiction.
+</Callout>
+
+## Ask what exists before asking for code
+
+<PromptRecipe
+  title="Inventory first"
+  prompt="Using the opsinjs registry, list every component whose category begins with health-, with its status. Do not write any code."
+  expects="A list of component ids and titles, every one marked planned. No imports, no JSX, no invented components."
+/>
+
+Separating discovery from generation is the single highest-value habit. A model
+asked to *build* something will build it; a model asked to *look* will look. Run
+the inventory step first and the generation step against its output.
+
+**The tell:** a component in the answer that is not in the catalogue.
+
+## Choose a component instead of naming one
+
+<PromptRecipe
+  title="Describe the data, not the widget"
+  prompt="I need to show a single blood-pressure reading with the range it should fall in, for a patient with no clinical training. Which opsinjs component is intended for this, and which one would be wrong? Cite the pages."
+  expects="A named component, a named alternative that was rejected, and a reason for each, with page citations."
+/>
+
+Asking "which component" rather than "build me a range bar" surfaces the
+decision instead of hiding it. Models are good at this when the alternatives are
+documented, which is why every component page has a mandatory when-not-to-use
+list naming its alternative.
+
+**The tell:** an answer with no rejected alternative. If nothing was ruled out,
+nothing was chosen.
+
+## Get a status without getting a colour
+
+<PromptRecipe
+  title="Status, not colour"
+  prompt="Render a summary tile for a reading that is above the person's usual range. Use the opsinjs status vocabulary. Do not choose any colour, and do not use colour as the only signal."
+  expects="A status level from the four, an accompanying word, and no literal colour value anywhere in the output."
+/>
+
+The negative constraints do the work. "Use the status vocabulary" alone is not
+enough, because a model will helpfully add an amber border to make it clearer.
+
+**The tell:** any hex, `rgb()`, or a Tailwind palette class such as
+`bg-amber-100`. All three mean the appearance decision was made by the model.
+
+## Refuse to invent a threshold
+
+<PromptRecipe
+  title="Thresholds are not yours"
+  prompt="Given a systolic reading of 148, which opsinjs status level applies? If opsinjs does not decide this, say so and explain who does."
+  expects="A refusal to assign a level, a statement that thresholds are the product's clinical logic, and a pointer to the reference-ranges guidance."
+/>
+
+This is the most important recipe on the page and the one most likely to fail. A
+model has read a great deal of medical text and will happily classify a blood
+pressure. opsinjs owns none of that, and a system that lets a component infer a
+threshold has moved a clinical decision into a UI library.
+
+**The tell:** any answer containing a number the prompt did not supply.
+
+## Write the copy under the content rules
+
+<PromptRecipe
+  title="Copy that survives review"
+  prompt="Write the sentence a patient sees when a reading is at the watch level. Follow the opsinjs content guidance: plain English, no reassurance the data does not support, no diagnosis, no exclamation marks. Give three options and say what each implies."
+  expects="Three candidate sentences, each with a note on what it claims, and no phrase like 'nothing to worry about'."
+/>
+
+**The tell:** reassurance. "Nothing to worry about" is not a friendlier phrasing
+of a status; it is a different clinical claim, and it is the most common thing a
+helpful model adds.
+
+## Review generated code against the rules
+
+<PromptRecipe
+  title="Audit, not authorship"
+  prompt="Review this component against the opsinjs rules: tokens not values, status not colour, one axis per element, no invented components, no accessibility claims. List every violation with a line number. Do not fix anything."
+  expects="A list of violations with locations, or an explicit statement that there are none."
+/>
+
+Separating audit from repair produces better audits. A model asked to fix as it
+goes tends to report only what it fixed.
+
+**The tell:** an empty list on code you know is imperfect, or a fix you did not
+ask for.
+
+## Verify it worked
+
+<Steps>
+
+### Check the tell, not the vibe
+
+Each recipe names a specific artefact to search for. Search for it. "It looks
+reasonable" is how a wrong threshold ships.
+
+### Run the negative case
+
+Ask for something that does not exist. The correct answer is a refusal that
+names the status; anything else means the rules are not loaded.
+
+### Diff two runs
+
+Run the same recipe twice. Constraints that are actually binding produce stable
+output; constraints the model is improvising around produce variety.
+
+</Steps>
+
+## Troubleshooting
+
+**The assistant follows the rules at first and drifts.** Attention decays over a
+long session. Re-anchor before each generation step, or split the work.
+
+**It refuses too much.** Given that nothing is built, near-total refusal to emit
+component code is the correct behaviour, not over-caution. If it also refuses to
+*describe* the specification, the prompt has been read as a request for code.
+
+**Output is right but cites no pages.** Add "cite the documentation page for
+each claim" to the prompt. A citation is what turns a checkable answer into a
+verifiable one.
+
+**A recipe stops working after a docs change.** Report it as an eval failure —
+see [Evals](./evals.mdx). Recipes are supposed to be regression-tested rather
+than folklore.
+
+## Next
+
+- [Evals](./evals.mdx) — the same prompts, scored.
+- [Rules for agents](./rules-for-agents.mdx) — the constraints these recipes
+  encode.
+- [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx)
+  — the ten prohibitions a reviewer will check the output against.

@@ -1,0 +1,135 @@
+---
+title: Dark mode
+description: One class on the root element, one provider, and the two-line inline script that prevents the flash — plus why dark mode is a contrast problem before it is a colour problem.
+status: stable
+kind: handbook
+aliases: [dark theme, next-themes, ssr flash, theme class strategy, theme toggle]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="handbook" />
+
+## The short version
+
+Dark mode is a `dark` class on the root element. Everything else follows from
+CSS custom properties redefined under that class:
+
+```css
+:root { --opsin-surface: oklch(99% 0 0); }
+.dark { --opsin-surface: oklch(18% 0.01 260); }
+```
+
+There is exactly **one** theme provider in an opsinjs application. In this
+documentation site it is fumadocs' `RootProvider`, which mounts `next-themes`
+internally — adding a second `ThemeProvider` produces two sources of truth for
+the same class and a toggle that works only sometimes.
+
+## How it works
+
+### The class strategy
+
+A class on the root beats a media query for one decisive reason: a media query
+cannot be overridden by the reader. With a class, three states exist — light,
+dark, and follow the system — and the third is the default rather than the only
+option.
+
+The Tailwind v4 variant is declared once:
+
+```css
+@custom-variant dark (&:where(.dark, .dark *));
+```
+
+The `:where()` form contributes zero specificity, which keeps dark-mode
+utilities from quietly winning specificity fights they were not meant to win.
+This declaration is pinned as the **last line** of `globals.css`, because both
+shadcn and fumadocs declare their own version of the variant and the last one
+wins silently. Pinning the superset at the bottom makes the file
+order-independent for that one rule. See
+[Tailwind v4](../theming/tailwind-v4.mdx).
+
+### Preventing the flash
+
+Theme preference lives in `localStorage`, which the server cannot read, so the
+first paint would be light and then correct itself — a visible flash on every
+navigation for readers who chose dark. `next-themes` solves it with a small
+blocking script injected before paint that reads the stored value and sets the
+class. Two consequences:
+
+- `suppressHydrationWarning` is required on the `<html>` element, because the
+  server rendered no class and the client added one before React hydrated. This
+  is the one legitimate use of that prop.
+- The script must be **blocking**. Deferring it reintroduces the flash.
+
+### Dark is not inverted light
+
+The colour engine derives dark values in OKLCH rather than flipping lightness.
+Two reasons that matter in a health product: pure black backgrounds cause
+noticeable smearing on OLED during scroll, and chroma behaves differently
+against a dark ground — a status colour that is clearly distinguishable on white
+can collapse toward its neighbours on near-black. Every token pair is measured
+in both themes and the numbers are generated, not asserted; see
+[Contrast conformance](../accessibility/contrast-conformance.mdx).
+
+## Do this
+
+- **Define every colour as a token in both themes.** A value defined only under
+  `:root` will be wrong in dark mode, and it will be wrong quietly.
+- **Set `color-scheme`** on the root so form controls, scrollbars and the
+  browser's own UI follow. It is one declaration and it fixes the white
+  scrollbar nobody can find the cause of.
+- **Keep "system" as the default** and offer light and dark as explicit
+  overrides.
+- **Check status colours in both themes at the contrast floor**, not by eye. The
+  four status levels must remain distinguishable from each other, not merely
+  legible against the background.
+- **Test the toggle on a page with a chart and a material surface.** Those are
+  where dark mode breaks first.
+
+## Not this
+
+- **Do not mount a second theme provider.** One only. In this site,
+  `RootProvider` is it, and shadcn's `theme-provider.tsx` is deleted
+  deliberately.
+- **Do not use `prefers-color-scheme` alone.** It removes the reader's ability
+  to choose, and a reader whose system is dark but who needs a light interface
+  for contrast reasons has no way out.
+- **Do not hardcode `#fff` or `#000` anywhere.** Both are wrong in one of the
+  two themes, and pure black is wrong in dark mode as well.
+- **Do not lower opacity to make something look "dim" in dark mode.** It reduces
+  contrast against an already-dark ground, which is the exact failure the
+  contrast floor exists to prevent. Use a token.
+- **Do not animate the theme change.** A cross-fade of the entire page is a
+  large motion event, and it is the first thing to go under
+  `prefers-reduced-motion`.
+
+## Gotchas
+
+- **A missing `suppressHydrationWarning` produces a hydration error in
+  development that looks like a bug in your code.** It is the theme script doing
+  its job.
+- **Two `@custom-variant dark` declarations: last one wins, silently.** If dark
+  utilities stop applying after adding a dependency, look for a second
+  declaration.
+- **`localStorage` throws in some contexts** — private windows with site data
+  blocked, some embedded webviews. Wrap reads and writes, and render correctly
+  with no stored value.
+- **An iframe does not inherit the parent's class.** Component previews
+  rendering in a `(view)` route need the theme passed through explicitly;
+  see [Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx).
+- **Images and charts need their own dark treatment.** A screenshot with a white
+  background in a dark page is a bright rectangle; a chart whose gridlines are
+  `#eee` disappears entirely.
+- **`color-scheme` on a nested element does not cascade the way you expect** to
+  form controls that portal out of it.
+
+## Related
+
+- [Dark mode (Foundations)](../foundations/colour/dark-mode.mdx) — why the dark
+  palette is derived rather than inverted.
+- [Tailwind v4](../theming/tailwind-v4.mdx) — the import order and the variant
+  declaration.
+- [Contrast and APCA](../foundations/colour/contrast-and-apca.mdx) — how the
+  floor is measured in both themes.
+- [Increased contrast](../accessibility/increased-contrast.mdx) — the third
+  media query, and what it changes that dark mode does not.

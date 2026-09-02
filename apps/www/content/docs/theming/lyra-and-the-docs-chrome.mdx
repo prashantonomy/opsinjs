@@ -1,0 +1,141 @@
+---
+title: Lyra and the docs chrome
+description: This documentation site is dense, square and neutral. The design system it documents is none of those things, and the difference is deliberate.
+status: stable
+kind: project
+icon: Layers
+reviewEvery: 12m
+reviewer: design
+aliases: [docs chrome, why does this site look like this, lyra, product theme]
+---
+
+<PageTemplate kind="project" />
+
+## Why this page exists
+
+You are reading a health design system's documentation inside chrome that is
+square-cornered, tightly spaced, small-typed and almost colourless. If you
+assumed that was opsinjs, you would form a completely wrong impression of the
+system in the first ten seconds, and every screenshot you took from it would be
+misleading.
+
+It is not opsinjs. It is `lyra`, a shadcn style, chosen for a documentation site
+and confined to it. The product theme — the one the components are designed
+against — is squircle-cornered, set in the reader's own system font, generously
+spaced, and built around 44-pixel touch targets. Two themes, one repository, and
+a hard boundary between them.
+
+This is a project page rather than a theming guide because it is a decision with
+consequences, not a technique. The decision record is
+[0004 — lyra docs chrome](../project/decisions/0004-lyra-docs-chrome.mdx).
+
+## The two audiences are not the same person
+
+A developer reading reference material is at a desk, with a keyboard, on a wide
+screen, scanning for a prop name. Density is a kindness: more of the table is
+visible at once, the sidebar and the content fit side by side, and small type is
+fine because the reading distance is short and fixed.
+
+Somebody checking a blood-pressure reading is standing in a corridor, holding a
+phone one-handed, possibly anxious, possibly with the system text size turned
+up, possibly with a tremor. Density is hostile. Small targets are a failure
+mode. A brand webfont that ignores their text-size setting is an accessibility
+bug wearing a design decision's clothes.
+
+A single theme that served both would serve neither. The honest answer is to run
+two, and to say so on a page that anyone can find.
+
+## What each theme actually is
+
+| | Docs chrome | Product theme |
+| --- | --- | --- |
+| Where | `app/globals.css` | `app/product.css` |
+| Loaded by | `app/(chrome)/layout.tsx` | `app/(view)/layout.tsx` only |
+| Style | shadcn `base-lyra`, `neutral` base | opsinjs |
+| Corners | Square to slightly rounded | Squircle via `corner-shape`, radius `1rem` |
+| Type | Inter, small | The platform UI stack, `ui-sans-serif, system-ui, …` |
+| Spacing | Tailwind default `--spacing` | `--spacing: 0.28rem`, measurably roomier |
+| Targets | Ordinary control sizes | `--opsin-target-min: 44px`, enforced in `@layer base` |
+| Colour | Neutral, low chroma | Neutral shell, plus the two health axes |
+| Density | One | `[data-density]`: compact, default, comfortable |
+| Text size | One | `[data-text-size]`: 100, 125, 150, 200 |
+
+The two axes — six category ramps and four status ramps — are identical in both,
+because they are generated from the same `tokens/*.json` and imported into both
+stylesheets. **The axes do not change between the docs and the product. Only the
+shell does.** That is the invariant that makes the split safe: a status colour
+you see in a callout on this page is the same status colour a patient sees.
+
+## How the isolation is enforced
+
+Not by convention. By the routing.
+
+There is no `app/layout.tsx` in this application. There are two *root* layouts,
+siblings, and neither is nested under the other:
+
+- `app/(chrome)/layout.tsx` owns an `<html>` and a `<body>`, imports
+  `globals.css`, and mounts the docs provider. Everything you read — the docs,
+  the home page, the playgrounds — lives under it.
+- `app/(view)/layout.tsx` owns its **own** `<html>` and `<body>` and imports
+  `product.css` and nothing else. No docs chrome, no docs stylesheet, no
+  provider.
+
+A route group nested under a root layout cannot own `<html>`, so the isolation
+could not have been achieved with one root layout and a group — the second
+document would have rendered a nested `<html>` and inherited the docs
+stylesheet, which is exactly the failure this arrangement prevents. `product.css`
+carries that constraint in a comment at the top of the file so that nobody
+"tidies it up" later.
+
+Every `<ComponentPreview>` and every `<IframePreview>` on this site embeds a
+`/view/…` route in an iframe. That is why previews render under the product
+theme rather than the chrome, and why the density and text-size switches on a
+preview work: they are query parameters that the `(view)` layout stamps onto its
+own `<html>`.
+
+## What this costs, honestly
+
+Three real costs, stated so that nobody discovers them as surprises.
+
+**Duplication.** The axis fallbacks appear in both stylesheets. They must,
+because the two must be independently loadable — `(view)` never loads the docs
+chrome, so it cannot inherit anything from it. Both files import the same
+generated `tokens.generated.css`, so the *generated* values are shared and only
+the authored pre-generation fallbacks are duplicated. It is still duplication
+and it will drift if nobody watches it.
+
+**An iframe boundary.** A preview is a separate document. It cannot share React
+state with the page around it, it costs a request, and it needs its own
+accessibility treatment. The alternative — rendering previews inline under the
+docs theme — would have made every screenshot on the site a lie, so the boundary
+is worth its cost.
+
+**Two things to keep accessible.** The docs chrome is a product too. Its
+conformance is reported separately, on
+[This site](../accessibility/this-site.mdx), and it is not covered by any claim
+made about the component library.
+
+## What this is not
+
+It is not a claim that lyra is a bad style. It is a good style for the job it is
+doing here.
+
+It is not an invitation to theme your product like this site. If you are
+building a patient-facing app, start from the product theme; the docs chrome is
+tuned for an audience you do not have.
+
+And it is not permanent in the way the axes are. The chrome is a presentation
+choice and could change. The two colour axes are a safety contract and will not.
+
+## If you take a screenshot
+
+Take it from a preview, not from the page around it. A component rendered in
+`/view/…` is showing you the product theme at a real device width. A component
+described in prose on this page is being described, not demonstrated — and while
+nothing is built yet, every preview on the site renders
+`<NotBuiltYet>` in a bordered frame with the switches still present, so that the
+shape of the eventual thing is communicated without pretending it exists.
+
+<LastUpdated />
+
+<Reviewed />

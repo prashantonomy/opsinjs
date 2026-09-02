@@ -1,0 +1,133 @@
+---
+title: Internationalisation
+description: RTL, locale formatting and the hard part — translating a status vocabulary without changing what it means clinically.
+status: planned
+kind: handbook
+aliases: [internationalisation mechanics, rtl, right to left, locale formatting, translating status]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="handbook" />
+
+## The short version
+
+<NotBuiltYet />
+
+Three separate problems travel under one word, and they have three different
+difficulties:
+
+1. **Direction.** Right-to-left is largely solved by CSS logical properties —
+   `margin-inline-start` rather than `margin-left` — and by not assuming that
+   "next" is to the right.
+2. **Formatting.** Numbers, dates, times and units differ by locale. `Intl` does
+   this correctly; hand-rolled formatting does not.
+3. **Status language.** This is the hard one. The four clinical status levels
+   are an ordinal vocabulary with fixed meanings, and a translation that shifts
+   one level's intensity has changed what the product tells someone about their
+   health.
+
+opsinjs does not ship a `[lang]` route segment, and that is a recorded decision
+rather than an oversight: see
+[ADR 0005](../project/decisions/0005-no-lang-segment-yet.mdx). Unit systems are
+treated as a **correctness** surface rather than a localisation one, and ship
+now — [Unit systems](../health/unit-systems.mdx).
+
+## How it works
+
+### Direction
+
+Use logical properties throughout: `padding-inline`, `margin-block`,
+`inset-inline-start`, `text-align: start`. Tailwind's `ps-*`, `pe-*`, `ms-*`,
+`me-*` and `start-*`/`end-*` utilities map onto them. Set `dir` on the root and
+the browser does the rest for text; what it does not do is flip your icons, your
+progress direction or your chart axes.
+
+A `RangeBar` is a directional component: in RTL the low end is on the right, and
+the marker position, the labels and any leading edge all move with it.
+
+### Formatting
+
+`Intl.NumberFormat`, `Intl.DateTimeFormat` and `Intl.RelativeTimeFormat` handle
+grouping separators, decimal separators, ordinal forms and date order. They also
+handle units, which is where most hand-rolled code goes wrong: `72 kg` is not
+formatted the same way in every locale, and the space is not always a space.
+
+Formatting rules for health values — precision, rounding, when to show a decimal
+— are canonical in
+[Numbers, units and precision](../health/numbers-units-precision.mdx) and are
+locale-independent. Locale decides presentation; the health page decides how
+many digits are honest.
+
+### Status language
+
+The four levels are ordinal. A translation must preserve:
+
+- **The order.** Each level is more urgent than the one before.
+- **The distance.** If two adjacent levels translate to near-synonyms, the
+  vocabulary has collapsed from four levels to three.
+- **The absence of a verdict.** No level may translate to a word meaning
+  "healthy", "safe", "normal" or "bad". This constraint is stated in
+  [Clinical status semantics](../health/clinical-status-semantics.mdx) and does
+  not survive a generic translation workflow.
+
+Status strings therefore need review by someone who speaks the language **and**
+understands the clinical intent — not a translation memory match.
+
+## Do this
+
+- **Write CSS with logical properties from the start.** Retrofitting is a large,
+  boring change with a long tail of missed cases.
+- **Format with `Intl`**, and pass an explicit locale rather than relying on the
+  runtime default, which differs between server and client and will produce a
+  hydration mismatch.
+- **Test in RTL early**, with real content. Set `dir="rtl"` on the root and read
+  the page; problems are obvious and cheap to fix at that point.
+- **Treat status strings as a special asset class** with their own review.
+- **Keep units and locale separate.** A reader in Germany may still want stones,
+  and a reader in the UK may want kilograms.
+
+## Not this
+
+- **Do not concatenate translated fragments.** "Your " + metric + " is " +
+  status produces sentences that are ungrammatical in most languages. Use whole
+  sentences with parameters.
+- **Do not use `left`/`right` in CSS** where `start`/`end` will do.
+- **Do not flip everything in RTL.** Clocks, media playback controls and
+  logos do not mirror; arrows and progress do.
+- **Do not translate a unit symbol.** `mmHg` and `mmol/L` are international; a
+  translated abbreviation is a safety problem.
+- **Do not assume text length.** German and Finnish translations run
+  substantially longer than English; a status pill sized to fit "watch" will
+  clip.
+- **Do not localise a medication name.** See
+  [Medications](../patterns/ask-users-for/medications.mdx).
+
+## Gotchas
+
+- **`Intl` on the server and the client can disagree** if the locale is not
+  passed explicitly, producing a hydration mismatch reported as a text-content
+  error.
+- **Numerals are not universal.** Some locales use different digit glyphs;
+  `Intl` handles it, string interpolation does not.
+- **`text-align: right` in an RTL layout is not `end`.** It is genuinely right,
+  and it will look like a bug that only appears in one language.
+- **Logical properties and `transform` do not interact.** A translated element
+  still moves in physical space; a slide-in sheet needs its direction chosen
+  from the writing direction.
+- **Screen readers announce direction changes.** Mixed-direction content —
+  a Latin-script medication name in an RTL sentence — needs explicit `dir` on
+  the span to avoid the punctuation moving.
+- **Date order is not the only difference.** Some calendars are not Gregorian,
+  and a date picker built on a fixed twelve-month year will be wrong.
+
+## Related
+
+- [Unit systems](../health/unit-systems.mdx) — units as correctness, not
+  localisation.
+- [Numbers, units and precision](../health/numbers-units-precision.mdx) — the
+  canonical formatting rules.
+- [ADR 0005: no lang segment yet](../project/decisions/0005-no-lang-segment-yet.mdx)
+  — the decision and the recipe for retrofitting it.
+- [Clinical status semantics](../health/clinical-status-semantics.mdx) — the
+  meanings a translation must preserve.

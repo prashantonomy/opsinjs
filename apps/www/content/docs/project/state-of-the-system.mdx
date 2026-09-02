@@ -1,0 +1,108 @@
+---
+title: State of the system
+description: Dated and blunt — what exists today, what is safe to build on, what will break, and who is behind it.
+status: stable
+kind: project
+owner: core
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 3m
+aliases: [what exists, is it ready, production ready, current state]
+---
+
+<PageTemplate kind="project" />
+
+## Read this before you depend on anything here
+
+**As of the date at the foot of this page, opsinjs is a documentation site and a
+set of design tokens. No component has been implemented. No package has been
+published to npm. Nothing here can be installed and rendered.**
+
+That sentence is the first thing on this page because every other page on this
+site is written as though the system were finished — a component page describes
+an anatomy, an API and an accessibility bar in the present tense, because a
+specification written in the conditional is unreadable. The markers on those
+pages say `planned`, and this page is where the plain version of that lives.
+
+## What exists today
+
+| Surface | State | Safe to build on? |
+| --- | --- | --- |
+| Doctrine — Health, Accessibility, Content and language | Written, self-reviewed, no external clinical review | **Yes**, as guidance. Cite it with the `reviewed` date on the page |
+| Foundations — colour, materials, motion, type, space, shape | Written against real tokens | **Yes**, as guidance |
+| Design tokens (`tokens/*.json`) | Authored: two colour axes, six material rungs, spring easings, type, space and shape scales | **Yes**, as values. Names may change before 1.0 |
+| Generated tables and measured contrast | Produced by scripts from those tokens; empty wherever the source is empty | **Yes**, for the presets described. Not for a theme you derived |
+| Component specifications (24) | Written as specifications, `status: planned` | **Yes** to design against. **No** to write code against |
+| React components | **None.** Zero implemented | No |
+| `@opsinjs/*` npm packages | **None published** | No |
+| Registry endpoints under `/r` | Serve the catalogue; there are no component items to serve yet | Only as a shape to read |
+| CLI | Does not exist and is not planned first — `npx shadcn` already does the job | — |
+| Accessibility conformance | No independent audit has taken place | No. See [Accessibility statement](../accessibility/accessibility-statement.mdx) |
+
+## What is safe to build on, in order
+
+**1. The guidance.** The clinical, content and accessibility doctrine is the part
+of this project with the fewest dependencies on anything shipping. It is licensed
+CC BY 4.0 precisely so that a team can quote it in a design-history file or a
+hazard log; see [Licence and attribution](licence-and-attribution.mdx). Where a
+page states an opinion rather than a cited finding, it says so in its frontmatter
+and in the text.
+
+**2. The token values.** The numbers and colours in `tokens/*.json` are real,
+generated into CSS, and measured for contrast. Copying a value into your own
+system today is a reasonable thing to do. Copying a *name* is a smaller bet:
+names are covered by semver only after 1.0, and this project is at 0.x.
+
+**3. The URL contract.** Every page has a `.md` twin, `/llms.txt` and its shards
+exist, and `/r/index.json` describes the catalogue. Those addresses are meant to
+be depended on by programs, and changing one is treated as a breaking change to
+the documentation. See [Agents and automation](../agents/index.mdx).
+
+**4. The specifications.** A component page tells you what the component will
+assert, what it must never be read as, its proposed anatomy and API, and the
+accessibility bar it has to clear. That is enough to design a screen against, and
+enough to build your own version deliberately. It is not enough to generate code
+against, and every such page carries a machine-readable marker saying so.
+
+## What will break
+
+- **Token names before 1.0.** Values are stable in intent; identifiers are not.
+- **The considered roster.** Names in the catalogue with `status: considered` are
+  reservations. Some will be specified, some will be dropped, and the ones that
+  survive may change shape entirely.
+- **The category members.** The status axis is closed at four levels and will not
+  grow. The category axis is expected to change as real products bring real
+  subjects. See [Category palettes](../theming/category-palettes.mdx).
+- **The per-symbol API pages.** Everything under
+  [Reference → API](../reference/api/index.mdx) is a seed until a package ships.
+- **Registry item shape**, where the upstream shadcn registry specification moves.
+  We follow it rather than fork it; that is [ADR 0002](decisions/0002-shadcn-registry-distribution.mdx).
+
+## What is not measured, and therefore not claimed
+
+No independent accessibility audit. No cross-browser test matrix running in CI.
+No performance budget enforced against a real bundle, because there is no bundle.
+No usability research with patients — the research citations on health pages are
+other people's published work, read and cited, not studies this project ran.
+Where a page needs a number that nobody has measured, it renders an honest empty
+state naming the script that will fill it, rather than an estimate.
+
+## Who maintains it
+
+The opsinjs maintainers, in the open, with no company behind the project and no
+support contract. Assume a small team until [Community](community.mdx) says
+otherwise. Decisions are recorded before implementation as
+[decision records](decisions/index.mdx).
+
+## How to tell if this page is stale
+
+Compare the review date at the foot of this page with the newest entry in the
+[changelog](changelog/index.mdx). **If the changelog is newer, trust the
+changelog.** This page is rewritten as part of every release and is reviewed
+every three months; `check-freshness.mts` reports it as expired if that lapses,
+and an expired state-of-the-system is treated as a release blocker rather than a
+documentation chore.
+
+<LastUpdated />
+
+<Reviewed />

@@ -1,0 +1,157 @@
+---
+title: Typography
+description: Why opsinjs ships no webfont, what the platform UI font buys a health product, and the four rules every piece of type in the system obeys.
+status: stable
+kind: foundation
+icon: Type
+aliases: [font, system-ui, typeface, platform font]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+opsinjs does not ship a typeface. The product theme's `--font-sans` starts with
+`ui-sans-serif, system-ui` and lets the device answer, which on an iPhone means SF
+Pro, on Android means Roboto, and on Windows means Segoe UI Variable.
+
+This is a bet, and it is worth stating what is being bet. The thing given up is
+brand consistency: the product does not look identical on every device. Three
+things are bought in exchange, and for a patient-facing product each of them is
+worth more.
+
+**It is the font the reader already reads.** Every other app on their phone uses
+it. It is optimised for the display in their hand, it has been hinted for it, and
+it is the shape their eye is calibrated to. A worried person skimming a reading
+does not need a novel letterform.
+
+**It respects their text size.** The platform UI font is the one the operating
+system's own text-size controls are designed around, and it carries the optical
+sizing and metric variations those controls rely on. This matters more than any
+other single typographic decision in a health product.
+
+**It arrives instantly, and it never fails.** No webfont request, no flash of
+invisible or unstyled text, no font-loading race on a slow connection in a
+hospital corridor. Type has no loading state.
+
+On the licence question, because it comes up immediately: **SF Pro cannot be
+shipped as a webfont.** Apple licenses it for building interfaces on Apple
+platforms, not for redistribution, and self-hosting it on the web is outside
+those terms — read Apple's font licence yourself rather than taking this page's
+word for it. `system-ui` sidesteps the problem entirely: on Apple devices it
+resolves to the copy already installed, with no file served and no licence
+question to answer.
+
+A brand face remains available as an opt-in. This documentation site itself uses
+Inter, because the docs chrome is a different product with a different reader —
+the reasoning is on
+[Lyra and the docs chrome](../../theming/lyra-and-the-docs-chrome.mdx).
+
+## How it works
+
+Three pages sit under this one: [the type scale](type-scale.mdx), which is
+semantic rather than a t-shirt sizing; [Dynamic Type](dynamic-type.mdx), which is
+the reader's own text-size multiplier and the thing every component must survive;
+and [the generated tokens](tokens.mdx).
+
+Four rules run across all three.
+
+**1. The body size is 17px, not 16px.** One pixel sounds like nothing and is not.
+17 is the platform default on iOS, it is what the reader's eye is set to from
+every other app, and the extra pixel is the cheapest legibility improvement
+available to a product whose readers skew older than a developer tools audience.
+The docs chrome is denser on purpose; the product is not a developer tool.
+
+**2. Every metric is set in tabular figures.** Any number that will be read
+against another number — a reading, a range bound, an axis label, a time, a
+count — uses `font-variant-numeric: tabular-nums`. Proportional digits change
+width as the value changes, so a heart rate ticking from 99 to 100 shifts the
+layout, and a column of readings does not line up so the eye cannot scan it.
+This is not a preference. It is a correctness requirement on a screen of numbers,
+and it is carried by the type token rather than left to each component.
+
+**3. Type never carries status on its own.** Bold is not urgent, red is not
+severe, and a larger size is not more important clinically. Weight and size
+express *hierarchy*; [clinical status](../../health/clinical-status-semantics.mdx)
+is expressed by colour, icon and word together. A system in which the urgent
+reading is simply bolder has no way to escalate.
+
+**4. Line length is capped, everywhere.** A measure of roughly 60 to 75
+characters is the readable range for continuous prose, and a health explanation
+on a tablet held in landscape will blow straight past it if nothing stops it.
+Wide screens get more content, not longer lines — the mechanism is on
+[Responsive modes](../space/responsive-modes.mdx).
+
+## Using it
+
+**Pick the role, never the size.** The scale is named for jobs — body, headline,
+footnote, and a separate family for values. Choosing `title-2` because it is
+"about the right size" is how a system acquires four different heading sizes that
+mean nothing.
+
+**Use the value roles for values.** The numeric roles are the only ones that
+carry tabular figures and the tighter tracking a large number needs. Setting a
+reading in `title-1` because it looked close enough gives you a number that
+shifts as it updates.
+
+<DoDont>
+  <DoDont.Do>
+    `120/80` set in a value role, with `mmHg` set in the unit role beside it at a
+    smaller size and a lighter weight. The figures are tabular, so the layout is
+    stable as the reading changes, and the unit is present but subordinate.
+  </DoDont.Do>
+  <DoDont.Dont>
+    The same reading in a display heading with the unit at the same weight. The
+    digits reflow as the value changes, the unit competes with the number for
+    attention, and at a large text size the whole line wraps in the middle of the
+    measurement.
+  </DoDont.Dont>
+</DoDont>
+
+**Never disable the reader's text scaling.** Not with a viewport meta tag, not
+with a fixed pixel size on the root, not with `text-size-adjust: none`. It is the
+single most consequential accessibility setting on the device and overriding it
+is a decision made against the person using the product.
+
+**Set language on the document.** Correct hyphenation, correct default font
+selection, and correct screen-reader pronunciation all depend on it, and none of
+them announce themselves as broken.
+
+## Tokens
+
+Sizes, line heights, tracking, weights and the numeric variants are generated
+from `tokens/type.json` by `scripts/build-tokens.mts`. The full table with a
+rendered specimen for each role is on [Typography tokens](tokens.mdx).
+
+<TokenTable scope="type" />
+
+## Accessibility impact
+
+- **A 200% text size must not break any layout in the system**, and a 1.3×
+  multiplier must not break anything at all — no clipping, no truncation, no
+  overlap, no horizontal scroll. The check and the components most at risk are on
+  [Dynamic Type](dynamic-type.mdx) and
+  [Text resizing and zoom](../../accessibility/text-resizing-and-zoom.mdx).
+- **Text is text.** No value, unit, label or status word is ever rendered as an
+  image or as an icon font. It must be selectable, translatable, findable and
+  readable by a screen reader.
+- **Contrast is measured per role, not assumed.** APCA is sensitive to size and
+  weight, so a pair that passes for a heading can fail for a footnote. Every
+  role–surface pair is measured by `pnpm contrast` and published on
+  [Contrast conformance](../../accessibility/contrast-conformance.mdx).
+- **Tabular figures help more than layout.** A column of aligned digits is
+  substantially easier to scan for readers with dyslexia and for readers with low
+  numeracy, which on a health screen is most readers.
+- **The platform font inherits accessibility work nobody else can do.** Bold
+  text, larger accessibility sizes and increased-contrast font weights are
+  system-level features that only apply to the system font.
+
+## Related
+
+- [Type scale](type-scale.mdx) — the roles, why they are semantic, and which one
+  to reach for.
+- [Dynamic Type](dynamic-type.mdx) — the reader's multiplier, and the components
+  that have to survive it.
+- [Content and language](../../content/index.mdx) — the words inside the type;
+  typography cannot rescue a badly written sentence.

@@ -1,0 +1,57 @@
+---
+title: Data attributes
+description: Every data-* attribute the system emits, the condition that produces it, and the values it can take.
+status: stable
+kind: reference
+full: true
+owner: engineering
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 12m
+aliases: [data-attributes, styling hooks, every data attribute]
+---
+
+<PageTemplate kind="reference" />
+
+## How this is generated
+
+**Source:** the component sources under `registry/bases/base` and the registry
+items generated from them. **Script:** `scripts/build-registry.mts` produces the
+data; `scripts/build-reference.mts` writes this page. **Command:**
+`pnpm run generate`.
+
+A data attribute is a styling contract, not an implementation detail. Everything
+listed here is covered by the [versioning policy](../../project/versioning-policy.mdx):
+removing an attribute, or changing the condition under which it appears, is a
+breaking change and gets a major version, because somebody's stylesheet selects
+on it.
+
+**Four columns.** *Attribute* is the literal string you select on. *Emitted by*
+is the component and the part — attributes appear on parts, not on components as
+a whole, and `data-open` on a dialog's backdrop is a different contract from
+`data-open` on its panel. *Condition* is the state that produces it, written so
+you can reproduce it. *Values* is the closed set, or `—` for a boolean attribute
+whose presence is the signal.
+
+**Two families appear here.** Attributes inherited from Base UI —
+`data-open`, `data-closed`, `data-starting-style`, `data-ending-style`,
+`data-disabled` and their relatives — behave exactly as Base UI documents them,
+and are listed with a one-line summary and a link rather than re-documented.
+Attributes opsinjs adds are documented in full, and are the ones carrying system
+meaning: the clinical status of a value, the category it belongs to, whether the
+data behind it is stale or partial.
+
+**What is deliberately excluded.** ARIA attributes are not data attributes and
+are documented per component under Accessibility. Attributes emitted by the
+documentation site's own chrome are not part of the system.
+
+**Today this list has one entry that is real:**
+`data-opsinjs-not-implemented`, emitted by every not-built-yet marker on this
+site so that a program can tell a specification from a component without parsing
+prose. Everything else appears when the components do.
+
+{/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
+
+<NoDataYet script="scripts/build-reference.mts" />
+
+{/* opsinjs:generated:end */}

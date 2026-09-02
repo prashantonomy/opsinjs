@@ -1,0 +1,177 @@
+---
+title: Overview
+description: What makes opsinjs a health design system rather than a component library with a stethoscope on the box, and exactly which decisions it takes out of your hands.
+status: stable
+kind: health
+evidence: opinion
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+owner: design-system
+implements: [result-card, range-bar, status-pill, alert-banner, care-card, value, disclaimer-note]
+aliases: [health design system, clinical safety, patient-facing, consumer health]
+---
+
+<PageTemplate kind="health" />
+
+<SectionProgress />
+
+## What this means
+
+A generic component library will happily render the number `212` in red inside a
+rounded rectangle. It has no opinion about whether that number is a cholesterol
+reading, whether red means "bad" or "cardiovascular", whether the person looking
+at it has any idea what the unit is, or whether the app has just told someone
+they are ill in a colour they cannot distinguish, at 11pm, with no way to ask a
+question until Monday.
+
+Health is the domain where the gap between "renders correctly" and "is safe to
+ship" is widest. The failure mode is not a broken layout. It is a person who
+misreads a result they were not prepared for and either panics or, far more
+dangerous, is reassured when they should not have been. Every rule in this
+section exists because a plausible, well-built, good-looking interface can
+produce that outcome without anything appearing to go wrong.
+
+This pillar is the part of opsinjs that a component library cannot be. It is
+doctrine: a small number of decisions, argued in public, that constrain what the
+components are allowed to do. The components are downstream of it. If you read
+only one section of this documentation before writing code, read this one — it
+is also, deliberately, the section that is complete today while the components
+are not.
+
+## The rule
+
+**opsinjs decides how health information is presented. It never decides what
+that information means.**
+
+That single line is the boundary, and it cuts in both directions.
+
+What opsinjs decides for you, and will not let you undo casually:
+
+- **Two colour axes that never mix.** Category identity and clinical status are
+  independent channels with independent palettes. A colour that says "this is a
+  heart metric" can never also say "this is worrying". See
+  [The two colour axes](./two-colour-axes.mdx).
+- **Four clinical status levels and no more.** `steady`, `watch`, `attention`,
+  `urgent` — an ordinal ladder with fixed meanings, fixed tone and a fixed
+  budget. See [Clinical status semantics](./clinical-status-semantics.mdx).
+- **Status is never carried by one channel alone.** Never colour alone, never
+  icon alone, never motion at all. Colour, shape, icon and a word, together,
+  every time.
+- **Numbers are formatted by rule, not by preference.** Precision, units,
+  rounding and the refusal of false precision are a correctness surface, not a
+  style choice. See [Numbers, units and precision](./numbers-units-precision.mdx).
+- **Uncertainty is rendered, never hidden.** A stale reading, an estimate and a
+  measurement are visually distinct. See
+  [Uncertainty, staleness and missing data](./uncertainty-and-staleness.mdx).
+- **The word "normal" is banned** in any user-facing string that describes a
+  person's own result. See [Reference ranges](./reference-ranges.mdx).
+
+What opsinjs never decides, and will refuse to guess at:
+
+- The thresholds. Which value is `watch` and which is `attention` is a clinical
+  decision belonging to your product and whoever is clinically accountable for it.
+- The reference ranges. They vary by laboratory, assay, age, sex, pregnancy and
+  population.
+- The words that carry clinical meaning. opsinjs gives you sentence shapes; the
+  clinical content of the sentence is yours.
+- Whether your product is a medical device. See
+  [Regulatory context](./regulatory-context.mdx) and
+  [Safety, scope and limitations](../start/safety-scope-and-limitations.mdx).
+
+## Why (evidence)
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  The argument for putting doctrine above components is an engineering one, and
+  it is an opinion rather than a finding.
+
+  A design system's real output is not code, it is *consistency of decision*. If
+  the decision "which colour means worrying" is taken independently in forty
+  screens, it will be taken forty slightly different ways, and the inconsistency
+  is invisible in review because each screen looks fine on its own. Encoding the
+  decision once — in tokens, in a status vocabulary, in a lint rule — is the only
+  mechanism we know of that survives a team growing.
+
+  In a health product the same argument has teeth, because the cost of the
+  inconsistency is not aesthetic. A person who has learnt that amber means "look
+  at this soon" in one screen will carry that learning into every other screen
+  whether or not you honoured it there.
+
+  What would change our mind: evidence that consumers do not in fact generalise
+  colour meaning across screens within one app, or that a smaller status
+  vocabulary than four levels performs measurably better. We have not run that
+  study and we do not cite one.
+</ResearchNote>
+
+Where a page in this section carries real evidence it says so in its `evidence`
+field and names a source you can open. Where it carries our opinion it says
+`opinion` and says which parts we would change our mind about. The full list of
+sources is on [Evidence and references](./evidence-and-references.mdx). We have
+not, at the time of writing, had this pillar reviewed by an external clinician;
+that gap is tracked openly rather than quietly.
+
+<Todo>External clinical review of the whole Health pillar. Until it happens, no
+page here may be described as clinically approved, and `reviewer: clinical` does
+not appear in any frontmatter in this directory.</Todo>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    Read [Clinical interaction guidelines](./clinical-interaction-guidelines.mdx)
+    before your first screen, then keep
+    [Safety review checklist](./safety-review-checklist.mdx) open during review.
+    Ten rules and one checklist cover most of what goes wrong.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Treat this section as background reading to come back to. The decisions it
+    describes are structural — the colour axes and the status vocabulary are
+    expensive to retrofit once thirty screens have made their own choices.
+  </DoDont.Dont>
+</DoDont>
+
+Three entry points, depending on what you are doing today:
+
+- **Writing a screen that shows a measured value.** Start at
+  [Reference ranges](./reference-ranges.mdx), then
+  [Numbers, units and precision](./numbers-units-precision.mdx), then
+  [Uncertainty, staleness and missing data](./uncertainty-and-staleness.mdx).
+- **Writing anything that alerts.** Start at
+  [Clinical status semantics](./clinical-status-semantics.mdx), then
+  [Alarm fatigue](./alarm-fatigue.mdx), then
+  [Emergency and escalation](./emergency-and-escalation.mdx).
+- **Writing anything that asks a question.** Start at
+  [Consent and disclosure](./consent-and-disclosure.mdx), then
+  [Crisis and self-harm](./crisis-and-self-harm.mdx) if any answer could disclose
+  risk of harm.
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+Every component listed here carries a `governedBy` field naming the doctrine
+pages it must satisfy, and the build fails if the two directions disagree. That
+reciprocal link is the only thing that stops doctrine and implementation drifting
+apart once both are moving.
+
+## What this does not cover
+
+This is guidance for **consumer and patient-facing** interfaces: an app someone
+uses to look at their own health data, log something about themselves, or be told
+something about a result. It is not written for, and should not be used as-is in:
+
+- **Clinician-facing software** — electronic health records, prescribing,
+  triage tooling, diagnostic workstations. The reader is trained, the density
+  requirements are opposite to ours, and the safety analysis is different.
+- **Regulated device user interfaces** — anything that is part of a medical
+  device under EU MDR, UK MDR or the FDA's device framework. opsinjs confers no
+  regulatory status of any kind.
+- **Clinical content** — thresholds, ranges, dosing, triage logic, and any
+  sentence whose truth is a clinical claim. Those belong to you and to whoever is
+  clinically accountable in your organisation.
+- **Legal advice** — [Regulatory context](./regulatory-context.mdx) is a
+  starting map, written by engineers and designers, not by lawyers.
+
+## Updates to this page
+
+<Reviewed />

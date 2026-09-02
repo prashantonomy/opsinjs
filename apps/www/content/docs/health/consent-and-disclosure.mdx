@@ -1,0 +1,182 @@
+---
+title: Consent and disclosure
+description: Consent that is granular, revocable, recorded and re-asked — and the difference between a legal basis and a person actually understanding what they agreed to.
+status: stable
+kind: health
+evidence: mixed
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+owner: design-system
+implements: [consent-sheet, care-card, disclaimer-note, term, field]
+aliases: [consent, permission, opt in, withdraw consent, data sharing, privacy notice]
+---
+
+<PageTemplate kind="health" />
+
+## What this means
+
+Health data is the most sensitive category of personal data there is, and consent
+interfaces for it are usually the least designed screens in the product: a wall
+of text, a single checkbox, and a button that is the only way forward.
+
+That pattern is a legal artefact rather than a design. It exists to produce a
+record that someone agreed, and it is optimised for the record rather than for
+the agreement. It reliably produces users who have consented to things they
+cannot name, which is bad ethics, weak compliance, and — the part product teams
+feel first — a fragile relationship. The moment someone discovers a use they did
+not expect, every other permission becomes suspect.
+
+The alternative is not more text. It is asking less, later, in context, and one
+purpose at a time.
+
+## The rule
+
+**Consent is per purpose, asked in context, expressed in plain language,
+revocable where the data appears, recorded with its version, and re-asked when
+the purpose changes.**
+
+1. **Granular, never bundled.** One decision per purpose. "Store my readings",
+   "share with my GP", "use my data to improve the app" and "send me health tips"
+   are four different questions with four different answers.
+2. **Asked in context, not in onboarding.** Ask for location when the feature
+   that needs it is used, not on the second screen of setup. Consent given before
+   the reader knows what the app does is not informed.
+3. **Ask for the minimum, and say so.** Every field collected is a field
+   justified. Collecting "for future use" is not a purpose.
+4. **Plain language, with the specifics.** Not "to improve your experience" but
+   "so your GP can see your blood pressure readings in your record". Name who,
+   what and why. See [Plain English A–Z](../content/plain-english-a-z.mdx).
+5. **Refusal is a real option and is not punished.** Declining a secondary
+   purpose must not block a primary function, and must not be harder than
+   accepting. No pre-ticked boxes, no consent bundled into a Continue button, no
+   dark patterns in the layout of the two choices.
+6. **Revocation lives where the data lives.** A control on the screen showing the
+   data, not only in a settings sub-page. Withdrawing is as easy as granting.
+7. **Say what happens on withdrawal**, before the reader withdraws: what stops,
+   what is deleted, what is kept and why, and what cannot be undone.
+8. **Record the version.** Store what was agreed, when, and against which version
+   of the wording. A consent record with no version is not evidence of anything.
+9. **Re-ask on material change.** A new purpose is a new consent. Silently
+   extending an existing one is the failure that destroys trust permanently.
+10. **Disclosure is continuous, not a one-time event.** Where data is shared, say
+    so at the point it is visible — "your GP can see this" belongs on the screen,
+    not in a policy.
+11. **Sensitive categories deserve extra care.** Sexual health, mental health,
+    reproductive health, substance use, HIV status and genetic data carry
+    real-world consequences if disclosed. Ask separately, store separately,
+    display with [On-screen privacy](./on-screen-privacy.mdx) in mind.
+12. **Consent is not capacity.** An interface cannot assess whether someone
+    understands. Design so that understanding is likely, not so that agreement is
+    likely.
+
+## Why (evidence)
+
+<ResearchNote evidence="mixed" date="2026-09-02">
+  **The legal frame is real and checkable.** In the UK and the EU, data about
+  health is a special category under the UK GDPR and the EU GDPR, with additional
+  conditions on processing, and consent as a lawful basis has statutory
+  requirements: freely given, specific, informed, unambiguous, and as easy to
+  withdraw as to give. Those are legislative requirements, not our preferences,
+  and rules 1, 4, 5, 6 and 8 restate them in interface terms. Read the
+  legislation and your regulator's current guidance rather than this page; we
+  cite the frame and deliberately do not summarise the law.
+
+  Consent is also frequently not the right lawful basis for direct care, which is
+  a point product teams miss: an interface may need to explain a use without
+  asking for consent to it, and asking for consent you will process anyway is
+  worse than not asking. This is a question for your data protection lead.
+
+  **Opinion.** Rules 2, 3, 10 and 12 are design judgement. Rule 2 — ask in
+  context — trades a tidy onboarding for comprehension, and it costs measurable
+  conversion; we think the trade is right and we accept it is a trade. Rule 12 is
+  the one we would underline: no consent interface can establish understanding,
+  so the goal is to make the wording so ordinary that misunderstanding is
+  unlikely, rather than to make the record so thorough that liability shifts.
+
+  What would change our mind: nothing on the legal rules. On rule 2, evidence
+  that contextual permission prompts confuse users more than a single upfront
+  explanation would make us reconsider the balance.
+</ResearchNote>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    "Share your blood pressure readings with your GP surgery? They will see the
+    readings and when you took them. You can stop this at any time from the blood
+    pressure screen." Then two equally weighted choices.
+  </DoDont.Do>
+  <DoDont.Dont>
+    "I agree to the Terms of Service and Privacy Policy" as a single checkbox
+    covering storage, sharing, analytics and marketing. Four decisions collapsed
+    into one, none of them informed.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Put a "Shared with your GP" indicator and a control directly on the data
+    screen, so a reader who has forgotten what they agreed to finds out where it
+    matters.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Bury withdrawal three levels into settings under a different name. A
+    revocation that is hard to find is not a revocation that is as easy to
+    withdraw as to give.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "If you stop sharing: your GP keeps the readings they have already seen, and
+    no new readings are sent. Your own history in the app is unchanged."
+  </DoDont.Do>
+  <DoDont.Dont>
+    "Are you sure? Your care may be affected." A vaguely threatening confirmation
+    that trades on fear to reverse a decision the reader is entitled to make.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Ask for a new consent when the purpose changes, and say what changed: "We
+    would now like to use your readings for research. This is new, and it is
+    optional."
+  </DoDont.Do>
+  <DoDont.Dont>
+    Update the privacy policy and rely on continued use as agreement. Nobody read
+    it, everybody knows nobody read it, and the record is worthless.
+  </DoDont.Dont>
+</DoDont>
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+`ConsentSheet` is specified to require a named purpose, a plain-language
+explanation, a stated withdrawal consequence and a version identifier, so a
+generic all-purpose consent cannot be constructed from it by leaving fields out.
+It presents accept and decline with equal visual weight by construction.
+
+## What this does not cover
+
+- **Legal compliance.** This page is written by designers and engineers. It is
+  not legal advice, it is not a compliance checklist, and it does not substitute
+  for your data protection lead or your regulator's guidance.
+- **Lawful bases other than consent**, and the frequent case where consent is the
+  wrong basis for direct care.
+- **Records management** — retention, deletion, subject access, portability —
+  which are your data layer's obligations.
+- **Consent on behalf of another person**: children, people lacking capacity, and
+  carers. Substantially different, and not yet specified here.
+- **Research consent**, which is a distinct regime with its own governance.
+- **The wording of sensitive questions**, which is
+  [Asking sensitive questions](../content/asking-sensitive-questions.mdx).
+
+<Todo>Specify proxy and carer consent: what changes when the person using the app
+is not the person the data is about.</Todo>
+
+## Updates to this page
+
+<Reviewed />

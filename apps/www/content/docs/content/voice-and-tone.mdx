@@ -1,0 +1,134 @@
+---
+title: Voice and tone
+description: One voice, four tones — calm, plain and in the second person, with the register set by the seriousness of the news rather than by the brand.
+status: stable
+kind: content
+reviewer: content
+reviewEvery: 12m
+aliases: [tone of voice, second person, register]
+---
+
+<PageTemplate kind="content" />
+
+## The rule
+
+**The voice never changes; the tone changes with the status level.**
+
+Voice is who we are. It is constant, and in opsinjs it is three things:
+
+- **Calm.** Not soothing, not upbeat — calm. The reader supplies the emotion; the
+  interface supplies the facts. A product that is excited about a step count is a
+  product that will be excited about a bad result unless somebody remembers to
+  write a special case, and somebody will not.
+- **Plain.** Short sentences, common words, one idea each. The vocabulary is
+  fixed by the [plain-English A–Z](./plain-english-a-z.mdx).
+- **Second person, active, present.** "Your reading is higher than usual", not
+  "The patient's reading has been observed to be elevated" and not "We have
+  detected an elevation".
+
+Tone is how that voice sounds in a particular moment, and it moves along one
+axis: **how serious is what we are about to say?** That axis is already defined by
+the four clinical status levels, so tone does not need a second scale of its own.
+
+| Level | Tone | What the sentence must do |
+| --- | --- | --- |
+| `expected` | Matter-of-fact, brief | State the fact and stop. Do not congratulate. |
+| `watch` | Neutral, specific | State the fact, give the comparison, say what would make it matter. |
+| `act` | Direct, unhurried | State the fact first, then the single action, then the reassurance if there is a true one. |
+| `urgent` | Short, imperative, unadorned | The action first. Nothing decorative. No brand voice at all. |
+
+The canonical meaning of each level — what it asserts, who assigns it, what it
+must never be read as — is on
+[Clinical status semantics](../health/clinical-status-semantics.mdx). This page
+only says how each one sounds.
+
+### Two things the voice never does
+
+**It never celebrates a health number.** Confetti for a blood-pressure reading is
+a product telling somebody that their body is a score. It also creates an
+implicit failure state for the days they do not get it, in a population that
+includes people whose numbers will never improve.
+
+**It never reassures with a claim it cannot support.** "This is nothing to worry
+about" is a clinical judgement. "One high reading on its own is common" is a
+statement about readings. Only the second is available to us.
+
+## Approved / Rejected
+
+<DoDont>
+  <DoDont.Do>Your resting heart rate was 58 bpm last night. That is in your usual range.</DoDont.Do>
+  <DoDont.Dont>Great news! Your resting heart rate is looking fantastic — keep up the good work!</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>This reading is higher than your usual range. One reading on its own is not usually a concern. If your next two readings are also high, contact your GP.</DoDont.Do>
+  <DoDont.Dont>This reading is a bit high, but there's nothing to worry about!</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>Call 999 now. Tell them you have chest pain.</DoDont.Do>
+  <DoDont.Dont>We'd recommend seeking urgent medical attention as soon as possible.</DoDont.Dont>
+</DoDont>
+
+The third pair is the one worth studying. At the `urgent` level, brand voice is a
+liability: hedging verbs ("we'd recommend"), abstraction ("medical attention")
+and softeners ("as soon as possible") all add milliseconds and ambiguity to the
+one moment where neither is affordable. Emergency wording is governed by
+[Emergency and escalation](../health/emergency-and-escalation.mdx), which is
+canonical for it.
+
+## Patterns
+
+Fill in the marked parts. Each pattern is written for one status level.
+
+**`expected` — a value in range**
+
+> Your `measure` was `value` `unit` on `when`. That is in your usual range.
+
+**`watch` — a value drifting**
+
+> Your `measure` has been `direction` than usual for `duration`. On its own this
+> is not unusual. It is worth mentioning at your next appointment.
+
+**`act` — a value that needs something done**
+
+> Your `measure` was `value` `unit`, which is `comparison` your usual range.
+> `single action`. `true reassurance, if there is one`.
+
+**`urgent` — the reader must act now**
+
+> `Action`. `How`. `What to say when you get there`.
+
+**Any level — introducing a clinical term the reader will meet elsewhere**
+
+> `Clinical term` — `plain-English explanation`. You may see this on your
+> `letter / results / prescription`.
+
+### Length
+
+One idea per sentence, and at most three sentences before the reader has to act
+or scroll. If a paragraph needs a fourth sentence, it is explanation, and
+explanation goes below the answer rather than in front of it.
+
+## Banned words
+
+| Banned | Why | Use instead |
+| --- | --- | --- |
+| great news, congratulations, well done, amazing | Turns a measurement into a moral score. | state the reading and its comparison |
+| nothing to worry about | A clinical judgement dressed as reassurance. | a specific true fact about frequency or context |
+| we'd recommend, you may wish to, consider | Hedging that removes the action. | the imperative: "contact your GP" |
+| unfortunately, sadly, I'm afraid | Editorialises the reader's news for them. | delete |
+| our algorithm, our AI, the system | Puts a machine between the reader and their own data. | name what was measured and how |
+| patient, user, subject | Nobody reading a consumer app calls themselves this. | you |
+| medical attention | Abstraction at the exact moment specificity is needed. | the specific service and how to reach it |
+
+## Related components
+
+- **`AlertBanner`** — the tone table above is its content contract; the level
+  drives both the wording and the colour, and they may never disagree.
+- **`CareCard`** — carries advice, so it is where the "no clinical judgement"
+  rule bites hardest.
+- **`StatusPill`** — one word, from the fixed vocabulary. Never a phrase, never a
+  brand word.
+- **`DisclaimerNote`** — the standing reminder of what this product is not; its
+  voice is plain and its tone never apologetic.

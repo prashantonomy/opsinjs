@@ -1,0 +1,137 @@
+---
+title: Naming conventions
+description: The published naming contract — component ids, prop names, token names, data attributes, files and CSS custom properties, and the one place British and American spelling deliberately diverge.
+status: stable
+kind: handbook
+aliases: [naming rules, kebab case or pascal case, what to call a token, prop naming, file naming]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="handbook" />
+
+## The short version
+
+Names are a public API. Renaming a component id changes a URL, a registry entry
+and an agent's guess; renaming a CSS custom property breaks somebody's override.
+Both are covered by semver — see
+[Versioning policy](../project/versioning-policy.mdx) — so the conventions are
+published here rather than left in an internal document.
+
+| Thing | Case | Example |
+| --- | --- | --- |
+| Component id (paths, catalogue, registry) | kebab-case | `result-card` |
+| Component name in prose and in code | PascalCase | `ResultCard` |
+| Props interface | PascalCase, `<Component>Props` | `ResultCardProps` |
+| Prop | camelCase | `showRange` |
+| Boolean prop | positive, no `is`/`has` prefix | `disabled`, not `isDisabled` |
+| CSS custom property | kebab-case, `--opsin-` prefix | `--opsin-status-urgent-surface` |
+| Data attribute | kebab-case, `data-` prefix | `data-status` |
+| Source file | kebab-case | `result-card.tsx` |
+| Documentation page | kebab-case | `result-disclosure.mdx` |
+| Token key in JSON | kebab-case | `status.urgent.surface` |
+
+## How it works
+
+### The spelling rule
+
+**British spelling in prose. American spelling in code.**
+
+This looks like an inconsistency and is a deliberate one. The prose is written
+for a British-English-first audience and uses *colour*, *behaviour*,
+*visualisation*, *organisation*. The code cannot: CSS defines `color`, Tailwind
+generates `--color-*`, the DOM exposes `backgroundColor`, and a codebase that
+spells it both ways is a codebase with two of every symbol.
+
+So: a page about *colour* documents a `ColorScale` component reading a
+`--color-*` token. Both spellings are correct in their own layer, and mixing
+them within a layer is the error.
+
+The one place this bites is documentation file names. Page paths follow the
+prose: `foundations/colour/`, `accessibility/colour-independence.mdx`. Code
+identifiers inside those pages follow the code.
+
+### The two-axis namespaces
+
+The colour system's two axes have two reserved prefixes and they never mix:
+
+```
+--opsin-status-<level>-<role>       steady · watch · attention · urgent
+--opsin-category-<name>-<role>      heart · activity · sleep · nutrition · mind · cycle
+```
+
+A token named `--opsin-category-heart-alert` is a category token trying to carry
+status and is rejected on sight. This is the naming form of
+[the two-axis rule](../health/two-colour-axes.mdx), and it is what makes it
+mechanically checkable — see the
+[stylelint plugin](./tooling/stylelint-plugin.mdx).
+
+### Aliases
+
+Search synonyms are declared once, in `registry/catalogue.ts`, and referenced by
+pages. They are globally unique across the corpus, which is only maintainable
+with a single owner; a page that invents its own alias will eventually collide
+with another page's, and `assert-ia` fails the build when it does.
+
+## Do this
+
+- **Name a component for what it shows, not for how it looks.** `ResultCard`,
+  not `BorderedPanel`. `StatusPill` is a borderline case kept because "pill" is
+  what everybody calls it.
+- **Name a prop for the thing, not the implementation.** `range`, not
+  `rangeConfigObject`.
+- **Keep boolean props positive.** `disabled` reads correctly; `notEnabled`
+  produces double negatives at every call site.
+- **Order token names from general to specific**: axis, then member, then role.
+  It sorts usefully and it groups in devtools.
+- **Match the file name to the id.** `result-card.mdx`, `result-card.tsx`,
+  `result-card.json` — one string, everywhere, so a search finds all of it.
+- **Use the word the reader uses.** [Plain-English
+  A–Z](../content/plain-english-a-z.mdx) is the authority when a clinical term
+  and a plain one compete.
+
+## Not this
+
+- **Do not abbreviate.** `bp` is blood pressure to one team and British
+  Petroleum to a search engine. `desc`, `val`, `cfg` and `btn` all cost more
+  than they save.
+- **Do not encode the type in the name.** `statusString`, `rangeArray`,
+  `IResultCardProps` — TypeScript already knows.
+- **Do not use `variant` as a catch-all prop.** In a health system it is the
+  prop most likely to end up carrying both axes at once. Name what varies.
+- **Do not name anything `normal`.** It is a banned word in this system, in
+  prose and in code, because of what it implies about a reading and about a
+  person. See [Reference ranges](../health/reference-ranges.mdx).
+- **Do not use `error` for a clinical state.** Nothing has failed; see
+  [Clinical status semantics](../health/clinical-status-semantics.mdx).
+- **Do not put a version or a date in a name.** `ResultCardV2` is a migration
+  that never finished.
+
+## Gotchas
+
+- **A component id appears in five places**: the path, the catalogue, the
+  registry item, the `implements` and `governedBy` frontmatter, and every
+  relative link. `assert-ia` checks them, which is the only reason the rename is
+  survivable.
+- **Kebab-case and PascalCase must round-trip.** `log-sheet` ↔ `LogSheet` is
+  unambiguous; `a1c-tile` is not, and names with digits or acronyms need to be
+  checked in both directions.
+- **CSS custom properties are case-sensitive**, unlike the rest of CSS.
+  `--Opsin-Status` is a different property and no error is reported.
+- **Tailwind derives utility names from token names.** A token rename changes
+  the generated class, which is a breaking change for anyone who used it.
+- **The British/American split is easy to get backwards in a file name.** The
+  page is `colour-independence.mdx`; the component inside it is `ColorScale`.
+- **Aliases are matched case-insensitively but stored as written**, so two
+  pages differing only in case still collide.
+
+## Related
+
+- [Code style](./contributing/code-style.mdx) — the conventions as a
+  contribution requirement.
+- [TypeScript](./typescript.mdx) — the named-props-interface rule that the
+  generated API tables depend on.
+- [Versioning policy](../project/versioning-policy.mdx) — what semver covers,
+  which is more than the JavaScript API.
+- [The two colour axes](../health/two-colour-axes.mdx) — the rule the token
+  namespaces enforce.

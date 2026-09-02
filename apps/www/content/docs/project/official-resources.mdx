@@ -1,0 +1,84 @@
+---
+title: Official resources
+description: The canonical domain, npm scope, registry URL and repository — and how to tell this project from something impersonating it.
+status: stable
+kind: project
+owner: core
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 6m
+aliases: [canonical domain, npm scope, impersonation, is this the real opsinjs]
+---
+
+<PageTemplate kind="project" />
+
+## The canonical list
+
+| What | Where |
+| --- | --- |
+| Website and documentation | `https://opsinjs.dev` |
+| Registry catalogue | `https://opsinjs.dev/r/registry.json` |
+| A registry item | `https://opsinjs.dev/r/<name>.json` |
+| Namespace to register in `components.json` | `@opsinjs` |
+| npm scope | `@opsinjs` — **nothing is published yet** |
+| Repository | `github.com/opsinjs/opsinjs` |
+| Machine index | `https://opsinjs.dev/llms.txt` |
+
+<Todo>
+The repository is reserved but not yet public, so the link above does not resolve
+today. Remove this note when it does, and check that the issue templates, the
+"Edit this page" links and the security reporting instructions all point at it.
+</Todo>
+
+## Why a page like this exists
+
+A design system that is copied into other people's repositories is an unusually
+attractive thing to impersonate. The install step is a command that fetches JSON
+from a URL and writes files into a project — which is exactly what a supply-chain
+attack would like to be. A page naming the real addresses, linked from the
+footer and from the installation guide, is cheap and makes the check possible.
+
+## How to verify what you are installing
+
+<Steps>
+
+### Check the registry URL
+
+Your `components.json` should map `@opsinjs` to a URL on `opsinjs.dev` and
+nowhere else. Registries are configured per project, so this is worth reading
+rather than assuming, particularly in a repository you did not set up.
+
+### Read what the command will write
+
+`npx shadcn add @opsinjs/<name> --dry-run` prints the files and the target paths
+without writing anything. Every file opsinjs emits carries a version stamp
+comment naming the component and the version — see
+[Version stamps](../registry/version-stamps.mdx).
+
+### Check the diff, not the download
+
+Because you own the source, the review that matters is the one in your own pull
+request. An unexpected file path, an unexpected dependency or a network call in a
+presentation component is a reason to stop.
+
+</Steps>
+
+## What this project will never do
+
+- **Never publish anything to npm with an install script.** There is no
+  `postinstall`, and there will not be one.
+- **Never ask for a token, a key or a credential** to install a component, read
+  the documentation or use the registry. All of it is public and unauthenticated.
+- **Never sell a "pro" tier that requires an account.** If you find one, it is not
+  us.
+- **Never ask you to paste a command you cannot read.** Installation is
+  `npx shadcn add` against a public JSON URL, and that is the whole mechanism.
+
+## If you find an impersonation
+
+Report it through the channels on [Security](security.mdx) — privately, with the
+URL or the package name. Do not install it to find out what it does.
+
+<LastUpdated />
+
+<Reviewed />

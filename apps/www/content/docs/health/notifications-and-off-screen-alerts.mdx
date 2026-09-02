@@ -1,0 +1,200 @@
+---
+title: Notifications and off-screen alerts
+description: A push notification is a clinical statement delivered to a lock screen you do not control, in front of people you did not choose, and it must be designed as one.
+status: stable
+kind: health
+evidence: opinion
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+owner: design-system
+implements: [alert-banner, care-card, status-pill, relative-time]
+aliases: [push notification, lock screen, badge count, off screen, quiet hours, widget]
+---
+
+<PageTemplate kind="health" />
+
+## What this means
+
+Everything else in this section assumes the reader chose to open the app. A push
+notification inverts that. It arrives unrequested, on a device that may be on a
+kitchen table, face-up, next to someone the reader has not told about their
+condition. It is rendered by the operating system in a layout you cannot control,
+truncated at a length you cannot predict, possibly read aloud by a car, a watch
+or a smart speaker, and it persists on the lock screen until dismissed.
+
+It is also the highest-leverage alarm-fatigue vector you have. A person will
+tolerate a cluttered dashboard indefinitely and will disable your notifications
+after three bad ones — permanently, at the OS level, including the clinical ones.
+The notification permission is spent once.
+
+And in a health product the notification is the surface most likely to disclose
+something. "Your test result is ready" is a disclosure. "Your glucose has been
+high for three days" is a much larger one.
+
+## The rule
+
+**A notification is a clinical surface with three extra constraints: it discloses
+in public, it cannot be recalled, and its permission is spent once.**
+
+**1. Content — write for a lock screen someone else can see.**
+
+- The title says what it is about at the level of a category, never a value:
+  "Blood pressure" not "Blood pressure 178/104".
+- No result values, no diagnoses, no medication names, and no condition names in
+  the visible body. The value lives behind authentication in the app.
+- Assume it will be read aloud by a device. Write a sentence that is not
+  humiliating when spoken in a room.
+- Offer a per-user setting for how much a notification may reveal, defaulting to
+  the least. See [On-screen privacy](./on-screen-privacy.mdx).
+
+**2. Escalation — a push is the top of the ladder, not a shortcut to it.**
+
+- The budget from [Alarm fatigue](./alarm-fatigue.mdx) applies: at most one
+  non-clinical push per day, and non-clinical pushes never use the clinical
+  channel.
+- Separate OS notification channels for clinical and non-clinical messages, so a
+  user can silence your marketing without silencing your alerts. On platforms
+  that support it, this is a hard requirement, not a nicety.
+- Never send a `steady` result as a push. "Everything is fine" is not worth a
+  spent permission unless the user explicitly asked to be told.
+
+**3. Continuity — the push and the in-app surface are one message.**
+
+- Every push resolves to a specific in-app surface that carries the full message
+  at the same status level. Tapping a notification must never land on a
+  dashboard.
+- The in-app surface is authoritative. If the situation changed between the send
+  and the tap, the app says so rather than pretending the push was current.
+- A notification is stamped with when the underlying reading was taken, not when
+  the message was sent. Those differ, and the difference matters.
+- Clearing the notification does not clear the in-app alert. Dismissing a lock
+  screen is not acknowledging a clinical message.
+
+**4. Timing — an unrequested interruption has a cost.**
+
+- Respect system quiet hours and platform interruption levels. Reserve the
+  highest interruption level for the clinical urgent path, and use it rarely
+  enough that it stays meaningful.
+- Do not send a health alert at 03:00 unless it is genuinely actionable at 03:00.
+  Waking someone to tell them something they can only act on at 09:00 is a net
+  harm.
+- Never batch a clinical alert behind an engagement digest.
+
+**5. Badges and widgets are notifications too.**
+
+- A badge count on the app icon is visible to anyone who can see the phone, and a
+  badge that only ever appears when something is wrong is a disclosure.
+- A home-screen widget shows health data to a room. Widgets default to
+  category-level information with values hidden until unlocked, where the
+  platform allows it.
+
+<SafetyCallout severity="urgent" evidence="opinion">
+  A notification must never be the only channel for a message that may require
+  emergency care. Notifications fail silently: they are dropped, throttled,
+  disabled, or delivered to a device in a drawer. The emergency path is specified
+  at [Emergency and escalation](./emergency-and-escalation.mdx) and it is always
+  redundant.
+</SafetyCallout>
+
+## Why (evidence)
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  This page is opinion. We cite no study, and the reasoning is drawn from
+  platform guidance and from the structure of the problem rather than from
+  measurement.
+
+  Two things are close to fact and worth stating as such. First, notification
+  permissions are revoked at the OS level and are not per-message: a user who
+  turns you off has turned off your clinical alerts too. Second, lock screen
+  content is visible without authentication by default on the major mobile
+  platforms, and users generally do not change that. Both are checkable against
+  Apple's Human Interface Guidelines and Android's notification documentation,
+  which are the right places to look for current platform behaviour and which we
+  cite rather than restate — platform behaviour changes and a copied summary
+  would be wrong within a year.
+
+  The clinical-versus-engagement channel split, the one-push-a-day budget, and
+  the rule against putting values in a notification body are our judgements. The
+  last of these has a real cost — a user who has to unlock the phone to see a
+  number will sometimes not bother — and we accept that cost because the failure
+  it prevents is worse and irreversible.
+
+  What would change our mind: evidence that users prefer values in notifications
+  and understand the disclosure trade-off. Even then we would want it opt-in.
+</ResearchNote>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    "Blood pressure — there is a reading to look at. Open the app to see it."
+    Category, an action, no value, no diagnosis, safe to read aloud.
+  </DoDont.Do>
+  <DoDont.Dont>
+    "Warning: your blood pressure is 178/104, which is very high." A clinical
+    statement, at a value, on a lock screen, to a person who cannot ask a
+    question and may not be alone.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Register two notification channels — "Health alerts" and "Reminders and
+    updates" — and label them plainly in settings so the user can keep the first
+    and mute the second.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Send everything on one channel. The user's only remaining control is to
+    silence you entirely, and eventually they will.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Deep-link straight to the surface the notification is about, and show the
+    same status there. One message, two renderings.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Open the home screen and hope the reader finds it. You have generated anxiety
+    and then withheld the resolution.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Show when the reading was taken: "Reading from yesterday, 21:40." Delivery
+    time and measurement time are different facts.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Imply the reading is live. A delayed sync that surfaces a three-day-old value
+    as news is both frightening and wrong.
+  </DoDont.Dont>
+</DoDont>
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+opsinjs renders no notifications — that is platform code outside React. What it
+provides is the in-app half of the pair: the surface a notification resolves to,
+carrying the same status vocabulary, the same tone rules and the same timestamp
+discipline, so the two halves cannot drift apart.
+
+## What this does not cover
+
+- **Sending notifications.** Scheduling, delivery, tokens, platform APIs and
+  reliability are your infrastructure.
+- **Email and SMS**, which are worse on every disclosure axis and are outside
+  this system.
+- **The alarm-fatigue budget itself**, which is
+  [Alarm fatigue](./alarm-fatigue.mdx).
+- **Watch and wearable surfaces**, which need their own treatment — glanceable,
+  frequently public, often haptic-first — and are not yet specified here.
+
+<Todo>Specify the watch and wearable surface: what may appear on a wrist, and
+how the haptic budget interacts with the visual one.</Todo>
+
+## Updates to this page
+
+<Reviewed />

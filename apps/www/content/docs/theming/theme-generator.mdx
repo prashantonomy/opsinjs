@@ -1,0 +1,187 @@
+---
+title: Theme generator
+description: Turn one brand colour into a complete, gamut-aware, contrast-validated opsinjs theme, and understand every step it took to get there.
+status: stable
+kind: guide
+aliases: [generate a theme, brand colour to theme, colour ramp generator]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+You have a brand colour. You need a full system: a neutral ramp, role tokens for
+light and dark, a radius, and — the part that usually goes wrong — a guarantee
+that every text-on-surface pair the components will actually produce is legible.
+
+The generator does that derivation in the browser and shows its working. It
+takes one colour, produces a theme, measures every pair it created, and tells
+you which ones fail before you ship them. Budget about five minutes, plus
+however long you spend arguing with it about your brand's mid-tones.
+
+**Open it at [`/playground/theme`](/playground/theme).**
+
+The same derivation is specified as a callable function, `deriveTheme()`, in
+[`@opsinjs/color`](../packages/opsinjs-color.mdx), so that the check can run in
+your CI rather than only in a browser tab. That package has not shipped;
+the playground is the working surface today.
+
+<Callout>
+The generator changes **tier 2** — role tokens. It does not touch the status or
+category ramps, and it will refuse to derive a status colour from your brand.
+[Status palettes](./status-palettes.mdx) explains why that refusal is a feature.
+</Callout>
+
+## What the generator actually does
+
+Understanding the five steps is what lets you argue with the result instead of
+regenerating until it looks nice.
+
+<Steps>
+
+### Parse and normalise
+
+Your input — hex, `rgb()`, `oklch()`, or a CSS colour keyword — is converted to
+OKLCH. Everything downstream happens in OKLCH because lightness in that space
+behaves roughly the way perception does, which is what makes a ramp with evenly
+spaced steps actually look evenly spaced. The conversion is hand-written in
+`lib/color/oklch.ts`; the reasoning is in
+[How the engine works](../foundations/colour/how-the-engine-works.mdx).
+
+### Build the lightness ramp
+
+Lightness is placed on a fixed set of rungs so that a ramp derived from a pale
+brand and a ramp derived from a dark one still have a step that means "the
+surface a card sits on". Hue is held; chroma is not yet.
+
+### Clamp chroma to the sRGB gamut
+
+Each rung's chroma is reduced until the colour is representable in sRGB. This is
+the step that makes vivid brands look duller than the designer expected, and it
+is not a bug: a colour outside the gamut does not render at all, it renders as
+whatever the browser clips it to, differently on different machines.
+
+### Escalate chroma in Display-P3
+
+The clamped value is the baseline. A second value is derived for displays that
+report `color-gamut: p3`, published inside `@supports (color-gamut: p3)`, and
+allowed more chroma at the *same lightness and hue*. Because lightness is
+unchanged, measured contrast is unchanged: a wide-gamut screen gets a more
+saturated colour and exactly the same legibility. See
+[Gamut and P3](../foundations/colour/gamut-and-p3.mdx).
+
+### Assign roles, then measure
+
+Rungs are assigned to `--primary`, `--background`, `--card`, `--muted`,
+`--border`, `--ring` and their `-foreground` partners, in light and in dark. Then
+every pair that the role assignment implies is measured with APCA and with WCAG
+2.2, and any pair below the published floor is reported rather than silently
+accepted.
+
+</Steps>
+
+## Reading the verdict
+
+The generator reports per pair, not per colour, because contrast is a property
+of a pair and "is this blue accessible?" is not a question with an answer.
+
+For each pair you get the APCA lightness contrast (`Lc`), the WCAG 2.2 ratio,
+and a verdict against the opsinjs floor. Where the two disagree — and they do
+disagree, particularly on light text over mid-tone colour — the page says so
+rather than quietly picking the flattering one.
+[Contrast and APCA](../foundations/colour/contrast-and-apca.mdx) is the
+canonical explanation of what each number is for; this page only tells you what
+to do about a failure.
+
+The three failures worth knowing:
+
+- **`--primary-foreground` on `--primary` fails.** Your brand colour sits in the
+  mid-lightness band where neither white nor black text works well. The
+  generator will darken or lighten the primary rung rather than change your hue.
+  Accept it, or pick a different brand rung as the button surface.
+- **A pair passes in light and fails in dark.** Dark is derived, not mirrored.
+  The usual cause is a brand hue whose chroma has to fall much further in the
+  dark ramp to stay in gamut; see [Dark mode](../foundations/colour/dark-mode.mdx).
+- **Everything passes but the theme looks washed out.** Chroma was clamped. The
+  P3 block will restore some of it on capable displays, and nothing you do will
+  restore it on an sRGB one.
+
+## Taking the output into your project
+
+The generator emits three things: a CSS block, a preset code, and a DTCG JSON
+export.
+
+The CSS block is the one to start with. Paste it into your stylesheet **after**
+the opsinjs imports, in the position your framework's setup page describes — for
+Next.js that is [Installation → Next.js](../start/installation/next.mdx). It
+declares role tokens under `:root` and `.dark` and nothing else; it will not
+fight the generated ramp layer, because it does not define anything in it.
+
+```css title="app/globals.css"
+/* Generated by the opsinjs theme generator. Roles only — tier 2. */
+:root {
+  --primary: oklch(0.52 0.14 262);
+  --primary-foreground: oklch(0.99 0 0);
+  /* … */
+}
+
+.dark {
+  --primary: oklch(0.72 0.12 262);
+  --primary-foreground: oklch(0.17 0.01 262);
+  /* … */
+}
+```
+
+The preset code is the shareable form — see [Presets](./presets.mdx). The DTCG
+JSON is for design tools and is described in
+[Design handoff](./design-handoff.mdx).
+
+## Verify it worked
+
+<Steps>
+
+### Check one role resolves to your value
+
+In devtools, `:root { --primary }` should be the colour you generated. If it is
+not, your block is being imported before the opsinjs layer instead of after it.
+
+### Check the dark ramp separately
+
+Toggle the `dark` class. Every role should change and no status or category
+colour should. If a status colour moved, something in your paste reached into
+tier 1.
+
+### Re-measure, do not re-read
+
+Put your own foreground and background values into
+[`/playground/contrast`](/playground/contrast) and confirm the verdict. Numbers
+published anywhere on this site describe the shipped presets, never your theme.
+
+</Steps>
+
+## Troubleshooting
+
+**The generator refuses my colour.** Pure black and pure white have no hue to
+derive a ramp from. Give it a colour with some chroma, or pick a preset and
+override `--primary` by hand.
+
+**My ramp looks different on my phone and my monitor.** That is the P3
+escalation doing exactly what it is meant to do. Compare lightness, not
+saturation; the lightness is identical by construction.
+
+**I get a different result than a colleague from the same input.** Check that
+you are both on the same version of the site — the derivation is versioned and
+the roadmap records when it changes. It has no random component.
+
+**The CSS works but Tailwind utilities do not follow it.** You have declared the
+custom property without the `@theme inline` mapping. See
+[Tailwind v4](./tailwind-v4.mdx).
+
+## Next
+
+- [Validating your theme](./validating-your-theme.mdx) — running the same checks
+  in CI instead of in a tab.
+- [Presets](./presets.mdx) — packaging the result so other projects, and the
+  CLI, can consume it.
+- [Category palettes](./category-palettes.mdx) — the axis the generator
+  deliberately did not touch.

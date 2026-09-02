@@ -1,0 +1,174 @@
+---
+title: Choosing a layer
+description: A decision table from surface kind to rung, five nesting rules, and the three questions that resolve almost every case.
+status: stable
+kind: foundation
+aliases: [which material, surface decision, nesting surfaces, when to use blur, layer choice]
+owner: design
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+Six rungs is a small enough set that the choice should never take long, and this
+page exists to make sure it does not. It is a lookup table and five rules,
+followed by the reasoning for the cases people argue about.
+
+The failure this prevents is not an ugly screen. It is a screen that has drifted
+into five subtly different translucencies over eighteen months, at which point
+nobody can say what any of them means, the compositing budget is blown, and the
+contrast of half the surfaces depends on content the design team has never seen.
+
+## How it works
+
+### Three questions, in order
+
+**1. Does content scroll under it?** If yes, it is `bar`. This is the only
+question whose answer is a single rung, and it is first because it is the
+question people most often skip.
+
+**2. Does it take over the screen, so that what is behind it is no longer
+usable?** If yes, it is `overlay`, and it needs a `scrim` beneath it. Both, or
+neither.
+
+**3. Otherwise: is it an object, or a region?** An object you could imagine
+picking up — tappable, dismissible, transient — is `raised`. A region that
+organises content in place is `panel`. If it is neither, it is `ground` and it
+needs no material at all.
+
+### The decision table
+
+| The surface | Rung | Why |
+| --- | --- | --- |
+| Page background | `ground` | it is the thing everything else separates from |
+| A section of a list or a form | `panel` | a region, in place, not an object |
+| A card showing one reading, tappable | `raised` | an object; also, a health value, which must be opaque |
+| A card showing one reading, not tappable | `panel` | nothing is lifted, so nothing should look lifted |
+| Menu, dropdown, select list | `raised` | transient object over arbitrary content |
+| Popover, tooltip | `raised` | same, and small enough that translucency would be noise |
+| Toast, snackbar | `raised` | appears over content it knows nothing about; must not depend on it |
+| Sticky nav bar or app bar | `bar` | content scrolls under it |
+| Bottom tab bar | `bar` | content scrolls under it |
+| Sticky section header inside a list | `bar` | content scrolls under it |
+| Sticky summary showing today's value | `bar`, conditionally | see the exception below |
+| Bottom sheet | `overlay` | takes over; needs a scrim |
+| Modal dialog | `overlay` | takes over; needs a scrim |
+| Full-screen takeover, camera or scanner UI | `overlay` | takes over; the scrim may be the camera feed's own dimming |
+| The dimmer behind any of the above | `scrim` | its only job is to remove information |
+| Side navigation on a wide screen, always visible | `panel` | it is a region of the page, not an object above it |
+| Side navigation on a phone, dismissible | `overlay` | it takes over; needs a scrim |
+| Loading skeleton | same rung as the thing it replaces | a skeleton that changes rung makes the page jump |
+
+### The five nesting rules
+
+**N1 — A translucent rung may never contain another translucent rung.** A card
+inside a sheet is `panel` or `raised`, never `bar`. Two stacked blurs cost twice
+as much, and the composite of a translucent surface over a translucent surface
+has no bounded worst case, so the contrast floor cannot be computed for it.
+
+**N2 — A scrim is a sibling of the rung it serves, never its child.** It sits
+between the overlay and everything below, in the stacking order, not inside the
+overlay's box.
+
+**N3 — At most one `overlay` at a time.** A dialog opened from a dialog is a bug
+in the flow, not a stack to be styled. If a decision genuinely requires two
+steps, it requires two steps *inside* one overlay.
+
+**N4 — When an `overlay` is open, the `bar` goes under the scrim.** A nav bar
+that stays bright and crisp above a scrim looks interactive and is not. Dim it
+with everything else.
+
+**N5 — Rung 2's shadow is the only shadow you may add.** Rungs 0 and 1 have
+none, rungs 3 and 4 carry their own, and rung 5 has none. "A small shadow to
+make it pop" on a `panel` is how a system acquires nine elevations, none of
+which mean anything.
+
+### The one conditional case
+
+A sticky summary bar that shows a health value — today's blood pressure, the
+latest glucose reading — is the only place a number a person may act on is
+allowed on a translucent rung, and it is allowed only when **the same value also
+appears on an opaque surface on the same screen**. The bar is then a convenience
+and not the record. If the bar is the only place the value appears, it is not a
+bar: make it a `panel` pinned to the top, opaque, and accept that content no
+longer scrolls under it.
+
+The reasoning is on [The contrast floor](./the-contrast-floor.mdx): a
+translucent rung's contrast is bounded and measured, so it is not *unsafe*, but
+"bounded worst case" is a weaker guarantee than "known background", and the
+element carrying the number should have the stronger one.
+
+## Using it
+
+**Start at the lowest rung that works.** The ladder is not a scale of quality.
+Most surfaces on a well-designed health screen are `ground` and `panel`, a few
+are `raised`, and one is a `bar`. A screen where most things are `raised` has no
+hierarchy, because everything is equally lifted.
+
+**Do not use a rung to communicate importance.** Importance is type size,
+position and space. Material is depth. A more translucent card is not a more
+important card, and a reader will not read it as one.
+
+**Do not use a rung to communicate status.** That is the colour axis's job, and
+mixing the two produces a screen where urgency is encoded in blur radius. See
+[Two colour axes](../../health/two-colour-axes.mdx).
+
+<DoDont>
+  <DoDont.Do>
+    A dismissible filter sheet as `overlay` over a `scrim`, with its internal
+    grouping as `panel` and its primary action as an ordinary button. One
+    translucent rung and one scrim: two composited surfaces.
+  </DoDont.Do>
+  <DoDont.Dont>
+    The same sheet as `overlay`, its sections as `bar` "for consistency with the
+    header", and the header still crisp above the scrim. Four composited
+    surfaces, a nested blur whose contrast cannot be computed, and a nav bar that
+    looks live while the sheet is modal.
+  </DoDont.Dont>
+</DoDont>
+
+**When you cannot decide, the surface is doing two jobs.** The recurring example
+is a header that is both page chrome and a content card. Split it: the chrome is
+`bar`, the card is `panel` inside the scroll area, and the screen immediately
+becomes easier to describe.
+
+## Tokens
+
+<TokenTable scope="material" />
+
+## Accessibility impact
+
+The rules on this page are mostly aesthetic hygiene, but three of them are
+accessibility controls wearing plain clothes:
+
+- **N1 exists so that contrast remains computable.** A nested translucent
+  surface has no bounded worst case, so no floor can be guaranteed for text on
+  it. This is the reason the rule is absolute rather than a preference.
+- **N4 exists so that modality is honest.** A reader using a screen reader is
+  told the overlay is modal and everything else is inert; a reader using their
+  eyes should be told the same thing, and a bright, crisp nav bar above a scrim
+  says the opposite. The visual and the programmatic state have to agree.
+- **The conditional case exists so that no health value depends on a backdrop.**
+  Bounded is not the same as known, and the number somebody acts on gets the
+  stronger guarantee.
+
+One more, which belongs to the components rather than to the tokens: rung 4
+surfaces are modal, and modality is a focus contract — focus moves in, is
+trapped, and returns to the trigger on dismissal. The material says nothing
+about that, and choosing `overlay` does not implement it.
+[Keyboard and focus](../../accessibility/keyboard-and-focus.mdx) is the
+contract.
+
+## Related
+
+- [The ladder](./the-ladder.mdx) — what each rung is made of, and the boundary
+  between opaque and translucent.
+- [Performance budget](./performance-budget.mdx) — why "at most three composited
+  surfaces" is a real number and how to check you are under it.
+- [Layering and elevation](../layering-and-elevation.mdx) — the z-index
+  contract that decides what is in front of what.

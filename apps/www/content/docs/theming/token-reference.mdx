@@ -1,0 +1,104 @@
+---
+title: Token reference
+description: Every opsinjs token you are allowed to set, grouped by tier, with what it controls and which parts of the system read it.
+status: stable
+kind: reference
+full: true
+aliases: [token list, settable tokens, what tokens exist]
+---
+
+<PageTemplate kind="reference" />
+
+## How this is generated
+
+Source files: `tokens/color.json`, `tokens/material.json`, `tokens/motion.json`,
+`tokens/type.json`, `tokens/space.json`, `tokens/shape.json`.
+Script: `scripts/build-tokens.mts`. Command: `pnpm run generate`.
+
+Every row below is rendered by `<TokenTable>` from `lib/generated/tokens.ts`,
+which the script writes from those JSON files. No value on this page is typed by
+a person, and `pnpm run check:generated` fails the build if the committed
+generated output no longer matches its source.
+
+This page is the **theme author's** view: it is grouped by tier, and it says
+what you may set. The exhaustive machine-readable dump — including the internal
+tokens no one outside the generator should reference — is
+[Reference → Tokens](../reference/generated/tokens.mdx). Where the two disagree,
+the generated reference is right and this page has a stale grouping.
+
+To change a value, change the JSON and regenerate. Editing
+`app/tokens.generated.css` directly is caught by the check and reverted.
+
+### Tier 2 — role tokens
+
+The tier you retheme. Names follow the shadcn convention: a surface token, and a
+`-foreground` partner naming the text and icons that sit on it.
+
+<TokenTable scope="role" />
+
+### Shape and space
+
+One value each drives a derived scale, which is the whole point of them:
+`--radius` produces `--radius-sm` through `--radius-4xl` by calculation, and
+Tailwind derives its entire spacing scale from `--spacing`. Changing one number
+moves a whole system consistently, and changing forty numbers does not.
+
+<TokenTable scope="shape" />
+
+<TokenTable scope="space" />
+
+### Type
+
+The product theme deliberately declares a platform UI font stack rather than a
+webfont. A patient-facing app inherits the reader's own text-size setting, and
+shipping a face that ignores it is the most common way a "200% text" claim stops
+being true. [Dynamic type](../foundations/typography/dynamic-type.mdx) has the
+argument in full.
+
+<TokenTable scope="type" />
+
+### Tier 1 — the status ramp
+
+Four ordinal levels. Each has a surface, a line and an ink slot, in light and in
+dark, with a Display-P3 escalation that raises chroma at identical lightness.
+
+These are listed so you can read them, not so you can set them. The token ids
+are `expected`, `watch`, `act` and `urgent`; what each level *means*, who is
+allowed to assign it, and what word a reader actually sees are decided in
+[Clinical status semantics](../health/clinical-status-semantics.mdx), which is
+canonical. A token id is a machine identifier and is never the label you put in
+front of a patient.
+
+<TokenTable scope="status" />
+
+### Tier 1 — the category ramps
+
+Six identity ramps: `cardio`, `metabolic`, `respiratory`, `activity`, `sleep`,
+`body`. Deliberately low-chroma, because a category colour carries no verdict
+and must not be readable as one.
+
+<TokenTable scope="category" />
+
+### Tier 1 — the material ladder
+
+Six rungs, from a flat page background to a scrim. Each rung is a background, a
+blur radius, a border and a shadow, and each collapses to an opaque fallback
+under `prefers-reduced-transparency`.
+
+<TokenTable scope="material" />
+
+### Tier 1 — motion
+
+Five durations and five easings, including two spring curves expressed as CSS
+`linear()`. Under `prefers-reduced-motion` every duration collapses to `1ms` and
+both springs collapse to `linear(0, 1)` — the state change still happens, it
+simply happens at once.
+
+<TokenTable scope="motion" />
+
+### Measured contrast
+
+Not a token table: the measured result of every pair the tables above imply, in
+both themes, against the published floor.
+
+<ContrastReport scope="theme" />

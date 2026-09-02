@@ -1,0 +1,232 @@
+---
+title: Clinical status semantics
+description: The four status levels — steady, watch, attention, urgent — with a fixed meaning, a fixed tone, an owner for the threshold, and an explicit list of things they must never be read as.
+status: stable
+kind: health
+evidence: mixed
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+owner: design-system
+implements: [status-pill, alert-banner, care-card, result-card, range-bar, metric-tile]
+aliases: [severity, urgency, triage, status levels, steady watch attention urgent]
+---
+
+<PageTemplate kind="health" />
+
+## What this means
+
+Most component libraries ship four semantic states borrowed from server logs:
+`info`, `success`, `warning`, `error`. They are a perfectly good vocabulary for
+describing what happened to a request. They are a terrible vocabulary for
+describing a person.
+
+`error` is wrong because nothing has failed — a high reading is a fact about a
+body, not a bug. `success` is wrong because it congratulates someone on a number
+they may have very little control over, and its absence then reads as failure.
+`warning` is wrong because it is a single level, so every non-ideal reading lands
+in the same bucket as the one that genuinely needs same-day attention. And
+`info`, in a health context, is where teams quietly put the things they have not
+decided how to say.
+
+opsinjs replaces them with four ordinal levels that describe the relationship
+between a value and what is expected for this person, and nothing else.
+
+<StatusLadder />
+
+## The rule
+
+**There are exactly four clinical status levels. They are ordinal, they describe
+a value's relationship to what is expected, and their meanings are fixed.**
+
+### `steady`
+
+**Meaning:** this sits where it is expected to sit. Nothing here needs the
+reader's attention today.
+
+**Tone:** neutral and unexcited. Not congratulatory. "In your usual range."
+
+**What it must never mean:** healthy, safe, normal, good, or "you are fine".
+`steady` is a statement about one number against one range, not a verdict on a
+person. A reading can be `steady` in someone who is seriously unwell.
+
+### `watch`
+
+**Meaning:** slightly outside what is expected, or moving in a direction that is
+worth noticing. No action is required now; the reader should not be surprised if
+it comes up next time.
+
+**Tone:** informative, not anxious. "A little higher than your usual range."
+
+**What it must never mean:** a mild version of a diagnosis, or a hint that the
+reader should do something without saying what. `watch` with no next step is the
+level most likely to generate an unnecessary phone call.
+
+### `attention`
+
+**Meaning:** outside the expected range far enough, or for long enough, that a
+person should do something specific and reasonably soon. There is always a named
+action.
+
+**Tone:** direct and calm, action first. "Book an appointment to have this
+checked."
+
+**What it must never mean:** an emergency, a diagnosis, or "you have X".
+`attention` says the number needs looking at by someone qualified. It never says
+what the answer will be.
+
+### `urgent`
+
+**Meaning:** this may need help today, and the interface should say so and get
+out of the way.
+
+**Tone:** short, unambiguous, no hedging, no jargon, action in the first line.
+
+**What it must never mean:** anything that is merely important to your product.
+`urgent` is reserved for clinical urgency. It is not for expiring trials,
+incomplete profiles, or unsynced devices. See
+[Emergency and escalation](./emergency-and-escalation.mdx) for what an interface
+must actually do at this level, and
+[Alarm fatigue](./alarm-fatigue.mdx) for the budget that keeps it meaningful.
+
+### Who assigns a status
+
+**You do — or rather, whoever is clinically accountable in your organisation
+does.** opsinjs ships the vocabulary, the tokens, the tone and the presentation
+rules. It ships no thresholds, for any metric, ever.
+
+A status assignment must be traceable to a rule someone owns and can defend:
+
+- The rule is written down outside the component, with its source and its owner.
+- The rule states the population it applies to. A threshold that is right for a
+  40-year-old is often wrong in pregnancy, in childhood, or with a long-term
+  condition.
+- Where a device or a laboratory supplies its own flag, prefer that flag over
+  deriving one, and say whose flag it is.
+- A status that comes out of a model or an estimate is labelled as such; see
+  [Data provenance and device accuracy](./data-provenance-and-device-accuracy.mdx).
+
+### Rules that hold at every level
+
+1. **Status is never conveyed by colour alone** — colour, icon and word together.
+2. **Status is never conveyed by motion, sound or haptics alone.**
+3. **The word is not optional and is not an abbreviation.** The visible label is
+   the level's meaning in plain words, not the token name.
+4. **One level per element.** An element does not carry two statuses; a container
+   does not inherit the highest status of its children by default.
+5. **Escalation is stated, not implied.** Moving a reader from `watch` to
+   `attention` between sessions requires saying that it changed and why.
+6. **A status change is announced to assistive technology** using the contract on
+   [Screen readers](../accessibility/screen-readers.mdx) — politely for `steady`
+   and `watch`, assertively only at `urgent`.
+
+## Why (evidence)
+
+<ResearchNote evidence="mixed" date="2026-09-02">
+  **Cited.** Rules 1 and 2 rest on WCAG 2.2 SC 1.4.1 (Use of Colour) and on the
+  broader requirement that information is not conveyed through a single sensory
+  characteristic. Rule 6 follows the ARIA live-region model rather than our
+  preference: an assertive announcement interrupts, so it is reserved for the
+  level where interruption is warranted.
+
+  **Opinion.** Four levels, and these four names, are our judgement. Three levels
+  collapse "worth noticing" and "do something", which is the distinction users
+  most need and the one teams most often blur. Five levels cannot be assigned
+  consistently by different people looking at the same number — we consider
+  reliable assignment more valuable than resolution.
+
+  The names were chosen to be verbs-adjacent and non-diagnostic. `steady` rather
+  than `normal` because [normal is banned](./reference-ranges.mdx); `watch`
+  rather than `caution` because it names what to do; `attention` rather than
+  `warning` because a warning implies a threat rather than a task; `urgent`
+  because there is no gentler word that survives translation without losing
+  force.
+
+  What would change our mind: field evidence that users cannot reliably
+  distinguish `watch` from `attention` in context, or that a two-level system
+  (fine / not fine, plus an emergency path) produces better outcomes because it
+  is harder to misuse. The second is a real possibility and we would take it
+  seriously.
+</ResearchNote>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    `attention` — "Blood pressure 158/96 mmHg. Higher than your usual range.
+    Book an appointment in the next week to have this checked."
+    The value, the relationship, the action, in that order.
+  </DoDont.Do>
+  <DoDont.Dont>
+    `attention` — "Warning: abnormal blood pressure detected." Three problems:
+    "abnormal" is a clinical judgement the interface has not earned, "detected"
+    sounds like a machine has diagnosed something, and there is no action.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    `steady` — "72 bpm. In your usual range." Then stop. A steady reading does
+    not need a paragraph.
+  </DoDont.Do>
+  <DoDont.Dont>
+    `steady` — "Great work! Your heart rate is perfect." It congratulates
+    someone for something they may not control, and it sets up the next reading
+    to feel like a personal failure.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Reserve `urgent` for clinical urgency and let the product's own problems live
+    at `Callout` or lower. Your sync failure is not the same kind of thing as a
+    dangerously high reading.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Style a subscription prompt with `--opsin-status-urgent-surface` because it
+    converts better. It does, once. Then every genuine alert converts worse
+    forever.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Keep the status word in the accessible name: "Attention: blood pressure
+    158 over 96". A screen reader user gets the level and the value in one
+    utterance.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Rely on an amber dot with `aria-hidden` on the icon and no text. The status
+    is then visible only to sighted users with unimpaired colour vision.
+  </DoDont.Dont>
+</DoDont>
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+Every component that accepts a status takes it from the same four-value union —
+exported as `ClinicalStatus` and documented at
+[Types](../reference/generated/types.mdx) — so an invalid level is a type error
+rather than an unstyled element. The status vocabulary is also published as JSON
+at [Machine-readable schemas](../agents/machine-readable-schemas.mdx) so an agent
+generating a screen can enumerate the legal values instead of guessing.
+
+## What this does not cover
+
+- **Thresholds.** Which number is `watch` and which is `attention`, for any
+  metric, in any population. This is the boundary and it is absolute.
+- **Triage.** These four levels are not a triage scale and must not be mapped
+  onto one. Clinical triage systems are validated instruments; this is a
+  presentation vocabulary.
+- **Diagnosis.** No level asserts a condition. If your product makes diagnostic
+  claims, read [Regulatory context](./regulatory-context.mdx) — you are probably
+  building a medical device.
+- **The exact sentences.** Wording per level, including the words banned at each,
+  is [Writing status and alerts](../content/writing-status-and-alerts.mdx).
+- **Colour values.** The palettes, their derivation and their measured contrast
+  are [Colour](../foundations/colour/index.mdx).
+
+## Updates to this page
+
+<Reviewed />

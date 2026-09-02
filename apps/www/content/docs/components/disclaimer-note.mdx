@@ -1,0 +1,233 @@
+---
+title: DisclaimerNote
+description: The short standing note saying that what you are looking at is information, not medical advice — placed by rule so it is always in the same place and never in the way.
+status: planned
+kind: component
+since: "unreleased"
+category: health-communication
+aliases: [not medical advice, disclaimer, legal note, safety note]
+governedBy: [regulatory-context, clinical-interaction-guidelines, safety-review-checklist]
+usedIn: [value-against-a-range, results-screen, consent-flow]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="disclaimer-note"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Once per screen, once per session, or once per surface that shows a health value? The placement rule is the component.",
+    "Is the text ever the product's own, or is a small set of vetted variants safer than free text on a legally significant surface?",
+    "Does it need to be dismissible, and if a reader dismisses it, does it return — and does the product record that they saw it?",
+    "What is the relationship between this note and the regulatory statements a product may separately be obliged to show?",
+  ]}
+/>
+
+A disclaimer that appears everywhere is read nowhere, and a disclaimer that appears nowhere
+is a liability. This component exists so the placement decision is made once, in the system,
+rather than twenty times by twenty different people under deadline.
+
+## Preview
+
+The preview will show the note in its three placements — inline under a result, in a screen
+footer, and inside a sheet — so the difference between present and prominent is visible.
+
+<ComponentPreview name="disclaimer-note" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail.
+
+<ComponentInstall name="disclaimer-note" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "On any surface that shows a health value, a range, a status or a derived score to the person it belongs to.",
+    "At the end of a flow that gathered health information, where the reader may reasonably expect an assessment they are not going to get.",
+    "Wherever a product could plausibly be mistaken for a clinical service — a symptom questionnaire, a result summary, a trend review.",
+  ]}
+  avoid={[
+    { case: "The reader needs to do something now, and the note would sit above the instruction.", instead: "care-card" },
+    { case: "The message is specific to one result rather than a standing statement about the product.", instead: "callout" },
+    { case: "Something has changed and needs the reader's attention.", instead: "alert-banner" },
+    { case: "You are asking permission rather than making a statement.", instead: "consent-sheet" },
+    { case: "You are explaining a word rather than the product's limits.", instead: "term" },
+    { case: "The reader has to acknowledge the statement before continuing, and the product needs a record that they did.", instead: "consent-sheet" },
+  ]}
+/>
+
+Repetition is the failure mode this component exists to prevent. One note per surface, placed
+by the rule, and never repeated beside every individual result: a screen that seems to need
+four notes is a screen showing four things that each need explaining, and four identical
+notes will explain none of them.
+
+## Clinical meaning
+
+**What it asserts.** That this product provides information rather than clinical assessment,
+that it does not replace advice from a clinician, and — where relevant — that it is not a
+medical device.
+
+**What it must never be read as.** A waiver, an excuse, or a substitute for designing safely.
+A disclaimer does not make an unsafe screen safe, and no regulator, and no reader, has ever
+been persuaded otherwise. It also must never be read as *this number is unreliable*: the
+note is about the product's role, not about the quality of the measurement.
+
+**Which colour axis it may use.** Neither. The note is quiet, neutral and typographic. Status
+colour on a standing disclaimer is a permanent false alarm, and category colour makes a legal
+statement look like a topic.
+
+**Where it goes.** Below the content it qualifies, above the surface's footer, once per
+surface. Never above the result — a reader who came to see a number should see the number
+first. Never in a collapsed section, and never in a modal the reader must dismiss before
+they can read the thing they came for.
+
+**Who owns the words.** The consuming product, in consultation with whoever is accountable
+for it. opsinjs does not ship legal text, and nothing on this page is legal advice.
+[Regulatory context](../health/regulatory-context.mdx) sets out what DCB0129, DCB0160, the
+EU MDR and FDA SaMD expectations ask of the *consuming* product — the design system confers
+no status of any kind.
+
+<SafetyCallout severity="medium" evidence="opinion">
+If a product finds itself relying on this component to make a screen acceptable, the screen
+is the problem. Fix the screen. The note exists to set expectations honestly, not to
+transfer risk onto the reader.
+</SafetyCallout>
+
+## Anatomy
+
+<Anatomy name="disclaimer-note" />
+
+<CompositionTree name="disclaimer-note" />
+
+**Icon** is optional and never a warning glyph — this is not an alert. **Text** is one or two
+sentences. **Link** points to a fuller statement for readers who want it. That is the whole
+component, deliberately: every part that could be added is a part that could be used to make
+the note louder.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+DisclaimerNote                 root; neutral, quiet, never status-coloured
+├── DisclaimerNote.Icon        optional; informational glyph, never a warning triangle
+├── DisclaimerNote.Text        1–2 sentences
+└── DisclaimerNote.Link        optional; to the product's fuller statement
+```
+
+## Proposed API
+
+<NotBuiltYet name="disclaimer-note" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+export interface DisclaimerNoteProps {
+  /**
+   * The product's own words. There is no default text: shipping default legal
+   * copy in a design system would put words into products whose authors never
+   * read them.
+   */
+  children: React.ReactNode
+  /**
+   * Where it sits. `inline` under the content it qualifies; `footer` once at
+   * the end of a surface. There is no `banner` value.
+   */
+  placement?: "inline" | "footer"
+  /** A link to the fuller statement, for readers who want it. */
+  moreHref?: string
+  /**
+   * Stable id of this note's text, so the product can record which version a
+   * reader was shown. Legal text changes; records should say which one applied.
+   */
+  textVersion?: string
+}
+```
+
+## Content guidelines
+
+Two sentences at most. Say what the product does, then what it does not do. Use plain words:
+*this app*, not *the Service*; *a doctor or nurse*, not *a qualified healthcare
+professional*, unless a specific obligation requires the formal phrase.
+
+Never write *always consult your doctor before making any decisions* on every screen. It is
+unactionable, it is not what the reader is being asked to do, and repeated often enough it
+teaches people that the app has nothing useful to say.
+
+<DoDont>
+  <DoDont.Do>
+    **"This app shows you your own readings and information about them. It does not diagnose
+    conditions and it is not a substitute for advice from your doctor or nurse."** States the
+    role, then the limit, in words a reader will actually parse.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"The Service is provided for informational purposes only and does not constitute medical
+    advice, diagnosis or treatment. Reliance on any information provided is solely at your own
+    risk."** Written for a court, not for a reader, and the final clause is an attempt to move
+    risk rather than to inform.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **One quiet note beneath the results, in the same place on every results screen.**
+    Predictable, findable, ignorable by people who have read it once.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A yellow warning-styled panel at the top of every screen.** It occupies the position the
+    reader's actual information should have, it looks like an alert, and within a week nobody
+    sees either.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **The note is ordinary text in the reading order**, not a live region, not an alert, and
+  never announced over what the reader is doing.
+- **It meets the same contrast floor as body text.** Legal text set in pale grey is a
+  well-established way of complying with the letter of a requirement and none of its
+  purpose — see [Contrast conformance](../accessibility/contrast-conformance.mdx).
+- **The text is at least the body text size** and scales with the rest of the page at 200%.
+  It never becomes a smaller class of type that Dynamic Type leaves behind.
+- **If an icon is present it is decorative** and never a warning triangle: the shape sets the
+  register before a word is read.
+- **The link, when present, names its destination** — *read our full statement*, not
+  *learn more*.
+- **Print** includes the note. A printed result that omits the product's own statement about
+  what it is misrepresents it.
+
+<KeyboardTable name="disclaimer-note" />
+
+<ContrastReport component="disclaimer-note" />
+
+## Related
+
+<RelatedComponents name="disclaimer-note" />
+
+**Easily confused with**
+
+- [Callout](./callout.mdx) — for information about the content. A disclaimer is about the
+  product.
+- [AlertBanner](./alert-banner.mdx) — a disclaimer is never an alert, and styling it as one
+  is the most common mistake with this component.
+- [ConsentSheet](./consent-sheet.mdx) — a request the reader answers, rather than a statement
+  they read.
+- [CareCard](./care-card.mdx) — an instruction with an author. A disclaimer asks for nothing.
+
+**Used by**
+
+- [Show a value against a reference range](../recipes/value-against-a-range.mdx)
+- [Results screen](../screens/results-screen.mdx)
+- [Consent flow](../screens/consent-flow.mdx)
+
+**Governed by**
+
+- [Regulatory context](../health/regulatory-context.mdx)
+- [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx)
+- [Safety review checklist](../health/safety-review-checklist.mdx)

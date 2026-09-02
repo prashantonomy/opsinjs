@@ -1,0 +1,118 @@
+---
+title: Vite
+description: The client-only install, and the source-scanning gotcha that bites hardest here.
+status: planned
+kind: guide
+since: unreleased
+owner: core
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 6m
+aliases: [vite install, vite react opsinjs]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+Vite is the simplest opsinjs target because there is no server/client boundary to
+reason about: everything is a client tree, so every component is available
+everywhere and no import can be in the wrong place. What you lose is server
+rendering, which for a health interface is a real cost — first paint is when
+someone sees their number.
+
+<Callout title="Nothing installs yet">
+  There is no published registry, so the commands below do not resolve today.
+  [Troubleshooting](../troubleshooting.mdx#nothing-is-published-yet).
+</Callout>
+
+Read [Next.js](./next.mdx) first if you have not: the CSS order rule stated there
+is the same rule here, and it is stated in full only once.
+
+## Set it up
+
+<Steps>
+
+### Start from a React + TypeScript Vite app with Tailwind v4
+
+Tailwind v4 in Vite is installed as a Vite plugin rather than a PostCSS step.
+Confirm Tailwind is generating classes before you add opsinjs — debugging both at
+once is unpleasant and unnecessary.
+
+### Make sure `@/` resolves
+
+The copied components use the `@/` alias. Vite does not provide one, so you need it
+in both places or imports will fail in one of them: `resolve.alias` in
+`vite.config.ts` and `paths` in `tsconfig.json`. They must agree.
+
+### Add the registry entry and a component
+
+```npm
+npx shadcn@latest add @opsinjs/status-pill
+```
+
+</Steps>
+
+## Get the CSS right
+
+```css title="src/index.css"
+@import "tailwindcss";
+@import "./opsinjs.css";
+
+@source "./components/opsinjs/**/*.{ts,tsx}";
+```
+
+Then import that stylesheet exactly once, at your entry point, before your
+application mounts.
+
+## Mind the source-scanning gotcha
+
+This is where Vite users lose the most time, and the reason is structural rather
+than accidental.
+
+In a framework with a convention-based directory layout, the default `@source`
+coverage usually happens to include wherever the CLI put your components. A Vite
+app has no such convention: people put components in `src/components`, `src/ui`,
+`src/lib/ui`, or wherever the project grew. If the directory you copied into is not
+covered, Tailwind generates none of the component's classes and you get a
+completely unstyled component with no error message anywhere.
+
+Two habits that prevent it:
+
+- **Declare the directory explicitly** rather than relying on a broad glob you
+  believe covers it. An explicit line is self-documenting when someone moves the
+  folder.
+- **Test the assumption directly.** Put an arbitrary utility class on a copied
+  component and see whether it takes effect. That distinguishes "Tailwind is not
+  scanning this file" from every other cause in one step.
+
+## Verify it worked
+
+1. **A copied component renders styled.** If not, it is the `@source` line.
+2. **Colours resolve through custom properties**, not literals.
+3. **`@/` imports resolve at build time and in your editor.** If one works and the
+   other does not, `vite.config.ts` and `tsconfig.json` disagree.
+4. **Adding `dark` to the root element inverts the theme** with no JavaScript.
+
+## Troubleshooting
+
+**Unstyled components.** The `@source` line, in almost every case. See above.
+
+**`Failed to resolve import "@/components/..."`.** The alias exists in one of
+`vite.config.ts` and `tsconfig.json` but not the other, or they point at different
+directories.
+
+**Styles work in development, break in the production build.** Development and
+production differ in what gets scanned and tree-shaken. Check the `@source`
+coverage against the built CSS rather than the dev server's.
+
+**You want server rendering.** Use a framework. Vite alone will not give you it,
+and retrofitting it later is more work than starting from
+[React Router](./react-router.mdx) or [Next.js](./next.mdx) now.
+
+## Next
+
+- [components.json](./components-json.mdx) — the aliases that have to agree with
+  your Vite config.
+- [Monorepo](./monorepo.mdx) — if the Vite app is one workspace among several.
+- [Quick start](../quick-start.mdx) — the first real screen.

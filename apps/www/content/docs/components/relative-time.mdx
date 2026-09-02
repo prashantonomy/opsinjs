@@ -1,0 +1,233 @@
+---
+title: RelativeTime
+description: When something happened, written the way people say it — "this morning", "3 days ago" — with the exact date always available and a clear signal when a reading is too old to rely on.
+status: planned
+kind: component
+since: "unreleased"
+category: health-formatting
+aliases: [ago, timestamp, last updated, freshness, staleness]
+governedBy: [uncertainty-and-staleness, numbers-units-precision]
+usedIn: [health-metric-card, daily-log-screen, trends-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="relative-time"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Where does the staleness threshold come from? It is clinical and differs by measurement, so the component cannot own a default.",
+    "Does the relative form ever stop being useful — is '14 months ago' worse than the date it replaces?",
+    "A relative time is wrong the moment it is rendered on a server. Is it computed on the client, refreshed on an interval, or both, and what does a screen reader hear when it changes?",
+    "Is the absolute date always visible, or available on demand — and does the answer change in print and in export?",
+  ]}
+/>
+
+Relative time is a small kindness that turns into a hazard at the edges. *Two days ago* is
+easier to act on than a date; *fourteen months ago* is not, and *this morning* attached to a
+reading from a different time zone is simply false.
+
+## Preview
+
+The preview will show the same timestamp at several ages, in both the fresh and stale
+treatments, with the absolute date affordance visible.
+
+<ComponentPreview name="relative-time" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail.
+
+<ComponentInstall name="relative-time" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Saying when a reading was measured, a result was issued, a dose was taken, or data last synced.",
+    "Any timestamp a reader will use to judge how much weight to give the thing it is attached to.",
+    "Lists of recent entries, where 'yesterday' and 'this morning' are read far faster than two dates.",
+  ]}
+  avoid={[
+    { case: "The date itself is the information — an appointment, a deadline, a date of birth.", instead: "value" },
+    { case: "The reader must act by a certain time and needs the actual date and time.", instead: "care-card" },
+    { case: "The event is far enough in the past that a relative phrase is less useful than the date.", instead: "value" },
+    { case: "You are showing a duration rather than a point in time.", instead: "value" },
+    { case: "The time is being entered rather than displayed.", instead: "field" },
+  ]}
+/>
+
+The third exclusion is a threshold the product must choose. Somewhere past a few weeks,
+relative time stops helping and starts obscuring; the component switches to the absolute date
+at a boundary the product sets, and it says which boundary it used.
+
+## Clinical meaning
+
+**What it asserts.** That the event it labels happened at that instant, and — through its
+staleness treatment — whether the product still considers the associated value current.
+
+**What it must never be read as.** Freshness of the data as a whole. *Updated 5 minutes ago*
+on a dashboard means the app synced five minutes ago; it does not mean the readings are five
+minutes old. Conflating the two is one of the most common and most consequential errors in
+health dashboards, and the component's labels must always name which event they refer to:
+*measured*, *recorded*, *received*, *synced*.
+
+**Which colour axis it may use.** Neither, in its ordinary form. The stale treatment is a
+muted, non-status typographic change accompanied by explicit words — never an amber tint,
+which would put a clinical status onto a fact about the clock.
+
+**Staleness is clinical and belongs to the product.** What counts as old differs completely
+by measurement: a weight from last week is current, a continuous glucose reading from twenty
+minutes ago may not be. RelativeTime therefore ships no default threshold. When a product
+supplies one and it is exceeded, the component says so in words as well as in style — *4
+months ago · may be out of date*. See
+[Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx).
+
+**Precision follows recency.** Minutes for the last hour, hours for the last day, days for
+the last fortnight, then dates. Announcing *2 hours and 14 minutes ago* implies a precision
+the reader neither needs nor believes.
+
+## Anatomy
+
+<Anatomy name="relative-time" />
+
+<CompositionTree name="relative-time" />
+
+**Prefix** names the event — *measured*, *synced*, *recorded* — and is not optional in health
+contexts, where a bare relative time is ambiguous about what it refers to. **Relative** is the
+human phrase. **Absolute** is the exact date and time, always reachable and always present in
+the accessibility tree. **Staleness** is the explicit note that appears past the threshold.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+RelativeTime                   root; renders a <time> element with a machine datetime
+├── RelativeTime.Prefix        which event this is: measured · recorded · synced
+├── RelativeTime.Relative      the human phrase, precision following recency
+├── RelativeTime.Absolute      exact date and time; always in the accessibility tree
+└── RelativeTime.Staleness     explicit words past the product's threshold
+```
+
+The root always renders a `time` element carrying a machine-readable datetime, so the exact
+instant survives copy, export and scraping even when the visible text is a phrase.
+
+## Proposed API
+
+<NotBuiltYet name="relative-time" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+/** Which event the time refers to. Required, because "3 days ago" alone is ambiguous. */
+export type TimeEvent = "measured" | "recorded" | "received" | "synced" | "issued"
+
+export interface RelativeTimeProps {
+  /** ISO 8601 with an offset. A timestamp with no offset is not a timestamp. */
+  at: string
+  /** Named, never inferred. This is the difference between a fact and a guess. */
+  event: TimeEvent
+  /**
+   * Hours after which the staleness treatment and its words appear. Supplied by
+   * the product because staleness is clinical. Omit it and there is no stale
+   * treatment at all.
+   */
+  staleAfterHours?: number
+  /**
+   * Days after which the absolute date replaces the relative phrase. Past this
+   * point "14 months ago" is less useful than the date it replaced.
+   */
+  absoluteAfterDays?: number
+  /** Show the absolute date alongside the phrase rather than behind an affordance. */
+  showAbsolute?: boolean
+  locale?: string
+}
+```
+
+## Content guidelines
+
+Always name the event. *Measured 3 days ago* is a fact; *3 days ago* is a fragment the reader
+completes with whichever assumption is most convenient.
+
+Use the words people use. *This morning*, *yesterday*, *last Tuesday* beat *8 hours ago* for
+anything within a day or two, because that is how people locate their own actions in time.
+Past a fortnight, use the date.
+
+Never write *just now* for anything the product cannot vouch for to the minute, and never
+write *up to date* — it is a judgement about the data, not a statement about the clock.
+
+<DoDont>
+  <DoDont.Do>
+    **"Measured this morning · 7:14 am"** Names the event, uses the human phrase, and keeps
+    the exact time in view where it costs nothing.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Updated 2 minutes ago"** above a reading taken four months ago. Both facts are true and
+    together they mislead completely.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **"Measured 4 months ago · may be out of date"** with a muted treatment.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"4 months ago"** in the same styling as *this morning*. The reader has to do the
+    arithmetic and the design has quietly declined to help.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **The absolute date and time are always in the accessibility tree**, not only on hover or
+  focus. A relative phrase alone is the least useful form for anyone who cannot see the
+  surrounding context.
+- **The announcement is a whole phrase**: *measured 3 days ago, on 14 September at 7:14 am*.
+- **Staleness is stated in words**, never carried by opacity or colour alone, so it survives
+  grayscale, increased contrast and print.
+- **The element does not announce itself when it ticks over.** A relative time that refreshes
+  on an interval must not be a live region; a reader would hear it interrupt for no reason.
+- **Hydration is safe.** Rendering a relative phrase on the server produces a value that is
+  already wrong on arrival; the component resolves this without a visible flash and without a
+  mismatch warning — see
+  [Server and client components](../handbook/server-and-client-components.mdx).
+- **Time zones are explicit.** The absolute form states the zone when it differs from the
+  reader's current one, because a reading *at 7:14 am* in another zone is not the reading they
+  remember taking.
+- **Print** renders the absolute date and time, plus the staleness note. A relative phrase on
+  paper is undated.
+
+<KeyboardTable name="relative-time" />
+
+<ContrastReport component="relative-time" />
+
+## Related
+
+<RelatedComponents name="relative-time" />
+
+**Easily confused with**
+
+- [Value](./value.mdx) — quantities rather than instants. They share their absence contract
+  and their formatting doctrine.
+- [MetricTile](./metric-tile.mdx) — embeds a RelativeTime, and depends on it to make
+  staleness visible at a glance.
+- [ResultCard](./result-card.mdx) — where the difference between *measured* and *received*
+  matters most, because both are usually available and only one is relevant.
+
+**Used by**
+
+- [Build a health metric card](../recipes/health-metric-card.mdx)
+- [Daily log screen](../screens/daily-log-screen.mdx)
+- [Trends screen](../screens/trends-screen.mdx)
+
+**Governed by**
+
+- [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx)
+- [Numbers, units and precision](../health/numbers-units-precision.mdx)
+- [Grammar and mechanics](../content/grammar-and-mechanics.mdx) — how dates and times are
+  written in surrounding prose.

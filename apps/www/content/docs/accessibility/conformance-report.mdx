@@ -1,0 +1,174 @@
+---
+title: Conformance report (VPAT/ACR)
+description: A complete WCAG 2.2 Level A and AA accessibility conformance report in which every criterion is honestly marked Not Evaluated.
+status: beta
+kind: accessibility
+full: true
+a11yDate: 2026-09-02
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+aliases: [vpat, acr, section 508, en 301 549]
+---
+
+<PageTemplate kind="accessibility" />
+
+## What we guarantee
+
+This is the artefact procurement asks for: an Accessibility Conformance Report,
+in the shape a VPAT produces, covering WCAG 2.2 at Levels A and AA.
+
+**Every row says *Not Evaluated*.** That is the honest state of a design system in
+which no component has been built and no evaluation has been performed. The table
+is published anyway, complete, for three reasons: it tells a reviewer exactly what
+will be reported when there is something to report; it makes the shape of the
+future claim auditable now; and an empty page would have let a reader assume the
+absence was an oversight rather than the finding.
+
+**Report date:** 2 September 2026.
+**Product:** opsinjs design system and documentation site.
+**Standard:** WCAG 2.2, Levels A and AA. WCAG 2.2 became a W3C Recommendation in
+October 2023; note that SC 4.1.1 Parsing was removed in it and therefore does not
+appear below.
+**Evaluation methods used:** none.
+**Evaluator:** none.
+
+<Callout>
+A conformance level is *not* claimed. Under the usual VPAT conventions a product
+may only claim a level when every criterion at that level is marked Supports or
+Not Applicable. Nothing here is marked either.
+</Callout>
+
+## What you own
+
+Your own report. This one covers the design system; it cannot be reused for a
+product built with it, because conformance is a property of what ships to the
+reader. When you write yours:
+
+- **Fill the remarks column, not the conformance column.** "Supports" with no
+  remark is unevaluable. A reviewer reads the remarks.
+- **Name the evaluation method and date per row group,** not once at the top.
+- **Report partial support as Partially Supports with the specific failure,** not
+  as Supports with a caveat elsewhere.
+- **Do not copy this table's verdicts.** They are all *Not Evaluated* and copying
+  them into a product report would be false in the other direction.
+
+## How to check
+
+<Steps>
+
+### Read the remarks column first
+
+The conformance column of any ACR is marketing until the remarks make it
+falsifiable. In this report every remark says why nothing could be evaluated and
+points at the page that will carry the evidence.
+
+### Check the criterion count
+
+WCAG 2.2 Level A and AA together have 55 success criteria, once 4.1.1 Parsing is
+removed. A report with fewer rows has dropped something.
+
+### Check for the 2.2 additions
+
+SC 2.4.11, 2.5.7, 2.5.8, 3.2.6, 3.3.7 and 3.3.8 are the criteria added in WCAG
+2.2. A report that omits them is a WCAG 2.1 report wearing a 2.2 label.
+
+### Ask for the underlying evidence
+
+For any row that says Supports, ask what was tested, with what, by whom and when.
+If that cannot be answered, the row is unsupported.
+
+</Steps>
+
+## Measured results
+
+### WCAG 2.2 Level A
+
+| Criterion | Conformance | Remarks |
+| --- | --- | --- |
+| 1.1.1 Non-text Content | Not Evaluated | No component renders non-text content yet. Authoring rules on [Alt text and descriptions](../content/alt-text-and-descriptions.mdx). |
+| 1.2.1 Audio-only and Video-only (Prerecorded) | Not Evaluated | No media in the system or the docs. |
+| 1.2.2 Captions (Prerecorded) | Not Evaluated | No media. |
+| 1.2.3 Audio Description or Media Alternative | Not Evaluated | No media. |
+| 1.3.1 Info and Relationships | Not Evaluated | Component semantics are specified only. |
+| 1.3.2 Meaningful Sequence | Not Evaluated | DOM order is a product responsibility; see [For developers](./for-developers.mdx). |
+| 1.3.3 Sensory Characteristics | Not Evaluated | Copy rules exist; nothing renders them. |
+| 1.4.1 Use of Color | Not Evaluated | The rule is specified and unenforced; see [Colour independence](./colour-independence.mdx). |
+| 1.4.2 Audio Control | Not Evaluated | No audio. |
+| 2.1.1 Keyboard | Not Evaluated | Contract published on [Keyboard and focus](./keyboard-and-focus.mdx); no implementation. |
+| 2.1.2 No Keyboard Trap | Not Evaluated | No interactive component exists. |
+| 2.1.4 Character Key Shortcuts | Not Evaluated | The docs site disables its single-key search hotkey; untested. |
+| 2.2.1 Timing Adjustable | Not Evaluated | No component introduces a time limit by design. |
+| 2.2.2 Pause, Stop, Hide | Not Evaluated | No auto-updating or moving content exists. |
+| 2.3.1 Three Flashes or Below Threshold | Not Evaluated | No flashing content exists. |
+| 2.4.1 Bypass Blocks | Not Evaluated | No skip link is shipped; see [This site's accessibility](./this-site.mdx). |
+| 2.4.2 Page Titled | Not Evaluated | Docs titles come from frontmatter; unverified. |
+| 2.4.3 Focus Order | Not Evaluated | Specified; no implementation. |
+| 2.4.4 Link Purpose (In Context) | Not Evaluated | Authoring rule on [For content](./for-content.mdx). |
+| 2.5.1 Pointer Gestures | Not Evaluated | No gesture-driven component exists. |
+| 2.5.2 Pointer Cancellation | Not Evaluated | Inherited from the primitive layer; untested. |
+| 2.5.3 Label in Name | Not Evaluated | No labelled control exists. |
+| 2.5.4 Motion Actuation | Not Evaluated | Nothing is actuated by device motion. |
+| 3.1.1 Language of Page | Not Evaluated | The docs root layout sets a language; the 404 route's language handling is a known concern. |
+| 3.2.1 On Focus | Not Evaluated | No implementation. |
+| 3.2.2 On Input | Not Evaluated | No implementation. |
+| 3.2.6 Consistent Help | Not Evaluated | New in WCAG 2.2. No help mechanism is shipped. |
+| 3.3.1 Error Identification | Not Evaluated | Copy rules on [Error and empty messages](../content/error-and-empty-messages.mdx); no implementation. |
+| 3.3.2 Labels or Instructions | Not Evaluated | No form component exists. |
+| 3.3.7 Redundant Entry | Not Evaluated | New in WCAG 2.2. Treated as a design floor; unimplemented. |
+| 4.1.2 Name, Role, Value | Not Evaluated | Depends on the primitive layer; untested here. |
+
+### WCAG 2.2 Level AA
+
+| Criterion | Conformance | Remarks |
+| --- | --- | --- |
+| 1.2.4 Captions (Live) | Not Evaluated | No live media. |
+| 1.2.5 Audio Description (Prerecorded) | Not Evaluated | No media. |
+| 1.3.4 Orientation | Not Evaluated | Nothing locks orientation; untested. |
+| 1.3.5 Identify Input Purpose | Not Evaluated | Guidance on [Ask users for…](../patterns/ask-users-for/index.mdx); no implementation. |
+| 1.4.3 Contrast (Minimum) | Not Evaluated | Token pairs are measurable and are the one area with a generator; see [Contrast conformance](./contrast-conformance.mdx). Not yet run against a rendered product. |
+| 1.4.4 Resize Text | Not Evaluated | Mechanism exists in `app/product.css`; nothing has been tested at 200%. |
+| 1.4.5 Images of Text | Not Evaluated | No images of text are used. |
+| 1.4.10 Reflow | Not Evaluated | Layout system is built for it; untested. |
+| 1.4.11 Non-text Contrast | Not Evaluated | Boundary and graphic tokens are measured; compositions are not. |
+| 1.4.12 Text Spacing | Not Evaluated | Explicitly unaddressed; see [Text resizing and zoom](./text-resizing-and-zoom.mdx). |
+| 1.4.13 Content on Hover or Focus | Not Evaluated | No hover-revealed content exists. |
+| 2.4.5 Multiple Ways | Not Evaluated | The docs site has search, a sidebar and a jump rail; untested. |
+| 2.4.6 Headings and Labels | Not Evaluated | Heading outlines are build-enforced in the docs; unverified against the criterion. |
+| 2.4.7 Focus Visible | Not Evaluated | Focus token specified; no implementation. |
+| 2.4.11 Focus Not Obscured (Minimum) | Not Evaluated | New in WCAG 2.2. Named as the sticky-chrome risk on [Keyboard and focus](./keyboard-and-focus.mdx). |
+| 2.5.7 Dragging Movements | Not Evaluated | New in WCAG 2.2. No draggable component exists; `slider` is deliberately in the considered roster. |
+| 2.5.8 Target Size (Minimum) | Not Evaluated | New in WCAG 2.2. A 44 px floor is specified — above the 24 px minimum — but nothing renders it. |
+| 3.1.2 Language of Parts | Not Evaluated | No multilingual content. |
+| 3.2.3 Consistent Navigation | Not Evaluated | One persistent sidebar by design; untested. |
+| 3.2.4 Consistent Identification | Not Evaluated | Naming conventions are published; unenforced. |
+| 3.3.3 Error Suggestion | Not Evaluated | Copy rules exist; no implementation. |
+| 3.3.4 Error Prevention (Legal, Financial, Data) | Not Evaluated | Consent and disclosure guidance exists; no implementation. |
+| 3.3.8 Accessible Authentication (Minimum) | Not Evaluated | New in WCAG 2.2. Authentication is out of scope for this system. |
+| 4.1.3 Status Messages | Not Evaluated | The announcement contract is specified on [Screen readers](./screen-readers.mdx) and unimplemented. |
+
+<NoDataYet script="scripts/run-evals.mts" />
+
+## Known gaps
+
+- **The entire report is a gap.** Nothing has been evaluated.
+- **Level AAA is not reported at all,** even though the system adopts the AAA
+  target-size figure from SC 2.5.5 as its floor. Adopting one AAA criterion is not
+  a AAA claim.
+- **EN 301 549 and Section 508 mappings are not included.** Both map largely onto
+  WCAG 2.x, but the non-web and functional-performance clauses of EN 301 549 are
+  not addressed here.
+- **There is no machine-readable form of this report.** It should be emitted as
+  JSON alongside the other generated artefacts, and it is not.
+
+<Todo>
+Emit this report from a data file rather than authoring the table by hand, so
+that a criterion cannot be dropped silently and so that a machine-readable
+version is available at `/r`.
+</Todo>
+
+## Updates to this page
+
+<Reviewed />
+
+<LastUpdated />

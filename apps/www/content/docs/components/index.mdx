@@ -1,0 +1,76 @@
+---
+title: Components
+description: Every component opsinjs has specified, every component it has deliberately not specified yet, and the status of each — so nobody has to guess whether something exists.
+status: stable
+kind: reference
+since: "unreleased"
+icon: Boxes
+---
+
+<PageTemplate kind="reference" />
+
+**Nothing in this section is implemented.** opsinjs is a specification today. Twenty-four
+components have a written contract — what they are for, the cases they refuse, the
+clinical meaning they carry, a proposed API and the accessibility bar the implementation
+must clear — and not one of them has code behind it. Every component page says so in
+prose, in a badge, and in a machine-readable marker, at a URL you can guess from the
+component name.
+
+That is what this page is for. The failure it exists to prevent is an agent, or a
+developer in a hurry, inferring an API from a plausible name and shipping it into a
+product that shows people their own health data. A definitive *specified, not built* at
+`components/range-bar` is worth more than a 404, and far more than an invented answer.
+
+<SectionProgress />
+
+Two rosters, one table. **Shipped** ids have a written specification and a page.
+**Considered** ids are recorded in the catalogue with a category and a reason, and have no
+page until someone writes the specification — they are held here rather than in a private
+backlog so that a question about `toast` or `body-map` gets a real answer instead of
+silence. Filter by category or status, or search the synonyms: `normal range`, `kpi`,
+`gauge`, `not medical advice`, `ago`.
+
+<StatusMatrix rosters={["shipped", "considered"]} />
+
+**Status is a promise about change, not a quality score.** `planned` means the
+specification is public and the API may still move without a deprecation cycle.
+`considered` means even the specification is unwritten. The full ladder — what each phase
+promises about semver, accessibility and the registry — is on
+[Release phases](../project/release-phases.mdx).
+
+**Category does two jobs.** It groups the sidebar, and it is load-bearing: any category
+beginning with `health-` makes the **Clinical meaning** section and the `governedBy`
+frontmatter mandatory, and the build fails without them. It makes their absence mandatory
+elsewhere too, so [Button](./button.mdx) cannot acquire a clinical meaning by accident.
+
+**Aliases are search synonyms**, unique across the whole corpus, because the person
+searching does not know our vocabulary. Someone typing *normal range* wants
+[RangeBar](./range-bar.mdx), and the first thing that page tells them is that
+[normal is a banned word](../health/reference-ranges.mdx), and why.
+
+**Governed by links a component to the doctrine that constrains it.** Doctrine is written
+once in [Health](../health/index.mdx) and referenced from every component that must obey
+it, in both directions, so a rule cannot quietly end up applying to nothing.
+
+If you are choosing a component, the decision table in
+[Choose a component](../recipes/choose-a-component.mdx) maps the shape of your data to the
+component that displays it — faster than reading twenty-four pages. If you are writing or
+reviewing one of these pages, read
+[Anatomy of a component page](./anatomy-of-a-component-page.mdx); it publishes the
+22-section contract once so you fill in a template instead of inventing a structure. If
+you are here to judge whether opsinjs is worth building on, read
+[RangeBar](./range-bar.mdx): it carries the most detailed clinical contract in the set and
+it is the component the rest of the system is arranged around.
+
+## How this is generated
+
+The table above is not hand-maintained. Both rosters come from `registry/catalogue.ts`,
+the single declaration of every component id, its category, its status and its alias
+namespace. `scripts/build-registry.mts` reads it and writes `lib/generated/catalogue.json`
+and `public/r/index.json`; `<StatusMatrix>` renders that JSON and `<SectionProgress>`
+counts it.
+
+Nothing here is typed twice. If a row is wrong the catalogue is wrong, and editing this
+page cannot fix it. `scripts/assert-ia.mts` fails the build when a catalogue id is missing
+the page it should have, when a page claims an id the catalogue does not know, or when two
+pages claim the same alias.

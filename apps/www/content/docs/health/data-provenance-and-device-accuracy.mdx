@@ -1,0 +1,188 @@
+---
+title: Data provenance and device accuracy
+description: Who measured this, with what, how, and when — and the strict limit on what an interface may assert about a number whose origin it cannot vouch for.
+status: stable
+kind: health
+evidence: opinion
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+owner: design-system
+implements: [source-citation, disclaimer-note, relative-time, value, result-card, metric-tile]
+aliases: [provenance, device accuracy, who measured, wearable, source of data, self-reported]
+---
+
+<PageTemplate kind="health" />
+
+## What this means
+
+A dashboard shows four tiles. Blood pressure, heart rate, sleep and weight. They
+look identical: same card, same typography, same authority.
+
+Behind them: the blood pressure came from a validated upper-arm cuff. The heart
+rate is a wrist optical estimate, which is good at rest and much less good during
+movement. The sleep figure is a model's inference from movement and heart rate,
+not a measurement of sleep at all. The weight was typed in by the user, from
+memory, last Thursday.
+
+Four completely different epistemic objects, rendered as one kind of thing. The
+reader has no way to know that one of these numbers is a measurement and another
+is a guess made by an algorithm about a process it cannot observe, and the
+interface has quietly conferred the credibility of the first onto the fourth.
+
+Provenance is not metadata. It is the part of the value that says how much weight
+to put on it, and dropping it is a category error rather than an omission.
+
+## The rule
+
+**Every health value carries its provenance, and what the interface may assert
+about a value is bounded by that provenance.**
+
+**Four provenance classes**, in descending order of what the interface may claim:
+
+| Class | Example | The interface may |
+| --- | --- | --- |
+| **Clinically measured** | Laboratory result, clinic-measured blood pressure | Compare against an attributed reference range; carry a status |
+| **Device measured** | Validated home cuff, glucose meter, scale | Compare against a range where the device's method supports it; carry a status where a clinical rule says so |
+| **Device estimated** | Optical heart rate in motion, sleep stages, energy expenditure | Show as an estimate, show trends; **never** carry a clinical status on its own |
+| **Self-reported** | Typed weight, symptom rating, remembered dose | Record and display as reported; never present as measured |
+
+**Rules:**
+
+1. **Provenance is recorded at capture and travels with the value.** It cannot be
+   reconstructed later and it cannot be defaulted.
+2. **Provenance is visible to the reader**, in the place the number is, in plain
+   words: "from your cuff", "estimated by your watch", "you entered this".
+3. **A value's status is bounded by its class.** An estimated value may not
+   escalate on its own. It may prompt a measurement: "Your watch noticed
+   something unusual — take a reading with your cuff."
+4. **Never mix classes in one figure without saying so.** A weekly average
+   combining two measured and five self-reported readings is a different object
+   from an average of seven measurements.
+5. **Name the device, not the brand's marketing.** "Your Model X cuff" is
+   provenance; "clinically validated technology" is advertising.
+6. **Do not restate a manufacturer's accuracy claim as your own.** If you cite
+   one, attribute it and link it. Never paraphrase it into a stronger claim, and
+   never invent a figure.
+7. **Say what a device does not do.** A wrist sensor does not measure blood
+   pressure; a movement-based sleep model does not measure sleep stages. Naming
+   the limitation once, where the number appears, prevents a great deal of
+   misplaced trust.
+8. **A model output is labelled as a model output**, with what it takes as input.
+   See [Risk and statistics](./risk-and-statistics.mdx).
+9. **Self-reported data is never silently corrected.** Question implausible
+   entries; do not overwrite them.
+10. **Exports carry provenance.** A clinician receiving a summary needs to know
+    which numbers are measurements. See
+    [Sharing with a clinician](../patterns/sharing-with-a-clinician.mdx).
+
+<SafetyCallout severity="attention" evidence="opinion">
+  Rule 3 is the one with teeth. The most common serious provenance failure in
+  consumer health products is an estimated value driving an alert — a wrist
+  sensor's reading during exercise raising a cardiac alarm, or a movement-based
+  sleep model triggering advice. The estimate is not wrong; it is being asked a
+  question it cannot answer.
+</SafetyCallout>
+
+## Why (evidence)
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  Opinion, and deliberately unquantified.
+
+  We could fill this page with device accuracy figures. We will not, for two
+  reasons. First, accuracy is method-specific and condition-specific: a sensor
+  that performs well at rest on one skin tone and one wrist position may perform
+  materially worse under other conditions, and a single headline figure hides
+  exactly the variation that matters. Second, published figures date quickly and
+  a stale number copied from a design system into a product is a provenance
+  failure of our own. Any accuracy claim in your product should come from the
+  manufacturer's current documentation or from a study you have read, attributed
+  in place.
+
+  The four-class model is ours. It is coarse on purpose: a finer taxonomy would be
+  more accurate and would not survive contact with a product team. Four classes
+  can be assigned correctly by someone who is not an expert, which is the property
+  we optimised for.
+
+  The equity dimension is real and worth stating even though we cite nothing for
+  it here: optical sensing depends on light interacting with skin, and performance
+  differences across skin tones have been discussed extensively in both the
+  research literature and the regulatory conversation. If your product relies on
+  optical measurement, that is a question to ask your supplier explicitly, and a
+  reason to prefer rule 7's honesty about limits.
+
+  What would change our mind: nothing structural. We would happily add a fifth
+  class for clinician-entered-but-not-measured data if products needed it.
+</ResearchNote>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    "128/82 mmHg — from your cuff, this morning at 07:40." Class, device and time
+    in the same breath as the value.
+  </DoDont.Do>
+  <DoDont.Dont>
+    "128/82 mmHg" with the source visible only by tapping through to a detail
+    screen. Nobody taps through to check where a number came from.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "Your watch estimated 7 hours of sleep. It works this out from movement and
+    heart rate, so it is a good guide rather than an exact measure."
+  </DoDont.Do>
+  <DoDont.Dont>
+    "You had 1 h 12 m of deep sleep." Presented as a measurement, to the minute,
+    of something the device infers.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "Your watch noticed a high reading during exercise. Optical readings are less
+    reliable when you are moving — take a reading at rest to check."
+  </DoDont.Do>
+  <DoDont.Dont>
+    Raise an `urgent` cardiac alert from a wrist optical reading taken mid-run.
+    Correct data, impossible question, frightened user.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "You entered this on 3 March." Self-reported, dated, and clearly not claimed
+    as a measurement.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Style a typed weight identically to a scale reading. The interface has
+    laundered a recollection into a measurement.
+  </DoDont.Dont>
+</DoDont>
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+`source-citation` exists in the catalogue as a considered component specifically
+for this job: an attributed, dated, linkable statement of where a number or a
+claim came from, usable next to a value and inside a longer explanation. It is
+not yet specified in full.
+
+## What this does not cover
+
+- **Device accuracy figures.** None are published here, by design.
+- **Device selection, procurement or regulatory clearance**, which are product
+  decisions well outside a design system.
+- **Data provenance in the technical sense** — lineage, audit trails,
+  reproducibility. This page is about what the reader is told.
+- **Interoperability standards.** Mapping to a clinical data standard is your
+  data layer's problem; the four classes above are a presentation model, not a
+  schema.
+- **Freshness and staleness**, which are
+  [Uncertainty, staleness and missing data](./uncertainty-and-staleness.mdx).
+
+## Updates to this page
+
+<Reviewed />

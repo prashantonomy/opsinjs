@@ -1,0 +1,214 @@
+---
+title: Performance budget
+description: At most three composited surfaces on screen at once, why a blurred backdrop costs what it costs, and how to measure it on the phone your readers actually own.
+status: stable
+kind: foundation
+aliases: [compositing budget, backdrop-filter cost, jank, mid-range android, scroll performance, three surfaces]
+owner: engineering
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 6m
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+Translucent materials are not free, and their cost is paid in exactly the place
+a health product can least afford it: the frame rate of a scroll on a
+mid-priced Android phone that is three years old and has 40% battery.
+
+The budget is one number:
+
+> **At most three composited surfaces visible at once.**
+
+Three is not a round number picked for tidiness. It is what the worst legitimate
+screen in the system needs: a `bar` at the top, a `scrim` over the content, and
+an `overlay` above the scrim. Anything beyond that is a screen that has acquired
+translucency it did not design for.
+
+The thing this is most often confused with is *bundle size*. They are unrelated
+costs with unrelated fixes;
+[Performance and bundle size](../../handbook/performance-and-bundle-size.mdx)
+covers the other one.
+
+## How it works
+
+### What a backdrop filter actually costs
+
+An element with `backdrop-filter` forces three things the compositor would
+otherwise not do:
+
+1. **Its own compositing layer.** The element is promoted, which costs GPU
+   memory proportional to its area at device pixel ratio. A full-width bar on a
+   3× phone is a surprisingly large texture.
+2. **A readback of what is behind it.** The compositor has to snapshot the
+   region of the backdrop under the element before it can filter it. That
+   snapshot is the expensive part, and it is why `backdrop-filter` costs
+   substantially more than `filter` on the same element.
+3. **A blur pass whose cost scales with area and radius.** Gaussian blur is
+   separable, so the cost is roughly linear in radius rather than quadratic, but
+   it is multiplied by the area every time.
+
+And then the important part: **all three repeat on any frame in which the
+backdrop changes.** For a sticky bar with content scrolling under it, that is
+every frame of every scroll — the single most common interaction in a list-based
+health app, and the one where a dropped frame is most visible.
+
+### Why the number is three
+
+| Surfaces | Typical screen | Verdict |
+| --- | --- | --- |
+| 0 | a list of readings on `ground` and `panel` | the common case; costs nothing |
+| 1 | the same list with a sticky `bar` | fine |
+| 2 | a bottom sheet over a `scrim`, no bar | fine |
+| 3 | a `bar`, a `scrim` and an `overlay` | the designed worst case |
+| 4+ | a list of translucent cards, or a nested blur | over budget |
+
+The step from 3 to 4 is almost always caused by one of two mistakes: giving a
+*repeating* element a translucent rung, or nesting one translucent rung inside
+another. Both are already banned by
+[Choosing a layer](./choosing-a-layer.mdx) rule N1 — the budget is what happens
+when the rule is broken, not a second rule.
+
+Note that a full-screen `overlay` counts as one surface but is the size of the
+viewport, so three surfaces of which one is full-screen is materially more
+expensive than three small ones. The budget counts surfaces because that is a
+number a designer can hold; area is the thing that actually costs, and if you are
+near the limit it is the number to check.
+
+### Five rules that keep you inside it
+
+**1. A repeating element never gets a translucent rung.** Ten translucent cards
+in a list is ten readbacks and ten blur passes, every frame, while the list is
+moving. Cards are `panel` or `raised`.
+
+**2. Never nest translucent rungs.** Two blurs stacked is two readbacks where the
+second reads the output of the first, which also serialises them.
+
+**3. Do not set `will-change: backdrop-filter`.** It permanently promotes the
+layer and holds its memory for the whole lifetime of the element, including the
+95% of the time the element is idle. `will-change` is for an animation that is
+about to start, and a bar is never about to start.
+
+**4. Never animate the blur radius.** Every frame is a full re-filter at a new
+radius, and there is no cheap path. Animate `opacity` on the surface instead —
+it is compositor-only and the visual result is close enough that nobody has ever
+noticed the difference in a usability session.
+
+**5. Keep radii modest.** Beyond roughly the low twenties of CSS pixels the
+visual difference between one blur and a larger one is very hard to see, while
+the cost keeps climbing. The ladder's radii are chosen at the point where the
+curve flattens.
+
+## Using it
+
+### How to measure it, reproducibly
+
+Performance claims without a device, a browser build and a date are not
+measurements. This is the procedure the budget is defined against.
+
+<Steps>
+
+### Use a real mid-range phone
+
+Not a flagship, not an emulator, not a desktop with CPU throttling. The path
+under test is the GPU compositor, and CPU throttling does not simulate a weaker
+GPU or slower memory bandwidth. A mid-priced Android handset of the last three
+years is the target; if your product's analytics name a specific popular device,
+use that one.
+
+### Build for production
+
+A development build's extra work will dominate the trace and hide the thing you
+are looking for.
+
+### Record a fling scroll with the surfaces present
+
+Chrome DevTools → remote debugging → Performance panel. Record five seconds of a
+hard fling scroll on the screen with the most composited surfaces — usually a
+long list with the sticky bar pinned.
+
+### Read frames, not totals
+
+The metric is the frame timeline, not total scripting time. What matters is
+whether any frame exceeded the device's frame budget during the fling, and how
+many did. A screen that averages well and drops four frames at the start of every
+scroll feels broken; a screen with a slightly higher average and no drops does
+not.
+
+### Count the layers you actually created
+
+Rendering panel → *Layer borders* and *Paint flashing*. Compare what you see with
+what you intended. This is where a fourth composited surface nobody designed
+usually shows up.
+
+### Confirm on the compositor thread if it is ambiguous
+
+If the Performance panel does not make the cause obvious, a Perfetto or
+`chrome://tracing` capture will show whether time is going into the readback,
+the filter or elsewhere.
+
+### Record the device, the build and the date with the number
+
+A figure without those three cannot be compared to the next one, which makes it
+useless for exactly the purpose you took it for.
+
+</Steps>
+
+### What to do when you are over budget
+
+In order of how much they help and how little they cost:
+
+1. Move a repeating element off a translucent rung. This is the fix in the large
+   majority of real cases.
+2. Reduce the *area* of the translucent surface before reducing its radius. A bar
+   that is 56px tall costs a fraction of one that is 160px tall.
+3. Make the surface opaque while it is moving and translucent when it settles,
+   if the design can absorb it. This is a real technique and it is honest —
+   nobody is reading the backdrop through a bar during a fling.
+4. Drop the rung. A `bar` that becomes a `panel` costs nothing and loses one
+   visual affordance.
+
+Do not reach for lowering the alpha. That is the one dimension of a material
+that is not available for tuning — see
+[The contrast floor](./the-contrast-floor.mdx).
+
+## Tokens
+
+<TokenTable scope="material" />
+
+## Accessibility impact
+
+Performance is an accessibility property, and in this system it is a *safety*
+property too.
+
+- **A dropped frame during a scroll is a reading failure.** A reader scanning a
+  list of readings on a stuttering screen misreads or re-reads. The people most
+  affected are the ones on the cheapest hardware, which in a consumer health
+  product correlates with the people who most need the product to work.
+- **Motion sensitivity and jank interact.** Irregular, stuttering motion is
+  reported as more uncomfortable than smooth motion at the same speed. A screen
+  that respects `prefers-reduced-motion` and then janks has not helped.
+- **Reduced transparency is also a performance path.** A reader who has turned
+  transparency off gets zero composited surfaces, and their device gets the
+  cheapest rendering path in the system. That is a happy accident of the
+  fallback, and it is a reason to make sure the opaque path is genuinely
+  first-class rather than a degradation.
+
+<Todo>
+  Stand up a device-lab measurement and publish real frame-time figures per rung
+  and per surface count, with the device, the browser build and the date next to
+  each. Until that exists, the budget of three is an engineering judgement drawn
+  from the cost model above, and this page does not pretend otherwise — there is
+  no measured millisecond figure anywhere on it.
+</Todo>
+
+## Related
+
+- [Choosing a layer](./choosing-a-layer.mdx) — rule N1, which is what keeps the
+  surface count inside the budget in the first place.
+- [The ladder](./the-ladder.mdx) — the radii, and why they stop where they stop.
+- [Performance and bundle size](../../handbook/performance-and-bundle-size.mdx)
+  — the other performance budget, which is about JavaScript rather than pixels.

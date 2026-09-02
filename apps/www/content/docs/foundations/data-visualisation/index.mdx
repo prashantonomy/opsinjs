@@ -1,0 +1,144 @@
+---
+title: Data visualisation
+description: Charts treated as three things at once — a foundation with rules, a component family, and an accessibility surface that fails more often than any other.
+status: planned
+kind: foundation
+icon: ChartLine
+aliases: [charts, graphs, visualisation]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+A chart in a consumer health product is not a chart in an analytics dashboard.
+The reader is not exploring; they are asking one question — *is this getting
+better or worse?* — and they will answer it from the shape of the line in about a
+second, whether or not the axis supports that reading.
+
+That makes a chart the highest-leverage surface in the system for
+misinterpretation, and it is why data visualisation is a foundation here rather
+than a component's implementation detail. Three rules carry most of the weight,
+and each has its own page:
+
+- **Category colours are not chart colours.** The identity palette and the status
+  palette are both unavailable to a chart series. [Chart colour](chart-colour.mdx).
+- **Never truncate a health y-axis to make a change look bigger.** The axis is
+  chosen once per metric and held. [Chart anatomy](chart-anatomy.mdx).
+- **Every chart ships a table twin.** The same data, in a real table, reachable
+  by everyone. [Accessible charts](accessible-charts.mdx).
+
+<NotBuiltYet />
+
+The components these rules will govern — `TrendSparkline`, `RangeBar` and
+`ScoreDial` — are specified and not built. These pages are the contract they will
+have to satisfy, written first on purpose: a chart component built before its
+axis rules exist will encode the wrong ones.
+
+## How it works
+
+Data visualisation sits across three parts of this site and it is worth knowing
+which is which.
+
+**As a foundation**, it is the rules on these four pages: what colour a mark may
+be, what an axis may do, what must accompany a chart, and what a chart is not
+allowed to imply. These are decisions taken once, and they bind every chart in
+every product built on opsinjs.
+
+**As a component family**, it is [TrendSparkline](../../components/trend-sparkline.mdx)
+for change over time, [RangeBar](../../components/range-bar.mdx) for one value
+against a reference range, and [ScoreDial](../../components/score-dial.mdx) for a
+composite score. That list is deliberately short. opsinjs is not a charting
+library and will not become one; a product that needs a full plotting toolkit
+should reach for one and apply these rules to it.
+
+**As an accessibility surface**, it is the place a design system most reliably
+fails. A chart is an image made of numbers, and the numbers are usually available
+only to somebody who can see the image. The table twin is the answer, and it is
+mandatory rather than encouraged.
+
+**One idea underlies all three.** A chart makes a claim, and the claim is not the
+data — it is *the shape*. Two identical datasets drawn on different axes make
+opposite claims. So the design question is never "does this look good"; it is
+"what is a worried person going to conclude from this in one second, and is that
+true?"
+
+## Using it
+
+**Ask whether a chart is the right answer at all.** For a single reading against
+a range, a [RangeBar](../../components/range-bar.mdx) says more than a line chart
+with one point. For "is this better than last time", two numbers and a labelled
+difference are clearer than a sparkline, and much harder to misread. A chart
+earns its place when the *shape* of several values is the information.
+
+**Do not draw a trend from too few points.** A line through three readings taken
+in one week is a picture of noise, and it will be read as a direction. The
+minimum window before a trend may be drawn at all is a clinical decision and it
+lives on [Trends and change](../../health/trends-and-change.mdx).
+
+**Separate direction from valence.** A line going up is not good news or bad news
+until something says which. Rising steps and rising blood pressure point the same
+way on a chart and mean opposite things, and the chart itself must not decide —
+that is the status axis's job, expressed in words beside the chart.
+
+<DoDont>
+  <DoDont.Do>
+    A sparkline of the last fourteen readings with the latest value labelled
+    directly, a neutral reference band, and a sentence underneath saying what
+    changed and over what period.
+  </DoDont.Do>
+  <DoDont.Dont>
+    The same sparkline drawn in the urgent status colour because the latest
+    reading is high. The whole fortnight is now coloured by one day, the colour
+    means "series" and "severity" simultaneously, and both axes have been mixed
+    in a single mark.
+  </DoDont.Dont>
+</DoDont>
+
+**Label directly; avoid legends.** A legend makes the reader hold a colour-to-name
+mapping in their head while reading the shape. Direct labels do not, they survive
+greyscale, and they force the honest question of how many series a chart can
+carry — which is fewer than most charts carry.
+
+**Never animate a chart into existence slowly.** A draw-on animation delays the
+answer and, for a reader who arrives mid-animation, shows a shape that is not the
+data. The rules are on [Using motion](../motion/using-motion.mdx).
+
+## Tokens
+
+Data visualisation consumes the chart ramp, the neutral roles for axes and
+gridlines, and the space scale. The chart ramp is generated from
+`tokens/color.json` by `scripts/build-tokens.mts` and is deliberately separate
+from both the category and status ramps — see [Chart colour](chart-colour.mdx).
+
+<NoDataYet script="scripts/build-tokens.mts" />
+
+## Accessibility impact
+
+- **A chart with no table twin is inaccessible to a substantial group of
+  readers**, and no amount of alt text fixes it, because the useful content is
+  the numbers rather than a description of a picture. The requirement, the
+  markup and the summary sentence are on
+  [Accessible charts](accessible-charts.mdx).
+- **Series must be distinguishable without colour.** Direct labels, dash
+  patterns and marker shapes, verified under the CVD audit on
+  [Colour independence](../../accessibility/colour-independence.mdx).
+- **Thin marks need more contrast than text**, not less. A one-pixel line at a
+  low contrast is invisible on a phone in daylight even to readers with typical
+  vision. Non-text contrast is measured for every chart mark against its
+  background.
+- **Interactive charts must be keyboard reachable**, point by point, with the
+  same values announced that a hover would reveal. A tooltip reachable only by
+  pointer is a chart that hides its data from everybody else.
+- **Charts must survive the reader's text size.** Axis labels grow; a chart that
+  assumes a fixed label width overlaps its own axis at 1.3×.
+
+## Related
+
+- [Trends and change](../../health/trends-and-change.mdx) — the clinical doctrine
+  on when a change may be drawn at all, and how direction and valence separate.
+- [Chart colour](chart-colour.mdx) — why neither existing palette may be used
+  here.
+- [Accessible charts](accessible-charts.mdx) — the table twin, the summary
+  sentence and the markup contract.

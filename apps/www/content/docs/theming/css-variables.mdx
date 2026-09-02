@@ -1,0 +1,191 @@
+---
+title: CSS variables
+description: Consuming opsinjs tokens as raw custom properties, with no Tailwind, no build step and no React.
+status: stable
+kind: guide
+aliases: [custom properties, vanilla css, without tailwind, css-in-js tokens]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+Everything opsinjs styles is driven by CSS custom properties. Tailwind is how
+this repository *consumes* them; it is not how they are *defined*. That means a
+project using vanilla CSS, CSS Modules, Sass, Lightning CSS or a
+CSS-in-JS runtime can use the token system without adopting Tailwind at all, and
+without giving up dark mode, the Display-P3 escalation or the reduced-motion
+degradation — because all three are expressed as plain CSS.
+
+What you give up is the utility classes. That is the whole difference.
+
+## Get the variables
+
+Three ways, in increasing order of how much of opsinjs you are taking on.
+
+**Copy the generated file.** `app/tokens.generated.css` is a single stylesheet
+of custom-property declarations under `:root`, `.dark`, and the three preference
+media queries. It has no imports and no Tailwind syntax in it. Vendor it, import
+it first, and you have the whole ramp system.
+
+**Fetch a theme registry item.** `/r/themes/opsinjs-default.json` returns the
+role tokens as JSON under `cssVars.light` and `cssVars.dark`, which is the
+convenient form if you are generating CSS from a build script or feeding a
+CSS-in-JS theme object. See
+[registry-item.json](../registry/registry-item-json.mdx).
+
+**Install with the CLI.** `npx shadcn@latest add @opsinjs/opsinjs-default` writes
+the block into whichever stylesheet your `components.json` names. This works
+even in a project that has no Tailwind, because the item contains only
+`cssVars`.
+
+## The naming convention
+
+Two conventions coexist, on purpose, and knowing which is which tells you
+whether you are allowed to set a value.
+
+```
+--<role>                          tier 2 — set these
+--<role>-foreground               tier 2 — the text that sits on that role
+
+--opsin-<axis>-<name>-<slot>      tier 1 — read these
+--opsin-<system>-<step>-<slot>    tier 1 — read these
+```
+
+Concretely:
+
+| Pattern | Example | Meaning |
+| --- | --- | --- |
+| `--background` / `--foreground` | — | The page surface and its default text |
+| `--card` / `--card-foreground` | — | An elevated surface and its text |
+| `--muted` / `--muted-foreground` | — | A quiet surface and lower-emphasis text |
+| `--border`, `--input`, `--ring` | — | Separators, control edges, focus rings |
+| `--radius`, `--spacing` | — | The one value each derived scale is built from |
+| `--opsin-status-<level>-<slot>` | `--opsin-status-watch-ink` | Status ramp; slots are `surface`, `line`, `ink` |
+| `--opsin-category-<name>-<slot>` | `--opsin-category-sleep-accent` | Category ramp; slots are `accent`, `surface`, `ink` |
+| `--opsin-material-<rung>-<slot>` | `--opsin-material-3-blur` | Material ladder; slots are `bg`, `blur`, `border`, `shadow` |
+| `--opsin-duration-<speed>` | `--opsin-duration-base` | Motion durations |
+| `--opsin-ease-<curve>` | `--opsin-ease-spring` | Easings, including two `linear()` springs |
+| `--opsin-radius-<step>` | `--opsin-radius-lg` | The product shape scale |
+
+The complete generated list, with what each controls and what reads it, is
+[Reference → CSS variables](../reference/generated/css-variables.mdx). The
+theme-author's subset is [Token reference](./token-reference.mdx).
+
+## Use them
+
+Nothing special is required. They are custom properties.
+
+```css title="card.css"
+.card {
+  background: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: transform var(--opsin-duration-fast) var(--opsin-ease-standard);
+}
+
+.card[data-status="watch"] {
+  background: var(--opsin-status-watch-surface);
+  border-color: var(--opsin-status-watch-line);
+  color: var(--opsin-status-watch-ink);
+}
+```
+
+Note what the second rule does **not** do: it does not also apply a category
+colour. One axis per element. The `data-status` attribute is the same contract
+the components will publish, documented per component in a
+`<DataAttributesTable>`, so styling against it now will keep working when the
+components arrive.
+
+## Keep the degradations
+
+If you vendor the variables, vendor the media queries with them. Three
+behaviours live entirely in CSS and are lost if you copy only the `:root` block:
+
+```css
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --opsin-material-3-bg: var(--card);
+    --opsin-material-3-blur: 0px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --opsin-duration-base: 1ms;
+    --opsin-ease-spring: linear(0, 1);
+  }
+}
+
+@supports (color-gamut: p3) {
+  :root { /* higher chroma, identical lightness */ }
+  .dark { /* repeat every class selector — see below */ }
+}
+```
+
+The repetition in the `@supports` block is not redundancy. `:root` and `.dark`
+have the same specificity, so a bare `:root` escalation placed after `.dark`
+wins in dark mode as well and leaks light-theme chroma into it. Every escalated
+selector is restated in the same cascade order as the base declarations.
+
+## Using them from JavaScript
+
+Read them, do not duplicate them.
+
+```js
+const styles = getComputedStyle(document.documentElement)
+const urgent = styles.getPropertyValue("--opsin-status-urgent-line").trim()
+```
+
+For a CSS-in-JS theme object, reference the variable rather than resolving it:
+`{ background: "var(--card)" }` keeps dark mode, P3 and the preference queries
+working. `{ background: urgent }` snapshots one value at one moment in one theme
+and is the most common way a themed app stops responding to a theme.
+
+## Verify it worked
+
+<Steps>
+
+### The variables are defined
+
+`getComputedStyle(document.documentElement).getPropertyValue("--card")` returns a
+value. An empty string means the stylesheet is not loaded or is loaded after the
+element you are inspecting.
+
+### Dark mode still swaps
+
+Toggle the `dark` class on `<html>` and re-read the same property. If it does
+not change, you copied `:root` without `.dark`.
+
+### The generated layer is the real one
+
+`--opsin-tokens-generated` should hold a source hash. `placeholder` means you
+have vendored the committed fallback rather than generated output.
+
+</Steps>
+
+## Troubleshooting
+
+**A variable resolves to nothing and the rule disappears.** An undefined custom
+property makes the whole declaration invalid at computed-value time, which is
+silent. Give critical properties a fallback: `var(--card, #fff)`.
+
+**Values are right but transitions do not run.** You are on a machine with
+reduced motion, and every duration is `1ms` by design. That is the degradation
+working.
+
+**Colours are more saturated on one machine.** Display-P3. Lightness is
+identical by construction, so contrast has not changed.
+
+**A status colour looks wrong on a translucent surface.** Status surfaces are
+tuned against the page background. See
+[The contrast floor](../foundations/materials/the-contrast-floor.mdx).
+
+## Next
+
+- [Token reference](./token-reference.mdx) — the settable set, grouped by tier.
+- [Adding your own tokens](./adding-your-own-tokens.mdx) — extending it without
+  being overwritten.
+- [Design handoff](./design-handoff.mdx) — the same values in a form a design
+  tool can import.

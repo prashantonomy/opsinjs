@@ -1,0 +1,174 @@
+---
+title: Motion
+description: Motion for a product somebody opens when they are worried — what it is allowed to do, the four health rules it must never break, and when the right amount of animation is none.
+status: stable
+kind: foundation
+icon: Spline
+aliases: [motion principles, when not to animate]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+Motion in a consumer health product has a different job from motion in a
+marketing site or a productivity tool. Nobody opens a blood-pressure app to be
+delighted. They open it because they want to know whether a number is a problem,
+and every millisecond of animation between them and that answer is a millisecond
+they spend not knowing.
+
+So the position opsinjs takes is: motion exists to explain *where things went*,
+and nothing else. It shows that a sheet came from the button you pressed, that
+this list item is the one you tapped, that the thing which just appeared is on
+top of rather than instead of what was there. It never celebrates, never
+emphasises, never carries urgency, and never delays an answer.
+
+This is the third of the three things opsinjs does that other systems do not, and
+the reason is mechanical rather than aesthetic: opsinjs ships **springs as
+tokens**. A spring is a physical description — stiffness, damping, mass — and CSS
+has no spring function, so most systems either approximate one with a cubic
+Bézier and lose the character, or animate in JavaScript and lose the ability to
+express it as a token at all. The `linear()` easing function makes the third
+option possible, and that is what [Springs as tokens](springs-as-tokens.mdx) is
+about.
+
+The thing motion is most often confused with is feedback. Feedback is the
+[interaction state](../interaction-states.mdx) — the press, the focus ring. Motion
+is how the interface gets from one arrangement to another. A component can have
+excellent feedback and no motion at all, and on many health surfaces it should.
+
+## How it works
+
+Four pages sit under this one and they answer four different questions:
+
+- [Springs as tokens](springs-as-tokens.mdx) — *what a curve is made of*. Spring
+  parameters in `tokens/motion.json`, sampled into a `linear()` easing at build
+  time, so the token in the stylesheet is a real spring rather than an
+  impression of one.
+- [Using motion](using-motion.mdx) — *which curve, and how long*. Motion chosen by
+  job: enter, exit, feedback, navigation, loading. Duration is a property of the
+  job and the distance, not of the designer's mood.
+- [Choreography](choreography.mdx) — *what moves together*. Sequencing, stagger,
+  continuity, and the rule that a thing which persists should morph rather than
+  be swapped.
+- [Reduced motion](reduced-motion.mdx) — *what happens when someone has said no*.
+  Stated per token, not as a blanket kill switch, because "no animation at all"
+  is a worse experience than a considered reduced variant.
+
+Underneath all four sit four rules that are specific to health and are not
+negotiable at the component level.
+
+**1. Urgency is never carried by motion.** Nothing pulses, flashes, throbs or
+shakes to indicate that a value needs attention. Attention is carried by colour,
+by an icon and by a word — the three channels from
+[Principles](../principles.mdx) — because those survive a still screenshot, a
+printout, a screen reader and a reader who has switched motion off. A pulsing red
+tile tells nobody anything they were not already told, and it tells a person with
+a vestibular disorder to close the app. The doctrine is on
+[Motion in health UI](../../health/motion-in-health-ui.mdx).
+
+**2. No overshoot on a clinical value.** A springy, bouncy arrival is charming on
+a to-do app and dishonest on a reading: a number that settles by wobbling past
+itself has visually asserted values it never had. Any element whose content is a
+measurement, a range position or a status uses a critically damped curve with no
+overshoot. The bouncy tokens exist, and they are for chrome.
+
+**3. A count-up happens once, and lasts no more than 600 ms.** Animating a number
+from zero to its value is legitimate on first reveal — it draws the eye to the
+thing the screen is about. It is not legitimate on a refresh, on a return to the
+screen, or on any subsequent render, because an unchanged number that animates
+implies a change that did not happen. And it is bounded: past about 600 ms a
+reader who wants the number is being made to wait for a decoration.
+
+**4. Depth on overlay, not translation across.** When a surface arrives over
+another, the one underneath recedes — a small scale reduction and a dim — rather
+than the whole screen sliding sideways. Sliding implies you have gone somewhere;
+depth implies something is on top of where you already are, which is what
+actually happened, and it makes the back gesture obvious. This is the mechanism
+behind the [layering](../layering-and-elevation.mdx) contract.
+
+## Using it
+
+**Start from none.** The default state of any new surface is no animation. Add
+motion when you can name the thing it explains — "this sheet came from that row"
+— and remove it when you cannot. A transition that exists because the surface
+looked bare without one is a transition the reader pays for and gets nothing
+from.
+
+<DoDont>
+  <DoDont.Do>
+    A result sheet grows from the row that opened it, with the list behind it
+    dimming and receding slightly. The reader can see where it came from and
+    where it will go back to.
+  </DoDont.Do>
+  <DoDont.Dont>
+    The same sheet fades in over the middle of the screen while the reading
+    behind it pulses to draw attention to itself. Nothing is explained, the pulse
+    is a second urgency signal that duplicates the status colour, and a reader
+    with motion sensitivity now has two reasons to leave.
+  </DoDont.Dont>
+</DoDont>
+
+**Never animate to slow a reader down.** If a piece of information matters enough
+that you want to make sure it is seen, the answer is placement, wording and
+[status](../../health/clinical-status-semantics.mdx) — not a 900 ms entrance that
+holds the reader hostage until it finishes.
+
+**Interruptible means transitions, not keyframes.** Anywhere a reader can act
+mid-animation — which is anywhere they can scroll, tap or go back — use CSS
+transitions between two states rather than a keyframe sequence. A transition
+reverses cleanly from wherever it currently is; a keyframe animation restarts,
+jumps, or plays to the end while the reader waits. The one place keyframes are
+correct is a genuinely continuous loop with no end state, such as a loading
+shimmer.
+
+**Budget it.** A screen should have at most one thing moving at a time. Two
+things moving are a choreography problem — see
+[Choreography](choreography.mdx) — and three are a bug.
+
+## Tokens
+
+Motion owns durations, easings and the spring parameters the easings are derived
+from. Everything below is generated from `tokens/motion.json` by
+`scripts/build-tokens.mts`; the generated page with live curve previews is
+[Motion tokens](tokens.mdx).
+
+<TokenTable scope="motion" />
+
+## Accessibility impact
+
+Motion is the foundation with the most direct route from a design decision to
+somebody feeling physically unwell, and the second most direct route to somebody
+missing information entirely.
+
+- **Vestibular effects are real and are triggered by large-area movement**,
+  particularly parallax, zoom and anything that moves a substantial portion of
+  the viewport. This is why depth-on-overlay is specified as a *small* scale
+  change and why nothing in opsinjs moves the whole screen.
+- **`prefers-reduced-motion` is honoured per token, not by disabling everything.**
+  A reduced variant still communicates where things came from, using opacity and
+  very short distances. The full contract is on
+  [Reduced motion](reduced-motion.mdx) and the conformance position is on
+  [Accessibility → Reduced motion](../../accessibility/reduced-motion.mdx).
+- **Nothing flashes.** No opsinjs surface animates at a rate that could approach
+  the flash thresholds in WCAG 2.2 SC 2.3.1, and nothing flashes at all — the
+  prohibition on motion as an urgency channel removes the only reason anybody
+  would want it.
+- **Nothing that moves is also the only way to read something.** Any content
+  that animates is fully readable in its final state, and its final state is what
+  is exposed to assistive technology.
+- **Motion never gates input.** Controls are usable during an entrance
+  animation; a reader who knows where the button is does not have to wait for the
+  interface to finish arriving.
+
+## Related
+
+- [Springs as tokens](springs-as-tokens.mdx) — the mechanism that makes a
+  physical curve survive as a CSS custom property.
+- [Motion in health UI](../../health/motion-in-health-ui.mdx) — the clinical
+  doctrine behind rules 1 to 3, with the reasoning stated as opinion where it is
+  opinion.
+- [Handbook → Motion in practice](../../handbook/motion-in-practice.mdx) — how to
+  write these transitions yourself against `data-starting-style` and
+  `data-ending-style`.

@@ -1,0 +1,162 @@
+---
+title: Who this is for
+description: The reader of a consumer health screen is anxious, distracted, on a phone, and has never seen the unit before — and every rule in this section follows from that.
+status: stable
+kind: health
+evidence: opinion
+reviewed: 2026-09-02
+reviewer: content
+reviewEvery: 6m
+owner: design-system
+implements: [term, value, result-card, care-card, disclaimer-note]
+aliases: [layperson, numeracy, reading age, patient audience, non-clinician]
+---
+
+<PageTemplate kind="health" />
+
+## What this means
+
+Design systems usually describe their user as "the user". That abstraction is
+affordable in a checkout flow and dangerous here, because almost every rule in
+this section is a consequence of who is actually holding the phone.
+
+Picture the moment. Someone opens the app because a notification said a result is
+ready. They are standing up, on a bus, on a four-year-old Android with the screen
+brightness turned down and the system font size turned up two steps. They have
+not slept well because they have been waiting for this result for six days. They
+are not a clinician and have never encountered the unit the number is printed in.
+They will read the screen for somewhere between three and fifteen seconds, and
+whatever they take from it in that window is what they will remember and repeat
+to their family, and possibly act on.
+
+Now picture the other reader of the same screen: the same person, six months
+later, checking a number they now understand well, in a routine they have built,
+who wants the figure and nothing else and is irritated by anything in the way.
+
+Both are the audience. The system has to serve the first without insulting the
+second.
+
+## The rule
+
+**Design for a reader who is anxious, interrupted, unfamiliar with the
+vocabulary, and using assistive or adaptive settings — and let the fluent reader
+skip ahead rather than making the anxious reader catch up.**
+
+In practice that means five commitments, each of which shows up as a hard
+constraint elsewhere in this section:
+
+1. **No unexplained jargon on a first encounter.** Any clinical term that
+   appears in a user-facing string must have a plain-English expansion available
+   in place, not on another screen. That is what `Term` and the glossary exist
+   for.
+2. **The number is never the whole message.** A value without a scale, a unit and
+   a sentence saying what it means is a puzzle, not information. See
+   [Reference ranges](./reference-ranges.mdx).
+3. **The layout must survive the reader's own settings.** Largest system text
+   size, reduced motion, reduced transparency, increased contrast and greyscale
+   are the normal case here, not an edge case, because the population that most
+   needs health apps skews older and more likely to use them.
+4. **Nothing important is conveyed once, quickly, or in one channel.** If a
+   person looks away mid-animation, or cannot distinguish two hues, or has the
+   sound off, they must still get the message.
+5. **Reading is optional; comprehension is not.** Prefer a structure that can be
+   scanned — value, meaning, what to do — over a paragraph that must be read in
+   order.
+
+## Why (evidence)
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  Two claims underpin this page, and we separate them carefully.
+
+  The first is uncontroversial and well established across the health
+  communication literature: adults vary enormously in numeracy and in health
+  literacy, a substantial fraction of any general population finds probabilistic
+  and numerical information difficult, and difficulty is poorly correlated with
+  education or confidence. We deliberately do **not** print a percentage here.
+  Population figures are jurisdiction-specific, instrument-specific and easy to
+  cite wrongly, and a fabricated or mis-transcribed statistic on this page would
+  be exactly the failure we are asking you to avoid on yours.
+
+  The second claim is ours and is an opinion: that designing for the anxious,
+  unfamiliar reader costs the fluent reader very little, because the fluent
+  reader can skip. The asymmetry is what makes the trade cheap. We would change
+  our mind if we saw evidence that the explanatory layer measurably slows or
+  annoys returning users enough to reduce engagement with a metric they need to
+  track.
+
+  For the presentation of results specifically there is real evidence, and it is
+  cited on [Reference ranges](./reference-ranges.mdx) rather than restated here.
+</ResearchNote>
+
+<Todo>Replace the qualitative numeracy claim above with a cited, dated review
+once one has been read end to end rather than cited from memory. Tracked on
+[Evidence and references](./evidence-and-references.mdx).</Todo>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    <PlainLanguage clinical="Your HbA1c is 52 mmol/mol." plain="Your average blood sugar over the last 2 to 3 months was 52 mmol/mol. That is above the usual range." />
+    Lead with what it is, in words the reader already owns, then give the number
+    and the scale it sits on.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Print `HbA1c 52` and rely on a tooltip. A tooltip is not available to a
+    reader on a touch device who does not know there is something to tap, and it
+    is not read out in the flow of the sentence.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Assume the system font size is set two or three steps above default, and test
+    at 200%. [Text resizing and zoom](../accessibility/text-resizing-and-zoom.mdx)
+    describes the check.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Fix the height of a card that contains a clinical sentence. The sentence is
+    the part that must not be truncated, and it is the first thing a fixed height
+    clips.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Write the "what do I do now" line even when the answer is "nothing". "No
+    action needed. Your next test is due in March." closes the loop.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Leave a result with no next step. An unanswered "so what?" is filled in by
+    the reader's anxiety, and the reader's anxiety is not a reliable clinician.
+  </DoDont.Dont>
+</DoDont>
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+The audience model is the reason these components have the shape they do: a
+result is never a bare number, a term is never left unexpanded, and a card that
+carries clinical meaning has a slot for the next step whether or not you fill it.
+
+## What this does not cover
+
+- **Clinician readers.** A clinician wants density, absolute values, trends and
+  no reassurance. Serving both audiences from the same screen usually serves
+  neither; build a separate surface and see
+  [Sharing with a clinician](../patterns/sharing-with-a-clinician.mdx).
+- **Children as the primary reader**, and the separate question of a parent or
+  carer reading on someone else's behalf. Both change consent, tone and
+  vocabulary in ways this system does not yet model.
+- **Reading level measurement and the wording itself.** The canonical guidance
+  for plain language lives in
+  [Plain English A–Z](../content/plain-english-a-z.mdx) and
+  [Health literacy](../content/health-literacy.mdx); this page describes the
+  reader, not the sentence.
+- **Localisation and translation.** Translating a status word safely is
+  genuinely hard and is covered in
+  [Internationalisation](../handbook/internationalisation.mdx).
+
+## Updates to this page
+
+<Reviewed />

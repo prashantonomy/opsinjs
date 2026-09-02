@@ -1,0 +1,129 @@
+---
+title: Reduced motion
+description: Reduced motion is a per-token degradation, not a kill switch — what every animated token collapses to, and why the state change survives.
+status: stable
+kind: accessibility
+a11yDate: 2026-09-02
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+aliases: [2.3.3, 2.2.2, reduce motion setting]
+---
+
+<PageTemplate kind="accessibility" />
+
+## What we guarantee
+
+`prefers-reduced-motion: reduce` is a stated preference, not a hint, and this
+system treats it as one. The degradation is implemented in the token layer rather
+than in each component, which is what makes it complete instead of
+component-by-component.
+
+In `app/globals.css` and `app/product.css`, under
+`@media (prefers-reduced-motion: reduce)`:
+
+- every duration token collapses to `1ms` — `--opsin-duration-instant`,
+  `--opsin-duration-fast`, `--opsin-duration-base`, `--opsin-duration-slow` and
+  `--opsin-duration-deliberate`;
+- every spring easing collapses to `linear(0, 1)` —
+  `--opsin-ease-spring` and `--opsin-ease-spring-gentle`.
+
+Three consequences, and the second is the one that matters:
+
+1. **A component that reads its duration from a token needs no reduced-motion
+   code of its own.** Coverage is a property of the token layer.
+2. **The state change still happens.** An element that was going to arrive still
+   arrives; it arrives immediately. This is the difference between reducing
+   motion and removing feedback, and removing feedback is its own accessibility
+   failure — a reader who cannot see that the sheet opened has been given a worse
+   experience in the name of a better one.
+3. **Opacity cross-fades are kept.** They do not move, so they do not provoke the
+   vestibular response that the preference exists to prevent, and they preserve
+   the sense that something changed. Translation, scale, parallax and rotation are
+   what collapse.
+
+<SafetyCallout severity="act" evidence="opinion">
+There is a health-specific rule underneath this one: **urgency is never carried
+by motion.** A pulsing alert that stops pulsing under reduced motion has removed
+the only signal that it was urgent. Because motion is the first thing an
+accessibility preference removes, it cannot be allowed to carry meaning in the
+first place. The full argument is on
+[Motion in health UI](../health/motion-in-health-ui.mdx).
+</SafetyCallout>
+
+## What you own
+
+**Anything animated outside the token system.** A CSS animation with a hard-coded
+`300ms`, a spring from an animation library configured in JavaScript, a Lottie
+file, an animated GIF, an autoplaying video: none of these are reached by the
+media query above. Read the preference in JavaScript with
+`matchMedia('(prefers-reduced-motion: reduce)')` and branch.
+
+**Auto-playing and looping content.** SC 2.2.2 covers anything that moves for
+more than five seconds. A looping onboarding animation is the usual offender.
+
+**Scroll-linked effects.** Parallax, scroll-driven scaling and sticky elements
+that grow or shrink as you scroll are among the most reliable triggers of motion
+sickness and are not covered by a duration token.
+
+**Meaningful transitions in your own flows.** If a page transition is how the
+reader understands they moved between steps, replace it with something static —
+a step indicator, a heading change, an announcement — rather than deleting it.
+
+## How to check
+
+<Steps>
+
+### Turn the preference on at the operating system
+
+macOS: System Settings → Accessibility → Display → Reduce motion. iOS: the same
+path. Windows: Settings → Accessibility → Visual effects → Animation effects.
+Android: Settings → Accessibility → Remove animations. Emulating the query in
+developer tools works for a quick check but does not exercise platform-level
+behaviour.
+
+### Repeat the primary task
+
+**Expected result:** every state change still occurs and is still perceivable; it
+simply happens at once. **Failure looks like** a dialog that appears to do nothing
+when opened, a value that changes with no indication it changed, or a loading
+state you cannot tell from a finished one.
+
+### Look for the thing that stopped
+
+Anything that was pulsing, sliding, bouncing or spinning has stopped. For each,
+ask what it was telling the reader and confirm that something static is still
+telling them. A spinner that becomes invisible has taken the loading state with
+it.
+
+### Observe the degradation rather than trusting it
+
+`<MotionDemo>` replays a real token on a real element with a reduced-motion
+toggle, so the fallback is visible rather than described. See
+[Reduced motion in Foundations](../foundations/motion/reduced-motion.mdx) for the
+token-by-token account.
+
+</Steps>
+
+## Measured results
+
+<NoDataYet script="scripts/build-tokens.mts" />
+
+The intended generated artefact is a table of every motion token with its normal
+value and its reduced value side by side, emitted from `tokens/motion.json`, so
+that a token added without a reduced-motion value fails the build. The token
+source exists; the table is not generated yet.
+
+## Known gaps
+
+- **No component consumes these tokens,** so the guarantee currently describes
+  CSS that nothing exercises.
+- **There is no lint rule** preventing a hard-coded duration in component source.
+  A stylelint plugin is proposed on
+  [Tooling](../handbook/tooling/index.mdx) and is not built.
+- **`prefers-reduced-motion` is not exposed to React.** There is no shipped hook,
+  so JavaScript-driven animation has to read `matchMedia` directly.
+
+## Updates to this page
+
+<Reviewed />

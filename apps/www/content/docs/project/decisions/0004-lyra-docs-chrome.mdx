@@ -1,0 +1,97 @@
+---
+title: "0004 — lyra themes the documentation chrome only"
+description: This site looks deliberately unlike the system it documents, and every preview renders under the product theme in its own scope.
+status: stable
+kind: project
+owner: core
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 12m
+aliases: [why does the site look like this, lyra decision, chrome versus product]
+---
+
+<PageTemplate kind="project" />
+
+## Status
+
+**Accepted.** 2026-09-02.
+
+## Context
+
+The documentation site is built on shadcn's `lyra` style: square corners, dense
+controls, small type, a neutral base. The system it documents is the opposite:
+squircle corners, `system-ui`, generous spacing, large touch targets, because it
+is read by people on phones who may be anxious, older, or looking at their own
+test results.
+
+Two surfaces with two different jobs, in one application. The question is whether
+to unify them.
+
+Unifying downward — theming the documentation like the product — makes a
+documentation site that is enormous to navigate and, worse, makes every component
+preview indistinguishable from the page around it. A reader cannot tell where the
+example ends and the site begins, which is precisely the mistake a preview exists
+to prevent.
+
+Unifying upward — theming the product like the documentation — is not on the
+table: `lyra`'s density is wrong for the audience.
+
+## Decision
+
+**lyra themes the documentation chrome, and only the chrome. The opsinjs product
+theme is separate, and every component preview and every `/view` route renders
+under it in its own token scope.**
+
+Two stylesheets, with different jobs: `app/globals.css` is the documentation site,
+including the lyra blocks and the fumadocs preset; `app/product.css` is the
+product theme and is imported by nothing except the isolated route group. The
+generated token layer sits between them and is imported by both.
+
+## Consequences
+
+- **The site does not look like what it sells**, which will confuse somebody, so
+  it is stated in the open on
+  [Lyra and the docs chrome](../../theming/lyra-and-the-docs-chrome.mdx) rather
+  than left to be discovered.
+- **Previews must be isolated, not merely scoped.** A component rendered inline
+  inherits the documentation cascade, and inheritance in CSS does not respect good
+  intentions. Previews render a chrome-less `/view` route inside a frame, at the
+  requested base and style — which is also why that route exists as a real URL
+  and not as a component prop.
+- **Two root layouts follow from this**, because a route group nested inside a
+  root layout cannot own its own `html` element. That is
+  [ADR 0007](0007-two-root-layouts.mdx).
+- **One icon library, not two.** The named lyra preset would have brought Phosphor
+  icons and a monospace default; the preset code was used instead so that the
+  chrome keeps Lucide and `font-sans`. Two icon libraries in one repository is a
+  bug waiting for a designer.
+- **Chrome variables are not system tokens.** shadcn's, fumadocs' and lyra's
+  custom properties share a cascade with ours on this site, carry no semver
+  promise, and are excluded from
+  [CSS variables](../../reference/generated/css-variables.mdx). Confusing the two
+  is the most likely way a consumer ends up styling their health app with our
+  sidebar's colours.
+
+## Alternatives considered
+
+**Theme the documentation with the product theme.** Rejected: previews become
+invisible, and a documentation site with 44-point touch targets and generous
+spacing is a documentation site you scroll for a living.
+
+**Build custom documentation chrome.** Rejected on cost, and on the same reasoning
+as [ADR 0001](0001-base-ui-not-radix.mdx): sidebar, search, table of contents and
+scroll-spy are weeks that belong to the components.
+
+**Render previews inline with a scoping class.** Rejected. It works until a
+component sets a property the documentation also sets, at which point the preview
+lies — and a lying preview in a health design system is worse than no preview.
+
+## Revisiting this
+
+Revisit if the product theme ever becomes appropriate for a dense reading
+interface, or if the isolation mechanism proves more expensive than the confusion
+it prevents. Neither is likely.
+
+<LastUpdated />
+
+<Reviewed />

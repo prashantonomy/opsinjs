@@ -1,0 +1,146 @@
+---
+title: Plain-English A–Z
+description: The canonical clinical-to-plain vocabulary — the rule for choosing a replacement word, and the machine-readable list every product and Term instance shares.
+status: stable
+kind: content
+reviewer: content
+reviewEvery: 6m
+aliases: [clinical vocabulary, plain words, clinical terms, a to z]
+---
+
+<PageTemplate kind="content" />
+
+## The rule
+
+**This page is canonical for plain language.** Every other page in this system
+links here rather than restating a word choice, and `assert-ia.mts` enforces that
+they do not restate it. If a clinical term appears in a product built on opsinjs,
+its replacement is the one on this page.
+
+The rule for choosing a replacement is four tests, applied in order. A candidate
+must pass all four.
+
+1. **Would someone say it out loud?** "Raised" passes. "Elevated" does not. Read
+   the sentence aloud to somebody who does not work in health; if they would not
+   use the word in conversation, it is not the replacement.
+2. **Does it lose anything the reader needs?** Plain does not mean vague. "Water
+   pill" is plainer than "diuretic" and it is wrong, because the reader will not
+   recognise it on the box. When plainness costs accuracy, the answer is both
+   words, not the plainer one.
+3. **Will they meet the clinical term elsewhere?** If the word appears on their
+   prescription, their letter, their portal or their monitor, they need to
+   recognise it. Give the clinical term *and* the explanation, in that order,
+   once, and then use the plain form.
+4. **Is it the same word every time?** Synonym variation is a comprehension cost
+   with no benefit. One clinical term maps to exactly one plain replacement
+   across the whole product, which is precisely what makes this list worth
+   having.
+
+### Provenance
+
+Every definition in this list is **written from scratch for opsinjs**. We do not
+copy the NHS A–Z or any other Crown-copyright material, and we do not copy
+definitions from a dictionary or a manufacturer's leaflet. We cite sources; we
+never paste them. If a definition here looks like one you have seen elsewhere,
+that is a bug and we would like to know.
+
+This matters beyond licensing. A definition lifted from a clinical source is
+usually written for a clinical reader and carries a register the whole list
+exists to remove.
+
+### Where the data lives
+
+The list is a data file, not prose. It is authored in `tokens/glossary.json`,
+emitted into the generated reference, indexed by search, and resolved at runtime
+by `Term`. One record per clinical term, and each record carries the clinical
+term, the plain replacement, an original one-sentence definition, optional
+search synonyms and an optional note about where the reader will meet the
+clinical word. The record shape and how to add to it are on
+[Glossary](./glossary.mdx).
+
+## Approved / Rejected
+
+<DoDont>
+  <DoDont.Do>Your blood pressure was 148 over 92. Your GP might call the top number "systolic".</DoDont.Do>
+  <DoDont.Dont>Your systolic BP was 148 mmHg and your diastolic was 92 mmHg.</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>Take this medicine on an empty stomach — at least an hour before food.</DoDont.Do>
+  <DoDont.Dont>Administer this medication in a fasted state.</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>Long-term (lasting months or years)</DoDont.Do>
+  <DoDont.Dont>Chronic</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>A steroid inhaler (sometimes called a "preventer")</DoDont.Do>
+  <DoDont.Dont>An inhaler</DoDont.Dont>
+</DoDont>
+
+The last pair is the one that catches careful writers out. Deleting the clinical
+word made the sentence plainer and made it useless: the reader has two inhalers
+in a drawer and needs to know which one this is. Plainness is in service of the
+reader's task, not the other way round.
+
+## Patterns
+
+**Introducing a term the reader will meet on a document**
+
+> `Plain phrase`. Your GP might call this `clinical term`.
+
+**Introducing a term the reader has already met**
+
+> `Clinical term` — `plain explanation in one clause`.
+
+**A measurement with a named part**
+
+> Your `measure` was `value`. The `position` number is the `plain name for the
+> part`.
+
+**A medicine**
+
+> `Brand or common name` (`what it is for`). Take `dose` `when`.
+
+**A procedure**
+
+> `Plain name`. This means `what physically happens`, and it usually takes
+> `duration`.
+
+### The A–Z
+
+<Glossary />
+
+The list is short and grows one entry at a time, because every entry is written
+rather than imported. An empty or thin list is the honest state of a vocabulary
+that is being built properly; see
+[Glossary](./glossary.mdx) for how to propose an addition.
+
+## Banned words
+
+These are banned as *replacements* — they are the plausible-looking plain words
+that make things worse.
+
+| Banned replacement | Why | Use instead |
+| --- | --- | --- |
+| water pill (for diuretic) | Unrecognisable on the packet. | the medicine's name, plus what it does |
+| sugar (for glucose in a result) | Confuses the measurement with the food. | blood sugar, once, then the measure's name |
+| bad cholesterol / good cholesterol | A moral frame on a lipid fraction, and readers routinely swap them. | the named fraction, with what a higher figure means |
+| tummy | Infantilising, and imprecise across a large area of anatomy. | stomach, or the specific part |
+| passed away, lost their battle | Euphemism where clarity is required. | died |
+| suffers from, victim of, afflicted by | Frames a condition as an identity or a defeat. | has, lives with. See [Inclusive content](./inclusive-content.mdx). |
+| the diabetic, the asthmatic | The condition standing in for the person. | a person with diabetes |
+| normal | A verdict about the person. See [Reference ranges](../health/reference-ranges.mdx). | your usual range |
+
+## Related components
+
+- **`Term`** — the inline component that renders a clinical word with its plain
+  replacement. It resolves against this list; a term not in the list cannot be
+  rendered, which is deliberate.
+- **`Glossary`** — the filterable A–Z above, and the same data.
+- **`ResultCard`**, **`AlertBanner`**, **`CareCard`** — every string they carry is
+  bound by this vocabulary.
+- **`DisclaimerNote`** — the one place where a legally-shaped sentence is
+  permitted, and even there it is written in this register.

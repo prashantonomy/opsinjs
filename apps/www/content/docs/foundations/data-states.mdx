@@ -1,0 +1,168 @@
+---
+title: Data states
+description: The five states every data-bearing surface must render — empty, loading, error, stale and partial — defined once so that "we do not know" is never drawn as a normal result.
+status: stable
+kind: foundation
+aliases: [five data states, partial data, unknown value, missing value]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+Every screen in a health product spends part of its life not knowing the thing it
+is meant to show. The measurement has not synced. The wearable was off. The API
+returned four of six readings. The number on screen is nine days old.
+
+The failure this page exists to prevent is specific and it is common: a surface
+that does not know a value renders the space where the value would be as blank,
+or as a dash, or as zero — and a worried reader interprets an absence as
+reassurance. Nothing there means nothing wrong. That inference is wrong often
+enough to matter, and it is entirely the interface's fault.
+
+So opsinjs defines five data states, once, for every surface that displays data.
+A component either renders all five or documents in its `When not to use` section
+why one is impossible. This is the third
+[principle](principles.mdx) — *say what you do not know* — turned into something
+a reviewer can check.
+
+## How it works
+
+The five states are ordered by resolution: a surface can only be in one, and it
+is the first one that applies.
+
+**1. Error.** The system tried and failed. This is a state about the *system*,
+not about the person, and the copy must make that obvious: the reading is not
+missing, the fetch failed. An error state always offers a retry or a route
+onwards, and it never occupies the space with something that could be read as a
+value.
+
+**2. Loading.** The system is trying. Rendered as a
+[skeleton](../components/skeleton.mdx) that preserves the final layout, so the
+page does not reflow under a reader's thumb when the data lands. A skeleton never
+shows a shape that could be mistaken for a value — no placeholder digits, no
+example number, no plausible-looking chart.
+
+**3. Empty.** There is genuinely nothing, and that is a legitimate answer. First
+run, a log with no entries, a metric never recorded. An empty state names what
+would appear here and gives exactly one next action. It is not an error and must
+not be styled like one.
+
+**4. Partial.** Some of the data exists and some does not, and this is the state
+most systems collapse into one of the others. A weekly average computed from
+three days is not an average of the week; a trend line with a two-week gap is not
+a trend across that gap. Partial data is shown *with its own coverage stated* —
+how much of the intended window is actually present — and any derived figure
+either says what it was derived from or is not shown at all.
+
+**5. Stale.** The value is real but old enough that it may no longer describe the
+person. Staleness is not a boolean and it is not universal: a resting heart rate
+from yesterday is fresh, a blood-pressure reading from yesterday may be fresh,
+and a blood-glucose reading from yesterday is not. The threshold therefore
+belongs to the product's clinical governance, and opsinjs provides the mechanism
+and the rendering, never the number.
+
+<FlowDiagram>
+{`flowchart TD
+  A[Surface asks for a value] --> B{Did the request fail?}
+  B -->|yes| E[Error: say the system failed, offer retry]
+  B -->|no| C{Still in flight?}
+  C -->|yes| L[Loading: layout-preserving skeleton]
+  C -->|no| D{Any data at all?}
+  D -->|no| M[Empty: name what goes here, one next action]
+  D -->|some| P[Partial: state the coverage]
+  D -->|all| S{Older than the product threshold?}
+  S -->|yes| T[Stale: show the value with its age and a refresh route]
+  S -->|no| V[Resolved: render the value]`}
+</FlowDiagram>
+
+Every state is exposed as a `data-state` attribute so it can be styled and
+tested from outside the component — see
+[Handbook → Data attributes](../handbook/data-attributes.mdx) — and every state
+has a machine-readable form in the registry so an agent generating a screen
+cannot forget one.
+
+## Using it
+
+**Never let an unknown value take the shape of a known one.** This is the rule
+that generates most of the others.
+
+<DoDont>
+  <DoDont.Do>
+    An unsynced blood-pressure tile that says `No reading yet` with the date of
+    the last one and a route to add a measurement. The reader knows the absence
+    is an absence.
+  </DoDont.Do>
+  <DoDont.Dont>
+    The same tile showing `--` on the normal surface with the usual unit beneath
+    it. It looks like a result. On a screen where every other tile is showing a
+    real reading, an em-dash reads as "fine".
+  </DoDont.Dont>
+</DoDont>
+
+**Do not average across a gap without saying so.** If seven days were requested
+and four arrived, the surface says four of seven. If that makes the figure not
+worth showing, the honest render is `Partial`, not a smaller number.
+
+**Stale is a status question and a data question at once.** A stale value keeps
+its own status colour — a reading that was urgent yesterday is still an urgent
+reading — but the surface must carry the age. What the *product* does about a
+stale urgent reading is an escalation decision and belongs to
+[Uncertainty and staleness](../health/uncertainty-and-staleness.mdx).
+
+**Empty is not a blank.** An empty state that shows nothing is indistinguishable
+from a broken one. Name the thing that would be here, in the reader's words, and
+give one action. Two actions in an empty state is usually a sign the screen has
+not decided what it is for.
+
+**Loading has a floor and a ceiling.** Below roughly a tenth of a second, showing
+a skeleton is worse than showing nothing, because the flash reads as a glitch.
+Beyond a few seconds, a skeleton stops being informative and the surface should
+say what it is waiting for. Both thresholds are product decisions; the mechanism
+is documented on [Motion → Using motion](motion/using-motion.mdx).
+
+## Tokens
+
+Data states consume the neutral and muted colour roles, the skeleton shimmer
+duration from `tokens/motion.json`, and nothing else. They deliberately do not
+consume the status axis: an unknown value is not a clinical judgement, and
+colouring it as one is exactly the mistake this page exists to prevent.
+
+<NoDataYet script="scripts/build-tokens.mts" />
+
+## Accessibility impact
+
+Data states are announced, not just drawn, and this is where most implementations
+fail their first screen-reader test.
+
+- **Every state change is announced once.** A tile moving from loading to
+  resolved announces the resolved value; it does not announce the skeleton, and
+  it does not re-announce on every re-render. Repeated announcements are how a
+  live region becomes noise a person turns off.
+- **Skeletons are hidden from assistive technology.** A skeleton has no accessible
+  name and is not focusable. Announcing "loading" once through the region that
+  owns the value is correct; announcing eight decorative bars is not.
+- **`Stale` and `Partial` are part of the accessible name, not a visual garnish.**
+  A reader using a screen reader must hear that a value is nine days old at the
+  same moment a sighted reader sees it, in the same sentence — not in a separate
+  element they may never reach.
+- **Error states move focus deliberately or not at all.** An error that appears
+  in place does not steal focus; an error that replaces the whole surface must
+  put focus somewhere predictable and say what happened.
+- **Colour is never the state.** Every one of the five carries a word. Greyscale
+  and CVD renderings are audited on
+  [Colour independence](../accessibility/colour-independence.mdx).
+
+The full announcement contract per component is aggregated on
+[Screen readers](../accessibility/screen-readers.mdx).
+
+## Related
+
+- [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx)
+  — the clinical doctrine these five states implement, and where the thresholds
+  come from.
+- [Interaction states](interaction-states.mdx) — the other state machine, and the
+  one people confuse this with.
+- [Content → Error and empty messages](../content/error-and-empty-messages.mdx) —
+  the words to put inside each of these five.

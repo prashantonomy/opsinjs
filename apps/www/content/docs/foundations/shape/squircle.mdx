@@ -1,0 +1,149 @@
+---
+title: Squircle
+description: The corner-shape property, the superellipse parameter opsinjs ships, and why this is the safest progressive enhancement in the whole system.
+status: stable
+kind: foundation
+aliases: [squircle, corner-shape, superellipse, continuous corners]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+`border-radius` draws a quarter circle. Where that arc meets the straight edge,
+curvature changes instantly from zero to its full value — the surfaces are
+continuous but their curvature is not, and the eye is unexpectedly good at
+detecting it. The corner appears to pinch.
+
+A superellipse solves it by easing curvature in. Formally, a superellipse is the
+set of points satisfying
+
+```text
+|x/a|^n + |y/b|^n = 1
+```
+
+where `n = 2` gives an ellipse — the circular corner you already have — and
+larger `n` progressively squares the shape off while keeping the transition into
+the straight edge smooth. opsinjs ships `superellipse(4)`, which is close to the
+corner shape Apple's platform UI has used for years and reads as "rounded" rather
+than "squared" at every rung of the ladder.
+
+The CSS property that makes this expressible is `corner-shape`. It sits alongside
+`border-radius` — the radius still says how big the corner is, and `corner-shape`
+says what curve fills it.
+
+## How it works
+
+**The declaration.** The product theme sets it inside a support query, applied to
+elements that opt in by attribute rather than to every rounded box:
+
+```css
+@supports (corner-shape: superellipse(4)) {
+  [data-opsin-shape="squircle"] {
+    corner-shape: var(--opsin-corner-shape);
+  }
+}
+```
+
+Three deliberate choices are in those four lines.
+
+**It is guarded by `@supports`.** Not because it needs to be — an unknown property
+is discarded — but because the guard is the documentation. Anyone reading the
+stylesheet can see immediately which part of the shape system is conditional.
+
+**It is applied by attribute, not universally.** A blanket `* { corner-shape }`
+would also reshape third-party components, embedded content and anything with an
+incidental radius. Opting in per element keeps the enhancement to surfaces the
+system actually owns.
+
+**The shape itself is a token.** `--opsin-corner-shape` is a custom property, so
+a product that wants a rounder or squarer character changes one value rather than
+every rule.
+
+**The degradation.** Where `corner-shape` is unsupported, the element keeps its
+`border-radius` and is drawn with a circular corner. It is the same size, the same
+colour, in the same place, and it works identically. Nothing is conditional on
+this rendering: no layout depends on it, no interaction depends on it, no
+information is carried by it. That is what makes it the safest enhancement in the
+system — the worst case is a corner that is slightly less pleasing than it could
+be.
+
+<BrowserSupport feature="corner-shape" />
+
+**What this is not.** It is not a clip path, not an SVG mask, not a border image.
+Those were the previous ways to get a squircle on the web and all three have real
+costs: clipping breaks focus rings and shadows, masks break subpixel text
+rendering, and both create a compositing layer that the material ladder's
+performance budget cannot afford. `corner-shape` has none of those costs because
+the browser is drawing the border, exactly as it does for `border-radius`.
+
+## Using it
+
+**Opt in on surfaces, not on everything.** Cards, sheets, tiles, buttons — things
+the system draws. Not on images, not on embeds, not on video, where a shaped
+corner clips content rather than shaping a container.
+
+**Do not compensate for the shape.** A superellipse at a given radius reads
+slightly larger than a circular corner at the same radius, and the temptation is
+to reduce the radius when the enhancement is active. Do not: the radius would
+then differ between browsers, the nesting arithmetic would differ with it, and
+the difference is smaller than the inconsistency it buys.
+
+<DoDont>
+  <DoDont.Do>
+    A result card carrying `data-opsin-shape="squircle"` at the `lg` rung. Where
+    `corner-shape` is supported it is a squircle; where it is not it is an
+    ordinary rounded card at the same radius. Nobody can tell anything is missing.
+  </DoDont.Do>
+  <DoDont.Dont>
+    An SVG-masked squircle. It looks right in every browser and it clips the
+    focus ring, drops the shadow, breaks text rendering on the edges and adds a
+    composited layer to a screen that already has three.
+  </DoDont.Dont>
+</DoDont>
+
+**Do not use the shape to mean anything.** Same rule as radius: it is invisible to
+assistive technology, invisible in unsupported browsers, and therefore cannot
+carry information. It is character.
+
+**Check it against the material ladder.** A translucent surface with a shaped
+corner is where the corner geometry and the backdrop blur interact, and it is
+worth looking at once per surface — see
+[Materials → The ladder](../materials/the-ladder.mdx).
+
+## Tokens
+
+`--opsin-corner-shape` and the radius ladder it applies to are generated from
+`tokens/shape.json` by `scripts/build-tokens.mts`. The superellipse exponent is a
+single authored value; changing it changes the character of every surface in the
+product at once.
+
+<TokenTable scope="shape" />
+
+## Accessibility impact
+
+- **This enhancement is accessibility-neutral by construction.** Nothing is
+  announced, nothing changes size, nothing changes position, and no interaction
+  depends on it. That is the standard a progressive enhancement has to meet
+  before it is allowed into the system.
+- **It does not clip.** Unlike the mask and clip-path techniques it replaces,
+  `corner-shape` leaves focus rings, outlines and shadows drawn normally. A
+  clipped focus ring is a real conformance failure and it is the single most
+  common cost of the older approaches.
+- **It does not affect text rendering.** Masking a container can force text
+  inside it onto a different rasterisation path and lose subpixel antialiasing —
+  a small legibility cost that lands hardest on readers who need it most.
+- **It changes the hit area very slightly at the corners**, in the same way and
+  for the same reason as `border-radius`, and it is accounted for in the same
+  target-size measurement on
+  [Density and touch](../space/density-and-touch.mdx).
+
+## Related
+
+- [Radius scale](radius-scale.mdx) — the rungs this shape is applied at, and the
+  nesting rule.
+- [Browser support](../../start/browser-support.mdx) — the tested floor and the
+  per-feature enhancement contract this is one instance of.
+- [Materials → Performance budget](../materials/performance-budget.mdx) — why the
+  masking alternatives are not affordable.

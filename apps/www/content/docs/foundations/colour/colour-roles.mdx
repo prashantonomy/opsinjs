@@ -1,0 +1,180 @@
+---
+title: Colour roles
+description: The three roles every colour token plays — surface, line and ink — and the rule that a contrast guarantee attaches to a pair, never to a colour.
+status: stable
+kind: foundation
+aliases: [surface line ink, semantic colour, token naming, measured pair, role tokens]
+owner: design
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+A ramp of eleven steps is not a colour system, because it does not tell you
+which step to use. Roles are the layer that does. opsinjs has exactly three of
+them — `surface`, `line` and `ink` — and the reason there are three rather than
+thirty is that three is the number of distinct *contrast obligations* a colour
+can have.
+
+The important idea on this page is not the naming. It is this:
+
+> A contrast guarantee attaches to a **pair**, not to a colour.
+>
+> `--opsin-status-act-ink` is not "an accessible colour". It is the foreground
+> half of a measured pair whose background half is
+> `--opsin-status-act-surface`. Put it on anything else and you have left the
+> guarantee behind.
+
+Everything below follows from that sentence.
+
+## How it works
+
+### The three roles
+
+| Role | Sits | Measured against | Obligation |
+| --- | --- | --- | --- |
+| `surface` | behind content | it is the background half | none of its own; it defines the pair |
+| `line` | on a surface, as a stroke or glyph | its own surface | non-text contrast |
+| `ink` | on a surface, as text or an icon that carries words | its own surface | text contrast |
+
+`line` and `ink` are separate roles rather than one "foreground" role because
+their floors differ, and collapsing them means either over-darkening every chart
+stroke or under-darkening every label. A stroke that is 2px wide and 40px long
+is not held to the same figure as a 15px sentence, and pretending otherwise
+produces a system whose charts are muddy.
+
+### The naming grammar
+
+```text
+--opsin-<axis>-<name>-<role>
+
+axis  ∈ { category, status }
+name  ∈ { cardio, metabolic, respiratory, activity, sleep, body }   when axis = category
+      ∈ { expected, watch, act, urgent }                            when axis = status
+role  ∈ { surface, line, ink }
+```
+
+There is no fourth position. No `-hover`, no `-subtle`, no `-2`. Interaction
+states are derived from the role token at use time, in OKLCH, by the rules in
+[Interaction states](../interaction-states.mdx) — they are not additional
+tokens, because a hover variant of every role on every name on both axes is
+seventy-two tokens nobody can hold in their head.
+
+Tailwind utilities are exposed for each token through `@theme inline`, so
+`bg-status-act-surface` and `text-status-act-ink` resolve to the same custom
+properties and follow the theme, the gamut escalation and the media-query
+overrides automatically. Raw `var()` access is supported for consumers who are
+not on Tailwind; see [CSS variables](../../theming/css-variables.mdx).
+
+### Chrome roles are a separate namespace
+
+Alongside the two axes there is an ordinary application palette —
+`--background`, `--foreground`, `--card`, `--muted`, `--muted-foreground`,
+`--border`, `--input`, `--ring`, `--primary` — inherited from the shadcn
+convention so that a team already using it is not asked to relearn anything.
+These are unprefixed on purpose: they are the *neutral* system, they carry no
+clinical meaning, and they are the correct default for almost everything on a
+screen. The `--opsin-*` tokens are the exception you reach for when the element
+is genuinely saying something about a measurement.
+
+If most of your screen is coloured from the two axes, the screen is shouting.
+See [Alarm fatigue](../../health/alarm-fatigue.mdx).
+
+### The declared pair set
+
+`scripts/check-contrast.mts` measures a *declared* list of pairs, in both
+themes and both gamuts. The list is, exactly:
+
+1. every `ink` against the `surface` of the same axis and name;
+2. every `line` against the `surface` of the same axis and name;
+3. every `ink` and `line` against `--background` and `--card`, because a status
+   line frequently sits on the page rather than on its own tint;
+4. `--foreground` and `--muted-foreground` against every material rung's
+   worst-case composite (see [The contrast floor](../materials/the-contrast-floor.mdx));
+5. `--ring` against `--background` and `--card`, because a focus ring that
+   cannot be seen is a keyboard trap with good intentions.
+
+Anything not on that list is **unmeasured**. Unmeasured is not the same as
+failing — it may well be fine — but it is not something this system is promising
+you, and a health product should not be built on a promise nobody made.
+
+## Using it
+
+**Use a whole pair or neither half.** If you find yourself writing
+`text-status-urgent-ink` on a card whose background is `--card`, stop: that is
+case 3 above only if it is the *line* role, and `ink` on a neutral card is not
+in the declared set. Use `--opsin-status-urgent-line` for a coloured mark on a
+neutral surface, and reserve `ink` for text on its own tint.
+
+**Never take `ink` from one axis onto a `surface` from the other.** Cardio ink
+on an urgent surface is both an unmeasured pair *and* a violation of the
+never-mix rule in [Two colour axes](../../health/two-colour-axes.mdx). It is the
+most common way the axis invariant is broken in practice, because each half
+looks defensible on its own.
+
+**Do not invent a role to solve a layout problem.** If a surface needs a
+slightly different tint to separate it from its parent, the answer is a
+[material rung](../materials/the-ladder.mdx) or a border, not a new colour token.
+
+<DoDont>
+  <DoDont.Do>
+    A tinted status card: `--opsin-status-act-surface` behind
+    `--opsin-status-act-ink`, with a 1px `--opsin-status-act-line` edge. All
+    three halves come from one axis and one name, so every pair on the card is
+    in the declared set and measured in both themes.
+  </DoDont.Do>
+  <DoDont.Dont>
+    A neutral card with `--opsin-status-act-ink` for the heading "because the
+    tint was too loud". The pair is unmeasured, the contrast is accidental, and
+    the reader now has a coloured heading with no coloured surface to explain
+    what the colour means.
+  </DoDont.Dont>
+</DoDont>
+
+**Extending is a supported operation; redefining is not.** Adding a seventh
+category adds three tokens and no risk, because categories carry no verdict.
+Redefining a status role changes what the product asserts about somebody's
+health, which is why [Status palettes](../../theming/status-palettes.mdx) exists
+as a page-length argument rather than a recipe.
+
+## Tokens
+
+<TokenTable scope="color" />
+
+## Accessibility impact
+
+The pair rule is the accessibility mechanism on this page, and it has a
+consequence people find unintuitive: **a token cannot be accessible on its
+own.** Contrast is a relationship. A design review that says "this colour passes"
+has not said anything checkable, and a token table that prints a single contrast
+number per colour is printing a number against an assumed background it did not
+declare.
+
+That is why [Contrast and APCA](./contrast-and-apca.mdx) and every
+`<ContrastReport>` on this site print a *pair*, a *theme* and a *floor*, and why
+`<TokenSwatch>` shows a token's resolved value in both themes together with the
+pair it was measured in.
+
+Two related obligations sit with the implementer rather than with the tokens:
+
+- **The `line` role is not a text role.** If you set body copy in a `line`
+  colour it may well be below the text floor. The role name is the warning.
+- **Icons that carry words are `ink`, not `line`.** An icon whose meaning is
+  duplicated by adjacent text is decorative and may use `line`; an icon that is
+  the only carrier of a piece of information is text as far as WCAG 2.2 SC 1.4.3
+  is concerned, and it should not exist at all under
+  [Colour independence](../../accessibility/colour-independence.mdx).
+
+## Related
+
+- [How the engine works](./how-the-engine-works.mdx) — stage 6 is where a ramp
+  becomes these three roles, and stage 7 is where the pairs are validated.
+- [Interaction states](../interaction-states.mdx) — why hover, press and
+  selected are derived at use time rather than shipped as more tokens.
+- [Token architecture](../token-architecture.mdx) — the three-tier model, and
+  the rule that a component never references a primitive.

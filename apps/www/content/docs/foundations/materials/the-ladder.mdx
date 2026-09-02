@@ -1,0 +1,199 @@
+---
+title: The ladder
+description: Six named rungs — ground, panel, raised, bar, overlay and scrim — with the job, the four properties and the opaque fallback of each.
+status: stable
+kind: foundation
+aliases: [material rungs, surface ladder, ground panel raised bar overlay scrim, elevation levels]
+owner: design
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+Six rungs, ordered by how much separation the surface claims from what is behind
+it. The first three are opaque and the last three are translucent, and that
+boundary — between rung 2 and rung 3 — is the most important line in the system,
+because everything above it is subject to
+[the contrast floor](./the-contrast-floor.mdx) and everything below it is not.
+
+<MaterialLadder />
+
+The demonstration stacks all six over a deliberately hostile photographic
+backdrop, with the scrim and reduced-transparency toggles live, so that the
+floor is something you can see rather than something this page asserts.
+
+## How it works
+
+### The six rungs
+
+| # | Name | Opaque? | Blur | Its job |
+| --- | --- | --- | --- | --- |
+| 0 | `ground` | yes | — | the page itself; the thing everything else sits on |
+| 1 | `panel` | yes | — | an inline grouping: a list section, a form block, a card that is not interactive |
+| 2 | `raised` | yes | — | a thing lifted off the page: a tappable card, a menu, a popover, a toast |
+| 3 | `bar` | no | small | persistent edge chrome that content scrolls **under**: nav bar, tab bar, toolbar, sticky summary |
+| 4 | `overlay` | no | large | something that takes over: a sheet, a dialog, a full-screen panel |
+| 5 | `scrim` | no | minimal | the dimming layer that isolates rung 4 from everything below it |
+
+The names are the vocabulary. Use them in design review, in commit messages and
+in component props; the numeric tokens exist because CSS custom properties
+cannot be tidily namespaced and because the ordering has to be machine-readable.
+
+### The four properties, rung by rung
+
+Each rung is exactly `--opsin-material-<n>-bg`, `-blur`, `-border` and
+`-shadow`. The shape of the ladder is easier to see as a set of movements than
+as a table of values:
+
+- **0 → 1** adds a border and changes the backing from the page colour to the
+  card colour. No shadow. A `panel` is a *region*, not an object.
+- **1 → 2** adds the only ordinary shadow in the system. Rung 2 is where a
+  surface becomes an object you could pick up.
+- **2 → 3** is the boundary. The backing gains an alpha, a blur appears, and the
+  border becomes a hairline expressed in alpha rather than a solid neutral. The
+  shadow shrinks almost to nothing, because a bar's separation comes from the
+  blur, not from a drop shadow.
+- **3 → 4** lowers the alpha slightly and raises the blur substantially, and
+  brings back a large soft shadow. An `overlay` is further from the page than a
+  `bar` and has to look it.
+- **4 → 5** is a different kind of thing entirely: `scrim` is a dark wash with
+  almost no blur, whose job is to *remove* information rather than to present
+  any.
+
+Exact resolved values are in the generated table below, in both themes. They are
+not repeated in prose anywhere on this site, because a value in prose is a value
+that will be wrong after the next regeneration.
+
+### Blur, tint, saturation and vibrancy
+
+Four things are commonly bundled into "frosted glass". opsinjs uses two of them
+and deliberately declines the other two.
+
+**Tint — used.** The backing colour and its alpha. This is the safety parameter:
+it is what bounds the composite and therefore what makes contrast measurable.
+See [The contrast floor](./the-contrast-floor.mdx).
+
+**Blur — used, for a narrow reason.** `backdrop-filter: blur()` removes high
+spatial frequency from what is behind the surface. It takes the *texture* out of
+a photograph so that glyph edges are not competing with edges behind them. It
+does **not** meaningfully change the local mean luminance, so it does not fix
+contrast, and it is never traded against tint.
+
+**Saturation boost — not used.** Boosting the saturation of the backdrop is what
+gives platform materials their characteristic liveliness. We decline it because
+it changes the backdrop's colour in a direction we cannot bound: the composite is
+no longer a simple interpolation between the tint and the backdrop, and the
+worst-case calculation stops being valid. If it is ever added it will be a
+per-rung token defaulting to no boost, so that the default remains measurable.
+
+**Vibrancy — not used.** Platform vibrancy blends the *foreground* text with the
+backdrop as well, which is a beautiful effect and an unbounded contrast
+liability. Text on an opsinjs material is opaque, always.
+
+<Todo>
+  Evaluate an opt-in per-rung saturation token. The open question is whether the
+  worst-case composite can still be bounded when the backdrop has been saturated,
+  or whether a boosted rung would have to carry a higher minimum tint to
+  compensate. Until that is answered the ladder ships without it.
+</Todo>
+
+### Browser support, honestly
+
+`backdrop-filter: blur()` is safe to use everywhere a modern browser runs, and
+has been for years. Two caveats that are still real:
+
+- Older Safari needs the `-webkit-` prefix, which costs one line and is emitted.
+- `backdrop-filter` with an **SVG filter reference** — `backdrop-filter:
+  url(#something)` — is a Chromium-only capability. Nothing in this ladder uses
+  it, and nothing in this ladder ever will, because a rung that only exists in
+  one engine is not a rung.
+
+Where `backdrop-filter` is unavailable entirely, rungs 3, 4 and 5 land on their
+opaque fallbacks — the same fallbacks that reduced transparency and print use.
+That path is exercised by real readers, not just by a feature query, so it is
+designed rather than tolerated.
+
+<BrowserSupport feature="backdrop-filter" />
+
+## Using it
+
+**Say the rung's name.** A design review conversation that contains "make it a
+bit more glassy" produces a screen with four different alphas. One that contains
+"that should be `bar`, not `overlay`" produces a screen with two.
+
+**The boundary between rung 2 and rung 3 is a decision, not a gradient.** Ask:
+does content scroll under this, or does it sit on the page? Chrome that content
+passes beneath is `bar`. Anything else that needs to look lifted is `raised`,
+opaque, with a shadow. There is no half-translucent card.
+
+**A toast is `raised`, not `bar`.** A toast appears over arbitrary content it
+knows nothing about, frequently over a photograph or a chart, and it usually
+carries a message that matters. It must not depend on what is behind it, so it
+is opaque.
+
+**Rung 5 never appears without rung 4.** A scrim exists to isolate an overlay. A
+dimmed screen with nothing on top of it is a loading state pretending to be a
+modal.
+
+<DoDont>
+  <DoDont.Do>
+    A results list on `ground`, sections grouped as `panel`, each tappable
+    reading as `raised`, a sticky summary bar as `bar`, and a detail sheet as
+    `overlay` over a `scrim`. Five rungs on one screen, at most three of them
+    composited at any moment.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Every card given the `bar` material because the frosted look reads as
+    premium. Each card is now a compositing layer, each one's contrast depends on
+    the row of the photograph behind it, and the sticky bar has lost the only
+    visual property that distinguished it from the content.
+  </DoDont.Dont>
+</DoDont>
+
+**Do not add a rung.** If a surface does not fit one of the six, the usual cause
+is that it is trying to be two things — a card that is also chrome, a sheet that
+is also a page. Splitting it is almost always the right fix; the intake process
+for a genuine seventh rung is in
+[Contributing tokens](../../handbook/contributing/contributing-tokens.mdx).
+
+## Tokens
+
+<TokenTable scope="material" />
+
+## Accessibility impact
+
+**The opaque rungs (0, 1, 2) carry the ordinary obligation.** Their backgrounds
+are known colours, so text on them is measured exactly as any other pair is —
+see [Contrast and APCA](../colour/contrast-and-apca.mdx).
+
+**The translucent rungs (3, 4, 5) carry a stronger one.** Their rendered colour
+depends on the backdrop, so they are measured against the worst-case composite
+rather than against their nominal tint. Every one of them clears the floor
+against a pure-black and a pure-white backdrop, in both themes, which is what
+makes them safe over imagery and video. The calculation is
+[The contrast floor](./the-contrast-floor.mdx).
+
+**Borders are measured too.** A hairline at low alpha over a translucent rung is
+the most commonly missed non-text contrast failure (SC 1.4.11), because it looks
+correct on the one backdrop the designer tested.
+
+**The fallback path is a first-class path.** Reduced transparency is not a
+degraded experience — the rung keeps its border, its shadow and its position, and
+only its translucency changes, so nothing moves and nothing is lost.
+[Reduced transparency](./reduced-transparency.mdx) states it rung by rung.
+
+<ContrastReport scope="materials" />
+
+## Related
+
+- [Choosing a layer](./choosing-a-layer.mdx) — the decision table from surface
+  kind to rung, plus the nesting rules.
+- [The contrast floor](./the-contrast-floor.mdx) — why rungs 3, 4 and 5 have the
+  alphas they have.
+- [Layering and elevation](../layering-and-elevation.mdx) — the z-index
+  contract, which the ladder correlates with but does not define.

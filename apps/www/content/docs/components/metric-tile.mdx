@@ -1,0 +1,236 @@
+---
+title: MetricTile
+description: A compact readout of one measurement — the number, its unit and how recent it is — sized to sit in a grid with several others.
+status: planned
+kind: component
+since: "unreleased"
+category: health-data-display
+aliases: [stat, kpi, tile, vitals, resting heart rate, spo2]
+governedBy: [numbers-units-precision, unit-systems, uncertainty-and-staleness, category-identity]
+usedIn: [health-metric-card, results-screen, trends-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="metric-tile"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "A tile has no room to explain itself. What is the minimum it must carry before it is allowed on screen — unit and timestamp, or more?",
+    "Is a tile ever the whole interaction, or must every tile lead somewhere that can explain the number?",
+    "How does staleness look at tile size, where a sentence will not fit?",
+    "How many tiles may share a screen before the grid becomes a wall of numbers nobody reads?",
+  ]}
+/>
+
+The tile is the component most likely to be over-used, because a dashboard of numbers looks
+productive and costs nothing to build. Its specification is mostly about what a tile is not
+allowed to do without a larger surface behind it.
+
+## Preview
+
+The preview will show a grid of tiles at three densities and at 200% text, which is the size
+where most tile designs fail.
+
+<ComponentPreview name="metric-tile" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail.
+
+<ComponentInstall name="metric-tile" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "A dashboard or summary grid where several measurements must be visible at once and the reader is scanning, not reading.",
+    "A measurement whose current value the reader already understands — their own resting heart rate, their own weight — and which needs no explanation to be useful.",
+    "An entry point: a tile that opens the result in full when tapped.",
+  ]}
+  avoid={[
+    { case: "The reader may be seeing this measurement for the first time and needs it explained.", instead: "result-card" },
+    { case: "The value only makes sense against a reference range, and the range will not fit.", instead: "range-bar" },
+    { case: "The number is a composite score whose derivation must be disclosed.", instead: "score-dial" },
+    { case: "You need to show how the value has moved rather than what it is now.", instead: "trend-sparkline" },
+    { case: "There is no value to show yet.", instead: "empty-state" },
+    { case: "The value is still loading and the grid would otherwise reflow.", instead: "skeleton" },
+  ]}
+/>
+
+A tile that cannot be opened is a dead end. If a reader glances at a number, wonders what it
+means, and has nowhere to go, the tile has raised a question the product refuses to answer.
+Every clinical tile should lead to a [ResultCard](./result-card.mdx) or an equivalent
+surface.
+
+## Clinical meaning
+
+**What it asserts.** That this measurement had this value, in this unit, at this time. Three
+claims, all of which must be on the tile: a number without a unit is ambiguous, and a number
+without a time is undated, which for health data is the same as being wrong.
+
+**What it must never be read as.** A current reading, unless it is one. The single most
+common failure of health dashboards is a tile showing a number from six weeks ago in exactly
+the typography of one taken this morning. Past the product's staleness threshold the tile
+must change visibly — a muted treatment plus an explicit relative time, not a small grey
+timestamp — as
+[Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx) requires.
+
+**Which colour axis it may use.** The **category** axis, on the icon and the label, so a
+reader can find the sleep tiles among the heart tiles in a grid of eight. The **status**
+axis may appear only as an embedded [StatusPill](./status-pill.mdx) or a single status mark,
+never as the tile's background. A grid of status-coloured tiles is a heat map of somebody's
+body, and it is unreadable at exactly the moment it matters most — see
+[Alarm fatigue](../health/alarm-fatigue.mdx).
+
+**Who owns the staleness threshold.** The product. What counts as an old reading is clinical
+and differs by measurement: a blood-pressure reading from last week may be current, and a
+blood-glucose reading from four hours ago may not be.
+
+## Anatomy
+
+<Anatomy name="metric-tile" />
+
+<CompositionTree name="metric-tile" />
+
+**Label** is what was measured. **Reading** is the number and unit, and it is the only large
+element. **Time** is the relative time with an absolute value available. **Trend** is an
+optional embedded sparkline, drawn small and captioned in the tile's accessible name rather
+than beside it. **Status** is an optional pill. Everything is optional except label, reading
+and time.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+MetricTile                     root; a link or button when it leads somewhere
+├── MetricTile.Header
+│   ├── MetricTile.Icon        category-tinted; never carries status alone
+│   └── MetricTile.Label       what was measured
+├── MetricTile.Reading
+│   └── Value                  number + unit; the only display-size element
+├── TrendSparkline             optional; no caption of its own at tile size
+├── StatusPill                 optional; the only status-coloured element
+└── MetricTile.Time            <RelativeTime>; changes treatment when stale
+```
+
+A tile with more than one status-bearing element, or with a `Value` that is not the largest
+thing on it, is a composition error.
+
+## Proposed API
+
+<NotBuiltYet name="metric-tile" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+import type { ClinicalStatus, HealthCategory, TrendPoint } from "opsinjs"
+
+export interface MetricTileProps {
+  label: string
+  /** `null` renders the no-reading state, which is not zero. */
+  value: number | string | null
+  unit?: string
+  /** ISO timestamp of measurement. Required: an undated reading is unusable. */
+  measuredAt: string
+  /**
+   * Hours after which the tile shows its stale treatment. Supplied by the
+   * product because staleness is clinical, not visual.
+   */
+  staleAfterHours?: number
+  /** Assigned by the product; renders as an embedded pill, never as a fill. */
+  status?: ClinicalStatus
+  /** Icon and label tint only. */
+  category?: HealthCategory
+  /** A short series drawn inline. Its meaning goes in the tile's label, not beside it. */
+  trend?: TrendPoint[]
+  /** Where the tile leads. A clinical tile with nowhere to go is a dead end. */
+  href?: string
+}
+```
+
+## Content guidelines
+
+Labels are two or three words in the reader's vocabulary — *resting heart rate*, not *RHR*,
+and not *HeartRateResting*. Units are displayed as symbols and spoken in full. Never
+abbreviate the measurement into an acronym the reader has to learn to use your dashboard.
+
+There is no room for explanation on a tile, so the tile must not raise a question it cannot
+answer. If the number needs a caveat, the caveat belongs on the surface the tile opens.
+
+<DoDont>
+  <DoDont.Do>
+    **"Resting heart rate · 58 bpm · this morning"** Named in full, unit present, recency
+    explicit and human.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"RHR 58"** An acronym the reader may not know, no unit, and no way to tell whether
+    this is from today or from March.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **"Blood pressure · 128/78 mmHg · 6 weeks ago"** with the whole tile muted. The age of
+    the reading is as visible as the reading.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A six-week-old reading rendered identically to this morning's**, with the date in grey
+    11px type. The reader compares it with today's number and draws a conclusion from two
+    things that are not comparable.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **Each tile has one accessible name that is a whole sentence**: *resting heart rate, 58
+  beats per minute, measured this morning*. Scanning a grid by tab or by rotor must not
+  produce a sequence of bare numbers.
+- **When the tile is interactive it is a single link or button**, with the whole tile as the
+  target, meeting the 44pt floor with 8pt separation between tiles. Nested interactive
+  elements inside a tile are prohibited — see
+  [Target size and motor](../accessibility/target-size-and-motor.mdx).
+- **Staleness is not conveyed by opacity alone.** The muted treatment is accompanied by
+  explicit text, so it survives increased-contrast and grayscale.
+- **The embedded sparkline is decorative at tile size** and is hidden from assistive
+  technology; its information is folded into the tile's accessible name instead.
+- **At 200% text the grid becomes a single column** and the tile grows; the reading never
+  truncates and the unit never wraps away from its number.
+- **Contrast** is measured for the label, the reading, the unit and the muted stale
+  treatment, in both themes.
+- **Print** renders tiles as a plain list of label, reading, unit and date.
+
+<KeyboardTable name="metric-tile" />
+
+<ContrastReport component="metric-tile" />
+
+## Related
+
+<RelatedComponents name="metric-tile" />
+
+**Easily confused with**
+
+- [ResultCard](./result-card.mdx) — the same data with room to explain itself. If it needs
+  three lines of plain English, it is a card.
+- [Value](./value.mdx) — the formatting primitive inside the tile. A tile is a Value plus a
+  label, a time and a surface.
+- [Card](./card.mdx) — a tile is not a small Card; it has a fixed internal contract.
+- [StatusPill](./status-pill.mdx) — appears inside a tile, never as its background.
+
+**Used by**
+
+- [Build a health metric card](../recipes/health-metric-card.mdx)
+- [Results screen](../screens/results-screen.mdx)
+- [Trends screen](../screens/trends-screen.mdx)
+
+**Governed by**
+
+- [Numbers, units and precision](../health/numbers-units-precision.mdx)
+- [Unit systems](../health/unit-systems.mdx)
+- [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx)
+- [Category identity](../health/category-identity.mdx)

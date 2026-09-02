@@ -1,0 +1,197 @@
+---
+title: Callout
+description: A short piece of set-apart information — a note, a tip, a caveat — that helps you understand what you are reading without claiming anything about your health.
+status: planned
+kind: component
+since: "unreleased"
+category: feedback
+aliases: [admonition, note, info box, aside]
+usedIn: [choose-a-component, onboarding-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="callout"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Callout is deliberately outside the clinical status axis. How is that enforced rather than merely documented, given a product can pass any className?",
+    "Which variants exist — note, tip, caveat — and does adding a fourth start the slide back towards a status vocabulary?",
+    "Is a Callout ever dismissible, and if it is, does the product remember, and for how long?",
+    "How many callouts may a surface carry before the set-apart treatment stops setting anything apart?",
+  ]}
+/>
+
+Callout is the component AlertBanner is most often mistaken for, and the mistake runs in one
+direction: things that should be quiet get promoted to alerts. Having a well-specified quiet
+option is most of the defence.
+
+## Preview
+
+The preview will show the variants beside an [AlertBanner](./alert-banner.mdx) at each status
+level, so the visual distance between advisory and clinical is deliberate and checkable.
+
+<ComponentPreview name="callout" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail.
+
+<ComponentInstall name="callout" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Setting apart a note, a tip or a caveat that helps the reader understand the content around it.",
+    "General health information that is true for everybody and is not about this reader's data.",
+    "Explaining a limitation of what is on screen — how a figure was worked out, what it does not include, where the data came from.",
+  ]}
+  avoid={[
+    { case: "The message is about this reader's data and carries a level of attention.", instead: "status-pill" },
+    { case: "Something has changed and the reader needs to know before carrying on.", instead: "alert-banner" },
+    { case: "The reader is being asked to do something by a certain time.", instead: "care-card" },
+    { case: "It is the standing statement about what this product is not.", instead: "disclaimer-note" },
+    { case: "You are explaining a single word rather than a passage.", instead: "term" },
+    { case: "There is no content yet and the callout is standing in for it.", instead: "empty-state" },
+  ]}
+/>
+
+The test is whether the message would still be true and still be worth saying if this
+particular reader had never opened the app. If yes, it is a Callout. If it depends on their
+data, it belongs on a component that carries a clinical contract.
+
+## Anatomy
+
+<Anatomy name="callout" />
+
+<CompositionTree name="callout" />
+
+**Icon** signals the variant and is decorative. **Title** is optional and short. **Body** is
+one short paragraph. There is no actions slot: a callout that needs a button is asking the
+reader to do something, and that is a [CareCard](./care-card.mdx).
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+Callout                        root; never status-coloured, never category-coloured
+├── Callout.Icon               decorative; distinct glyph per variant
+├── Callout.Title              optional, short
+└── Callout.Body               one short paragraph; no actions slot exists
+```
+
+## Proposed API
+
+<NotBuiltYet name="callout" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+/**
+ * Three variants, chosen so none of them maps onto a clinical status level.
+ * "warning" is deliberately absent: a warning about a person's health is an
+ * AlertBanner, and a warning about anything else is a caveat.
+ */
+export type CalloutVariant = "note" | "tip" | "caveat"
+
+export interface CalloutProps {
+  variant?: CalloutVariant
+  title?: string
+  children: React.ReactNode
+}
+```
+
+There is no `status` prop, no `severity` prop and no `color` prop. Their absence is the
+component: the moment a Callout can be tinted amber, the product has two ways of saying
+*attention*, and only one of them is governed.
+
+## Content guidelines
+
+Keep it to a short paragraph. A callout longer than the content it annotates has become the
+content. Write in the same voice as the surrounding text — the box is the emphasis, so the
+words do not need to be.
+
+Do not use a callout to hedge. *This may not be accurate* attached to a number the product
+chose to display is not a caveat, it is an unresolved question about whether the number should
+be there.
+
+<DoDont>
+  <DoDont.Do>
+    **"This average does not include days when you did not wear the device."** A specific,
+    checkable limitation of what is on screen.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"⚠️ Important: your data may be incomplete."** Warning styling for a non-clinical fact,
+    no specifics, and nothing the reader can do — the exact ingredients of alarm fatigue.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **One callout per surface**, next to the thing it explains.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **Four callouts down one screen.** Set-apart content that is everywhere is not set apart,
+    and the reader reads none of them.
+  </DoDont.Dont>
+</DoDont>
+
+<ClinicalNote evidence="opinion">
+These documentation pages use their own admonition chrome bound to the four clinical status
+words, because a documentation page has no patient and the vocabulary is worth rehearsing in
+front of the people who will implement it. The product component deliberately does not. If
+that reads as inconsistent, it is: it is the one place the docs chrome and the product theme
+are allowed to disagree, and
+[Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx) explains why.
+</ClinicalNote>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **A callout is ordinary content in the reading order.** No live region, no alert role, no
+  announcement over what the reader is doing.
+- **The icon is decorative** and hidden from assistive technology; the variant is never the
+  only carrier of meaning, and losing it loses nothing.
+- **The variant is distinguishable without colour**, by glyph and by the title when present,
+  so grayscale and increased contrast preserve the distinction.
+- **Body text inside a callout meets the same contrast floor as body text outside it.** Tinted
+  backgrounds are where contrast quietly fails, and the tint is measured against the text in
+  both themes.
+- **If a callout is dismissible, the dismiss control names what it dismisses** and meets the
+  44pt floor.
+- **At 200% text the callout grows with its content** and never becomes a scrolling box.
+- **Print** renders the callout with an outline rather than a fill, and keeps the icon out of
+  the way.
+
+<KeyboardTable name="callout" />
+
+<ContrastReport component="callout" />
+
+## Related
+
+<RelatedComponents name="callout" />
+
+**Easily confused with**
+
+- [AlertBanner](./alert-banner.mdx) — the clinical, interruptive counterpart. Choosing
+  correctly between these two is the single most valuable decision on a health screen.
+- [CareCard](./care-card.mdx) — when there is something to do and somebody asking.
+- [DisclaimerNote](./disclaimer-note.mdx) — the standing statement about the product itself.
+- [Term](./term.mdx) — for a single word rather than a passage.
+
+**Used by**
+
+- [Choose a component](../recipes/choose-a-component.mdx)
+- [Onboarding screen](../screens/onboarding-screen.mdx)
+
+**Governed by**
+
+- [The two colour axes](../health/two-colour-axes.mdx) — the argument for why this component
+  stays outside the status axis.
+- [Alarm fatigue](../health/alarm-fatigue.mdx)
+- [Voice and tone](../content/voice-and-tone.mdx)

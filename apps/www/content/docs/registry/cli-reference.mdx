@@ -1,0 +1,203 @@
+---
+title: CLI reference
+description: The commands you actually need, which of them are shadcn's, and why opsinjs deliberately ships almost no CLI of its own.
+status: stable
+kind: guide
+icon: Terminal
+aliases: [cli, commands, shadcn add, terminal]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+There is no `opsinjs` command, and the plan is to keep it that way for as long
+as possible.
+
+`npx shadcn` already installs items from a registry, resolves dependencies,
+previews diffs, decodes preset codes, reads a project's configuration and runs
+an MCP server. Re-implementing any of that would produce a second tool with the
+same job, a different set of bugs, and one more thing to keep in step with a
+specification opsinjs does not own.
+
+This page is therefore mostly a map of somebody else's CLI, annotated with what
+each command means here. The short list of things opsinjs genuinely needs a tool
+for is at the bottom, and it is specified rather than built.
+
+## Install and add
+
+```npm
+npx shadcn@latest add https://opsinjs.dev/r/result-card.json
+```
+
+The flags worth knowing:
+
+| Flag | What it does | Why it matters here |
+| --- | --- | --- |
+| `--dry-run` | Preview changes without writing | Always worth running first against a registry you do not control |
+| `--diff [path]` | Show the diff for a file | The upgrade path for code you have already edited — see [Upgrades and diffs](./upgrades-and-diffs.mdx) |
+| `--view [path]` | Print file contents without installing | Read a health component's source before you accept it |
+| `-o, --overwrite` | Overwrite existing files | Discards your edits. Use with `--diff` first, never alone |
+| `-p, --path <path>` | Install somewhere specific | Overrides the alias resolution from `components.json` |
+| `-a, --all` | Add everything | Never a good idea against opsinjs, and currently a no-op |
+
+`--view` deserves emphasis. In a copy-not-dependency model you are accepting
+source into your repository, and being able to read it before it lands is the
+main safety property of the whole approach.
+
+## Inspect before installing
+
+```npm
+npx shadcn@latest view @opsinjs/result-card
+```
+
+```npm
+npx shadcn@latest search @opsinjs -q "range"
+```
+
+```npm
+npx shadcn@latest docs result-card
+```
+
+`search` matches against name, title and description, which is why opsinjs
+writes descriptions in plain English rather than in component vocabulary — "a
+value shown against a reference range" is findable by somebody who does not know
+the word `RangeBar`.
+
+## Themes and presets
+
+```npm
+npx shadcn@latest apply <code> --only theme
+```
+
+`apply` takes a preset code and applies it to an existing project;
+`--only theme` and `--only font` restrict it. The `preset` command family
+decodes and resolves codes without applying anything:
+
+```npm
+npx shadcn@latest preset decode <code>
+```
+
+```npm
+npx shadcn@latest preset resolve
+```
+
+`preset resolve` prints the preset your project currently matches, which is the
+fastest way to answer "what theme is this project actually on". See
+[Preset codes](./preset-codes.mdx).
+
+## Read your own project
+
+```npm
+npx shadcn@latest info --json
+```
+
+Framework, Tailwind version, aliases, base library, icon library, configured
+registries and installed components. This is the same call the
+[agent skill](../agents/agent-skill.mdx) makes on activation, and it is a good
+first move when something installs into an unexpected directory.
+
+## Commands to be careful with
+
+<SafetyCallout severity="watch" evidence="opinion">
+`eject` inlines `shadcn/tailwind.css` into your stylesheet and removes the
+`shadcn` dependency. It is explicitly irreversible, and after it the CLI's
+future updates to that file no longer reach you. opsinjs relies on that import
+being present and in the right position — the order of `app/globals.css` is
+load-bearing — so eject only with a specific reason and a record of why.
+</SafetyCallout>
+
+`migrate` rewrites your code in place: icon library, base colour, `cn`, RTL,
+Radix. Each subcommand is useful and each is a large diff. Commit first.
+
+## The repository's own scripts
+
+If you have cloned or forked opsinjs, these are the commands that matter. They
+are `package.json` scripts, not a CLI, and they run under plain Node — the
+`.mts` scripts are executed by Node's own type stripping, with no `tsx` and no
+`ts-node` in the tree.
+
+| Command | What it does |
+| --- | --- |
+| `pnpm run generate` | Tokens, registry and generated reference pages |
+| `pnpm run contrast` | Measures every token pair with APCA and WCAG 2.2 |
+| `pnpm run check` | `check:generated`, `check:ia` and `check:llms` together |
+| `pnpm run check:generated` | Regenerates and fails on a diff |
+| `pnpm run check:ia` | Frontmatter, section outlines, link and reachability assertions |
+| `pnpm run check:llms` | The index and shards against the page tree |
+| `pnpm run check:freshness` | Reports pages past their review SLA. Does not fail the build |
+| `pnpm run evals` | The agent eval suite |
+
+Node 24 or newer is required, and each script starts with a version guard that
+exits with a readable message rather than a stack trace.
+
+## What an opsinjs CLI would be for
+
+<StubNotice
+  name="opsinjs-cli"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Is check-theme a standalone binary or a subcommand of a larger tool?",
+    "Should the version-stamp reader work on any repository, or only one with a components.json?",
+    "What is the exit code when a theme passes WCAG 2.2 and fails APCA?",
+  ]}
+/>
+
+Three jobs `npx shadcn` genuinely does not do, and they are the only justified
+scope:
+
+**`check-theme`** — validate a theme's contrast in CI. Specified in
+[Validating your theme](../theming/validating-your-theme.mdx) and shipped by
+[`@opsinjs/color`](../packages/opsinjs-color.mdx).
+
+**`stamps`** — read the version stamps in a project's copied files and report
+what has changed upstream since each one. See
+[Version stamps](./version-stamps.mdx).
+
+**`doctor`** — check the CSS import order, confirm the generated token layer
+loaded, and confirm no element carries both colour axes. All three are real
+failure modes that currently have no automated check.
+
+Nothing else. A CLI that duplicates `add` would be a maintenance liability with
+no user-visible benefit.
+
+## Verify it worked
+
+<Steps>
+
+### The CLI sees your project
+
+`npx shadcn@latest info` prints your configuration. If it prints defaults, it is
+running from the wrong directory.
+
+### A dry run does what you expect
+
+`npx shadcn@latest add <url> --dry-run` lists the files it would write. Read the
+list before dropping the flag.
+
+### The scripts run
+
+In a fork, `pnpm run check` should complete. It is the closest thing to a
+one-command answer to "is this repository consistent".
+
+</Steps>
+
+## Troubleshooting
+
+**`npx` uses a stale version.** `npx clear-npx-cache`, then retry. This is also
+the fix for an MCP server reporting no tools.
+
+**A command works globally and not in a monorepo.** Use `-c, --cwd` to point at
+the package rather than the workspace root.
+
+**`add` wrote nothing and reported success.** Nothing is built. See
+[the registry overview](./index.mdx).
+
+**A script fails with a syntax error in a `.mts` file.** Node is older than 24
+and cannot strip types. Check `node --version`.
+
+## Next
+
+- [Upgrades and diffs](./upgrades-and-diffs.mdx) — `--diff` in anger.
+- [Preset codes](./preset-codes.mdx) — encode, decode, apply.
+- [MCP server](../agents/mcp-server.mdx) — the same registry, for an assistant.

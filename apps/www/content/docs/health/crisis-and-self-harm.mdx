@@ -1,0 +1,193 @@
+---
+title: Crisis and self-harm
+description: What an interface must do when someone discloses thoughts of suicide or self-harm inside a questionnaire, and how to signpost support without ambush, judgement or a dead end.
+status: stable
+kind: health
+evidence: opinion
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 3m
+owner: design-system
+implements: [questionnaire, care-card, alert-banner, consent-sheet, disclaimer-note]
+aliases: [self-harm, suicide, crisis line, safeguarding, distress, mental health crisis]
+---
+
+<PageTemplate kind="health" />
+
+## What this means
+
+Mood questionnaires and wellbeing check-ins are common in consumer health
+products. Many of the standard instruments include an item about thoughts of
+self-harm or of being better off dead, because clinicians need to know. That item
+will, eventually, be answered affirmatively inside your app, by someone alone
+with a phone, with no clinician anywhere in the loop.
+
+At that moment the product has done something significant: it has invited a
+disclosure it is not equipped to respond to. Whatever happens next is design.
+
+The common failure is a screen that carries on. The score appears, the progress
+bar advances, the reader is congratulated for completing the questionnaire, and
+the most important thing anyone has said to this product all week is absorbed
+into an average. The second failure is the opposite: an alarming interstitial
+that reads as a system reacting to a threat, or a phone number thrown at someone
+with no acknowledgement of what they just said.
+
+This is the surface where a design system's usual language — components, states,
+budgets — is least adequate, and where the right answer most depends on clinical
+input your team must actually get.
+
+## The rule
+
+**A disclosure of risk of harm is acknowledged in place, immediately, without
+alarm, and always leads somewhere. It is never scored silently, never
+congratulated, and never a dead end.**
+
+1. **Acknowledge before anything else.** The next thing the reader sees responds
+   to what they said. Not a score, not a progress bar, not a thank-you.
+2. **Plain, warm, unshocked language.** "Thank you for telling us. Many people
+   have these thoughts, and support is available." No clinical register, no
+   alarm, no exclamation marks, no red.
+3. **This is not the status axis.** Do not paint a disclosure `urgent` and do not
+   dress it as a clinical alert. The visual language of the escalation ladder is
+   wrong here; use a calm, prominent, distinct surface.
+4. **Always offer a route, always more than one.** Talk to someone now; talk to
+   someone later; information to read; a way to tell a clinician already involved
+   in their care. People in distress differ enormously in what they can do.
+5. **Routes are configured per region and kept current.** opsinjs ships no crisis
+   numbers, no services and no opening hours, because a wrong or stale number
+   here is worse than none. Your product owns the list, and owns keeping it
+   right.
+6. **Never block, never trap, never force.** The reader may continue, may leave,
+   may say nothing more. An interface that will not let someone move on is an
+   interface they will lie to next time.
+7. **Never require an account, a payment, or a completed profile** to reach
+   support content. Support routes sit outside every wall.
+8. **Follow safe-messaging practice.** No method detail, no lethality
+   information, no graphic imagery, no framing of suicide as a solution or an
+   inevitability. This is established practice in the field, not a stylistic
+   preference — see the evidence note.
+9. **Be explicit about what happens to the answer.** Whether a person is
+   contacted, whether a clinician sees it, and whether anything is triggered.
+   Silence here is read as surveillance by some readers and as a safety net by
+   others, and both are dangerous guesses.
+10. **Design the repeat case.** Someone who discloses every week must not get the
+    same interstitial every week, and must not get nothing. This needs clinical
+    input, not a product decision.
+11. **Do not use engagement mechanics anywhere near this.** No streaks, no
+    badges, no "you are on a roll" on a mood questionnaire.
+
+<SafetyCallout severity="attention" evidence="opinion">
+  If your product includes any item that can disclose risk of harm, the response
+  to that item must be designed with someone who has clinical mental health
+  expertise, and it must be written down as a specified pathway rather than
+  assembled from screens. If you cannot get that input, seriously consider
+  removing the item — asking a question you cannot respond to is its own harm.
+</SafetyCallout>
+
+## Why (evidence)
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  We mark this `opinion` because we are describing interface behaviour, and we
+  have not run studies on it. But rule 8 rests on a real and well-established
+  body of practice that you should go and read directly rather than take from us:
+  guidance on responsible communication about suicide has been published by the
+  World Health Organization, and in the UK the Samaritans publish media
+  guidelines that are widely used well beyond journalism. Both are current
+  documents, both are freely available, and both are more authoritative on this
+  than a design system can be. We name them and deliberately do not paraphrase
+  their content — paraphrasing safe-messaging guidance is exactly the way it gets
+  diluted.
+
+  Rules 1 to 4, 6 and 11 are our design judgement, and the judgement rests on one
+  asymmetry: a person who has just disclosed something difficult and is met with
+  a progress bar learns that this app is not a place to be honest. That lesson
+  degrades every future answer, including the ones a clinician needs. We consider
+  the cost of an over-gentle response to be near zero and the cost of a
+  dismissive one to be high and lasting.
+
+  Rule 3 — keeping this off the clinical status axis — is the one most likely to
+  be argued with, because the disclosure is serious and the status axis is where
+  serious things go. We keep it separate because the status axis is about values
+  against ranges, and because an `urgent` red banner in response to a person's
+  disclosure of their own thoughts reads as a machine reacting to a threat.
+
+  What would change our mind: clinical advice. On this page in particular, we
+  would defer to it over our own reasoning.
+</ResearchNote>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    "Thank you for telling us — that can be hard to say. If you would like to
+    talk to someone now, here is how. You can also carry on, and this will still
+    be here."
+  </DoDont.Do>
+  <DoDont.Dont>
+    "Question 9 of 9 complete. Your score is 18 — moderately severe." The
+    disclosure has been converted into a number and the person into a band.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Offer several routes with different demands: a helpline, a text service, a
+    self-help page, and a way to flag it to a clinician already involved in their
+    care. Say which are available now.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Show a single phone number and a Close button. Many people in crisis cannot
+    make a phone call, and the interface has offered them nothing.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "Your answers are shared with the clinical team at your surgery. They may
+    contact you about this." Say it before the question, and again here.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Leave it ambiguous. A reader who suspects an unspecified consequence will
+    answer to avoid the consequence, which destroys the value of the question.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Keep the support surface reachable afterwards — a persistent, quiet entry
+    point in the app, not only in the moment of the disclosure.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Show it once, on dismissal lose it forever, and require the person to
+    re-disclose to find help again.
+  </DoDont.Dont>
+</DoDont>
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+`questionnaire` is a `considered` component rather than a shipped one, and this
+page is a large part of why: an instrument that can elicit a disclosure needs a
+specified response pathway before it needs a React component. If it is built, its
+specification will require a risk-response slot that cannot be left empty.
+
+## What this does not cover
+
+- **Clinical assessment or risk stratification of any kind.** opsinjs contains no
+  instrument, no scoring, no thresholds and no triage.
+- **The crisis services themselves** — numbers, hours, coverage, eligibility.
+  Yours to configure and to keep current.
+- **Safeguarding duties.** Whether you must act on a disclosure, and how, is a
+  legal and clinical governance question for your organisation.
+- **Content moderation** of anything a user writes freely, which is a different
+  discipline again.
+- **Children and young people**, where consent, confidentiality and safeguarding
+  all differ substantially and this page is not sufficient.
+
+<Todo>Specify the repeat-disclosure pathway with clinical input: what a person
+who discloses weekly should see on the second, fifth and twentieth occasion.</Todo>
+
+## Updates to this page
+
+<Reviewed />

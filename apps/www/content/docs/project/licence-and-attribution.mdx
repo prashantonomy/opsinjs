@@ -1,0 +1,107 @@
+---
+title: Licence and attribution
+description: The code is MIT and the guidance prose is separately CC BY 4.0 — so a team can quote this guidance inside a clinical safety case with a clear attribution path.
+status: stable
+kind: project
+owner: core
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 12m
+aliases: [licence, license, MIT, CC BY 4.0, how to cite, can I use this]
+---
+
+<PageTemplate kind="project" />
+
+## Two licences, on purpose
+
+| What | Licence | File |
+| --- | --- | --- |
+| Source code — components, the registry, the scripts, this site | **MIT** | `LICENSE` |
+| Documentation prose — the health, accessibility, content and design guidance | **CC BY 4.0** | `LICENSE-DOCS` |
+
+Most projects apply one software licence to the whole repository and leave the
+prose in an awkward position. That is a real problem for the people this system
+is for. Teams building regulated health software quote design guidance verbatim
+inside clinical safety cases, hazard logs and design-history files, and a
+software licence says nothing useful about copying a paragraph into a PDF that
+goes to a regulator.
+
+Creative Commons Attribution 4.0 says it exactly: you may copy and adapt the
+guidance, including commercially, provided you attribute it. There is no
+share-alike obligation, so quoting a rule from this site does not place any
+requirement on the rest of your document.
+
+## Using the code
+
+MIT. Copy it, modify it, ship it, sell what you build with it. Keep the copyright
+notice. There is no warranty — and in this domain that is not boilerplate, so it
+is worth reading the sentence below rather than skipping it.
+
+## Using the guidance
+
+Quote it, paraphrase it, adapt it into your own internal standard, translate it.
+Attribute it like this:
+
+```text
+Adapted from the opsinjs documentation (https://opsinjs.dev), CC BY 4.0.
+```
+
+Two things make an attribution genuinely useful to whoever reads your document
+next, and neither is required by the licence:
+
+**Name the page and its review date.** Guidance here is dated and reviewed on a
+cadence — see [Docs freshness](docs-freshness.mdx). "Adapted from *Clinical
+status semantics*, reviewed 2026-09-02" tells a reviewer which version of a rule
+you designed against. "Adapted from opsinjs" does not.
+
+**Say if you changed it.** If you tightened a rule, loosened it, or applied it to
+a context we did not write for, mark that. A safety reviewer must be able to tell
+your judgement from ours, and you do not want to inherit the blame for a rule you
+rewrote.
+
+## What is not covered by either licence
+
+- **Third-party material we cite.** Where a page references the NHS Digital
+  Service Manual, a journal article, WCAG, APCA or a vendor's human-interface
+  guidelines, that material stays under its own licence. We cite and paraphrase
+  in original wording; we do not reproduce. NHS content in particular is Crown
+  copyright and is not redistributed here — see the
+  [Plain-English A–Z](../content/plain-english-a-z.mdx), which is written from
+  scratch for that reason.
+- **Names and trade marks.** CC BY 4.0 does not license the project's name, and
+  attribution is not endorsement. Do not imply that a product using this system
+  has been reviewed or approved by it.
+- **Anything on this site marked as an opinion**, which is licensed like the rest
+  but is not evidence and should not be cited as though it were. Health pages
+  declare `evidence: cited`, `opinion` or `mixed` in their frontmatter for exactly
+  this reason.
+
+## No warranty, and no clinical endorsement
+
+The documentation is provided as is. It is design guidance — not medical advice,
+not a clinical safety assessment, and not a regulatory approval. Building an
+interface that follows this guidance does not make that interface safe; that
+judgement belongs to the team shipping the product and to its clinical safety
+officer. [Safety, scope and limitations](../start/safety-scope-and-limitations.mdx)
+states the full position, including the specific regulatory claims this project
+does not make.
+
+## What we build on
+
+opsinjs stands on other people's work. These are the dependencies whose licences
+you inherit when you use what this project emits, verified against the versions
+installed in this repository:
+
+| Project | Licence | What it does here |
+| --- | --- | --- |
+| Base UI (`@base-ui/react`) | MIT | The unstyled primitives every interactive component is built on — [ADR 0001](decisions/0001-base-ui-not-radix.mdx) |
+| React and Next.js | MIT | The framework this site runs on |
+| Tailwind CSS | MIT | The utility layer the emitted components use |
+| fumadocs | MIT | The documentation engine — [ADR 0004](decisions/0004-lyra-docs-chrome.mdx) |
+| shadcn/ui | MIT | The registry specification we distribute through, and the chrome components on this site |
+| Lucide | ISC | The one icon library, used for both chrome and components |
+| Inter | SIL Open Font License 1.1 | The typeface of this documentation site — not of the product theme, which uses `system-ui` |
+
+<LastUpdated />
+
+<Reviewed />

@@ -1,0 +1,235 @@
+---
+title: Safety review checklist
+description: A printable pre-ship checklist for any screen that displays, interprets or collects health information, with each item traceable to the rule it enforces.
+status: stable
+kind: health
+evidence: opinion
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+owner: design-system
+implements: [result-card, range-bar, status-pill, alert-banner, care-card, value, relative-time, consent-sheet, disclaimer-note]
+aliases: [pre-ship checklist, safety review, sign off, clinical review, launch checklist]
+---
+
+<PageTemplate kind="health" />
+
+## What this means
+
+Everything else in this section is an argument. This page is the operational form
+of those arguments: a list you run against a screen before it ships, in about
+fifteen minutes, with a yes or a no against each line and a named person who
+answered.
+
+It is deliberately not a maturity model or a scoring rubric. Scores get averaged
+and averages hide the one item that mattered. Every line below is a binary, and a
+"no" is either fixed or recorded as an accepted exception with a name against it.
+
+Print it. It is formatted to survive printing, and reviewers read on paper — see
+[Print and export](../accessibility/print-and-export.mdx).
+
+## The rule
+
+**No screen that displays, interprets or collects health information ships
+without this checklist completed, dated and attributable to a person.**
+
+### A. Values and numbers
+
+- [ ] Every displayed value has its unit, visible, adjacent, and in the
+      accessible name. → [Numbers, units and precision](./numbers-units-precision.mdx)
+- [ ] Precision matches the source; no value is rendered from an unformatted
+      float.
+- [ ] The unit system is the reader's stored preference, and any conversion is
+      labelled. → [Unit systems](./unit-systems.mdx)
+- [ ] Zero, absent and failed states are distinguishable from each other and none
+      renders as a number. → [Uncertainty, staleness and missing data](./uncertainty-and-staleness.mdx)
+- [ ] Out-of-scale values are shown at magnitude, not clamped to the end of a
+      gauge.
+- [ ] Numbers that appear in a list or update in place use tabular figures.
+
+### B. Ranges and interpretation
+
+- [ ] Any comparison against a range shows the range and names whose range it is.
+      → [Reference ranges](./reference-ranges.mdx)
+- [ ] The words *normal*, *abnormal*, *healthy*, *good*, *bad*, *poor* and
+      *optimal* appear nowhere in a string about the reader's own result.
+- [ ] The range applies to this reader — age, sex and other qualifiers checked —
+      or no range is shown.
+- [ ] No surface asserts a cause, a diagnosis or a prognosis.
+- [ ] Any risk figure is absolute, with a population, a time window and a
+      baseline. → [Risk and statistics](./risk-and-statistics.mdx)
+
+### C. Status and colour
+
+- [ ] Status is one of the four levels, and its meaning matches the definition.
+      → [Clinical status semantics](./clinical-status-semantics.mdx)
+- [ ] Status is carried by colour **and** icon **and** word — verified in
+      greyscale.
+- [ ] No element resolves a colour from both the category and the status
+      namespace. → [The two colour axes](./two-colour-axes.mdx)
+- [ ] Category colour does not change with the value.
+- [ ] At most one `urgent` and at most two `attention` surfaces on the screen.
+      → [Alarm fatigue](./alarm-fatigue.mdx)
+- [ ] Non-clinical messages do not use the clinical status palette.
+
+### D. Trends and time
+
+- [ ] Every value shows when it was measured, and staleness is visible without
+      reading a caption.
+- [ ] No trend is drawn below the metric's minimum window, and gaps are drawn as
+      gaps. → [Trends and change](./trends-and-change.mdx)
+- [ ] Direction and valence are distinguished; no coloured arrow asserts a
+      judgement the product cannot support.
+- [ ] Nothing is extrapolated or projected.
+
+### E. Provenance
+
+- [ ] Every value's provenance class is recorded and visible in plain words.
+      → [Data provenance and device accuracy](./data-provenance-and-device-accuracy.mdx)
+- [ ] No estimated or self-reported value drives a clinical status on its own.
+- [ ] No manufacturer accuracy claim is restated as the product's own.
+
+### F. Escalation, emergency and crisis
+
+- [ ] The escalation ladder is respected: no rung skipped, no parallel escalation
+      of the same fact.
+- [ ] De-escalation is communicated when a value returns to `steady`.
+- [ ] If this screen can produce an emergency finding, the emergency path is
+      implemented in full and has been tested this release.
+      → [Emergency and escalation](./emergency-and-escalation.mdx)
+- [ ] If any question here can disclose risk of self-harm, the response pathway
+      exists, is clinically reviewed, and always leads somewhere.
+      → [Crisis and self-harm](./crisis-and-self-harm.mdx)
+- [ ] Any result that may distress is announced before it is shown, and ends in a
+      route to a person. → [Delivering difficult results](./delivering-difficult-results.mdx)
+
+### G. Motion, notifications and privacy
+
+- [ ] No urgency is carried by motion, sound or haptics; nothing flashes; no
+      clinical value animates on reveal. → [Motion in health UI](./motion-in-health-ui.mdx)
+- [ ] Every animation has a defined reduced-motion behaviour that preserves
+      information.
+- [ ] Any notification for this screen carries no value or diagnosis and resolves
+      to this screen. → [Notifications and off-screen alerts](./notifications-and-off-screen-alerts.mdx)
+- [ ] Sensitive values mask without reflow, and the app obscures its content on
+      backgrounding. → [On-screen privacy](./on-screen-privacy.mdx)
+
+### H. Consent and language
+
+- [ ] Anything collected here has a stated purpose, a plain-language explanation
+      and a revocation route where the data appears.
+      → [Consent and disclosure](./consent-and-disclosure.mdx)
+- [ ] Declining is possible, unpunished, and no harder than accepting.
+- [ ] Every clinical term has a plain-English expansion in place.
+- [ ] Copy has been read aloud, and read by someone who did not write it.
+
+### I. Accessibility
+
+- [ ] Contrast meets the published floor in both themes, measured not assumed.
+      → [Contrast conformance](../accessibility/contrast-conformance.mdx)
+- [ ] Fully operable by keyboard, with visible focus and a sensible order.
+- [ ] Screen-reader pass completed; status changes announced at the right
+      politeness level. → [Screen readers](../accessibility/screen-readers.mdx)
+- [ ] Legible and complete at 200% text with no clipped clinical sentence.
+      → [Text resizing and zoom](../accessibility/text-resizing-and-zoom.mdx)
+- [ ] Touch targets meet the floor with adequate separation.
+- [ ] Screen is comprehensible in greyscale and under a colour-vision
+      simulation. → [Colour independence](../accessibility/colour-independence.mdx)
+
+### J. Governance
+
+- [ ] Every threshold on this screen traces to a written clinical rule with a
+      named owner and a date.
+- [ ] Any hazard identified during this review is in the hazard log.
+      → [Regulatory context](./regulatory-context.mdx)
+- [ ] Every "no" above is either fixed or recorded as an accepted exception with
+      a name and a reason.
+- [ ] Reviewer name and date recorded.
+
+## Why (evidence)
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  Opinion. The checklist form is borrowed rather than invented — checklists are
+  standard practice in aviation and in surgery for the same reason they work
+  here, which is that expertise does not prevent omission under time pressure.
+  We do not cite the surgical checklist literature because we are not claiming a
+  comparable effect; we are claiming that a list of binaries is harder to skip
+  than a page of principles.
+
+  Two design decisions are worth defending. First, binaries rather than scores:
+  a score of 88% hides which item failed, and in this domain the identity of the
+  failing item is the whole of the information. Second, every item links to the
+  page that argues for it, so a reviewer who disagrees can read the argument
+  rather than the rule — a checklist whose items cannot be interrogated becomes
+  ritual within two quarters.
+
+  The list is deliberately long enough to be uncomfortable and short enough to
+  run in one sitting. We have not measured how long it takes in practice.
+
+  What would change our mind: evidence that a shorter list is completed more
+  honestly. That is plausible and we would take it seriously.
+</ResearchNote>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    Run it before the design review, not after the build. Most failures are
+    layout and copy decisions, and both are cheap to change before implementation.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Run it as a release gate only. A gate at the end produces exceptions, not
+    fixes, because by then nobody can afford the fix.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Record exceptions with a name, a reason and a review date, in the same place
+    as your hazard log.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Let an item be "not applicable" without saying why. Most of the "not
+    applicable" answers we have seen were "we did not check".
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Have someone who did not build the screen run section H's read-aloud check.
+    The author cannot hear their own copy.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Self-certify the whole list. The value is in a second pair of eyes; the list
+    is only the prompt.
+  </DoDont.Dont>
+</DoDont>
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+Some of these items will eventually be machine-checkable: the banned-word list,
+the two-axis rule, the presence of a unit, and the alert budget are all lint
+rules waiting to be written. Until they exist, every item here is a human
+question, which is the honest state of the system today.
+
+## What this does not cover
+
+- **Clinical review.** This is an interface checklist. It does not assess whether
+  your thresholds, ranges or clinical content are correct, and passing it is not
+  clinical sign-off.
+- **Clinical risk management process** — hazard logs, safety cases, clinical
+  safety officers — which is
+  [Regulatory context](./regulatory-context.mdx) and your organisation's
+  responsibility.
+- **Security review, privacy impact assessment or data protection assessment**,
+  each of which is a separate exercise.
+- **Usability testing with real users**, which this cannot replace and which
+  finds a different class of problem entirely.
+- **Component-level accessibility conformance**, which is published per component
+  when components exist.
+
+## Updates to this page
+
+<Reviewed />

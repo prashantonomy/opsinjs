@@ -1,0 +1,259 @@
+---
+title: CareCard
+description: A card that tells you what to do and when — one instruction, at one of three levels of urgency, with the urgency stated in the heading rather than implied by colour.
+status: planned
+kind: component
+since: "unreleased"
+category: health-communication
+aliases: [next steps, what to do, advice, action card]
+governedBy: [two-colour-axes, clinical-status-semantics, alarm-fatigue, clinical-interaction-guidelines]
+usedIn: [staged-alert, results-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="care-card"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Three urgency levels or four? The status axis has four, but 'steady' has no instruction attached — is a steady CareCard a contradiction?",
+    "Every instruction has an author. How does the component make attribution structural rather than optional copy?",
+    "At the highest level the card may tell somebody to call for help. What may it render as an action, and how does that work outside one country?",
+    "What does the card do when the instruction has a deadline that has already passed?",
+  ]}
+/>
+
+CareCard is where a health product stops describing and starts asking. That makes
+attribution the whole specification: the reader must always be able to tell whether a
+clinician said this, a rule fired, or the product is guessing.
+
+## Preview
+
+The preview will show the three urgency levels with the heading pattern visible, so the
+claim that urgency lives in words rather than in colour can be checked rather than believed.
+
+<ComponentPreview name="care-card" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail.
+
+<ComponentInstall name="care-card" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "The reader needs to do something — book, repeat, contact, take, stop, prepare — and the product can say what, by when, and who is asking.",
+    "A result, a reading or a change has produced a next step that would otherwise be buried in a paragraph.",
+    "Aftercare, preparation and follow-up instructions that belong to one specific person at one specific moment.",
+  ]}
+  avoid={[
+    { case: "There is nothing to do; the reader only needs to know something.", instead: "callout" },
+    { case: "The message must interrupt the screen because it has only just become true.", instead: "alert-banner" },
+    { case: "You only need to label how much attention a result needs.", instead: "status-pill" },
+    { case: "The content is general health information not addressed to this reader.", instead: "callout" },
+    { case: "The instruction is the standard not-medical-advice note that appears by rule on every result.", instead: "disclaimer-note" },
+    { case: "The reader must respond before they can do anything else.", instead: "dialog" },
+  ]}
+/>
+
+A CareCard with no verb is not a CareCard. If you cannot write the instruction as *do this
+thing, by this time*, what you have is information, and information belongs in a
+[Callout](./callout.mdx) where it is not dressed up as a demand.
+
+## Clinical meaning
+
+**What it asserts.** That someone — named — is asking this reader to do this specific thing,
+optionally by a stated time, in response to a stated reason. Four claims, and the author is
+one of them.
+
+**What it must never be read as.** Advice from a clinician who has assessed this person,
+unless a clinician has assessed this person and the card says so. This is the most important
+sentence on the page. A card that says *repeat this test in three months* with no author is
+read as clinical advice, and the product has no way to withdraw a claim it never explicitly
+made. Attribution is a required part, not a footnote.
+
+**Which colour axis it may use.** The **status** axis, on the card's heading rule and icon,
+never as a full-bleed background fill. The **category** axis may not appear at all: a card
+telling somebody to contact their clinic is not a sleep card or a heart card, it is an
+instruction, and tinting it by category makes the instruction look like a topic.
+
+**Urgency lives in the heading.** *Do this today*, *do this within a week*, *when you next
+get a chance* — a phrase in the heading, not a colour and not an icon. A reader who scans
+only the headings must come away with the right timing, and a reader with no colour
+perception must lose nothing.
+
+**Who owns the rules.** The consuming product. CareCard has no clinical logic, no default
+timings, and no library of instructions.
+
+<SafetyCallout severity="high" evidence="opinion">
+At most one urgent CareCard per screen, and it names an action the reader can actually take
+right now. A card that says *seek medical attention immediately* with no number, no link and
+no next step has transferred the product's anxiety to the reader without transferring
+anything useful. If the instruction is to call emergency services, say the words and give
+the number for the reader's country.
+</SafetyCallout>
+
+## Anatomy
+
+<Anatomy name="care-card" />
+
+<CompositionTree name="care-card" />
+
+**Heading** carries the instruction and its timing. **Reason** is one sentence saying what
+prompted it, which is what turns an order into something a reader can evaluate.
+**Attribution** names the author — a clinic, a service, or the product's own rule.
+**Actions** are at most two. **Deadline** is the date or window, rendered as a
+[RelativeTime](./relative-time.mdx) with the absolute date always available.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+CareCard                       root; surface stays neutral, heading rule carries status
+├── CareCard.Heading           the instruction and its timing, in words
+├── CareCard.Reason            one sentence: what prompted this
+├── CareCard.Attribution       who is asking — required, never inferred
+├── CareCard.Deadline          optional; <RelativeTime> with the absolute date available
+└── CareCard.Actions           at most 2; the first is the recommended one
+```
+
+A CareCard without `CareCard.Attribution` is a composition error and should fail loudly in
+development. Everything else on this list is optional; the author is not.
+
+## Proposed API
+
+<NotBuiltYet name="care-card" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+import type { ClinicalStatus } from "opsinjs"
+
+/** Urgency as words, because a colour cannot say "within a week". */
+export type CareUrgency = "when-convenient" | "this-week" | "today"
+
+export interface CareAction {
+  label: string
+  href?: string
+  onSelect?: () => void
+  recommended?: boolean
+}
+
+export interface CareCardProps {
+  /** The instruction. Starts with a verb. */
+  heading: string
+  /** Rendered in the heading as words, never as colour alone. */
+  urgency: CareUrgency
+  /**
+   * Who is asking. Required, and free text rather than an enum, because
+   * "your GP surgery" and "an automatic reminder from this app" are both true
+   * answers and the difference matters more than any category we could invent.
+   */
+  attribution: string
+  /** One sentence: what prompted this instruction. */
+  reason?: string
+  /** ISO date. Rendered relatively, with the absolute date always available. */
+  dueBy?: string
+  /** At most two. */
+  actions?: CareAction[]
+  /**
+   * Optional link to the clinical status of the thing that prompted this, for
+   * the heading rule and icon only.
+   */
+  status?: ClinicalStatus
+}
+```
+
+## Content guidelines
+
+Start with a verb. Put the timing in the heading. Attribute in every card, in the reader's
+words: *your GP surgery asks*, *your clinic's automatic reminder*, *this app, based on the
+range you set*. Say the reason in one sentence — a reader who understands why will comply
+more reliably and worry less than one who has only been told.
+
+Never write *you must*, *you need to*, *failure to*, or *it is important that you*. They add
+pressure without adding information, and pressure is the thing this component is most likely
+to over-supply.
+
+<DoDont>
+  <DoDont.Do>
+    **"Book a repeat blood test in the next week. Your clinic asks for a repeat because your
+    last result was slightly outside the usual range. Due by 12 October."** Verb, timing,
+    author, reason, deadline.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Action required: abnormal result. Please contact your healthcare provider as soon as
+    possible."** No author, a banned word, no reason, and a timing so vague the reader
+    cannot tell whether to phone now or next month.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **"This is an automatic reminder from this app, not advice from your clinic."** One
+    sentence that tells the reader exactly how much weight to give it.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **Leaving attribution out because the design looks cleaner without it.** The reader fills
+    the gap with the most authoritative answer available, which is the wrong one.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **The card is a region with an accessible name** taken from its heading, so it can be
+  found by region or heading navigation without reading the page.
+- **Urgency is in the text.** Nothing about the timing is carried by colour, icon or position
+  alone, so grayscale, colour-vision deficiency and text-only rendering lose nothing.
+- **Reading order is heading, reason, attribution, deadline, actions**, matching the visual
+  order.
+- **Actions meet the 44pt floor** with 8pt separation, and their names say what they do
+  rather than *here* or *more*. A telephone action is a real `tel:` link with the number
+  visible as text as well.
+- **A passed deadline is stated in words**, not signalled by a colour change, and the card
+  says what to do about it now.
+- **The card never appears with an entrance animation that implies urgency**; see
+  [Motion in health UI](../health/motion-in-health-ui.mdx).
+- **At 200% text nothing truncates**, and the actions stack rather than shrinking.
+- **Print** renders the whole card including attribution and deadline. These cards are
+  printed and taken to appointments, and the author is the part that must survive.
+
+<KeyboardTable name="care-card" />
+
+<ContrastReport component="care-card" />
+
+## Related
+
+<RelatedComponents name="care-card" />
+
+**Easily confused with**
+
+- [AlertBanner](./alert-banner.mdx) — an announcement that something has changed, rather than
+  an instruction with a deadline. A banner may contain a link to a CareCard; they are not
+  substitutes.
+- [Callout](./callout.mdx) — information with no verb and no author. If nobody is asking for
+  anything, it is a callout.
+- [ResultCard](./result-card.mdx) — the measurement that prompted the instruction. Cards
+  often appear in pairs, the result above the instruction.
+- [DisclaimerNote](./disclaimer-note.mdx) — the standing note about what this product is not.
+  It is not an instruction and must not be styled as one.
+
+**Used by**
+
+- [Escalate an alert without alarming](../recipes/staged-alert.mdx)
+- [Results screen](../screens/results-screen.mdx)
+- [Alert escalation](../patterns/alert-escalation.mdx)
+
+**Governed by**
+
+- [The two colour axes](../health/two-colour-axes.mdx)
+- [Clinical status semantics](../health/clinical-status-semantics.mdx)
+- [Alarm fatigue](../health/alarm-fatigue.mdx)
+- [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx)

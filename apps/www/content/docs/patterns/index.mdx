@@ -1,0 +1,156 @@
+---
+title: Patterns
+description: A pattern is one user task spelled out across the screens it actually takes — the components, the copy and the failure cases, in the order the reader meets them.
+status: stable
+kind: pattern
+icon: Workflow
+aliases: [pattern library, user flows, multi-screen sequences]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="pattern" />
+
+Foundations tells you what a token means. Components tell you what one part
+does. Neither of them tells you what happens on the second screen, and almost
+every failure in a consumer health product happens on the second screen — the
+one where the result arrives, the one where validation fires, the one where the
+network was gone and nobody said so.
+
+Patterns are that layer. Each page here takes a single user task, follows it
+from entry to exit, and says what the system knows at each step, what it must
+not assume, and where the person can leave.
+
+<SectionProgress />
+
+## When to use
+
+Reach for a pattern when the thing you are building spans more than one moment
+in time:
+
+- **More than one screen.** Onboarding, a consent flow, a result that arrives
+  after the reader has closed the app.
+- **More than one state.** The same surface has to be right when the data is
+  fresh, stale, partial, missing and wrong, and the interesting design work is
+  in the transitions between those.
+- **A decision with a consequence.** Disclosing a result, escalating an alert,
+  asking for a permission the reader can refuse. If getting it wrong costs the
+  reader something, it is a pattern, not a component.
+- **A shape you have built twice already.** Three teams inventing three
+  different validation timings is how a product stops feeling like one product.
+
+Two sub-families sit under this group because they are keyed differently from
+the rest:
+
+- [Form design](./forms/index.mdx) — how a question behaves, as distinct from
+  how a form is wired up. One question per page or grouped, when validation
+  fires, where the error summary goes.
+- [Ask users for…](./ask-users-for/index.mdx) — keyed by the *data being
+  requested*: a date of birth, a name, a set of medications. This is the highest
+  reuse in the whole system, because every health product asks for the same
+  fifteen things and gets roughly the same eight of them wrong.
+
+## When not to use
+
+- **The whole thing fits inside one component.** If your guidance is "the label
+  goes above the input", that belongs on the component page, not here. Write it
+  on [Field](../components/field.mdx).
+- **You want working steps, not a shape.** A pattern describes the shape of a
+  solution and the reasoning behind it. If you want an ordered list that ends
+  with something on screen, go to [Recipes](../recipes/index.mdx) instead — a
+  recipe is a task with an ending.
+- **You want the rule rather than the sequence.** "Never let motion carry
+  urgency" is doctrine and lives in [Health](../health/index.mdx). Patterns
+  apply doctrine; they do not restate it, and `assert-ia` will fail a build in
+  which they do.
+- **You want a whole composed surface.** A finished results screen with real
+  composition and a preview is a [Screen](../screens/index.mdx).
+- **It is a mechanics question.** "How do I write a transition against
+  `data-starting-style`" is [Handbook](../handbook/index.mdx).
+
+## How it works
+
+Every page in this group is written to the same six working sections, and they
+are the same six because they correspond to the six ways a sequence fails.
+
+<FlowDiagram>
+{`flowchart TD
+  A["Reader arrives"] --> B{"Is this the right pattern?"}
+  B -->|"no"| C["When not to use names the alternative"]
+  B -->|"yes"| D["How it works: the sequence and its states"]
+  D --> E["Content: the words, in the order they are met"]
+  E --> F["Accessibility: focus, announcement, recovery"]
+  F --> G["Research: why it is shaped this way"]`}
+</FlowDiagram>
+
+A pattern page is never a picture of a happy path. The interesting content is
+concentrated in three places: what the system does when it does not know
+something, what it does when the reader refuses, and what it does when the
+reader leaves halfway through and comes back a week later.
+
+<NotBuiltYet />
+
+### How `status` is used in this group
+
+Patterns are guidance, so `status` here answers a narrower question than it does
+on a component page: **can a team follow this today?**
+
+- `stable` — the guidance stands on its own. You can apply it with any component
+  library, including one that is not opsinjs. The form-design and "Ask users
+  for…" families are all `stable`.
+- `planned` — the pattern is specified in terms of named opsinjs components that
+  do not exist yet. The reasoning is real; the assembly is not.
+
+## Content
+
+Patterns do not own copy rules. [Content & language](../content/index.mdx) owns
+voice, tone and banned words; [Numbers, units and
+precision](../health/numbers-units-precision.mdx) is canonical for anything
+numeric; [Grammar and mechanics](../content/grammar-and-mechanics.mdx) is
+canonical for capitalisation, punctuation and abbreviation in UI strings.
+
+What a pattern page contributes is *sequence*: which sentence the reader meets
+first, what the second screen may assume the first one said, and which words
+must be repeated because a person arriving from a push notification never saw
+the first screen at all.
+
+## Accessibility
+
+A sequence fails differently from a component. Every screen can pass its own
+audit and the journey can still be unusable, because the failures live in the
+joins:
+
+- **Focus across a transition.** When the second screen replaces the first,
+  focus has to land somewhere deliberate — usually the new heading — or it
+  returns to the top of the document and a screen-reader user has to re-orient
+  from scratch on every step.
+- **Announcement of change.** A value that updates in place without a status
+  message is invisible to anyone not looking at it. WCAG 2.2 SC 4.1.3 is the
+  floor here, not the ambition.
+- **Recovery.** What happens when the reader gets it wrong on step three, and
+  can they get back to step two without losing what they typed. WCAG 2.2 SC
+  3.3.7 (Redundant Entry) exists because most products cannot.
+- **Leaving.** Every pattern in this group states where the exit is. A health
+  flow with no exit is a dark pattern regardless of intent.
+
+The per-page accessibility sections here name the specific failure; the general
+contract is in [Accessibility](../accessibility/index.mdx).
+
+## Research
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  The split between Patterns, Recipes and Screens is a design opinion, not a
+  finding. It comes from watching documentation sites collapse the three: a
+  single "Patterns" section ends up containing a decision rule, a tutorial and a
+  page-level specimen, and readers stop being able to predict what they will
+  find. Keeping the three separate costs an extra click and buys the ability to
+  say "this is doctrine, this is a task, this is a shape" without hedging.
+
+  What would change our mind: evidence that readers navigate by task rather than
+  by artefact kind, which would argue for merging Recipes into Patterns and
+  letting the outline vary by page.
+</ResearchNote>
+
+## Updates to this page
+
+<Reviewed />

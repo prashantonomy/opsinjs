@@ -1,0 +1,125 @@
+---
+title: llms.txt and the shards
+description: The curated index a model should read first, the four shards that exist because context windows are finite, and the size budget that governs all of them.
+status: stable
+kind: guide
+aliases: [llms.txt, llms-full.txt, shards, context budget]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+[`llms.txt`](https://llmstxt.org/) is a convention: a single markdown file at the
+root of a site that tells a model what the site contains and where to find it,
+in a form that fits in a prompt. opsinjs publishes one, plus a full corpus dump,
+plus three topic shards.
+
+The reason for five files rather than one is arithmetic. This corpus is large
+enough that pasting all of it into a prompt wastes most of a context window on
+pages irrelevant to the task, and a model that has read everything about
+typography and nothing about clinical status will still get the status wrong.
+Shards let a caller spend context where it changes the answer.
+
+## The five files
+
+| Path | Contains | Use it when |
+| --- | --- | --- |
+| [`/llms.txt`](/llms.txt) | Curated index: one line per page, grouped under `##` section headers, with absolute URLs | Always. Start here |
+| [`/llms-full.txt`](/llms-full.txt) | The whole corpus as one document, size-capped | You have a large window and a broad task |
+| [`/llms-components.txt`](/llms-components.txt) | Component specifications and screens | Generating or reviewing UI code |
+| [`/llms-health.txt`](/llms-health.txt) | Health doctrine, accessibility and content guidance | Anything with a clinical or copy dimension |
+| [`/llms-foundations.txt`](/llms-foundations.txt) | Foundations, theming and the generated reference | Theming, tokens, contrast, motion |
+
+Every URL in every one of these files is absolute. A relative URL in an index is
+useless to a client that fetched the file from somewhere else and no longer
+knows where it came from — which is the normal case for a model.
+
+## What is in the index
+
+`/llms.txt` is generated from the page tree, so it cannot drift from the site.
+Each entry carries the page title, its one-sentence description, and its search
+aliases, because an alias is what a model was actually thinking of. Sections
+match the sidebar's sixteen groups.
+
+The status of each page is included too. Given that nothing is built, this is
+the single most load-bearing field in the file: an index that lists twenty-four
+components without saying `planned` beside every one of them would be an
+invitation to import them.
+
+```txt
+## Components
+
+- [ResultCard](https://opsinjs.dev/docs/components/result-card): A single test
+  result shown with what it means and how confident you should be. — status:
+  planned — aliases: results, lab result, test result, report card
+```
+
+## The size budget
+
+Two limits, applied by the generator and checked by `pnpm run check:llms`.
+
+**`/llms-full.txt` is capped.** When the corpus outgrows the cap, the generator
+drops whole pages in reverse priority order and says so at the top of the file
+rather than truncating mid-page. A truncated markdown document ending in the
+middle of a table is worse than a shorter complete one, because a model will
+happily complete the table from imagination.
+
+**Every shard is capped independently.** A shard that would exceed its budget is
+a signal that it needs splitting, not trimming. That is a build failure, not a
+silent degradation.
+
+If you need a specific page rather than a shard, fetch its markdown twin — see
+[Raw markdown API](./raw-markdown-api.mdx). Fetching one page is almost always
+cheaper than fetching a shard and hoping the page is in it.
+
+## Verify it worked
+
+<Steps>
+
+### The index parses as markdown
+
+```bash
+curl -s https://opsinjs.dev/llms.txt | head -40
+```
+
+Section headers, list items, absolute URLs, no HTML.
+
+### A URL from the index resolves
+
+Take any link from the file and fetch it with `.md` appended. If the twin 404s,
+the index and the router disagree and `check:llms` should have caught it.
+
+### The shards partition the corpus
+
+The three topic shards plus the pages that are in none of them should account
+for every page in the tree. `check:llms` asserts this; a page that belongs to no
+shard is usually a page in a group nobody assigned.
+
+</Steps>
+
+## Troubleshooting
+
+**`/llms-full.txt` is missing pages I can see on the site.** The cap. Read the
+notice at the top of the file, which names what was dropped, then fetch the
+shard or the individual twin.
+
+**A page's aliases are missing from the index.** Aliases come from frontmatter.
+A page with none contributes none — that is a documentation gap, reportable
+through the feedback control at the foot of the page.
+
+**The index is stale after I added a page.** It is generated at build time.
+Rebuild, or in development restart — `pnpm run generate` does not rebuild the
+index on its own.
+
+**I want an index of only the built components.** That would currently be an
+empty file. Nothing is built.
+
+## Next
+
+- [Raw markdown API](./raw-markdown-api.mdx) — fetching one page instead of a
+  shard.
+- [Offline docs bundle](./offline-docs-bundle.mdx) — the same corpus as one
+  versioned JSON file.
+- [Writing docs for agents](./writing-docs-for-agents.mdx) — what makes a page
+  survive the trip into an index entry.

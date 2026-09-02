@@ -1,0 +1,185 @@
+---
+title: Reading these docs
+description: The page contracts, the status vocabulary, and how to read a token or contrast table without being misled by it.
+status: stable
+kind: guide
+icon: BookOpen
+owner: core
+reviewed: 2026-09-02
+reviewer: content
+reviewEvery: 6m
+aliases: [how to read these docs, page contracts, status badges, docs conventions]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+Every page on this site is written to a fixed outline determined by its `kind`,
+and the build fails if a page invents a heading or omits a required one. That
+sounds bureaucratic and is in fact the main reason the site is usable: once you
+have read one component page you can navigate all twenty-four without looking, and
+an agent can parse them without a heuristic.
+
+This page teaches the conventions once. It is the shortest way to make the rest of
+the site predictable.
+
+## Read the page header first
+
+The block under the title is generated from frontmatter, and it carries more
+information than it looks like it does:
+
+- **The status chip** — the release phase. Everything below depends on it.
+- **`since`** — the version that introduced the thing being documented.
+  `unreleased` means exactly that.
+- **`category`** — where it sits in the catalogue. A category beginning `health-`
+  triggers extra mandatory sections on the page and extra review requirements.
+- **The accessibility review date** — when the accessibility claims on the page
+  were last checked. An old date is a warning, and
+  [Docs freshness](../project/docs-freshness.mdx) explains what happens when one
+  expires.
+- **`governedBy`** — the doctrine pages that constrain this component. Follow them
+  before you use it in anything clinical.
+- **Copy page** — the split button that hands you this page as markdown, or a link
+  to an AI tool with the page loaded.
+
+## Understand the status vocabulary
+
+Six values, and they mean the same thing on every page and in every machine
+surface. This is the vocabulary the sidebar chips, the search results, the
+catalogue JSON and `llms.txt` all share.
+
+<StatusLegend />
+
+| Status | What it promises |
+| --- | --- |
+| `stable` | The documented behaviour will not change without a major version and a migration note. |
+| `beta` | Shape is settled, details may still move. Safe to build on with a changelog subscription. |
+| `alpha` | Being designed in the open. Expect breaking changes without ceremony. |
+| `planned` | A specification with no implementation. There is nothing to install. |
+| `deprecated` | Still documented, with a named replacement and a removal version. |
+| `considered` | Evaluated and not built. It exists as a catalogue row so the question has an answer. |
+
+Every component in the system is currently `planned`. That is not a gap in the
+documentation; it is the documentation's subject.
+
+### For agents
+
+Three rules, and they are the difference between this site being useful to you and
+being dangerous.
+
+1. **A `planned` page is a definitive negative answer.** It exists so you do not
+   have to guess. The proposed API on it is a specification under review — do not
+   emit an implementation of it, do not import from it, and do not tell a user it
+   is available. The page carries a `data-opsinjs-not-implemented` marker and a
+   visually-hidden sentence saying so, in both the HTML and the `.md` twin.
+2. **Every page has a markdown twin.** Append `.md` to any documentation URL and
+   you get the processed markdown — JSX resolved into text, not raw MDX. The
+   corpus is also published as `llms.txt` with per-pillar shards. See
+   [Raw markdown API](../agents/raw-markdown-api.mdx).
+3. **Never invent a number.** Thresholds, reference ranges, contrast ratios and
+   token values are supplied or generated, never remembered. If a value is not on
+   the page, the honest answer is that it is not published yet.
+
+The full contract, including the machine-readable schemas, is in
+[Rules for agents](../agents/rules-for-agents.mdx).
+
+## Know which outline you are reading
+
+A page's `kind` fixes its headings. The five you will meet most often:
+
+- **`component`** — a twenty-two section anatomy, status-gated. At `planned` you
+  get intent, when *not* to use it, the clinical contract, the proposed anatomy
+  and API, the content rules and the accessibility requirements. The sections that
+  need a build to be truthful — examples, states, props table, bundle size — are
+  *omitted*, not left empty. [Anatomy of a component page](../components/anatomy-of-a-component-page.mdx)
+  teaches the whole contract once.
+- **`health`** — what this means, the rule, why (with evidence), applying it, the
+  components that implement it, what it does not cover, and when it was last
+  reviewed.
+- **`foundation`** — overview, how it works, using it, tokens, accessibility
+  impact, related.
+- **`recipe`** — a task, the parts, the build, the copy, the checks, variations.
+- **`guide`** — overview, the tasks, verify it worked, troubleshooting, next. The
+  page you are reading now.
+
+## Read a token table correctly
+
+Token tables have three columns for a reason. **Token** is the name you use.
+**What it controls** is the property it is expected to drive. **Used by** is the
+list of components that consume it — which is the column that turns a list into a
+decision aid, because it tells you the blast radius of changing one.
+
+Two habits will keep you out of trouble:
+
+- **Never copy the resolved value out of the table into your code.** The value is
+  generated from the token source and will change. The name is the contract; the
+  value is an implementation detail that happens to be printed.
+- **Check the tier.** Primitives are the raw ramp, semantic tokens are the
+  meaningful names, and component tokens are the per-component overrides.
+  Components reference semantic tokens and never primitives, and so should you.
+  See [Token architecture](../foundations/token-architecture.mdx).
+
+<NoDataYet script="build-tokens.mts" />
+
+## Read a contrast report correctly
+
+Contrast tables on this site print two numbers per pair, and they are not
+interchangeable.
+
+- **WCAG 2.2 contrast ratio** — the legally-referenced figure, ranging from 1:1 to
+  21:1. It is what conformance is measured against today.
+- **APCA `Lc`** — a perceptual lightness contrast value from the draft WCAG 3 work.
+  It models polarity, so light-on-dark and dark-on-light are not treated as the
+  same problem, and it correlates better with legibility at small sizes.
+
+opsinjs publishes both because they disagree, and where they disagree the honest
+thing is to show it rather than pick the flattering one. The published floor and
+what happens when a pair fails it are in
+[The contrast floor](../foundations/materials/the-contrast-floor.mdx).
+
+Every number in a contrast report is measured in CI from the token source. None of
+them is typed by an author, and a regression fails the build.
+
+## Verify it worked
+
+You can read this site fluently if you can answer these without looking:
+
+1. **What does a `planned` badge entitle you to?** A specification. Not code, not
+   an install command that works, not an import path.
+2. **Where does a number in a table come from?** A generator, named on the page.
+   If a table renders the `<NoDataYet>` placeholder, its source is
+   empty and the page is telling you so rather than inventing a value.
+3. **How do you get any page as markdown?** Append `.md` to the URL.
+
+## Troubleshooting
+
+**A section you expected is missing from a component page.** It is gated by
+status. Sections that require a build to be truthful are omitted at `planned`
+rather than rendered empty, because an empty heading reads as a documentation gap
+and an omitted one reads as what it is.
+
+**A table shows a placeholder instead of data.** That is the `<NoDataYet>` placeholder, and it names the
+script that will fill it. It is deliberately loud; a silently empty
+table is how documentation starts lying.
+
+**Two pages seem to contradict each other.** One of them is canonical, and both
+say which. Numeric formatting is canonical in
+[Numbers, units and precision](../health/numbers-units-precision.mdx); plain
+language is canonical in
+[Plain English A–Z](../content/plain-english-a-z.mdx). If you find a genuine
+contradiction that is not covered by a canonicality declaration, that is a bug —
+report it from the feedback control at the foot of the page.
+
+**A page you found through search has an old review date.** Review dates are
+published rather than hidden precisely so you can weigh them. See
+[Docs freshness](../project/docs-freshness.mdx).
+
+## Next
+
+- [Anatomy of a component page](../components/anatomy-of-a-component-page.mdx) —
+  the twenty-two section contract, taught once and never repeated.
+- [Rules for agents](../agents/rules-for-agents.mdx) — the machine-facing version
+  of this page.
+- [Release phases](../project/release-phases.mdx) — what each status promises, in
+  the project's own words.

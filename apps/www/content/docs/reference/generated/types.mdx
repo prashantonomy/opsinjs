@@ -1,0 +1,54 @@
+---
+title: Types
+description: Every TypeScript symbol the @opsinjs packages export, with a link to its own page.
+status: stable
+kind: reference
+full: true
+owner: engineering
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 12m
+aliases: [exported types, TypeScript API, ClinicalStatus, HealthCategory]
+---
+
+<PageTemplate kind="reference" />
+
+## How this is generated
+
+**Source:** the declaration files published by the `@opsinjs` packages — the
+`.d.ts` a consumer actually installs, never a hand-maintained list.
+**Script:** `scripts/build-reference.mts`, using `fumadocs-typescript`.
+**Command:** `pnpm run generate`.
+
+This page is an index. Each symbol also gets a page of its own under
+[API](../api/index.mdx), at `reference/api/<Symbol>`, because a type name in
+prose should be a link to a page and not an anchor two thousand words down a
+single document. The index carries the summary; the symbol page carries the
+members, the defaults and the things it is used by.
+
+**Four columns.** *Symbol* is the exported identifier, exactly as you would
+import it. *Kind* is what it is — interface, type alias, enum-like union,
+function, component. *Package* is which `@opsinjs/*` module exports it. *Summary*
+is the first sentence of its doc comment, which means the way to improve this
+page is to improve the comment.
+
+**Two symbols are load-bearing** and are worth knowing before you read anything
+else. `ClinicalStatus` is the union of the four clinical status levels, and it is
+the type that makes the never-mix rule checkable rather than merely written down.
+`HealthCategory` is the union of the subject categories. Every component that
+takes one takes it as a prop of that type, so a mixed pair is a compile error and
+not a design review finding. Both are specified in
+[Clinical status semantics](../../health/clinical-status-semantics.mdx) and
+[Category identity](../../health/category-identity.mdx); this page is where you
+find their exact members once the packages ship.
+
+**What is deliberately excluded.** Symbols marked `@internal` are suppressed.
+Types re-exported unchanged from Base UI or React are listed with a link to
+upstream rather than re-documented — opsinjs documents what it adds. Nothing in
+the documentation site itself is a public type.
+
+{/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
+
+<NoDataYet script="scripts/build-reference.mts" />
+
+{/* opsinjs:generated:end */}

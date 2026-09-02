@@ -1,0 +1,234 @@
+---
+title: Button
+description: A control you press to make something happen — the least clinical component in the system, and the one whose page sets the pattern every other component page follows.
+status: planned
+kind: component
+since: "unreleased"
+category: actions-and-forms
+aliases: [cta, action, submit, primary button]
+usedIn: [health-metric-card, daily-log-entry, consent-flow, onboarding-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="button"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "How many variants, and what stops the set growing to nine? Every design system that shipped a 'tertiary ghost outline' variant added it one reasonable request at a time.",
+    "Does the busy state disable the button, and if it does, how is the disabled control still announced and still reachable?",
+    "Destructive actions exist in a health product — deleting a reading, revoking consent. Is 'destructive' a variant, or a confirmation pattern?",
+    "The registry ships a lyra-styled button for these docs. What is the relationship between that file and this specification, and how do we stop anyone mistaking one for the other?",
+  ]}
+/>
+
+Button is the reference page. It carries no clinical contract, which is exactly why it was
+written first: it establishes the anatomy, the tone and the level of detail every other
+component page follows, without the clinical material doing the work.
+
+<ClinicalNote evidence="opinion">
+This documentation site ships a Button of its own, at `components/ui/button.tsx`, written by
+the shadcn CLI in the lyra style. It is docs chrome — square corners, dense, small type — and
+it is **not** this component and not a preview of it. The opsinjs product Button is squircle,
+system-ui and generous, and every `/view` route and component preview renders under that
+theme rather than this one. See
+[Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx).
+</ClinicalNote>
+
+## Preview
+
+The preview will show every variant and size at both densities, in both themes, with the
+focus ring visible and the busy state running — plus the 200% text case, where button labels
+usually break first.
+
+<ComponentPreview name="button" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail.
+
+<ComponentInstall name="button" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "An action that changes something: saving a reading, submitting a form, confirming a decision, starting a task.",
+    "The primary action on a surface, where one action matters more than the others and should be reachable without hunting.",
+    "Any control the reader operates that is not navigation.",
+  ]}
+  avoid={[
+    { case: "The control takes the reader somewhere rather than doing something — it should be a link, so it can be opened in a new tab, copied and used by a screen reader's link list.", instead: "link" },
+    { case: "The control turns something on or off immediately, with no confirmation step.", instead: "switch" },
+    { case: "The control chooses one of a few options rather than performing an action.", instead: "segmented-control" },
+    { case: "The control is icon-only, in a toolbar or a header.", instead: "icon-button" },
+    { case: "The action is an instruction with clinical timing and an author behind it.", instead: "care-card" },
+  ]}
+/>
+
+The first exclusion is the one that gets ignored and the one that costs most. A button that
+navigates cannot be opened in a new tab, cannot be copied, does not appear in a screen
+reader's list of links, and does not work when JavaScript has not loaded. If the result is a
+new URL, it is a link, however it is styled.
+
+## Anatomy
+
+<Anatomy name="button" />
+
+<CompositionTree name="button" />
+
+**Label** is the text and it is never optional — an icon-only control is a different
+component, because it needs an accessible name supplied some other way and a different target
+treatment. **Icon** is a leading or trailing glyph, always decorative. **Busy** is the
+in-place loading indicator that replaces the icon slot, never the label. **Target** is the
+hit area, which extends beyond the visible bounds to meet the 44pt floor when the button is
+visually smaller.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+Button                         root; a real <button>, or an <a> only when it navigates
+├── Button.Icon                optional, leading or trailing; decorative
+├── Button.Label               required; never removed by any prop
+├── Button.Busy                replaces the icon slot; the label stays put
+└── Button.Target              hit area; ≥44pt even when the visual is smaller
+```
+
+`Button.Label` cannot be removed. There is no `iconOnly` prop, because every system that
+shipped one ended up with unlabelled controls in production.
+
+## Proposed API
+
+<NotBuiltYet name="button" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+/**
+ * Four variants, in descending emphasis. Deliberately few: the discipline of
+ * one primary action per surface is enforced by not having nine ways to be
+ * almost primary.
+ */
+export type ButtonVariant = "primary" | "secondary" | "quiet" | "destructive"
+
+export interface ButtonProps
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
+  variant?: ButtonVariant
+  /** Both sizes meet the 44pt target floor; "sm" is visually smaller only. */
+  size?: "sm" | "md"
+  /** Required. There is no icon-only Button; that is a separate component. */
+  children: React.ReactNode
+  icon?: React.ReactNode
+  iconPosition?: "leading" | "trailing"
+  /**
+   * In-place loading. The label stays visible and the button stays in the
+   * accessibility tree, announced as busy rather than removed from it.
+   */
+  busy?: boolean
+  /**
+   * Fills its container. Used at the bottom of sheets and forms, where the
+   * primary action should be the width of the thumb's reach.
+   */
+  fullWidth?: boolean
+}
+```
+
+There is no `disabled` convenience beyond the native attribute, and the guidance is to avoid
+it: a disabled button gives the reader no way to find out why. Prefer an enabled button that
+explains what is missing when pressed — see
+[Cognitive accessibility](../accessibility/cognitive-accessibility.mdx).
+
+## Content guidelines
+
+Labels are verbs that name the outcome, in sentence case, without terminal punctuation. Two
+or three words. The reader should be able to read the button alone and know what will happen.
+
+Never *OK*, *Submit*, *Yes*, *No*, *Click here*, or *Learn more*. Each of them forces the
+reader back up the page to reconstruct the question, and each of them is useless in a screen
+reader's list of controls.
+
+<DoDont>
+  <DoDont.Do>
+    **"Save reading"** · **"Book a repeat test"** · **"Delete this reading"** Each names its
+    own outcome and survives being read out of context.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Submit"** · **"OK"** · **"Continue"** on a screen with three of them. A reader hearing
+    *button, continue* three times has learnt nothing.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **One primary action per surface**, with everything else secondary or quiet.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **Three filled buttons of equal weight.** The hierarchy is the answer to *what should I do
+    here?*, and three primaries answer it with a shrug.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **A real `button` element**, or an `a` when the action navigates. Never a `div` with a click
+  handler: keyboard activation, Space and Return semantics, and the control's role all come
+  free from the right element and must otherwise be rebuilt correctly, which nobody does.
+- **The visible label is the accessible name.** Where a longer name is needed, it starts with
+  the visible text, so voice-control users can say what they see.
+- **The target is at least 44 by 44 points**, with at least 8 points of separation from
+  neighbouring targets, even when the button looks smaller — WCAG 2.2 SC 2.5.8 is the floor,
+  not the goal. See [Target size and motor](../accessibility/target-size-and-motor.mdx).
+- **Focus is always visible**, meets the contrast floor against both the button and the page
+  behind it, and is never removed. The focus ring is not decoration; it is the only way some
+  people know where they are.
+- **The busy state keeps the button in the accessibility tree**, announced as busy, with the
+  label unchanged. Removing or replacing a pressed button loses the reader's place.
+- **Disabled buttons are avoided.** Where one is unavoidable, the reason is available in text
+  next to it, not only in a tooltip that requires hover.
+- **Icons are decorative** and hidden from assistive technology; the label always carries the
+  meaning.
+- **At 200% text the label wraps rather than truncating**, and the button grows to fit.
+  Truncated labels with an ellipsis are unreadable and unspeakable.
+- **Under `prefers-reduced-motion`** the press feedback is an immediate state change rather
+  than a scale animation, and nothing is lost.
+- **Contrast is measured for every variant** against its surface, in both themes, for the
+  label, the border and the focus ring — including the destructive variant, which is the one
+  most often tuned for drama rather than legibility.
+
+<KeyboardTable name="button" />
+
+<ContrastReport component="button" />
+
+## Related
+
+<RelatedComponents name="button" />
+
+**Easily confused with**
+
+- `link` (considered, no page yet — see the [roster](./index.mdx)) — for navigation. The most
+  consequential confusion in the whole set.
+- `icon-button` (considered) — icon-only, with its own naming and target rules.
+- `switch` (considered) — immediate state change, no confirmation.
+- `segmented-control` (considered) — choosing among options rather than acting.
+- [CareCard](./care-card.mdx) — where a clinical action lives, with its author and its timing
+  attached. A bare button is not an instruction.
+
+**Used by**
+
+- [Build a health metric card](../recipes/health-metric-card.mdx)
+- [Capture a daily log entry](../recipes/daily-log-entry.mdx)
+- [Consent flow](../screens/consent-flow.mdx)
+- [Onboarding screen](../screens/onboarding-screen.mdx)
+
+**Governed by**
+
+- [Interaction states](../foundations/interaction-states.mdx)
+- [Density and touch targets](../foundations/space/density-and-touch.mdx)
+- [Radius scale](../foundations/shape/radius-scale.mdx)
+- [Keyboard and focus](../accessibility/keyboard-and-focus.mdx)

@@ -1,0 +1,161 @@
+---
+title: Onboarding and first run
+description: The minimum you may collect before the reader has seen anything of value, and how to defer everything else to the moment it earns its keep.
+status: planned
+kind: pattern
+aliases: [first run, signup flow, setup wizard, minimum collection, time to first value]
+implements: [consent-sheet, field, reading-input, empty-state, care-card, button, disclaimer-note]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="pattern" />
+
+## When to use
+
+Use this pattern for the sequence between "the reader opened the app" and "the
+reader has seen something that is about them".
+
+The design constraint is that **every question asked before the first moment of
+value is asked on credit**. The reader has no evidence yet that this product is
+worth anything, and health questions are unusually expensive to answer — some of
+them are frightening, some are private, and several of them the reader does not
+know the answer to without going to find a piece of paper.
+
+Signals:
+
+- You are being asked to add "just one more field" to signup.
+- The setup flow has a progress bar with more than four steps on it.
+- Retention analytics show a drop inside setup rather than after it.
+
+## When not to use
+
+- **The reader is returning.** A returning reader with an empty screen is an
+  [Empty and first-use](./empty-and-first-use.mdx) problem, not an onboarding
+  one. Do not re-run setup because the data went missing.
+- **You are asking permission for a device capability.** Notifications, health
+  data access, location: those have their own timing rules and their own
+  revocation obligations. Use
+  [Consent and permissions](./consent-and-permissions.mdx).
+- **The questions are a clinical instrument.** A validated questionnaire is not
+  onboarding even when it runs first; its item order is fixed. See
+  [Question pages](./forms/question-pages.mdx).
+- **You want the specific field's guidance.** How to ask for a date of birth, a
+  height or a set of medications is
+  [Ask users for…](./ask-users-for/index.mdx).
+
+## How it works
+
+<FlowDiagram>
+{`flowchart TD
+  A["First open"] --> B["One screen: what this does and what it is not"]
+  B --> C{"Is this field needed to show the first value?"}
+  C -->|"no"| D["Defer it to the surface that needs it"]
+  C -->|"yes"| E["Ask it, one question at a time"]
+  E --> F{"Does the reader know the answer right now?"}
+  F -->|"no"| G["Offer skip with a named consequence"]
+  F -->|"yes"| H["Record it"]
+  G --> I["First value on screen"]
+  H --> I
+  D --> I
+  I --> J["Progressive prompts, each triggered by a surface that needs the field"]`}
+</FlowDiagram>
+
+<NotBuiltYet />
+
+**The gate.** For every field in your setup flow, answer one question in
+writing: *can the first useful screen render without this?* If yes, it is not
+onboarding. Move it to the surface that needs it, where the reader can see why
+it is being asked. This single test typically removes half of a health app's
+signup flow.
+
+**Scope before questions.** The first screen states what the product does and,
+explicitly, what it is not — see
+[Safety, scope and limitations](../start/safety-scope-and-limitations.mdx). A
+consumer health product that never says "this is not a diagnosis" until the
+footer of a settings page has made a decision about honesty, whatever its
+intentions.
+
+**Every skip has a stated consequence.** "Skip" with no consequence is a
+dishonest button; "Skip — we will show ranges for adults generally rather than
+for your age" is a decision the reader can make.
+
+**Nothing that arrives later blocks the first value.** If a device sync takes 30
+seconds, show the screen and fill it in. A spinner is not an onboarding step.
+
+### States
+
+| State | Behaviour |
+| --- | --- |
+| Fresh install | Full sequence, scope statement first |
+| Resumed | Returns to the exact question, with prior answers intact (WCAG 2.2 SC 3.3.7) |
+| Skipped fields | Recorded as skipped, re-askable later in context, never re-asked on next launch |
+| Reinstall with an account | Prior answers restored and shown for confirmation, not re-collected |
+| Declined everything | The product still shows something honest — never a locked screen with no exit |
+
+## Content
+
+Onboarding copy is the only place in a health product where the reader is
+reading properly. Spend that attention on scope and on the one thing they get
+next, not on features.
+
+<DoDont>
+  <DoDont.Do>
+    "We will show your readings next to the range your clinic uses, and tell you
+    when something looks different from your usual. We do not diagnose anything
+    and we are not a substitute for medical advice."
+  </DoDont.Do>
+  <DoDont.Dont>
+    "Welcome to your personal health companion! Let's get you set up." Six words
+    of value, none of them true of anything in particular, and no scope
+    statement.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "Why we ask: your age changes the range we compare your readings to. You can
+    skip this and add it later."
+  </DoDont.Do>
+  <DoDont.Dont>
+    A required date-of-birth field with an asterisk and no explanation, on screen
+    two of six.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility
+
+- **Each step is a page with a heading**, and focus moves to that heading on
+  advance. A wizard that swaps content inside one container without moving focus
+  leaves screen-reader users on the previous step's last control.
+- **Progress is stated in text**, not only as a bar: "Step 2 of 4".
+- **Back never destroys input.** Returning to step 1 and forward again preserves
+  everything; WCAG 2.2 SC 3.3.7.
+- **No time limits** on any onboarding step, including OTP entry beyond the
+  provider's own minimum; WCAG 2.2 SC 2.2.1.
+- **Authentication must not require a memory test.** WCAG 2.2 SC 3.3.8 rules out
+  cognitive function tests as the only path; paste into an OTP field must work.
+- **Skip is a real, focusable control** with a real label — not grey text
+  positioned to be missed.
+
+## Research
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  The "can the first screen render without it" gate is our own formulation and
+  the most useful thing on this page. It is an opinion, but an unusually
+  testable one: it converts an argument about priorities into a yes/no question
+  with a written answer per field.
+
+  Deliberately uncited: the widely repeated figures about drop-off per additional
+  signup field. They circulate without traceable methodology and do not transfer
+  to a health context where individual questions carry very different costs. The
+  direction is not in dispute; the magnitude is not ours to assert.
+
+  What would change our mind: evidence that deferred, in-context collection
+  produces materially worse data quality than up-front collection — plausible
+  for fields like height, where a reader in a hurry may guess.
+</ResearchNote>
+
+## Updates to this page
+
+<Reviewed />

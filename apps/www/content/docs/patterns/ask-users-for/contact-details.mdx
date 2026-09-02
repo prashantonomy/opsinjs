@@ -1,0 +1,146 @@
+---
+title: Ask users for contact details
+description: Ask for the channel you will actually use, verify it before you rely on it, and remember that a health message arriving on the wrong device is a disclosure.
+status: stable
+kind: pattern
+aliases: [email field, phone number field, address field, contact preferences, verification]
+implements: [field, consent-sheet, care-card]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="pattern" />
+
+## When to use
+
+Ask for a contact detail when you have a specific message to send and a specific
+channel to send it on. "So we can keep in touch" is not a purpose.
+
+Contact details in a health product carry a risk that they do not carry
+elsewhere: **a message is a disclosure**. An SMS saying "your results are ready"
+arrives on a lock screen that a partner, a parent or a colleague may be looking
+at. A letter arrives at an address the reader may have left. An email lands in
+an inbox someone else administers. Getting the channel wrong is not an
+inconvenience; it is a privacy incident with the reader's name on it.
+
+## When not to use
+
+- **You want an identifier.** Use an account identifier. Email addresses change,
+  are shared, and are reused.
+- **You are asking because a form template had the field.** Address in
+  particular is collected reflexively and rarely used. If nothing is posted,
+  do not ask for a postal address.
+- **You have not decided what you will send.** Decide first; the decision
+  changes which channel you need and what the consent conversation looks like.
+- **You want the notification design.** What a push notification may say is
+  [Notifications and off-screen alerts](../../health/notifications-and-off-screen-alerts.mdx).
+
+## How it works
+
+<FlowDiagram>
+{`flowchart TD
+  A["We need to contact the reader"] --> B{"What will we send, and how urgent?"}
+  B --> C{"Could the message reveal something?"}
+  C -->|"yes"| D["Content rule: the channel carries a prompt, never the substance"]
+  C -->|"no"| E["Standard message"]
+  D --> F["Ask for the channel, with the purpose stated"]
+  E --> F
+  F --> G["Verify before relying on it"]
+  G --> H{"Verified?"}
+  H -->|"no"| I["Keep the account working; do not use the channel"]
+  H -->|"yes"| J["Record channel, purpose and consent; offer per-purpose controls"]`}
+</FlowDiagram>
+
+- **One channel per purpose, chosen by the reader.** Appointment reminders and
+  marketing are not the same permission, and bundling them is the fastest way to
+  lose both.
+- **Verify before you rely.** A typo in an email address sends someone else's
+  health information to a stranger. Verification is a correctness measure here,
+  not an anti-spam measure.
+- **Verification must not lock the reader out.** An unverified address means
+  "we won't send there", not "you can't use the app".
+- **The message content follows the channel's exposure.** SMS and push are read
+  on lock screens; email is more private but not private. The substance lives
+  behind authentication, and the notification says only that there is something
+  to see.
+- **Do not validate an email address with a clever regular expression.** Check
+  for an `@`, send a verification message, and let delivery be the test. Elaborate
+  patterns reject valid addresses, including plus-addressing, which readers use
+  deliberately.
+- **Phone numbers are not integers.** Leading zeros, country codes, spaces and
+  plus signs are all part of them. Store the entered form and a normalised form;
+  never reformat the field while the reader is typing.
+- **Address is a free-text block plus a country**, with any lookup as an
+  accelerator that can always be bypassed. Address formats vary enormously and a
+  form built on one country's shape will reject much of the world.
+- **Changing a contact detail is a security event.** Confirm on the old channel
+  as well as the new one, and never let a change silently redirect health
+  messages.
+
+## Content
+
+<DoDont>
+  <DoDont.Do>
+    "Where should we send appointment reminders?" — the purpose is in the
+    question, so the reader can choose the right channel for that purpose.
+  </DoDont.Do>
+  <DoDont.Dont>
+    "Email address *" and "Mobile number *" on signup, both required, with no
+    statement of what either will be used for.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    SMS: "You have a new message in the app." The reader opens the app and
+    authenticates to see what it is.
+  </DoDont.Do>
+  <DoDont.Dont>
+    SMS: "Your HIV test result is now available." Sent to a phone on a kitchen
+    table.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility
+
+- **Autofill tokens**: `email`, `tel`, `street-address`, `address-level2`,
+  `postal-code`, `country-name`. Use the specification's tokens; WCAG 2.2 SC
+  1.3.5.
+- **`inputmode="email"` and `type="email"`** for email; `type="tel"` for phone.
+  Do not use `type="number"` for a phone number — it strips leading zeros and
+  plus signs.
+- **A one-time verification code field uses `autocomplete="one-time-code"`, and
+  paste must work.** Blocking paste on an OTP is a WCAG 2.2 SC 3.3.8 concern and
+  a reliable source of failed sign-ins.
+- **No auto-advancing segmented code inputs.** They are hard to correct and
+  disorienting with a screen reader; a single field is better.
+- **Verification timers are generous and extendable** (WCAG 2.2 SC 2.2.1), and
+  resend is always available with its cooldown stated in text.
+- **Address lookup results are a keyboard-navigable list** with an announced
+  result count, and manual entry is always reachable without using the lookup.
+- **Errors say what to fix.** "Enter an email address in the format
+  name@example.com" rather than "invalid email" (WCAG 2.2 SC 3.3.3).
+
+## Research
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  The rule that a notification carries a prompt and never the substance is a
+  design opinion, and it is the one with real consequences. It is not derived
+  from a study; it is derived from the observation that lock screens are public
+  surfaces and that the reader has no control over who is standing next to them
+  when a message arrives. The same reasoning is applied more fully in
+  [Notifications and off-screen alerts](../../health/notifications-and-off-screen-alerts.mdx)
+  and [On-screen privacy](../../health/on-screen-privacy.mdx).
+
+  The advice against elaborate email validation and against treating phone
+  numbers as numbers is engineering consensus with observable failure modes
+  rather than a finding.
+
+  What would change our mind: nothing on the disclosure rule. On verification,
+  a product whose only channel is in-app messaging has less to verify and can
+  reasonably simplify this page's flow.
+</ResearchNote>
+
+## Updates to this page
+
+<Reviewed />

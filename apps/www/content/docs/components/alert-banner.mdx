@@ -1,0 +1,261 @@
+---
+title: AlertBanner
+description: A message that appears at the top of a screen because something needs your attention now, saying what has happened and what to do about it.
+status: planned
+kind: component
+since: "unreleased"
+category: health-communication
+aliases: [warning, notification, alert, banner]
+governedBy: [two-colour-axes, clinical-status-semantics, alarm-fatigue, motion-in-health-ui]
+usedIn: [staged-alert, results-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="alert-banner"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "The budget is one urgent banner per screen. Should the component enforce it at runtime, warn in development, or leave it to review?",
+    "May an urgent banner be dismissible, and if it is, does it come back — and on what basis?",
+    "What is the relationship between a push notification and the banner the reader finds when they open the app?",
+    "When a banner tells someone to call emergency services, what is the component allowed to render as an action, and in which jurisdictions?",
+  ]}
+/>
+
+AlertBanner is the loudest thing opsinjs will ship, and the specification is mostly a set of
+limits. A banner that appears when it should not is not a small mistake: it spends the
+reader's attention, and attention spent on a false alarm is not available for the real one.
+
+## Preview
+
+The preview will show the banner at all four levels with its dismissal and action affordances,
+and under `prefers-reduced-motion`, where its entrance must be a state change rather than a
+movement.
+
+<ComponentPreview name="alert-banner" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail.
+
+<ComponentInstall name="alert-banner" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Something has changed since the reader last looked, and they need to know before they carry on with what they came to do.",
+    "A reading or a result has crossed a threshold the product defined, and there is a specific action attached to it.",
+    "A condition affects the whole screen rather than one item on it — data is out of date, a device has disconnected, sync has failed.",
+  ]}
+  avoid={[
+    { case: "The message is information the reader can take or leave, and nothing changes if they do not read it.", instead: "callout" },
+    { case: "The status belongs to one result rather than to the screen.", instead: "status-pill" },
+    { case: "The main content is an instruction with steps and timing rather than an announcement.", instead: "care-card" },
+    { case: "The message is a transient confirmation of something the reader just did.", instead: "toast" },
+    { case: "The reader must respond before anything else can happen.", instead: "dialog" },
+    { case: "There is simply nothing to show yet, and the banner is standing in for content.", instead: "empty-state" },
+  ]}
+/>
+
+The first exclusion carries most of the weight. *Would anything be lost if the reader did
+not see this?* If the answer is no, it is a [Callout](./callout.mdx). Banners are for the
+messages where the answer is yes, and a product that cannot tell the difference will end up
+with readers who scroll past both.
+
+## Clinical meaning
+
+**What it asserts.** That the product has determined this screen needs the reader's
+attention at one of the four levels, and — for `attention` and `urgent` — that there is
+something specific to do about it.
+
+**What it must never be read as.** A diagnosis, a clinical instruction from a person, or a
+substitute for emergency services. A banner may tell somebody to call for help; it may never
+imply that the app has assessed them. The distinction lives in the sentence: *your reading
+is above the level your clinic asked us to tell you about* is a threshold being reported,
+and *you are having a hypertensive crisis* is a diagnosis the app cannot make.
+
+**Which colour axis it may use.** The **status** axis, and only that. A banner carries no
+category colour, ever, even when it is about a single category's data: a sleep-tinted urgent
+banner makes the urgency look like a brand colour. The level's word appears in the heading,
+not only in the colour and the icon.
+
+**The escalation budget.** At most **one** `urgent` banner per screen and at most **two**
+banners in total. If the product's rules generate more, the product must merge them into one
+banner that names the most serious first. This is the central rule of
+[Alarm fatigue](../health/alarm-fatigue.mdx) and it is the reason this component exists as a
+governed surface rather than as a `div` with a red border.
+
+**Urgency is never carried by motion.** No pulsing, no flashing, no shaking, no colour cycling
+— at any level, under any circumstances. Movement is not more perceptible to everyone, it is
+actively harmful to some readers, and it does not survive `prefers-reduced-motion`. See
+[Motion in health UI](../health/motion-in-health-ui.mdx).
+
+<SafetyCallout severity="high" evidence="opinion">
+An `urgent` banner must never be the only place a serious message appears, and must never be
+dismissible without an explicit acknowledgement the product records. A reader who swipes a
+banner away on a bus has not been informed, and the product cannot tell the difference
+between dismissal and understanding.
+</SafetyCallout>
+
+## Anatomy
+
+<Anatomy name="alert-banner" />
+
+<CompositionTree name="alert-banner" />
+
+**Icon** and **Heading** carry the level; the heading contains the level's word so it
+survives grayscale and a screen reader. **Body** is one or two sentences of plain English —
+what happened, and what it means for the reader. **Actions** are at most two, the first being
+the one the product recommends. **Dismiss** is present only when the level permits it.
+**Timestamp** says when the condition was detected, which is often the difference between a
+banner that makes sense and one that does not.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+AlertBanner                    root; role depends on level, not on styling
+├── AlertBanner.Icon           one distinct glyph per level; decorative
+├── AlertBanner.Heading        contains the level's word, e.g. "Needs attention"
+├── AlertBanner.Body           what happened and what it means; 2 sentences maximum
+├── AlertBanner.Timestamp      when the condition was detected
+├── AlertBanner.Actions        at most 2; the first is the recommended one
+└── AlertBanner.Dismiss        absent at `urgent` unless acknowledgement is recorded
+```
+
+A banner with no `AlertBanner.Actions` at `attention` or `urgent` is a composition error:
+telling somebody that something needs action without offering one is the most common way a
+health product creates anxiety it cannot resolve.
+
+## Proposed API
+
+<NotBuiltYet name="alert-banner" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+import type { ClinicalStatus } from "opsinjs"
+
+export interface AlertAction {
+  label: string
+  href?: string
+  onSelect?: () => void
+  recommended?: boolean
+}
+
+export interface AlertBannerProps {
+  /** Required. The level drives the role, the announcement and the affordances. */
+  status: ClinicalStatus
+  /** Must contain the level's word. Sentence case, no exclamation marks. */
+  heading: string
+  /** One or two sentences. Longer than that and it is a CareCard. */
+  children: React.ReactNode
+  /** ISO timestamp of detection, not of render. */
+  detectedAt?: string
+  /** At most two. Required at `attention` and `urgent`. */
+  actions?: AlertAction[]
+  /**
+   * At `urgent` this is ignored unless `onAcknowledge` is supplied: an urgent
+   * banner may only be removed by an acknowledgement the product records.
+   */
+  dismissible?: boolean
+  onAcknowledge?: () => void
+}
+```
+
+## Content guidelines
+
+The heading names the level and the subject in under eight words. The body says what
+happened and what it means for this reader, in that order, in the second person. Actions are
+imperative and concrete.
+
+No exclamation marks, at any level. No capitals for emphasis. No *immediately*, *critical*,
+*danger*, *emergency* unless the product genuinely means the reader should stop and call for
+help, in which case say exactly that and give them the number.
+
+<DoDont>
+  <DoDont.Do>
+    **"Needs attention — your blood pressure reading is high. Your last reading was 168/104,
+    which is above the level your clinic asked us to tell you about. Contact your clinic
+    today."** Level, fact, threshold with an owner, and one clear action.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"⚠️ WARNING: Dangerously high blood pressure!"** Shouting, a diagnosis the app cannot
+    make, no number, no source and nothing to do. It produces fear and no decision.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **"Watch — your device has not synced since Tuesday. Readings after that may be
+    missing."** States the consequence, so the reader knows why it matters.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Sync error (code 4)."** An internal fact with no consequence attached. The reader
+    cannot tell whether to ignore it or to worry about it, so they will do one of the two at
+    random.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **The role follows the level.** `steady` and `watch` are ordinary regions announced when
+  reached. `attention` uses a polite live region. `urgent` uses `role="alert"` and is
+  announced immediately — and it is the only level that may.
+- **A banner present on load is not announced as a change.** Live-region announcements are
+  for banners that appear after the page settles; announcing everything on load produces a
+  wall of speech and teaches readers to ignore it.
+- **The level's word is in the heading**, so grayscale, colour-vision deficiency and
+  text-only rendering all preserve the meaning.
+- **The heading is a real heading** at the right level for its position, so a screen-reader
+  user can find it by heading navigation without scanning the page.
+- **Focus is not stolen.** A banner never moves focus on appearance. If the product needs a
+  response before anything else can happen, that is a [Dialog](./dialog.mdx) and it should
+  say so.
+- **Dismiss and actions meet the 44pt floor** with 8pt separation, and dismiss has a name
+  that says what it dismisses, not just *close*.
+- **Entrance is a state change, not a movement**, at every level, and is removed entirely
+  under `prefers-reduced-motion` — with nothing lost, because nothing was ever carried by
+  the movement.
+- **Contrast** is measured for every level's heading, body, icon and action against its fill,
+  in both themes and under increased contrast.
+
+<KeyboardTable name="alert-banner" />
+
+<ContrastReport component="alert-banner" />
+
+## Related
+
+<RelatedComponents name="alert-banner" />
+
+**Easily confused with**
+
+- [Callout](./callout.mdx) — information that carries no clinical level and interrupts
+  nothing. The most commonly mistaken pair in the system.
+- [CareCard](./care-card.mdx) — the instruction itself, with steps and timing. A banner
+  announces; a card instructs.
+- [StatusPill](./status-pill.mdx) — the same vocabulary attached to one item rather than to
+  the screen.
+- `toast` (considered, no page yet — see the [roster](./index.mdx)) — transient
+  confirmation. Nothing clinical belongs in something that disappears on a timer.
+- [Dialog](./dialog.mdx) — when the reader genuinely cannot continue until they respond.
+
+**Used by**
+
+- [Escalate an alert without alarming](../recipes/staged-alert.mdx)
+- [Results screen](../screens/results-screen.mdx)
+- [Alert escalation](../patterns/alert-escalation.mdx)
+
+**Governed by**
+
+- [The two colour axes](../health/two-colour-axes.mdx)
+- [Clinical status semantics](../health/clinical-status-semantics.mdx)
+- [Alarm fatigue](../health/alarm-fatigue.mdx)
+- [Motion in health UI](../health/motion-in-health-ui.mdx)

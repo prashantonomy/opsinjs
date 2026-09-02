@@ -1,0 +1,125 @@
+---
+title: Composition and render
+description: Merging an opsinjs part into your own element with the render prop — how props and refs are combined, and the three ways it goes wrong.
+status: planned
+kind: handbook
+aliases: [render prop, asChild, polymorphic component, ref forwarding, wrapping a component]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="handbook" />
+
+## The short version
+
+<NotBuiltYet />
+
+Every opsinjs part will accept a `render` prop, inherited from Base UI, which
+replaces the element the part would have rendered while keeping everything the
+part needs on it — its props, its `ref`, its event handlers and its data
+attributes:
+
+```tsx
+// A button that is actually a link.
+<Button render={<a href="/results" />}>See your results</Button>
+```
+
+This is the same job Radix does with `asChild`, solved with a prop that takes an
+element (or a function) rather than a boolean plus a single child. If you are
+arriving from shadcn/ui, `asChild` is the thing you are looking for; see
+[Migrating from shadcn/ui](./migrating-from-shadcn.mdx).
+
+## How it works
+
+The part computes the props it needs — accessibility attributes, event handlers,
+`data-*` state — and merges them onto the element you supplied instead of onto
+one of its own. The merge is not a naive spread:
+
+- **`className` is combined**, not replaced, so the part's own classes survive
+  alongside yours.
+- **Event handlers are chained.** Your `onClick` and the part's both run; the
+  part does not silently drop yours, and yours does not disable the part's
+  behaviour.
+- **`ref` is forwarded to your element.** Whatever you passed still receives the
+  node.
+- **`style` is merged**, with yours taking precedence.
+
+The function form gives you the computed props directly, for the cases where you
+need to inspect or reorder them:
+
+```tsx
+<Dialog.Trigger
+  render={(props, state) => <MyButton {...props} loading={state.pressed} />}
+/>
+```
+
+Use the element form by default. Reach for the function form only when you need
+the state.
+
+## Do this
+
+- **Use `render` to change the element, not to change the behaviour.** A
+  `Dialog.Trigger` rendered as your own button is the intended use; a
+  `Dialog.Trigger` rendered as a `div` with your own click handler is a
+  reimplementation with the accessibility removed.
+- **Spread the props you are given, all of them, first.** Then add yours:
+
+  ```tsx
+  render={(props) => <MyButton {...props} className={cn(props.className, "w-full")} />}
+  ```
+
+- **Forward `ref` in your own wrapper components.** A wrapper that swallows the
+  ref breaks focus management, positioning and every `scrollIntoView` in the
+  application, and it does so silently.
+- **Keep the element type appropriate.** If the part expects to be interactive,
+  give it something interactive — a `button` or an `a`, not a `span` with
+  `tabIndex`.
+- **Merge, do not override, the accessibility props.** If you set `aria-*` on
+  the rendered element after spreading, you are replacing what the part
+  computed, and it computed it for a reason.
+
+## Not this
+
+- **Do not nest two interactive elements.** `<Button render={<a />}>` is correct;
+  a `<Button>` containing an `<a>` is not, and it produces a control that
+  behaves differently for a mouse, a keyboard and a screen reader.
+- **Do not use `render` to skip a part.** Compound components have a part
+  hierarchy for a reason — usually positioning or ARIA relationships — and
+  collapsing two parts into one element breaks it. The correct nesting for each
+  component is on its page as a `CompositionTree`.
+- **Do not put the part's props on a wrapper.** Passing them to a `div` that
+  contains your button leaves the button without them; the merge target has to
+  be the interactive element itself.
+- **Do not rebuild a part because the styling was hard.** The state machine, the
+  ARIA wiring and the keyboard handling are the expensive parts. See
+  [Styling](./styling.mdx) for the four hooks that were probably enough.
+
+## Gotchas
+
+- **A missing `ref` forward fails silently.** Nothing errors; focus simply does
+  not move, or a popup positions at the top-left of the viewport. If a dialog
+  opens in the wrong place, suspect a wrapper that dropped the ref.
+- **Your `onClick` runs, and so does theirs.** Chaining means calling
+  `event.preventDefault()` in yours does not necessarily stop the part's
+  behaviour — check the part's documentation for what it honours.
+- **`className` order matters for `tailwind-merge`.** Put the incoming
+  `props.className` first so your utilities win the conflict resolution; the
+  other way round and the part's defaults override you.
+- **Function-form `render` re-creates the element on each render.** Keep it
+  cheap, and do not define components inside it — that remounts the subtree on
+  every state change and loses focus and input state along with it.
+- **`render` does not make a client component into a server component.** If the
+  part is interactive, it is a client boundary regardless of what you render it
+  as. See [Server and client
+  components](./server-and-client-components.mdx).
+
+## Related
+
+- [Styling](./styling.mdx) — try the four styling hooks before reaching for
+  composition.
+- [TypeScript](./typescript.mdx) — the types involved in a `render` prop and how
+  to type your own wrappers.
+- [Migrating from shadcn/ui](./migrating-from-shadcn.mdx) — the `asChild` to
+  `render` translation.
+- [Anatomy of a component page](../components/anatomy-of-a-component-page.mdx) —
+  where to find each component's part hierarchy.

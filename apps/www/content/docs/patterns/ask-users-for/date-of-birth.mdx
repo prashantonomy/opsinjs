@@ -1,0 +1,161 @@
+---
+title: Ask users for a date of birth
+description: Three text fields, not a calendar — and first, the question of whether an age band would have done instead.
+status: stable
+kind: pattern
+aliases: [date of birth field, DOB input, birthday field, age band, date picker for birth date]
+implements: [field, reading-input]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="pattern" />
+
+## When to use
+
+Ask for a date of birth when a decision in your product genuinely depends on
+knowing the reader's exact date rather than their approximate age:
+
+- **Identity matching.** Linking a record to a clinical system that keys on it.
+- **Age-dependent reference ranges** where the boundary is sharp — some
+  paediatric measures change materially within a year.
+- **Eligibility with a legal date boundary**, such as a screening programme.
+
+For everything else, ask for an **age band**. Personalising a general adult
+range, choosing content, or checking that a reader is over eighteen do not
+require a date; they require a decade or a threshold. An age band is easier to
+answer, cheaper to store, and less useful to anyone who should not have it.
+
+## When not to use
+
+- **You only need to know that they are an adult.** Ask that. A yes/no or a
+  single band answers it without collecting a birth date.
+- **You are asking for a recent date** — when a symptom started, when a dose was
+  taken. Those have completely different affordances: relative options
+  ("today", "yesterday") beat any date entry. See
+  [Symptoms](./symptoms.mdx).
+- **You are asking for a future date.** An appointment is a picker problem, and
+  a calendar is the right control there — the argument below is specifically
+  about dates decades in the past.
+- **You want form-level behaviour.** [Form design](../forms/index.mdx).
+
+## How it works
+
+<FlowDiagram>
+{`flowchart TD
+  A["We need age information"] --> B{"Does a decision need the exact date?"}
+  B -->|"no"| C["Ask for an age band and stop"]
+  B -->|"yes"| D["Three separate text fields: day, month, year"]
+  D --> E["Each labelled, numeric keyboard, bday-* autofill tokens"]
+  E --> F{"Complete?"}
+  F -->|"partially"| G["Name the missing part, keep what was entered"]
+  F -->|"yes"| H{"Valid calendar date, not in the future?"}
+  H -->|"no"| I["Say specifically what is wrong"]
+  H -->|"yes"| J["Accept; echo it back in full on review"]`}
+</FlowDiagram>
+
+**Three text fields, not a calendar.** This is the core recommendation. A date
+picker is optimised for choosing a date near today; reaching 1962 through one
+requires many interactions, and the widget's month grid is meaningless for a
+date the reader knows by heart and could type in four seconds. The three-field
+approach is what GOV.UK and the NHS service manual both document publicly, and
+the reasoning holds outside those contexts.
+
+Details that matter:
+
+- **Order the fields for the reader's locale** — day, month, year in most of the
+  world; month, day, year in the United States. Do not reorder the *labels* to
+  match a stored format.
+- **Every part is labelled visibly**: "Day", "Month", "Year". Not placeholders.
+- **Accept a month as digits or as a name.** Someone typing "March" or "Mar" has
+  answered the question.
+- **Four-digit years only.** Two-digit year entry is ambiguous at exactly the
+  wrong place: `26` is 1926 for some readers of a health product and 2026 for
+  others.
+- **Do not auto-advance between the parts.** It is disorienting, it breaks
+  correction, and it is a common cause of a transposed digit going unnoticed.
+- **Use `autocomplete="bday-day"`, `"bday-month"`, `"bday-year"`** on the three
+  fields, or `"bday"` on a single field where you use one. These are real tokens
+  in the HTML specification's autofill list and are what WCAG 2.2 SC 1.3.5
+  points at.
+- **Never derive and display an age the reader did not give you** without
+  showing the date it came from. A wrong age from a transposed digit is
+  invisible; a wrong date is not.
+
+### Edge cases that are not edge cases
+
+- **Unknown or partial dates are real.** People adopted, displaced, or born
+  where records are incomplete may know only a year. If your system can accept a
+  year alone, say so; if it cannot, say that too rather than letting the reader
+  invent a day.
+- **Very old readers exist.** A validation rule capping age at 100 will reject
+  genuine users. Set physical bounds, not convenient ones.
+- **Leap days are real.** 29 February is a valid answer and a classic rejection.
+- **The date does not change.** Once given, it should be re-editable but never
+  re-asked; WCAG 2.2 SC 3.3.7.
+
+## Content
+
+<DoDont>
+  <DoDont.Do>
+    Heading: "What is your date of birth?" Hint: "For example, 27 3 1985." Then
+    Day, Month and Year fields. Reason, one line: "We use this to compare your
+    readings to the range for your age."
+  </DoDont.Do>
+  <DoDont.Dont>
+    Label: "DOB*". Placeholder: "dd/mm/yyyy". A calendar icon that opens a
+    picker starting at this month, with no keyboard entry path.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Error: "Your date of birth must include a year." — names the missing part
+    and leaves the day and month as entered.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Error: "Invalid date" with all three fields cleared, so the reader starts
+    again.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility
+
+- **The three fields are a `fieldset` with a `legend`** carrying the question,
+  so each part is announced in context: "Date of birth, Day".
+- **The hint precedes the inputs** and is referenced by `aria-describedby` on
+  the group, so it is heard before the reader starts typing rather than after.
+- **Errors name the part.** "Enter a year" is actionable; "invalid" is not
+  (WCAG 2.2 SC 3.3.1 and 3.3.3).
+- **`inputmode="numeric"`** on each field so a phone keypad appears, with the
+  fields still accepting a typed month name where you support it.
+- **No auto-advance**, so a reader using a screen reader or switch access can
+  review and correct each part.
+- **Nothing is cleared on error.** Re-entry of correct parts is a WCAG 2.2 SC
+  3.3.7 failure and a reliable way to lose a reader.
+- **If you offer a calendar as an alternative**, it is additive, keyboard
+  operable, and never the only path.
+
+## Research
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  The three-field pattern and the argument against a date picker for historic
+  dates are documented publicly, with their own user-research rationale, by the
+  GOV.UK Design System and the NHS Digital Service Manual. We cite them and do
+  not reproduce their text.
+
+  What is ours and is opinion: the age-band-first gate at the top of this page,
+  and the strength of the position on partial and unknown dates. The gate is the
+  more important of the two — a date of birth is special-category-adjacent data
+  that many products collect out of habit for a decision that an age band would
+  have settled.
+
+  What would change our mind: nothing on the picker. On age bands, evidence that
+  banded self-report is materially less accurate than an exact date would be a
+  real argument, though it would apply to identity matching rather than to
+  personalisation.
+</ResearchNote>
+
+## Updates to this page
+
+<Reviewed />

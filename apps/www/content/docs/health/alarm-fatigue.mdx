@@ -1,0 +1,192 @@
+---
+title: Alarm fatigue
+description: Attention is a budget with a hard ceiling, and a health interface that overspends it teaches people to ignore exactly the signal it will one day need them to read.
+status: stable
+kind: health
+evidence: mixed
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+owner: design-system
+implements: [alert-banner, care-card, status-pill]
+aliases: [alert fatigue, escalation budget, too many alerts, notification fatigue, desensitisation]
+---
+
+<PageTemplate kind="health" />
+
+## What this means
+
+Alarm fatigue is the best-documented failure mode in clinical technology. In
+hospitals, monitors generate so many alarms that staff — competent, trained,
+motivated staff — stop responding to them, silence them pre-emptively, or tune
+them out entirely. The alarms are individually reasonable. The aggregate is
+noise, and people have been harmed by alarms that fired correctly into a room
+where nobody was listening any more.
+
+Consumer health apps reproduce this faithfully and at lower stakes right up until
+the day the stakes are not low. A ring closes, a streak breaks, a weekly report
+is ready, a device needs charging, a reading is a little high, a subscription is
+expiring — and every one of them arrives with the same visual weight and the same
+buzz. The user learns, in about a fortnight, that this app's notifications do not
+require action. That lesson is what they bring to the alert that did.
+
+The uncomfortable part is that each individual decision to escalate was
+defensible. Fatigue is a systemic property. It cannot be prevented by any single
+screen's review, which is why it needs a budget rather than a judgement.
+
+## The rule
+
+**Escalation is a finite, explicitly budgeted resource. Every surface that
+escalates must be spent against a stated budget, and the budget is enforced at
+the screen and at the session, not at the component.**
+
+The budgets opsinjs asks you to hold:
+
+| Scope | Ceiling | Rationale |
+| --- | --- | --- |
+| One screen | **At most one `urgent` surface**, ever | Two urgent things means the reader must triage, and they are not equipped to |
+| One screen | At most two `attention` surfaces | Beyond two, the reader reads none of them |
+| One session | At most one interruptive modal that is not user-initiated | An interruption the user did not ask for is the most expensive thing you can spend |
+| One day | At most one non-clinical push notification | See [Notifications and off-screen alerts](./notifications-and-off-screen-alerts.mdx) |
+| Any surface | `urgent` is reserved for clinical urgency | A product problem is never `urgent`, whatever the growth target |
+
+And the escalation ladder, in order. You may only move up a rung when the rung
+below has been used and is insufficient — never because a rung looks more
+important:
+
+1. **Ambient** — a `StatusPill` on the value itself. Present, not addressed to
+   anyone, costs nothing.
+2. **In-place** — a `CareCard` in the flow of the screen, next to the thing it is
+   about, with a named action.
+3. **Screen-level** — an `AlertBanner` at the top of the screen. Addressed to the
+   reader, still not blocking.
+4. **Interruptive** — a modal or a sheet the reader must dismiss. Requires that
+   the message is time-critical and cannot wait for them to arrive.
+5. **Off-screen** — a push notification. The most expensive rung, governed by its
+   own page, and never the first attempt.
+
+Three further rules that stop the budget being gamed:
+
+- **No parallel escalation.** The same fact does not get a pill *and* a card
+  *and* a banner. One fact, one highest rung, with lower rungs suppressed.
+- **De-escalation is as important as escalation.** When a value returns to
+  `steady` the surface goes away, and the reader is told once that it did.
+- **Repetition is not escalation.** Showing the same `attention` banner on eight
+  consecutive opens does not increase the chance of action; it converts an alert
+  into furniture. Re-raise on a change of state, not on a timer.
+
+<SafetyCallout severity="urgent" evidence="opinion">
+  The one exception to every budget above: a value that may require emergency
+  care outranks everything and suppresses all other alerts on the screen. That
+  path is specified separately at
+  [Emergency and escalation](./emergency-and-escalation.mdx), and the reason it
+  is separate is precisely so that it never competes with anything else.
+</SafetyCallout>
+
+## Why (evidence)
+
+<ResearchNote evidence="mixed" date="2026-09-02">
+  **Cited.** Alarm fatigue in clinical settings is a documented patient-safety
+  problem rather than a designer's intuition. The Joint Commission has published
+  a Sentinel Event Alert on medical device alarm safety in hospitals (Issue 50),
+  and alarm-related hazards have appeared repeatedly in ECRI's annual health
+  technology hazards lists. We name these so you can look them up and read the
+  current versions; we do not quote them, and we do not claim their findings
+  transfer directly to a consumer phone app.
+
+  **The transfer is our opinion.** Hospital alarms and app notifications differ
+  in almost every respect except the mechanism we care about: repeated
+  low-value signals from a source that is supposed to be trustworthy reduce
+  response to high-value signals from that source. We consider that mechanism
+  general. We have not measured it in a consumer health product and we cite no
+  study that has.
+
+  **The numbers in the budget table are ours and are arbitrary in the sense that
+  they were chosen, not derived.** One urgent per screen follows from the
+  triage argument. Two attention surfaces per screen is a judgement about
+  scanning. One un-requested interruption per session is a judgement about
+  goodwill. We publish them as numbers rather than as "use restraint" because a
+  number can be reviewed, argued with and enforced, and "use restraint" cannot.
+
+  What would change our mind: any field data at all on consumer health alert
+  response rates as a function of alert frequency. We would rather have that than
+  our table.
+</ResearchNote>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    Suppress the lower rungs when a higher one fires. If an `AlertBanner` is
+    already telling the reader their blood pressure needs checking, the tile
+    below shows a `watch` pill, not a second banner.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Let every component decide its own urgency independently. Nine independently
+    reasonable decisions produce one unreadable screen, and no single code review
+    catches it.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Track alert volume per user as a product metric with a target ceiling, the
+    way you track error rate. Fatigue is only visible in aggregate.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Measure alerts by click-through alone. A high click-through on a novel alert
+    tells you nothing about what the twentieth one will do.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Tell the reader when something has resolved: "Your blood pressure readings
+    are back in your usual range." De-escalation is information, and it rebuilds
+    trust in the escalation.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Silently remove the banner. The reader is left unsure whether the problem
+    went away or the app forgot, and the next banner is trusted less.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Give engagement, retention and commercial messages their own quiet channel
+    that is visually and structurally separate from the clinical one.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Borrow the clinical channel for a streak reminder because it gets noticed. It
+    gets noticed by spending the credibility of every future clinical alert.
+  </DoDont.Dont>
+</DoDont>
+
+Sound and haptics have their own budget, and it is smaller than the visual one
+because they cannot be ignored politely. See
+[Sound and haptics](../foundations/sound-and-haptics.mdx) and
+[Motion in health UI](./motion-in-health-ui.mdx).
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+`AlertBanner` is specified to expose the budget rather than hide it: a screen
+that mounts a second `urgent` banner should fail loudly in development instead of
+rendering two. That is a specification, not a shipped behaviour — nothing in this
+system is built yet — but it is the behaviour the component will be held to.
+
+## What this does not cover
+
+- **Which readings deserve to escalate at all.** That is a clinical threshold
+  decision; see [Clinical status semantics](./clinical-status-semantics.mdx).
+- **Notification scheduling, quiet hours and OS-level grouping**, which are on
+  [Notifications and off-screen alerts](./notifications-and-off-screen-alerts.mdx).
+- **The interaction pattern for staged escalation**, which is
+  [Alert escalation](../patterns/alert-escalation.mdx).
+- **Clinical monitoring systems.** Continuous monitoring with real alarms is a
+  regulated domain with its own standards and a different analysis entirely.
+
+## Updates to this page
+
+<Reviewed />

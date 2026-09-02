@@ -1,0 +1,129 @@
+---
+title: Spacing scale
+description: A 4pt-derived scale with a named role for each step, so a gap is chosen by what it separates rather than by how it looks.
+status: stable
+kind: foundation
+aliases: [4pt grid, spacing steps, gutter, layout rhythm]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+The spacing scale is a 4-point rhythm scaled by a single root value. Four points
+is the interval the platforms opsinjs targets are built on, it divides cleanly at
+every common display density, and it is coarse enough that adjacent steps are
+visibly different — which is what makes a scale a decision aid rather than a list
+of numbers.
+
+What opsinjs adds on top is a set of **named roles**. The numeric steps exist and
+are usable, but most spacing decisions should be made by naming the relationship —
+this is the gap between a label and its value; this is the gutter at the edge of
+the screen — rather than by picking a size. A named role is reviewable: somebody
+can disagree with "the gap between a label and its value is too tight" in a way
+they cannot disagree with "step 3".
+
+## How it works
+
+**The scale.** Tailwind derives its entire spacing system from `--spacing`, so
+`p-4` means four units of whatever that root is. The product theme raises the
+root above the default, which makes the whole system proportionally roomier
+without touching a single utility class. The docs chrome leaves it at the
+default, which is why this site is tighter than the product it documents.
+
+**The named roles.** Each maps to a step, and the map is generated:
+
+| Role | Separates |
+| --- | --- |
+| `hairline` | Elements that are one thing — a value and its unit |
+| `tight` | A label from the value it labels |
+| `close` | Rows within a group |
+| `default` | Groups within a section; the inside padding of most containers |
+| `section` | Sections within a screen |
+| `screen` | The screen's outer gutter, before safe-area insets are added |
+| `page` | Between major blocks on a wide-mode layout |
+
+The roles are what components consume. If a component reaches for a numeric step
+directly it is making a decision the system could have made, and the next person
+to adjust the product's density will have to find it.
+
+**Space is proportional, not absolute.** Because everything derives from one
+root, and the root is expressed relative to the font size, spacing grows with the
+reader's text-size multiplier. That is intentional: a layout whose gaps stay
+fixed while its type grows becomes cramped and then broken as the multiplier
+rises.
+
+<SpaceSpecimen step="default" />
+
+## Using it
+
+**Name the relationship, then take its role.** "This is the gap between a group
+and the next group" is a decision anyone can review. "This is 12 pixels" is not.
+
+**Use one step of difference to separate, two to group.** The perceptual rule
+that makes proximity work is *contrast* between gaps, not the size of any one
+gap. If the space inside a group and the space between groups are within one
+step of each other, the grouping does not read.
+
+<DoDont>
+  <DoDont.Do>
+    Rows inside a metric group at `close`, groups separated by `section`. The
+    difference is large enough that the structure is obvious at a glance, without
+    a single divider.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Everything at `default` with horizontal rules between groups. The rules are
+    compensating for spacing that does not distinguish anything, and on a screen
+    of numbers every extra line competes with the digits.
+  </DoDont.Dont>
+</DoDont>
+
+**Do not use spacing to hit a pixel target.** Adding a step to make a card land at
+a round height is how a scale becomes decorative. If the height matters, the
+container should be sized, not padded.
+
+**Space and radius are arithmetically linked.** The nesting rule on
+[Radius scale](../shape/radius-scale.mdx) subtracts the padding between two boxes
+from the outer radius. Changing a padding therefore changes a radius, and both
+should come from the scale so the relationship survives.
+
+**Negative space is not free space.** A gap large enough that two elements no
+longer read as related is a gap that has changed the meaning of the screen. That
+is usually what you want at `section` and never what you want at `tight`.
+
+## Tokens
+
+The root value, the numeric steps, the named roles and the mapping between them
+are generated from `tokens/space.json` by `scripts/build-tokens.mts`. Specimens
+render from the generated values.
+
+<TokenTable scope="space" />
+
+## Accessibility impact
+
+- **Separation between touch targets is a spacing decision with a conformance
+  consequence.** The minimum gap is specified on
+  [Density and touch](density-and-touch.mdx), and it is a floor rather than a
+  suggestion because the failure — an adjacent mis-tap — is silent and, on a
+  logging or dismissal control, destructive.
+- **Proximity is the only grouping channel that survives colour-vision
+  differences and greyscale**, so it does real accessibility work. It does not
+  survive a screen reader, which is why grouping is always also expressed in the
+  document structure.
+- **Spacing must scale with text or the layout fails at exactly the wrong
+  moment.** Because the scale is proportional, a component that uses it survives
+  a 1.3× multiplier; a component that hard-codes a gap does not. See
+  [Dynamic Type](../typography/dynamic-type.mdx).
+- **Enough space is a cognitive load measure**, particularly on screens read
+  under stress. Stated as opinion informed by practice, not as a measured result.
+- **Reflow at 400% zoom depends on the outer gutter behaving proportionally.**
+  A fixed gutter at that zoom level consumes most of the viewport; a derived one
+  does not.
+
+## Related
+
+- [Density and touch](density-and-touch.mdx) — where the scale meets a hard floor.
+- [Radius scale](../shape/radius-scale.mdx) — the nesting arithmetic that uses
+  these values.
+- [Space tokens](tokens.mdx) — the generated steps, roles and resolved values.

@@ -1,0 +1,219 @@
+---
+title: Troubleshooting
+description: The failures that actually happen, each with its symptom, its cause and its fix — and an honest note about the ones whose exact error text we have not seen yet.
+status: planned
+kind: guide
+icon: Wrench
+since: unreleased
+owner: core
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 3m
+aliases: [troubleshooting, common errors, it does not work, unstyled components]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+This page is organised by *when* the failure happens, because that is the fastest
+discriminator: a problem at install time has a completely different cause set from
+one that only appears in a production build. Each entry states a symptom you can
+match, the cause, and the fix.
+
+<Todo>
+  This page is specified to quote the exact error text for each failure, anchored
+  by error code. Nothing is implemented, so those strings have not been produced by
+  a real failure — and inventing plausible-looking error text in a troubleshooting
+  page is worse than omitting it, because it makes the page unsearchable in exactly
+  the situation where someone is pasting an error into a search box. Entries below
+  are therefore matched by symptom until the first release generates the real text.
+</Todo>
+
+## Failures before anything is installed
+
+### Nothing is published yet
+
+**Symptom.** Any `shadcn add @opsinjs/...` command fails to resolve. The registry
+URL returns nothing useful. There is no `@opsinjs` package on npm.
+
+**Cause.** This is the current state of the project, not a fault. There is no
+published package and no live registry.
+
+**Fix.** None, and none is needed. Every installation page on this site carries
+this warning at the top. If you are evaluating opsinjs, the specification is what
+there is to evaluate; [Roadmap](../project/roadmap.mdx) is dated and says what
+will exist when.
+
+### An agent generated opsinjs code that does not exist
+
+**Symptom.** You have a file importing `@opsinjs/result-card` or
+`@/components/opsinjs/...`, nothing resolves, and nobody on the team remembers
+writing it.
+
+**Cause.** A coding assistant read a `planned` component page, treated the proposed
+API as documentation of a shipped component, and generated against it.
+
+**Fix.** Delete it — it is a hallucinated implementation of a specification, and
+the proposed API is still under review and will change. Then point the assistant at
+[Rules for agents](../agents/rules-for-agents.mdx), which states the constraint in
+the form an agent will actually follow. Every `planned` page carries a
+`data-opsinjs-not-implemented` marker for exactly this reason.
+
+## Failures at install time
+
+### The registry namespace is not configured
+
+**Symptom.** The CLI reports an unknown or unresolvable registry for `@opsinjs`,
+while unnamespaced `shadcn add` commands work normally.
+
+**Cause.** `components.json` has no `registries` entry mapping `@opsinjs` to the
+registry URL.
+
+**Fix.** Add it. Every field opsinjs reads, and the exact entry, are in
+[components.json](./installation/components-json.mdx).
+
+### Files land in the wrong directory
+
+**Symptom.** The CLI reports success, but the component is not where you expected,
+or an import path in the copied file does not resolve.
+
+**Cause.** The `aliases` block in `components.json` does not match your actual
+`tsconfig` paths. The CLI writes to the alias; your bundler resolves the tsconfig
+path; when they disagree, nothing reconciles them.
+
+**Fix.** Make `components.json` aliases and `tsconfig.json` paths agree. In a
+workspace, both must be right in the *app* that is being written to, not in the
+repository root. [Monorepo](./installation/monorepo.mdx).
+
+### The Node version is too old
+
+**Symptom.** The CLI or a build script fails early with a syntax or unsupported
+error, before doing any real work.
+
+**Cause.** opsinjs tooling targets a current Node LTS and does not transpile
+itself.
+
+**Fix.** Upgrade Node. This is worth checking first whenever a failure happens
+suspiciously early, because the resulting message rarely names the version as the
+cause.
+
+## Failures at build time
+
+### Components render completely unstyled
+
+**Symptom.** The markup is correct, the component is in the tree, and it has no
+styling at all. Often works in development and fails in a production build, which
+makes it look like a bundler problem.
+
+**Cause.** Tailwind v4 discovers classes by scanning declared sources. opsinjs
+components are copied into *your* repository, so the directory you copied them into
+must be scanned. If it is not, the classes are never generated.
+
+**Fix.** Add an `@source` line for the directory. This is the single most common
+opsinjs setup failure by a wide margin, and no opsinjs setting can fix it — it is a
+Tailwind configuration fact. [Monorepo](./installation/monorepo.mdx) and
+[Tailwind v4](../theming/tailwind-v4.mdx).
+
+### Colours are wrong, or fall back to browser defaults
+
+**Symptom.** Layout and spacing are correct; colours are not. Inspecting an element
+shows a custom property resolving to nothing.
+
+**Cause.** The token layer is missing, or imported in the wrong position. CSS order
+in opsinjs is load-bearing: the token layer must come after Tailwind and after any
+base reset, and before your own overrides.
+
+**Fix.** Check the import position against the installation page for your
+framework. [Next.js](./installation/next.mdx) states the exact position, and it is
+the same rule everywhere.
+
+### A server component fails because something needs client-side React
+
+**Symptom.** The build fails on an import chain that reaches an opsinjs component,
+complaining that a hook or context is being used on the server.
+
+**Cause.** You imported the interactive half of a component into a server tree.
+Most opsinjs components are server-renderable; a minority — the ones that manage
+focus, hold open state or observe the viewport — are not, and are shipped as
+separate files precisely so this is avoidable.
+
+**Fix.** Import the display half, or mark the *leaf* as a client component. Marking
+the whole page is the reflex fix and it silently moves your entire tree to the
+client. [Framework support](./framework-support.mdx#know-where-the-client-boundary-falls).
+
+### The generated docs tables are empty after a checkout
+
+**Symptom.** Token tables, prop tables and contrast reports render placeholders
+naming a script.
+
+**Cause.** Generated artifacts are not committed in a usable state until the
+generate step has run.
+
+**Fix.** Run the generate step. This one is specific to working *on* the
+documentation rather than using opsinjs;
+[Contributing](../handbook/contributing/index.mdx) covers the sequence.
+
+## Failures in the browser
+
+### Hydration mismatch on a time or a formatted number
+
+**Symptom.** React reports a hydration mismatch, and the differing text is a
+relative time, a date or a formatted value.
+
+**Cause.** Time zone or locale differs between the rendering server and the
+browser. This is not specific to opsinjs, but health interfaces hit it constantly
+because they are full of timestamps.
+
+**Fix.** Use the components' documented hydration-safe contract rather than
+formatting inline. `RelativeTime` and `Value` take responsibility for this case;
+`Date.prototype.toLocaleString` in a render function does not.
+
+### A surface is opaque, or a transition does not animate
+
+**Symptom.** Backdrop blur is missing, or a transition happens instantly.
+
+**Cause.** Almost always an accessibility preference, not a browser gap:
+`prefers-reduced-transparency` and `prefers-reduced-motion` are honoured throughout
+the system, and both fall back to *designed* states rather than to nothing.
+
+**Fix.** Check the operating system setting before investigating anything else. If
+the preference is off and the effect is still missing, then it is a browser
+capability question: [Browser support](./browser-support.mdx).
+
+## Verify it worked
+
+Before reporting anything, confirm the environment is what you think it is. Most
+reports that turn out not to be bugs fail one of these four:
+
+1. **Node version** — current LTS or later.
+2. **React version** — 19 or later, and only one copy of React in the tree.
+3. **Tailwind version** — v4, with your component directory covered by `@source`.
+4. **Stylesheet order** — the token layer after Tailwind, before your overrides.
+
+If all four are right and the symptom persists, you have something worth
+reporting.
+
+## Troubleshooting
+
+**None of the entries above matches.** Reduce it. A minimal reproduction that
+fails is worth more than a long description of a large application that fails, and
+producing one usually finds the cause before you finish.
+
+**The symptom is intermittent.** Suspect caching first — a stale build cache, a
+stale Tailwind scan, a service worker. Clear each in turn rather than all at once,
+so the answer is still informative.
+
+**It only fails in production.** Suspect source scanning and environment
+differences before suspecting opsinjs. Development and production differ most in
+what they scan and what they tree-shake.
+
+**You are sure it is a defect.** Report it with the four version numbers above and
+a minimal reproduction. [Community](../project/community.mdx) has where.
+
+## Next
+
+- [FAQ](./faq.mdx) — for questions that are not failures.
+- [Installation](./installation/index.mdx) — the setup this page assumes.
+- [Community](../project/community.mdx) — where to report something this page does
+  not cover.

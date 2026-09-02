@@ -1,0 +1,232 @@
+---
+title: Show a trend with an honest caption
+description: Draw change over time and write the sentence beneath it, with the direction of the change separated from whether it is good news.
+status: planned
+kind: recipe
+owner: opsinjs-docs
+reviewEvery: 6m
+evidence: opinion
+implements: [trend-sparkline]
+usedIn:
+  [
+    trend-sparkline,
+    value,
+    relative-time,
+    term,
+    card,
+    metric-tile,
+    skeleton,
+    empty-state,
+    range-legend,
+    table,
+  ]
+---
+
+<PageTemplate kind="recipe" />
+
+## The task
+
+You have a series of measurements and you want to show how they are moving. The
+graphic is the easy half. The hard half is the sentence underneath it, because
+that sentence is what most readers will actually take away, and it is where a
+chart quietly turns into a claim.
+
+Two failures dominate. The first is **drawing a trend that is not there**: three
+points and a line through them is a shape, not a direction, and a y-axis fitted
+to the data will make any random walk look decisive. The second is **fusing
+direction with valence**: rendering "down" as green because down is usually good
+for this metric, which is a clinical judgement smuggled in as a colour, and which
+is wrong the moment the reader is somebody for whom down is not good.
+
+## What you need
+
+<NotBuiltYet />
+
+| Part | Component | Status | What it does here |
+| --- | --- | --- | --- |
+| The series | [TrendSparkline](../components/trend-sparkline.mdx) | <StatusBadge status="planned" /> | The line or points, the axis rules, and the data-table twin. |
+| The current value | [Value](../components/value.mdx) | <StatusBadge status="planned" /> | The latest reading, formatted once. |
+| The window | [RelativeTime](../components/relative-time.mdx) | <StatusBadge status="planned" /> | The period the trend covers and when it ends. |
+| Unfamiliar words | [Term](../components/term.mdx) | <StatusBadge status="planned" /> | Plain-English expansion in the caption. |
+| The container | [Card](../components/card.mdx) | <StatusBadge status="planned" /> | Chart, caption and table as one unit. |
+| The glance version | [MetricTile](../components/metric-tile.mdx) | <StatusBadge status="planned" /> | Where a sparkline is a decoration, not the point. |
+| Loading and empty | [Skeleton](../components/skeleton.mdx) · [EmptyState](../components/empty-state.mdx) | <StatusBadge status="planned" /> | Never a flat line at zero while loading. |
+| Band labels, data twin | `range-legend` · `table` | <StatusBadge status="considered" /> | Considered, not implemented. |
+
+Tokens, by family:
+
+| Family | Where it applies | Reference |
+| --- | --- | --- |
+| `--opsin-category-*` | The series colour — identity only, constant across the whole series | [Chart colour](../foundations/data-visualisation/chart-colour.mdx) |
+| `--opsin-status-*` | Nowhere on the line. Only a separate status pill, if a rule assigned one | [The two colour axes](../health/two-colour-axes.mdx) |
+| Contrast floor | Line against ground, points against line, in both themes | [The contrast floor](../foundations/materials/the-contrast-floor.mdx) |
+| Motion | Nothing that conveys meaning; see below | [Motion in health UI](../health/motion-in-health-ui.mdx) |
+
+## Build it
+
+<Steps>
+
+### Set the minimum before you draw anything
+
+Decide, per metric, how many readings over what period constitute a trend, and
+write it down. Below that threshold, show the readings as points with no line and
+no direction word. A line is a claim about continuity between measurements; three
+weigh-ins a month apart do not support one.
+
+This threshold is a product decision informed by the metric's variability, not a
+component default, and it belongs where a reviewer can find it. See
+[Trends and change](../health/trends-and-change.mdx).
+
+### State the window in the caption, not only on the axis
+
+"Down 4 bpm" is unreadable without knowing *since when*. Put the window in the
+sentence: over the last 7 days, compared with the previous 7 days, since your last
+appointment. Readers do not read axes.
+
+### Choose a baseline for the y-axis and defend it
+
+An axis fitted to the data exaggerates every wobble. Choose a baseline that means
+something — zero where zero is meaningful, the reference band where one exists,
+a fixed clinically-sensible span otherwise — and keep it stable as data arrives,
+so the chart does not redraw its own scale and appear to change history.
+
+Never truncate the axis to dramatise a small change:
+[Chart anatomy](../foundations/data-visualisation/chart-anatomy.mdx) treats this
+as a correctness rule rather than a style preference.
+
+### Draw gaps as gaps
+
+A missing day is missing. Do not interpolate across it, and do not close the line
+as though the measurements were contiguous. Where the gap is large enough to
+matter, break the line and let the reader see that the record is incomplete. This
+is the **partial** state from
+[Data states](../foundations/data-states.mdx).
+
+### Separate direction from valence
+
+The line carries direction: up, down, flat. It does not carry whether that is good
+news. Colour the series by category — the identity of the metric — and hold that
+colour constant regardless of which way the line goes.
+
+If your product's clinical rules have judged the change, the judgement appears
+beside the chart as a status, in words, with its own colour from the status axis.
+It never recolours the line, because a line whose colour is the verdict cannot be
+shown at all when there is no verdict.
+
+### Write the caption to a template
+
+Three clauses: what changed, over what window, and what it does not mean. The
+third clause is the one that is always dropped and always needed, because
+variation is normal in every biological measurement and the reader has no way to
+know how much.
+
+### Ship the data-table twin and the text summary
+
+Every chart in opsinjs has a text equivalent and a table equivalent, not as an
+accessibility afterthought but because they are frequently the more useful
+representations —
+[Accessible charts](../foundations/data-visualisation/accessible-charts.mdx). If
+the table is hidden behind a control, that control is visible and keyboard
+reachable, and the summary sentence is always present.
+
+</Steps>
+
+## The copy
+
+> **`<Metric>` `<direction>` `<magnitude> <unit>` over `<window>`, compared with `<comparison window>`.**
+> **`<What a change of this size does not mean.>`**
+
+Direction words are neutral and physical: *up*, *down*, *about the same*. Not
+*improved*, *worse*, *better*, *deteriorating*, *worrying* — those are judgements,
+and a caption is not licensed to make them.
+
+<DoDont>
+  <DoDont.Do>
+    "Your resting heart rate was about 4 bpm lower over the last 7 days than the
+    7 days before. Day-to-day variation of this size is common and does not on
+    its own mean anything has changed."
+  </DoDont.Do>
+  <DoDont.Dont>
+    "Your heart health is improving! ↓ 6%" — a judgement the data cannot support,
+    a percentage with no baseline, and cheerfulness applied to a number the reader
+    may know something about that you do not.
+  </DoDont.Dont>
+</DoDont>
+
+**Give absolute change, not only relative.** "4 bpm lower" is checkable; "6%
+lower" requires the reader to reconstruct the baseline, and a percentage of a
+small number is how a trivial change is made to sound large. The rule and its
+reasoning are in
+[Risk and statistics](../health/risk-and-statistics.mdx).
+
+**Never congratulate or commiserate.** A caption that celebrates a change assumes
+the reader wanted it, and assumes the cause. Somebody whose weight fell because
+they are ill does not need congratulating.
+
+## Get it right
+
+**Safety**
+
+- The number of points and the window are both visible; a trend drawn from too few
+  points is not drawn at all.
+- The y-axis baseline is stated or obvious, and stable over time.
+- Gaps are visible. Nothing is interpolated.
+- The line's colour is the category's, and does not change with the data.
+- No causal language anywhere in the caption. A trend shows association with time
+  and nothing else.
+- If the series crosses a reference range, that is position, not a verdict — see
+  [Show a value against a reference range](./value-against-a-range.mdx).
+
+**Accessibility**
+
+- The text summary carries direction, magnitude, unit and window, and is available
+  without opening anything.
+- The data table is reachable by keyboard, is a real table with headers, and
+  survives being printed — a reviewer reading on paper gets the numbers, not an
+  empty box where a canvas was.
+- Series are distinguishable without colour: shape, direct labelling, or a single
+  series per chart —
+  [Colour independence](../accessibility/colour-independence.mdx).
+- No draw-on animation carries meaning. Under `prefers-reduced-motion` the chart
+  appears complete, immediately —
+  [Reduced motion](../accessibility/reduced-motion.mdx).
+- At 200% text the caption and the summary remain legible; the chart may shrink,
+  the sentence may not.
+- The chart is not the only route to the numbers. A reader who cannot use it loses
+  nothing but speed.
+
+## Variations
+
+**One reading.** Not a trend. Show the reading. A single point with an arrow beside
+it is the most common way a product invents a direction it does not have.
+
+**Sparse or irregular sampling.** Weigh-ins whenever the person remembers. Show
+points, not a line, and say how many readings the summary is based on.
+
+**Two series on one chart.** Only when the comparison is the point, and only with
+distinct shapes and direct labels rather than a legend. Two health series on one
+axis with different units is almost always wrong.
+
+**A trend against a reference band.** The band is drawn behind the series as
+context, in a neutral treatment, with its own text description. It never colours
+the series.
+
+**A trend in a tile.** A sparkline as decoration inside a
+[MetricTile](../components/metric-tile.mdx) has no axis and no caption, so it must
+carry no claim: no direction word, no colour change, no annotation. If it needs a
+caption, it needs this recipe instead.
+
+<Todo>
+Annotating an event on a series — a medication change, an illness, a holiday — is
+a real need with no component and no guidance yet. `timeline-entry` is on the
+considered roster.
+</Todo>
+
+## Related
+
+- **[Trends and change](../health/trends-and-change.mdx)** — the doctrine:
+  direction separated from valence, and the minimum window before a trend exists.
+- **[TrendSparkline](../components/trend-sparkline.mdx)** — the component
+  specification and its accessibility bar.
+- **[Trend review](../patterns/trend-review.mdx)** — the flow around this display,
+  for reading change over time without over-interpreting noise.

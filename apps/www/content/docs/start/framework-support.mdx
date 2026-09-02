@@ -1,0 +1,158 @@
+---
+title: Framework support
+description: Which React setups opsinjs targets, what it requires of them, and where the server/client boundary falls.
+status: planned
+kind: guide
+icon: Layers
+since: unreleased
+owner: core
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 6m
+aliases: [framework support, supported frameworks, rsc support, server components]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+opsinjs is React-only, and there is no plan for a Vue, Svelte or web-component
+build. The tokens are plain CSS custom properties and are reusable anywhere; the
+components are not, and pretending otherwise would produce a worse React library.
+
+Within React the question is not really "which framework" but "which four
+capabilities does your setup have". Those four are what this page is about.
+
+<Callout title="The tested matrix is not published yet">
+  Nothing is implemented, so no combination has been tested. The matrix below
+  fills from generated results once there are any. What is stated here instead is
+  the *requirement set* and the boundary rules, which are design decisions and are
+  true now.
+</Callout>
+
+## Meet four requirements
+
+Everything else follows from these. If your setup has all four, opsinjs is
+intended to work; if it is missing one, the gap is usually specific and fixable.
+
+<Steps>
+
+### React 19 or later
+
+Not negotiable. opsinjs is built on Base UI, which targets modern React, and
+several components depend on React 19 form and ref behaviour. React 18 is not
+supported and will not be back-ported.
+
+### Tailwind CSS v4
+
+Also not negotiable. The token layer is authored as CSS custom properties consumed
+through Tailwind v4's `@theme` mechanism, and there is no `tailwind.config.js` to
+port. Tailwind v3 users need to upgrade first;
+[Tailwind v4](../theming/tailwind-v4.mdx) covers the parts of that upgrade that
+interact with opsinjs.
+
+### A bundler that can scan your source for classes
+
+Tailwind v4 discovers classes by scanning declared sources. Because opsinjs
+components are *copied into your repository* rather than installed as a package,
+the directory you copy them into must be scanned. This is the single most common
+setup failure and it produces a component that renders with no styling at all. See
+[Monorepo](./installation/monorepo.mdx) for the `@source` lines.
+
+### A place to import one stylesheet, in a known position
+
+Order is load-bearing. The opsinjs token layer must come after Tailwind and after
+any base-layer reset, and before your own overrides. Each installation page states
+the exact position for that framework.
+
+</Steps>
+
+## Know where the client boundary falls
+
+This is the part that differs most between frameworks, and the part where an
+incorrect assumption costs a day.
+
+**Most opsinjs components are intended to be server-renderable.** A `ResultCard`
+showing a value, a range and a status is static markup; there is no reason for it
+to ship JavaScript, and it is a design goal that it does not.
+
+**A minority require a client boundary**, and each one says so on its own page in
+its cost section — the ones that manage focus, hold open/closed state, or observe
+the viewport: `Sheet`, `Dialog`, `ConsentSheet`, `LogSheet`, `ReadingInput`, and
+the interactive parts of `TrendSparkline`. Where a component is split, the
+interactive part is a separate file, so importing the display half does not drag a
+client boundary into your server tree.
+
+**Theme and density are CSS, not context.** There is no provider to mount for
+theming: the mode is a class and the tokens are custom properties. That is what
+makes server rendering practical, and it is why a flash of incorrect theme is a
+solved problem rather than a known issue.
+
+`RelativeTime` is the honourable exception worth knowing about in advance:
+"3 hours ago" cannot be computed identically on a server and a client without care,
+and its page documents the hydration-safe contract rather than leaving you to
+discover the mismatch.
+
+## Frameworks in scope
+
+| Setup | Intended status | What is specific about it |
+| --- | --- | --- |
+| Next.js App Router | Primary target | The reference install; server components by default. [Guide](./installation/next.mdx) |
+| Next.js Pages Router | Supported, not primary | No server components; everything is a client tree. Global CSS position still matters. |
+| Vite + React | Supported | Client-only. The `@source` gotcha bites hardest here. [Guide](./installation/vite.mdx) |
+| React Router framework mode | Supported | Server rendering with a different data story. [Guide](./installation/react-router.mdx) |
+| TanStack Start | Intended | [Guide](./installation/tanstack-start.mdx) |
+| Astro with React islands | Intended, with caveats | Per-island hydration changes the boundary calculus. [Guide](./installation/astro.mdx) |
+| Remix (pre-React-Router-7) | Not targeted | Use the React Router framework-mode path after upgrading. |
+| Create React App | Not targeted | Unmaintained; no Tailwind v4 story worth documenting. |
+| React Native | Not targeted | The tokens are portable; nothing else is. |
+
+<NoDataYet script="build-reference.mts" />
+
+## Verify it worked
+
+Four checks that between them catch almost every framework-level setup problem:
+
+1. **A copied component renders styled.** If it renders unstyled, Tailwind is not
+   scanning the directory you copied it into. This is not an opsinjs problem and
+   no opsinjs setting fixes it.
+2. **A token resolves.** Inspect any opsinjs element and confirm its colour comes
+   from a custom property rather than a literal. If it is literal, the token layer
+   is missing or imported in the wrong position.
+3. **The server tree stays a server tree.** Import a display-only component into a
+   server component and confirm your framework does not complain. If it does, you
+   have imported the interactive half.
+4. **Dark mode does not flash.** Toggle the theme class and confirm nothing
+   re-renders. Theming is CSS; if something re-renders, a provider has crept in.
+
+## Troubleshooting
+
+**`useState` / `createContext` errors in a server component.** You imported an
+interactive component into a server tree. Split the import, or mark the leaf as a
+client component — not the whole page, which is the reflex fix and the expensive
+one.
+
+**Styles work in development and vanish in production.** Almost always a Tailwind
+source-scanning difference between the two builds. Check your `@source` lines
+against [Monorepo](./installation/monorepo.mdx).
+
+**Hydration mismatch on a time or a formatted number.** Time zone or locale
+differs between server and client. `RelativeTime` and `Value` document the
+hydration-safe contract; this is the one class of mismatch the components take
+responsibility for.
+
+**Tailwind v3.** Upgrade first. There is no v3 compatibility layer and there will
+not be one.
+
+**Your framework is not listed.** If it runs React 19 and Tailwind v4 and lets you
+control stylesheet order, it will most likely work. Tell us and we will add it to
+the matrix once there is something to test.
+
+## Next
+
+- [Installation](./installation/index.mdx) — pick the path that matches your
+  setup.
+- [Browser support](./browser-support.mdx) — the runtime half of the support
+  question.
+- [Tailwind v4](../theming/tailwind-v4.mdx) — `@theme` versus `@theme inline`, and
+  the CSS order that breaks silently.

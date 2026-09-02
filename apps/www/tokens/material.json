@@ -1,0 +1,160 @@
+{
+  "$comment": "AUTHORED SOURCE — not generated. scripts/build-tokens.mts reads this file and emits app/tokens.generated.css and lib/generated/tokens.ts.",
+  "version": 1,
+  "namespace": "material",
+  "cssPrefix": "--opsin",
+  "cssNaming": {
+    "property": "--opsin-material-{rung}-{property}",
+    "$comment": "Rungs are addressed by NAME, not by number: --opsin-material-sheet-blur, not --opsin-material-3-blur. A number invites arithmetic ('one more than a card') and the ladder is not arithmetic — each rung answers a different question about what is behind it."
+  },
+  "rules": [
+    "A material is a decision about what is behind the surface, not a decoration. Pick the rung by asking what the reader needs to keep seeing through it.",
+    "Every translucent rung declares a MINIMUM scrim opacity and an OPAQUE fallback, and text on it is measured against the worst case, not against the average backdrop. A contrast floor that holds only over a light photograph is not a floor.",
+    "At most three composited translucent surfaces may be stacked. Beyond three the blur cost is visible on the mid-range Android devices this system targets, and the fourth layer's backdrop is already unreadable.",
+    "`prefers-reduced-transparency` is honoured by swapping to `opaqueFallback`, not by removing the surface. The layering still has to communicate.",
+    "Never place a health value on a translucent rung above `raised`. A number a reader is trying to read must not sit over a moving backdrop."
+  ],
+  "ladder": [
+    {
+      "rung": 0,
+      "name": "canvas",
+      "question": "What is the page itself?",
+      "blurPx": 0,
+      "saturation": 1,
+      "tint": { "light": "--opsin-neutral-0", "dark": "--opsin-neutral-950" },
+      "tintAlpha": 1,
+      "border": "none",
+      "shadow": "none",
+      "minScrimOpacity": 0,
+      "opaqueFallback": {
+        "light": "--opsin-neutral-0",
+        "dark": "--opsin-neutral-950"
+      },
+      "translucent": false,
+      "use": "The application background. Nothing is behind it, so nothing shows through it."
+    },
+    {
+      "rung": 1,
+      "name": "card",
+      "question": "Is this a distinct piece of content on the page?",
+      "blurPx": 0,
+      "saturation": 1,
+      "tint": { "light": "--opsin-neutral-0", "dark": "--opsin-neutral-900" },
+      "tintAlpha": 1,
+      "border": {
+        "light": "--opsin-neutral-200",
+        "dark": "--opsin-neutral-800"
+      },
+      "shadow": "none",
+      "minScrimOpacity": 0,
+      "opaqueFallback": {
+        "light": "--opsin-neutral-0",
+        "dark": "--opsin-neutral-900"
+      },
+      "translucent": false,
+      "use": "The default home for a health value. Opaque, bounded by a line rather than a shadow, and the rung every ResultCard, MetricTile and RangeBar sits on.",
+      "note": "Deliberately shadowless. A grid of shadowed cards on a phone reads as clutter, and the shadow is doing work a 1px boundary does better and cheaper."
+    },
+    {
+      "rung": 2,
+      "name": "raised",
+      "question": "Is this temporarily above the page, but not covering it?",
+      "blurPx": 0,
+      "saturation": 1,
+      "tint": { "light": "--opsin-neutral-0", "dark": "--opsin-neutral-800" },
+      "tintAlpha": 1,
+      "border": {
+        "light": "--opsin-neutral-200",
+        "dark": "--opsin-neutral-700"
+      },
+      "shadow": "0 1px 2px oklch(0 0 0 / 0.06), 0 4px 12px oklch(0 0 0 / 0.06)",
+      "minScrimOpacity": 0,
+      "opaqueFallback": {
+        "light": "--opsin-neutral-0",
+        "dark": "--opsin-neutral-800"
+      },
+      "translucent": false,
+      "use": "Menus, popovers, tooltips, a dragged card. Still opaque: the shadow, not translucency, is what says 'above'.",
+      "note": "This is the highest rung a health value may sit on."
+    },
+    {
+      "rung": 3,
+      "name": "sheet",
+      "question": "Is this covering the page while leaving it recognisable underneath?",
+      "blurPx": 20,
+      "saturation": 1.6,
+      "tint": { "light": "--opsin-neutral-0", "dark": "--opsin-neutral-900" },
+      "tintAlpha": { "light": 0.82, "dark": 0.78 },
+      "border": {
+        "light": "oklch(0 0 0 / 0.08)",
+        "dark": "oklch(1 0 0 / 0.10)"
+      },
+      "shadow": "0 -1px 2px oklch(0 0 0 / 0.05)",
+      "minScrimOpacity": 0.82,
+      "opaqueFallback": {
+        "light": "--opsin-neutral-0",
+        "dark": "--opsin-neutral-900"
+      },
+      "translucent": true,
+      "use": "A bottom sheet or side panel the reader can dismiss by dragging. The blur keeps enough of the page visible that the reader knows where they will return to.",
+      "note": "Saturation is boosted above 1 because a large blur desaturates whatever is behind it; without the boost the sheet looks grey rather than translucent."
+    },
+    {
+      "rung": 4,
+      "name": "overlay",
+      "question": "Is this chrome floating over scrolling content?",
+      "blurPx": 28,
+      "saturation": 1.8,
+      "tint": { "light": "--opsin-neutral-0", "dark": "--opsin-neutral-900" },
+      "tintAlpha": { "light": 0.74, "dark": 0.7 },
+      "border": {
+        "light": "oklch(0 0 0 / 0.10)",
+        "dark": "oklch(1 0 0 / 0.12)"
+      },
+      "shadow": "0 8px 32px oklch(0 0 0 / 0.12)",
+      "minScrimOpacity": 0.74,
+      "opaqueFallback": {
+        "light": "--opsin-neutral-0",
+        "dark": "--opsin-neutral-900"
+      },
+      "translucent": true,
+      "use": "A pinned toolbar, a tab bar, a floating action bar — chrome that content scrolls beneath.",
+      "note": "The thinnest material in the system, and therefore the one whose contrast floor is hardest to hold. Anything on it is measured against the darkest and the lightest backdrop the product can produce, not against the tint alone."
+    },
+    {
+      "rung": 5,
+      "name": "scrim",
+      "question": "Am I trying to make everything behind this unusable on purpose?",
+      "blurPx": 2,
+      "saturation": 1,
+      "tint": {
+        "light": "--opsin-neutral-950",
+        "dark": "--opsin-neutral-1000"
+      },
+      "tintAlpha": { "light": 0.44, "dark": 0.6 },
+      "border": "none",
+      "shadow": "none",
+      "minScrimOpacity": 0.44,
+      "opaqueFallback": {
+        "light": "oklch(0.205 0.006 250 / 0.72)",
+        "dark": "oklch(0 0 0 / 0.8)"
+      },
+      "translucent": true,
+      "use": "The dimming layer behind a modal dialog or a consent sheet. Its job is to remove the page from consideration, not to look like glass.",
+      "note": "The only rung that gets darker rather than lighter, and the only one whose blur is deliberately tiny: a heavy blur here turns the page behind into an attractive abstract texture, which is the opposite of the intent."
+    }
+  ],
+  "budget": {
+    "maxCompositedSurfaces": 3,
+    "$comment": "Counted as the number of simultaneously visible rungs with translucent: true. A sheet over a scrim over a page is three and is the designed worst case. A popover on a sheet on a scrim is four and must be redesigned, not tuned."
+  },
+  "reducedTransparency": {
+    "query": "@media (prefers-reduced-transparency: reduce)",
+    "policy": "Every rung with translucent: true swaps its tint for its opaqueFallback and drops its blur to 0. Nothing else changes: the border, the shadow and the geometry stay, because they are what carry the layering once the translucency is gone.",
+    "$comment": "This is also the fallback for browsers with no backdrop-filter support, so the query and the @supports fallback emit the same declarations. See /docs/foundations/materials/reduced-transparency."
+  },
+  "contrastFloor": {
+    "measuredAgainst": "opaqueFallback",
+    "$comment": "The published APCA and WCAG numbers for text on a material are measured against that material's OPAQUE FALLBACK, which is its worst case for text contrast. Measuring against a nice backdrop would let the system publish numbers no reader will ever experience. scripts/check-contrast.mts implements this and lib/generated/contrast.json records it."
+  }
+}

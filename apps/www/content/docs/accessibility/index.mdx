@@ -1,0 +1,140 @@
+---
+title: Accessibility
+description: What opsinjs guarantees, what your product still owns, and how to check either one without taking our word for it.
+status: stable
+kind: accessibility
+a11yDate: 2026-09-02
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+aliases: [a11y, wcag 2.2, accessibility overview]
+---
+
+<PageTemplate kind="accessibility" />
+
+## What we guarantee
+
+A design system cannot make a product accessible. It can make the accessible
+version the cheap one, and it can refuse to hand you the parts that make an
+inaccessible screen easy to build. That is the guarantee here, and it is
+deliberately narrower than "opsinjs is accessible".
+
+Four commitments hold across everything in this system, and each one is checkable
+rather than asserted:
+
+1. **Clinical status is never carried by colour alone.** Every status surface
+   emits a word and a `data-status` attribute alongside its colour. Reading the
+   page in greyscale, or through a screen reader, or on a photocopy, must give
+   the same answer as reading it in colour. This is WCAG 2.2 SC 1.4.1 Use of
+   Colour, but the reason we treat it as a safety rule rather than a conformance
+   rule is on [Colour independence](./colour-independence.mdx).
+2. **The touch-target floor is 44 CSS pixels, not 24.** WCAG 2.2 SC 2.5.8 sets
+   24×24 as the AA minimum. We ship the AAA figure from SC 2.5.5 as the floor,
+   for reasons that are specific to health apps and are set out on
+   [Target size and motor accessibility](./target-size-and-motor.mdx).
+3. **Every animated token carries a reduced-motion value.** Reduced motion is a
+   per-token degradation, not a global kill switch, so a component still changes
+   state — it simply arrives immediately. See
+   [Reduced motion](./reduced-motion.mdx).
+4. **Every accessibility number published on this site is generated, dated and
+   reproducible.** Contrast figures come out of `scripts/check-contrast.mts` and
+   are committed; they are not typed by an author. Where the generator has not
+   run, the page says so instead of showing a plausible figure.
+
+<Callout>
+Nothing in the component roster is built yet. That changes what these
+commitments currently cover: they cover the token layer, the CSS in
+`app/globals.css` and `app/product.css`, and the page contracts that every
+component specification must satisfy before it can move past `planned`. They do
+not yet cover any rendered component, because there is not one.
+</Callout>
+
+## What you own
+
+The boundary matters more than the promise. These are yours, and none of them can
+be moved into a design system without the system pretending to know things about
+your product that it cannot know.
+
+- **Accessible names.** A `Button` gives you focus handling and a target size. It
+  cannot know that "Continue" needs to be "Continue to your results" for someone
+  arriving at it out of context.
+- **Reading and focus order.** The DOM order is written by you. A visually
+  correct two-column layout with a scrambled tab order passes every automated
+  check we could ship.
+- **Thresholds and clinical meaning.** opsinjs will render "act" in the act
+  colours with the act word. Deciding that a systolic reading of a particular
+  value *is* "act" is a clinical decision owned by your product and whoever
+  signs off its clinical safety case. See
+  [Safety, scope and limitations](../start/safety-scope-and-limitations.mdx).
+- **Announcement politeness.** We can specify that a status change must be
+  announced. Only you know whether the change happened because the reader
+  submitted something (announce it) or because a background sync completed
+  (usually do not interrupt them).
+- **Timing, sessions and authentication.** SC 2.2.1, 3.3.8 and 3.3.9 are product
+  decisions. A design system that shipped a session timeout would be shipping a
+  clinical risk.
+- **Your content.** Everything under [Content and language](../content/index.mdx)
+  is guidance we can hold you to at review; it is not something the components
+  can enforce.
+
+## How to check
+
+Start from the role you are actually in. The five role pages are the same
+standard seen from five desks, and each one is a list of things you can do today
+rather than a restatement of WCAG.
+
+- [For designers](./for-designers.mdx) — contrast, target size, focus
+  appearance and colour independence, checked before handoff.
+- [For developers](./for-developers.mdx) — semantics, names, roles, state and
+  focus order, checked in the browser.
+- [For content](./for-content.mdx) — headings, link text, alt text and reading
+  level, checked while writing.
+- [For testing](./for-testing.mdx) — the manual and automated passes, and how to
+  reproduce each one.
+- [For compliance reviewers](./for-compliance-reviewers.mdx) — the curated
+  twenty-minute path, written to be printed.
+
+Then use the per-topic pages for the specific question. Each of those carries its
+own reproducible check with an expected result and a description of what failure
+looks like, because "test with a screen reader" is not a test.
+
+## Measured results
+
+<SectionProgress />
+
+<NoDataYet script="scripts/check-contrast.mts" />
+
+Contrast is the only accessibility property of this system that can be measured
+today, because it is a property of the tokens rather than of a component. Once
+`pnpm run contrast` has run, the measured APCA Lc and WCAG 2.2 ratios for every
+published token pair appear on
+[Contrast conformance](./contrast-conformance.mdx), dated, in both themes.
+
+Every other measured result on this site is currently absent, and the pages that
+would carry those numbers say so in words rather than filling the gap.
+
+## Known gaps
+
+These are real, and they are listed here rather than in an internal tracker
+because a conformance claim with no gaps section is not a conformance claim.
+
+- **No component has been tested with a screen reader,** because no component
+  exists. [Screen readers](./screen-readers.mdx) states the intended tested
+  matrix and marks every cell untested.
+- **`prefers-contrast` is not implemented.** `app/globals.css` handles
+  `prefers-reduced-motion` and `prefers-reduced-transparency` today; there is no
+  increased-contrast block. [Increased contrast](./increased-contrast.mdx) says
+  what it will change and why the gap exists.
+- **No automated accessibility check runs in CI.** There is no axe or
+  Playwright pass; Playwright is deliberately not installed, and
+  `capture-registry.mts` no-ops without it.
+- **No conformance evaluation has been performed.** The
+  [conformance report](./conformance-report.mdx) is a complete ACR skeleton in
+  which every criterion is marked *Not Evaluated*, which is the honest state.
+- **Cognitive accessibility guidance is not yet backed by user research.**
+  [Cognitive accessibility](./cognitive-accessibility.mdx) is marked as opinion
+  throughout.
+
+## Updates to this page
+
+<Reviewed />

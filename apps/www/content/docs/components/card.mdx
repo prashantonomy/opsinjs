@@ -1,0 +1,202 @@
+---
+title: Card
+description: A bounded group of related content with a border and consistent padding — the ordinary box that most of a screen is made of.
+status: planned
+kind: component
+since: "unreleased"
+category: surfaces
+aliases: [panel, container, box, tile group]
+usedIn: [health-metric-card, results-screen, trends-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="card"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Is a Card ever interactive as a whole, and if it is, how does it hold interactive children without nesting controls?",
+    "Which rung of the material ladder does a Card sit on by default, and may a product move it?",
+    "Cards nest in real layouts. How deep is acceptable before the boundaries stop meaning anything?",
+    "Does Card own its heading semantics, or does the content decide — and what stops every card on a screen becoming an h2?",
+  ]}
+/>
+
+Card is the most-used component in any design system and the one that most often becomes a
+dumping ground. Its specification is short on purpose: a Card is a boundary and some padding,
+and every feature added to it is a feature that makes it harder to say what it means.
+
+## Preview
+
+The preview will show the card at the three densities with and without its header and footer
+slots, over both themes.
+
+<ComponentPreview name="card" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail. Card is built on [Surface](./surface.mdx).
+
+<ComponentInstall name="card" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Grouping content that belongs together and needs a visible boundary from what is around it.",
+    "Giving a block of content its own padding, radius and rung so it reads as one thing rather than as a region of the page.",
+    "As the base for a purpose-built card with its own contract, the way ResultCard and CareCard are built.",
+  ]}
+  avoid={[
+    { case: "The content is a health result with a value, a range, a status and a meaning.", instead: "result-card" },
+    { case: "The content is an instruction the reader is being asked to act on.", instead: "care-card" },
+    { case: "The content is a single measurement in a dashboard grid.", instead: "metric-tile" },
+    { case: "You need a layer that sits over scrolling content and must stay readable.", instead: "surface" },
+    { case: "You want a border for a piece of advisory prose.", instead: "callout" },
+    { case: "There is nothing in it yet.", instead: "empty-state" },
+  ]}
+/>
+
+The first three exclusions are the ones that decide whether a health product's clinical
+contracts hold. A `Card` containing a number, a coloured pill and a paragraph looks exactly
+like a `ResultCard` and carries none of its guarantees — no staleness treatment, no
+attribution, no axis discipline — and nothing in review will catch it.
+
+## Anatomy
+
+<Anatomy name="card" />
+
+<CompositionTree name="card" />
+
+**Header** holds a title and optional supporting elements. **Body** is the content.
+**Footer** holds actions or metadata. All three are optional; a Card with only a body is the
+common case and should not require ceremony.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+Card                           root; a Surface at the raised rung by default
+├── Card.Header
+│   ├── Card.Title             heading level chosen by the page, not by the card
+│   └── Card.Description       optional supporting line
+├── Card.Body                  the content
+└── Card.Footer                actions or metadata
+```
+
+`Card.Title` renders whichever heading level the surrounding page needs. A card that hard-codes
+its own level produces a document outline that jumps from h1 to h3, or a screen of eleven h2s,
+depending on which mistake the library made.
+
+## Proposed API
+
+<NotBuiltYet name="card" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+import type { MaterialRung } from "opsinjs"
+
+export interface CardProps {
+  /**
+   * Which rung of the material ladder. Defaults to "raised". Products may move
+   * a card down the ladder, never off it.
+   */
+  rung?: MaterialRung
+  /** Padding scale. Affects space only, never type size. */
+  density?: "comfortable" | "compact"
+  /**
+   * Makes the whole card a single link. Mutually exclusive with interactive
+   * children: a card that is a link may not contain buttons, and the type
+   * should say so rather than the documentation.
+   */
+  href?: string
+  children: React.ReactNode
+}
+```
+
+There is no `status`, no `variant` and no `color`. A Card that could be tinted by clinical
+status would be a `ResultCard` with none of its obligations, which is the exact failure the
+component boundary exists to prevent.
+
+## Content guidelines
+
+A card holds one idea. If the title needs *and* in it, it is two cards. Titles are noun
+phrases in sentence case, not sentences and not questions.
+
+Do not use a card as a decorative frame for a single line of text: a boundary with nothing
+to bound reads as a control the reader is meant to do something with.
+
+<DoDont>
+  <DoDont.Do>
+    **"Recent readings"** as a card title, with the readings inside it.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Recent readings and upcoming appointments"** in one card. Two subjects sharing a
+    boundary means the boundary tells the reader nothing.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **A card whose whole surface is a link, containing text and no other controls.**
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A clickable card with two buttons inside it.** The reader cannot tell what tapping the
+    gap between them will do, and neither can a keyboard user.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **A card is not a landmark or a region by default.** Giving every card a region role fills
+  the rotor with meaningless entries; a card becomes a region only when it has a heading worth
+  navigating to.
+- **The title's heading level is set by the page**, so the document outline is continuous.
+- **A card that is a link is one control**, meeting the 44pt floor, with an accessible name
+  from its title, and containing no other interactive elements.
+- **The boundary is not conveyed by colour alone**: a border or an elevation change survives
+  grayscale and increased contrast, and the card is still legible when a reader's own
+  stylesheet removes backgrounds.
+- **Padding does not collapse at 200% text.** A card that keeps its height and clips its
+  content at large text sizes is the most common Dynamic Type failure in any system.
+- **Nested cards are announced no differently from unnested ones**, which is a reason to avoid
+  nesting rather than a reason to add roles.
+- **Print** renders the card boundary as a rule or an outline, not as a background fill that a
+  printer will drop.
+
+<KeyboardTable name="card" />
+
+<ContrastReport component="card" />
+
+## Related
+
+<RelatedComponents name="card" />
+
+**Easily confused with**
+
+- [ResultCard](./result-card.mdx) — a Card with a clinical contract. If it contains a health
+  value, it is not a plain Card.
+- [CareCard](./care-card.mdx) — a Card whose subject is an instruction with an author.
+- [MetricTile](./metric-tile.mdx) — a fixed internal contract for a grid, not a small Card.
+- [Surface](./surface.mdx) — the layer beneath. Card is a Surface with padding and a boundary.
+- [Callout](./callout.mdx) — bounded advisory prose, which is a different thing from a group
+  of content.
+
+**Used by**
+
+- [Build a health metric card](../recipes/health-metric-card.mdx)
+- [Results screen](../screens/results-screen.mdx)
+- [Trends screen](../screens/trends-screen.mdx)
+
+**Governed by**
+
+- [The material ladder](../foundations/materials/the-ladder.mdx)
+- [Layering, elevation and z-index](../foundations/layering-and-elevation.mdx)
+- [Spacing scale](../foundations/space/spacing-scale.mdx)
+- [Radius scale](../foundations/shape/radius-scale.mdx)

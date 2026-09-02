@@ -1,0 +1,141 @@
+---
+title: Target size and motor accessibility
+description: Why the floor here is 44 CSS pixels rather than the WCAG 2.2 minimum of 24, and what else a shaking hand needs.
+status: stable
+kind: accessibility
+a11yDate: 2026-09-02
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+aliases: [44pt, 2.5.8, 2.5.5, tremor, mis-tap]
+---
+
+<PageTemplate kind="accessibility" />
+
+## What we guarantee
+
+**Every interactive target in the product theme has a minimum hit area of 44 CSS
+pixels on both axes.** The value is a token — `--opsin-target-min: 44px` in
+`app/product.css` — so it is one edit away from being audited, and the density
+setting deliberately cannot change it.
+
+### Why 44 and not 24
+
+WCAG 2.2 has two target-size criteria. SC 2.5.8 Target Size (Minimum) is level AA
+and asks for 24×24 CSS pixels, with exceptions for inline targets, spacing and
+user-agent defaults. SC 2.5.5 Target Size (Enhanced) is level AAA and asks for
+44×44. Apple's Human Interface Guidelines have long recommended a 44×44 pt
+minimum tappable area; Android's guidance is 48 dp. We ship the AAA figure as the
+floor, for three reasons specific to this domain:
+
+1. **The reading context is bad.** Consumer health apps are used one-handed, in
+   corridors, in waiting rooms, while holding a child, and immediately after
+   receiving news that raises the reader's heart rate. Pointer accuracy under
+   stress is worse than pointer accuracy at a desk.
+2. **The user population skews towards motor impairment.** People managing a
+   long-term condition are, as a group, more likely to be older and more likely
+   to have tremor, arthritis, neuropathy or reduced grip strength than the
+   general population of a consumer app. Designing to the minimum designs for the
+   least affected reader. *(This is our reasoning, not a cited finding — see
+   below.)*
+3. **The cost of a mis-tap is asymmetric.** Mis-tapping a navigation item costs a
+   second. Mis-tapping "log this reading" next to "delete this reading", or
+   tapping "dismiss" on an alert you meant to open, costs data or safety.
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  The 24 px and 44 px figures are the published WCAG 2.2 AA and AAA thresholds
+  and the 44 pt figure is Apple's long-standing HIG recommendation; those are
+  checkable. The argument that this particular population justifies the AAA
+  figure as a floor is **our opinion**. We have not run a study on it and we do
+  not cite one. What would change our mind: task-level error-rate data from a
+  consumer health product comparing 24 px and 44 px targets in the states that
+  matter — one-handed, in motion, under time pressure.
+</ResearchNote>
+
+Two further guarantees:
+
+- **Density never shrinks targets.** `[data-density="compact"]` moves
+  `--spacing` only. Type size and the target minimum are untouched, so "compact"
+  means "less whitespace", never "harder to hit".
+- **Nothing essential requires a path gesture.** Any drag, swipe, pinch or
+  multi-point interaction must have a single-pointer alternative, which is
+  SC 2.5.1 and SC 2.5.7.
+
+## What you own
+
+**Spacing between adjacent targets.** Size is not the whole story: two 44 px
+targets with zero gap in a list of daily readings still produce mis-taps, because
+the boundary is invisible. Give adjacent destructive and constructive actions
+real separation, and never place "delete" adjacent to "save".
+
+**Where you put the targets.** A 44 px control in the top-left corner of a large
+phone is not reachable one-handed. Primary actions in a patient-facing app belong
+in the lower half of the screen. See [Layout](../foundations/layout.mdx).
+
+**Timing.** A target that disappears — a toast with an action, an auto-advancing
+carousel, a confirmation that dismisses itself — is a target with an effective
+size of zero for a slow reader. SC 2.2.1 is yours.
+
+**Sliders and scrubbers.** A slider is the most common motor-accessibility
+failure in health UI, because a value picked by dragging is a value that a shaking
+hand cannot set precisely. Any slider must be accompanied by a way to enter the
+number, which is why `ReadingInput` exists as a specification and `slider` sits in
+the considered roster rather than the shipped one.
+
+## How to check
+
+<Steps>
+
+### Measure the hit area, not the ink
+
+In developer tools, hover the element and read the box the browser reports, then
+subtract nothing. A 20 px icon inside a 44 px button passes. A 44 px icon with a
+click handler on the SVG and 0 padding also passes. A 24 px chip with a 44 px
+*visual* halo drawn by a pseudo-element that does not receive pointer events does
+not.
+
+### Check the exception you are relying on
+
+SC 2.5.8 exempts inline targets, targets with sufficient spacing, and
+user-agent-default controls. If you are below 44 px and think you are fine,
+name the exception out loud. Most of the time the honest answer is that no
+exception applies.
+
+### Try it with the wrong hand
+
+Complete the primary task one-handed with your non-dominant hand, walking. This
+is a crude proxy for reduced dexterity and it finds reachability problems that no
+measurement finds.
+
+### Remove every gesture
+
+Turn off the ability to swipe and drag — mentally, or by testing with a
+switch-access or keyboard-only setup — and confirm every action is still
+available. Failure looks like a log entry that can only be deleted by swiping a
+row.
+
+</Steps>
+
+## Measured results
+
+<NoDataYet script="scripts/build-registry.mts" />
+
+The intended generated artefact is a per-component measured hit area at each
+density, in both themes, taken from a rendered `(view)` route. It requires both
+components and a browser automation pass; Playwright is deliberately not
+installed, and `scripts/capture-registry.mts` no-ops in its absence rather than
+producing a fabricated table.
+
+## Known gaps
+
+- **No target size has been measured,** only specified. The token exists; nothing
+  renders it.
+- **Adjacent-target separation has no published minimum.** The rule above says
+  "real separation" because we have not yet chosen a defensible number, and we
+  would rather say so than invent one.
+- **There is no shipped alternative for path-based gestures,** because there are
+  no shipped gestures.
+
+## Updates to this page
+
+<Reviewed />

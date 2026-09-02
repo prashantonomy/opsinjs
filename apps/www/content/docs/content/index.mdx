@@ -1,0 +1,138 @@
+---
+title: Content & language
+description: Why the words are part of the design system when the reader is a patient, and the five rules that apply to every string in the product.
+status: stable
+kind: content
+reviewer: content
+reviewEvery: 12m
+aliases: [content design, ux writing, microcopy]
+---
+
+<PageTemplate kind="content" />
+
+## The rule
+
+**The copy is part of the component, not a layer applied afterwards.** A
+`StatusPill` that renders the wrong word is broken in exactly the way a
+`StatusPill` that renders the wrong colour is broken, and the two failures have
+the same consequence for the reader.
+
+That sounds like a slogan until you notice what follows from it. It means copy
+rules are versioned, reviewed and enforced like any other part of the system. It
+means a component specification that does not say what may be written inside it
+is incomplete. And it means the words are decided before the layout, because a
+layout designed around "Continue" cannot later accommodate "See what this means
+for you".
+
+Five rules apply to every string in a product built on opsinjs. Everything else
+in this section is one of them worked out in detail.
+
+1. **Say the thing.** Put the answer first. A reader who has opened a result is
+   not browsing; they want to know, and every sentence between them and the
+   answer is a sentence spent while they are frightened.
+2. **Use the reader's words, not the clinic's.** The canonical mapping is the
+   [plain-English A–Z](./plain-english-a-z.mdx). Where a clinical term must
+   appear — because it is on their letter, their prescription or their portal —
+   give it and then translate it, in that order.
+3. **Never assert more certainty than the data supports.** A single reading is a
+   single reading. A device measurement is a device measurement. The words must
+   carry the uncertainty that the number does not. See
+   [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx).
+4. **Match the tone to the level, not to the brand.** A product with a consistent
+   cheerful voice becomes grotesque at the moment it has to tell somebody
+   something serious. The tone ladder is on [Voice and tone](./voice-and-tone.mdx).
+5. **Never tell somebody what their result means clinically.** Describe, signpost,
+   and say who can interpret it. opsinjs is not a medical device and the copy must
+   not behave as though it were. See
+   [Safety, scope and limitations](../start/safety-scope-and-limitations.mdx).
+
+## Approved / Rejected
+
+<DoDont>
+  <DoDont.Do>Your blood pressure reading is higher than your usual range. One high reading is common and often not a problem. If you get three high readings in a row, contact your GP.</DoDont.Do>
+  <DoDont.Dont>Uh oh! Your BP is elevated. Don't worry though — just keep an eye on it!</DoDont.Dont>
+</DoDont>
+
+The rejected version fails four of the five rules at once. It buries the answer
+behind an interjection, uses an abbreviation and a clinical register word
+("elevated") in the same sentence, tells the reader not to worry — which no
+sentence has ever achieved — and gives no action, so "keep an eye on it" leaves
+them to invent their own threshold.
+
+<DoDont>
+  <DoDont.Do>We could not get your latest readings. The ones below were last updated on 14 March at 08:12.</DoDont.Do>
+  <DoDont.Dont>Something went wrong. Please try again later.</DoDont.Dont>
+</DoDont>
+
+In a health app, a generic failure message is not merely unhelpful — it leaves
+stale numbers on screen with no indication that they are stale, which is the
+single most dangerous state a health screen can be in.
+
+## Patterns
+
+The sections in this pillar, and the question each answers.
+
+| Page | The question it answers |
+| --- | --- |
+| [Voice and tone](./voice-and-tone.mdx) | How do we sound, and how does that change with the news? |
+| [Health literacy](./health-literacy.mdx) | How do we write for a reader who struggles with numbers? |
+| [Plain-English A–Z](./plain-english-a-z.mdx) | Which word do we use for this clinical term? |
+| [Glossary](./glossary.mdx) | Where does that vocabulary live, and how do I add to it? |
+| [Grammar and mechanics](./grammar-and-mechanics.mdx) | Capital letter or not? Space before the unit or not? |
+| [Numbers, dates and time](./numbers-dates-and-time.mdx) | How do I write a date, a time and a range in prose? |
+| [Alt text and descriptions](./alt-text-and-descriptions.mdx) | How do I describe a dial, a range or a body map? |
+| [Writing status and alerts](./writing-status-and-alerts.mdx) | What sentence goes with each of the four status levels? |
+| [Asking sensitive questions](./asking-sensitive-questions.mdx) | How do I ask something personal without it feeling like an interrogation? |
+| [Error and empty messages](./error-and-empty-messages.mdx) | What do I say when there is nothing to show, or it broke? |
+| [Inclusive content](./inclusive-content.mdx) | Whose language am I using, and who does it exclude? |
+| [Reading level](./reading-level.mdx) | How do I know whether any of this worked? |
+
+### The canonicality rule
+
+Two topics are deliberately owned elsewhere, and this pillar links to them rather
+than restating them:
+
+- **Numeric precision and units are owned by
+  [Numbers, units and precision](../health/numbers-units-precision.mdx).** How
+  many decimal places a value may carry, when a unit conversion is safe and what
+  rounding is honest are clinical questions, not style questions.
+- **The word "normal" is owned by
+  [Reference ranges and "normal"](../health/reference-ranges.mdx),** which is
+  where the argument for banning it lives.
+
+## Banned words
+
+These are banned everywhere in a product built on opsinjs, not only in the
+situation that motivated them. Each is a ban with a replacement, because a ban
+without one is a trap.
+
+| Banned | Why | Use instead |
+| --- | --- | --- |
+| normal / abnormal | Implies a verdict about the person, not the reading. See [Reference ranges](../health/reference-ranges.mdx). | in your usual range / outside your usual range |
+| simply, just, easy, all you need to do | Tells the reader that a thing they found hard is easy. | delete the word; the sentence is nearly always better |
+| don't worry | Nobody has ever stopped worrying because they were told to. | say the specific, true, reassuring fact instead |
+| failed / failure | Blames the reader for a system event. | we could not / it did not save |
+| you should have | Retrospective blame in a log-keeping product. | say what to do now |
+| oops, uh oh, whoops | An interjection between the reader and their result. | delete |
+| elevated, reduced, deranged | Clinical register in a consumer sentence. | higher than, lower than |
+| critical, emergency | Reserved vocabulary. Only for the `urgent` level, and only where the product genuinely means call for help. See [Emergency and escalation](../health/emergency-and-escalation.mdx). | the wording for the level you actually mean |
+
+## Related components
+
+Every component in the roster consumes at least one rule from this pillar. These
+four consume it structurally — their output *is* a string, so a copy rule change
+is an API change for them:
+
+- **`Value`** — formats a number and its unit. Governed by
+  [Grammar and mechanics](./grammar-and-mechanics.mdx) for the typography and by
+  [Numbers, units and precision](../health/numbers-units-precision.mdx) for the
+  precision.
+- **`RelativeTime`** — decides when "2 hours ago" is more useful than a
+  timestamp, and when it is dangerously less useful. See
+  [Numbers, dates and time](./numbers-dates-and-time.mdx).
+- **`StatusPill`** and **`AlertBanner`** — carry the status word, which is the
+  redundancy that makes the colour non-load-bearing. See
+  [Writing status and alerts](./writing-status-and-alerts.mdx).
+- **`Term`** — renders a clinical word with its plain-English replacement,
+  resolved from the glossary data. See
+  [Plain-English A–Z](./plain-english-a-z.mdx).

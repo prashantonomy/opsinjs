@@ -1,0 +1,135 @@
+---
+title: Is opsinjs right for this project?
+description: An honest fit checklist that will tell you no — including the three kinds of product opsinjs actively refuses to serve.
+status: stable
+kind: guide
+icon: ListChecks
+owner: core
+reviewed: 2026-09-02
+reviewer: content
+reviewEvery: 6m
+aliases: [is opsinjs right, fit check, should I use opsinjs, non-goals]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+Most design systems answer this question with marketing. This one answers it with
+a boundary, because adopting a health design system into the wrong product is
+expensive in a way that is not obvious for several months: you inherit rules that
+fight your requirements, and you get a visual language that implies a duty of care
+your product cannot meet.
+
+Read the two lists below. If more than one item in "opsinjs is the wrong choice"
+describes your product, it is the wrong choice, and no amount of configuration
+fixes that.
+
+## opsinjs is a good fit when
+
+- **Your reader is the person the data is about.** They are not a clinician, not
+  an analyst, and not looking at somebody else's numbers.
+- **Your product shows measurements over time.** Readings, results, scores,
+  streaks, ranges — anything where the interface has to say what a number means as
+  well as what it is.
+- **Getting it wrong has a human cost.** Someone might be frightened by a colour,
+  reassured by a number that should have worried them, or take an action based on
+  a rounding decision. If none of that is possible in your product, you probably
+  want a general-purpose UI kit and less doctrine.
+- **You want to own the source.** Components are copied into your repository
+  through a shadcn-spec registry. You can change any line. That is a strength if
+  you have engineers and a liability if you wanted a black box.
+- **You are on React 19 with Tailwind v4.** These are hard requirements, not
+  preferences. See [Framework support](./framework-support.mdx).
+- **You are willing to be told no by your own design system.** opsinjs will refuse
+  to render a category colour used as a severity signal, and it bans the word
+  *normal* from result copy. Those are features. If your stakeholders will
+  experience them as obstruction, budget for that conversation now.
+
+## opsinjs is the wrong choice when
+
+Each of these names what to use instead, because a checklist that only says no is
+not useful.
+
+- **Your reader is a clinician.** EHR and clinical-workstation interfaces need
+  density, abbreviation, keyboard-first workflows and raw values — the opposite of
+  every default here. Use a density-first system, or a vendor toolkit built for
+  the record system you are working against.
+- **You are building regulated device software.** opsinjs is not a medical device
+  and confers no regulatory status; adopting it does not reduce your obligations
+  by one line. If your product is a Software as a Medical Device, your design
+  system is the smallest of your problems and it must be chosen against your
+  quality management system. Read
+  [Safety, scope and limitations](./safety-scope-and-limitations.mdx) before you go
+  further.
+- **You need a charting library.** opsinjs has one deliberately small series
+  component and a set of rules about honest axes. If you need brushing, zooming,
+  multi-series overlays or a chart grammar, use a charting library and apply the
+  rules in [Data visualisation](../foundations/data-visualisation/index.mdx) to it.
+- **You need it to decide clinical meaning.** No component derives a status from a
+  value, supplies a reference range, or triages. If you were hoping to get
+  thresholds with your buttons, opsinjs will disappoint you on purpose.
+- **You are not on React.** There is no Vue, Svelte or web-component build, and
+  none is planned. The tokens are plain CSS custom properties and are reusable;
+  the components are not.
+- **You need a mature, shipping library today.** Nothing is implemented. See
+  [Roadmap](../project/roadmap.mdx) for what exists and what does not.
+
+## The awkward middle cases
+
+**A consumer app with a clinician-facing admin view.** Common and workable. Use
+opsinjs for the consumer surface only, and accept that the two surfaces will not
+look like each other. They should not.
+
+**A product where health is one feature among many.** Also workable. The tokens
+are namespaced and the components are copied in, so opsinjs can occupy one route
+group without theming your whole product. What you cannot do is take the
+components and drop the doctrine — a `StatusPill` used as a generic badge is a
+misuse, and there is a lint rule for it.
+
+**Wellness rather than medicine — sleep, mood, activity, nutrition.** A very good
+fit, and it is where the alarm-fatigue rules earn the most. The temptation in
+wellness products is to make every metric emotive; the doctrine exists to stop
+that.
+
+**Clinical trials and research apps.** Fit depends entirely on the reader. If the
+participant sees their own data, opsinjs fits. If the interface is for a
+coordinator or investigator, it does not.
+
+## Verify it worked
+
+You have finished this page correctly if you can state, in one sentence each:
+
+1. **Who your reader is**, and whether the data is about them.
+2. **Who owns your thresholds** — a named person or team, not "the design system".
+3. **What your product does when a value is alarming.** If the answer is "the
+   component turns red", you have not yet made the decision opsinjs requires you
+   to make.
+
+If you cannot answer the second one, that is the finding. It is worth resolving
+before you choose any design system.
+
+## Troubleshooting
+
+**"We are a consumer app but we display clinician-authored results."** Still a
+good fit — that is the mainstream case. What changes is provenance: the interface
+must be able to say who measured a value and with what. See
+[Data provenance and device accuracy](../health/data-provenance-and-device-accuracy.mdx).
+
+**"Our legal team wants to know what adopting this commits us to."** Nothing, and
+that is the point of
+[Safety, scope and limitations](./safety-scope-and-limitations.mdx). It is written
+to be readable by someone who is not an engineer.
+
+**"We want the doctrine but not the components."** Take it. The
+[Health](../health/index.mdx), [Accessibility](../accessibility/index.mdx) and
+[Content and language](../content/index.mdx) pillars are useful against any
+technology stack, and the documentation is separately licensed — see
+[Licence and attribution](../project/licence-and-attribution.mdx).
+
+## Next
+
+- [Safety, scope and limitations](./safety-scope-and-limitations.mdx) — the page to
+  send to whoever asks what this commits you to.
+- [Health](../health/index.mdx) — the doctrine you would be adopting.
+- [Quick start](./quick-start.mdx) — if you have decided it fits.

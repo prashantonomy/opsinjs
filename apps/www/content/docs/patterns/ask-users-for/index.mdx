@@ -1,0 +1,126 @@
+---
+title: Ask users for…
+description: Patterns keyed by the data being requested rather than by the screen — because every health product asks for the same fifteen things and gets the same eight of them wrong.
+status: stable
+kind: pattern
+icon: ClipboardList
+aliases: [asking for personal data, what to collect, data collection patterns, field-level guidance]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="pattern" />
+
+Most pattern libraries are keyed by screen: onboarding, checkout, settings. That
+works until you notice that the hard part is never the screen — it is the
+question. A date of birth is difficult in the same way whether it appears in
+signup, in a booking flow or in a hand-off to a clinic, and every team that
+meets it solves it again from scratch, usually with a date picker.
+
+This family is keyed by **the data being requested**. Each page is one field:
+whether to ask for it at all, what shape the answer really has, what the edge
+cases are, and what the product owes the reader for having asked.
+
+## When to use
+
+Open the page for the field you are about to add. Every page answers the same
+five questions in the same order:
+
+1. **Should you ask at all?** Each page opens with the test, because the
+   cheapest field is the one you do not collect.
+2. **What is the real shape of the answer?** Almost always messier than the data
+   model wants. Names are not two fields. Sex is not gender. A medication is not
+   a string.
+3. **How should the control behave?** Input type, autofill token, validation.
+4. **What do you say?** The label, the hint, and the reason — because in health,
+   "why are you asking" is a reasonable question and a refusal to answer it is a
+   trust cost.
+5. **What does it exclude?** Every field design excludes somebody. The pages say
+   who.
+
+## When not to use
+
+- **You want the general behaviour of a form.** How many questions per page,
+  when validation runs, where errors go: [Form design](../forms/index.mdx).
+- **You want the sequence.** Where in the journey to ask is
+  [Onboarding and first run](../onboarding-and-first-run.mdx).
+- **You want the phrasing rules.** Tone, reading level and sensitive wording are
+  [Content & language](../../content/index.mdx), and specifically
+  [Asking sensitive questions](../../content/asking-sensitive-questions.mdx).
+- **The data is a reading rather than an attribute.** A blood-pressure entry
+  taken every morning is [Daily logging](../daily-logging.mdx).
+- **You want a legal answer.** Nothing here is legal advice. Lawfulness of
+  processing, retention and special-category data are your organisation's
+  responsibility; see [Regulatory context](../../health/regulatory-context.mdx).
+
+## How it works
+
+Every page runs the same gate before anything else.
+
+<FlowDiagram>
+{`flowchart TD
+  A["We want to ask for X"] --> B{"What decision changes if we know it?"}
+  B -->|"none we can name"| C["Do not ask"]
+  B -->|"a named one"| D{"Is a coarser answer enough?"}
+  D -->|"yes"| E["Ask for the coarser thing: an age band, not a birth date"]
+  D -->|"no"| F{"Can we get it later, in context?"}
+  F -->|"yes"| G["Defer to the surface that needs it"]
+  F -->|"no"| H["Ask now, explain why, and say what skipping costs"]`}
+</FlowDiagram>
+
+The second branch is the one teams skip. A great deal of health personalisation
+needs an age band and asks for an exact date of birth; needs a rough weight
+range and asks to the tenth of a kilogram; needs "does this person menstruate"
+and asks for a gender identity. Collecting the coarser thing is less intrusive,
+less sensitive to store, easier to answer, and usually more accurate.
+
+## Content
+
+Three rules apply across every page in this family, and each page assumes them:
+
+- **Say why, next to the question.** Not in a privacy policy, not in a tooltip.
+  One sentence, at the field.
+- **Say what skipping costs.** "Optional" with no consequence is not a real
+  choice; see [Required and optional](../forms/required-and-optional.mdx).
+- **Never explain a sensitive question with a benefit claim.** "To give you a
+  more personalised experience" is what a product says when it does not want to
+  say what it is doing with the answer.
+
+Wording is owned by [Content & language](../../content/index.mdx). Any clinical
+or administrative term the reader may not know is wrapped in `Term`, resolving
+against [Plain-English A–Z](../../content/plain-english-a-z.mdx).
+
+## Accessibility
+
+Field-level accessibility is specified per page. What is common to all of them:
+
+- A **visible label** on every control (WCAG 2.2 SC 3.3.2), never a placeholder.
+- The **correct autofill token** where the HTML specification defines one (WCAG
+  2.2 SC 1.3.5) — and no invented token where it does not; see
+  [Autocomplete and input types](../forms/autocomplete-and-input-types.mdx).
+- **Errors in text**, with a suggested correction where one is knowable (WCAG
+  2.2 SC 3.3.1 and 3.3.3).
+- **No re-entry** of anything already given in the same process (WCAG 2.2 SC
+  3.3.7).
+- **Free-text escape hatches** wherever a fixed list will not fit somebody's
+  real answer — which is most of these fields.
+
+## Research
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  The structure of this family — keyed by data rather than by screen — follows
+  the approach taken publicly by the NHS Digital Service Manual and the GOV.UK
+  Design System, both of which publish "ask users for…" patterns and their
+  research rationale. We are following the structure, citing those sources, and
+  writing our own guidance: their content is Crown copyright and is not
+  reproduced here. Where their conclusions and ours differ, ours are opinion and
+  each page says so.
+
+  The "would a coarser answer do?" gate is ours. It is opinion, and it is the
+  single most useful question on this page: it converts a privacy argument into
+  a product question with a checkable answer.
+</ResearchNote>
+
+## Updates to this page
+
+<Reviewed />

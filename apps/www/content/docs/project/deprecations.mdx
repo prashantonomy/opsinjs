@@ -1,0 +1,58 @@
+---
+title: Deprecations
+description: The live list of what is going away, what replaces it, when it was deprecated and when it will be removed.
+status: stable
+kind: project
+owner: core
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 6m
+aliases: [removed, deprecated api, what is going away]
+---
+
+<PageTemplate kind="project" />
+
+## The list
+
+Nothing has been deprecated, because nothing has been released. This page is not
+a placeholder for that reason — it is the address the deprecation process points
+at from day one, so that the first deprecation has somewhere to appear and does
+not arrive as a surprise in a changelog entry.
+
+<NoDataYet script="scripts/build-registry.mts" />
+
+When it has rows, each carries: the deprecated thing, its replacement, the
+version that deprecated it, the version that will remove it, and one sentence
+saying why. The list is generated from the catalogue, so a component marked
+deprecated in the source appears here without anybody remembering to add it.
+
+## What being on this list means
+
+**It still works.** A deprecated component, prop or token keeps working for at
+least one minor release before 1.0 and for a full major after it. Something that
+stops working is a removal, and a removal that called itself a deprecation is a
+broken promise, not a policy detail.
+
+**It has a replacement, or an explanation.** Most rows name what to use instead.
+Where there is no replacement — because the thing should never have existed —
+the row says so and links to the reasoning, which is usually a
+[decision record](decisions/index.mdx).
+
+**It is not recommended for anything new.** If you are starting work today,
+treat a deprecated row as absent.
+
+## How to find out early
+
+Read [Versioning policy](versioning-policy.mdx) for the full process, and the
+[changelog](changelog/index.mdx) for what actually happened in each release. If a
+deprecation needs more than a paragraph to migrate through, it gets a
+[migration guide](migration/index.mdx) rather than a longer changelog entry.
+
+The version stamp in every file the registry emits is the other half of this: it
+records which version your copy came from, which is how you can tell whether a
+deprecation applies to code sitting in your repository. See
+[Version stamps](../registry/version-stamps.mdx).
+
+<LastUpdated />
+
+<Reviewed />

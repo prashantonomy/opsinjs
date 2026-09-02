@@ -1,0 +1,109 @@
+---
+title: Roadmap
+description: The public backlog — ordered, with blockers, and deliberately without dates.
+status: stable
+kind: project
+owner: core
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 3m
+aliases: [backlog, what is next, when will X ship]
+---
+
+<PageTemplate kind="project" />
+
+## How to read this
+
+This roadmap is **ordered, not scheduled**. There are no dates on it, and there
+will not be: a date on an unfunded backlog is a promise the project cannot keep,
+and the person most damaged by it is the one who planned a release around it.
+What you get instead is the order, the reason for the order, and the blocker
+attached to anything that is not moving.
+
+The status of any individual component is not maintained here — it is generated
+from the catalogue, so it cannot drift from what the system actually contains.
+
+<StatusMatrix />
+
+## The order, and why
+
+**1. Nothing ships before the token layer is fixed.** Every component reads
+semantic tokens, and every published contrast number describes a token pair.
+Renaming a token after twenty components consume it is the expensive mistake this
+project is deliberately front-loading to avoid.
+
+**2. The health data-display components come first**, in this order:
+`StatusPill`, `RangeBar`, `ResultCard`. They are ordered by how much of the
+system they exercise rather than by how much anyone wants them. `StatusPill` is
+the smallest complete test of the status axis and the colour-independence rule.
+`RangeBar` is the first component that has to render a value against a range
+without implying a diagnosis, which is the hardest content problem in the system.
+`ResultCard` composes both and is the component most people arrive wanting.
+
+**3. Then the surfaces**: `Surface`, `Card`, `Sheet`, `Dialog`. The material
+ladder is currently documented and tokenised but not exercised by anything, and a
+ladder nothing climbs is a ladder nobody has tested.
+
+**4. Then communication**: `AlertBanner`, `CareCard`, `Callout`,
+`DisclaimerNote`. These carry the alarm-fatigue budget, so they are built after
+there is enough of a screen to measure a budget against.
+
+**5. Input and formatting last**: `ReadingInput`, `LogSheet`, `Value`,
+`RelativeTime`. `Value` is small and tempting to do first; it is deliberately
+late because its rounding and unit rules are doctrine that other components will
+sharpen.
+
+Everything else in the catalogue is either a specification waiting for the layer
+above it, or a `considered` row — a reserved name with no commitment. See
+[Release phases](release-phases.mdx) for what those two words oblige us to.
+
+## Blockers
+
+**No component exists, so no measured number about a component exists.** Bundle
+sizes, per-component accessibility audits and the keyboard reference are all
+generated pages with empty sources. They are not missing; they are waiting.
+
+**Colour-independence and the never-mix rule need a lint rule, not a document.**
+The rule is written, and a rule that is only written is a rule that survives
+until the first deadline. Until the ESLint and Stylelint plugins described in
+[Tooling](../handbook/tooling/index.mdx) exist, this is enforced by review, which
+is to say weakly.
+
+**Accessibility conformance cannot be claimed without an audit**, and an audit
+cannot be run against a specification. The [accessibility statement](../accessibility/accessibility-statement.mdx)
+lists what is unknown today rather than implying it is fine.
+
+**The `[lang]` segment is not blocked, it is deferred**, with the exact retrofit
+recipe recorded in [ADR 0005](decisions/0005-no-lang-segment-yet.mdx). Unit
+systems — mmol/L against mg/dL, kilograms against stones, Celsius against
+Fahrenheit — are treated as a correctness problem and ship now, because getting
+those wrong harms someone in English just as effectively as in any other
+language.
+
+## What this project will not do
+
+Saying no in public is part of a roadmap. None of the following is planned, and
+if you need one, opsinjs is the wrong dependency:
+
+- **Clinician-facing components.** No EHR tables, no order entry, no prescribing.
+  Density, training assumptions and error consequences are all different.
+- **A charting library.** [Data visualisation](../foundations/data-visualisation/index.mdx)
+  gives rules and an accessible chart contract; it will not ship a chart engine.
+- **A general form library.** `Field` exists to make health inputs correct, not to
+  compete with the form libraries that already work.
+- **A CLI, first.** `npx shadcn` installs from our registry today. Writing a CLI
+  before writing a component would be building the shop before the stock —
+  [ADR 0002](decisions/0002-shadcn-registry-distribution.mdx).
+- **Native mobile.** The system targets the web, including web views in native
+  apps. React Native is not on this list.
+
+## How something gets onto this page
+
+Through [Proposals](proposals.mdx), which describes what a proposal has to
+contain and the maturity ladder a proposed component climbs. The short version:
+a name is cheap, a specification is not, and nothing is implemented before its
+clinical contract is written down.
+
+<LastUpdated />
+
+<Reviewed />

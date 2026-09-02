@@ -1,0 +1,132 @@
+{
+  "$comment": "AUTHORED SOURCE — not generated. scripts/build-tokens.mts reads this file and emits app/tokens.generated.css and lib/generated/tokens.ts. The `linear()` stop lists were sampled from the spring parameters recorded beside them; if you change a spring you must resample, and the sampler is documented in `sampling` below.",
+  "version": 1,
+  "namespace": "motion",
+  "cssPrefix": "--opsin",
+  "cssNaming": {
+    "easing": "--opsin-ease-{name}",
+    "duration": "--opsin-duration-{name}",
+    "$comment": "A spring token emits ONE custom property holding a `linear()` easing, plus a matching `--opsin-duration-{name}` holding the settle time. They are always used together: a spring easing paired with an unrelated duration is not the spring any more."
+  },
+  "rules": [
+    "Motion never carries urgency. An urgent reading is urgent because of its word, its icon and its position, never because it moved faster or pulsed. A pulsing red card is the single most common alarm-fatigue defect in consumer health UI and it is banned outright.",
+    "Morph, do not swap. When a value changes, animate the value in place; do not cross-fade one card out and another in. A swap reads as 'a different reading'; a morph reads as 'this reading changed'.",
+    "Reduced motion is per token, not a kill switch. Every token below declares its own `reducedMotion` fallback. Removing all motion removes the cue that something changed, which is worse for a reader who is tracking a number over time.",
+    "Nothing that conveys a health value may animate for longer than `duration-deliberate`. A reader waiting to see a number is not being delighted."
+  ],
+  "sampling": {
+    "model": "Damped harmonic oscillator, unit displacement, zero initial velocity. x(t) = 1 - e^(-zeta*w0*t) * (cos(wd*t) + (zeta*w0/wd) * sin(wd*t)) for zeta < 1, with w0 = sqrt(k/m), zeta = c / (2*sqrt(k*m)), wd = w0*sqrt(1 - zeta^2); the critically damped and overdamped closed forms are used when zeta >= 1.",
+    "settleThreshold": 0.001,
+    "settleRule": "The duration is the last time at which |x(t) - 1| exceeds the settle threshold, rounded up to the millisecond. This is why the durations are odd numbers: they are measured, not chosen.",
+    "stops": 21,
+    "$comment": "21 evenly spaced samples across the settle time. Fewer than about 16 makes the overshoot visibly polygonal; more than about 24 buys nothing a viewer can see and bloats every stylesheet that inlines the token."
+  },
+  "springs": {
+    "spring-snap": {
+      "stiffness": 900,
+      "damping": 48,
+      "mass": 1,
+      "zeta": 0.8,
+      "overshootPercent": 1.52,
+      "durationMs": 283,
+      "easing": "linear(0, 0.0715, 0.2271, 0.4053, 0.5722, 0.7119, 0.8198, 0.8978, 0.9505, 0.9836, 1.0025, 1.0118, 1.015, 1.0147, 1.0126, 1.01, 1.0073, 1.0051, 1.0033, 1.0019, 1)",
+      "use": "Direct manipulation only: a switch the reader just flipped, a segmented control, a pressed button settling. The only token in the system that overshoots, and it overshoots by 1.5% — enough to feel physical, not enough to look playful.",
+      "doNotUse": "Anything that displays a health value. A number that overshoots its target has, for one frame, displayed a number that is not true.",
+      "reducedMotion": {
+        "easing": "linear",
+        "durationMs": 0,
+        "note": "Snap to the end state. The reader initiated it, so there is nothing to explain."
+      }
+    },
+    "spring-settle": {
+      "stiffness": 520,
+      "damping": 38,
+      "mass": 1,
+      "zeta": 0.8332,
+      "overshootPercent": 0.88,
+      "durationMs": 382,
+      "easing": "linear(0, 0.0742, 0.2328, 0.4113, 0.5758, 0.7116, 0.8157, 0.8905, 0.9412, 0.9736, 0.9928, 1.003, 1.0076, 1.0088, 1.0082, 1.0068, 1.0053, 1.0038, 1.0026, 1.0017, 1)",
+      "use": "The workhorse for chrome: popovers, tooltips, menus, chips appearing and disappearing.",
+      "doNotUse": "Full-screen transitions, where 382ms reads as hesitant.",
+      "reducedMotion": {
+        "easing": "linear",
+        "durationMs": 100,
+        "note": "A short cross-fade. Keeps the 'something appeared' cue without the travel."
+      }
+    },
+    "spring-calm": {
+      "stiffness": 300,
+      "damping": 35,
+      "mass": 1,
+      "zeta": 1.0104,
+      "overshootPercent": 0,
+      "durationMs": 550,
+      "easing": "linear(0, 0.0829, 0.2457, 0.4157, 0.5642, 0.6832, 0.774, 0.841, 0.8893, 0.9236, 0.9476, 0.9643, 0.9757, 0.9836, 0.9889, 0.9926, 0.995, 0.9967, 0.9978, 0.9985, 1)",
+      "use": "Health values. A range bar filling, a dial sweeping to its reading, a sparkline drawing, a number counting to its value. Slightly overdamped (zeta just over 1) so it never overshoots and never bounces.",
+      "doNotUse": "Anything the reader is waiting on to make a decision inside a form.",
+      "reducedMotion": {
+        "easing": "linear",
+        "durationMs": 0,
+        "note": "Render the final value immediately. Never animate a health value for a reader who has asked for less motion."
+      }
+    },
+    "spring-sheet": {
+      "stiffness": 420,
+      "damping": 42,
+      "mass": 1,
+      "zeta": 1.0247,
+      "overshootPercent": 0,
+      "durationMs": 483,
+      "easing": "linear(0, 0.0881, 0.2576, 0.431, 0.5798, 0.6971, 0.7854, 0.8497, 0.8958, 0.9282, 0.9508, 0.9664, 0.9771, 0.9845, 0.9895, 0.9929, 0.9952, 0.9967, 0.9978, 0.9985, 1)",
+      "use": "Large surfaces travelling a long distance: sheets, dialogs, full-screen pushes. Overdamped, because a sheet that bounces at the top of its travel reads as a dropped object.",
+      "doNotUse": "Small elements. At this duration a 4px move looks broken.",
+      "reducedMotion": {
+        "easing": "linear",
+        "durationMs": 120,
+        "note": "Cross-fade in place. A sheet that appears with no travel still needs to be seen to appear."
+      }
+    }
+  },
+  "easings": {
+    "ease-standard": {
+      "value": "cubic-bezier(0.2, 0, 0, 1)",
+      "use": "Non-spring transitions where a spring would be overkill: colour, opacity, border. Fast out, slow in.",
+      "reducedMotion": { "value": "linear" }
+    },
+    "ease-enter": {
+      "value": "cubic-bezier(0.05, 0.7, 0.1, 1)",
+      "use": "Something arriving from off-screen or from nothing. Decelerating, because an arrival should feel like it is coming to rest."
+    },
+    "ease-exit": {
+      "value": "cubic-bezier(0.3, 0, 0.8, 0.15)",
+      "use": "Something leaving. Accelerating and shorter than its enter, because a reader does not need to watch a dismissal finish."
+    }
+  },
+  "durations": {
+    "duration-instant": {
+      "ms": 80,
+      "use": "State change with no travel: hover tint, focus ring, checkbox tick."
+    },
+    "duration-fast": {
+      "ms": 140,
+      "use": "Small elements moving a small distance."
+    },
+    "duration-base": {
+      "ms": 220,
+      "use": "The default for chrome that is not spring-driven."
+    },
+    "duration-slow": {
+      "ms": 360,
+      "use": "Layout change: a list reflowing, a card expanding."
+    },
+    "duration-deliberate": {
+      "ms": 560,
+      "use": "The ceiling. Used for a first-run reveal or a consent sheet, where the point is that the reader notices. Nothing may exceed it."
+    }
+  },
+  "reducedMotion": {
+    "query": "@media (prefers-reduced-motion: reduce)",
+    "policy": "Every token above declares its own fallback and build-tokens.mts emits them inside the query. What survives: opacity changes under 120ms, and any change of state that would otherwise be invisible. What does not: travel, scale, rotation, parallax, and every animation of a health value.",
+    "$comment": "The reason this is per token rather than a global `animation: none` is that a reader who asks for reduced motion still needs to know that a value changed. Removing the cue entirely trades a vestibular problem for a comprehension problem."
+  }
+}

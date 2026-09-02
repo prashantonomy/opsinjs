@@ -1,0 +1,50 @@
+---
+title: Tokens
+description: Every design token opsinjs defines, what it controls, and which parts of the system consume it.
+status: stable
+kind: reference
+full: true
+owner: engineering
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 12m
+aliases: [all tokens, token index, complete token table]
+---
+
+<PageTemplate kind="reference" />
+
+## How this is generated
+
+**Source:** `tokens/color.json`, `tokens/material.json`, `tokens/motion.json`,
+`tokens/type.json`, `tokens/space.json`, `tokens/shape.json`.
+**Script:** `scripts/build-tokens.mts`, which also writes `lib/generated/tokens.ts`
+and `app/tokens.generated.css`. **Command:** `pnpm run generate`.
+
+Three columns, and the third is the one that matters. *Token* is the name you
+write. *What it controls* is the single property or decision it owns — if a token
+controls two unrelated things, that is a bug in the token, not a longer sentence
+in this column. *Used by* lists the components and foundations that read it, which
+is how you find out whether changing a value is a local adjustment or a system
+event.
+
+**Tier is shown for every row.** Primitive tokens are raw values and are listed
+for completeness only; a component that reads one has broken the rule described in
+[Token architecture](../../foundations/token-architecture.mdx). Semantic and
+component tiers are the ones you are meant to use.
+
+**What is deliberately excluded.** The documentation site's own theme variables —
+everything lyra, shadcn and fumadocs define for the chrome you are looking at —
+are not opsinjs tokens and are not listed. They are not part of the public
+surface, they carry no semver promise, and confusing the two is the most common
+way a consumer ends up styling their product with our sidebar's colours.
+
+If you want to change a value rather than read one, you want
+[Theming](../../theming/index.mdx). If you want to know what a value *means*, you
+want [Foundations](../../foundations/index.mdx). To change a row here, edit the
+JSON source; this page cannot be edited.
+
+{/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
+
+<NoDataYet script="scripts/build-reference.mts" />
+
+{/* opsinjs:generated:end */}

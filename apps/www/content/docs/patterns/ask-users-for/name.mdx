@@ -1,0 +1,146 @@
+---
+title: Ask users for a name
+description: One field wherever possible, no assumptions about structure, and the difference between the name on a record and the name someone wants to be called.
+status: stable
+kind: pattern
+aliases: [name field, full name input, first and last name, preferred name, legal name]
+implements: [field]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="pattern" />
+
+## When to use
+
+Ask for a name when you need to address the reader, or when a name is part of
+matching them to a record held elsewhere. Those are two different requirements
+and they frequently want two different answers.
+
+- **To address someone** — greetings, an export header, a shared summary — ask
+  for what they want to be called. One field, free text, no validation beyond
+  "not empty".
+- **To match a record** — a clinic booking, a prescription, an insurance claim —
+  you need the name as that system holds it, which may not be the name they use.
+
+If you need both, ask for both and say why. If you only need one, do not collect
+the other.
+
+## When not to use
+
+- **You are greeting someone and nothing else.** Consider not asking at all. An
+  app that opens with "Good morning" is not worse than one that opens with "Good
+  morning, Jonathan" and has never asked why it needed to know.
+- **You need to identify, not to address.** An account identifier, a member
+  number or an email is a better key than a name and is far less likely to be
+  wrong.
+- **You want the wiring.** [Handbook → Forms](../../handbook/forms.mdx).
+
+## How it works
+
+<FlowDiagram>
+{`flowchart TD
+  A["We want a name"] --> B{"To address, or to match a record?"}
+  B -->|"address"| C["One field: what should we call you?"]
+  B -->|"match"| D{"Does the receiving system require parts?"}
+  D -->|"no"| E["One field, full name, autocomplete name"]
+  D -->|"yes"| F["Given name and family name, both optional-tolerant"]
+  C --> G["Store as given; never reformat, capitalise or split"]
+  E --> G
+  F --> G`}
+</FlowDiagram>
+
+**One field is the default.** Splitting a name into first and last is a data
+model dressed as a question, and it is wrong for a large fraction of the world:
+mononyms, patronymics, family-name-first orders, names with several given
+elements, and names where the family element is not last. If the receiving
+system truly requires parts, ask for parts — but ask for them by the names the
+receiving system uses, and never validate that a family name has been given.
+
+What not to constrain:
+
+- **Length.** Both directions. Some names are one character; some are eighty.
+- **Character set.** Accented characters, hyphens, apostrophes, spaces and
+  non-Latin scripts are all names. A regular expression rejecting an apostrophe
+  will reject a great many people, and they will notice.
+- **Capitalisation.** Do not title-case what the reader typed. `van der Berg`,
+  `McDonald` and `d'Souza` are all mangled by naive capitalisation, and it is
+  the reader's name, not yours to format.
+- **Trimming beyond the obvious.** Strip leading and trailing whitespace; leave
+  internal spacing alone.
+
+**Preferred name is not a nickname field.** In a health context, the difference
+between the name on a record and the name someone uses is often not casual — for
+trans and non-binary readers in particular, being addressed by a name they do
+not use is a real harm, and it happens most often in exports and notifications
+that were built against the "legal" field without thinking. If you hold both,
+the rule is: **address with the preferred name everywhere; use the record name
+only where a system requires it, and say when you are doing so.** See
+[Sex and gender](./sex-and-gender.mdx) for the same problem in the adjacent
+field.
+
+## Content
+
+<DoDont>
+  <DoDont.Do>
+    Label: "Your full name". Hint, only if you also collect a record name: "As
+    you'd like us to write it."
+  </DoDont.Do>
+  <DoDont.Dont>
+    "First name*" and "Surname*", both required, with a validation message
+    reading "Please enter a valid surname".
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "What should we call you?" for the greeting, and separately, "Your name as
+    your clinic has it" with one line explaining that it is used to match your
+    records.
+  </DoDont.Do>
+  <DoDont.Dont>
+    A single "Legal name" field used for both, so every notification the reader
+    receives uses a name they do not use.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility
+
+- **`autocomplete="name"`** on a single field; `"given-name"` and
+  `"family-name"` when split. WCAG 2.2 SC 1.3.5.
+- **`autocapitalize="words"` is acceptable as a keyboard hint** but must not be
+  applied to the stored value, and `spellcheck="false"` avoids underlining a
+  correctly spelled name.
+- **Visible labels**, never placeholders (WCAG 2.2 SC 3.3.2). A placeholder
+  disappears the moment the reader starts typing, which is exactly when a
+  two-field name form becomes confusing.
+- **Error messages must not imply the name is wrong.** "Enter your name" for an
+  empty field; never "invalid name".
+- **Do not re-ask.** WCAG 2.2 SC 3.3.7.
+- **Screen-reader announcement of a mangled name is a real failure.** If you
+  transform the value, the reader hears the transformation read back, which is
+  how most auto-capitalisation bugs are eventually discovered.
+
+## Research
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  The "one field unless a receiving system forces otherwise" position and the
+  list of constraints not to apply are opinion, and they are opinions with a
+  long public history — the "falsehoods programmers believe about names" genre
+  exists because these assumptions are made repeatedly. We are not citing a
+  study; we are stating that each constraint above excludes real people, which
+  is checkable by inspection rather than by trial.
+
+  The preferred-name rule is the part of this page with the most at stake. It is
+  a design and equity position rather than a measured finding: a product that
+  addresses somebody by a name they do not use has failed them regardless of
+  what its data model required.
+
+  What would change our mind: nothing on the constraints. On splitting, a
+  receiving system that genuinely cannot accept a full name is a real reason to
+  split — which is why the flow above branches on it rather than forbidding it.
+</ResearchNote>
+
+## Updates to this page
+
+<Reviewed />

@@ -1,0 +1,141 @@
+---
+title: Monorepo
+description: Workspaces, aliases and the @source lines Tailwind needs when the app is not the repository root.
+status: planned
+kind: guide
+since: unreleased
+owner: core
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 6m
+aliases: [monorepo install, workspaces setup, source lines, shared ui package]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+Monorepos break opsinjs installs in exactly two ways, and both are about a path
+being resolved relative to something other than what you assumed: aliases resolved
+against the wrong `tsconfig`, and Tailwind scanning a directory that no longer
+contains your components.
+
+Neither is an opsinjs behaviour and neither has an opsinjs setting. Both are
+predictable, and this page is the checklist.
+
+<Callout title="Nothing installs yet">
+  There is no published registry, so the commands below do not resolve today.
+  [Troubleshooting](../troubleshooting.mdx#nothing-is-published-yet).
+</Callout>
+
+## Decide where the components live
+
+Two arrangements work, and the choice has consequences you should make on purpose.
+
+**Inside one app** — `apps/web/components/opsinjs/`. Simplest, and correct when one
+app consumes opsinjs. Nothing crosses a package boundary, so nothing needs to be
+built or exported.
+
+**In a shared package** — `packages/ui/src/opsinjs/`, consumed by several apps.
+Correct when more than one app renders the same health surfaces, and it is worth
+the extra configuration precisely because those surfaces must not drift between
+apps. The cost is that every consuming app must scan the package for classes,
+which is the failure below.
+
+What does not work is copying the same component into two apps and maintaining
+both. In a health system, two divergent copies of a component that renders a
+clinical status is a safety problem, not a tidiness problem.
+
+## Run the CLI in the right place
+
+```npm
+npx shadcn@latest add @opsinjs/result-card --cwd apps/web
+```
+
+`components.json` is read from the working directory, so a plain command at the
+repository root either fails or writes into the wrong package. Every workspace that
+consumes opsinjs needs its own `components.json`; alternatively, keep a single one
+in the package that owns the components and always target it.
+
+## Get the aliases right in the right file
+
+`aliases` in `components.json` and `paths` in `tsconfig.json` must agree, and both
+must be correct **in the workspace being written to** — not at the repository root.
+
+```jsonc title="apps/web/tsconfig.json"
+{
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./*"],
+      "@workspace/ui/*": ["../../packages/ui/src/*"]
+    }
+  }
+}
+```
+
+If you keep components in a shared package, the copied files import `cn` from
+`aliases.utils`, so that alias must resolve **from inside the package**, not from
+the app. This is the most common cross-package failure: the file lands correctly,
+compiles in the app, and fails when the package is built on its own.
+
+## Add the `@source` lines
+
+Tailwind v4 generates only the classes it can find. In a monorepo, the directory
+holding your components is very often outside the app's default scan.
+
+```css title="apps/web/app/globals.css"
+@import "tailwindcss";
+@import "./opsinjs.css";
+
+/* Components inside this app. */
+@source "../components/opsinjs/**/*.{ts,tsx}";
+
+/* Components in a shared workspace package. */
+@source "../../../packages/ui/src/**/*.{ts,tsx}";
+```
+
+Three things worth knowing before you debug this at eleven at night:
+
+- **`@source` paths are relative to the CSS file**, not to the app root or the
+  repository root. Being one directory out is silent.
+- **Every consuming app needs its own lines.** A shared package does not carry its
+  own Tailwind scan into the apps that import it.
+- **A package published as compiled JavaScript still needs scanning** if the class
+  names survive into the output, which for copied opsinjs source they do.
+
+## Verify it worked
+
+1. **A copied component renders styled in every app**, not just the one you tested.
+   This is the check that catches a missing `@source` in the second app, which is
+   how it usually reaches production.
+2. **The shared package builds on its own**, if you have one. That is where a bad
+   `utils` alias surfaces.
+3. **Colours resolve through custom properties** in each app.
+4. **Only one copy of React** is resolved across the workspace. Two copies produce
+   errors that look like component bugs and are not.
+
+## Troubleshooting
+
+**Unstyled in one app and fine in another.** A missing `@source` line in the
+unstyled app. Nothing else produces this asymmetry.
+
+**Files land at the repository root.** The CLI was run without `--cwd` and read the
+wrong `components.json`, or there is one at the root that should not be there.
+
+**`cn` cannot be resolved when the package builds alone.** `aliases.utils` resolves
+from the app rather than from the package.
+
+**Duplicate React or duplicate Base UI.** A hoisting problem in your package
+manager, not an opsinjs problem — but it presents as one, so check it early.
+
+**Turbo or Nx caches a stale CSS build.** Include the `@source` targets in the
+task's inputs, or the cache will happily return a build that predates your
+components.
+
+## Next
+
+- [components.json](./components-json.mdx) — the fields these paths come from.
+- [Tailwind v4](../../theming/tailwind-v4.mdx) — the ordering and scanning rules in
+  full.
+- [Upgrading](./upgrading.mdx) — keeping copied source current across several
+  workspaces.

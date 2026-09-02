@@ -1,0 +1,204 @@
+---
+title: Tailwind v4
+description: How opsinjs uses @theme, @theme inline and @source, and the three CSS ordering mistakes that break a theme without producing an error.
+status: stable
+kind: guide
+aliases: ["@theme inline", "@source", tailwind 4, css import order]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+opsinjs is a Tailwind v4 system. There is no `tailwind.config.js`, no plugin to
+register, and no PostCSS chain to reason about beyond `@tailwindcss/postcss`.
+Configuration is CSS.
+
+That is a genuine simplification and it moves an entire class of problem into a
+place developers are not used to looking. In v3, a misconfiguration threw. In
+v4, the three most common mistakes — the wrong `@theme` keyword, a missing
+`@source`, and an import in the wrong position — all produce valid CSS that
+silently does not do what you meant. This page is about those three.
+
+## `@theme` against `@theme inline`
+
+Both create Tailwind utilities from custom properties. They differ in *when* the
+value is read, and in opsinjs that difference decides whether dark mode works.
+
+`@theme` copies the value into the generated utility at build time:
+
+```css
+@theme {
+  --color-brand: oklch(0.52 0.14 262);
+}
+/* → .bg-brand { background-color: oklch(0.52 0.14 262) } */
+```
+
+`@theme inline` emits a reference and resolves it in the browser:
+
+```css
+@theme inline {
+  --color-brand: var(--brand);
+}
+/* → .bg-brand { background-color: var(--brand) } */
+```
+
+Only the second one follows a runtime override. opsinjs has four kinds of
+runtime override and every one of them needs `inline`:
+
+- `.dark` swapping every role token,
+- `@supports (color-gamut: p3)` escalating chroma on wide-gamut displays,
+- `@media (prefers-reduced-motion)` and `(prefers-reduced-transparency)`
+  collapsing durations and materials,
+- `[data-density]` and `[data-text-size]` on the preview host.
+
+With plain `@theme`, all four stop reaching your utilities. Nothing errors. The
+page renders in light-theme colours inside a dark document, and it looks like a
+bug in the theme rather than a bug in one keyword.
+
+<Callout>
+The rule: **define the value on `:root` (and `.dark`), then map it with
+`@theme inline`.** Never define a colour's only declaration inside `@theme`.
+</Callout>
+
+## `@source`, and why classes vanish
+
+Tailwind v4 scans files to decide which utilities to emit. It only scans what it
+has been told about. In this repository:
+
+```css title="app/globals.css"
+@source "../content/**/*.{md,mdx}";
+@source "../registry/**/*.{ts,tsx}";
+```
+
+The first line exists because class names get written inside MDX. The second
+exists because registry source files are the ones components are copied from, so
+their classes must survive scanning even when nothing in the app imports them
+yet.
+
+If a class works in development and disappears in production, or works in one
+file and not another, an `@source` line is missing. In a monorepo this bites
+hardest: a package outside the app's directory is invisible until you add it —
+see [Installation → Monorepo](../start/installation/monorepo.mdx).
+
+Two things that do **not** need a `@source` line, and adding them causes
+problems:
+
+- `fumadocs-ui/dist/**/*.js` — obsolete in fumadocs v16, whose preset ships its
+  own `@source inline(...)`. Adding it inflates the scan for no gain.
+- `@tailwindcss/typography` — not a source, but worth stating here: it collides
+  with fumadocs' forked `prose` styles and must not be installed.
+
+## The import order
+
+`app/globals.css` declares its own required order in a comment at the top of the
+file, and the order is load-bearing rather than tidy. The short version:
+
+1. `tailwindcss` — the engine
+2. `tw-animate-css` — shadcn's animation utilities
+3. `shadcn/tailwind.css` — shadcn's own theme bridge
+4. `fumadocs-ui/css/shadcn.css` — maps the docs chrome onto the shadcn tokens
+5. `fumadocs-ui/css/preset.css` — the docs chrome itself
+6. the `@source` lines
+7. the lyra theme block, exactly as the CLI wrote it
+8. `./tokens.generated.css` — the generated ramps
+9. the opsinjs token layer — authored fallbacks, the two axes, the ladder
+10. `@layer base` and the `@media print` block
+11. `@custom-variant dark`, pinned last
+
+Three positions are worth understanding rather than copying.
+
+**4 before 5.** `fumadocs-ui/css/shadcn.css` maps the docs chrome onto shadcn's
+token names so that the chrome inherits your theme instead of shipping a second
+one. Loading the preset first means the chrome defines its own colours and then
+gets a bridge it no longer needs. Never import
+`fumadocs-ui/css/neutral.css` alongside it: that is a complete second theme, and
+the two fight in a way that looks like a caching problem.
+
+**8 before 9.** The generated ramps come first; the authored fallbacks in
+section 9 come after and are overridden by nothing except the P3 escalation.
+That ordering is what lets a clean clone render correctly before
+`pnpm run generate` has ever run.
+
+**11 last.** shadcn writes `@custom-variant dark (&:is(.dark *))` at the top of
+the file it generates; fumadocs declares `(&:where(.dark, .dark *))`. Last one
+wins, silently, and which one wins depends on import order you did not choose.
+opsinjs pins the `:where` superset at the very bottom so the result is
+order-independent. The `:where` form also has zero specificity, which is why a
+`.dark` override does not accidentally out-rank a component's own rule.
+
+## Specificity, and the `:root` trap
+
+`:root` and `.dark` have identical specificity — `(0, 1, 0)`. This is the single
+most surprising fact in the whole stylesheet, and it is why the Display-P3 block
+looks repetitive:
+
+```css
+@supports (color-gamut: p3) {
+  :root,
+  .opsin-product {
+    --opsin-status-urgent-line: oklch(0.58 0.232 25);
+  }
+
+  .dark,
+  .opsin-product.dark {
+    --opsin-status-urgent-line: oklch(0.70 0.208 25);
+  }
+}
+```
+
+A bare `:root` escalation placed after the `.dark` declarations would win in
+dark mode too, and leak light-theme chroma into it. The escalation therefore
+repeats every class selector it escalates, in the same cascade order as the base
+declarations. If you add an escalation of your own, copy the shape.
+
+## Verify it worked
+
+<Steps>
+
+### A utility follows the theme
+
+Apply `bg-card` to an element and toggle the `dark` class. If the background
+does not change, the token is mapped with `@theme` instead of `@theme inline`.
+
+### A class written in MDX survives a build
+
+Build for production and confirm the utility is still in the output. A class
+that only works in development is an `@source` gap; development scans more
+loosely.
+
+### The dark variant is the superset form
+
+Search the built stylesheet for `@custom-variant dark`. It should be the
+`:where(.dark, .dark *)` form, once.
+
+</Steps>
+
+## Troubleshooting
+
+**A utility exists but has no effect.** Something later in the cascade with equal
+specificity is winning. Check whether you have declared the same custom property
+in two places at `(0, 1, 0)`.
+
+**Dark mode works in the docs and not in a preview.** Previews render in a
+separate document with `app/product.css` and no docs chrome. That is
+[Lyra and the docs chrome](./lyra-and-the-docs-chrome.mdx).
+
+**Prettier reformats `globals.css` and something breaks.** `app/globals.css`
+and `app/product.css` are in `.prettierignore` deliberately: the CSS printer
+explodes the `linear()` spring tokens one stop per line and reflows the block
+the shadcn CLI wrote, which destroys the ability to diff against a fresh
+`shadcn init`. Leave them ignored.
+
+**Class sorting does nothing.** `.prettierrc` needs
+`"tailwindStylesheet": "./app/globals.css"` under Tailwind v4, or
+`prettier-plugin-tailwindcss` silently no-ops.
+
+## Next
+
+- [CSS variables](./css-variables.mdx) — using the tokens with no Tailwind at
+  all.
+- [Adding your own tokens](./adding-your-own-tokens.mdx) — the extension recipe
+  that survives an upgrade.
+- [Styling](../handbook/styling.mdx) — how components are expected to consume
+  all of this in product code.

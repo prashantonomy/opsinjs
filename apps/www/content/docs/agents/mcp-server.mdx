@@ -1,0 +1,160 @@
+---
+title: MCP server
+description: Point the shadcn MCP server at the opsinjs registry so an assistant can browse and install real items instead of guessing at them.
+status: stable
+kind: guide
+icon: Terminal
+aliases: [mcp, model context protocol, claude code setup, cursor setup]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+opsinjs does not ship an MCP server of its own. It ships a registry that the
+**shadcn** MCP server already understands, which means the setup is the standard
+one and everything you learn transfers to any other shadcn-compatible registry.
+
+What the connection buys you is inventory. Without it, an assistant asked for a
+health component answers from its training data. With it, the assistant can list
+what exists, read each item's metadata, and — critically — discover that the
+thing it was about to import is `status: planned` and has no files.
+
+Budget five minutes. You need a project with a `components.json`.
+
+## Configure the registry
+
+The MCP server reads registries from your project's `components.json`. Add the
+`@opsinjs` namespace:
+
+```json title="components.json"
+{
+  "registries": {
+    "@opsinjs": "https://opsinjs.dev/r/{name}.json"
+  }
+}
+```
+
+The `{name}` placeholder is required by the spec — the CLI substitutes the item
+name into it. See [Namespaces](../registry/namespaces.mdx) for composing several
+registries, and for why the namespace is `@opsinjs` rather than something
+shorter.
+
+No authentication is needed. The registry is public and read-only.
+
+## Start the server
+
+```npm
+npx shadcn@latest mcp init --client claude
+```
+
+Substitute your client: `claude`, `cursor`, `vscode`, `codex` or `opencode`.
+Restart the client afterwards.
+
+If you prefer to write the configuration by hand, it is the same three lines
+everywhere — a command and its arguments:
+
+```json title=".mcp.json"
+{
+  "mcpServers": {
+    "shadcn": {
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp"]
+    }
+  }
+}
+```
+
+Cursor uses `.cursor/mcp.json` with the same shape; VS Code uses
+`.vscode/mcp.json` with a `servers` key instead of `mcpServers`; Codex uses TOML
+in `~/.codex/config.toml` and the CLI cannot write that file for you.
+
+## Ask it something
+
+Three prompts that exercise the connection and expose the honest state of the
+system:
+
+```txt
+List every component in the opsinjs registry with its status.
+```
+
+```txt
+What does the opsinjs registry say about range-bar? Do not write any code.
+```
+
+```txt
+Is there an opsinjs component for showing a symptom picker?
+```
+
+The third is the interesting one. `symptom-picker` is in the considered roster,
+so a correct answer is "it is considered and not implemented", not a 404 and not
+an invented component. If your assistant invents one, that is the failure mode
+the [evals](./evals.mdx) exist to measure, and
+[Rules for agents](./rules-for-agents.mdx) is the fix.
+
+## What the server can and cannot do here
+
+<Callout>
+**Nothing is built.** The registry contains item metadata and no source files.
+`add` will resolve an item and find nothing to write. That is the correct
+behaviour and not a broken configuration.
+</Callout>
+
+| The server can | The server cannot |
+| --- | --- |
+| List every item and its status | Install component source — there is none |
+| Read titles, descriptions, categories, aliases | Tell you what a component's props are; the API is proposed, not generated |
+| Install the theme preset, which is real CSS | Give you a working example |
+| Search across opsinjs and your other registries | Enforce the clinical rules — that is the [skill](./agent-skill.mdx) |
+
+The last row is the important division of labour. The MCP server answers *what
+exists*. The skill answers *how to use it correctly*. Configure both.
+
+## Verify it worked
+
+<Steps>
+
+### The client sees the server
+
+In Claude Code, run `/mcp` and look for `shadcn` marked connected. Cursor shows a
+green dot in its MCP list; VS Code shows a Start control next to the entry in
+`.vscode/mcp.json`.
+
+### The registry resolves
+
+Ask the assistant to list opsinjs items. A non-empty list of names, each with
+`planned`, means the namespace resolved. An empty list means `components.json`
+was not read or the namespace is misspelled.
+
+### The negative answer is a real answer
+
+Ask about a considered component. "Considered, not implemented" is a pass;
+a confident API is a fail.
+
+</Steps>
+
+## Troubleshooting
+
+**No tools or prompts.** Clear the npx cache with `npx clear-npx-cache`, then
+re-enable the server in your client. This is by far the most common cause.
+
+**`@opsinjs` is not found.** The registry block is missing from
+`components.json`, or the file is not at the project root the client opened.
+The full-URL form — `npx shadcn@latest add https://opsinjs.dev/r/<name>.json` —
+needs no configuration and is a good way to isolate the problem.
+
+**It lists items but `add` writes nothing.** Correct. See the callout above.
+
+**The assistant still invents components.** The server supplies inventory, not
+judgement. Install the [agent skill](./agent-skill.mdx) or paste
+[Rules for agents](./rules-for-agents.mdx) into the system prompt.
+
+**It works in one editor and not another.** Each client stores its own
+configuration file. Configure each; there is no shared one.
+
+## Next
+
+- [Agent skill](./agent-skill.mdx) — the other half of the setup.
+- [Registry overview](../registry/index.mdx) — what the server is talking to.
+- [Machine-readable schemas](./machine-readable-schemas.mdx) — the same data,
+  fetched directly, when you are not using MCP at all.

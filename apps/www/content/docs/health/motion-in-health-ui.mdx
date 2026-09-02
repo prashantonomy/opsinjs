@@ -1,0 +1,175 @@
+---
+title: Motion in health UI
+description: Motion may confirm, orient and soften a transition; it may never carry urgency, meaning or a value, because it is the one channel a reader can miss entirely by looking away.
+status: stable
+kind: health
+evidence: mixed
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 12m
+owner: design-system
+implements: [alert-banner, score-dial, trend-sparkline, skeleton, sheet, dialog]
+aliases: [animation, pulsing, flashing, blinking, urgency motion, calm motion]
+---
+
+<PageTemplate kind="health" />
+
+## What this means
+
+A pulsing red dot is the most tempting element in health interface design. It
+costs eight lines of CSS, it reads as urgent to everyone in the design review,
+and it makes the screenshot look alive.
+
+It is also invisible to a reader who has reduced motion turned on, invisible to a
+screen reader, invisible in a screenshot the user sends to their partner,
+invisible to anyone who arrives at the screen after the animation has finished,
+and actively distressing to some readers with vestibular disorders or anxiety.
+The information content of a pulse is zero for a large fraction of the audience,
+and the fraction is enriched for exactly the people most likely to be using a
+health app.
+
+Motion in a health product has a second problem that other products do not have.
+An animated number counting up to a result is a small delightful flourish when
+the number is a step count. When the number is a biopsy-adjacent lab value and
+the reader is holding their breath, the same flourish is a slot machine.
+
+## The rule
+
+**Motion may support a message. It may never be the message.**
+
+Concretely:
+
+1. **Urgency is never conveyed by motion.** No pulsing, flashing, shaking or
+   bouncing to indicate status. Status is colour, icon and word — see
+   [Clinical status semantics](./clinical-status-semantics.mdx).
+2. **A value is never revealed by animation.** Health numbers appear at their
+   final value. No count-up, no dial sweep on first paint, no progressive
+   reveal of a result.
+3. **Nothing that carries clinical meaning may auto-dismiss.** A message that
+   times out is a message the reader may never have read.
+4. **Nothing flashes.** More than three flashes per second is a seizure risk and
+   is prohibited outright; below that threshold it is still forbidden here
+   because it fails rules 1 and 3.
+5. **Every animation has a defined reduced-motion behaviour, stated per token.**
+   The fallback is not "no animation" by default — it is an instant, complete,
+   equally informative state. See
+   [Reduced motion](../foundations/motion/reduced-motion.mdx).
+6. **Motion never delays access to a result.** If an entrance transition means a
+   reader waits 400 ms to read their result, the transition is too expensive.
+7. **Transitions preserve continuity.** Morph a surface rather than swapping it,
+   so a reader who looks away and back does not lose their place. See
+   [Choreography](../foundations/motion/choreography.mdx).
+
+What motion is *for*, in this system: confirming that an input was received,
+showing where a surface came from and where it went, keeping a scroll position
+comprehensible, and making a loading state feel bounded. All four are orientation
+jobs. None of them is a meaning job.
+
+<MotionDemo token="--opsin-motion-surface-enter" />
+
+## Why (evidence)
+
+<ResearchNote evidence="mixed" date="2026-09-02">
+  **Cited.** Three WCAG 2.2 success criteria bear directly on this page and we
+  treat them as normative rather than advisory: 2.2.2 (Pause, Stop, Hide) for
+  moving content, 2.3.1 (Three Flashes or Below Threshold) for flashing, and
+  2.3.3 (Animation from Interactions) for motion triggered by interaction. Rule 1
+  additionally follows from 1.4.1 (Use of Colour) read together with the general
+  principle that information must not depend on a single sensory characteristic —
+  motion is a sensory characteristic. `prefers-reduced-motion` exists because
+  vestibular disorders are real and common enough that operating systems ship a
+  system-level control for them.
+
+  **Opinion.** Rule 2 — no animated reveal of a health value — is ours, and it is
+  the one we would defend hardest. The argument is about the emotional frame a
+  count-up creates: a number that arrives gradually invites the reader to
+  anticipate, and anticipation is the wrong state to put someone in when the
+  content may be bad news. See
+  [Delivering difficult results](./delivering-difficult-results.mdx).
+
+  Rule 6's 400 ms is illustrative, not measured. The principle is that no
+  transition may sit between a reader and a result they came for.
+
+  What would change our mind on rule 2: evidence that a brief reveal improves
+  comprehension or recall of a result. We would still want it off by default and
+  off entirely for anything outside `steady`.
+</ResearchNote>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    Render an `urgent` banner at its final position and appearance, with an
+    assertive announcement to assistive technology. Its weight comes from
+    contrast, size, position and words.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Pulse the banner border to make it feel more urgent. Under reduced motion it
+    is a static banner; you have added risk for a subset of readers and
+    information for nobody.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Show a result at its value the moment the screen paints. If the data is not
+    there yet, show a `Skeleton` that reserves the exact layout and never implies
+    a number.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Animate `0 → 142` over 800 ms. For 800 ms the interface displays values that
+    are not this person's result, one of which may be a value they have been
+    dreading.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Under reduced motion, show the sheet in place with a crossfade of opacity
+    only, retaining every affordance. The reader gets the same information in the
+    same structure.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Under reduced motion, remove the transition and let a modal appear with no
+    change of context at all. Reduced motion means less movement, not less
+    orientation.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Use a skeleton or a progress indicator whose motion is bounded and
+    non-urgent, and stop it when loading ends.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Leave an indeterminate spinner on a screen indefinitely when a request has
+    failed. Perpetual motion reads as "still working" and is a lie about state.
+  </DoDont.Dont>
+</DoDont>
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+The motion tokens themselves are spring-derived `linear()` easings with a stated
+reduced-motion behaviour per token rather than one global kill switch, which is
+what makes rule 5 checkable rather than aspirational.
+
+## What this does not cover
+
+- **How the easings are built.** Spring parameters, the `linear()` generator and
+  the token set are [Motion](../foundations/motion/index.mdx).
+- **Writing transitions in code**, which is
+  [Motion in practice](../handbook/motion-in-practice.mdx).
+- **Sound and haptics**, which are a separate channel with a separate budget:
+  [Sound and haptics](../foundations/sound-and-haptics.mdx).
+- **Data visualisation transitions.** Animating between two chart states has its
+  own honesty problems and belongs to
+  [Data visualisation](../foundations/data-visualisation/index.mdx).
+- **Games, rewards and streak animation.** Outside the clinical surface, your
+  product may do what it likes — but not in the same visual channel as clinical
+  status.
+
+## Updates to this page
+
+<Reviewed />

@@ -1,0 +1,130 @@
+---
+title: Colour tokens
+description: The generated reference for every colour token — the naming grammar, both themes, both gamuts, and the measured pair each one belongs to.
+status: stable
+kind: foundation
+aliases: [colour tokens, color tokens, css variables colour, opsin-status, opsin-category]
+owner: engineering
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 6m
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+This page is the list. Everything on it is generated from `tokens/color.json` by
+`scripts/build-tokens.mts`; nothing on it is typed by a person, and
+`pnpm check:generated` fails the build if the committed output and a fresh
+regeneration disagree.
+
+Use it to answer three questions: *what is this token called*, *what does it
+control*, and *who else uses it*. The third column is what makes a token table a
+decision aid instead of an inventory — a token nothing consumes is a token that
+should not exist, and a token six components consume is one you cannot change
+casually.
+
+If you want the argument rather than the list, start at
+[Colour](./index.mdx). If you want to change a value, you are in the wrong
+pillar: [Theming](../../theming/index.mdx) is where changes live.
+
+## How it works
+
+### The naming grammar
+
+```text
+--opsin-<axis>-<name>-<role>          the two clinical axes
+--<chrome-role>                       the neutral application palette
+--color-<…>                           the Tailwind utility alias, via @theme inline
+```
+
+The clinical axes are always prefixed `--opsin-`. The neutral palette
+(`--background`, `--foreground`, `--card`, `--muted`, `--border`, `--ring`,
+`--primary` and their foregrounds) is unprefixed, because it follows the
+convention a shadcn-based codebase already has and there is nothing to be gained
+by renaming it. [Colour roles](./colour-roles.mdx) explains the split.
+
+### What is emitted, and in what order
+
+`app/tokens.generated.css` contains, in this order:
+
+1. a `:root` block — the light theme,
+2. a `.dark` block — the dark theme,
+3. `@media (color-gamut: p3)` blocks for each of the above, escalating chroma
+   only ([Gamut and Display-P3](./gamut-and-p3.mdx)),
+4. the preference-query overrides that belong to other foundations —
+   `prefers-reduced-transparency` and `prefers-reduced-motion`.
+
+`app/globals.css` imports that file at a fixed position between the vendor theme
+blocks and `@layer base`, and the product theme in `app/product.css` imports the
+same file. One source of truth, two shells.
+
+### Reading a resolved value
+
+<TokenSwatch token="--opsin-status-urgent-surface" />
+
+A swatch shows the token's resolved value in both themes and the pair it was
+measured in. A single contrast number attached to one colour would be
+meaningless — contrast is a property of a pair, which is why every figure on this
+site names both halves.
+
+## Using it
+
+**In Tailwind**, use the utility alias: `bg-status-act-surface`,
+`text-status-act-ink`, `border-category-cardio`. The aliases are declared with
+`@theme inline`, so they resolve the custom property at use time and therefore
+follow the theme, the gamut escalation and every preference override
+automatically. `@theme` without `inline` would bake the value in at build time
+and none of that would work; the trap is documented in
+[Tailwind v4](../../theming/tailwind-v4.mdx).
+
+**Outside Tailwind**, use `var(--opsin-status-act-surface)` directly. Nothing in
+the token layer depends on Tailwind — it is plain custom properties in a plain
+stylesheet, which is the reason a non-Tailwind consumer is a supported case
+rather than a workaround. See
+[CSS variables](../../theming/css-variables.mdx).
+
+**Never inline a resolved value.** A token exists so that a theme change reaches
+every consumer. A copied `oklch()` is a value that will be correct until the
+first time somebody changes the theme, at which point it becomes a bug nobody
+can grep for. The lint rules described in the
+[Handbook](../../handbook/index.mdx) catch this before review does.
+
+**Do not compose a new colour from two tokens.** Mixing, fading or overlaying
+tokens produces a colour that is in no measured pair. If you need a lighter
+variant, the answer is a different role or a
+[material rung](../materials/the-ladder.mdx), not `color-mix()`.
+
+## Tokens
+
+<TokenTable scope="color" />
+
+## Accessibility impact
+
+Every row above belongs to a measured pair, and the measurements are published
+rather than asserted:
+
+<ContrastReport scope="color" />
+
+Three properties of this table are load-bearing for accessibility and worth
+stating explicitly, because a generated table looks like it could not possibly
+be wrong:
+
+- **It is regenerated on every commit.** A hand-edit to the emitted CSS fails
+  `pnpm check:generated`, so the published values and the shipped values cannot
+  drift apart.
+- **It covers both themes.** There is no row that is measured in light and
+  assumed in dark.
+- **It does not cover pairs you assemble yourself.** The declared pair set is
+  enumerated in [Colour roles](./colour-roles.mdx). A combination outside it is
+  unmeasured, and unmeasured is the honest word for it.
+
+## Related
+
+- [Colour roles](./colour-roles.mdx) — what `surface`, `line` and `ink` mean,
+  and why a guarantee attaches to a pair.
+- [Generated token reference](../../reference/generated/tokens.mdx) — the same
+  data for the whole system, not just colour.
+- [Theming](../../theming/index.mdx) — the pillar where you change any of this.

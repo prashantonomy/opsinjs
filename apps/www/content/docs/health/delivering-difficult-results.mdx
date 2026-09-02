@@ -1,0 +1,193 @@
+---
+title: Delivering difficult results
+description: Tone, sequence and structure for the moment an app tells someone something they did not want to hear, when no clinician is present and no question can be asked.
+status: stable
+kind: health
+evidence: opinion
+reviewed: 2026-09-02
+reviewer: content
+reviewEvery: 6m
+owner: design-system
+implements: [result-card, care-card, alert-banner, disclaimer-note, term, consent-sheet]
+aliases: [bad news, tone, difficult result, abnormal result wording, breaking bad news]
+---
+
+<PageTemplate kind="health" />
+
+## What this means
+
+Clinicians are trained, at length, in how to give someone difficult news. The
+training covers where to sit, what to say first, how much to say, when to stop
+talking, and how to check what the person actually heard. It exists because doing
+this badly causes lasting harm, and because doing it well is not intuitive.
+
+An app has none of that. It has a card, a font size, and a moment it did not
+choose — 06:40, on a commute, from a notification. It cannot read the room, it
+cannot slow down, it cannot answer the question that follows, and it cannot tell
+whether the person is alone.
+
+Given that, the honest design position is not "deliver bad news well". It is:
+deliver as little as is necessary, as plainly as possible, and put the reader in
+control of when and how much more they receive — then make sure there is
+somewhere to go.
+
+## The rule
+
+**A result that may be distressing is disclosed deliberately: the reader knows
+what is coming before they see it, the language is plain and non-catastrophic,
+and the surface always ends in a route to a person.**
+
+**Sequence.**
+
+1. **No ambush.** A result the reader has not asked to see is announced before it
+   is shown. "Your results are ready. There is something here worth going through
+   — you can look now or later." Then a deliberate action to open it.
+2. **The reader chooses the moment.** No auto-open from a notification into a
+   full result, no result on a dashboard the reader opened for something else.
+3. **Layer the detail.** The plain-language summary first, the numbers behind a
+   deliberate step, the clinical detail behind another. Never the reverse.
+4. **End with a person, always.** What happens next, who is arranging it, and how
+   to reach someone. The last thing on the screen is never the number.
+
+**Language.**
+
+5. **Say the thing.** Vagueness reads as concealment and is more frightening than
+   the fact. "Your result shows X" beats "your result requires further
+   discussion".
+6. **No catastrophising and no false comfort.** Neither "this is very serious"
+   nor "don't worry". Both are claims the interface cannot support.
+7. **No blame.** Never "you failed to", "your poor control", "you should have".
+   Health outcomes are not moral outcomes.
+8. **No diagnosis and no prognosis.** The interface reports a result and names
+   the next step. It does not say what this means for someone's life.
+9. **Short sentences, ordinary words, one idea each.** The reader's comprehension
+   is reduced at this moment, and the words are the last thing to be tested; see
+   [Voice and tone](../content/voice-and-tone.mdx).
+10. **Name what is not known.** "This result on its own does not tell us X" is
+    both true and, usually, the reassurance the reader most needs.
+
+**Structure.**
+
+11. **The action is as prominent as the result.** A result with a plan attached
+    is a different object from a result alone.
+12. **Nothing else competes.** No cross-sell, no rating prompt, no streak, no
+    unrelated alert on that screen — the alarm-fatigue suppression rules apply.
+13. **It stays available.** People re-read. The result, in the same words, must
+    be findable afterwards, and shareable with someone they trust; see
+    [Sharing with a clinician](../patterns/sharing-with-a-clinician.mdx).
+14. **Offer a way to not see it yet**, where clinically appropriate, and never
+    where a delay could cause harm — that case is
+    [Emergency and escalation](./emergency-and-escalation.mdx).
+
+## Why (evidence)
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  Opinion, and we are careful about which parts.
+
+  There is a real clinical literature on breaking bad news, and there are
+  well-known structured protocols taught in medical education. We do not cite one
+  here, because we have not evaluated how well any of them transfers to an
+  asynchronous, unattended interface, and citing a clinical communication
+  protocol as though it endorsed an app screen would be a misuse of it. If you
+  want the underlying material, it is easy to find and worth reading; the
+  transfer is the part nobody has settled.
+
+  What we are confident about is the structural asymmetry that drives this page.
+  In a consultation the clinician can adapt continuously. An app cannot adapt at
+  all, so its only lever is *control*: who decides when the information arrives,
+  and how much arrives at once. Rules 1 to 3 spend everything on that lever.
+
+  Rule 5 — say the thing — is in tension with rule 1 and worth naming as a
+  tension. Warning someone before showing them a result is itself information,
+  and a warning that is too vague creates a period of dread. We resolve it by
+  making the warning honest about its own weight ("there is something here worth
+  going through") rather than either neutral or ominous. We have not tested that
+  phrasing.
+
+  What would change our mind: research on patient preferences for receiving
+  results digitally. There is work in this area — the studies cited on
+  [Reference ranges](./reference-ranges.mdx) touch it — and a serious review
+  would probably sharpen several of these rules.
+</ResearchNote>
+
+<Todo>Commission or find a review of patient preferences for receiving results
+through a portal or app without a clinician present, and upgrade this page to
+`evidence: mixed`.</Todo>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    "Your results are ready. One of them is worth going through properly — you
+    might want a few quiet minutes." Then a button: "Open results".
+  </DoDont.Do>
+  <DoDont.Dont>
+    A push notification reading "Abnormal result — tap to view", which opens
+    straight onto a red card. Ambush, diagnosis, and no control.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "Your result is higher than your laboratory's usual range. Your GP has been
+    sent this and will contact you within 5 working days. If you have not heard
+    by then, call the surgery."
+  </DoDont.Do>
+  <DoDont.Dont>
+    "Your result requires further discussion with your healthcare provider."
+    Says nothing, means something, and leaves the reader to imagine what.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "This result on its own does not tell us why. That is what the next test is
+    for." Naming the limit of what is known is the most useful sentence on the
+    screen.
+  </DoDont.Do>
+  <DoDont.Dont>
+    "Don't worry, this is usually nothing." An unsupported reassurance that will
+    be remembered and held against you if it turns out to be something.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Keep the summary in one place, in the same words, permanently, with a way to
+    save or share it.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Show it once in a dismissible banner. People re-read difficult news four or
+    five times, and they will re-read whatever they can find instead.
+  </DoDont.Dont>
+</DoDont>
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+`ResultCard` is specified with a required next-step slot for exactly this reason:
+a result with nothing after it is the failure mode this page exists to prevent,
+and making the slot optional would mean it is empty in the cases that matter
+most.
+
+## What this does not cover
+
+- **What the result means.** All clinical interpretation is yours.
+- **Whether a result should be released to the reader at all**, and on what
+  delay. That is a clinical and often a regulatory decision in your health
+  system, not a design one.
+- **Emergency findings**, which follow
+  [Emergency and escalation](./emergency-and-escalation.mdx) instead — the
+  no-ambush rule does not apply when delay causes harm.
+- **Disclosure of risk of harm inside a questionnaire**, which is
+  [Crisis and self-harm](./crisis-and-self-harm.mdx).
+- **The wording itself in detail**, which is
+  [Voice and tone](../content/voice-and-tone.mdx) and
+  [Writing status and alerts](../content/writing-status-and-alerts.mdx).
+- **Results concerning someone else** — a child, a relative, a person being cared
+  for — where consent and tone both change.
+
+## Updates to this page
+
+<Reviewed />

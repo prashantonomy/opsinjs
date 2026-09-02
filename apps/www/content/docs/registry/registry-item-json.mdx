@@ -1,0 +1,175 @@
+---
+title: registry-item.json
+description: One distributed item annotated field by field — files, targets, dependencies, CSS variables — and the fields opsinjs deliberately leaves empty.
+status: stable
+kind: guide
+aliases: [registry item, item schema, item json, cssVars]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+A registry item is what `add` actually installs. Where the catalog lists names,
+an item carries everything needed to write files into a project: the source, the
+paths, the npm dependencies, the other items it needs, and any CSS variables it
+contributes.
+
+opsinjs serves one at `/r/<name>.json`, and one per style at
+`/r/styles/<style>/<name>.json`. The authoritative schema is shadcn's, at
+`https://ui.shadcn.com/schema/registry-item.json`.
+
+<Callout>
+Every opsinjs item today has an empty `files` array, because nothing is built.
+The metadata is real; the code is not. An item that resolves is not evidence
+that a component exists — check `status` in `/r/index.json`.
+</Callout>
+
+## The file
+
+```json title="/r/result-card.json"
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "result-card",
+  "type": "registry:component",
+  "title": "Result card",
+  "description": "A single test result shown with what it means and how confident you should be.",
+  "dependencies": [],
+  "registryDependencies": ["utils", "status-pill", "value"],
+  "files": [],
+  "meta": {
+    "opsinjs": {
+      "status": "planned",
+      "category": "health-result",
+      "since": "unreleased"
+    }
+  }
+}
+```
+
+## Field by field
+
+| Field | What it is | opsinjs practice |
+| --- | --- | --- |
+| `name` | The item id | Identical to the catalogue id and the docs URL segment |
+| `type` | What kind of thing this is | See the table in [registry.json](./registry-json.mdx) |
+| `title` | Human-readable name | Sentence case |
+| `description` | One sentence | Plain English, written for the patient not the engineer |
+| `author` | Attribution | Omitted; the registry's `homepage` is the attribution |
+| `dependencies` | npm packages | Kept as small as possible; a health component that pulls a charting library is a design failure |
+| `devDependencies` | npm dev packages | Unused |
+| `registryDependencies` | Other items, by name or full URL | Composition is explicit — `result-card` names `status-pill`, it does not inline it |
+| `files` | The code, with `path`, `type`, optional `target` and `content` | Empty today |
+| `cssVars` | `theme`, `light`, `dark` objects | Used by themes; components contribute none |
+| `css` | Raw CSS to merge into the stylesheet | Avoided — see below |
+| `meta` | Free-form | Where opsinjs puts `status`, `category` and `since` |
+| `docs` | A note shown after install | Used to restate that nothing is built |
+| `categories` | Grouping for search | Mirrors the catalogue category |
+
+### `files`
+
+Each entry has a `path`, a `type`, and — in a served item — `content`.
+
+```json
+{
+  "path": "registry/bases/base/result-card.tsx",
+  "type": "registry:component",
+  "content": "…"
+}
+```
+
+`target` is the fourth field and it is the one worth understanding. Without it,
+the CLI decides the destination from your `components.json` aliases, which is
+what you want for a component. With it, the item declares an explicit
+destination — necessary for a file that is not a component, such as a config
+file at the project root. An item whose every file declares a `target` is
+"universal": it can be installed into a project with no resolved configuration
+at all.
+
+### `registryDependencies`
+
+Names resolve within the same registry; full URLs resolve anywhere. A
+cross-registry dependency must be a URL or a namespaced name the consumer has
+configured — a bare name will resolve against the wrong registry, silently.
+
+opsinjs composes rather than inlines. `result-card` depends on `status-pill` and
+`value` instead of containing its own copy of either. This means installing one
+component installs several files, which surprises people, and it is the correct
+trade: two copies of a status renderer will eventually disagree about what
+`urgent` looks like.
+
+### `cssVars` and `css`
+
+`cssVars` is structured and mergeable: three objects, `theme`, `light` and
+`dark`, whose keys are variable names without the leading dashes. This is how
+[presets](../theming/presets.mdx) are distributed, and a theme item is nothing
+but this.
+
+`css` is raw CSS appended to your stylesheet. opsinjs avoids it. The order of
+`app/globals.css` is load-bearing — see
+[Tailwind v4](../theming/tailwind-v4.mdx) — and an item that appends raw rules
+lands at whatever position the CLI chooses, which is not a position anybody
+reasoned about. Structured `cssVars` merge predictably; raw `css` accumulates.
+
+### `meta` and `docs`
+
+`meta` is the spec's escape hatch and opsinjs uses it for the fields the schema
+has no room for. It is duplicated in `/r/index.json` in a flatter shape, because
+a consumer that only wants status should not have to know where in `meta` it
+lives.
+
+`docs` is a string the CLI prints after install. opsinjs uses it to say, in the
+terminal, that the component is specified and not implemented — so that the fact
+reaches somebody who never opens the documentation.
+
+## Generated, not hand-written
+
+Items are emitted by `scripts/build-registry.mts` from `registry/catalogue.ts`
+and the source files under `registry/`. `pnpm run check:generated` fails on a
+diff. Change the catalogue, not the JSON.
+
+## Verify it worked
+
+<Steps>
+
+### The item validates and resolves
+
+```bash
+curl -s https://opsinjs.dev/r/result-card.json | head -20
+```
+
+### Its dependencies exist
+
+Every name in `registryDependencies` should itself resolve. A dangling
+dependency fails at install time, in somebody else's project, which is the worst
+place to discover it.
+
+### Its status is visible
+
+`meta.opsinjs.status` should be present and should agree with `/r/index.json`
+and with the documentation page. Three copies of one fact, asserted to agree.
+
+</Steps>
+
+## Troubleshooting
+
+**Files land in the wrong directory.** Either the item declares a `target` you
+did not expect, or your `components.json` aliases point somewhere else.
+
+**`add` pulls in more than I asked for.** `registryDependencies`. Read them
+before installing; composition is explicit for exactly this reason.
+
+**CSS variables were added but nothing changed.** They were merged into the
+stylesheet named by `tailwind.css` in `components.json`, which may not be the
+one your app imports.
+
+**An item installs into a project with no `components.json`.** Only if every
+file declares a `target`. Otherwise the CLI has nowhere to put anything.
+
+## Next
+
+- [Upgrades and diffs](./upgrades-and-diffs.mdx) — taking a newer item over code
+  you have edited.
+- [Version stamps](./version-stamps.mdx) — knowing which item version your file
+  came from.
+- [Presets](../theming/presets.mdx) — the theme-only item in practice.

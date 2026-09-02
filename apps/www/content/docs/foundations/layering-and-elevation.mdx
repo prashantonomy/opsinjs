@@ -1,0 +1,141 @@
+---
+title: Layering and elevation
+description: The fixed stacking order every overlay, sheet, popover and toast belongs to, and the health rule that nothing may ever cover the value it is talking about.
+status: stable
+kind: foundation
+aliases: [z-index, stacking order, portal layer, overlay order]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+Layering is the question of what sits in front of what, and it is almost always
+solved badly by accident: a `z-index: 9999` here, a `position: relative` there,
+and eventually a bottom sheet that opens *behind* the tab bar on one screen and
+in front of it on another.
+
+opsinjs answers it once, with a small ordered set of named layers. A component
+never chooses a number; it declares which layer it belongs to, and the layer
+decides. The set is deliberately short, because every additional layer is a new
+pair of things whose relative order somebody will get wrong.
+
+This is not the same thing as [Materials](materials/index.mdx), and the two are
+constantly confused. Materials decides what a surface is made of — how
+translucent, how blurred, how it reads over a busy backdrop. Layering decides
+where it sits in the stack. A dialog and a popover can be built from the same
+material rung and still belong to different layers.
+
+## How it works
+
+Layers are ordinal and named for their job, not for a number:
+
+| Layer | What lives here | Health consequence |
+| --- | --- | --- |
+| `base` | Page content, cards, lists, charts | The reading itself lives here |
+| `sticky` | Section headers, sticky column headers, in-page toolbars | Must never cover a value it scrolled past |
+| `raised` | Dropdown shadows, drag previews, reorder placeholders | Transient; nothing may be read from it |
+| `overlay` | Popovers, menus, tooltips, comboboxes | Anchored, dismissible, non-modal |
+| `scrim` | The dimming behind a modal surface | Establishes modality; see below |
+| `modal` | Dialogs and sheets | Owns focus; blocks everything under it |
+| `notify` | Toasts and transient confirmations | Budgeted — see the alarm rules |
+| `critical` | Escalations that must never be occluded | Reserved; see the rule below |
+
+Two things make this hold rather than drift.
+
+**One stacking context per layer.** Every layer is rendered into a portal at the
+document root, so a component's position in the React tree has no effect on its
+position in the stack. This is why a popover inside a scrolling card is not
+clipped by it, and why the layer order is the same on every screen.
+
+**The scrim belongs to the layer above it.** A scrim is not a background; it is
+the lower half of a modal surface. It is rung 5 of the
+[material ladder](materials/the-ladder.mdx), and it is the component's
+responsibility to render it, so a modal cannot exist without one and a scrim
+cannot be left behind when a modal closes.
+
+Elevation — the shadow — is a *consequence* of the layer, not an independent
+choice. Each layer maps to a fixed material rung, and a component may not raise
+its own shadow to look more important. Importance is carried by
+[clinical status](../health/clinical-status-semantics.mdx), which is a colour and
+a word, not a drop shadow.
+
+## Using it
+
+**Pick the lowest layer that works.** Most things belong to `base`. If a surface
+does not need to escape its parent's overflow and does not need to sit above
+other content, it is not an overlay and portalling it only makes focus order
+harder to reason about.
+
+**The health rule: never occlude the value.** A surface that explains, qualifies
+or escalates a reading must not cover that reading. A bottom sheet opened from a
+result must leave the result visible above it, or restate it inside itself. A
+toast confirming that a log entry saved must not sit over the number that was
+just entered.
+
+<DoDont>
+  <DoDont.Do>
+    A sheet that explains a reference range opens to a detent that keeps the
+    reading and its status visible above the sheet edge. The reader can compare
+    the explanation to the thing being explained.
+  </DoDont.Do>
+  <DoDont.Dont>
+    A full-height sheet that covers the reading. The reader now has to hold the
+    number in working memory while reading about it — and the reader is often
+    worried, which is the worst possible condition for that. Use a detent, or
+    restate the value in the sheet header.
+  </DoDont.Dont>
+</DoDont>
+
+**`critical` is reserved and is not a general escape hatch.** It exists for one
+case: an escalation that the product's clinical governance has decided must be
+seen, which must therefore not be coverable by a toast, a tooltip or a
+half-dismissed sheet. Using it for anything else re-creates the `z-index: 9999`
+problem with better naming. What may go there is decided on
+[Emergency and escalation](../health/emergency-and-escalation.mdx), not here.
+
+**Do not nest modality.** A dialog opened from a dialog is a sign the first
+dialog was doing too much. Where a second step is genuinely needed, replace the
+content of the existing modal surface and keep one focus trap; two traps is how
+a screen-reader user ends up somewhere they cannot leave.
+
+## Tokens
+
+Layer order and the material rung each layer resolves to are generated from
+`tokens/space.json` and `tokens/material.json` by `scripts/build-tokens.mts`. The
+proposed custom-property shape is `--opsin-layer-<name>`, one per row of the
+table above, each paired with the material rung it resolves to. The authoritative
+list is the generated one, never this page.
+
+<NoDataYet script="scripts/build-tokens.mts" />
+
+## Accessibility impact
+
+Stacking order and focus order are different orderings of the same interface, and
+where they disagree, people using a keyboard or a screen reader get the wrong
+one. Three consequences follow, and all three are checkable:
+
+- **Modality must be real, not painted.** A surface on `modal` traps focus,
+  marks the content beneath it inert, and returns focus to the element that
+  opened it. A dimmed background with no focus trap is the single most common
+  overlay failure and it is invisible to sighted mouse users.
+- **`notify` must not steal focus.** Toasts are announced through a live region
+  and are reachable by a documented keyboard route; they never move focus, and
+  they never carry the only copy of information a person needs. This is also the
+  rule that stops a toast becoming an alarm channel — see
+  [Alarm fatigue](../health/alarm-fatigue.mdx).
+- **Nothing on any layer may sit under the safe area.** Notches, home indicators
+  and on-screen keyboards remove usable space; a dismiss control that ends up
+  beneath one is not merely awkward, it is unreachable. Safe-area handling is
+  specified on [Layout](layout.mdx) and measured against the 44pt floor on
+  [Density and touch](space/density-and-touch.mdx).
+
+## Related
+
+- [Materials → Choosing a layer](materials/choosing-a-layer.mdx) — which ladder
+  rung each of these layers is made from, and the nesting rules between them.
+- [Layout](layout.mdx) — safe areas, keyboard insets and the two canonical health
+  screen shells the layers sit inside.
+- [Interaction states](interaction-states.mdx) — focus is a state and a layer
+  problem at once; this is where the focus-visible contract lives.

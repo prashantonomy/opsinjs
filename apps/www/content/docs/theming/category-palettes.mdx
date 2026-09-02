@@ -1,0 +1,171 @@
+---
+title: Category palettes
+description: How to add or retune a health category ramp without letting it leak into the axis that carries clinical urgency.
+status: stable
+kind: guide
+aliases: [add a category, category colour, seventh category, category ramp]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+opsinjs ships six category ramps — `cardio`, `metabolic`, `respiratory`,
+`activity`, `sleep` and `body` — and six is a starting set rather than a claim
+about the shape of human health. A cycle-tracking app needs a seventh. A
+medication-adherence app needs one that is not a body system at all. Adding one
+is supported, it is a tier-1 change, and it has exactly one hard constraint.
+
+**A category colour is identity. It carries no verdict.** What a category
+*means*, and why it is deliberately duller than you would choose if you were
+picking brand colours, is settled in
+[Category identity](../health/category-identity.mdx). This page assumes you
+accept that and shows you how to add one without breaking it.
+
+## The constraint, stated as a test
+
+Before you add a ramp, decide its hue against this test: **could a reasonable
+person mistake this colour for a status?**
+
+The four status ramps sit at green (150°), amber (85°), orange (55°) and red
+(25°) in OKLCH hue, at high chroma. A new category at 40° and high chroma is not
+a new category; it is a fifth status that nobody declared, and the first time it
+appears next to an actual status the screen becomes ambiguous. The system cannot
+detect this for you — both are just colours — which is precisely why it is
+written down as a rule instead of enforced by a type.
+
+Two practical consequences:
+
+- **Stay away from the warm arc.** Hues roughly between 10° and 100° are where
+  the status ramps live. A category there needs to be visibly lower in chroma
+  than any status, at every rung, in both themes.
+- **Stay low-chroma anywhere.** The shipped ramps sit around 0.075–0.093 chroma
+  in light. That is not a house style; it is the margin that keeps a category
+  glyph from reading as an alarm.
+
+## Add a ramp
+
+A category is defined in `tokens/color.json` and generated from there. Editing
+the CSS directly is caught by `pnpm run check:generated`.
+
+<Steps>
+
+### Add the source entry
+
+Give it a kebab-case id, a hue, and the chroma ceiling you want the generator to
+respect. The id becomes the token name and the `data-category` value, so pick
+one you can live with: renaming a category later changes markup, registry
+metadata and any saved user preference that stored it.
+
+### Regenerate
+
+```bash
+pnpm run generate
+```
+
+This rewrites `app/tokens.generated.css` and `lib/generated/tokens.ts`, which
+adds `--opsin-category-<id>-accent`, `-surface` and `-ink` in light and dark,
+plus the Display-P3 escalation at identical lightness.
+
+### Expose the Tailwind utilities
+
+Add the three `@theme inline` mappings alongside the existing categories, so
+`text-category-<id>` and friends exist. The generator writes the custom
+properties; the mapping is authored.
+
+### Measure it
+
+```bash
+pnpm run contrast
+```
+
+Every new pair is measured with APCA and WCAG 2.2 and compared to the published
+floor. A category ink that fails against its own surface is a failure exactly as
+much as a status one is — the colour is quieter, the text is not.
+
+</Steps>
+
+## Retune an existing ramp
+
+Same mechanism, more caution. A category ramp is referenced by chart series
+colours, by section identity, by small glyphs, and — critically — by whatever
+your users have already learned. Moving `sleep` from violet to teal is a
+re-education cost paid by every existing user, so treat it as a versioned
+change: record it in your changelog, not in a patch release.
+
+If your reason for retuning is "it does not match our brand", consider instead
+whether the category ramps should be visible in brand-heavy surfaces at all.
+Categories earn their place on data screens.
+
+## Keep the axes apart
+
+<DoDont>
+  <DoDont.Do>
+    Give an element its category from a glyph, a label or a chart-line colour,
+    and its status from the surface it sits on. One axis per channel.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Tint a status surface toward the category hue "so it feels cohesive". The
+    result is a colour that is neither, and a reader who has learned that
+    red-ish means act now has to relearn it per category.
+  </DoDont.Dont>
+</DoDont>
+
+The interactive form of this rule is `<StatusAxisDemo>`, which refuses to render
+a category-plus-status pair on one element and explains what it would have
+meant. It is on [The two colour axes](../health/two-colour-axes.mdx) and in the
+status playground at [`/playground/status`](/playground/status).
+
+For product code, the cheapest enforcement is a lint rule rather than a review
+convention — see [Handbook tooling](../handbook/tooling/index.mdx).
+
+## Verify it worked
+
+<Steps>
+
+### The ramp exists in both themes
+
+`--opsin-category-<id>-accent` resolves under `:root` and under `.dark`, and the
+two are different values. A category that is identical in both themes was
+authored once and mirrored, which almost always fails contrast in one of them.
+
+### It survives colour-blind simulation
+
+Run the preview through `<CvdSimulator>` — protanopia, deuteranopia, tritanopia
+and grayscale. A category must remain *distinguishable from the other
+categories*; it does not need to remain identifiable, because nothing important
+should depend on identifying it by colour alone.
+
+### It does not read as a status
+
+Put it directly beside the four status swatches at the same size. If your eye
+sorts it into that group, the hue or the chroma is wrong.
+
+</Steps>
+
+## Troubleshooting
+
+**My new category is invisible against the card surface.** Category `accent` is
+tuned for lines and glyphs, not for text. Use the `ink` slot for text on the
+category surface and check it with `pnpm run contrast`.
+
+**The colour is much more saturated on my phone.** That is the P3 escalation.
+Confirm the escalated value shares the sRGB value's lightness and hue; if the
+generator produced something else, the source entry has a chroma ceiling that
+the escalation is ignoring.
+
+**The utility class does not exist.** The `@theme inline` mapping is authored,
+not generated. Add it.
+
+**`check:generated` fails after I added the mapping.** The mapping belongs in
+`app/globals.css` and `app/product.css`, which are hand-written. If you put it
+in `app/tokens.generated.css`, the generator has already thrown it away.
+
+## Next
+
+- [Status palettes](./status-palettes.mdx) — the other axis, and the one you
+  should not extend.
+- [Category identity](../health/category-identity.mdx) — what a category colour
+  is allowed to mean.
+- [Colour blindness](../foundations/colour/colour-blindness.mdx) — why
+  distinguishable is the bar and identifiable is not.

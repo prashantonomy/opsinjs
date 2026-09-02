@@ -1,0 +1,139 @@
+---
+title: Health glyphs
+description: The medical symbols opsinjs will not use, because a consumer health app that borrows the visual language of clinical authority is claiming something it has not earned.
+status: stable
+kind: foundation
+aliases: [medical icons, caduceus, stethoscope, cross symbol]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+There is a standard visual vocabulary for "medical": a cross, a stethoscope, a
+caduceus, a figure in a white coat, a pill, a syringe, an ECG trace. It is
+instantly legible, it is what every stock icon set offers under the search term
+"health", and opsinjs does not use any of it.
+
+The reason is the same one that runs through the whole system. opsinjs presents
+health data to a layperson; it does not practise medicine, does not diagnose,
+does not triage, and confers no clinical status on the product that uses it — see
+[Safety, scope and limitations](../../start/safety-scope-and-limitations.mdx). A
+symbol that says "clinician" is a claim of authority, and putting one next to a
+number changes how that number is read. A reading annotated with a stethoscope
+reads as a clinical finding; the same reading annotated with a heart outline
+reads as a measurement, which is what it is.
+
+<SafetyCallout severity="watch" evidence="opinion">
+  This is a design position, argued rather than measured. What is not a matter of
+  opinion is the specific legal point about the red cross emblem below, and the
+  fact that implying clinical status you do not hold is a regulatory question in
+  most jurisdictions — check both with your own counsel rather than with a design
+  system.
+</SafetyCallout>
+
+## How it works
+
+**The excluded set**, with the reason for each, because a ban without a reason is
+just a preference:
+
+| Symbol | Why not | Use instead |
+| --- | --- | --- |
+| Red cross on white | Protected under the Geneva Conventions and their national implementing law; using it is a legal matter, not a design one | Nothing — the concept it is reaching for is usually "urgent", which is a status |
+| Any cross used to mean "medical" | Claims clinical authority; also carries specific religious and national meanings in different places | The glyph for the thing actually being measured |
+| Caduceus or rod of Asclepius | Pure authority signalling, and widely confused with each other | Words |
+| Stethoscope, white coat, clinician figure | Says "a doctor is involved"; usually one is not | The category glyph, or a person's own name |
+| Syringe, needle, blood drop | Distressing to a large number of people, including many with the conditions the product is for | The name of the test, in words |
+| Pill or capsule to mean "health" | Health is not medication; and to somebody managing a long-term condition the association is loaded | The specific concept: a dose, a reminder, a course |
+| ECG trace as decoration | Implies a diagnostic reading where there is none; a decorative waveform is fabricated data | A real chart, or nothing |
+| Tick, cross, thumbs-up, smiley beside a value | A verdict, delivered by a picture, with no source | [Clinical status](../../health/clinical-status-semantics.mdx), in colour, icon and word |
+
+**What the system uses instead.** Category glyphs are drawn from the ordinary
+world: the object being measured, or the activity being recorded. A bed for
+sleep, a footprint for movement, a heart outline for heart rate. They are
+descriptive rather than authoritative, they are legible without medical
+knowledge, and they do not imply that anyone has interpreted anything.
+
+**The status glyphs are abstract**, not medical: shapes that carry ordinal weight
+without borrowing meaning from anywhere. They are always accompanied by a colour
+and a word, so the glyph never has to be self-explanatory — which is what allows
+them to be abstract in the first place.
+
+**Emergency is a special case, and it is not a glyph problem.** Where a product
+does need to tell somebody to seek immediate help, that is a screen with words,
+a phone number and a stated source, decided by the product's clinical
+governance — see
+[Emergency and escalation](../../health/emergency-and-escalation.mdx). A red cross
+is not an escalation mechanism; it is a picture where a sentence should be.
+
+## Using it
+
+**Ask what the glyph is claiming.** Every icon makes an implicit claim about who
+is speaking. A stethoscope claims a clinician. A caduceus claims a profession. A
+bed claims nothing at all, which is correct, because the product is reporting that
+somebody was asleep.
+
+<DoDont>
+  <DoDont.Do>
+    A blood-glucose result headed with a plain droplet-free category glyph and the
+    metric's name in words, with the reading, its unit and who measured it.
+  </DoDont.Do>
+  <DoDont.Dont>
+    The same result headed with a stethoscope and a red cross. Nothing has been
+    added to the reading, and a reader has been told — without a word being
+    written — that a clinician has looked at it.
+  </DoDont.Dont>
+</DoDont>
+
+**Do not use a warning triangle as a status glyph by default.** It is the
+strongest general-purpose alarm symbol most readers know, so spending it on the
+second of four levels leaves nothing above it. What each level's glyph is belongs
+to [clinical status semantics](../../health/clinical-status-semantics.mdx).
+
+**Do not draw anatomy as decoration.** An organ illustration used as a section
+header is a clinical image doing an ornamental job, and it will be read as
+diagnostic by somebody. Where a body diagram is genuinely needed — locating a
+symptom, for instance — it is a deliberate, specified surface with its own rules:
+[Body diagrams](../imagery/body-diagrams.mdx).
+
+**Do not borrow a national health service's marks, colours or symbols.** They
+signal endorsement, they are usually protected, and the endorsement is not real.
+The related content rule is on
+[Official resources](../../project/official-resources.mdx).
+
+## Tokens
+
+This page constrains the icon mapping rather than owning tokens. The excluded set
+is a rule on [Icon inventory](icon-inventory.mdx), which is where a role resolves
+to a glyph, and it is the natural place to enforce mechanically.
+
+<NoDataYet script="scripts/build-registry.mts" />
+
+## Accessibility impact
+
+- **A symbol that implies authority is a comprehension problem, not just a
+  regulatory one.** Readers with low health literacy are the most likely to take
+  a clinical-looking mark as evidence that a clinician has been involved, and
+  they are the readers the whole system is written for.
+- **Needles, blood and clinical imagery cause real distress.** Needle phobia is
+  common, and people managing long-term conditions have accumulated associations a
+  design system cannot see. An icon that makes somebody close the app has
+  prevented them from reading their own data.
+- **Abstract status glyphs are more accessible than medical ones**, because they
+  are learned in one place and always accompanied by a word, rather than depending
+  on prior knowledge the reader may not have.
+- **Cultural legibility varies enormously and silently.** Crosses, colours and
+  gestures do not mean the same thing everywhere, and a reader who misreads a
+  glyph has no way to ask.
+- **None of this removes the need for a text alternative.** Every meaningful
+  glyph still carries a name; choosing a better symbol is not a substitute for
+  labelling it.
+
+## Related
+
+- [Icon inventory](icon-inventory.mdx) — the mapping these rules constrain.
+- [Safety, scope and limitations](../../start/safety-scope-and-limitations.mdx) —
+  what opsinjs is and is not, which is the argument underneath this page.
+- [Imagery → Illustration style](../imagery/illustration-style.mdx) — the same
+  question one level up, for pictures rather than glyphs.

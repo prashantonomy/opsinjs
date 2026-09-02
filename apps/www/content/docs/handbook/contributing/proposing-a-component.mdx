@@ -1,0 +1,122 @@
+---
+title: Proposing a component
+description: The intake questions a proposal must answer before an API is worth discussing — and the four reasons a proposal is normally rejected.
+status: stable
+kind: handbook
+aliases: [component proposal, intake criteria, new component request, propose a new component]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="handbook" />
+
+## The short version
+
+A proposal is a document, not a pull request, and it answers eight questions.
+Answer them in order and the API falls out of the answers; start with the API
+and the review will send you back to question one.
+
+1. **What does it show, in one sentence a patient would understand?**
+2. **What does it assert about somebody's health?** If the answer is "nothing",
+   say so — that is a legitimate answer for a `Surface` and a wrong one for a
+   `ScoreDial`.
+3. **What must it never be read as?** The prohibition, stated as plainly as the
+   intent.
+4. **When should somebody *not* use it, and what should they use instead?** The
+   alternative must be named. An entry with no alternative is not accepted.
+5. **Which colour axis may it use, and who owns the thresholds?** See
+   [The two colour axes](../../health/two-colour-axes.mdx).
+6. **What is the accessibility bar?** Keyboard contract, announcement contract,
+   what survives grayscale, what happens at 200% text.
+7. **What is the failure mode when the data is empty, stale, partial or
+   wrong?** Every one of the five [data
+   states](../../foundations/data-states.mdx), with an answer each.
+8. **What already exists that this is not?** Name the two closest components and
+   the distinguishing line.
+
+## How it works
+
+A proposal enters the catalogue as `considered` — a row with a name, a one-line
+definition and a reason. That is a real outcome, not a rejection: the
+[`considered` roster](../../components/index.mdx) exists so that "we thought
+about it" is a recordable, linkable answer rather than a 404, and so an agent
+asking about a component we chose not to build gets a definitive negative answer
+instead of inventing an API.
+
+Promotion from `considered` to `planned` means writing the specification page:
+the eight answers above, expanded into the component page's outline, with a
+proposed API as a fenced TypeScript block explicitly marked as a specification.
+At that point the component has a URL, a status badge and a place in
+`StatusMatrix`, and it can be argued with in public.
+
+Promotion from `planned` to `alpha` means code, and the bar for that is
+[the component checklist](./component-checklist.mdx).
+
+### The four common rejections
+
+- **It is a variant of something that exists.** A "warning card" is
+  `AlertBanner` with a status. Adding it as a component gives the same idea two
+  names and two behaviours.
+- **It carries clinical meaning we cannot support.** A component that returns an
+  assessment, a triage disposition or a likely cause is outside the scope of
+  this system. See
+  [Is opsinjs right for this project?](../../start/is-opsinjs-right.mdx).
+- **It mixes the axes by construction.** A component whose single `variant` prop
+  selects both a metric family and a severity cannot be fixed by renaming the
+  prop.
+- **Nobody owns the thresholds.** A component that shows a value against a
+  boundary needs a named owner for that boundary. "The design system decides" is
+  not an answer.
+
+## Do this
+
+- **Bring a real screen.** A screenshot or a sketch of the product surface that
+  needs this, with real content in it, answers half the questions before they
+  are asked.
+- **Write the "when not to use" list first.** It is the fastest way to find out
+  whether the component is a real distinction or a restatement.
+- **Propose the smallest thing.** A component that does one job composes; a
+  component with a mode switch usually should have been two.
+- **Accept `considered` as a good result.** A recorded decision not to build
+  something is worth more than a page nobody maintains.
+- **Say what it costs.** Whether it forces a client boundary, what it depends
+  on, and roughly how much it weighs. See [Performance and bundle
+  size](../performance-and-bundle-size.mdx).
+
+## Not this
+
+- **Do not open with a props table.** The API is the last question, and it is
+  the easiest one once the first seven are answered.
+- **Do not propose a component to hold a design opinion.** If the point is that
+  a certain layout is better, that is a pattern or a foundation page.
+- **Do not name it after its appearance.** `RoundedGaugeThing` will be wrong
+  within a release. See [Naming
+  conventions](../naming-conventions.mdx).
+- **Do not skip question 7.** The empty, stale and partial states are where
+  health components fail, and a proposal that has not thought about them is a
+  proposal that has thought about the happy path.
+- **Do not invent evidence for question 2.** If the reason is a design opinion,
+  mark it as one.
+
+## Gotchas
+
+- **A component id is a URL, a catalogue row, a registry name and a set of
+  frontmatter references.** Choosing it is a commitment; `assert-ia` will make
+  the rename survivable but it is still a rename.
+- **`implements` and `governedBy` must agree in both directions.** A doctrine
+  page listing your component and a component page not listing the doctrine page
+  fails the IA check.
+- **Aliases live in `registry/catalogue.ts`, not in your page.** Global
+  uniqueness is only maintainable with one owner.
+- **A `considered` row still needs a definition.** A name with no one-line
+  meaning is not a recorded decision, it is a placeholder.
+
+## Related
+
+- [Component checklist](./component-checklist.mdx) — what `planned` has to clear
+  to become code.
+- [Components](../../components/index.mdx) — the roster, shipped and considered.
+- [Anatomy of a component page](../../components/anatomy-of-a-component-page.mdx)
+  — the 22 sections your specification will fill.
+- [Proposals](../../project/proposals.mdx) — the public board and its current
+  state.

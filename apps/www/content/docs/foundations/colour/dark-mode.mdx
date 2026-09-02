@@ -1,0 +1,181 @@
+---
+title: Dark mode
+description: Dark is re-derived from the same ladder rather than inverted, and there are seven invariants it has to preserve on the way.
+status: stable
+kind: foundation
+aliases: [dark mode derivation, light first, colour scheme, night mode, inversion]
+owner: design
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+opsinjs is derived light-first and then re-derived for dark. It is not
+inverted, not mirrored, and not "the same palette with the lightness subtracted
+from one". Those shortcuts all produce a dark theme in which the four status
+levels have quietly swapped their relative weights, which in a health product
+means the screen is now emphasising the wrong thing.
+
+Light is the default because of who the reader is: somebody checking a
+measurement, often outdoors, often at whatever brightness their phone decided
+on. Dark is a preference we support properly rather than a mode we prefer.
+`enableSystem` is on, so a reader who has told their operating system what they
+want gets it; the default when nothing has been said is light.
+
+The thing this is most often confused with is the *implementation* of theme
+switching — the class strategy, the provider, the flash of the wrong theme on
+first paint. That is mechanics and it lives in
+[Dark mode in the handbook](../../handbook/dark-mode.mdx). This page is about
+what the colours have to mean.
+
+## How it works
+
+### Seven invariants
+
+Dark is allowed to change a great deal. These seven things it may not change,
+and `scripts/check-contrast.mts` plus review enforce them between them.
+
+**1. Hue is preserved exactly.** Cardio is hue 12 in both themes; `urgent` is
+hue 25 in both. A theme where the reds drift warmer at night is a theme where
+"the same measurement" is not the same colour, and the category axis's entire
+claim is that a colour is an identity.
+
+**2. The ordering of the four status levels is preserved.** Whatever else moves,
+`expected → watch → act → urgent` remains an ordered sequence and the components
+render it in that order.
+
+**3. The floor is identical.** Dark is not permitted a lower contrast
+requirement. Every pair is measured separately in dark and a dark-only
+regression fails the build exactly as a light-only one does. This is the
+invariant most often broken elsewhere, because dark themes flatter the WCAG 2.2
+ratio at the dark end — see [Contrast and APCA](./contrast-and-apca.mdx).
+
+**4. Surfaces gain chroma; inks lose it.** This is the counter-intuitive one and
+it is not a stylistic choice. At low lightness a tint needs more chroma to read
+as coloured at all, so the dark status and category surfaces are authored with
+*higher* `C` than their light counterparts. Light text, conversely, is
+uncomfortable when it is saturated — it glares — so dark-theme inks carry
+*less* `C` than light-theme inks. Both movements are at constant hue.
+
+**5. Pure black is not a background.** The dark background sits near `L 0.16`
+with a trace of chroma rather than at `L 0`. Three reasons: on OLED panels,
+pure black next to moving content smears; high-contrast black-to-white text
+produces halation that readers with astigmatism report as blurring; and against
+true black every raised surface has to be grey, which flattens the material
+ladder to a single step.
+
+**6. Elevation inverts its mechanism.** In light, a surface rises by getting
+whiter and casting a shadow. In dark, a shadow against a near-black background
+is close to invisible, so a surface rises by getting *lighter* and by carrying a
+brighter hairline. Dark-theme borders are therefore authored as white at low
+alpha rather than as a solid grey, so that a border over a raised surface still
+separates. The rung-by-rung consequences are in
+[The ladder](../materials/the-ladder.mdx).
+
+**7. `color-scheme` is declared.** The root carries `color-scheme` so that form
+controls, scrollbars, the caret and the browser's own UI follow the theme. A
+dark page with light native scrollbars is the classic sign that a theme was
+implemented with colours alone.
+
+### What is actually different
+
+| | Light | Dark |
+| --- | --- | --- |
+| Status surface | very light tint, low chroma | dark tint, **higher** chroma |
+| Status ink | dark, higher chroma | light, **lower** chroma |
+| Status line | mid lightness | lifted, so it still reads on a dark surface |
+| Border | solid neutral | white at low alpha |
+| Elevation cue | shadow | lighter surface plus brighter hairline |
+| Background | near-white | near-black, never black |
+
+### Why not inversion
+
+Inverting lightness — `L' = 1 - L` — is the tempting one-line implementation and
+it fails on invariant 4 and invariant 6 simultaneously. It also fails on
+something subtler: perceptual lightness is not symmetric in its effect on
+apparent chroma, so an inverted palette's *relative* saturations are wrong even
+though every individual value is a defensible colour. The four status levels stop
+being equally weighted, and one of them starts winning the screen.
+
+`filter: invert()` on a whole page is worse still, because it inverts imagery,
+photographs, body diagrams and any medical illustration along with the interface.
+
+## Using it
+
+**Design light first, then check dark, then check dark on a real phone at low
+brightness.** The third step is not optional and it is where dark-theme problems
+actually surface — a pair that measures fine at 100% brightness in a bright room
+can be unreadable at 20% in a dark one, which is precisely the situation a dark
+theme exists for.
+
+**Do not use dark mode to add drama.** Deeper backgrounds and heavier accents are
+the reflex, and in a health product they produce a screen where an ordinary
+reading looks alarming. The status axis is the only thing on the page permitted
+to raise its voice.
+
+**Test the transition, not just the two ends.** Anything that animates a colour
+across a theme change should either be instantaneous or respect
+`prefers-reduced-motion`; a slow cross-fade of an entire screen is a
+disorientation risk. See [Reduced motion](../motion/reduced-motion.mdx).
+
+<DoDont>
+  <DoDont.Do>
+    Re-derive the dark ramps from the same ladder, hold the hue, raise the
+    chroma on surfaces, lower it on inks, and measure every pair again.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Ship dark by swapping `--background` and `--foreground` and leaving the
+    status tints alone. The tints were built to sit on white; on near-black they
+    lose their tint entirely and the four levels become four greys.
+  </DoDont.Dont>
+</DoDont>
+
+**Both themes must be printable.** A reader who prints a dark-theme page and
+gets a black rectangle has not got a record of their result. The print
+stylesheet forces a light ground and collapses translucency;
+[Print and export](../../accessibility/print-and-export.mdx) is the contract.
+
+## Tokens
+
+<TokenTable scope="color" />
+
+## Accessibility impact
+
+**What is guaranteed.** Both themes are derived together and measured together
+against the same floor; hue and status ordering are stable across themes;
+`color-scheme` is set so platform UI follows; nothing about the layout changes
+between themes, so a reader switching does not lose their place.
+
+**What is yours.** Any colour you introduce, including imagery. A photograph or
+an illustration authored for a light background will usually need a dark-theme
+counterpart or a scrim — see
+[The contrast floor](../materials/the-contrast-floor.mdx). Charts you draw
+yourself need their gridlines and axes re-derived too; a light-theme gridline is
+invisible on a dark ground.
+
+**Related preferences that are not dark mode.** `prefers-contrast: more` and
+`forced-colors: active` are separate requests and dark mode does not satisfy
+either. A reader may want dark *and* increased contrast, and the system has to
+compose them —
+[Increased contrast](../../accessibility/increased-contrast.mdx) covers what
+changes.
+
+**A note on light sensitivity.** Dark mode is frequently described as the
+accessible choice. For some readers it is; for others, particularly those with
+astigmatism, light text on a dark ground is measurably harder to read. That is
+the reason the system supports both properly rather than picking a side, and the
+reason neither theme is allowed a lower floor than the other.
+
+## Related
+
+- [How the engine works](./how-the-engine-works.mdx) — the ladder that both
+  themes are derived from, read from opposite ends.
+- [Dark mode in the handbook](../../handbook/dark-mode.mdx) — the class
+  strategy, the provider and preventing the first-paint flash.
+- [The ladder](../materials/the-ladder.mdx) — why elevation changes mechanism
+  between themes, rung by rung.

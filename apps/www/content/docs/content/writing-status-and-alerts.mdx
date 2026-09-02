@@ -1,0 +1,177 @@
+---
+title: Writing status and alerts
+description: One sentence pattern per clinical status level, the words banned at each, and how to write when the news is bad.
+status: stable
+kind: content
+reviewer: content
+reviewEvery: 6m
+aliases: [alert copy, warning wording, escalation copy, breaking bad results]
+---
+
+<PageTemplate kind="content" />
+
+## The rule
+
+**Every status surface carries a word from a fixed vocabulary, and the word is
+what makes the colour non-load-bearing.** There are four levels — `expected`,
+`watch`, `act`, `urgent` — and each one has a sentence shape, a permitted
+vocabulary and a set of words it may not use.
+
+The canonical definition of the levels lives on
+[Clinical status semantics](../health/clinical-status-semantics.mdx): what each
+one asserts, who is allowed to assign it, and what it must never be read as.
+This page is only about the words.
+
+Three rules govern all four levels.
+
+**The level and the wording may never disagree.** A banner rendered at `watch`
+whose text says "call your doctor now" is a defect of the same class as a wrong
+number. The level drives the colour, the icon, the announcement politeness and
+the sentence; if the sentence needs to be stronger, the level was wrong.
+
+**The action is a clause, not an implication.** "Keep an eye on it" is not an
+action. "Take another reading tomorrow morning" is. Every level above `expected`
+ends with something the reader can do, or with an explicit statement that there
+is nothing to do.
+
+**Escalation is rationed.** At most one `urgent` surface may be on screen at a
+time, and the budget for the level below it is small. This is a content rule as
+much as a design rule, because it is writers who escalate wording under pressure
+to seem helpful. The budget is on
+[Alarm fatigue](../health/alarm-fatigue.mdx).
+
+### Writing when the news is bad
+
+The hardest case, and the one most style guides skip.
+
+1. **Say it in the first sentence.** Delay reads as evasion, and a reader who has
+   to scroll to find out whether something is wrong has already assumed the worst.
+2. **Say what it is, not what it might be.** "Your reading was higher than the
+   range your GP set" is a fact. "This could indicate a problem" is a speculation
+   the product is not entitled to make.
+3. **Do not soften with a compliment.** No "you have been doing so well, but".
+   Sandwiching bad news between praise makes the news harder to find and the
+   praise worthless.
+4. **Give exactly one next step.** A frightened reader cannot choose between
+   three.
+5. **Say what happens if they do nothing,** where that is knowable and true. This
+   is usually the most reassuring sentence available, and it is a sentence about
+   the process, not about their health.
+6. **Never say it is fine.** You do not know that.
+
+<SafetyCallout severity="act" evidence="opinion">
+The rule we would defend hardest: **no health product may tell a reader that a
+result is nothing to worry about.** It may tell them how common something is,
+what the next step is, and who can interpret it. The difference between those and
+reassurance is the difference between describing and diagnosing, and only one of
+them is available to software that is not a medical device.
+</SafetyCallout>
+
+## Approved / Rejected
+
+<DoDont>
+  <DoDont.Do>Your reading was 152 over 96. That is higher than the range your GP set for you. Take another reading tomorrow morning before breakfast. If it is still above that range, book an appointment.</DoDont.Do>
+  <DoDont.Dont>Warning! Elevated blood pressure detected. This could indicate hypertension. Please consult a healthcare professional.</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>Your readings have been a little higher than usual for the past week. This is worth mentioning at your next appointment.</DoDont.Do>
+  <DoDont.Dont>Attention needed: your 7-day average has exceeded threshold.</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>Your reading was 118 over 74. That is in your usual range.</DoDont.Do>
+  <DoDont.Dont>All good — nothing to see here!</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>You have been doing well and your average is down — and your reading this morning was higher than usual.</DoDont.Do>
+  <DoDont.Dont>You have been doing so well! Unfortunately your reading this morning was very high. But keep going, you have got this!</DoDont.Dont>
+</DoDont>
+
+The last pair shows the sandwich. Both sentences contain the same two facts; only
+one of them lets the reader find the important one.
+
+## Patterns
+
+One pattern per level. The parts in backticks are variables.
+
+**`expected` — nothing is required of the reader**
+
+> Your `measure` was `value` `unit`. That is in `your usual range / the range
+> your GP set`.
+
+Stop there. No praise, no streak, no encouragement to keep it up.
+
+**`watch` — a pattern worth noticing, no action today**
+
+> Your `measure` has been `higher / lower` than usual for `duration`. On its own
+> this is not unusual. `Mention it at your next appointment / We will tell you if
+> it continues`.
+
+**`act` — one specific thing to do**
+
+> Your `measure` was `value` `unit`, which is `above / below` `the named
+> reference`. `One imperative action`. `What happens if it is the same again`.
+
+**`urgent` — the reader must act now**
+
+> `Imperative action`. `How to do it`. `What to say`.
+
+No greeting, no product voice, no explanation before the action. Emergency
+wording specifically is governed by
+[Emergency and escalation](../health/emergency-and-escalation.mdx), which is
+canonical, and disclosure of self-harm has its own rules on
+[Crisis and self-harm](../health/crisis-and-self-harm.mdx).
+
+**Any level — the status word itself**
+
+> `expected` · `watch` · `act` · `urgent`
+
+These four words appear verbatim in the interface. They are not decorated, not
+translated into a synonym, and not replaced with a symbol. A `StatusPill` renders
+one of exactly these.
+
+**A notification that precedes an in-app alert**
+
+> `What changed`. Open `app name` to see what to do.
+
+A push notification is read on a lock screen, possibly by somebody else, possibly
+in a queue. It says that something needs attention; it does not say what the
+value was. See
+[Notifications and off-screen alerts](../health/notifications-and-off-screen-alerts.mdx)
+and [On-screen privacy](../health/on-screen-privacy.mdx).
+
+## Banned words
+
+Banned at every level:
+
+| Banned | Why | Use instead |
+| --- | --- | --- |
+| warning, alert, attention (as an opening word) | A label where a sentence is needed; adds urgency without information. | say what happened |
+| detected, flagged, triggered | Machine register; puts an algorithm between reader and data. | your reading was |
+| could indicate, may suggest, is consistent with | Clinical inference the product is not entitled to make. | describe the reading and name who can interpret it |
+| threshold, exceeded, out of bounds | Systems language for a health fact. | higher than the range your GP set |
+| nothing to see here, all good, you're fine | Reassurance without grounds, and it fails the moment it is wrong. | the fact, stated plainly |
+| please | Softener that lengthens the sentence at the moment it must be shortest. | the imperative |
+
+Banned at specific levels:
+
+| Level | Additionally banned | Why |
+| --- | --- | --- |
+| `expected` | well done, great, streak, on track, keep it up | Turns a body into a score, and creates an implicit failure state. |
+| `watch` | any imperative verb | If there is something to do, the level is `act`. |
+| `act` | urgent, emergency, immediately, right now | Reserved for `urgent`. Using them here destroys the distinction. |
+| `urgent` | might, could, consider, we recommend, as soon as possible | Hedging at the one moment hedging costs something. |
+
+## Related components
+
+- **`StatusPill`** — renders one status word. The whole colour-independence
+  guarantee rests on that word being present and correct.
+- **`AlertBanner`** — the level drives the wording, the colour, the icon and the
+  announcement politeness together; the patterns above are its content contract.
+- **`CareCard`** — carries the action. The "one imperative action" rule is its
+  rule.
+- **`ResultCard`** — the `expected` and `watch` patterns are what its body says.
+- **`DisclaimerNote`** — the standing statement of what the product cannot tell
+  the reader, which is what makes the restraint above sustainable.

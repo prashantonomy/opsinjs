@@ -1,0 +1,198 @@
+---
+title: Numbers, units and precision
+description: The canonical rules for rendering a health number — how many digits, which unit, what to do with zero, and why rounding is a truth claim rather than a formatting preference.
+status: stable
+kind: health
+evidence: mixed
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+owner: design-system
+implements: [value, result-card, metric-tile, range-bar, reading-input, score-dial]
+aliases: [rounding, significant figures, decimals, decimal places, number formatting]
+---
+
+<PageTemplate kind="health" />
+
+## What this means
+
+This is the canonical page for how a number is rendered in opsinjs. Where any
+other page in this documentation discusses number formatting, it defers here.
+
+Numbers in a health interface are not display strings. Each one is an assertion
+about the world with an implied accuracy, and the implied accuracy is set by how
+many digits you print. `71 kg` says you know someone's weight to about a
+kilogram. `71.4 kg` says you know it to a hundred grams. `71.4396 kg` says you
+own a laboratory balance and the person was weighed naked in a temperature-
+controlled room. Only one of those three is likely to be true, and the third one
+is what you get by default when a float meets a template literal.
+
+The other half of the problem is that a number without a unit is not a number. In
+health, the same measurement carries different values in different unit systems,
+and some of those values overlap in plausible ranges — which means a missing or
+wrong unit does not look wrong. It looks like a different, believable reading.
+
+## The rule
+
+**Every displayed health value is formatted by an explicit rule that states its
+precision, its unit and its locale. There is no default float rendering
+anywhere.**
+
+### Precision
+
+1. **Never display more precision than the source carries.** Precision travels
+   with the measurement from its source; it is not chosen at render time to make
+   a column line up.
+2. **Precision is a property of the metric, not of the value.** The same metric
+   is shown to the same number of decimal places every time, so a reader can
+   compare two readings at a glance without re-parsing.
+3. **Round half away from zero, once, at the point of display.** Never round an
+   already-rounded value; never round before a comparison against a threshold.
+4. **Derived and estimated values are rounded harder than measured ones**, and
+   are labelled as estimates. See
+   [Data provenance and device accuracy](./data-provenance-and-device-accuracy.mdx).
+5. **Never pad with false zeros.** If the source gives `5`, show `5` or the
+   metric's fixed `5.0`, but never `5.00` because a neighbouring metric has two
+   decimals.
+
+### Units
+
+6. **A value is never displayed without its unit** — not in a tile, not in a
+   chart tooltip, not in a table header where the number sits in the cell
+   underneath, and not in an accessible name.
+7. **The unit is part of the value, visually and semantically.** It does not wrap
+   away from its number and it is not styled as a footnote.
+8. **The unit is spoken.** `mmHg` is announced as "millimetres of mercury",
+   `mmol/L` as "millimoles per litre". A screen reader reading "one twenty over
+   eighty em em aitch gee" is a failure.
+9. **Never convert silently.** A converted value says so, and the unit system is
+   the user's choice; see [Unit systems](./unit-systems.mdx).
+
+### Composition and locale
+
+10. **Use the reader's locale for the decimal separator and grouping**, and never
+    hand-roll it. A comma decimal separator misread as a thousands separator is a
+    hundredfold error.
+11. **Non-decimal composite values keep their conventional form.** Blood pressure
+    is `118/76`, not two fields. Height in feet and inches is one value.
+12. **Ranges use an en dash with spaces** and repeat the unit only once:
+    `3.9 – 5.6 mmol/L`.
+13. **Zero, none and unknown are three different things.** `0 steps` is a
+    measurement. "No readings yet" is an absence. "Not available" is a failure.
+    Never render an absence as `0` or as an em dash with no explanation.
+14. **Negative and out-of-scale values are shown, not clamped.** Clamping a value
+    to the end of a gauge hides the very case that most needs attention.
+15. **Numerals are always digits, never words.** "You have 3 readings" beats
+    "You have three readings" for a scanning reader, and it beats it decisively
+    for a reader with low numeracy who is looking for the digit.
+
+### Typography
+
+16. **Use tabular figures for any number that appears in a column or updates in
+    place.** Proportional figures make a list of values shimmer and make two
+    readings hard to compare.
+17. **The value is the largest thing in its container.** A number that must be
+    hunted for is a number that will be misread.
+
+## Why (evidence)
+
+<ResearchNote evidence="mixed" date="2026-09-02">
+  **Cited.** That presentation format changes lay comprehension of results is
+  supported by the systematic review of laboratory-result presentation formats in
+  JMIR, 2024, [10.2196/53993](https://doi.org/10.2196/53993). We cite it for the
+  general claim and not for any specific rule on this page.
+
+  **Opinion, but close to arithmetic.** Rules 1 to 5 are a restatement of
+  significant-figure discipline, which is not a design opinion so much as a
+  convention borrowed from measurement science. The design decision is only
+  *where* it is enforced: we insist it is enforced at the component boundary,
+  because every team that has left it to callers has ended up with the same
+  metric shown to three different precisions in three different screens.
+
+  Rule 10 is the one with the largest real-world consequence and the least
+  glamour. A decimal comma rendered into a locale that reads it as a thousands
+  separator turns `1,5` into `15`. For a medication dose that is a tenfold error.
+  We have not seen this quantified in a consumer app and we cite nothing; we
+  regard the mechanism as sufficient.
+
+  Rule 15 conflicts with most general style guides, which prefer words for small
+  numbers. We deviate deliberately for a scanning, low-numeracy reader.
+
+  What would change our mind on rule 15: evidence that digits in running prose
+  harm reading comprehension more than they help scanning.
+</ResearchNote>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    `118/76 mmHg` — one composite value, conventional form, unit once, announced
+    as "118 over 76 millimetres of mercury".
+  </DoDont.Do>
+  <DoDont.Dont>
+    `Systolic: 118.0 · Diastolic: 76.0` — two fields, false precision, and a
+    reader who has to reassemble the reading they already know how to read.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    `71.4 kg` from a scale that reports to 100 g, every time, in every screen.
+  </DoDont.Do>
+  <DoDont.Dont>
+    `71.4 kg` on the dashboard, `71 kg` in the summary and `71.44 kg` in the
+    export. The reader cannot tell whether they lost weight or the app changed
+    its mind.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "No readings yet — log your first one to start." An absence with a next step.
+  </DoDont.Do>
+  <DoDont.Dont>
+    `0 mmol/L`. A physiologically impossible value rendered as a fact, produced by
+    a nullish default.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Show an out-of-scale value at its real magnitude with the scale annotated as
+    exceeded: "218 mmHg — above the top of this scale."
+  </DoDont.Do>
+  <DoDont.Dont>
+    Pin the dot to the end of the bar. The reader sees "at the top of the range"
+    where the truth is "far beyond it", which is the one case that mattered.
+  </DoDont.Dont>
+</DoDont>
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+`Value` is the enforcement point: it is specified to require a unit and a
+precision rule rather than accepting a pre-formatted string, so a raw
+`toFixed(2)` cannot reach the screen through it. Every other component that
+displays a number is specified to render it through `Value` rather than
+formatting inline.
+
+## What this does not cover
+
+- **Which unit system to display in**, and conversion between systems, which is
+  [Unit systems](./unit-systems.mdx).
+- **Probabilities, risks and percentages**, which have their own failure modes:
+  [Risk and statistics](./risk-and-statistics.mdx).
+- **Dates and relative times in prose**, which are
+  [Numbers, dates and time](../content/numbers-dates-and-time.mdx) — that page
+  defers to this one for the numbers themselves.
+- **Capitalisation, punctuation and abbreviation** in UI strings, which are
+  [Grammar and mechanics](../content/grammar-and-mechanics.mdx).
+- **Chart axis scaling and tick labelling**, which are
+  [Chart anatomy](../foundations/data-visualisation/chart-anatomy.mdx).
+- **Whether the number is correct.** Formatting a wrong number beautifully is
+  still a wrong number.
+
+## Updates to this page
+
+<Reviewed />

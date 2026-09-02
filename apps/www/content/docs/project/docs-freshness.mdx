@@ -1,0 +1,112 @@
+---
+title: Docs freshness
+description: Every page has a review cadence, a reviewer discipline and an owner — and an expired page is reported by CI, not discovered by a reader.
+status: stable
+kind: project
+owner: core
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 12m
+aliases: [review cadence, stale docs, out of date pages]
+---
+
+<PageTemplate kind="project" />
+
+## Why a documentation site needs an expiry date
+
+Guidance rots more quietly than code. A component that no longer compiles is
+found in minutes; a paragraph that stopped being true two releases ago reads
+exactly as authoritative as it did when it was written, and in a health system it
+is read by somebody making a decision about how to present a number to a patient.
+
+So every page here carries four fields in its frontmatter, and a script checks
+them:
+
+| Field | What it means |
+| --- | --- |
+| `reviewed` | The ISO date somebody last **re-read** the page against the system |
+| `reviewer` | Which discipline reviewed it: `design`, `engineering`, `clinical` or `content` |
+| `reviewEvery` | How long that review is good for: `3m`, `6m`, `12m` or `never` |
+| `owner` | The team accountable for the next review |
+| `a11yDate` | Where a page makes an accessibility claim, when that claim was last checked |
+
+`<Reviewed />` prints the first three at the foot of the page, so a reader can see
+the age of what they are reading without opening a file.
+
+## The cadence, by page kind
+
+`reviewEvery` is optional in frontmatter. When it is absent, the default for the
+page's `kind` applies:
+
+| Kind | Default cadence | Usual reviewer | Why |
+| --- | --- | --- | --- |
+| `health` | 6 months | `clinical` | Doctrine that shapes what a patient is told |
+| `accessibility` | 6 months | `engineering` | Claims that are tested and can regress |
+| `component` | 6 months | `design` | Tracks an implementation that moves |
+| `foundation` | 6 months | `design` | Tracks tokens that move |
+| `recipe`, `screen` | 6 months | `design` | Compose components, so they rot when components change |
+| `guide` | 6 months | `engineering` | Installation instructions age fastest of all |
+| `content` | 12 months | `content` | Language guidance changes slowly |
+| `pattern` | 12 months | `design` | Patterns outlive the components implementing them |
+| `handbook` | 12 months | `engineering` | Mechanics, tied to releases rather than the calendar |
+| `reference` | 12 months | `engineering` | Bodies are generated; only the header block is reviewed |
+| `project` | 12 months | `engineering` | Policy pages, changed deliberately |
+
+**Pages that override the default downwards to 3 months** are the ones where
+being wrong is most expensive: the emergency and crisis health pages, the
+measured [contrast](../reference/generated/contrast.mdx) table, the
+[catalogue](../reference/generated/catalogue.mdx), the
+[roadmap](roadmap.mdx) and [state of the system](state-of-the-system.mdx).
+
+`reviewEvery: never` exists for pages whose content is fixed by history — a dated
+changelog entry, a decision record that has been superseded. Use it rarely; it is
+the one setting that cannot be reported as stale.
+
+## What the check actually does
+
+`scripts/check-freshness.mts` reads every page, adds `reviewEvery` to `reviewed`,
+and reports the pages whose review has expired, grouped by owner. It runs in the
+nightly job rather than on every pull request, because a page expiring is not a
+reason to block an unrelated change — it is a reason for somebody to be told.
+
+A page with `kind: health` and no `reviewed` date is a different matter: that
+fails `assert-ia.mts` on every build. Health doctrine without a review date is
+not a stale page, it is an unsourced claim.
+
+## What a review is, and is not
+
+**A review is re-reading the page against the system as it is today** and
+changing what has stopped being true. If a page needed no change, the reviewer
+still updates `reviewed` — that is a real signal, and it is the whole point of
+separating "when it was written" from "when it was last checked".
+
+**Bumping the date without re-reading the page is the one prohibited operation
+here.** It converts the only honest freshness signal on the site into decoration.
+A page that is out of date and says so is more useful than a page that is out of
+date and claims to have been checked last week.
+
+## Owners
+
+`owner` is a team slug, not a person: people leave and pages do not. The
+disciplines are the four in the schema — `design`, `engineering`, `clinical`,
+`content` — plus `core` for the project pages, which the maintainers own
+collectively.
+
+<Todo>
+The corpus currently contains several owner slugs that predate this rule —
+`design-system`, `opsinjs-docs` and `core` are all in use for overlapping things.
+Normalise them to the five above, then have `check-freshness.mts` fail on an
+unrecognised owner rather than silently grouping under it.
+</Todo>
+
+## If you are reading a stale page
+
+The review date at the foot of the page is the truth. Cross-check against the
+[changelog](changelog/index.mdx): if a release landed after the review date and
+touched what you are reading, believe the changelog. Then tell us — the
+report-a-problem control at the foot of every page is prefilled with the page
+path and the docs version, and a stale page is exactly what it is for.
+
+<LastUpdated />
+
+<Reviewed />

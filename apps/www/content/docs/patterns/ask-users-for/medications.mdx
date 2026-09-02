@@ -1,0 +1,170 @@
+---
+title: Ask users for medications
+description: A medication is not a string — it is a name, a strength, a form and a schedule, entered by somebody reading a box in poor light.
+status: stable
+kind: pattern
+aliases: [medication list, drug name entry, dose entry, prescription input, what medicines do you take]
+implements: [field, log-sheet, reading-input, disclaimer-note, term]
+reviewEvery: 6m
+reviewer: clinical
+owner: design-system
+---
+
+<PageTemplate kind="pattern" />
+
+## When to use
+
+Ask for medications when your product does something specific with them: shows a
+reminder, records adherence, includes them in a summary for a clinician, or
+checks something that genuinely depends on knowing them.
+
+This is the most error-prone field in a consumer health product, for reasons
+that are all structural:
+
+- **A medication is at least four facts** — name, strength, form and schedule —
+  and readers routinely supply one of the four.
+- **The name is hard to type.** Long, unfamiliar, easily confused, and mangled
+  by autocorrect. Brand and generic names coexist and readers use whichever is
+  on the box.
+- **Similar names differ by a syllable**, and the reader may not know which one
+  they are on.
+- **The source is a physical box, read at arm's length**, sometimes by somebody
+  who is unwell.
+
+## When not to use
+
+- **You want a complete, reliable medication list.** You will not get one from
+  self-entry, and designing as though you will is the underlying mistake. A
+  self-entered list is what the reader believes they are taking. Treat it as
+  that, say so, and never present it as a clinical record.
+- **You will do interaction checking.** Interaction checking against a
+  self-entered list is a clinical function on unreliable input; that is outside
+  what this design system supports. See
+  [Is opsinjs right for this project?](../../start/is-opsinjs-right.mdx) and
+  [Regulatory context](../../health/regulatory-context.mdx).
+- **You only need adherence for one known medicine.** Do not build a list; build
+  a single item the reader confirms.
+- **You want the daily entry flow.** Recording that a dose was taken is
+  [Daily logging](../daily-logging.mdx).
+
+## How it works
+
+<FlowDiagram>
+{`flowchart TD
+  A["Add a medication"] --> B{"Is there a trustworthy source to import from?"}
+  B -->|"yes"| C["Import and let the reader confirm each item"]
+  B -->|"no"| D["Search a reference list by name"]
+  D --> E{"Found?"}
+  E -->|"yes"| F["Select; strength and form offered from the reference entry"]
+  E -->|"no"| G["Free text — always available, never a dead end"]
+  F --> H["Reader adds strength, form and schedule"]
+  G --> H
+  H --> I["Review: the reader sees exactly what will be stored"]
+  I --> J["Stored as self-reported, with that provenance visible"]`}
+</FlowDiagram>
+
+- **Search, do not spell.** Type-ahead against a reference list turns an
+  impossible spelling task into a recognition task. Match on both brand and
+  generic names, and show both in the result so the reader can confirm they are
+  the same thing.
+- **Free text is always available.** A reader whose medication is not in your
+  list — imported, unlicensed, newly approved, or simply missing — must be able
+  to record it. A closed list is a dead end at exactly the moment the reader is
+  trying to tell you something important.
+- **Never autocorrect a medication name.** `autocorrect="off"`,
+  `autocapitalize="off"`, `spellcheck="false"`. Autocorrect turns medication
+  names into unrelated English words with total confidence.
+- **Never auto-select a search result.** Similar names are the classic
+  medication error, and a UI that picks one for the reader has made a clinical
+  decision it is not entitled to make. The reader selects, explicitly.
+- **Strength is a number and a unit, entered separately.** `500` and `mg`, not
+  `500mg` as a string. Offer the strengths that exist for the selected product,
+  and allow another.
+- **Form matters** — tablet, capsule, liquid, patch, inhaler, injection. The
+  same name at the same strength in two forms is two different things.
+- **Schedule in the reader's words, then structured.** "Twice a day", "morning
+  and night", "as needed" are how people describe their medicines. Offer those,
+  map them to structure behind the scenes, and never require the reader to fill
+  in a cron expression.
+- **Review before storing.** A read-back screen showing name, strength, form and
+  schedule, in that order, is the single most effective error check available.
+- **Provenance is visible forever.** Every entry is marked as self-reported or
+  imported, and from where. See
+  [Data provenance and device accuracy](../../health/data-provenance-and-device-accuracy.mdx).
+- **Stopping is as easy as adding**, and a stopped medication is retained with
+  its dates rather than deleted — a clinician's next question is usually when it
+  stopped.
+
+## Content
+
+<DoDont>
+  <DoDont.Do>
+    "Search for your medicine. It's on the box or the pharmacy label — you can
+    use the brand name or the generic name."
+  </DoDont.Do>
+  <DoDont.Dont>
+    "Enter medication name*" as a bare text field with a spell-checker
+    underlining every entry in red.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "This is the list you've told us about. Your clinician's records may show
+    something different — bring this with you rather than relying on it."
+  </DoDont.Do>
+  <DoDont.Dont>
+    "Your medications" presented as an authoritative record, with no indication
+    that it is self-reported.
+  </DoDont.Dont>
+</DoDont>
+
+Medication names are not translated and not sentence-cased; they are written as
+the source writes them. See
+[Grammar and mechanics](../../content/grammar-and-mechanics.mdx).
+
+## Accessibility
+
+- **No autofill token exists** for a medication. `autocomplete="off"`.
+- **The search field is a proper combobox**: the result count is announced, the
+  options are reachable with arrow keys, and the selection is announced. A
+  filtered `<div>` list is unusable with a screen reader.
+- **Nothing is selected implicitly.** Arrowing through results must not commit
+  one; commitment is explicit, because a wrong commit here has a consequence.
+- **The free-text escape is a labelled control** always present in the results
+  area, not an option that appears only when the list is empty.
+- **Strength and unit are separate labelled controls** in a `fieldset` whose
+  legend names the medication being edited, so the announcement is "Amoxicillin,
+  strength" rather than "strength".
+- **Read-back is a real page with headings**, not a toast. It is the reader's
+  chance to catch a wrong selection.
+- **Errors never clear the entry.** Getting a medication name into a field is
+  expensive; losing it is a WCAG 2.2 SC 3.3.7 failure and a practical
+  catastrophe.
+
+## Research
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  Look-alike and sound-alike medication names are a long-recognised source of
+  error in clinical practice, which is why medicines regulators and safety
+  bodies publish confusable-name lists and why "tall man" lettering exists. We
+  cite that as context and do not reproduce any list; the design conclusions
+  below are ours.
+
+  Opinion, held strongly: never auto-select a search result, never autocorrect
+  a name, and always provide a free-text escape. The first two prevent the
+  product from silently substituting one medicine for another. The third
+  prevents the far more common failure of a reader being unable to record
+  something true.
+
+  Also opinion: that a self-entered medication list must be labelled as
+  self-reported wherever it appears, including in an export. It is what makes
+  the difference between a useful prompt for a conversation and a document that
+  looks like a record and is not one.
+
+  What would change our mind: nothing on auto-selection.
+</ResearchNote>
+
+## Updates to this page
+
+<Reviewed />

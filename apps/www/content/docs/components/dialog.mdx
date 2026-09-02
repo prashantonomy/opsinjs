@@ -1,0 +1,212 @@
+---
+title: Dialog
+description: A window that opens over the page and waits for an answer — it takes your keyboard and your attention until you deal with it, and gives them back where it found them.
+status: planned
+kind: component
+since: "unreleased"
+category: surfaces
+aliases: [modal, alert dialog, popup, confirm]
+usedIn: [consent-flow]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="dialog"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Alert dialogues and ordinary dialogues have different roles and different escape behaviour. One component with a flag, or two components?",
+    "Where does initial focus go — the first control, the heading, or the least destructive action — and is that ever the product's decision?",
+    "Depth is expressed by scale rather than shadow in this system. What does that mean for a dialog opening over a sheet?",
+    "On a phone, is a dialog ever the right surface at all, or should it always become a sheet below a certain width?",
+  ]}
+/>
+
+Dialog is the only component in the system that takes something away from the reader: their
+place, their focus and their ability to do anything else. That makes *is this really a
+dialog?* the first question on this page, and most of the time the honest answer is no.
+
+## Preview
+
+The preview will show the ordinary and alert forms with the focus ring visible, and the phone
+width where the dialog becomes a sheet.
+
+<ComponentPreview name="dialog" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail. Dialog is built on [Surface](./surface.mdx).
+
+<ComponentInstall name="dialog" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "A decision the reader must make before anything else can proceed, where continuing without an answer would be wrong.",
+    "Confirming an action that cannot be undone, or that has consequences the reader may not have anticipated.",
+    "A short focused task that genuinely blocks the rest of the interface, such as re-authenticating before revealing sensitive values.",
+  ]}
+  avoid={[
+    { case: "The reader could reasonably carry on without answering — the interruption is for the product's convenience, not theirs.", instead: "alert-banner" },
+    { case: "The task is one the reader chose to start and can abandon at any point.", instead: "sheet" },
+    { case: "You are asking permission to collect or share health data.", instead: "consent-sheet" },
+    { case: "You are announcing something rather than asking something.", instead: "alert-banner" },
+    { case: "The message is a confirmation of something that has already happened successfully.", instead: "toast" },
+    { case: "You are showing supporting detail attached to a control.", instead: "popover" },
+  ]}
+/>
+
+Onboarding tours, feature announcements, rating prompts and newsletter offers are not
+dialogues. They are interruptions with a modal costume, and in a health product they are
+interruptions to somebody trying to find out about their own body.
+
+## Anatomy
+
+<Anatomy name="dialog" />
+
+<CompositionTree name="dialog" />
+
+**Scrim** blocks and dims the page. **Title** is the question or the subject and is the
+dialog's accessible name. **Description** gives the consequence. **Actions** are at most two,
+ordered so the least destructive is the one a reader reaches by accident. **Close** is present
+on ordinary dialogues and absent on alert dialogues, where dismissing without answering is not
+a valid outcome.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+Dialog                         root; role depends on whether dismissal is valid
+├── Dialog.Scrim               blocks and dims; page behind is genuinely inert
+└── Dialog.Container           a Surface at the overlay rung
+    ├── Dialog.Title           the accessible name; a question where possible
+    ├── Dialog.Description     the consequence, in one or two sentences
+    ├── Dialog.Content         optional; anything more than that
+    ├── Dialog.Close           present on dialog, absent on alertdialog
+    └── Dialog.Actions         at most 2; destructive action is never the default focus
+```
+
+A dialog opening from within a sheet is a composition error. If the sheet needs a
+confirmation, the confirmation belongs inside the sheet.
+
+## Proposed API
+
+<NotBuiltYet name="dialog" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+export interface DialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  /** The accessible name. A question, where the dialog is asking one. */
+  title: string
+  /** The consequence of each answer, in one or two sentences. */
+  description?: string
+  /**
+   * `alert` renders role="alertdialog", removes the close control and makes the
+   * scrim non-dismissing: an alert dialogue has no valid "went away" outcome.
+   */
+  severity?: "default" | "alert"
+  /**
+   * Which action receives initial focus. Never a destructive one. Defaults to
+   * the safest available control.
+   */
+  initialFocus?: "safest" | "content"
+  /**
+   * Below this width the dialog renders as a Sheet instead. A modal window on a
+   * 360px screen is a sheet wearing the wrong clothes.
+   */
+  sheetBelow?: number
+  children: React.ReactNode
+}
+```
+
+## Content guidelines
+
+The title asks the question. The description says what happens if the reader says yes, and
+what happens if they say no. Action labels are verbs that name the outcome, never *OK* and
+*Cancel*, which force the reader back up to the title to work out what they are agreeing to.
+
+Never phrase the dismissing action as a judgement about the reader — *No thanks, I do not care
+about my health* is a real pattern in real products and it is contemptuous.
+
+<DoDont>
+  <DoDont.Do>
+    **"Delete this reading? It will be removed from your history and from any trends it
+    appears in. [Delete reading] [Keep it]"** Question, consequence, two verbs.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Are you sure? [OK] [Cancel]"** Sure about what, and which button does which thing? A
+    reader answering quickly has a fifty per cent chance of being wrong.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **Initial focus on "Keep it"**, the action that changes nothing.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **Initial focus on "Delete reading"**, so a stray Return key destroys data. Focus is a
+    default, and defaults should be safe.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **Correct role.** `dialog` when dismissal is a valid outcome, `alertdialog` when it is not.
+  They differ in how assistive technology announces them and in what a reader expects Escape
+  to do.
+- **Named by its title**, described by its description, both associated programmatically
+  rather than merely adjacent.
+- **Focus moves in on open, is trapped while open, and returns to the trigger on close** —
+  including when the dialog closes because the underlying data changed rather than because the
+  reader acted.
+- **Initial focus is never on a destructive action**, and never on the scrim or the dialog
+  container when a control is available.
+- **Escape closes an ordinary dialog.** On an alert dialog it does not, and the dialog does not
+  simply swallow the key: it makes clear that an answer is needed.
+- **The page behind is inert**, not merely visually dimmed, so screen readers and keyboard
+  navigation cannot wander out of the dialog and get lost behind the scrim.
+- **Actions meet the 44pt floor** with 8pt separation, and their order is consistent across the
+  product.
+- **`prefers-reduced-motion` removes the scale and fade**; the dialog appears in place. Depth
+  is then carried by the scrim and the edge, which is why neither is optional.
+- **At 200% text the dialog scrolls internally** with its actions pinned and reachable, and
+  never grows beyond the viewport with its buttons off-screen.
+
+<KeyboardTable name="dialog" />
+
+<ContrastReport component="dialog" />
+
+## Related
+
+<RelatedComponents name="dialog" />
+
+**Easily confused with**
+
+- [Sheet](./sheet.mdx) — a place the reader chose to go, rather than a question they must
+  answer. The most common misuse in this family.
+- [AlertBanner](./alert-banner.mdx) — announces without blocking. If the reader can carry on,
+  a banner is the honest surface.
+- [ConsentSheet](./consent-sheet.mdx) — a request with a consent contract and a recorded
+  decision.
+- `popover` (considered, no page yet — see the [roster](./index.mdx)) — anchored, non-modal,
+  attached to a control.
+
+**Used by**
+
+- [Consent flow](../screens/consent-flow.mdx)
+
+**Governed by**
+
+- [The material ladder](../foundations/materials/the-ladder.mdx)
+- [Layering, elevation and z-index](../foundations/layering-and-elevation.mdx)
+- [Choreography](../foundations/motion/choreography.mdx)
+- [Keyboard and focus](../accessibility/keyboard-and-focus.mdx)

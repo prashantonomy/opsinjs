@@ -1,0 +1,212 @@
+---
+title: Contrast and APCA
+description: Both contrast models published side by side — WCAG 2.2 as the conformance obligation, APCA as the design tool — and the floor this system refuses to ship below.
+status: stable
+kind: foundation
+aliases: [APCA, Lc, WCAG, contrast ratio, "4.5:1", readability, luminance]
+owner: design
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+There are two ways to put a number on how readable text is against its
+background, they disagree, and most design systems quietly pick one and hope
+nobody notices. opsinjs publishes both, for every measured pair, in both themes,
+and states which one it is bound by:
+
+> **WCAG 2.2 is the obligation. APCA is the tool.**
+>
+> A pair ships only if it clears the WCAG 2.2 requirement, because that is what
+> conformance, procurement and the law are written against. APCA is what the
+> derivation engine optimises with, and it is published so that a designer can
+> see the cases where a pair is technically conformant and still hard to read.
+
+The thing this is most often confused with is a *contrast checker*. A checker
+tells you about one pair you thought to check. This page is about a floor that
+is applied to the whole declared pair set, in CI, on every pull request, so that
+nobody has to remember to check.
+
+## How it works
+
+### WCAG 2.2 contrast ratio
+
+The ratio is computed from relative luminance:
+
+```text
+ratio = (L_lighter + 0.05) / (L_darker + 0.05)
+```
+
+where `L` is relative luminance from the sRGB channel values after
+linearisation. It runs from 1:1 to 21:1. Its properties, stated without
+enthusiasm:
+
+- It is **symmetric**. Black text on white and white text on black score
+  identically, although they do not read identically, particularly at small
+  sizes where light-on-dark halates.
+- It is **size-blind except for one carve-out** — the 3:1 allowance for large
+  text — so 14px and 40px text are held to the same figure.
+- The `+ 0.05` constant compresses the dark end, which is why two dark greys
+  that are visibly different can score almost identically, and why dark themes
+  are the ones that most often look fine and measure badly.
+
+It is nonetheless the number that matters, because SC 1.4.3, SC 1.4.11 and
+every conformance claim built on them are written in terms of it.
+
+### APCA lightness contrast (Lc)
+
+APCA — the Accessible Perceptual Contrast Algorithm, developed as part of the
+work toward WCAG 3 — produces a value called `Lc` on a roughly 0–106 scale. It
+differs from the ratio in three ways that matter:
+
+- It is **polarity-signed**. Dark text on a light background gives a positive
+  `Lc`; light text on a dark background gives a negative one. The two are not
+  interchangeable, and the model says so.
+- It is **size- and weight-aware**. The published guidance is a lookup table:
+  the `Lc` you need depends on the font size and weight you are actually using,
+  so a 40px result value and a 13px unit label are not asked for the same
+  number.
+- It behaves sensibly at the ends. Two dark greys that WCAG 2.2 cannot tell
+  apart have visibly different `Lc`.
+
+The important caveat, and it is the reason APCA is not our gate: **APCA is a
+draft.** It is not a normative part of WCAG 2.2, its lookup tables have changed
+across revisions, and a conformance claim cannot be built on it today. We
+therefore pin our own `Lc` thresholds in `tokens/color.json`, record the date we
+pinned them, and re-examine when the upstream draft moves — rather than
+importing a moving target into a health product's safety argument.
+
+### The published floor
+
+These are **thresholds we adopt**, not measurements. They are what
+`scripts/check-contrast.mts` tests every declared pair against, in light and
+dark. Where the two models disagree, both have to pass.
+
+| What the pair carries | WCAG 2.2 | APCA `\|Lc\|` |
+| --- | --- | --- |
+| A health value a person may act on | ≥ 4.5:1 | ≥ 90 |
+| Body text, labels, ordinary UI copy | ≥ 4.5:1 | ≥ 75 |
+| Large text — 24px+ regular, or 19px+ bold | ≥ 3:1 | ≥ 60 |
+| A meaningful line: status rule, chart stroke, dial ring, focus ring | ≥ 3:1 | ≥ 45 |
+| Disabled or purely decorative, carrying no information | none | none |
+
+Two of those rows are opinions rather than requirements and are marked as such:
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  The `Lc ≥ 90` row for a health value, and the decision to hold *every* body
+  pair to the 4.5:1 figure rather than taking the large-text allowance where the
+  type is large enough to qualify, are both our judgement rather than anything a
+  standard requires.
+
+  The reasoning: the reader we design for is frequently not in a reading
+  posture. They are outdoors, one-handed, at low screen brightness, possibly
+  distressed, and they are looking at a number rather than reading a paragraph —
+  so they get a single glance rather than a second attempt. Buying headroom on
+  the one element that carries the meaning is cheap; the cost is a slightly
+  darker number.
+
+  What would change our mind: evidence that the extra headroom measurably costs
+  something — visual fatigue from over-dark text on bright surfaces, say — or a
+  stable APCA release whose own tables already encode the glance case. We are
+  not aware of such evidence either way, and we are not going to invent a
+  citation to make a design preference look like a finding.
+</ResearchNote>
+
+### Where the numbers on this site come from
+
+Every figure published on this site is measured, in CI, by hand-written
+implementations of both models in `lib/color/`, and rendered by
+`<ContrastReport>`. None is typed by a person; a regression fails the pull
+request rather than the nightly. The current results for the two clinical axes:
+
+<ContrastReport scope="status" />
+
+<ContrastReport scope="category" />
+
+## Using it
+
+### Check a pair now
+
+<ContrastOracle />
+
+The oracle takes any two colours, prints both models, and states the verdict
+against the floor above. It is the same code path the build uses — if it and the
+build disagree, that is a bug in this repository, not a rounding difference.
+
+### How to read a disagreement
+
+The two models disagree most often in three situations, and each has a
+different correct response.
+
+**Passes WCAG, low `Lc`.** Usually a dark-on-dark pair in a dark theme, where the
+`+ 0.05` constant is flattering it. Trust `Lc`; the pair is genuinely hard to
+read. This is the single most common way a dark theme ships worse than its light
+counterpart.
+
+**Fails WCAG, comfortable `Lc`.** Usually large, bold, dark-on-light type. It may
+well be perfectly readable, and you still cannot ship it, because the obligation
+is the ratio. Adjust the colour.
+
+**Both pass, still looks wrong.** Check what is actually behind the text. If the
+answer is a translucent surface, an image or a video, neither number applies,
+because both models assume a known, opaque background. That case is
+[The contrast floor](../materials/the-contrast-floor.mdx).
+
+### Rules of thumb that are actually true
+
+- Contrast is a property of a **pair**, so never say "this colour passes".
+- Fixing contrast by lightening the *background* changes the design; fixing it
+  by darkening the *foreground* usually does not. The engine only ever moves the
+  foreground for the same reason.
+- Opacity on text is a contrast change. `text-foreground/70` is a new,
+  unmeasured colour, and it is the most common accidental floor violation in
+  Tailwind codebases.
+- Placeholder text is text. So is a disabled label somebody still has to read to
+  understand why the control is disabled.
+
+## Tokens
+
+<TokenTable scope="color" />
+
+## Accessibility impact
+
+This page *is* the accessibility impact of the colour system, so what follows is
+the boundary rather than a restatement.
+
+**What is guaranteed.** Every pair in the declared set, in both themes and both
+gamuts, clears both models at the floor above, on every commit. The list of
+declared pairs is enumerated in [Colour roles](./colour-roles.mdx) and the
+measured results are published, dated, on
+[Contrast conformance](../../accessibility/contrast-conformance.mdx).
+
+**What is not guaranteed, and is yours.**
+
+- Any pair you assemble that is not in the declared set.
+- Text over imagery, video, gradients or any translucent surface.
+- Text you have made semi-transparent.
+- Text rendered at a weight or size other than the one the row above assumes —
+  `Lc` is size-aware and a thin 12px label is not the same problem as a 15px
+  regular one.
+- `forced-colors: active`, where the operating system replaces the palette
+  entirely and the only thing that survives is your markup.
+
+**What contrast does not fix.** Meeting the floor does not make a colour-coded
+status accessible; it makes it visible. A reader who cannot distinguish the four
+hues gets no benefit from any of these numbers, which is why the four levels
+always ship with a word — see
+[Colour independence](../../accessibility/colour-independence.mdx).
+
+## Related
+
+- [Colour blindness](./colour-blindness.mdx) — the redundancy requirement that
+  contrast alone cannot satisfy.
+- [The contrast floor](../materials/the-contrast-floor.mdx) — the same problem
+  when the background is not a known colour, and the worst-case composite that
+  replaces it.
+- [Contrast conformance](../../accessibility/contrast-conformance.mdx) — the
+  dated, generated conformance record for the whole token set.

@@ -1,0 +1,232 @@
+---
+title: Springs as tokens
+description: How a spring described by stiffness, damping and mass is sampled into a CSS linear() easing at build time, so a physical curve survives as a token instead of being re-tuned in every component.
+status: stable
+kind: foundation
+aliases: [easing, "linear()", spring, cubic-bezier]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+Every design system has an easing token. Almost all of them are cubic Béziers,
+because until recently that was the only easing CSS could express — and a cubic
+Bézier cannot describe a spring. It has no overshoot, no settle, no notion of
+mass. So systems that want spring physics animate in JavaScript, which means the
+curve stops being a token: it lives in a component, it cannot be themed, it
+cannot be inspected, and two components that both claim to use "the standard
+spring" can quietly disagree.
+
+opsinjs takes the third path. Springs are authored as physics — stiffness,
+damping, mass — in `tokens/motion.json`, and `scripts/build-tokens.mts` solves
+the spring numerically and emits the result as a CSS `linear()` easing. The
+stylesheet ends up holding a real spring, as a custom property, usable by any
+CSS transition, with no JavaScript animation library anywhere in the tree.
+
+This is not the same as "we have a bouncy easing". The point is the *provenance*:
+the curve in the stylesheet is derived from parameters a person can reason about
+and change, rather than from a Bézier somebody eyeballed until it felt right.
+
+## How it works
+
+**The physical model.** A spring token is three numbers: stiffness `k`, damping
+`c`, and mass `m`. From those come the two values that actually determine the
+shape of the curve:
+
+- the undamped angular frequency, `ω₀ = √(k/m)` — how fast it wants to move;
+- the damping ratio, `ζ = c / (2√(km))` — how much it resists.
+
+`ζ < 1` is underdamped and overshoots. `ζ = 1` is critically damped: the fastest
+approach to the target with no overshoot at all. `ζ > 1` is overdamped and
+crawls in. The damping ratio is the number to reach for when a curve feels wrong,
+and it is the one that decides whether a token may be used on a clinical value.
+
+**The solution.** Normalising the motion to travel from 0 to 1 with zero initial
+velocity, the displacement at time `t` is:
+
+```text
+ζ < 1   x(t) = 1 − e^(−ζω₀t) · [ cos(ω_d t) + (ζω₀ / ω_d) · sin(ω_d t) ],  ω_d = ω₀√(1−ζ²)
+ζ = 1   x(t) = 1 − e^(−ω₀t) · (1 + ω₀t)
+ζ > 1   x(t) = 1 − ( A·e^(r₁t) + B·e^(r₂t) ),  r₁,₂ = −ω₀(ζ ∓ √(ζ²−1))
+```
+
+**The sampling.** `linear()` takes a list of output values; the browser
+interpolates linearly between them. So the generator solves the spring at evenly
+spaced times, normalises the time axis by the settling duration, and prints the
+samples. This is the derivation, and `scripts/build-tokens.mts` is its
+implementation of record:
+
+```ts
+export interface SpringToken {
+  /** Stiffness. Higher is faster and tighter. */
+  stiffness: number
+  /** Damping. Higher resists motion; at 2·√(stiffness·mass) it stops overshooting. */
+  damping: number
+  /** Mass. Higher is heavier and slower to start. */
+  mass: number
+  /** Settle threshold: how close to 1 counts as arrived. */
+  epsilon?: number
+}
+
+export interface DerivedEasing {
+  /** The emitted CSS value, e.g. `linear(0, 0.006, ... 1)`. */
+  easing: string
+  /** Settling time in milliseconds, computed from the physics. */
+  durationMs: number
+  /** Damping ratio. Below 1 the curve overshoots and may not touch a value. */
+  dampingRatio: number
+}
+
+export function springToLinear(
+  spring: SpringToken,
+  samples = 24,
+): DerivedEasing {
+  const { stiffness: k, damping: c, mass: m, epsilon = 0.001 } = spring
+  const w0 = Math.sqrt(k / m)
+  const zeta = c / (2 * Math.sqrt(k * m))
+
+  const at = (t: number): number => {
+    if (zeta < 1 - 1e-6) {
+      const wd = w0 * Math.sqrt(1 - zeta * zeta)
+      return (
+        1 -
+        Math.exp(-zeta * w0 * t) *
+          (Math.cos(wd * t) + ((zeta * w0) / wd) * Math.sin(wd * t))
+      )
+    }
+    if (zeta <= 1 + 1e-6) return 1 - Math.exp(-w0 * t) * (1 + w0 * t)
+    const s = w0 * Math.sqrt(zeta * zeta - 1)
+    const r1 = -w0 * zeta + s
+    const r2 = -w0 * zeta - s
+    const A = -r2 / (r1 - r2)
+    const B = r1 / (r1 - r2)
+    return 1 - (A * Math.exp(r1 * t) + B * Math.exp(r2 * t))
+  }
+
+  // Settling time: the first moment the curve stays within epsilon of 1.
+  const step = 1 / 240
+  let settled = 10
+  for (let t = 0; t <= 10; t += step) {
+    if (Math.abs(1 - at(t)) < epsilon) {
+      settled = t
+      break
+    }
+  }
+
+  const stops: string[] = []
+  for (let i = 0; i <= samples; i++) {
+    stops.push(round(at((i / samples) * settled)))
+  }
+  // Pin the final stop: sampling leaves 0.9997 and a transition that ends a
+  // hair short of its target is a bug that only shows on some displays.
+  stops[stops.length - 1] = "1"
+
+  return {
+    easing: `linear(${stops.join(", ")})`,
+    durationMs: Math.round(settled * 1000),
+    dampingRatio: zeta,
+  }
+}
+
+const round = (n: number): string => String(Math.round(n * 1000) / 1000)
+```
+
+Two details in there matter more than they look.
+
+**The settling time is computed, not chosen.** A spring has no natural end; it
+approaches its target forever. The generator finds the first moment the curve
+stays within `epsilon` of 1 and calls that the duration, which is why every
+spring token ships with a duration derived from its own physics rather than one
+somebody picked to match.
+
+**The damping ratio is returned alongside the curve**, because it is the value
+that decides whether a token may animate a clinical value at all — see *Using
+it* below. Publishing it in the generated table is what makes that rule
+reviewable rather than a matter of looking at the curve and guessing.
+
+**The last stop is pinned to exactly 1.** Floating-point sampling will otherwise
+leave a final stop at 0.9997, and a transition that ends a hair short of its
+target is a rendering bug that appears only on high-density displays and only
+sometimes.
+
+<MotionCurve token="--opsin-ease-spring" />
+
+## Using it
+
+**Choose by damping ratio, not by feel.** The tokens divide into two families and
+the boundary between them is a safety rule, not a taste one.
+
+- **Damped springs** (`ζ ≥ 1`, no overshoot) are the only curves permitted on
+  anything whose content is a measurement, a range position, a status or a
+  count. A value that overshoots has drawn a number the person never had. This
+  is health rule 2 from [Motion](index.mdx) and it is enforced by review, not by
+  the compiler — the tokens themselves cannot know what they are animating.
+- **Overshooting springs** (`ζ < 1`) are for chrome: a sheet arriving, a toggle
+  flipping, a control acknowledging a press. They give the interface its
+  character and they never touch a clinical number.
+
+<DoDont>
+  <DoDont.Do>
+    A range marker sliding to a new position on a damped spring. It arrives, it
+    stops, and at no point does it indicate a reading outside the range.
+  </DoDont.Do>
+  <DoDont.Dont>
+    The same marker on a bouncy spring, overshooting into the high band before
+    settling back. For a fraction of a second the interface asserted a value that
+    was never measured — on a screen whose entire purpose is to report measured
+    values.
+  </DoDont.Dont>
+</DoDont>
+
+**Do not hand-write a `linear()` value.** They are unreadable, unreviewable and
+impossible to adjust — that is the whole reason for generating them. Change the
+three numbers in `tokens/motion.json` and regenerate.
+
+**Do not tune a spring inside a component.** If a component needs a curve the
+scale does not have, that is a proposal for a new token, with a name and a
+rationale — see
+[Contributing tokens](../../handbook/contributing/contributing-tokens.mdx).
+
+**Sample count is a trade.** More stops means a closer fit and a longer custom
+property. Twenty-four is enough that the linear interpolation between stops is
+imperceptible for the durations opsinjs uses, and short enough that the emitted
+stylesheet stays legible.
+
+## Tokens
+
+The spring parameters, the derived `linear()` easings and the computed settling
+durations are all generated from `tokens/motion.json`. The full table with live
+curve plots is on [Motion tokens](tokens.mdx).
+
+<TokenTable scope="motion" />
+
+## Accessibility impact
+
+- **`linear()` degrades to a keyword, not to nothing.** Where it is unsupported
+  the declaration is invalid and the previous declaration in the cascade wins, so
+  every spring token is authored with a plain easing fallback immediately before
+  it. The animation still runs, with less character; nothing breaks and nothing
+  disappears. Support is published by `<BrowserSupport>` on
+  [Browser support](../../start/browser-support.mdx).
+- **Overshoot is a vestibular consideration as well as an honesty one.**
+  Oscillation is more provocative than a monotonic move, which is a second
+  independent reason the damped family exists.
+- **Reduced motion replaces the curve, not just the duration.** Under
+  `prefers-reduced-motion: reduce` the spring tokens resolve to a two-stop
+  `linear(0, 1)` and the durations collapse — the per-token contract is on
+  [Reduced motion](reduced-motion.mdx).
+- **A spring's settling time is part of its accessibility budget.** A long settle
+  means a control is still moving when a reader tries to hit it. Every token's
+  computed duration is published, and the ones used for anything interactive sit
+  at the short end of the scale.
+
+## Related
+
+- [Using motion](using-motion.mdx) — which of these curves each job gets, and how
+  duration relates to distance.
+- [Reduced motion](reduced-motion.mdx) — what every spring token becomes when a
+  reader has asked for less movement.
+- [Motion tokens](tokens.mdx) — the generated table, with each curve plotted from
+  its own parameters.

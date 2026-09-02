@@ -1,0 +1,141 @@
+---
+title: Iconography
+description: One icon library, roles rather than filenames, and the rule that an icon never carries status on its own in a system whose category axis is inherently glyph-driven.
+status: stable
+kind: foundation
+icon: Shapes
+aliases: [icons, lucide, icon library]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+Iconography carries more weight in opsinjs than in a general-purpose design
+system, for a structural reason. The
+[category axis](../../health/two-colour-axes.mdx) — which part of someone's
+health a surface is about — deliberately cannot be carried by colour alone,
+because colour is committed to two jobs and one element may only draw from one of
+them. So category is very often carried by a glyph. That makes the icon set part
+of the semantic system rather than decoration on top of it.
+
+Two decisions follow, and they run through all four pages here.
+
+**One library.** opsinjs uses lucide and nothing else. Mixed icon sets are
+immediately visible — different stroke weights, different optical sizes,
+different corner treatments — and in a product where a glyph is doing semantic
+work, "these two icons look like they belong to different systems" reads as "these
+two things are different kinds of thing".
+
+**Icons are named by role, not by file.** A component asks for the icon for
+*category: sleep* or for *status: urgent*, and a mapping resolves that to a lucide
+name. The indirection is what makes it possible to change one glyph in one place,
+and what makes it possible to answer "which icons does this system rely on" at
+all — see [Icon inventory](icon-inventory.mdx).
+
+## How it works
+
+Three pages sit under this one: [the inventory](icon-inventory.mdx), which is the
+generated list of roles and their glyphs; [Health glyphs](health-glyphs.mdx),
+which is the rule against symbols that imply clinical authority and is the most
+important page in this group; and [Sizing and alignment](sizing-and-alignment.mdx).
+
+Four rules run across all of them.
+
+**1. An icon never carries status alone.** Status is colour *and* icon *and* word.
+An icon on its own is ambiguous — a triangle means caution to some readers and
+nothing to others — and it is invisible to a screen reader unless it has been
+given a name, which is exactly the case where somebody usually forgets. This is
+principle 2 from [Principles](../principles.mdx) and it has no exceptions.
+
+**2. An icon is decorative unless it is the only content.** Where a glyph sits
+beside a label, it is hidden from assistive technology, because announcing "heart
+icon, heart rate" is noise. Where a glyph is alone — an icon-only control — it
+carries an accessible name, and that name is a verb describing the action, not a
+description of the picture.
+
+**3. Icon-only navigation is a literacy barrier.** In a general product an
+unlabelled toolbar is a learnable cost. In a health product, read by people
+across the full range of literacy, digital confidence and age, an unlabelled
+control is a control some readers will not use. Primary navigation and primary
+actions carry words. Icons accompany them.
+
+**4. A new glyph is a proposal, not a drawing.** If a concept genuinely has no
+adequate icon in the library, the answer is a proposal with a rationale — see
+[Proposing a component](../../handbook/contributing/proposing-a-component.mdx) —
+not a one-off SVG in a component. A one-off is invisible to the inventory, to the
+CVD audit and to anybody trying to keep the set coherent.
+
+## Using it
+
+**Ask what the icon is for before choosing it.** There are only three legitimate
+jobs: identifying a category, reinforcing a status that is already carried by
+colour and a word, or labelling an action. Anything else is decoration, and
+decoration in a health interface competes with the numbers.
+
+<DoDont>
+  <DoDont.Do>
+    A status pill with the urgent glyph, the urgent surface colour, and the word.
+    Remove any one of the three and the other two still say it.
+  </DoDont.Do>
+  <DoDont.Dont>
+    A bare coloured glyph beside a reading. It fails in greyscale, it fails in a
+    screenshot, it says nothing to a screen reader, and it means different things
+    to different readers.
+  </DoDont.Dont>
+</DoDont>
+
+**Do not use an icon to mean a value.** A tick, a cross, a thumbs-up or a smiley
+beside a reading is a verdict, and verdicts belong to the product's clinical
+governance expressed through
+[clinical status](../../health/clinical-status-semantics.mdx), in words.
+
+**Do not use two glyphs for one thing.** A category icon and a status icon on the
+same small element is where readers start decoding rather than reading. Where both
+are needed, one is a glyph and the other is a word.
+
+**Keep the set small.** Every additional icon is another mapping somebody has to
+learn. A product using thirty distinct glyphs on one screen has replaced reading
+with pattern matching, badly.
+
+**Never render a value, a unit or a status word as an icon or an icon font.**
+Text is text — see [Typography](../typography/index.mdx).
+
+## Tokens
+
+Icon sizes, stroke weight and the optical alignment offsets come from the type
+and space scales rather than from a family of their own; the role-to-glyph
+mapping is generated. See [Sizing and alignment](sizing-and-alignment.mdx) for
+the sizing rules and [Icon inventory](icon-inventory.mdx) for the mapping.
+
+<NoDataYet script="scripts/build-registry.mts" />
+
+## Accessibility impact
+
+- **Icon-only controls need an accessible name that describes the action**, not
+  the picture. "Dismiss alert", not "cross". This is the single most common
+  icon-related failure and it is caught by inspection in seconds.
+- **Decorative icons must be hidden**, or a screen-reader user hears every glyph
+  on the screen alongside the label it duplicates.
+- **An icon is never the only carrier of meaning**, which is what makes the system
+  survive greyscale, colour-vision differences and a printout. The audit is on
+  [Colour independence](../../accessibility/colour-independence.mdx).
+- **Icons are non-text content for contrast purposes.** A glyph that carries any
+  meaning is measured against its background under WCAG 2.2 SC 1.4.11, and a thin
+  stroke at a small size is where that fails.
+- **Icons scale with text.** A glyph beside a label sizes in `em` so it grows with
+  the reader's text size; one that stays at a fixed pixel size looks progressively
+  detached and eventually stops reading as part of the same element.
+- **Cultural legibility is an accessibility question too.** A glyph that is
+  obvious in one country is opaque in another, and there is no way for a reader to
+  ask what it meant. Words do not have this problem.
+
+## Related
+
+- [Health glyphs](health-glyphs.mdx) — the symbols this system will not use, and
+  the reasoning that is worth reading even if you never touch an icon.
+- [The two colour axes](../../health/two-colour-axes.mdx) — why category so often
+  ends up on a glyph in the first place.
+- [Handbook → Icons](../../handbook/icons.mdx) — the mechanics: the icon slot
+  contract and bringing your own set.

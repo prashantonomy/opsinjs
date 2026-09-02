@@ -1,0 +1,101 @@
+---
+title: TanStack Start
+description: The intended install path, and the parts that are specified rather than tested.
+status: planned
+kind: guide
+since: unreleased
+owner: core
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 6m
+aliases: [tanstack start install, tanstack router opsinjs]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+TanStack Start is a Vite-based full-stack React framework, which means opsinjs's
+requirements are met the same way they are in [Vite](./vite.mdx): Tailwind as a
+Vite plugin, an `@/` alias that agrees between the bundler and TypeScript, and a
+single stylesheet whose order you control.
+
+<Callout title="Nothing installs yet, and this path is not tested">
+  There is no published registry, and TanStack Start has not been exercised against
+  opsinjs. The requirements below follow from the framework's architecture rather
+  than from a build we have run.
+</Callout>
+
+<Todo>
+  A verified end-to-end install, the exact root-route stylesheet placement for the
+  current version, and the server-function boundary notes. This page will be
+  rewritten from a real build rather than from inference before it leaves
+  `planned`.
+</Todo>
+
+## Meet the same four requirements
+
+Nothing here is TanStack-specific except where the file goes.
+
+<Steps>
+
+### Tailwind v4 via the Vite plugin
+
+Confirm it generates classes on its own before adding opsinjs.
+
+### An `@/` alias in both `vite.config.ts` and `tsconfig.json`
+
+They must point at the same directory. This is the most common cause of an import
+that resolves in the editor and fails at build, or the reverse.
+
+### The stylesheet on the root route
+
+TanStack Start renders a document shell from the root route. The opsinjs token
+layer belongs in the single stylesheet that shell loads, after Tailwind and before
+your overrides — the rule stated in full on [Next.js](./next.mdx).
+
+### `@source` for the directory you copy components into
+
+```css title="src/styles.css"
+@import "tailwindcss";
+@import "./opsinjs.css";
+
+@source "./components/opsinjs/**/*.{ts,tsx}";
+```
+
+</Steps>
+
+## Watch the boundary
+
+TanStack Start distinguishes server functions from client rendering rather than
+marking whole modules, so the practical guidance differs slightly from the
+App Router: put the loader work — fetching the value, resolving the range, applying
+your clinical mapping — in a server function, and keep the component that renders
+the result free of computation. That is the arrangement opsinjs assumes everywhere,
+and it happens to be the idiomatic one here.
+
+## Verify it worked
+
+1. **A copied component renders styled.** Otherwise, `@source`.
+2. **Colours resolve through custom properties.**
+3. **The document shell carries the stylesheet on every route**, including error
+   routes.
+4. **`@/` imports resolve in the editor and at build.**
+
+## Troubleshooting
+
+**Unstyled components.** `@source`, as in every Vite-based setup. See
+[Vite](./vite.mdx).
+
+**Alias resolves in one place but not the other.** `vite.config.ts` and
+`tsconfig.json` disagree.
+
+**Something framework-specific goes wrong.** This path is not yet tested, so please
+report it rather than working around it in silence — the report is what turns this
+page from inference into documentation. [Community](../../project/community.mdx).
+
+## Next
+
+- [Vite](./vite.mdx) — the shared Vite mechanics in more detail.
+- [Next.js](./next.mdx) — the CSS order rule stated in full.
+- [Framework support](../framework-support.mdx) — where this sits in the matrix.

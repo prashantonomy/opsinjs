@@ -1,0 +1,143 @@
+---
+title: Reduced motion
+description: What each motion token becomes when a reader has asked for less movement — a stated reduced variant per token, not a blanket kill switch that leaves the interface teleporting.
+status: stable
+kind: foundation
+aliases: [prefers-reduced-motion, vestibular, motion sensitivity]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+The common implementation of `prefers-reduced-motion` is one rule at the bottom
+of a stylesheet that sets every duration to something negligible. It is
+well-intentioned, it satisfies an automated check, and it produces an interface
+in which things teleport: a sheet that was somewhere and is now somewhere else,
+with nothing in between to say which.
+
+That is a downgrade, not an accommodation. Somebody who set the preference did
+not ask to be told less about where things went; they asked not to be made to
+feel unwell. Those are different requests and the second one has a better answer.
+
+So in opsinjs reduced motion is a **property of each token**, declared alongside
+it. Every motion token states what it becomes, and the answer is rarely "nothing".
+
+This is often confused with an accessibility feature you add at the end. It is
+not: a token whose reduced variant was not considered when it was authored
+usually cannot have one retrofitted, because the animation was designed to carry
+information the still version does not.
+
+## How it works
+
+**The reduction is authored per token, in three parts:** what the duration
+becomes, what the easing becomes, and — the part almost everyone omits — what the
+*property being animated* becomes.
+
+That third part is where the real work is. Reduced motion is a request to reduce
+movement, not to reduce change. An opacity fade involves no movement at all and
+is generally safe. A transform that moves an element several hundred pixels is
+not. So the reduction usually replaces a large translate with a small one, or
+with a fade, rather than removing the transition:
+
+| Full | Reduced | Why |
+| --- | --- | --- |
+| Sheet slides up the full height | Sheet fades in with a very short rise | Direction is preserved; the distance that provokes symptoms is not |
+| Detail view morphs from a tile | Detail view crossfades in place | Continuity is carried by position, not by a travelling container |
+| Overlay scales the layer beneath back | Layer beneath dims only | Depth is signalled by luminance instead of scale |
+| List staggers in reading order | List appears together | Reading order is carried by the DOM, where it always was |
+| Count-up over the first reveal | Final value, immediately | The animation was an emphasis; the value is the content |
+| Skeleton shimmer loops | Static skeleton, no loop | A looping animation is the classic reduced-motion offender |
+| Spring with overshoot | Two-stop `linear(0, 1)`, short duration | Oscillation is more provocative than a single move |
+
+**Durations shrink but do not vanish.** A transition that completes in a frame or
+two is functionally a teleport. The reduced durations are short enough to feel
+immediate and long enough that the eye registers a change rather than a
+discontinuity.
+
+**Nothing is left half-implemented.** A component whose reduced variant has not
+been specified does not ship. The variant is part of the component's `Motion`
+section, demonstrated with `<MotionDemo>` so the fallback is observable rather
+than described, and it is checked at review.
+
+<MotionDemo token="--opsin-ease-spring" />
+
+## Using it
+
+**Do not test it by turning motion off and checking nothing crashes.** Test it by
+turning motion off and asking whether you can still tell where things came from.
+If you cannot, the reduced variant is wrong, not the reader's setting.
+
+<DoDont>
+  <DoDont.Do>
+    Under reduced motion the log sheet fades in over a very short rise from the
+    bottom edge. It is obvious it came from below and obvious how to send it
+    back.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Under reduced motion the log sheet is simply there. The reader cannot tell
+    whether they opened a sheet, navigated to a screen, or had something thrown
+    at them, and the dismiss gesture is now a guess.
+  </DoDont.Dont>
+</DoDont>
+
+**Respect the preference everywhere, including in the docs.** Every demo on this
+site honours `prefers-reduced-motion`, and `<MotionDemo>` also carries an explicit
+toggle so a reader who has *not* set the preference can see what somebody who has
+would get. A design system that animates its own documentation while telling you
+to respect the setting is not credible.
+
+**Do not use reduced motion as a proxy for anything else.** It is not a signal
+about data saving, about device capability, or about a preference for haptics —
+see [Sound and haptics](../sound-and-haptics.mdx). It says one thing and you may
+infer only that thing.
+
+**Offer an in-product setting as well.** The media query reflects an
+operating-system preference somebody may have set for a different reason, and
+some people want less movement from a health app specifically. An in-product
+control that can only ever reduce motion further, never override the system
+preference upwards, is the correct shape.
+
+## Tokens
+
+Every token in `tokens/motion.json` carries its reduced variant beside its full
+one, and `scripts/build-tokens.mts` emits both — the full values at the top level
+and the reduced values inside `@media (prefers-reduced-motion: reduce)`. The
+generated table publishes them side by side, so the reduced variant is reviewable
+rather than buried in a media query.
+
+<TokenTable scope="motion" />
+
+## Accessibility impact
+
+- **This is a WCAG requirement and a health one.** SC 2.3.3 *Animation from
+  Interactions* covers motion triggered by interaction; honouring the preference
+  is how the system satisfies it. Independently of conformance, vestibular
+  symptoms — nausea, dizziness, migraine — are exactly the outcomes a health
+  product must not cause.
+- **Reduced is not removed, and the distinction protects two different groups.**
+  Removing motion entirely disadvantages readers who rely on it to track where
+  things went, including many readers with cognitive disabilities. The reduced
+  variants keep the spatial information and drop the provocative distance.
+- **The setting is not rare.** Treat it as a first-class rendering mode that a
+  meaningful share of readers use every day, not an edge case checked once before
+  a release.
+- **Reduced motion must not change what is announced.** The accessible name, the
+  state and the announcement order are identical in both modes. If a component
+  announces something different with motion reduced, the announcement was tied to
+  an animation event and needs rewriting.
+- **The docs site holds itself to this**, and the result is audited on
+  [This site's accessibility](../../accessibility/this-site.mdx).
+
+The conformance position, the tested combinations and the manual test route are
+on [Accessibility → Reduced motion](../../accessibility/reduced-motion.mdx).
+
+## Related
+
+- [Springs as tokens](springs-as-tokens.mdx) — why an overshooting curve needs a
+  different reduction from a damped one.
+- [Choreography](choreography.mdx) — what a morph, a stagger and a depth change
+  each collapse to.
+- [Accessibility → Reduced motion](../../accessibility/reduced-motion.mdx) — the
+  conformance side of the same contract, with the test steps.

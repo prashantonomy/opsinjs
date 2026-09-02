@@ -1,0 +1,47 @@
+---
+title: Glossary data
+description: The clinical-to-plain-English term list as a flat, searchable table — the machine twin of the Plain-English A–Z.
+status: stable
+kind: reference
+full: true
+owner: content
+reviewed: 2026-09-02
+reviewer: content
+reviewEvery: 6m
+aliases: [term data, glossary table, plain english data]
+---
+
+<PageTemplate kind="reference" />
+
+## How this is generated
+
+**Source:** `tokens/glossary.json` — the same file the `<Term>` component reads
+at runtime, so a term that renders in a product is a term that appears here.
+**Script:** `scripts/build-reference.mts`. **Command:** `pnpm run generate`.
+
+**This is not the page you want if you are reading.**
+[Plain-English A–Z](../../content/plain-english-a-z.mdx) is canonical: it is
+written to be read, it groups terms, it explains the judgement behind each
+replacement, and it is where a change to the guidance is made. This page is its
+flat twin — one row per term, every field of the source exposed — and it exists
+so that search, the `.md` twins and `/r` all cover the glossary without anybody
+writing a second copy of it by hand.
+
+**Five columns.** *Term* is the clinical or technical word. *Plain* is the
+replacement to use in an interface. *Definition* is the one-sentence explanation
+shown when a reader expands a `<Term>`. *Aliases* are the other spellings and
+abbreviations a search should match. *Notes* carries the caveat, where the plain
+word is not an exact synonym and the difference could matter — those rows are the
+ones worth reading twice.
+
+**Provenance.** Every definition here is written for this project. Nothing is
+copied from the NHS A–Z or any other Crown-copyright source; where a source
+informed a definition it is cited on the canonical page, not pasted here. A
+glossary is exactly the kind of asset that gets copied without checking, so the
+rule is absolute.
+
+{/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
+
+<NoDataYet script="scripts/build-reference.mts" />
+
+{/* opsinjs:generated:end */}

@@ -1,0 +1,95 @@
+---
+title: Typography tokens
+description: The generated reference for every type role — size, line height, tracking, weight and numeric variant — with a rendered specimen for each.
+status: stable
+kind: foundation
+aliases: [font tokens, text tokens, type token reference]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+Every type role in the system, with the four values it resolves to and the
+components that consume it. Generated from `tokens/type.json` by
+`scripts/build-tokens.mts`; nothing here is typed by a person, and
+`pnpm check:generated` fails the build if it is.
+
+The specimens render from the generated values rather than from a screenshot, so
+what you see is the token itself. They also render at more than one text-size
+multiplier, because a type token whose value you know at 1× and not at 1.3× is a
+token you do not actually know.
+
+## How it works
+
+`tokens/type.json` holds one entry per role, and each entry is four values plus
+two flags:
+
+- **size** — expressed relative to the root, never in pixels, so the reader's
+  multiplier and browser zoom both apply.
+- **line height** — a unitless ratio, so it scales with the size rather than
+  being recomputed per role.
+- **tracking** — a letter-spacing adjustment, negative at the large end and
+  slightly positive at the small end. Type set at one tracking across a whole
+  scale looks wrong at both extremes.
+- **weight** — a numeric weight the platform font can actually produce.
+- **`tabular`** — whether the role sets `font-variant-numeric: tabular-nums`.
+  True for every value role, false for every reading role, and not overridable
+  per component.
+- **`scaleRate`** — how fast this role grows as the reader's multiplier rises.
+  Small roles grow faster than large ones; this is the field that makes the
+  scale non-linear and it is the reason the whole scale is semantic. See
+  [Type scale](type-scale.mdx).
+
+The generator emits both a `--opsin-text-<role>-*` group of custom properties and
+a Tailwind `--text-*` mapping, so a role is reachable as a utility class or as a
+raw variable depending on how the consuming product is built.
+
+## Using it
+
+**Read the `Used by` column first.** It is the fastest way to find the role you
+want: if a role is used by nothing, either you have found the one you need or the
+role should not exist.
+
+**Check `tabular` before you set a number.** If the role you are about to use has
+`tabular: false`, it is a reading role and a number set in it will shift the
+layout when it changes.
+
+**Copy the role name, never the computed size.** A pixel value pasted into a
+component is a component that no longer participates in Dynamic Type, and the
+failure only appears for readers who have changed their text size — which is to
+say, for the readers least likely to be in the room when it is reviewed.
+
+**Compare across text sizes, not just at 1×.** The specimens on this page are
+rendered at several multipliers precisely so that a role which looks correct by
+default and wrong at 1.3× is visible here rather than in production.
+
+## Tokens
+
+<TokenTable scope="type" />
+
+<TypeScaleSpecimen role="body" />
+
+## Accessibility impact
+
+- **Publishing `scaleRate` is what makes non-linear scaling reviewable.** Without
+  it, "the type scales" is a claim; with it, anyone can see which roles grow and
+  by how much.
+- **Every role–surface pair is measured for contrast at the role's own size and
+  weight.** APCA is size- and weight-sensitive, so a single ratio for the whole
+  scale would be wrong for most of it. The measured results are on
+  [Contrast conformance](../../accessibility/contrast-conformance.mdx).
+- **The minimum size is published and enforced.** `caption` is the floor; a
+  generated table makes it obvious when something has been set below it.
+- **The specimens are real text.** They are selectable, translatable and readable
+  by a screen reader, not images of type — which is also the rule the rest of the
+  system follows.
+
+## Related
+
+- [Type scale](type-scale.mdx) — what each role is for, and the two families.
+- [Dynamic Type](dynamic-type.mdx) — what these values become at the reader's own
+  text size, and the 1.3× bar.
+- [Reference → Tokens](../../reference/generated/tokens.mdx) — the same rows
+  alongside every other family.

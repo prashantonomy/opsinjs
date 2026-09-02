@@ -1,0 +1,185 @@
+---
+title: Introduction
+description: opsinjs is a React design system for consumer health apps — the components that show a person their own numbers, and the rules that keep those numbers honest.
+status: stable
+kind: guide
+icon: Sparkles
+owner: core
+reviewed: 2026-09-02
+reviewer: content
+reviewEvery: 6m
+aliases: [what is opsinjs, introduction to opsinjs, opsinjs overview]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+**opsinjs is a React design system for consumer health apps — the components that
+show a person their own numbers, and the rules that keep those numbers honest.**
+
+It is built for the reader who is not a clinician: someone opening an app to see a
+blood-pressure reading, a sleep score, a lab result, a step count. That reader is
+often anxious, often on a phone, often reading a number they have never seen
+before. The interface is the whole of their explanation. Most component libraries
+treat that as a rendering problem. opsinjs treats it as a communication problem
+with a rendering component attached.
+
+Three things follow from that, and they are what makes this system different from
+a general-purpose UI kit:
+
+- **Colour carries two independent meanings, and mixing them is a bug.** A
+  category colour says *which part of your health this is*. A status colour says
+  *how concerning this is*. A system that lets the same green mean "sleep" on one
+  card and "you are fine" on the next has made a reading error unavoidable. See
+  [The two colour axes](./health/two-colour-axes.mdx).
+- **The doctrine is testable.** The rules in [Health](./health/index.mdx) are
+  written as prohibitions a reviewer can check on a screenshot — not as
+  principles. "Never show a bare percentage change." "At most one urgent surface
+  per screen." "Do not print the word *normal* next to a person's result."
+- **Numbers in these docs are generated, never remembered.** Contrast ratios,
+  token values, prop tables and bundle sizes come out of the source and fail the
+  build when they drift. See [Reading these docs](./start/reading-these-docs.mdx).
+
+### Nothing is built yet, and this page will not pretend otherwise
+
+There is no npm package. There is no registry you can install from. There is no
+component you can render. Every component page is `status: planned`.
+
+What exists today is the **specification** — and it is deliberately the part that
+is hardest to retrofit. Twenty-four component pages state exactly what each
+component will assert about a person's health, what it must never be read as,
+which colour axis it may use, who owns its thresholds, and the accessibility bar
+it has to clear before it can ship. The doctrine, the tokens and the
+accessibility contract are real today; the code is not.
+
+If you are an agent: a component page that exists and says `planned` is a
+definitive negative answer, not a gap. Do not generate an implementation from the
+proposed API on it. See [Reading these docs](./start/reading-these-docs.mdx#for-agents).
+
+## What opsinjs decides for you
+
+A design system earns its keep by removing decisions. These are the ones opsinjs
+takes off your team's plate, permanently and identically across every surface:
+
+| Decision | Where it is fixed |
+| --- | --- |
+| What a colour is allowed to mean | [Two colour axes](./health/two-colour-axes.mdx) |
+| The four clinical status levels and their words | [Clinical status semantics](./health/clinical-status-semantics.mdx) |
+| How a number, a unit and a precision are rendered | [Numbers, units and precision](./health/numbers-units-precision.mdx) |
+| Which unit system a reader sees, and how switching it stays correct | [Unit systems](./health/unit-systems.mdx) |
+| How many alarming surfaces one screen may carry | [Alarm fatigue](./health/alarm-fatigue.mdx) |
+| The contrast floor every token pair must clear | [The contrast floor](./foundations/materials/the-contrast-floor.mdx) |
+| What a surface may be made of, and what it must stay readable over | [Materials](./foundations/materials/index.mdx) |
+| What motion is allowed to communicate, and what it degrades to | [Motion in health UI](./health/motion-in-health-ui.mdx) |
+| Which words are banned from patient-facing copy | [Content and language](./content/index.mdx) |
+
+## What it refuses to decide
+
+This list matters more than the one above, because a design system that is vague
+about its boundary invites teams to assume it is doing clinical work it is not.
+
+- **Thresholds and reference ranges.** opsinjs will render a value against a
+  range. It will never supply the range. Ranges depend on assay, laboratory,
+  population, age, sex and context, and they are a clinical decision belonging to
+  your product's clinical owner.
+- **Triage and diagnosis.** No component decides that a reading is dangerous. Your
+  product decides; a component displays the decision your product passed it.
+- **Clinical wording.** opsinjs supplies the shape of a sentence and the words it
+  bans. It does not supply the sentence that tells someone what their result
+  means.
+- **Data.** No fetching, no caching, no schema, no units conversion service. The
+  formatting contract is ours; the data layer is yours.
+- **Localisation.** There is no locale segment yet, and the reasons and the exact
+  retrofit are recorded in
+  [ADR 0005](./project/decisions/0005-no-lang-segment-yet.mdx). Unit systems are
+  handled as a *correctness* surface instead, because millimoles and milligrams
+  per decilitre are not a translation problem.
+- **Regulatory status.** opsinjs is not a medical device and confers nothing on
+  the product that uses it. This is important enough to have its own page:
+  [Safety, scope and limitations](./start/safety-scope-and-limitations.mdx).
+
+## Who it is for
+
+opsinjs is aimed at product teams building **consumer or patient-facing** health
+experiences: wellness and fitness apps, remote-monitoring companion apps, patient
+portals, at-home test result readouts, care-plan and medication apps, and the
+health surfaces inside a product that is not otherwise about health.
+
+It is aimed at **laypeople**, and that constraint shows up in every component. A
+clinician reading a lab panel wants density, abbreviations and raw values. A
+patient reading the same panel wants one number at a time, the unit spelled out,
+and a sentence telling them whether they need to do anything. Those two products
+are not the same product, and a design system cannot serve both without lying to
+one of them. opsinjs serves the second.
+
+It is explicitly **not** for clinician-facing EHR interfaces, for regulated device
+software, or for a charting library. If you want to check that before you invest
+a sprint, [Is opsinjs right for this project?](./start/is-opsinjs-right.mdx) is a
+checklist that will happily tell you no.
+
+## How this site is organised
+
+Sixteen groups, one persistent sidebar, and one rule that resolves almost every
+"where does this live?" question:
+
+> **Foundations tells you what a token means. Handbook and Theming tell you how to
+> change it. Reference is the generated list of every one.**
+
+Beyond that:
+
+- **[Start here](./start/index.mdx)** — orientation, fit, installation, and the
+  page you are reading.
+- **[Recipes](./recipes/index.mdx)** — task-first. "Show a value against a
+  reference range" is a recipe; `RangeBar` is a component.
+- **[Components](./components/index.mdx)** — the 24 specifications, plus a
+  catalogue row for every component we have considered and not built.
+- **[Health](./health/index.mdx)** — the doctrine layer. Read it even if you never
+  install anything.
+- **[Foundations](./foundations/index.mdx)**, **[Accessibility](./accessibility/index.mdx)**,
+  **[Content and language](./content/index.mdx)** — the three pillars that are
+  100% real today, because they depend on tokens and rules rather than on code.
+- **[Agents](./agents/index.mdx)** — this site is designed to be read by machines
+  as well as people. Every page has a `.md` twin at the same URL plus `.md`, and
+  the corpus is published as `llms.txt` shards.
+
+## Verify it worked
+
+You have read this page correctly if you can answer these three questions without
+scrolling back:
+
+1. **What is the one thing opsinjs will never do for you?** Decide what a health
+   value means. It renders your product's decision; it does not make it.
+2. **What can you install today?** Nothing. The system is a specification, and
+   every component page says so in machine-readable form.
+3. **Why are there two kinds of colour?** Because "which measurement is this" and
+   "how worried should I be" are different questions, and one palette cannot
+   answer both without ambiguity.
+
+## Troubleshooting
+
+**"I came here for charts."** Data visualisation guidance lives in
+[Foundations → Data visualisation](./foundations/data-visualisation/index.mdx), but
+opsinjs is not a charting library and will not become one. `TrendSparkline` is a
+deliberately small, deliberately uninteractive specimen for one series.
+
+**"I need a clinician-facing view."** You are outside the audience. Read
+[Is opsinjs right for this project?](./start/is-opsinjs-right.mdx) and then use a
+density-first system.
+
+**"The component page I want returned a specification, not code."** That is
+working as designed. See
+[Reading these docs](./start/reading-these-docs.mdx#for-agents).
+
+**"I cannot find the rule that governs a component."** Every component page lists
+its `governedBy` doctrine pages in the header, and every doctrine page lists the
+components that implement it. The link exists in both directions on purpose.
+
+## Next
+
+- [Start here](./start/index.mdx) — the five-minute map of this site, and the
+  shortest path for your role.
+- [Safety, scope and limitations](./start/safety-scope-and-limitations.mdx) — read
+  before you commit to opsinjs for anything regulated or clinical-adjacent.
+- [The two colour axes](./health/two-colour-axes.mdx) — the single idea that most
+  changes how a health product looks.

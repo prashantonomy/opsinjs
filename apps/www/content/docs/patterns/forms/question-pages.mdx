@@ -1,0 +1,166 @@
+---
+title: Question pages
+description: One question per page or several grouped — how to decide, what one-per-page costs, and the cases in health where grouping is the safer answer.
+status: stable
+kind: pattern
+aliases: [one question per page, one thing per page, grouped questions, form layout decision]
+implements: [field, reading-input, log-sheet, button]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="pattern" />
+
+## When to use
+
+Read this before laying out any form with more than three questions in it.
+
+"One question per page" is the pattern popularised by GOV.UK and adopted by the
+NHS service manual, and it is a genuinely good default: each screen has one
+thing to understand, one thing to get wrong, one error to recover from, and one
+heading that says what is being asked. On a phone it removes almost all of the
+layout problem.
+
+It is a default, not a law, and health products contain several situations where
+it is the wrong answer. This page is about telling those apart.
+
+Use one question per page when:
+
+- The question is hard, sensitive, or unfamiliar.
+- Getting it wrong has a consequence — a dose, a date, a unit.
+- The answer changes what is asked next.
+- The reader is doing this once, or rarely.
+
+Use a grouped page when:
+
+- The fields are genuinely one thing to a reader who is not you: a systolic and
+  a diastolic reading, a height in feet and inches, a start date and an end
+  date. Splitting these makes the form longer *and* harder, because the reader
+  now has to hold half an answer across a page transition.
+- The reader is copying from a physical source — a meter, a label, a printed
+  result — and moving between fields is faster than moving between pages.
+- The reader is doing this every day and knows every field by heart. See
+  [Daily logging](../daily-logging.mdx).
+
+## When not to use
+
+- **The instrument fixes the layout.** A validated questionnaire's item order
+  and presentation may be part of what makes its scoring meaningful. Do not
+  re-paginate it for aesthetics; treat it as fixed and design around it.
+- **You are asking for one specific well-known field.** The answer for a date of
+  birth or a name is already worked out in
+  [Ask users for…](../ask-users-for/index.mdx); go straight there.
+- **The reader is reviewing, not answering.** A summary of everything they
+  entered is a review screen and should show everything at once, with edit links.
+- **You want the wiring.** Multi-step form state, resumability and routing are
+  [Handbook → Forms](../../handbook/forms.mdx).
+
+## How it works
+
+<FlowDiagram>
+{`flowchart TD
+  A["A set of questions"] --> B{"Would a reader call these one thing?"}
+  B -->|"yes"| C["Group them on one page under one heading"]
+  B -->|"no"| D{"Does the answer change what comes next?"}
+  D -->|"yes"| E["One per page, so branching is invisible"]
+  D -->|"no"| F{"Is it sensitive, unfamiliar or high-consequence?"}
+  F -->|"yes"| G["One per page"]
+  F -->|"no"| H{"Is the reader doing this daily?"}
+  H -->|"yes"| I["Group, and optimise for speed"]
+  H -->|"no"| G`}
+</FlowDiagram>
+
+Whichever you choose, these hold:
+
+- **The question is the page heading.** Not "Personal details" with a label
+  underneath — the `<h1>` is the question. This is what makes one-per-page work
+  for screen readers, and it is the part most often dropped when teams copy the
+  pattern visually.
+- **A grouped page has a group heading and a `fieldset`.** "Blood pressure" as a
+  legend with two labelled controls inside it. Two loose inputs with a caption
+  above them is the same thing rendered wrongly.
+- **Progress is stated, not implied.** "Step 3 of 6" in text. A bar alone tells
+  a reader nothing about how much is left and is unavailable to anyone who
+  cannot see it.
+- **Back always works and never destroys.** Browser back, the platform gesture
+  and an in-page back control all return to the previous question with its
+  answer intact.
+- **Never mix branching with grouping.** A grouped page whose fields appear and
+  disappear as the reader answers is the hardest possible form to use with
+  assistive technology. If it branches, split it.
+
+### The cost of one-question-per-page
+
+Be honest about it rather than pretending it is free:
+
+- More navigations, which means more state to persist and more places to lose it.
+- A reader cannot see the whole shape of what is being asked, which matters when
+  they are deciding whether to start at all.
+- Copying from a physical document becomes slower, not faster.
+- On a wide screen it can look absurd — one field in the middle of 1400 pixels.
+  Handle that with layout, not by regrouping; see
+  [Responsive modes](../../foundations/space/responsive-modes.mdx).
+
+## Content
+
+<DoDont>
+  <DoDont.Do>
+    Heading: "What is your date of birth?" Hint below it: "For example, 27 3
+    1985." The question is the heading and the hint precedes the inputs.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Heading: "About you". Label: "DOB*". Hint after the input: "dd/mm/yyyy".
+    Three separate failures, and the hint arrives after the reader has typed.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Group legend: "Your blood pressure reading". Two labelled fields, "Top
+    number (systolic)" and "Bottom number (diastolic)", with `mmHg` shown once.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Two pages, one per number, so the reader has to remember half a reading
+    across a navigation while holding a meter.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility
+
+- **One `<h1>` per page and it is the question.** Focus moves to it on
+  navigation, so the first thing announced is what is being asked.
+- **Grouped fields use `fieldset` and `legend`.** The legend is announced with
+  each control's label, which is exactly the context a grouped page needs and
+  the reason a styled `<div>` is not a substitute.
+- **Progress is real text** in the document, associated with the step, not an
+  `aria-label` on a decorative bar.
+- **Answers survive back-navigation** — WCAG 2.2 SC 3.3.7 (Redundant Entry). A
+  wizard that clears on back is the most common failure of this pattern.
+- **No auto-advance.** Moving to the next question when a field looks complete
+  removes the reader's ability to check their answer and is disorienting with a
+  screen reader. This includes segmented code inputs.
+- **The submit control's label names the outcome**: "Save reading", not
+  "Continue", where continuing is what actually stores something.
+
+## Research
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  One-question-per-page is documented publicly by the GOV.UK Design System and
+  the NHS Digital Service Manual, both of which set out their reasoning and are
+  worth reading in the original — we cite them and do not reproduce them, since
+  that material is Crown copyright.
+
+  What is opinion here is the exception list: our claim that health products have
+  a specific class of grouped questions — a paired reading, a compound unit, a
+  transcription from a physical device — where splitting makes the form worse
+  rather than better. We hold it because the failure it prevents is a reader
+  holding half a blood-pressure reading in their head across a page transition,
+  which is a memory task the pattern was supposed to eliminate.
+
+  What would change our mind: evidence that error rates on paired numeric entry
+  are no higher when split across pages.
+</ResearchNote>
+
+## Updates to this page
+
+<Reviewed />

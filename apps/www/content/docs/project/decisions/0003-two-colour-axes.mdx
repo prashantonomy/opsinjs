@@ -1,0 +1,115 @@
+---
+title: "0003 — Two colour axes that never mix"
+description: Category identity and clinical status are independent colour systems, and no element may carry both.
+status: stable
+kind: project
+owner: core
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 12m
+aliases: [why two axes, never mix, colour architecture]
+---
+
+<PageTemplate kind="project" />
+
+## Status
+
+**Accepted.** 2026-09-02. This is the decision the rest of the system is built
+around; reversing it would be a rewrite rather than a refactor.
+
+## Context
+
+A consumer health screen asks colour to do two unrelated jobs at once.
+
+The first is **identity**: which of my things is this? A screen showing sleep,
+steps, blood pressure and mood needs those four to be distinguishable at a glance,
+across a list, on a dashboard, in a chart legend.
+
+The second is **urgency**: how much should I care about this number today? That is
+ordinal, it changes with the data, and it is the only thing on the screen that
+should ever raise a reader's pulse.
+
+Almost every design system ships one semantic colour set — `info`, `success`,
+`warning`, `error` — and quietly asks it to do both. The result on a health screen
+is that a metric's identity colour reads as a verdict. A category rendered in a
+warm colour looks like a warning about that category. The blue one looks safe. The
+system has told the reader something about their health that nobody decided to
+say.
+
+There is a second failure that follows from the first: once one palette does both
+jobs, "make this stand out" and "this is urgent" become the same operation, and
+the number of alarming surfaces on a screen grows until none of them means
+anything. That is the alarm-fatigue problem, and it begins in the colour
+architecture.
+
+## Decision
+
+**Two independent colour axes. No element may carry both.**
+
+- The **status axis** carries clinical urgency. It is closed at four ordinal
+  levels, defined once in
+  [Clinical status semantics](../../health/clinical-status-semantics.mdx). It is
+  not extensible by a consuming theme.
+- The **category axis** carries subject identity. It is extensible, it is ordered
+  by nothing, and a category colour may never imply a judgement about the value it
+  labels.
+
+Where both are present on one screen — which is normal — they are expressed in
+different places: identity in the label, the icon or the chart series; status in
+the value's own treatment. Never in the same swatch.
+
+## Consequences
+
+- **Two ramp families in the tokens**, generated separately, with separate
+  contrast floors. [The two colour axes](../../health/two-colour-axes.mdx) is the
+  doctrine; [Tokens](../../reference/generated/tokens.mdx) is the list.
+- **Types enforce it.** A component takes `ClinicalStatus` or `HealthCategory`,
+  and mixing them in one visual slot is a compile error rather than a review
+  comment.
+- **The status palette is effectively frozen.**
+  [Status palettes](../../theming/status-palettes.mdx) exists mainly to explain
+  why you should not redefine it: a product that re-colours urgency has changed
+  what the components mean, and every published contrast figure stops describing
+  what it ships.
+- **Colour alone never carries status.** Four levels distinguishable by hue is a
+  system that fails in grayscale, under a colour-vision deficiency, and in
+  sunlight. Each level therefore carries a word and a shape as well, and
+  [Colour independence](../../accessibility/colour-independence.mdx) is a
+  generated audit rather than a promise.
+- **We need a lint rule, and do not have one yet.** A rule that is only written
+  down survives until the first deadline. The ESLint and Stylelint plugins in
+  [Tooling](../../handbook/tooling/index.mdx) are the enforcement, and until they
+  exist this is enforced by review — which is to say weakly. It is listed as a
+  blocker on the [roadmap](../roadmap.mdx).
+- **The two-axis lab refuses to render a mixed pair** and explains why, instead of
+  rendering it and hoping nobody copies it.
+
+## Alternatives considered
+
+**One semantic palette doing both jobs.** The industry default. Rejected: it is
+the failure described above, and it is not fixable with guidance, because the
+guidance would be "do not use the palette for the thing the palette is for".
+
+**Status as a modifier applied to a category colour** — a warmer sleep, a redder
+mood. Rejected twice over: it produces one combination per category per level,
+none of which can be checked for contrast in advance, and it destroys the ordinal
+reading, because "how urgent" would then be judged relative to a different base
+colour in every row.
+
+**Status conveyed only by an icon and a word, with no colour at all.** Genuinely
+tempting, and it is what the system degrades to in grayscale. Rejected as the
+default because colour is the fastest pre-attentive channel available, and giving
+it up entirely makes the urgent case slower to find for the majority of readers
+who can use it.
+
+## Revisiting this
+
+Revisit only with evidence — real readers, real screens — that combining the axes
+is understood rather than merely tolerated. Note that a request to "add a fifth
+status level" is not a challenge to this decision but to
+[Clinical status semantics](../../health/clinical-status-semantics.mdx), and is
+answered there.
+
+<LastUpdated />
+
+<Reviewed />

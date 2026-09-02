@@ -1,0 +1,126 @@
+---
+title: Installation
+description: Which install path to take, what each one assumes, and the four things every path has to get right.
+status: planned
+kind: guide
+icon: Terminal
+since: unreleased
+owner: core
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 3m
+aliases: [installation, install opsinjs, setup, getting set up]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+There are four install paths and they differ less than you would expect. Every one
+of them does the same four things; the pages differ only in *where* those four
+things go in your particular framework.
+
+<Callout title="Nothing installs yet">
+  There is no published package and no live registry, so every command in this
+  section describes an intended contract rather than a working path. It is
+  documented now so the shape can be reviewed before it is built, and so a reader
+  or an agent gets a definite answer instead of guessing.
+  [Roadmap](../../project/roadmap.mdx) has the dated state.
+</Callout>
+
+## Pick your path
+
+| Path | Take it when | Page |
+| --- | --- | --- |
+| **Framework** | You are starting or already have a React 19 + Tailwind v4 app | [Next.js](./next.mdx) · [Vite](./vite.mdx) · [React Router](./react-router.mdx) · [TanStack Start](./tanstack-start.mdx) · [Astro](./astro.mdx) |
+| **Existing project** | You already have shadcn/ui components and a `components.json` | [components.json](./components-json.mdx) |
+| **Manual** | No CLI: you want to see exactly what lands and put it there yourself | [Manual](./manual.mdx) |
+| **Monorepo** | The app that consumes opsinjs is not the repository root | [Monorepo](./monorepo.mdx) |
+
+If you already have a working React 19 and Tailwind v4 application, go straight to
+[components.json](./components-json.mdx) — the framework pages are mostly about
+getting to that point.
+
+## Understand the four things every path does
+
+Knowing these makes every install page short, and makes a failure diagnosable
+without reading any of them.
+
+<Steps>
+
+### Copy source into your repository
+
+opsinjs is distributed as a shadcn-spec registry under the `@opsinjs` namespace.
+`shadcn add` copies real `.tsx` files into your project. You own them from that
+moment: no dependency to upgrade, no black box, and no silent change.
+[Registry](../../registry/index.mdx).
+
+### Add the token layer to your stylesheet, in the right position
+
+The tokens are CSS custom properties, not JavaScript. They must be imported after
+Tailwind and after any base reset, and before your own overrides. CSS order is
+load-bearing throughout opsinjs, and getting it wrong produces components that lay
+out correctly and are the wrong colour.
+
+### Make Tailwind scan the directory you copied into
+
+Tailwind v4 generates only the classes it can find in declared sources. Because
+the components live in *your* repository rather than in `node_modules`, the
+directory holding them needs an `@source` line. Omitting it produces a component
+with no styling at all, and it is the most common setup failure in this system.
+
+### Set the theme mode as a class
+
+There is no provider to mount. Light and dark are a class on the root element and
+the tokens do the rest, which is what makes server rendering straightforward and
+why there is no theme flash to work around.
+
+</Steps>
+
+That is the entire integration surface. Anything else on the framework pages is
+about that framework, not about opsinjs.
+
+## Know what you need before you start
+
+- **React 19 or later.** React 18 is not supported.
+- **Tailwind CSS v4.** There is no v3 path.
+- **A current Node LTS** for the CLI.
+- **Control over stylesheet order.** If your framework or platform injects CSS in
+  an order you cannot influence, opsinjs will be difficult to use with it.
+
+[Framework support](../framework-support.mdx) explains why each of these is a hard
+requirement rather than a preference.
+
+## Verify it worked
+
+The same four checks work on every path, in this order — each one isolates a
+different failure:
+
+1. **The file exists** where `components.json` said it would.
+2. **It compiles**, and its imports resolve.
+3. **It is styled.** Unstyled means Tailwind is not scanning the directory.
+4. **Its colours come from custom properties**, not literals. Literals mean the
+   token layer is missing or in the wrong position.
+
+## Troubleshooting
+
+**The command fails to resolve `@opsinjs`.** Expected today; nothing is published.
+See [Troubleshooting](../troubleshooting.mdx#nothing-is-published-yet).
+
+**Everything works except the styling.** Almost certainly the `@source` line. This
+is a Tailwind configuration fact and no opsinjs setting changes it.
+[Monorepo](./monorepo.mdx) has the exact lines.
+
+**Files land somewhere unexpected.** `components.json` aliases and your
+`tsconfig.json` paths disagree. [components.json](./components-json.mdx).
+
+**Your framework is not listed.** If it runs React 19 and Tailwind v4 and lets you
+control stylesheet order, follow [Manual](./manual.mdx) and tell us what you had to
+do differently.
+
+## Next
+
+- [Next.js](./next.mdx) — the reference install, and the one to read even if you
+  use something else.
+- [components.json](./components-json.mdx) — every field opsinjs reads.
+- [Quick start](../quick-start.mdx) — what to build once the pieces are in place.

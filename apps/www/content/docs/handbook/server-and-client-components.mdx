@@ -1,0 +1,122 @@
+---
+title: Server and client components
+description: Where the client boundary falls, what is safe to render on the server, and why importing one interactive component can turn a whole page into client code.
+status: planned
+kind: handbook
+aliases: [rsc boundary, use client, client boundary, provider placement, where does use client go]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="handbook" />
+
+## The short version
+
+<NotBuiltYet />
+
+Presentational opsinjs components — a `ResultCard`, a `Value`, a `StatusPill`,
+a `RangeBar` with a fixed value — are intended to be server-renderable. Anything
+with state, a listener or a portal — `Dialog`, `Sheet`, `LogSheet`,
+`ReadingInput` — is a client component and will carry its own `"use client"`.
+
+The rule that matters: **`"use client"` marks a boundary, not a file.** Every
+module imported from a client component becomes part of the client bundle, and
+a page that imports one interactive component has not made that component
+client-only — it has made everything below it client code.
+
+## How it works
+
+A React Server Component renders on the server and ships HTML, not JavaScript.
+A client component ships both. The boundary is wherever a `"use client"` module
+is imported from a server module, and it applies to the whole import subgraph
+beneath it.
+
+Two consequences that account for most of the confusion:
+
+- **A server component can render a client component.** This is the normal case
+  and it is cheap.
+- **A client component cannot import a server component**, but it can *receive*
+  one as a prop or as `children`. That is the escape hatch, and it is how you
+  keep an expensive server-rendered subtree out of the client bundle even though
+  a client component wraps it:
+
+  ```tsx
+  // page.tsx — server
+  <ClientSheet>
+    <ExpensiveServerRenderedSummary />
+  </ClientSheet>
+  ```
+
+### Providers
+
+A provider is a client component by definition — it holds context. Put it as
+high as it needs to be and no higher. In this documentation site there is
+exactly one, fumadocs' `RootProvider`, mounted in the root layout; see
+[Dark mode](./dark-mode.mdx).
+
+The temptation is to wrap the application in a provider for every capability.
+Each one you add makes the root layout a client component's parent and pulls
+another dependency into the shared bundle for every route, including the ones
+that never use it.
+
+## Do this
+
+- **Keep `"use client"` as low in the tree as possible.** Push it onto the
+  interactive leaf rather than onto the page.
+- **Pass server-rendered content as `children`** when a client wrapper is
+  unavoidable.
+- **Render values on the server where you can.** A `Value` or a `RelativeTime`
+  with a known input has no reason to run in the browser.
+- **Keep data fetching in server components** and pass the result down. A client
+  component that fetches on mount produces a loading state that the server could
+  have avoided entirely.
+- **Check what actually crossed the boundary** with a bundle analysis before
+  assuming; see [Performance and bundle
+  size](./performance-and-bundle-size.mdx).
+
+## Not this
+
+- **Do not put `"use client"` at the top of a layout to make an error go away.**
+  It will make the error go away and take the whole route's server rendering
+  with it.
+- **Do not pass a function as a prop across the boundary.** Functions are not
+  serialisable; the error message points at the prop and not at the boundary
+  that made it a problem.
+- **Do not render a time-dependent value identically on both sides and hope.**
+  A relative time computed on the server and again on the client will disagree,
+  and the hydration mismatch is reported as a generic text-content error.
+- **Do not wrap everything in one provider "for consistency".** Consistency
+  here costs bundle size on every route.
+- **Do not use `typeof window === "undefined"` to branch rendering.** It
+  produces different markup on the two sides by construction, which is exactly
+  what hydration checks for.
+
+## Gotchas
+
+- **A barrel file poisons the boundary.** Importing one component from an
+  `index.ts` that re-exports fifty pulls the client ones in with it. Import from
+  the specific module.
+- **A hydration mismatch reports the symptom, not the cause.** "Text content did
+  not match" usually means a date, a random value, or a `localStorage` read
+  during render.
+- **`suppressHydrationWarning` is not a fix.** It is correct for exactly one
+  thing — the theme class set by the pre-paint script — and it silences real
+  bugs everywhere else.
+- **Portals render outside your layout but inside your client boundary.** A
+  dialog's content is still client code even though it appears at the end of the
+  body.
+- **Context does not cross the boundary upward.** A server component cannot read
+  a client context, which is why theme-dependent server rendering is not
+  possible and why the theme is applied as a class rather than through context.
+- **Third-party components are frequently client components without saying so
+  in their docs.** The first sign is a bundle that grew for no reason you can
+  identify.
+
+## Related
+
+- [Performance and bundle size](./performance-and-bundle-size.mdx) — measuring
+  what crossed the boundary.
+- [Dark mode](./dark-mode.mdx) — the one provider, and why the theme is a class.
+- [Next.js installation](../start/installation/next.mdx) — provider placement
+  and CSS import order in an App Router application.
+- [TypeScript](./typescript.mdx) — typing props that cross the boundary.

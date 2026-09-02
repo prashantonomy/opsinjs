@@ -1,0 +1,184 @@
+---
+title: Daily logging
+description: The repeated-entry flow — designed for the ninetieth entry rather than the first, where every saved second compounds and every extra field costs adherence.
+status: planned
+kind: pattern
+aliases: [logging a reading, repeated entry, diary entry, tracking flow, quick add]
+implements: [log-sheet, reading-input, value, relative-time, field, sheet, empty-state]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="pattern" />
+
+## When to use
+
+Use this pattern when the same person will enter the same shape of data
+repeatedly, on a cadence, for a long time: a blood-pressure reading each
+morning, a mood check-in each evening, a dose taken, a symptom noted.
+
+The design target is the **ninetieth entry, not the first**. Onboarding
+optimises for comprehension; logging optimises for the cost of a habit. A flow
+that takes eleven seconds instead of four is not thirty per cent worse — it is
+the difference between a dataset and an abandoned feature, because the reader is
+doing this while a kettle boils.
+
+Signals:
+
+- The reader already knows what the fields mean; explanation is now overhead.
+- Most entries are similar to the previous entry.
+- A missed day is expected and must not be treated as an error.
+- The value is being entered from a device readout, from memory, or from a
+  physical meter — see [Data provenance and device
+  accuracy](../health/data-provenance-and-device-accuracy.mdx) for what the UI
+  may then assert.
+
+## When not to use
+
+- **First-time entry.** The first log has to teach the units, the expected
+  range and why any of it matters. Use
+  [Onboarding and first run](./onboarding-and-first-run.mdx) for that, then hand
+  over to this pattern.
+- **The entry is a questionnaire.** A validated instrument with a fixed item
+  order and a scored total is not a log — item order and wording are part of the
+  instrument and cannot be optimised for speed. Use
+  [Question pages](./forms/question-pages.mdx) and treat `questionnaire` as a
+  distinct surface.
+- **Data arrives automatically.** If a device syncs the value, there is nothing
+  to log; the design problem is trust and freshness. Use
+  [Offline and stale data](./offline-and-stale-data.mdx).
+- **You are editing history rather than adding to it.** Correcting last
+  Tuesday's entry has different stakes — it changes a trend that may already
+  have been shown to someone. Give it a distinct, slower flow.
+- **You want the built steps.** [Capture a daily log
+  entry](../recipes/daily-log-entry.mdx) is the recipe.
+
+## How it works
+
+<FlowDiagram>
+{`flowchart TD
+  A["Entry point: home tile, push, or widget"] --> B["Sheet opens with the field focused"]
+  B --> C{"Is there a sensible default?"}
+  C -->|"yes"| D["Prefill from the last entry and select it"]
+  C -->|"no"| E["Empty field, correct keyboard, unit visible"]
+  D --> F["Reader types or adjusts"]
+  E --> F
+  F --> G{"Value plausible?"}
+  G -->|"no"| H["Inline confirm, never a block: is that right?"]
+  G -->|"yes"| I["Save"]
+  H --> I
+  I --> J["Confirmation in place, entry visible, undo available"]
+  J --> K["Return to where the reader started"]`}
+</FlowDiagram>
+
+<NotBuiltYet />
+
+The rules that make the difference at entry ninety:
+
+- **One tap from the surface the reader is already on.** If logging requires
+  navigating to a section, the section is the problem.
+- **The field is focused on open, with the keyboard already up and correct.**
+  A numeric entry uses `inputmode="decimal"`, not a text keyboard the reader has
+  to switch — see [Autocomplete and input
+  types](./forms/autocomplete-and-input-types.mdx).
+- **Prefill, but make it obvious and easy to replace.** Selecting the prefilled
+  value means a reader who wants a different number types over it in one action,
+  and a reader whose value is unchanged confirms in one action.
+- **The unit is displayed, never typed.** Unit ambiguity is a correctness
+  surface, not a preference; see [Unit
+  systems](../health/unit-systems.mdx).
+- **No validation blocks a save.** A physiologically surprising value is a
+  question ("87 mmol/L is unusually high — is that right?"), never a rejection.
+  The reader may be entering a genuinely alarming true value, and refusing to
+  store it is the worst possible outcome. See [Validation
+  timing](./forms/validation-timing.mdx).
+- **Saving ends in place.** The reader sees the entry they just made, with an
+  undo affordance, and is returned to where they started. Never route them to a
+  trends screen they did not ask for.
+- **A missed day is not an error.** Gaps are rendered as gaps. Do not
+  interpolate, do not carry a value forward, and do not use `attention` styling
+  for an absent entry — absence is not a clinical status.
+
+### States
+
+| State | Behaviour |
+| --- | --- |
+| Empty | An [Empty and first-use](./empty-and-first-use.mdx) surface, not a zero |
+| Draft | Preserved if the reader is interrupted; restored with an explicit "you had started this" |
+| Saving | Optimistic in the UI, queued if offline, never a blocking spinner |
+| Queued offline | The entry is visible and marked as not yet synced, with the time it was made |
+| Conflict | Two devices logged the same slot: both are kept and shown, never silently merged |
+| Failed | The value is never lost; the reader is told what happened and the retry is automatic |
+
+## Content
+
+Logging copy is the shortest copy in the product. The reader is not reading; they
+are aiming.
+
+<DoDont>
+  <DoDont.Do>
+    Label: "Systolic". Helper, once: "the top number". Unit shown beside the
+    field as `mmHg`. Button: "Save reading".
+  </DoDont.Do>
+  <DoDont.Dont>
+    Label: "Please enter your systolic blood pressure measurement in millimetres
+    of mercury". A sentence in a label is a sentence the reader re-reads ninety
+    times.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    After saving: "Saved — 128/82 at 07:41." The reader can verify what was
+    recorded without leaving.
+  </DoDont.Do>
+  <DoDont.Dont>
+    After saving: "Great job! You're on a 12-day streak!" Congratulating someone
+    on a body reading confuses effort with outcome, and makes the day they miss
+    a failure.
+  </DoDont.Dont>
+</DoDont>
+
+Streaks, badges and encouragement are deliberately out of scope for this
+pattern. Adherence copy that rewards *logging* is defensible; copy that rewards
+the *value* is not, because it makes an unwell reader feel they have lost.
+
+## Accessibility
+
+- **Focus on open, focus on close.** The sheet moves focus to the first field
+  and returns it to the trigger on dismissal. Getting the return wrong dumps a
+  keyboard user at the top of the page on every single entry.
+- **The unit is part of the accessible name of the field**, not a decorative
+  suffix. "Systolic, in millimetres of mercury" is what should be announced.
+- **Confirmation is announced.** The saved state is a status message (WCAG 2.2
+  SC 4.1.3), and undo remains reachable in the tab order afterwards.
+- **Redundant entry.** A reader correcting one field must not have to re-enter
+  the others; WCAG 2.2 SC 3.3.7 exists for exactly this flow.
+- **Every gesture has a control.** Swipe-to-log or a long-press shortcut is
+  additive; the same action always exists as a labelled, focusable control. See
+  [Target size and motor](../accessibility/target-size-and-motor.mdx).
+- **Numeric steppers are not the only path.** A reader must be able to type the
+  value; forcing thirty taps of an increment control to reach 138 is a motor
+  accessibility failure even when every target passes.
+
+## Research
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  The "design for the ninetieth entry" framing, the prefill-and-select rule and
+  the prohibition on blocking validation are design opinions derived from the
+  failure modes rather than from a trial. The strongest of them is the
+  validation rule: refusing to store a surprising value is the one failure in
+  this pattern that can destroy clinically relevant data, and it is common
+  because it looks like defensive programming.
+
+  Deliberately not claimed: any figure for how much friction costs adherence. It
+  is easy to find confident numbers for this and hard to find ones that transfer
+  between populations and conditions, so we state the direction and not a
+  magnitude. What would change our mind: within-product experimental evidence
+  that prefilling biases entered values toward the previous reading, which would
+  be a serious argument against it in a clinical dataset.
+</ResearchNote>
+
+## Updates to this page
+
+<Reviewed />

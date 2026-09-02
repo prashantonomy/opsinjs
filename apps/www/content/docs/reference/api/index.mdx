@@ -1,0 +1,67 @@
+---
+title: API
+description: One page per exported symbol, at a guessable URL, so every type name in the documentation is a link rather than a dead end.
+status: stable
+kind: reference
+owner: engineering
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 12m
+aliases: [api index, symbol pages, exported symbols]
+---
+
+<PageTemplate kind="reference" />
+
+Every symbol the `@opsinjs` packages export has its own page here, addressed by
+its exact exported identifier:
+
+```text
+opsinjs.dev/docs/reference/api/ClinicalStatus
+opsinjs.dev/docs/reference/api/HealthCategory
+opsinjs.dev/docs/reference/api/deriveTheme
+```
+
+The identifier is used verbatim — the same case, no kebab-casing, no
+pluralisation. That is the whole design: an inline `<ApiLink>` in prose, a link
+from a props table, and a program guessing a URL from a type name it read in an
+error message all arrive at the same page without a lookup table.
+
+## How this is generated
+
+**Source:** the declaration files published by the `@opsinjs` packages.
+**Script:** `scripts/build-reference.mts`, using `fumadocs-typescript`.
+**Command:** `pnpm run generate`. This index page is hand-written; every page
+beneath it is generated, and `assert-ia.mts` fails the build if an `<ApiLink>`
+anywhere in the corpus names a symbol with no page.
+
+### Why per-symbol pages and not one long page
+
+A single API document is the format every generated documentation tool reaches
+for and it fails in the same three ways each time. Anchors churn, so a link that
+worked last release lands halfway down the wrong section. The page grows past the
+point where a browser's find-in-page is useful. And a program that fetches it
+gets forty thousand tokens of unrelated types in order to answer one question
+about one union. A page per symbol costs one file each and fixes all three, and
+the `.md` twin of a symbol page is small enough to paste into a prompt whole.
+
+### What a symbol page contains
+
+The signature, rendered from the declaration rather than retyped. The members,
+with their types linked to their own pages. Defaults, where the symbol has any.
+Which components and functions consume it, which is the part a type reference
+manual usually omits and the part you usually need. And, for the health types,
+a link to the doctrine page that defines what the values *mean* — the type says
+there are four status levels, and only
+[Clinical status semantics](../../health/clinical-status-semantics.mdx) says what
+`attention` obliges you to do.
+
+### What exists today
+
+No package has been published, so the generator has nothing to read and the pages
+beneath this one are the two seeds below: a hand-written specification of each,
+clearly marked as a specification, kept here so that the links pointing at them
+resolve. They will be replaced wholesale the first time `pnpm run generate` runs
+against a real build. Do not write code against them.
+
+- [ClinicalStatus](ClinicalStatus.mdx) — the four clinical status levels
+- [HealthCategory](HealthCategory.mdx) — the subject-identity categories

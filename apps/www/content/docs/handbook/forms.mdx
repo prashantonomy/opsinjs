@@ -1,0 +1,137 @@
+---
+title: Forms
+description: Wiring a Field to React Hook Form, TanStack Form or a native form — the validation boundary, server errors, and the accessibility the wiring must not lose.
+status: planned
+kind: handbook
+aliases: [react hook form, tanstack form, form wiring, form validation setup, controlled input]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="handbook" />
+
+## The short version
+
+<NotBuiltYet />
+
+`Field` will own the accessible plumbing — the label association, the
+description, the error message, `aria-invalid`, `aria-describedby` — and your
+form library will own the state and the validation. The split is deliberate: the
+parts that are easy to get subtly wrong are in the component, and the parts that
+are a matter of preference are yours.
+
+Whichever library you use, three things must remain true when you are finished:
+
+1. The error message is **associated with its control**, not merely near it.
+2. `aria-invalid` **appears and disappears** with the error.
+3. A failed submit produces a **focused error summary** — see
+   [Error summaries](../patterns/forms/error-summaries.mdx).
+
+This page is the mechanics. When validation should *run*, and what the form
+should *look* like, are design decisions and live in
+[Form design](../patterns/forms/index.mdx).
+
+## How it works
+
+### Native forms
+
+A form with no library at all is a legitimate choice, and for a single-question
+page it is usually the right one. The browser's own constraint validation gives
+you `required`, `min`, `max`, `pattern` and `type` checking for free; what it
+does not give you is control over *when* the message appears or what it says, so
+you will normally suppress the native bubble with `noValidate` and render the
+message yourself.
+
+### React Hook Form
+
+The uncontrolled model — register the input, read values at submit — is the
+cheapest option for a large form because it does not re-render on every
+keystroke. The integration points are the `ref` (which is why a wrapper that
+drops it breaks everything, see
+[Composition and render](./composition-and-render.mdx)), the field name, and
+the error object you map onto the `Field`'s error slot.
+
+### TanStack Form
+
+The field-level subscription model suits forms whose fields depend on each
+other, where a change in one has to revalidate another. The integration shape is
+the same: the library owns the value and the error, `Field` owns the markup and
+the ARIA.
+
+### Server errors
+
+Errors returned from a submit are not a different kind of error to the reader
+and must not look like one. Map them back onto the same fields, into the same
+error slots, and into the same summary. A form with two error presentations —
+one for client validation and one for the server — teaches the reader that the
+second kind is a system failure rather than something they can fix.
+
+## Do this
+
+- **Give every control a stable `id`** and let `Field` wire the label and
+  description to it. The error summary needs those ids to link to.
+- **Set `aria-invalid` from the error state, and clear it when the error
+  clears.** A control that stays invalid after correction is a common and
+  confusing residue.
+- **Validate on blur first, live on correction, always on submit.** The
+  reasoning is in [Validation timing](../patterns/forms/validation-timing.mdx);
+  the implementation is a mode setting in most libraries.
+- **Keep the submit control enabled.** Disabling it until the form is valid
+  removes the reader's only way to find out what is wrong, and a disabled button
+  is not reachable by keyboard in most implementations.
+- **Preserve values across a failed submit and across back-navigation.** WCAG
+  2.2 SC 3.3.7.
+- **Type your form values.** A schema-derived type catches the field-name typo
+  that otherwise silently validates nothing. See [TypeScript](./typescript.mdx).
+
+## Not this
+
+- **Do not use a placeholder as a label.** It disappears on entry, it usually
+  fails contrast, and it is not an accessible name. WCAG 2.2 SC 3.3.2.
+- **Do not render the error message as a sibling with no association.** Visually
+  adjacent is not programmatically determinable; without `aria-describedby` a
+  screen-reader user reaching the field hears nothing about the error.
+- **Do not block a save on a health value being implausible.** The reason is in
+  [Validation timing](../patterns/forms/validation-timing.mdx) and it is the
+  most consequential rule on this page.
+- **Do not validate on every keystroke by default.** It is the default in
+  several libraries and it is hostile to slow typists and to screen-reader
+  users.
+- **Do not reset the form on a server error.** The reader's work is not the
+  server's to discard.
+- **Do not disable paste, anywhere, for any reason.**
+
+## Gotchas
+
+- **A wrapper that drops `ref` breaks React Hook Form silently.** No error; the
+  field is simply never registered and its value is always `undefined`. This is
+  the single most common integration failure.
+- **Controlled and uncontrolled is a one-way door per field.** Switching a
+  component between the two mid-life produces a React warning and, more
+  annoyingly, a caret that jumps to the end of the input.
+- **`aria-describedby` is a single attribute with a space-separated list.**
+  Setting it for the error overwrites the hint unless you compose both ids
+  yourself; `Field` composes them for you, which is why you should not set it
+  by hand.
+- **A native `required` plus a visible "(required)" in the label announces
+  twice.** Under the marked-optional convention this does not arise; see
+  [Required and optional](../patterns/forms/required-and-optional.mdx).
+- **`type="number"` and controlled state disagree about intermediate values.** A
+  field containing `1.` reports an empty value, so a controlled component clears
+  it as the reader types. Use `type="text"` with `inputmode="decimal"` — see
+  [Autocomplete and input
+  types](../patterns/forms/autocomplete-and-input-types.mdx).
+- **Async validation races.** A slow check that resolves after the reader has
+  corrected the field will re-apply a stale error unless you key the result to
+  the value it was computed from.
+
+## Related
+
+- [Form design](../patterns/forms/index.mdx) — the behavioural decisions this
+  page implements.
+- [Field](../components/field.mdx) — the component contract: parts, states and
+  accessible naming.
+- [Error summaries](../patterns/forms/error-summaries.mdx) — what a failed
+  submit must do.
+- [Ask users for…](../patterns/ask-users-for/index.mdx) — per-field guidance for
+  the data a health product actually collects.

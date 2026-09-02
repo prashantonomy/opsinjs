@@ -1,0 +1,165 @@
+---
+title: Documentation templates
+description: The page outlines, published verbatim — twelve page kinds, each with a fixed set of headings that the build enforces, so a contributor fills a template rather than facing a blank file.
+status: stable
+kind: handbook
+aliases: [page templates, section outlines, page kinds, what headings does this page need]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="handbook" />
+
+## The short version
+
+**A page's `kind` fully determines its headings.** Authors do not invent
+sections, do not reorder them, and do not leave one empty. `assert-ia` compares
+the H2s in every page against the outline for its kind and fails the build on a
+missing or an unexpected one.
+
+That sounds heavy-handed and it is the reason two hundred pages stay navigable.
+A reader who has read one health page knows where the boundary statement is on
+every other one; an agent that has parsed one component page knows where the
+prohibition list lives on all twenty-four.
+
+The templates themselves live in `apps/www/content/_templates/` — one `.mdx`
+per kind, outside `content/docs/` so they are never routed. Copy one; do not
+start from a blank file.
+
+## How it works
+
+Twelve kinds. The outlines are reproduced here verbatim, in order. Where a
+section is generated, it is marked.
+
+### `component`
+
+The full 22-section anatomy, taught once on [Anatomy of a component
+page](../../components/anatomy-of-a-component-page.mdx). The sections that
+render are **gated by status**: at `planned` the page shows Status, Preview,
+Installation, When to use it, Clinical meaning (`health-*` only), Anatomy,
+Proposed API, Content guidelines, Accessibility requirements and Related.
+`alpha` adds Usage, Examples and API reference. `beta` adds States, Motion, Data
+attributes, CSS variables, Tokens and Cost. Only `stable` renders all 22.
+Sections not required at the declared status are **omitted, not left empty**.
+
+### `foundation`
+
+`## Overview` → `## How it works` → `## Using it` → `## Tokens` *(generated)* →
+`## Accessibility impact` → `## Related`
+
+### `health`
+
+`## What this means` → `## The rule` → `## Why (evidence)` → `## Applying it` →
+`## Components that implement this` *(generated from `implements`)* →
+`## What this does not cover` → `## Updates to this page`
+
+`evidence` and `reviewed` are mandatory frontmatter on this kind.
+
+### `accessibility`
+
+`## What we guarantee` → `## What you own` → `## How to check` →
+`## Measured results` *(generated)* → `## Known gaps` →
+`## Updates to this page`
+
+### `content`
+
+`## The rule` → `## Approved / Rejected` → `## Patterns` → `## Banned words` →
+`## Related components`
+
+### `pattern`
+
+`## When to use` → `## When not to use` → `## How it works` → `## Content` →
+`## Accessibility` → `## Research` → `## Updates to this page`
+
+Every entry under "when not to use" names the alternative.
+
+### `recipe`
+
+`## The task` → `## What you need` → `## Build it` → `## The copy` →
+`## Get it right` → `## Variations` → `## Related`
+
+### `screen`
+
+`## What this screen does` → `## Composition` → `## Preview` →
+`## Safety notes` → `## Accessibility` → `## Status`
+
+### `handbook`
+
+`## The short version` → `## How it works` → `## Do this` → `## Not this` →
+`## Gotchas` → `## Related`
+
+This page is one.
+
+### `reference`
+
+Generated body only, plus a hand-written header block naming the source file and
+the script that produces it.
+
+### `project`
+
+Free-form headings, but every page ends with `<LastUpdated />` and
+`<Reviewed />`.
+
+### `guide`
+
+`## Overview` → one H2 per task, named by the author → `## Verify it worked` →
+`## Troubleshooting` → `## Next`
+
+The four fixed sections and their order are the contract; the task sections in
+between are yours.
+
+## Do this
+
+- **Copy the template file for your kind.** `content/_templates/<kind>.mdx`.
+- **Fill every section.** A section with one sentence under it is a signal that
+  either the page or the kind is wrong.
+- **Use `<Todo>` for a genuine gap.** It is counted in the build's coverage
+  report, which is the point: incompleteness is measured rather than hidden.
+- **Use the closed MDX vocabulary.** The tags listed in the component anatomy
+  are the only ones that exist; `assert-ia` fails the build on an unknown JSX
+  tag, and content authors never define one.
+- **Write relative links with the `.mdx` extension.**
+  `[Two colour axes](../../health/two-colour-axes.mdx)` — fumadocs'
+  `createRelativeLink` resolves them.
+
+## Not this
+
+- **Do not add a heading the outline does not have**, however good it is. If a
+  kind genuinely needs a new section, change the kind's outline in one place and
+  every page that uses it.
+- **Do not leave a required section empty** to satisfy the check. An empty
+  section is a worse answer than `<Todo>`, because `<Todo>` is counted.
+- **Do not use an absolute `/docs/...` link in MDX.** Banned everywhere except
+  the Sections rail in the root `meta.json`.
+- **Do not restate a canonical page.** [Plain-English
+  A–Z](../../content/plain-english-a-z.mdx) is canonical for plain language;
+  [Numbers, units and
+  precision](../../health/numbers-units-precision.mdx) is canonical for numeric
+  formatting. Link, do not repeat — `assert-ia` checks.
+- **Do not hand-write a generated section.** Tokens, contrast numbers, keyboard
+  tables, prop tables and the catalogue are produced by `pnpm run generate`.
+
+## Gotchas
+
+- **The H2 check is exact.** "Not this" and "What not to do" are not the same
+  heading, and the build says so.
+- **`kind` is not a category.** It selects an outline. A page about health that
+  is really a step-by-step is `kind: guide` living under `start/`, not
+  `kind: health` with the wrong headings.
+- **Status gating applies only to `kind: component`.** Every other kind renders
+  its full outline at every status.
+- **The templates are outside `content/docs/`** on purpose. Moving one inside
+  creates a route and a page with placeholder prose in the search index.
+- **The frontmatter schema and `source.config.ts` must agree.**
+  `content/_templates/frontmatter.schema.json` is the machine-readable form;
+  `source.config.ts` is what the build actually enforces.
+
+## Related
+
+- [Contributing](./index.mdx) — the routes in and what each has to clear.
+- [Anatomy of a component page](../../components/anatomy-of-a-component-page.mdx)
+  — the 22-section contract in full.
+- [Code style](./code-style.mdx) — the conventions that apply inside the
+  templates.
+- [Reading these docs](../../start/reading-these-docs.mdx) — the same contracts,
+  explained for a reader rather than a contributor.

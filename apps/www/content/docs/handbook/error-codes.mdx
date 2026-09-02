@@ -1,0 +1,113 @@
+---
+title: Error codes
+description: Every development-mode warning opsinjs will emit, its stable code, what causes it, and the page that prevents it happening again.
+status: planned
+kind: handbook
+aliases: [warning codes, dev warnings, OPSIN error, console warning, what does this warning mean]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="handbook" />
+
+## The short version
+
+<NotBuiltYet />
+
+Every development-mode warning opsinjs emits will carry a stable code and a link:
+
+```
+[opsinjs] OPSIN-0104: `status` and `category` both change the surface colour of
+this StatusPill. A colour may carry identity or status, never both.
+→ https://opsinjs.dev/docs/health/two-colour-axes
+```
+
+Three properties make this worth building rather than emitting a sentence:
+
+- **The code is stable across versions**, so a search finds the answer regardless
+  of which release produced it.
+- **Every code links to the page that explains the rule**, not to a stack trace.
+- **Warnings are development-only.** Nothing in this list ships to production,
+  and none of them throws.
+
+The complete table is generated from `tokens/errors.json` into
+[Reference](../reference/index.mdx) rather than maintained by hand here.
+
+## How it works
+
+Codes are grouped by the kind of mistake, which makes an unfamiliar one
+approximately interpretable before you look it up:
+
+| Range | Concerns |
+| --- | --- |
+| `OPSIN-01xx` | The two colour axes — mixing status and category |
+| `OPSIN-02xx` | Tokens — a raw value where a token was expected |
+| `OPSIN-03xx` | Composition — wrong nesting of compound parts |
+| `OPSIN-04xx` | Accessibility — a missing accessible name, a lost label |
+| `OPSIN-05xx` | Data honesty — a value rendered without its unit or its status |
+| `OPSIN-06xx` | Theming — a token overridden outside its tier |
+| `OPSIN-07xx` | Registry and version — a mismatched or stale copied file |
+
+A warning fires once per unique cause per session rather than once per render,
+so a list of two hundred rows produces one message rather than two hundred.
+
+<Todo>
+  The generated code table lands with `tokens/errors.json` and
+  `build-reference.mts`. Until then the ranges above are the specification and
+  no individual code should be treated as final.
+</Todo>
+
+## Do this
+
+- **Fix the cause, not the symptom.** Every code links to a page that explains
+  why the thing is a rule; the fix is usually one line and the reasoning is
+  usually worth two minutes.
+- **Treat `OPSIN-01xx` as an error even though it warns.** Mixing the axes is
+  the one category where the visible result looks fine and the meaning is wrong,
+  which is exactly the class of bug that survives review.
+- **Search by code, not by message text.** Messages get clearer between
+  versions; codes do not change.
+- **Turn warnings into failures in CI** if you want them enforced. They are
+  warnings so that they never break a reader's session, not because they are
+  optional.
+- **Report a warning that fires when it should not.** A false positive here
+  trains people to ignore the channel, which is the same alarm-fatigue failure
+  this system documents elsewhere.
+
+## Not this
+
+- **Do not suppress the console to silence these.** You will silence React's
+  warnings too, and those are the ones that catch hydration bugs.
+- **Do not ship a workaround for a warning you have not read.** Several of these
+  are about a claim being made to a reader about their health; the workaround
+  usually preserves the claim and hides the notice.
+- **Do not rely on them in production.** They are stripped. Anything you need at
+  runtime must be validated by your own code.
+- **Do not parse the message string.** Parse the code. The prose is not a
+  contract.
+
+## Gotchas
+
+- **A warning fires once per cause, not once per instance.** Fixing one of five
+  identical mistakes makes the message vanish and the other four persist.
+- **Development-only means bundler-dependent.** In an unusual build setup the
+  `NODE_ENV` guard may not be applied, and you may see codes in a production
+  bundle. That is a bundler configuration issue rather than a change in
+  behaviour.
+- **Server-rendered warnings appear in the server log**, not in the browser
+  console — which is why a warning can seem to fire "sometimes".
+- **Codes are stable but their ranges may gain members.** A new `OPSIN-01xx`
+  code is not a breaking change; a renumbered existing one would be.
+- **A warning about a copied file being out of date is not a bug in your
+  code.** You own the source; see
+  [Version stamps](../registry/version-stamps.mdx).
+
+## Related
+
+- [The two colour axes](../health/two-colour-axes.mdx) — the rule behind the
+  `OPSIN-01xx` range.
+- [ESLint plugin](./tooling/eslint-plugin.mdx) — catching the same mistakes
+  before they run.
+- [Reference](../reference/index.mdx) — the generated table of every code.
+- [Troubleshooting](../start/troubleshooting.mdx) — failures that are not
+  warnings, with their exact error text.

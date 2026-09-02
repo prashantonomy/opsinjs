@@ -1,0 +1,166 @@
+---
+title: Ask users for symptoms
+description: Free text with a structured assist, never a closed list — and the hard rule that collecting a symptom is not the same as assessing it.
+status: stable
+kind: pattern
+aliases: [symptom entry, describe your symptoms, symptom checker input, how are you feeling]
+implements: [field, log-sheet, disclaimer-note, care-card, term]
+reviewEvery: 6m
+reviewer: clinical
+owner: design-system
+---
+
+<PageTemplate kind="pattern" />
+
+## When to use
+
+Ask about symptoms when the reader has something to record and your product has
+somewhere honest to put it: a diary the reader reviews, a note that travels to a
+clinician, a check-in that tracks change over time.
+
+Before designing the field, be explicit about which of two very different things
+you are building:
+
+- **A record.** The reader describes what they are experiencing; the product
+  stores it, shows it back, and can include it in a summary. This is what this
+  page covers.
+- **An assessment.** The product takes symptoms and returns a conclusion, a
+  triage disposition or a likely cause. That is a clinical function, it is
+  regulated in most jurisdictions, and opsinjs does not support building it. See
+  [Is opsinjs right for this project?](../../start/is-opsinjs-right.mdx) and
+  [Regulatory context](../../health/regulatory-context.mdx).
+
+The distinction is not academic: a symptom field followed by an interpretation is
+a different product with different obligations, and the interface should not
+blur into one from the other by accident.
+
+## When not to use
+
+- **You will interpret the answer.** See above.
+- **The symptom is one you must act on immediately.** Chest pain, difficulty
+  breathing, sudden weakness, and a small set of others are not diary entries.
+  The surface for those is
+  [Emergency and escalation](../../health/emergency-and-escalation.mdx).
+- **The question touches self-harm.** Any item that could surface suicidal
+  ideation has a duty of care attached to it and its own sequence — see
+  [Crisis and self-harm](../../health/crisis-and-self-harm.mdx). Do not design
+  it as an ordinary form field.
+- **You are administering a validated instrument.** Its items and wording are
+  fixed. See [Question pages](../forms/question-pages.mdx).
+
+## How it works
+
+<FlowDiagram>
+{`flowchart TD
+  A["Reader wants to record how they feel"] --> B["Free-text field, first and largest"]
+  B --> C["Optional structured assists: common symptoms, body area, severity"]
+  C --> D{"Does the text or a selection match a red-flag rule?"}
+  D -->|"yes"| E["Show the escalation surface; do not diagnose, do not block the save"]
+  D -->|"no"| F["Save, with time and provenance"]
+  E --> F
+  F --> G["Show it back exactly as written, in the reader's own words"]`}
+</FlowDiagram>
+
+- **Free text comes first, and is the largest control on the screen.** People
+  describe symptoms in their own words, and their words carry information no
+  checklist captures: "it feels like a band round my chest" is not in anybody's
+  taxonomy.
+- **Structured input is an assist, not a gate.** Offer common symptoms, a body
+  area, a severity scale — as optional additions that make the entry easier to
+  search later, never as a required path.
+- **Never force a scale the reader does not understand.** A 0–10 severity scale
+  needs its anchors written out; without them, one reader's 7 is another's 3.
+  See [Risk and statistics](../../health/risk-and-statistics.mdx) for the
+  related problem with numbers the reader cannot calibrate.
+- **Duration and onset in relative terms.** "Since this morning", "about a
+  week", "on and off for months". Never a date picker as the primary control;
+  see [Date of birth](./date-of-birth.mdx) for why pickers are the wrong default.
+- **Red-flag routing is signposting, not assessment.** A rule that recognises
+  words describing a medical emergency and shows the reader where to get help is
+  responsible design. A rule that says "this may be angina" is not, and it is
+  the line this page will not cross.
+- **Never block or discard the entry.** Even when an escalation surface appears,
+  the reader's text is saved. Someone recording a frightening symptom must not
+  lose it to a modal.
+- **Show it back verbatim.** No summarising, no rewriting, no cleaning up. The
+  reader's own words are the record, and they are what a clinician wants to
+  read.
+- **Do not attach a clinical status to a symptom.** The status axis describes a
+  value against an expected range. A symptom has no range, and colouring it
+  implies an assessment. See
+  [The two colour axes](../../health/two-colour-axes.mdx).
+
+## Content
+
+<DoDont>
+  <DoDont.Do>
+    "What are you noticing? Describe it however you like — there's no wrong
+    way." A large text area, then optional chips for common symptoms.
+  </DoDont.Do>
+  <DoDont.Dont>
+    A required dropdown of thirty clinical terms with "Other" at the bottom, so
+    the reader has to translate their experience into a vocabulary they do not
+    have.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "Some of what you've described can be serious. If it's chest pain,
+    difficulty breathing, or sudden weakness, contact emergency services now.
+    We've saved your note either way."
+  </DoDont.Do>
+  <DoDont.Dont>
+    "Based on your symptoms, this may be a cardiac event." A conclusion the
+    product is not qualified to reach, from a free-text box.
+  </DoDont.Dont>
+</DoDont>
+
+Sensitive phrasing is owned by
+[Asking sensitive questions](../../content/asking-sensitive-questions.mdx).
+
+## Accessibility
+
+- **No autofill token exists.** `autocomplete="off"`, and `spellcheck` left on
+  for free text — this is prose, unlike a medication name.
+- **The text area has a visible label and no character limit that is not
+  announced.** A silent maximum that truncates a reader's description is a data
+  loss.
+- **Structured assists are checkboxes in a labelled `fieldset`**, not toggles
+  with icon-only labels. Body-area diagrams need an equivalent list — see
+  [Alt text and descriptions](../../content/alt-text-and-descriptions.mdx).
+- **A severity scale is a radio group with labelled anchors**, not a slider
+  alone. Sliders are difficult with switch access and imprecise with a screen
+  reader; if you offer one, offer the radio group too. See
+  [Target size and motor](../../accessibility/target-size-and-motor.mdx).
+- **An escalation surface appearing is announced assertively** — this is one of
+  the few justified uses of an assertive live region (WCAG 2.2 SC 4.1.3) — and
+  it does not trap focus or prevent saving.
+- **Voice input must work**, which means the text area is a plain text control
+  with no input masking or reformatting.
+- **Nothing is auto-saved over.** A draft symptom note is restored, not
+  replaced.
+
+## Research
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  The free-text-first recommendation is a design opinion. The argument is that
+  the value of a symptom record is largely in the reader's own phrasing, and
+  that a closed taxonomy discards it in exchange for tidier data that nobody in
+  the loop actually needs — the clinician reading a summary wants the sentence.
+
+  The line between signposting and assessment is the important content here, and
+  it is a policy position rather than a finding: this design system supports
+  recording symptoms and showing the reader where to get help, and does not
+  support returning a conclusion. Products that do the latter are regulated
+  differently and should not be built on documentation that does not say so.
+
+  What would change our mind on free text: evidence that structured symptom
+  capture materially improves the usefulness of a record to the clinician
+  receiving it — which would argue for a stronger assist, not for removing the
+  text area.
+</ResearchNote>
+
+## Updates to this page
+
+<Reviewed />

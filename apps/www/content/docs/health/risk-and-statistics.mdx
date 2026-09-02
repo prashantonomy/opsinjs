@@ -1,0 +1,180 @@
+---
+title: Risk and statistics
+description: Absolute risk over relative risk, natural frequencies over percentages, and never a probability without the population it came from and the time window it covers.
+status: stable
+kind: health
+evidence: opinion
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 12m
+owner: design-system
+implements: [score-dial, result-card, care-card, value, disclaimer-note]
+aliases: [absolute risk, relative risk, natural frequencies, probability, odds, percentage]
+---
+
+<PageTemplate kind="health" />
+
+## What this means
+
+"This raises your risk by 50%."
+
+That sentence is the most misleading construction in health communication, and it
+is almost always literally true. It is a relative risk: it describes the ratio
+between two probabilities and says nothing at all about their size. If the
+underlying risk was 2 in 10,000, the sentence describes a change to 3 in 10,000 —
+one additional person in ten thousand. If the underlying risk was 40 in 100, it
+describes something entirely different. The reader cannot tell which, and the
+number that sounds most alarming is the one that carries the least information.
+
+Percentages have a second problem specific to a lay reader. A percentage is a
+normalised ratio, and normalisation is the operation people find hardest. "10%
+of people" is understood far less reliably than "1 in every 10 people", and
+comparisons between percentages with different denominators — a 10% chance of one
+thing against a 5% chance of another that is ten times worse — collapse quickly.
+
+Health interfaces show probabilities constantly: risk scores, likelihoods,
+confidence figures, "people like you" comparisons. Almost all of them are shown
+in the format that reads worst.
+
+## The rule
+
+**Express risk as an absolute frequency, with a stated population, over a stated
+time window, alongside the baseline it is being compared to.**
+
+1. **Absolute, never relative alone.** If a relative figure is given at all, the
+   absolute figures on both sides are given with it and are more prominent.
+2. **Natural frequencies over percentages.** "About 3 in every 100 people" rather
+   than "3%". Keep the denominator constant across every figure in a comparison —
+   changing denominators is where lay comparison fails.
+3. **Always state the population.** "3 in every 100 people of your age with a
+   similar reading" is a different claim from "3 in every 100 people", and the
+   reader is entitled to know which one is being made about them.
+4. **Always state the time window.** A risk with no window is not a number. "In
+   the next 10 years" is part of the figure, not context around it.
+5. **Give the baseline.** A risk figure alone is uninterpretable; the reader
+   needs the comparison the number is implicitly making.
+6. **Never present both sides of a frequency as if only one existed.** If 3 in
+   100 experience something, 97 in 100 do not, and saying so is not spin — it is
+   the other half of the same fact.
+7. **Never use a bare percentage as a headline.** Not in a tile, not in a
+   notification, not as a dial value with no explanation.
+8. **Do not visualise small probabilities as areas or angles.** A pie slice at 3%
+   is unreadable and an arc at 3% looks like an error. Use a countable
+   representation — an array of 100 marks — or use words.
+9. **Never imply personal certainty from a population figure.** A risk score is a
+   statement about a group the reader resembles, not a prediction about the
+   reader.
+10. **A model's confidence is not the reader's risk.** If a figure is a model
+    output, say what the model is and how well it is known to perform. See
+    [Data provenance and device accuracy](./data-provenance-and-device-accuracy.mdx).
+
+## Why (evidence)
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  We mark this page `opinion`, and the reason is worth being precise about.
+
+  The substance of rules 1, 2 and 6 is not original to us. There is a substantial
+  and long-established literature on risk communication — most closely associated
+  with work on natural frequencies and on the distinction between absolute and
+  relative risk, and reflected in the editorial policies of several major medical
+  journals, which require absolute figures alongside relative ones. Guidance
+  bodies producing patient-facing material have followed the same line for years.
+
+  We name the school of thought rather than a specific paper deliberately. This
+  documentation's rule is that a citation must be a source we have read and can
+  point you at, not a reference reconstructed from memory, and a fabricated or
+  mis-attributed citation on a page about honest numbers would be an unusually
+  poor joke. If you need the primary sources, search for "natural frequencies
+  risk communication" and "absolute versus relative risk reporting" and you will
+  find the canonical material immediately.
+
+  Rules 3, 4, 5, 7 and 8 are our design judgement about how the literature's
+  conclusions should constrain a component. Rule 8 in particular is a graphical
+  claim we have not tested: small angular and areal encodings are known to be
+  read poorly in general, and we extend that to risk visualisation on judgement.
+
+  What would change our mind: nothing about absolute-over-relative. Rule 2's
+  preference for frequencies over percentages is worth revisiting for numerate
+  readers, and a product that knows its audience might reasonably offer both.
+</ResearchNote>
+
+<Todo>Replace the described literature above with specific, read, dated citations
+on [Evidence and references](./evidence-and-references.mdx), and change this page
+to `evidence: mixed` when that is done.</Todo>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    "About 4 in every 100 people with a similar reading have this happen in the
+    next 10 years. For people with a reading in the usual range it is about 2 in
+    every 100."
+  </DoDont.Do>
+  <DoDont.Dont>
+    "Your risk is doubled." True, uninterpretable, and frightening in proportion
+    to nothing.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "About 3 in every 100 — which means about 97 in every 100 do not." Both
+    halves, same denominator.
+  </DoDont.Do>
+  <DoDont.Dont>
+    "3% chance" as a headline number on a tile, with the explanation behind a
+    disclosure triangle nobody opens.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Show a grid of 100 marks with 3 highlighted, with a text summary that says
+    the same thing for anyone who cannot see the grid.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Show a donut chart with a 3% arc. It reads as a rendering bug, and it fails
+    entirely for a screen reader without the text twin.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "This score is based on readings from people of a similar age and sex. It
+    describes a group, not you."
+  </DoDont.Do>
+  <DoDont.Dont>
+    "Your heart age is 62." A single fabricated-feeling number, personalised in
+    grammar and statistical in substance, with no window and no population.
+  </DoDont.Dont>
+</DoDont>
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+`ScoreDial` is the component most at risk of violating this page, because a dial
+is an inherently confident-looking object. Its specification therefore requires
+that the band is named in words, that the derivation is disclosed on the same
+surface, and that no dial may render a bare percentage as its primary value.
+
+## What this does not cover
+
+- **Calculating risk.** opsinjs ships no risk models and no scores. If your
+  product computes one, its validity, its population and its performance are
+  yours to establish and to disclose.
+- **Whether a risk figure should be shown at all**, which is a clinical and
+  ethical decision — see [Delivering difficult results](./delivering-difficult-results.mdx).
+- **Genetic and hereditary risk**, which carries family-disclosure implications
+  well beyond this system.
+- **Screening statistics** — sensitivity, specificity and the positive predictive
+  value problem — which deserve their own page and do not have one yet.
+- **Chart construction**, which is
+  [Data visualisation](../foundations/data-visualisation/index.mdx).
+
+<Todo>Write the screening-statistics page: why a positive result on a good test
+for a rare condition is usually a false positive, and how to say so.</Todo>
+
+## Updates to this page
+
+<Reviewed />

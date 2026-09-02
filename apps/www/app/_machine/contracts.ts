@@ -1,0 +1,497 @@
+/**
+ * app/_machine/contracts.ts — the single seam between the machine-route layer
+ * (`app/r/**`, `app/api/**`, the `llms-*` family, `/og`, `/rss.xml`) and the
+ * modules other workers own (`lib/catalogue.ts`, `lib/registry.ts`,
+ * `lib/color/*`).
+ *
+ * WHY THIS FILE EXISTS
+ * The seventeen route handlers below it are written in the same parallel phase
+ * as `lib/`. If each of them imported `{ getCatalogue }` directly and that
+ * export turned out to be spelled `catalogue`, seventeen files would fail
+ * typecheck at once and the scaffold's one hard constraint — a green build —
+ * would be lost to a naming coin-flip. So every borrowed symbol is resolved
+ * HERE, once, through a namespace import plus a runtime lookup across the
+ * plausible spellings. A namespace import type-checks whatever the module
+ * actually exports; the lookup either finds the function or reports, in the
+ * response body, that it could not. A machine surface that answers
+ * `{"error":"catalogue-unavailable"}` is strictly better than one that fails
+ * to compile, and strictly better than one that silently serves an empty list.
+ *
+ * WHEN `lib/` IS FROZEN: replace each `resolve*` body with a direct import.
+ * The routes never change — they only ever see the shapes declared here.
+ *
+ * NOTE ON DOCUMENTATION PATHS: nothing in this file constructs one. Page URLs
+ * come from fumadocs (`page.url`, built from the `baseUrl` that
+ * `lib/source.ts` reads from `lib/routes.ts`); this module only ever prefixes
+ * an origin onto a path it was handed. That is why the documentation prefix
+ * never appears here as a literal, and why `absoluteUrl` is not a second route
+ * builder. The same holds for every file under `app/_machine` and every route
+ * that imports them.
+ */
+
+import * as catalogueModule from "@/lib/catalogue"
+import * as registryModule from "@/lib/registry"
+import * as apcaModule from "@/lib/color/apca"
+import * as wcagModule from "@/lib/color/wcag"
+import pkg from "@/package.json"
+
+/* ------------------------------------------------------------------ *
+ * Site identity
+ * ------------------------------------------------------------------ */
+
+/**
+ * Canonical origin, no trailing slash. Matches the `@opsinjs` registry entry
+ * already written into `components.json`
+ * (`https://opsinjs.dev/r/{name}.json`), so the registry URL an agent reads
+ * out of a consuming project and the URL this app serves cannot drift.
+ *
+ * Overridable for preview deployments. Every route below is statically
+ * rendered, so this is baked at build time — set it in the build environment,
+ * not at request time.
+ */
+/**
+ * NOTE FOR THE SEQUENTIAL FINISH: `app/_shared/site.ts` (the human-facing
+ * routes) declares the same origin, name and repository URL, resolved from the
+ * same environment variable and with the same fallback. The two were written
+ * in parallel and agree exactly. They should be collapsed into one module —
+ * this one imports from that one — once both file sets are settled. They are
+ * kept separate here only so that neither worker's build depends on the
+ * other's file landing first.
+ */
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://opsinjs.dev"
+).replace(/\/+$/, "")
+
+/** Prefix the canonical origin onto a root-relative path. */
+export function absoluteUrl(path: string): string {
+  if (/^https?:\/\//.test(path)) return path
+  return `${SITE_URL}${path.startsWith("/") ? path : `/${path}`}`
+}
+
+export const SITE_NAME = "opsinjs"
+
+export const SITE_TAGLINE =
+  "A React design system for consumer- and patient-facing health apps."
+
+/**
+ * The one paragraph every machine surface opens with. It has to do two jobs at
+ * once: say what the system is for, and say — before anything else is read —
+ * that none of it is built, so a model does not answer a question about a
+ * component by inventing its API.
+ */
+export const SITE_SUMMARY = [
+  "opsinjs is a design system for screens where somebody who is not a clinician",
+  "reads their own health data — a blood-pressure reading, an HbA1c result, a",
+  "symptom log — and has to decide what, if anything, to do about it.",
+  "",
+  "NOTHING IN THIS SYSTEM IS IMPLEMENTED YET. Every component page is a",
+  "specification: intent, when not to use it (naming the alternative), the",
+  "clinical contract, the proposed anatomy and API, and the accessibility bar",
+  "the implementation must clear. Pages carry a machine-readable status. Do not",
+  "generate code against a proposed API and do not describe a component as",
+  "shipping. The tokens, the doctrine (health, accessibility, content,",
+  "foundations) and the measured contrast figures are real today; the React",
+  "components are not.",
+].join("\n")
+
+export const GITHUB_OWNER = "opsinjs"
+export const GITHUB_REPO = "opsinjs"
+export const GITHUB_URL = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}`
+export const GITHUB_NEW_ISSUE_URL = `${GITHUB_URL}/issues/new`
+
+/* ------------------------------------------------------------------ *
+ * Registry identity
+ * ------------------------------------------------------------------ */
+
+/** The namespace a consuming project puts in its `components.json`. */
+export const REGISTRY_NAMESPACE = "@opsinjs"
+
+/** The `{name}` template that namespace resolves to. */
+export const REGISTRY_URL_TEMPLATE = absoluteUrl("/r/{name}.json")
+
+export const REGISTRY_SCHEMA_URL = "https://ui.shadcn.com/schema/registry.json"
+export const REGISTRY_ITEM_SCHEMA_URL =
+  "https://ui.shadcn.com/schema/registry-item.json"
+
+/**
+ * The base × style matrix (locked decision 6). `base` is behaviour authored
+ * per primitive library; `style` is only a stylesheet. Docs pages have exactly
+ * one un-namespaced URL; the matrix is addressable on the machine surfaces
+ * (`/r/styles/[style]/[name]`) and the chrome-less preview routes.
+ */
+export const DEFAULT_BASE = "base"
+export const DEFAULT_STYLE = "base-lyra"
+export const KNOWN_BASES = ["base"] as const
+export const KNOWN_STYLES = ["base-lyra"] as const
+
+/* ------------------------------------------------------------------ *
+ * Version stamp
+ * ------------------------------------------------------------------ */
+
+/** Version of the docs app that produced this payload. */
+export const DOCS_VERSION: string =
+  typeof pkg.version === "string" ? pkg.version : "0.0.0"
+
+/**
+ * Build-time stamp. These routes are `force-static`, so this is the moment the
+ * corpus was compiled, not the moment it was requested — which is exactly the
+ * property an offline bundle needs.
+ */
+export const GENERATED_AT = new Date().toISOString()
+
+/** Every machine payload carries the same provenance block. */
+export function provenance(): {
+  generator: string
+  docsVersion: string
+  generatedAt: string
+  site: string
+  implemented: false
+  notice: string
+} {
+  return {
+    generator: `${SITE_NAME}-docs`,
+    docsVersion: DOCS_VERSION,
+    generatedAt: GENERATED_AT,
+    site: SITE_URL,
+    implemented: false,
+    notice:
+      "No opsinjs component is implemented yet. Every entry is a specification. Do not generate code against a proposed API.",
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Borrowed symbol resolution
+ * ------------------------------------------------------------------ */
+
+function bag(mod: unknown): Record<string, unknown> {
+  return (mod ?? {}) as Record<string, unknown>
+}
+
+function pick(mod: unknown, names: readonly string[]): unknown {
+  const source = bag(mod)
+  for (const name of names) {
+    const value = source[name]
+    if (value !== undefined && value !== null) return value
+  }
+  const fallback = source.default
+  if (fallback !== undefined && fallback !== null) return fallback
+  return undefined
+}
+
+function callable(value: unknown): ((...args: unknown[]) => unknown) | null {
+  return typeof value === "function"
+    ? (value as (...args: unknown[]) => unknown)
+    : null
+}
+
+/* ------------------------------------------------------------------ *
+ * The catalogue
+ * ------------------------------------------------------------------ */
+
+/**
+ * The row shape the machine routes need. `registry/catalogue.ts` is the source
+ * of truth (addendum A13: it owns the entire alias namespace); this is the
+ * subset the registry and index surfaces publish. Anything the upstream row
+ * carries that is not listed here is passed through untouched under `extra`.
+ */
+export interface CatalogueRow {
+  /** kebab-case id — the registry item name and the docs path segment. */
+  name: string
+  /** PascalCase display name. Derived from `name` when absent. */
+  title: string
+  description: string
+  /** e.g. `health-data-display`, `surfaces`, `feedback`. */
+  category: string
+  status: string
+  /** `true` only for the 24 ids with a hand-written specification page. */
+  shipped: boolean
+  since?: string
+  owner?: string
+  a11yDate?: string
+  aliases: string[]
+  governedBy: string[]
+  usedIn: string[]
+  extra: Record<string, unknown>
+}
+
+function toStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return value.filter((item): item is string => typeof item === "string")
+}
+
+function pascalise(id: string): string {
+  return id
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("")
+}
+
+const KNOWN_ROW_KEYS = new Set([
+  "name",
+  "id",
+  "title",
+  "description",
+  "category",
+  "status",
+  "shipped",
+  "since",
+  "owner",
+  "a11yDate",
+  "aliases",
+  "governedBy",
+  "usedIn",
+])
+
+function normaliseRow(input: unknown): CatalogueRow | null {
+  if (typeof input !== "object" || input === null) return null
+  const row = input as Record<string, unknown>
+  const name = typeof row.name === "string" ? row.name : row.id
+  if (typeof name !== "string" || name.length === 0) return null
+
+  const status = typeof row.status === "string" ? row.status : "planned"
+  const extra: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(row)) {
+    if (!KNOWN_ROW_KEYS.has(key)) extra[key] = value
+  }
+
+  return {
+    name,
+    title: typeof row.title === "string" ? row.title : pascalise(name),
+    description:
+      typeof row.description === "string"
+        ? row.description
+        : "No description in the catalogue yet.",
+    category: typeof row.category === "string" ? row.category : "uncategorised",
+    status,
+    shipped:
+      typeof row.shipped === "boolean" ? row.shipped : status !== "considered",
+    since: typeof row.since === "string" ? row.since : undefined,
+    owner: typeof row.owner === "string" ? row.owner : undefined,
+    a11yDate: typeof row.a11yDate === "string" ? row.a11yDate : undefined,
+    aliases: toStringArray(row.aliases),
+    governedBy: toStringArray(row.governedBy),
+    usedIn: toStringArray(row.usedIn),
+    extra,
+  }
+}
+
+export interface CatalogueResult {
+  rows: CatalogueRow[]
+  /** Non-empty when the catalogue could not be read, or rows were dropped. */
+  diagnostics: string[]
+}
+
+let catalogueCache: CatalogueResult | null = null
+
+/**
+ * Read `lib/catalogue.ts` and normalise it. Never throws: a machine surface
+ * must answer, and an answer that names its own failure is more useful to an
+ * agent than a 500.
+ */
+export function getCatalogue(): CatalogueResult {
+  if (catalogueCache) return catalogueCache
+
+  const diagnostics: string[] = []
+  const candidate = pick(catalogueModule, [
+    "getCatalogue",
+    "catalogue",
+    "getCatalogueEntries",
+    "entries",
+    "all",
+  ])
+
+  let raw: unknown = candidate
+  const fn = callable(candidate)
+  if (fn) {
+    try {
+      raw = fn()
+    } catch (error) {
+      diagnostics.push(
+        `lib/catalogue.ts threw while reading the catalogue: ${String(error)}`
+      )
+      raw = []
+    }
+  }
+
+  if (!Array.isArray(raw)) {
+    // Tolerate a keyed map as well as an array.
+    if (typeof raw === "object" && raw !== null) {
+      raw = Object.values(raw as Record<string, unknown>)
+    } else {
+      diagnostics.push(
+        "lib/catalogue.ts exposed no readable catalogue (expected getCatalogue() or a catalogue array). Serving an empty roster."
+      )
+      raw = []
+    }
+  }
+
+  const rows: CatalogueRow[] = []
+  let dropped = 0
+  for (const item of raw as unknown[]) {
+    const row = normaliseRow(item)
+    if (row) rows.push(row)
+    else dropped += 1
+  }
+  if (dropped > 0) {
+    diagnostics.push(
+      `${dropped} catalogue row(s) had no usable \`name\` and were omitted.`
+    )
+  }
+
+  rows.sort((a, b) => a.name.localeCompare(b.name))
+  catalogueCache = { rows, diagnostics }
+  return catalogueCache
+}
+
+export function findCatalogueRow(name: string): CatalogueRow | undefined {
+  const wanted = name.toLowerCase()
+  return getCatalogue().rows.find(
+    (row) =>
+      row.name.toLowerCase() === wanted ||
+      row.aliases.some((alias) => alias.toLowerCase() === wanted)
+  )
+}
+
+/** Cheap edit-distance-free suggestion list for an unknown item name. */
+export function suggestNames(name: string, limit = 5): string[] {
+  const needle = name.toLowerCase().replace(/[^a-z0-9]/g, "")
+  if (needle.length === 0) return []
+  const scored = getCatalogue()
+    .rows.map((row) => {
+      const haystack = row.name.replace(/[^a-z0-9]/g, "")
+      let score = 0
+      if (haystack.includes(needle) || needle.includes(haystack)) score += 10
+      for (const alias of row.aliases) {
+        if (alias.toLowerCase().includes(name.toLowerCase())) score += 5
+      }
+      const shared = [...new Set(needle)].filter((ch) =>
+        haystack.includes(ch)
+      ).length
+      score += shared / 10
+      return { name: row.name, score }
+    })
+    .filter((item) => item.score > 0.4)
+    .sort((a, b) => b.score - a.score)
+  return scored.slice(0, limit).map((item) => item.name)
+}
+
+/* ------------------------------------------------------------------ *
+ * The built-artefact index
+ * ------------------------------------------------------------------ */
+
+export interface RegistrySourceFile {
+  path: string
+  type: string
+  target?: string
+}
+
+/**
+ * `lib/registry.ts` — `getRegistryEntry(name, base, style)` over
+ * `registry/__index__.ts`, which returns null while nothing is built. Today
+ * that is every call; the branch exists so the routes do not have to change
+ * when the first component lands.
+ */
+export function getBuiltFiles(
+  name: string,
+  base: string,
+  style: string
+): RegistrySourceFile[] {
+  const fn = callable(
+    pick(registryModule, ["getRegistryEntry", "getEntry", "resolve"])
+  )
+  if (!fn) return []
+  let entry: unknown
+  try {
+    entry = fn(name, base, style)
+  } catch {
+    return []
+  }
+  if (typeof entry !== "object" || entry === null) return []
+  const files = (entry as Record<string, unknown>).files
+  if (!Array.isArray(files)) return []
+  const result: RegistrySourceFile[] = []
+  for (const file of files) {
+    if (typeof file !== "object" || file === null) continue
+    const record = file as Record<string, unknown>
+    if (typeof record.path !== "string") continue
+    result.push({
+      path: record.path,
+      type: typeof record.type === "string" ? record.type : "registry:ui",
+      target: typeof record.target === "string" ? record.target : undefined,
+    })
+  }
+  return result
+}
+
+/* ------------------------------------------------------------------ *
+ * Colour maths
+ * ------------------------------------------------------------------ */
+
+/**
+ * `lib/color/apca.ts` — APCA-W3 lightness contrast. Signed: negative Lc means
+ * light text on a dark background. `/api/contrast` reports both the signed
+ * value and its magnitude, because the sign is the polarity and the magnitude
+ * is what a threshold is compared against.
+ */
+export function resolveApca(): ((fg: string, bg: string) => number) | null {
+  const fn = callable(
+    pick(apcaModule, ["apca", "apcaContrast", "contrast", "lc", "apcaLc"])
+  )
+  if (!fn) return null
+  return (fg, bg) => Number(fn(fg, bg))
+}
+
+/** `lib/color/wcag.ts` — WCAG 2.2 relative-luminance ratio, 1–21. */
+export function resolveWcag(): ((fg: string, bg: string) => number) | null {
+  const fn = callable(
+    pick(wcagModule, [
+      "contrastRatio",
+      "wcagContrast",
+      "contrast",
+      "ratio",
+      "wcag",
+    ])
+  )
+  if (!fn) return null
+  return (fg, bg) => Number(fn(fg, bg))
+}
+
+/* ------------------------------------------------------------------ *
+ * Response helpers
+ * ------------------------------------------------------------------ */
+
+/** Long-lived cache for build-time-stable machine payloads. */
+export const STATIC_CACHE_CONTROL =
+  "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400"
+
+export function json(
+  body: unknown,
+  init: { status?: number; headers?: Record<string, string> } = {}
+): Response {
+  return new Response(`${JSON.stringify(body, null, 2)}\n`, {
+    status: init.status ?? 200,
+    headers: {
+      "content-type": "application/json; charset=utf-8",
+      "cache-control": STATIC_CACHE_CONTROL,
+      "x-opsinjs-docs-version": DOCS_VERSION,
+      "x-opsinjs-implemented": "false",
+      ...init.headers,
+    },
+  })
+}
+
+export function text(
+  body: string,
+  init: { status?: number; contentType?: string } = {}
+): Response {
+  return new Response(body, {
+    status: init.status ?? 200,
+    headers: {
+      "content-type": init.contentType ?? "text/plain; charset=utf-8",
+      "cache-control": STATIC_CACHE_CONTROL,
+      "x-opsinjs-docs-version": DOCS_VERSION,
+      "x-opsinjs-implemented": "false",
+    },
+  })
+}

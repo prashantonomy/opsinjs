@@ -1,0 +1,157 @@
+---
+title: Sound and haptics
+description: Whether urgency may be carried by a buzz or a chime, the three-pattern haptic vocabulary, and why opsinjs specifies both channels but ships neither.
+status: planned
+kind: foundation
+aliases: [haptics, vibration, taptic, audio alert, chime]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+An iOS-idiom consumer health app has three alert channels available to it —
+visual, audible and tactile — and the last two are the ones designers reach for
+when the first one has stopped working. That is exactly the wrong reason to reach
+for them, and it is how alarm fatigue is manufactured: the visual escalation
+became noise, so a buzz was added, and now the buzz is noise too and there is
+nothing left.
+
+This page exists because opsinjs states flatly that
+[urgency must never be conveyed by motion](../health/motion-in-health-ui.mdx),
+and a rule about motion that says nothing about the other two non-textual
+channels invites the obvious workaround. So: the same rule applies, for the same
+reason, with one addition specific to these channels — they are the only ones the
+reader can be *absent* for.
+
+<StubNotice />
+
+opsinjs ships no sound and no haptic implementation. On the web this is partly a
+platform fact and partly a decision; both are set out under *How it works*. What
+this page provides now is the contract any implementation must satisfy, and the
+prohibitions that apply whether or not the implementation is ours.
+
+## How it works
+
+**The channel rule: reinforce, never carry.** Sound and haptics may add emphasis
+to something that is already fully expressed visually and textually. They may
+never be the only expression of anything. The reason is not accessibility
+pedantry, it is arithmetic: a phone can be on silent, face down, in a bag, in
+another room, in a cinema, or held by somebody who cannot feel or hear it. A
+channel with that failure rate cannot be load-bearing for a health message.
+
+**The haptic vocabulary is three patterns and no more.**
+
+| Pattern | Fires when | Never fires for |
+| --- | --- | --- |
+| `acknowledge` | A user-initiated action committed — a reading saved, a consent given | Anything the user did not initiate |
+| `warn` | A user-initiated action produced a result the product has decided needs attention | A value merely arriving or updating |
+| `reject` | A user-initiated action was refused — a validation failure, an impossible entry | A slow network, a retryable error |
+
+Three is not a starting point to be extended. A per-feature haptic vocabulary is
+unlearnable, and an unlearnable tactile signal is just a buzz.
+
+**No sound by default, at any level.** A consumer health app that makes noise on
+its own has sent a notification, and notifications are governed by
+[Notifications and off-screen alerts](../health/notifications-and-off-screen-alerts.mdx),
+not by this page. In-app sound is opt-in, per-product, and never the difference
+between a message being received and missed.
+
+**The escalation budget is shared, not additive.** Haptics draw from the *same*
+per-screen and per-session escalation budget as visual alerts, described on
+[Alarm fatigue](../health/alarm-fatigue.mdx). Adding a buzz to a screen that has
+already spent its budget does not buy attention; it spends the same budget twice.
+The `warn` pattern is subject to the same at-most-one rule as an urgent surface.
+
+**Why nothing is shipped.** The Web Vibration API is not implemented in Safari on
+iOS, which is the primary platform for the products opsinjs is built for, and
+there is no web API for the richer tactile vocabulary the platform itself uses.
+So a web-only haptic implementation would work on some devices and silently do
+nothing on the ones that matter most — the worst possible shape for a signal
+whose whole justification is redundancy. The contract is published here so a
+product wrapping opsinjs in a native shell implements the same three patterns
+rather than inventing four.
+
+## Using it
+
+**Ask what happens when it does not fire.** This is the whole test. If the answer
+is "the reader misses something", the design is wrong, not the channel. Rewrite
+until the answer is "the reader gets the same information a moment later, by
+looking".
+
+<DoDont>
+  <DoDont.Do>
+    A single `acknowledge` tap when a blood-pressure reading is saved, alongside
+    the visible confirmation and the entry appearing in the log. Somebody with
+    the phone on silent loses nothing.
+  </DoDont.Do>
+  <DoDont.Dont>
+    A repeating buzz when a reading crosses a threshold, with no corresponding
+    change on screen until the reader opens the app. Whoever has haptics
+    disabled, or is asleep, or left the phone charging, is told nothing — and
+    whoever does feel it has no way to know what it was about.
+  </DoDont.Dont>
+</DoDont>
+
+**One haptic per action, and only for actions.** Never on scroll, never on a
+value updating, never on a screen appearing, never repeated. A haptic that fires
+without a preceding user action is a notification with no text.
+
+**Let people turn it off inside the product.** Relying on the operating-system
+setting alone is not enough: someone may want system haptics and not want them
+from a health app that reminds them of a diagnosis every time it taps. The
+preference is per-product and it is honoured immediately.
+
+**Never use `warn` to carry a threshold crossing the reader has not seen.** That
+is an escalation decision, and escalation belongs to
+[Emergency and escalation](../health/emergency-and-escalation.mdx) and the
+product's clinical governance, not to a tactile pattern.
+
+## Tokens
+
+The three patterns are the tokens: named, ordinal, and mapped by an implementation
+to whatever the host platform provides. There are no durations or intensities in
+`tokens/`, deliberately — a millisecond figure would be meaningless across the
+platforms this has to run on, and publishing one would imply an implementation
+that does not exist.
+
+<NotBuiltYet />
+
+## Accessibility impact
+
+This is the foundation with the widest spread between "helps enormously" and
+"harms actively", and both directions are real.
+
+- **For some readers this is the primary channel.** A deafblind reader may
+  receive a tactile signal and nothing else. That is an argument for implementing
+  haptics well, and it is *not* an argument for making them exclusive — the same
+  reader must also be able to read the message.
+- **For some readers it is harmful.** Vibration can be distressing for people
+  with sensory processing differences, can be genuinely painful with some pain
+  conditions, and can trigger a startle response. A per-product off switch is
+  therefore a requirement, not a courtesy.
+- **`prefers-reduced-motion` does not cover this.** There is no media query for
+  tactile output, and reduced-motion is about vestibular effects rather than
+  touch. Do not infer one preference from the other; ask.
+- **Audio needs a text equivalent, always.** Any sound that carries meaning has
+  the same meaning available as text on screen at the same moment. A chime with
+  no visible counterpart is inaccessible to every deaf reader and to every reader
+  whose phone is on silent, which is most of them.
+- **Neither channel may be the only signal for a status change.** The colour,
+  the icon and the word rule from [Principles](principles.mdx) applies unchanged;
+  sound and haptics are a fourth and fifth channel on top, never a substitute for
+  any of the three.
+
+The conformance position and the testing route are on
+[Cognitive accessibility](../accessibility/cognitive-accessibility.mdx) and
+[For testing](../accessibility/for-testing.mdx).
+
+## Related
+
+- [Alarm fatigue](../health/alarm-fatigue.mdx) — the shared escalation budget
+  these channels draw from, and the at-most-one rule.
+- [Motion in health UI](../health/motion-in-health-ui.mdx) — the sibling rule for
+  the third non-textual channel, and the reason this page exists.
+- [Notifications and off-screen alerts](../health/notifications-and-off-screen-alerts.mdx)
+  — what happens when the reader is not looking at the app at all.

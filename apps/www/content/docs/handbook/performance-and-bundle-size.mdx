@@ -1,0 +1,123 @@
+---
+title: Performance and bundle size
+description: What each component will cost, the composited-surface budget that matters more than kilobytes, and how to measure both rather than argue about them.
+status: planned
+kind: handbook
+aliases: [bundle size, performance budget, tree shaking, composited surfaces, measuring cost]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="handbook" />
+
+## The short version
+
+<NotBuiltYet />
+
+Two budgets, and the second one is the one that will actually bite you.
+
+**Bundle size.** You copy source into your repository, so you ship only what you
+import — there is no barrel and no runtime you cannot see. Each component page
+will carry a `BundleSize` block with its gzipped size, its dependency tail, and
+whether it forces a client boundary. Those numbers are measured in CI, never
+typed.
+
+**Composited surfaces.** opsinjs uses translucent, blurred materials, and
+`backdrop-filter` is expensive in a way that JavaScript is not. The published
+budget is **at most three overlapping composited surfaces on screen at once**,
+and exceeding it drops frames on mid-range phones while every bundle metric
+stays green. See [Performance
+budget](../foundations/materials/performance-budget.mdx).
+
+<NoDataYet script="scripts/build-registry.mts" />
+
+## How it works
+
+### Where the weight is
+
+For a component library of this shape the cost is usually not the component. It
+is, roughly in order:
+
+1. **The client boundary.** One `"use client"` in the wrong place ships an
+   entire subtree to the browser. See [Server and client
+   components](./server-and-client-components.mdx).
+2. **The dependency tail.** A component that pulls in a date library, a charting
+   library or an icon barrel costs many times its own source.
+3. **Fonts.** Usually larger than every component on the page combined.
+4. **The component's own source**, which for most of these is a few kilobytes.
+
+### Where the frames are
+
+Rendering cost concentrates in a small number of places:
+
+- **`backdrop-filter`** on overlapping surfaces. This is the budget above.
+- **Animating a blurred surface**, which forces re-composition every frame.
+- **Long lists of live values**, where each tile subscribes independently.
+- **Charts re-rendering on every data tick** rather than on a throttled
+  schedule.
+
+### Measuring
+
+Measure the client bundle for the route, not the component in isolation — a
+component's marginal cost depends on what is already there. Measure frames on a
+mid-range device with a real backdrop behind the material, not on a development
+machine with a plain background.
+
+## Do this
+
+- **Import specific modules, not barrels.** `import { ResultCard } from
+  "@/components/ui/result-card"`, not from an index that re-exports everything.
+- **Keep `"use client"` on the leaf.** This is the single highest-leverage
+  change available.
+- **Count composited surfaces on your busiest screen.** Three is the budget; a
+  sheet over a card over a translucent header is already at it.
+- **Use `content-visibility: auto` for long off-screen lists** rather than
+  virtualising by hand, where the layout allows.
+- **Measure before and after**, on the same route, and record the number in the
+  pull request. An argument about performance without two numbers is an argument
+  about taste.
+- **Budget the fonts.** One family, the weights you use, subset and preloaded.
+
+## Not this
+
+- **Do not lazy-load a component that is above the fold.** You have traded a
+  small bundle for a visible layout shift and a spinner.
+- **Do not memoise everything.** `useMemo` on a cheap computation costs more
+  than it saves and makes the dependency array a new source of bugs.
+- **Do not stack materials to create depth.** Depth comes from the ladder's
+  rungs, which are designed to be readable without overlapping; see
+  [Choosing a layer](../foundations/materials/choosing-a-layer.mdx).
+- **Do not animate `width`, `height`, `top` or `margin`.** Transform and opacity
+  composite; layout properties do not. See [Motion in
+  practice](./motion-in-practice.mdx).
+- **Do not quote a bundle number you did not measure.** Every figure on this
+  site is generated for exactly this reason.
+
+## Gotchas
+
+- **Tree-shaking fails silently on a module with side effects.** A stylesheet
+  import or a top-level registration keeps the whole module in the bundle, and
+  the bundler reports nothing.
+- **A gzipped size is not a load time.** Parse and execute cost more than
+  transfer on low-end devices, and neither shows up in a size budget.
+- **`backdrop-filter` support varies by browser and by whether the element is
+  promoted**, so the same surface can be cheap in one browser and expensive in
+  another. See [Browser support](../start/browser-support.mdx).
+- **Devtools throttling does not model GPU cost.** A CPU throttle will not
+  reveal a compositing problem; test on a real device.
+- **A "small" icon library is small until you import the barrel.** Then it is
+  every icon.
+- **Server components have a cost too** — it is just paid on your server rather
+  than the reader's phone, and it shows up as time to first byte instead of as
+  bundle size.
+
+## Related
+
+- [Performance budget](../foundations/materials/performance-budget.mdx) — the
+  three-surface rule and where it comes from.
+- [Server and client components](./server-and-client-components.mdx) — the
+  boundary that dominates bundle size.
+- [Motion in practice](./motion-in-practice.mdx) — which properties are cheap to
+  animate.
+- [Browser support](../start/browser-support.mdx) — the per-feature floor and
+  the documented degradation for each.

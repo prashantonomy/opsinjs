@@ -1,0 +1,134 @@
+---
+title: Reduced transparency
+description: What each rung of the material ladder becomes when the reader has asked for less translucency — and why the layout must not move.
+status: stable
+kind: accessibility
+a11yDate: 2026-09-02
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+aliases: [reduce transparency setting, backdrop blur off, frosted glass]
+---
+
+<PageTemplate kind="accessibility" />
+
+## What we guarantee
+
+Three of the six rungs on the material ladder are translucent, and translucency
+over arbitrary content is the single most reliable way to produce text that
+cannot be read. `prefers-reduced-transparency: reduce` is therefore implemented as
+a first-class degradation in `app/globals.css` and `app/product.css`, not as an
+afterthought.
+
+| Rung | Normally | Under reduced transparency |
+| --- | --- | --- |
+| 0 | Opaque page background, no blur | Unchanged |
+| 1 | Opaque card surface, no blur | Unchanged |
+| 2 | Opaque card surface with shadow | Unchanged |
+| 3 | Translucent, 8 px backdrop blur | Opaque card surface, blur removed |
+| 4 | Translucent, 20 px backdrop blur | Opaque card surface, blur removed |
+| 5 | Translucent veil, slight blur | Opaquer veil, blur removed |
+
+The rungs are numbered here rather than named; their names, their intended uses
+and the rule for choosing between them are on
+[The ladder](../foundations/materials/the-ladder.mdx). The values above are the
+ones actually declared for `--opsin-material-N-bg` and `--opsin-material-N-blur`
+in the stylesheet.
+
+Two guarantees follow from that table:
+
+**Nothing moves.** Only the background colour and the blur radius change. No
+padding, no radius, no size, no position. A layout that is correct with
+translucency is byte-for-byte the same layout without it, which means the
+preference cannot introduce a reflow bug and cannot be a source of a truncated
+value.
+
+**The topmost rung gets more opaque, not less.** Rung 5 is the veil that
+separates a modal surface from what is behind it. Removing its translucency entirely would remove
+the separation, so instead it darkens — the reader asked for less see-through,
+not for less contrast.
+
+The full ladder, the rungs' intended uses and the contrast floor that governs
+text on them are on
+[The ladder](../foundations/materials/the-ladder.mdx) and
+[Reduced transparency in Foundations](../foundations/materials/reduced-transparency.mdx).
+
+## What you own
+
+**Any translucent surface you build yourself.** A custom overlay with
+`rgba()` and `backdrop-filter` is not reached by the media query above. Either
+build it from a rung, or add your own reduced-transparency branch.
+
+**Photographic and video backdrops.** The ladder's measured contrast assumes the
+declared opaque fallback behind the surface. Text over a photograph has no
+guaranteed contrast at all, and the fix is a scrim, not a heavier font weight. See
+[The contrast floor](../foundations/materials/the-contrast-floor.mdx).
+
+**Your composited-surface budget.** Reduced transparency is also a performance
+lever: with blur removed, the compositing cost of a screen drops. That does not
+license three stacked blurred surfaces the rest of the time — the budget is at
+most three, and the reasoning is on
+[Performance budget](../foundations/materials/performance-budget.mdx).
+
+**Windows and Linux.** `prefers-reduced-transparency` maps cleanly to the Apple
+and Android settings. On Windows the closest control is the transparency-effects
+toggle, and browser support for reporting it has historically been uneven. Do not
+assume the query fires everywhere; treat it as an enhancement that is *available*
+rather than *guaranteed*.
+
+## How to check
+
+<Steps>
+
+### Turn the preference on
+
+macOS and iOS: Settings → Accessibility → Display → Reduce transparency. Android:
+Settings → Accessibility → Colour and motion. Or emulate the query in developer
+tools for a quick pass.
+
+### Screenshot before and after and difference them
+
+**Expected result:** the two images differ only in the fill and blur of rungs 3, 4
+and 5. **Failure looks like** anything moving — a shifted baseline, a changed card
+height, a repositioned close button — because that means something other than
+colour was tied to the translucent style.
+
+### Read the text on every translucent surface over your worst backdrop
+
+Put the busiest, highest-contrast content you have behind the surface: a
+photograph, a dense chart, a wall of text. Then check the reading with
+transparency both on and off. The *off* case is the easy one.
+
+### Check the modal separation
+
+Open a dialog with the preference on. **Expected result:** the content behind is
+clearly subordinate. **Failure looks like** a scrim so light that the reader
+cannot tell which layer is interactive, which is a keyboard and screen-reader
+problem as much as a visual one.
+
+</Steps>
+
+## Measured results
+
+<ContrastReport scope="materials" />
+
+<NoDataYet script="scripts/check-contrast.mts" />
+
+Contrast on rungs 3 and 4 is measured against each rung's declared opaque
+fallback, which is the reduced-transparency value. That makes the published
+figure the *reduced-transparency* figure, and the normal case is measured against
+the same fallback rather than against a real backdrop — an optimistic
+simplification that is stated here rather than hidden.
+
+## Known gaps
+
+- **No real-backdrop measurement exists.** We measure against the fallback, not
+  against a distribution of photographs.
+- **Windows and Linux support for the query is not verified** in this codebase,
+  and there is no JavaScript fallback.
+- **Nothing renders the ladder yet,** so the table above describes CSS custom
+  properties that no component consumes.
+
+## Updates to this page
+
+<Reviewed />

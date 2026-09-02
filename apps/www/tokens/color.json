@@ -1,0 +1,1305 @@
+{
+  "$comment": "AUTHORED SOURCE — not generated. scripts/build-tokens.mts reads this file and emits app/tokens.generated.css and lib/generated/tokens.ts. Edit here, never there.",
+  "version": 1,
+  "namespace": "color",
+  "cssPrefix": "--opsin",
+  "cssNaming": {
+    "step": "--opsin-{axis}-{name}-{step}",
+    "role": "--opsin-{axis}-{name}-{role}",
+    "neutralStep": "--opsin-neutral-{step}",
+    "axis": {
+      "categories": "category",
+      "status": "status",
+      "absence": "status"
+    },
+    "$comment": "Example: --opsin-category-heart-600 (primitive tier) and --opsin-status-urgent-ink (semantic tier). `absence.unknown` is emitted under the status axis so a component can switch on one variable name, but it is NOT a status level — see rules."
+  },
+  "rules": [
+    "The two axes never mix. A surface may carry a category colour or a status colour, never both. Category answers 'what kind of reading is this'; status answers 'what should the reader do about it'. A card tinted by category and bordered by status makes the two indistinguishable at a glance and is the failure this system exists to prevent.",
+    "Colour never carries status alone. Every status is rendered as colour PLUS an icon PLUS a word. The rendering must survive grayscale and every simulated colour-vision deficiency with its meaning intact.",
+    "Category colour carries identity, never verdict. A heart-red card does not mean something is wrong with a heart reading.",
+    "`accent` is a fill, never text and never the sole boundary. Text on a tinted surface uses `ink`; the boundary uses `line`. Both are chosen to clear the contrast floor; `accent` is chosen for identity and is not guaranteed to.",
+    "Never reference a step directly from a component. Components consume roles. Steps are the primitive tier and may be re-tuned in a minor release; roles are covered by the versioning policy."
+  ],
+  "ladder": {
+    "steps": [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950],
+    "lightness": {
+      "50": 0.972,
+      "100": 0.941,
+      "200": 0.884,
+      "300": 0.806,
+      "400": 0.714,
+      "500": 0.622,
+      "600": 0.541,
+      "700": 0.452,
+      "800": 0.362,
+      "900": 0.276,
+      "950": 0.208
+    },
+    "chromaEnvelope": {
+      "50": 0.14,
+      "100": 0.24,
+      "200": 0.42,
+      "300": 0.66,
+      "400": 0.88,
+      "500": 1,
+      "600": 0.97,
+      "700": 0.88,
+      "800": 0.74,
+      "900": 0.58,
+      "950": 0.44
+    },
+    "$comment": "One lightness ladder for every chromatic ramp, so that step 600 means the same lightness in every ramp and a component can swap category without changing its contrast behaviour. Chroma is the seed chroma multiplied by the envelope, then clamped into sRGB. The envelope peaks at 500 and falls away at both ends because high chroma at very high or very low lightness is out of gamut and reads as neon."
+  },
+  "gamut": {
+    "base": "sRGB",
+    "wide": "display-p3",
+    "p3ChromaGain": 1.18,
+    "$comment": "Every step is authored twice. `srgb` is clamped into the sRGB gamut and is what every browser gets. `p3`, when present, is the same lightness and hue at up to 18% more chroma, clamped into Display-P3, emitted by build-tokens.mts inside @media (color-gamut: p3). A step with no `p3` key is already at or above the P3 boundary for its lightness, so there is no wide-gamut variant to serve. `clampedToSrgb: true` records that the envelope asked for more chroma than sRGB can hold at that lightness — the honest version of 'this colour is as saturated as the display allows'."
+  },
+  "floor": {
+    "text": {
+      "apcaLc": 75,
+      "wcag": 4.5,
+      "appliesTo": "Body text and any text below 24px or below 18.66px bold."
+    },
+    "largeText": {
+      "apcaLc": 60,
+      "wcag": 3,
+      "appliesTo": "Text at 24px and above, or 18.66px bold and above."
+    },
+    "nonText": {
+      "apcaLc": 45,
+      "wcag": 3,
+      "appliesTo": "Boundaries, icons, chart strokes, focus rings and any graphic that carries meaning."
+    },
+    "$comment": "opsinjs publishes BOTH an APCA Lc figure and a WCAG 2.2 ratio for every pair, and a pair must clear both. APCA models real text rendering better; WCAG 2.2 is what a procurement reviewer and a VPAT ask for. The measured numbers live in lib/generated/contrast.json and are produced by scripts/check-contrast.mts — they are never written by hand and never quoted in prose."
+  },
+  "roles": {
+    "order": ["surface", "line", "ink", "accent"],
+    "definitions": {
+      "surface": "The tinted background a component in this ramp sits on.",
+      "line": "The boundary, icon stroke or chart mark. The lightest value in the ramp that clears the non-text floor against `surface`.",
+      "ink": "Text and text-sized icons on `surface`. Clears the text floor against `surface`.",
+      "accent": "The identity fill: a bar fill, a dial track, a legend dot. Chosen for recognition, not for contrast. It must be bounded by `line` or labelled in `ink`; it is never the only thing that carries the meaning."
+    },
+    "mapping": {
+      "light": {
+        "surface": 50,
+        "line": 600,
+        "ink": 800,
+        "accent": "seed"
+      },
+      "dark": {
+        "surface": 900,
+        "line": 300,
+        "ink": 100,
+        "accent": 400
+      }
+    },
+    "$comment": "Steps chosen by measurement, not by eye: across all ten chromatic ramps, ink-on-surface measures Lc 88-90 in light and Lc -90 to -92 in dark, and line-on-surface measures Lc 67-71 in light and Lc -62 to -66 in dark. `accent` in light is the design-direction seed used verbatim; in dark it is step 400, because the seed's lightness is chosen against a white page and reads as a hole on a dark one."
+  },
+  "neutral": {
+    "$comment": "A very slightly cool neutral (chroma 0.002-0.009 at hue 250). A perfectly achromatic grey next to any of the chromatic ramps reads as a rendering fault rather than as a colour choice. 0 and 1000 are exact white and black and carry no chroma.",
+    "steps": {
+      "0": {
+        "l": 1,
+        "c": 0,
+        "h": 0,
+        "srgb": "oklch(1 0 0)"
+      },
+      "50": {
+        "l": 0.985,
+        "c": 0.002,
+        "h": 250,
+        "srgb": "oklch(0.985 0.002 250)"
+      },
+      "100": {
+        "l": 0.967,
+        "c": 0.003,
+        "h": 250,
+        "srgb": "oklch(0.967 0.003 250)"
+      },
+      "200": {
+        "l": 0.929,
+        "c": 0.004,
+        "h": 250,
+        "srgb": "oklch(0.929 0.004 250)"
+      },
+      "300": {
+        "l": 0.871,
+        "c": 0.005,
+        "h": 250,
+        "srgb": "oklch(0.871 0.005 250)"
+      },
+      "400": {
+        "l": 0.708,
+        "c": 0.008,
+        "h": 250,
+        "srgb": "oklch(0.708 0.008 250)"
+      },
+      "500": {
+        "l": 0.556,
+        "c": 0.009,
+        "h": 250,
+        "srgb": "oklch(0.556 0.009 250)"
+      },
+      "600": {
+        "l": 0.439,
+        "c": 0.009,
+        "h": 250,
+        "srgb": "oklch(0.439 0.009 250)"
+      },
+      "700": {
+        "l": 0.371,
+        "c": 0.008,
+        "h": 250,
+        "srgb": "oklch(0.371 0.008 250)"
+      },
+      "800": {
+        "l": 0.269,
+        "c": 0.007,
+        "h": 250,
+        "srgb": "oklch(0.269 0.007 250)"
+      },
+      "900": {
+        "l": 0.205,
+        "c": 0.006,
+        "h": 250,
+        "srgb": "oklch(0.205 0.006 250)"
+      },
+      "950": {
+        "l": 0.145,
+        "c": 0.005,
+        "h": 250,
+        "srgb": "oklch(0.145 0.005 250)"
+      },
+      "1000": {
+        "l": 0,
+        "c": 0,
+        "h": 0,
+        "srgb": "oklch(0 0 0)"
+      }
+    }
+  },
+  "categories": {
+    "sleep": {
+      "label": "Sleep",
+      "meaning": "Sleep duration, timing, stages and sleep-related readings.",
+      "seed": {
+        "l": 0.58,
+        "c": 0.14,
+        "h": 275,
+        "srgb": "oklch(0.58 0.14 275)"
+      },
+      "steps": {
+        "50": {
+          "l": 0.972,
+          "c": 0.013,
+          "h": 275,
+          "srgb": "oklch(0.972 0.013 275)",
+          "p3": "oklch(0.972 0.015 275)",
+          "clampedToSrgb": true
+        },
+        "100": {
+          "l": 0.941,
+          "c": 0.028,
+          "h": 275,
+          "srgb": "oklch(0.941 0.028 275)",
+          "p3": "oklch(0.941 0.031 275)",
+          "clampedToSrgb": true
+        },
+        "200": {
+          "l": 0.884,
+          "c": 0.057,
+          "h": 275,
+          "srgb": "oklch(0.884 0.057 275)",
+          "p3": "oklch(0.884 0.062 275)",
+          "clampedToSrgb": true
+        },
+        "300": {
+          "l": 0.806,
+          "c": 0.092,
+          "h": 275,
+          "srgb": "oklch(0.806 0.092 275)",
+          "p3": "oklch(0.806 0.107 275)"
+        },
+        "400": {
+          "l": 0.714,
+          "c": 0.123,
+          "h": 275,
+          "srgb": "oklch(0.714 0.123 275)",
+          "p3": "oklch(0.714 0.145 275)"
+        },
+        "500": {
+          "l": 0.622,
+          "c": 0.14,
+          "h": 275,
+          "srgb": "oklch(0.622 0.14 275)",
+          "p3": "oklch(0.622 0.165 275)"
+        },
+        "600": {
+          "l": 0.541,
+          "c": 0.136,
+          "h": 275,
+          "srgb": "oklch(0.541 0.136 275)",
+          "p3": "oklch(0.541 0.16 275)"
+        },
+        "700": {
+          "l": 0.452,
+          "c": 0.123,
+          "h": 275,
+          "srgb": "oklch(0.452 0.123 275)",
+          "p3": "oklch(0.452 0.145 275)"
+        },
+        "800": {
+          "l": 0.362,
+          "c": 0.104,
+          "h": 275,
+          "srgb": "oklch(0.362 0.104 275)",
+          "p3": "oklch(0.362 0.122 275)"
+        },
+        "900": {
+          "l": 0.276,
+          "c": 0.081,
+          "h": 275,
+          "srgb": "oklch(0.276 0.081 275)",
+          "p3": "oklch(0.276 0.096 275)"
+        },
+        "950": {
+          "l": 0.208,
+          "c": 0.062,
+          "h": 275,
+          "srgb": "oklch(0.208 0.062 275)",
+          "p3": "oklch(0.208 0.073 275)"
+        }
+      }
+    },
+    "heart": {
+      "label": "Heart",
+      "meaning": "Heart rate, heart-rate variability, blood pressure, ECG and circulatory readings.",
+      "seed": {
+        "l": 0.62,
+        "c": 0.17,
+        "h": 15,
+        "srgb": "oklch(0.62 0.17 15)"
+      },
+      "steps": {
+        "50": {
+          "l": 0.972,
+          "c": 0.014,
+          "h": 15,
+          "srgb": "oklch(0.972 0.014 15)",
+          "p3": "oklch(0.972 0.018 15)",
+          "clampedToSrgb": true
+        },
+        "100": {
+          "l": 0.941,
+          "c": 0.03,
+          "h": 15,
+          "srgb": "oklch(0.941 0.03 15)",
+          "p3": "oklch(0.941 0.039 15)",
+          "clampedToSrgb": true
+        },
+        "200": {
+          "l": 0.884,
+          "c": 0.062,
+          "h": 15,
+          "srgb": "oklch(0.884 0.062 15)",
+          "p3": "oklch(0.884 0.081 15)",
+          "clampedToSrgb": true
+        },
+        "300": {
+          "l": 0.806,
+          "c": 0.112,
+          "h": 15,
+          "srgb": "oklch(0.806 0.112 15)",
+          "p3": "oklch(0.806 0.132 15)",
+          "clampedToSrgb": true
+        },
+        "400": {
+          "l": 0.714,
+          "c": 0.15,
+          "h": 15,
+          "srgb": "oklch(0.714 0.15 15)",
+          "p3": "oklch(0.714 0.177 15)"
+        },
+        "500": {
+          "l": 0.622,
+          "c": 0.17,
+          "h": 15,
+          "srgb": "oklch(0.622 0.17 15)",
+          "p3": "oklch(0.622 0.201 15)"
+        },
+        "600": {
+          "l": 0.541,
+          "c": 0.165,
+          "h": 15,
+          "srgb": "oklch(0.541 0.165 15)",
+          "p3": "oklch(0.541 0.195 15)"
+        },
+        "700": {
+          "l": 0.452,
+          "c": 0.15,
+          "h": 15,
+          "srgb": "oklch(0.452 0.15 15)",
+          "p3": "oklch(0.452 0.177 15)"
+        },
+        "800": {
+          "l": 0.362,
+          "c": 0.126,
+          "h": 15,
+          "srgb": "oklch(0.362 0.126 15)",
+          "p3": "oklch(0.362 0.148 15)"
+        },
+        "900": {
+          "l": 0.276,
+          "c": 0.099,
+          "h": 15,
+          "srgb": "oklch(0.276 0.099 15)",
+          "p3": "oklch(0.276 0.116 15)"
+        },
+        "950": {
+          "l": 0.208,
+          "c": 0.075,
+          "h": 15,
+          "srgb": "oklch(0.208 0.075 15)",
+          "p3": "oklch(0.208 0.088 15)"
+        }
+      }
+    },
+    "activity": {
+      "label": "Activity",
+      "meaning": "Movement: steps, active minutes, workouts, distance, energy expenditure.",
+      "seed": {
+        "l": 0.7,
+        "c": 0.16,
+        "h": 140,
+        "srgb": "oklch(0.7 0.16 140)"
+      },
+      "steps": {
+        "50": {
+          "l": 0.972,
+          "c": 0.022,
+          "h": 140,
+          "srgb": "oklch(0.972 0.022 140)",
+          "p3": "oklch(0.972 0.026 140)"
+        },
+        "100": {
+          "l": 0.941,
+          "c": 0.038,
+          "h": 140,
+          "srgb": "oklch(0.941 0.038 140)",
+          "p3": "oklch(0.941 0.045 140)"
+        },
+        "200": {
+          "l": 0.884,
+          "c": 0.067,
+          "h": 140,
+          "srgb": "oklch(0.884 0.067 140)",
+          "p3": "oklch(0.884 0.079 140)"
+        },
+        "300": {
+          "l": 0.806,
+          "c": 0.106,
+          "h": 140,
+          "srgb": "oklch(0.806 0.106 140)",
+          "p3": "oklch(0.806 0.125 140)"
+        },
+        "400": {
+          "l": 0.714,
+          "c": 0.141,
+          "h": 140,
+          "srgb": "oklch(0.714 0.141 140)",
+          "p3": "oklch(0.714 0.166 140)"
+        },
+        "500": {
+          "l": 0.622,
+          "c": 0.16,
+          "h": 140,
+          "srgb": "oklch(0.622 0.16 140)",
+          "p3": "oklch(0.622 0.189 140)"
+        },
+        "600": {
+          "l": 0.541,
+          "c": 0.155,
+          "h": 140,
+          "srgb": "oklch(0.541 0.155 140)",
+          "p3": "oklch(0.541 0.183 140)"
+        },
+        "700": {
+          "l": 0.452,
+          "c": 0.141,
+          "h": 140,
+          "srgb": "oklch(0.452 0.141 140)",
+          "p3": "oklch(0.452 0.166 140)"
+        },
+        "800": {
+          "l": 0.362,
+          "c": 0.118,
+          "h": 140,
+          "srgb": "oklch(0.362 0.118 140)",
+          "p3": "oklch(0.362 0.139 140)",
+          "clampedToSrgb": true
+        },
+        "900": {
+          "l": 0.276,
+          "c": 0.092,
+          "h": 140,
+          "srgb": "oklch(0.276 0.092 140)",
+          "p3": "oklch(0.276 0.108 140)",
+          "clampedToSrgb": true
+        },
+        "950": {
+          "l": 0.208,
+          "c": 0.07,
+          "h": 140,
+          "srgb": "oklch(0.208 0.07 140)",
+          "p3": "oklch(0.208 0.083 140)"
+        }
+      }
+    },
+    "nutrition": {
+      "label": "Nutrition",
+      "meaning": "Food, drink, hydration, energy intake and nutrient readings.",
+      "seed": {
+        "l": 0.75,
+        "c": 0.14,
+        "h": 70,
+        "srgb": "oklch(0.75 0.14 70)"
+      },
+      "steps": {
+        "50": {
+          "l": 0.972,
+          "c": 0.02,
+          "h": 70,
+          "srgb": "oklch(0.972 0.02 70)",
+          "p3": "oklch(0.972 0.023 70)"
+        },
+        "100": {
+          "l": 0.941,
+          "c": 0.034,
+          "h": 70,
+          "srgb": "oklch(0.941 0.034 70)",
+          "p3": "oklch(0.941 0.04 70)"
+        },
+        "200": {
+          "l": 0.884,
+          "c": 0.059,
+          "h": 70,
+          "srgb": "oklch(0.884 0.059 70)",
+          "p3": "oklch(0.884 0.069 70)"
+        },
+        "300": {
+          "l": 0.806,
+          "c": 0.092,
+          "h": 70,
+          "srgb": "oklch(0.806 0.092 70)",
+          "p3": "oklch(0.806 0.109 70)"
+        },
+        "400": {
+          "l": 0.714,
+          "c": 0.123,
+          "h": 70,
+          "srgb": "oklch(0.714 0.123 70)",
+          "p3": "oklch(0.714 0.145 70)"
+        },
+        "500": {
+          "l": 0.622,
+          "c": 0.135,
+          "h": 70,
+          "srgb": "oklch(0.622 0.135 70)",
+          "p3": "oklch(0.622 0.155 70)",
+          "clampedToSrgb": true
+        },
+        "600": {
+          "l": 0.541,
+          "c": 0.118,
+          "h": 70,
+          "srgb": "oklch(0.541 0.118 70)",
+          "p3": "oklch(0.541 0.135 70)",
+          "clampedToSrgb": true
+        },
+        "700": {
+          "l": 0.452,
+          "c": 0.099,
+          "h": 70,
+          "srgb": "oklch(0.452 0.099 70)",
+          "p3": "oklch(0.452 0.113 70)",
+          "clampedToSrgb": true
+        },
+        "800": {
+          "l": 0.362,
+          "c": 0.08,
+          "h": 70,
+          "srgb": "oklch(0.362 0.08 70)",
+          "p3": "oklch(0.362 0.091 70)",
+          "clampedToSrgb": true
+        },
+        "900": {
+          "l": 0.276,
+          "c": 0.062,
+          "h": 70,
+          "srgb": "oklch(0.276 0.062 70)",
+          "p3": "oklch(0.276 0.071 70)",
+          "clampedToSrgb": true
+        },
+        "950": {
+          "l": 0.208,
+          "c": 0.049,
+          "h": 70,
+          "srgb": "oklch(0.208 0.049 70)",
+          "p3": "oklch(0.208 0.056 70)",
+          "clampedToSrgb": true
+        }
+      }
+    },
+    "mind": {
+      "label": "Mind",
+      "meaning": "Mood, stress, mindfulness and other self-reported mental-wellbeing entries.",
+      "seed": {
+        "l": 0.62,
+        "c": 0.14,
+        "h": 310,
+        "srgb": "oklch(0.62 0.14 310)"
+      },
+      "steps": {
+        "50": {
+          "l": 0.972,
+          "c": 0.018,
+          "h": 310,
+          "srgb": "oklch(0.972 0.018 310)",
+          "p3": "oklch(0.972 0.02 310)",
+          "clampedToSrgb": true
+        },
+        "100": {
+          "l": 0.941,
+          "c": 0.034,
+          "h": 310,
+          "srgb": "oklch(0.941 0.034 310)",
+          "p3": "oklch(0.941 0.04 310)"
+        },
+        "200": {
+          "l": 0.884,
+          "c": 0.059,
+          "h": 310,
+          "srgb": "oklch(0.884 0.059 310)",
+          "p3": "oklch(0.884 0.069 310)"
+        },
+        "300": {
+          "l": 0.806,
+          "c": 0.092,
+          "h": 310,
+          "srgb": "oklch(0.806 0.092 310)",
+          "p3": "oklch(0.806 0.109 310)"
+        },
+        "400": {
+          "l": 0.714,
+          "c": 0.123,
+          "h": 310,
+          "srgb": "oklch(0.714 0.123 310)",
+          "p3": "oklch(0.714 0.145 310)"
+        },
+        "500": {
+          "l": 0.622,
+          "c": 0.14,
+          "h": 310,
+          "srgb": "oklch(0.622 0.14 310)",
+          "p3": "oklch(0.622 0.165 310)"
+        },
+        "600": {
+          "l": 0.541,
+          "c": 0.136,
+          "h": 310,
+          "srgb": "oklch(0.541 0.136 310)",
+          "p3": "oklch(0.541 0.16 310)"
+        },
+        "700": {
+          "l": 0.452,
+          "c": 0.123,
+          "h": 310,
+          "srgb": "oklch(0.452 0.123 310)",
+          "p3": "oklch(0.452 0.145 310)"
+        },
+        "800": {
+          "l": 0.362,
+          "c": 0.104,
+          "h": 310,
+          "srgb": "oklch(0.362 0.104 310)",
+          "p3": "oklch(0.362 0.122 310)"
+        },
+        "900": {
+          "l": 0.276,
+          "c": 0.081,
+          "h": 310,
+          "srgb": "oklch(0.276 0.081 310)",
+          "p3": "oklch(0.276 0.096 310)"
+        },
+        "950": {
+          "l": 0.208,
+          "c": 0.062,
+          "h": 310,
+          "srgb": "oklch(0.208 0.062 310)",
+          "p3": "oklch(0.208 0.073 310)"
+        }
+      }
+    },
+    "labs": {
+      "label": "Labs",
+      "meaning": "Blood and other laboratory results reported by a testing service.",
+      "seed": {
+        "l": 0.6,
+        "c": 0.11,
+        "h": 210,
+        "srgb": "oklch(0.6 0.11 210)"
+      },
+      "steps": {
+        "50": {
+          "l": 0.972,
+          "c": 0.015,
+          "h": 210,
+          "srgb": "oklch(0.972 0.015 210)",
+          "p3": "oklch(0.972 0.018 210)"
+        },
+        "100": {
+          "l": 0.941,
+          "c": 0.026,
+          "h": 210,
+          "srgb": "oklch(0.941 0.026 210)",
+          "p3": "oklch(0.941 0.031 210)"
+        },
+        "200": {
+          "l": 0.884,
+          "c": 0.046,
+          "h": 210,
+          "srgb": "oklch(0.884 0.046 210)",
+          "p3": "oklch(0.884 0.055 210)"
+        },
+        "300": {
+          "l": 0.806,
+          "c": 0.073,
+          "h": 210,
+          "srgb": "oklch(0.806 0.073 210)",
+          "p3": "oklch(0.806 0.086 210)"
+        },
+        "400": {
+          "l": 0.714,
+          "c": 0.097,
+          "h": 210,
+          "srgb": "oklch(0.714 0.097 210)",
+          "p3": "oklch(0.714 0.114 210)"
+        },
+        "500": {
+          "l": 0.622,
+          "c": 0.108,
+          "h": 210,
+          "srgb": "oklch(0.622 0.108 210)",
+          "p3": "oklch(0.622 0.13 210)",
+          "clampedToSrgb": true
+        },
+        "600": {
+          "l": 0.541,
+          "c": 0.094,
+          "h": 210,
+          "srgb": "oklch(0.541 0.094 210)",
+          "p3": "oklch(0.541 0.125 210)",
+          "clampedToSrgb": true
+        },
+        "700": {
+          "l": 0.452,
+          "c": 0.079,
+          "h": 210,
+          "srgb": "oklch(0.452 0.079 210)",
+          "p3": "oklch(0.452 0.105 210)",
+          "clampedToSrgb": true
+        },
+        "800": {
+          "l": 0.362,
+          "c": 0.063,
+          "h": 210,
+          "srgb": "oklch(0.362 0.063 210)",
+          "p3": "oklch(0.362 0.084 210)",
+          "clampedToSrgb": true
+        },
+        "900": {
+          "l": 0.276,
+          "c": 0.049,
+          "h": 210,
+          "srgb": "oklch(0.276 0.049 210)",
+          "p3": "oklch(0.276 0.065 210)",
+          "clampedToSrgb": true
+        },
+        "950": {
+          "l": 0.208,
+          "c": 0.038,
+          "h": 210,
+          "srgb": "oklch(0.208 0.038 210)",
+          "p3": "oklch(0.208 0.051 210)",
+          "clampedToSrgb": true
+        }
+      }
+    }
+  },
+  "status": {
+    "steady": {
+      "level": 1,
+      "word": "Steady",
+      "sentence": "This reading is where it is expected to be.",
+      "assignedBy": "The consuming product, from a reference range it owns.",
+      "icon": "check",
+      "seed": {
+        "l": 0.64,
+        "c": 0.11,
+        "h": 178,
+        "srgb": "oklch(0.64 0.11 178)"
+      },
+      "steps": {
+        "50": {
+          "l": 0.972,
+          "c": 0.015,
+          "h": 178,
+          "srgb": "oklch(0.972 0.015 178)",
+          "p3": "oklch(0.972 0.018 178)"
+        },
+        "100": {
+          "l": 0.941,
+          "c": 0.026,
+          "h": 178,
+          "srgb": "oklch(0.941 0.026 178)",
+          "p3": "oklch(0.941 0.031 178)"
+        },
+        "200": {
+          "l": 0.884,
+          "c": 0.046,
+          "h": 178,
+          "srgb": "oklch(0.884 0.046 178)",
+          "p3": "oklch(0.884 0.055 178)"
+        },
+        "300": {
+          "l": 0.806,
+          "c": 0.073,
+          "h": 178,
+          "srgb": "oklch(0.806 0.073 178)",
+          "p3": "oklch(0.806 0.086 178)"
+        },
+        "400": {
+          "l": 0.714,
+          "c": 0.097,
+          "h": 178,
+          "srgb": "oklch(0.714 0.097 178)",
+          "p3": "oklch(0.714 0.114 178)"
+        },
+        "500": {
+          "l": 0.622,
+          "c": 0.11,
+          "h": 178,
+          "srgb": "oklch(0.622 0.11 178)",
+          "p3": "oklch(0.622 0.13 178)"
+        },
+        "600": {
+          "l": 0.541,
+          "c": 0.1,
+          "h": 178,
+          "srgb": "oklch(0.541 0.1 178)",
+          "p3": "oklch(0.541 0.126 178)",
+          "clampedToSrgb": true
+        },
+        "700": {
+          "l": 0.452,
+          "c": 0.084,
+          "h": 178,
+          "srgb": "oklch(0.452 0.084 178)",
+          "p3": "oklch(0.452 0.114 178)",
+          "clampedToSrgb": true
+        },
+        "800": {
+          "l": 0.362,
+          "c": 0.067,
+          "h": 178,
+          "srgb": "oklch(0.362 0.067 178)",
+          "p3": "oklch(0.362 0.091 178)",
+          "clampedToSrgb": true
+        },
+        "900": {
+          "l": 0.276,
+          "c": 0.052,
+          "h": 178,
+          "srgb": "oklch(0.276 0.052 178)",
+          "p3": "oklch(0.276 0.071 178)",
+          "clampedToSrgb": true
+        },
+        "950": {
+          "l": 0.208,
+          "c": 0.041,
+          "h": 178,
+          "srgb": "oklch(0.208 0.041 178)",
+          "p3": "oklch(0.208 0.055 178)",
+          "clampedToSrgb": true
+        }
+      }
+    },
+    "watch": {
+      "level": 2,
+      "word": "Watch",
+      "sentence": "This reading is outside the usual range. Keep an eye on it.",
+      "assignedBy": "The consuming product, from a reference range it owns.",
+      "icon": "eye",
+      "seed": {
+        "l": 0.78,
+        "c": 0.14,
+        "h": 82,
+        "srgb": "oklch(0.78 0.14 82)"
+      },
+      "steps": {
+        "50": {
+          "l": 0.972,
+          "c": 0.02,
+          "h": 82,
+          "srgb": "oklch(0.972 0.02 82)",
+          "p3": "oklch(0.972 0.023 82)"
+        },
+        "100": {
+          "l": 0.941,
+          "c": 0.034,
+          "h": 82,
+          "srgb": "oklch(0.941 0.034 82)",
+          "p3": "oklch(0.941 0.04 82)"
+        },
+        "200": {
+          "l": 0.884,
+          "c": 0.059,
+          "h": 82,
+          "srgb": "oklch(0.884 0.059 82)",
+          "p3": "oklch(0.884 0.069 82)"
+        },
+        "300": {
+          "l": 0.806,
+          "c": 0.092,
+          "h": 82,
+          "srgb": "oklch(0.806 0.092 82)",
+          "p3": "oklch(0.806 0.109 82)"
+        },
+        "400": {
+          "l": 0.714,
+          "c": 0.123,
+          "h": 82,
+          "srgb": "oklch(0.714 0.123 82)",
+          "p3": "oklch(0.714 0.145 82)"
+        },
+        "500": {
+          "l": 0.622,
+          "c": 0.129,
+          "h": 82,
+          "srgb": "oklch(0.622 0.129 82)",
+          "p3": "oklch(0.622 0.148 82)",
+          "clampedToSrgb": true
+        },
+        "600": {
+          "l": 0.541,
+          "c": 0.112,
+          "h": 82,
+          "srgb": "oklch(0.541 0.112 82)",
+          "p3": "oklch(0.541 0.129 82)",
+          "clampedToSrgb": true
+        },
+        "700": {
+          "l": 0.452,
+          "c": 0.094,
+          "h": 82,
+          "srgb": "oklch(0.452 0.094 82)",
+          "p3": "oklch(0.452 0.108 82)",
+          "clampedToSrgb": true
+        },
+        "800": {
+          "l": 0.362,
+          "c": 0.076,
+          "h": 82,
+          "srgb": "oklch(0.362 0.076 82)",
+          "p3": "oklch(0.362 0.087 82)",
+          "clampedToSrgb": true
+        },
+        "900": {
+          "l": 0.276,
+          "c": 0.059,
+          "h": 82,
+          "srgb": "oklch(0.276 0.059 82)",
+          "p3": "oklch(0.276 0.068 82)",
+          "clampedToSrgb": true
+        },
+        "950": {
+          "l": 0.208,
+          "c": 0.046,
+          "h": 82,
+          "srgb": "oklch(0.208 0.046 82)",
+          "p3": "oklch(0.208 0.054 82)",
+          "clampedToSrgb": true
+        }
+      }
+    },
+    "attention": {
+      "level": 3,
+      "word": "Needs attention",
+      "sentence": "This reading needs to be looked at. Contact your care team.",
+      "assignedBy": "The consuming product, from a clinically reviewed threshold.",
+      "icon": "alert-triangle",
+      "seed": {
+        "l": 0.66,
+        "c": 0.15,
+        "h": 45,
+        "srgb": "oklch(0.66 0.15 45)"
+      },
+      "steps": {
+        "50": {
+          "l": 0.972,
+          "c": 0.015,
+          "h": 45,
+          "srgb": "oklch(0.972 0.015 45)",
+          "p3": "oklch(0.972 0.019 45)",
+          "clampedToSrgb": true
+        },
+        "100": {
+          "l": 0.941,
+          "c": 0.032,
+          "h": 45,
+          "srgb": "oklch(0.941 0.032 45)",
+          "p3": "oklch(0.941 0.041 45)",
+          "clampedToSrgb": true
+        },
+        "200": {
+          "l": 0.884,
+          "c": 0.063,
+          "h": 45,
+          "srgb": "oklch(0.884 0.063 45)",
+          "p3": "oklch(0.884 0.074 45)"
+        },
+        "300": {
+          "l": 0.806,
+          "c": 0.099,
+          "h": 45,
+          "srgb": "oklch(0.806 0.099 45)",
+          "p3": "oklch(0.806 0.117 45)"
+        },
+        "400": {
+          "l": 0.714,
+          "c": 0.132,
+          "h": 45,
+          "srgb": "oklch(0.714 0.132 45)",
+          "p3": "oklch(0.714 0.156 45)"
+        },
+        "500": {
+          "l": 0.622,
+          "c": 0.15,
+          "h": 45,
+          "srgb": "oklch(0.622 0.15 45)",
+          "p3": "oklch(0.622 0.177 45)"
+        },
+        "600": {
+          "l": 0.541,
+          "c": 0.145,
+          "h": 45,
+          "srgb": "oklch(0.541 0.145 45)",
+          "p3": "oklch(0.541 0.172 45)"
+        },
+        "700": {
+          "l": 0.452,
+          "c": 0.13,
+          "h": 45,
+          "srgb": "oklch(0.452 0.13 45)",
+          "p3": "oklch(0.452 0.148 45)",
+          "clampedToSrgb": true
+        },
+        "800": {
+          "l": 0.362,
+          "c": 0.105,
+          "h": 45,
+          "srgb": "oklch(0.362 0.105 45)",
+          "p3": "oklch(0.362 0.119 45)",
+          "clampedToSrgb": true
+        },
+        "900": {
+          "l": 0.276,
+          "c": 0.082,
+          "h": 45,
+          "srgb": "oklch(0.276 0.082 45)",
+          "p3": "oklch(0.276 0.093 45)",
+          "clampedToSrgb": true
+        },
+        "950": {
+          "l": 0.208,
+          "c": 0.065,
+          "h": 45,
+          "srgb": "oklch(0.208 0.065 45)",
+          "p3": "oklch(0.208 0.074 45)",
+          "clampedToSrgb": true
+        }
+      }
+    },
+    "urgent": {
+      "level": 4,
+      "word": "Urgent",
+      "sentence": "This reading needs help now.",
+      "assignedBy": "A clinically reviewed threshold, signed off by a named clinical owner.",
+      "icon": "alert-octagon",
+      "seed": {
+        "l": 0.56,
+        "c": 0.2,
+        "h": 27,
+        "srgb": "oklch(0.56 0.2 27)"
+      },
+      "steps": {
+        "50": {
+          "l": 0.972,
+          "c": 0.014,
+          "h": 27,
+          "srgb": "oklch(0.972 0.014 27)",
+          "p3": "oklch(0.972 0.018 27)",
+          "clampedToSrgb": true
+        },
+        "100": {
+          "l": 0.941,
+          "c": 0.03,
+          "h": 27,
+          "srgb": "oklch(0.941 0.03 27)",
+          "p3": "oklch(0.941 0.039 27)",
+          "clampedToSrgb": true
+        },
+        "200": {
+          "l": 0.884,
+          "c": 0.061,
+          "h": 27,
+          "srgb": "oklch(0.884 0.061 27)",
+          "p3": "oklch(0.884 0.079 27)",
+          "clampedToSrgb": true
+        },
+        "300": {
+          "l": 0.806,
+          "c": 0.11,
+          "h": 27,
+          "srgb": "oklch(0.806 0.11 27)",
+          "p3": "oklch(0.806 0.142 27)",
+          "clampedToSrgb": true
+        },
+        "400": {
+          "l": 0.714,
+          "c": 0.176,
+          "h": 27,
+          "srgb": "oklch(0.714 0.176 27)",
+          "p3": "oklch(0.714 0.208 27)"
+        },
+        "500": {
+          "l": 0.622,
+          "c": 0.2,
+          "h": 27,
+          "srgb": "oklch(0.622 0.2 27)",
+          "p3": "oklch(0.622 0.236 27)"
+        },
+        "600": {
+          "l": 0.541,
+          "c": 0.194,
+          "h": 27,
+          "srgb": "oklch(0.541 0.194 27)",
+          "p3": "oklch(0.541 0.229 27)"
+        },
+        "700": {
+          "l": 0.452,
+          "c": 0.176,
+          "h": 27,
+          "srgb": "oklch(0.452 0.176 27)",
+          "p3": "oklch(0.452 0.208 27)"
+        },
+        "800": {
+          "l": 0.362,
+          "c": 0.148,
+          "h": 27,
+          "srgb": "oklch(0.362 0.148 27)",
+          "p3": "oklch(0.362 0.168 27)"
+        },
+        "900": {
+          "l": 0.276,
+          "c": 0.115,
+          "h": 27,
+          "srgb": "oklch(0.276 0.115 27)",
+          "p3": "oklch(0.276 0.129 27)",
+          "clampedToSrgb": true
+        },
+        "950": {
+          "l": 0.208,
+          "c": 0.088,
+          "h": 27,
+          "srgb": "oklch(0.208 0.088 27)",
+          "p3": "oklch(0.208 0.1 27)"
+        }
+      }
+    }
+  },
+  "absence": {
+    "unknown": {
+      "label": "Unknown",
+      "isStatus": false,
+      "word": "Not known",
+      "sentence": "We do not have a reading to show.",
+      "$comment": "Deliberately NOT a fifth status level. `unknown` is the absence of an assertion — no reading, a stale reading, a reading whose reference range the product does not own. Rendering it as a status would claim a verdict the system does not have. It is nearly achromatic on purpose: it must never look like a mild version of `watch`.",
+      "seed": {
+        "l": 0.72,
+        "c": 0.02,
+        "h": 250,
+        "srgb": "oklch(0.72 0.02 250)"
+      },
+      "steps": {
+        "50": {
+          "l": 0.972,
+          "c": 0.003,
+          "h": 250,
+          "srgb": "oklch(0.972 0.003 250)"
+        },
+        "100": {
+          "l": 0.941,
+          "c": 0.005,
+          "h": 250,
+          "srgb": "oklch(0.941 0.005 250)",
+          "p3": "oklch(0.941 0.006 250)"
+        },
+        "200": {
+          "l": 0.884,
+          "c": 0.008,
+          "h": 250,
+          "srgb": "oklch(0.884 0.008 250)",
+          "p3": "oklch(0.884 0.01 250)"
+        },
+        "300": {
+          "l": 0.806,
+          "c": 0.013,
+          "h": 250,
+          "srgb": "oklch(0.806 0.013 250)",
+          "p3": "oklch(0.806 0.016 250)"
+        },
+        "400": {
+          "l": 0.714,
+          "c": 0.018,
+          "h": 250,
+          "srgb": "oklch(0.714 0.018 250)",
+          "p3": "oklch(0.714 0.021 250)"
+        },
+        "500": {
+          "l": 0.622,
+          "c": 0.02,
+          "h": 250,
+          "srgb": "oklch(0.622 0.02 250)",
+          "p3": "oklch(0.622 0.024 250)"
+        },
+        "600": {
+          "l": 0.541,
+          "c": 0.019,
+          "h": 250,
+          "srgb": "oklch(0.541 0.019 250)",
+          "p3": "oklch(0.541 0.023 250)"
+        },
+        "700": {
+          "l": 0.452,
+          "c": 0.018,
+          "h": 250,
+          "srgb": "oklch(0.452 0.018 250)",
+          "p3": "oklch(0.452 0.021 250)"
+        },
+        "800": {
+          "l": 0.362,
+          "c": 0.015,
+          "h": 250,
+          "srgb": "oklch(0.362 0.015 250)",
+          "p3": "oklch(0.362 0.017 250)"
+        },
+        "900": {
+          "l": 0.276,
+          "c": 0.012,
+          "h": 250,
+          "srgb": "oklch(0.276 0.012 250)",
+          "p3": "oklch(0.276 0.014 250)"
+        },
+        "950": {
+          "l": 0.208,
+          "c": 0.009,
+          "h": 250,
+          "srgb": "oklch(0.208 0.009 250)",
+          "p3": "oklch(0.208 0.01 250)"
+        }
+      }
+    }
+  },
+  "categoryExtensionExample": {
+    "$comment": "NOT SHIPPED. The worked example used by /docs/theming/category-palettes. A product that tracks menstrual cycles needs a seventh category; adding one is a seed plus a run of the ladder, and it must not borrow a hue that is already carrying a status. Hue 340 sits clear of urgent (27), attention (45), watch (82) and steady (178), and clear of heart (15).",
+    "cycle": {
+      "label": "Cycle",
+      "seed": {
+        "l": 0.64,
+        "c": 0.13,
+        "h": 340,
+        "srgb": "oklch(0.64 0.13 340)"
+      }
+    }
+  },
+  "colourIndependence": {
+    "$comment": "A MEASURED FINDING, not a claim. lib/color/cvd.ts was run over the four status accents and the six category accents under protanopia, deuteranopia, tritanopia and grayscale, and the pairs below fall below the Lc 15 collapse threshold — that is, as flat fills they become hard or impossible to tell apart. scripts/check-contrast.mts regenerates this audit into lib/generated/contrast.json and <CvdSimulator> renders it. The numbers here are a snapshot for authors; the published ones are the generated ones.",
+    "method": "Viénot, Brettel and Mollon (1999) dichromacy projection in linear-light sRGB, plus a relative-luminance grayscale. Full severity. An approximation of dichromacy, not a model of any individual reader.",
+    "collapseThresholdLc": 15,
+    "finding": "The status axis DOES collapse in pairs. steady and attention become identical under deuteranopia (Lc 0) and under grayscale (Lc 0); steady and urgent become identical under tritanopia (Lc 0). This is not a defect in the palette that a different hue would fix — four ordered levels cannot be made mutually distinguishable by hue alone for every form of colour vision, because two of the four sit at nearly the same lightness.",
+    "consequence": "It is the reason colour is never the sole carrier of status in this system. Every status level ships colour PLUS an icon PLUS a word, and the icons are chosen to differ in silhouette rather than only in colour. A product that renders a bare coloured dot to mean status has broken the system, and OPSIN-0002 fires on it in development.",
+    "statusCollisions": [
+      {
+        "type": "protanopia",
+        "pair": ["steady", "watch"],
+        "lc": 9.8
+      },
+      {
+        "type": "protanopia",
+        "pair": ["steady", "attention"],
+        "lc": 12.4
+      },
+      {
+        "type": "deuteranopia",
+        "pair": ["steady", "attention"],
+        "lc": 0
+      },
+      {
+        "type": "deuteranopia",
+        "pair": ["steady", "urgent"],
+        "lc": 8.3
+      },
+      {
+        "type": "deuteranopia",
+        "pair": ["attention", "urgent"],
+        "lc": 13.5
+      },
+      {
+        "type": "tritanopia",
+        "pair": ["steady", "attention"],
+        "lc": 14.2
+      },
+      {
+        "type": "tritanopia",
+        "pair": ["steady", "urgent"],
+        "lc": 0
+      },
+      {
+        "type": "tritanopia",
+        "pair": ["watch", "attention"],
+        "lc": 14.5
+      },
+      {
+        "type": "tritanopia",
+        "pair": ["attention", "urgent"],
+        "lc": 10
+      },
+      {
+        "type": "grayscale",
+        "pair": ["steady", "attention"],
+        "lc": 0
+      },
+      {
+        "type": "grayscale",
+        "pair": ["attention", "urgent"],
+        "lc": 14.7
+      }
+    ],
+    "categoryNote": "Category accents collapse too, and it matters less: a category is also carried by its label and its icon, and mistaking Sleep for Mind has no clinical consequence. The category audit is still generated and published so that nobody has to take that on trust."
+  }
+}

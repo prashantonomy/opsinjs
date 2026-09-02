@@ -1,0 +1,174 @@
+---
+title: Offline and stale data
+description: What a health screen shows when it cannot vouch for its numbers — degrading assertions rather than hiding them, and never letting a cached value pass as current.
+status: planned
+kind: pattern
+aliases: [offline mode, stale readings screen, last synced, cached readings, no connection]
+implements: [relative-time, care-card, callout, metric-tile, status-pill, skeleton, alert-banner]
+reviewEvery: 6m
+reviewer: clinical
+owner: design-system
+---
+
+<PageTemplate kind="pattern" />
+
+## When to use
+
+Use this pattern when the product is showing a value it can no longer stand
+behind: the network is gone, a device has not synced, a result was fetched an
+hour ago, or a background refresh silently failed.
+
+The core rule is that **staleness degrades assertions, not values**. The number
+stays on screen — hiding it helps nobody, and a reader who wanted to see their
+last reading is entitled to it. What changes is everything the product says
+*about* the number: the status, the trend direction, the comparison to a range,
+the alert. Those are claims about now, and the product no longer knows about
+now.
+
+Signals:
+
+- The screen shows a status pill computed from data that may have moved.
+- A device is the source and the pairing may have dropped.
+- A reader could reasonably act on this screen while it is wrong.
+
+## When not to use
+
+- **There is no value at all.** That is
+  [Empty and first-use](./empty-and-first-use.mdx). Stale means you have
+  something and cannot vouch for it.
+- **The value is fine and old by design.** A result from a blood test in March
+  is not stale; it is dated. Show its date and stop. Staleness is about the gap
+  between what you are asserting and what you know.
+- **You want the doctrine.** How to render "we do not know" honestly, and the
+  vocabulary for it, is
+  [Uncertainty and staleness](../health/uncertainty-and-staleness.mdx).
+- **You want provenance.** Who measured this and with what is
+  [Data provenance and device accuracy](../health/data-provenance-and-device-accuracy.mdx).
+
+## How it works
+
+<FlowDiagram>
+{`flowchart TD
+  A["Screen renders from cache"] --> B{"How old is the value?"}
+  B -->|"within the freshness window"| C["Full assertions: status, range, trend"]
+  B -->|"beyond the window"| D["Demote: value and timestamp stay, status is withdrawn"]
+  D --> E{"Is a refresh possible?"}
+  E -->|"yes"| F["Refresh quietly; announce only on change or failure"]
+  E -->|"no"| G["State that the app is offline and what that means here"]
+  F --> H{"Did it succeed?"}
+  H -->|"yes"| I["Promote back to full assertions"]
+  H -->|"no"| G
+  G --> J["Queued writes stay visible and marked unsynced"]`}
+</FlowDiagram>
+
+<NotBuiltYet />
+
+- **Every value carries a freshness window, and the window belongs to the
+  measure.** A weight from this morning is fresh; a continuous glucose reading
+  from twenty minutes ago may not be. The component does not decide this; the
+  team that owns the thresholds does.
+- **Beyond the window, the status axis is withdrawn.** No `StatusPill`, no
+  colour-coded verdict, no trend arrow. The value and its `RelativeTime` remain.
+  This is the whole pattern in one rule.
+- **Never resolve staleness by removing the timestamp.** "Last synced 4 hours
+  ago" is uncomfortable; a screen that looks live and is not is worse.
+- **Alerts computed from stale data are suspended, not fired.** An escalation
+  based on a value you cannot vouch for is the worst combination of confident
+  and wrong. See [Alert escalation](./alert-escalation.mdx).
+- **Writes queue and stay visible.** An entry made offline appears immediately,
+  marked as not yet synced, with the time it was actually made — never the time
+  it eventually uploaded.
+- **Conflicts are shown, not merged.** Two devices writing the same slot produce
+  two entries the reader can see and resolve. Silent last-write-wins destroys
+  data the reader believes is stored.
+- **Recovery is quiet on success and loud on failure.** Coming back online
+  should not throw a banner; failing to reach the server after a queued write
+  should.
+
+### States
+
+| State | Value | Status axis | Timestamp |
+| --- | --- | --- | --- |
+| Fresh | Shown | Full | De-emphasised |
+| Ageing | Shown | Full, with the age promoted | Visible |
+| Stale | Shown | Withdrawn | Prominent |
+| Offline, cached | Shown | Withdrawn | Prominent, plus an offline notice |
+| Unsynced write | Shown | None yet | Time of entry, marked unsynced |
+| Conflict | Both shown | Withdrawn until resolved | Both times shown |
+| Unknown age | Shown | Withdrawn | "We don't know when this was measured" |
+
+That last row is not a hypothetical. A value restored from a backup or imported
+from a third party frequently has no trustworthy timestamp, and the honest
+rendering is to say so rather than to stamp it with the import time.
+
+## Content
+
+Stale copy has to be specific about *what* is uncertain, because a vague warning
+makes the reader distrust the whole screen rather than the one number.
+
+<DoDont>
+  <DoDont.Do>
+    "Last synced 4 hours ago. Your monitor may have taken readings since then —
+    we can't show a current status until it reconnects."
+  </DoDont.Do>
+  <DoDont.Dont>
+    "Some data may be out of date." Which data, how out of date, and what should
+    the reader do differently?
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "Saved on your phone. It will sync when you're back online." The entry is
+    safe, the reader knows the state.
+  </DoDont.Do>
+  <DoDont.Dont>
+    A spinner over the save button until the network returns, with the reader
+    unsure whether their reading was recorded at all.
+  </DoDont.Dont>
+</DoDont>
+
+Relative-time wording — "4 hours ago" versus "at 06:12" and when each is
+appropriate — follows
+[Numbers, dates and time](../content/numbers-dates-and-time.mdx).
+
+## Accessibility
+
+- **Timestamps are announced in full.** A `RelativeTime` renders "4 hours ago"
+  visually and exposes the absolute time to assistive technology; "4h" is not a
+  word.
+- **Entering the stale state is a status message** (WCAG 2.2 SC 4.1.3), polite,
+  once per transition — not once per tile. A dashboard with nine tiles going
+  stale simultaneously must announce once.
+- **The offline notice does not steal focus.** It is announced, not modal, and
+  the reader is not interrupted mid-entry.
+- **Do not signal staleness by reducing contrast.** Greying a value out is the
+  most common approach and it fails the contrast floor for exactly the reader
+  who needed it most. Staleness is carried by words and position; see
+  [The contrast floor](../foundations/materials/the-contrast-floor.mdx).
+- **Retry is a control, not a gesture.** Pull-to-refresh may exist; a focusable,
+  labelled retry must also exist. See
+  [Target size and motor](../accessibility/target-size-and-motor.mdx).
+
+## Research
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  "Degrade the assertion, keep the value" is a design opinion and the one this
+  page would defend hardest. The alternative approaches both fail in ways we
+  think are worse: hiding stale values removes information the reader owns and
+  can interpret, while showing them with a live-looking status invites action on
+  a claim the product cannot support.
+
+  Also opinion: withdrawing the status axis entirely rather than adding a
+  "possibly stale" fifth status. We consider a fifth level a contamination of a
+  four-level ordinal vocabulary, and greying out a failure of the contrast floor
+  rather than a design choice — that second half is not opinion.
+
+  What would change our mind: evidence that readers interpret a value with no
+  status as "fine" rather than as "unknown", which would argue for an explicit
+  unknown marker rather than an absence.
+</ResearchNote>
+
+## Updates to this page
+
+<Reviewed />

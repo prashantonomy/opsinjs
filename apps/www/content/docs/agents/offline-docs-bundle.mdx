@@ -1,0 +1,152 @@
+---
+title: Offline docs bundle
+description: The whole documentation corpus as one versioned JSON file, for agents and tools that run without network access.
+status: stable
+kind: guide
+aliases: ["/r/docs.json", offline, air-gapped, bundle]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+Not every assistant has a network. Some run inside a locked-down build, some
+inside a hospital network that does not resolve arbitrary hostnames, and some
+inside a container with egress disabled on purpose. Those are the environments
+where a health design system is most likely to be used and least likely to be
+reachable.
+
+`/r/docs.json` is one request that returns everything: the processed markdown of
+every documentation page, its frontmatter, and the version stamp that identifies
+the build it came from. Fetch it once, vendor it, and an agent can answer
+questions about opsinjs with no further access.
+
+```bash
+curl -s https://opsinjs.dev/r/docs.json -o opsinjs-docs.json
+```
+
+## What is in it
+
+Each entry is a page. The fields are exactly the ones a machine needs to decide
+whether the page answers the question in front of it.
+
+```ts
+{
+  version: string          // the docs version this bundle was built from
+  generated: string        // ISO timestamp
+  pages: Array<{
+    path: string           // canonical page path
+    title: string
+    description: string
+    kind: string           // component | health | foundation | …
+    status: string         // stable | planned | considered | …
+    category?: string
+    aliases?: string[]
+    evidence?: string      // health pages declare this
+    reviewed?: string
+    content: string        // processed markdown, JSX resolved
+  }>
+}
+```
+
+The `content` field is the same processed markdown the `.md` twins serve — JSX
+resolved, generated tables filled in with the values CI measured, interactive
+components degraded to a sentence naming the tool. See
+[Raw markdown API](./raw-markdown-api.mdx) for what "processed" means in detail.
+
+The bundle carries the documentation. It does not carry component source,
+because there is none, and it does not carry the registry — fetch
+`/r/registry.json` separately if you need the catalog too.
+
+## Size and freshness
+
+The bundle is a whole corpus and it is not small. Two habits keep it usable:
+
+**Index it, do not paste it.** It is meant to be searched, chunked or embedded
+locally. Putting the entire file in a context window spends the window on the
+retrieval problem you were trying to avoid. If your tool wants a subset, the
+[shards](./llms-txt.mdx) exist for exactly that and are much cheaper.
+
+**Pin the version, then check it.** The `version` field is the point of the
+whole file. A vendored bundle is a snapshot, and a snapshot that nobody ever
+compares to the live version quietly becomes wrong. A weekly job that fetches
+the current version string — a few bytes — and warns on a mismatch is enough.
+
+<Callout>
+Given that nothing is built, the most important content in this bundle is the
+word `planned` on every component page. An agent working from a stale bundle a
+year from now must be able to discover that the world has moved; the version
+stamp is how.
+</Callout>
+
+## Using it in an air-gapped build
+
+<Steps>
+
+### Vendor it deliberately
+
+Commit it, or store it as a build artefact with a checksum. A file fetched at
+build time from a network you do not control is not an offline strategy.
+
+### Record where it came from
+
+Keep the `version` and `generated` fields visible to whatever consumes the
+bundle, and surface them in any answer the tool produces. "According to opsinjs
+docs version X" is a checkable claim; "according to opsinjs" is not.
+
+### Refresh on a schedule you own
+
+Treat it like a dependency: a deliberate update with a diff, not a silent
+refresh.
+
+### Fail loudly when it is missing
+
+A tool that falls back to the model's general knowledge when the bundle is
+absent will produce confident, invented answers about a health design system.
+Prefer an error.
+
+</Steps>
+
+## Verify it worked
+
+<Steps>
+
+### It parses and has a version
+
+```bash
+node -e "const d=require('./opsinjs-docs.json'); console.log(d.version, d.pages.length)"
+```
+
+### A known page is present with its status
+
+Look up any component page and confirm `status` is `planned` and the prose says
+so. If the field is missing, you have an incomplete bundle.
+
+### JSX is resolved
+
+Search a `content` field for `<` followed by a capital letter. There should be
+none.
+
+</Steps>
+
+## Troubleshooting
+
+**The download is truncated.** It is a large single response. Check for a proxy
+with a body-size limit, and prefer a client that streams to disk.
+
+**The bundle disagrees with the site.** Compare version strings. If they match
+and the content differs, that is a real bug and worth reporting.
+
+**I only need the components.** Use `/llms-components.txt`, which is a fraction
+of the size.
+
+**I need this in an air-gapped environment where even the initial fetch is
+impossible.** Build it yourself: clone the repository and run the site's own
+generate step. The bundle is produced from the same source you would be cloning.
+
+## Next
+
+- [llms.txt and the shards](./llms-txt.mdx) — smaller, cheaper subsets.
+- [Machine-readable schemas](./machine-readable-schemas.mdx) — the structured
+  data the bundle does not include.
+- [Raw markdown API](./raw-markdown-api.mdx) — one page at a time.

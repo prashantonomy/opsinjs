@@ -1,0 +1,134 @@
+---
+title: Start here
+description: A five-minute map of this site, and the shortest useful path through it for your role.
+status: stable
+kind: guide
+icon: Compass
+owner: core
+reviewed: 2026-09-02
+reviewer: content
+reviewEvery: 6m
+aliases: [start here, five minute map, where do I begin]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+This site is large, and most of it is doctrine rather than code. That is
+deliberate: nothing is implemented yet, so the parts that are real today are the
+tokens, the rules and the accessibility contract. This page is the map.
+
+<SectionProgress section="start" />
+
+Five minutes gets you three things: whether opsinjs fits your product, what it
+will and will not do for you, and where the rule you need actually lives. If you
+only have two minutes, read
+[Is opsinjs right for this project?](./is-opsinjs-right.mdx) and stop there.
+
+## Read this in the order that matches your job
+
+**You are deciding whether to adopt it.**
+[Is opsinjs right for this project?](./is-opsinjs-right.mdx) →
+[Safety, scope and limitations](./safety-scope-and-limitations.mdx) →
+[The two colour axes](../health/two-colour-axes.mdx). Twenty minutes, and the
+second page is the one that will decide it for anything clinical-adjacent.
+
+**You are an engineer about to build a screen.**
+[Quick start](./quick-start.mdx) →
+[Choose a component](../recipes/choose-a-component.mdx) → the component page →
+its `governedBy` doctrine pages. The decision table is the fastest route from
+"I have a number and a range" to the right component.
+
+**You are a designer.**
+[For designers](./for-designers.mdx) is the role-shaped entry point: what is fixed
+by the system, what you are expected to decide, and which foundations pages are
+the ones you will actually reference.
+
+**You are writing the copy.**
+[Content and language](../content/index.mdx) →
+[Plain English A–Z](../content/plain-english-a-z.mdx) →
+[Numbers, units and precision](../health/numbers-units-precision.mdx). In a health
+product the words are not decoration around the component; they are most of what
+the component does.
+
+**You are an agent, or you are configuring one.**
+[Rules for agents](../agents/rules-for-agents.mdx) →
+[Raw markdown API](../agents/raw-markdown-api.mdx). Append `.md` to any docs URL
+for processed markdown. The three rules that matter most: never invent a
+threshold, never mix the colour axes, and never generate an implementation from a
+`planned` page.
+
+## Understand the shape before you go looking
+
+Four page kinds cover almost everything on this site, and knowing which one you
+are on tells you what you can expect from it:
+
+- **Doctrine** — [Health](../health/index.mdx). Rules about what an interface may
+  assert about a person's body. Real and complete today.
+- **Foundations** — [Foundations](../foundations/index.mdx). What a token *means*:
+  colour, material, motion, type, space, shape. Real today, because tokens ship
+  before components do.
+- **Components** — [Components](../components/index.mdx). Twenty-four
+  specifications, all `planned`. Each one names its intent, when *not* to use it,
+  its clinical contract, its proposed API, and the accessibility bar it must
+  clear.
+- **Recipes and screens** — [Recipes](../recipes/index.mdx). Task-first
+  assemblies: components plus tokens plus copy rules, in one scroll.
+
+Two more you will need eventually: [Handbook](../handbook/index.mdx) and
+[Theming](../theming/index.mdx) tell you how to *change* things, and
+[Reference](../reference/index.mdx) is the generated list of everything.
+
+## Know what pre-release means here
+
+Nothing installs. There is no published package and no live registry, so every
+command on the installation pages describes an intended contract rather than a
+working path. Every one of those pages says so at the top, and every component
+page carries a machine-readable marker saying it is not implemented.
+
+The useful consequence is that the specification is reviewable *now*, while it is
+still cheap to change. If a proposed API looks wrong to you, that is the most
+valuable thing you can tell us, and [Community](../project/community.mdx) is where
+to say it.
+
+## Verify it worked
+
+You are oriented if you can do three things:
+
+1. **Name the rule that stops you colouring a "Sleep" tile amber because sleep was
+   poor.** It is the never-mix rule in
+   [The two colour axes](../health/two-colour-axes.mdx).
+2. **Say where a threshold comes from.** Your product's clinical owner — never
+   opsinjs, and never a component default.
+3. **Find a component's governing doctrine without searching.** It is listed in
+   the page header under `governedBy`, and the doctrine page lists the component
+   back.
+
+## Troubleshooting
+
+**The sidebar is long and you cannot find a topic.** Use search (<Kbd>⌘</Kbd>
+<Kbd>K</Kbd>). Every page carries `aliases` — the words a reader would actually
+type, including clinical vocabulary like *a1c*, *spo2* and *resting heart rate* —
+so searching for the measurement usually lands you on the component that displays
+it.
+
+**You found two pages that seem to cover the same thing.** One of them is
+canonical and says so. Plain-language vocabulary is canonical in
+[Plain English A–Z](../content/plain-english-a-z.mdx); numeric formatting is
+canonical in
+[Numbers, units and precision](../health/numbers-units-precision.mdx). The other
+page links to it rather than restating it, and a build check enforces that.
+
+**A link took you to a page that says `planned` and shows no code.** That is the
+answer, not a missing page. See
+[Reading these docs](./reading-these-docs.mdx#for-agents).
+
+## Next
+
+- [Quick start](./quick-start.mdx) — the intended end-to-end path for a single
+  result card, written as a specification you can review.
+- [Reading these docs](./reading-these-docs.mdx) — page contracts, status badges,
+  and how to read a token or contrast table without being misled.
+- [Health](../health/index.mdx) — the doctrine layer, and the part of opsinjs that
+  is worth reading even if you never install it.

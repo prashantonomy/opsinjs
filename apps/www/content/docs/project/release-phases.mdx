@@ -1,0 +1,127 @@
+---
+title: Release phases
+description: The six statuses — considered, planned, alpha, beta, stable, deprecated — and exactly what each one promises.
+status: stable
+kind: project
+owner: core
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 12m
+aliases: [status badge meaning, what planned means, maturity, phases]
+---
+
+<PageTemplate kind="project" />
+
+## One vocabulary, six values
+
+Every page on this site carries a status badge, and every catalogue row carries
+the same word. There are six values, they are ordinal, and they are defined once:
+
+```text
+considered → planned → alpha → beta → stable
+                                       ↘ deprecated
+```
+
+The word is not a mood. It determines which sections a component page is required
+to render, what the versioning policy promises about the code, and whether you
+should be writing production code against it today.
+
+<Callout>
+**Do not confuse this with clinical status.** The four clinical levels — steady,
+watch, attention, urgent — describe a person's data. These six describe our
+software. The collision is unfortunate and it is why the
+[system glossary](../reference/system-glossary.mdx) lists both words separately.
+</Callout>
+
+## What each phase promises
+
+| Phase | It exists as | API stability | Should you use it |
+| --- | --- | --- | --- |
+| `considered` | A reserved name in the catalogue | None. There is no API | No. Read the alternative it points at |
+| `planned` | A written specification | None. The proposed API is a sketch | Design against it. Do not code against it |
+| `alpha` | Working code, incomplete | Breaks in any release | Only in a prototype |
+| `beta` | Working code, complete surface | Breaks only in a minor, with a note | Yes, if you can take a documented migration |
+| `stable` | Working code under the full policy | [Semver](versioning-policy.mdx) | Yes |
+| `deprecated` | Working code, on its way out | Frozen; removal announced | No, for anything new |
+
+### `considered`
+
+A name in [the catalogue](../reference/generated/catalogue.mdx) and nothing else.
+It exists so that asking "does opsinjs have a Tooltip" returns a definite answer
+with a pointer at what to use instead, rather than a 404 that invites a program
+to invent one. There is no specification, no clinical contract and no commitment
+that it will ever be built. [ADR 0008](decisions/0008-considered-components-resolve.mdx)
+records how these ids resolve.
+
+**To reach `planned`:** somebody writes the specification, and it survives review.
+
+### `planned`
+
+A real specification with no implementation: intent, when *not* to use it naming
+the alternative, the clinical contract, the proposed anatomy, the proposed API,
+and the accessibility bar the implementation must clear. The page renders its
+header, a stub notice, a disabled preview and install block, when-to-use, the
+clinical meaning, the anatomy, the proposed API, the content guidelines, the
+accessibility requirements and the related components — and omits the sections
+that would require code to exist, rather than leaving them empty.
+
+Every `planned` page emits a machine-readable not-implemented marker, so an agent
+reading this site can tell a specification from a component without parsing
+English.
+
+**To reach `alpha`:** it is implemented, it renders, and it has an example.
+
+### `alpha`
+
+Code exists. The API will change without a deprecation. The page gains usage, its
+examples and a generated props table. Accessibility is claimed only where it has
+been checked, and the gaps are listed rather than omitted.
+
+**To reach `beta`:** the API surface is complete, the states matrix renders, the
+data attributes and CSS variables are documented and generated, and the
+component's keyboard table exists.
+
+### `beta`
+
+The surface is complete and we expect to keep it, but we will still break it in a
+minor release if we find something wrong — with a changelog entry and a migration
+note every time. Everything except the accessibility audit and the bundle-size
+budget is in place.
+
+**To reach `stable`:** the accessibility bar on its page is met and measured, the
+contrast pairs it uses pass the published floor in both themes, its bundle cost
+is generated, and it has shipped in at least one real product.
+
+### `stable`
+
+All twenty-two sections of the component page render, every generated table has
+real data behind it, and the full [versioning policy](versioning-policy.mdx)
+applies — including to the DOM it renders, the `data-*` attributes it emits and
+the CSS custom properties it exposes.
+
+### `deprecated`
+
+Still works, still documented, no longer recommended. A deprecated page names its
+replacement, the version that deprecated it and the version that will remove it,
+and it appears on the [deprecations](deprecations.mdx) list from the day it is
+marked. Nothing is removed without at least one release carrying the deprecation.
+
+## Why the page gates on the status
+
+`<PageTemplate>` fails the build when a section required at the declared status
+is missing. A component cannot be marked `stable` and quietly omit its
+accessibility section, and a `planned` page cannot rot into twenty-two headings
+with three sentences under each. The status is therefore a claim the build
+enforces, not a label somebody set once.
+
+## Statuses on documentation pages
+
+Pages that are not about a component use the same six words, with the obvious
+reading: `stable` means we stand behind this text; `planned` means the page is a
+reserved node with an honest `<Todo>` rather than prose pretending to be
+finished. [Docs freshness](docs-freshness.mdx) covers the other half of the
+question — how recently a `stable` page was actually re-read.
+
+<LastUpdated />
+
+<Reviewed />

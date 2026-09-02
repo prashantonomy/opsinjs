@@ -1,0 +1,53 @@
+---
+title: HealthCategory
+description: The union of subject-identity categories — what a number is about, never how worried to be about it.
+status: planned
+kind: reference
+since: unreleased
+owner: engineering
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 6m
+aliases: [category type, category union]
+---
+
+<PageTemplate kind="reference" />
+
+`HealthCategory` is the type of the identity axis: the subject a value belongs
+to, so that a screen full of unrelated numbers can be scanned. It carries no
+urgency, no valence and no judgement. A category colour tells a reader which of
+their things they are looking at; it must never tell them how to feel about it.
+
+## How this is generated
+
+**Source:** the published declaration of the `@opsinjs/react` package.
+**Script:** `scripts/build-reference.mts`. **Command:** `pnpm run generate`.
+
+The package does not exist yet. The block below is a **specification** and is
+marked as one; the member list in particular is expected to change, because the
+category set is the part of the system a consuming product is most likely to need
+extended, and
+[Category palettes](../../theming/category-palettes.mdx) describes the supported
+way to do that without contaminating the status axis.
+
+```ts
+/**
+ * SPECIFICATION — not implemented, not published.
+ * Subject-identity categories, defined in health/category-identity.
+ * Extensible by a consuming theme; the status axis is not.
+ */
+export type HealthCategory = string & { readonly __brand?: "HealthCategory" }
+```
+
+The specification deliberately does not freeze the member list here. What the
+system freezes is the *rule*: a category is identity only, categories are
+extensible, and no component accepts a category and a status in the same visual
+slot. The current members ship in `tokens/color.json` and are listed, generated,
+in [Tokens](../generated/tokens.mdx); the meaning of each is
+[Category identity](../../health/category-identity.mdx).
+
+{/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
+
+<NoDataYet script="scripts/build-reference.mts" />
+
+{/* opsinjs:generated:end */}

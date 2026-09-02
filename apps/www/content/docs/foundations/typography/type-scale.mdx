@@ -1,0 +1,159 @@
+---
+title: Type scale
+description: A scale named for jobs rather than sizes, a separate family of roles for numerals, and the reason a t-shirt scale cannot survive the reader's own text-size setting.
+status: stable
+kind: foundation
+aliases: [text styles, type ramp, semantic type scale, tabular numerals]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+Almost every design system sizes type with a t-shirt scale: `xs`, `sm`, `base`,
+`lg`, `xl`, and upwards. It is easy to learn and it has one fatal property for a
+health product — it names the *size*, so a component that wants "the size a
+footnote should be" has to hard-code the answer.
+
+The moment the reader changes their text size, that answer stops being right.
+Real text scaling is not a uniform multiplication: small text needs to grow
+proportionally more than large text, or a heading at 200% becomes absurd while a
+caption is still barely readable. A scale addressed by size cannot express that,
+because the component asked for `text-xs` and `text-xs` is a number.
+
+opsinjs therefore uses a **semantic scale**, in the manner of Apple's Dynamic
+Type text styles: roles named for the job they do. A component asks for
+`footnote` and the system decides what a footnote is at the current text size, on
+this device, in this container. The mapping can change; the intent cannot.
+
+## How it works
+
+There are two families, and the split is the health-specific part.
+
+**Reading roles** carry words.
+
+| Role | Job | Notes |
+| --- | --- | --- |
+| `display` | The one thing a screen is about, when it is not a number | At most one per screen |
+| `title-1` | Screen title | Usually the H1, but a role is not a level |
+| `title-2` | Section heading | |
+| `title-3` | Subsection or card heading | |
+| `headline` | The emphasised lead line inside a card | Same size as body, heavier |
+| `body` | Default reading size, 17px | Everything not otherwise specified |
+| `callout` | Body text inside a dense container | Slightly smaller, same leading ratio |
+| `subhead` | The label above or beside a value | Never carries meaning by itself |
+| `footnote` | Provenance, timestamps, "measured by" | The freshness line lives here |
+| `caption` | Axis labels, legends, legal text | The floor; nothing is smaller |
+
+**Value roles** carry numerals, and they exist as a separate family for one
+reason: they always set `font-variant-numeric: tabular-nums`, and reading roles
+never do.
+
+| Role | Job |
+| --- | --- |
+| `value-xl` | The hero reading on a reading screen |
+| `value-lg` | A reading inside a card |
+| `value-md` | A reading in a tile, a table cell or a list row |
+| `value-sm` | A figure inline in a sentence |
+| `unit` | The unit beside any of the above |
+
+The product theme backstops this with an attribute: anything carrying
+`data-opsinjs-value` is set in tabular figures regardless of which role it landed
+in, so a component that reaches for the wrong role still produces a stable
+column. The backstop is not permission to use the wrong role.
+
+Tabular figures are not a stylistic choice here. Proportional digits have
+different widths, so `111` and `100` are different lengths; a column of readings
+does not align, a value that updates shifts the layout under the reader's thumb,
+and a chart axis wobbles as it redraws. Putting the numeric variant in the token
+rather than in each component is what makes it impossible to forget.
+
+**A role is four values, not one.** Each carries a size, a line height, a
+tracking adjustment and a weight, because they are not independent: large type
+needs tighter tracking and proportionally tighter leading, small type needs the
+reverse. Shipping only sizes is how a system ends up with headings that are
+correctly sized and set too loose.
+
+**A role is not a heading level.** `title-2` is an appearance; `h2` is document
+structure. Choose the heading level from the outline of the page and the role
+from what it should look like. Choosing an `h4` because you wanted smaller text
+is how a document becomes unnavigable for anybody who moves through it by
+heading.
+
+<TypeScaleSpecimen role="body" />
+
+## Using it
+
+**Default to `body` and justify anything else.** Most text in a health product is
+body text. A screen with six distinct type roles is usually a screen that has not
+decided what it is about.
+
+**Never use a value role for words or a reading role for a measurement.**
+
+<DoDont>
+  <DoDont.Do>
+    `Resting heart rate` in `subhead`, `62` in `value-lg`, `bpm` in `unit`,
+    `Measured 3 hours ago by your watch` in `footnote`. Four roles, four
+    different jobs, and each one is doing exactly its own.
+  </DoDont.Do>
+  <DoDont.Dont>
+    All four in `body` with the number bolded. Nothing is subordinate to anything,
+    the digits are proportional so the tile jumps every time the reading changes,
+    and the provenance line has the same weight as the measurement it qualifies.
+  </DoDont.Dont>
+</DoDont>
+
+**Do not add a step.** If a size is missing, the usual cause is that a role is
+being used for the wrong job. A genuine gap is a token proposal — see
+[Contributing tokens](../../handbook/contributing/contributing-tokens.mdx) — not
+a local override, because a local size does not participate in Dynamic Type.
+
+**Two weights, three at the outside.** Regular for reading, a medium or semibold
+for emphasis, and a heavier weight reserved for value roles. Systems with five
+weights use them to imply importance, and implied importance on a health screen
+competes with [clinical status](../../health/clinical-status-semantics.mdx) — see
+rule 3 on [Typography](index.mdx).
+
+**Do not set the same content in two roles at two breakpoints.** The role is
+already responsive; overriding it at a breakpoint takes it out of the scale and
+out of Dynamic Type at the same time.
+
+## Tokens
+
+Every role's size, line height, tracking, weight and numeric variant is generated
+from `tokens/type.json` by `scripts/build-tokens.mts`, along with the scaling
+behaviour of each role under the reader's multiplier. Specimens are rendered from
+the generated values, so what you see is the token rather than an illustration of
+it.
+
+<TokenTable scope="type" />
+
+## Accessibility impact
+
+- **A semantic scale is what makes non-linear text scaling possible at all.**
+  Because a component asks for a role rather than a size, `caption` can grow
+  faster than `display` as the reader's multiplier rises. That is the whole
+  argument for the extra indirection, and it is invisible until somebody actually
+  turns their text size up.
+- **`caption` is the floor and it is a real floor.** Nothing in the system is
+  smaller, and `caption` is still measured for contrast at its own size and
+  weight, because APCA — unlike a plain WCAG ratio — is sensitive to both.
+- **Tabular figures materially help low-numeracy and dyslexic readers**, who are
+  a large proportion of any consumer health audience. Alignment is not
+  decoration; it is what lets somebody compare two numbers without counting
+  digits.
+- **Roles and heading levels must not be conflated.** Screen-reader users
+  navigate by heading level. A page whose levels were chosen for their appearance
+  is a page whose structure lies.
+- **Nothing may be smaller than `caption` to make something fit.** If text does
+  not fit, the layout is wrong. Shrinking below the floor is how a system quietly
+  ships unreadable provenance lines.
+
+## Related
+
+- [Dynamic Type](dynamic-type.mdx) — what these roles do as the reader's
+  multiplier changes, and the 1.3× bar every component must clear.
+- [Numbers, units and precision](../../health/numbers-units-precision.mdx) — the
+  canonical rules for what a number should say; this page only sets it.
+- [Typography tokens](tokens.mdx) — the generated values behind every role.

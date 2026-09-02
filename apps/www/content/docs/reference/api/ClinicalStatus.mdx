@@ -1,0 +1,54 @@
+---
+title: ClinicalStatus
+description: The union of the four clinical status levels — the type that makes the never-mix rule a compile error rather than a review comment.
+status: planned
+kind: reference
+since: unreleased
+owner: engineering
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 6m
+aliases: [status type, status union]
+---
+
+<PageTemplate kind="reference" />
+
+`ClinicalStatus` is the type of the status axis. Anything that renders urgency —
+a pill, a banner, a range, a result card — takes a value of this type and nothing
+else. It is a closed union with four members, and it is closed on purpose: a
+system that lets a product add a fifth level has no ordinal scale, and an
+alarm-fatigue budget you can extend is not a budget.
+
+## How this is generated
+
+**Source:** the published declaration of the `@opsinjs/react` package.
+**Script:** `scripts/build-reference.mts`. **Command:** `pnpm run generate`.
+
+The package does not exist yet, so the block below is a **specification**, written
+by hand and marked as one. It is here because links point at it and a broken link
+is a worse answer than an honest stub. It is not an API, it has not been
+implemented, and generating code against it will produce an import that does not
+resolve.
+
+```ts
+/**
+ * SPECIFICATION — not implemented, not published.
+ * The four ordinal clinical status levels, defined in
+ * health/clinical-status-semantics.
+ */
+export type ClinicalStatus = "steady" | "watch" | "attention" | "urgent"
+```
+
+The values are ordinal and ordered as written; comparison helpers, if any ship,
+will be documented on their own pages rather than added to this union. The
+meanings, the tone each level requires, the sentence patterns and the list of
+things each level must never be read as are doctrine and live on
+[Clinical status semantics](../../health/clinical-status-semantics.mdx). The
+reason this type may never be combined with a category on one element is
+[The two colour axes](../../health/two-colour-axes.mdx).
+
+{/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
+
+<NoDataYet script="scripts/build-reference.mts" />
+
+{/* opsinjs:generated:end */}

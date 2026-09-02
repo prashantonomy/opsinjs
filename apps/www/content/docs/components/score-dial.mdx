@@ -1,0 +1,270 @@
+---
+title: ScoreDial
+description: A single composite score shown on a dial with its band named in words, alongside an honest statement of what went into the number.
+status: planned
+kind: component
+since: "unreleased"
+category: health-data-display
+aliases: [gauge, dial, ring, score, index, bmi]
+governedBy: [reference-ranges, risk-and-statistics, numbers-units-precision]
+usedIn: [health-metric-card, results-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="score-dial"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Is the derivation disclosure optional? If a product cannot say what went into the score, may the dial render at all?",
+    "Bands are the product's, but the dial draws them — how does it stop a three-band dial reading as a traffic light when the middle band is not a verdict?",
+    "What does it render when only some of the inputs were available, so the score is real but weaker than usual?",
+    "Does a dial ever animate on entry, and if so what does urgency look like when it must not be carried by motion?",
+  ]}
+/>
+
+A dial is the most persuasive graphic in this set and therefore the most dangerous. A
+number inside a ring reads as authoritative, complete and personal, regardless of how thin
+the evidence behind it is. Everything in this specification is arranged around making the
+derivation as visible as the score.
+
+## Preview
+
+The preview will show the dial at its three sizes with the bands both named and unnamed, so
+the difference between a dial that explains itself and one that does not is visible rather
+than argued.
+
+<ComponentPreview name="score-dial" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail.
+
+<ComponentInstall name="score-dial" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "A composite score your product calculated from several inputs — a sleep score, a readiness index, a validated questionnaire total, a risk estimate — where the number has meaning only against its own bands.",
+    "A bounded score whose scale the reader has no intuition for, so the position within the scale carries more information than the digits.",
+    "A score whose derivation you can state in one sentence and are willing to state on the same screen.",
+  ]}
+  avoid={[
+    { case: "The number is a measurement rather than a calculation, and it has a published reference range.", instead: "range-bar" },
+    { case: "You cannot say what went into the score, or the inputs change without the reader knowing.", instead: "value" },
+    { case: "The score is only meaningful as a trajectory — yesterday's number tells the reader nothing on its own.", instead: "trend-sparkline" },
+    { case: "You are showing completion of something the person is doing, such as steps against a goal they set.", instead: "progress" },
+    { case: "The whole message is which status level applies, and the number is incidental.", instead: "status-pill" },
+    { case: "The score has crossed a threshold that requires the reader to act now.", instead: "care-card" },
+  ]}
+/>
+
+The test for whether a dial is honest is simple: can you write the derivation sentence? If
+*your sleep score combines time asleep, how often you woke, and how much of the night was
+deep sleep* is a sentence you can stand behind, the dial is earned. If the derivation is
+proprietary, unstable, or nobody in the room can describe it, the dial is a decorative
+authority claim and [Value](./value.mdx) is the honest component.
+
+## Clinical meaning
+
+**What it asserts.** That the product computed a number from stated inputs, that the number
+falls in a named band on a stated scale, and nothing else. The dial asserts a calculation,
+not a fact about the reader's body.
+
+**What it must never be read as.** A measurement, a diagnosis, or a comparison with other
+people. A score of 62 is not sixty-two per cent of anything, it is not a mark out of a
+hundred, and it is not a rank. Where the underlying scale is a validated instrument, the
+dial must not imply a clinical cut-off the instrument does not have.
+
+**Which colour axis it may use.** The **status** axis, on the band the value falls in, and
+only when the product has mapped that band to a clinical status. Bands are not statuses by
+default: a three-band dial coloured green, amber and red is a traffic light, and a traffic
+light is a verdict. When no status mapping exists the bands are drawn in neutral tones and
+distinguished by position and label. The **category** axis may tint the dial's label and
+icon, never the track or the bands.
+
+**Who owns the bands and the thresholds.** The consuming product, always. ScoreDial ships
+no scales, no bands and no cut-offs. A component library that shipped a BMI banding would be
+shipping a contested clinical judgement into every product that installed it.
+
+**Derivation is mandatory content, not an option.**
+[Risk and statistics](../health/risk-and-statistics.mdx) makes the wider argument: a bare
+number with no denominator and no method invites the reader to fill in both, and they will
+fill them in with something worse than the truth.
+
+<SafetyCallout severity="medium" evidence="opinion">
+When only part of the input data was available, the dial must say so on its face — *based on
+4 of 6 nights* — rather than presenting a weaker score as if it were a normal one. Products
+that quietly compute a score from partial data teach readers to trust a number that
+sometimes means much less than it appears to.
+</SafetyCallout>
+
+## Anatomy
+
+<Anatomy name="score-dial" />
+
+<CompositionTree name="score-dial" />
+
+**Track** is the full sweep of the scale. **Bands** are the named regions the product
+defined, drawn once and labelled in words. **Indicator** is the score's position.
+**Reading** is the number and, more importantly, the band's name — the word is what the
+reader remembers. **Derivation** is the sentence saying what went into it and over what
+window. **Scale** states the bounds, because a dial with no visible bounds is a dial the
+reader will assume runs to a hundred.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+ScoreDial                      root; owns value, scale, bands, no defaults
+├── ScoreDial.Track            the full sweep, always fully drawn
+│   ├── ScoreDial.Band         a named region; neutral unless the product maps a status
+│   └── ScoreDial.Indicator    the score's position; the only status-coloured part
+├── ScoreDial.Reading
+│   ├── ScoreDial.Score        the number
+│   └── ScoreDial.BandName     the band in words — never omitted, never colour alone
+├── ScoreDial.Scale            the bounds, e.g. "out of 100"
+└── ScoreDial.Derivation       what went into it, over what window, from how much data
+```
+
+`ScoreDial.BandName` and `ScoreDial.Derivation` are mandatory parts. A dial rendered without
+them should fail loudly in development with a named error code rather than degrade quietly.
+
+## Proposed API
+
+<NotBuiltYet name="score-dial" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+import type { ClinicalStatus, HealthCategory } from "opsinjs"
+
+export interface ScoreBand {
+  /** Inclusive lower bound on the score's own scale. */
+  from: number
+  /** Exclusive upper bound. */
+  to: number
+  /** The band in words. Required — a band with no name cannot be read aloud. */
+  name: string
+  /**
+   * Optional mapping to the clinical status axis. Omit it and the band is drawn
+   * in neutral tones: bands are not statuses unless the product says so.
+   */
+  status?: ClinicalStatus
+}
+
+export interface ScoreDialProps {
+  label: string
+  /** `null` renders the no-score state, which is not a score of zero. */
+  value: number | null
+  /** The scale's bounds. Both required: an unbounded dial is unreadable. */
+  min: number
+  max: number
+  /** Contiguous, non-overlapping, covering the whole scale. */
+  bands: ScoreBand[]
+  /**
+   * One sentence: what went into the score and over what window. Required.
+   * A dial that cannot explain itself should not be drawn.
+   */
+  derivation: string
+  /**
+   * Data completeness behind the score, e.g. { available: 4, expected: 6 }.
+   * When present and short, the dial shows its partial-data treatment.
+   */
+  coverage?: { available: number; expected: number }
+  /** Label and icon treatment only. Never the track or the bands. */
+  category?: HealthCategory
+  measuredAt?: string
+}
+```
+
+## Content guidelines
+
+Lead with the band name, not the number. *Your sleep score is 62 — fair* is read as a
+grade; *fair, 62 out of 100* is read as a description. The band names are the product's
+vocabulary and they should be plain, non-judgemental, and free of the words banned across
+the system: **normal**, **abnormal**, **good**, **bad**, **poor**, **failed**.
+
+The derivation sentence is one sentence in the second person, naming the inputs a reader
+would recognise and the window they cover.
+
+<DoDont>
+  <DoDont.Do>
+    **"Sleep score 62 out of 100 — fair. Based on how long you slept, how often you woke,
+    and how much deep sleep you had, over the last 4 nights."** The band is named, the scale
+    is stated, the method is disclosed, and the window is explicit.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Sleep score: 62"** in a coloured ring with no scale, no band and no method. Every
+    missing piece is one the reader supplies from imagination, and 62 out of what is the
+    first thing they get wrong.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **"Based on 4 of the last 6 nights."** States the gap so the reader can weigh the score
+    themselves.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **Computing the score from whatever data exists and showing it identically.** The reader
+    has no way to know that today's number rests on a third of the usual evidence.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **The dial is a static image with an accessible name**, not a `meter` and not a
+  `progressbar`: neither role carries the band vocabulary, and `progressbar` implies a task
+  advancing towards completion.
+- **The accessible name is a sentence**, not a number: *sleep score 62 out of 100, fair,
+  based on 4 of the last 6 nights*. It is the whole component in one utterance.
+- **Bands are distinguishable without colour** by position, boundary marks and their names.
+  Verified by the generated CVD audit — see
+  [Colour independence](../accessibility/colour-independence.mdx).
+- **The number and the band name meet the contrast floor against every band fill** they can
+  appear over, in both themes.
+- **At 200% text the dial reflows** to a stacked form with the score and band name above a
+  reduced-height arc; the derivation sentence never truncates.
+- **No entry animation carries meaning.** If the indicator sweeps into position, it is a
+  single short transition, identical at every band, and removed entirely under
+  `prefers-reduced-motion`. A dial that animates faster when the score is worse is exactly
+  the failure [Motion in health UI](../health/motion-in-health-ui.mdx) prohibits.
+- **Print** renders the arc as an outline with the indicator as a solid mark, plus the
+  reading, band name and derivation as text.
+
+<KeyboardTable name="score-dial" />
+
+<ContrastReport component="score-dial" />
+
+## Related
+
+<RelatedComponents name="score-dial" />
+
+**Easily confused with**
+
+- [RangeBar](./range-bar.mdx) — measured value against a published range, rather than a
+  calculated score against bands you defined. If you did the arithmetic, it is a dial.
+- `progress` (considered, no page yet — see the [roster](./index.mdx)) — a task advancing
+  towards a goal, not a score describing a state.
+- [MetricTile](./metric-tile.mdx) — the compact readout. A tile can hold a miniature dial,
+  but not the derivation sentence, which is why a dial rarely belongs in a grid.
+- `goal-ring` (considered) — the ring the reader fills by doing something. A dial is
+  something that happened to them; a goal ring is something they did.
+
+**Used by**
+
+- [Build a health metric card](../recipes/health-metric-card.mdx)
+- [Results screen](../screens/results-screen.mdx)
+
+**Governed by**
+
+- [Reference ranges and normal](../health/reference-ranges.mdx)
+- [Risk and statistics](../health/risk-and-statistics.mdx)
+- [Numbers, units and precision](../health/numbers-units-precision.mdx)

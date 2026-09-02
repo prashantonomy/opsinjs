@@ -1,0 +1,168 @@
+{
+  "$comment": "AUTHORED SOURCE — not generated. scripts/build-tokens.mts reads this file and emits app/tokens.generated.css and lib/generated/tokens.ts.",
+  "version": 1,
+  "namespace": "type",
+  "cssPrefix": "--opsin",
+  "cssNaming": {
+    "size": "--opsin-text-{name}-size",
+    "leading": "--opsin-text-{name}-leading",
+    "tracking": "--opsin-text-{name}-tracking",
+    "weight": "--opsin-text-{name}-weight",
+    "shorthand": "--opsin-text-{name}",
+    "$comment": "`--opsin-text-{name}` is a `font` shorthand value combining weight, size and leading, so a component can set one property. The four parts stay addressable for the cases where a component needs to change only the weight."
+  },
+  "family": {
+    "sans": "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+    "mono": "ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace",
+    "numeric": "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+    "$comment": "system-ui, not SF Pro. SF Pro's licence permits use in software running on Apple platforms only, which a React component library shipped as source cannot guarantee. Using system-ui also means a reader who has changed their platform font size or chosen a dyslexia-friendly system face keeps that choice. There is no display or brand face: a health value should not be styled."
+  },
+  "numerals": {
+    "fontVariantNumeric": "tabular-nums",
+    "appliesTo": [
+      "Value",
+      "MetricTile",
+      "ResultCard",
+      "RangeBar",
+      "LogSheet",
+      "ReadingInput",
+      "TrendSparkline"
+    ],
+    "$comment": "Every component that renders a number sets tabular-nums. Proportional digits make a value that updates in place appear to twitch, and make a column of readings impossible to scan. This is a correctness requirement, not a preference — see /docs/health/numbers-units-precision."
+  },
+  "rules": [
+    "The scale is semantic, not t-shirt-sized. `body`, `headline`, `caption2` say what a step is for; `lg` and `xl` do not, and the moment a scale is named by size somebody picks the size they like rather than the role they mean.",
+    "A health value is rendered at `title2` or larger and never below `body`. If it does not fit, the layout is wrong, not the type.",
+    "Never set a size in px in a component. Every text style is one of the steps below.",
+    "Every layout must remain usable at 200% text without horizontal scrolling — see /docs/accessibility/text-resizing-and-zoom."
+  ],
+  "baseRem": 16,
+  "anchor": {
+    "step": "body",
+    "px": 17,
+    "$comment": "The scale is anchored on a 17px body, the iOS convention, rather than the 16px web convention. This system's readers are on phones, often older, often reading a number that matters to them. Every other step is derived from that anchor and expressed in rem so the reader's own browser setting still scales it."
+  },
+  "scale": [
+    {
+      "name": "largeTitle",
+      "px": 34,
+      "rem": 2.125,
+      "leadingPx": 41,
+      "leading": 1.206,
+      "trackingEm": -0.011,
+      "weight": 700,
+      "use": "The one number or one word a screen exists to show. A dial's reading, a result's headline value."
+    },
+    {
+      "name": "title1",
+      "px": 28,
+      "rem": 1.75,
+      "leadingPx": 34,
+      "leading": 1.214,
+      "trackingEm": -0.009,
+      "weight": 700,
+      "use": "Screen title."
+    },
+    {
+      "name": "title2",
+      "px": 22,
+      "rem": 1.375,
+      "leadingPx": 28,
+      "leading": 1.273,
+      "trackingEm": -0.006,
+      "weight": 600,
+      "use": "Section title; the floor for a primary health value inside a card."
+    },
+    {
+      "name": "title3",
+      "px": 20,
+      "rem": 1.25,
+      "leadingPx": 25,
+      "leading": 1.25,
+      "trackingEm": -0.004,
+      "weight": 600,
+      "use": "Card title."
+    },
+    {
+      "name": "headline",
+      "px": 17,
+      "rem": 1.0625,
+      "leadingPx": 22,
+      "leading": 1.294,
+      "trackingEm": -0.003,
+      "weight": 600,
+      "use": "An emphasised line of body text — a status sentence, a question in a form."
+    },
+    {
+      "name": "body",
+      "px": 17,
+      "rem": 1.0625,
+      "leadingPx": 22,
+      "leading": 1.294,
+      "trackingEm": -0.003,
+      "weight": 400,
+      "use": "Everything a reader reads as prose. The anchor of the scale."
+    },
+    {
+      "name": "callout",
+      "px": 16,
+      "rem": 1,
+      "leadingPx": 21,
+      "leading": 1.313,
+      "trackingEm": -0.002,
+      "weight": 400,
+      "use": "Secondary prose inside a card or a callout."
+    },
+    {
+      "name": "subheadline",
+      "px": 15,
+      "rem": 0.9375,
+      "leadingPx": 20,
+      "leading": 1.333,
+      "trackingEm": -0.001,
+      "weight": 400,
+      "use": "Supporting line under a title; the unit beside a value."
+    },
+    {
+      "name": "footnote",
+      "px": 13,
+      "rem": 0.8125,
+      "leadingPx": 18,
+      "leading": 1.385,
+      "trackingEm": 0,
+      "weight": 400,
+      "use": "Provenance: who measured this, when, with what."
+    },
+    {
+      "name": "caption1",
+      "px": 12,
+      "rem": 0.75,
+      "leadingPx": 16,
+      "leading": 1.333,
+      "trackingEm": 0.002,
+      "weight": 400,
+      "use": "Axis labels, legend text, timestamps."
+    },
+    {
+      "name": "caption2",
+      "px": 11,
+      "rem": 0.6875,
+      "leadingPx": 13,
+      "leading": 1.182,
+      "trackingEm": 0.005,
+      "weight": 500,
+      "use": "The smallest text the system permits, and only for text that repeats a label already present elsewhere. Never the only place a fact appears."
+    }
+  ],
+  "textSizeSteps": {
+    "$comment": "The four steps the docs preview toolbar and the (view) route's ?text= parameter expose, matching the demonstrations promised on /docs/foundations/typography/dynamic-type and /docs/accessibility/text-resizing-and-zoom. They multiply the rem value of every step; they do not change leading ratios, which are already expressed as multipliers.",
+    "100": 1,
+    "125": 1.25,
+    "150": 1.5,
+    "200": 2
+  },
+  "dynamicType": {
+    "policy": "Sizes are expressed in rem and never clamped at the top. A reader who has set a larger text size gets larger text, including inside a component. Where a layout cannot hold at 200%, the layout reflows to a single column; it never truncates a health value and it never adds a horizontal scrollbar.",
+    "$comment": "The three things that break at 200% and must be tested at every review: a value and its unit falling onto separate lines, a status pill wrapping its word, and a range bar's end labels colliding. All three are layout problems with layout fixes."
+  }
+}

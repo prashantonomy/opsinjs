@@ -1,0 +1,186 @@
+---
+title: Results screen
+description: One result, what it means and what happens next — read in that order, by eye and by screen reader.
+status: planned
+kind: screen
+owner: opsinjs-docs
+reviewEvery: 6m
+reviewer: clinical
+evidence: opinion
+usedIn:
+  [
+    result-card,
+    range-bar,
+    value,
+    status-pill,
+    term,
+    care-card,
+    disclaimer-note,
+    relative-time,
+    card,
+    surface,
+    skeleton,
+    empty-state,
+    source-citation,
+  ]
+---
+
+<PageTemplate kind="screen" />
+
+## What this screen does
+
+Somebody has opened a result. They may have arrived from a notification, from a
+list of results, or from a tile they tapped on the home screen — and in the
+notification case they may have been thinking about it since it arrived.
+
+They want three things, in this order: **what is my number**, **where does it sit
+relative to the range this test is compared against**, and **what, if anything,
+do I do now**. The screen answers those three and then stops. Everything else on
+it — provenance, history, the boundary note — is below the fold by design, because
+it is context rather than answer.
+
+**What this screen deliberately does not do.** It does not diagnose. It does not
+rank the person against other people. It does not recommend a treatment. It does
+not decide the clinical status: if a status is shown, a rule owned by the product
+assigned it, and the screen is rendering that rule's output. And it does not put
+an interstitial in front of a result the person has already chosen to open —
+softening the approach to a result is the job of the flow before this screen
+([Result disclosure](../patterns/result-disclosure.mdx)), not of a barrier here.
+
+## Composition
+
+<CompositionTree name="results-screen" />
+
+The proposed part hierarchy, with the material rung each surface sits on. Rungs
+are given by position rather than by name so that this page cannot drift from
+[The ladder](../foundations/materials/the-ladder.mdx), which names them.
+
+```text
+ResultsScreen                          page ground
+├── Header                             page ground
+│   ├── BackControl                    returns to where the reader came from
+│   └── Title                          the test, in the reader's words
+├── ResultCard                         one rung above the page
+│   ├── Value                          the largest element on the screen
+│   ├── RelativeTime                   when it was measured, not synced
+│   ├── RangeBar
+│   │   ├── Band                       one continuous shape, no coloured zones
+│   │   ├── Marker                     distinct by shape, not only by colour
+│   │   └── Endpoints                  numbers and the sentence that says them
+│   ├── StatusPill                     only when a rule assigned a status
+│   └── Summary                        the sentence carrying the whole meaning
+├── MeaningSection                     page ground
+│   ├── Term                           plain-English expansion, inline
+│   └── Prose                          what this does and does not mean
+├── CareCard                           one rung above the page
+│   ├── Action                         one action, specific
+│   └── Timing                         by when, and what if not
+├── ProvenanceSection                  page ground
+│   ├── Source                         who measured it, on what
+│   └── DateTime                       absolute, not relative
+└── DisclaimerNote                     page ground, lowest emphasis
+```
+
+Three composition rules this screen exists to demonstrate:
+
+**The card is the only surface off the page ground.** Elevation is meaning here:
+exactly the result and the action are lifted, so that lifting reads as "this is
+the answer" rather than as decoration. A screen where every section is a card has
+no hierarchy left to spend.
+
+**CareCard is conditional, not decorative.** It appears when there is a real
+action with real timing, and is absent otherwise. A permanently present card with
+"no action needed" in it teaches the reader to skip the position where the real
+action will one day be.
+
+**One status pill, or none.** The status never colours the card, the band or the
+marker — see [The two colour axes](../health/two-colour-axes.mdx). If no clinical
+rule assigned a status, the screen shows no status and no colour stands in for one.
+
+## Preview
+
+<IframePreview kind="screen" name="results-screen" />
+
+## Safety notes
+
+- **A result with no range is not a result with an empty bar.** When no reference
+  range applies, the screen says so in words and omits the bar entirely. An empty
+  bar reads as a missing result.
+- **Out of range is a position, never a verdict.** The summary sentence describes
+  where the value sits. It does not say *abnormal*, *high risk*, *bad*, or —
+  system-wide — *normal*: [Reference ranges](../health/reference-ranges.mdx).
+- **One measurement is not a trend.** Nothing on this screen may imply direction
+  from a single point. Where history exists it belongs on the
+  [trends screen](./trends-screen.mdx), reached from here rather than inlined as
+  an arrow.
+- **Provenance is not optional for a device reading.** Who measured it and with
+  what changes how much weight it can bear, and the screen must be able to say so
+  rather than presenting every number as equally authoritative.
+- **The value and the range are in the same unit, from one conversion at the edge
+  of the system** — [Unit systems](../health/unit-systems.mdx). A view-layer
+  conversion is how a screen shows a value and a band that disagree.
+- **Stale is stated.** If the result is old enough that the reader might otherwise
+  take it as current, the screen says when it was measured in absolute terms and
+  de-emphasises it, rather than continuing to present it as news —
+  [Uncertainty and staleness](../health/uncertainty-and-staleness.mdx).
+- **The screen never animates the value into place.** A number counting up is
+  unreadable while it moves, and the movement suggests significance the number may
+  not have — [Motion in health UI](../health/motion-in-health-ui.mdx).
+- **The disclaimer is placed by rule**, in the same position on every result
+  screen, so that it is findable rather than merely present.
+
+## Accessibility
+
+**Landmarks and headings.** One `main` landmark, one H1 — the name of the test.
+The result, the meaning, any action and the provenance are H2s in that order. The
+heading outline read on its own is a usable summary of the screen.
+
+**Focus on entry.** Focus lands at the start of the main content, on the heading
+that names the test — not on the back control, and not on the first interactive
+element inside the card. A reader arriving from a notification should hear what
+they opened before they hear how to leave it.
+
+**Reading order matches visual order.** The order is title, value with unit,
+measurement time, range and position, summary sentence, meaning, action,
+provenance, boundary. This is the check the screen is most likely to fail: a card
+that visually leads with the number but places the status pill first in the DOM
+announces a verdict before the fact.
+
+**The bar is an enhancement over a sentence.** Everything the RangeBar conveys is
+in the summary sentence: the value, the unit, both endpoints, and where the value
+sits between them. A reader who never perceives the graphic loses speed and
+nothing else — [Alt text and descriptions](../content/alt-text-and-descriptions.mdx).
+
+**Colour independence.** The marker is distinguishable from the band by shape and
+contrast; the status is a word and an icon before it is a colour. Verified in
+greyscale and under all three simulated colour-vision deficiencies —
+[Colour independence](../accessibility/colour-independence.mdx).
+
+**Contrast.** Every pair on the card is measured against the published floor in
+both themes, including the marker against the band, which is the pair most likely
+to fail — [Contrast conformance](../accessibility/contrast-conformance.mdx).
+
+**Text at 200%.** The card reflows; the value never truncates and its unit never
+wraps away from it; the bar may give way to the sentence —
+[Text resizing and zoom](../accessibility/text-resizing-and-zoom.mdx).
+
+**Terms are reachable by keyboard.** A [Term](../components/term.mdx) expansion
+that depends on hover is unavailable on touch and to keyboard users, and this
+screen is where unfamiliar words concentrate.
+
+**Reduced transparency and reduced motion** both hold: the card falls back to its
+opaque rung with the contrast floor intact, and the screen presents complete with
+no entrance animation carrying meaning.
+
+## Status
+
+<StubNotice
+  name="results-screen"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "What does the screen render when a reference range exists for the test but not for this person's age or sex?",
+    "Where does provenance go when the reading came from a consumer device rather than a laboratory, and what may the screen assert about its accuracy?",
+    "If the product's clinical rules assign no status, does the screen show an explicit 'no assessment' state or nothing at all?",
+    "What is shown when the result arrives before the summary sentence that explains it has been written?",
+  ]}
+/>

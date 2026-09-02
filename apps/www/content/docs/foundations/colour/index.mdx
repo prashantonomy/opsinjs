@@ -1,0 +1,169 @@
+---
+title: Colour
+description: How opsinjs decides what colour anything is — two independent axes, one derivation engine, and a contrast floor the build refuses to ship below.
+status: stable
+kind: foundation
+aliases: [colour system, color system, palette, oklch, ramp, hue, chroma]
+owner: design
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+In most design systems colour is presentation. In a system whose reader is
+looking at their own blood pressure, colour is an **assertion**. A red surface
+behind a number says *something is wrong with you*. A green one says *you are
+fine*. Neither of those sentences is one a component library is qualified to
+say by accident, so opsinjs makes colour a decision with a stated owner, a
+stated meaning, and a measured floor — rather than a palette you pick from.
+
+Two things follow, and they are the whole of this section:
+
+1. **Colour comes from exactly one of two axes.** *Category* says what kind of
+   measurement this is. *Status* says how urgent it is. An element may take
+   colour from one axis; never from both. The full argument, and the vocabulary
+   for the four status levels, lives in
+   [Two colour axes](../../health/two-colour-axes.mdx) — that is doctrine, and
+   this section is the mechanism that implements it.
+2. **Every value is derived, not chosen.** You give the engine one brand colour.
+   It produces the ramps in OKLCH, clamps each step into the display's gamut,
+   assigns the semantic roles, and then checks every pair it emitted against the
+   published contrast floor. If a pair fails, the derivation fails loudly instead
+   of shipping a theme that is pretty and unreadable.
+
+The thing this is most often confused with is **theming**. Foundations tells you
+what a token *means*; [Theming](../../theming/index.mdx) tells you how to
+*change* it; [Reference](../../reference/index.mdx) is the generated list of
+every one. If a paragraph here starts explaining how to override something, it
+is in the wrong pillar.
+
+## How it works
+
+### The two axes, in tokens
+
+Every colour token in opsinjs is named
+`--opsin-<axis>-<name>-<role>`. The axis is `category` or `status`; there is no
+third. The role is one of three, and only three:
+
+| Role | What it is | Contrast obligation |
+| --- | --- | --- |
+| `surface` | the fill behind content | it is the *background* half of a measured pair |
+| `line` | a stroke, a glyph, a chart line, a focus ring | non-text contrast against the surface it sits on |
+| `ink` | text and icons **on the matching surface** | text contrast against that surface |
+
+So `--opsin-status-urgent-ink` is guaranteed legible on
+`--opsin-status-urgent-surface`, and on nothing else. Pairs are the unit of
+guarantee; [Colour roles](./colour-roles.mdx) states that rule properly and
+lists what it excludes.
+
+The six categories are `cardio`, `metabolic`, `respiratory`, `activity`,
+`sleep` and `body`. The four status levels are `expected`, `watch`, `act` and
+`urgent`, in that order. Category ramps are deliberately low-chroma so that a
+category can never be mistaken for a verdict; status ramps are deliberately
+high-chroma because a verdict has to be seen. That asymmetry is the single most
+important thing about the palette.
+
+<Callout title="The status token names are not the words on screen">
+  `expected`, `watch`, `act` and `urgent` are the names of the ramps. The words a
+  reader actually sees are a content decision, made in
+  [Writing status and alerts](../../content/writing-status-and-alerts.mdx) and
+  governed by
+  [Clinical status semantics](../../health/clinical-status-semantics.mdx). Do
+  not put a token name in front of a patient.
+</Callout>
+
+### The derivation engine, in one line
+
+Brand colour → OKLCH → a fixed lightness ladder → per-step chroma clamp to the
+sRGB gamut → Display-P3 chroma escalation behind a media query → role
+assignment → APCA validation loop → emitted CSS custom properties.
+
+Each of those stages has a failure mode worth knowing about, which is why
+[How the engine works](./how-the-engine-works.mdx) is a page of its own rather
+than a diagram here.
+
+### Where the values live
+
+Authored input is `tokens/color.json`. `scripts/build-tokens.mts` reads it and
+writes `app/tokens.generated.css`, which `app/globals.css` imports at a fixed
+position. Until that script has run, the authored fallback block in
+`globals.css` is what renders — so a clean clone looks correct rather than
+unstyled, and `pnpm check:generated` fails the build if the two ever disagree.
+
+No colour value on this site is typed into MDX. If you see one, it is inside a
+fenced code block, illustrating the *shape* of a declaration.
+
+## Using it
+
+**Pick the axis before you pick the colour.** The question is never "what colour
+should this card be". It is "is this card identifying a kind of measurement, or
+delivering a verdict about one". Category and status answer different questions
+and a surface that tries to answer both answers neither.
+
+**Reach for a role, not a step.** Product code uses
+`--opsin-status-act-surface`, never a ramp step and never a raw `oklch()`. The
+step numbers exist so the engine can talk about itself; they are not an API.
+The `opsinjs` ESLint and Stylelint rules described in the
+[Handbook](../../handbook/index.mdx) exist to catch the raw value before review
+does.
+
+**Do not add a status level.** Four is a design decision with a clinical
+argument behind it, not a starting point. If you need a fifth, what you almost
+certainly need is a different component — see
+[Alarm fatigue](../../health/alarm-fatigue.mdx).
+
+**Adding a category is fine.** Categories are identity, and a product that
+measures something we did not anticipate should say so.
+[Category palettes](../../theming/category-palettes.mdx) is the supported
+recipe, and it is supported precisely because a new category cannot contaminate
+the status axis.
+
+**Colour is never the only carrier.** A status always ships with a word, and
+with an icon where the layout allows one. This is not a nicety for a minority of
+readers; it is what makes the system survive greyscale printing, direct
+sunlight, a cheap screen and a photocopier. See
+[Colour blindness](./colour-blindness.mdx).
+
+## Tokens
+
+<TokenTable scope="color" />
+
+## Accessibility impact
+
+Colour is the foundation with the largest accessibility surface in the system,
+and it carries three distinct obligations that people routinely collapse into
+one:
+
+- **Contrast (WCAG 2.2 SC 1.4.3 and 1.4.11).** Every emitted pair is measured in
+  both themes by `scripts/check-contrast.mts` and published in
+  [Contrast and APCA](./contrast-and-apca.mdx). WCAG 2.2 is the conformance
+  obligation; APCA is the tool the engine optimises against. Both are printed,
+  side by side, because they disagree in ways a designer should be able to see.
+- **Use of colour (SC 1.4.1).** No opsinjs component may express state through
+  colour alone. That is a structural rule enforced at the component level, not a
+  guideline — see [Colour independence](../../accessibility/colour-independence.mdx).
+- **Adaptation.** `prefers-contrast: more`, `forced-colors: active` and dark mode
+  are three different requests and get three different answers. Dark mode is a
+  re-derivation, not an inversion ([Dark mode](./dark-mode.mdx)); forced colours
+  hands the palette to the operating system and the system must survive losing
+  it entirely.
+
+The failure mode that motivates all of this is specific: a reader with a
+red–green colour vision deficiency, on a phone at 40% brightness outdoors,
+glancing at a result. If the only difference between "expected" and "act" is
+hue, that reader gets the wrong answer and acts on it.
+
+## Related
+
+- [Two colour axes](../../health/two-colour-axes.mdx) — the doctrine this
+  section implements, and the argument for why an element may take colour from
+  only one axis.
+- [Materials](../materials/index.mdx) — colour decides what a surface is; the
+  material ladder decides what is behind it, and the two multiply.
+- [Theme generator](../../theming/theme-generator.mdx) — the same engine,
+  wired to an input box, with the APCA verdict shown as you type.

@@ -1,0 +1,152 @@
+---
+title: Health literacy
+description: Writing for the reader who can read the words but cannot use the numbers — which, for most health content, is most readers.
+status: stable
+kind: content
+reviewer: content
+reviewEvery: 12m
+aliases: [health numeracy, low literacy, comprehension, writing for patients]
+---
+
+<PageTemplate kind="content" />
+
+## The rule
+
+**Write for a reader who understands every word and still cannot answer the
+question.** Health literacy is not the same as literacy. It is the ability to
+find, understand and act on health information, and the numerical part of it —
+health numeracy — fails far more often than the vocabulary part.
+
+That reframes the job. Replacing "hypertension" with "high blood pressure" is
+necessary and it is the easy half. The hard half is that a reader who fully
+understands "your reading is 148 over 92, and the usual range is 90 to 120 over
+60 to 80" may still not be able to answer *should I do something about it?* —
+which is the only question they opened the app to ask.
+
+Four rules follow.
+
+1. **Answer the question the reader has, before the one you have data for.** They
+   asked "am I OK?". You have a number. The sentence must bridge the two, and the
+   bridge is the comparison and the action, not the number.
+2. **Never make the reader do arithmetic.** No mental subtraction, no percentage
+   of a percentage, no unit conversion, no reading a value off an axis. If a
+   comparison matters, write the comparison.
+3. **Give the frame with the figure.** A number with no reference point is not
+   information. "72" is nothing; "72 bpm, which is within your usual range of 58
+   to 76" is an answer.
+4. **Assume interruption.** Health content is read while distracted, while
+   frightened, on a bus, in a corridor, one-handed. Every paragraph must survive
+   being the only paragraph the reader gets to.
+
+### Writing about risk
+
+Risk is where numeracy fails hardest, and it has its own canonical page:
+[Risk and statistics](../health/risk-and-statistics.mdx) owns the rules and the
+evidence. The content-side summary is short:
+
+- **Absolute, never relative alone.** "Increases your risk by 50%" is
+  uninterpretable and usually alarming out of proportion to the underlying
+  change. Give the two absolute figures.
+- **Natural frequencies, one denominator.** "About 3 in every 100 people" beats
+  "3%", and both denominators in a comparison must be the same number.
+- **Never a bare percentage** in a sentence a reader is meant to act on.
+- **Say what the number does not cover.** A risk figure derived from a population
+  is not a statement about the person reading it, and the sentence must say so.
+
+## Approved / Rejected
+
+<DoDont>
+  <DoDont.Do>Your reading was 148/92. Your usual range is around 118/76. That is higher than usual for you. One reading on its own is often not a problem — take another in the morning.</DoDont.Do>
+  <DoDont.Dont>Your reading was 148/92 mmHg (systolic/diastolic), which is 25% above your 30-day mean.</DoDont.Dont>
+</DoDont>
+
+The rejected version is accurate, precise, and asks the reader to compute their
+own answer from a percentage of a statistic they have never seen.
+
+<DoDont>
+  <DoDont.Do>About 3 in every 100 people taking this have a headache in the first week. That means about 97 in every 100 do not.</DoDont.Do>
+  <DoDont.Dont>Headache occurs in 3% of patients, with a reported confidence interval.</DoDont.Dont>
+</DoDont>
+
+The figures in that pair are invented to show the *shape* of the sentence and
+carry no clinical meaning. Real frequencies come from whoever owns the clinical
+content in your product; a design system must never supply them.
+
+<DoDont>
+  <DoDont.Do>You have logged a reading on 5 of the last 7 days.</DoDont.Do>
+  <DoDont.Dont>Your logging adherence is 71%.</DoDont.Dont>
+</DoDont>
+
+## Patterns
+
+**The three-part answer.** Almost every health value sentence is the same shape:
+
+> `What it was`. `How that compares`. `What to do, or that nothing is needed`.
+
+Filled: "Your reading was 118 over 76. That is in your usual range. Nothing to do
+— your next check is on Friday."
+
+**The comparison, written out**
+
+> That is `higher / lower` than `your usual range`, `your average for the last 30 days` or `your reading on a named date`.
+
+Never "above baseline", "outside parameters", "deviating from your norm".
+
+**The frequency**
+
+> About `n` in every `100` people `outcome`. That means about `100 − n` in every
+> 100 do not.
+
+**The unknown**
+
+> We do not have enough readings yet to say whether this is a trend. `n` more
+> readings and we will be able to show one.
+
+**The clinical term, introduced once**
+
+> `Plain phrase`. Your GP might call this `clinical term`.
+
+Not the other way round. The reader's word leads; the clinical word is the
+footnote, because the reader needs to recognise it on a letter, not to use it.
+
+### Layout is part of literacy
+
+Three formatting decisions carry more comprehension weight than most word
+choices: the answer is in the first line and not behind a tap; the number and its
+comparison are adjacent, not in separate cards; and the action is a control, not
+a sentence a reader has to convert into a plan.
+
+<ResearchNote evidence="mixed" date="2026-09-02">
+  There is a genuine research literature on the presentation of laboratory
+  results to patients — a 2024 JMIR systematic review examines presentation
+  formats (doi:10.2196/53993), and a 2018 study in BMC Medical Informatics and
+  Decision Making examines patient-portal result presentation
+  (doi:10.1186/s12911-018-0589-7). We cite them as the starting point for anyone
+  who wants to check this material rather than take it on trust. The specific
+  rules and sentence patterns on this page are **our synthesis and our opinion**;
+  they are not lifted from either paper, and we have not run our own study.
+</ResearchNote>
+
+## Banned words
+
+| Banned | Why | Use instead |
+| --- | --- | --- |
+| baseline, parameters, norm | Clinical register for a comparison the reader owns. | your usual range, your average |
+| adherence, compliance | Describes the reader as an instruction being followed. | how often you have logged |
+| percentile, standard deviation, confidence interval | Not usable by most readers, and rarely necessary. | a natural frequency, or nothing |
+| a bare % in an actionable sentence | Percentages of unstated denominators are the classic numeracy trap. | n in every 100 |
+| mean, median | Statistical register. | average, middle value |
+| trending upward, on an upward trajectory | Implies a trend that two points cannot support. | higher than last time, and say how many readings you have |
+| optimal, ideal, target (unassigned) | Implies a goal nobody set with the reader. | the range your GP gave you, or delete |
+
+## Related components
+
+- **`Value`** — the number and its unit; the frame that makes it interpretable is
+  the caller's responsibility and this page is what that responsibility means.
+- **`RangeBar`** — the comparison made visual. It must still ship the comparison
+  in words, because a picture of a comparison is not a comparison for everyone.
+- **`ResultCard`** — the three-part answer above is its content contract.
+- **`Term`** — introduces a clinical word once, in the reader's own sentence.
+- **`TrendSparkline`** — must not be shown before there are enough readings for a
+  trend to mean anything; the "not enough yet" sentence is on this page for a
+  reason.

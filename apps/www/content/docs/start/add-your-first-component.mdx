@@ -1,0 +1,94 @@
+---
+title: Add your first component
+description: One command, what it will put in your project, and nothing else to read.
+status: planned
+kind: guide
+icon: Download
+since: unreleased
+owner: core
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 3m
+aliases: [add a component, one command install, copy in a component]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+This is the sixty-second path. If you want the reasoning, the safety rules and the
+review checks, [Quick start](./quick-start.mdx) is the longer version. If you want
+to know what the command will actually write into your repository before you run
+it, that is here too, at the bottom.
+
+<Callout title="Nothing installs yet">
+  There is no published package and no live registry. The command below is the
+  intended contract; today it fails to resolve `@opsinjs`. It is documented now so
+  the shape can be reviewed, and so an agent reading this page gets a definite
+  answer instead of inventing one.
+</Callout>
+
+## Run one command
+
+```npm
+npx shadcn@latest add @opsinjs/status-pill
+```
+
+That is the whole path. No provider to mount, no plugin to register, no
+`tailwind.config` to edit — opsinjs is Tailwind v4 and CSS-variable native, so the
+tokens arrive as CSS.
+
+## Know what it writes
+
+The intended result of that one command, so it is not a surprise:
+
+```text
+components/opsinjs/status-pill.tsx     the component source — yours now, edit freely
+app/opsinjs.css                        the token layer, imported once from your stylesheet
+components.json                        gains the @opsinjs registry entry, if it is missing
+```
+
+Nothing is added to `package.json` except real runtime dependencies the component
+genuinely needs — for `StatusPill`, only what you already have. opsinjs
+distributes **source you own**, not a package you upgrade. That is a deliberate
+trade: you get to change anything, and in exchange you take on the merge when we
+change it. [Upgrading](./installation/upgrading.mdx) is how that merge is made
+survivable.
+
+## Verify it worked
+
+Three checks, in order of how much they tell you:
+
+1. **The file is there and it compiles.** `components/opsinjs/status-pill.tsx`
+   imports cleanly and your typechecker is quiet.
+2. **The tokens resolved.** Render one pill and inspect it: its background should
+   come from a custom property in the opsinjs status scope, not from a literal
+   colour. If you see a hard-coded hex, the token layer was not imported.
+3. **It survives greyscale.** Switch your display or your devtools to greyscale.
+   The pill must still say which level it is, in words and by its icon. If it does
+   not, the token layer loaded but the component is being used wrongly — colour is
+   never the only carrier of clinical status.
+
+## Troubleshooting
+
+**`Unknown registry @opsinjs`.** Expected today. When the registry is live, this
+means `components.json` has no `registries` entry; see
+[components.json](./installation/components-json.mdx).
+
+**The component renders unstyled.** The token layer is not imported, or it is
+imported before Tailwind. CSS order in opsinjs is load-bearing and the exact
+position is specified in [Next.js](./installation/next.mdx) and
+[Tailwind v4](../theming/tailwind-v4.mdx).
+
+**Tailwind classes inside the copied file do nothing.** Tailwind v4 scans sources
+declared with `@source`. A file copied into a directory Tailwind is not watching
+produces exactly this symptom. See
+[Monorepo](./installation/monorepo.mdx) for the `@source` lines.
+
+## Next
+
+- [Quick start](./quick-start.mdx) — the same command with the reasoning attached.
+- [StatusPill](../components/status-pill.mdx) — the specification, including the
+  three things it must never be used for.
+- [Clinical status semantics](../health/clinical-status-semantics.mdx) — what the
+  four levels mean before you assign one.

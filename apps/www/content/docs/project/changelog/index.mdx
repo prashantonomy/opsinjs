@@ -1,0 +1,60 @@
+---
+title: Changelog
+description: What actually shipped in each release, written as prose, with the breaking parts at the top.
+status: stable
+kind: project
+owner: core
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 6m
+aliases: [releases, what changed, release notes]
+---
+
+<PageTemplate kind="project" />
+
+## Releases
+
+- [0.0.0 — The scaffold](2026-09-scaffold.mdx) · 2 September 2026
+
+There is one entry, and it describes a documentation site with no components in
+it. [State of the system](../state-of-the-system.mdx) is the page that says what
+that means in practice.
+
+A feed of these entries is published at `/rss.xml`.
+
+## How entries are written
+
+**One file per release, named by date**, so the newest is always first without
+anybody maintaining an order.
+
+**Breaking changes first.** Not in a section at the bottom labelled "notes". If a
+release changes something you have already built against, that is the first thing
+on the page, and it names the version that introduced the change and what to do
+about it.
+
+**Prose, not commit subjects.** A list of merged pull-request titles is a record
+of what the maintainers did. An entry is a description of what changed for the
+person reading it, which is a different document and takes longer to write.
+
+**Every entry says what did not change**, where that is the interesting part —
+particularly for the surfaces the [versioning policy](../versioning-policy.mdx)
+covers beyond the JavaScript API: the rendered DOM, the `data-*` attributes and
+the CSS custom properties.
+
+## What belongs somewhere else
+
+**A deprecation** appears here when it happens and lives on
+[Deprecations](../deprecations.mdx) until it is removed, so that the current list
+is one page rather than an archaeology exercise across entries.
+
+**A change needing more than a paragraph to migrate through** gets a
+[migration guide](../migration/index.mdx), linked from the entry. Entries stay
+readable; guides get as long as they need to be.
+
+**The reasoning behind a change**, where it is architectural, belongs in a
+[decision record](../decisions/index.mdx). An entry says what changed; a record
+says why, and survives being read three years later.
+
+<LastUpdated />
+
+<Reviewed />

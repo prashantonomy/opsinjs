@@ -1,0 +1,210 @@
+---
+title: Field
+description: The wrapper that gives every input a visible label, a hint, an error message and the wiring that connects them — so no control in the system can ship without a name.
+status: planned
+kind: component
+since: "unreleased"
+category: actions-and-forms
+aliases: [form field, label, input wrapper, error message, hint]
+usedIn: [daily-log-entry, consent-before-collection, daily-log-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="field"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Does Field own the control, or wrap one the product supplies? Owning it makes the wiring guaranteed; wrapping makes it composable, and only one of those can be true.",
+    "When is an error shown — on blur, on submit, or on change after the first submit? Getting this wrong is the most common validation cruelty in forms.",
+    "Optional or required: which one is marked, and does the answer change when most of a form is optional?",
+    "Does Field integrate with form libraries directly, or expose the ids and let the product wire it — and what does that mean for the guarantee?",
+  ]}
+/>
+
+Field is where the accessibility of every form in a product is decided, once. If the wrapper
+guarantees a visible label and a programmatic association, a product cannot ship an unlabelled
+input by accident; if it does not, one will appear within a month.
+
+## Preview
+
+The preview will show the field in its resting, hinted, errored and disabled states, at 200%
+text, with the error announcement demonstrated rather than described.
+
+<ComponentPreview name="field" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail.
+
+<ComponentInstall name="field" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Every input in the system. A control without a Field around it is a control without a guaranteed label.",
+    "Any place a control needs a hint, an error, or both, wired to it correctly rather than merely placed nearby.",
+    "As the base for purpose-built inputs, the way ReadingInput is built.",
+  ]}
+  avoid={[
+    { case: "You are collecting a measurement with a unit and a plausible range.", instead: "reading-input" },
+    { case: "The control is an action rather than an input.", instead: "button" },
+    { case: "You need several related inputs captured in one quick interaction.", instead: "log-sheet" },
+    { case: "You are showing a value rather than collecting one.", instead: "value" },
+    { case: "The whole form's errors need summarising at the top after a failed submit.", instead: "alert-banner" },
+  ]}
+/>
+
+The last exclusion points at a pattern rather than a component. A long form that fails
+validation needs an error summary at the top, with each entry linking to its field; per-field
+errors alone leave a keyboard user hunting. See
+[Error summaries](../patterns/forms/error-summaries.mdx).
+
+## Anatomy
+
+<Anatomy name="field" />
+
+<CompositionTree name="field" />
+
+**Label** is visible and persistent — always, with no prop to hide it. **Hint** is guidance
+shown before anything goes wrong. **Control** is the input. **Error** replaces nothing: it
+appears in addition to the hint, because a reader who has made a mistake still needs the
+guidance that would have prevented it. **Optionality** marks whichever of required or optional
+is the exception in this form.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+Field                          root; owns the id relationships
+├── Field.Label                visible and persistent; no way to hide it
+├── Field.Optionality          marks the exception — required or optional, not both
+├── Field.Hint                 guidance before the mistake; described-by the control
+├── Field.Control              the input; labelled-by the label, described-by hint + error
+└── Field.Error                appears in addition to the hint, never instead of it
+```
+
+The relationships are the component. `Field.Control` is associated with `Field.Label` through
+a real label relationship, and with `Field.Hint` and `Field.Error` through a description
+relationship, generated rather than typed — hand-wired ids are where accessible forms rot.
+
+## Proposed API
+
+<NotBuiltYet name="field" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+export interface FieldProps {
+  /** Required, visible, and never hidden. There is no `hideLabel` prop. */
+  label: string
+  /**
+   * The control. Field supplies id, aria-describedby and invalid state through
+   * context, so a product never wires them by hand.
+   */
+  children: React.ReactNode
+  /** Guidance shown before an error. Stays visible when an error appears. */
+  hint?: string
+  /**
+   * The error message. Presence marks the control invalid and announces the
+   * message; it never removes the hint.
+   */
+  error?: string
+  /**
+   * Which state is marked. Mark the exception: in a form where most fields are
+   * required, mark the optional ones, and the reverse.
+   */
+  optionality?: "required" | "optional" | "none"
+  /**
+   * When errors appear. "submit" then "change" is the humane default: never
+   * tell someone their email is invalid while they are still typing it.
+   */
+  validateOn?: "blur" | "submit" | "submit-then-change"
+}
+```
+
+## Content guidelines
+
+Labels are nouns naming what goes in the field, in sentence case, with no trailing colon.
+Hints show the shape of a valid answer rather than restating a rule: *for example 128* helps
+more than *must be a number between 70 and 250*.
+
+Errors say what went wrong and how to fix it, in the second person, without blame. Never
+*invalid*, never *error*, never *you must*.
+
+<DoDont>
+  <DoDont.Do>
+    **"Date of birth · For example, 27 3 1985 · Enter a date of birth in the past."** Label,
+    example, and an error that says what to do.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"DOB* · Invalid input."** An abbreviation, a required marker with no legend, and an
+    error that tells the reader nothing except that they have failed.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **A visible label above the field, staying visible while typing.**
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A placeholder used as the label.** It disappears the moment the reader starts typing,
+    which is exactly when they need it, it fails contrast at almost every implementation, and
+    it leaves the field unlabelled for some assistive technology.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **Every control has a visible, persistent, programmatically associated label.** This is the
+  whole reason the component exists, and there is no prop that can switch it off.
+- **Hints and errors are associated with the control** through a description relationship, so
+  they are announced when the control receives focus rather than discovered by chance.
+- **An error marks the control invalid** and is announced politely when it appears. It never
+  moves focus mid-typing, and it never announces on every keystroke.
+- **Errors are never conveyed by colour or by a border alone.** Text plus an icon plus the
+  invalid state, so grayscale and colour-vision deficiency lose nothing.
+- **Required and optional are marked in text**, with a legend where a symbol is used. An
+  asterisk with no explanation is a convention, not information.
+- **Autocomplete and input mode are set** so the right keyboard appears and the reader's own
+  stored details can fill the field — a substantial accessibility win, not a convenience.
+- **The label is not truncated at 200% text**; it wraps, and the field grows.
+- **Disabled fields are avoided** in favour of fields that explain what is missing.
+- **Error text meets the body-text contrast floor.** Red on white at the sizes error text is
+  usually set is one of the most reliable contrast failures in any product.
+
+<KeyboardTable name="field" />
+
+<ContrastReport component="field" />
+
+## Related
+
+<RelatedComponents name="field" />
+
+**Easily confused with**
+
+- [ReadingInput](./reading-input.mdx) — a Field with a unit and a plausibility contract.
+- [LogSheet](./log-sheet.mdx) — where several Fields are captured together, with a ceiling on
+  how many.
+- [Callout](./callout.mdx) — for guidance about a whole form rather than about one control.
+- `checkbox`, `radio-group`, `select`, `combobox`, `switch`, `textarea` (all considered, no
+  pages yet — see the [roster](./index.mdx)) — the controls that will sit inside a Field.
+
+**Used by**
+
+- [Capture a daily log entry](../recipes/daily-log-entry.mdx)
+- [Ask for consent before collecting](../recipes/consent-before-collection.mdx)
+- [Daily log screen](../screens/daily-log-screen.mdx)
+
+**Governed by**
+
+- [Question pages](../patterns/forms/question-pages.mdx)
+- [Validation timing](../patterns/forms/validation-timing.mdx)
+- [Required and optional](../patterns/forms/required-and-optional.mdx)
+- [For developers](../accessibility/for-developers.mdx)

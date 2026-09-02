@@ -1,0 +1,250 @@
+---
+title: Safety, scope and limitations
+description: opsinjs is a user-interface system. It is not a medical device, it makes no clinical decisions, and adopting it changes none of your regulatory obligations.
+status: stable
+kind: health
+icon: ShieldAlert
+evidence: cited
+owner: core
+reviewed: 2026-09-02
+reviewer: clinical
+reviewEvery: 6m
+aliases: [not a medical device, scope of opsinjs, limitations of opsinjs, what opsinjs is not]
+---
+
+<PageTemplate kind="health" />
+
+## What this means
+
+opsinjs draws things on a screen. That is the whole of what it does.
+
+It has no model of the human body. It does not know what a blood pressure of
+138/86 means, whether an HbA1c of 51 is a problem, or whether a resting heart rate
+that has risen over a fortnight is worth telling someone about. It has no access
+to a person's history, medication, pregnancy status, age or diagnosis, and it
+cannot acquire any. Every judgement of that kind is made by the product using
+opsinjs, by that product's clinical owner, and — for anything that matters — by a
+clinician.
+
+This is worth stating in blunt terms because design systems in this space are
+routinely misread in one specific way. A component that renders a value in amber
+with a warning icon *looks like* an assessment. Somebody chose the amber. If your
+product chose it by mapping a number through a threshold your clinical owner
+approved, the interface is reporting a decision your organisation made and can
+defend. If it was chosen by a component default, your interface is asserting
+something nobody authorised, in a visual language a reader will read as clinical.
+opsinjs is built so the second thing is difficult, and this page is the plainest
+statement of why.
+
+<SafetyCallout severity="urgent" evidence="opinion">
+  If any part of your product would be a medical device without opsinjs, it is
+  still a medical device with opsinjs. Using this design system does not create,
+  transfer, reduce or satisfy any regulatory obligation. Nothing here has been
+  submitted to, reviewed by, or cleared by any regulator, and no conformity
+  assessment of any kind has been performed on it.
+</SafetyCallout>
+
+A worked example of what goes wrong. A remote-monitoring app shows a weight trend.
+The design system ships a `TrendSparkline` whose default is to colour a rising
+line red, because rising numbers look bad. A user in heart failure gains three
+kilograms of fluid in four days — genuinely urgent — and sees the same red they
+saw last month when they gained a kilogram over Christmas. Nothing in the
+interface distinguished the two, because the colour came from a rendering default
+rather than a clinical rule. The design system had made a clinical decision by
+accident, and the product could not tell that it had.
+
+## The rule
+
+> **opsinjs renders decisions. It does not make them. Every clinical judgement
+> visible in an opsinjs interface must originate outside opsinjs, in a place your
+> organisation can name, review, version and audit.**
+
+Four consequences, all of them enforced rather than encouraged:
+
+1. **No component derives a clinical status from a value.** Status is an input,
+   never a computation. There is no `threshold` prop and there will not be one.
+2. **No component supplies a reference range.** Ranges are passed in, and they
+   carry their source so the interface can say where the range came from.
+3. **No component wording asserts a clinical meaning.** opsinjs supplies sentence
+   *patterns* and a list of banned words. The sentence that tells someone what
+   their result means is written by your product, and should be reviewed by
+   whoever is accountable for clinical content.
+4. **No component escalates on its own.** Nothing decides that a reading warrants
+   contacting a clinician or emergency services. See
+   [Emergency and escalation](../health/emergency-and-escalation.mdx) for how the
+   interface behaves once *your product* has made that decision.
+
+And the reciprocal obligation, which is yours:
+
+> **If you use opsinjs, you are responsible for every clinical claim your
+> interface makes, including the ones made by colour, icon, order and emphasis
+> rather than by words.**
+
+## Why (evidence)
+
+<ResearchNote evidence="cited" date="2026-09-02">
+  The regulatory instruments below are cited by name and identifier so you can
+  read them yourself. Deliberately, this page does not paraphrase their
+  requirements: summarising a regulation in a design system's documentation is how
+  teams end up relying on a second-hand reading of a text they were legally
+  required to read directly. Confirm the current version of each — they are
+  amended.
+
+  - **Regulation (EU) 2017/745 (the Medical Device Regulation, "MDR")** —
+    the EU framework under which software may itself qualify as a medical device.
+  - **MDCG 2019-11** — the Medical Device Coordination Group guidance on
+    qualification and classification of software under MDR and IVDR.
+  - **IMDRF, "Software as a Medical Device (SaMD): Key Definitions"** — the
+    international definition the term SaMD comes from, and the vocabulary most
+    regulators build on.
+  - **DCB0129, "Clinical Risk Management: its Application in the Manufacture of
+    Health IT Systems"** — the NHS England information standard placing clinical
+    risk-management obligations on the *manufacturer* of health IT.
+  - **DCB0160, "Clinical Risk Management: its Application in the Deployment and
+    Use of Health IT Systems"** — the companion standard, placing obligations on
+    the *deploying organisation*.
+  - **WCAG 2.2 (W3C Recommendation)** — the accessibility standard opsinjs
+    measures itself against; see [Accessibility](../accessibility/index.mdx) for
+    what is guaranteed and what remains yours.
+
+  None of these is satisfied by a design system, and none of them has a
+  user-interface exemption. opsinjs can be a component of a compliant product; it
+  cannot be a substitute for the work.
+</ResearchNote>
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  The design position — that a component must never derive severity from a value —
+  is an opinion, not a regulatory requirement, and it is the most consequential
+  opinion in this system. The reasoning: a threshold placed in a rendering layer
+  is invisible to clinical review, is duplicated across every surface that renders
+  the same measurement, and drifts silently when one of those surfaces is updated
+  and the others are not. Keeping the mapping in one auditable place outside the
+  component is a cost at authoring time and a saving at review time.
+
+  What would change our minds: a demonstration that teams reliably keep an
+  external mapping in step across surfaces without tooling. We have not seen one,
+  but this is an empirical claim and it is falsifiable.
+</ResearchNote>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    Pass `status` in from a mapping your clinical owner has approved, held in one
+    module, versioned with the rest of your product, and covered by tests that
+    name the boundary values.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Compute the status inside the component, in a render function, or in a helper
+    that lives next to the component — where no clinical reviewer will ever find
+    it and no test names the boundary.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Show a value with no range when you have no defensible range, and say plainly
+    that there is not one to compare against.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Fill in a plausible range from a search result or a chart in a textbook. An
+    invented range is worse than none: it is authoritative-looking and wrong, and
+    the reader has no way to tell.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Write "This is higher than your usual reading" — an observation about the data
+    your product holds.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Write "This is normal" or "Nothing to worry about". Both are clinical
+    assertions in plain clothes, and *normal* is a banned word throughout opsinjs.
+    See [Reference ranges](../health/reference-ranges.mdx).
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Keep a visible route to a human at every point where a reader may be
+    frightened, and make it work when the value is missing or the network is down.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Rely on a component to notice that a reader is in distress. No component in
+    this system does, or will. See
+    [Crisis and self-harm](../health/crisis-and-self-harm.mdx).
+  </DoDont.Dont>
+</DoDont>
+
+### The disclaimer question
+
+Teams usually arrive here wanting to know where to put the legal text. Two things
+are true at once, and only one of them is about legal text.
+
+A disclaimer at the foot of a screen changes what a reader can be told they were
+warned about. It does not change what the interface communicated, because almost
+nobody reads it — and a reader who has just seen their own number in red is the
+least likely reader in the world to read small print underneath it. Treat
+disclaimers as necessary and insufficient. The work that actually protects the
+reader is upstream: the status came from an approved mapping, the range carries
+its source, the wording avoids clinical assertion, and the route to a human is
+visible without scrolling.
+
+`DisclaimerNote` exists so that the necessary part has a consistent, legible,
+non-dismissable home rather than being reinvented per screen. It is not a
+compliance control, and the component page says so.
+
+## Components that implement this
+
+None, and that is the point. This page does not delegate to a subset of the
+roster: it governs every component, every recipe and every screen in the system,
+including the ones that have nothing to do with health data. A `Skeleton` that
+implies a value has loaded when it has not is a safety defect by this page's
+standard.
+
+The components most often mistaken for compliance controls are worth naming
+explicitly, because each of them carries the misunderstanding on its own page:
+
+- [DisclaimerNote](../components/disclaimer-note.mdx) — a consistent home for
+  necessary text. Not a control, and not a substitute for the four rules above.
+- [ConsentSheet](../components/consent-sheet.mdx) — records that a person agreed
+  to something. It does not establish a lawful basis for processing, and it is not
+  a consent-management platform.
+- [AlertBanner](../components/alert-banner.mdx) — displays urgency your product
+  determined. It never determines urgency.
+- [CareCard](../components/care-card.mdx) — presents guidance your product
+  authored. The guidance is yours; only its shape is ours.
+
+## What this does not cover
+
+- **Whether your product is a medical device.** That is a regulatory question
+  about your product's intended purpose and claims, and it is decided by
+  regulation and by qualified advice — not by your technology choices. Start with
+  [Regulatory context](../health/regulatory-context.mdx), then get advice.
+- **Clinical risk management.** If DCB0129 or DCB0160 apply to you, they apply
+  whole. opsinjs produces no hazard log, no clinical safety case report and no
+  clinical safety officer sign-off, and it cannot contribute to yours except as
+  one documented input among many.
+- **Data protection.** Health data is special-category data in most jurisdictions.
+  opsinjs holds, transmits and stores nothing — it has no network layer — but
+  every screen you build with it is a processing decision. See
+  [On-screen privacy](../health/on-screen-privacy.mdx) for the interface-level
+  concerns only.
+- **Clinical content.** Every word a reader is shown about what their result means
+  is yours, and should be reviewed by someone accountable for clinical content.
+  opsinjs supplies the shape of the sentence and the words it refuses to print.
+- **Accuracy of measurement.** What a consumer device measured, how well, and what
+  the interface may therefore assert about it is covered in
+  [Data provenance and device accuracy](../health/data-provenance-and-device-accuracy.mdx).
+- **Legal advice.** Nothing on this page is legal or regulatory advice, and no
+  part of this documentation should be read as any.
+
+## Updates to this page
+
+This page has a six-month review cadence and a clinical reviewer, and it is one of
+a small number of pages where the review is a real gate rather than a formality:
+regulatory instruments are amended, and a design system that cites a superseded
+version of one is worse than a design system that cites none.
+
+<Reviewed />

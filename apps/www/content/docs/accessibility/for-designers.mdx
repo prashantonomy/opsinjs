@@ -1,0 +1,132 @@
+---
+title: For designers
+description: The five checks to run on a health screen before it leaves your hands, and the three decisions only a designer can get wrong.
+status: stable
+kind: accessibility
+a11yDate: 2026-09-02
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+aliases: [design review, before handoff, design checks]
+---
+
+<PageTemplate kind="accessibility" />
+
+## What we guarantee
+
+The tokens are the guarantee. If you design with the published colour roles, the
+material ladder, the spacing scale and the type scale, four properties come for
+free and you do not have to re-derive them per screen:
+
+- **Contrast.** Every published status and category token is paired with an ink
+  token that has been measured against it. You do not choose a text colour to sit
+  on a status surface; the pair is a token pair, and the measurement of that pair
+  is published on [Contrast conformance](./contrast-conformance.mdx).
+- **Target size.** `--opsin-target-min` is `44px` in the product theme, and the
+  density setting deliberately does not touch it. Compact density moves spacing
+  only. A "compact" screen is never a harder screen to hit.
+- **Chroma is gamut-aware, lightness is not.** The `@supports (color-gamut: p3)`
+  block in the stylesheet raises chroma on wide-gamut displays and leaves
+  lightness alone, so the measured contrast of every pair is identical on an sRGB
+  laptop and a P3 phone. A screen that reads correctly on your display reads
+  correctly on the reader's.
+- **The two axes never mix.** Category colour says *what this measurement is
+  about*; status colour says *how urgent it is*. The system will not give you a
+  token that is both, and the reasoning is on
+  [The two colour axes](../health/two-colour-axes.mdx).
+
+## What you own
+
+Three things go wrong at design time and cannot be repaired downstream.
+
+**Focus appearance.** The system supplies a focus ring token. Whether the ring is
+visible on *your* composition is a layout question: a ring drawn inside a card
+that is clipped by `overflow: hidden`, or hidden behind a sticky bottom bar, is a
+failure of SC 2.4.7 Focus Visible and, in the sticky-bar case, of SC 2.4.11 Focus
+Not Obscured. Draw the focused state of every interactive element in your
+composition, including the one at the bottom of a long scroll.
+
+**Reading order.** You own the order the eye takes and, by implication, the order
+the DOM should take. When a two-column layout puts a summary to the right of a
+chart, say explicitly which one comes first in the source. If you do not, the
+developer will guess, and the guess is usually "left to right".
+
+**What each colour is allowed to mean.** A designer who introduces a sixth status
+colour, or reuses the sleep category purple for a warning, breaks a contract the
+whole system rests on. Category palettes may be extended; status palettes may
+not. See [Status palettes](../theming/status-palettes.mdx).
+
+## How to check
+
+Five checks, in the order that catches the most for the least effort. Run them on
+the composition, not on a screenshot of it.
+
+<Steps>
+
+### Turn the colour off
+
+Desaturate the whole board. Every piece of information that was carried by colour
+must still be readable — the status word, the icon, the position of a marker on a
+range. If a screen becomes ambiguous in greyscale, the fix is never a darker
+colour; it is a word. Full method on
+[Colour independence](./colour-independence.mdx).
+
+### Measure the pairs you invented
+
+Any text or icon you placed on a background that is *not* a published token pair
+needs measuring. Use the checker at `/playground/contrast`, and record both
+numbers: APCA Lc for the perceptual answer and the WCAG 2.2 ratio for the
+conformance answer. They disagree in predictable places, which is exactly why we
+publish both — see
+[Contrast and APCA](../foundations/colour/contrast-and-apca.mdx).
+
+### Put a 44 px square on every tappable thing
+
+Not on the visible shape — on the hit area. A 24 px icon button with 10 px of
+padding on every side passes; the same icon in a dense list row with 4 px of
+padding does not. Adjacent targets also need separation, and the rule for that is
+on [Target size and motor accessibility](./target-size-and-motor.mdx).
+
+### Set the text to 200%
+
+Not a zoom of the artboard — a text-size change, which is what a reader with
+Dynamic Type turned up actually gets. Every layout in the system must reflow
+rather than truncate, and a number that is truncated is a clinical failure, not a
+cosmetic one. The mechanism and the expected result are on
+[Text resizing and zoom](./text-resizing-and-zoom.mdx).
+
+### Draw the four data states
+
+Empty, loading, error and stale. Most accessibility failures in health UI happen
+in states nobody drew: a stale reading rendered identically to a fresh one, an
+error state with no route out of it, a loading skeleton that never announces it
+has finished. See
+[Data states](../foundations/data-states.mdx) for the definitions and
+[Error and empty messages](../content/error-and-empty-messages.mdx) for what to
+write in them.
+
+</Steps>
+
+## Measured results
+
+<NoDataYet script="scripts/check-contrast.mts" />
+
+The design-time numbers you are entitled to rely on are the published token-pair
+measurements. Until `pnpm run contrast` has run in this checkout, there are none,
+and you should measure any pair you depend on yourself rather than assuming.
+
+## Known gaps
+
+- **There is no Figma library.** Token export to W3C DTCG JSON and a Figma
+  Variables mapping are specified on
+  [Design handoff](../theming/design-handoff.mdx) but not yet built, so today the
+  tokens have to be read out of the stylesheet.
+- **There is no annotation kit.** Designers currently have no shipped way to
+  record reading order, alternative text or announcement intent on a
+  composition; those have to be written in prose alongside it.
+- **No component redlines exist,** because no component exists. The anatomy
+  diagrams promised in each component specification are unbuilt.
+
+## Updates to this page
+
+<Reviewed />

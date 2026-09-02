@@ -1,0 +1,140 @@
+---
+title: Imagery
+description: Why an image in a health product is never neutral, the four kinds opsinjs recognises, and the default position that the right number of pictures on a results screen is zero.
+status: planned
+kind: foundation
+icon: Image
+aliases: [images, pictures, visual assets]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+Every image in a consumer health product depicts a person, a body, or a state of
+health, and therefore makes a claim about who the product is for. A photograph of
+a slim, young, white woman doing yoga beside a screen about type 2 diabetes tells
+a fifty-eight-year-old man with the condition that this was not built with him in
+mind, and it does so before he has read a word.
+
+That is why imagery is a foundation here and not a brand asset library. The rules
+are about representation, distress and honesty rather than about style, and one
+of them is the default: **most health screens are better with no image at all.**
+A results screen has one job, the reader is anxious, and a decorative illustration
+between them and the number is a cost with no return.
+
+<NotBuiltYet />
+
+opsinjs ships no image assets and no illustration set. What these pages provide is
+the contract any image has to satisfy, so that a product commissioning
+illustration or choosing photography has something specific to hold it to.
+
+## How it works
+
+Five pages sit under this one, one per kind of image plus the equity rule that
+cuts across all of them:
+
+- [Illustration style](illustration-style.mdx) — where drawing is the right
+  medium, and the constraints on it.
+- [Photography](photography.mdx) — where a photograph earns its place, and the
+  much longer list of where it does not.
+- [Skin-tone representation](skin-tone-representation.mdx) — the equity
+  requirement, and the reason it is a requirement rather than a style note.
+- [Avatars and identity](avatars-and-identity.mdx) — the smallest images in the
+  product and the ones most likely to be got wrong.
+- [Body diagrams](body-diagrams.mdx) — the highest-stakes images, because they are
+  the ones a reader uses to answer a question about themselves.
+
+Three rules run across all five.
+
+**1. An image must do a job a sentence cannot.** Showing where on a body something
+is. Showing how to position a cuff. Showing what a device looks like so somebody
+can find it in a drawer. Anything an image is doing that a sentence would do
+better is decoration, and decoration on a health screen is competition for the
+numbers.
+
+**2. An image must not narrow who the product appears to be for.** This is the
+representation rule, and it applies to skin tone, body size, age, gender
+presentation, visible disability and visible assistive equipment. A single image
+is a claim about a typical user; a set of images that all make the same claim is a
+statement.
+
+**3. No image may carry information that is not also in text.** Not a status, not
+a value, not an instruction. Anything only available in the picture is unavailable
+to somebody using a screen reader, to somebody who has turned images off, and to
+anybody printing the page — see
+[Alt text and descriptions](../../content/alt-text-and-descriptions.mdx).
+
+## Using it
+
+**Start from none and justify each one.** The test is: what does the reader do
+differently because this image is here? If the answer is "nothing, but the screen
+looks better", the screen does not look better — it looks busier.
+
+<DoDont>
+  <DoDont.Do>
+    A short illustrated sequence showing where to place a blood-pressure cuff on
+    an upper arm, on a screen the reader reaches when they tap "how do I take a
+    reading". It answers a question a sentence answers badly.
+  </DoDont.Do>
+  <DoDont.Dont>
+    A decorative illustration of a smiling figure at the top of the results
+    screen. It pushes the reading below the fold on a small phone, it adds nothing,
+    and whoever does not look like the figure has been told something.
+  </DoDont.Dont>
+</DoDont>
+
+**Never illustrate a result.** A picture next to a reading is read as commentary
+on it. A cheerful illustration beside a value the reader is worried about is
+worse than no image; a sombre one beside a value that is nothing to worry about is
+worse still.
+
+**Do not use imagery to soften bad news.** The way to deliver a difficult result
+kindly is the wording, the order and the next step — see
+[Result disclosure](../../patterns/result-disclosure.mdx). An image cannot do it
+and will read as evasion.
+
+**Weight is a health decision.** Health apps are used on slow connections and old
+devices, and an image that delays the reading is an image that has cost the reader
+the one thing they came for.
+
+## Tokens
+
+Imagery consumes the shape scale for corners, the material ladder for any surface
+an image sits on, and nothing else. There are no imagery tokens, and there should
+not be: an image is content, and content that has been tokenised is content
+somebody has stopped looking at.
+
+<NoDataYet script="scripts/build-tokens.mts" />
+
+## Accessibility impact
+
+- **Every image needs a text alternative appropriate to its job.** Decorative
+  images are hidden; informative ones are described; complex ones — diagrams,
+  charts — need a longer description or a structured equivalent. The distinction
+  is made per image and it cannot be automated.
+- **No image may be the only carrier of anything.** This is principle 2 from
+  [Principles](../principles.mdx) applied to pictures, and it is what makes a
+  product usable with images disabled, on a slow connection, or by a screen
+  reader.
+- **Text in images is inaccessible.** A value, unit, label or instruction
+  rendered inside a picture cannot be selected, translated, searched, scaled with
+  the reader's text size, or read aloud.
+- **Images must not carry meaning by colour alone**, and they are checked under
+  the same CVD audit as everything else — see
+  [Colour independence](../../accessibility/colour-independence.mdx).
+- **Representation is an accessibility question**, not only an equity one. An
+  interface that appears to be for somebody else is an interface people disengage
+  from, and disengagement from a health product has a cost.
+- **Nothing may flash or autoplay.** Animated imagery is subject to the same rules
+  as [Motion](../motion/index.mdx), including reduced motion.
+
+## Related
+
+- [Skin-tone representation](skin-tone-representation.mdx) — the requirement, the
+  reason it is one, and how to check it.
+- [Alt text and descriptions](../../content/alt-text-and-descriptions.mdx) — how
+  to write the text alternative for a dial, a range or a body diagram.
+- [Inclusive content](../../content/inclusive-content.mdx) — the same
+  considerations applied to words.

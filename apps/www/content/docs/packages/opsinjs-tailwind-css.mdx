@@ -1,0 +1,153 @@
+---
+title: "@opsinjs/tailwind.css"
+description: The opsinjs stylesheet as a versioned import — token values, the preference degradations, the base layer and the dark variant, in the one order that works.
+status: planned
+kind: guide
+since: unreleased
+aliases: [stylesheet package, token css, opsinjs css import, base layer]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+`@opsinjs/tailwind.css` is the stylesheet: every token value, the three
+preference media queries, the Display-P3 escalation, the base layer and the
+`dark` variant, in a single import whose internal order is correct by
+construction.
+
+It exists because the order of that file is load-bearing and copying it is how
+the order gets broken. A stylesheet you own is a stylesheet somebody will
+reorganise, and the resulting failure is silent: dark mode stops swapping, or a
+reduced-motion preference stops applying, and nothing errors.
+
+The name mirrors `shadcn/tailwind.css`, which is the same idea from the same
+ecosystem — a runtime stylesheet import rather than a CLI-only artefact.
+
+<StubNotice
+  name="opsinjs-tailwind-css"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Does the package ship one stylesheet, or separate docs-chrome and product entries?",
+    "Are the generated ramps inlined at publish time, or imported from a sibling file so a fork can substitute them?",
+    "Should the base layer's touch-target floor be in this package, or is it a component concern?",
+  ]}
+/>
+
+**Nothing is published.** `app/globals.css` and `app/product.css` in this
+repository are the two stylesheets this package would generalise, and both can
+be read and copied today.
+
+## What is in it
+
+In order, because the order is the content:
+
+1. **Token values.** Every `--opsin-*` custom property under `:root` and `.dark`
+   — the four status ramps, the six category ramps, the six-rung material
+   ladder, the motion springs and durations, the radius and space scales.
+2. **The Display-P3 escalation.** Higher chroma at identical lightness and hue,
+   inside `@supports (color-gamut: p3)`, with every class selector restated in
+   cascade order.
+3. **The preference degradations.** `prefers-reduced-transparency` collapses
+   translucent material rungs to opaque fallbacks and drops their blur;
+   `prefers-reduced-motion` collapses durations to `1ms` and springs to
+   `linear(0, 1)`.
+4. **The base layer.** Border colour, focus-visible outline, tabular numerals on
+   anything marked as a measured value, and the minimum touch target.
+5. **`@custom-variant dark`**, pinned last.
+
+The last one is the subtlest. Different upstreams declare the `dark` variant
+differently — `(&:is(.dark *))` and `(&:where(.dark, .dark *))` — and last one
+wins, silently, depending on an import order nobody chose. Pinning the `:where`
+superset at the end makes the result order-independent, and its zero specificity
+stops a `dark` override out-ranking a component's own rule.
+
+## Why it is not copied source
+
+Every other opsinjs artefact is designed to be copied and owned. This one is
+not, for three reasons.
+
+**Order is not a matter of taste.** A component you edit still works. A
+stylesheet whose sections have been rearranged fails in ways that look like
+caching bugs.
+
+**It is generated, not authored.** The token values come from `tokens/*.json`
+through `scripts/build-tokens.mts`. Hand-editing them is caught by
+`pnpm run check:generated` here and would be uncatchable in your repository.
+
+**Everything else depends on it.** The registry components, the preset mappings
+and `@opsinjs/react` all assume these properties exist. One shared version is a
+guarantee; fifty copies is a survey.
+
+## Two stylesheets, not one
+
+The second question in the stub block matters because this repository already
+needs two.
+
+The documentation chrome is a shadcn style — dense, square, small-typed — and
+the product theme is squircle, system-font and generous, with a 44-pixel touch
+floor. They are separate stylesheets loaded by separate root layouts, and every
+preview on this site renders in the product theme rather than in the chrome.
+Why that split exists is
+[Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx), and it is
+worth reading before assuming a single entry point is right.
+
+The likely answer for the package is one entry with the shared axes and a second
+that adds the product shell, so that a consumer building a patient-facing app
+gets the touch floor and the platform font by default rather than by
+remembering.
+
+## Verify it worked
+
+<Steps>
+
+### The tokens resolve
+
+`getComputedStyle(document.documentElement).getPropertyValue("--opsin-status-urgent-line")`
+returns a value. An empty string means the stylesheet is not loaded.
+
+### Dark mode swaps
+
+Toggle the `dark` class and re-read. Both a role token and a status token should
+change.
+
+### The degradations actually degrade
+
+Turn on reduced motion at the OS level and confirm `--opsin-duration-base`
+becomes `1ms`. Turn on reduced transparency and confirm a translucent material
+rung becomes opaque. These are the two most often lost when a stylesheet is
+copied and edited.
+
+### The dark variant appears once
+
+Search the built CSS for `@custom-variant dark`. One occurrence, the `:where`
+form, at the end.
+
+</Steps>
+
+## Troubleshooting
+
+**`npm install @opsinjs/tailwind.css` fails.** Nothing is published yet.
+
+**Colours are defined but utilities are missing.** This package carries values;
+the mappings are [`@opsinjs/preset`](./opsinjs-preset.mdx). Import both.
+
+**Dark mode half works.** Two `@custom-variant dark` declarations, one of them
+the narrower `:is` form, and import order decided which won.
+
+**A translucent surface is illegible over a photograph.** The material rung is
+doing what it was told; the contrast floor over a busy backdrop is a composition
+question — [The contrast floor](../foundations/materials/the-contrast-floor.mdx).
+
+**Everything is correct but nothing is styled.** Check
+`--opsin-tokens-generated`. If it reads `placeholder`, the generated layer was
+never produced and you are seeing authored fallbacks.
+
+## Next
+
+- [`@opsinjs/preset`](./opsinjs-preset.mdx) — the mappings that turn these
+  values into utilities.
+- [CSS variables](../theming/css-variables.mdx) — using the values with no
+  Tailwind at all.
+- [Tailwind v4](../theming/tailwind-v4.mdx) — the ordering rules this package
+  encapsulates.

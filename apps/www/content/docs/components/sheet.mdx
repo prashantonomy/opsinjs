@@ -1,0 +1,211 @@
+---
+title: Sheet
+description: A panel that slides up from the bottom of the screen, stops at sensible heights, and can be dragged or dismissed — the one-handed way to do something without leaving the page.
+status: planned
+kind: component
+since: "unreleased"
+category: surfaces
+aliases: [drawer, bottom sheet, modal sheet, detent]
+usedIn: [daily-log-entry, daily-log-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="sheet"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Modal or not? A sheet that does not trap focus is a different component with the same appearance, and conflating them is how keyboard traps and keyboard escapes both happen.",
+    "Which detents, and are they content-derived or fixed fractions of the viewport?",
+    "The software keyboard changes the viewport under the sheet. Does the sheet resize, scroll, or move to a taller detent — and what happens to the primary action?",
+    "Every drag needs a keyboard and switch-control equivalent. What are they, and are they visible or only available?",
+  ]}
+/>
+
+The bottom sheet is the defining interaction of a modern consumer health app, and it is also
+where accessibility most often quietly fails: gestures with no equivalent, focus that never
+arrives, and a save button under the keyboard.
+
+## Preview
+
+The preview will show the sheet at each detent with the keyboard raised and under
+`prefers-reduced-motion`, where the slide is removed entirely.
+
+<ComponentPreview name="sheet" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail. Sheet is built on [Surface](./surface.mdx).
+
+<ComponentInstall name="sheet" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "A focused task the reader starts from the current screen and returns from — capturing a reading, choosing an option, reviewing details.",
+    "Content that benefits from being reachable one-handed, at the bottom of the screen where the thumb is.",
+    "A surface whose height should follow its content rather than filling the viewport.",
+  ]}
+  avoid={[
+    { case: "You are capturing a repeated daily log entry, which has its own contract and field ceiling.", instead: "log-sheet" },
+    { case: "You are asking for permission to collect or share data.", instead: "consent-sheet" },
+    { case: "The reader must make a decision and cannot continue until they do, on any screen size.", instead: "dialog" },
+    { case: "You need a persistent panel that stays put while the reader carries on with the page behind it.", instead: "surface" },
+    { case: "It is a short confirmation that should disappear on its own.", instead: "toast" },
+    { case: "You need a small anchored menu attached to a control.", instead: "popover" },
+  ]}
+/>
+
+The distinction from [Dialog](./dialog.mdx) is not size, it is obligation. A sheet is a place
+the reader chose to go and can leave at any moment. A dialog is a question that must be
+answered. Products that use a sheet for the second case end up with readers dismissing
+questions by accident.
+
+## Anatomy
+
+<Anatomy name="sheet" />
+
+<CompositionTree name="sheet" />
+
+**Scrim** dims and blocks the content behind when the sheet is modal. **Grabber** signals that
+the sheet can be dragged, and is never the only way to move it. **Header** names the sheet and
+holds the close control. **Content** scrolls internally once it exceeds the detent.
+**Footer** pins the primary action above the keyboard and the safe-area inset.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+Sheet                          root; modal by default
+├── Sheet.Scrim                present when modal; dismisses on tap when permitted
+└── Sheet.Container            a Surface at the sheet rung
+    ├── Sheet.Grabber          drag affordance; never the only means of moving
+    ├── Sheet.Header
+    │   ├── Sheet.Title        the sheet's accessible name
+    │   └── Sheet.Close        always present, always keyboard-reachable
+    ├── Sheet.Content          scrolls internally; owns its own scroll boundary
+    └── Sheet.Footer           pinned above keyboard and safe-area inset
+```
+
+Nesting a `Sheet` inside a `Sheet` is a composition error. Two stacked modal surfaces produce
+a focus order nobody can predict and an escape key with two plausible meanings.
+
+## Proposed API
+
+<NotBuiltYet name="sheet" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+/** Heights the sheet rests at. "content" sizes to the content, once. */
+export type Detent = "content" | "half" | "full"
+
+export interface SheetProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  /**
+   * The sheet's accessible name. Required: an unnamed modal surface is
+   * announced as "dialog" and nothing else.
+   */
+  title: string
+  /** Rest positions, in order. A single entry disables drag-between-detents. */
+  detents?: Detent[]
+  /**
+   * Modal traps focus and blocks the page behind it. Non-modal does neither and
+   * is a genuinely different component; the flag exists so the difference is
+   * declared rather than emergent.
+   */
+  modal?: boolean
+  /** Whether the scrim and the escape key dismiss. Forms usually set this false. */
+  dismissible?: boolean
+  children: React.ReactNode
+}
+```
+
+## Content guidelines
+
+Title the sheet with what the reader is doing there, as a noun phrase or a short imperative.
+The primary action says what it does — *Save reading*, *Choose unit* — and never *Done*, which
+tells a reader nothing about what happens to what they typed.
+
+Keep sheets to one task. A sheet with its own tabs is a screen that has not admitted it yet.
+
+<DoDont>
+  <DoDont.Do>
+    **"Add a reading"** with **"Save reading"** pinned at the bottom.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **An untitled sheet whose only action is labelled "Done".** A screen-reader user hears
+    *dialog* and a button whose effect is a guess.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **A visible close control in the header**, in addition to drag-to-dismiss and Escape.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **Drag-to-dismiss as the only way out.** It does not exist for keyboard users, switch
+    users, or anyone whose grip makes a precise drag unreliable.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **Modal sheets are dialogues**: named by their title, focus moved into the sheet on open,
+  focus trapped while open, focus returned to the trigger on close, and the page behind made
+  inert.
+- **Escape closes a dismissible sheet** and, when the sheet holds unsaved input, asks first —
+  by the same route as a background tap.
+- **Every gesture has a control.** Drag-to-dismiss has a close button; drag-between-detents
+  has a button or is simply not offered. See
+  [Target size and motor](../accessibility/target-size-and-motor.mdx).
+- **The primary action is never covered by the software keyboard.** The sheet responds to the
+  visual viewport and respects safe-area insets on every edge — see
+  [Layout](../foundations/layout.mdx).
+- **Content scrolls inside the sheet**, not the page behind it, and scroll chaining is
+  prevented so a flick at the top of the content does not dismiss the sheet unexpectedly.
+- **`prefers-reduced-motion` removes the slide**; the sheet appears at its detent, and drag
+  still works. Reduced motion is not reduced capability — see
+  [Reduced motion](../accessibility/reduced-motion.mdx).
+- **The scrim's dimming is not the only signal** that the content behind is inactive; the page
+  is genuinely inert, so assistive technology cannot reach it either.
+- **At 200% text the sheet takes the height it needs** up to full, and the header and footer
+  never overlap the content.
+
+<KeyboardTable name="sheet" />
+
+<ContrastReport component="sheet" />
+
+## Related
+
+<RelatedComponents name="sheet" />
+
+**Easily confused with**
+
+- [Dialog](./dialog.mdx) — a question that must be answered, rather than a place the reader
+  chose to go.
+- [LogSheet](./log-sheet.mdx) — a Sheet with a capture contract and a field ceiling.
+- [ConsentSheet](./consent-sheet.mdx) — a Sheet with a consent contract and equally weighted
+  decisions.
+- [Surface](./surface.mdx) — the layer Sheet is built from.
+- `popover` (considered, no page yet — see the [roster](./index.mdx)) — small, anchored, and
+  attached to a control rather than to the screen.
+
+**Used by**
+
+- [Capture a daily log entry](../recipes/daily-log-entry.mdx)
+- [Daily log screen](../screens/daily-log-screen.mdx)
+
+**Governed by**
+
+- [The material ladder](../foundations/materials/the-ladder.mdx)
+- [Layering, elevation and z-index](../foundations/layering-and-elevation.mdx)
+- [Choreography](../foundations/motion/choreography.mdx)
+- [Density and touch targets](../foundations/space/density-and-touch.mdx)

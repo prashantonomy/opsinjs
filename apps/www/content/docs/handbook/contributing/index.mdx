@@ -1,0 +1,128 @@
+---
+title: Contributing
+description: How a change gets into opsinjs — the four routes in, what each one has to clear, and the one thing that will get a component proposal rejected fastest.
+status: stable
+kind: handbook
+icon: GitPullRequest
+aliases: [how to contribute, contribution guide, submitting a change, proposing something]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="handbook" />
+
+## The short version
+
+Four kinds of change, four different bars:
+
+| Change | Bar | Where |
+| --- | --- | --- |
+| A documentation fix | Correctness. Open a pull request. | Any page's "Edit this page" |
+| A token change | A migration story, because a token is a public API | [Contributing tokens](./contributing-tokens.mdx) |
+| A new component | A proposal answering the intake questions first | [Proposing a component](./proposing-a-component.mdx) |
+| A change to doctrine | A dated rationale and a named reviewer | [Health](../../health/index.mdx) |
+
+The fastest way to have a component proposal rejected is to open it with an API.
+The intake questions are about what the component *asserts about somebody's
+health* and what happens when it is wrong; a prop table does not answer either.
+
+## How it works
+
+### The maturity ladder
+
+Nothing arrives as `stable`. Every component climbs:
+
+`considered` → `planned` → `alpha` → `beta` → `stable`
+
+- **`considered`** — a row in the catalogue with a name, a one-line definition
+  and a reason. No page, no code. Anyone can propose one.
+- **`planned`** — a full specification page: intent, when not to use it naming
+  the alternative, the clinical contract, the proposed anatomy, the proposed API
+  and the accessibility bar. Still no code. All 24 shipped ids are here today.
+- **`alpha`** — code exists. The API will change.
+- **`beta`** — the API is settled; the measured numbers are being filled in.
+- **`stable`** — all 22 sections of the component anatomy render, and semver
+  applies.
+
+What each phase promises is set out in [Release
+phases](../../project/release-phases.mdx). The important consequence for a
+contributor is that **the specification is the deliverable at `planned`**, and it
+is reviewed as seriously as code.
+
+### Review
+
+Every change needs one review. Some need more:
+
+- **Anything under `health/`** — a clinical reviewer, and a `reviewed` date.
+- **Anything that changes a colour token or a contrast pair** — the generated
+  contrast report must be regenerated and committed.
+- **Anything user-visible in a component** — an accessibility review, recorded
+  as `a11yDate`.
+- **Any wording that appears on screen** — a content review.
+
+The frontmatter carries all four, which is what makes
+[Docs freshness](../../project/docs-freshness.mdx) able to report expiry rather
+than guess at it.
+
+### Generated files
+
+A large share of this site is generated. If your change touches a token, a type,
+a keyboard table, a data attribute or the catalogue, the generated output must be
+regenerated and committed in the same change — CI runs the generators and fails
+on any diff. See [ADR
+0006](../../project/decisions/0006-generated-not-authored.mdx).
+
+## Do this
+
+- **Open an issue before a large change.** A rejected component proposal after
+  two weeks of work is a bad outcome for everybody, and the intake questions can
+  be answered in an hour.
+- **Read the page kind's template first.** The outline is a contract that
+  `assert-ia` enforces, and writing to the template is faster than writing prose
+  and re-cutting it. See [Documentation
+  templates](./documentation-templates.mdx).
+- **Say when something is your opinion.** `evidence: opinion` is always
+  preferred to a citation that does not quite say what you needed it to.
+- **Run `pnpm run check` before opening the pull request.** It runs the
+  generators, the IA assertions, the link check and the freshness report.
+- **Keep the change one thing.** A token rename and a new component in one pull
+  request cannot be reviewed by the people who need to review each.
+
+## Not this
+
+- **Never invent a citation, a statistic, a DOI or a date.** This is the one
+  rule with no exception. A fabricated reference in a health document is the
+  worst thing this repository could contain, and it is worse than an honest
+  absence.
+- **Do not copy NHS or other Crown-copyright text.** Cite it; write your own.
+  See [Licence and attribution](../../project/licence-and-attribution.mdx).
+- **Do not add a component because a competitor has one.** The catalogue has a
+  `considered` roster precisely so that "we thought about it and decided not to"
+  is a recordable answer.
+- **Do not hand-edit a generated file.** It will be overwritten and the diff
+  will fail CI.
+- **Do not add a page without a `status` and a `kind`.** The build will reject
+  it, and the rejection is deliberate.
+
+## Gotchas
+
+- **`assert-ia` checks headings against the page kind.** An extra H2 fails the
+  build even if it is a good heading, because the outline is what keeps 200
+  pages navigable.
+- **Aliases are globally unique.** They are declared in
+  `registry/catalogue.ts`; a page that invents one will collide eventually.
+- **Links in MDX are relative and resolved by `createRelativeLink`.** An absolute
+  `/docs/...` link fails the IA check everywhere except the Sections rail.
+- **British spelling in prose, American in code.** A page named
+  `colour-independence.mdx` documenting a `ColorScale` is correct. See
+  [Naming conventions](../naming-conventions.mdx).
+- **A clean clone needs `pnpm install` before `typecheck`**, because `.source/`
+  is generated by `postinstall` and gitignored.
+
+## Related
+
+- [Proposing a component](./proposing-a-component.mdx) — the intake questions.
+- [Component checklist](./component-checklist.mdx) — the definition of done.
+- [Documentation templates](./documentation-templates.mdx) — the page outlines,
+  published verbatim.
+- [Community](../../project/community.mdx) — where to ask before you build.

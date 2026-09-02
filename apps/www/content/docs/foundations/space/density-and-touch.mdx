@@ -1,0 +1,138 @@
+---
+title: Density and touch
+description: A 44pt floor measured on the interactive area rather than the visual box, the separation rule that stops adjacent mis-taps, and where a primary action belongs on a phone.
+status: stable
+kind: foundation
+aliases: [touch target, hit area, thumb reach, target separation]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+The most common physical failure in a consumer health app is not a crash. It is
+somebody tapping the wrong thing: dismissing an alert they meant to open, logging
+a reading in the wrong unit, deleting an entry they meant to edit. It happens
+because the control was small, or because the wrong control was next to it, or
+because it was in the part of the screen a thumb has to stretch for.
+
+opsinjs sets a floor: **any control a person taps is at least 44 points on both
+axes**, measured on the interactive area rather than the visual box. That figure
+is the long-standing platform guidance for touch interfaces and it sits above the
+WCAG 2.2 SC 2.5.8 minimum of 24 CSS pixels — the two numbers come from different
+places and
+[Target size and motor](../../accessibility/target-size-and-motor.mdx) says which
+is which.
+
+The floor is a floor, not a target. Controls that are frequently used, used in a
+hurry, or destructive should be comfortably above it.
+
+## How it works
+
+**The measurement is the interactive area, not the ink.** A 20-point icon inside
+a 44-point button passes. A 44-point icon with no padding and a 20-point hit area
+does not. What is measured is what responds to a tap.
+
+The product theme backstops this: buttons, elements with a button role, checkboxes
+and radios all carry a minimum block and inline size from `--opsin-target-min`.
+That is a safety net for something that slipped through, not a substitute for
+sizing a control properly — a backstop that stretches a control to the floor may
+produce a layout nobody intended.
+
+**Corners take area away.** A rounded control has less tappable area on its
+diagonals than its bounding box implies, so the floor is measured on the real
+shape. This is one reason small controls do not take large radius rungs — see
+[Radius scale](../shape/radius-scale.mdx).
+
+**Separation is a second, independent requirement.** Two 44-point controls
+touching each other still produce mis-taps, because a finger contact patch is
+larger than the point it registers and people aim at the middle of what they can
+see. Adjacent interactive elements are separated by at least one step of the
+spacing scale, and controls with asymmetric consequences — save next to delete,
+open next to dismiss — are separated by more or are not adjacent at all.
+
+**Reach is not uniform.** On a phone held in one hand, the lower half of the
+screen is comfortable, the top corners require a grip change, and the far top
+corner requires two hands or a stretch. So: the primary action sits low;
+navigation between screens sits low; destructive and irreversible actions do not
+sit where a thumb rests by default. This is opinion informed by the platform
+guidance rather than a measured result, and it is stated as such.
+
+**Hover is not a target.** Anything discoverable only by hovering is
+undiscoverable on a phone. Any information behind a hover is also available on
+tap and on focus.
+
+## Using it
+
+**Measure the hit area, not the design.** The check is one line in the inspector
+and it catches most failures: select the control, read the computed box, compare
+to the floor at the current text size.
+
+<DoDont>
+  <DoDont.Do>
+    A dismiss control on an alert banner sized to the floor, with its icon
+    centred inside it and a full step of separation from the banner's primary
+    action. Reaching for one cannot land on the other.
+  </DoDont.Do>
+  <DoDont.Dont>
+    A 24-point close glyph tucked into the corner, immediately beside the "call
+    your GP" action. The two most consequentially different actions on the screen
+    are adjacent and one of them is below the floor.
+  </DoDont.Dont>
+</DoDont>
+
+**Never shrink a control to fit.** If a row is too crowded, remove something or
+stack it. A control below the floor is a control somebody will miss, and on a
+health screen the thing they miss may be the escalation.
+
+**Do not extend a hit area invisibly across a gap.** Padding a control so its
+tappable area overlaps its neighbour's visible space produces taps that appear to
+land on one thing and activate another — which is worse than a small target,
+because the reader cannot see why it happened.
+
+**Keep the floor at every text size.** The floor holds at 1× and at 1.3×. A hit
+area grows with its label; it never shrinks to accommodate one.
+
+**Give destructive actions friction, not distance alone.** Distance reduces
+accidental taps; confirmation handles the ones that get through. On anything that
+removes a reading somebody recorded, both apply.
+
+## Tokens
+
+`--opsin-target-min`, the minimum separation step and the per-mode density values
+are generated from `tokens/space.json` by `scripts/build-tokens.mts`.
+
+<TokenTable scope="space" />
+
+## Accessibility impact
+
+- **WCAG 2.2 SC 2.5.8 *Target Size (Minimum)* requires 24 by 24 CSS pixels**,
+  with an exception where sufficient spacing exists. opsinjs sets a substantially
+  higher floor and does not use the spacing exception, so a control that meets the
+  opsinjs floor meets the criterion with room to spare. The distinction between
+  the two figures matters when a product is being audited, and it is set out on
+  [Target size and motor](../../accessibility/target-size-and-motor.mdx).
+- **This is a motor-accessibility requirement first.** Tremor, reduced dexterity,
+  arthritis, neuropathy and using a phone one-handed while holding something else
+  all reduce pointing precision. In a health product, a meaningful share of
+  readers are in at least one of those categories, and several are conditions the
+  product itself may be for.
+- **Separation matters as much as size**, and it is the half that gets dropped.
+  Two adjacent controls that individually pass can together produce a target that
+  is functionally impossible to hit reliably.
+- **The floor must survive text scaling.** A control whose hit area is defined by
+  its label survives; one with a fixed pixel size does not, and it fails for the
+  readers most likely to have set a larger size.
+- **Every component page publishes its measured target sizes**, and a regression
+  against the floor fails the build rather than appearing in a report nobody
+  reads.
+
+## Related
+
+- [Responsive modes](responsive-modes.mdx) — how reach and density change as the
+  container grows, and why nothing gets smaller in the process.
+- [Target size and motor](../../accessibility/target-size-and-motor.mdx) — the
+  conformance position and the gesture-alternative requirement.
+- [Layout](../layout.mdx) — where the primary action sits, and the safe-area
+  contract that keeps it reachable.

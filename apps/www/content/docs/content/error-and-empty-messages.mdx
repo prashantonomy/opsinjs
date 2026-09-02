@@ -1,0 +1,168 @@
+---
+title: Error and empty messages
+description: What to say when there is nothing to show, when the data is stale, and when it broke — including the one failure that must never be silent.
+status: stable
+kind: content
+reviewer: content
+reviewEvery: 12m
+aliases: [error copy, empty state copy, failure wording, stale data copy]
+---
+
+<PageTemplate kind="content" />
+
+## The rule
+
+**Say what happened, whether their data is safe, and what to do next — in that
+order, in that many sentences.**
+
+Health apps have a failure mode that ordinary software does not: a screen that
+fails *quietly* leaves real numbers on display with nothing to say they are old.
+The reader has no way to tell a live reading from a two-week-old one, and they
+will act on what they can see. A generic "something went wrong" toast over a
+dashboard of stale values is worse than an empty screen.
+
+So there are two rules, not one.
+
+**Rule one: never fail silently over data.** If a value on screen could not be
+refreshed, the value says so. Not the toast, not the corner of the screen — the
+value.
+
+**Rule two: distinguish the five data states in words.** The system defines empty,
+loading, error, **stale** and **partial** as five distinct states on
+[Data states](../foundations/data-states.mdx), and each needs different copy:
+
+| State | What it means | What the copy must say |
+| --- | --- | --- |
+| Empty | There has never been data | What this will show, and how to get the first one |
+| Loading | Data is coming | Nothing, usually — a skeleton says it better than a word |
+| Error | The attempt failed | What failed, whether anything was lost, what to do |
+| Stale | Old data is shown because new data could not be fetched | When it was last updated, and that it is not current |
+| Partial | Some sources returned and some did not | Which is missing, and what is still true |
+
+Collapsing stale into error loses the reader's data. Collapsing partial into
+complete is worse: it presents an incomplete picture as a complete one.
+
+### Errors specifically
+
+- **Name what failed, not what the reader did.** "We could not save your reading"
+  is a system statement. "You failed to save" is an accusation and usually false.
+- **Say whether their input survived.** This is the first thing the reader wants
+  to know and the thing most error messages omit. If the form still has their
+  numbers, say so.
+- **Give one action.** Retry, or a route around the problem. Not three.
+- **Never show a technical code alone,** and never hide it entirely: put a stable
+  reference where support can find it, below the human sentence. See
+  [Error codes](../handbook/error-codes.mdx).
+- **Never apologise more than once,** and never in the first sentence.
+
+### Empty states specifically
+
+An empty state is a first impression, not a failure. It has one job: tell the
+reader what will be here and how to get the first one. It is not a place for an
+illustration with a joke, and the illustration it does have is decorative — see
+[Alt text and descriptions](./alt-text-and-descriptions.mdx).
+
+Distinguish *never had any* from *none in this filter*. The second is not empty;
+it is a filter result, and the action is to change the filter, not to create
+data.
+
+## Approved / Rejected
+
+<DoDont>
+  <DoDont.Do>We could not save your reading. Your numbers are still here — try again.</DoDont.Do>
+  <DoDont.Dont>Something went wrong. Please try again later.</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>These readings were last updated on 12 March at 07:40. We could not get anything newer.</DoDont.Do>
+  <DoDont.Dont>Offline</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>Your readings will show here once you have logged one. Log your first reading.</DoDont.Do>
+  <DoDont.Dont>Nothing to see here yet! Time to get started on your health journey.</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>Showing your blood pressure readings. Your step count could not be loaded.</DoDont.Do>
+  <DoDont.Dont>Some data could not be loaded.</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>No readings between 1 and 14 March.</DoDont.Do>
+  <DoDont.Dont>(a chart that joins the two points either side of the gap)</DoDont.Dont>
+</DoDont>
+
+## Patterns
+
+**An error**
+
+> We could not `what failed`. `What happened to their input`. `One action`.
+
+**An error with a support reference**
+
+> We could not `what failed`. `What happened to their input`. `One action`.
+> If this keeps happening, quote `reference`.
+
+**Stale data**
+
+> Last updated `absolute time`. We could not get anything newer.
+
+Rendered next to the values, not as a separate banner. The absolute time is
+required — see [Numbers, dates and time](./numbers-dates-and-time.mdx).
+
+**Partial data**
+
+> Showing `what loaded`. `What did not` could not be loaded.
+
+**Empty, never had any**
+
+> `What will be here` will show here once you `the one thing that creates it`.
+> `Action`.
+
+**Empty, filter returned nothing**
+
+> No `things` `match the filter`. `Action to widen or clear the filter`.
+
+**A gap in a series**
+
+> No `things` between `date` and `date`.
+
+**A permission the reader has not granted**
+
+> `What we cannot show` because `app name` does not have access to `source`.
+> `Action to grant it`. `What happens if they do not`.
+
+**Nothing wrong, nothing to do**
+
+> Sometimes the correct empty state is one line and no illustration. Prefer it.
+
+## Banned words
+
+| Banned | Why | Use instead |
+| --- | --- | --- |
+| Something went wrong | Says nothing, and in a health app it hides staleness. | name what failed |
+| Oops, Uh oh, Whoops | An interjection between a reader and a failure. | delete |
+| Please try again later | Defers with no information and no time. | one action, or what we are doing about it |
+| failed, failure, invalid (about the reader) | Blames the person for a system event. | we could not, that does not look like a date |
+| Error 500, unexpected error | Machine register with no human sentence. | the human sentence, with a reference beneath it |
+| Nothing to see here | Dismisses a state the reader may be worried about. | what will be here, and how |
+| health journey, get started on your wellness | Marketing register in a failure state. | the fact and the action |
+| Offline (alone) | A device state presented as an explanation of the data. | when the data was last updated |
+| Unknown | Says the system does not know something it should. | say what is missing and why |
+| We apologise for the inconvenience | Apology instead of information. | delete, or one "sorry" after the facts |
+
+## Related components
+
+- **`EmptyState`** — owns the never-had-any and the filter-returned-nothing
+  copy; the distinction between the two is its most important prop.
+- **`Skeleton`** — the loading state. It says nothing on purpose; a word here
+  competes with the data that is about to arrive.
+- **`AlertBanner`** — carries an error that affects the whole screen. Never used
+  for a field-level error.
+- **`Field`** — owns field-level error text, and the rule that the reader's input
+  survives.
+- **`Value`** and **`RelativeTime`** — carry the staleness marker, because
+  staleness belongs on the value and not in a banner.
+- **`ResultCard`** — the partial-data wording is its content contract when one of
+  its sources is missing.

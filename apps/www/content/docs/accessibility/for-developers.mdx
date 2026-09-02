@@ -1,0 +1,143 @@
+---
+title: For developers
+description: Semantics, names, roles, state and focus order — what the components will do for you and what your JSX still has to get right.
+status: stable
+kind: accessibility
+a11yDate: 2026-09-02
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 6m
+aliases: [aria, accessible name, focus order, semantics]
+---
+
+<PageTemplate kind="accessibility" />
+
+## What we guarantee
+
+opsinjs components will be built on Base UI primitives, which means the roles,
+the keyboard interaction model and the state attributes for anything that behaves
+like a dialog, a menu or a listbox come from a primitive library that already
+implements the APG pattern, rather than from us re-deriving it. That is the
+single largest accessibility decision in the system and it is recorded as
+[ADR 0001](../project/decisions/0001-base-ui-not-radix.mdx).
+
+On top of that, three contracts will hold for every component in the roster:
+
+- **State is exposed as data attributes, not as class names.** `data-status`,
+  `data-category`, `data-open`, `data-starting-style` and `data-ending-style` are
+  part of the public API and are covered by semver, so you can style and test
+  against them. The shared vocabulary is in
+  [Data attributes](../handbook/data-attributes.mdx).
+- **Nothing is announced without being asked.** No component mounts a live region
+  on your behalf. Announcement is opt-in with an explicit politeness, because a
+  design system that guesses politeness produces either silence or a screen
+  reader that will not stop talking. The contract is on
+  [Screen readers](./screen-readers.mdx).
+- **Focus is never trapped except in a modal surface,** and a modal surface
+  always returns focus to the element that opened it.
+
+<Callout>
+None of this is implemented. The component roster is entirely at
+`status: planned`, so these are the requirements each component must satisfy
+before it can move to `alpha`, not descriptions of shipped behaviour. Do not
+generate code against them.
+</Callout>
+
+## What you own
+
+**The accessible name of everything you render.** This is the most common real
+failure, and it is not something a component can fix. An icon-only button gets
+its name from you. A `RangeBar` will render a bar; the sentence that says *what*
+is in range is yours.
+
+**DOM order.** CSS order is not reading order. `order`, `grid-area`, `row-reverse`
+and absolute positioning all decouple the two, and screen readers, sequential
+navigation and the browser's own find-in-page all follow the DOM. If you cannot
+make the DOM order correct, the layout is wrong.
+
+**Labels and their programmatic association.** Placeholder text is not a label.
+A visually hidden label is a label. A label that only appears once the field has
+focus is not.
+
+**Input purpose.** SC 1.3.5 wants `autocomplete` on inputs that collect
+information about the user, and health forms collect a lot of it. Name, date of
+birth, postcode, telephone and email all have defined tokens. See
+[Ask users for…](../patterns/ask-users-for/index.mdx) for the per-question
+guidance.
+
+**Error handling that survives a screen reader.** An error rendered in red beside
+a field, with no programmatic association and no announcement, does not exist for
+a large fraction of your readers. The pattern is on
+[Error and empty messages](../content/error-and-empty-messages.mdx) for the words
+and [Validation timing](../patterns/forms/validation-timing.mdx) for the
+mechanics.
+
+## How to check
+
+<Steps>
+
+### Unplug the mouse
+
+Do the whole task with the keyboard only. Every interactive element must be
+reachable, the focus indicator must be visible at every stop, and you must never
+land somewhere you cannot get out of. Nothing else on this list finds as many
+bugs per minute. The expected behaviour is specified on
+[Keyboard and focus](./keyboard-and-focus.mdx).
+
+### Read the accessibility tree, not the DOM
+
+Open the accessibility tree in your browser's developer tools and walk the
+screen. You are looking for elements with a role and no name, elements with a
+name that duplicates the visible text badly ("button button"), and headings that
+skip levels. The tree is what assistive technology sees; the DOM is not.
+
+### Query the way a test would
+
+In a test, find elements by role and accessible name — `getByRole('button', { name: 'Log a reading' })`.
+If you cannot express the element that way, a screen-reader user cannot find it
+either. This turns an accessibility property into an ordinary failing test, which
+is the only form of accessibility check that survives a deadline.
+
+### Force the preference queries on
+
+Toggle `prefers-reduced-motion`, `prefers-reduced-transparency` and
+`prefers-contrast` in developer tools and re-run the task. In this codebase the
+first two are implemented in `app/globals.css` and `app/product.css`; the third
+is not, and that gap is documented on
+[Increased contrast](./increased-contrast.mdx). Emulating a preference is not the
+same as testing it, but it catches the class of bug where a transition was the
+only signal that something changed.
+
+### Turn the network off mid-task
+
+Health UI reads stale data as if it were live more often than it reads nothing at
+all. Check that the stale state is distinguishable programmatically and not only
+by a greyer colour. See
+[Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx).
+
+</Steps>
+
+## Measured results
+
+<NoDataYet script="scripts/build-registry.mts" />
+
+Per-component conformance blocks, keyboard tables and the aggregated keyboard
+reference are generated from the registry. The registry has no components in it,
+so there is nothing to aggregate. When components land, each one carries its own
+`<A11yReport>` and its numbers appear here and in
+[Reference](../reference/index.mdx).
+
+## Known gaps
+
+- **No automated accessibility assertions run anywhere.** There is no axe
+  integration, no jsdom accessibility test and no CI gate other than the contrast
+  check.
+- **The announcement contract is specified but unimplemented,** so there is no
+  shared helper for polite and assertive regions yet.
+- **No RTL testing has been done.** The system is authored logical-property-first
+  but that has not been verified. See
+  [Internationalisation and RTL](../handbook/internationalisation.mdx).
+
+## Updates to this page
+
+<Reviewed />

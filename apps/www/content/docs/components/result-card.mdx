@@ -1,0 +1,287 @@
+---
+title: ResultCard
+description: One test result, shown in full — what was measured, the number, where it sits against its range, what that means in plain English, and what to do next.
+status: planned
+kind: component
+since: "unreleased"
+category: health-data-display
+aliases: [results, lab result, test result, report card, blood pressure]
+governedBy: [two-colour-axes, reference-ranges, numbers-units-precision, uncertainty-and-staleness]
+usedIn: [value-against-a-range, health-metric-card, results-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="result-card"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "What is the minimum a card may show? Is a result with a value but no range, no status and no explanation still a ResultCard, or is it a Value in a Card?",
+    "When the product has no plain-English explanation for a result, does the card render without one or refuse to render?",
+    "How does the card behave when the result is old enough that acting on it would be wrong?",
+    "Where does the not-medical-advice note live — on every card, once per screen, or once per session?",
+  ]}
+/>
+
+ResultCard is the composition the whole health-data-display family exists to serve. It is
+one result, complete: the measurement, its context, its meaning and its consequence, in the
+order a reader needs them rather than the order a database returns them.
+
+## Preview
+
+The preview will show the card at its three densities and under both themes, because the
+card is the surface where a generous default and a compact dashboard variant look most
+different.
+
+<ComponentPreview name="result-card" />
+
+## Installation
+
+The registry item does not exist yet, so the command below is shown for shape only and
+will fail. ResultCard composes [RangeBar](./range-bar.mdx),
+[StatusPill](./status-pill.mdx), [Value](./value.mdx) and [RelativeTime](./relative-time.mdx),
+and installing it will install those too.
+
+<ComponentInstall name="result-card" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "A single result presented on its own terms, with room for its range, its meaning and its next step — a results page, a result detail view, the body of a result notification.",
+    "Any result a reader may be seeing for the first time, where the explanation matters as much as the number.",
+    "A result that needs a next step attached to it, such as booking a follow-up or repeating a test.",
+  ]}
+  avoid={[
+    { case: "You are showing several readings side by side in a dashboard grid, where a full card per reading would fill the screen.", instead: "metric-tile" },
+    { case: "The number has no range, no status and nothing to explain — you just need it formatted correctly.", instead: "value" },
+    { case: "You are only showing where a value sits within its range, inside a larger layout you already own.", instead: "range-bar" },
+    { case: "The main message is an instruction rather than a measurement.", instead: "care-card" },
+    { case: "You need to interrupt the reader because something has changed and needs attention now.", instead: "alert-banner" },
+    { case: "You are grouping unrelated content that happens to need a border.", instead: "card" },
+  ]}
+/>
+
+The line between ResultCard and [MetricTile](./metric-tile.mdx) is the amount of room the
+result gets to explain itself. A tile is a number you glance at on the way somewhere else;
+a card is a number you stop and read. If your layout cannot give the result three lines of
+plain English, it is a tile.
+
+## Clinical meaning
+
+**What it asserts.** That a specific measurement was taken, at a specific time, in a
+specific unit, and — where the product has supplied them — where it sits against a stated
+reference range and which clinical status the product has assigned to it. Every one of
+those is a separate claim and each may be absent independently.
+
+**What it must never be read as.** A diagnosis, a summary of the reader's health, or advice
+from a clinician. The card may carry a next step, but the next step is the product's, and
+the card must make its origin obvious — *your clinic asks you to repeat this test in three
+months* is a different sentence from *repeat this test in three months*, and the difference
+is who is speaking.
+
+**Which colour axis it may use.** The **status** axis, on the pill and on nothing else. The
+card's own surface stays neutral at every status. A card whose entire background turns amber
+converts a single measurement into an emotional event, and a screen with four such cards is
+unreadable — see [Alarm fatigue](../health/alarm-fatigue.mdx). The **category** axis may
+colour the heading icon so a reader can find the heart results among the sleep results, and
+may do nothing else.
+
+**Who owns the thresholds.** The consuming product. ResultCard has no clinical rules, no
+default ranges and no status derivation. It renders what it is given and refuses to guess
+what it is not.
+
+**Staleness is part of the meaning.** A result carries the time it was measured, and past a
+product-defined threshold the card must say so rather than only showing a relative time in
+small type. A four-month-old blood pressure reading is not a current blood pressure reading,
+and the card is the last place that distinction can still be made — see
+[Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx).
+
+<SafetyCallout severity="medium" evidence="opinion">
+A result the reader has never seen before should not arrive with no way to understand it.
+If the product cannot supply plain-English meaning for a result, the honest card says so —
+*we do not have an explanation for this test* — and links to somewhere that does. Silence
+reads as *this is fine*, and silence is the default no one chose.
+</SafetyCallout>
+
+## Anatomy
+
+<Anatomy name="result-card" />
+
+<CompositionTree name="result-card" />
+
+The card is a composition rather than a monolith because real products need to drop parts:
+a print view has no actions, a notification body has no chart, an embedded card inside a
+timeline has no footnote. Each part is independently omittable and the card's meaning
+degrades predictably as they go.
+
+**Header** carries what was measured and when, plus the status pill. **Reading** is the
+number itself at display size with its unit — the largest thing on the card, because it is
+what the reader came for. **Range** is the embedded [RangeBar](./range-bar.mdx), present
+only when a reference range exists. **Meaning** is the plain-English paragraph, the part
+that most result UIs omit and the part that decides whether the card is useful. **Actions**
+are the next steps, at most two. **Footnote** carries provenance: who measured it, with
+what, and where the range came from.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+ResultCard                     root; surface stays neutral at every status
+├── ResultCard.Header
+│   ├── ResultCard.Title       what was measured, in the reader's words
+│   ├── ResultCard.Time        <RelativeTime> with an absolute fallback
+│   └── StatusPill             the only status-coloured element on the card
+├── ResultCard.Reading
+│   └── Value                  number + unit at display size
+├── RangeBar                   optional; omitted entirely when no range exists
+├── ResultCard.Meaning         plain-English paragraph; may contain <Term>
+├── ResultCard.Actions         at most two; the first is the recommended one
+└── ResultCard.Footnote        provenance, and the not-medical-advice note by rule
+```
+
+Nesting a second `StatusPill` anywhere inside the card, or placing a `RangeBar` above
+`ResultCard.Reading`, is a composition error: the reading is the subject and the bar is its
+context, and reversing them changes what the card is about.
+
+## Proposed API
+
+<NotBuiltYet name="result-card" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+import type { ClinicalStatus, HealthCategory } from "opsinjs"
+import type { ReferenceRange } from "opsinjs"
+
+export interface ResultAction {
+  /** Imperative, specific, and honest about who is asking. */
+  label: string
+  href?: string
+  onSelect?: () => void
+  /** Exactly one action per card may be `recommended`. */
+  recommended?: boolean
+}
+
+export interface ResultCardProps {
+  /** What was measured, in the reader's language. */
+  title: string
+  value: number | string | null
+  unit?: string
+  /** ISO timestamp of measurement, not of retrieval. */
+  measuredAt: string
+  /** Omit when no reference range is available. Never defaulted. */
+  range?: ReferenceRange
+  /** Assigned by the product. Never derived from `value` and `range`. */
+  status?: ClinicalStatus
+  /** Affects the header icon only. Never the card surface. */
+  category?: HealthCategory
+  /**
+   * The plain-English paragraph. When absent the card renders an explicit
+   * "no explanation available" state rather than nothing.
+   */
+  meaning?: React.ReactNode
+  /** At most two. More than two is a screen, not a card. */
+  actions?: ResultAction[]
+  /** Who measured it, with what device or assay, and where the range came from. */
+  provenance?: string
+  /**
+   * Hours after which the card shows its stale treatment. The product owns this
+   * number because it is clinical, not visual.
+   */
+  staleAfterHours?: number
+}
+```
+
+## Content guidelines
+
+The title is the everyday name of the test with the clinical name available as a
+[Term](./term.mdx). The meaning paragraph is two or three short sentences: what the test
+looks at, what this result means in context, and what usually happens next. Write it in the
+second person, in the present tense, and without hedging so heavily that it says nothing.
+
+Actions are imperative and specific. *Book a repeat test* is an action; *learn more* is a
+link pretending to be one.
+
+<DoDont>
+  <DoDont.Do>
+    **"This test looks at how your kidneys have been working over the past few months. Your
+    result is slightly below the usual range. Your clinic has asked you to repeat it in
+    three months."** Names the test, places the result, attributes the next step.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Your eGFR is abnormal. You should see a doctor."** An unexplained acronym, a banned
+    word, and advice with no author. The reader cannot tell whether a person looked at this
+    or a rule fired.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **"Measured 4 months ago. This may not reflect your current reading."** Staleness stated
+    as a fact with a consequence.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"4 months ago" in grey 12px type under the number.** Technically present, practically
+    invisible, and the reader acts on a number that is out of date.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **The card is one region with an accessible name** taken from its title and reading, so a
+  screen-reader user scanning by region hears *HbA1c, 44 millimoles per mole* rather than
+  *group*.
+- **Reading order matches visual order**: title, time, status, reading, range, meaning,
+  actions, footnote. This is the order a reader needs and it must not be re-arranged by CSS
+  into something the DOM contradicts.
+- **The status pill is announced with its word, not its colour.** See
+  [Screen readers](../accessibility/screen-readers.mdx) for the status-change announcement
+  contract, which applies when a card's status changes while it is on screen.
+- **Units are spoken, not symbolic.** `mmol/mol` renders visually as a symbol and is
+  announced in full. See
+  [Numbers, units and precision](../health/numbers-units-precision.mdx).
+- **Actions are real buttons or links** with a 44pt minimum target and 8pt separation, and
+  the recommended one is not distinguished by colour alone. See
+  [Target size and motor](../accessibility/target-size-and-motor.mdx).
+- **The card reflows at 200% text** to a single column with the reading above the bar, and
+  never truncates the meaning paragraph behind a *more* control at large text sizes.
+- **Print** produces the whole card with no colour: title, reading, range as an outline,
+  meaning, provenance. Cards are printed and taken to appointments.
+
+<KeyboardTable name="result-card" />
+
+<ContrastReport component="result-card" />
+
+## Related
+
+<RelatedComponents name="result-card" />
+
+**Easily confused with**
+
+- [MetricTile](./metric-tile.mdx) — the same data with no room to explain itself. Use a tile
+  in a grid, a card on a page.
+- [Card](./card.mdx) — the neutral container. ResultCard is a Card with a clinical contract;
+  a Card is a box.
+- [CareCard](./care-card.mdx) — a card whose subject is an instruction rather than a
+  measurement. If the reader's takeaway is a verb, use CareCard.
+- [AlertBanner](./alert-banner.mdx) — for something that must interrupt. A result the reader
+  chose to open is not an interruption.
+
+**Used by**
+
+- [Build a health metric card](../recipes/health-metric-card.mdx)
+- [Show a value against a reference range](../recipes/value-against-a-range.mdx)
+- [Results screen](../screens/results-screen.mdx)
+- [Result disclosure](../patterns/result-disclosure.mdx)
+
+**Governed by**
+
+- [The two colour axes](../health/two-colour-axes.mdx)
+- [Reference ranges and normal](../health/reference-ranges.mdx)
+- [Numbers, units and precision](../health/numbers-units-precision.mdx)
+- [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx)

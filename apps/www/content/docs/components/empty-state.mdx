@@ -1,0 +1,201 @@
+---
+title: EmptyState
+description: What a screen shows before there is anything on it — saying plainly why it is empty and giving you one clear thing to do about it.
+status: planned
+kind: component
+since: "unreleased"
+category: feedback
+aliases: [blank slate, no data, nothing here, zero state]
+usedIn: [onboarding-screen, trends-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="empty-state"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "There are at least four distinct empties — nothing yet, nothing matching, nothing left, and not enough yet. Are they one component with a reason, or four?",
+    "'Not enough data to show a trend' is an empty state that is also a safety statement. Does that belong here or on the component that refused to draw?",
+    "Is an illustration ever appropriate on a health empty state, and what does it do at 200% text and in print?",
+    "May an empty state carry a primary action when the reader cannot actually do the thing yet — waiting for a device, waiting for a lab?",
+  ]}
+/>
+
+Empty states are where a product either explains itself or looks broken. In a health product
+there is a fifth thing they must not do: imply that empty means fine.
+
+## Preview
+
+The preview will show the four reasons side by side, so the difference between *nothing yet*
+and *not enough yet* is visible rather than assumed.
+
+<ComponentPreview name="empty-state" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail.
+
+<ComponentInstall name="empty-state" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "A surface that has no content because the reader has not added any yet, and the fastest useful thing is to say so and offer the first step.",
+    "A filter or search that matched nothing, where the reader needs to know it was the filter and not the data.",
+    "A view that cannot yet draw what it exists to draw — a trend with too few readings, a comparison with only one thing to compare.",
+  ]}
+  avoid={[
+    { case: "The content is loading and will arrive shortly, so the layout should be preserved rather than replaced.", instead: "skeleton" },
+    { case: "Something failed and the reader needs to know it failed rather than that there is nothing there.", instead: "alert-banner" },
+    { case: "There is content, but it needs a caveat.", instead: "callout" },
+    { case: "The reader must give permission before anything can be shown.", instead: "consent-sheet" },
+    { case: "A single value is missing inside an otherwise full surface.", instead: "value" },
+  ]}
+/>
+
+The first exclusion is the one that produces the worst experience when it goes wrong. An
+empty state shown during loading tells the reader there is nothing there, and a proportion of
+them will leave before the data arrives and conclude the app lost their readings.
+
+## Anatomy
+
+<Anatomy name="empty-state" />
+
+<CompositionTree name="empty-state" />
+
+**Illustration** is optional and never carries information. **Title** says what is not here.
+**Body** says why, in one or two sentences. **Action** is the one thing to do next; there is
+one, not three. **Secondary** is an optional quieter route for the reader who cannot take the
+primary one.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+EmptyState                     root; declares WHY it is empty
+├── EmptyState.Illustration    optional; decorative, hidden from assistive technology
+├── EmptyState.Title           what is not here
+├── EmptyState.Body            why, in 1–2 sentences
+├── EmptyState.Action          the one next step
+└── EmptyState.Secondary       optional quieter alternative
+```
+
+## Proposed API
+
+<NotBuiltYet name="empty-state" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+/**
+ * Why the surface is empty. Required, because each reason needs different words
+ * and one of them is a safety statement rather than an inconvenience.
+ */
+export type EmptyReason =
+  /** The reader has not added anything yet. */
+  | "nothing-yet"
+  /** A filter or search matched nothing. The data exists. */
+  | "no-matches"
+  /** There was content and there is none now — everything completed or removed. */
+  | "nothing-left"
+  /** There is data, but not enough for this view to be honest. */
+  | "not-enough"
+
+export interface EmptyStateProps {
+  reason: EmptyReason
+  title: string
+  children?: React.ReactNode
+  /** Exactly one primary action, or none. Never a row of three. */
+  action?: { label: string; href?: string; onSelect?: () => void }
+  secondary?: { label: string; href?: string; onSelect?: () => void }
+  /** Decorative only. Never the carrier of the message. */
+  illustration?: React.ReactNode
+}
+```
+
+## Content guidelines
+
+Say what is not here, then why, then what to do. Never use an empty state to be cheerful about
+an absence: *No results — great news!* is a clinical claim the product cannot make, because a
+reader with no results has an empty list, not a clean bill of health.
+
+For `not-enough`, state the rule and the gap. The reader is not being told off; they are being
+told what the view is waiting for.
+
+<DoDont>
+  <DoDont.Do>
+    **"No readings yet. Once you add your first blood pressure reading, you will see it here
+    along with your range. [Add a reading]"** Names the absence, says what will change it,
+    offers one action.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Nothing to see here! 🎉"** Cheerful about missing health data, no explanation, and
+    nothing to do. It reads as reassurance and it is not reassurance about anything.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **"Not enough readings for a trend yet. We show one after 7 days of readings — you have
+    3."** The rule, the gap, and no implication that the reader has done anything wrong.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **An empty chart area with the axes drawn.** It looks like a failure, and readers who
+    interpret it as *your values are zero* are not being unreasonable.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **The empty state replaces the content in the reading order** and its title is a real
+  heading at the level the surrounding page needs, so it is findable rather than stumbled
+  into.
+- **A view that becomes empty announces it politely** — after a filter change, for example —
+  once, and not on every keystroke.
+- **The illustration is decorative** and hidden from assistive technology. If a picture is
+  carrying meaning, the meaning is missing from the words.
+- **The action is a real button or link** with a 44pt target and a name that says what it
+  does.
+- **Nothing depends on colour**: the state is carried by the words.
+- **At 200% text the layout stacks** and the illustration shrinks or disappears before the
+  text does.
+- **Print** renders the title and body; an empty section in a printed summary must still say
+  why it is empty, or the reader will think the print failed.
+
+<KeyboardTable name="empty-state" />
+
+<ContrastReport component="empty-state" />
+
+## Related
+
+<RelatedComponents name="empty-state" />
+
+**Easily confused with**
+
+- [Skeleton](./skeleton.mdx) — for content that is coming. Showing an empty state while
+  loading is the most damaging confusion in this pair.
+- [AlertBanner](./alert-banner.mdx) — for a failure. *Nothing here* and *we could not load
+  this* are different facts and readers act differently on them.
+- [Callout](./callout.mdx) — a note beside content that exists.
+- [TrendSparkline](./trend-sparkline.mdx) — the component that most often defers to an empty
+  state, when the series is too short to draw honestly.
+
+**Used by**
+
+- [Onboarding screen](../screens/onboarding-screen.mdx)
+- [Trends screen](../screens/trends-screen.mdx)
+- [Empty and first use](../patterns/empty-and-first-use.mdx)
+
+**Governed by**
+
+- [Data states](../foundations/data-states.mdx) — empty, loading, error, stale and partial,
+  defined once for every data surface.
+- [Error and empty messages](../content/error-and-empty-messages.mdx)
+- [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx)

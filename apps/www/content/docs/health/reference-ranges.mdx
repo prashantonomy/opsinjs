@@ -1,0 +1,192 @@
+---
+title: Reference ranges
+description: How to show a value against a range without implying a diagnosis, and why the word "normal" is banned from every user-facing string about a person's own result.
+status: stable
+kind: health
+evidence: mixed
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+owner: design-system
+implements: [range-bar, result-card, metric-tile, value, range-legend, disclaimer-note]
+aliases: [normal, abnormal, out of range, healthy range, cut-off, reference interval]
+---
+
+<PageTemplate kind="health" />
+
+## What this means
+
+A reference range is a statistical statement about a population, usually
+constructed so that a defined majority of an apparently healthy reference group
+falls inside it. It is produced by a specific laboratory, using a specific assay,
+for a specific population, and it varies between laboratories for the same test.
+
+Read that again and notice what it does not say. It does not say that a value
+inside the range is healthy. It does not say that a value outside it is disease.
+By construction, a proportion of perfectly well people fall outside — that is
+what "a defined majority" means — and a person can be seriously unwell with every
+value comfortably inside.
+
+Now consider what the interface does with this. It prints the range as a bar, the
+value as a dot, and labels the middle "Normal". The reader — reasonably —
+concludes that they are normal, or that they are not. There is no gentler word in
+English for the negation of "normal" applied to a person, and there is no
+statistical caveat that survives contact with it.
+
+This is the single most common way a well-built health interface misleads
+someone, and it is a wording and layout problem, which means it is ours.
+
+## The rule
+
+**Show the value, show the range it is being compared against, name whose range
+it is, and never characterise the person.**
+
+**Banned words in any user-facing string about a person's own result:**
+
+| Banned | Because | Use instead |
+| --- | --- | --- |
+| normal / abnormal | Describes the person, not the measurement; its negation is unbearable | "in the usual range" / "outside the usual range" |
+| healthy / unhealthy | A verdict on a life, from one number | "in the usual range" / "higher than the usual range" |
+| good / bad | Moral framing of something largely outside the reader's control | Say the direction: "higher", "lower" |
+| poor / failed | Failure language for a body | "lower than expected" |
+| perfect / optimal | Sets up every future reading as a decline | "in the usual range" |
+| positive / negative | Inverted in lay usage — a "positive" result is usually the bad one | Name the finding: "X was found" / "X was not found" |
+| elevated | Clinical register; means little to a lay reader | "higher than" |
+
+**Presentation rules:**
+
+1. **The range is always attributed.** "Your laboratory's usual range" or "the
+   range this device uses" — never a floating, unowned band.
+2. **The range is shown, not merely applied.** If the value is compared to a
+   range, the reader can see the range. A status pill without a visible range
+   asks the reader to trust an invisible rule.
+3. **The boundary is not a cliff.** A value just outside a range is
+   presentationally close to one just inside. Do not let a one-unit change
+   flip the whole surface from calm to alarming with no gradient in between.
+4. **Direction is stated in words**, not left to the reader to infer from the
+   position of a dot: "higher than the usual range".
+5. **Nothing on the surface asserts a cause.** "Higher than the usual range" is
+   an observation. "You may be dehydrated" is a diagnosis.
+6. **A range that does not apply is not shown.** If your range is derived from an
+   adult population and the reader is fifteen, show no range rather than the
+   wrong one.
+7. **The reader can always see the raw value**, whatever else the surface does
+   with it. A gauge is an aid; the number is the fact.
+
+<RangeDemo label="Illustrative only" unit="units" />
+
+The values in any range demonstration in these docs are placeholders chosen to
+show formatting. They are not reference ranges and must not be copied into a
+product.
+
+## Why (evidence)
+
+<ResearchNote evidence="mixed" date="2026-09-02">
+  **Cited.** How laboratory results are presented to patients has been studied
+  directly. The 2024 systematic review of laboratory-result presentation formats
+  in JMIR, [10.2196/53993](https://doi.org/10.2196/53993), examines the formats
+  used to communicate results to patients and their effects on comprehension. The
+  2018 study in BMC Medical Informatics and Decision Making,
+  [10.1186/s12911-018-0589-7](https://doi.org/10.1186/s12911-018-0589-7),
+  examines patient-portal presentation of results specifically. We cite both as
+  the anchors for the claim that presentation format materially changes what a
+  lay reader takes away from a number, and that a bare value with a reference
+  interval — the format a portal inherits from a laboratory report — is a poor
+  format for a lay reader.
+
+  We deliberately do not extract a specific effect size or a specific
+  recommendation from either paper into this page. Read them; they are short.
+
+  **Opinion.** The banned-word list is ours. "Normal" is the one we hold most
+  firmly, and the argument is linguistic rather than empirical: the clinical
+  sense of "normal" (within a reference interval) and the lay sense (unremarkable,
+  acceptable, not wrong with you) are different words that happen to be spelled
+  the same, and the interface has no way to signal which one it means. Its
+  antonym is the problem. There is no version of being told you are "abnormal"
+  that lands lightly.
+
+  Rule 3 — no cliff at the boundary — is also opinion, and it has a real tension
+  with clarity: a clear boundary is easier to read. We accept slightly less
+  clarity to avoid the failure where a value moving by less than the measurement
+  error changes the emotional content of the whole screen.
+
+  What would change our mind: evidence that lay readers correctly interpret
+  "normal" in its statistical sense in context. We would be surprised.
+</ResearchNote>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    "5.4 mmol/L — in your laboratory's usual range (3.9 to 5.6 mmol/L)." The
+    value, the comparison, the owner of the range, the range itself.
+  </DoDont.Do>
+  <DoDont.Dont>
+    "5.4 — Normal ✓". A tick and the word "normal" together read as a clean bill
+    of health, which one measurement cannot give.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "Slightly above your laboratory's usual range. This often needs no action on
+    its own — your clinician will look at it alongside your other results."
+  </DoDont.Do>
+  <DoDont.Dont>
+    "ABNORMAL — out of range." Shouting an unexplained clinical adjective at
+    someone who cannot ask a follow-up question until Monday.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Render the range as a labelled band with its endpoints visible, and put the
+    value inside it. A reader can then judge "just outside" versus "far outside"
+    for themselves.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Render a red-to-green gradient with no numbers. A gradient asserts a
+    continuous quality scale that reference ranges do not have, and it fails
+    entirely in greyscale.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Where sex-, age- or pregnancy-specific ranges exist, use the one that applies
+    and say which: "usual range for adults over 18".
+  </DoDont.Do>
+  <DoDont.Dont>
+    Apply one adult range to everyone because it is the one in the config file.
+    A wrong range is worse than no range: it manufactures a false status.
+  </DoDont.Dont>
+</DoDont>
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+`RangeBar` is specified to require an attributed range — a bare pair of numbers
+with no owner is a validation error rather than a rendered bar — and the
+banned-word list above is enforceable as a lint rule over user-facing strings,
+which is where it belongs rather than in a reviewer's memory.
+
+## What this does not cover
+
+- **The ranges themselves.** opsinjs ships no reference ranges for any metric.
+  They come from your laboratory, your device manufacturer, or your clinical
+  team, and they come with an owner.
+- **Deciding a status from a range.** Being outside a range is not automatically
+  `attention`; see [Clinical status semantics](./clinical-status-semantics.mdx).
+- **Number formatting**, which is canonical at
+  [Numbers, units and precision](./numbers-units-precision.mdx).
+- **Risk expressed as a probability** rather than a range, which is
+  [Risk and statistics](./risk-and-statistics.mdx).
+- **Composite scores** with no reference interval at all, where the band names
+  are invented by the product and must be disclosed as such.
+- **The wider vocabulary.** Full plain-English replacements live at
+  [Plain English A–Z](../content/plain-english-a-z.mdx).
+
+## Updates to this page
+
+<Reviewed />

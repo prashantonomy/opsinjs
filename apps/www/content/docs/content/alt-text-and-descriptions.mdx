@@ -1,0 +1,166 @@
+---
+title: Alt text and descriptions
+description: How to describe a dial, a range, a trend and a body map so that the non-visual version answers the same question as the picture.
+status: stable
+kind: content
+reviewer: content
+reviewEvery: 12m
+aliases: [alt text, image description, long description, chart description]
+---
+
+<PageTemplate kind="content" />
+
+## The rule
+
+**Describe the answer, not the picture.** Alternative text for a data graphic is
+not a description of the graphic; it is the sentence the graphic was drawn to
+save the reader from reading.
+
+A `ScoreDial` is a picture of a number and a comparison. Its text equivalent is
+that number and that comparison. "A circular gauge with a needle in the amber
+zone" describes the drawing and withholds the data, which is exactly backwards.
+
+Three tests for any description:
+
+1. **Substitution.** Delete the graphic and put the text in its place. Does the
+   screen still answer the question it was built to answer?
+2. **No orphan visual vocabulary.** "Amber", "to the right of", "in the upper
+   third", "the shaded area" mean nothing without the picture. Convert them into
+   the thing they encode.
+3. **No duplication.** If the sentence beside the graphic already says it, the
+   graphic is decorative and takes an empty alternative. A screen reader
+   announcing the same fact twice is worse than one that announces it once.
+
+### The three levels of description
+
+Most data graphics need more than a phrase and less than an essay. Use three
+levels and pick the shallowest that works:
+
+- **Short (an accessible name).** One clause. The value and its comparison.
+  Always present.
+- **Medium (a caption).** One or two sentences. Adds the window, the units and
+  the source. Visible to everybody, which is why it is usually the best
+  investment: sighted readers misread charts too.
+- **Long (a table twin).** The underlying values, as a real table. Required for
+  anything a reader might need to read precisely, and required by
+  [Accessible charts](../foundations/data-visualisation/accessible-charts.mdx)
+  for every chart in this system.
+
+### What a description must never do
+
+**It must never interpret.** "Your kidney function looks concerning" is a
+clinical statement. The visual version did not say it, and the text version must
+not either. Describing and diagnosing are different jobs and only one is
+available to us.
+
+**It must never invent precision.** If a sparkline is drawn from daily averages,
+its description says so. Reading a value off a chart to more precision than the
+chart carries is a fabrication with the authority of a number.
+
+## Approved / Rejected
+
+<DoDont>
+  <DoDont.Do>Your score is 68 out of 100, which is higher than your average of 61 for the last 30 days.</DoDont.Do>
+  <DoDont.Dont>A circular dial with the needle pointing to the amber section.</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>Your reading of 148 is above your usual range of 90 to 120.</DoDont.Do>
+  <DoDont.Dont>A horizontal bar chart showing a marker positioned to the right of the shaded band.</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>Your resting heart rate over the last 14 days, between 54 and 63 bpm, with no clear direction. Full readings in the table below.</DoDont.Do>
+  <DoDont.Dont>A sparkline trending upward.</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>You marked pain in your lower back, on the left side.</DoDont.Do>
+  <DoDont.Dont>A body outline with a red dot.</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>alt=""</DoDont.Do>
+  <DoDont.Dont>alt="decorative illustration of a person holding a phone"</DoDont.Dont>
+</DoDont>
+
+The last pair matters more than it looks. Decorative imagery with described
+alternative text is a common and well-meant defect: it inserts a paragraph about
+a stock illustration between the reader and their result.
+
+## Patterns
+
+**A single value against a range** — `RangeBar`, `ResultCard`
+
+> Your `measure` is `value` `unit`, which is `in / above / below` `owner's` range
+> of `low` to `high`.
+
+**A score or index** — `ScoreDial`
+
+> Your `name` is `value` out of `max`, `comparison to the reader's own history`.
+
+**A trend** — `TrendSparkline`
+
+> Your `measure` over the last `n` `days`, between `min` and `max` `unit`,
+> `direction or "with no clear direction"`. `Pointer to the table twin`.
+
+**A tile in a grid** — `MetricTile`
+
+> `Measure`: `value` `unit`, `when`. `Status word`.
+
+Each tile is self-contained, because a reader arriving by heading or by swipe has
+no grid.
+
+**A body map** — the considered `body-map` component
+
+> You marked `sensation` in `named region`, on the `side`.
+
+Named regions, in the reader's words, from a fixed list. Never coordinates, never
+"as shown".
+
+**A status colour, wherever one appears**
+
+> `Status word`
+
+The word is the description. This is the same guarantee as
+[Colour independence](../accessibility/colour-independence.mdx), stated from the
+content side.
+
+**A decorative image**
+
+> An empty alternative, and nothing else.
+
+### The table twin
+
+Every chart in this system ships with a table containing the same data. That is a
+design rule from
+[Accessible charts](../foundations/data-visualisation/accessible-charts.mdx), and
+the content rule attached to it is that the chart's description must point at the
+table rather than trying to be it. A description that recites twelve values is a
+table written badly.
+
+## Banned words
+
+| Banned | Why | Use instead |
+| --- | --- | --- |
+| image of, picture of, graphic showing, chart of | Announces the medium instead of the content; assistive technology already says it is an image. | the fact itself |
+| the red zone, the amber band, the green area | Colour as the only reference. | the range, and the comparison in words |
+| as shown, see above, pictured | Points at something the reader cannot see. | state it |
+| trending up, on the rise | Interpretation, and usually unsupported by the number of points. | the range of values, and the direction only if the window justifies it |
+| looks good, looks concerning, worrying | A clinical judgement smuggled into a description. | the comparison, and who can interpret it |
+| decorative image of… | Contradicts itself: if it is decorative, describe nothing. | an empty alternative |
+| approximately, roughly, around (with a value read off a chart) | Invented precision dressed as humility. | the underlying value, or the window |
+
+## Related components
+
+- **`ScoreDial`**, **`RangeBar`**, **`TrendSparkline`**, **`MetricTile`** — the
+  four graphics in the roster. Each carries the short description as an
+  accessible name and points at a table twin where the data is more than a single
+  value.
+- **`ResultCard`** — usually contains one of the above, and owns the caption
+  level of description.
+- **`Figure`** — the captioned-media wrapper; its caption is the medium-level
+  description and it is visible to everybody.
+- **`EmptyState`** — often illustrated, and the illustration is nearly always
+  decorative. See
+  [Error and empty messages](./error-and-empty-messages.mdx).

@@ -1,0 +1,234 @@
+---
+title: Value
+description: A number and its unit, formatted the same way everywhere — rounded honestly, spoken correctly, and never showing more precision than the measurement actually has.
+status: planned
+kind: component
+since: "unreleased"
+category: health-formatting
+aliases: [number, unit, format, formatted number]
+governedBy: [numbers-units-precision, unit-systems]
+usedIn: [health-metric-card, value-against-a-range, results-screen, trends-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="value"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Precision is a property of the measurement, not of the display. Where does it come from, and what does the component do when nobody supplies it?",
+    "Locale formatting and unit systems are different concerns that keep getting conflated. Which one owns the decimal separator, and which owns mmol/L versus mg/dL?",
+    "How is a unit spoken? 'mmHg' has no pronunciation, and a screen reader will improvise one.",
+    "What renders for a null value, and how is that kept visually distinct from a real zero?",
+  ]}
+/>
+
+Value is the smallest component in the system and the one with the widest blast radius. Every
+number a reader sees passes through it, which means a formatting decision made here is made
+everywhere — and a formatting bug here is wrong everywhere too.
+
+## Preview
+
+The preview will show the same measurement across unit systems, locales and precisions, plus
+the null and zero cases side by side.
+
+<ComponentPreview name="value" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail.
+
+<ComponentInstall name="value" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Any number displayed to a reader that has a unit, a precision, or both — which in a health product is very nearly all of them.",
+    "Inside other components: the reading in a MetricTile, the number beside a RangeBar tick, the score in a ScoreDial.",
+    "Anywhere the same measurement appears on more than one screen and must look identical on all of them.",
+  ]}
+  avoid={[
+    { case: "The number needs its reference range shown alongside it to mean anything.", instead: "range-bar" },
+    { case: "The number is a point in time rather than a quantity.", instead: "relative-time" },
+    { case: "You are collecting the number rather than displaying it.", instead: "reading-input" },
+    { case: "The number needs a label, a timestamp and a surface of its own.", instead: "metric-tile" },
+    { case: "The number is a proportion or a risk that needs a denominator and a natural-frequency framing.", instead: "callout" },
+  ]}
+/>
+
+The last exclusion is easy to miss. *Your risk is 12%* is a number this component can format
+and a claim it cannot make safely on its own; risk needs framing, a denominator and a
+comparison, and [Risk and statistics](../health/risk-and-statistics.mdx) sets out why a bare
+percentage is close to meaningless to most readers.
+
+## Clinical meaning
+
+**What it asserts.** That this quantity has this magnitude in this unit, to this precision.
+The precision is a claim: `5.9` and `5.90` say different things about how the measurement was
+made, and displaying the second when you have the first is a small, systematic lie that
+accumulates.
+
+**What it must never be read as.** A judgement. Value carries no status, no colour and no
+band. It renders numbers, and numbers on their own mean nothing without the context supplied
+by the surface around them.
+
+**Which colour axis it may use.** Neither. Value inherits the text colour of its context.
+A component that could tint a number by status would put the two axes into the smallest,
+most-repeated element in the system, where they would be impossible to police.
+
+**Precision comes from the measurement.** Not from the display, not from the storage type,
+and not from what looks tidy. A weight measured to the nearest 100 g is displayed to one
+decimal place, and a scale reporting 72.4837 kg is displayed as 72.5 — showing the extra
+digits claims an accuracy the device does not have. See
+[Numbers, units and precision](../health/numbers-units-precision.mdx), which is canonical for
+this across the whole system.
+
+**Null is not zero.** A missing reading renders as an explicit absence — an em dash with an
+accessible *no reading* — never as `0`, never as `--` alone, and never as an empty space that
+looks like a layout bug.
+
+**Units are displayed as symbols and spoken in full.** `mmol/L` is read as *millimoles per
+litre*, `mmHg` as *millimetres of mercury*, `bpm` as *beats per minute*. Without this a screen
+reader improvises, and the improvisation is rarely close.
+
+## Anatomy
+
+<Anatomy name="value" />
+
+<CompositionTree name="value" />
+
+**Number** is the formatted magnitude. **Unit** is its symbol. **Absence** is what renders in
+place of both when there is no value. The parts exist so that surrounding layouts can align
+numbers on their decimal point and give units their own type treatment without splitting the
+value apart in the accessibility tree.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+Value                          root; one accessible unit of meaning
+├── Value.Number               the formatted magnitude, locale-aware
+├── Value.Unit                 the symbol; spoken in full, displayed short
+└── Value.Absence              renders instead of both when value is null
+```
+
+`Value.Number` and `Value.Unit` are never separated in the accessibility tree. A screen reader
+must hear *72.5 kilograms*, not *72.5* followed some distance later by *kg*.
+
+## Proposed API
+
+<NotBuiltYet name="value" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+export interface ValueProps {
+  /** `null` renders the absence form. It is never rendered as 0. */
+  value: number | null
+  /** Display symbol, e.g. "kg". The spoken form is resolved from the unit table. */
+  unit?: string
+  /**
+   * Decimal places, from the precision of the MEASUREMENT. When omitted the
+   * component uses the unit table's default for this unit rather than guessing
+   * from the float it was handed.
+   */
+  precision?: number
+  /**
+   * BCP 47 locale for separators and digit shaping. Distinct from `unit`:
+   * locale decides how a number is written, unit systems decide which number.
+   */
+  locale?: string
+  /** What the absence form says, e.g. "no reading yet". */
+  absenceLabel?: string
+  /** Visual weight. Never changes the value, the precision or the unit. */
+  size?: "inherit" | "display"
+}
+```
+
+There is no `status`, no `color` and no `variant` that changes meaning. A number that needs
+to look different because of what it is worth belongs inside a component that owns that
+judgement.
+
+## Content guidelines
+
+Group large numbers with the locale's own separator and never with a hard-coded comma. Use
+the unit symbol most readers will recognise, and prefer the one their clinic uses over the
+one that is technically preferred. Keep the number and its unit on the same line; a unit that
+wraps to the next line changes what a glancing reader thinks they read.
+
+For anything the reader is expected to compare — a value against a range, a value against
+last week — use the same precision in both places. Comparing 5.9 with 5.87 is arithmetic
+nobody should have to do.
+
+<DoDont>
+  <DoDont.Do>
+    **"72.5 kg"** for a scale that measures to 100 g. One decimal place, symbol adjacent,
+    spoken as *72.5 kilograms*.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"72.4837 kg"** because that is what the device sent. Four decimal places assert a
+    precision no bathroom scale has, and it makes an ordinary reading look clinical.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **"— no reading yet"** where a measurement is missing.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"0"** or a blank space. Zero is a real reading for several measurements, and a blank
+    looks like something failed to load rather than something that was never recorded.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **The number and unit form one accessible phrase**, with the unit expanded to its spoken
+  form. This is the single most valuable thing this component does for screen-reader users.
+- **Absence is announced as absence**, in words, not as a punctuation mark that speech
+  synthesis will skip or read as *dash*.
+- **Digits use the reader's locale**, including digit shaping and separators, so a number is
+  not misread by someone whose conventions differ from the developer's.
+- **The value never depends on colour** for any part of its meaning.
+- **At 200% text the number and unit stay together** and the number never truncates. A
+  truncated number is worse than no number, because it looks like a number.
+- **Tabular alignment does not break reading order.** Where numbers are aligned on their
+  decimal point using separate elements, the accessibility tree still presents one phrase.
+- **Print** renders the value and unit as text with no reliance on the surrounding surface.
+
+<KeyboardTable name="value" />
+
+<ContrastReport component="value" />
+
+## Related
+
+<RelatedComponents name="value" />
+
+**Easily confused with**
+
+- [RelativeTime](./relative-time.mdx) — the same job for points in time. The two share their
+  formatting doctrine and their absence contract.
+- [ReadingInput](./reading-input.mdx) — the entry counterpart. They must agree on precision
+  and units or the reader will type one thing and read back another.
+- [MetricTile](./metric-tile.mdx) — a Value with a label, a time and a surface.
+- [RangeBar](./range-bar.mdx) — a Value with its reference range drawn around it.
+
+**Used by**
+
+- [Build a health metric card](../recipes/health-metric-card.mdx)
+- [Show a value against a reference range](../recipes/value-against-a-range.mdx)
+- [Results screen](../screens/results-screen.mdx)
+- [Trends screen](../screens/trends-screen.mdx)
+
+**Governed by**
+
+- [Numbers, units and precision](../health/numbers-units-precision.mdx)
+- [Unit systems](../health/unit-systems.mdx)
+- [Grammar and mechanics](../content/grammar-and-mechanics.mdx) — how numbers and units are
+  written in surrounding prose, so the sentence and the component agree.

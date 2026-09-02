@@ -1,0 +1,175 @@
+---
+title: Preset codes
+description: The short code that carries a whole theme, how opsinjs namespaces its own, and how to encode, decode and apply one.
+status: stable
+kind: guide
+aliases: [preset code, decode, apply theme, share a theme]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+A preset code is a short opaque string that stands for a complete theme
+configuration — style, base colour, icon library, font, radius. It exists so
+that "use this theme" can be six characters in a chat message rather than a
+paste of a stylesheet.
+
+opsinjs uses two related things and it is worth separating them immediately:
+
+- **shadcn preset codes** — opaque short codes the shadcn CLI decodes and
+  applies. This documentation site was itself initialised from one.
+- **opsinjs preset names** — readable, namespaced names such as
+  `opsinjs-default`, served as registry items at `/r/themes/<name>.json`.
+
+The first is a compact wire format for shadcn's own configuration space. The
+second is a theme in the opsinjs sense, which is a larger thing: role tokens for
+both themes, shape, spacing, the P3 escalation.
+
+## Decode before you apply
+
+Never apply a code you have not decoded. It is opaque by design, and applying
+one modifies your stylesheet and your `components.json`.
+
+```npm
+npx shadcn@latest preset decode <code>
+```
+
+It prints the style, base colour, theme, chart colour, icon library, font and
+radius the code stands for. Reading that output takes two seconds and is the
+difference between a deliberate change and a surprising one — the named `lyra`
+preset, for instance, brings a different icon library and a monospace UI font,
+which is not obvious from the name and was exactly the surprise this project
+avoided by using the code form instead.
+
+Related commands:
+
+```npm
+npx shadcn@latest preset resolve
+```
+
+Prints the preset your project currently matches — the fastest answer to "what
+theme is this project actually on".
+
+```npm
+npx shadcn@latest preset url <code>
+```
+
+```npm
+npx shadcn@latest preset open <code>
+```
+
+The URL for the code, and the same thing opened in a browser.
+
+## Apply one
+
+```npm
+npx shadcn@latest apply <code>
+```
+
+To take only the colours, or only the typography, without reinstalling
+components:
+
+```npm
+npx shadcn@latest apply <code> --only theme
+```
+
+`--only` accepts `theme` and `font`. In an existing opsinjs project this is
+almost always what you want: a full apply may touch component-level
+configuration you have already tuned.
+
+<Callout>
+`apply` edits `app/globals.css`. The order of that file is load-bearing — the
+generated token layer sits at a fixed position and the `dark` variant is pinned
+last on purpose. After applying anything, re-read the file's own header comment
+and check that the structure survived. See
+[Tailwind v4](../theming/tailwind-v4.mdx).
+</Callout>
+
+## The opsinjs preset name format
+
+opsinjs preset names are readable and namespaced:
+
+```
+opsinjs-<name>
+```
+
+Every one begins with `opsinjs-`, for the same reason the registry namespace is
+`@opsinjs`: shadcn publishes its own style names, and a collision would be
+silent and unresolvable. The full argument is in
+[Presets](../theming/presets.mdx) and in [Namespaces](./namespaces.mdx).
+
+A preset name resolves to a registry item:
+
+```npm
+npx shadcn@latest add https://opsinjs.dev/r/themes/opsinjs-default.json
+```
+
+Unlike a shadcn code, the name is not compressed and carries no hidden fields.
+The JSON it resolves to is the whole configuration, readable, in one request.
+That is a deliberate trade: longer to type, impossible to be surprised by.
+
+## Encoding your own
+
+<StubNotice
+  name="opsinjs-preset-encode"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Does an opsinjs code carry the full role set, or a delta against the default?",
+    "What happens when a code is applied to a project whose token version is older than the code?",
+    "Is a code allowed to carry a status-ramp override at all?",
+  ]}
+/>
+
+Producing a shareable code from a theme you have built is specified and not
+implemented. Today, the shareable artefact is the registry item: generate a
+theme in [the theme generator](../theming/theme-generator.mdx), export it as
+`registry:item` JSON with `cssVars`, and serve it. That works now, works
+everywhere, and needs no encoder.
+
+The third question in the block above is the one that matters. A code that can
+silently redefine the clinical status ramp is a code that can change what a
+screen asserts about somebody's health by being pasted into a terminal. The
+likely answer is no — see [Status palettes](../theming/status-palettes.mdx).
+
+## Verify it worked
+
+<Steps>
+
+### Decode matches your intent
+
+`preset decode` before, `preset resolve` after. The two should describe the same
+configuration.
+
+### The stylesheet still has its structure
+
+Confirm the generated token import is still in position and there is exactly one
+active `@custom-variant dark` declaration, at the end.
+
+### The status ramp did not move
+
+`--opsin-status-urgent-line` should be unchanged by any theme operation. If it
+moved, something wrote outside the role tier.
+
+</Steps>
+
+## Troubleshooting
+
+**`apply` changed more than the theme.** Use `--only theme`.
+
+**A code is rejected as invalid.** Codes are version-sensitive; one produced by a
+much older or newer CLI may not decode. Pin the CLI version that produced it.
+
+**`preset resolve` prints nothing recognisable.** The project has drifted from
+every known preset — normal after hand edits, and not an error.
+
+**A named preset and a code disagree.** They are different systems. The name
+resolves to opsinjs JSON; the code resolves to shadcn configuration. Prefer the
+name for anything opsinjs-specific.
+
+## Next
+
+- [Presets](../theming/presets.mdx) — the theming-side view.
+- [registry-item.json](./registry-item-json.mdx) — the shape a preset takes on
+  the wire.
+- [Self-hosting a fork](./self-hosting-a-fork.mdx) — serving your own presets.

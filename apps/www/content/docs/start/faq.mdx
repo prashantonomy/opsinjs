@@ -1,0 +1,238 @@
+---
+title: FAQ
+description: Twenty questions that would otherwise become issues, each answered at its own anchor.
+status: stable
+kind: guide
+icon: MessagesSquare
+owner: core
+reviewed: 2026-09-02
+reviewer: content
+reviewEvery: 6m
+aliases: [faq, frequently asked questions, common questions]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+Every answer here is short, opinionated and linked to the page that argues the
+case properly. Each question has its own anchor, so you can send someone a link to
+the answer rather than to the page.
+
+If your question is a *failure* rather than a question — something did not work —
+[Troubleshooting](./troubleshooting.mdx) is the other page.
+
+## About the project
+
+### What is opsinjs, in one sentence?
+
+A React design system for consumer health apps: the components that show a person
+their own numbers, and the rules that keep those numbers honest. The rules are the
+larger half. [Introduction](../index.mdx).
+
+### Can I use it today?
+
+No. Nothing is implemented — there is no published package, no live registry and
+no component you can render. What exists is the specification: tokens, doctrine,
+the accessibility contract and twenty-four component pages that say precisely what
+each component will and will not do. [Roadmap](../project/roadmap.mdx) has the
+current state, dated.
+
+### Is it free, and can I use the guidance without the code?
+
+Yes to both, and they are licensed separately: the code under an open-source
+software licence, the written guidance under a documentation licence that allows
+reuse with attribution. The doctrine is useful against any stack, and we would
+rather it were reused than reinvented.
+[Licence and attribution](../project/licence-and-attribution.mdx).
+
+### Why another design system?
+
+Because general-purpose systems answer "how do I render a badge" and health
+products need an answer to "what is this badge allowed to assert about someone's
+body". Nothing in a general-purpose system stops you colouring a category by
+severity, printing a bare percentage change, or writing the word *normal* next to
+a result — all three of which are ordinary, avoidable harms.
+[Is opsinjs right for this project?](./is-opsinjs-right.mdx).
+
+## Using it
+
+### Is it a component library or a registry?
+
+A registry. Components are copied into your repository as source through the
+shadcn CLI, so you own and can change every line. You are not installing a
+dependency you cannot see inside.
+[Registry](../registry/index.mdx), and the reasoning is in
+[ADR 0002](../project/decisions/0002-shadcn-registry-distribution.mdx).
+
+### Do I have to adopt all of it?
+
+No. Take one component, or take only the tokens, or take only the doctrine and
+none of the code. The one thing that does not work is taking a component and
+discarding the rule that governs it — a `StatusPill` used as a decorative badge is
+a misuse, and there is a lint rule for it.
+
+### Does it work alongside shadcn/ui components I already have?
+
+That is the intended arrangement. opsinjs is a shadcn-spec registry and shares the
+`components.json` conventions, so it composes with a namespaced install rather
+than replacing what you have. Two caveats: opsinjs is built on Base UI rather than
+Radix, so you may end up with two primitive libraries in the tree; and opsinjs's
+token layer is additive but its CSS position matters.
+[components.json](./installation/components-json.mdx).
+
+### Why Base UI rather than Radix?
+
+Mainly the exit-animation contract: Base UI's state attributes make "animate out
+before unmounting" a declarative CSS concern rather than a JavaScript one, which
+matters for a system where every animation must also have a documented
+reduced-motion form. Choosing one primitive library across docs chrome and product
+also keeps a single behaviour vocabulary.
+[ADR 0001](../project/decisions/0001-base-ui-not-radix.mdx).
+
+### What happens when you change a component I have already copied?
+
+You take the change deliberately, with a diff, or you never take it. Copied source
+means no silent updates and no upgrade you did not ask for; the cost is that
+improvements do not arrive on their own. Every emitted file carries a version
+stamp so tooling can tell you what has changed since the version you have.
+[Upgrading](./installation/upgrading.mdx).
+
+### Do I need a React framework, or will plain React do?
+
+Plain React with Vite is fine. What you cannot do without is React 19, Tailwind
+v4, and control over stylesheet order.
+[Framework support](./framework-support.mdx).
+
+## Health, safety and scope
+
+### Is opsinjs a medical device?
+
+No, and adopting it does not change your product's regulatory status in either
+direction. It has not been submitted to or reviewed by any regulator, and no
+conformity assessment has been performed on it. If your product would be a medical
+device without opsinjs, it still is with it.
+[Safety, scope and limitations](./safety-scope-and-limitations.mdx).
+
+### Will a component tell me whether a value is dangerous?
+
+Never. Status is an input to a component, never a computation inside one, and
+there is no `threshold` prop. The mapping from a number to a clinical level
+belongs in one auditable place in your product, approved by whoever is accountable
+for clinical decisions. This is the system's most consequential constraint and it
+is not configurable.
+
+### Why is the word "normal" banned?
+
+Because it means something specific and statistical to a clinician and something
+reassuring and absolute to everyone else, and health products are read by everyone
+else. A result inside a reference range is not a guarantee of health, and printing
+*normal* next to it invites a reader to conclude that it is.
+[Reference ranges](../health/reference-ranges.mdx) covers what to write instead.
+
+### Can I use it for a clinician-facing product?
+
+You can, and you should not. Clinical workstations need density, abbreviation and
+raw values; every default here goes the other way, and you would spend your time
+fighting the system rather than using it.
+[Is opsinjs right for this project?](./is-opsinjs-right.mdx).
+
+### Does opsinjs handle units — millimoles versus milligrams per decilitre?
+
+It treats units as a correctness problem rather than a localisation one, which
+means the formatting contract and the conversion rules are documented and testable
+rather than left to a locale file. It does not perform your conversions or decide
+which system a given reader should see.
+[Unit systems](../health/unit-systems.mdx).
+
+## Design and theming
+
+### Can I use my own brand colours?
+
+Yes, through the theme generator, which derives a full gamut-aware,
+contrast-validated system from one brand colour — and tells you when your brand
+colour cannot carry the meaning you want it to. What you cannot do is give a brand
+colour to the clinical status axis.
+[Theme generator](../theming/theme-generator.mdx).
+
+### Why can't a category colour signal that something is bad?
+
+Because the reader cannot tell which question a colour is answering unless the two
+questions use different channels. If Sleep is blue and a bad night turns it amber,
+then amber sometimes means "sleep" and sometimes means "pay attention", and every
+subsequent colour judgement on the screen is ambiguous.
+[The two colour axes](../health/two-colour-axes.mdx).
+
+### Why does this documentation site look different from the components it documents?
+
+Deliberately. The docs chrome is dense and square because it is a reference tool
+for professionals; the product theme is squircle, system-typeface and generous
+because it is read by an anxious person on a phone. Making the documentation look
+like the product would misrepresent both.
+[Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx).
+
+### Is there a Figma library?
+
+Not yet. The token source exists and the W3C DTCG export that maps onto Figma
+Variables is specified, but there is no published file, kit or plugin.
+[Design handoff](../theming/design-handoff.mdx).
+
+## Agents and machines
+
+### How do I get these docs into an AI tool?
+
+Three ways, all first-class: append `.md` to any documentation URL for processed
+markdown; fetch `llms.txt` or one of its per-pillar shards; or point a shadcn MCP
+client at the registry. The Copy Page control at the top of every page does the
+first one for you. [Agents](../agents/index.mdx).
+
+### Why does a page exist for a component that is not built?
+
+Because the alternative is a 404, and a 404 is the input from which an agent
+invents an API. A page that exists and says `planned`, with a machine-readable
+not-implemented marker at a guessable URL, is a definitive negative answer. That
+is the single most important thing this scaffold does.
+[Reading these docs](./reading-these-docs.mdx#for-agents).
+
+## Contributing and governance
+
+### How do I propose a component, or argue with a specification?
+
+Proposals go through a public board with a maturity ladder, so a proposal has a
+visible state rather than sitting in an issue queue. Arguing with a specification
+is more valuable than proposing a new one: the specifications are under review
+now, while changing them is still cheap.
+[Proposals](../project/proposals.mdx) and [Community](../project/community.mdx).
+
+## Verify it worked
+
+An answer here is only useful if it is current. Two ways to check:
+
+1. **Look at the review date in the page header.** This page is reviewed every six
+   months, and an expired review is reported in CI rather than hidden.
+2. **Check the changelog** if the answer concerns what does or does not exist.
+   [Changelog](../project/changelog/index.mdx) is authoritative about state;
+   this page is a summary of it.
+
+## Troubleshooting
+
+**Your question is not here.** Search first — every page carries the words a
+reader would actually type as `aliases`, including clinical vocabulary. If the
+search returns nothing, that is recorded, and repeated zero-result searches are how
+this page grows.
+
+**The answer here contradicts a component page.** The component page wins. This
+page is a summary; the specification is the contract.
+
+**You have a question that is really a bug report.** Use the feedback control at
+the foot of any page — it arrives prefilled with the page path and the docs
+version, which is most of what makes a report actionable.
+
+## Next
+
+- [Troubleshooting](./troubleshooting.mdx) — for questions that are really
+  failures.
+- [Is opsinjs right for this project?](./is-opsinjs-right.mdx) — if you are still
+  deciding.
+- [Community](../project/community.mdx) — where to ask something this page does not
+  answer.

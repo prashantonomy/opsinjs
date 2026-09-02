@@ -1,0 +1,154 @@
+---
+title: Ask users for sex and gender
+description: Two different questions with two different purposes — ask the one your product actually needs, and never let one field answer both.
+status: stable
+kind: pattern
+aliases: [sex or gender field, gender field, sex assigned at birth, trans inclusive form, gender identity]
+implements: [field, term, disclaimer-note]
+reviewEvery: 6m
+reviewer: clinical
+owner: design-system
+---
+
+<PageTemplate kind="pattern" />
+
+## When to use
+
+Ask only when a specific decision in your product depends on the answer, and be
+precise about which of two distinct things you need.
+
+- **Sex, in the clinical sense** — needed because some reference ranges,
+  screening programmes and risk calculations differ. What is clinically relevant
+  is usually narrower than "sex": it is often a specific organ, a specific
+  hormone profile, or a specific screening eligibility.
+- **Gender** — needed to address the reader correctly, and to know which
+  pronouns and title to use. It is an identity question, not a clinical one.
+
+**These are two fields or none.** A single "Gender: Male / Female" control used
+to select a haemoglobin reference range is the most common version of this
+mistake, and it produces both a clinical error and an exclusion at the same
+time.
+
+## When not to use
+
+- **You are personalising content or a greeting.** You need a name and possibly
+  pronouns; you do not need sex. See [Name](./name.mdx).
+- **You need one specific clinical fact.** Ask for that fact. "Do you have
+  periods?" or "Are you pregnant or might you be?" answer the actual question
+  more accurately than any sex field, are easier to answer honestly, and do not
+  require the reader to disclose an identity to a product that did not need it.
+- **The answer changes nothing you do.** Do not collect it. This field carries a
+  real cost for trans, non-binary and intersex readers, and collecting it
+  without a use is a cost with no benefit.
+- **You want the wording rules.** [Asking sensitive
+  questions](../../content/asking-sensitive-questions.mdx).
+
+## How it works
+
+<FlowDiagram>
+{`flowchart TD
+  A["We think we need sex or gender"] --> B{"What exactly changes?"}
+  B -->|"a reference range or screening eligibility"| C{"Can we ask the specific clinical question instead?"}
+  C -->|"yes"| D["Ask that: periods, pregnancy, a specific organ, current HRT"]
+  C -->|"no"| E["Ask sex for clinical purposes, and say so at the field"]
+  B -->|"how we address the reader"| F["Ask for pronouns and title, not sex"]
+  B -->|"nothing specific"| G["Do not ask"]
+  E --> H["Allow intersex, prefer not to say, and a route to talk to a human"]
+  F --> I["Free text plus common options; never a closed two-item list"]`}
+</FlowDiagram>
+
+Practical rules:
+
+- **Label the clinical field for its purpose, not its identity.** "Sex recorded
+  for your clinical records" or "Sex used for reference ranges" tells the reader
+  which question they are answering and why the answer might not be the one they
+  would give socially.
+- **Never a two-item closed list.** Intersex people exist; readers who do not
+  wish to disclose exist; and a reader whose clinical history is more complex
+  than a binary needs a route that is not "pick the closest".
+- **Gender is free text with common options offered**, not an enumeration
+  imposed on the reader. Where you need pronouns, ask for pronouns — it is a
+  smaller, more useful and less intrusive question.
+- **Never derive one from the other.** A gender answer must never select a
+  reference range, and a clinical sex answer must never set a pronoun.
+- **Both must be editable, at any time, without contacting support.** People
+  transition; records are corrected. A field of this kind that is
+  write-once is a design that expects the reader not to change.
+- **Say what happens to the answer.** Who sees it, whether it appears in an
+  export, and whether it is used to select what is shown. See
+  [Sharing with a clinician](../sharing-with-a-clinician.mdx).
+- **A reader whose situation does not fit needs an exit that is not a form
+  field.** Provide a route to a human, and do not block progress on the answer.
+
+## Content
+
+<DoDont>
+  <DoDont.Do>
+    "Some reference ranges differ by sex. Which should we use for your results?"
+    with options, an intersex option, "prefer not to say", and a line saying
+    that the reader can change it later.
+  </DoDont.Do>
+  <DoDont.Dont>
+    "Gender: ○ Male ○ Female" as a required field on signup, used to pick a
+    haemoglobin range. Wrong question, closed list, required, unexplained.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "What are your pronouns? (optional)" with common options and a free-text
+    field, used only for how the product writes to the reader.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Using a gender field to decide which reference range to apply, so that a
+    trans reader must choose between being addressed correctly and being
+    measured correctly.
+  </DoDont.Dont>
+</DoDont>
+
+That last "don't" is the failure this page exists to prevent. Forcing a reader
+to trade accurate care against accurate address is a design failure, and it is
+entirely avoidable by keeping the two fields separate.
+
+## Accessibility
+
+- **`autocomplete="sex"`** exists in the HTML specification's autofill list and
+  applies to the administrative field; there is no token for gender identity or
+  pronouns, and none should be invented. WCAG 2.2 SC 1.3.5.
+- **A radio group needs a `fieldset` and `legend`** carrying the question, so
+  every option is announced in context.
+- **"Prefer not to say" is a real option in the group**, not an absence. Leaving
+  the group unanswered and treating that as the refusal is invisible to a
+  screen-reader user and indistinguishable from a mistake.
+- **The explanation precedes the options** in the DOM and is referenced by
+  `aria-describedby` on the group.
+- **Free-text alternatives are labelled controls**, not an "other" radio that
+  reveals an unlabelled box.
+- **Do not re-ask** on subsequent sessions (WCAG 2.2 SC 3.3.7); do make it
+  editable.
+
+## Research
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  Separating sex from gender in health data collection is established practice
+  in public service design — the NHS Digital Service Manual and comparable
+  government design systems document their own research and their own recommended
+  wording, and are worth reading in the original. We cite them rather than
+  reproducing them.
+
+  The strongest recommendation on this page is ours and is opinion: prefer the
+  specific clinical question ("do you have periods?", "could you be pregnant?")
+  over a sex field wherever the clinical need is specific. It is more accurate,
+  because it asks about the thing that actually determines the answer rather
+  than about a proxy; it is less intrusive; and it is correct for intersex and
+  trans readers without needing a special case.
+
+  What would change our mind: nothing on separating the fields. On the specific
+  question approach, a clinical reviewer's judgement that a particular product's
+  breadth makes a general sex field unavoidable is a reasonable counter-argument
+  — which is why the flow branches on it rather than forbidding it.
+</ResearchNote>
+
+## Updates to this page
+
+<Reviewed />

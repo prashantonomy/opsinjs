@@ -1,0 +1,169 @@
+---
+title: Units and numeric entry
+description: Accepting a number that has a unit attached — never inside the field, never ambiguous, and never rejected for being clinically surprising.
+status: stable
+kind: pattern
+aliases: [entering a unit, numeric input health, mmol or mg, unit picker, compound units]
+implements: [reading-input, value, field, log-sheet]
+reviewEvery: 6m
+reviewer: clinical
+owner: design-system
+---
+
+<PageTemplate kind="pattern" />
+
+## When to use
+
+Use this whenever the answer to a question is a quantity: a weight, a height, a
+temperature, a glucose reading, a dose, a duration.
+
+The distinction from the rest of this group is that a quantity is **two facts in
+one field** — the magnitude and the unit — and almost every serious numeric bug
+in a health product comes from the second one going missing. A reader who enters
+`96` has told you nothing until you know whether they meant kilograms, pounds,
+or a fasting glucose in mg/dL.
+
+This page is about *entry*. Display, rounding, significant figures and the
+choice of unit for a given measure are owned by
+[Numbers, units and precision](../../health/numbers-units-precision.mdx) and
+[Unit systems](../../health/unit-systems.mdx), and are not restated here.
+
+## When not to use
+
+- **The number has no unit.** A count of items, a score out of ten, a
+  questionnaire item. Use an ordinary numeric field; the unit machinery adds
+  confusion where there is nothing to confuse.
+- **The reader is choosing, not typing.** A dose selected from a list of the
+  reader's own prescriptions is a selection problem. See
+  [Medications](../ask-users-for/medications.mdx).
+- **You want the formatting rules.** Rounding, precision and how to render a
+  value are canonical in
+  [Numbers, units and precision](../../health/numbers-units-precision.mdx).
+
+## How it works
+
+<FlowDiagram>
+{`flowchart TD
+  A["A quantity to collect"] --> B{"Is there more than one unit in use?"}
+  B -->|"no"| C["Show the single unit beside the field, never in it"]
+  B -->|"yes"| D["Unit is an explicit control, defaulted from the reader's preference"]
+  D --> E{"Is the unit compound?"}
+  E -->|"yes"| F["Separate fields with one legend: feet and inches, stones and pounds"]
+  E -->|"no"| G["One field, one unit control"]
+  C --> H["Accept the value"]
+  F --> H
+  G --> H
+  H --> I{"Impossible, or merely surprising?"}
+  I -->|"impossible"| J["Reject with a message naming the range"]
+  I -->|"surprising"| K["Confirm, do not block; store whichever the reader confirms"]`}
+</FlowDiagram>
+
+The rules:
+
+- **The unit is never typed into the value field.** Parsing "72kg", "72 kg",
+  "72,5 kg" and "158lb" is a source of bugs, and the reader should not have to
+  guess what your parser accepts. Display it, or make it a control.
+- **The unit is always visible**, including after entry and in every subsequent
+  display of the value. A number without a unit on screen is an incomplete fact.
+- **The unit choice is sticky and explicit.** It is remembered per measure, not
+  globally: a reader may well think in stones for weight and centimetres for
+  height, and forcing one system on both is a British and American problem in
+  equal measure. See [Unit systems](../../health/unit-systems.mdx).
+- **Changing the unit converts the entered value, visibly.** Do not reinterpret
+  the digits. If the reader typed 12 st and switches to kg, they see 76.2 kg —
+  not 12 kg.
+- **Compound units get separate fields under one legend.** Feet and inches;
+  stones and pounds; hours and minutes. One field with a slash in it is a
+  parsing problem wearing a costume.
+- **Decimal separators are accepted in both forms.** A reader with a European
+  locale keyboard will type a comma, and rejecting it is a locale bug presented
+  as a validation error.
+- **Impossible is rejected; surprising is confirmed.** A negative height is
+  impossible. A glucose reading of 27 mmol/L is surprising and may be a genuine
+  emergency — asking is right, blocking is dangerous. See
+  [Validation timing](./validation-timing.mdx).
+- **The mg/dL versus mmol/L trap deserves an explicit check.** A value plausible
+  in one and implausible in the other should prompt "did you mean…?" with both
+  options, rather than either silently accepting or rejecting.
+- **Store canonically, display in the reader's unit.** One unit in the database,
+  the reader's preference at the edge. Storing whatever was typed guarantees a
+  future migration and a mixed-unit trend chart.
+
+### States
+
+| State | Behaviour |
+| --- | --- |
+| Empty | Placeholder is not the label; the unit is still visible |
+| Partial compound | Feet entered, inches empty: treat as incomplete, not as zero inches |
+| Out of physical range | Rejected with the accepted range named in the message |
+| Surprising | Confirmed inline, entry preserved, never cleared |
+| Unit ambiguous | Explicit "did you mean" with both interpretations shown converted |
+| Converted | Both the entered value and the stored unit are visible on review |
+
+## Content
+
+<DoDont>
+  <DoDont.Do>
+    Label "Weight", a numeric field, and a unit control offering kg, lb and st +
+    lb, defaulted to the reader's last choice. The unit reads as a word in the
+    accessible name: "Weight in kilograms".
+  </DoDont.Do>
+  <DoDont.Dont>
+    A single field labelled "Weight (kg/lbs)" that tries to parse whatever
+    arrives, and stores a bare number.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "That's higher than most glucose readings in mmol/L. Did you mean 138 mg/dL
+    (7.7 mmol/L)?" with both options offered and neither pre-selected.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Silently converting 138 to 7.7 because it "must" have been mg/dL, so the
+    reader's record now contains a number they never entered.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility
+
+- **The unit is part of the accessible name**, spelled out: "Weight in
+  kilograms", not "Weight kg". Symbols like `µg/L` and `mmHg` are not reliably
+  spoken.
+- **A compound entry is a `fieldset` with a `legend`**, so each part is
+  announced with the whole: "Height, feet" and "Height, inches".
+- **The unit control is a real control** — a select, or a radio group — labelled
+  and reachable by keyboard, not a tap target styled as a suffix.
+- **Changing the unit announces the converted value** as a polite status message
+  (WCAG 2.2 SC 4.1.3), because the number on screen has just changed without the
+  reader typing.
+- **Never rely on a placeholder to carry the unit.** It disappears on entry,
+  frequently fails contrast, and is not a label — WCAG 2.2 SC 3.3.2.
+- **Steppers are additive.** Typing is always available; see
+  [Autocomplete and input types](./autocomplete-and-input-types.mdx).
+- **Do not truncate or auto-format while typing.** Reformatting a number as the
+  reader types moves the caret and destroys the entry for anyone not watching
+  closely.
+
+## Research
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  These are engineering and design opinions, held firmly because the failures are
+  concrete and repeatedly observed rather than because a study established them:
+  a value stored without its unit, a silent conversion the reader did not
+  authorise, a European comma rejected as invalid, a genuinely dangerous reading
+  refused by a range check.
+
+  The mg/dL versus mmol/L confirmation is the one we would argue hardest for. The
+  two scales for the same measurement differ by roughly a factor of eighteen, are
+  both in everyday use in different countries, and a value can be entirely
+  plausible in one and life-threatening in the other. Asking costs one tap.
+
+  What would change our mind: nothing on unit storage or on blocking. On the
+  confirmation prompt, evidence that readers dismiss it reflexively would argue
+  for making the unit control more prominent rather than adding a second gate.
+</ResearchNote>
+
+## Updates to this page
+
+<Reviewed />

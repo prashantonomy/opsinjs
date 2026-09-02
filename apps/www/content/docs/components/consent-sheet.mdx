@@ -1,0 +1,267 @@
+---
+title: ConsentSheet
+description: A sheet that asks permission for one specific thing at a time, explains what it is for, and makes saying no or changing your mind later just as easy as saying yes.
+status: planned
+kind: component
+since: "unreleased"
+category: health-communication
+aliases: [consent, permission, opt in, data sharing]
+governedBy: [consent-and-disclosure, clinical-interaction-guidelines]
+usedIn: [consent-before-collection, consent-flow]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="consent-sheet"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Consent is granular. Does the component enforce one decision per sheet, or allow a grouped set with individual switches?",
+    "What is recorded, by whom, and what does the component hand back so the product has a defensible record — text version, timestamp, decision, and what else?",
+    "Refusal must be as easy as agreement. Does that mean identically weighted controls, and what stops a product styling one of them away?",
+    "How does withdrawal reach this component later, and does the sheet know it is being shown to somebody who has already refused once?",
+  ]}
+/>
+
+Consent is the surface where dark patterns are most profitable and most damaging, so this
+specification is unusually prescriptive about the parts a product may not remove.
+
+## Preview
+
+The preview will show the sheet with equally weighted accept and decline controls, and the
+same sheet with the decline control de-emphasised, so the difference between consent and
+coercion is visible side by side.
+
+<ComponentPreview name="consent-sheet" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail. ConsentSheet composes [Sheet](./sheet.mdx) and [Button](./button.mdx).
+
+<ComponentInstall name="consent-sheet" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Asking permission to collect, use or share a specific kind of health data, at the moment it first becomes relevant.",
+    "Re-asking for a permission whose scope has changed, where the reader's earlier decision no longer covers what the product now wants to do.",
+    "Confirming a decision that has consequences the reader should see stated before they make it, such as sharing a record with a third party.",
+  ]}
+  avoid={[
+    { case: "You are showing the permissions the reader has already given, so they can review or withdraw them.", instead: "card" },
+    { case: "The reader is only being told something, and there is no decision to make.", instead: "callout" },
+    { case: "You need an operating-system permission, such as notifications or health data access — the platform owns that dialogue.", instead: "sheet" },
+    { case: "The message is the standing not-medical-advice note rather than a request.", instead: "disclaimer-note" },
+    { case: "The reader must simply acknowledge something before continuing, with no meaningful choice.", instead: "dialog" },
+    { case: "You are collecting the data itself rather than the permission to collect it.", instead: "field" },
+  ]}
+/>
+
+One sheet asks for one permission. If you have three to ask for, that is three sheets, each
+shown when it becomes relevant — never one sheet with three paragraphs and a single button.
+Bundled consent is not consent to any of its parts, and the reader who would have said yes to
+two of the three has been given no way to say so; see
+[Consent and disclosure](../health/consent-and-disclosure.mdx).
+
+## Clinical meaning
+
+**What it asserts.** That the product is asking for one specific permission, that the reader
+has been told what will be collected, what it will be used for, who will see it and how long
+it will be kept, and that a decision either way has been recorded.
+
+**What it must never be read as.** A condition of using the product, unless it genuinely is
+one and the sheet says so plainly. It must never be read as permanent: every consent this
+component takes must be withdrawable from somewhere the reader can find without asking, and
+the sheet says where.
+
+**Which colour axis it may use.** Neither. A consent sheet is not a clinical status and not a
+category. Status colour on a consent surface reads as a warning about the reader's health,
+which is a false alarm about a completely different subject.
+
+**Refusal is a first-class outcome.** The decline control has the same size, the same
+prominence and the same visual weight as the accept control, and it is never a plain-text
+link beneath a filled button. If the product cannot function after a refusal, the sheet says
+so before the reader chooses, not after.
+
+**What the product records.** A decision, a timestamp, the identifier and version of the
+text that was shown, and the scope consented to. The component's job is to hand all of that
+back; storing it is the product's.
+
+<SafetyCallout severity="high" evidence="opinion">
+No pre-ticked boxes, no default-on switches, no *agree* that is also *continue*, and no
+sheet that cannot be closed without deciding. Every one of these is a way of collecting a
+decision the reader did not make, and in health data the consequences of a decision nobody
+made are borne entirely by the person who did not make it.
+</SafetyCallout>
+
+## Anatomy
+
+<Anatomy name="consent-sheet" />
+
+<CompositionTree name="consent-sheet" />
+
+**Heading** states what is being asked, as a question. **Purpose** says what the data is
+for, in the reader's terms. **Scope** lists what is collected, who sees it and how long it is
+kept — three facts, not a paragraph. **Withdrawal** says where to change this later.
+**Decisions** are two equally weighted controls. **Details** is the optional full text for
+the reader who wants it, never hidden behind a link labelled only *terms*.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+ConsentSheet                   root; extends Sheet; not dismissible by accident
+├── ConsentSheet.Heading       what is being asked, phrased as a question
+├── ConsentSheet.Purpose       what it is for, in one or two sentences
+├── ConsentSheet.Scope         what is collected · who sees it · how long it is kept
+├── ConsentSheet.Details       optional full text, disclosed in place
+├── ConsentSheet.Withdrawal    where to change this decision later — mandatory
+└── ConsentSheet.Decisions
+    ├── ConsentSheet.Accept    equal weight to Decline
+    └── ConsentSheet.Decline   equal weight to Accept; never a text link
+```
+
+A sheet whose `Accept` and `Decline` differ in size or prominence is a composition error and
+should fail in development. `ConsentSheet.Withdrawal` is mandatory: a consent with no exit
+is not revocable, whatever the copy says.
+
+## Proposed API
+
+<NotBuiltYet name="consent-sheet" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+export interface ConsentScope {
+  /** What is collected, in the reader's words. */
+  collected: string
+  /** Who can see it. Name them; "our partners" is not an answer. */
+  sharedWith: string
+  /** How long it is kept, and what happens at the end. */
+  retention: string
+}
+
+/** What the product must store. The component produces it; it never stores it. */
+export interface ConsentDecision {
+  granted: boolean
+  /** ISO timestamp of the decision. */
+  at: string
+  /** Stable id of the consent being asked for. */
+  consentId: string
+  /**
+   * Version of the text that was actually shown. Without it the product cannot
+   * later say what the person agreed to.
+   */
+  textVersion: string
+}
+
+export interface ConsentSheetProps {
+  consentId: string
+  textVersion: string
+  /** Phrased as a question the reader can answer yes or no to. */
+  heading: string
+  /** One decision per sheet. Bundling is a design error, not a prop. */
+  purpose: string
+  scope: ConsentScope
+  /** Where to change this later. Required. */
+  withdrawalPath: string
+  /** Full text, disclosed in place rather than behind a link. */
+  details?: React.ReactNode
+  /** What the reader loses by declining. Stated before they choose, not after. */
+  consequenceOfDeclining?: string
+  onDecision: (decision: ConsentDecision) => void
+}
+```
+
+There is no `defaultGranted`, no `required` and no `hideDecline`. Their absence is the
+specification.
+
+## Content guidelines
+
+Ask a question. Use *we* for the product and *you* for the reader. Say what the data is for
+in terms of what the reader gets, not in terms of the product's internal purposes:
+*so we can show your readings next to the range your clinic uses* is a purpose;
+*for analytics and service improvement* is a category.
+
+Never write *by continuing you agree*. Never write *we value your privacy*. Never label the
+decline control *not now* when it means *no*, or *maybe later* when there is no later.
+
+<DoDont>
+  <DoDont.Do>
+    **"Can we store your blood pressure readings? We keep them so you can see how they change
+    over time. Only you and the clinic you choose can see them. They are deleted 12 months
+    after you stop using the app. You can change this in Settings at any time."** Question,
+    purpose, scope, retention, withdrawal.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"We value your privacy. To give you the best experience, we process your health data in
+    accordance with our Privacy Policy. [Accept] [Manage preferences]"** No question, no
+    scope, no retention, and a second control that is a maze rather than a refusal.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **"No, do not store them"** as a full-size control beside **"Yes, store them"**.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A large filled "Allow" with a small grey "Not now" underneath.** The visual hierarchy
+    is the real question being asked, and it is not a neutral one.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **The sheet is a modal dialogue** with a name from its heading, focus moved to the heading
+  on open, focus trapped while open, and focus returned to the trigger on close.
+- **Escape closes the sheet without deciding**, and closing without deciding is recorded as
+  no decision — never as consent.
+- **Accept and decline are adjacent in the tab order** and identical in target size, meeting
+  the 44pt floor with 8pt separation. Neither is auto-focused; auto-focusing accept is a
+  keyboard dark pattern.
+- **The scope facts are a list**, not a paragraph, so they can be navigated item by item
+  rather than heard as prose.
+- **The full details disclose in place** and are announced as expanded, rather than opening a
+  new context the reader has to navigate back from.
+- **Nothing is conveyed by colour**: the difference between accept and decline is their
+  words, not their fills, and the sheet is usable in grayscale.
+- **At 200% text the sheet scrolls** with the decision controls remaining reachable and
+  never overlapped by the keyboard or the safe-area inset — see
+  [Layout](../foundations/layout.mdx).
+- **Reduced motion** removes the sheet's slide entirely; it appears in place.
+- **Print and export** produce the full consent text, the scope, the decision and its
+  timestamp. People are entitled to a copy of what they agreed to.
+
+<KeyboardTable name="consent-sheet" />
+
+<ContrastReport component="consent-sheet" />
+
+## Related
+
+<RelatedComponents name="consent-sheet" />
+
+**Easily confused with**
+
+- [Sheet](./sheet.mdx) — the surface ConsentSheet is built on, with none of the contract.
+- [Dialog](./dialog.mdx) — for a decision with no consent semantics and nothing to record.
+- [DisclaimerNote](./disclaimer-note.mdx) — a statement, not a request. Nobody agrees to a
+  disclaimer.
+- [CareCard](./care-card.mdx) — asks the reader to do something in the world, rather than to
+  permit something in the product.
+
+**Used by**
+
+- [Ask for consent before collecting](../recipes/consent-before-collection.mdx)
+- [Consent flow](../screens/consent-flow.mdx)
+- [Consent and permissions](../patterns/consent-and-permissions.mdx)
+
+**Governed by**
+
+- [Consent and disclosure](../health/consent-and-disclosure.mdx)
+- [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx)

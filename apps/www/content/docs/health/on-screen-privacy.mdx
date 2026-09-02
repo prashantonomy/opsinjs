@@ -1,0 +1,175 @@
+---
+title: On-screen privacy
+description: Health data is read in public — on trains, in offices, over shoulders — and the interface decides how much of it is visible to the room.
+status: stable
+kind: health
+evidence: opinion
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+owner: design-system
+implements: [value, result-card, metric-tile, sheet, dialog, empty-state]
+aliases: [shoulder surfing, hide values, blur, screenshot, privacy screen, app switcher]
+---
+
+<PageTemplate kind="health" />
+
+## What this means
+
+Privacy work in health products concentrates on the parts that are invisible:
+encryption, access control, retention, sharing agreements. All necessary, and all
+irrelevant to the most common actual disclosure, which is a person on a train
+opening an app while someone sits next to them.
+
+The screen is a publishing surface. Everything on it is visible to whoever can
+see the phone, and health apps have design conventions that make the situation
+worse rather than better: the most sensitive number is rendered largest, in the
+highest contrast, in the position the eye lands on first. A condition name in a
+section header can be read from a metre away. An app icon with a badge on a lock
+screen tells a story on its own.
+
+There is a second, quieter exposure: the app switcher. When someone backgrounds
+an app, the operating system captures a snapshot of the current screen and shows
+it in the multitasking view, where it persists and where other people looking at
+the device will see it.
+
+## The rule
+
+**Sensitive values are hidden by default where the reader has asked for that, the
+app never leaks its content through system surfaces, and re-authentication is
+required to reveal.**
+
+1. **A per-user privacy setting exists and is easy to find.** Not buried, not
+   opt-out. Default to the more private option for categories the reader has
+   marked sensitive.
+2. **Hidden means hidden, not obscured.** A blurred number can often be read, and
+   a shortened one can be inferred from its length. Replace the value with a
+   fixed-width mask, never a distorted rendering of the real thing.
+3. **Layout does not shift on reveal.** A masked value occupies the same space as
+   the real one, so revealing does not reflow the screen and the presence of a
+   value is not itself information.
+4. **Hide the label too, where the label is the disclosure.** For sensitive
+   categories the section heading is often more revealing than the number.
+5. **Blur or replace on backgrounding**, before the system snapshot is taken, so
+   the app switcher never holds a readable screen. Restore on return.
+6. **Re-authenticate to reveal**, using the platform's biometric or passcode
+   flow, with a timeout that is short enough to matter. Always offer a
+   non-biometric route: biometrics fail, and not everyone can use them.
+7. **Screenshots are a user right, not a threat.** Do not block them — people
+   legitimately screenshot results to send to family or a clinician. Do warn once
+   when a screenshot of a sensitive screen is taken, and make an intentional,
+   redacted share the easier path.
+8. **Notifications, badges and widgets are on-screen privacy surfaces**, and are
+   governed by
+   [Notifications and off-screen alerts](./notifications-and-off-screen-alerts.mdx).
+9. **Reveal is per value, per session, and never sticky by default.** A reader
+   who revealed one number on a train should not find every number revealed on
+   the next launch.
+10. **Never require a reveal to use the app.** Navigation, logging and settings
+    work with values masked.
+11. **Design the shoulder-surfing case in review.** For any screen showing a
+    sensitive category, ask what is legible at a metre and at an angle.
+
+## Why (evidence)
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  Opinion. We cite no study and the reasoning is a threat model rather than a
+  finding.
+
+  Two behaviours are platform facts rather than opinions, and both are worth
+  verifying against current platform documentation rather than trusting a copy in
+  a design system: mobile operating systems capture a snapshot of the visible
+  screen when an app is backgrounded and display it in the multitasking
+  interface, and lock screens display notification content without
+  authentication by default. Rule 5 exists because of the first and rule 8
+  because of the second.
+
+  Rule 2 — masks rather than blurs — is a small technical point with a real
+  consequence. A blur is a lossy transform of the real value and, depending on
+  radius and font, is sometimes readable and often guessable, particularly for
+  short numeric strings. A mask carries no information. The same applies to any
+  reveal-on-hover treatment, which additionally does not exist on touch.
+
+  Rule 7 is the one where we deliberately go against a common instinct. Blocking
+  screenshots of health data feels protective and mostly harms the user: sharing
+  a result with a family member or a clinician is a legitimate and frequent need,
+  and blocking it pushes people to photograph the screen with a second phone,
+  which is worse in every respect.
+
+  What would change our mind: evidence that a warning on screenshot changes
+  behaviour at all. We suspect it mostly generates annoyance, and we include it
+  weakly.
+</ResearchNote>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    Render a masked value as a fixed-width block of the same size and weight as
+    the real value, with an explicit reveal control that has an accessible name:
+    "Show your result".
+  </DoDont.Do>
+  <DoDont.Dont>
+    Apply a CSS blur to the number. It is a rendering of the real value, it is
+    often legible at a glance, and it is trivially removed from a screenshot.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Cover the whole window with an opaque screen on `resign active`, before the
+    snapshot, and remove it on return.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Leave the results screen live in the app switcher. It is now visible to
+    anyone who picks up the phone, for as long as the card persists.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "Sexual health" collapsed to "Results" with the category name hidden, when
+    the reader has marked that category sensitive.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Mask the number and leave the heading. The heading was the disclosure.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Offer "Share a summary" that produces a deliberately composed, redactable
+    document.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Block screenshots. The reader photographs the screen with another phone, and
+    now there is an unencrypted image with no redaction in someone's camera roll.
+  </DoDont.Dont>
+</DoDont>
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+`Value` is specified to support a masked state that reserves identical layout,
+because rules 2 and 3 are only reliable if the masking happens at the same place
+the formatting does. Surfaces that carry sensitive categories take a sensitivity
+flag rather than each screen inventing its own treatment.
+
+## What this does not cover
+
+- **Authentication, session management and device security**, which are your
+  application's concern.
+- **Encryption at rest or in transit**, and everything else that happens off the
+  screen.
+- **Screen recording and remote access**, including accessibility services with
+  broad permissions on the device.
+- **Shared devices and household use**, where the threat model changes
+  substantially and account separation matters more than masking.
+- **Physical privacy filters**, which are a hardware answer to the same problem.
+- **What may appear in a notification**, which is
+  [Notifications and off-screen alerts](./notifications-and-off-screen-alerts.mdx).
+
+## Updates to this page
+
+<Reviewed />

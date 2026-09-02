@@ -1,0 +1,97 @@
+---
+title: Motion tokens
+description: The generated reference for every duration, easing and spring in the system, with each curve plotted from the parameters it was derived from.
+status: stable
+kind: foundation
+aliases: [duration tokens, easing tokens]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+This is the complete motion vocabulary: every duration step, every easing, every
+spring, and for each one what it controls and which components consume it. It is
+generated from `tokens/motion.json` by `scripts/build-tokens.mts` and it is the
+only place motion values are published. Nothing on this page is typed by a
+person, and `pnpm check:generated` fails the build if anyone tries.
+
+Read it as a decision aid rather than a list. The third column — *Used by* — is
+what turns "here are eleven durations" into "here is the one you want", and it is
+the reason the table is generated: a hand-maintained list of consumers is wrong
+within a week.
+
+## How it works
+
+`tokens/motion.json` holds three kinds of entry.
+
+**Durations** are authored directly, in milliseconds, as an ordinal scale from
+`instant` to `deliberate`. The names describe the perceptual character, not the
+number, so that changing a value does not require renaming a token.
+
+**Easings** are either a plain cubic Bézier, authored directly, or a spring.
+
+**Springs** are authored as stiffness, damping and mass, and the generator solves
+them numerically and emits a CSS `linear()` easing with a computed settling
+duration — the whole derivation, including the source of `springToLinear`, is on
+[Springs as tokens](springs-as-tokens.mdx). This is why a spring token has a
+duration attached to it that nobody chose: it falls out of the physics.
+
+Every entry also carries its **reduced variant**, which the generator emits into
+`@media (prefers-reduced-motion: reduce)`. The table publishes both, side by
+side, so that the reduced behaviour of the system can be reviewed as a whole
+rather than discovered one component at a time.
+
+The generated custom properties land in `app/tokens.generated.css`, which is
+imported by both the docs chrome and the product theme, so the curve you see in a
+preview on this site is the same custom property a consuming product gets.
+
+## Using it
+
+**Find the job, then the token.** [Using motion](using-motion.mdx) maps the five
+jobs — enter, exit, feedback, navigation, loading — onto steps of this scale.
+Come here to confirm the value and to see what else uses it; go there to decide.
+
+**Check the damping ratio before you animate a number.** Any easing whose damping
+ratio is below 1 overshoots, and an overshooting curve may not be applied to a
+measurement, a range position, a status or a count. The generated table publishes
+the ratio for exactly this reason.
+
+**Copy the token name, never the value.** A `linear()` string pasted into a
+component is unreadable, unthemeable and immediately stale. The whole point of
+generating them is that nobody has to look at one.
+
+**If the token you want is not here, propose it.** Adding a curve is a token
+change with a migration obligation, described on
+[Contributing tokens](../../handbook/contributing/contributing-tokens.mdx); it is
+not something to work around locally.
+
+## Tokens
+
+<TokenTable scope="motion" />
+
+<MotionCurve token="--opsin-ease-spring" />
+
+## Accessibility impact
+
+The generated table is itself an accessibility artefact, in three ways.
+
+- **The reduced variants are auditable.** Publishing full and reduced values in
+  one table is what makes it possible to answer "what does this product do for
+  somebody with motion sensitivity?" without reading every component.
+- **Settling durations are published.** A long-settling spring on an interactive
+  control means the control is still moving when somebody reaches for it; having
+  the number in a table is what makes that reviewable.
+- **The table is a table.** Real table semantics with a header row, not a grid of
+  divs, so it can be navigated cell by cell and read column by column. That
+  applies to every generated table on this site.
+
+## Related
+
+- [Springs as tokens](springs-as-tokens.mdx) — how the spring rows in this table
+  are produced, and what the damping ratio means.
+- [Reduced motion](reduced-motion.mdx) — how to read the reduced column, and why
+  a reduced variant is never simply "off".
+- [Reference → Tokens](../../reference/generated/tokens.mdx) — the same rows
+  alongside every other family, for when you are auditing rather than building.

@@ -1,0 +1,168 @@
+---
+title: Upgrades and diffs
+description: How to take an update to code you own and have already edited, without either losing your changes or silently keeping a bug.
+status: stable
+kind: guide
+aliases: [upgrade, update components, three-way merge, --diff]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+In a copy-not-dependency model there is no `npm update`. A fix here does not
+reach you; you go and get it, into a file you may have edited, in a codebase
+somebody else now maintains.
+
+This is the central cost of the distribution model and it is worth taking
+seriously rather than discovering during an incident. The good news is that it
+is a merge problem, and merge problems have known tools. The bad news is that
+nothing will tell you an upgrade exists unless you build the habit of asking.
+
+## The upgrade loop
+
+<Steps>
+
+### Find out what changed
+
+Read the [changelog](../project/changelog/index.mdx), or use the version stamp in
+your file to ask what has changed since that version — see
+[Version stamps](./version-stamps.mdx). Do this before touching anything; an
+upgrade you cannot describe is one you cannot review.
+
+### Diff before you fetch
+
+```npm
+npx shadcn@latest add @opsinjs/result-card --diff
+```
+
+This shows what would change in your file without writing anything. It is the
+single most useful flag in the CLI for this model, and the one people discover
+last.
+
+### Decide per hunk, not per file
+
+Some hunks are upstream fixes you want. Some are upstream style changes you do
+not care about. Some collide with a deliberate local change. Treat them
+separately — the temptation to accept or reject the whole file is what produces
+both lost fixes and lost customisations.
+
+### Take it
+
+```npm
+npx shadcn@latest add @opsinjs/result-card --overwrite
+```
+
+Then re-apply your local changes from the diff you just read. If your local
+changes are extensive, a three-way merge is better — see below.
+
+### Re-check
+
+Type-check, run your tests, and re-run the accessibility and contrast checks
+that apply to your project. An upgrade that changes a token pair changes a
+measurement.
+
+</Steps>
+
+## Three-way merge, when you have edited a lot
+
+`--overwrite` is a two-way operation: upstream replaces yours. When you have
+made substantial deliberate changes, do it as a proper three-way merge instead.
+
+The three sides are: the upstream version you originally copied (from the
+version stamp), the upstream version you want, and your current file. Any merge
+tool can take it from there, and the result is a merge with conflicts you
+resolve rather than a choice between two whole files.
+
+This only works if you can obtain the version you originally copied — which is
+the entire argument for keeping the stamp in the file, and for opsinjs serving
+historical items rather than only the latest.
+
+```bash
+git merge-file --diff3 mine.tsx base.tsx theirs.tsx
+```
+
+## Make upgrades reviewable
+
+Four habits that make the difference between a system that can be updated and
+one that quietly ossifies.
+
+**Commit the install.** `add` in its own commit, with the item name and the
+version in the message and nothing else in the diff. Then your changes in a
+second commit. Now a future upgrade has a clean base.
+
+**Keep local changes small and marked.** A comment saying *why* the local change
+exists survives a merge; a silent divergence does not, and the next person will
+"fix" it back.
+
+**Prefer composition over editing.** Wrapping a component, or passing different
+content, produces no merge conflict at all. Editing its internals produces one
+every time. The system is designed to be edited, but not editing it is still
+cheaper.
+
+**Schedule the ask.** Nothing pushes an update to you. A quarterly check of
+what has changed upstream is a small habit that prevents a large migration.
+
+## What an upgrade can break
+
+<Callout>
+Nothing is built yet, so no upgrade path has been exercised in anger. The list
+below is the set of hazards the design anticipates, and it is a specification of
+what upgrade notes will have to cover — not a report of observed breakage.
+</Callout>
+
+- **A token pair moved.** Your contrast measurements are stale. Re-run them.
+- **A data attribute changed.** If you styled against `data-status`, an attribute
+  rename is a silent visual regression, not a type error.
+- **A part was renamed in a compound component.** Wrong nesting produces a
+  component that renders and does nothing, which is worse than one that throws.
+- **A dependency was added.** `registryDependencies` grew, and `add` installed
+  something else into your tree. Read the install output.
+- **A clinical default changed.** The rarest and the most serious. Any such
+  change carries a changelog entry with a safety note; it is worth reading the
+  changelog for these alone.
+
+## Verify it worked
+
+<Steps>
+
+### The diff is empty
+
+Re-run `add --diff` after upgrading. It should report no differences except your
+own deliberate local changes.
+
+### The stamp advanced
+
+The version comment in the file should now name the version you took. If it does
+not, the file was written by something other than the CLI.
+
+### Your local change is still there
+
+Search for it. This is the check people skip and the one that catches a lost
+customisation.
+
+</Steps>
+
+## Troubleshooting
+
+**`--diff` reports the whole file as changed.** Line endings or formatting.
+Normalise both sides before comparing, and consider whether your formatter runs
+over installed files.
+
+**`--overwrite` destroyed a change I needed.** Recover from git. Then adopt the
+commit-the-install-separately habit, which makes this recoverable by
+construction.
+
+**I cannot tell which version I originally copied.** The file has no stamp — it
+was written by an older tool or hand-copied. Diff against the current upstream
+and accept that this one is archaeology.
+
+**Upgrading one component pulled in three others.** `registryDependencies`.
+Composition is explicit, and this is what explicit looks like.
+
+## Next
+
+- [Version stamps](./version-stamps.mdx) — the mechanism this page depends on.
+- [Changelog](../project/changelog/index.mdx) — what actually changed.
+- [Versioning policy](../project/versioning-policy.mdx) — what a version number
+  is allowed to imply.

@@ -1,0 +1,195 @@
+---
+title: "@opsinjs/color"
+description: The colour engine as a callable API — OKLCH, gamut mapping, APCA and WCAG 2.2, and deriveTheme() — so the check that gates this site can gate your CI too.
+status: planned
+kind: guide
+since: unreleased
+aliases: [deriveTheme, apca function, colour engine, oklch library]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+The colour engine is the first differentiator of this design system, and doctrine
+plus a playground is not enough to make it one. A theme you have changed needs
+its own measurements, in your CI, on every pull request — and that requires a
+function you can call, not a page you can read.
+
+`@opsinjs/color` is that function. It is the same hand-written implementation
+that generates every contrast figure published on this site: OKLCH conversion,
+gamut mapping, Display-P3 escalation, APCA and WCAG 2.2, and the theme
+derivation the [theme generator](../theming/theme-generator.mdx) runs. No
+`culori`, no `apca-w3`, no dependencies at all — roughly 250 lines of maths,
+which is small enough to audit and small enough to be worth auditing when its
+output supports an accessibility claim.
+
+<StubNotice
+  name="opsinjs-color"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Does apca() return the signed Lc or an absolute value, and does the sign convention match the APCA reference?",
+    "Should deriveTheme() throw on an achromatic input or return a neutral theme?",
+    "Is the sRGB gamut clamp allowed to move hue, or must it only reduce chroma?",
+  ]}
+/>
+
+**Nothing is published.** The implementations exist in this repository under
+`lib/color/` and you may use them today by reading them; the package is
+packaging, not capability.
+
+## The proposed API
+
+```ts
+// PROPOSED. Not implemented. Subject to change without a deprecation cycle.
+
+/** Convert between colour spaces. All functions are pure. */
+export function parse(input: string): Oklch
+export function toSrgb(color: Oklch): Rgb
+export function toDisplayP3(color: Oklch): Rgb
+export function format(color: Oklch, as: "oklch" | "hex" | "display-p3"): string
+
+/** Gamut. clampChroma reduces chroma only; lightness and hue are preserved. */
+export function inGamut(color: Oklch, gamut: "srgb" | "display-p3"): boolean
+export function clampChroma(color: Oklch, gamut: "srgb" | "display-p3"): Oklch
+
+/** Measurement. */
+export function apca(text: string, background: string, options?: ApcaOptions): number
+export function wcag(a: string, b: string): number
+
+/** Derivation: one brand colour to a complete role set, light and dark. */
+export function deriveTheme(brand: string, options?: DeriveOptions): Theme
+
+/** The check. Returns every pair with its measurement and a verdict. */
+export function checkTheme(theme: Theme, floor?: Floor): CheckResult
+```
+
+The four blocks are deliberately separable. A project that only wants to measure
+a pair should not have to understand theme derivation, and `apca()` should be
+usable on its own with no opsinjs concepts in scope at all.
+
+## The design decisions worth arguing with
+
+**Chroma clamping never moves hue.** When a colour is outside the sRGB gamut,
+`clampChroma` reduces chroma at fixed lightness and hue. The alternative — a
+perceptual gamut mapping that trades a little hue for a little chroma — produces
+prettier colours and breaks the invariant that the P3 escalation and the sRGB
+baseline are the *same colour* at different saturations. That invariant is what
+lets opsinjs claim that measured contrast does not change with display gamut.
+
+**Both numbers, always.** `apca()` and `wcag()` are separate functions and
+`checkTheme()` reports both. APCA is more accurate for text and is not a
+standard; WCAG 2.2 is a standard and is coarse. A library that returned one
+number would be choosing for you, and the choice has legal and clinical
+consequences —
+[Contrast conformance](../accessibility/contrast-conformance.mdx) is where the
+project states which it relies on and why.
+
+**Derivation is deterministic.** The same input always produces the same theme.
+There is no randomness, no "make it pretty" heuristic, and no model. Two
+developers running it get the same answer, and a CI run reproduces a local one.
+
+**Lightness is placed on fixed rungs.** A ramp derived from a pale brand and one
+derived from a dark brand still have a rung that means "the surface a card sits
+on". Without fixed rungs, role assignment becomes brand-dependent and a theme
+can end up with no usable card surface at all.
+
+## What it is intended for
+
+<Steps>
+
+### Gate a theme in CI
+
+The headline use. Read your theme, derive or load it, run `checkTheme()`, fail
+on a pair below the floor. This is what
+[Validating your theme](../theming/validating-your-theme.mdx) currently has to
+describe as an HTTP call.
+
+### Generate tokens in a fork
+
+`deriveTheme()` plus `clampChroma()` is most of `scripts/build-tokens.mts`. A
+fork that maintains its own ramps needs exactly this.
+
+### Check one pair in a test
+
+`apca(fg, bg)` in a unit test, asserting a floor, is a cheap regression guard on
+a component's own colour choices.
+
+### Convert colours without a dependency tree
+
+`parse` and `format` are useful on their own, and the package has no
+dependencies, which matters more in a regulated build than it does elsewhere.
+
+</Steps>
+
+## What it deliberately will not do
+
+<SafetyCallout severity="watch" evidence="opinion">
+It will not tell you whether a colour is *appropriate* for a clinical status, and
+it will not assign a status to a value. Those are decisions with a clinical
+dimension, and a colour library making them would move a clinical judgement
+inside a maths function where nobody would think to review it. `checkTheme()`
+answers "is this legible", never "is this right".
+</SafetyCallout>
+
+It also will not simulate colour-vision deficiency in a way that produces a
+pass/fail. Simulation is a design aid — `<CvdSimulator>` on this site — and a
+green tick from a simulator is not evidence of colour independence. See
+[Colour independence](../accessibility/colour-independence.mdx).
+
+## Verify it worked
+
+When the package ships, these are the checks that prove it is doing its job.
+Until then they are acceptance criteria.
+
+<Steps>
+
+### The numbers match the site
+
+Measure a published pair with `apca()` and compare against the figure on
+[Reference → Contrast](../reference/generated/contrast.mdx). A difference means
+two implementations exist, which is the failure the package is meant to prevent.
+
+### The gamut invariant holds
+
+For every token, the sRGB and Display-P3 values should share lightness and hue
+to within floating-point tolerance. Assert it.
+
+### Derivation is reproducible
+
+Run `deriveTheme()` twice with the same input and deep-compare. Then run it on
+another machine.
+
+### A failing theme actually fails
+
+Feed it a deliberately illegible pair and confirm a non-zero exit. A checker
+that has never failed has never been tested.
+
+</Steps>
+
+## Troubleshooting
+
+**`npm install @opsinjs/color` fails.** Nothing is published yet.
+
+**My APCA number does not match another tool.** Check the sign convention and the
+polarity — APCA is signed, and dark-on-light and light-on-dark are different
+measurements of the same pair. Check also that both tools are measuring the same
+gamut.
+
+**`deriveTheme()` produces a duller theme than my brand.** Chroma was clamped to
+sRGB. That is correct; the escalation restores some of it on capable displays
+and nothing restores it on an sRGB one. See
+[Gamut and P3](../foundations/colour/gamut-and-p3.mdx).
+
+**A pair passes WCAG 2.2 and fails APCA.** Common, especially for light text on
+mid-tone colour. Both numbers are reported precisely so that you can see it
+rather than inherit somebody else's resolution of it.
+
+## Next
+
+- [How the engine works](../foundations/colour/how-the-engine-works.mdx) — the
+  algorithm, explained.
+- [Validating your theme](../theming/validating-your-theme.mdx) — the job this
+  package exists to make possible.
+- [Contrast and APCA](../foundations/colour/contrast-and-apca.mdx) — what the
+  two numbers mean.

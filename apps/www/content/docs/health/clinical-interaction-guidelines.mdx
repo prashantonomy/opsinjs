@@ -1,0 +1,201 @@
+---
+title: Clinical interaction guidelines
+description: Ten rules for any interface that shows someone their own health data, each written as a prohibition a reviewer can test rather than a principle a team can agree with and ignore.
+status: stable
+kind: health
+evidence: mixed
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+owner: design-system
+implements: [result-card, range-bar, score-dial, trend-sparkline, metric-tile, status-pill, alert-banner, care-card, disclaimer-note, value, relative-time]
+aliases: [clinical rules, prohibitions, safety rules, ten rules, health ui rules]
+---
+
+<PageTemplate kind="health" />
+
+## What this means
+
+Design principles fail in review because they are agreeable. "Be clear", "be
+calm", "do not alarm" — nobody argues, nobody changes anything, and the screen
+ships. A principle that cannot be violated cannot be checked.
+
+So the ten rules below are written as prohibitions with an observable subject.
+Each one names a thing that must not appear on screen, and each one can be
+answered yes or no by someone holding a phone who has never met the team. They
+are the short form of this entire section: every rule expands into a page, and
+every page exists because the rule needed an argument behind it.
+
+They are also the source of the
+[Safety review checklist](./safety-review-checklist.mdx), which is the same list
+in a form you can print and tick.
+
+## The rule
+
+**These ten prohibitions apply to every screen that displays, interprets or
+collects health information about the person using it.**
+
+<SafetyCallout severity="attention" evidence="opinion">
+  A screen that violates any one of these is not a style problem to fix later.
+  Each of the ten describes a way a competent, attractive interface misleads
+  someone about their own body.
+</SafetyCallout>
+
+### 1. Never carry clinical status in colour alone
+
+Colour is one channel among four. Status must survive greyscale, protanopia and a
+sunlit screen, which means colour plus an icon plus a word, always.
+→ [The two colour axes](./two-colour-axes.mdx),
+[Colour independence](../accessibility/colour-independence.mdx)
+
+### 2. Never mix the category axis with the status axis
+
+A colour that identifies a metric family may not also connote severity, and a
+severity colour may not identify a family. Two axes, two palettes, no overlap.
+→ [The two colour axes](./two-colour-axes.mdx)
+
+### 3. Never use the word "normal" for a person's own result
+
+"Normal" is a statement about a population that reads as a statement about a
+person, and its negation is unbearable. Say "in the usual range", "above the
+usual range", or name the range directly.
+→ [Reference ranges](./reference-ranges.mdx)
+
+### 4. Never show a number without its unit, its scale and its recency
+
+A bare figure is not information. Unit, the range it sits in, and when it was
+measured are part of the value, not decoration around it.
+→ [Numbers, units and precision](./numbers-units-precision.mdx),
+[Uncertainty, staleness and missing data](./uncertainty-and-staleness.mdx)
+
+### 5. Never present more precision than the measurement carries
+
+Rounding is a truth claim. A weight rendered as `71.4396 kg`, or a
+device-estimated figure printed to two decimals, asserts an accuracy that does
+not exist.
+→ [Numbers, units and precision](./numbers-units-precision.mdx),
+[Data provenance and device accuracy](./data-provenance-and-device-accuracy.mdx)
+
+### 6. Never draw a trend from fewer points than the metric requires
+
+Two readings are two readings, not a direction. Every metric has a minimum window
+below which a trend line is a lie with a nice curve.
+→ [Trends and change](./trends-and-change.mdx)
+
+### 7. Never allow more than one `urgent` surface on a screen
+
+Urgency has a budget. The second red thing does not double the attention paid; it
+halves it, and it teaches the reader that red is decorative.
+→ [Alarm fatigue](./alarm-fatigue.mdx)
+
+### 8. Never convey urgency with motion, sound or haptics alone
+
+A pulsing element is invisible under reduced motion, invisible to someone
+scrolling past, and unavailable to a screen reader. Motion may support a message
+it never carries.
+→ [Motion in health UI](./motion-in-health-ui.mdx),
+[Notifications and off-screen alerts](./notifications-and-off-screen-alerts.mdx)
+
+### 9. Never present a result without saying what, if anything, to do
+
+Every clinical statement needs an action slot, even when the action is "nothing,
+and here is when we will look again". An unresolved result is answered by the
+reader's own worst guess.
+→ [Delivering difficult results](./delivering-difficult-results.mdx),
+[Emergency and escalation](./emergency-and-escalation.mdx)
+
+### 10. Never collect health data without saying what it is for and how to stop
+
+Consent is per-purpose, revocable in the place the data appears, and re-asked
+when the purpose changes. Burying it in onboarding is not consent, it is a
+formality.
+→ [Consent and disclosure](./consent-and-disclosure.mdx)
+
+## Why (evidence)
+
+<ResearchNote evidence="mixed" date="2026-09-02">
+  Rules 1 and 8 are grounded in normative accessibility requirements rather than
+  our preference. WCAG 2.2 success criterion 1.4.1 (Use of Colour) forbids colour
+  as the only visual means of conveying information, and 2.2.2 (Pause, Stop,
+  Hide) constrains moving content. Those are checkable against a published
+  standard, and we hold ourselves to them; see
+  [Accessibility](../accessibility/index.mdx) for how we test.
+
+  Rules 3, 4 and 5 draw on the published work on how laypeople read test
+  results — in particular the systematic review of laboratory-result presentation
+  formats in JMIR (2024), [10.2196/53993](https://doi.org/10.2196/53993),
+  and the earlier patient-portal presentation study in BMC Medical Informatics
+  and Decision Making (2018),
+  [10.1186/s12911-018-0589-7](https://doi.org/10.1186/s12911-018-0589-7).
+  We cite these as the anchors for "a number needs a scale", not as proof of any
+  specific visual treatment.
+
+  Rules 2, 6, 7, 9 and 10 are **opinion**: engineering and design judgement about
+  what keeps a system coherent as it grows, argued in full on the page each rule
+  links to. Rule 7's "one urgent per screen" in particular is a budget we chose,
+  not a measured threshold, and we say so plainly on
+  [Alarm fatigue](./alarm-fatigue.mdx).
+</ResearchNote>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    Run the ten as a pre-merge question list on any screen that touches health
+    data, the way you would run a security review. Ten yes/no answers takes
+    minutes.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Treat them as aspirations in a slide deck. A prohibition that is never
+    checked is a preference.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Push the enforceable subset into tooling. The never-mix-the-axes rule and the
+    banned-word rule are both lint rules, not review conversations; see
+    [Tooling](../handbook/tooling/index.mdx).
+  </DoDont.Do>
+  <DoDont.Dont>
+    Rely on review alone for a rule a machine can check. Human review should be
+    spent on the seven rules a machine cannot.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    When you must break one, write down which rule, why, who agreed, and what
+    compensating control you added. A recorded exception is a decision.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Break one silently because the design looked better. That is how a system
+    loses the property that made it worth adopting.
+  </DoDont.Dont>
+</DoDont>
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+These ten rules are the reason the component specifications in this system carry
+a Clinical meaning section at all. A component whose category begins with
+`health-` cannot be published without stating which of these prohibitions it
+enforces and which it merely permits you to honour.
+
+## What this does not cover
+
+- **The thresholds themselves.** Nothing here tells you which value is
+  `attention`. That is clinical content and it is yours.
+- **Clinical safety process.** Hazard logs, clinical risk management and the
+  standards that govern them are summarised at
+  [Regulatory context](./regulatory-context.mdx) and are a process obligation on
+  your organisation, not a UI rule.
+- **Clinician-facing interfaces**, where several of these rules invert. Density
+  and absolute values beat reassurance for a trained reader.
+- **Wording.** These rules constrain structure; the sentences themselves are
+  governed by [Content and language](../content/index.mdx).
+
+## Updates to this page
+
+<Reviewed />

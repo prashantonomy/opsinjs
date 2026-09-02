@@ -1,0 +1,255 @@
+---
+title: LogSheet
+description: A small sheet that slides up so you can record something in a few seconds — one reading, one dose, one note — without leaving the screen you were on.
+status: planned
+kind: component
+since: "unreleased"
+category: health-input
+aliases: [log, capture, quick entry, bottom sheet entry, diary]
+governedBy: [numbers-units-precision, unit-systems, consent-and-disclosure]
+usedIn: [daily-log-entry, daily-log-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="log-sheet"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "What is the ceiling? Three fields, five, or a time budget — and what does the component do when a product exceeds it?",
+    "Does the sheet ever save without an explicit confirmation, and if a reader dismisses it mid-entry, what happens to what they typed?",
+    "Backdating is normal in a log and dangerous in a record. How far back may an entry be dated, and how is a backdated entry marked?",
+    "When the same reading is logged twice within minutes, is that a duplicate to merge or a real second measurement?",
+  ]}
+/>
+
+Daily logging fails on friction. Every second between the intention to record something and
+the record existing loses entries, and lost entries make every trend downstream less true.
+LogSheet exists to make that path short, and its specification is mostly about resisting the
+pressure to put one more field on it.
+
+## Preview
+
+The preview will show the sheet at its detents with the keyboard raised, because a capture
+sheet that works beautifully until the keyboard appears is a capture sheet that does not
+work.
+
+<ComponentPreview name="log-sheet" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail. LogSheet composes [Sheet](./sheet.mdx), [Field](./field.mdx),
+[ReadingInput](./reading-input.mdx) and [Button](./button.mdx).
+
+<ComponentInstall name="log-sheet" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Recording one thing the reader does repeatedly — a blood pressure reading, a dose taken, a symptom, a weight, a note about how they feel.",
+    "Capture that must happen without losing the reader's place, from a dashboard, a trend view or a notification.",
+    "Any entry that should take under about fifteen seconds one-handed, standing up, without reading instructions.",
+  ]}
+  avoid={[
+    { case: "The entry needs more than about five fields, or branching questions.", instead: "field" },
+    { case: "You are asking a set of questions that form an assessment rather than a record.", instead: "questionnaire" },
+    { case: "You need permission before you can store what is being logged.", instead: "consent-sheet" },
+    { case: "The reader must confirm something rather than record it, and cannot continue until they do.", instead: "dialog" },
+    { case: "There is exactly one numeric value with a unit and nothing else.", instead: "reading-input" },
+    { case: "You are showing what was logged rather than capturing it.", instead: "result-card" },
+  ]}
+/>
+
+The first exclusion is the one that decides whether a product's logging works. A sheet with
+seven fields is a form, and a form belongs on a page where it can breathe, be saved as a
+draft, and be abandoned without losing the reader's place. Sheets are for the entries people
+make every day; forms are for the ones they make once.
+
+## Clinical meaning
+
+**What it asserts.** That the reader recorded this value, at this time, themselves. That is
+a weaker and more specific claim than a device measurement, and the record must preserve the
+difference: a self-reported blood pressure and one read from a cuff over Bluetooth are not
+interchangeable downstream. See
+[Data provenance and device accuracy](../health/data-provenance-and-device-accuracy.mdx).
+
+**What it must never be read as.** A clinical observation, or an assessment of anything.
+Logging is recording. The sheet does not evaluate what is entered, does not colour it by
+status, and does not tell the reader whether their number is good — that is a job for the
+surface that displays the value afterwards, if the product has grounds for it.
+
+**Which colour axis it may use.** The **category** axis, on the sheet's heading and icon, so
+a reader knows whether they are logging sleep or blood pressure. The **status** axis may not
+appear on a capture surface at all. Colouring a field amber while somebody is typing their
+own blood pressure into it is an implied verdict delivered mid-keystroke, and it is the
+fastest way to teach a person to stop logging honestly.
+
+**Plausibility is not judgement.** The sheet may warn that a value looks unlikely — a
+digit-transposition, a unit confusion, a decimal in the wrong place — because those are data
+quality problems. It may never block the entry: unlikely values happen, and a log that
+refuses them is a log with a hole in it exactly where the interesting data was. See
+[ReadingInput](./reading-input.mdx) for the plausibility contract in detail.
+
+**Timing is part of the record.** Every entry carries the time it refers to, not the time it
+was typed, and the two are stored separately. A reading logged at 9pm for 8am that morning is
+a backdated entry and downstream surfaces need to know that.
+
+## Anatomy
+
+<Anatomy name="log-sheet" />
+
+<CompositionTree name="log-sheet" />
+
+**Header** names what is being logged and offers the escape. **Fields** are the entry
+controls, ordered so the most important one is focused first. **Time** is the when, defaulted
+to now and always editable. **Note** is an optional free-text line, which people use more
+than product teams expect. **Save** is one primary action; **Cancel** is available at every
+moment and never discards silently.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+LogSheet                       root; extends Sheet; keyboard-safe insets
+├── LogSheet.Header
+│   ├── LogSheet.Title         what is being logged; category-tinted icon
+│   └── LogSheet.Cancel        always present; never discards without asking
+├── LogSheet.Fields            at most ~5; the first is focused on open
+│   ├── ReadingInput           a numeric measurement with its unit
+│   └── Field                  any other single-value control
+├── LogSheet.Time              defaults to now; backdating is explicit and marked
+├── LogSheet.Note              optional free text
+└── LogSheet.Save              one primary action; states what it saves
+```
+
+Nesting a second `LogSheet` inside a `LogSheet`, or putting a navigation control inside one,
+is a composition error: a capture sheet has one exit and one destination.
+
+## Proposed API
+
+<NotBuiltYet name="log-sheet" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+import type { HealthCategory } from "opsinjs"
+
+export interface LogEntry {
+  /** What the entry refers to, keyed by the product. */
+  values: Record<string, number | string | null>
+  /** The time the entry is ABOUT. Defaults to now, always editable. */
+  occurredAt: string
+  /** The time the entry was RECORDED. Set by the component, never editable. */
+  recordedAt: string
+  /** True when occurredAt was moved away from recordedAt by the reader. */
+  backdated: boolean
+  /** Always "self-reported" from this component. Never inferred as a device reading. */
+  provenance: "self-reported"
+  note?: string
+}
+
+export interface LogSheetProps {
+  title: string
+  category?: HealthCategory
+  /** Rendered in order. The first is focused on open. Keep it under five. */
+  children: React.ReactNode
+  /** How far back an entry may be dated, in days. The product owns this. */
+  maxBackdateDays?: number
+  /** Called only on explicit save. There is no autosave and no implicit commit. */
+  onSave: (entry: LogEntry) => void
+  /**
+   * Called when the reader dismisses with unsaved input. The component asks
+   * before discarding; the product decides whether to keep a draft.
+   */
+  onDiscard?: () => void
+}
+```
+
+## Content guidelines
+
+The title is what is being logged, as a noun phrase: *Blood pressure*, *Morning weight*, *How
+you slept*. The save action says what it saves — *Save reading*, not *Done*, and never *OK*.
+
+Do not ask for anything you can infer, and do not ask for anything you will not use. Every
+field is a small tax paid every single day, and the fourth field is the one that stops people
+logging at all.
+
+<DoDont>
+  <DoDont.Do>
+    **"Blood pressure — Systolic, Diastolic, Time (now), Save reading."** Three inputs, a
+    sensible default, and a save button that says what it does.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Log entry — Systolic, Diastolic, Pulse, Arm used, Position, Cuff size, Mood, Notes,
+    Submit."** Every field is defensible and the set is unusable. Ask for the extras once, in
+    settings, not every morning.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **"You have not saved this reading. Discard it?"** on dismissal with unsaved input.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **Closing the sheet on a background tap and losing what was typed.** The reader tried to
+    do the right thing and the product punished them for a stray gesture.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **The sheet is a modal dialogue** named by its title, with focus moved to the first field
+  on open, trapped while open, and returned to the trigger on close.
+- **The keyboard never covers the save action.** The sheet resizes to the visual viewport and
+  respects safe-area insets; the primary action stays reachable at every detent — see
+  [Layout](../foundations/layout.mdx).
+- **Every field has a visible, persistent label**, never a placeholder standing in for one.
+  Placeholder-as-label disappears exactly when the reader needs it and is invisible to some
+  assistive technology — see [Field](./field.mdx).
+- **Numeric fields declare their input mode and autocomplete** so the right keyboard appears
+  and the reader does not have to hunt for a decimal point.
+- **Plausibility warnings are advisory, associated with their field, announced politely, and
+  never block save.** They are announced once, not on every keystroke.
+- **Dismissal with unsaved input asks first**, by keyboard as well as by gesture. Escape is
+  the keyboard equivalent of the background tap and behaves identically.
+- **Every gesture has a control.** Drag-to-dismiss and drag-between-detents each have a
+  button equivalent — see [Target size and motor](../accessibility/target-size-and-motor.mdx).
+- **At 200% text the sheet scrolls internally**, the save action stays pinned, and no field
+  label truncates.
+- **Reduced motion** removes the slide; the sheet appears at its detent.
+
+<KeyboardTable name="log-sheet" />
+
+<ContrastReport component="log-sheet" />
+
+## Related
+
+<RelatedComponents name="log-sheet" />
+
+**Easily confused with**
+
+- [Sheet](./sheet.mdx) — the general surface. LogSheet is Sheet plus a capture contract and a
+  field ceiling.
+- [ReadingInput](./reading-input.mdx) — the single control inside it. One value with a unit
+  needs no sheet of its own.
+- `questionnaire` (considered, no page yet — see the [roster](./index.mdx)) — a set of
+  questions forming an assessment, which is a different thing from a record.
+- [Field](./field.mdx) — for entries that belong on a page rather than in a sheet.
+
+**Used by**
+
+- [Capture a daily log entry](../recipes/daily-log-entry.mdx)
+- [Daily log screen](../screens/daily-log-screen.mdx)
+- [Daily logging](../patterns/daily-logging.mdx)
+
+**Governed by**
+
+- [Numbers, units and precision](../health/numbers-units-precision.mdx)
+- [Unit systems](../health/unit-systems.mdx)
+- [Consent and disclosure](../health/consent-and-disclosure.mdx)

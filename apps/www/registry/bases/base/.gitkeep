@@ -1,0 +1,8 @@
+Reserved for Base UI component source — the `base` behaviour variant.
+
+This folder proves the base axis exists before there is a second base to put
+in it. `registry/bases/<base>/<component>.tsx` is where a built component will
+live, and `scripts/build-registry.mts` walks this tree to produce
+registry/__index__.ts. Adding a second base is a sibling folder here and a
+string in REGISTRY_BASES — never a URL migration. Delete this file when the
+first component lands.

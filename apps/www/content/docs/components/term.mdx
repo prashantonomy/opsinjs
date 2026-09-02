@@ -1,0 +1,239 @@
+---
+title: Term
+description: A clinical word shown with its everyday meaning attached, so you can read a sentence without having to look anything up.
+status: planned
+kind: component
+since: "unreleased"
+category: health-communication
+aliases: [glossary term, jargon, plain english, definition, tooltip term]
+governedBy: [who-this-is-for, clinical-interaction-guidelines]
+usedIn: [value-against-a-range, results-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="term"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Is the definition always available without interaction, or is a disclosure acceptable on small screens where inline expansion would break the sentence?",
+    "What happens when the term is not in the glossary — silent passthrough, a development warning, or a build failure?",
+    "A word can mean different things in different specialities. Does the glossary allow more than one definition per term, and who chooses?",
+    "How does the term behave in print, where there is nothing to tap and no room for a panel?",
+  ]}
+/>
+
+Term is small, unglamorous and probably the component with the highest ratio of benefit to
+effort in the whole system. Most health interfaces are readable except for four words per
+screen, and those four words are why people stop reading.
+
+## Preview
+
+The preview will show the inline, disclosure and print treatments of the same sentence, so
+the trade-off between not breaking the line and not hiding the definition is visible.
+
+<ComponentPreview name="term" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail.
+
+<ComponentInstall name="term" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "A clinical word the reader will meet elsewhere — on a letter, in a conversation with a clinician, on a test result — and therefore cannot simply be replaced with a plainer one.",
+    "An abbreviation whose expansion the reader needs at least once: HbA1c, eGFR, BP, SpO2.",
+    "A word with an everyday meaning that differs from its clinical one, such as 'positive', 'chronic' or 'acute', where the mismatch is the whole problem.",
+  ]}
+  avoid={[
+    { case: "The explanation runs to more than a sentence or two, or carries a caveat as well as a definition.", instead: "callout" },
+    { case: "The point is a standing statement about what this product is and is not, rather than the meaning of a word.", instead: "disclaimer-note" },
+    { case: "You need general help text for a non-clinical interface control.", instead: "tooltip" },
+    { case: "The reader needs to browse or search every definition rather than read one in place.", instead: "table" },
+    { case: "What needs explaining is a number, a unit or a precision rather than a word.", instead: "value" },
+    { case: "The word you are marking up is really a level of attention.", instead: "status-pill" },
+  ]}
+/>
+
+The first exclusion is the one that matters. Term is not a licence to keep the jargon. The
+question is always *does this reader have to learn this word?* — and the answer is yes only
+when the word will reach them from somewhere the product does not control. Everywhere else,
+say it plainly and skip the component.
+
+## Clinical meaning
+
+**What it asserts.** That this word has this everyday meaning, in this context, according to
+the product's glossary. It is a translation claim, and it is the product's claim, not a
+clinician's.
+
+**What it must never be read as.** A definition of the reader's condition, or advice.
+*Chronic means long-lasting* is a translation; *chronic means you will have this for life*
+is a prognosis, and the glossary is not the place for one. Definitions describe words.
+
+**Which colour axis it may use.** Neither. A term is typographic — a dotted underline or an
+equivalent mark that does not rely on colour to be visible. Tinting jargon by category makes
+words look like statuses, and tinting them by status is worse.
+
+**The glossary is the product's, and it is data.** Definitions live in
+`tokens/glossary.json`, are written in plain English by the product, and are versioned and
+reviewable like any other content. They are never generated at runtime, never fetched from a
+third party, and never copied from a national health service — the NHS A-to-Z is Crown
+copyright and is not reusable, however tempting the shortcut. Cite sources; never paste
+them. See [Plain-English A–Z](../content/plain-english-a-z.mdx).
+
+<ClinicalNote evidence="opinion">
+The definition should be readable by someone who has not finished secondary school, because
+a large share of adults in any population find health information hard to use. A definition
+that needs a second definition has failed, and *idiopathic: of unknown aetiology* is the
+canonical example of failing.
+</ClinicalNote>
+
+## Anatomy
+
+<Anatomy name="term" />
+
+<CompositionTree name="term" />
+
+**Trigger** is the word as it appears in the sentence, marked so a reader knows an
+explanation exists. **Definition** is the plain-English text. **Expansion** is the full form
+of an abbreviation, which is a distinct thing from a definition and often both are needed.
+The component has three presentations of the same content — inline, disclosure and print —
+and the content is identical in all three.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+Term                           root; resolves an id against the glossary
+├── Term.Trigger               the word in the sentence; underlined, not coloured
+└── Term.Definition            plain English; always in the accessibility tree
+    └── Term.Expansion         the full form, when the term is an abbreviation
+```
+
+`Term.Definition` is never removed from the accessibility tree by a presentation choice. A
+disclosure hides it visually; it does not hide it from a screen reader before it is opened,
+because a reader using speech has no way to know something is there to open.
+
+## Proposed API
+
+<NotBuiltYet name="term" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+export interface TermProps {
+  /**
+   * The glossary key. Resolved against tokens/glossary.json at build time, so
+   * an unknown term is a build error rather than a blank tooltip in production.
+   */
+  id: string
+  /**
+   * The word as it should read in this sentence, when it differs from the
+   * glossary's headword — plural, tense, or capitalisation.
+   */
+  children?: React.ReactNode
+  /**
+   * How the definition is presented. `inline` places it in parentheses after
+   * the word; `disclosure` puts it behind a control. `auto` chooses by
+   * available width. There is no `hover` value, on purpose.
+   */
+  present?: "auto" | "inline" | "disclosure"
+  /**
+   * Show the definition only the first time the term appears on a surface.
+   * Repetition is noise; absence is a barrier. This is the compromise.
+   */
+  once?: boolean
+}
+```
+
+There is deliberately no way to supply a definition inline. Definitions live in the glossary
+so that they are consistent across every screen, reviewable in one place, translatable, and
+countable — a product can ask *how many words are we asking our readers to learn?* and get
+an answer.
+
+## Content guidelines
+
+Definitions are one sentence, under about twenty words, in the second person where it helps.
+Define the word, not the condition. Do not use a second piece of jargon inside a definition.
+Do not hedge to the point of vacuity.
+
+Expansions are the full form and nothing else: *HbA1c — haemoglobin A1c* is an expansion,
+and *a measure of your average blood sugar over the last two to three months* is the
+definition. Most readers need both, in that order.
+
+<DoDont>
+  <DoDont.Do>
+    **"HbA1c (haemoglobin A1c) — a blood test that shows your average blood sugar level over
+    the past two to three months."** Expansion, then plain definition, then stop.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"HbA1c — glycated haemoglobin, a marker of glycaemic control."** Every word after the
+    dash needs its own definition. This is a definition written for a colleague.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **"Positive — the test found what it was looking for. For some tests that is good news
+    and for others it is not."** Names the mismatch with the everyday meaning, which is the
+    reason this term needs an entry at all.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Positive — an affirmative result."** Restates the word in slightly longer words and
+    leaves the reader exactly where they started.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **The definition is available without hover and without pointer precision.** Hover-only
+  definitions do not exist on touch, do not exist for keyboard users, and are unreliable for
+  anyone with a tremor. This is why `present` has no `hover` value.
+- **The trigger is not marked by colour alone.** An underline or equivalent non-colour mark
+  distinguishes it, so it survives grayscale and increased contrast.
+- **When the definition is behind a disclosure, the disclosure is a button** with an
+  accessible name naming the term (*what does HbA1c mean?*), correct expanded state, and a
+  44pt target.
+- **The word is never split from its definition in the reading order.** A screen-reader user
+  reaching the term hears, or can reach, the definition without leaving the sentence.
+- **Speech pronunciation is considered**: abbreviations that must be spelt out are marked so
+  they are not read as words. `SpO2` is not *spoh-two*.
+- **At 200% text an inline definition reflows** onto as many lines as it needs and never
+  becomes a horizontally scrolling strip.
+- **Print** expands every term inline, once per term per page. A printed page has no
+  disclosures, and the definition is the part the reader takes to the appointment.
+
+<KeyboardTable name="term" />
+
+<ContrastReport component="term" />
+
+## Related
+
+<RelatedComponents name="term" />
+
+**Easily confused with**
+
+- `tooltip` (considered, no page yet — see the [roster](./index.mdx)) — a general hover or
+  focus popup. Term is not built on it, deliberately: a definition must not depend on hover.
+- [Callout](./callout.mdx) — for an explanation longer than a sentence or two.
+- [Value](./value.mdx) — formats numbers and units; Term explains words.
+- [DisclaimerNote](./disclaimer-note.mdx) — a standing statement about the product, not a
+  definition of a word.
+
+**Used by**
+
+- [Show a value against a reference range](../recipes/value-against-a-range.mdx)
+- [Results screen](../screens/results-screen.mdx)
+
+**Governed by**
+
+- [Who this is for](../health/who-this-is-for.mdx)
+- [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx)

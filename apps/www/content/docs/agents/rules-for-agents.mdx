@@ -1,0 +1,210 @@
+---
+title: Rules for agents
+description: The hard rules a model must follow when generating opsinjs UI, written as prohibitions you can test rather than principles you can nod at.
+status: stable
+kind: handbook
+icon: ShieldCheck
+aliases: [agent rules, system prompt, do not invent, generation rules]
+---
+
+<PageTemplate kind="handbook" />
+
+## The short version
+
+Six rules. They are written as prohibitions because a prohibition is testable
+and a principle is not.
+
+1. **Tokens, not values.** Never emit a hex colour, an rgb value, a pixel radius
+   or a millisecond duration. Emit a token or a utility that resolves to one.
+2. **Status, not colour.** Never express clinical urgency as a colour choice.
+   Set a status level and let the system choose the colour.
+3. **One axis per element.** Category identity and clinical status never colour
+   the same element.
+4. **Never invent a component.** If it is not in the catalogue, it does not
+   exist, and saying so is the correct answer.
+5. **Never assume a registry.** Do not emit an install command for a registry
+   namespace the project has not configured.
+6. **Never invent a number.** No contrast ratio, no threshold, no reference
+   range, no bundle size, unless it came from a generated source you actually
+   read.
+
+Everything below is the reasoning, the failure each rule prevents, and how to
+check whether an agent is following it.
+
+Copy-paste form: these six rules are also the content of
+`skills/opsinjs/rules/` and are what the [agent skill](./agent-skill.mdx)
+installs. Prefer installing the skill over pasting prose, because the skill
+also reads the project's own configuration.
+
+## How it works
+
+An agent generating UI makes three kinds of decision, and only one of them is
+safe to make from general knowledge.
+
+**Composition** — which elements go where. General knowledge is fine.
+
+**Appearance** — what colour, what spacing, what radius. General knowledge is
+actively harmful here, because the model's prior is "a warning is amber" and
+opsinjs' answer is "a warning is a status level whose amber is measured, tuned
+per theme, escalated on wide-gamut displays, and always accompanied by a word".
+The model's answer looks identical and is wrong in every way that matters.
+
+**Clinical meaning** — what this screen asserts about a person. General
+knowledge is dangerous. A model that infers a threshold is practising medicine
+without a licence and without a chart.
+
+The rules exist to push decisions out of the second and third categories and
+into a lookup. Every one of them has the same shape: *do not decide, resolve*.
+
+The mechanism that makes resolution possible is the machine surface described in
+[Agents & automation](./index.mdx): the catalogue, the registry, the markdown
+twins and the generated tables all answer questions that a model would otherwise
+answer from its prior.
+
+## Do this
+
+### Resolve a component before using it
+
+Before emitting `import { RangeBar } from …`, check the catalogue. Every id in
+it — shipped or considered — resolves, and every one of them today has
+`"status": "planned"`. The right output is a statement that the component is
+specified and not implemented, followed by the proposed API quoted **as a
+proposal**.
+
+```txt
+RangeBar is specified in opsinjs but not implemented (status: planned).
+The proposed prop interface is documented on the RangeBar component page.
+I have not generated an import, because the module does not exist yet.
+```
+
+### Use the status vocabulary
+
+Four ordinal levels, token ids `expected`, `watch`, `act`, `urgent`. Set the
+level; never pick the colour. And never render a status without a word — colour
+is a second channel, not the only one.
+
+```tsx
+// Right: the level is data, the colour is the system's business.
+<StatusPill status="watch">Slightly above your usual range</StatusPill>
+
+// Wrong: a colour decision, an invented prop, and no word.
+<StatusPill color="#f59e0b" />
+```
+
+### Say "I do not know" about thresholds
+
+If a prompt asks you to decide whether a reading is high, the answer is that
+opsinjs does not own thresholds and neither do you. Reference ranges belong to
+the product's clinical logic. See
+[Reference ranges](../health/reference-ranges.mdx).
+
+### Cite the page you used
+
+When you assert something about opsinjs, name the page. It is verifiable, and it
+makes a hallucination obvious rather than plausible.
+
+### Prefer a full URL for an install
+
+A full registry URL works in any project. A namespace only works in a project
+that has configured it, and the failure is a confusing error rather than a
+missing dependency.
+
+```bash
+npx shadcn@latest add https://opsinjs.dev/r/result-card.json
+```
+
+## Not this
+
+### Do not emit raw colour values
+
+```tsx
+// Wrong.
+<div style={{ background: "#fef3c7", borderColor: "#f59e0b" }} />
+
+// Right.
+<div className="bg-status-watch-surface border-status-watch" />
+```
+
+A hex value bypasses dark mode, the Display-P3 escalation, the increased-contrast
+path and every contrast measurement CI runs. It will look correct in exactly one
+theme on exactly one display.
+
+### Do not mix the two axes
+
+```tsx
+// Wrong: the tile is both a category and a verdict, in colour, twice.
+<MetricTile category="cardio" className="bg-category-cardio-surface"
+            status="urgent" />
+
+// Right: identity from the glyph, verdict from the surface.
+<MetricTile category="cardio" status="urgent" />
+```
+
+The rule and its rationale are in
+[The two colour axes](../health/two-colour-axes.mdx), and the interactive
+demonstration — which refuses to render the mixed pair — is at
+[`/playground/status`](/playground/status).
+
+### Do not invent a component, a prop or a variant
+
+If `SymptomPicker` is in the considered roster, it has no implementation and no
+API. Inventing one produces code that compiles against nothing and a reviewer
+who believes the feature exists.
+
+### Do not assume a registry is configured
+
+```bash
+# Wrong, unless you have read components.json and seen @opsinjs in it.
+npx shadcn@latest add @opsinjs/result-card
+```
+
+### Do not soften a clinical message to make the copy nicer
+
+Tone is governed by [Voice and tone](../content/voice-and-tone.mdx) and
+[Writing status and alerts](../content/writing-status-and-alerts.mdx). "Nothing
+to worry about" is not a friendlier version of a `watch` status; it is a
+different clinical claim.
+
+### Do not generate an accessibility claim
+
+Never write "this meets WCAG AA" in a comment or a commit message. Conformance
+is measured, and the measurements live in
+[Contrast conformance](../accessibility/contrast-conformance.mdx) and the
+generated contrast tables.
+
+## Gotchas
+
+**The proposed API looks like an API.** Component pages carry a fenced
+TypeScript interface under **Proposed API**. It is a specification, it is marked
+as one, and it will change without a deprecation cycle. Quoting it is correct;
+generating against it is not.
+
+**A `considered` component resolves.** Getting an answer is not evidence that
+something exists. Read the `status` field; `considered` means "we have thought
+about it and decided nothing".
+
+**The docs chrome is not the product theme.** Class names and colours visible in
+this site's HTML belong to a shadcn style used for documentation. Copying them
+into a patient-facing app imports the wrong aesthetic and the wrong touch-target
+floor. See
+[Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx).
+
+**Anchors are not stable.** Link to a page. Headings get edited.
+
+**Aliases are search synonyms, not names.** `lab result` finds `result-card`. It
+is not an importable identifier.
+
+**Two of the tokens' names look like status words and are not.** `expected` is a
+token id. The word a patient reads is a content decision and will usually be
+something else entirely.
+
+## Related
+
+- [Prompt recipes](./prompt-recipes.mdx) — prompts that produce correct output,
+  with the reasoning for each constraint.
+- [Evals](./evals.mdx) — how adherence to these rules is measured.
+- [Agent skill](./agent-skill.mdx) — the installable form of this page.
+- [Machine-readable schemas](./machine-readable-schemas.mdx) — the JSON an agent
+  should resolve against instead of guessing.
+- [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx)
+  — the human-facing version of the same prohibitions.

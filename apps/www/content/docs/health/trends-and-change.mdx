@@ -1,0 +1,174 @@
+---
+title: Trends and change
+description: Direction is a fact and valence is a judgement, and a line drawn through too few points is a story the interface invented.
+status: stable
+kind: health
+evidence: opinion
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 12m
+owner: design-system
+implements: [trend-sparkline, metric-tile, result-card, relative-time, status-pill]
+aliases: [trend, direction of change, improving, worsening, delta, over time]
+---
+
+<PageTemplate kind="health" />
+
+## What this means
+
+Two readings a week apart. The second is higher than the first. What may the
+interface say?
+
+It may say that the second is higher than the first. That is the whole of what it
+knows. It may not say the metric is rising, because two points do not establish a
+direction; it may not say the change is meaningful, because it does not know the
+measurement error; and it may not say the change is bad, because whether "higher"
+is good depends on the metric, the person, and what they are trying to do.
+
+Trend surfaces get all three of these wrong routinely, and they get them wrong in
+the same direction: towards a confident narrative. A little green arrow is
+enormously satisfying to build and to look at. It is also four separate
+assertions — that the change is real, that it is a direction, that the direction
+is good, and that it is about you — stacked in one glyph, none of them stated,
+none of them checkable.
+
+There is a second, quieter failure. Weight, blood pressure, resting heart rate
+and sleep all fluctuate day to day for reasons that have nothing to do with
+health: hydration, the time of the measurement, the cuff position, a warm room.
+An interface that responds to that noise with a status change teaches people to
+respond to noise too, which is how a health app produces anxiety as a feature.
+
+## The rule
+
+**Separate direction from valence, require a minimum window before drawing a
+trend at all, and never let noise cross into status.**
+
+1. **Direction and valence are two different pieces of information.** Direction —
+   up, down, unchanged — is arithmetic. Valence — better, worse, neutral — is a
+   clinical judgement about a specific metric for a specific person, and it is
+   frequently unavailable.
+2. **Where valence is unknown, show direction only.** An arrow with no colour, no
+   status and no adjective is honest. An arrow that is green because the number
+   went down is not.
+3. **A metric declares its minimum window**, and no trend is drawn below it. Two
+   readings is never enough for anything.
+4. **A metric declares a change threshold** below which a difference is presented
+   as unchanged. Below the noise floor, "about the same as last week" is the true
+   statement.
+5. **Say what is being compared.** "Compared with your average over the last 4
+   weeks" — never a bare delta against an unnamed baseline.
+6. **The time axis is honest.** Irregular readings are plotted at their real
+   positions, gaps are visible as gaps, and the axis is never truncated to
+   exaggerate a slope. See
+   [Chart anatomy](../foundations/data-visualisation/chart-anatomy.mdx).
+7. **A trend never sets a status on its own.** A direction may raise the salience
+   of a value; the status still comes from the value against its range. Rising
+   inside the usual range is not `attention`.
+8. **Never extrapolate.** No projected lines, no "at this rate", no predicted
+   values. The interface does not know what happens next and neither does anyone
+   else.
+9. **Every chart ships a text twin.** The trend must be readable as a sentence,
+   for screen readers and for the many readers who do not read charts. See
+   [Accessible charts](../foundations/data-visualisation/accessible-charts.mdx).
+10. **Absence is not a flat line.** Missing readings are drawn as missing, never
+    interpolated, and never as zero.
+
+## Why (evidence)
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  Opinion throughout, and grounded in measurement rather than in a study.
+
+  The defensible core is rules 3 and 4, and they are really one idea: any
+  measurement has a variability, and a difference smaller than that variability
+  is not a difference. This is not a design opinion — it is why a clinician
+  measures blood pressure more than once and why weight is compared over weeks
+  rather than days. What is a design opinion is the insistence that the interface
+  must know the threshold and refuse to draw below it, rather than delegating the
+  judgement to a reader who has no way to make it.
+
+  The separation of direction from valence is our framing, and we think it is the
+  most useful idea on this page precisely because it is so easy to check: for any
+  arrow on any screen, ask which of the two it is claiming, and whether the app
+  is entitled to claim it.
+
+  We deliberately publish no minimum windows or thresholds. They are
+  metric-specific, population-specific and clinical, and a plausible-looking
+  default table here would be copied into products by people who assumed we knew.
+
+  What would change our mind: little. Rule 8's absolute ban on extrapolation is
+  the one worth arguing about — a well-calibrated projection with visible
+  uncertainty is defensible in principle. We ban it because the uncertainty is
+  the first thing to be dropped in a redesign.
+</ResearchNote>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    "About the same as your average over the last 4 weeks." Named baseline, named
+    window, honest about a difference that is below the noise floor.
+  </DoDont.Do>
+  <DoDont.Dont>
+    "▲ 2%" with no baseline and no window, in green because up is good for this
+    metric and nobody checked whether it is good for this person.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "You have 2 readings. Log a few more over the next couple of weeks and we can
+    show you how this is changing." An honest empty state for a trend.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Draw a line between two points and label it "Trending up". The line is a
+    drawing of the fact that there are two numbers.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Keep the status pill driven by the latest value against its range, and let
+    the sparkline carry the direction separately.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Escalate to `attention` because three readings went up while all three sat
+    comfortably inside the usual range. You have alarmed someone about noise.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Show the gap: "No readings between 3 and 17 March." Missing data is
+    information about the data.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Connect across the gap with a straight line. The interface has drawn two
+    weeks of readings that were never taken.
+  </DoDont.Dont>
+</DoDont>
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+`TrendSparkline` is specified to take a minimum window and a change threshold as
+required inputs rather than optional ones, so a caller cannot get a trend by
+omission, and to render an explicit not-enough-data state instead of a two-point
+line.
+
+## What this does not cover
+
+- **Minimum windows and change thresholds** for any metric. Clinical content,
+  and yours.
+- **Statistical smoothing, seasonality and time-series modelling.** If you smooth
+  a series, the reader must be able to see the raw points.
+- **Chart construction, axes and colour**, which are
+  [Data visualisation](../foundations/data-visualisation/index.mdx).
+- **The pattern for a whole trend review screen**, which is
+  [Trend review](../patterns/trend-review.mdx).
+- **Goals and targets.** A target is a valence the reader chose, which changes
+  the analysis and is not yet specified here.
+
+## Updates to this page
+
+<Reviewed />

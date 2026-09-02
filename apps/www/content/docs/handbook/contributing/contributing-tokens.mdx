@@ -1,0 +1,117 @@
+---
+title: Contributing tokens
+description: Adding or changing a token, and the migration obligation it creates — because a CSS custom property is a public API covered by semver.
+status: stable
+kind: handbook
+aliases: [adding a token, changing a token, token migration, deprecating a token]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="handbook" />
+
+## The short version
+
+A token is a public API. Somebody has written
+`var(--opsin-status-urgent-surface)` in a stylesheet you will never see, and
+renaming it breaks their build with no error message — CSS custom properties
+fail by resolving to nothing.
+
+So: **adding a token is cheap, changing one is a minor version, and removing one
+is a major version with a deprecation period.** [Versioning
+policy](../../project/versioning-policy.mdx) states this formally, and it is one
+of the few design systems that commits to it.
+
+Tokens are authored in `apps/www/tokens/*.json` and compiled by
+`build-tokens.mts` into a committed CSS layer. You edit the JSON; you never edit
+the generated CSS.
+
+## How it works
+
+### The three tiers
+
+1. **Primitive** — a raw ramp step. `--opsin-red-60`. Components never reference
+   these.
+2. **Semantic** — a role. `--opsin-status-urgent-surface`. This is the tier
+   components use and the tier a theme redefines.
+3. **Component** — a part-specific hook. `--opsin-range-bar-track-height`.
+
+A new token almost always belongs at tier 2 or 3. Adding a primitive means
+adding a ramp, which is a colour-engine change rather than a token change. See
+[Token architecture](../../foundations/token-architecture.mdx).
+
+### The two axes are closed
+
+The status axis has exactly four levels and the category axis has a fixed
+membership. Adding a status level is not a token change; it is a change to
+[Clinical status semantics](../../health/clinical-status-semantics.mdx)
+and needs a clinical reviewer. Adding a **category** is a supported extension and
+has its own page — [Category palettes](../../theming/category-palettes.mdx).
+
+### What happens when you change one
+
+- **Add:** a minor version. Document it on the relevant Foundations page, and
+  the generated token tables pick it up automatically.
+- **Change a value:** a minor version if it stays within the contrast floor, and
+  a change that must be regenerated and committed — `check-contrast.mts` will
+  fail CI otherwise. If it moves a pair below the floor, it is not a token
+  change, it is a bug.
+- **Rename:** a major version. Ship the old name as an alias resolving to the
+  new one for at least one minor cycle, list it in
+  [Deprecations](../../project/deprecations.mdx), and emit a development-mode
+  warning with an [error code](../error-codes.mdx).
+- **Remove:** a major version, after a deprecation period during which the token
+  still resolves.
+
+## Do this
+
+- **Edit the JSON, run `pnpm run generate`, commit both.** CI regenerates and
+  fails on any diff, so an uncommitted regeneration is caught immediately.
+- **Name from general to specific** — axis, member, role. See [Naming
+  conventions](../naming-conventions.mdx).
+- **Define both themes.** A token defined only in light is a bug that ships.
+- **Run `pnpm run contrast` and read the output**, not just its exit code. A pair
+  that passes at Lc 62 today is one design tweak away from failing.
+- **Say what the token controls, in the JSON.** The third column of the generated
+  token table — "used by" — is what turns a list into a decision aid, and it
+  comes from what you write.
+
+## Not this
+
+- **Do not add a token for one component's one-off need.** That is a
+  `className`. A token is for a value that more than one place should agree on.
+- **Do not add a fifth status level.** Not "unknown", not "stale", not
+  "possibly". Staleness withdraws the status axis rather than extending it; see
+  [Offline and stale data](../../patterns/offline-and-stale-data.mdx).
+- **Do not create a category token that varies with a value.** That is the
+  status axis wearing a category name, and it is the failure the whole system is
+  built to prevent.
+- **Do not hand-edit `app/tokens.generated.css`.** It is overwritten.
+- **Do not change a token to fix one screen.** Fix the screen; a token change
+  moves every screen.
+
+## Gotchas
+
+- **A missing token resolves to nothing, silently.** No console error, no
+  fallback, just an unstyled property. This is the whole reason renames are a
+  major version.
+- **Tailwind derives utility class names from token names**, so renaming a token
+  also renames a class somebody may have used.
+- **`build-tokens.mts` runs on Node 24** and uses native `.mts` type stripping;
+  on an older Node it fails with a syntax error that does not mention the
+  version. Each script carries a version guard for that reason.
+- **The generated CSS has a fixed position in `globals.css`** — between the lyra
+  blocks and `@layer base`. Moving the `@import` changes which declarations win.
+- **The published contrast numbers describe the shipped presets only.** A
+  consumer's custom theme is their responsibility; see [Validating your
+  theme](../../theming/validating-your-theme.mdx).
+
+## Related
+
+- [Token architecture](../../foundations/token-architecture.mdx) — the three
+  tiers and which one you may touch.
+- [Adding your own tokens](../../theming/adding-your-own-tokens.mdx) — extending
+  the system as a consumer rather than a contributor.
+- [Category palettes](../../theming/category-palettes.mdx) — adding a category
+  without contaminating the status axis.
+- [Versioning policy](../../project/versioning-policy.mdx) — what semver covers.

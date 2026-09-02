@@ -1,0 +1,108 @@
+name: Documentation problem
+description: Something in the documentation is wrong, missing, unclear, or unsafe.
+title: "docs: "
+labels: ["documentation"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting this.
+
+        **If this is a clinical safety concern** - guidance that could lead a product
+        to mislead someone about their own health - say so in the first box and add
+        the `safety` label if you can. Those are triaged first, ahead of everything
+        else, including bugs.
+
+        **If you found a security vulnerability**, do not open an issue. Follow the
+        process on the Security page instead.
+
+        The **Page** and **Docs version** fields below are pre-filled when you arrive
+        here from the "Report a problem" link at the bottom of a documentation page.
+        If you got here another way, pasting the URL is enough.
+
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: The URL or the file path, for example `/docs/health/two-colour-axes` or `content/docs/health/two-colour-axes.mdx`.
+      placeholder: /docs/...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of problem is it?
+      options:
+        - Wrong - the page states something that is not true
+        - Unsafe - the guidance could lead to a product misleading someone about their health
+        - Missing - the page does not answer a question it should
+        - Unclear - the page answers it, but a reader would not find or follow it
+        - Stale - the page describes something that has changed
+        - Broken - a link, a code block, an example or a table does not work
+        - Machine surface - llms.txt, a .md twin, /r or the MCP server
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong
+      description: |
+        Quote the sentence or the table row if you can. If the page is missing something,
+        say what question you came with - the question is more useful to us than a
+        proposed heading.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+      description: |
+        What would have answered your question? If you know the correct answer, say it
+        here - we would rather correct a page from your words than guess at them.
+    validations:
+      required: false
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence, if this is a health or accessibility claim
+      description: |
+        A link, a DOI, a standard and its clause, or a device you tested with. If you are
+        stating an opinion, say so - an honest opinion is genuinely useful here, and a
+        plausible-looking citation that turns out not to exist is the single most damaging
+        thing that can end up in this repository. Please do not paste NHS or other
+        Crown-copyright text; a citation is what we need.
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: Docs version
+      description: The version stamp at the foot of the page, if you have it.
+      placeholder: e.g. 0.0.0 (unreleased)
+    validations:
+      required: false
+
+  - type: input
+    id: environment
+    attributes:
+      label: Where you were reading
+      description: Browser, operating system, screen reader, text size or zoom level - whichever is relevant.
+      placeholder: e.g. Safari 18, iOS, VoiceOver, text at 200%
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: acknowledgements
+    attributes:
+      label: Before you submit
+      options:
+        - label: I have checked that this is not already reported.
+          required: false
+        - label: I understand that opsinjs is a presentation layer, that it is not a medical device, and that it does not decide clinical thresholds, triage or diagnosis.
+          required: true

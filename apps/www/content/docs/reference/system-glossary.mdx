@@ -1,0 +1,67 @@
+---
+title: System glossary
+description: The words opsinjs uses about itself — rung, axis, role, base, style, preset — each with one definition and the page that owns it.
+status: stable
+kind: reference
+owner: engineering
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 12m
+aliases: [rung, base vs style, preset code, what is a ladder, system vocabulary]
+---
+
+<PageTemplate kind="reference" />
+
+This is the vocabulary of the **system**, not of health. If you are looking for
+*HbA1c*, *reference range* or *systolic*, you want the
+[Plain-English A–Z](../content/plain-english-a-z.mdx), which is written for
+readers of your app rather than builders of it. The two glossaries never define
+the same word; where a word genuinely has two meanings — `status` is the one that
+bites — both are listed here with the disambiguation spelled out.
+
+## How this is generated
+
+It is not, and this is the only page in Reference that is hand-written on
+purpose. A project's terms of art have no machine-readable source: they exist in
+prose, and a generator that scraped them from headings would produce a list of
+headings, not a glossary. Inventing a `tokens/system-glossary.json` so that this
+page could claim to be generated would add a file nobody maintains and a
+provenance claim that means nothing.
+
+What *is* enforced is the other half of the rule: every term below names the page
+that owns its definition, and `assert-ia.mts` treats a term whose owning page has
+disappeared as a broken cross-reference. A definition here may summarise; it may
+never contradict.
+
+| Term | What it means | Owned by |
+| --- | --- | --- |
+| **alias** | A search synonym declared in a page's frontmatter. Aliases are indexed, emitted into `llms.txt` and into `/r/index.json`, and are globally unique across the corpus. | [Catalogue](generated/catalogue.mdx) |
+| **axis** | One of the two independent colour dimensions. The **status axis** carries clinical urgency; the **category axis** carries subject identity. They never combine on one element. | [The two colour axes](../health/two-colour-axes.mdx) |
+| **base** | A behaviour implementation of a component — the React code. `base` is the only base that exists; the segment is in the URL of every machine surface so that adding a second one is additive rather than a migration. | [Namespaces](../registry/namespaces.mdx) |
+| **catalogue** | The single declared list of every component id, shipped or considered, with its category, status and aliases. `registry/catalogue.ts` is its only definition. | [Catalogue](generated/catalogue.mdx) |
+| **category** | A subject area a value belongs to — the identity axis. A category colour says what a number is about; it never says how worried to be. | [Category identity](../health/category-identity.mdx) |
+| **chrome** | The documentation site's own interface: sidebar, header, search. Themed with lyra, deliberately unlike the product theme. | [Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx) |
+| **considered** | A catalogue row with no implementation and no specification: a name we have reserved and an answer to "does opsinjs have one of these" that is not a 404. | [Release phases](../project/release-phases.mdx) |
+| **doctrine** | A rule page that constrains components rather than describing one — everything under Health, Accessibility and Content & language. Doctrine names the components it governs; components name the doctrine that governs them. | [Health](../health/index.mdx) |
+| **foundation** | A cross-cutting system layer with tokens of its own: colour, materials, motion, typography, shape, space, and the rest. | [Foundations](../foundations/index.mdx) |
+| **generated marker** | The comment pair `opsinjs:generated:begin` / `opsinjs:generated:end`. Content between them is written by a script and is erased on the next run. | [Reference](index.mdx) |
+| **ladder** | An ordered set of surface treatments — the six material rungs — where position carries meaning. Distinct from a *scale*, whose steps are sizes rather than meanings. | [The ladder](../foundations/materials/the-ladder.mdx) |
+| **namespace** | The `@opsinjs` prefix a consumer registers in `components.json` so that `npx shadcn add @opsinjs/result-card` resolves here. | [Namespaces](../registry/namespaces.mdx) |
+| **pillar** | A top-level group in the sidebar. Sixteen exist; a page belongs to exactly one. | [Reading these docs](../start/reading-these-docs.mdx) |
+| **preset** | A complete theme expressed as values rather than code — the token overrides that turn the system a particular colour. | [Preset codes](../registry/preset-codes.mdx) |
+| **preset code** | The short opaque string, `opsinjs-*`, that encodes a preset for a URL or a CLI flag. Decodable, versioned, and not a secret. | [Preset codes](../registry/preset-codes.mdx) |
+| **product theme** | The theme opsinjs components render under: squircle corners, `system-ui`, generous spacing. Every `/view` route and every component preview uses it. The docs chrome does not. | [Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx) |
+| **ramp** | A perceptually even series of steps generated from one colour in OKLCH, clamped for gamut and checked for contrast. Each axis colour has one. | [How the engine works](../foundations/colour/how-the-engine-works.mdx) |
+| **recipe** | A task-shaped page: components plus tokens plus copy rules for one job, in one scroll. | [Recipes](../recipes/index.mdx) |
+| **registry item** | The JSON document describing one distributable unit — files, dependencies, target paths — in the shadcn registry schema. Served from `/r`. | [registry-item.json](../registry/registry-item-json.mdx) |
+| **role** | A semantic colour slot — surface, line, ink, accent — filled by a ramp step. Components consume roles; they never consume ramp steps directly. | [Colour roles](../foundations/colour/colour-roles.mdx) |
+| **rung** | One step of the material ladder, identified by its position in the stacking order rather than by a blur radius. | [The ladder](../foundations/materials/the-ladder.mdx) |
+| **scale** | An ordered set of sizes — type, space, radius — named by intent rather than by t-shirt size. | [Token architecture](../foundations/token-architecture.mdx) |
+| **screen** | A whole-screen specimen: several components under one layout, used to show what the parts do together. | [Screens](../screens/index.mdx) |
+| **spec stub** | A page for a component that does not exist, carrying a real specification and a machine-readable not-implemented marker. Not a placeholder. | [Release phases](../project/release-phases.mdx) |
+| **status (clinical)** | One of the four ordinal levels — steady, watch, attention, urgent — describing a value's relationship to what is expected for a person. | [Clinical status semantics](../health/clinical-status-semantics.mdx) |
+| **status (release)** | One of the six phases — considered, planned, alpha, beta, stable, deprecated — describing how much of a promise a page or a component is making. | [Release phases](../project/release-phases.mdx) |
+| **style** | A visual variant applied as CSS only, never as behaviour. `base-lyra` is the default. Styles are addressable in `/view` and `/r` URLs; documentation pages have exactly one canonical URL regardless of style. | [Namespaces](../registry/namespaces.mdx) |
+| **tier** | Which of the three levels a token sits at: primitive (a raw value), semantic (a role), or component (a part). Components read semantic and component tiers only. | [Token architecture](../foundations/token-architecture.mdx) |
+| **twin** | The `.md` version of any documentation page, served by appending `.md` to its URL. Processed markdown, not raw MDX. | [Raw markdown API](../agents/raw-markdown-api.mdx) |
+| **version stamp** | The comment written into every emitted source file naming the component and the version it was copied at, so a fork can be told what it is missing. | [Version stamps](../registry/version-stamps.mdx) |

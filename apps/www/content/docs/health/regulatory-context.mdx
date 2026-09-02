@@ -1,0 +1,208 @@
+---
+title: Regulatory context
+description: A starting map of the regimes that may apply to a consumer health product — what they ask of you, what opsinjs contributes, and the large amount it does not.
+status: stable
+kind: health
+evidence: mixed
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+owner: design-system
+implements: [disclaimer-note, consent-sheet, care-card, source-citation]
+aliases: [DCB0129, DCB0160, MDR, SaMD, FDA, CE mark, UKCA, regulation, compliance]
+---
+
+<PageTemplate kind="health" />
+
+<SafetyCallout severity="attention" evidence="opinion">
+  This page is a map written by designers and engineers, to help you work out
+  which conversation to have and with whom. It is not legal or regulatory advice,
+  it is not current by definition, and it must not be used as a compliance
+  assessment. Every regime named here should be read in its current published
+  form with your regulatory, clinical safety and legal advisers.
+</SafetyCallout>
+
+## What this means
+
+Teams building consumer health software usually discover regulation in one of two
+ways. Either someone asks early, gets a frightening answer, and the product is
+scoped conservatively; or nobody asks, the product ships, and the question
+arrives later attached to a customer, an investor or a regulator.
+
+The uncomfortable truth is that the boundary is genuinely blurred. A step counter
+is not a medical device. Software that takes a person's readings and tells them
+what to do about them may well be one, and the line between "displaying
+information" and "supporting a decision" is exactly where consumer health
+products live. Several of the design decisions in this documentation — no
+diagnosis, no prognosis, thresholds owned by you, provenance stated — are
+positioned deliberately with respect to that line.
+
+What a design system can do here is small and worth being precise about. opsinjs
+can make certain evidence easier to produce: a documented, versioned
+justification for interface decisions, measured accessibility conformance, and a
+clear statement of which decisions the system took and which it left to you. It
+cannot make your product compliant with anything.
+
+## The rule
+
+**Establish which regimes apply before you design the surfaces that might trigger
+them, and treat opsinjs as documentation input, never as a compliance claim.**
+
+### The regimes to ask about
+
+**NHS clinical risk management standards (England).** Two information standards
+govern the clinical risk management of health IT. **DCB0129** applies to the
+manufacture of health IT systems; **DCB0160** applies to their deployment and
+use by a health organisation. In practice they require a named clinical safety
+officer, a hazard log, a clinical safety case and evidence that identified
+hazards have been mitigated. If you intend to sell into the NHS, this is usually
+the first conversation, and it arrives earlier than you expect. Read the current
+published standards; do not rely on a summary, including this one.
+
+**EU and UK medical device regulation.** Under the EU Medical Device Regulation
+(Regulation (EU) 2017/745), software can be a medical device in its own right,
+and the classification rule for software — Rule 11 in the Regulation's
+classification annex — pushes a great deal of decision-supporting software above
+the lowest risk class. The UK has its own regime and its own route to market, and
+the two have diverged. The question to ask is not "are we a medical device" in
+the abstract but "what is our intended purpose, as stated in our own marketing
+and interface copy" — because intended purpose is what determines the answer, and
+your product copy is evidence of it.
+
+**United States.** Software as a Medical Device is the international framing;
+domestically the FDA's approach to clinical decision support software, and the
+statutory exclusions for certain software functions introduced by the 21st
+Century Cures Act, are where consumer health products usually sit or try to sit.
+The distinction between software that informs a person and software that directs
+a decision matters a great deal, and the current guidance documents are the place
+to establish where you fall.
+
+**Data protection.** Health data is a special category under the UK and EU GDPR
+with additional conditions on processing; other jurisdictions have their own
+regimes, and in the United States the applicability of HIPAA depends on who you
+are rather than on what the data is — a consumer app is frequently outside it,
+which surprises people in both directions. See
+[Consent and disclosure](./consent-and-disclosure.mdx).
+
+**Accessibility law.** In the EU, the European Accessibility Act brings certain
+consumer-facing digital products into scope; in the UK, public sector bodies have
+accessibility regulations and the Equality Act applies more broadly; in the US,
+the ADA has been applied to digital services and Section 508 governs federal
+procurement. opsinjs contributes real evidence here — see
+[Conformance report](../accessibility/conformance-report.mdx) — but the
+obligation is on your product.
+
+### What opsinjs contributes, precisely
+
+- **Design decisions with recorded rationale and dates**, which is a common gap
+  in a clinical safety case: hazard mitigations that rest on interface behaviour
+  need a citable justification for that behaviour.
+- **Measured accessibility conformance** for the system's own tokens and, when
+  components exist, for the components — dated, reproducible and published.
+- **An explicit statement of the boundary**: thresholds, ranges, clinical wording
+  and interpretation are yours, stated on every page that touches them.
+- **A vocabulary for hazards.** The prohibitions on
+  [Clinical interaction guidelines](./clinical-interaction-guidelines.mdx) map
+  reasonably well onto interface hazards in a hazard log.
+
+### What opsinjs does not do
+
+- Confer, imply or support any regulatory status.
+- Constitute a clinical safety case, a hazard log, or evidence of clinical risk
+  management under any standard.
+- Make your product a non-device, or keep it one.
+- Provide legal, regulatory or clinical advice.
+
+## Why (evidence)
+
+<ResearchNote evidence="mixed" date="2026-09-02">
+  **Cited by name, not summarised.** DCB0129, DCB0160, Regulation (EU) 2017/745,
+  the UK medical devices regime, the FDA's clinical decision support guidance and
+  the 21st Century Cures Act software provisions are all real, published,
+  findable documents. We name them so you know what to search for and we
+  deliberately do not paraphrase their requirements. Regulatory text changes,
+  paraphrases decay, and a decayed paraphrase in a design system is worse than a
+  blank page because someone will rely on it.
+
+  **Opinion.** The claim that a design system can contribute usefully to a
+  clinical safety case is ours, and it is modest: documented, dated design
+  rationale is an input, not a mitigation. We have not had that claim tested by a
+  clinical safety officer against a real hazard log, and until we have we will not
+  put it more strongly.
+
+  We also state an opinion about sequencing that teams often get wrong: the
+  regulatory question should be asked before the product's copy is written,
+  because intended purpose is established partly by what you say your product
+  does. It is easier to design within a boundary than to rewrite an interface
+  that has already claimed to interpret results.
+
+  What would change our mind: a clinical safety officer's assessment of what is
+  actually useful to them from an upstream design system. We would rewrite this
+  section around it.
+</ResearchNote>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    Write your intended purpose down in one paragraph, early, and check every
+    piece of interface copy against it. "Helps you record and view your readings"
+    and "tells you what your readings mean" are different products.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Let marketing copy make a claim the product is not built or regulated to
+    make. Intended purpose is established by what you say, and your own screens
+    are the evidence.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Keep a hazard log from the first sprint, and add an entry each time a screen
+    could mislead someone. Interface hazards are the cheapest to mitigate early.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Start clinical risk management when the NHS procurement questionnaire
+    arrives. Retrofitting a safety case onto a finished product is a rebuild in
+    disguise.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Cite opsinjs as design rationale where it helps — "the alert escalation model
+    follows a published, dated specification" — with a link and a version.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Present opsinjs as evidence of compliance. It is not, it says so, and a
+    reviewer will read the page.
+  </DoDont.Dont>
+</DoDont>
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+`DisclaimerNote` is the only component in the system whose placement is governed
+by rule rather than by judgement: where a surface could be read as clinical
+advice, the disclaimer is on that surface and not in a policy page. Its
+specification requires the text to be provided by the product, because a generic
+disclaimer shipped by a design system would be exactly the kind of claim this
+page warns against.
+
+## What this does not cover
+
+- **Everything.** This is a map of where to look, not a survey of the field, and
+  it names only the regimes we most often see consumer health teams encounter.
+- **Jurisdictions beyond the UK, EU and US**, which have their own regimes.
+- **Quality management systems**, clinical evaluation, post-market surveillance
+  and vigilance — the substantial machinery that follows if you are a device.
+- **Clinical governance** inside a health organisation, which is separate again
+  from device regulation.
+- **Reimbursement, procurement and assurance frameworks**, which frequently ask
+  harder practical questions than the regulator does.
+- **Advice.** Get advice.
+
+## Updates to this page
+
+<Reviewed />

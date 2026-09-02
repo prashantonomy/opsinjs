@@ -1,0 +1,110 @@
+---
+title: Icons
+description: Bring your own icon set — the slot contract, the sizing rule, and the hard prohibition on an icon carrying clinical status by itself.
+status: planned
+kind: handbook
+aliases: [icon slot contract, bring your own icons, passing an icon prop, which icon set]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="handbook" />
+
+## The short version
+
+<NotBuiltYet />
+
+opsinjs will not ship an icon library and will not depend on one. Components
+that show an icon accept it as a node:
+
+```tsx
+<AlertBanner icon={<TriangleAlert aria-hidden />}>…</AlertBanner>
+```
+
+Anything that renders an SVG works — lucide, Phosphor, Heroicons, your own set.
+What opsinjs specifies is the **slot contract**: the size the icon is expected
+to occupy, how it aligns to the text baseline, how it inherits colour, and the
+accessibility expectation that it is decorative unless you say otherwise.
+
+This documentation site uses lucide, because the shadcn CLI configured it and
+one icon library in a tree is better than two. That is a fact about the docs,
+not a dependency of the system.
+
+## How it works
+
+- **Size comes from the slot, not from the icon.** The component sets a size on
+  its icon container; an icon that sets its own `width` and `height` will fight
+  it. Most libraries accept a `size` prop or respect `width: 1em`.
+- **Colour is inherited.** Icons use `currentColor` so they take the status or
+  category colour from the surface they sit on. An icon with a hardcoded fill
+  will be wrong in dark mode, wrong under increased contrast, and wrong in every
+  theme but the one it was drawn for.
+- **Alignment is optical, not geometric.** The slot applies the alignment
+  correction; you do not need a `relative -top-px`, and adding one will
+  double-correct.
+- **The icon is decorative by default.** `aria-hidden` on the SVG, and the
+  meaning carried by adjacent text. An icon with an accessible name in a
+  component that also has a label produces a double announcement.
+
+## Do this
+
+- **Pass `aria-hidden` on decorative icons**, which is nearly all of them.
+- **Give an icon-only control a real accessible name** on the control, not on
+  the icon: `<button aria-label="Dismiss">`. And ask whether it should be
+  icon-only at all — see [Cognitive
+  accessibility](../accessibility/cognitive-accessibility.mdx).
+- **Use one icon library per application.** Two sets have different stroke
+  weights, different optical sizes and different metaphors for the same idea,
+  and the mismatch is visible even to readers who cannot name it.
+- **Keep the same icon for the same meaning everywhere.** An icon's value is
+  entirely in its consistency.
+- **Check the icon at 200% text.** If it does not scale with the text, the
+  layout breaks exactly where a reader who needs large text is looking.
+
+## Not this
+
+- **Never let an icon carry clinical status on its own.** A triangle is not
+  "attention" to a reader who has not been taught it, is invisible to a screen
+  reader when decorative, and is indistinguishable from its neighbours in
+  grayscale. Status is carried by a word; the icon reinforces it. See
+  [Colour independence](../accessibility/colour-independence.mdx).
+- **Do not use medical symbols that imply clinical authority.** A caduceus, a
+  stethoscope, a red cross or anything resembling a regulatory mark asserts
+  that a clinician stands behind what is on screen. See
+  [Health glyphs](../foundations/iconography/health-glyphs.mdx).
+- **Do not import a whole icon library.** Import the icons you use; a barrel
+  import of a thousand SVG components is a bundle-size problem that tree-shaking
+  does not always solve.
+- **Do not hardcode a fill or a stroke colour.**
+- **Do not animate an icon to attract attention.** See
+  [Motion in health UI](../health/motion-in-health-ui.mdx).
+
+## Gotchas
+
+- **`aria-hidden` on a focusable element is invalid.** If the icon is inside a
+  button, hide the icon, not the button.
+- **A `<title>` inside an SVG becomes a tooltip and an accessible name.** Icon
+  libraries add one when you pass a `title` prop, which is usually not what you
+  wanted alongside a labelled control.
+- **Stroke-based icons thin out at small sizes** and can fall below the contrast
+  floor even though the colour token passes — contrast is measured on the token
+  pair, not on a one-pixel stroke.
+- **Sizing in `px` breaks Dynamic Type.** Use `em` or a token so the icon scales
+  with the text around it; see [Dynamic
+  type](../foundations/typography/dynamic-type.mdx).
+- **Icon fonts are not icons.** They fail with a font-blocking setting, they are
+  read aloud as characters by some screen readers, and they cannot inherit two
+  colours.
+- **Right-to-left flips some icons and not others.** A directional arrow flips;
+  a clock does not. See [Internationalisation](./internationalisation.mdx).
+
+## Related
+
+- [Iconography](../foundations/iconography/index.mdx) — the foundation: what an
+  icon may and may not carry.
+- [Health glyphs](../foundations/iconography/health-glyphs.mdx) — the
+  prohibition on symbols implying clinical authority.
+- [Colour independence](../accessibility/colour-independence.mdx) — why the word
+  and not the glyph carries status.
+- [Icon inventory](../foundations/iconography/icon-inventory.mdx) — the icons
+  this site uses and what each one means.

@@ -1,0 +1,193 @@
+---
+title: Skeleton
+description: A grey placeholder in the shape of the content that is loading, so the page does not jump when it arrives — and never in the shape of a number.
+status: planned
+kind: component
+since: "unreleased"
+category: feedback
+aliases: [loading placeholder, shimmer, loading state, placeholder]
+usedIn: [results-screen, trends-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="skeleton"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "How long before a skeleton is worse than nothing? Below some threshold it flashes; above another it should become an explicit slow-loading message.",
+    "Does the shimmer survive prefers-reduced-motion as a static tint, or does the whole treatment change?",
+    "Is a skeleton ever allowed in the shape of a value, a dial or a bar — and if not, what does a loading health metric look like?",
+    "What is announced, and when? Announcing 'loading' for every skeleton on a dashboard is worse than announcing nothing.",
+  ]}
+/>
+
+Skeletons are a layout tool that products routinely turn into a truth claim. A grey rounded
+rectangle where a blood pressure reading will be tells the reader that a reading exists, and
+sometimes one does not.
+
+## Preview
+
+The preview will show skeletons under `prefers-reduced-motion` and at the durations where a
+skeleton stops helping.
+
+<ComponentPreview name="skeleton" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail.
+
+<ComponentInstall name="skeleton" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Content whose size and position are known in advance, arriving within roughly a second, where the alternative is the layout jumping when it lands.",
+    "Lists and grids where a known number of items is loading and the reader benefits from seeing the shape of what is coming.",
+    "Any surface where a spinner would replace a whole screen with nothing.",
+  ]}
+  avoid={[
+    { case: "There is nothing coming — the surface is genuinely empty.", instead: "empty-state" },
+    { case: "Loading failed.", instead: "alert-banner" },
+    { case: "The wait is long enough that the reader needs to know it is a long wait.", instead: "callout" },
+    { case: "The shape and size of what is coming are unknown, so the skeleton would guess.", instead: "spinner" },
+    { case: "A single control is busy after the reader pressed it.", instead: "button" },
+  ]}
+/>
+
+The last exclusion matters more than it looks. A button that has been pressed should show its
+own busy state in place, keeping its label and its size; replacing it with a skeleton loses
+the reader's place and the button's meaning at once.
+
+## Anatomy
+
+<Anatomy name="skeleton" />
+
+<CompositionTree name="skeleton" />
+
+**Block** is one placeholder shape. **Group** arranges several to match a known layout.
+**Shimmer** is the optional movement, which is a preference and never a signal. The component
+is deliberately tiny: everything that makes a skeleton good is a decision about what shapes to
+use and for how long, and neither is something a component can decide.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+Skeleton                       root; presentational, aria-hidden
+├── Skeleton.Group             arranges blocks to match a known layout
+└── Skeleton.Block             one placeholder shape
+```
+
+## Proposed API
+
+<NotBuiltYet name="skeleton" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+export interface SkeletonProps {
+  /**
+   * The shape being stood in for. There is deliberately no "value", "dial" or
+   * "bar" variant: a placeholder shaped like a measurement asserts that a
+   * measurement is coming, and sometimes none is.
+   */
+  shape?: "text" | "line" | "block" | "circle"
+  /** Number of lines for the text shape. The last is rendered shorter. */
+  lines?: number
+  /**
+   * Delay in milliseconds before the skeleton appears. Content that arrives
+   * faster than this never shows one, which removes the flash.
+   */
+  appearAfterMs?: number
+  /** Movement is a preference, never a signal. Off under reduced motion. */
+  shimmer?: boolean
+}
+```
+
+## Content guidelines
+
+A skeleton contains no content, which is the point. The guideline is about the surrounding
+copy: once a wait passes the point where a skeleton is reassuring, replace it with words —
+*this is taking longer than usual* — because a skeleton that has been there for eight seconds
+reads as a frozen app.
+
+Never place a skeleton where a value will not be. If a reading may not exist, the honest
+loading state resolves into an [EmptyState](./empty-state.mdx), and the loading treatment
+should not have promised otherwise.
+
+<DoDont>
+  <DoDont.Do>
+    **Three text lines and a block where a result card is loading**, resolving into the card
+    at the same size.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A large rounded rectangle where the blood pressure number goes.** It says a number is
+    coming. When the answer is *we have no reading for you*, the product has already implied
+    otherwise.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **No skeleton at all below about 200 milliseconds**, using the appearance delay.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A skeleton that flashes for one frame on every navigation.** It is noise, it draws the
+    eye, and it makes a fast product feel unstable.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **Skeletons are hidden from assistive technology.** They convey nothing; announcing eleven
+  of them is worse than silence.
+- **The loading region announces once, politely**, through a single status message on the
+  region — *loading your results* — not once per skeleton.
+- **The shimmer is off under `prefers-reduced-motion`**, leaving a static tint. Movement
+  across a large area is a genuine trigger for some readers, and it carries no information
+  here — see [Reduced motion](../accessibility/reduced-motion.mdx).
+- **Skeleton fills meet the non-text contrast expectation** against their background in both
+  themes, so the placeholder is visible to readers with low vision rather than being an almost
+  invisible grey on grey.
+- **The resolved content occupies the same space**, so nothing shifts when it lands. Layout
+  shift is a usability failure and a measurable one.
+- **At 200% text the skeleton matches the size the real content will take at 200%**, not the
+  size it takes at 100%.
+- **Print** renders nothing. A printed page has no loading state.
+
+<KeyboardTable name="skeleton" />
+
+<ContrastReport component="skeleton" />
+
+## Related
+
+<RelatedComponents name="skeleton" />
+
+**Easily confused with**
+
+- [EmptyState](./empty-state.mdx) — for when nothing is coming. Confusing the two in either
+  direction misleads the reader about whether their data exists.
+- `spinner` (considered, no page yet — see the [roster](./index.mdx)) — for waits whose shape
+  is unknown.
+- [Surface](./surface.mdx) — skeletons frequently sit on one, and that pairing is where
+  reduced transparency and reduced motion interact.
+- [Button](./button.mdx) — owns its own busy state; never replace a pressed button with a
+  skeleton.
+
+**Used by**
+
+- [Results screen](../screens/results-screen.mdx)
+- [Trends screen](../screens/trends-screen.mdx)
+
+**Governed by**
+
+- [Data states](../foundations/data-states.mdx)
+- [Reduced motion](../foundations/motion/reduced-motion.mdx)
+- [Interaction states](../foundations/interaction-states.mdx)

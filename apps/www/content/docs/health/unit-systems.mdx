@@ -1,0 +1,189 @@
+---
+title: Unit systems
+description: mmol/L against mg/dL, kilograms against stones and pounds, Celsius against Fahrenheit — a correctness surface where the wrong answer is a plausible number, not an error.
+status: stable
+kind: health
+evidence: opinion
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 12m
+owner: design-system
+implements: [value, reading-input, result-card, range-bar, metric-tile]
+aliases: [mmol/L, mg/dL, imperial, metric, stone, fahrenheit, unit conversion]
+---
+
+<PageTemplate kind="health" />
+
+## What this means
+
+Unit systems look like a localisation problem. They are not. Localisation
+failures are visible: a missing translation shows a key, a wrong date format
+looks wrong. A unit failure produces a number that is entirely plausible and
+entirely wrong.
+
+Blood glucose is the canonical example. Much of the world reports it in mmol/L,
+where everyday values are single digits with one decimal. The United States
+reports the same measurement in mg/dL, where everyday values are in the tens and
+hundreds. A person who has learnt one scale and is shown the other, unlabelled,
+has no way to notice: the number is simply not the number they expected, and the
+most natural interpretation of an unexpected number in a health app is that
+something has changed about their body.
+
+Body weight has the same problem in a different shape. Someone who thinks in
+stones and pounds and is shown `11.3` will read it as eleven stone three pounds.
+It is eleven point three stone — eleven stone four — and the difference is a
+pound. Small, until it is a paediatric dose calculation.
+
+Temperature is the mild case, because the ranges do not overlap plausibly, and it
+is still worth getting right because a fever threshold expressed in the wrong
+scale is a wrong threshold.
+
+## The rule
+
+**The unit system is a user preference, stored, respected everywhere, and never
+inferred silently. A converted value is labelled as converted, and conversion
+happens once, at the display boundary.**
+
+1. **Store canonically, display by preference.** One canonical unit per metric in
+   storage and in every API. Conversion is a rendering concern and never round
+   trips through storage.
+2. **The preference is explicit and per-metric-family where it matters.** People
+   genuinely do think in kilograms for weight and feet and inches for height, and
+   the system must let them.
+3. **Never infer the system from the locale alone.** Locale is a reasonable
+   default and a bad assumption: people move, clinicians and patients differ, and
+   a device may report in a system the reader does not use.
+4. **Never convert silently.** If a reading arrived in one system and is shown in
+   another, say so: "Converted from 98 mg/dL."
+5. **Ranges, thresholds and statuses convert with the value.** A range in mg/dL
+   compared against a value in mmol/L is a silent, catastrophic bug, and it is
+   the reason conversion belongs at the boundary rather than sprinkled through
+   comparison code.
+6. **Round after conversion, using the destination metric's precision** — and
+   accept that a round trip is lossy. Never re-derive an original value from a
+   rounded conversion.
+7. **On input, the unit is part of the field**, always visible, switchable in
+   place, and remembered. See
+   [Units and numeric entry](../patterns/forms/units-and-numeric-entry.mdx).
+8. **Compound imperial values are entered compound.** Stones and pounds is two
+   inputs, feet and inches is two inputs. Asking someone for `11.3 st` is asking
+   them to do arithmetic in a form.
+9. **Plausibility-check on entry against the entered unit**, and question rather
+   than reject: "That is much higher than your usual readings — is it in mg/dL?"
+10. **Exports, shares and print carry the unit unambiguously**, because the
+    recipient may not share the reader's preference. See
+    [Sharing with a clinician](../patterns/sharing-with-a-clinician.mdx).
+
+The units that need explicit handling in a consumer health product:
+
+| Measurement | Common systems | The specific hazard |
+| --- | --- | --- |
+| Blood glucose | mmol/L · mg/dL | Both plausible; ranges do not overlap but neither looks wrong |
+| Cholesterol | mmol/L · mg/dL | As above, with more sub-measures to get wrong |
+| Body weight | kg · lb · st + lb | Decimal stone misread as stone-and-pounds |
+| Height | cm · ft + in | Compound entry; decimal feet is meaningless to most readers |
+| Temperature | °C · °F | Fever thresholds are scale-specific |
+| Blood pressure | mmHg (universal) | Rarely converted, frequently mis-composed |
+| Distance | km · miles | Low stakes, high visibility, still worth consistency |
+| Energy | kcal · kJ | Factor of about four; both called "calories" colloquially |
+
+## Why (evidence)
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  This page is opinion. We cite no study, and the argument does not need one: the
+  failure mode is arithmetic, and the reason it is dangerous is that it is
+  undetectable by the reader.
+
+  The one claim worth stating carefully is the design decision to treat units as
+  a **correctness** surface rather than a localisation surface, and to ship them
+  now rather than behind an internationalisation layer. The reasoning is
+  recorded in the project's decision log: translation can be retrofitted onto
+  strings, but a comparison between a value in one unit and a threshold in
+  another is a defect that a translation layer would never surface. See
+  [No lang segment yet](../project/decisions/0005-no-lang-segment-yet.mdx).
+
+  We also state plainly that we do not ship conversion factors as clinical
+  content. Conversions between molar and mass concentration depend on the
+  molecular weight of the substance being measured, which means the factor is a
+  property of the analyte, not of the units. Publishing a table of factors here
+  would invite someone to apply the glucose factor to cholesterol. Your clinical
+  source owns the factor; the interface owns the labelling.
+
+  What would change our mind: nothing about the rules. The open question is where
+  the preference should live — per user, per metric family, or per device — and
+  we have chosen per metric family on judgement alone.
+</ResearchNote>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    "5.4 mmol/L" with a visible, tappable unit control, and the reader's choice
+    remembered across the whole product.
+  </DoDont.Do>
+  <DoDont.Dont>
+    "5.4" with the unit in a legend at the bottom of the screen, or only in the
+    chart axis. The value and its unit travel together or not at all.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "11 st 4 lb" as two labelled inputs, stored as kilograms, displayed back in
+    the same form it was entered.
+  </DoDont.Do>
+  <DoDont.Dont>
+    "11.3 st" in a single decimal field. Almost every reader will enter or read
+    it as stones and pounds, and the app will be a pound out without complaint.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "This reading came from your meter in mg/dL. Shown here as 5.4 mmol/L."
+    Provenance and conversion stated together.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Convert on import and store the converted value. The original is now
+    unrecoverable, and every later precision decision inherits the rounding.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    Default from locale, then ask once, plainly, in onboarding: "Which units do
+    you use for weight?"
+  </DoDont.Do>
+  <DoDont.Dont>
+    Infer from the device region and never ask. A UK phone does not mean a
+    kilogram reader, and the app will be silently wrong for the whole
+    relationship.
+  </DoDont.Dont>
+</DoDont>
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+`Value` and `ReadingInput` are specified as the only two places a unit system is
+resolved: one for display, one for entry. Everything else passes canonical values
+around, which is what makes rule 5 structurally true rather than a thing to
+remember.
+
+## What this does not cover
+
+- **Conversion factors and clinical correctness.** opsinjs ships no factors and
+  no thresholds. The analyte determines the factor; your clinical source owns it.
+- **Translation of the surrounding language**, which is
+  [Internationalisation](../handbook/internationalisation.mdx).
+- **Number formatting itself**, which is canonical at
+  [Numbers, units and precision](./numbers-units-precision.mdx).
+- **Dose calculation of any kind.** If your product calculates a dose, unit
+  handling is a safety-critical function and this page is not sufficient.
+- **Non-SI clinical units** that are neither metric nor imperial — international
+  units, and unit systems specific to a single assay. Handle them as their own
+  metric with a fixed unit.
+
+## Updates to this page
+
+<Reviewed />

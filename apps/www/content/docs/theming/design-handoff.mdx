@@ -1,0 +1,192 @@
+---
+title: Design handoff
+description: Getting the opsinjs token system into a design tool without retyping it, and keeping the two in step once you have.
+status: stable
+kind: guide
+icon: Waypoints
+aliases: [figma, DTCG, design tokens export, figma variables, handoff]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+Handoff usually fails in one specific way: a designer types a hex value into a
+style, an engineer types a slightly different hex value into a stylesheet, and
+six months later nobody can say which one is correct. The fix is not a better
+document. It is making one of them generated from the other.
+
+opsinjs generates its tokens from JSON, which means the design tool can be
+downstream of the same source rather than parallel to it. This page describes
+the export format, the mapping into Figma Variables, and — importantly — the
+three things that do not survive the trip and therefore have to stay in code.
+
+Designers arriving here for the first time should start at
+[For designers](../start/for-designers.mdx); this page is the mechanics.
+
+## What is available today
+
+Two real artifacts, both already in the repository or served by the site:
+
+**`tokens/*.json`** — the authored source. Six files: `color`, `material`,
+`motion`, `type`, `space`, `shape`. This is the truth, and it is small enough to
+read.
+
+**`/r/themes/opsinjs-default.json`** — a served registry item whose `cssVars`
+object contains the resolved role tokens for light and dark. Convenient if your
+import script speaks HTTP rather than filesystem.
+
+Between them you can already build an import today without waiting for anything.
+
+## The DTCG export
+
+<StubNotice
+  name="dtcg-export"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Does a status ramp export as one group with four ordinal children, or as four groups?",
+    "How is the Display-P3 escalation represented when DTCG has one $value per token?",
+    "Do the linear() spring easings export as $type cubicBezier, as a string, or not at all?",
+  ]}
+/>
+
+The intended artifact is a
+[W3C Design Tokens Community Group](https://www.designtokens.org/) format file,
+emitted by `scripts/build-tokens.mts` alongside the CSS, so that it is generated
+and diffed by the same check rather than exported by hand from a tab that
+somebody had open.
+
+The proposed shape, so that it can be reviewed before it is built:
+
+```json title="PROPOSED — tokens.dtcg.json"
+{
+  "opsin": {
+    "status": {
+      "$description": "Four ordinal clinical levels. Ordering is meaning.",
+      "watch": {
+        "surface": { "$type": "color", "$value": "oklch(0.966 0.042 85)" },
+        "line":    { "$type": "color", "$value": "oklch(0.72 0.14 85)" },
+        "ink":     { "$type": "color", "$value": "oklch(0.40 0.082 85)" }
+      }
+    },
+    "duration": {
+      "base": { "$type": "duration", "$value": { "value": 220, "unit": "ms" } }
+    }
+  }
+}
+```
+
+Two decisions in that sketch are deliberate and worth arguing with now rather
+than later. The status group carries a `$description` stating that ordering is
+meaning, because a designer importing four colours has no other way to learn it.
+And colours are exported in OKLCH, which most tools cannot yet read — the
+alternative is exporting the sRGB clamp and silently losing the wide-gamut
+values.
+
+## Mapping into Figma Variables
+
+Figma's variable model and the opsinjs tier model line up better than you would
+expect, with three exceptions.
+
+| opsinjs | Figma | Notes |
+| --- | --- | --- |
+| Tier 1 ramps | A collection named `opsin/ramps`, one mode | Published as a library; designers reference, never edit |
+| Tier 2 roles | A collection named `opsin/roles`, modes `light` and `dark` | Aliases into the ramps collection |
+| `--radius`, `--spacing` | `FLOAT` variables in a `scale` collection | Figma has no calc, so derived steps are materialised |
+| Status levels | Four variables, named in ordinal order | Prefix with `1-`…`4-` so the panel sorts correctly |
+| Category ramps | Six variables per slot | Group by slot, not by category, so a designer picks `accent` once |
+
+**Roles alias ramps.** This is the single most valuable part of the mapping. A
+role variable in the `light` mode should be an alias to a ramp variable, not a
+copy of its value. Then a ramp change propagates, and a designer who wants to
+retheme changes an alias rather than a colour — which is exactly the tier
+discipline the CSS enforces.
+
+**Modes are light and dark, and nothing else.** Density and text size are not
+modes; they are `FLOAT` variables that a component consumes. Modelling them as
+modes produces a combinatorial explosion in the mode picker and does not match
+how the CSS works.
+
+## What does not survive the trip
+
+Be explicit with your design team about these three, because each of them looks
+like a missing feature and is actually a boundary.
+
+**Display-P3.** A Figma variable holds one colour. opsinjs holds two per token:
+an sRGB baseline and a wide-gamut escalation at identical lightness and hue.
+Import the sRGB baseline; the escalation is a rendering concern that only the
+browser can make. Nothing about meaning or measured contrast changes between
+them, which is why dropping it is safe.
+[Gamut and P3](../foundations/colour/gamut-and-p3.mdx) has the argument.
+
+**Motion.** The two spring easings are CSS `linear()` curves with dozens of
+stops. No design tool models them, and approximating them with a cubic Bézier
+produces a curve that is visibly not the one that ships. Prototype with the
+tool's nearest equivalent, then check the real thing with `<MotionDemo>` on
+[Springs as tokens](../foundations/motion/springs-as-tokens.mdx).
+
+**The material ladder.** Rungs 3 to 5 are backdrop blur plus translucency plus
+a border, and they collapse to opaque fallbacks under
+`prefers-reduced-transparency`. A design tool will happily render the blur and
+will not render the fallback, so a comp made from it shows one of the two states
+and hides the one that has the contrast problem. Review both, on
+[The contrast floor](../foundations/materials/the-contrast-floor.mdx).
+
+## Keeping the two in step
+
+<Steps>
+
+### Make one direction canonical
+
+`tokens/*.json` is upstream. The design library imports from it. Nothing imports
+back. A two-way sync between a repository and a design file has no conflict
+resolution and will drift.
+
+### Import, do not retype
+
+Whatever plugin or script you use, it should read the export. A human copying
+values is the failure this whole page exists to prevent.
+
+### Re-import on a token change, not on a schedule
+
+Token changes are rare and consequential. Tie the re-import to the changelog
+entry rather than to a weekly job, so a designer sees *why* something moved.
+
+### Check contrast in the browser, not in the tool
+
+Design tools measure WCAG 2.1 ratios in sRGB. opsinjs publishes APCA and WCAG
+2.2, measured against the shipped ramp, and the numbers will not match. Use
+[`/playground/contrast`](/playground/contrast) as the tiebreaker, and read
+[Validating your theme](./validating-your-theme.mdx) before publishing a claim.
+
+</Steps>
+
+## Verify it worked
+
+Pick three tokens at random — one role, one status, one radius — and compare the
+value in the design library against `app/tokens.generated.css`. If any differ,
+the import is stale or somebody edited the library by hand. Then confirm the
+negative: a status colour in the design file should be an *alias*, and editing
+it directly should be either impossible or obviously wrong.
+
+## Troubleshooting
+
+**Colours look different in the tool and the browser.** Most tools work in sRGB
+and will show you the clamped value. That is the honest baseline; the browser is
+showing you the escalation on a capable display.
+
+**The dark mode looks wrong after import.** Roles were imported as values rather
+than as aliases, so the dark mode is pointing at light-mode ramp entries.
+
+**A designer changed a token and nothing happened in the app.** Correct, and
+intended. The design library is downstream. The change belongs in
+`tokens/*.json` — see
+[Contributing tokens](../handbook/contributing/contributing-tokens.mdx).
+
+## Next
+
+- [Token reference](./token-reference.mdx) — what you are importing.
+- [For designers](../start/for-designers.mdx) — the shorter, less mechanical
+  entry point.
+- [Validating your theme](./validating-your-theme.mdx) — before a themed comp
+  becomes a shipped product.

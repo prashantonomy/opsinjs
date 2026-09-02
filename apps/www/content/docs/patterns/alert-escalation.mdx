@@ -1,0 +1,198 @@
+---
+title: Alert escalation
+description: Moving from ambient to interruptive without spending attention you will need later — the four rungs, the per-session budget, and the rule that de-escalation must be as visible as escalation.
+status: planned
+kind: pattern
+aliases: [escalation ladder, interruptive alerts, alert budget, when to interrupt]
+implements: [alert-banner, status-pill, care-card, callout, metric-tile, dialog, sheet]
+reviewEvery: 6m
+reviewer: clinical
+owner: design-system
+---
+
+<PageTemplate kind="pattern" />
+
+## When to use
+
+Use this pattern when the product has something to say that the reader did not
+ask for, and you have to decide how hard to say it.
+
+The unit of design here is not the alert. It is the **ladder** — the set of
+increasingly interruptive surfaces available to you, and the rules about which
+rung a given piece of information is allowed to occupy. A product without a
+ladder has exactly two volumes, silent and shouting, and it uses the second one
+for subscription reminders.
+
+Reach for it when:
+
+- More than one thing on a screen could plausibly claim the reader's attention.
+- The same information has different urgency depending on the value, the reader
+  or the time since it last appeared.
+- You have been asked to "make this more prominent" for the third time in a
+  quarter and the screen has run out of prominence.
+
+## When not to use
+
+- **The alert is the whole screen's purpose.** A dedicated result surface is
+  [Result disclosure](./result-disclosure.mdx), not an escalation problem.
+- **The value implies calling emergency services.** Escalation stops being a
+  ladder when the top rung is "call 999". That is
+  [Emergency and escalation](../health/emergency-and-escalation.mdx), which is
+  doctrine, not a sequence you tune.
+- **Nothing has changed.** A persistent condition that the reader has already
+  acknowledged is state, not an alert. Render it as a `StatusPill` on the
+  relevant metric and stop.
+- **You want the doctrine rather than the mechanics.** The budget, the evidence
+  and the prohibitions live in [Alarm fatigue](../health/alarm-fatigue.mdx).
+  This page is how you assemble a sequence that respects it.
+- **The alert is commercial.** An upgrade prompt is never on this ladder at any
+  rung. It has its own surface and its own dismissal rules.
+
+## How it works
+
+Four rungs, in ascending cost to the reader. A message enters at the lowest rung
+that can do its job, and moves up only on a stated trigger.
+
+<FlowDiagram>
+{`flowchart TD
+  A["Something changed"] --> B{"Does the reader need to know today?"}
+  B -->|"no"| C["Rung 1 — Ambient: a StatusPill on the metric"]
+  B -->|"yes"| D{"Is there an action with a deadline?"}
+  D -->|"no"| E["Rung 2 — In-context: an AlertBanner in the relevant section"]
+  D -->|"yes"| F{"Is the deadline sooner than the next likely visit?"}
+  F -->|"no"| G["Rung 3 — Top of screen: a persistent CareCard with the action"]
+  F -->|"yes"| H["Rung 4 — Interruptive: a modal the reader must answer"]
+  C --> I["De-escalate when the condition clears"]
+  E --> I
+  G --> I
+  H --> I`}
+</FlowDiagram>
+
+<NotBuiltYet />
+
+### The rungs
+
+1. **Ambient.** The status is attached to the thing it describes and nothing
+   moves. A `StatusPill` on a `MetricTile`. Cost to the reader: zero if they are
+   not looking at it. This is where the overwhelming majority of status belongs.
+2. **In-context.** An `AlertBanner` inside the section it concerns, above the
+   affected content, in normal document flow. It does not cover anything and it
+   does not follow the reader. Cost: one scroll's worth of attention.
+3. **Top of screen.** A persistent `CareCard` above the fold with a named action
+   and a named owner. It survives navigation within the section. Cost: it
+   displaces something the reader came for.
+4. **Interruptive.** A modal `Dialog` or `Sheet` that must be answered before
+   the reader continues. Cost: the reader's entire current intention. This rung
+   is for information whose absence would cause harm before the next likely
+   session — and for nothing else.
+
+### The budget
+
+The per-screen and per-session budgets are doctrine and are stated in
+[Alarm fatigue](../health/alarm-fatigue.mdx): at most one `urgent` surface on
+screen at a time, and rung 4 is metered per session rather than per event. This
+pattern adds the mechanics that make a budget enforceable:
+
+- **Escalation needs a trigger, and the trigger is written down.** "It has been
+  three days and the reader has not opened the section" is a trigger. "It feels
+  important" is not.
+- **Two things at the same rung compete; they do not stack.** If two messages
+  both qualify for rung 3, one of them is wrong about its rung. Rank by clinical
+  consequence, never by recency.
+- **De-escalation is a designed event, not an absence.** When the condition
+  clears, the reader is told it cleared. An alert that silently disappears
+  teaches the reader that the alerts were never real.
+- **Dismissal has a defined memory.** State, per rung, whether dismissal lasts
+  for the session, until the value changes, or forever — and never make rung 4
+  dismissible without an answer.
+
+### States
+
+| State | Behaviour |
+| --- | --- |
+| New | Enters at its lowest qualifying rung; announced if the reader is already on the screen |
+| Repeated | Does not re-announce; the rung may increase only on a written trigger |
+| Acknowledged | Drops one rung, minimum rung 1; keeps its status colour |
+| Cleared | An explicit de-escalation message, then removal on next navigation |
+| Stale | If the underlying reading can no longer be vouched for, the alert degrades to [Offline and stale data](./offline-and-stale-data.mdx) rather than continuing to assert |
+
+## Content
+
+The sentence gets shorter as the rung gets higher, and the action gets more
+specific. Rung 1 is a word; rung 4 is a sentence and a button whose label is a
+verb phrase naming the outcome.
+
+<DoDont>
+  <DoDont.Do>
+    Rung 3: "Your blood pressure has been above your usual range for six days.
+    Your clinic asked to hear about this — book a call." One fact, one
+    timeframe, one action with an owner.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Rung 3: "Important: unusual readings detected. Please review your data." No
+    value, no timeframe, no owner, and "detected" implies a system that knows
+    more than it does.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    De-escalation: "Your readings have been back in your usual range since
+    Tuesday. We have cleared the earlier notice."
+  </DoDont.Do>
+  <DoDont.Dont>
+    Removing the banner overnight with no message, so the reader is left unsure
+    whether the problem resolved or the app forgot.
+  </DoDont.Dont>
+</DoDont>
+
+The four status words and their tone are fixed by [Clinical status
+semantics](../health/clinical-status-semantics.mdx); the per-level sentence
+patterns and banned words by [Writing status and
+alerts](../content/writing-status-and-alerts.mdx). Do not restate either here.
+
+## Accessibility
+
+- **A new alert on a screen the reader is already on is a status message**
+  (WCAG 2.2 SC 4.1.3). Rungs 1 to 3 announce politely and do not move focus.
+  Rung 4 moves focus, because it is modal and the reader must know they are
+  trapped.
+- **Rung 4 is a real dialog.** Focus is trapped, <Kbd>Escape</Kbd> behaviour is
+  defined — and if the answer is genuinely required, <Kbd>Escape</Kbd> is
+  disabled and the reason is announced rather than the key silently doing
+  nothing.
+- **Do not escalate by motion.** A pulsing banner is not a higher rung; it is
+  the same rung plus a barrier for anyone with a vestibular disorder. Under
+  `prefers-reduced-motion` the ladder must be unchanged, which is only possible
+  if motion was never carrying rung.
+- **De-escalation is announced too.** Removing a live region's content silently
+  leaves a screen-reader user believing the alert is still there.
+- **Colour independence.** Every rung is distinguishable in grayscale by
+  position, icon and wording. Verify with
+  [Colour independence](../accessibility/colour-independence.mdx).
+- **Target size.** Dismiss and action controls meet the 44pt floor in
+  [Density and touch targets](../foundations/space/density-and-touch.mdx); WCAG
+  2.2 SC 2.5.8 is the legal minimum, not the design target.
+
+## Research
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  The four-rung ladder is a design opinion. It is drawn from the clinical alarm
+  literature by analogy rather than by transfer: the well-documented problem in
+  hospital settings is that alarms which are frequently non-actionable are
+  eventually ignored, including the actionable ones. We are asserting that a
+  consumer app has the same failure mode with a slower clock and a reader with
+  less training, not that a study has demonstrated it for this population.
+
+  What is not opinion: escalating by motion excludes people with vestibular
+  disorders, and a status change that is not exposed as a status message is
+  invisible to assistive technology. Those are accessibility facts and are
+  cited on their own pages.
+
+  What would change our mind: evidence that de-escalation messages themselves
+  contribute to fatigue, which would argue for silent clearing at rungs 1 and 2.
+</ResearchNote>
+
+## Updates to this page
+
+<Reviewed />

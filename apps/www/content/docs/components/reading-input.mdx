@@ -1,0 +1,263 @@
+---
+title: ReadingInput
+description: A field for typing in a measurement, with its unit shown beside it, a way to switch units, and a gentle check when a number looks like a typing mistake.
+status: planned
+kind: component
+since: "unreleased"
+category: health-input
+aliases: [measurement input, numeric input, unit switch, enter a reading]
+governedBy: [numbers-units-precision, unit-systems, uncertainty-and-staleness]
+usedIn: [daily-log-entry, daily-log-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="reading-input"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Switching units mid-entry: does the typed number convert, or clear? Both choices lose data in some real situation.",
+    "Plausibility bounds are clinical. Where do they come from, and what does the component do when a product supplies none?",
+    "Is the stored value ever the displayed one, or always canonical — and which unit is canonical for each measurement?",
+    "A compound reading such as blood pressure is two numbers in one control. Is that one ReadingInput or two, and what does the reader see?",
+  ]}
+/>
+
+Numeric entry is where unit confusion, decimal slips and transposed digits enter a health
+record, and everything downstream inherits them. This component is the last place those
+mistakes are cheap to catch, and the first place a heavy-handed check will stop somebody
+recording a true value.
+
+## Preview
+
+The preview will show the field with its unit switch, its plausibility warning and its 200%
+text layout, which is where numeric fields with adjacent units usually break.
+
+<ComponentPreview name="reading-input" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail. ReadingInput composes [Field](./field.mdx).
+
+<ComponentInstall name="reading-input" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Any place a person types a measurement of themselves: a weight, a blood pressure, a glucose reading, a temperature, a dose.",
+    "Entry where the unit is part of the value and getting it wrong changes the number by a factor of ten or eighteen.",
+    "Entry where a typing mistake is plausible and worth a gentle check before it becomes a record.",
+  ]}
+  avoid={[
+    { case: "The number is not a measurement of a person — a quantity, a count, a reference code.", instead: "number-field" },
+    { case: "The value is best chosen from a small set rather than typed.", instead: "segmented-control" },
+    { case: "The value sits on a continuous scale the reader estimates rather than measures, such as a pain score.", instead: "scale-input" },
+    { case: "You are displaying a reading rather than collecting one.", instead: "value" },
+    { case: "You need several related measurements captured together in one interaction.", instead: "log-sheet" },
+    { case: "The control is a general text or numeric input with no clinical semantics.", instead: "field" },
+  ]}
+/>
+
+The distinction from a plain number field is the unit and the plausibility contract. If a
+number has no unit and no realistic range, it does not need this component and should not
+carry its implications.
+
+## Clinical meaning
+
+**What it asserts.** That the reader entered this number, in this unit, meaning it as a
+measurement of themselves. Self-reported provenance travels with the value from here to
+every surface that displays it.
+
+**What it must never be read as.** A validated measurement, a device reading, or an assessed
+value. The component's plausibility check is a data-quality aid; passing it asserts nothing
+clinical about the number.
+
+**Which colour axis it may use.** Neither, while the reader is typing. A field that turns
+amber because the value entered is outside a reference range is delivering a verdict during
+data entry, before anyone has checked whether the number is even right. Plausibility warnings
+use the field's own error and hint treatment from [Field](./field.mdx), which is deliberately
+outside the clinical status axis.
+
+**Plausibility is not validity.** The component warns when a number is likely to be a typing
+mistake — 1400 kg, a systolic of 12, a temperature of 986 — and it never blocks. Real
+readings fall outside plausible ranges; that is often precisely when they matter. The warning
+says *did you mean…?* and offers the likely correction, and the reader always wins the
+argument. Who supplies the bounds is the product's decision, and opsinjs ships none.
+
+**Units are a correctness surface.** mmol/L and mg/dL differ by a factor of about eighteen
+for glucose; kilograms, pounds and stones-and-pounds are three different input shapes;
+Celsius and Fahrenheit cross near normal body temperature in a way that makes a wrong unit
+look plausible. The unit is always visible beside the value, never inferred from a locale,
+and never implied by a placeholder. See [Unit systems](../health/unit-systems.mdx).
+
+<SafetyCallout severity="medium" evidence="opinion">
+Changing the unit selector must never silently change the stored value or silently keep the
+typed digits. Whichever the component does, it must say so on screen — *converted from 80
+kg* or *cleared, please re-enter* — because both behaviours are correct in some situation and
+the reader is the only person who knows which one this is.
+</SafetyCallout>
+
+## Anatomy
+
+<Anatomy name="reading-input" />
+
+<CompositionTree name="reading-input" />
+
+**Label** names the measurement. **Input** takes the digits. **Unit** shows the unit and, when
+more than one is offered, switches it. **Hint** carries the expected shape or range before
+anything is typed. **Warning** carries the plausibility message afterwards. **Segments** are
+for compound readings such as blood pressure, where two numbers form one measurement and must
+be entered and announced as such.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+ReadingInput                   root; extends Field; canonical unit is internal
+├── ReadingInput.Label         the measurement, in the reader's words
+├── ReadingInput.Control
+│   ├── ReadingInput.Segment   one numeric part; two of these for blood pressure
+│   └── ReadingInput.Unit      visible always; a control only when switchable
+├── ReadingInput.Hint          expected shape, shown before entry
+└── ReadingInput.Warning       plausibility message; advisory, never blocking
+```
+
+`ReadingInput.Unit` is never a placeholder and never lives only in the label. A unit the
+reader cannot see while typing is a unit they will assume, and the assumption is often wrong.
+
+## Proposed API
+
+<NotBuiltYet name="reading-input" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+export interface PlausibleRange {
+  /** Below this, the component asks whether the reader meant something else. */
+  min: number
+  /** Above this, likewise. Neither bound ever blocks entry. */
+  max: number
+  /** In the canonical unit, so bounds do not have to be restated per unit. */
+  unit: string
+}
+
+export interface ReadingInputProps {
+  label: string
+  /** The value in the CANONICAL unit. Display conversion is the component's job. */
+  value: number | null
+  onChange: (value: number | null, displayUnit: string) => void
+  /** The unit values are stored in. Products pick one and never change it. */
+  canonicalUnit: string
+  /**
+   * Units the reader may choose between. One entry means the unit is displayed
+   * and not switchable.
+   */
+  units: string[]
+  /**
+   * Supplied by the product, because plausibility is clinical. Omit it and the
+   * component performs no plausibility check at all rather than inventing one.
+   */
+  plausible?: PlausibleRange
+  /**
+   * Compound readings such as blood pressure: two segments, one measurement,
+   * announced together.
+   */
+  segments?: { name: string; label: string }[]
+  /** Expected shape, e.g. "for example 128". Never a substitute for the label. */
+  hint?: string
+  /**
+   * What happens to the typed value when the unit changes. Whichever is chosen,
+   * the component tells the reader on screen.
+   */
+  onUnitChange?: "convert" | "clear"
+}
+```
+
+## Content guidelines
+
+Label the measurement in the reader's words and put the unit beside the field, not in the
+label. Hints show the shape of a plausible answer rather than a rule: *for example 128* helps;
+*must be between 60 and 250* reads as a threshold the reader has failed.
+
+Plausibility messages ask a question and offer the likely fix. They never say *invalid*,
+never say *error*, and never imply the reader has done something wrong — most of the time
+they have not.
+
+<DoDont>
+  <DoDont.Do>
+    **"That is higher than most readings. Did you mean 128?"** with the entry left exactly as
+    typed and the correction offered as a control.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Invalid value. Systolic must be between 70 and 250."** Rejects a number that might be
+    real, blames the reader, and gives them a bound to satisfy rather than a mistake to check.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **"Weight — [ 72.5 ] [ kg ▾ ]"** with the unit visible and switchable beside the number.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Weight (kg) — [ 72.5 ]"** with the unit only in the label. Readers who use pounds will
+    type pounds, and nothing on screen will stop them or record what they meant.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **The label is visible, persistent and programmatically associated.** No placeholder-only
+  labels, ever — see [Field](./field.mdx).
+- **The unit is part of the field's accessible name or description**, so the field announces
+  as *weight in kilograms* rather than *weight*.
+- **The right keyboard appears**: `inputMode="decimal"` for measurements that can be
+  fractional, `numeric` for those that cannot, with `enterKeyHint` set so the return key does
+  the expected thing.
+- **Compound readings are one labelled group** whose segments each have their own name, and
+  which announces as *blood pressure, systolic, 128; diastolic, 78* rather than as two
+  unrelated numbers.
+- **The unit switch is a real control** with a 44pt target, a name that says what it switches,
+  and a state change announced politely — including what happened to the typed value.
+- **Plausibility warnings are associated with the field**, announced once and politely, and
+  never move focus or block submission. See
+  [Screen readers](../accessibility/screen-readers.mdx).
+- **No spin buttons as the only means of entry**: a control that requires many precise taps to
+  reach a value excludes people with motor impairments and is slow for everyone.
+- **At 200% text the unit stays adjacent to the number**, wrapping beneath it rather than
+  overlapping or scrolling out of view.
+
+<KeyboardTable name="reading-input" />
+
+<ContrastReport component="reading-input" />
+
+## Related
+
+<RelatedComponents name="reading-input" />
+
+**Easily confused with**
+
+- [Field](./field.mdx) — the general label, control, hint and error composition. ReadingInput
+  is a Field with a unit and a plausibility contract.
+- `number-field` (considered, no page yet — see the [roster](./index.mdx)) — a plain numeric
+  input with no clinical semantics.
+- [Value](./value.mdx) — the display counterpart. The two must agree on precision and units,
+  or a reader will type one thing and read back another.
+- `scale-input` (considered) — for estimated scores such as pain or mood, which are not
+  measurements.
+
+**Used by**
+
+- [Capture a daily log entry](../recipes/daily-log-entry.mdx)
+- [Daily log screen](../screens/daily-log-screen.mdx)
+
+**Governed by**
+
+- [Numbers, units and precision](../health/numbers-units-precision.mdx)
+- [Unit systems](../health/unit-systems.mdx)
+- [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx)

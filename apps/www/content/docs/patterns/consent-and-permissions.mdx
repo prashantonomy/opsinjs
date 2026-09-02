@@ -1,0 +1,171 @@
+---
+title: Consent and permissions
+description: Asking for access at the moment it is needed, explaining what it buys, recording what was agreed, and making withdrawal as easy as agreement.
+status: planned
+kind: pattern
+aliases: [permission priming, asking for consent, permission prompt sequence, revoking access, data sharing prompt]
+implements: [consent-sheet, care-card, disclaimer-note, callout, sheet, button, term]
+reviewEvery: 6m
+reviewer: clinical
+owner: design-system
+---
+
+<PageTemplate kind="pattern" />
+
+## When to use
+
+Use this pattern whenever the product wants something it cannot take: access to
+health data on the device, permission to send notifications, agreement to share
+a record with a clinician, or agreement to a secondary use such as research.
+
+Consent has four properties that a UI can support or quietly undermine. It must
+be **specific** (this data, this purpose), **informed** (the reader knows what
+it buys and what it costs), **freely given** (refusal leaves a working product),
+and **withdrawable** (as easily as it was granted). A prompt that satisfies the
+first three and hides the fourth in a settings sub-page is not consent; it is a
+subscription.
+
+## When not to use
+
+- **The permission is required for the screen to exist.** If refusing means
+  there is nothing to show, do not stage a consent flow — say plainly what the
+  screen needs and let the reader leave. A prompt with one real option is
+  theatre.
+- **You are disclosing rather than asking.** Telling someone what you already
+  hold is [Result disclosure](./result-disclosure.mdx) and
+  [On-screen privacy](../health/on-screen-privacy.mdx).
+- **It is a legal notice with no choice.** Terms acceptance is not consent to
+  processing and should not be dressed as it.
+- **You want the doctrine.** Granularity, revocability, recording and re-asking
+  are [Consent and disclosure](../health/consent-and-disclosure.mdx). This page
+  is the sequence.
+- **You want the built steps.** [Ask for consent before
+  collecting](../recipes/consent-before-collection.mdx) is the recipe.
+
+## How it works
+
+The sequence has a pre-prompt, because the operating system's own dialog is a
+one-shot resource: on most platforms, a refusal cannot be re-asked from inside
+the app.
+
+<FlowDiagram>
+{`flowchart TD
+  A["Reader reaches a surface that needs access"] --> B["In-app explanation: what, why, what it buys"]
+  B --> C{"Reader agrees to be asked?"}
+  C -->|"no"| D["Continue with the degraded but working surface"]
+  C -->|"yes"| E["System permission dialog"]
+  E --> F{"Granted?"}
+  F -->|"no"| G["State plainly what is now unavailable and how to change it later"]
+  F -->|"yes"| H["Record: what, when, which version of the wording"]
+  H --> I["Deliver the thing it bought, immediately"]
+  D --> J["Re-offer only from a surface that needs it, never on a timer"]
+  G --> J`}
+</FlowDiagram>
+
+<NotBuiltYet />
+
+- **Ask at the moment of need.** A permission requested on screen three of
+  onboarding has no context to justify it. The same request made when the reader
+  taps "connect my monitor" explains itself.
+- **The pre-prompt is honest about refusal.** It says what still works without
+  it. If the answer is "nothing", see *When not to use* above.
+- **Granularity is per purpose, not per vendor.** "Share my readings with Dr
+  Ellis for my appointment" and "allow my data to be used for research" are two
+  decisions and must be two controls.
+- **Record the wording, not just the answer.** A consent record that does not
+  capture *which* text the reader agreed to cannot answer the only question
+  anyone will ever ask of it.
+- **Withdrawal lives at the same depth as agreement.** If it took one tap from
+  the metric to grant, it takes one tap from the metric to revoke. State what
+  happens to data already shared — because "revoked" and "deleted" are different
+  and readers assume they are the same.
+- **Never re-prompt on a timer.** Re-offer only when the reader arrives at a
+  surface that needs it.
+
+### States
+
+| State | Behaviour |
+| --- | --- |
+| Not yet asked | The surface renders in its degraded form with an inline route to enable |
+| Explained, declined | No system dialog was spent; re-offerable in context |
+| System-denied | The app cannot re-ask; give exact settings instructions for the platform |
+| Granted | Consent record written with timestamp, scope and wording version |
+| Partially granted | Only the granted scopes are used; the UI never implies more |
+| Withdrawn | Immediate effect, confirmation of what stops and what is retained |
+| Expired | Time-limited sharing lapses visibly, with an offer to renew |
+
+## Content
+
+Consent copy fails in a specific way: it describes the mechanism instead of the
+consequence. The reader does not want to know that you will "process health
+data"; they want to know who can see it.
+
+<DoDont>
+  <DoDont.Do>
+    "Dr Ellis's clinic will be able to see your blood-pressure readings from the
+    last 3 months. They will not see your notes or your other metrics. You can
+    stop this at any time from this screen."
+  </DoDont.Do>
+  <DoDont.Dont>
+    "Enable data sharing to unlock the full experience." No recipient, no scope,
+    no timeframe, and a benefit claim doing the work of an explanation.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "Not now" and "Share readings" as two equally weighted buttons.
+  </DoDont.Do>
+  <DoDont.Dont>
+    A full-width primary "Allow" with "Maybe later" as grey text underneath.
+    Visual weight is part of whether consent was freely given.
+  </DoDont.Dont>
+</DoDont>
+
+Sensitive phrasing rules are owned by
+[Asking sensitive questions](../content/asking-sensitive-questions.mdx). Any
+legal or clinical term the wording depends on should be a `Term` with a
+plain-English definition attached.
+
+## Accessibility
+
+- **Both options are the same kind of control** — two buttons, adjacent in the
+  tab order, with labels that make sense read alone. "Allow" and "Maybe later"
+  read out of context are not equivalent choices.
+- **The explanation is announced before the choice**, which means it precedes
+  the buttons in the DOM and is part of the dialog's accessible description.
+- **The consent sheet is a real dialog**: focus trapped, focus returned to the
+  trigger, <Kbd>Escape</Kbd> equivalent to declining and no state change on
+  dismissal.
+- **No timers, no auto-advance.** A consent dialog that dismisses itself has not
+  obtained consent.
+- **Withdrawal is reachable by keyboard from the same screen** that shows the
+  thing being shared, in the same number of steps as granting.
+- **Target size**: consent controls sit well above the WCAG 2.2 SC 2.5.8 floor
+  and meet the 44pt target in
+  [Density and touch targets](../foundations/space/density-and-touch.mdx). A
+  mis-tap here has a consequence.
+
+## Research
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  The pre-prompt sequence is a widely used mobile convention rather than an
+  opsinjs invention, and the reason for it is mechanical: platform permission
+  dialogs are one-shot, so spending one on a reader who has not been given a
+  reason is unrecoverable. That much is a platform fact.
+
+  The rest — equal visual weight for both options, withdrawal at the same depth
+  as agreement, recording the wording version — is opinion, argued from what
+  consent has to mean rather than from a study. Regulatory context is deliberately
+  left to [Regulatory context](../health/regulatory-context.mdx); nothing on this
+  page should be read as legal advice or as a claim that following it satisfies
+  any particular regime.
+
+  What would change our mind: nothing on the withdrawal rule. On equal weighting,
+  evidence that neutral presentation collapses grant rates far enough to remove a
+  genuinely beneficial feature would be a real trade-off worth documenting.
+</ResearchNote>
+
+## Updates to this page
+
+<Reviewed />

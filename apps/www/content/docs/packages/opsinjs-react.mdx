@@ -1,0 +1,166 @@
+---
+title: "@opsinjs/react"
+description: The components as a conventional npm dependency, for teams that cannot vendor source — with the trade stated plainly before you take it.
+status: planned
+kind: guide
+since: unreleased
+aliases: [react package, npm components, not copy paste, library install]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+The default distribution model is copying source, and it is the right default:
+you can read a health component's decisions, edit them, and never be broken by a
+change you did not take. See
+[Registry and distribution](../registry/index.mdx).
+
+Some teams cannot do that. Procurement rules that forbid vendored source. A
+monorepo policy that treats copied code as a licensing risk. An organisation
+with fifty applications where fifty copies is genuinely worse than one
+dependency. Those are real constraints and refusing to serve them would push
+those teams onto something with no health doctrine at all.
+
+`@opsinjs/react` is the conventional package for them.
+
+<StubNotice
+  name="opsinjs-react"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Does the package ship every registry component, or a smaller subset with a stronger stability promise?",
+    "Is the package's version the design system's version, or does it version independently?",
+    "How does a consumer override a part they cannot edit — slots, render props, or CSS variables only?",
+  ]}
+/>
+
+**Nothing is published, and nothing is built.** Every component is a
+specification. This page exists so the packaging decision can be reviewed before
+either happens.
+
+## The trade, stated plainly
+
+| Copied source | `@opsinjs/react` |
+| --- | --- |
+| You can read the component that renders a clinical result | You read a published API and trust the implementation |
+| You can edit it | You configure it, or you wrap it |
+| Nothing changes unless you take it | An upgrade changes behaviour across your app at once |
+| No dependency, no peer conflicts | A dependency, with React and Base UI peers |
+| Upgrades are per component, by diff | Upgrades are per package, by version |
+| Your bundle contains what you copied | Tree-shaking decides, and you verify it |
+
+The second row is the one worth dwelling on. In a patient-facing health app, the
+ability to read exactly what a component does with an out-of-range value is a
+safety property, not a developer convenience. Taking the package trades that for
+a normal upgrade path. That is a legitimate trade and it should be made on
+purpose.
+
+## The proposed shape
+
+```ts
+// PROPOSED. Not implemented. Subject to change without a deprecation cycle.
+
+// Components, named exports, no default export.
+export { ResultCard, RangeBar, StatusPill, AlertBanner /* … */ }
+
+// The prop interfaces, exported so consumers can type wrappers.
+export type { ResultCardProps, RangeBarProps /* … */ }
+
+// The status vocabulary, as the single source of truth.
+export type Status = "expected" | "watch" | "act" | "urgent"
+```
+
+Four packaging decisions:
+
+**Named exports only.** A default export makes tree-shaking and codemods harder
+and buys nothing.
+
+**Prop types exported.** A consumer who cannot edit a component will wrap it, and
+wrapping without the prop type means restating it by hand and drifting.
+
+**Client components marked.** Anything with interactivity carries the directive
+so that a React Server Components consumer gets a correct boundary rather than a
+build error. What is and is not a client component is documented per component —
+see [Server and client components](../handbook/server-and-client-components.mdx).
+
+**Styling stays CSS.** The package ships no CSS-in-JS and no style prop soup.
+Appearance comes from the token layer, which means
+[`@opsinjs/tailwind.css`](./opsinjs-tailwind-css.mdx) is a required companion
+rather than an optional one.
+
+## What you give up, and what you get back
+
+You cannot edit a component. Three escape hatches are specified in its place,
+and they should be reviewed now because they are the whole story for anybody on
+this path:
+
+**CSS variables per part.** Each component publishes a small set of tier-3
+variables on its own selector, documented in a `<CssVariablesTable>`. This
+covers most visual customisation.
+
+**Data attributes as a styling contract.** `data-status`, `data-category` and
+the Base UI state attributes are part of the public API, documented per
+component, and safe to style against.
+
+**Composition.** Wrapping, slotting content, and replacing subcomponents where a
+component is compound. Composition produces no upgrade conflict at all, which is
+the argument for reaching for it first even when you *can* edit.
+
+If none of those covers your case, the honest answer is that you want copied
+source.
+
+## Verify it worked
+
+When it ships, these are the acceptance checks.
+
+<Steps>
+
+### The status type is the only one
+
+Import `Status` and confirm it is the same four ids as the tokens, the registry
+metadata and the documentation. Three copies of a vocabulary is how a vocabulary
+becomes two.
+
+### Server components stay server components
+
+Render a non-interactive component in an RSC tree without a client boundary. If
+it forces one, the marking is wrong and it costs every consumer bundle size.
+
+### Tree-shaking works
+
+Import one component into an empty app and measure. If the whole library
+arrives, the package's module structure is wrong — and `<BundleSize>` on each
+component page should be able to tell you before you find out.
+
+### The styling escape hatches are sufficient
+
+Take a real customisation your team has asked for and try to achieve it with
+variables, attributes and composition alone. If you cannot, that is feedback on
+the API, not a reason to fork.
+
+</Steps>
+
+## Troubleshooting
+
+**`npm install @opsinjs/react` fails.** Nothing is published yet.
+
+**I need to change behaviour, not appearance.** The package cannot help. Use the
+registry and copy the source.
+
+**Styles are missing.** The package ships components, not the token layer.
+Import [`@opsinjs/tailwind.css`](./opsinjs-tailwind-css.mdx) or the generated
+stylesheet.
+
+**Peer dependency warnings about React.** Expected during a React major
+transition; check the tested matrix on
+[Framework support](../start/framework-support.mdx) rather than forcing the
+install.
+
+## Next
+
+- [Registry and distribution](../registry/index.mdx) — the model this one
+  departs from.
+- [`@opsinjs/tailwind.css`](./opsinjs-tailwind-css.mdx) — the companion you will
+  also need.
+- [Server and client components](../handbook/server-and-client-components.mdx) —
+  where the boundaries fall.

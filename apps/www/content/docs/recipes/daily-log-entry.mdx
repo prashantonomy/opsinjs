@@ -1,0 +1,245 @@
+---
+title: Capture a daily log entry
+description: Record a measurement in three taps, one-handed, without leaving the screen the person was already on.
+status: planned
+kind: recipe
+owner: opsinjs-docs
+reviewEvery: 6m
+evidence: opinion
+implements: [log-sheet, reading-input]
+usedIn:
+  [
+    log-sheet,
+    reading-input,
+    sheet,
+    field,
+    button,
+    value,
+    relative-time,
+    empty-state,
+    number-field,
+    segmented-control,
+  ]
+---
+
+<PageTemplate kind="recipe" />
+
+## The task
+
+Somebody has to record the same thing every day — a blood pressure reading, a
+blood glucose value, a weight, a dose taken, how they slept. They will do it while
+holding a cup, on a bus, half-asleep, for months. The design constraint is not
+elegance; it is that the entry must cost so little that it still happens in week
+twelve.
+
+Friction here is not a usability nuisance, it is a data-quality problem. An entry
+flow that takes eight taps produces a log with gaps in it, and a log with gaps is
+a trend you cannot draw and a summary you cannot show a clinician. Every extra
+decision you put in the way removes data from the rest of the product.
+
+The target is three taps from the screen the person was on: open, enter, save.
+
+## What you need
+
+<NotBuiltYet />
+
+| Part | Component | Status | What it does here |
+| --- | --- | --- | --- |
+| The capture surface | [LogSheet](../components/log-sheet.mdx) | <StatusBadge status="planned" /> | Low-friction bottom sheet, sized to the entry. |
+| The number entry | [ReadingInput](../components/reading-input.mdx) | <StatusBadge status="planned" /> | Numeric input with a unit switch and a plausibility warning. |
+| The sheet mechanics | [Sheet](../components/sheet.mdx) | <StatusBadge status="planned" /> | Detents, drag, keyboard-safe insets, focus return. |
+| Label and error | [Field](../components/field.mdx) | <StatusBadge status="planned" /> | The label/control/hint/error composition every input sits inside. |
+| Save and undo | [Button](../components/button.mdx) | <StatusBadge status="planned" /> | The primary action, within thumb reach. |
+| The confirmation | [Value](../components/value.mdx) · [RelativeTime](../components/relative-time.mdx) | <StatusBadge status="planned" /> | Shows what was saved, where it will live. |
+| First run | [EmptyState](../components/empty-state.mdx) | <StatusBadge status="planned" /> | Before there is anything logged. |
+| Stepped entry | `number-field` · `segmented-control` | <StatusBadge status="considered" /> | Considered, not implemented. |
+
+Tokens, by family:
+
+| Family | Where it applies | Reference |
+| --- | --- | --- |
+| Space scale | Target size, separation, thumb-reach zone | [Density and touch](../foundations/space/density-and-touch.mdx) |
+| Material rung | The sheet's rung above the page, and its opaque fallback | [Choosing a layer](../foundations/materials/choosing-a-layer.mdx) |
+| Motion | Sheet presentation and dismissal, and their reduced-motion forms | [Reduced motion](../foundations/motion/reduced-motion.mdx) |
+| `--opsin-category-*` | The category of the thing being logged, as identity only | [Category identity](../health/category-identity.mdx) |
+
+## Build it
+
+<Steps>
+
+### Put the entry point where the person already is
+
+The log action belongs on the surface that shows the metric — the tile, the
+detail screen — not behind a plus button in a navigation bar three levels away.
+The best entry point is the thing the person is already looking at when they
+remember they need to log.
+
+Whatever you choose, it is one target, at least 44pt, and it is in the lower
+third of the screen where a thumb reaches without a grip change.
+
+### Present a sheet, not a screen
+
+A full-screen form says *this is a task*. A sheet says *this is a moment*. The
+sheet keeps the context visible behind it, which both reassures the person that
+they have not lost their place and makes dismissal obviously safe.
+
+Size the sheet to its content with a detent, not to an arbitrary half-screen. The
+primary control sits above the keyboard, and the sheet respects the keyboard-safe
+inset so the save button is never underneath the keyboard —
+[Sheet](../components/sheet.mdx) owns that mechanic.
+
+### Default everything you legitimately can
+
+Every default you supply removes a decision:
+
+- **Time**: now. Editable, because a person logs a reading twenty minutes late.
+- **Unit**: whatever they used last. Never make somebody re-pick their own unit
+  system daily.
+- **Category and metric**: implied by the entry point they used.
+
+Do not default **the measurement itself**. Pre-filling yesterday's value is
+tempting because it is fast, and it is exactly how a log fills with numbers
+nobody measured. A blank field is honest.
+
+### Make the number easy to type and hard to get wrong
+
+[ReadingInput](../components/reading-input.mdx) is the specialist here, and it has
+three jobs beyond being a text box:
+
+- **The right keyboard**, first time. A decimal measurement needs a decimal pad,
+  not a spelling keyboard with a numbers layer.
+- **The unit beside the field**, switchable, with the value converting when it is
+  switched — see [Unit systems](../health/unit-systems.mdx).
+- **A plausibility warning, not a block.** A body temperature of 96 is implausible
+  in °C and ordinary in °F; a systolic of 400 is almost certainly a typo. Say so,
+  softly, and let it be saved anyway. A hard maximum means the one person whose
+  real reading is out of your range cannot record it, and their reading is the one
+  that mattered.
+
+### Confirm in place, without a dialog
+
+On save, the sheet dismisses and the value appears where it will live from now
+on, briefly distinguished so the eye finds it. That is the confirmation. A modal
+saying "Saved!" costs a tap to dismiss and tells the person less than seeing the
+number in position.
+
+### Offer undo instead of asking "are you sure?"
+
+Confirmation dialogs tax every correct action to prevent a rare incorrect one.
+Save immediately and offer undo for a short window. Undo restores the previous
+state exactly, including the case where the entry replaced an earlier value for
+the same slot.
+
+Deletion of a saved reading is a different matter and may confirm — a deleted
+measurement cannot be re-measured.
+
+### Handle the second entry of the day
+
+The most-missed case. If a value already exists for this slot, decide in advance
+whether the new entry replaces it, sits beside it, or is refused, and say which
+before the person types. Several readings a day is normal for glucose and unusual
+for weight, so this is per metric, not global.
+
+</Steps>
+
+## The copy
+
+Labels are questions, in the reader's words, with the unit in the label and
+repeated beside the field.
+
+- **Sheet title** — the thing being logged: "Blood pressure".
+- **Field label** — "Systolic (top number)". The parenthetical is not clutter; it
+  is the difference between a correct entry and a transposed one.
+- **Primary action** — the verb for what happens: "Save reading", not "OK",
+  "Done" or "Submit".
+- **Plausibility warning** — describes and asks, never accuses: "That is much
+  higher than your usual readings. Check the number, or save it anyway."
+- **Confirmation** — no words at all, if the value is visible in place.
+
+<DoDont>
+  <DoDont.Do>
+    "Systolic (top number) — 120 mmHg" with the unit beside the field and a
+    decimal keypad already open.
+  </DoDont.Do>
+  <DoDont.Dont>
+    "SYS" with no unit, a spelling keyboard, and a validation message reading
+    "Invalid input". None of those tell the person what to type or what went
+    wrong.
+  </DoDont.Dont>
+</DoDont>
+
+Error text says what to do, not what happened:
+[Error and empty messages](../content/error-and-empty-messages.mdx). "Enter a
+number between 30 and 300" is help; "Invalid value" is a shrug.
+
+## Get it right
+
+**Safety**
+
+- No measurement is ever pre-filled from a previous entry.
+- A plausibility warning never silently discards or corrects a value. The person's
+  number is their number.
+- The time recorded is the time of measurement, and the person can change it.
+  Include the time zone; a reading logged while travelling must not move a day.
+- The unit is stored with the value, or the value is converted to a canonical unit
+  on the way in and the original preserved. A stored number with an implicit unit
+  is a future incident.
+- Logging on behalf of somebody else — a carer, a parent — must be visibly
+  distinct, or attributed readings will end up on the wrong person's chart.
+
+**Accessibility**
+
+- Every target clears 44pt with real separation, and the primary control is
+  reachable one-handed —
+  [Target size and motor accessibility](../accessibility/target-size-and-motor.mdx).
+- Focus moves into the sheet on open, is trapped while it is modal, and returns
+  to the control that opened it on dismissal —
+  [Keyboard and focus](../accessibility/keyboard-and-focus.mdx).
+- The sheet is dismissible from the keyboard with <Kbd>Escape</Kbd>, not only by
+  dragging.
+- The save is announced politely; the undo affordance is reachable by keyboard for
+  as long as it is available. An undo that only a mouse can reach is not an undo.
+- Validation is announced when it appears and is associated with its field, so it
+  is heard rather than only seen —
+  [Screen readers](../accessibility/screen-readers.mdx).
+- Typed input survives rotation, backgrounding and a keyboard dismissal. Losing a
+  half-typed reading is the fastest way to end a logging habit.
+- At 200% text the sheet scrolls; the primary control stays reachable and never
+  moves under the keyboard.
+
+## Variations
+
+**Several fields in one reading.** Blood pressure is systolic, diastolic and
+often pulse: one reading, one save, one timestamp. Do not split it into three
+entries — a systolic without its diastolic is not usable.
+
+**A value on a scale rather than a number.** Pain, mood, fatigue. `scale-input` is
+on the considered roster.
+
+<Todo>
+No shipped component captures a subjective scale. Until one exists, a labelled
+set of options is safer than a slider: a slider invites false precision on a
+scale that has none.
+</Todo>
+
+**A dose or a medication taken.** `dose-tracker` is considered, not implemented.
+Adherence data is more sensitive than most measurements and needs an explicit
+consent conversation — see
+[Ask for consent before collecting](./consent-before-collection.mdx).
+
+**Backfilling several days at once.** A different task with a different shape,
+and a real one after a holiday. It is a list of dates, not a repeated sheet.
+
+**Automatic capture from a device.** Then there is no entry flow, and a different
+problem: the reading arrives with provenance, and the display has to be able to
+say which device produced it and how accurate that device is.
+
+## Related
+
+- **[Daily logging](../patterns/daily-logging.mdx)** — the same task at flow
+  scale: reminders, streaks, and what to do about a missed day.
+- **[LogSheet](../components/log-sheet.mdx)** and
+  **[ReadingInput](../components/reading-input.mdx)** — the two component
+  specifications this recipe assembles.
+- **[Daily log screen](../screens/daily-log-screen.mdx)** — the whole surface this
+  entry flow lives on.

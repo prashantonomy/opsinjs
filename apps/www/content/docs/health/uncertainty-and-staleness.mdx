@@ -1,0 +1,188 @@
+---
+title: Uncertainty, staleness and missing data
+description: How to render an estimate, an old reading, a partial sync and an outright absence so that a reader can tell them apart from a fresh measurement.
+status: stable
+kind: health
+evidence: opinion
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+owner: design-system
+implements: [relative-time, value, metric-tile, result-card, skeleton, empty-state, disclaimer-note]
+aliases: [stale data, estimated, missing data, last updated, unknown, offline]
+---
+
+<PageTemplate kind="health" />
+
+## What this means
+
+An interface that shows a number is making an implicit claim: this is the current
+value. The claim is usually unspoken, always believed, and frequently false.
+
+The number on the tile might be from a sensor reading taken forty seconds ago. It
+might be from a device that last synced on Tuesday. It might be a model's
+estimate rather than a measurement. It might be the last successfully fetched
+value, rendered because the fetch failed and the cache was still warm. It might
+be an average presented in the visual language of a reading. Every one of these
+looks identical in most products: a large number in a card.
+
+The consequences are asymmetric in a way that matters. A reader who believes a
+stale reassuring value is current will not act when they should. A reader who
+believes a stale worrying value is current will act on a problem that has already
+resolved. Both are caused by the same missing sentence.
+
+There is also a purely engineering failure that produces the worst version of
+this: a nullish value coerced to `0` and rendered in the metric's units. Zero is
+a physiologically impossible value for many health metrics and a catastrophic one
+for others, and it is what you get for free.
+
+## The rule
+
+**A displayed value carries its recency and its origin. An absence is rendered as
+an absence, never as a value.**
+
+**Five data states, visually distinct, defined once for every data surface** —
+the full definitions live at
+[Data states](../foundations/data-states.mdx) and this page is the health-specific
+reading of them:
+
+| State | What it means | What the reader must see |
+| --- | --- | --- |
+| **Fresh** | Measured, current, complete | The value, its unit, when it was taken |
+| **Stale** | Real but older than this metric's useful window | The value, visibly de-emphasised, with its age stated and a way to refresh |
+| **Partial** | Some sources reported, others did not | The value, plus which sources are missing |
+| **Estimated** | Derived or modelled rather than measured | An explicit estimate label, wider rounding, and what it is derived from |
+| **Absent** | No data, or a failed fetch | No number at all; a sentence and a next action |
+
+**Rules:**
+
+1. **Every health value has a timestamp available to the reader.** Relative time
+   for recency — "20 minutes ago" — with the absolute time available. Relative
+   time alone becomes useless past a couple of days.
+2. **Staleness is per metric.** A heart rate from four hours ago is stale; a
+   cholesterol result from four months ago is current. The threshold is a
+   property of the metric and is declared, not assumed.
+3. **Stale is a visual state, not a caption.** A reader who does not read the
+   caption must still be able to tell. De-emphasise the value itself.
+4. **Never show a stale value as if it were fresh, and never hide it instead.**
+   Both are worse than showing it and saying how old it is.
+5. **An estimate is labelled at the point of the number**, not in a footnote, and
+   is rounded more coarsely than a measurement — see
+   [Numbers, units and precision](./numbers-units-precision.mdx).
+6. **A failure is not an absence and is not a zero.** "We could not load this"
+   is a different sentence from "You have not recorded any readings yet", and
+   both are different from `0`.
+7. **Skeletons never imply a value.** A loading placeholder reserves layout; it
+   does not show a plausible number, a shape that looks like a chart, or a
+   status colour.
+8. **Status degrades with certainty.** A value the app cannot vouch for cannot
+   drive an `attention` or `urgent` status. If you are not sure the number is
+   current, you are not entitled to alarm someone with it.
+9. **Partial is stated, not silently averaged.** "3 of your 4 devices have
+   reported today" beats a number that quietly means something different from
+   yesterday's.
+10. **Offline is a first-class state.** See
+    [Offline and stale data](../patterns/offline-and-stale-data.mdx).
+
+## Why (evidence)
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  Opinion. We cite no study and the argument is structural.
+
+  Rule 8 is the one we would defend hardest, and it is the one most often broken,
+  usually by accident. An alerting pipeline that runs over cached values will
+  cheerfully raise an `attention` banner from a reading that is three days old,
+  because the alerting code and the freshness code were written by different
+  people at different times. The rule exists to make freshness a precondition of
+  escalation rather than a display concern layered on afterwards.
+
+  Rule 3 — that staleness must be visible without reading — follows from the
+  audience model on [Who this is for](./who-this-is-for.mdx): a reader who glances
+  for three seconds reads the number and nothing else. A caption under a number is
+  read by roughly the same people who read a footnote.
+
+  The five-state model itself is borrowed from ordinary data-state design and is
+  not health-specific. What is health-specific is the insistence that "estimated"
+  is a first-class state rather than a variety of "fresh". Consumer health
+  hardware produces a great deal of derived data — a value estimated from an
+  optical signal is not the same kind of object as a value from a cuff — and
+  collapsing the two is a provenance failure. See
+  [Data provenance and device accuracy](./data-provenance-and-device-accuracy.mdx).
+
+  What would change our mind: evidence that visible staleness treatment reduces
+  engagement enough to harm outcomes. We would still keep rule 8.
+</ResearchNote>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>
+    "68 bpm · measured 12 minutes ago" — value, provenance and recency in one
+    line, with the absolute time on demand.
+  </DoDont.Do>
+  <DoDont.Dont>
+    "68 bpm" with a sync timestamp buried in a settings screen. The reader has no
+    way to know whether this is now or Tuesday.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "Last reading 3 days ago" with the value de-emphasised and a refresh action,
+    when the metric's freshness window is one day.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Keep rendering the three-day-old value at full weight because the tile looks
+    empty otherwise. The tile is empty. That is the information.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "Estimated from your watch. Roughly 7 hours 30 minutes." Label first, coarse
+    rounding, no false precision.
+  </DoDont.Do>
+  <DoDont.Dont>
+    "7 h 32 m" in the same typography as a measured value. Two minutes of
+    apparent precision on a figure the device cannot resolve.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    "We could not load your readings. Check your connection and try again." A
+    failure, named, with a next step.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Render `0` or `--`. One is a false measurement and the other is a shrug.
+  </DoDont.Dont>
+</DoDont>
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+`RelativeTime` is the enforcement point for rules 1 and 2: it takes a staleness
+threshold and switches from relative to absolute rendering past a defined window,
+so "3 minutes ago" cannot silently become "just now" for a value from last month.
+`Value` refuses to render an unknown as a number at all.
+
+## What this does not cover
+
+- **Freshness windows** for any metric. Clinical, and yours.
+- **Caching, sync and conflict resolution**, which are your data layer. This page
+  describes what the surface must say about them.
+- **The generic data-state definitions**, which are canonical at
+  [Data states](../foundations/data-states.mdx).
+- **Measurement uncertainty as an interval** — showing a value plus or minus a
+  confidence bound. Worth doing where the source supports it and not yet
+  specified here.
+- **Device accuracy claims**, which are
+  [Data provenance and device accuracy](./data-provenance-and-device-accuracy.mdx).
+
+<Todo>Specify the presentation of an explicit uncertainty interval: a measured
+value with a stated error bound, in text and in a chart.</Todo>
+
+## Updates to this page
+
+<Reviewed />

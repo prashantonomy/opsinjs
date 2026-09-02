@@ -1,0 +1,110 @@
+{
+  "$comment": "AUTHORED SOURCE — not generated. scripts/build-tokens.mts reads this file and emits app/tokens.generated.css and lib/generated/tokens.ts.",
+  "version": 1,
+  "namespace": "shape",
+  "cssPrefix": "--opsin",
+  "cssNaming": {
+    "radius": "--opsin-radius-{name}",
+    "cornerShape": "--opsin-corner-shape",
+    "$comment": "The ladder is derived from a single `--opsin-radius-base`, so a consuming product changes one value and the whole system re-proportions. The derived values are emitted as literals as well, for consumers that cannot rely on calc() in every context."
+  },
+  "rules": [
+    "One radius decision, then a derived ladder. A product sets `--opsin-radius-base` and nothing else; every other radius is a documented multiple of it.",
+    "Radius scales with the box, not with the brand. A 16px chip and a full-screen sheet do not share a radius, because equal radii on unequal boxes look unequal.",
+    "Nested corners are concentric: an inner radius is the outer radius minus the padding between them, floored at `radius-xs`. A card with a 20px radius and 16px of padding holds an image at 4px, not at 20px.",
+    "`corner-shape` is a progressive enhancement and never a requirement. Everything must be legible and correctly proportioned with plain rounded corners."
+  ],
+  "base": {
+    "name": "radius-base",
+    "px": 14,
+    "rem": 0.875,
+    "$comment": "14px, not the 8px web default and not the 0px of the lyra docs chrome. The product theme is squircle and generous; see /docs/theming/lyra-and-the-docs-chrome for why the documentation you are reading looks nothing like it."
+  },
+  "ladder": [
+    {
+      "name": "radius-none",
+      "multiplier": 0,
+      "px": 0,
+      "rem": 0,
+      "use": "Full-bleed media and anything that meets a screen edge."
+    },
+    {
+      "name": "radius-xs",
+      "multiplier": 0.25,
+      "px": 4,
+      "rem": 0.25,
+      "use": "The floor for a nested corner. Tags inside a chip, a swatch inside a legend."
+    },
+    {
+      "name": "radius-sm",
+      "multiplier": 0.5,
+      "px": 7,
+      "rem": 0.4375,
+      "use": "Inputs and small controls inside a card."
+    },
+    {
+      "name": "radius-md",
+      "multiplier": 1,
+      "px": 14,
+      "rem": 0.875,
+      "use": "The default. Buttons, chips, status pills, cards."
+    },
+    {
+      "name": "radius-lg",
+      "multiplier": 1.5,
+      "px": 21,
+      "rem": 1.3125,
+      "use": "Cards on a phone, where the card is nearly the width of the screen."
+    },
+    {
+      "name": "radius-xl",
+      "multiplier": 2,
+      "px": 28,
+      "rem": 1.75,
+      "use": "Sheets and dialogs. Applied to the leading edge only when the surface meets a screen edge on the other side."
+    },
+    {
+      "name": "radius-full",
+      "multiplier": null,
+      "px": 9999,
+      "rem": null,
+      "use": "Pills and circular controls: a status pill, a dial track, an avatar. Not a value on the ladder — a pill is a shape, not a size."
+    }
+  ],
+  "cornerShape": {
+    "value": "superellipse(4)",
+    "fallback": "round",
+    "property": "corner-shape",
+    "$comment": "superellipse(4) is a squircle in the Apple sense: the curvature is continuous into the straight edge instead of meeting it at a discontinuity, which is what makes a rounded rectangle look intentional at a large radius. Browsers without `corner-shape` fall back to `round`, which is why every radius above is chosen to look correct as a plain rounded corner first. Support is reported per feature on /docs/start/browser-support and rendered by <BrowserSupport>.",
+    "appliesTo": [
+      "Surface",
+      "Card",
+      "Sheet",
+      "Dialog",
+      "Button",
+      "Field",
+      "MetricTile",
+      "ResultCard",
+      "CareCard",
+      "AlertBanner"
+    ],
+    "doesNotApplyTo": ["StatusPill", "ScoreDial", "avatars"],
+    "doesNotApplyToNote": "Anything using radius-full is already a circle or a pill; a superellipse of a pill is a slightly wrong pill."
+  },
+  "borders": {
+    "hairline": { "px": 1, "use": "Every boundary in the system by default." },
+    "emphasis": {
+      "px": 2,
+      "use": "The boundary of a surface carrying `attention` or `urgent`, where the boundary is one of the three non-colour carriers of the status."
+    },
+    "focus": {
+      "px": 2,
+      "offsetPx": 2,
+      "use": "The focus ring. Always 2px with a 2px offset, always in a colour measured against both the surface and the page behind it, and never removed — see /docs/accessibility/keyboard-and-focus."
+    }
+  },
+  "concentricity": {
+    "formula": "inner = max(outer - gap, radius-xs)",
+    "$comment": "The single most common shape defect in a health card is a full-width chart or image with the card's own radius applied to it, which reads as a sticker rather than as part of the card. build-tokens.mts emits `--opsin-radius-inner-{name}` for each ladder step at the standard card paddings so the calculation does not have to be done by hand."
+  }
+}

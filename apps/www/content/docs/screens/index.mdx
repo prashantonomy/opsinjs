@@ -1,0 +1,148 @@
+---
+title: Screens
+description: Whole composed surfaces, specified as units — where a correct component and a wrong page order still produce an unusable result.
+icon: Smartphone
+status: stable
+kind: guide
+owner: opsinjs-docs
+reviewEvery: 6m
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+A component page tells you whether one part is right. A screen page tells you
+whether the assembly is. Those are different questions, and the second one is the
+one that ships: every component on a screen can pass its own accessibility check
+while the screen as a whole announces its parts in the wrong order, spends its
+alarm budget on the wrong thing, or puts the number a person came for below three
+things they did not.
+
+Screens are also the only place where the three systems that make opsinjs
+distinctive have to hold **simultaneously**:
+
+- **The two colour axes.** On one component the never-mix rule is easy. On a
+  screen with six coloured elements from two axes, it is a discipline —
+  [The two colour axes](../health/two-colour-axes.mdx).
+- **The material ladder.** A rung is a relative claim. Six surfaces stacked on one
+  screen is where the ladder either reads as depth or reads as fog —
+  [Materials](../foundations/materials/index.mdx).
+- **Motion.** Sequencing, continuity and what all of it degrades to under
+  `prefers-reduced-motion` — [Choreography](../foundations/motion/choreography.mdx).
+
+There are five specimens. They are chosen to cover the four things a consumer
+health product does — show a result, capture a reading, show change, ask
+permission — plus the first run that decides whether any of the rest happens.
+
+<Callout title="These are specifications, not screenshots">
+No screen is built. Each page carries the composition it is intended to have, the
+ways it could mislead, and the accessibility contract it must meet, so that it can
+be reviewed and argued with now. The preview frame falls back to the
+not-implemented notice until the registry has something to put in it.
+</Callout>
+
+## What a screen page contains
+
+The same six sections, in the same order.
+
+| Section | What it is for |
+| --- | --- |
+| What this screen does | The reader's situation on arrival, what they are trying to find out, and — explicitly — what the screen deliberately does not do. |
+| Composition | The part hierarchy, and the material rung each surface sits on. |
+| Preview | The screen rendered in isolation under the product theme, at device widths. |
+| Safety notes | Where this specific screen could mislead, and what it does instead of guessing. |
+| Accessibility | Heading structure, landmarks, focus on entry, reading order against visual order. |
+| Status | What is decided, what is open, and the questions the implementation has to answer. |
+
+Two conventions worth knowing:
+
+**Previews render under the product theme, not the docs chrome.** A screen is
+embedded from an isolated `(view)` route with its own document and its own token
+scope, so what you see is the opsinjs product surface — squircle corners,
+system-ui, generous spacing — rather than this site's deliberately dense square
+chrome. The reasoning is in
+[Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx).
+
+**Material rungs are referred to by position, never by name.** The rungs are named
+once, in [The ladder](../foundations/materials/the-ladder.mdx). These pages say
+"one rung above the page" so that they cannot drift from that page as the names
+settle.
+
+## The screens
+
+<SectionProgress />
+
+- **[Results screen](./results-screen.mdx)** — one result, what it means, and what
+  happens next. The highest-stakes screen in the set, and the one where the
+  reading order matters most.
+- **[Daily log screen](./daily-log-screen.mdx)** — the surface somebody returns to
+  every day, judged on how little it costs rather than how much it shows.
+- **[Trends screen](./trends-screen.mdx)** — change over time across several
+  metrics, with the axis rules and the data-table twins.
+- **[Consent flow](./consent-flow.mdx)** — a sequence rather than a screen, and the
+  one place where the design's honesty is directly testable.
+- **[Onboarding screen](./onboarding-screen.mdx)** — first run: the minimum
+  collected before something useful is visible.
+
+## Recipes and patterns first
+
+If you are building rather than reviewing, a screen page is usually the wrong
+place to start. It is a specimen of the finished thing, not a build order.
+
+- **[Recipes](../recipes/index.mdx)** build one piece of a screen, with the steps.
+- **[Patterns](../patterns/index.mdx)** describe the flow a screen sits in.
+- Screens show the assembly, and are what you check your assembly against.
+
+## Verify it worked
+
+Hold your screen against these three, in this order. They are the checks that a
+per-component review passes and a screen fails.
+
+1. **Read the screen from top to bottom with the styling off.** The order you get
+   is the order a screen-reader user gets. If the number the person came for is
+   fourth, the screen is wrong however it looks.
+2. **Count the coloured elements and name the axis of each.** Category colours
+   identify; status colours grade. If any one element is doing both, or if you
+   cannot say which it is doing, fix it before anything else.
+3. **Count the surfaces at *attention* and *urgent*.** The budget is one urgent
+   surface per screen — [Alarm fatigue](../health/alarm-fatigue.mdx). Two means one
+   of them is going to be ignored, and you do not get to choose which.
+
+## Troubleshooting
+
+**"The preview is empty."** Expected. Nothing is built, so the frame renders the
+not-implemented notice, naming the screen and its status. The composition and the
+contract on the page are the reviewable artefact for now.
+
+**"My screen has parts no specimen covers."** Likely. These five are specimens,
+not a catalogue. Compose from [Recipes](../recipes/index.mdx) and check the result
+against the three questions above.
+
+**"The screen I need is not here."**
+
+<Todo>
+There is no **today** or **dashboard** specimen — the screen most consumer health
+products actually open on, and the one where the alarm budget and the two axes are
+hardest to hold. It is the largest gap in this set.
+</Todo>
+
+<Todo>
+There is no **result disclosure** specimen: the moment between a notification and
+an out-of-range result. The flow is described in
+[Result disclosure](../patterns/result-disclosure.mdx) but no screen shows it.
+</Todo>
+
+**"Two screens disagree about a rule."** The doctrine page wins. Screens are
+downstream of [Health](../health/index.mdx) and
+[Foundations](../foundations/index.mdx), and a screen that contradicts either is
+the thing that is wrong.
+
+## Next
+
+- **[Results screen](./results-screen.mdx)** — start here; it is the specimen with
+  the most decided.
+- **[Safety review checklist](../health/safety-review-checklist.mdx)** — the
+  pre-ship pass for any screen showing a health value.
+- **[Layout](../foundations/layout.mdx)** — page shells, safe areas and the two
+  canonical health screen layouts these specimens are built on.

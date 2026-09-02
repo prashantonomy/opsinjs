@@ -1,0 +1,58 @@
+---
+title: Contrast
+description: Measured APCA Lc and WCAG 2.2 ratios for every token pair the system defines, in both themes, dated.
+status: stable
+kind: reference
+full: true
+owner: engineering
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 3m
+a11yDate: 2026-09-02
+aliases: [contrast measurements, generated contrast, Lc table]
+---
+
+<PageTemplate kind="reference" />
+
+## How this is generated
+
+**Source:** `tokens/color.json` and `tokens/material.json`.
+**Script:** `scripts/check-contrast.mts`, which computes both metrics with the
+hand-written maths in `lib/color/apca.ts` and `lib/color/wcag.ts` and writes
+`lib/generated/contrast.json`; `scripts/build-reference.mts` renders this page
+from it. **Commands:** `pnpm run contrast` to measure, `pnpm run contrast:verify`
+to fail on a regression. The nightly job runs both.
+
+Every number here was computed from the shipped token values by a script, in the
+run whose date is printed at the top of the table. None of them was typed by a
+person, and none of them is a target that someone decided the system had already
+met.
+
+**Both metrics, side by side, always.** WCAG 2.2 contrast ratio is what a
+conformance claim is written against and what a procurement reviewer will ask
+for. APCA Lc models perception better, particularly for light text on dark
+surfaces and for the thin weights this system uses at small sizes. They disagree,
+and where they disagree we report both and hold the pair to the stricter verdict.
+[Contrast and APCA](../../foundations/colour/contrast-and-apca.mdx) explains what
+each number means and why we did not pick one.
+
+**Six columns.** *Foreground* and *Background* are the token pair. *Theme* is
+light or dark, and every pair is measured in both. *Lc* is the APCA value. *Ratio*
+is the WCAG 2.2 value. *Verdict* is measured against the published floor for the
+pair's intended use, not against a single global threshold — body text, large
+text and non-text boundaries have different floors, and a pair that passes for one
+fails for another.
+
+**What this page does and does not cover.** It covers the presets opsinjs ships.
+It says nothing about a theme you derived from your own brand colour: those
+numbers depend on your input, which is why the derivation tooling refuses to emit
+a theme it cannot verify and why
+[Validating your theme](../../theming/validating-your-theme.mdx) exists. Quoting
+these figures in a conformance document is only honest if you shipped the preset
+they describe.
+
+{/* opsinjs:generated:begin — everything below is replaced by scripts/check-contrast.mts */}
+
+<NoDataYet script="scripts/check-contrast.mts" />
+
+{/* opsinjs:generated:end */}

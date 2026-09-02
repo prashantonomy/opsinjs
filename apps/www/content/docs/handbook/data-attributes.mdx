@@ -1,0 +1,125 @@
+---
+title: Data attributes
+description: The shared state-attribute vocabulary — where it comes from, which attributes are Base UI's and which are opsinjs's, and why it is a versioned contract rather than an implementation detail.
+status: planned
+kind: handbook
+aliases: [data-open, data-status, data-starting-style, state attributes, styling state]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="handbook" />
+
+## The short version
+
+<NotBuiltYet />
+
+Every stateful part will publish its state to the DOM as a `data-*` attribute,
+so styling a state needs no JavaScript:
+
+```css
+[data-open] { /* the popup is open */ }
+[data-status="urgent"] { /* the value's clinical status */ }
+[data-category="sleep"] { /* which metric family this belongs to */ }
+```
+
+Two families of attributes exist and they come from different places. **Base UI
+publishes the interaction state** — open, closed, disabled, the animation
+lifecycle. **opsinjs publishes the semantic state** — clinical status, category,
+and data state. The complete generated list is in
+[Reference → Data attributes](../reference/generated/data-attributes.mdx).
+
+These attributes are **covered by semver**. Renaming one is a breaking change,
+exactly like renaming a prop. That is a deliberate commitment; see
+[Versioning policy](../project/versioning-policy.mdx).
+
+## How it works
+
+### Base UI's attributes
+
+opsinjs is built on Base UI, so its state contract passes straight through.
+The ones you will use constantly:
+
+| Attribute | Present when |
+| --- | --- |
+| `data-open` | The part is open |
+| `data-closed` | The part is closed |
+| `data-disabled` | The part is disabled |
+| `data-starting-style` | For one frame as the part enters |
+| `data-ending-style` | While the part is leaving, before it unmounts |
+
+`data-starting-style` and `data-ending-style` are what make enter and exit
+transitions work without an animation library — you style the from-state and the
+to-state, and the element stays mounted long enough for the exit to run. See
+[Motion in practice](./motion-in-practice.mdx).
+
+### opsinjs's attributes
+
+These carry meaning rather than interaction, and they are the reason this page
+matters more here than it would in a general-purpose library.
+
+| Attribute | Values | What it means |
+| --- | --- | --- |
+| `data-status` | `steady` · `watch` · `attention` · `urgent` | The clinical status of the value this part represents |
+| `data-category` | the metric family, e.g. `heart` · `sleep` | Which family the surface belongs to |
+| `data-state` | `empty` · `loading` · `error` · `stale` · `partial` | The data state, as defined in [Data states](../foundations/data-states.mdx) |
+| `data-opsinjs-not-implemented` | present | Emitted by `NotBuiltYet` and `StubNotice`, so a machine reading the DOM gets a definitive negative answer |
+
+`data-status` and `data-category` never appear on the same element with
+overlapping visual effect. That is [the two-axis
+rule](../health/two-colour-axes.mdx) expressed in the DOM, and it is what the
+[stylelint plugin](./tooling/stylelint-plugin.mdx) checks.
+
+## Do this
+
+- **Style states with attribute selectors** rather than toggling classes. The
+  component's DOM is already the source of truth.
+- **Use `data-status` to drive presentation, never to compute one.** The status
+  is assigned upstream by whoever owns the thresholds; the attribute reports it.
+- **Assert on data attributes in tests.** `[data-open]` is a stable, documented
+  contract; a generated class name is not. See [Testing](./testing.mdx).
+- **Read `data-opsinjs-not-implemented` if you are writing tooling.** It is the
+  machine-readable way to ask "does this exist yet" without parsing prose.
+
+## Not this
+
+- **Do not set `data-status` yourself to force a colour.** If you want a surface
+  to look urgent without a value being urgent, you want a different component.
+  Forcing the attribute puts a clinical claim in the DOM that nothing backs.
+- **Do not invent attributes in the `data-opsinjs-*` namespace.** It is
+  versioned; your additions will collide. Use your own prefix.
+- **Do not rely on attribute *order* or on the absence of one you have not
+  read about.** `data-closed` being absent is not a promise that `data-open` is
+  present.
+- **Do not use `data-category` for theming an unrelated surface.** A settings
+  page tinted with the sleep category colour teaches the reader that the colour
+  means nothing.
+
+## Gotchas
+
+- **Boolean-style attributes are present or absent, not `"true"` or
+  `"false"`.** `[data-open]` matches; `[data-open="true"]` will not. Base UI
+  renders these as empty attributes.
+- **`data-starting-style` lasts one frame.** You cannot inspect it comfortably
+  in devtools, which is why enter transitions look "broken" when they are
+  actually working — see [Motion in practice](./motion-in-practice.mdx).
+- **`data-ending-style` requires the element to still be mounted.** If you
+  unmount on close yourself, the exit transition never runs and no error is
+  reported.
+- **Attribute selectors and Tailwind arbitrary variants disagree about
+  escaping.** `data-[status=urgent]:bg-…` works; quoting inside the arbitrary
+  variant frequently does not.
+- **Server-rendered markup carries these attributes too**, which is what makes
+  them safe to style with pure CSS — but it also means an incorrect status is
+  visible in view-source. Do not put anything in an attribute you would not put
+  on screen.
+
+## Related
+
+- [Styling](./styling.mdx) — the four hooks, of which this is the second.
+- [Reference → Data attributes](../reference/generated/data-attributes.mdx) —
+  the generated, complete list.
+- [Clinical status semantics](../health/clinical-status-semantics.mdx) — what
+  each `data-status` value is allowed to mean.
+- [Data states](../foundations/data-states.mdx) — the five values `data-state`
+  can take and what each obliges the surface to show.

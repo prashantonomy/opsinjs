@@ -1,0 +1,354 @@
+{
+  "$comment": "AUTHORED SOURCE — not generated. scripts/build-tokens.mts reads this file and emits lib/generated/glossary.json, which is what <Term>, <Glossary> and /docs/content/plain-english-a-z render. PROVENANCE: every definition here is original prose written for opsinjs. Nothing is copied from the NHS A-Z, from any Crown-copyright source, or from any other glossary — those may be cited as further reading but their wording is not reusable. If you add a term, write the definition yourself.",
+  "version": 1,
+  "namespace": "glossary",
+  "policy": {
+    "audience": "An adult reading about their own health on a phone, with no clinical training, possibly anxious, possibly reading in a second language.",
+    "showBoth": {
+      "always": "Show the clinical term and the plain wording together every time. Used where the clinical term appears on the reader's own paperwork, so hiding it would make the two impossible to match up.",
+      "first-use": "Show both the first time on a screen, then the plain wording alone.",
+      "plain-only": "Never show the clinical term to the reader. It exists here so that authors can look up what to write instead."
+    },
+    "rule": "Plain wording is the default and the clinical term is the annotation, never the other way around. `<Term>` renders the plain wording as the visible text and exposes the clinical term on demand; it must not render a clinical term with a tooltip and call that plain English.",
+    "$comment": "The reason `showBoth: always` exists at all is matching. A reader holding a printout that says 'HbA1c' and looking at a screen that says 'average blood sugar over about three months' cannot tell they are the same measurement unless the screen says both."
+  },
+  "banned": [
+    {
+      "word": "normal",
+      "instead": "in the usual range, or the expected range for you",
+      "reason": "Outside a reference range is not abnormal in the everyday sense of the word, and inside one is not a clean bill of health. 'Normal' also carries a judgement about the person rather than about the reading. This word is banned outright across the system, including in code identifiers."
+    },
+    {
+      "word": "abnormal",
+      "instead": "outside the usual range",
+      "reason": "The counterpart of the same problem, and the version that frightens people."
+    },
+    {
+      "word": "failed",
+      "instead": "outside the range we expected",
+      "reason": "A reading is not a test the reader sat."
+    },
+    {
+      "word": "poor",
+      "instead": "lower than the range for you",
+      "reason": "Judges the person, not the measurement."
+    },
+    {
+      "word": "bad",
+      "instead": "the specific finding, stated plainly",
+      "reason": "Carries a verdict the system is not entitled to give."
+    },
+    {
+      "word": "positive",
+      "instead": "the test found <what it found>",
+      "reason": "In everyday English 'positive' means good news. In a test result it usually means the opposite, and the collision is dangerous."
+    },
+    {
+      "word": "negative",
+      "instead": "the test did not find <what it looked for>",
+      "reason": "Same collision, in the other direction."
+    },
+    {
+      "word": "just",
+      "instead": "delete it",
+      "reason": "'Just a bit high' minimises a reading the reader may need to act on."
+    },
+    {
+      "word": "don't worry",
+      "instead": "state what the reading means and what happens next",
+      "reason": "Reassurance the system cannot back up, and it reads as a reason to worry."
+    },
+    {
+      "word": "diagnosis",
+      "instead": "say what the reading is and who can interpret it",
+      "reason": "opsinjs components never diagnose. Using the word implies they do."
+    }
+  ],
+  "terms": [
+    {
+      "term": "acute",
+      "plain": "sudden, or short-lasting",
+      "showBoth": "first-use",
+      "category": "general",
+      "reason": "Often misread as 'severe'. It describes how quickly something started, not how bad it is.",
+      "related": ["chronic"]
+    },
+    {
+      "term": "adherence",
+      "aka": ["compliance"],
+      "plain": "taking a medicine the way it was prescribed",
+      "showBoth": "plain-only",
+      "category": "medication",
+      "reason": "'Compliance' frames the reader as obedient or not; 'adherence' is better but still clinical. Write what actually happened instead."
+    },
+    {
+      "term": "adverse effect",
+      "aka": ["side effect"],
+      "plain": "an unwanted effect of a medicine",
+      "showBoth": "first-use",
+      "category": "medication",
+      "reason": "'Adverse' is not everyday English. 'Side effect' is understood, but it can make a serious effect sound minor, so say what the effect is."
+    },
+    {
+      "term": "benign",
+      "plain": "not cancer",
+      "showBoth": "always",
+      "category": "results",
+      "reason": "This word appears on reports and is one of the few whose plain meaning is genuinely reassuring, so the reader should be able to match the two.",
+      "related": ["malignant"]
+    },
+    {
+      "term": "biomarker",
+      "plain": "something measurable in your body that says something about your health",
+      "showBoth": "first-use",
+      "category": "results",
+      "reason": "Common in product copy, almost never understood outside research."
+    },
+    {
+      "term": "blood pressure",
+      "aka": ["BP"],
+      "plain": "the pressure of blood pushing against the walls of your arteries, written as two numbers",
+      "showBoth": "first-use",
+      "category": "cardio",
+      "reason": "The words are familiar but the two-number format is not. Always explain which number is which where both are shown.",
+      "related": ["systolic", "diastolic", "hypertension"]
+    },
+    {
+      "term": "BMI",
+      "aka": ["body mass index"],
+      "plain": "a number worked out from your height and weight",
+      "showBoth": "always",
+      "category": "body",
+      "reason": "The abbreviation is widespread and the calculation is not. Anywhere BMI is shown, say that it does not distinguish muscle from fat and is a poor guide for some people."
+    },
+    {
+      "term": "bradycardia",
+      "plain": "a slower than usual heart rate",
+      "showBoth": "first-use",
+      "category": "cardio",
+      "reason": "Appears in device output. Also note that a slow resting heart rate is expected in many fit people.",
+      "related": ["tachycardia"]
+    },
+    {
+      "term": "cholesterol",
+      "plain": "a fatty substance carried in your blood",
+      "showBoth": "first-use",
+      "category": "labs",
+      "reason": "Widely known as a word, widely misunderstood as a single number — most reports give several.",
+      "related": ["LDL", "HDL", "triglycerides"]
+    },
+    {
+      "term": "chronic",
+      "plain": "long-lasting, or ongoing",
+      "showBoth": "first-use",
+      "category": "general",
+      "reason": "Often heard as 'severe'. It describes duration.",
+      "related": ["acute"]
+    },
+    {
+      "term": "contraindication",
+      "plain": "a reason this treatment is not safe for you",
+      "showBoth": "plain-only",
+      "category": "medication",
+      "reason": "A word with no everyday equivalent that readers guess at. Never show it."
+    },
+    {
+      "term": "diastolic",
+      "plain": "the pressure between heartbeats — the lower of the two blood pressure numbers",
+      "showBoth": "always",
+      "category": "cardio",
+      "reason": "The reader's own record shows the clinical word, so both are needed to match them up.",
+      "related": ["systolic", "blood pressure"]
+    },
+    {
+      "term": "eGFR",
+      "aka": ["estimated glomerular filtration rate"],
+      "plain": "an estimate of how well your kidneys are filtering",
+      "showBoth": "always",
+      "category": "labs",
+      "reason": "Appears on results with no explanation. The word 'estimated' matters and should never be dropped."
+    },
+    {
+      "term": "fasting",
+      "plain": "not eating or drinking anything except water for a set time before a test",
+      "showBoth": "first-use",
+      "category": "labs",
+      "reason": "Readers frequently assume water is included. Say the time and say that water is allowed."
+    },
+    {
+      "term": "HbA1c",
+      "aka": ["A1c", "glycated haemoglobin"],
+      "plain": "your average blood sugar over about the last three months",
+      "showBoth": "always",
+      "category": "labs",
+      "reason": "One of the most common results a consumer app displays and one of the least understood. Also flag that it is reported in two different units worldwide.",
+      "related": ["mmol/mol", "reference range"]
+    },
+    {
+      "term": "HDL",
+      "plain": "one of the types of cholesterol measured in a blood test",
+      "showBoth": "always",
+      "category": "labs",
+      "reason": "Frequently described to readers as 'good cholesterol'. Avoid that shorthand: it invites the reader to treat one number as a verdict.",
+      "related": ["LDL", "cholesterol"]
+    },
+    {
+      "term": "hypertension",
+      "plain": "blood pressure that stays higher than the usual range",
+      "showBoth": "first-use",
+      "category": "cardio",
+      "reason": "Frequently confused with 'tension' in the sense of stress.",
+      "related": ["blood pressure"]
+    },
+    {
+      "term": "hypoglycaemia",
+      "aka": ["hypo", "low blood sugar"],
+      "plain": "blood sugar that has dropped below the range you were given",
+      "showBoth": "always",
+      "category": "labs",
+      "reason": "Time-critical. The reader may already know it as 'a hypo', and both forms must be recognisable."
+    },
+    {
+      "term": "in range",
+      "plain": "inside the range this test uses for comparison",
+      "showBoth": "plain-only",
+      "category": "results",
+      "reason": "The replacement for 'normal'. Always name whose range it is: a laboratory's range, a device maker's range, or a range a clinician set for this person.",
+      "related": ["reference range"]
+    },
+    {
+      "term": "LDL",
+      "plain": "one of the types of cholesterol measured in a blood test",
+      "showBoth": "always",
+      "category": "labs",
+      "reason": "Usually captioned 'bad cholesterol'. Same objection as HDL: it turns one number into a moral judgement.",
+      "related": ["HDL", "cholesterol"]
+    },
+    {
+      "term": "malignant",
+      "plain": "cancer",
+      "showBoth": "always",
+      "category": "results",
+      "reason": "Never soften this and never show it without a route to a person. See /docs/health/emergency-and-escalation.",
+      "related": ["benign"]
+    },
+    {
+      "term": "mmol/L",
+      "plain": "millimoles per litre — a unit used for blood test results",
+      "showBoth": "always",
+      "category": "units",
+      "reason": "The same measurement is reported in mmol/L in some countries and mg/dL in others, and the numbers are not close. Never show a value without its unit.",
+      "related": ["mg/dL"]
+    },
+    {
+      "term": "mg/dL",
+      "plain": "milligrams per decilitre — a unit used for blood test results",
+      "showBoth": "always",
+      "category": "units",
+      "reason": "See mmol/L. Converting between the two is a correctness surface, not a display preference.",
+      "related": ["mmol/L"]
+    },
+    {
+      "term": "oedema",
+      "aka": ["edema"],
+      "plain": "swelling caused by fluid building up",
+      "showBoth": "first-use",
+      "category": "general",
+      "reason": "Spelled two ways depending on country; the plain wording avoids the problem entirely."
+    },
+    {
+      "term": "prognosis",
+      "plain": "what is likely to happen next",
+      "showBoth": "plain-only",
+      "category": "general",
+      "reason": "A word no component should ever need. If a product is showing a prognosis, a clinician wrote it."
+    },
+    {
+      "term": "reference range",
+      "aka": ["normal range"],
+      "plain": "the range a test result is compared against",
+      "showBoth": "always",
+      "category": "results",
+      "reason": "The most important term in this glossary. A reference range is a comparison, not a target, and it belongs to a laboratory or a device rather than to the reader. Always name whose range it is and never call it a normal range.",
+      "related": ["in range", "out of range"]
+    },
+    {
+      "term": "remission",
+      "plain": "a period when the signs of an illness have reduced or gone",
+      "showBoth": "first-use",
+      "category": "general",
+      "reason": "Often heard as 'cured'. The plain wording keeps the distinction."
+    },
+    {
+      "term": "resting heart rate",
+      "plain": "how many times your heart beats a minute when you are at rest",
+      "showBoth": "first-use",
+      "category": "cardio",
+      "reason": "Understood as words but frequently confused with the heart rate shown during activity. Say when it was measured.",
+      "related": ["tachycardia", "bradycardia"]
+    },
+    {
+      "term": "screening",
+      "plain": "a test offered to people with no symptoms, to look for a possible problem early",
+      "showBoth": "first-use",
+      "category": "general",
+      "reason": "Readers commonly assume a screening test is diagnostic. It is not, and the difference determines what the result means.",
+      "related": ["false positive"]
+    },
+    {
+      "term": "false positive",
+      "plain": "a result that says something was found when it was not there",
+      "showBoth": "first-use",
+      "category": "general",
+      "reason": "Essential for interpreting any screening result honestly, and impossible to explain after the fact if the first screen did not mention it.",
+      "related": ["screening"]
+    },
+    {
+      "term": "SpO2",
+      "aka": ["oxygen saturation", "blood oxygen"],
+      "plain": "an estimate of how much oxygen your blood is carrying",
+      "showBoth": "always",
+      "category": "cardio",
+      "reason": "Shown by consumer devices as a bare percentage. The word 'estimate' is not optional: the measurement is affected by movement, cold hands and skin tone, and the product must say so."
+    },
+    {
+      "term": "systolic",
+      "plain": "the pressure while your heart beats — the higher of the two blood pressure numbers",
+      "showBoth": "always",
+      "category": "cardio",
+      "reason": "See diastolic.",
+      "related": ["diastolic", "blood pressure"]
+    },
+    {
+      "term": "tachycardia",
+      "plain": "a faster than usual heart rate",
+      "showBoth": "first-use",
+      "category": "cardio",
+      "reason": "Appears in device output with no explanation and reliably alarms people.",
+      "related": ["bradycardia"]
+    },
+    {
+      "term": "titration",
+      "plain": "changing a dose in small steps until it is right for you",
+      "showBoth": "plain-only",
+      "category": "medication",
+      "reason": "No everyday equivalent; the plain wording is complete on its own."
+    },
+    {
+      "term": "triglycerides",
+      "plain": "a type of fat measured in a blood test",
+      "showBoth": "always",
+      "category": "labs",
+      "reason": "Appears on the same report as cholesterol and is routinely mistaken for it.",
+      "related": ["cholesterol"]
+    },
+    {
+      "term": "out of range",
+      "plain": "outside the range this test uses for comparison",
+      "showBoth": "plain-only",
+      "category": "results",
+      "reason": "The replacement for 'abnormal'. It states a fact about a comparison and leaves the interpretation to whoever is entitled to make it.",
+      "related": ["reference range", "in range"]
+    }
+  ]
+}

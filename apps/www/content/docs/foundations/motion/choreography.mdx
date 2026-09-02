@@ -1,0 +1,152 @@
+---
+title: Choreography
+description: What moves together and in what order — continuity over replacement, morph rather than swap, depth rather than translation, and a hard ceiling of one thing moving at a time.
+status: stable
+kind: foundation
+aliases: [stagger, sequencing, shared element, morph transition]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+Choreography is what happens when more than one element has somewhere to be. It
+is the difference between an interface that appears to rearrange itself and one
+that appears to shatter and reassemble.
+
+The organising idea is **continuity**: an element that exists before a transition
+and after it is the *same element*, and should be seen to move rather than to
+disappear and be replaced by something similar. Almost every choreography rule
+below is a consequence of that one, and the health-specific ones are consequences
+of the fact that on these screens the thing being moved is often a number
+somebody is anxious about.
+
+Choreography is often confused with stagger. Stagger is one technique inside it,
+and it is the technique most often used badly.
+
+## How it works
+
+**Morph, do not swap.** When a card opens into a detail view, the card becomes
+the detail view: its container grows, its title stays put and grows with it, its
+value stays put. It does not fade out while a new screen fades in. The reader's
+eye stays on the number the whole way, which is the point — they tapped it
+because they wanted to know more about it, and they should never have to find it
+again on the other side.
+
+Practically this means a transition is authored as *one element changing*
+wherever the two states share a real element, and as an enter/exit pair only when
+they genuinely share nothing.
+
+**Depth on overlay, not translation across.** A surface arriving on top of
+another is a change in depth. The arriving surface comes forward; the surface
+underneath recedes slightly and dims. Nothing slides sideways, because sideways
+means "you have gone somewhere else" and the reader has not — they are still on
+the results screen, with a sheet over it, and the interface should say so. This
+also makes the way back obvious, and it is what the
+[layering contract](../layering-and-elevation.mdx) is expressing visually.
+
+**One thing moves at a time.** If two regions of the screen both animate, the
+reader has to choose which to watch and will usually choose wrong. Where a
+transition genuinely involves two regions, one leads and the other follows, with
+the follower starting as the leader settles rather than at the same instant.
+
+**Stagger is for lists, is short, and is capped.** A list of tiles appearing may
+stagger — a small delay between items, in reading order — because it expresses
+the order the reader should scan them in. Three rules keep it from becoming a
+performance: the per-item delay is a small fraction of the item's own duration;
+the total stagger is capped so a long list does not take a second to appear, with
+items past the cap arriving together; and staggering never applies to something
+already on screen. A list that re-staggers on every filter change is exhausting.
+
+**Order carries meaning, so order by importance.** On a health screen, if
+anything staggers, the reading arrives before the chart and the chart arrives
+before the history. Never the reverse, and never in DOM-convenient order that
+happens to put the least important thing first.
+
+**Exits do not choreograph.** Everything leaving leaves together, quickly. There
+is no reason to stagger a dismissal, and a staggered exit is the animation most
+likely to still be running when the next screen wants to start.
+
+## Using it
+
+**Ask what the reader is following.** Good choreography has exactly one subject.
+If you cannot say which element the reader's eye is meant to be on, the sequence
+has more than one and needs cutting.
+
+<DoDont>
+  <DoDont.Do>
+    Tapping a blood-pressure tile grows it into the reading screen: the value
+    keeps its position and scale relationship, the status colour carries through,
+    and the surrounding tiles recede. The number never leaves the screen.
+  </DoDont.Do>
+  <DoDont.Dont>
+    The tile fades out, a spinner appears, and a new screen fades in with the
+    same number in a different place. The reader loses the value, is shown a
+    loading state for data that was already on screen, and has to re-find the
+    figure they tapped.
+  </DoDont.Dont>
+</DoDont>
+
+**Do not choreograph a change in a value.** Continuity is for position and
+container, not for content. If a reading updates to a new number, the number is
+replaced — cleanly, in place, without a morph between digits. A morphing digit
+implies the value passed through the intermediate states, and it did not.
+
+<DoDont>
+  <DoDont.Do>
+    A new reading replaces the old one in place, with a brief crossfade, and the
+    timestamp beneath it updates at the same moment so the reader can see why.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Digits rolling from the old value to the new one like an odometer. It is a
+    lovely effect and it draws a sequence of readings that were never taken.
+  </DoDont.Dont>
+</DoDont>
+
+**Do not choreograph around a status change.** Nothing sweeps, ripples or
+cascades outward from a tile that has become urgent. Escalation is colour, icon
+and word — see [Motion](index.mdx), health rule 1 — and a choreographed
+escalation is motion carrying urgency by the back door.
+
+**Keep the whole sequence inside a single perceptual moment.** A transition that
+takes longer than roughly the time it takes to look from one side of a phone to
+the other stops being a transition and becomes a scene. If a sequence needs more
+time than that, it is doing too much.
+
+## Tokens
+
+Choreography consumes the same durations and easings as everything else, plus the
+stagger step and its cap. All of them are generated from `tokens/motion.json` by
+`scripts/build-tokens.mts`.
+
+<TokenTable scope="motion" />
+
+## Accessibility impact
+
+- **Large-area coordinated movement is the highest vestibular risk in the
+  system.** Several elements moving in concert across a large part of the
+  viewport is precisely the pattern that provokes symptoms, which is why
+  depth-on-overlay is a small scale change and why nothing pans the screen.
+- **Stagger delays the last item, and somebody is reading the last item.** Under
+  reduced motion the stagger is removed entirely and everything appears together;
+  the reading order is then carried by the DOM, where it belonged all along.
+- **Continuity must not be the only signal of identity.** A morph tells a sighted
+  reader that this detail view is that tile. A screen-reader user gets that from
+  the heading, the accessible name and the announcement on arrival — all of which
+  must be correct with the animation removed.
+- **Focus moves once, at the end.** A morphing transition must not move focus
+  part-way through, and must land it on the new surface's heading or first
+  control when it completes. Focus that moves mid-sequence is how somebody using
+  a screen reader ends up narrating an element that no longer exists.
+- **Nothing in a sequence may block input.** Each stage accepts interaction, and
+  interrupting the sequence reverses it rather than queueing another.
+
+## Related
+
+- [Using motion](using-motion.mdx) — the five jobs the elements in a sequence are
+  each doing, and their durations.
+- [Layering and elevation](../layering-and-elevation.mdx) — the stacking contract
+  that depth-on-overlay is the visual expression of.
+- [Reduced motion](reduced-motion.mdx) — what a morph, a stagger and a depth
+  change each become when a reader has asked for less.

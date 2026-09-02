@@ -1,0 +1,150 @@
+---
+title: components.json
+description: Every field opsinjs reads, what it does, and the one entry you have to add by hand.
+status: planned
+kind: guide
+since: unreleased
+owner: core
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 3m
+aliases: [components.json, registry configuration, shadcn config, opsinjs namespace]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+`components.json` is the shadcn CLI's configuration file, and opsinjs reuses it
+rather than introducing one of its own. If you already have shadcn/ui in your
+project, you already have this file and adding opsinjs is one entry.
+
+<Callout title="Nothing installs yet">
+  The registry URL below is the intended canonical location and does not serve
+  anything today. [Troubleshooting](../troubleshooting.mdx#nothing-is-published-yet).
+</Callout>
+
+## Add the `@opsinjs` entry
+
+This is the only change opsinjs strictly requires, and the only one you have to
+make by hand:
+
+```json title="components.json"
+{
+  "registries": {
+    "@opsinjs": "https://opsinjs.dev/r/{name}.json"
+  }
+}
+```
+
+`{name}` is substituted by the CLI, so `@opsinjs/result-card` resolves to
+`https://opsinjs.dev/r/result-card.json`. The URL is guessable on purpose: an
+agent that knows a component id can fetch its registry item without discovering an
+index first.
+
+Two safety notes about this line, because a registry entry is a remote code
+source:
+
+- **`opsinjs.dev` is the only canonical registry host.** Anything else serving
+  `@opsinjs` is not us. The canonical domain, npm scope and registry URL are
+  published in [Official resources](../../project/official-resources.mdx)
+  precisely so impersonation is checkable.
+- **`shadcn add` writes source files into your repository.** Review the diff the
+  first time you add from any registry, exactly as you would review a dependency.
+
+## Know what the other fields do
+
+The rest of the file is shadcn's, but opsinjs reads several fields and gets them
+wrong quietly if they are wrong.
+
+| Field | What it does | What opsinjs needs from it |
+| --- | --- | --- |
+| `$schema` | Editor validation | Nothing, but keep it |
+| `style` | Selects a style variant within a registry | Chooses which opsinjs style is served for a component; the default is named in [Registry](../../registry/index.mdx) |
+| `rsc` | Whether the project uses server components | Controls whether a `"use client"` directive is written into files that need one. Wrong value, wrong build errors |
+| `tsx` | TypeScript or JavaScript output | opsinjs source is TypeScript; `false` is not supported |
+| `tailwind.css` | Path to your main stylesheet | Where the token layer import is written |
+| `tailwind.baseColor` | The neutral ramp | shadcn's, not opsinjs's. The opsinjs token layer defines its own neutrals |
+| `tailwind.cssVariables` | Variables versus utility classes | Must be `true`. The whole token system is CSS custom properties |
+| `tailwind.prefix` | Utility prefix | Supported, but set it before you copy anything in — changing it later means editing copied source |
+| `iconLibrary` | Which icon set | opsinjs targets lucide. A different set means substituting icons in copied source by hand |
+| `aliases.components` | Where components go | Must match your `tsconfig.json` paths |
+| `aliases.ui` | Where primitives go | Same |
+| `aliases.utils` | Where `cn` lives | Copied components import it from here |
+| `aliases.lib`, `aliases.hooks` | Supporting code | Same rule: must match `tsconfig` |
+| `registries` | Namespaced registries | Where `@opsinjs` goes |
+
+### The alias rule that causes the most trouble
+
+`aliases` and your `tsconfig.json` `paths` are two independent statements of the
+same fact, and nothing reconciles them. The CLI writes files to the alias; your
+bundler and typechecker resolve the tsconfig path. When they disagree, files land
+somewhere real and imports fail somewhere else, and the error message names
+neither file.
+
+In a workspace, both must be correct in the **app being written to**, not in the
+repository root. [Monorepo](./monorepo.mdx) has the details.
+
+## A complete example
+
+A consumer project's file, with the opsinjs entry in place:
+
+```json title="components.json"
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "app/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "@/components",
+    "ui": "@/components/ui",
+    "utils": "@/lib/utils",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "registries": {
+    "@opsinjs": "https://opsinjs.dev/r/{name}.json"
+  }
+}
+```
+
+## Verify it worked
+
+1. **A namespaced add resolves.** `@opsinjs/status-pill` fetches rather than
+   erroring on an unknown registry.
+2. **The file lands where the alias says.** If it does not, the alias and the
+   tsconfig path disagree.
+3. **The import inside the copied file resolves** — particularly the `cn` import,
+   which comes from `aliases.utils` and is the first thing to break when that alias
+   is wrong.
+4. **`"use client"` appears only where expected.** If it is on everything, `rsc` is
+   probably `false` when it should be `true`.
+
+## Troubleshooting
+
+**Unknown registry `@opsinjs`.** The `registries` entry is missing, or the key is
+missing its `@`. The key includes the `@`; the URL template must include `{name}`.
+
+**Components land in the wrong folder.** `aliases` versus `tsconfig` paths.
+
+**`cn is not exported`.** `aliases.utils` points somewhere that does not export it.
+
+**Icons are missing or wrong.** `iconLibrary` is not lucide. There is no automatic
+substitution; you are editing copied source.
+
+**Everything is a client component.** `rsc` is `false`.
+
+## Next
+
+- [Monorepo](./monorepo.mdx) — the same fields, one directory level harder.
+- [Registry](../../registry/index.mdx) — what the namespace resolves to and what a
+  registry item contains.
+- [Official resources](../../project/official-resources.mdx) — the canonical hosts,
+  so you can tell a real registry from a lookalike.

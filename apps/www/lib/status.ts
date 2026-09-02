@@ -1,0 +1,569 @@
+/**
+ * THE SINGLE STATUS VOCABULARY.
+ *
+ * `source.config.ts` declares the same two enums for frontmatter validation and
+ * cannot export them — fumadocs-mdx refuses any export from a source config
+ * that is not a collection — so this file is the runtime copy, and
+ * `assert-ia.mts` asserts the two agree. If you add a status or a kind, add it
+ * in both places in the same commit.
+ *
+ * Everything that renders a release phase, gates a section, or asks "what
+ * headings does this page need" reads from here. Nothing re-declares it.
+ *
+ * This module has no imports, no JSX and no non-erasable TypeScript syntax,
+ * because `scripts/*.mts` are executed by plain `node` and import it directly
+ * with an explicit `.ts` extension.
+ */
+
+/* ────────────────────────────────────────────────────────────────────────────
+   RELEASE PHASE
+   ──────────────────────────────────────────────────────────────────────────── */
+
+export const STATUSES = [
+  "stable",
+  "beta",
+  "alpha",
+  "planned",
+  "deprecated",
+  "considered",
+] as const
+
+/** The release phase of a page or a catalogue entry. */
+export type Status = (typeof STATUSES)[number]
+
+export function isStatus(value: unknown): value is Status {
+  return (
+    typeof value === "string" && (STATUSES as readonly string[]).includes(value)
+  )
+}
+
+export interface StatusMeta {
+  /** The word shown on the badge. */
+  label: string
+  /** One sentence a reader can act on, shown in the status legend and on hover. */
+  summary: string
+  /**
+   * What this phase PROMISES. Published verbatim on
+   * /docs/project/release-phases; the versioning policy is written against it.
+   */
+  promise: string
+  /** Sort order for the status matrix and the section-progress counts. */
+  order: number
+  /**
+   * Whether a page at this status may show a working example. Exactly one
+   * phase may not, and it is the one every page is currently at.
+   */
+  canDemonstrate: boolean
+  /** The clinical status level the docs chrome tints this badge with. */
+  tone: ClinicalStatus | "unknown"
+}
+
+/**
+ * Ordered most-finished first. `order` is what `<StatusMatrix>` sorts on and
+ * what `<SectionProgress>` counts in.
+ */
+export const STATUS_META: Record<Status, StatusMeta> = {
+  stable: {
+    label: "Stable",
+    summary: "Finished. Safe to build on.",
+    promise:
+      "The JavaScript API, the rendered DOM, the data-* attributes and the CSS custom properties are all covered by semver. A breaking change requires a major version and a migration guide.",
+    order: 0,
+    canDemonstrate: true,
+    tone: "steady",
+  },
+  beta: {
+    label: "Beta",
+    summary: "Complete and in use, but the surface may still move.",
+    promise:
+      "Feature-complete and accessibility-reviewed. The API may change in a minor version with a deprecation notice and at least one release of overlap.",
+    order: 1,
+    canDemonstrate: true,
+    tone: "steady",
+  },
+  alpha: {
+    label: "Alpha",
+    summary: "Usable, incomplete, and expected to change.",
+    promise:
+      "It works and it is documented. The API may change in any release without a deprecation cycle. Not for a production health surface.",
+    order: 2,
+    canDemonstrate: true,
+    tone: "watch",
+  },
+  planned: {
+    label: "Planned",
+    summary: "Specified in full. Not implemented. There is no code.",
+    promise:
+      "The page you are reading is a specification: what it is for, when not to use it, what it asserts clinically, its proposed anatomy and API, and the accessibility bar the implementation must clear. Nothing has been built. Do not generate code against it.",
+    order: 3,
+    canDemonstrate: false,
+    tone: "attention",
+  },
+  deprecated: {
+    label: "Deprecated",
+    summary: "Still works. Being removed. A replacement is named.",
+    promise:
+      "It keeps working until the removal version stated on its page. Every deprecated entry names its replacement and its removal version; see /docs/project/deprecations.",
+    order: 4,
+    canDemonstrate: true,
+    tone: "watch",
+  },
+  considered: {
+    label: "Considered",
+    summary:
+      "Looked at, decided against for now, with the reason written down.",
+    promise:
+      "There is no page, no code and no plan. There IS a catalogue row saying why it is not here and what to reach for instead. A considered entry is a decision, not a backlog item.",
+    order: 5,
+    canDemonstrate: false,
+    tone: "unknown",
+  },
+}
+
+/** Statuses in display order. */
+export const STATUS_ORDER: Status[] = [...STATUSES].sort(
+  (a, b) => STATUS_META[a].order - STATUS_META[b].order
+)
+
+/** True when a page at this status must carry a not-implemented marker. */
+export function isNotImplemented(status: Status): boolean {
+  return status === "planned" || status === "considered"
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   PAGE KIND
+   ──────────────────────────────────────────────────────────────────────────── */
+
+export const KINDS = [
+  "component",
+  "foundation",
+  "health",
+  "accessibility",
+  "content",
+  "pattern",
+  "recipe",
+  "screen",
+  "handbook",
+  "reference",
+  "project",
+  "guide",
+] as const
+
+/**
+ * A page's kind. This is a contract, not a label: `kind` fully determines the
+ * page's headings, and `assert-ia.mts` fails the build on a missing or an
+ * unexpected one.
+ */
+export type Kind = (typeof KINDS)[number]
+
+export function isKind(value: unknown): value is Kind {
+  return (
+    typeof value === "string" && (KINDS as readonly string[]).includes(value)
+  )
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   THE CLINICAL AXES
+   ──────────────────────────────────────────────────────────────────────────── */
+
+export const CLINICAL_STATUSES = [
+  "steady",
+  "watch",
+  "attention",
+  "urgent",
+] as const
+
+/**
+ * What a reading means and what, if anything, to do about it.
+ *
+ * Four levels, ordered. This is the ONLY status vocabulary in the system: the
+ * documentation chrome's callouts, the product's status pills and the dev
+ * warnings all use these four words, so a developer reading a Callout in these
+ * docs is reading the same vocabulary they will ship.
+ *
+ * A level is assigned by the consuming product from a reference range or a
+ * threshold that the product owns. opsinjs never assigns one, because opsinjs
+ * does not know the reader.
+ */
+export type ClinicalStatus = (typeof CLINICAL_STATUSES)[number]
+
+/**
+ * The absence of an assertion — no reading, a stale reading, or a reading whose
+ * reference range the product does not own.
+ *
+ * Deliberately NOT a fifth clinical status: rendering "we do not know" as a
+ * status would claim a verdict the system does not have, and colouring it
+ * anywhere near `watch` would let a reader read it as "probably fine".
+ */
+export type UnknownStatus = "unknown"
+
+export type ClinicalStatusOrUnknown = ClinicalStatus | UnknownStatus
+
+export interface ClinicalStatusMeta {
+  /** The word rendered beside the colour and the icon. Never omitted. */
+  word: string
+  /** The canonical example sentence, used by `<StatusLadder>`. */
+  sentence: string
+  /** Who is entitled to assign this level. */
+  assignedBy: string
+  /** The lucide icon name. Colour is never the only carrier of meaning. */
+  icon: string
+  /** 1 is the calmest. Used for ordering and for the escalation budget. */
+  level: number
+}
+
+export const CLINICAL_STATUS_META: Record<
+  ClinicalStatusOrUnknown,
+  ClinicalStatusMeta
+> = {
+  steady: {
+    word: "Steady",
+    sentence: "This reading is where it is expected to be.",
+    assignedBy: "The consuming product, from a reference range it owns.",
+    icon: "Check",
+    level: 1,
+  },
+  watch: {
+    word: "Watch",
+    sentence: "This reading is outside the usual range. Keep an eye on it.",
+    assignedBy: "The consuming product, from a reference range it owns.",
+    icon: "Eye",
+    level: 2,
+  },
+  attention: {
+    word: "Needs attention",
+    sentence: "This reading needs to be looked at. Contact your care team.",
+    assignedBy: "The consuming product, from a clinically reviewed threshold.",
+    icon: "TriangleAlert",
+    level: 3,
+  },
+  urgent: {
+    word: "Urgent",
+    sentence: "This reading needs help now.",
+    assignedBy: "A clinically reviewed threshold with a named clinical owner.",
+    icon: "OctagonAlert",
+    level: 4,
+  },
+  unknown: {
+    word: "Not known",
+    sentence: "We do not have a reading to show.",
+    assignedBy: "Nobody. This is the absence of an assertion.",
+    icon: "Minus",
+    level: 0,
+  },
+}
+
+export const HEALTH_CATEGORIES = [
+  "sleep",
+  "heart",
+  "activity",
+  "nutrition",
+  "mind",
+  "labs",
+] as const
+
+/**
+ * What a reading is ABOUT. Identity, never verdict.
+ *
+ * A heart-red card does not mean something is wrong with a heart reading; it
+ * means the reading concerns the heart. This is the axis products most often
+ * misuse, because red already means something else everywhere else on the web.
+ */
+export type HealthCategory = (typeof HEALTH_CATEGORIES)[number]
+
+export const HEALTH_CATEGORY_LABELS: Record<HealthCategory, string> = {
+  sleep: "Sleep",
+  heart: "Heart",
+  activity: "Activity",
+  nutrition: "Nutrition",
+  mind: "Mind",
+  labs: "Labs",
+}
+
+export function isClinicalStatus(value: unknown): value is ClinicalStatus {
+  return (
+    typeof value === "string" &&
+    (CLINICAL_STATUSES as readonly string[]).includes(value)
+  )
+}
+
+export function isHealthCategory(value: unknown): value is HealthCategory {
+  return (
+    typeof value === "string" &&
+    (HEALTH_CATEGORIES as readonly string[]).includes(value)
+  )
+}
+
+export interface AxisConflict {
+  code: "OPSIN-0001"
+  category: HealthCategory
+  status: ClinicalStatus
+  message: string
+  docs: string
+}
+
+/**
+ * THE NEVER-MIX RULE, as a function.
+ *
+ * Returns a conflict when a single surface has been given both a category and a
+ * clinical status. `<StatusAxisDemo>` calls this and REFUSES to render the
+ * mixed pair; the dev-mode warning OPSIN-0001 is the same check at runtime.
+ *
+ * Both axes may appear on one SCREEN — a heart-tinted card containing a
+ * `watch` pill is correct and common. What may not happen is one surface
+ * carrying both, because then the reader cannot tell which of the two the
+ * colour is answering.
+ */
+export function axisConflict(input: {
+  category?: HealthCategory | null
+  status?: ClinicalStatus | null
+}): AxisConflict | null {
+  const { category, status } = input
+  if (!category || !status) return null
+  return {
+    code: "OPSIN-0001",
+    category,
+    status,
+    message:
+      "This surface was given both a category (" +
+      category +
+      ") and a clinical status (" +
+      status +
+      "). A surface carries one axis. Set the category on the surface and render the status as a StatusPill inside it.",
+    docs: "health/two-colour-axes",
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
+   SECTION CONTRACTS
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/**
+ * The H2s a page must have, by `kind`. This is the outline
+ * `content/_templates/*.mdx` implements, `<PageTemplate>` asserts and
+ * `assert-ia.mts` checks; all three read it from here so they cannot drift.
+ *
+ * `component` is absent on purpose: a component page's outline depends on its
+ * status as well as its kind, and lives in COMPONENT_SECTIONS_BY_STATUS below.
+ */
+export const SECTION_OUTLINES: Record<Exclude<Kind, "component">, string[]> = {
+  foundation: [
+    "Overview",
+    "How it works",
+    "Using it",
+    "Tokens",
+    "Accessibility impact",
+    "Related",
+  ],
+  health: [
+    "What this means",
+    "The rule",
+    "Why (evidence)",
+    "Applying it",
+    "Components that implement this",
+    "What this does not cover",
+    "Updates to this page",
+  ],
+  accessibility: [
+    "What we guarantee",
+    "What you own",
+    "How to check",
+    "Measured results",
+    "Known gaps",
+    "Updates to this page",
+  ],
+  content: [
+    "The rule",
+    "Approved / Rejected",
+    "Patterns",
+    "Banned words",
+    "Related components",
+  ],
+  pattern: [
+    "When to use",
+    "When not to use",
+    "How it works",
+    "Content",
+    "Accessibility",
+    "Research",
+    "Updates to this page",
+  ],
+  recipe: [
+    "The task",
+    "What you need",
+    "Build it",
+    "The copy",
+    "Get it right",
+    "Variations",
+    "Related",
+  ],
+  screen: [
+    "What this screen does",
+    "Composition",
+    "Preview",
+    "Safety notes",
+    "Accessibility",
+    "Status",
+  ],
+  handbook: [
+    "The short version",
+    "How it works",
+    "Do this",
+    "Not this",
+    "Gotchas",
+    "Related",
+  ],
+  reference: ["How this is generated"],
+  project: [],
+  guide: ["Overview", "Verify it worked", "Troubleshooting", "Next"],
+}
+
+/**
+ * `kind: project` is free-form and `kind: guide` has task sections between its
+ * fixed first and last headings, so for these two the outline is a REQUIRED
+ * SUBSET rather than the complete list. Everything else is exact.
+ */
+export const OUTLINE_IS_EXACT: Record<Exclude<Kind, "component">, boolean> = {
+  foundation: true,
+  health: true,
+  accessibility: true,
+  content: true,
+  pattern: true,
+  recipe: true,
+  screen: true,
+  handbook: true,
+  reference: false,
+  project: false,
+  guide: false,
+}
+
+/**
+ * THE COMPONENT PAGE ANATOMY, status-gated.
+ *
+ * Sections 1 (header) and 22 (footer) are generated from frontmatter and never
+ * appear as an H2, so they are not listed. Everything else is, in page order.
+ *
+ * At each status the listed sections are the WHOLE page. The others are
+ * omitted, not left empty — a heading with nothing under it is worse than an
+ * absent heading, and `<PageTemplate kind="component">` fails the build either
+ * way. `## Clinical meaning` is included here but is mandatory only for a
+ * `health-*` category and forbidden outside one; `assert-ia.mts` checks both
+ * directions, which is why it is listed separately below.
+ */
+export const COMPONENT_SECTIONS_BY_STATUS: Record<
+  Exclude<Status, "considered">,
+  string[]
+> = {
+  planned: [
+    "Status",
+    "Preview",
+    "Installation",
+    "When to use it",
+    "Clinical meaning",
+    "Anatomy",
+    "Proposed API",
+    "Content guidelines",
+    "Accessibility requirements",
+    "Related",
+  ],
+  alpha: [
+    "Status",
+    "Preview",
+    "Installation",
+    "Usage",
+    "When to use it",
+    "Clinical meaning",
+    "Anatomy",
+    "Examples",
+    "Content guidelines",
+    "Accessibility",
+    "API reference",
+    "Related",
+  ],
+  beta: [
+    "Status",
+    "Preview",
+    "Installation",
+    "Usage",
+    "When to use it",
+    "Clinical meaning",
+    "Anatomy",
+    "Examples",
+    "States",
+    "Content guidelines",
+    "Motion",
+    "Accessibility",
+    "Data attributes",
+    "CSS variables",
+    "Tokens",
+    "API reference",
+    "Cost",
+    "Related",
+  ],
+  stable: [
+    "Status",
+    "Preview",
+    "Installation",
+    "Usage",
+    "When to use it",
+    "Clinical meaning",
+    "Anatomy",
+    "Examples",
+    "States",
+    "Content guidelines",
+    "Motion",
+    "Accessibility",
+    "Data attributes",
+    "CSS variables",
+    "Tokens",
+    "API reference",
+    "Cost",
+    "Related",
+    "Research and rationale",
+  ],
+  deprecated: [
+    "Status",
+    "Preview",
+    "Installation",
+    "Usage",
+    "When to use it",
+    "Clinical meaning",
+    "Anatomy",
+    "Content guidelines",
+    "Accessibility",
+    "API reference",
+    "Related",
+  ],
+}
+
+/**
+ * Sections whose presence depends on the component's category rather than on
+ * its status. Required when `category` starts with the prefix, and forbidden
+ * when it does not.
+ */
+export const CATEGORY_GATED_SECTIONS: {
+  section: string
+  requiredForCategoryPrefix: string
+}[] = [{ section: "Clinical meaning", requiredForCategoryPrefix: "health-" }]
+
+/**
+ * The H2 that carries a component's accessibility contract. It is named
+ * "Accessibility requirements" at `planned`, because at that status it is a bar
+ * the implementation must clear rather than a set of results, and
+ * "Accessibility" from `alpha` onwards, when there is something to measure.
+ * Mandatory at every status; never delegated upstream.
+ */
+export function accessibilitySectionFor(status: Status): string {
+  return status === "planned" ? "Accessibility requirements" : "Accessibility"
+}
+
+/** The sections required for a component page at a given status and category. */
+export function componentSections(status: Status, category: string): string[] {
+  if (status === "considered") return []
+  const base = COMPONENT_SECTIONS_BY_STATUS[status]
+  return base.filter((section) => {
+    const gate = CATEGORY_GATED_SECTIONS.find((g) => g.section === section)
+    if (!gate) return true
+    return category.startsWith(gate.requiredForCategoryPrefix)
+  })
+}

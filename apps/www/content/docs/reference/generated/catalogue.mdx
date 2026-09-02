@@ -1,0 +1,51 @@
+---
+title: Catalogue
+description: Every component id the system has declared — shipped and considered — with its category, status, aliases and page.
+status: stable
+kind: reference
+full: true
+owner: core
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 3m
+aliases: [component list, considered components, does opsinjs have]
+---
+
+<PageTemplate kind="reference" />
+
+## How this is generated
+
+**Source:** `registry/catalogue.ts` — the single declaration of the id namespace.
+**Script:** `scripts/build-registry.mts` writes `lib/generated/catalogue.json`;
+`scripts/build-reference.mts` renders this page. **Command:** `pnpm run generate`.
+
+This is the answer to "does opsinjs have one of these". It is deliberately the
+most boring page on the site and the one most worth trusting: every id the system
+will ever resolve appears here, including the ones with no implementation and no
+page, and nothing appears here that is not declared in the catalogue file.
+
+**Six columns.** *Id* is the kebab-case name used in a URL, a registry item and a
+CLI command. *Name* is the PascalCase name used in prose and in code. *Category*
+groups it, and a category beginning `health-` carries extra obligations — a
+clinical contract section and at least one governing doctrine page. *Status* is
+one of the six [release phases](../../project/release-phases.mdx). *Aliases* are
+the search synonyms, which is how "lab result" and "blood pressure" find their
+way to the right row. *Page* links to the specification, where one exists.
+
+**Considered rows are the important ones.** A row with `status: considered` is a
+name we have reserved, with no specification and no implementation. It exists so
+that asking about it returns a definite negative and a pointer at the alternative
+rather than a 404 that invites a program to invent an API.
+[ADR 0008](../../project/decisions/0008-considered-components-resolve.mdx)
+records exactly how those ids resolve and why the answer is not a catch-all route.
+
+**What is deliberately excluded.** Parts of compound components are not catalogue
+entries — a dialog's panel is documented on the dialog page, not as its own id.
+Examples and screens have their own registry types and are listed with the
+registry, not here.
+
+{/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
+
+<NoDataYet script="scripts/build-reference.mts" />
+
+{/* opsinjs:generated:end */}

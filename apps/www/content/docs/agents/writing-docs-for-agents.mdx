@@ -1,0 +1,161 @@
+---
+title: Writing docs for agents
+description: The authoring rules that keep a page legible to a machine, without making it worse for the person who has to read it.
+status: stable
+kind: handbook
+aliases: [machine-legible, authoring for llms, docs style for agents]
+---
+
+<PageTemplate kind="handbook" />
+
+## The short version
+
+A page that is good for a machine is almost always a page that is good for a
+hurried human. The rules below are not a second style guide; they are the
+existing one, with the parts that matter most to a machine made explicit.
+
+- **State the negative.** Say what a thing is not for, and name the alternative.
+- **Put the answer in the first sentence.** A retrieval system usually keeps the
+  first chunk.
+- **Never hide a fact in a picture.** A diagram is an aid, never the only place
+  something is said.
+- **Let the generator write every number.** A hand-typed measurement is
+  indistinguishable from an invented one.
+- **Use the closed component vocabulary.** Unknown tags fail the build and
+  degrade unpredictably in the markdown twin.
+- **Frontmatter is content.** `status`, `kind`, `evidence` and `aliases` are read
+  far more often than your prose.
+
+## How it works
+
+Every page is published three times. As HTML, as a processed markdown twin, and
+as an entry in the bundles and shards. The second and third are what a machine
+sees, and the transformation between them is where authoring choices become
+consequences.
+
+Processing resolves components to text. A `<TokenTable>` becomes a markdown
+table of real values. A `<ComponentPreview>` becomes an explicit sentence saying
+nothing is built. A `<ContrastOracle>` becomes a line naming the tool and where
+to find it. This works well, and it works only because the components are a
+closed set whose textual fallbacks are written once. A tag outside that set has
+no fallback, fails `assert-ia`, and — had it slipped through — would arrive in
+the twin as nothing at all.
+
+Frontmatter survives the transformation intact, which is why it carries so much
+weight. A model deciding whether to trust a page reads `status`, `evidence` and
+`reviewed` before it reads a word of the body.
+
+## Do this
+
+### Answer in the first sentence
+
+```md
+## When not to use it
+
+Do not use AlertBanner for information the reader does not need to act on;
+use Callout instead.
+```
+
+The rule, the reason and the alternative, before any elaboration. Chunkers split
+on headings and keep what follows.
+
+### Name the alternative every time
+
+"Do not use X" is an instruction a model cannot follow, because it leaves the
+next choice undetermined. "Do not use X, use Y" is one it can. This is why the
+when-not-to-use list is structurally required to name a replacement rather than
+merely encouraged to.
+
+### Write aliases from the reader's vocabulary
+
+Aliases should be what somebody would actually type — `lab result`,
+`blood pressure`, `a1c` — not synonyms of your own title. They are the bridge
+between a clinical question and a component name.
+
+### Declare evidence honestly
+
+`evidence: opinion` is a perfectly good value and is always better than a
+citation that does not exist. A health page must declare one, and a reviewer —
+human or machine — treats `cited` and `opinion` very differently, which only
+works if the distinction is real.
+
+### Let the build own the numbers
+
+Contrast ratios, prop tables, token values, bundle sizes and catalogue rows are
+generated into the page. If you find yourself typing a number, ask which script
+should have produced it.
+
+### Say plainly when something does not exist
+
+`<NotBuiltYet>`, `<StubNotice>`, `<NoDataYet>` and `<Todo>` all emit machine-
+readable markers as well as human-readable text. Reaching for prose instead
+—"coming soon" — produces a page a machine reads as a description of something
+that exists.
+
+## Not this
+
+### Do not put the only copy of a rule in a diagram
+
+A flow diagram renders as an image or as a mermaid block. Either way, a rule
+that appears nowhere else is a rule the twin does not contain. Write it, then
+draw it.
+
+### Do not rely on heading anchors
+
+Headings get edited and anchors change. Link to a page. Within a page, repeat
+the fact rather than pointing at a fragment of it.
+
+### Do not use a table where a list will do
+
+Tables survive processing but are harder to chunk, and a two-column table is
+almost always a list wearing a costume. Use a table when the columns genuinely
+vary independently.
+
+### Do not write "as discussed above"
+
+A chunk has no above. Restate the antecedent, or link to the page that owns it.
+
+### Do not invent a component to make a page nicer
+
+The MDX vocabulary is closed and `assert-ia` fails the build on an unknown tag.
+If a page needs something that does not exist, that is a proposal for the
+vocabulary, not a local exception.
+
+### Do not restate a canonical page
+
+Two pages that say the same thing differently will disagree eventually, and a
+retrieval system will return whichever it likes. Canonicality is declared:
+[Plain English A–Z](../content/plain-english-a-z.mdx) owns plain language, and
+[Numbers, units and precision](../health/numbers-units-precision.mdx) owns
+numeric formatting. Link; do not paraphrase.
+
+## Gotchas
+
+**The twin is processed, so a component's fallback is your prose.** If a
+component's textual fallback is thin, the twin is thin. Check the twin of a page
+you have written; it takes ten seconds and it is not always what you expect.
+
+**Frontmatter typos fail closed, quietly.** An unknown key is stripped rather
+than rejected, so a misspelled `alias` simply does not exist. `assert-ia` checks
+the fields it knows about; it cannot check for a field you meant to write.
+
+**`status` on the page and `status` in the catalogue are separate facts.** They
+are asserted to agree. If you change one, change both — or better, change the
+catalogue and let the page follow.
+
+**Aliases must be globally unique.** They are declared in the catalogue for
+exactly this reason. A duplicate is a build failure, not a merge conflict.
+
+**Long code blocks are expensive.** They are copied verbatim into every bundle
+and shard. Use `<CodeCollapsible>` for anything long, and prefer naming a source
+file to pasting it.
+
+## Related
+
+- [Rules for agents](./rules-for-agents.mdx) — the consuming half of the same
+  contract.
+- [Documentation templates](../handbook/contributing/documentation-templates.mdx)
+  — the per-kind outlines these rules assume.
+- [Raw markdown API](./raw-markdown-api.mdx) — what your page becomes.
+- [Machine-readable schemas](./machine-readable-schemas.mdx) — the structured
+  data your frontmatter feeds.

@@ -1,0 +1,211 @@
+---
+title: Validating your theme
+description: How to prove your own theme is legible, and why every contrast number published on this site describes the shipped presets and not your colours.
+status: stable
+kind: guide
+aliases: [check-theme, contrast CI, validate colours, theme lint]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+<SafetyCallout severity="act" evidence="opinion">
+**Every contrast figure published anywhere on this site describes the shipped
+opsinjs presets.** They are measured, they are regenerated on every build, and
+they say nothing whatsoever about a theme you have changed. The moment you set
+`--primary`, the published numbers stop applying to your product, and an
+accessibility claim that leans on them stops being true.
+</SafetyCallout>
+
+That is the whole reason this page exists. Most design systems publish a
+contrast table, invite you to retheme, and never reconcile the two. opsinjs
+treats a theme as something that has to be re-measured, and gives you three
+places to do it: a browser tool, an HTTP endpoint, and — once it ships — a
+command you can put in CI.
+
+This page assumes you have a theme. If you do not,
+[the theme generator](./theme-generator.mdx) validates as it derives and you may
+not need anything here until your first override.
+
+## What "valid" means here
+
+A theme is valid when every pair the components will actually render clears the
+published floor, in **both** themes, at the text size the pair is used at.
+
+Three parts of that sentence do work.
+
+**Pair, not colour.** Contrast is a relationship. `--primary` is neither
+accessible nor inaccessible; `--primary-foreground` on `--primary` is one or the
+other.
+
+**Both themes.** A dark ramp is derived, not mirrored, and it is where failures
+concentrate — a mid-chroma hue that had room to darken in light often has none
+to lighten in dark.
+
+**At the size it is used at.** APCA's answer depends on font size and weight,
+which is most of why it disagrees with WCAG 2.2's fixed ratios. opsinjs reports
+both and does not hide the disagreement.
+[Contrast and APCA](../foundations/colour/contrast-and-apca.mdx) is canonical for
+what each number means; [Contrast
+conformance](../accessibility/contrast-conformance.mdx) states which one the
+project's conformance claim rests on.
+
+## Check a pair by hand
+
+The fastest loop, and the one to use while you are still choosing colours.
+
+Open [`/playground/contrast`](/playground/contrast), paste a foreground and a
+background in any CSS colour syntax, and set the text size. You get the APCA
+`Lc`, the WCAG 2.2 ratio, and a verdict against the opsinjs floor — plus, where
+they disagree, a sentence saying which is the stricter answer for that pair.
+
+The same checker is embedded inline as `<ContrastOracle>` throughout
+Foundations, so you can test a pair without leaving the page that explains it.
+
+## Check a pair from a script
+
+There is an HTTP endpoint. It takes a foreground, a background and a size, and
+returns the measurement:
+
+```bash
+curl -s https://opsinjs.dev/api/contrast \
+  -H "content-type: application/json" \
+  -d '{"fg":"oklch(0.99 0 0)","bg":"oklch(0.52 0.14 262)","size":16}'
+```
+
+The response shape — the numbers come from the measurement, never from this
+page:
+
+```ts
+{
+  apcaLc: number          // APCA lightness contrast, signed
+  wcag: number            // WCAG 2.2 contrast ratio
+  verdict: "pass" | "fail"
+}
+```
+
+This is enough to write a check today, in any language, with no dependency on
+opsinjs at all — a short script that reads your theme's role tokens and posts
+each pair. It is a network call per pair, so it belongs in a scheduled job
+rather than on every commit.
+
+## Check a whole theme in CI
+
+<StubNotice
+  name="check-theme"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "Does it read the theme from CSS, from a preset code, or from both?",
+    "What is the exit code when a pair fails only under APCA and passes under WCAG 2.2?",
+    "Does it fail on a pair that no component actually renders, or only on reachable pairs?",
+  ]}
+/>
+
+The portable form is `opsinjs check-theme`, shipped by
+[`@opsinjs/color`](../packages/opsinjs-color.mdx). It is specified and not built.
+The specification matters more than the binary: the same OKLCH, APCA and WCAG
+2.2 implementations that generate this site's numbers are the ones the package
+will expose, so a local verdict and a published verdict cannot drift.
+
+The proposed shape, so you can review it and so nobody generates code against a
+guess:
+
+```bash
+# PROPOSED. Not implemented. Do not script against this yet.
+npx @opsinjs/color check-theme ./app/globals.css --floor opsinjs --format github
+```
+
+And the workflow it is meant to sit in — also a specification:
+
+```yaml title=".github/workflows/theme.yml"
+# PROPOSED. @opsinjs/color has not shipped.
+name: theme
+on: [pull_request]
+jobs:
+  contrast:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - run: npx @opsinjs/color check-theme ./app/globals.css --format github
+```
+
+Until it exists, the honest CI story is the endpoint above, or — if you have
+forked opsinjs — `pnpm run contrast`, which runs
+`scripts/check-contrast.mts` against the repository's own tokens and fails on a
+regression. That script validates **this repository's** theme. It is not a
+general-purpose tool and pointing it at your project will measure the wrong
+colours.
+
+## Check the things contrast cannot tell you
+
+A theme can pass every pair and still be wrong. Three checks that need eyes:
+
+<Steps>
+
+### Colour independence
+
+Run a representative screen through `<CvdSimulator>` in protanopia, deuteranopia,
+tritanopia and grayscale. Nothing that carries meaning may be distinguishable by
+hue alone. In practice this is a check on your *composition* rather than your
+palette, because opsinjs always pairs a status colour with a word — the question
+is whether your product kept the word.
+
+### Status ordering
+
+Render the four status levels in order and confirm they still read as ordinal.
+A retuned ramp that passes contrast but puts the loudest colour on `watch` has
+inverted the meaning while satisfying every number.
+
+### Axis separation
+
+Put your category ramps beside your status ramps. If any category could be
+mistaken for a status, fix the category — see
+[Category palettes](./category-palettes.mdx).
+
+</Steps>
+
+## Verify it worked
+
+You have validated a theme when you can answer three questions with evidence
+rather than with a feeling:
+
+1. Which pairs did you measure, and what is the list? A theme check that does
+   not enumerate its pairs has not really run.
+2. What happens in dark mode? Half of all reported theme failures are
+   light-only measurements.
+3. What is your floor, and is it the opsinjs floor or your own? Publishing a
+   different floor is fine. Publishing the opsinjs floor while measuring against
+   a lower one is not.
+
+## Troubleshooting
+
+**The endpoint says pass and the playground says fail.** Different text size.
+APCA's verdict is size-dependent by design; send the size you actually render.
+
+**Everything passes and a real user says the app is hard to read.** Contrast is
+one variable. Check text size, line length, and whether you have translucent
+material under text — [The contrast
+floor](../foundations/materials/the-contrast-floor.mdx) covers the case where a
+pair passes over the fallback and fails over the blur.
+
+**`pnpm run contrast` passes locally and fails in CI.** `pnpm run generate` did
+not run first, so the measurement used the committed placeholder values rather
+than your tokens. Check `--opsin-tokens-generated`: if it says `placeholder`,
+that is the bug.
+
+**I cannot reproduce a published number.** You probably measured a different
+pair, or measured the P3 escalation against the sRGB baseline. The escalation
+changes chroma only; measure like against like.
+
+## Next
+
+- [Contrast and APCA](../foundations/colour/contrast-and-apca.mdx) — what the
+  two numbers are and why they disagree.
+- [Contrast conformance](../accessibility/contrast-conformance.mdx) — the
+  project's own claim, and its limits.
+- [`@opsinjs/color`](../packages/opsinjs-color.mdx) — the callable form of all
+  of this.

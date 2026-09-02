@@ -1,0 +1,52 @@
+---
+title: CSS variables
+description: Every --opsin-* custom property, its default in both themes, what it controls and which selectors read it.
+status: stable
+kind: reference
+full: true
+owner: engineering
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 12m
+aliases: [css vars, opsin variables, generated css variables]
+---
+
+<PageTemplate kind="reference" />
+
+## How this is generated
+
+**Source:** `tokens/*.json`, compiled to `app/tokens.generated.css`.
+**Script:** `scripts/build-tokens.mts` emits the stylesheet;
+`scripts/build-reference.mts` writes this page from the same data.
+**Command:** `pnpm run generate`.
+
+Every custom property the system defines is prefixed `--opsin-`. The prefix is
+not decoration: it is how you can tell, in a devtools panel showing four
+stylesheets, which variables you are allowed to override and which belong to the
+documentation chrome or to Tailwind. If it does not start with `--opsin-`, it is
+not ours and it is not covered by the
+[versioning policy](../../project/versioning-policy.mdx).
+
+**Five columns.** *Variable* is the property name. *Light* and *Dark* are the
+resolved defaults in each theme, printed as the value actually computed rather
+than as the expression that produced it. *Controls* is the one thing it decides.
+*Read by* names the selectors that consume it — this is what tells you whether
+overriding it in one place is safe.
+
+**This page lists variables, not overrides.** Setting a variable is described in
+[Theming → CSS variables](../../theming/css-variables.mdx), which is written for
+consumers who are not using Tailwind. Adding one of your own is
+[Adding your own tokens](../../theming/adding-your-own-tokens.mdx). The rule those pages
+share: override at a scope you own, never on `:root` in a library.
+
+**What is deliberately excluded.** shadcn's `--background` / `--foreground`
+family, fumadocs' `--fd-*` variables and lyra's chrome variables all appear in
+the same cascade on this site and none of them are opsinjs tokens. Also excluded
+are internal variables used to pass a computed value between two rules inside one
+component; those are unprefixed, undocumented, and may change in a patch.
+
+{/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
+
+<NoDataYet script="scripts/build-reference.mts" />
+
+{/* opsinjs:generated:end */}

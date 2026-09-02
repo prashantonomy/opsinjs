@@ -1,0 +1,210 @@
+---
+title: Surface
+description: The primitive behind every panel, sheet and card in the system — it decides how solid or translucent a layer looks, and guarantees that whatever sits on it stays readable.
+status: planned
+kind: component
+since: "unreleased"
+category: surfaces
+aliases: [material, blur, translucency, glass, vibrancy]
+usedIn: [health-metric-card, results-screen]
+---
+
+<PageTemplate kind="component" />
+
+## Status
+
+<StubNotice
+  name="surface"
+  issue="opsinjs/opsinjs#0"
+  questions={[
+    "The contrast floor is guaranteed over an arbitrary backdrop. Is the scrim computed from the backdrop, or is it a fixed worst-case value per rung?",
+    "The performance budget is at most three composited translucent surfaces. Does the component count them at runtime, warn in development, or leave it to review?",
+    "Under prefers-reduced-transparency each rung has an opaque fallback. Does the ladder stay six rungs deep, or collapse — and if it collapses, what happens to the layering it was expressing?",
+    "backdrop-filter is not universally available. What renders where it is missing, and is that the same thing as the reduced-transparency fallback?",
+  ]}
+/>
+
+Surface is the least visible component in the system and the one most likely to be
+misunderstood as decoration. It is the mechanism that makes translucency safe: without a
+guaranteed floor, a blurred panel is a readability bug waiting for the wrong wallpaper.
+
+## Preview
+
+The preview will show all six rungs over a deliberately hostile photographic backdrop, with
+the scrim and reduced-transparency toggles live, so the floor is demonstrated rather than
+asserted.
+
+<ComponentPreview name="surface" />
+
+## Installation
+
+The registry item does not exist yet; the command below is shown for shape only and will
+fail.
+
+<ComponentInstall name="surface" />
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Building a new layered component that needs to sit at a defined rung of the material ladder — a custom panel, a floating bar, a persistent header.",
+    "Any surface that overlays scrolling content and must stay readable regardless of what passes beneath it.",
+    "Expressing depth through material rather than through shadow, which is the system's default way of showing layering.",
+  ]}
+  avoid={[
+    { case: "You need a bounded group of related content with padding and a border, on the page rather than over it.", instead: "card" },
+    { case: "You are building a bottom sheet with detents and drag.", instead: "sheet" },
+    { case: "You are building a modal that traps focus.", instead: "dialog" },
+    { case: "You want a translucent effect for its own sake, with nothing beneath it to see through.", instead: "card" },
+    { case: "You are reaching for a fourth composited translucent layer on one screen.", instead: "card" },
+  ]}
+/>
+
+The last entry is a performance limit, not a style preference. Composited translucent layers
+are expensive on mid-range Android hardware, and the fourth one is where scrolling starts to
+stutter on exactly the devices most likely to belong to the people this system is for. See
+[Performance budget](../foundations/materials/performance-budget.mdx).
+
+## Anatomy
+
+<Anatomy name="surface" />
+
+<CompositionTree name="surface" />
+
+**Backdrop** is the blur and saturation applied to whatever is behind. **Scrim** is the
+computed layer that guarantees the contrast floor for content on top — the part that makes
+the whole thing safe, and the part most hand-rolled glass effects omit. **Content** is
+everything the surface holds. **Edge** is the hairline that separates the surface from what
+is behind it, which is what stops a translucent panel dissolving into a busy backdrop.
+
+Proposed part hierarchy. This is the specification the implementation must match.
+
+```text
+Surface                        root; declares a rung of the material ladder
+├── Surface.Backdrop           blur + saturation; absent under reduced transparency
+├── Surface.Scrim              computed to guarantee the floor; never optional
+├── Surface.Edge               hairline separation from the backdrop
+└── Surface.Content            everything the surface holds
+```
+
+`Surface.Scrim` cannot be removed by any prop. A rung whose scrim is disabled is not a rung,
+and the contrast guarantee is the only reason to use this component rather than a `div` with
+a `backdrop-filter`.
+
+## Proposed API
+
+<NotBuiltYet name="surface" />
+
+```ts
+// PROPOSED. Not implemented. A specification for review, not an API to generate
+// code against. It will change without a deprecation cycle.
+
+/**
+ * The six rungs of the material ladder, ordered from most recessive to most
+ * prominent. Named for their job, not for their blur radius, so a rung can be
+ * retuned without renaming every use of it.
+ */
+export type MaterialRung =
+  | "base"
+  | "raised"
+  | "panel"
+  | "overlay"
+  | "sheet"
+  | "chrome"
+
+export interface SurfaceProps {
+  /** Which rung. Required: there is no sensible default depth. */
+  rung: MaterialRung
+  /**
+   * Whether content on this surface must clear the floor for body text or only
+   * for large text. Drives the computed scrim.
+   */
+  contentWeight?: "body" | "large"
+  /** Renders opaque regardless of user preference — for print and export paths. */
+  opaque?: boolean
+  children: React.ReactNode
+}
+```
+
+There is no `blur` prop, no `opacity` prop and no `tint` prop. Free-form values are how a
+ladder becomes a gradient of ad-hoc guesses, and how the contrast guarantee stops being
+computable.
+
+## Content guidelines
+
+Surface holds content; it does not generate any. The guideline that matters is about what you
+put on it: text over a translucent surface is the one place in this system where a
+readability failure is invisible in review, because it depends on what happened to be behind
+it in the designer's screenshot.
+
+<DoDont>
+  <DoDont.Do>
+    **Text and controls on a surface whose rung was chosen for the content's weight**, so the
+    computed scrim guarantees the floor over any backdrop.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **Small grey caption text on a heavily blurred surface over a photograph**, checked once
+    against one photograph. It passed that day and fails for every reader with a different
+    background.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **One translucent surface at a time**, with cards and panels beneath it opaque.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A translucent sheet over a translucent panel over a translucent header.** Three layers
+    of blur that individually look considered and together look like fog.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility requirements
+
+Requirements for the implementation, not results.
+
+- **The contrast floor is guaranteed, not hoped for.** Every rung's scrim is computed so that
+  content on it clears the published floor over any backdrop, and the result is measured in
+  CI — see [The contrast floor](../foundations/materials/the-contrast-floor.mdx).
+- **`prefers-reduced-transparency` produces a defined opaque fallback for every rung**, with
+  layering still legible through elevation and edges rather than through blur. Not a global
+  switch that flattens the interface into one plane — see
+  [Reduced transparency](../accessibility/reduced-transparency.mdx).
+- **`prefers-contrast: more` strengthens edges and scrims** rather than only darkening text.
+- **The surface is not announced.** It is a presentational layer with no role, no name and no
+  place in the accessibility tree; its content is the content.
+- **Where `backdrop-filter` is unsupported, the opaque fallback renders**, and it is the same
+  fallback used under reduced transparency, so the degraded path is the one that gets tested.
+  See [Browser support](../start/browser-support.mdx).
+- **No text is ever placed directly over an unscrimmed backdrop**, including text inside
+  images and icons that carry meaning.
+
+<KeyboardTable name="surface" />
+
+<ContrastReport component="surface" />
+
+## Related
+
+<RelatedComponents name="surface" />
+
+**Easily confused with**
+
+- [Card](./card.mdx) — a bounded content group with padding and a border. Card sits on the
+  page; Surface sits over it.
+- [Sheet](./sheet.mdx) — a Surface at the sheet rung with detents, drag and dismissal.
+- [Dialog](./dialog.mdx) — a Surface at the overlay rung with focus management.
+- [Skeleton](./skeleton.mdx) — often placed on a Surface, and the pair is where reduced
+  transparency and reduced motion interact.
+
+**Used by**
+
+- [Build a health metric card](../recipes/health-metric-card.mdx)
+- [Results screen](../screens/results-screen.mdx)
+
+**Governed by**
+
+- [The material ladder](../foundations/materials/the-ladder.mdx)
+- [Choosing a layer](../foundations/materials/choosing-a-layer.mdx)
+- [The contrast floor](../foundations/materials/the-contrast-floor.mdx)
+- [Performance budget](../foundations/materials/performance-budget.mdx)
+- [Layering, elevation and z-index](../foundations/layering-and-elevation.mdx)

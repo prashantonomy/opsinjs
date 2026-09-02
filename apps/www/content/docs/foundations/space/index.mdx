@@ -1,0 +1,138 @@
+---
+title: Space and density
+description: The argument for a deliberately generous scale in a product people use one-handed while worried, what it costs, and the four responsive modes that decide how much of the story fits.
+status: stable
+kind: foundation
+icon: Ruler
+aliases: [spacing, whitespace, generous density]
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+opsinjs is deliberately roomier than most design systems, and roomier than the
+documentation site you are reading — the docs chrome is shadcn's `lyra`, which is
+dense and square because it is a reading surface for a developer at a desk. The
+product theme is the opposite, and the divergence is explained on
+[Lyra and the docs chrome](../../theming/lyra-and-the-docs-chrome.mdx).
+
+The mechanism is a single value. Tailwind derives its whole spacing scale from
+`--spacing`; the product theme raises it above the default, and every padding,
+gap and margin in the system moves with it. Nothing is re-tuned per component.
+
+The bet is worth stating honestly, because it has a real cost. Generous spacing
+means fewer things fit on a screen, which means more scrolling. The reason
+opsinjs takes that trade anyway is that the two sides are not symmetrical. A
+reader who has to scroll loses a second. A reader who taps the wrong control
+because two 32-pixel targets were 4 pixels apart has logged a reading they did
+not take, or dismissed an alert they did not read — and they are doing this
+one-handed, on a bus, possibly with cold hands, possibly at seventy, and possibly
+while frightened. Density is a trade of somebody's second against somebody else's
+mistake.
+
+There is a second, quieter reason. Space is how an interface groups things
+without drawing anything. On a screen where colour is already fully committed to
+[two axes](../../health/two-colour-axes.mdx) and cannot be spent on grouping,
+proximity is one of the only grouping tools left.
+
+## How it works
+
+Four pages sit under this one: [the spacing scale](spacing-scale.mdx) and the
+named role of each step; [Density and touch](density-and-touch.mdx), which is the
+44pt floor and target separation; [Responsive modes](responsive-modes.mdx), which
+is the four-mode system and the container-query rule; and
+[the generated tokens](tokens.mdx).
+
+Three rules run across all four.
+
+**1. One root value sets the density.** Every step is derived from `--spacing`.
+Changing it changes the whole product's character in one place, which is also
+what makes the docs chrome and the product theme genuinely different systems
+rather than two sets of hand-tuned numbers.
+
+**2. Space is measured between the things people see, not between boxes.** Two
+elements separated by 8 pixels of margin plus 12 pixels of their own internal
+padding are 20 pixels apart to a reader and 8 pixels apart to a stylesheet. When
+a rule in opsinjs specifies a separation — most importantly the minimum gap
+between touch targets — it means the perceived one.
+
+**3. Wide screens get more of the story, not bigger type.** This is the rule most
+often broken and the one with the largest effect on how a health product feels on
+a tablet. It has its own page: [Responsive modes](responsive-modes.mdx).
+
+## Using it
+
+**Use the step, not a number.** Every value comes from the scale. A one-off `13px`
+gap is invisible in review, breaks the nesting arithmetic that
+[radius](../shape/radius-scale.mdx) depends on, and does not move when the
+product's density is retuned.
+
+**Group by proximity before you group by anything else.** A border, a background
+or a card is a heavier tool. If two things belong together, put them closer to
+each other than to everything else and see whether you still need the box.
+
+<DoDont>
+  <DoDont.Do>
+    A reading, its unit and its timestamp set close together with a larger gap to
+    the next metric. The grouping is obvious and no boxes were drawn, so the
+    screen stays quiet.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Even spacing between all five elements, with a card outline round each pair
+    to explain what belongs to what. The outlines are doing work that space
+    should have done, and the screen now has four more lines competing with the
+    numbers.
+  </DoDont.Dont>
+</DoDont>
+
+**Do not tighten spacing to make something fit.** If a screen does not fit, it is
+doing too much. Tightening it moves the failure from "this needs editing" to
+"this reader mis-tapped", which is worse and harder to see.
+
+**Expect space to grow with text.** At a 1.3× text-size multiplier, padding
+derived from the scale grows too. A layout that only fits because the gaps were
+fixed in pixels breaks for exactly the readers who most need it not to — see
+[Dynamic Type](../typography/dynamic-type.mdx).
+
+## Tokens
+
+The root value, the scale steps and their named roles are generated from
+`tokens/space.json` by `scripts/build-tokens.mts`. The full table with rendered
+specimens is on [Space tokens](tokens.mdx).
+
+<TokenTable scope="space" />
+
+## Accessibility impact
+
+- **Target size and target separation are both WCAG matters.** SC 2.5.8 *Target
+  Size (Minimum)* sets a floor and offers a spacing exception; opsinjs sets a
+  higher floor and does not rely on the exception. The numbers and the reasoning
+  are on [Density and touch](density-and-touch.mdx).
+- **Space is the grouping channel that survives everything.** It works in
+  greyscale, in a screenshot, at 200% zoom and under every colour-vision
+  difference. It does not survive a screen reader — which is why proximity is
+  always backed by structure, headings and grouping semantics rather than left to
+  do the job alone.
+- **Generous spacing is a cognitive-accessibility measure.** Fewer elements
+  competing in the same visual area is less to parse, and a health screen is
+  frequently read under stress. This is opinion informed by practice rather than
+  a measured result, and it is stated as such.
+- **Spacing must scale with text.** Padding that stays fixed while type grows
+  produces cramped, then overlapping, then clipped layouts, in that order, as the
+  multiplier rises.
+- **Density is never a per-user setting in opsinjs.** Some systems offer a
+  compact mode; a compact mode in a patient-facing health product is a setting
+  that lets somebody make their own targets too small. The preview controls on
+  this site expose density so you can see the effect, not so the product can ship
+  it.
+
+## Related
+
+- [Density and touch](density-and-touch.mdx) — the 44pt floor, separation and
+  thumb reach.
+- [Responsive modes](responsive-modes.mdx) — what happens as the container grows,
+  and why the answer is not "everything gets bigger".
+- [Layout](../layout.mdx) — the shell all of this space sits inside, and the
+  safe-area contract.

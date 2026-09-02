@@ -1,0 +1,210 @@
+---
+title: Status palettes
+description: Why the four clinical status ramps are the one part of the token system opsinjs asks you not to redefine, and what to do when you have to anyway.
+status: stable
+kind: guide
+aliases: [status colour, redefine status, four levels, urgent colour]
+---
+
+<PageTemplate kind="guide" />
+
+## Overview
+
+Every other tier-1 ramp in opsinjs is a starting point. The status ramp is not.
+It has four ordinal levels — token ids `expected`, `watch`, `act` and `urgent` —
+and this page argues that you should leave them alone, then tells you how to
+change them safely if that argument does not survive contact with your
+organisation.
+
+What the four levels *mean*, who may assign one, and what word a reader
+actually sees are decided in
+[Clinical status semantics](../health/clinical-status-semantics.mdx), which is
+canonical and which this page does not restate. The token id is a machine
+identifier. It is not a label, and no patient should ever see the string
+`expected`.
+
+## Why this axis is closed
+
+The status ramp is not a palette. It is a vocabulary, and it has at least four
+consumers that never talk to each other.
+
+- **Your product.** A surface, a line, an ink colour, and a `data-status`
+  attribute on the element.
+- **This documentation.** `<Callout>`, `<StatusLadder>` and `<StatusBadge>` are
+  bound to the same four levels, deliberately, so that the docs chrome and the
+  product chrome share one status vocabulary rather than shipping two.
+- **The registry.** Every catalogue row and every registry item carries status
+  metadata using these ids.
+- **Agents.** [Rules for agents](../agents/rules-for-agents.mdx) instructs a
+  model to reach for a status level and never for a colour. That instruction is
+  only safe while the ids mean one thing.
+
+Redefining the ramp locally breaks the last two silently. Your app renders
+correctly, your generated code does not, and nothing errors.
+
+There is a second, blunter reason. A status is a claim about somebody's health
+data. Changing the appearance of that claim to fit a brand is a decision with a
+clinical consequence and no clinical review attached to it, which is the exact
+shape of mistake this system exists to make harder.
+
+<SafetyCallout severity="urgent" evidence="opinion">
+Colour is never the only carrier of a status in opsinjs. A status always ships
+with a word, and with an icon where the layout allows one. If you retune the
+ramp so that two levels look similar, the word still distinguishes them — which
+is the safety net, not the design. Do not spend it.
+</SafetyCallout>
+
+## What you may change without breaking anything
+
+Three things are yours, and none of them are the ramp.
+
+**The words.** `expected` may be rendered as "In range", "Normal for you",
+"Usual" or your clinical reviewer's preferred phrasing. That is a content
+decision governed by
+[Writing status and alerts](../content/writing-status-and-alerts.mdx), not a
+token decision, and changing it costs nothing structurally.
+
+**The thresholds.** Which value maps to which level is your product's business
+logic, and opsinjs deliberately owns none of it. See
+[Reference ranges](../health/reference-ranges.mdx).
+
+**Which levels you use.** Nothing requires all four. A logging app that never
+escalates may only ever render `expected` and `watch`. Using two of four is
+correct; inventing a third meaning for one of them is not.
+
+## When you must change the ramp
+
+Two legitimate reasons come up repeatedly.
+
+**Your organisation has a mandated clinical colour standard.** Some health
+systems do, and it outranks a design system. In that case you are conforming to
+a standard, not rebranding, and you should say so in your own documentation so
+the next developer does not "fix" it back.
+
+**The default ramp fails for your users.** An increased-contrast requirement, a
+display technology, or a printing constraint the defaults did not anticipate.
+This is a real reason and the system would rather you changed the ramp than
+shipped something illegible.
+
+Neither reason is "our brand is blue".
+
+## Change it safely
+
+<Steps>
+
+### Change the source, not the CSS
+
+Edit the status entries in `tokens/color.json` and run:
+
+```bash
+pnpm run generate
+```
+
+`app/tokens.generated.css` is generated and diffed; a hand edit there is
+reverted by `pnpm run check:generated`.
+
+### Preserve the ordering
+
+The four levels are **ordinal**. Whatever you choose, `urgent` must read as more
+urgent than `act`, which must read as more urgent than `watch`. If your palette
+makes `watch` the loudest thing on the screen, you have kept the ids and
+inverted the meaning, which is worse than having no status colour at all.
+
+### Preserve the distance
+
+Adjacent levels must be distinguishable from each other, and every level must be
+distinguishable from all six category ramps. Check it under
+`<CvdSimulator>` in grayscale as well as in the three dichromacies — grayscale
+is the honest proxy for a printed page and a bright screen outdoors.
+
+### Re-measure everything
+
+```bash
+pnpm run contrast
+```
+
+Every surface/ink and surface/line pair, in light and in dark, against the
+published floor. This is not optional: the numbers published on this site
+describe the shipped ramp and stop being true the moment you change it. See
+[Validating your theme](./validating-your-theme.mdx).
+
+### Write down that you did it
+
+Record the change where your team will find it, and mention it in any
+accessibility statement you publish. A conformance claim inherited from opsinjs
+does not survive a retuned status ramp.
+
+</Steps>
+
+## Do not add a fifth level
+
+<DoDont>
+  <DoDont.Do>
+    Map your extra state onto the existing four and carry the nuance in the
+    word. "Slightly above your usual range" and "Above your usual range" are
+    both `watch`; they differ in copy, not in colour.
+  </DoDont.Do>
+  <DoDont.Dont>
+    Add `--opsin-status-critical-*`. Four ordinal levels is a decision, not an
+    accident: five levels is more than a person can reliably rank by colour, and
+    the fifth exists only in your codebase — the registry, the docs and every
+    agent will map it to something else or drop it.
+  </DoDont.Dont>
+</DoDont>
+
+If four genuinely cannot express what your product needs, the problem is
+probably that you are using status to carry something that is not urgency — a
+data quality, a staleness, a device error. Those have their own homes:
+[Uncertainty and staleness](../health/uncertainty-and-staleness.mdx) and
+[Data states](../foundations/data-states.mdx).
+
+## Verify it worked
+
+<Steps>
+
+### The ladder still climbs
+
+Render the four levels side by side, in order, in both themes, and ask somebody
+who has not seen your palette to sort them by urgency. If they cannot, the
+change failed regardless of what the contrast numbers say.
+
+### Every pair still passes
+
+`pnpm run contrast` reports zero failures against the floor, in light and dark,
+including the Display-P3 escalation.
+
+### Nothing else moved
+
+`git diff` should touch `tokens/color.json` and the generated files only. If a
+category ramp changed, you edited a shared rung.
+
+</Steps>
+
+## Troubleshooting
+
+**Two levels look the same in dark mode.** Dark ramps have less headroom.
+Separate them by lightness rather than by chroma; chroma differences collapse
+first under low ambient light and under simulation.
+
+**The docs chrome and my product disagree about what `act` looks like.** They
+are meant to: the chrome renders the docs theme and previews render the product
+theme in a separate document. That is [Lyra and the docs
+chrome](./lyra-and-the-docs-chrome.mdx), not a bug.
+
+**Contrast passes but the surface looks muddy against a card.** Status surfaces
+are tuned against the page background, not against every material rung. Check
+which rung you have put it on — [Choosing a
+layer](../foundations/materials/choosing-a-layer.mdx).
+
+**An agent generated a hex colour instead of a status.** Expected, if the agent
+did not have the rules. Point it at
+[Rules for agents](../agents/rules-for-agents.mdx) or install the skill.
+
+## Next
+
+- [Clinical status semantics](../health/clinical-status-semantics.mdx) — what
+  the four levels mean. Canonical.
+- [Validating your theme](./validating-your-theme.mdx) — proving a retuned ramp
+  is still legible.
+- [Alarm fatigue](../health/alarm-fatigue.mdx) — why the loudest level being
+  rare is a design property and not a happy accident.

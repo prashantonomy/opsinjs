@@ -1,0 +1,141 @@
+---
+title: Migrating from shadcn/ui
+description: The token map, the component equivalences, the API translations — and an honest list of what opsinjs has no equivalent for.
+status: planned
+kind: handbook
+aliases: [shadcn migration, radix to base ui, asChild to render, moving from shadcn, token mapping]
+reviewEvery: 12m
+owner: design-system
+---
+
+<PageTemplate kind="handbook" />
+
+## The short version
+
+<NotBuiltYet />
+
+If you already use shadcn/ui, most of what you know transfers: the same registry
+mechanism, the same "you own the code" model, the same `cn()` helper, the same
+Tailwind. Three things change.
+
+1. **Radix becomes Base UI**, so `asChild` becomes `render`. See
+   [Composition and render](./composition-and-render.mdx).
+2. **`variant` becomes two orthogonal props.** shadcn's single `variant`
+   frequently carries both identity and severity; opsinjs splits them into
+   `category` and `status` and will not let you mix them. This is the change
+   that requires thought rather than a codemod.
+3. **A health vocabulary appears.** `destructive` has no opsinjs equivalent,
+   because nothing about a person's reading is destructive.
+
+They can coexist. opsinjs is a shadcn-spec registry, so both can be installed in
+the same project and migrated component by component.
+
+## How it works
+
+### Component equivalences
+
+| shadcn/ui | opsinjs | Note |
+| --- | --- | --- |
+| `Card` | [Card](../components/card.mdx) | Close equivalent; opsinjs adds material ladder rungs |
+| `Alert` | [AlertBanner](../components/alert-banner.mdx) | Takes a clinical `status`, not a `variant` |
+| `Badge` | [StatusPill](../components/status-pill.mdx) | Status only; a neutral badge is a `considered` row |
+| `Dialog` | [Dialog](../components/dialog.mdx) | Base UI underneath instead of Radix |
+| `Sheet` | [Sheet](../components/sheet.mdx) | Same role |
+| `Skeleton` | [Skeleton](../components/skeleton.mdx) | Same role |
+| `Button` | [Button](../components/button.mdx) | The reference page; sets the anatomy |
+| `Form` + `FormField` | [Field](../components/field.mdx) | Library-agnostic; see [Forms](./forms.mdx) |
+| `Progress` | — | `considered`; a `RangeBar` is not a progress bar |
+| `Toast` | — | `considered`; see [Alert escalation](../patterns/alert-escalation.mdx) |
+
+The complete list, including everything on the `considered` roster, is in
+[Components](../components/index.mdx).
+
+### API translations
+
+| shadcn/ui | opsinjs |
+| --- | --- |
+| `asChild` + single child | `render={<element />}` |
+| `variant="destructive"` | `status="urgent"` — and read [Clinical status semantics](../health/clinical-status-semantics.mdx) first |
+| `variant="secondary"` for a category tint | `category="sleep"` |
+| `data-state="open"` | `data-open` |
+| `data-state="closed"` | `data-closed` |
+| CSS entry/exit via `data-state` | `data-starting-style` / `data-ending-style` |
+
+### Token map
+
+shadcn's semantic roles map onto opsinjs's neutral roles; the axis tokens have
+no shadcn counterpart because shadcn has no axes.
+
+| shadcn | opsinjs |
+| --- | --- |
+| `--background` / `--foreground` | The neutral surface and ink roles |
+| `--muted` / `--muted-foreground` | The lower-emphasis neutral roles |
+| `--border` | The neutral line role |
+| `--destructive` | *No equivalent.* Use `--opsin-status-urgent-*` only where a clinical status genuinely applies |
+| — | `--opsin-status-<level>-*` |
+| — | `--opsin-category-<name>-*` |
+
+The generated, authoritative list is in
+[Reference → Tokens](../reference/generated/tokens.mdx).
+
+## Do this
+
+- **Migrate a screen at a time, not a component at a time.** The value is in the
+  axes being consistent across a surface; half-migrated screens are worse than
+  either end state.
+- **Start with the pages that show a health value**, because that is where the
+  difference is real. A settings page gains nothing from migrating.
+- **Rewrite `variant` deliberately.** For each use, decide whether it was
+  identity or severity. If it was both, it was a bug and this is where you find
+  out.
+- **Keep both registries installed** during the transition; namespaces prevent
+  the collision.
+- **Re-check contrast after the token swap.** Your custom shadcn values will not
+  have been measured against the opsinjs floor. See [Validating your
+  theme](../theming/validating-your-theme.mdx).
+
+## Not this
+
+- **Do not map `destructive` to `urgent` mechanically.** `destructive` is used
+  for delete buttons, and a delete button is not a clinical status. It is one of
+  the fastest ways to contaminate the status axis.
+- **Do not keep both `variant` and `status` on your own wrappers.** Two props
+  meaning nearly the same thing is how the axes get mixed by the next person.
+- **Do not run both theme providers.** One only; see [Dark
+  mode](./dark-mode.mdx).
+- **Do not port your `globals.css` wholesale.** The import order is load-bearing
+  and different; see [Tailwind v4](../theming/tailwind-v4.mdx).
+- **Do not assume `data-state` still exists.** Base UI splits it into separate
+  presence attributes, and a selector for `[data-state="open"]` will silently
+  match nothing.
+
+## Gotchas
+
+- **`asChild` and `render` differ in the merge.** Both merge props and chain
+  handlers, but `render` takes an element rather than wrapping a child, so a
+  mechanical find-and-replace produces markup that type-checks and renders one
+  element too many.
+- **Radix and Base UI can coexist**, but two focus-management implementations on
+  the same screen can fight. Migrate overlays as a group.
+- **shadcn's `Badge` has no status semantics**, so an existing `Badge` used as a
+  label is not a `StatusPill`. Mapping it will attach a clinical meaning to a
+  category label.
+- **A copied component keeps its version stamp.** After migration you will have
+  files from two systems; the stamps are how you tell. See
+  [Version stamps](../registry/version-stamps.mdx).
+- **Your custom `--radius` will not produce the opsinjs shape.** opsinjs derives
+  a radius ladder and uses `corner-shape` where supported; see
+  [Squircle](../foundations/shape/squircle.mdx).
+- **The docs chrome you are reading is lyra — square and dense — and the opsinjs
+  product theme is not.** Do not judge the product theme by this site; see
+  [Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx).
+
+## Related
+
+- [Composition and render](./composition-and-render.mdx) — the `asChild` to
+  `render` translation in detail.
+- [The two colour axes](../health/two-colour-axes.mdx) — why `variant` splits in
+  two.
+- [Components](../components/index.mdx) — the full roster, including what is
+  only `considered`.
+- [Registry](../registry/index.mdx) — installing both registries side by side.

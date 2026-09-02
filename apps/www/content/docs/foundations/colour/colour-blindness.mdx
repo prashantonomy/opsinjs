@@ -1,0 +1,208 @@
+---
+title: Colour blindness
+description: The status axis uses the worst possible hue family for colour vision deficiency, on purpose, and pays for it with a word, a shape and a generated audit.
+status: stable
+kind: foundation
+aliases: [colour vision deficiency, color blind, deuteranopia, protanopia, tritanopia, greyscale legibility, red green]
+owner: design
+reviewed: 2026-09-02
+reviewer: design
+reviewEvery: 6m
+a11yDate: 2026-09-02
+---
+
+<PageTemplate kind="foundation" />
+
+## Overview
+
+The four clinical status levels run green → amber → orange → red. Red–green is
+the most common form of colour vision deficiency. We have, in other words,
+chosen the single worst hue family available for the one axis in the system that
+carries a verdict.
+
+That was a deliberate decision and this page is the argument for it, together
+with the three mechanisms that make it survivable. The short version: the
+green-to-red mapping is what a reader has already learned from every other
+health, transport and safety interface they have ever used, and unlearning it
+costs more than it buys. So opsinjs keeps the mapping and removes the
+*dependency* on it — colour becomes one of three redundant carriers rather than
+the carrier.
+
+The thing this is most often confused with is *contrast*. They are unrelated
+problems with unrelated fixes. A pair can clear every figure on
+[Contrast and APCA](./contrast-and-apca.mdx) and still be two colours that a
+particular reader cannot tell apart, because contrast is about luminance
+difference and this page is about hue discrimination.
+
+## How it works
+
+### What actually happens to our palette
+
+Under simulated protanopia and deuteranopia, the perceptual space collapses
+roughly onto a blue–yellow axis. The consequences for the two axes are not
+symmetric:
+
+- **The status axis loses most of its separation.** `expected` (hue 150),
+  `act` (hue 55) and `urgent` (hue 25) converge toward similar yellows and
+  browns. `watch` (hue 85) was already in that region. The four levels do not
+  become identical, but the differences shrink to the point where a reader
+  cannot rely on them at a glance, which is the only way anybody reads a status.
+- **The category axis mostly survives**, because its six hues are spread around
+  the wheel — 12, 60, 150, 225, 275 and 300 — rather than clustered on one arc,
+  and because a category is identity rather than a verdict, so a reader who
+  confuses two of them loses much less.
+
+Under tritanopia the failure is different: the blue–violet end suffers, so
+`sleep` and `metabolic` converge while the status axis holds up better.
+
+Under **greyscale** the status axis fails almost completely, and it is important
+to say so rather than to claim a ladder that does not exist. The four status
+surfaces sit within a few hundredths of each other in lightness, and the four
+`line` values are not monotonic in lightness at all — `watch` is the lightest,
+`urgent` the darkest, and `expected` and `act` fall between them out of order.
+That is a consequence of stage 6 of the derivation, which picks each `line` step
+to maximise chroma while clearing its floor, and available chroma is
+hue-dependent. Making the four levels a lightness ramp *as well* as a hue ramp
+would mean giving up either the chroma the status axis needs or the fixed
+lightness ladder the rest of the system depends on.
+
+<Callout title="What “status must survive greyscale” means here">
+  It means the *meaning* survives — that a greyscale screenshot, a photocopy or a
+  black-and-white print still tells you which level you are looking at. It does
+  not mean the four greys are distinguishable, and we do not claim that they
+  are. The meaning survives because the word and the icon are always present.
+  [Colour independence](../../accessibility/colour-independence.mdx) states the
+  same requirement from the accessibility side.
+</Callout>
+
+### The three redundant carriers
+
+Every status in opsinjs carries all three. Not one of them is optional, and the
+component-level rule is structural rather than advisory: a component that can
+render a status without its word does not pass review.
+
+1. **The word.** Always present, always adjacent, never a tooltip and never
+   behind a hover. The token names — `expected`, `watch`, `act`, `urgent` — are
+   not the words; the reader-facing language is a content decision made in
+   [Writing status and alerts](../../content/writing-status-and-alerts.mdx) and
+   governed by
+   [Clinical status semantics](../../health/clinical-status-semantics.mdx).
+2. **The shape.** A distinct glyph per level, distinguishable by outline at
+   16px and in a single colour. Not one glyph recoloured four times, which is
+   the most common way this requirement is faked. The rule that an icon may
+   never carry status on its own is in [Iconography](../iconography/index.mdx).
+3. **The position or the arrangement.** Where a component shows several levels
+   at once — a range with bands, a legend, a ladder — the levels are ordered,
+   and the order is the same everywhere. A reader who cannot see the hues can
+   still count.
+
+### The audit
+
+The simulation is not a design-review nicety; it runs as a generated audit over
+the whole declared pair set and is published rather than asserted.
+
+<CvdSimulator>
+  <StatusLadder />
+</CvdSimulator>
+
+<CvdSimulator>
+  <StatusAxisDemo />
+</CvdSimulator>
+
+Toggle protanopia, deuteranopia, tritanopia and greyscale. The thing to watch
+for is not "can I still tell the colours apart" — you often cannot, and that is
+expected. It is "can I still read the level", which you can, because the word is
+there.
+
+<ContrastReport scope="status" />
+
+## Using it
+
+**Never let colour be the only difference between two things a reader must
+distinguish.** This is WCAG 2.2 SC 1.4.1 stated plainly, and it is the whole
+rule. Everything below is an application of it.
+
+<DoDont>
+  <DoDont.Do>
+    A status pill that reads `Act now` with a distinct glyph, on the `act`
+    surface. Remove the colour and it still says what it is. Remove the word and
+    it does not — which is why the component will not render without it.
+  </DoDont.Do>
+  <DoDont.Dont>
+    A coloured dot in a list of readings, with a key at the bottom of the screen
+    explaining what each colour means. The reader has to hold four hue-to-meaning
+    mappings in working memory, and the reader who cannot see the hues cannot use
+    the key at all.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    A trend line coloured by *category*, with direction shown by the line's shape
+    and any verdict shown as a labelled band. Category colour is identity, so
+    confusing two categories costs a reader a glance, not a decision.
+  </DoDont.Do>
+  <DoDont.Dont>
+    A trend line that turns red where the values are out of range. The reader who
+    cannot see red gets a line with no verdict on it, and there is no word
+    anywhere to recover it from. Mark the region and label the mark.
+  </DoDont.Dont>
+</DoDont>
+
+**Do not solve this with patterns alone.** Hatching and dot fills are a
+legitimate redundancy for charts and a poor one for small UI, where they turn
+into visual noise at the sizes health data is actually read at. If a chart needs
+a non-colour channel, prefer direct labelling of the series over a texture and a
+legend.
+
+**Test with the simulator, then test without colour at all.** The strongest check
+available to you costs nothing: take a screenshot, desaturate it fully, and read
+the screen. If you cannot answer "what is this telling me", neither can a
+substantial number of your users, and no amount of hue tuning will fix it.
+
+## Tokens
+
+<TokenTable scope="color" />
+
+## Accessibility impact
+
+**What is guaranteed.** No opsinjs component expresses a state, a verdict or a
+category through colour alone; every status ships with a word and a distinct
+glyph; the simulation audit runs over the full declared pair set and is
+published with the theme it was run against.
+
+**What is yours.** The words. We guarantee that there is a slot for one and that
+the component will not render without it; we cannot guarantee that what you put
+in it is meaningful, and "Alert" is not. The same applies to any status you
+compute yourself from a threshold we do not own —
+[Reference ranges](../../health/reference-ranges.mdx) draws that boundary.
+
+**What we do not attempt.** We do not ship a colour-blind-safe alternative
+palette, and we do not offer a "colour blind mode" toggle. Both are common and
+both are, in our view, worse: an alternative palette means two designs, only one
+of which is tested, and a mode toggle asks a reader to self-identify to a health
+app in order to read it. The redundancy is unconditional instead — everybody
+gets the word.
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  Keeping the conventional green-to-red mapping rather than substituting a
+  blue-to-orange one is a judgement, not a finding. The argument for keeping it
+  is transfer: the mapping is already learned, and a health product is a bad
+  place to teach a new colour language. The argument against is that a
+  blue–yellow axis survives the most common deficiencies far better.
+
+  We chose transfer, and paid for it with unconditional redundancy. What would
+  change our mind is evidence that readers with normal colour vision transfer
+  just as well to a blue–orange status axis in a health context; we are not aware
+  of such evidence, and we are not going to fabricate a study to justify a
+  decision we made on judgement.
+</ResearchNote>
+
+## Related
+
+- [Colour independence](../../accessibility/colour-independence.mdx) — the same
+  requirement stated as an accessibility guarantee, with the generated audit.
+- [Two colour axes](../../health/two-colour-axes.mdx) — why category and status
+  are separate, and why only one of them is allowed to carry a verdict.
+- [Data visualisation](../data-visualisation/index.mdx) — charts have their own
+  redundancy problem, and category colours are not chart colours.

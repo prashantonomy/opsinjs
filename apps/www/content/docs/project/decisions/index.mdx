@@ -1,0 +1,81 @@
+---
+title: Decisions
+description: Architecture decision records — why the system is shaped the way it is, including the choices that constrain everything built after them.
+status: stable
+kind: project
+owner: core
+reviewed: 2026-09-02
+reviewer: engineering
+reviewEvery: 12m
+aliases: [ADR, architecture decisions, why is it like this]
+---
+
+<PageTemplate kind="project" />
+
+## What these are
+
+An architecture decision record is one page describing one decision: what forced
+it, what was chosen, what was rejected, and what the project accepted as a
+consequence. They are numbered, they are never rewritten to look better in
+hindsight, and they are public.
+
+They are public because of who is expected to depend on this system. A team
+adopting a component library for a patient-facing product may have to justify
+that choice to a clinical safety officer, an accessibility auditor or a
+procurement reviewer, none of whom were in the room. "The system does it this
+way" is not an answer to any of them. A dated record naming the alternative and
+the trade-off is.
+
+## The format
+
+Every record has the same six headings, and the two that matter most are the two
+usually missing.
+
+**Consequences** is where the cost is written down. A decision with only benefits
+listed has not been thought about; it has been advertised. Consequences include
+the things that got harder, the work the decision created, and the risks accepted.
+
+**Alternatives considered** names the option that was rejected and why. This is
+what makes a record useful in two years, when somebody proposes the rejected
+option again — usually for good reasons, because the reason it was rejected may
+have expired.
+
+## Status values
+
+| Status | Meaning |
+| --- | --- |
+| **Proposed** | Written, not yet agreed |
+| **Accepted** | In force. The system is built this way |
+| **Accepted, not yet implemented** | Agreed and binding, but the code is not written |
+| **Superseded** | Replaced by a later record, which is named. The page stays |
+
+A superseded record is never deleted. The reasoning that produced a decision we
+later reversed is the most valuable thing in this folder.
+
+## When to write one
+
+Write a record when a choice is expensive to reverse, constrains work that comes
+after it, or will look arbitrary to somebody who arrives later. Choosing a
+primitive library, a distribution model or a colour architecture qualifies.
+Choosing a variable name does not.
+
+Write it **before** implementing, not after. A record written afterwards
+describes what happened; a record written first is a decision that can still be
+argued with while arguing is cheap.
+
+## The records
+
+| # | Decision | Status |
+| --- | --- | --- |
+| [0001](0001-base-ui-not-radix.mdx) | Base UI, not Radix, as the primitive layer | Accepted |
+| [0002](0002-shadcn-registry-distribution.mdx) | Distribute as a shadcn registry; no CLI first | Accepted |
+| [0003](0003-two-colour-axes.mdx) | Two independent colour axes that never mix | Accepted |
+| [0004](0004-lyra-docs-chrome.mdx) | lyra themes the documentation chrome only | Accepted |
+| [0005](0005-no-lang-segment-yet.mdx) | No `[lang]` segment; bound the retrofit instead | Accepted |
+| [0006](0006-generated-not-authored.mdx) | Source, tables and measured numbers are generated | Accepted |
+| [0007](0007-two-root-layouts.mdx) | Two sibling root layouts, and no `app/layout.tsx` | Accepted |
+| [0008](0008-considered-components-resolve.mdx) | How a considered component id resolves without a 404 | Accepted, not yet implemented |
+
+<LastUpdated />
+
+<Reviewed />
