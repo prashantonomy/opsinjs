@@ -1,0 +1,287 @@
+/* ==========================================================================
+   product.css — THE opsinjs PRODUCT THEME.
+
+   Imported by exactly one file: app/(view)/layout.tsx. Nothing else may import
+   it, and it must never be imported alongside globals.css.
+
+   Why it exists. The documentation chrome is shadcn's `lyra` style: square
+   corners, dense controls, small type, Inter. That is a good reading surface
+   for a developer at a desk and a bad surface for somebody checking their blood
+   pressure on a phone in a corridor. opsinjs the product is the opposite:
+   squircle corners, the platform's own UI font, generous spacing, large touch
+   targets. Documenting a health system inside chrome that contradicts it would
+   be a lie told by omission, so `(view)` is a separate ROOT layout with its own
+   <html>, its own <body> and this stylesheet alone. Every <ComponentPreview>
+   and <IframePreview> on the site embeds a `(view)` route, which is what makes
+   previews render under the product theme rather than the docs chrome.
+
+   That separation only works because there is no app/layout.tsx. See
+   ../AGENTS.md and /docs/theming/lyra-and-the-docs-chrome.
+   ========================================================================== */
+
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@source "../registry/**/*.{ts,tsx}";
+@source "../components/**/*.{ts,tsx}";
+
+/* The generated ramps. Same source of truth as the docs chrome — the axes do
+   not change between the two themes; only the shell does. */
+@import "./tokens.generated.css";
+
+/* --------------------------------------------------------------------------
+   Surface roles. Deliberately fewer than shadcn's: a health screen that needs
+   nine background roles has a layout problem, not a token problem.
+   -------------------------------------------------------------------------- */
+
+:root,
+.opsin-product {
+  --background: oklch(0.991 0.002 250);
+  --foreground: oklch(0.185 0.008 260);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.185 0.008 260);
+  --muted: oklch(0.965 0.004 250);
+  --muted-foreground: oklch(0.505 0.012 260);
+  --border: oklch(0.905 0.005 255);
+  --input: oklch(0.905 0.005 255);
+  --ring: oklch(0.55 0.13 250);
+  --primary: oklch(0.51 0.135 250);
+  --primary-foreground: oklch(0.99 0 0);
+
+  /* --- Type. The platform UI font, not a brand face. A patient-facing app
+     inherits the reader's Dynamic Type / font-scale settings; shipping a
+     webfont that ignores them is how "200% text" stops working. --- */
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI Variable Text",
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  /* --- Space. Tailwind derives its whole spacing scale from --spacing, so one
+     value makes the product theme measurably roomier than the chrome without
+     re-tuning a single utility. Docs chrome leaves it at the 0.25rem default. */
+  --spacing: 0.28rem;
+
+  /* --- Shape. Squircle where the browser supports corner-shape; a plain
+     rounded rectangle at the same radius where it does not. The degradation is
+     a matter of taste and never of function — see foundations/shape. --- */
+  --radius: 1rem;
+  --opsin-corner-shape: superellipse(4);
+
+  /* --- Targets. A minimum for anything a person taps while distracted,
+     one-handed, or with a tremor. The floor here is deliberately above the
+     WCAG 2.2 SC 2.5.8 minimum; accessibility/target-size states which figure
+     comes from where. --- */
+  --opsin-target-min: 44px;
+
+  /* --- Axis fallbacks. Identical to the authored defaults in globals.css
+     section 9, and superseded by tokens.generated.css once `pnpm generate` has
+     run. Duplicated rather than shared because these two stylesheets must be
+     independently loadable — (view) never loads the docs chrome. --- */
+  --opsin-status-expected-surface: oklch(0.962 0.032 150);
+  --opsin-status-expected-line: oklch(0.66 0.13 150);
+  --opsin-status-expected-ink: oklch(0.39 0.088 150);
+  --opsin-status-watch-surface: oklch(0.966 0.042 85);
+  --opsin-status-watch-line: oklch(0.72 0.14 85);
+  --opsin-status-watch-ink: oklch(0.40 0.082 85);
+  --opsin-status-act-surface: oklch(0.962 0.048 55);
+  --opsin-status-act-line: oklch(0.68 0.16 55);
+  --opsin-status-act-ink: oklch(0.42 0.108 55);
+  --opsin-status-urgent-surface: oklch(0.958 0.042 25);
+  --opsin-status-urgent-line: oklch(0.58 0.196 25);
+  --opsin-status-urgent-ink: oklch(0.43 0.148 25);
+
+  --opsin-category-cardio-accent: oklch(0.58 0.093 12);
+  --opsin-category-metabolic-accent: oklch(0.56 0.088 300);
+  --opsin-category-respiratory-accent: oklch(0.56 0.086 225);
+  --opsin-category-activity-accent: oklch(0.56 0.082 150);
+  --opsin-category-sleep-accent: oklch(0.55 0.09 275);
+  --opsin-category-body-accent: oklch(0.57 0.075 60);
+
+  --opsin-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --opsin-ease-spring: linear(
+    0, 0.006, 0.026 2.7%, 0.106 5.5%, 0.229, 0.375 11.3%, 0.53, 0.677, 0.802,
+    0.898, 0.964, 1.002 26.3%, 1.017, 1.02, 1.014, 1.005, 0.999, 0.998, 1
+  );
+  --opsin-duration-fast: 140ms;
+  --opsin-duration-base: 220ms;
+  --opsin-duration-slow: 360ms;
+}
+
+.dark {
+  --background: oklch(0.162 0.006 260);
+  --foreground: oklch(0.965 0.003 250);
+  --card: oklch(0.212 0.007 260);
+  --card-foreground: oklch(0.965 0.003 250);
+  --muted: oklch(0.262 0.008 260);
+  --muted-foreground: oklch(0.712 0.01 255);
+  --border: oklch(1 0 0 / 0.11);
+  --input: oklch(1 0 0 / 0.15);
+  --ring: oklch(0.68 0.115 250);
+  --primary: oklch(0.72 0.12 250);
+  --primary-foreground: oklch(0.16 0.01 260);
+
+  --opsin-status-expected-surface: oklch(0.262 0.046 150);
+  --opsin-status-expected-line: oklch(0.70 0.13 150);
+  --opsin-status-expected-ink: oklch(0.912 0.062 150);
+  --opsin-status-watch-surface: oklch(0.272 0.05 85);
+  --opsin-status-watch-line: oklch(0.78 0.14 85);
+  --opsin-status-watch-ink: oklch(0.926 0.068 85);
+  --opsin-status-act-surface: oklch(0.278 0.056 55);
+  --opsin-status-act-line: oklch(0.75 0.152 55);
+  --opsin-status-act-ink: oklch(0.922 0.074 55);
+  --opsin-status-urgent-surface: oklch(0.282 0.062 25);
+  --opsin-status-urgent-line: oklch(0.70 0.176 25);
+  --opsin-status-urgent-ink: oklch(0.918 0.082 25);
+
+  --opsin-category-cardio-accent: oklch(0.72 0.088 12);
+  --opsin-category-metabolic-accent: oklch(0.72 0.085 300);
+  --opsin-category-respiratory-accent: oklch(0.72 0.082 225);
+  --opsin-category-activity-accent: oklch(0.72 0.078 150);
+  --opsin-category-sleep-accent: oklch(0.71 0.086 275);
+  --opsin-category-body-accent: oklch(0.73 0.07 60);
+}
+
+/* Density. `(view)` reads ?density= and stamps it on <html>; the preview
+   toolbar in the docs drives the same attribute through the iframe URL. Only
+   spacing moves — type size and target minimum do not, because "compact" must
+   never become "harder to hit". */
+[data-density="compact"] {
+  --spacing: 0.24rem;
+}
+
+[data-density="comfortable"] {
+  --spacing: 0.32rem;
+}
+
+/* Text size. The 200% demonstration promised by
+   foundations/typography/dynamic-type and accessibility/text-resizing-and-zoom
+   is a real root font-size change, not a transform: scale(), so reflow and
+   truncation behave exactly as they would for a reader who has set it. */
+[data-text-size="125"] { font-size: 125%; }
+[data-text-size="150"] { font-size: 150%; }
+[data-text-size="200"] { font-size: 200%; }
+
+@supports (color-gamut: p3) {
+  :root,
+  .opsin-product {
+    --opsin-status-expected-line: oklch(0.66 0.152 150);
+    --opsin-status-watch-line: oklch(0.72 0.164 85);
+    --opsin-status-act-line: oklch(0.68 0.188 55);
+    --opsin-status-urgent-line: oklch(0.58 0.232 25);
+  }
+
+  .dark,
+  .opsin-product.dark {
+    --opsin-status-expected-line: oklch(0.70 0.152 150);
+    --opsin-status-watch-line: oklch(0.78 0.164 85);
+    --opsin-status-act-line: oklch(0.75 0.178 55);
+    --opsin-status-urgent-line: oklch(0.70 0.208 25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root,
+  .opsin-product {
+    --opsin-duration-fast: 1ms;
+    --opsin-duration-base: 1ms;
+    --opsin-duration-slow: 1ms;
+    --opsin-ease-spring: linear(0, 1);
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-status-expected: var(--opsin-status-expected-line);
+  --color-status-expected-surface: var(--opsin-status-expected-surface);
+  --color-status-expected-ink: var(--opsin-status-expected-ink);
+  --color-status-watch: var(--opsin-status-watch-line);
+  --color-status-watch-surface: var(--opsin-status-watch-surface);
+  --color-status-watch-ink: var(--opsin-status-watch-ink);
+  --color-status-act: var(--opsin-status-act-line);
+  --color-status-act-surface: var(--opsin-status-act-surface);
+  --color-status-act-ink: var(--opsin-status-act-ink);
+  --color-status-urgent: var(--opsin-status-urgent-line);
+  --color-status-urgent-surface: var(--opsin-status-urgent-surface);
+  --color-status-urgent-ink: var(--opsin-status-urgent-ink);
+
+  --color-category-cardio: var(--opsin-category-cardio-accent);
+  --color-category-metabolic: var(--opsin-category-metabolic-accent);
+  --color-category-respiratory: var(--opsin-category-respiratory-accent);
+  --color-category-activity: var(--opsin-category-activity-accent);
+  --color-category-sleep: var(--opsin-category-sleep-accent);
+  --color-category-body: var(--opsin-category-body-accent);
+
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.5);
+
+  --ease-opsin-standard: var(--opsin-ease-standard);
+  --ease-opsin-spring: var(--opsin-ease-spring);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    margin: 0;
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Squircle, progressively. Applied to the shape roles rather than to every
+     rounded box, so a browser without corner-shape gets an ordinary rounded
+     rectangle instead of a fallback that looks broken. */
+  @supports (corner-shape: superellipse(4)) {
+    [data-opsin-shape="squircle"] {
+      corner-shape: var(--opsin-corner-shape);
+    }
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Numbers a person reads as a measurement line up column-wise, so a change
+     between two readings is a change in the digits and not in the kerning. */
+  [data-opsinjs-value] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* Anything tappable clears the product floor. This is a backstop, not a
+     substitute for sizing the component correctly. */
+  button,
+  [role="button"],
+  a[data-opsin-target],
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-block-size: var(--opsin-target-min);
+    min-inline-size: var(--opsin-target-min);
+  }
+}
+
+@custom-variant dark (&:where(.dark, .dark *));

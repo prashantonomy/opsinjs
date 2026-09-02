@@ -1,0 +1,64 @@
+---
+title: Pattern Name
+description: One sentence saying what task this pattern completes for the reader.
+status: planned
+kind: pattern
+aliases: [the task in the reader's words]
+implements: [field, button]
+reviewEvery: 12m
+---
+
+{/*
+  TEMPLATE — kind: pattern. Seven sections, in this order.
+
+  A pattern is a sequence of screens or interactions, not a component. If what
+  you are describing fits inside one component's page, it is not a pattern.
+
+  Every "when not to use" entry names the alternative. This applies to patterns
+  exactly as it does to components.
+*/}
+
+<PageTemplate kind="pattern" />
+
+## When to use
+
+The situation this pattern is the right answer to, and the signal that tells you
+you are in it.
+
+## When not to use
+
+Each entry names the pattern or component to use instead. No orphan prohibitions.
+
+## How it works
+
+<FlowDiagram>
+{`flowchart TD
+  A[Entry] --> B{Decision}
+  B -->|yes| C[Outcome]
+  B -->|no| D[Alternative]`}
+</FlowDiagram>
+
+Then the prose the diagram cannot carry: what the system knows at each step, what
+it must not assume, and where the reader can leave.
+
+## Content
+
+The copy this pattern needs, in the order the reader meets it. Link to the
+canonical content rules rather than restating them.
+
+## Accessibility
+
+Focus order across the sequence, what is announced on each transition, what
+happens on a validation failure, and how somebody using a screen reader knows
+where they are in the flow. Sequences fail differently from components: the
+per-screen check passes and the journey still breaks.
+
+## Research
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  Why the pattern is shaped this way. Opinion clearly marked as opinion.
+</ResearchNote>
+
+## Updates to this page
+
+<Reviewed />

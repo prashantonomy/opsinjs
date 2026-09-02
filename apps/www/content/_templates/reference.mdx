@@ -1,0 +1,37 @@
+---
+title: Reference Table
+description: One sentence naming exactly what is listed here and what generates it.
+status: stable
+kind: reference
+full: true
+---
+
+{/*
+  TEMPLATE — kind: reference.
+
+  A reference page has exactly ONE hand-written section — "How this is
+  generated" — and a generated body. `build-reference.mts` (or the named script)
+  replaces everything below the marker wholesale. Do not hand-edit below it:
+  `pnpm check:generated` regenerates and fails on a diff.
+
+  If the generator has not run, the body is <NoDataYet> naming the script. Never
+  a hand-typed sample row: a plausible fake in a reference table is indis-
+  tinguishable from real data and is exactly what this whole pillar exists to
+  prevent.
+*/}
+
+<PageTemplate kind="reference" />
+
+## How this is generated
+
+Source file: `path/to/source`. Script: `scripts/build-reference.mts`. Command:
+`pnpm run generate`.
+
+What the rows mean, what is deliberately excluded, and how to change one — which
+is always by changing the source, never this page.
+
+{/* opsinjs:generated:begin — everything below is replaced by the script */}
+
+<NoDataYet script="scripts/build-reference.mts" />
+
+{/* opsinjs:generated:end */}

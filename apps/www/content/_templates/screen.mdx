@@ -1,0 +1,51 @@
+---
+title: Screen Name
+description: One sentence naming the screen and the decision it helps somebody make.
+status: planned
+kind: screen
+aliases: [what a designer would call this screen]
+---
+
+{/*
+  TEMPLATE — kind: screen. Six sections, in this order.
+
+  A screen is a whole composed surface, documented so that it can be built and
+  reviewed as a unit. It is the highest-stakes artefact on the site: a screen is
+  where the two colour axes, the status vocabulary and the content rules all have
+  to hold at once.
+
+  The preview points at a `(view)` route, which renders under the opsinjs product
+  theme rather than the docs chrome. Until it exists, it renders <NotBuiltYet>.
+*/}
+
+<PageTemplate kind="screen" />
+
+## What this screen does
+
+The reader's situation when they arrive, what they are trying to find out, and
+what they should be able to do next. Name the thing this screen deliberately does
+NOT do.
+
+## Composition
+
+<CompositionTree name="screen-name" />
+
+## Preview
+
+<IframePreview kind="screen" name="screen-name" />
+
+## Safety notes
+
+Where this screen could mislead: a value that arrives late, a range that is
+unknown, a result that implies urgency, a reading whose provenance is uncertain.
+For each, what the screen does instead of guessing.
+
+## Accessibility
+
+Heading structure and landmarks, focus on entry, reading order against visual
+order, and what a screen-reader user hears first. Screens are where a correct
+component and a wrong page order still produce an unusable result.
+
+## Status
+
+<StubNotice name="screen-name" />

@@ -1,0 +1,75 @@
+---
+title: Health Rule
+description: One sentence stating the rule, in the words a product team would use to argue for it.
+status: stable
+kind: health
+evidence: opinion
+reviewed: 2026-09-02
+reviewer: clinical
+reviewEvery: 6m
+implements: [status-pill, alert-banner]
+aliases: [the clinical vocabulary a reader would search]
+---
+
+{/*
+  TEMPLATE — kind: health. Seven sections, in this order. The densest prose in
+  the repository, and the pages a clinical reviewer opens first.
+
+  MANDATORY frontmatter for this kind: `evidence` and `reviewed`.
+
+  EVIDENCE DISCIPLINE, and there is no flexibility here:
+   - `evidence: cited` requires a real, checkable source. A DOI or a URL a
+     reviewer can open.
+   - If you are stating a design opinion, say `evidence: opinion` and say so in
+     the prose too. An honest opinion is worth more than a plausible-looking
+     reference, and a fabricated citation in a health document is the single
+     worst thing this repository could contain.
+   - NEVER invent a study, a statistic, a DOI or a date.
+   - Do NOT copy NHS or other Crown-copyright text. Cite it; write your own.
+
+  Every id in `implements` must be a real catalogue entry (shipped or
+  considered); assert-ia checks it, and checks the reverse direction from the
+  component's `governedBy`.
+*/}
+
+<PageTemplate kind="health" />
+
+## What this means
+
+Plain English, for a reader who has not met the problem yet. What goes wrong in
+a real product when this rule is not followed — a concrete scenario with a person
+in it, not an abstraction.
+
+## The rule
+
+The rule itself, stated so that it can be checked. One sentence a reviewer could
+put in a checklist, then the qualifications.
+
+## Why (evidence)
+
+<ResearchNote evidence="opinion" date="2026-09-02">
+  The reasoning. If this is opinion, say which parts are opinion and what would
+  change your mind. If it is cited, cite something a reader can open and verify.
+</ResearchNote>
+
+## Applying it
+
+<DoDont>
+  <DoDont.Do>The compliant pattern, with the reason it is compliant.</DoDont.Do>
+  <DoDont.Dont>The tempting pattern, and the harm it does to a reader.</DoDont.Dont>
+</DoDont>
+
+## Components that implement this
+
+{/* Generated from `implements`. Do not restate the list by hand. */}
+
+## What this does not cover
+
+The boundary. Say plainly what opsinjs does NOT decide — thresholds, reference
+ranges, triage, wording that carries clinical meaning — and whose job each of
+those is. A health page that does not draw its own boundary invites the reader to
+assume the system is doing more than it is.
+
+## Updates to this page
+
+<Reviewed />
