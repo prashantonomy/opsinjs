@@ -40,6 +40,12 @@ import { routes } from "@/lib/routes"
 
 const DOCS_PREFIX = routes.docs()
 
+/**
+ * The generated per-symbol API pages. Case-sensitive by construction — see the
+ * guard in the case-normalisation branch below.
+ */
+const API_PREFIX = `${DOCS_PREFIX}/reference/api/`
+
 /** Exact-match redirects. Keys are lower-cased paths without a trailing slash. */
 const EXACT_REDIRECTS: Record<string, { to: string; permanent: boolean }> = {
   // Cut before launch; the tool surface is /playground and the isolated render
@@ -53,7 +59,43 @@ const EXACT_REDIRECTS: Record<string, { to: string; permanent: boolean }> = {
   // The curated agent index is a file, and the extension is part of its name.
   "/llms": { to: "/llms.txt", permanent: true },
   "/llms.md": { to: "/llms.txt", permanent: true },
+
+  // Arriving with another system's map. A reader who has used shadcn/ui reaches
+  // for /docs/installation; ours is a group, under Start here. 307, because if
+  // a top-level installation page is ever written this URL becomes its own.
+  [`${DOCS_PREFIX}/installation`]: {
+    to: `${DOCS_PREFIX}/start/installation`,
+    permanent: false,
+  },
 }
+
+/**
+ * Prefix rewrites, tried in order, longest-specific first.
+ *
+ * These are not aliases anybody should link to; they are the URLs people guess
+ * from another system's shape, and every one of them is cheaper to answer than
+ * to 404. check-llms probes each family in live mode.
+ */
+const PREFIX_REDIRECTS: { from: string; to: string; permanent: boolean }[] = [
+  // The American spelling. Prose on this site is British and the path follows
+  // it, but `color` is the spelling in every CSS property and every code
+  // identifier we publish, so it is the spelling a developer will type. The
+  // whole subtree redirects, not only its index.
+  {
+    from: `${DOCS_PREFIX}/foundations/color`,
+    to: `${DOCS_PREFIX}/foundations/colour`,
+    permanent: true,
+  },
+  // The per-base URL shape (`/docs/components/base/button`). opsinjs has
+  // exactly one canonical, un-namespaced URL per component — locked decision 6
+  // — and the base × style matrix lives on /view instead. A reader who has
+  // internalised the namespaced shape lands on the real page.
+  {
+    from: `${DOCS_PREFIX}/components/base/`,
+    to: `${DOCS_PREFIX}/components/`,
+    permanent: true,
+  },
+]
 
 export default function proxy(request: NextRequest) {
   const url = request.nextUrl
@@ -70,10 +112,28 @@ export default function proxy(request: NextRequest) {
     return NextResponse.redirect(target, exact.permanent ? 308 : 307)
   }
 
+  for (const rule of PREFIX_REDIRECTS) {
+    const lower = normalised.toLowerCase()
+    if (lower === rule.from || lower.startsWith(`${rule.from}/`) || lower.startsWith(rule.from.endsWith("/") ? rule.from : `${rule.from}/`)) {
+      const target = url.clone()
+      target.pathname = rule.to.replace(/\/$/, "") + lower.slice(rule.from.replace(/\/$/, "").length)
+      return NextResponse.redirect(target, rule.permanent ? 308 : 307)
+    }
+  }
+
   // Case normalisation, documentation paths only. Query and hash are preserved
   // so a deep link into a section survives the redirect.
+  //
+  // The per-symbol API pages are the one exception, and they have to be. Their
+  // slugs ARE TypeScript symbol names (addendum B11: <ApiLink> resolves to
+  // /docs/reference/api/<Symbol>), so `Oklch` and `oklch` are two different
+  // exports and lower-casing is not a normalisation but a rename. Without this
+  // guard every one of those pages 308s to a URL that does not exist, which is
+  // exactly what it did: 43 pages and every .md twin returned 404 while each
+  // page itself built and prerendered perfectly.
   if (
     normalised.startsWith(`${DOCS_PREFIX}/`) &&
+    !normalised.startsWith(API_PREFIX) &&
     normalised !== normalised.toLowerCase()
   ) {
     const target = url.clone()
