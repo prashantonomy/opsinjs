@@ -486,10 +486,16 @@ export function jsxPreamble(): string {
  * ------------------------------------------------------------------ */
 
 /**
- * Character budgets, not byte budgets — they are what a context window is
- * actually measured against, roughly four characters per token. A file that
- * exceeds its budget is truncated at a PAGE boundary and says so, because half
- * a clinical rule is worse than no clinical rule.
+ * BYTE budgets. A file that exceeds its budget is truncated at a PAGE boundary
+ * and says so, because half a clinical rule is worse than no clinical rule.
+ *
+ * These used to be counted in JavaScript string length, on the reasoning that a
+ * context window is measured in characters rather than bytes. That is true of a
+ * context window and false of everything that carries the file: the response
+ * header, the CDN limit and check-llms all count bytes. This corpus is full of
+ * em dashes and middots, so the two differ by about 0.2% — enough for a
+ * "capped" llms-full.txt to ship 880 kB against a 879 kB cap and warn on every
+ * run. Counting what the transport counts makes the cap true.
  */
 export const BUDGETS = {
   full: 900_000,
@@ -508,10 +514,12 @@ export function assemble(
   budget: number
 ): Assembled {
   const kept: string[] = []
+  const encoder = new TextEncoder()
   let size = 0
   let included = 0
   for (const chunk of chunks) {
-    const cost = chunk.text.length + 2
+    /* +2 for the blank line this chunk is joined with. */
+    const cost = encoder.encode(chunk.text).length + 2
     if (size + cost > budget && included > 0) break
     kept.push(chunk.text)
     size += cost
