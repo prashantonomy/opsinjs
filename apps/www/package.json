@@ -18,7 +18,7 @@
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx,mdx,json,css}\"",
     "check": "pnpm run check:generated && pnpm run check:ia && pnpm run check:llms",
-    "check:generated": "pnpm run generate && git add -N . && git diff --exit-code -- lib/generated registry/__index__.ts app/tokens.generated.css content/docs/reference/generated public/r",
+    "check:generated": "pnpm run generate && git add -N . && git diff --exit-code -- lib/generated registry/__index__.ts registry/generated app/tokens.generated.css content/docs/reference/generated content/docs/reference/api public/r",
     "check:ia": "node scripts/assert-ia.mts",
     "check:llms": "node scripts/check-llms.mts",
     "check:freshness": "node scripts/check-freshness.mts",

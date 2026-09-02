@@ -20,7 +20,6 @@ import {
   RelatedComponents,
 } from "./docs/anatomy"
 import {
-  CategoryGrid,
   ColorScale,
   StatusAxisDemo,
   StatusLadder,
@@ -77,7 +76,6 @@ import {
 import {
   NoDataYet,
   NotBuiltYet,
-  PlannedApi,
   StubNotice,
   Todo,
 } from "./docs/stub"
@@ -123,6 +121,12 @@ import { RadiusSpecimen, SpaceSpecimen, TypeScaleSpecimen } from "./docs/type"
    vocabularies.
    ========================================================================== */
 
+/* CategoryGrid and PlannedApi are intentionally NOT registered here. Contract
+   C4 declares the MDX vocabulary closed, and assert-ia fails the build on a tag
+   outside it; registering a tag no page may use is the same drift in the other
+   direction. Both components still exist and are exported from their own files -
+   PlannedApi is the intended host for anatomy section 9 once component pages
+   move off bare code fences. Add them to the vocabulary first, then to this map. */
 export function getMDXComponents(components?: MDXComponents): MDXComponents {
   return {
     // fumadocs defaults: pre, headings, links, images, tables, Card/Cards and
@@ -149,7 +153,6 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     // ---- Nothing is built --------------------------------------------------
     NotBuiltYet,
     StubNotice,
-    PlannedApi,
     NoDataYet,
     Todo,
 
@@ -198,7 +201,6 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     TokenSwatch,
     StatusLadder,
     StatusAxisDemo,
-    CategoryGrid,
 
     // ---- Material, motion, type, space, shape ------------------------------
     MaterialLadder,

@@ -21,13 +21,9 @@ import { routes } from "@/lib/routes"
  * yet, and the retrofit stays cheap only while URL construction lives in
  * `lib/routes.ts` and URL interpretation lives here and nowhere else.
  *
- * WHY THERE IS ANYTHING HERE AT ALL ON A NEW SITE. Two of the redirects below
- * are already load-bearing:
+ * WHY THERE IS ANYTHING HERE AT ALL ON A NEW SITE. One of the redirects below
+ * is already load-bearing:
  *
- *  - `/harness` was the name an earlier revision of this specification gave to
- *    the isolated render surface. It was cut; `/playground` is the tool surface
- *    and `/view` is the isolated one. Anything already linking to the old name
- *    should land somewhere useful rather than on a 404.
  *  - Mixed-case documentation paths are a real, constant source of dead links,
  *    because slugs get capitalised by chat clients, ticket trackers and people
  *    typing from memory. The corpus is entirely lower-case and hyphenated, so
@@ -50,7 +46,6 @@ const API_PREFIX = `${DOCS_PREFIX}/reference/api/`
 const EXACT_REDIRECTS: Record<string, { to: string; permanent: boolean }> = {
   // Cut before launch; the tool surface is /playground and the isolated render
   // surface is /view. See project/decisions.
-  "/harness": { to: "/playground", permanent: true },
 
   // fumadocs serves content/docs/index.mdx at /docs. `/docs/index` is what
   // people type when they have seen the file tree rather than the site.

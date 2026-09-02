@@ -58,6 +58,7 @@ import {
   readdirSync,
   readFileSync,
   statSync,
+  rmSync,
   writeFileSync,
 } from "node:fs"
 import * as nodeModule from "node:module"
@@ -68,6 +69,7 @@ const APP_DIR = fileURLToPath(new URL("../", import.meta.url))
 const REGISTRY_DIR = join(APP_DIR, "registry")
 const OUT_INDEX = join(REGISTRY_DIR, "__index__.ts")
 const OUT_CATALOGUE_JSON = join(APP_DIR, "lib", "generated", "catalogue.json")
+const COMPONENTS_CONTENT_DIR = join(APP_DIR, "content", "docs", "components")
 
 /**
  * Decision 6: the docs URL never carries a base or a style segment, but the
@@ -401,6 +403,102 @@ interface IndexRow {
   why?: string
 }
 
+/**
+ * ADR 0008 - considered components resolve, never 404.
+ *
+ * Emits one thin MDX page per `considered` catalogue row at the guessable URL
+ * `docs/components/<id>`. A 404 is the worst possible answer to "do you have a
+ * Tooltip", because a code-generating assistant cannot tell it from a typo and
+ * will invent an API rather than stop - and the invented component will be
+ * rendering somebody's blood pressure.
+ *
+ * These pages are deliberately thin and deliberately NOT shaped like a
+ * specification: a `considered` page that looks like a `planned` page is a lie
+ * with extra steps. They are excluded from the sidebar (the components
+ * `meta.json` lists its pages explicitly and must never use the rest token) and
+ * from the sitemap, but they are present in search, in the `.md` twins and in
+ * `/r/index.json`, which are the surfaces where a definitive negative answer is
+ * worth having.
+ *
+ * ALIASES ARE DEDUPLICATED, not copied wholesale. `assert-ia.mts` requires
+ * globally unique aliases, and a shipped component page may already claim a
+ * synonym this row also lists. Shipped rows win; a dropped alias still resolves
+ * through the catalogue and `/r/index.json`, which carry the full list.
+ */
+function emitConsideredStub(
+  row: IndexRow,
+  aliases: string[],
+  hash: string,
+  titleOf: (id: string) => string,
+): string {
+  const title = row.title ?? row.name
+  const alternatives = row.useInstead ?? []
+  const description =
+    row.description ?? `A component name reserved in the catalogue, with no specification.`
+
+  const frontmatter = [
+    "---",
+    `title: ${q(title)}`,
+    `description: ${q(description)}`,
+    "status: considered",
+    "kind: component",
+    `since: ${q(String(row.since ?? "unreleased"))}`,
+    `category: ${q(String(row.category ?? "utility"))}`,
+    aliases.length > 0 ? `aliases: [${aliases.map(q).join(", ")}]` : "",
+    "---",
+  ]
+    .filter((line) => line !== "")
+    .join("\n")
+
+  const instead =
+    alternatives.length === 0
+      ? "There is no direct replacement. The [component catalogue](index.mdx) is the definitive list of what does exist."
+      : `Use ${alternatives
+          .map((id, index) => {
+            const link = `[${titleOf(id)}](${id}.mdx)`
+            if (index === 0) return link
+            if (index === alternatives.length - 1) return ` or ${link}`
+            return `, ${link}`
+          })
+          .join("")} instead.`
+
+  return [
+    frontmatter,
+    "",
+    `{/* GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts (status: considered).`,
+    `    Generator: scripts/build-registry.mts (\`pnpm run generate\`). Gate: \`pnpm check:generated\`.`,
+    `    Rationale: content/docs/project/decisions/0008-considered-components-resolve.mdx.`,
+    `    Source hash ${hash}. */}`,
+    "",
+    `<PageTemplate kind="component" status="considered" category=${q(String(row.category ?? "utility"))} />`,
+    "",
+    `<StubNotice name=${q(row.name)} status="considered">`,
+    `  **${title} is not built, and it has no specification.** The name is recorded in`,
+    `  the catalogue so that this address answers instead of returning a 404 — not`,
+    `  because the component is coming.`,
+    `</StubNotice>`,
+    "",
+    "## What this name refers to",
+    "",
+    description,
+    "",
+    "## Why it is not on the roster",
+    "",
+    row.why ??
+      "No rationale is recorded. That is a gap in the catalogue, not a signal that the component is planned.",
+    "",
+    "## What to use instead",
+    "",
+    instead,
+    "",
+    "Do not generate code against this page. It documents an absence. The",
+    "machine-readable list of every component id and its status is at",
+    "`/r/index.json`, and the [status matrix](index.mdx) shows the same rows for",
+    "a human reader.",
+    "",
+  ].join("\n")
+}
+
 function emitCatalogueJson(
   rows: IndexRow[],
   categories: Array<{ id: string; label: string; count: number }>,
@@ -538,13 +636,62 @@ async function main(): Promise<void> {
           .digest("hex")
           .slice(0, 12)
 
+  /* ADR 0008. Aliases are claimed in catalogue order, shipped rows first, so the
+     result is deterministic and never collides with a hand-authored page's
+     frontmatter - which assert-ia requires to be globally unique. */
+  const claimedAliases = new Set<string>()
+  for (const row of rows) {
+    if (row.status === "considered") continue
+    for (const alias of row.aliases ?? []) claimedAliases.add(alias.toLowerCase())
+  }
+
+  const titleOf = (id: string): string =>
+    rows.find((row) => row.name === id)?.title ?? id
+
+  const consideredStubs = rows
+    .filter((row) => row.status === "considered")
+    .map((row) => {
+      const unique: string[] = []
+      for (const alias of row.aliases ?? []) {
+        const key = alias.toLowerCase()
+        if (claimedAliases.has(key)) continue
+        claimedAliases.add(key)
+        unique.push(alias)
+      }
+      return {
+        file: join(COMPONENTS_CONTENT_DIR, `${row.name}.mdx`),
+        contents: emitConsideredStub(row, unique, hash, titleOf),
+      }
+    })
+
   const outputs = [
     { file: OUT_INDEX, contents: emitIndex(built, bases, styles, hash) },
     {
       file: OUT_CATALOGUE_JSON,
       contents: emitCatalogueJson(rows, categories, aliases, builtNames, hash),
     },
+    ...consideredStubs,
   ]
+
+  /* A row removed from the catalogue must not leave its page behind: a stub with
+     no catalogue row is exactly the dead documentation ADR 0008 exists to avoid,
+     and assert-ia fails on it in the other direction. Only files carrying the
+     generator's marker are ever removed, so a hand-authored specification can
+     never be deleted by this. */
+  const stubPaths = new Set(consideredStubs.map((stub) => stub.file))
+  const staleStubs: string[] = []
+  for (const entry of listFiles(COMPONENTS_CONTENT_DIR)) {
+    if (!entry.endsWith(".mdx")) continue
+    const file = join(COMPONENTS_CONTENT_DIR, entry)
+    if (stubPaths.has(file)) continue
+    try {
+      if (readFileSync(file, "utf8").includes("Generator: scripts/build-registry.mts")) {
+        staleStubs.push(file)
+      }
+    } catch {
+      /* unreadable is not stale */
+    }
+  }
 
   if (checkOnly) {
     const drifted = outputs.filter((output) => {
@@ -572,6 +719,11 @@ async function main(): Promise<void> {
   let writtenCount = 0
   for (const output of outputs) {
     if (writeIfChanged(output.file, output.contents)) writtenCount += 1
+  }
+  for (const file of staleStubs) {
+    rmSync(file)
+    writtenCount += 1
+    console.log(`  removed  ${relative(APP_DIR, file)} (no catalogue row)`)
   }
 
   const shipped = rows.filter((row) => row.status !== "considered").length

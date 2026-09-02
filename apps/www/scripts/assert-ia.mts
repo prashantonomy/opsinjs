@@ -56,6 +56,16 @@ const APP_DIR = fileURLToPath(new URL("../", import.meta.url))
 const DOCS_DIR = join(APP_DIR, "content", "docs")
 const TEMPLATES_DIR = join(APP_DIR, "content", "_templates")
 
+/* ADR 0008. The complete outline for a `considered` component page - the only
+   kind of page in the corpus that is generated rather than authored. Kept here
+   rather than in a template file because there is no _templates/considered.mdx:
+   a contributor never writes one of these by hand. */
+const CONSIDERED_COMPONENT_HEADINGS = [
+  "What this name refers to",
+  "Why it is not on the roster",
+  "What to use instead",
+]
+
 /* ================================================================== *
  * FROZEN CONTRACTS                                                    *
  * ================================================================== */
@@ -848,7 +858,7 @@ function checkFrontmatter(page: ParsedPage, schema: FrontmatterSchema | undefine
     }
   }
 
-  if (kind === "component") {
+  if (kind === "component" && asText(front.status) !== "considered") {
     const category = asText(front.category) ?? ""
     if (category.startsWith("health-") && asArray(front.governedBy).length === 0) {
       fail(
@@ -881,6 +891,38 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
   const conditional = new Set(CONDITIONAL_HEADINGS[kind] ?? [])
   const present = page.headings
   const presentSet = new Set(present)
+
+  /* ADR 0008 - the second status gate. A `considered` component page is not a
+     specification and must not be checked as one: it exists so that a guessed
+     URL answers instead of 404-ing, and it carries the notice, what the name
+     refers to, why it is not on the roster, and the alternative. Nothing else.
+     Holding it to the `planned` outline would demand a Proposed API and an
+     Accessibility bar for a component nobody has designed - which is exactly
+     the padding-into-substance the ADR rejects. `componentSections()` in
+     lib/status.ts already returns [] here for <PageTemplate>; this is the same
+     gate on the authoring side. */
+  if (kind === "component" && asText(page.frontmatter.status) === "considered") {
+    for (const heading of CONSIDERED_COMPONENT_HEADINGS) {
+      if (!presentSet.has(heading)) {
+        fail(
+          "OUT001",
+          file,
+          `missing "## ${heading}". A considered component page carries exactly ${CONSIDERED_COMPONENT_HEADINGS.map((h) => `"${h}"`).join(", ")} - see ADR 0008.`,
+        )
+      }
+    }
+    const allowedConsidered = new Set(CONSIDERED_COMPONENT_HEADINGS)
+    for (const heading of present) {
+      if (!allowedConsidered.has(heading)) {
+        fail(
+          "OUT002",
+          file,
+          `"## ${heading}" is not part of a considered component page. These pages are thin by design - see ADR 0008.`,
+        )
+      }
+    }
+    return
+  }
 
   if (policy === "header") {
     const first = outline[0]
@@ -920,7 +962,7 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
   const ordering = REQUIRED_HEADINGS[kind] ?? outline
   const ordered = present.filter((heading) => ordering.includes(heading))
   const expected = ordering.filter((heading) => presentSet.has(heading))
-  if (ordered.join(" ") !== expected.join(" ")) {
+  if (ordered.join("\u0000") !== expected.join("\u0000")) {
     fail(
       "OUT003",
       file,
@@ -1129,6 +1171,18 @@ function checkHardcodedDocsPaths(): void {
  * ------------------------------------------------------------------ */
 
 function checkMetaTrees(pages: ParsedPage[]): void {
+  /* ADR 0008. Basenames of the generated `considered` component pages, which are
+     resolvable routes that are deliberately absent from the sidebar. */
+  const consideredComponentPages = new Set(
+    pages
+      .filter(
+        (page) =>
+          asText(page.frontmatter.kind) === "component" &&
+          asText(page.frontmatter.status) === "considered",
+      )
+      .map((page) => page.file.replace(/\.mdx$/, "").split(sep).pop() ?? ""),
+  )
+
   const bySlug = new Map(pages.map((page) => [page.slug, page]))
 
   const visit = (dir: string): void => {
@@ -1197,6 +1251,25 @@ function checkMetaTrees(pages: ParsedPage[]): void {
       if (!rest && listed.length > 0) {
         for (const child of children) {
           if (child.name === "index") continue
+
+          /* ADR 0008 - the one deliberate exception to the orphan rule, and it
+             runs in both directions. A `considered` component page must NOT be
+             in the sidebar: thirty-six reserved names would swamp a navigation
+             tree that describes a system with no components in it. But it must
+             still resolve, so it is a real page at a guessable URL, reachable
+             through search, the .md twins and /r/index.json. Listing one is the
+             error here; omitting one is correct. */
+          if (consideredComponentPages.has(child.name) && dirSlug === "components") {
+            if (names.has(child.name)) {
+              fail(
+                "IA001",
+                rel(join(dir, child.raw)),
+                `is listed in components/meta.json, but a considered component page is deliberately absent from the sidebar - see ADR 0008. Remove it from meta.json; it stays resolvable without being listed.`,
+              )
+            }
+            continue
+          }
+
           if (names.has(child.name)) continue
           fail(
             "IA001",
@@ -1478,11 +1551,25 @@ function checkCatalogue(pages: ParsedPage[], catalogue: CatalogueRow[], source: 
         .split("-")
         .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
         .join("")
-      if (target_ && !target_.body.includes(id) && !target_.body.includes(pascal)) {
+      /* `implements:` IS the page declaring its composition, and it is the
+         machine-readable half of the relation - so it counts as naming the
+         component. Requiring a prose mention as well would force every screen to
+         write a sentence about Surface and Skeleton, which is padding, not
+         documentation. What the reverse index has to guarantee is that the
+         relation is declared somewhere on both sides, not that it is narrated. */
+      const declared = target_
+        ? asArray(target_.frontmatter.implements).includes(id)
+        : false
+      if (
+        target_ &&
+        !declared &&
+        !target_.body.includes(id) &&
+        !target_.body.includes(pascal)
+      ) {
         warn(
           "CAT004",
           rel(target_.file),
-          `components/${id} declares \`usedIn: ${target}\`, but this page never mentions \`${id}\`. The reverse index should be true in both directions.`,
+          `components/${id} declares \`usedIn: ${target}\`, but this page neither lists \`${id}\` in \`implements:\` nor mentions it. The reverse index should be true in both directions.`,
         )
       }
     }

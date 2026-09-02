@@ -157,7 +157,7 @@ export const SHIPPED: CatalogueEntry[] = [
     governedBy: [
       "two-colour-axes",
       "clinical-status-semantics",
-      "reference-ranges-and-normal",
+      "reference-ranges",
       "numbers-units-precision",
     ],
     healthCategory: "labs",
@@ -180,9 +180,9 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "clinical",
     a11yDate: null,
     governedBy: [
-      "reference-ranges-and-normal",
+      "reference-ranges",
       "two-colour-axes",
-      "uncertainty-staleness-and-missing-data",
+      "uncertainty-and-staleness",
     ],
   },
   {
@@ -213,7 +213,7 @@ export const SHIPPED: CatalogueEntry[] = [
     aliases: ["sparkline", "trend", "over time", "mini chart", "line chart"],
     owner: "clinical",
     a11yDate: null,
-    governedBy: ["trends-and-change", "uncertainty-staleness-and-missing-data"],
+    governedBy: ["trends-and-change", "uncertainty-and-staleness"],
   },
   {
     name: "metric-tile",
@@ -237,7 +237,7 @@ export const SHIPPED: CatalogueEntry[] = [
     governedBy: [
       "numbers-units-precision",
       "two-colour-axes",
-      "uncertainty-staleness-and-missing-data",
+      "uncertainty-and-staleness",
     ],
   },
   {
@@ -377,7 +377,7 @@ export const SHIPPED: CatalogueEntry[] = [
     governedBy: [
       "unit-systems",
       "numbers-units-precision",
-      "reference-ranges-and-normal",
+      "reference-ranges",
     ],
   },
 
@@ -410,7 +410,7 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "content",
     a11yDate: null,
     governedBy: [
-      "uncertainty-staleness-and-missing-data",
+      "uncertainty-and-staleness",
       "grammar-and-mechanics",
     ],
   },
@@ -686,7 +686,7 @@ export const CONSIDERED: CatalogueEntry[] = [
     category: "overlay",
     status: "considered",
     since: "unreleased",
-    aliases: ["hover label", "hint"],
+    aliases: ["hover label"],
     owner: "engineering",
     a11yDate: null,
     why: "There is no hover on a phone, and this is a phone-first system. Anything important enough for a tooltip is important enough to be on the screen.",
@@ -1048,12 +1048,12 @@ export const RESERVED_ALIASES: Record<string, string[]> = {
     "notification budget",
     "escalation budget",
   ],
-  "reference-ranges-and-normal": [
+  "reference-ranges": [
     "what is normal",
     "normal result",
     "range source",
   ],
-  "uncertainty-staleness-and-missing-data": [
+  "uncertainty-and-staleness": [
     "stale data",
     "missing data",
     "we do not know",

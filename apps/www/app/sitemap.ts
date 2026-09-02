@@ -32,7 +32,17 @@ import { source } from "@/lib/source"
  * the review date is the only honest answer available at build time.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const pages = source.getPages()
+  /* ADR 0008 - considered component pages are resolvable but not published.
+     They are thin by design and there are thirty-six of them; putting them in
+     front of a search engine serves nobody. The audience that needs a definitive
+     "this does not exist" answer reaches them through search on the site, the
+     .md twins and /r/index.json, none of which depend on the sitemap. */
+  const pages = source
+    .getPages()
+    .filter(
+      (page) =>
+        !(page.data.kind === "component" && page.data.status === "considered"),
+    )
 
   const docs: MetadataRoute.Sitemap = pages.map((page) => {
     const reviewed =

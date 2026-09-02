@@ -653,12 +653,26 @@ async function main(): Promise<void> {
     scopes,
     pairs: measured,
     cvd: { collapseThresholdLc: collapseThreshold, collisions },
+    // A TRUE PARTITION of `measured`, asserted below. The earlier version counted
+    // `passing` over every pair that cleared its floor - advisory pairs included -
+    // while also counting those same pairs under `advisory`, so the published
+    // summary read "126 pairs: 115 pass, 0 fail, 46 advisory" and did not add up.
+    // A contrast report that cannot do arithmetic is worse than no report.
     summary: {
       total: measured.length,
-      passing: measured.filter((pair) => pair.passes).length,
+      passing: required.filter((pair) => pair.passes).length,
       failing: failures.length,
       advisory: measured.filter((pair) => pair.advisory).length,
     },
+  }
+
+  const { total, passing, failing, advisory } = payload.summary
+  if (passing + failing + advisory !== total) {
+    throw new Error(
+      `check-contrast: summary is not a partition - ${passing} pass + ${failing} fail + ` +
+        `${advisory} advisory = ${passing + failing + advisory}, but ${total} pairs were measured. ` +
+        `Refusing to publish a contrast report that does not add up.`,
+    )
   }
 
   mkdirSync(dirname(OUT_FILE), { recursive: true })
@@ -674,8 +688,8 @@ async function main(): Promise<void> {
   console.log(
     [
       `check-contrast: ${measured.length} pairs across both themes in ${scopes.length} scopes - ` +
-        `${measured.filter((pair) => pair.passes).length} pass, ${failures.length} fail, ` +
-        `${measured.filter((pair) => pair.advisory).length} advisory.`,
+        `${payload.summary.passing} pass, ${payload.summary.failing} fail, ` +
+        `${payload.summary.advisory} advisory.`,
       `  ${changed ? "wrote    " : "unchanged"} lib/generated/contrast.json`,
       ...failures
         .slice(0, 20)

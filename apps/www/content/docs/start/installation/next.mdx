@@ -127,6 +127,9 @@ root element will do; opsinjs takes no opinion and adds no dependency.
 
 ## Render something
 
+The intended usage, for review only — `StatusPill` is not built yet, so this
+snippet will not resolve:
+
 ```tsx title="app/page.tsx"
 import { StatusPill } from "@/components/opsinjs/status-pill"
 
@@ -141,6 +144,10 @@ JavaScript. Components that need a client boundary say so on their own pages;
 explains which and why.
 
 ## Verify it worked
+
+When the component exists, these are the checks that decide whether the install
+is correct. Until then, only the token checks below can actually be run — steps
+that mention the pill are written for the day it lands.
 
 1. **The page renders and the pill is styled.** Unstyled means the `@source` line
    is missing or points at the wrong directory.

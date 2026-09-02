@@ -68,7 +68,7 @@ export const REGISTRY_STYLES: string[] = ["base-lyra"]
 export const REGISTRY_INDEX: Record<string, RegistryEntry> = {}
 
 export const REGISTRY_META: { generatedAt: string | null; sourceHash: string; count: number } = {
-  generatedAt: "e6ab0bb27941",
-  sourceHash: "e6ab0bb27941",
+  generatedAt: "94e90e8387af",
+  sourceHash: "94e90e8387af",
   count: 0,
 }
