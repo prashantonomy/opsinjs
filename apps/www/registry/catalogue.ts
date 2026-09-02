@@ -14,9 +14,17 @@
  * the whole corpus — an alias that resolves to two pages resolves to neither.
  * Uniqueness cannot survive fifteen authors inventing synonyms in parallel, so
  * it is declared here once. A component page's frontmatter COPIES the array
- * below verbatim; it never invents one. `assert-ia.mts` fails the build when a
- * page's `aliases` are not exactly its catalogue row's, when two rows share an
- * alias, or when an alias collides with any catalogue id.
+ * below verbatim; it never invents one.
+ *
+ * WHAT IS ACTUALLY ENFORCED, because this comment used to claim three things and
+ * only one of them existed:
+ *   CAT005  fatal    two pages claim the same alias
+ *   CAT007  fatal    an alias is also a catalogue id — added after `status-pill`
+ *                    claimed `badge`, which is a real component and its opposite
+ *   CAT006  warning  a page is MISSING an alias its catalogue row has
+ * A page carrying an EXTRA alias its row does not have is still not reported, so
+ * "copies the array verbatim" is a convention rather than a gate. Do not read the
+ * absence of an error as agreement.
  *
  * The reserved doctrine aliases at the bottom of this file are the synonyms
  * that belong to Health and Content pages rather than to components, recorded

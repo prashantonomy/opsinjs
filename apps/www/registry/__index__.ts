@@ -149,7 +149,7 @@ export const REGISTRY_INDEX: Record<string, RegistryEntry> = {
 }
 
 export const REGISTRY_META: { generatedAt: string | null; sourceHash: string; count: number } = {
-  generatedAt: "9c63b221e882",
-  sourceHash: "9c63b221e882",
+  generatedAt: "fd20c7e96842",
+  sourceHash: "fd20c7e96842",
   count: 3,
 }
