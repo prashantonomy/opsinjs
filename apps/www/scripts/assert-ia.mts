@@ -237,6 +237,20 @@ const MDX_VOCABULARY = [
   "Files",
   "Kbd",
   "Figure",
+
+  /* Reconciled with components/mdx.tsx rather than removed from it. Each of
+     these is a real, exported component that content may legitimately reach
+     for, so the contract is widened to admit it instead of the export being
+     withdrawn — which is the choice MDX003 asks a human to make.
+
+     TypeTable is not optional: remarkAutoTypeTable rewrites `<auto-type-table>`
+     into it, so removing the export would break every generated API table.
+     PlannedApi is how a component page states an API that does not exist yet
+     without implying it does. CategoryGrid is the catalogue-driven index used
+     on section landing pages. */
+  "TypeTable",
+  "PlannedApi",
+  "CategoryGrid",
 ]
 
 /**
@@ -534,10 +548,49 @@ function parsePage(file: string): ParsedPage {
   }
 }
 
+/**
+ * Blank out fenced code blocks and inline code spans.
+ *
+ * Fences are matched with ANY leading indentation and with either delimiter,
+ * because a fence nested in a list item is indented and is still a fence. The
+ * previous form anchored on `^```` at column zero, so every example inside a
+ * bullet read as prose — which is how a `render={(props) => <MyButton …>}`
+ * illustration in handbook/composition-and-render was reported as an unknown
+ * MDX tag, and how a `## heading` inside an indented block would have been
+ * counted as a real section.
+ *
+ * Removed lines become empty lines rather than disappearing, so line numbers in
+ * anything derived from the result still match the source file.
+ */
 function stripCode(text: string): string {
-  return text
-    .replace(/^```[\s\S]*?^```/gm, "")
-    .replace(/`[^`\n]*`/g, "")
+  const out: string[] = []
+  let delimiter: string | null = null
+  let width = 0
+
+  for (const line of text.split("\n")) {
+    const match = /^\s*(`{3,}|~{3,})/.exec(line)
+    const run = match?.[1]
+
+    if (delimiter === null) {
+      if (run) {
+        delimiter = run[0] as string
+        width = run.length
+        out.push("")
+        continue
+      }
+      out.push(line)
+      continue
+    }
+
+    // A closing fence carries the same delimiter, is at least as long, and
+    // carries nothing else on the line. Anything else is still block content.
+    if (run && run[0] === delimiter && run.length >= width && line.trim() === run) {
+      delimiter = null
+    }
+    out.push("")
+  }
+
+  return out.join("\n").replace(/`[^`\n]*`/g, "")
 }
 
 function collectHeadings(body: string): string[] {
@@ -980,6 +1033,54 @@ function checkMdxLinks(page: ParsedPage): void {
   }
 }
 
+/**
+ * Blank out comments in a TypeScript source, preserving line count.
+ *
+ * The hardcoded-`/docs` rule looks for a quote character immediately before
+ * the path, which is what tells a route literal apart from a filesystem path
+ * like "content/docs/…". In a JSDoc block a backtick is markdown emphasis, not
+ * a template literal, so a comment that merely NAMES the `/docs/<slug>.md`
+ * route read as a hardcoded route and three files were failed for documenting
+ * themselves accurately. A comment cannot be a link, so comments are removed
+ * before the rule runs.
+ *
+ * String and template literals are tracked so a `//` inside "https://…" does
+ * not swallow the rest of the line.
+ */
+function stripTsComments(source: string): string {
+  let out = ""
+  let quote: string | null = null
+  let block = false
+  let line = false
+
+  for (let i = 0; i < source.length; i += 1) {
+    const ch = source[i] as string
+    const next = source[i + 1]
+
+    if (block) {
+      if (ch === "*" && next === "/") { block = false; i += 1; out += "  "; continue }
+      out += ch === "\n" ? "\n" : " "
+      continue
+    }
+    if (line) {
+      if (ch === "\n") { line = false; out += "\n"; continue }
+      out += " "
+      continue
+    }
+    if (quote) {
+      out += ch
+      if (ch === "\\") { out += source[i + 1] ?? ""; i += 1; continue }
+      if (ch === quote) quote = null
+      continue
+    }
+    if (ch === '"' || ch === "'" || ch === "`") { quote = ch; out += ch; continue }
+    if (ch === "/" && next === "*") { block = true; i += 1; out += "  "; continue }
+    if (ch === "/" && next === "/") { line = true; i += 1; out += "  "; continue }
+    out += ch
+  }
+  return out
+}
+
 function checkHardcodedDocsPaths(): void {
   const files: string[] = []
   for (const dir of ["app", "components", "lib"]) {
@@ -998,9 +1099,19 @@ function checkHardcodedDocsPaths(): void {
     if (relative_.startsWith("lib/generated/")) continue
     const contents = readMaybe(file)
     if (contents === undefined) continue
-    const lines = contents.split("\n")
+    const lines = stripTsComments(contents).split("\n")
     for (let index = 0; index < lines.length; index += 1) {
-      if (pattern.test(lines[index] ?? "")) {
+      const line = lines[index] ?? ""
+      /* Next's generated route keys — `PageProps<"/docs/[[...slug]]">` and the
+         Layout/Route equivalents — are the route's own identity, produced by
+         `next typegen`. They cannot be built through lib/routes.ts and renaming
+         the segment would change them anyway, so they are not what this rule is
+         looking for. */
+      const executable = line.replace(
+        /\b(?:PageProps|LayoutProps|RouteContext|LayoutSlots)<[^>]*>/g,
+        "",
+      )
+      if (pattern.test(executable)) {
         fail(
           "TS001",
           relative_,
@@ -1051,14 +1162,23 @@ function checkMetaTrees(pages: ParsedPage[]): void {
       }
 
       const listed = Array.isArray(parsed?.pages) ? parsed.pages.map((entry) => String(entry)) : []
-      const rest = listed.includes("...")
-      /* fumadocs has two "..." forms. A bare "..." is "everything else"; a
-         prefixed "...folder" EXTRACTS that folder's pages inline, which is how
-         the reference section sweeps the generated pages up to its own level.
-         Both name real things on disk and neither is a page called "...". */
+      /* fumadocs has three rest forms and none of them names a file.
+         "..."   sweeps everything else in source order;
+         "z...a" sweeps everything else in DESCENDING order, which is what a
+                 changelog wants so entries never have to be re-sorted by hand
+                 (fumadocs-core calls it `restReversed`);
+         "...folder" EXTRACTS that folder's pages inline, which is how the
+                 reference section lifts its generated pages to its own level.
+         A leading "!" excludes, "---" is a separator and "[Label](url)" is an
+         external link. Only what survives all of that is a page name. */
+      const REST = new Set(["...", "z...a"])
+      const rest = listed.some((entry) => REST.has(entry))
       const names = new Set(
         listed
-          .filter((entry) => !entry.startsWith("---") && !entry.startsWith("[") && entry !== "...")
+          .filter(
+            (entry) =>
+              !entry.startsWith("---") && !entry.startsWith("[") && !REST.has(entry),
+          )
           .map((entry) => entry.replace(/^!/, "").replace(/^\.\.\./, "")),
       )
 

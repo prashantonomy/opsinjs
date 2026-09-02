@@ -274,8 +274,8 @@ export function StatusSpecimen({ compact }: { compact?: boolean }) {
           data-status={level.id}
           className="flex flex-col gap-1 p-4 sm:flex-row sm:items-baseline sm:gap-4"
           style={{
-            backgroundColor: `var(--opsin-status-${level.tokenId}-surface)`,
-            color: `var(--opsin-status-${level.tokenId}-ink)`,
+            backgroundColor: `var(--opsin-status-${level.id}-surface)`,
+            color: `var(--opsin-status-${level.id}-ink)`,
           }}
         >
           <span className="flex min-w-32 items-center gap-2 font-medium">
@@ -283,7 +283,7 @@ export function StatusSpecimen({ compact }: { compact?: boolean }) {
               aria-hidden
               className="inline-block size-3 shrink-0 rounded-full"
               style={{
-                backgroundColor: `var(--opsin-status-${level.tokenId}-line)`,
+                backgroundColor: `var(--opsin-status-${level.id}-line)`,
               }}
             />
             {level.label}

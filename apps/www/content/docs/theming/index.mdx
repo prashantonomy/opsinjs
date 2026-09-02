@@ -4,7 +4,7 @@ description: The three tiers of the opsinjs token system, which tier you are all
 status: stable
 kind: guide
 icon: Palette
-aliases: [theme, retheme, brand colour, token tiers, design tokens]
+aliases: [theme, retheme, token tiers, design tokens]
 ---
 
 <PageTemplate kind="guide" />
@@ -46,7 +46,7 @@ space scales. They are generated into `app/tokens.generated.css` by
 `scripts/build-tokens.mts` from the JSON under `tokens/`, and every pair in them
 has a machine-measured contrast figure attached. Nothing in product code should
 reference a tier-1 name directly — a component that reads
-`--opsin-category-cardio-accent` has hard-coded the answer to a question the
+`--opsin-category-heart-accent` has hard-coded the answer to a question the
 role tier exists to answer.
 
 You change tier 1 by editing `tokens/*.json` and regenerating, which in practice

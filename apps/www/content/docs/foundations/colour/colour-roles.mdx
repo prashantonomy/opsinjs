@@ -25,9 +25,9 @@ The important idea on this page is not the naming. It is this:
 
 > A contrast guarantee attaches to a **pair**, not to a colour.
 >
-> `--opsin-status-act-ink` is not "an accessible colour". It is the foreground
+> `--opsin-status-attention-ink` is not "an accessible colour". It is the foreground
 > half of a measured pair whose background half is
-> `--opsin-status-act-surface`. Put it on anything else and you have left the
+> `--opsin-status-attention-surface`. Put it on anything else and you have left the
 > guarantee behind.
 
 Everything below follows from that sentence.
@@ -66,7 +66,7 @@ tokens, because a hover variant of every role on every name on both axes is
 seventy-two tokens nobody can hold in their head.
 
 Tailwind utilities are exposed for each token through `@theme inline`, so
-`bg-status-act-surface` and `text-status-act-ink` resolve to the same custom
+`bg-status-attention-surface` and `text-status-attention-ink` resolve to the same custom
 properties and follow the theme, the gamut escalation and the media-query
 overrides automatically. Raw `var()` access is supported for consumers who are
 not on Tailwind; see [CSS variables](../../theming/css-variables.mdx).
@@ -123,13 +123,13 @@ slightly different tint to separate it from its parent, the answer is a
 
 <DoDont>
   <DoDont.Do>
-    A tinted status card: `--opsin-status-act-surface` behind
-    `--opsin-status-act-ink`, with a 1px `--opsin-status-act-line` edge. All
+    A tinted status card: `--opsin-status-attention-surface` behind
+    `--opsin-status-attention-ink`, with a 1px `--opsin-status-attention-line` edge. All
     three halves come from one axis and one name, so every pair on the card is
     in the declared set and measured in both themes.
   </DoDont.Do>
   <DoDont.Dont>
-    A neutral card with `--opsin-status-act-ink` for the heading "because the
+    A neutral card with `--opsin-status-attention-ink` for the heading "because the
     tint was too loud". The pair is unmeasured, the contrast is accidental, and
     the reader now has a coloured heading with no coloured surface to explain
     what the colour means.

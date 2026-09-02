@@ -624,7 +624,7 @@ const demoStyles = `
   width: 24px;
   height: 24px;
   border-radius: 9999px;
-  background: var(--opsin-status-expected-line);
+  background: var(--opsin-status-steady-line);
 }
 
 @media (prefers-reduced-motion: no-preference) {

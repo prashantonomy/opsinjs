@@ -5,7 +5,7 @@ status: planned
 kind: component
 since: "unreleased"
 category: health-input
-aliases: [measurement input, numeric input, unit switch, enter a reading]
+aliases: [measurement input, numeric input, unit switch, enter a reading, numeric entry, manual entry]
 governedBy: [numbers-units-precision, unit-systems, uncertainty-and-staleness]
 usedIn: [daily-log-entry, daily-log-screen]
 ---
@@ -94,7 +94,7 @@ Celsius and Fahrenheit cross near normal body temperature in a way that makes a 
 look plausible. The unit is always visible beside the value, never inferred from a locale,
 and never implied by a placeholder. See [Unit systems](../health/unit-systems.mdx).
 
-<SafetyCallout severity="medium" evidence="opinion">
+<SafetyCallout severity="attention" evidence="opinion">
 Changing the unit selector must never silently change the stored value or silently keep the
 typed digits. Whichever the component does, it must say so on screen — *converted from 80
 kg* or *cleared, please re-enter* — because both behaviours are correct in some situation and

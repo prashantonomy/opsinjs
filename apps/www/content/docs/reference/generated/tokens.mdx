@@ -45,6 +45,427 @@ JSON source; this page cannot be edited.
 
 {/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
 
-<NoDataYet script="scripts/build-reference.mts" />
+## Tokens
+
+### color
+
+#### neutral
+
+| Token | Tier | What it controls | Light | Dark | Used by |
+| --- | --- | --- | --- | --- | --- |
+| `--opsin-neutral-0` | primitive | Neutral ramp, step 0. | `oklch(1 0 0)` | same | not yet |
+| `--opsin-neutral-50` | primitive | Neutral ramp, step 50. | `oklch(0.985 0.002 250)` | same | not yet |
+| `--opsin-neutral-100` | primitive | Neutral ramp, step 100. | `oklch(0.967 0.003 250)` | same | not yet |
+| `--opsin-neutral-200` | primitive | Neutral ramp, step 200. | `oklch(0.929 0.004 250)` | same | not yet |
+| `--opsin-neutral-300` | primitive | Neutral ramp, step 300. | `oklch(0.871 0.005 250)` | same | not yet |
+| `--opsin-neutral-400` | primitive | Neutral ramp, step 400. | `oklch(0.708 0.008 250)` | same | not yet |
+| `--opsin-neutral-500` | primitive | Neutral ramp, step 500. | `oklch(0.556 0.009 250)` | same | not yet |
+| `--opsin-neutral-600` | primitive | Neutral ramp, step 600. | `oklch(0.439 0.009 250)` | same | not yet |
+| `--opsin-neutral-700` | primitive | Neutral ramp, step 700. | `oklch(0.371 0.008 250)` | same | not yet |
+| `--opsin-neutral-800` | primitive | Neutral ramp, step 800. | `oklch(0.269 0.007 250)` | same | not yet |
+| `--opsin-neutral-900` | primitive | Neutral ramp, step 900. | `oklch(0.205 0.006 250)` | same | not yet |
+| `--opsin-neutral-950` | primitive | Neutral ramp, step 950. | `oklch(0.145 0.005 250)` | same | not yet |
+| `--opsin-neutral-1000` | primitive | Neutral ramp, step 1000. | `oklch(0 0 0)` | same | not yet |
+
+#### category
+
+| Token | Tier | What it controls | Light | Dark | Used by |
+| --- | --- | --- | --- | --- | --- |
+| `--opsin-category-sleep-50` | primitive | Sleep ramp, step 50. | `oklch(0.972 0.013 275)` | same | not yet |
+| `--opsin-category-sleep-100` | primitive | Sleep ramp, step 100. | `oklch(0.941 0.028 275)` | same | not yet |
+| `--opsin-category-sleep-200` | primitive | Sleep ramp, step 200. | `oklch(0.884 0.057 275)` | same | not yet |
+| `--opsin-category-sleep-300` | primitive | Sleep ramp, step 300. | `oklch(0.806 0.092 275)` | same | not yet |
+| `--opsin-category-sleep-400` | primitive | Sleep ramp, step 400. | `oklch(0.714 0.123 275)` | same | not yet |
+| `--opsin-category-sleep-500` | primitive | Sleep ramp, step 500. | `oklch(0.622 0.14 275)` | same | not yet |
+| `--opsin-category-sleep-600` | primitive | Sleep ramp, step 600. | `oklch(0.541 0.136 275)` | same | not yet |
+| `--opsin-category-sleep-700` | primitive | Sleep ramp, step 700. | `oklch(0.452 0.123 275)` | same | not yet |
+| `--opsin-category-sleep-800` | primitive | Sleep ramp, step 800. | `oklch(0.362 0.104 275)` | same | not yet |
+| `--opsin-category-sleep-900` | primitive | Sleep ramp, step 900. | `oklch(0.276 0.081 275)` | same | not yet |
+| `--opsin-category-sleep-950` | primitive | Sleep ramp, step 950. | `oklch(0.208 0.062 275)` | same | not yet |
+| `--opsin-category-sleep-surface` | semantic | The tinted background a component in this ramp sits on. | `oklch(0.972 0.013 275)` | `oklch(0.276 0.081 275)` | not yet |
+| `--opsin-category-sleep-line` | semantic | The boundary, icon stroke or chart mark. The lightest value in the ramp that clears the non-text floor against `surface`. | `oklch(0.541 0.136 275)` | `oklch(0.806 0.092 275)` | not yet |
+| `--opsin-category-sleep-ink` | semantic | Text and text-sized icons on `surface`. Clears the text floor against `surface`. | `oklch(0.362 0.104 275)` | `oklch(0.941 0.028 275)` | not yet |
+| `--opsin-category-sleep-accent` | semantic | The identity fill: a bar fill, a dial track, a legend dot. Chosen for recognition, not for contrast. It must be bounded by `line` or labelled in `ink`; it is never the only thing that carries the meaning. | `oklch(0.58 0.14 275)` | `oklch(0.714 0.123 275)` | not yet |
+| `--opsin-category-heart-50` | primitive | Heart ramp, step 50. | `oklch(0.972 0.014 15)` | same | not yet |
+| `--opsin-category-heart-100` | primitive | Heart ramp, step 100. | `oklch(0.941 0.03 15)` | same | not yet |
+| `--opsin-category-heart-200` | primitive | Heart ramp, step 200. | `oklch(0.884 0.062 15)` | same | not yet |
+| `--opsin-category-heart-300` | primitive | Heart ramp, step 300. | `oklch(0.806 0.112 15)` | same | not yet |
+| `--opsin-category-heart-400` | primitive | Heart ramp, step 400. | `oklch(0.714 0.15 15)` | same | not yet |
+| `--opsin-category-heart-500` | primitive | Heart ramp, step 500. | `oklch(0.622 0.17 15)` | same | not yet |
+| `--opsin-category-heart-600` | primitive | Heart ramp, step 600. | `oklch(0.541 0.165 15)` | same | not yet |
+| `--opsin-category-heart-700` | primitive | Heart ramp, step 700. | `oklch(0.452 0.15 15)` | same | not yet |
+| `--opsin-category-heart-800` | primitive | Heart ramp, step 800. | `oklch(0.362 0.126 15)` | same | not yet |
+| `--opsin-category-heart-900` | primitive | Heart ramp, step 900. | `oklch(0.276 0.099 15)` | same | not yet |
+| `--opsin-category-heart-950` | primitive | Heart ramp, step 950. | `oklch(0.208 0.075 15)` | same | not yet |
+| `--opsin-category-heart-surface` | semantic | The tinted background a component in this ramp sits on. | `oklch(0.972 0.014 15)` | `oklch(0.276 0.099 15)` | not yet |
+| `--opsin-category-heart-line` | semantic | The boundary, icon stroke or chart mark. The lightest value in the ramp that clears the non-text floor against `surface`. | `oklch(0.541 0.165 15)` | `oklch(0.806 0.112 15)` | not yet |
+| `--opsin-category-heart-ink` | semantic | Text and text-sized icons on `surface`. Clears the text floor against `surface`. | `oklch(0.362 0.126 15)` | `oklch(0.941 0.03 15)` | not yet |
+| `--opsin-category-heart-accent` | semantic | The identity fill: a bar fill, a dial track, a legend dot. Chosen for recognition, not for contrast. It must be bounded by `line` or labelled in `ink`; it is never the only thing that carries the meaning. | `oklch(0.62 0.17 15)` | `oklch(0.714 0.15 15)` | not yet |
+| `--opsin-category-activity-50` | primitive | Activity ramp, step 50. | `oklch(0.972 0.022 140)` | same | not yet |
+| `--opsin-category-activity-100` | primitive | Activity ramp, step 100. | `oklch(0.941 0.038 140)` | same | not yet |
+| `--opsin-category-activity-200` | primitive | Activity ramp, step 200. | `oklch(0.884 0.067 140)` | same | not yet |
+| `--opsin-category-activity-300` | primitive | Activity ramp, step 300. | `oklch(0.806 0.106 140)` | same | not yet |
+| `--opsin-category-activity-400` | primitive | Activity ramp, step 400. | `oklch(0.714 0.141 140)` | same | not yet |
+| `--opsin-category-activity-500` | primitive | Activity ramp, step 500. | `oklch(0.622 0.16 140)` | same | not yet |
+| `--opsin-category-activity-600` | primitive | Activity ramp, step 600. | `oklch(0.541 0.155 140)` | same | not yet |
+| `--opsin-category-activity-700` | primitive | Activity ramp, step 700. | `oklch(0.452 0.141 140)` | same | not yet |
+| `--opsin-category-activity-800` | primitive | Activity ramp, step 800. | `oklch(0.362 0.118 140)` | same | not yet |
+| `--opsin-category-activity-900` | primitive | Activity ramp, step 900. | `oklch(0.276 0.092 140)` | same | not yet |
+| `--opsin-category-activity-950` | primitive | Activity ramp, step 950. | `oklch(0.208 0.07 140)` | same | not yet |
+| `--opsin-category-activity-surface` | semantic | The tinted background a component in this ramp sits on. | `oklch(0.972 0.022 140)` | `oklch(0.276 0.092 140)` | not yet |
+| `--opsin-category-activity-line` | semantic | The boundary, icon stroke or chart mark. The lightest value in the ramp that clears the non-text floor against `surface`. | `oklch(0.541 0.155 140)` | `oklch(0.806 0.106 140)` | not yet |
+| `--opsin-category-activity-ink` | semantic | Text and text-sized icons on `surface`. Clears the text floor against `surface`. | `oklch(0.362 0.118 140)` | `oklch(0.941 0.038 140)` | not yet |
+| `--opsin-category-activity-accent` | semantic | The identity fill: a bar fill, a dial track, a legend dot. Chosen for recognition, not for contrast. It must be bounded by `line` or labelled in `ink`; it is never the only thing that carries the meaning. | `oklch(0.7 0.16 140)` | `oklch(0.714 0.141 140)` | not yet |
+| `--opsin-category-nutrition-50` | primitive | Nutrition ramp, step 50. | `oklch(0.972 0.02 70)` | same | not yet |
+| `--opsin-category-nutrition-100` | primitive | Nutrition ramp, step 100. | `oklch(0.941 0.034 70)` | same | not yet |
+| `--opsin-category-nutrition-200` | primitive | Nutrition ramp, step 200. | `oklch(0.884 0.059 70)` | same | not yet |
+| `--opsin-category-nutrition-300` | primitive | Nutrition ramp, step 300. | `oklch(0.806 0.092 70)` | same | not yet |
+| `--opsin-category-nutrition-400` | primitive | Nutrition ramp, step 400. | `oklch(0.714 0.123 70)` | same | not yet |
+| `--opsin-category-nutrition-500` | primitive | Nutrition ramp, step 500. | `oklch(0.622 0.135 70)` | same | not yet |
+| `--opsin-category-nutrition-600` | primitive | Nutrition ramp, step 600. | `oklch(0.541 0.118 70)` | same | not yet |
+| `--opsin-category-nutrition-700` | primitive | Nutrition ramp, step 700. | `oklch(0.452 0.099 70)` | same | not yet |
+| `--opsin-category-nutrition-800` | primitive | Nutrition ramp, step 800. | `oklch(0.362 0.08 70)` | same | not yet |
+| `--opsin-category-nutrition-900` | primitive | Nutrition ramp, step 900. | `oklch(0.276 0.062 70)` | same | not yet |
+| `--opsin-category-nutrition-950` | primitive | Nutrition ramp, step 950. | `oklch(0.208 0.049 70)` | same | not yet |
+| `--opsin-category-nutrition-surface` | semantic | The tinted background a component in this ramp sits on. | `oklch(0.972 0.02 70)` | `oklch(0.276 0.062 70)` | not yet |
+| `--opsin-category-nutrition-line` | semantic | The boundary, icon stroke or chart mark. The lightest value in the ramp that clears the non-text floor against `surface`. | `oklch(0.541 0.118 70)` | `oklch(0.806 0.092 70)` | not yet |
+| `--opsin-category-nutrition-ink` | semantic | Text and text-sized icons on `surface`. Clears the text floor against `surface`. | `oklch(0.362 0.08 70)` | `oklch(0.941 0.034 70)` | not yet |
+| `--opsin-category-nutrition-accent` | semantic | The identity fill: a bar fill, a dial track, a legend dot. Chosen for recognition, not for contrast. It must be bounded by `line` or labelled in `ink`; it is never the only thing that carries the meaning. | `oklch(0.75 0.14 70)` | `oklch(0.714 0.123 70)` | not yet |
+| `--opsin-category-mind-50` | primitive | Mind ramp, step 50. | `oklch(0.972 0.018 310)` | same | not yet |
+| `--opsin-category-mind-100` | primitive | Mind ramp, step 100. | `oklch(0.941 0.034 310)` | same | not yet |
+| `--opsin-category-mind-200` | primitive | Mind ramp, step 200. | `oklch(0.884 0.059 310)` | same | not yet |
+| `--opsin-category-mind-300` | primitive | Mind ramp, step 300. | `oklch(0.806 0.092 310)` | same | not yet |
+| `--opsin-category-mind-400` | primitive | Mind ramp, step 400. | `oklch(0.714 0.123 310)` | same | not yet |
+| `--opsin-category-mind-500` | primitive | Mind ramp, step 500. | `oklch(0.622 0.14 310)` | same | not yet |
+| `--opsin-category-mind-600` | primitive | Mind ramp, step 600. | `oklch(0.541 0.136 310)` | same | not yet |
+| `--opsin-category-mind-700` | primitive | Mind ramp, step 700. | `oklch(0.452 0.123 310)` | same | not yet |
+| `--opsin-category-mind-800` | primitive | Mind ramp, step 800. | `oklch(0.362 0.104 310)` | same | not yet |
+| `--opsin-category-mind-900` | primitive | Mind ramp, step 900. | `oklch(0.276 0.081 310)` | same | not yet |
+| `--opsin-category-mind-950` | primitive | Mind ramp, step 950. | `oklch(0.208 0.062 310)` | same | not yet |
+| `--opsin-category-mind-surface` | semantic | The tinted background a component in this ramp sits on. | `oklch(0.972 0.018 310)` | `oklch(0.276 0.081 310)` | not yet |
+| `--opsin-category-mind-line` | semantic | The boundary, icon stroke or chart mark. The lightest value in the ramp that clears the non-text floor against `surface`. | `oklch(0.541 0.136 310)` | `oklch(0.806 0.092 310)` | not yet |
+| `--opsin-category-mind-ink` | semantic | Text and text-sized icons on `surface`. Clears the text floor against `surface`. | `oklch(0.362 0.104 310)` | `oklch(0.941 0.034 310)` | not yet |
+| `--opsin-category-mind-accent` | semantic | The identity fill: a bar fill, a dial track, a legend dot. Chosen for recognition, not for contrast. It must be bounded by `line` or labelled in `ink`; it is never the only thing that carries the meaning. | `oklch(0.62 0.14 310)` | `oklch(0.714 0.123 310)` | not yet |
+| `--opsin-category-labs-50` | primitive | Labs ramp, step 50. | `oklch(0.972 0.015 210)` | same | not yet |
+| `--opsin-category-labs-100` | primitive | Labs ramp, step 100. | `oklch(0.941 0.026 210)` | same | not yet |
+| `--opsin-category-labs-200` | primitive | Labs ramp, step 200. | `oklch(0.884 0.046 210)` | same | not yet |
+| `--opsin-category-labs-300` | primitive | Labs ramp, step 300. | `oklch(0.806 0.073 210)` | same | not yet |
+| `--opsin-category-labs-400` | primitive | Labs ramp, step 400. | `oklch(0.714 0.097 210)` | same | not yet |
+| `--opsin-category-labs-500` | primitive | Labs ramp, step 500. | `oklch(0.622 0.108 210)` | same | not yet |
+| `--opsin-category-labs-600` | primitive | Labs ramp, step 600. | `oklch(0.541 0.094 210)` | same | not yet |
+| `--opsin-category-labs-700` | primitive | Labs ramp, step 700. | `oklch(0.452 0.079 210)` | same | not yet |
+| `--opsin-category-labs-800` | primitive | Labs ramp, step 800. | `oklch(0.362 0.063 210)` | same | not yet |
+| `--opsin-category-labs-900` | primitive | Labs ramp, step 900. | `oklch(0.276 0.049 210)` | same | not yet |
+| `--opsin-category-labs-950` | primitive | Labs ramp, step 950. | `oklch(0.208 0.038 210)` | same | not yet |
+| `--opsin-category-labs-surface` | semantic | The tinted background a component in this ramp sits on. | `oklch(0.972 0.015 210)` | `oklch(0.276 0.049 210)` | not yet |
+| `--opsin-category-labs-line` | semantic | The boundary, icon stroke or chart mark. The lightest value in the ramp that clears the non-text floor against `surface`. | `oklch(0.541 0.094 210)` | `oklch(0.806 0.073 210)` | not yet |
+| `--opsin-category-labs-ink` | semantic | Text and text-sized icons on `surface`. Clears the text floor against `surface`. | `oklch(0.362 0.063 210)` | `oklch(0.941 0.026 210)` | not yet |
+| `--opsin-category-labs-accent` | semantic | The identity fill: a bar fill, a dial track, a legend dot. Chosen for recognition, not for contrast. It must be bounded by `line` or labelled in `ink`; it is never the only thing that carries the meaning. | `oklch(0.6 0.11 210)` | `oklch(0.714 0.097 210)` | not yet |
+
+#### status
+
+| Token | Tier | What it controls | Light | Dark | Used by |
+| --- | --- | --- | --- | --- | --- |
+| `--opsin-status-steady-50` | primitive | Steady ramp, step 50. | `oklch(0.972 0.015 178)` | same | not yet |
+| `--opsin-status-steady-100` | primitive | Steady ramp, step 100. | `oklch(0.941 0.026 178)` | same | not yet |
+| `--opsin-status-steady-200` | primitive | Steady ramp, step 200. | `oklch(0.884 0.046 178)` | same | not yet |
+| `--opsin-status-steady-300` | primitive | Steady ramp, step 300. | `oklch(0.806 0.073 178)` | same | not yet |
+| `--opsin-status-steady-400` | primitive | Steady ramp, step 400. | `oklch(0.714 0.097 178)` | same | not yet |
+| `--opsin-status-steady-500` | primitive | Steady ramp, step 500. | `oklch(0.622 0.11 178)` | same | not yet |
+| `--opsin-status-steady-600` | primitive | Steady ramp, step 600. | `oklch(0.541 0.1 178)` | same | not yet |
+| `--opsin-status-steady-700` | primitive | Steady ramp, step 700. | `oklch(0.452 0.084 178)` | same | not yet |
+| `--opsin-status-steady-800` | primitive | Steady ramp, step 800. | `oklch(0.362 0.067 178)` | same | not yet |
+| `--opsin-status-steady-900` | primitive | Steady ramp, step 900. | `oklch(0.276 0.052 178)` | same | not yet |
+| `--opsin-status-steady-950` | primitive | Steady ramp, step 950. | `oklch(0.208 0.041 178)` | same | not yet |
+| `--opsin-status-steady-surface` | semantic | The tinted background a component in this ramp sits on. | `oklch(0.972 0.015 178)` | `oklch(0.276 0.052 178)` | not yet |
+| `--opsin-status-steady-line` | semantic | The boundary, icon stroke or chart mark. The lightest value in the ramp that clears the non-text floor against `surface`. | `oklch(0.541 0.1 178)` | `oklch(0.806 0.073 178)` | not yet |
+| `--opsin-status-steady-ink` | semantic | Text and text-sized icons on `surface`. Clears the text floor against `surface`. | `oklch(0.362 0.067 178)` | `oklch(0.941 0.026 178)` | not yet |
+| `--opsin-status-steady-accent` | semantic | The identity fill: a bar fill, a dial track, a legend dot. Chosen for recognition, not for contrast. It must be bounded by `line` or labelled in `ink`; it is never the only thing that carries the meaning. | `oklch(0.64 0.11 178)` | `oklch(0.714 0.097 178)` | not yet |
+| `--opsin-status-watch-50` | primitive | Watch ramp, step 50. | `oklch(0.972 0.02 82)` | same | not yet |
+| `--opsin-status-watch-100` | primitive | Watch ramp, step 100. | `oklch(0.941 0.034 82)` | same | not yet |
+| `--opsin-status-watch-200` | primitive | Watch ramp, step 200. | `oklch(0.884 0.059 82)` | same | not yet |
+| `--opsin-status-watch-300` | primitive | Watch ramp, step 300. | `oklch(0.806 0.092 82)` | same | not yet |
+| `--opsin-status-watch-400` | primitive | Watch ramp, step 400. | `oklch(0.714 0.123 82)` | same | not yet |
+| `--opsin-status-watch-500` | primitive | Watch ramp, step 500. | `oklch(0.622 0.129 82)` | same | not yet |
+| `--opsin-status-watch-600` | primitive | Watch ramp, step 600. | `oklch(0.541 0.112 82)` | same | not yet |
+| `--opsin-status-watch-700` | primitive | Watch ramp, step 700. | `oklch(0.452 0.094 82)` | same | not yet |
+| `--opsin-status-watch-800` | primitive | Watch ramp, step 800. | `oklch(0.362 0.076 82)` | same | not yet |
+| `--opsin-status-watch-900` | primitive | Watch ramp, step 900. | `oklch(0.276 0.059 82)` | same | not yet |
+| `--opsin-status-watch-950` | primitive | Watch ramp, step 950. | `oklch(0.208 0.046 82)` | same | not yet |
+| `--opsin-status-watch-surface` | semantic | The tinted background a component in this ramp sits on. | `oklch(0.972 0.02 82)` | `oklch(0.276 0.059 82)` | not yet |
+| `--opsin-status-watch-line` | semantic | The boundary, icon stroke or chart mark. The lightest value in the ramp that clears the non-text floor against `surface`. | `oklch(0.541 0.112 82)` | `oklch(0.806 0.092 82)` | not yet |
+| `--opsin-status-watch-ink` | semantic | Text and text-sized icons on `surface`. Clears the text floor against `surface`. | `oklch(0.362 0.076 82)` | `oklch(0.941 0.034 82)` | not yet |
+| `--opsin-status-watch-accent` | semantic | The identity fill: a bar fill, a dial track, a legend dot. Chosen for recognition, not for contrast. It must be bounded by `line` or labelled in `ink`; it is never the only thing that carries the meaning. | `oklch(0.78 0.14 82)` | `oklch(0.714 0.123 82)` | not yet |
+| `--opsin-status-attention-50` | primitive | Needs attention ramp, step 50. | `oklch(0.972 0.015 45)` | same | not yet |
+| `--opsin-status-attention-100` | primitive | Needs attention ramp, step 100. | `oklch(0.941 0.032 45)` | same | not yet |
+| `--opsin-status-attention-200` | primitive | Needs attention ramp, step 200. | `oklch(0.884 0.063 45)` | same | not yet |
+| `--opsin-status-attention-300` | primitive | Needs attention ramp, step 300. | `oklch(0.806 0.099 45)` | same | not yet |
+| `--opsin-status-attention-400` | primitive | Needs attention ramp, step 400. | `oklch(0.714 0.132 45)` | same | not yet |
+| `--opsin-status-attention-500` | primitive | Needs attention ramp, step 500. | `oklch(0.622 0.15 45)` | same | not yet |
+| `--opsin-status-attention-600` | primitive | Needs attention ramp, step 600. | `oklch(0.541 0.145 45)` | same | not yet |
+| `--opsin-status-attention-700` | primitive | Needs attention ramp, step 700. | `oklch(0.452 0.13 45)` | same | not yet |
+| `--opsin-status-attention-800` | primitive | Needs attention ramp, step 800. | `oklch(0.362 0.105 45)` | same | not yet |
+| `--opsin-status-attention-900` | primitive | Needs attention ramp, step 900. | `oklch(0.276 0.082 45)` | same | not yet |
+| `--opsin-status-attention-950` | primitive | Needs attention ramp, step 950. | `oklch(0.208 0.065 45)` | same | not yet |
+| `--opsin-status-attention-surface` | semantic | The tinted background a component in this ramp sits on. | `oklch(0.972 0.015 45)` | `oklch(0.276 0.082 45)` | not yet |
+| `--opsin-status-attention-line` | semantic | The boundary, icon stroke or chart mark. The lightest value in the ramp that clears the non-text floor against `surface`. | `oklch(0.541 0.145 45)` | `oklch(0.806 0.099 45)` | not yet |
+| `--opsin-status-attention-ink` | semantic | Text and text-sized icons on `surface`. Clears the text floor against `surface`. | `oklch(0.362 0.105 45)` | `oklch(0.941 0.032 45)` | not yet |
+| `--opsin-status-attention-accent` | semantic | The identity fill: a bar fill, a dial track, a legend dot. Chosen for recognition, not for contrast. It must be bounded by `line` or labelled in `ink`; it is never the only thing that carries the meaning. | `oklch(0.66 0.15 45)` | `oklch(0.714 0.132 45)` | not yet |
+| `--opsin-status-urgent-50` | primitive | Urgent ramp, step 50. | `oklch(0.972 0.014 27)` | same | not yet |
+| `--opsin-status-urgent-100` | primitive | Urgent ramp, step 100. | `oklch(0.941 0.03 27)` | same | not yet |
+| `--opsin-status-urgent-200` | primitive | Urgent ramp, step 200. | `oklch(0.884 0.061 27)` | same | not yet |
+| `--opsin-status-urgent-300` | primitive | Urgent ramp, step 300. | `oklch(0.806 0.11 27)` | same | not yet |
+| `--opsin-status-urgent-400` | primitive | Urgent ramp, step 400. | `oklch(0.714 0.176 27)` | same | not yet |
+| `--opsin-status-urgent-500` | primitive | Urgent ramp, step 500. | `oklch(0.622 0.2 27)` | same | not yet |
+| `--opsin-status-urgent-600` | primitive | Urgent ramp, step 600. | `oklch(0.541 0.194 27)` | same | not yet |
+| `--opsin-status-urgent-700` | primitive | Urgent ramp, step 700. | `oklch(0.452 0.176 27)` | same | not yet |
+| `--opsin-status-urgent-800` | primitive | Urgent ramp, step 800. | `oklch(0.362 0.148 27)` | same | not yet |
+| `--opsin-status-urgent-900` | primitive | Urgent ramp, step 900. | `oklch(0.276 0.115 27)` | same | not yet |
+| `--opsin-status-urgent-950` | primitive | Urgent ramp, step 950. | `oklch(0.208 0.088 27)` | same | not yet |
+| `--opsin-status-urgent-surface` | semantic | The tinted background a component in this ramp sits on. | `oklch(0.972 0.014 27)` | `oklch(0.276 0.115 27)` | not yet |
+| `--opsin-status-urgent-line` | semantic | The boundary, icon stroke or chart mark. The lightest value in the ramp that clears the non-text floor against `surface`. | `oklch(0.541 0.194 27)` | `oklch(0.806 0.11 27)` | not yet |
+| `--opsin-status-urgent-ink` | semantic | Text and text-sized icons on `surface`. Clears the text floor against `surface`. | `oklch(0.362 0.148 27)` | `oklch(0.941 0.03 27)` | not yet |
+| `--opsin-status-urgent-accent` | semantic | The identity fill: a bar fill, a dial track, a legend dot. Chosen for recognition, not for contrast. It must be bounded by `line` or labelled in `ink`; it is never the only thing that carries the meaning. | `oklch(0.56 0.2 27)` | `oklch(0.714 0.176 27)` | not yet |
+| `--opsin-status-unknown-50` | primitive | Unknown ramp, step 50. | `oklch(0.972 0.003 250)` | same | not yet |
+| `--opsin-status-unknown-100` | primitive | Unknown ramp, step 100. | `oklch(0.941 0.005 250)` | same | not yet |
+| `--opsin-status-unknown-200` | primitive | Unknown ramp, step 200. | `oklch(0.884 0.008 250)` | same | not yet |
+| `--opsin-status-unknown-300` | primitive | Unknown ramp, step 300. | `oklch(0.806 0.013 250)` | same | not yet |
+| `--opsin-status-unknown-400` | primitive | Unknown ramp, step 400. | `oklch(0.714 0.018 250)` | same | not yet |
+| `--opsin-status-unknown-500` | primitive | Unknown ramp, step 500. | `oklch(0.622 0.02 250)` | same | not yet |
+| `--opsin-status-unknown-600` | primitive | Unknown ramp, step 600. | `oklch(0.541 0.019 250)` | same | not yet |
+| `--opsin-status-unknown-700` | primitive | Unknown ramp, step 700. | `oklch(0.452 0.018 250)` | same | not yet |
+| `--opsin-status-unknown-800` | primitive | Unknown ramp, step 800. | `oklch(0.362 0.015 250)` | same | not yet |
+| `--opsin-status-unknown-900` | primitive | Unknown ramp, step 900. | `oklch(0.276 0.012 250)` | same | not yet |
+| `--opsin-status-unknown-950` | primitive | Unknown ramp, step 950. | `oklch(0.208 0.009 250)` | same | not yet |
+| `--opsin-status-unknown-surface` | semantic | The tinted background a component in this ramp sits on. | `oklch(0.972 0.003 250)` | `oklch(0.276 0.012 250)` | not yet |
+| `--opsin-status-unknown-line` | semantic | The boundary, icon stroke or chart mark. The lightest value in the ramp that clears the non-text floor against `surface`. | `oklch(0.541 0.019 250)` | `oklch(0.806 0.013 250)` | not yet |
+| `--opsin-status-unknown-ink` | semantic | Text and text-sized icons on `surface`. Clears the text floor against `surface`. | `oklch(0.362 0.015 250)` | `oklch(0.941 0.005 250)` | not yet |
+| `--opsin-status-unknown-accent` | semantic | The identity fill: a bar fill, a dial track, a legend dot. Chosen for recognition, not for contrast. It must be bounded by `line` or labelled in `ink`; it is never the only thing that carries the meaning. | `oklch(0.72 0.02 250)` | `oklch(0.714 0.018 250)` | not yet |
+
+### material
+
+#### material
+
+| Token | Tier | What it controls | Light | Dark | Used by |
+| --- | --- | --- | --- | --- | --- |
+| `--opsin-material-canvas-tint` | semantic | Rung 0 (canvas): the tint over what is behind it. The application background. Nothing is behind it, so nothing shows through it. | `var(--opsin-neutral-0)` | `var(--opsin-neutral-950)` | not yet |
+| `--opsin-material-canvas-tint-alpha` | semantic | Rung 0 (canvas): how opaque that tint is. | `1` | same | not yet |
+| `--opsin-material-canvas-blur` | semantic | Rung 0 (canvas): backdrop blur radius. | `0px` | same | not yet |
+| `--opsin-material-canvas-saturation` | semantic | Rung 0 (canvas): backdrop saturation multiplier. | `1` | same | not yet |
+| `--opsin-material-canvas-border` | semantic | Rung 0 (canvas): the boundary. | `none` | same | not yet |
+| `--opsin-material-canvas-shadow` | semantic | Rung 0 (canvas): the shadow that separates it from what is behind. | `none` | same | not yet |
+| `--opsin-material-canvas-scrim` | semantic | Rung 0 (canvas): the minimum scrim opacity needed for text on this rung to clear the contrast floor. | `0` | same | not yet |
+| `--opsin-material-canvas-opaque` | semantic | Rung 0 (canvas): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. | `var(--opsin-neutral-0)` | `var(--opsin-neutral-950)` | not yet |
+| `--opsin-material-card-tint` | semantic | Rung 1 (card): the tint over what is behind it. The default home for a health value. Opaque, bounded by a line rather than a shadow, and the rung every ResultCard, MetricTile and RangeBar sits on. | `var(--opsin-neutral-0)` | `var(--opsin-neutral-900)` | not yet |
+| `--opsin-material-card-tint-alpha` | semantic | Rung 1 (card): how opaque that tint is. | `1` | same | not yet |
+| `--opsin-material-card-blur` | semantic | Rung 1 (card): backdrop blur radius. | `0px` | same | not yet |
+| `--opsin-material-card-saturation` | semantic | Rung 1 (card): backdrop saturation multiplier. | `1` | same | not yet |
+| `--opsin-material-card-shadow` | semantic | Rung 1 (card): the shadow that separates it from what is behind. | `none` | same | not yet |
+| `--opsin-material-card-scrim` | semantic | Rung 1 (card): the minimum scrim opacity needed for text on this rung to clear the contrast floor. | `0` | same | not yet |
+| `--opsin-material-card-opaque` | semantic | Rung 1 (card): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. | `var(--opsin-neutral-0)` | `var(--opsin-neutral-900)` | not yet |
+| `--opsin-material-raised-tint` | semantic | Rung 2 (raised): the tint over what is behind it. Menus, popovers, tooltips, a dragged card. Still opaque: the shadow, not translucency, is what says 'above'. | `var(--opsin-neutral-0)` | `var(--opsin-neutral-800)` | not yet |
+| `--opsin-material-raised-tint-alpha` | semantic | Rung 2 (raised): how opaque that tint is. | `1` | same | not yet |
+| `--opsin-material-raised-blur` | semantic | Rung 2 (raised): backdrop blur radius. | `0px` | same | not yet |
+| `--opsin-material-raised-saturation` | semantic | Rung 2 (raised): backdrop saturation multiplier. | `1` | same | not yet |
+| `--opsin-material-raised-shadow` | semantic | Rung 2 (raised): the shadow that separates it from what is behind. | `0 1px 2px oklch(0 0 0 / 0.06), 0 4px 12px oklch(0 0 0 / 0.06)` | same | not yet |
+| `--opsin-material-raised-scrim` | semantic | Rung 2 (raised): the minimum scrim opacity needed for text on this rung to clear the contrast floor. | `0` | same | not yet |
+| `--opsin-material-raised-opaque` | semantic | Rung 2 (raised): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. | `var(--opsin-neutral-0)` | `var(--opsin-neutral-800)` | not yet |
+| `--opsin-material-sheet-tint` | semantic | Rung 3 (sheet): the tint over what is behind it. A bottom sheet or side panel the reader can dismiss by dragging. The blur keeps enough of the page visible that the reader knows where they will return to. | `var(--opsin-neutral-0)` | `var(--opsin-neutral-900)` | not yet |
+| `--opsin-material-sheet-blur` | semantic | Rung 3 (sheet): backdrop blur radius. | `20px` | same | not yet |
+| `--opsin-material-sheet-saturation` | semantic | Rung 3 (sheet): backdrop saturation multiplier. | `1.6` | same | not yet |
+| `--opsin-material-sheet-shadow` | semantic | Rung 3 (sheet): the shadow that separates it from what is behind. | `0 -1px 2px oklch(0 0 0 / 0.05)` | same | not yet |
+| `--opsin-material-sheet-scrim` | semantic | Rung 3 (sheet): the minimum scrim opacity needed for text on this rung to clear the contrast floor. | `0.82` | same | not yet |
+| `--opsin-material-sheet-opaque` | semantic | Rung 3 (sheet): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. | `var(--opsin-neutral-0)` | `var(--opsin-neutral-900)` | not yet |
+| `--opsin-material-overlay-tint` | semantic | Rung 4 (overlay): the tint over what is behind it. A pinned toolbar, a tab bar, a floating action bar — chrome that content scrolls beneath. | `var(--opsin-neutral-0)` | `var(--opsin-neutral-900)` | not yet |
+| `--opsin-material-overlay-blur` | semantic | Rung 4 (overlay): backdrop blur radius. | `28px` | same | not yet |
+| `--opsin-material-overlay-saturation` | semantic | Rung 4 (overlay): backdrop saturation multiplier. | `1.8` | same | not yet |
+| `--opsin-material-overlay-shadow` | semantic | Rung 4 (overlay): the shadow that separates it from what is behind. | `0 8px 32px oklch(0 0 0 / 0.12)` | same | not yet |
+| `--opsin-material-overlay-scrim` | semantic | Rung 4 (overlay): the minimum scrim opacity needed for text on this rung to clear the contrast floor. | `0.74` | same | not yet |
+| `--opsin-material-overlay-opaque` | semantic | Rung 4 (overlay): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. | `var(--opsin-neutral-0)` | `var(--opsin-neutral-900)` | not yet |
+| `--opsin-material-scrim-tint` | semantic | Rung 5 (scrim): the tint over what is behind it. The dimming layer behind a modal dialog or a consent sheet. Its job is to remove the page from consideration, not to look like glass. | `var(--opsin-neutral-950)` | `var(--opsin-neutral-1000)` | not yet |
+| `--opsin-material-scrim-blur` | semantic | Rung 5 (scrim): backdrop blur radius. | `2px` | same | not yet |
+| `--opsin-material-scrim-saturation` | semantic | Rung 5 (scrim): backdrop saturation multiplier. | `1` | same | not yet |
+| `--opsin-material-scrim-border` | semantic | Rung 5 (scrim): the boundary. | `none` | same | not yet |
+| `--opsin-material-scrim-shadow` | semantic | Rung 5 (scrim): the shadow that separates it from what is behind. | `none` | same | not yet |
+| `--opsin-material-scrim-scrim` | semantic | Rung 5 (scrim): the minimum scrim opacity needed for text on this rung to clear the contrast floor. | `0.44` | same | not yet |
+| `--opsin-material-scrim-opaque` | semantic | Rung 5 (scrim): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. | `oklch(0.205 0.006 250 / 0.72)` | `oklch(0 0 0 / 0.8)` | not yet |
+
+### motion
+
+#### ease
+
+| Token | Tier | What it controls | Light | Dark | Used by |
+| --- | --- | --- | --- | --- | --- |
+| `--opsin-ease-spring-snap` | semantic | Direct manipulation only: a switch the reader just flipped, a segmented control, a pressed button settling. The only token in the system that overshoots, and it overshoots by 1.5% — enough to feel physical, not enough to look playful. | `linear(0, 0.0715, 0.2271, 0.4053, 0.5722, 0.7119, 0.8198, 0.8978, 0.9505, 0.9836, 1.0025, 1.0118, 1.015, 1.0147, 1.0126, 1.01, 1.0073, 1.0051, 1.0033, 1.0019, 1)` | same | not yet |
+| `--opsin-ease-spring-settle` | semantic | The workhorse for chrome: popovers, tooltips, menus, chips appearing and disappearing. | `linear(0, 0.0742, 0.2328, 0.4113, 0.5758, 0.7116, 0.8157, 0.8905, 0.9412, 0.9736, 0.9928, 1.003, 1.0076, 1.0088, 1.0082, 1.0068, 1.0053, 1.0038, 1.0026, 1.0017, 1)` | same | not yet |
+| `--opsin-ease-spring-calm` | semantic | Health values. A range bar filling, a dial sweeping to its reading, a sparkline drawing, a number counting to its value. Slightly overdamped (zeta just over 1) so it never overshoots and never bounces. | `linear(0, 0.0829, 0.2457, 0.4157, 0.5642, 0.6832, 0.774, 0.841, 0.8893, 0.9236, 0.9476, 0.9643, 0.9757, 0.9836, 0.9889, 0.9926, 0.995, 0.9967, 0.9978, 0.9985, 1)` | same | not yet |
+| `--opsin-ease-spring-sheet` | semantic | Large surfaces travelling a long distance: sheets, dialogs, full-screen pushes. Overdamped, because a sheet that bounces at the top of its travel reads as a dropped object. | `linear(0, 0.0881, 0.2576, 0.431, 0.5798, 0.6971, 0.7854, 0.8497, 0.8958, 0.9282, 0.9508, 0.9664, 0.9771, 0.9845, 0.9895, 0.9929, 0.9952, 0.9967, 0.9978, 0.9985, 1)` | same | not yet |
+| `--opsin-ease-standard` | semantic | Non-spring transitions where a spring would be overkill: colour, opacity, border. Fast out, slow in. | `cubic-bezier(0.2, 0, 0, 1)` | same | not yet |
+| `--opsin-ease-enter` | semantic | Something arriving from off-screen or from nothing. Decelerating, because an arrival should feel like it is coming to rest. | `cubic-bezier(0.05, 0.7, 0.1, 1)` | same | not yet |
+| `--opsin-ease-exit` | semantic | Something leaving. Accelerating and shorter than its enter, because a reader does not need to watch a dismissal finish. | `cubic-bezier(0.3, 0, 0.8, 0.15)` | same | not yet |
+
+#### duration
+
+| Token | Tier | What it controls | Light | Dark | Used by |
+| --- | --- | --- | --- | --- | --- |
+| `--opsin-duration-spring-snap` | semantic | Settle time for the spring-snap spring, measured from its own parameters. | `283ms` | same | not yet |
+| `--opsin-duration-spring-settle` | semantic | Settle time for the spring-settle spring, measured from its own parameters. | `382ms` | same | not yet |
+| `--opsin-duration-spring-calm` | semantic | Settle time for the spring-calm spring, measured from its own parameters. | `550ms` | same | not yet |
+| `--opsin-duration-spring-sheet` | semantic | Settle time for the spring-sheet spring, measured from its own parameters. | `483ms` | same | not yet |
+| `--opsin-duration-instant` | semantic | State change with no travel: hover tint, focus ring, checkbox tick. | `80ms` | same | not yet |
+| `--opsin-duration-fast` | semantic | Small elements moving a small distance. | `140ms` | same | not yet |
+| `--opsin-duration-base` | semantic | The default for chrome that is not spring-driven. | `220ms` | same | not yet |
+| `--opsin-duration-slow` | semantic | Layout change: a list reflowing, a card expanding. | `360ms` | same | not yet |
+| `--opsin-duration-deliberate` | semantic | The ceiling. Used for a first-run reveal or a consent sheet, where the point is that the reader notices. Nothing may exceed it. | `560ms` | same | not yet |
+
+### type
+
+#### font
+
+| Token | Tier | What it controls | Light | Dark | Used by |
+| --- | --- | --- | --- | --- | --- |
+| `--opsin-font-sans` | semantic | The sans family stack. | `system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif` | same | not yet |
+| `--opsin-font-mono` | semantic | The mono family stack. | `ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace` | same | not yet |
+| `--opsin-font-numeric` | semantic | The numeric family stack. | `system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif` | same | not yet |
+
+#### text
+
+| Token | Tier | What it controls | Light | Dark | Used by |
+| --- | --- | --- | --- | --- | --- |
+| `--opsin-text-large-title-size` | semantic | The one number or one word a screen exists to show. A dial's reading, a result's headline value. | `2.125rem` | same | not yet |
+| `--opsin-text-large-title-leading` | semantic | Line height for largeTitle, unitless so it scales with the size. | `1.206` | same | not yet |
+| `--opsin-text-large-title-tracking` | semantic | Letter spacing for largeTitle. | `-0.011em` | same | not yet |
+| `--opsin-text-large-title-weight` | semantic | Font weight for largeTitle. | `700` | same | not yet |
+| `--opsin-text-title1-size` | semantic | Screen title. | `1.75rem` | same | not yet |
+| `--opsin-text-title1-leading` | semantic | Line height for title1, unitless so it scales with the size. | `1.214` | same | not yet |
+| `--opsin-text-title1-tracking` | semantic | Letter spacing for title1. | `-0.009em` | same | not yet |
+| `--opsin-text-title1-weight` | semantic | Font weight for title1. | `700` | same | not yet |
+| `--opsin-text-title2-size` | semantic | Section title; the floor for a primary health value inside a card. | `1.375rem` | same | not yet |
+| `--opsin-text-title2-leading` | semantic | Line height for title2, unitless so it scales with the size. | `1.273` | same | not yet |
+| `--opsin-text-title2-tracking` | semantic | Letter spacing for title2. | `-0.006em` | same | not yet |
+| `--opsin-text-title2-weight` | semantic | Font weight for title2. | `600` | same | not yet |
+| `--opsin-text-title3-size` | semantic | Card title. | `1.25rem` | same | not yet |
+| `--opsin-text-title3-leading` | semantic | Line height for title3, unitless so it scales with the size. | `1.25` | same | not yet |
+| `--opsin-text-title3-tracking` | semantic | Letter spacing for title3. | `-0.004em` | same | not yet |
+| `--opsin-text-title3-weight` | semantic | Font weight for title3. | `600` | same | not yet |
+| `--opsin-text-headline-size` | semantic | An emphasised line of body text — a status sentence, a question in a form. | `1.0625rem` | same | not yet |
+| `--opsin-text-headline-leading` | semantic | Line height for headline, unitless so it scales with the size. | `1.294` | same | not yet |
+| `--opsin-text-headline-tracking` | semantic | Letter spacing for headline. | `-0.003em` | same | not yet |
+| `--opsin-text-headline-weight` | semantic | Font weight for headline. | `600` | same | not yet |
+| `--opsin-text-body-size` | semantic | Everything a reader reads as prose. The anchor of the scale. | `1.0625rem` | same | not yet |
+| `--opsin-text-body-leading` | semantic | Line height for body, unitless so it scales with the size. | `1.294` | same | not yet |
+| `--opsin-text-body-tracking` | semantic | Letter spacing for body. | `-0.003em` | same | not yet |
+| `--opsin-text-body-weight` | semantic | Font weight for body. | `400` | same | not yet |
+| `--opsin-text-callout-size` | semantic | Secondary prose inside a card or a callout. | `1rem` | same | not yet |
+| `--opsin-text-callout-leading` | semantic | Line height for callout, unitless so it scales with the size. | `1.313` | same | not yet |
+| `--opsin-text-callout-tracking` | semantic | Letter spacing for callout. | `-0.002em` | same | not yet |
+| `--opsin-text-callout-weight` | semantic | Font weight for callout. | `400` | same | not yet |
+| `--opsin-text-subheadline-size` | semantic | Supporting line under a title; the unit beside a value. | `0.9375rem` | same | not yet |
+| `--opsin-text-subheadline-leading` | semantic | Line height for subheadline, unitless so it scales with the size. | `1.333` | same | not yet |
+| `--opsin-text-subheadline-tracking` | semantic | Letter spacing for subheadline. | `-0.001em` | same | not yet |
+| `--opsin-text-subheadline-weight` | semantic | Font weight for subheadline. | `400` | same | not yet |
+| `--opsin-text-footnote-size` | semantic | Provenance: who measured this, when, with what. | `0.8125rem` | same | not yet |
+| `--opsin-text-footnote-leading` | semantic | Line height for footnote, unitless so it scales with the size. | `1.385` | same | not yet |
+| `--opsin-text-footnote-tracking` | semantic | Letter spacing for footnote. | `0em` | same | not yet |
+| `--opsin-text-footnote-weight` | semantic | Font weight for footnote. | `400` | same | not yet |
+| `--opsin-text-caption1-size` | semantic | Axis labels, legend text, timestamps. | `0.75rem` | same | not yet |
+| `--opsin-text-caption1-leading` | semantic | Line height for caption1, unitless so it scales with the size. | `1.333` | same | not yet |
+| `--opsin-text-caption1-tracking` | semantic | Letter spacing for caption1. | `0.002em` | same | not yet |
+| `--opsin-text-caption1-weight` | semantic | Font weight for caption1. | `400` | same | not yet |
+| `--opsin-text-caption2-size` | semantic | The smallest text the system permits, and only for text that repeats a label already present elsewhere. Never the only place a fact appears. | `0.6875rem` | same | not yet |
+| `--opsin-text-caption2-leading` | semantic | Line height for caption2, unitless so it scales with the size. | `1.182` | same | not yet |
+| `--opsin-text-caption2-tracking` | semantic | Letter spacing for caption2. | `0.005em` | same | not yet |
+| `--opsin-text-caption2-weight` | semantic | Font weight for caption2. | `500` | same | not yet |
+
+#### numerals
+
+| Token | Tier | What it controls | Light | Dark | Used by |
+| --- | --- | --- | --- | --- | --- |
+| `--opsin-numerals` | semantic | Every component that renders a number sets this, so a changing value does not shift its own layout. | `tabular-nums` | same | not yet |
+
+### space
+
+#### space
+
+| Token | Tier | What it controls | Light | Dark | Used by |
+| --- | --- | --- | --- | --- | --- |
+| `--opsin-space-0` | primitive | 0px. | `0rem` | same | not yet |
+| `--opsin-space-1` | primitive | Gap between an icon and its label. | `0.25rem` | same | not yet |
+| `--opsin-space-2` | primitive | Gap between tightly related lines; minimum separation between two interactive targets. | `0.5rem` | same | not yet |
+| `--opsin-space-3` | primitive | Inner padding of a compact control. | `0.75rem` | same | not yet |
+| `--opsin-space-4` | primitive | The default gap between elements inside a card. | `1rem` | same | not yet |
+| `--opsin-space-5` | primitive | Card inner padding on a phone. | `1.25rem` | same | not yet |
+| `--opsin-space-6` | primitive | Card inner padding on a wide screen; gap between cards. | `1.5rem` | same | not yet |
+| `--opsin-space-8` | primitive | Gap between sections within a screen. | `2rem` | same | not yet |
+| `--opsin-space-10` | primitive | Space above a section heading. | `2.5rem` | same | not yet |
+| `--opsin-space-12` | primitive | Gap between major regions of a screen. | `3rem` | same | not yet |
+| `--opsin-space-16` | primitive | Top of a screen below the safe area; the space a consent sheet leaves above its first question. | `4rem` | same | not yet |
+| `--opsin-space-20` | primitive | Empty-state vertical rhythm. | `5rem` | same | not yet |
+| `--opsin-space-24` | primitive | The largest step. Beyond this, use a layout, not a gap. | `6rem` | same | not yet |
+| `--opsin-space-px` | primitive | Hairline borders only. | `0.0625rem` | same | not yet |
+| `--opsin-space-0-5` | primitive | Optical nudges. Not a layout step. | `0.125rem` | same | not yet |
+
+#### target
+
+| Token | Tier | What it controls | Light | Dark | Used by |
+| --- | --- | --- | --- | --- | --- |
+| `--opsin-target-minimum` | semantic | The opsinjs floor for any interactive control, applied to the hit area rather than to the visible box. | `2.75rem` | same | not yet |
+| `--opsin-target-comfortable` | semantic | The default for a primary action in the product theme. | `3rem` | same | not yet |
+| `--opsin-target-generous` | semantic | A single primary action on a consent, escalation or emergency surface, where a mis-tap has a real cost. | `3.5rem` | same | not yet |
+| `--opsin-target-separation` | semantic | The minimum gap between two adjacent targets whose visible boxes are smaller than 44px. | `0.5rem` | same | not yet |
+
+#### gutter
+
+| Token | Tier | What it controls | Light | Dark | Used by |
+| --- | --- | --- | --- | --- | --- |
+| `--opsin-gutter-phone` | semantic | The screen gutter in the phone responsive mode. | `16px` | same | not yet |
+| `--opsin-gutter-tablet` | semantic | The screen gutter in the tablet responsive mode. | `24px` | same | not yet |
+| `--opsin-gutter-wide` | semantic | The screen gutter in the wide responsive mode. | `32px` | same | not yet |
+
+#### measure
+
+| Token | Tier | What it controls | Light | Dark | Used by |
+| --- | --- | --- | --- | --- | --- |
+| `--opsin-measure-tight` | semantic | A caption or a legend. | `45ch` | same | not yet |
+| `--opsin-measure-comfortable` | semantic | The maximum line length for prose anywhere in the product, including a disclaimer nobody wants to read. | `66ch` | same | not yet |
+| `--opsin-measure-wide` | semantic | Code and machine output only. | `80ch` | same | not yet |
+
+#### safe
+
+| Token | Tier | What it controls | Light | Dark | Used by |
+| --- | --- | --- | --- | --- | --- |
+| `--opsin-safe-top` | semantic | The top safe-area inset, for installed web apps where browser chrome does not protect the edge. | `env(safe-area-inset-top, 0px)` | same | not yet |
+| `--opsin-safe-right` | semantic | The right safe-area inset, for installed web apps where browser chrome does not protect the edge. | `env(safe-area-inset-right, 0px)` | same | not yet |
+| `--opsin-safe-bottom` | semantic | The bottom safe-area inset, for installed web apps where browser chrome does not protect the edge. | `env(safe-area-inset-bottom, 0px)` | same | not yet |
+| `--opsin-safe-left` | semantic | The left safe-area inset, for installed web apps where browser chrome does not protect the edge. | `env(safe-area-inset-left, 0px)` | same | not yet |
+
+### shape
+
+#### radius
+
+| Token | Tier | What it controls | Light | Dark | Used by |
+| --- | --- | --- | --- | --- | --- |
+| `--opsin-radius-base` | semantic | The one radius the whole ladder is derived from. | `0.875rem` | same | not yet |
+| `--opsin-radius-none` | semantic | Full-bleed media and anything that meets a screen edge. | `0rem` | same | not yet |
+| `--opsin-radius-xs` | semantic | The floor for a nested corner. Tags inside a chip, a swatch inside a legend. | `0.25rem` | same | not yet |
+| `--opsin-radius-sm` | semantic | Inputs and small controls inside a card. | `0.4375rem` | same | not yet |
+| `--opsin-radius-md` | semantic | The default. Buttons, chips, status pills, cards. | `0.875rem` | same | not yet |
+| `--opsin-radius-lg` | semantic | Cards on a phone, where the card is nearly the width of the screen. | `1.3125rem` | same | not yet |
+| `--opsin-radius-xl` | semantic | Sheets and dialogs. Applied to the leading edge only when the surface meets a screen edge on the other side. | `1.75rem` | same | not yet |
+
+#### corner-shape
+
+| Token | Tier | What it controls | Light | Dark | Used by |
+| --- | --- | --- | --- | --- | --- |
+| `--opsin-corner-shape` | semantic | The squircle curvature. Degrades to `round` where corner-shape is unsupported. | `superellipse(4)` | same | not yet |
+
+#### border
+
+| Token | Tier | What it controls | Light | Dark | Used by |
+| --- | --- | --- | --- | --- | --- |
+| `--opsin-border-hairline` | semantic | Every boundary in the system by default. | `1px` | same | not yet |
+| `--opsin-border-emphasis` | semantic | The boundary of a surface carrying `attention` or `urgent`, where the boundary is one of the three non-colour carriers of the status. | `2px` | same | not yet |
+| `--opsin-border-focus` | semantic | The focus ring. Always 2px with a 2px offset, always in a colour measured against both the surface and the page behind it, and never removed — see /docs/accessibility/keyboard-and-focus. | `2px` | same | not yet |
+| `--opsin-border-focus-offset` | semantic | Offset for the focus boundary. | `2px` | same | not yet |
 
 {/* opsinjs:generated:end */}

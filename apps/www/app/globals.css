@@ -22,12 +22,14 @@
    7  lyra tokens            exactly as the shadcn CLI wrote them, unchanged.
                              This is the DOCS CHROME theme: square, dense,
                              neutral. It is deliberately not the product theme.
-   8  tokens.generated.css   emitted by scripts/build-tokens.mts from
+   8  the opsinjs token layer  the two colour axes, the material ladder, the
+                             motion springs. AUTHORED FALLBACKS only, so a clean
+                             clone renders before `generate` has run.
+   9  tokens.generated.css   emitted by scripts/build-tokens.mts from
                              tokens/*.json. Never hand-edited; committed and
-                             diffed by `pnpm check:generated`.
-   9  the opsinjs token layer  the two colour axes, the material ladder, the
-                             motion springs. Authored fallbacks live here so a
-                             clean clone renders before `generate` has run.
+                             diffed by `pnpm check:generated`. Imported AFTER
+                             section 8 so the generated values win the cascade —
+                             equal specificity, so last declaration wins.
    10 @layer base + @media print
    11 @custom-variant dark   pinned LAST on purpose — see the note there.
 
@@ -162,18 +164,8 @@
     --sidebar-ring: oklch(0.556 0 0);
 }
 
-/* --------------------------------------------------------------------------
-   8. Generated token layer. Source: tokens/*.json → scripts/build-tokens.mts.
-   Committed, and diffed by `pnpm check:generated`. Never hand-edit it; change
-   the JSON and regenerate. It redeclares the custom properties defined in
-   section 9 with the real, checked values, which is why it is imported first
-   and overridden by nothing below except the p3 escalation.
-   -------------------------------------------------------------------------- */
-
-@import "./tokens.generated.css";
-
 /* ==========================================================================
-   9. THE opsinjs TOKEN LAYER
+   8. THE opsinjs TOKEN LAYER
 
    Two colour axes, and they never meet on one element.
 
@@ -203,52 +195,84 @@
    ========================================================================== */
 
 :root {
-  /* --- Axis 1: category (low chroma; identity, never verdict) ------------ */
-  --opsin-category-cardio-accent: oklch(0.58 0.093 12);
-  --opsin-category-cardio-surface: oklch(0.972 0.012 12);
-  --opsin-category-cardio-ink: oklch(0.36 0.062 12);
+  /* --- Axis 1: category (low chroma; identity, never verdict) ------------
+     Four roles, and the SAME four on both axes. `surface` is what the block
+     is drawn on; `line` is its 1px edge and its chart stroke; `ink` is the
+     only foreground allowed on that surface; `accent` is the identity fill,
+     which must be bounded by `line` or labelled in `ink` — it is never text
+     and never the sole boundary, because at these chromas it does not clear
+     the non-text floor on its own. */
+  /* Sleep — duration, timing, consistency */
+  --opsin-category-sleep-surface: oklch(0.972 0.013 275);
+  --opsin-category-sleep-line: oklch(0.541 0.136 275);
+  --opsin-category-sleep-ink: oklch(0.362 0.104 275);
+  --opsin-category-sleep-accent: oklch(0.58 0.14 275);
 
-  --opsin-category-metabolic-accent: oklch(0.56 0.088 300);
-  --opsin-category-metabolic-surface: oklch(0.972 0.012 300);
-  --opsin-category-metabolic-ink: oklch(0.35 0.06 300);
+  /* Heart — blood pressure, resting heart rate */
+  --opsin-category-heart-surface: oklch(0.972 0.014 15);
+  --opsin-category-heart-line: oklch(0.541 0.165 15);
+  --opsin-category-heart-ink: oklch(0.362 0.126 15);
+  --opsin-category-heart-accent: oklch(0.62 0.17 15);
 
-  --opsin-category-respiratory-accent: oklch(0.56 0.086 225);
-  --opsin-category-respiratory-surface: oklch(0.972 0.012 225);
-  --opsin-category-respiratory-ink: oklch(0.35 0.058 225);
+  /* Activity — steps, active minutes, distance */
+  --opsin-category-activity-surface: oklch(0.972 0.022 140);
+  --opsin-category-activity-line: oklch(0.541 0.155 140);
+  --opsin-category-activity-ink: oklch(0.362 0.118 140);
+  --opsin-category-activity-accent: oklch(0.7 0.16 140);
 
-  --opsin-category-activity-accent: oklch(0.56 0.082 150);
-  --opsin-category-activity-surface: oklch(0.972 0.012 150);
-  --opsin-category-activity-ink: oklch(0.35 0.055 150);
+  /* Nutrition — energy, protein, hydration */
+  --opsin-category-nutrition-surface: oklch(0.972 0.02 70);
+  --opsin-category-nutrition-line: oklch(0.541 0.118 70);
+  --opsin-category-nutrition-ink: oklch(0.362 0.08 70);
+  --opsin-category-nutrition-accent: oklch(0.75 0.14 70);
 
-  --opsin-category-sleep-accent: oklch(0.55 0.09 275);
-  --opsin-category-sleep-surface: oklch(0.972 0.012 275);
-  --opsin-category-sleep-ink: oklch(0.34 0.06 275);
+  /* Mind — mood, stress, questionnaire scores */
+  --opsin-category-mind-surface: oklch(0.972 0.018 310);
+  --opsin-category-mind-line: oklch(0.541 0.136 310);
+  --opsin-category-mind-ink: oklch(0.362 0.104 310);
+  --opsin-category-mind-accent: oklch(0.62 0.14 310);
 
-  --opsin-category-body-accent: oklch(0.57 0.075 60);
-  --opsin-category-body-surface: oklch(0.972 0.012 60);
-  --opsin-category-body-ink: oklch(0.35 0.05 60);
+  /* Labs — blood glucose, HbA1c, cholesterol */
+  --opsin-category-labs-surface: oklch(0.972 0.015 210);
+  --opsin-category-labs-line: oklch(0.541 0.094 210);
+  --opsin-category-labs-ink: oklch(0.362 0.063 210);
+  --opsin-category-labs-accent: oklch(0.6 0.11 210);
 
-  /* --- Axis 2: status (high chroma; four ordinal levels) -----------------
-     expected  in the range this person was told to expect — nothing to do
+  /* --- Axis 2: status (high chroma; four ordinal levels, plus no-verdict) -
+     steady    in the range this person was told to expect — nothing to do
      watch     outside it, but not something to act on today
-     act       needs an action, on a timescale the product must state
+     attention needs an action, on a timescale the product must state
      urgent    needs an action now, and the product must say what it is
-     The words are part of the token: see health/clinical-status-semantics. */
-  --opsin-status-expected-surface: oklch(0.962 0.032 150);
-  --opsin-status-expected-line: oklch(0.66 0.13 150);
-  --opsin-status-expected-ink: oklch(0.39 0.088 150);
+     unknown   no reading, a stale one, or no range to judge it against
+     `unknown` is deliberately NOT a fifth level: it is the absence of an
+     assertion, and colouring it anywhere near `watch` would let a reader
+     take it as 'probably fine'. The words are part of the token — see
+     health/clinical-status-semantics — and a status never renders without
+     one, because colour is a second channel and never the only one. */
+  --opsin-status-steady-surface: oklch(0.972 0.015 178);
+  --opsin-status-steady-line: oklch(0.541 0.1 178);
+  --opsin-status-steady-ink: oklch(0.362 0.067 178);
+  --opsin-status-steady-accent: oklch(0.64 0.11 178);
 
-  --opsin-status-watch-surface: oklch(0.966 0.042 85);
-  --opsin-status-watch-line: oklch(0.72 0.14 85);
-  --opsin-status-watch-ink: oklch(0.40 0.082 85);
+  --opsin-status-watch-surface: oklch(0.972 0.02 82);
+  --opsin-status-watch-line: oklch(0.541 0.112 82);
+  --opsin-status-watch-ink: oklch(0.362 0.076 82);
+  --opsin-status-watch-accent: oklch(0.78 0.14 82);
 
-  --opsin-status-act-surface: oklch(0.962 0.048 55);
-  --opsin-status-act-line: oklch(0.68 0.16 55);
-  --opsin-status-act-ink: oklch(0.42 0.108 55);
+  --opsin-status-attention-surface: oklch(0.972 0.015 45);
+  --opsin-status-attention-line: oklch(0.541 0.145 45);
+  --opsin-status-attention-ink: oklch(0.362 0.105 45);
+  --opsin-status-attention-accent: oklch(0.66 0.15 45);
 
-  --opsin-status-urgent-surface: oklch(0.958 0.042 25);
-  --opsin-status-urgent-line: oklch(0.58 0.196 25);
-  --opsin-status-urgent-ink: oklch(0.43 0.148 25);
+  --opsin-status-urgent-surface: oklch(0.972 0.014 27);
+  --opsin-status-urgent-line: oklch(0.541 0.194 27);
+  --opsin-status-urgent-ink: oklch(0.362 0.148 27);
+  --opsin-status-urgent-accent: oklch(0.56 0.2 27);
+
+  --opsin-status-unknown-surface: oklch(0.972 0.003 250);
+  --opsin-status-unknown-line: oklch(0.541 0.019 250);
+  --opsin-status-unknown-ink: oklch(0.362 0.015 250);
+  --opsin-status-unknown-accent: oklch(0.72 0.02 250);
 
   /* --- The material ladder ----------------------------------------------
      Six rungs, from opaque page to modal scrim. Every translucent rung has a
@@ -325,45 +349,84 @@
 }
 
 .dark {
-  --opsin-category-cardio-accent: oklch(0.72 0.088 12);
-  --opsin-category-cardio-surface: oklch(0.245 0.022 12);
-  --opsin-category-cardio-ink: oklch(0.90 0.05 12);
+  /* --- Axis 1: category (low chroma; identity, never verdict) ------------
+     Four roles, and the SAME four on both axes. `surface` is what the block
+     is drawn on; `line` is its 1px edge and its chart stroke; `ink` is the
+     only foreground allowed on that surface; `accent` is the identity fill,
+     which must be bounded by `line` or labelled in `ink` — it is never text
+     and never the sole boundary, because at these chromas it does not clear
+     the non-text floor on its own. */
+  /* Sleep — duration, timing, consistency */
+  --opsin-category-sleep-surface: oklch(0.276 0.081 275);
+  --opsin-category-sleep-line: oklch(0.806 0.092 275);
+  --opsin-category-sleep-ink: oklch(0.941 0.028 275);
+  --opsin-category-sleep-accent: oklch(0.714 0.123 275);
 
-  --opsin-category-metabolic-accent: oklch(0.72 0.085 300);
-  --opsin-category-metabolic-surface: oklch(0.245 0.022 300);
-  --opsin-category-metabolic-ink: oklch(0.90 0.048 300);
+  /* Heart — blood pressure, resting heart rate */
+  --opsin-category-heart-surface: oklch(0.276 0.099 15);
+  --opsin-category-heart-line: oklch(0.806 0.112 15);
+  --opsin-category-heart-ink: oklch(0.941 0.03 15);
+  --opsin-category-heart-accent: oklch(0.714 0.15 15);
 
-  --opsin-category-respiratory-accent: oklch(0.72 0.082 225);
-  --opsin-category-respiratory-surface: oklch(0.245 0.022 225);
-  --opsin-category-respiratory-ink: oklch(0.90 0.046 225);
+  /* Activity — steps, active minutes, distance */
+  --opsin-category-activity-surface: oklch(0.276 0.092 140);
+  --opsin-category-activity-line: oklch(0.806 0.106 140);
+  --opsin-category-activity-ink: oklch(0.941 0.038 140);
+  --opsin-category-activity-accent: oklch(0.714 0.141 140);
 
-  --opsin-category-activity-accent: oklch(0.72 0.078 150);
-  --opsin-category-activity-surface: oklch(0.245 0.022 150);
-  --opsin-category-activity-ink: oklch(0.90 0.044 150);
+  /* Nutrition — energy, protein, hydration */
+  --opsin-category-nutrition-surface: oklch(0.276 0.062 70);
+  --opsin-category-nutrition-line: oklch(0.806 0.092 70);
+  --opsin-category-nutrition-ink: oklch(0.941 0.034 70);
+  --opsin-category-nutrition-accent: oklch(0.714 0.123 70);
 
-  --opsin-category-sleep-accent: oklch(0.71 0.086 275);
-  --opsin-category-sleep-surface: oklch(0.245 0.022 275);
-  --opsin-category-sleep-ink: oklch(0.90 0.048 275);
+  /* Mind — mood, stress, questionnaire scores */
+  --opsin-category-mind-surface: oklch(0.276 0.081 310);
+  --opsin-category-mind-line: oklch(0.806 0.092 310);
+  --opsin-category-mind-ink: oklch(0.941 0.034 310);
+  --opsin-category-mind-accent: oklch(0.714 0.123 310);
 
-  --opsin-category-body-accent: oklch(0.73 0.07 60);
-  --opsin-category-body-surface: oklch(0.245 0.022 60);
-  --opsin-category-body-ink: oklch(0.90 0.04 60);
+  /* Labs — blood glucose, HbA1c, cholesterol */
+  --opsin-category-labs-surface: oklch(0.276 0.049 210);
+  --opsin-category-labs-line: oklch(0.806 0.073 210);
+  --opsin-category-labs-ink: oklch(0.941 0.026 210);
+  --opsin-category-labs-accent: oklch(0.714 0.097 210);
 
-  --opsin-status-expected-surface: oklch(0.262 0.046 150);
-  --opsin-status-expected-line: oklch(0.70 0.13 150);
-  --opsin-status-expected-ink: oklch(0.912 0.062 150);
+  /* --- Axis 2: status (high chroma; four ordinal levels, plus no-verdict) -
+     steady    in the range this person was told to expect — nothing to do
+     watch     outside it, but not something to act on today
+     attention needs an action, on a timescale the product must state
+     urgent    needs an action now, and the product must say what it is
+     unknown   no reading, a stale one, or no range to judge it against
+     `unknown` is deliberately NOT a fifth level: it is the absence of an
+     assertion, and colouring it anywhere near `watch` would let a reader
+     take it as 'probably fine'. The words are part of the token — see
+     health/clinical-status-semantics — and a status never renders without
+     one, because colour is a second channel and never the only one. */
+  --opsin-status-steady-surface: oklch(0.276 0.052 178);
+  --opsin-status-steady-line: oklch(0.806 0.073 178);
+  --opsin-status-steady-ink: oklch(0.941 0.026 178);
+  --opsin-status-steady-accent: oklch(0.714 0.097 178);
 
-  --opsin-status-watch-surface: oklch(0.272 0.05 85);
-  --opsin-status-watch-line: oklch(0.78 0.14 85);
-  --opsin-status-watch-ink: oklch(0.926 0.068 85);
+  --opsin-status-watch-surface: oklch(0.276 0.059 82);
+  --opsin-status-watch-line: oklch(0.806 0.092 82);
+  --opsin-status-watch-ink: oklch(0.941 0.034 82);
+  --opsin-status-watch-accent: oklch(0.714 0.123 82);
 
-  --opsin-status-act-surface: oklch(0.278 0.056 55);
-  --opsin-status-act-line: oklch(0.75 0.152 55);
-  --opsin-status-act-ink: oklch(0.922 0.074 55);
+  --opsin-status-attention-surface: oklch(0.276 0.082 45);
+  --opsin-status-attention-line: oklch(0.806 0.099 45);
+  --opsin-status-attention-ink: oklch(0.941 0.032 45);
+  --opsin-status-attention-accent: oklch(0.714 0.132 45);
 
-  --opsin-status-urgent-surface: oklch(0.282 0.062 25);
-  --opsin-status-urgent-line: oklch(0.70 0.176 25);
-  --opsin-status-urgent-ink: oklch(0.918 0.082 25);
+  --opsin-status-urgent-surface: oklch(0.276 0.115 27);
+  --opsin-status-urgent-line: oklch(0.806 0.11 27);
+  --opsin-status-urgent-ink: oklch(0.941 0.03 27);
+  --opsin-status-urgent-accent: oklch(0.714 0.176 27);
+
+  --opsin-status-unknown-surface: oklch(0.276 0.012 250);
+  --opsin-status-unknown-line: oklch(0.806 0.013 250);
+  --opsin-status-unknown-ink: oklch(0.941 0.005 250);
+  --opsin-status-unknown-accent: oklch(0.714 0.018 250);
 
   --opsin-material-3-bg: oklch(0.205 0 0 / 0.82);
   --opsin-material-3-border: oklch(1 0 0 / 0.10);
@@ -371,7 +434,9 @@
   --opsin-material-4-border: oklch(1 0 0 / 0.14);
   --opsin-material-4-shadow: 0 8px 32px oklch(0 0 0 / 0.5);
   --opsin-material-5-bg: oklch(0 0 0 / 0.62);
+
 }
+
 
 /* --------------------------------------------------------------------------
    Display-P3 escalation.
@@ -391,32 +456,32 @@
 @supports (color-gamut: p3) {
   :root,
   .opsin-product {
-    --opsin-status-expected-line: oklch(0.66 0.152 150);
-    --opsin-status-watch-line: oklch(0.72 0.164 85);
-    --opsin-status-act-line: oklch(0.68 0.188 55);
-    --opsin-status-urgent-line: oklch(0.58 0.232 25);
+    --opsin-status-steady-line: oklch(0.541 0.126 178);
+    --opsin-status-watch-line: oklch(0.541 0.129 82);
+    --opsin-status-attention-line: oklch(0.541 0.172 45);
+    --opsin-status-urgent-line: oklch(0.541 0.229 27);
 
-    --opsin-category-cardio-accent: oklch(0.58 0.108 12);
-    --opsin-category-metabolic-accent: oklch(0.56 0.102 300);
-    --opsin-category-respiratory-accent: oklch(0.56 0.10 225);
-    --opsin-category-activity-accent: oklch(0.56 0.096 150);
-    --opsin-category-sleep-accent: oklch(0.55 0.104 275);
-    --opsin-category-body-accent: oklch(0.57 0.088 60);
+    /* No light-mode category accent is escalated here, and that mirrors what
+       build-tokens.mts emits: in light mode a category accent already sits at
+       the top of the chroma envelope the identity axis is allowed, and buying
+       more saturation from P3 is exactly how a category swatch starts reading
+       as a verdict. Dark mode escalates them below, where the same envelope
+       leaves headroom. */
   }
 
   .dark,
   .opsin-product.dark {
-    --opsin-status-expected-line: oklch(0.70 0.152 150);
-    --opsin-status-watch-line: oklch(0.78 0.164 85);
-    --opsin-status-act-line: oklch(0.75 0.178 55);
-    --opsin-status-urgent-line: oklch(0.70 0.208 25);
+    --opsin-status-steady-line: oklch(0.806 0.086 178);
+    --opsin-status-watch-line: oklch(0.806 0.109 82);
+    --opsin-status-attention-line: oklch(0.806 0.117 45);
+    --opsin-status-urgent-line: oklch(0.806 0.142 27);
 
-    --opsin-category-cardio-accent: oklch(0.72 0.102 12);
-    --opsin-category-metabolic-accent: oklch(0.72 0.099 300);
-    --opsin-category-respiratory-accent: oklch(0.72 0.095 225);
-    --opsin-category-activity-accent: oklch(0.72 0.09 150);
-    --opsin-category-sleep-accent: oklch(0.71 0.10 275);
-    --opsin-category-body-accent: oklch(0.73 0.082 60);
+    --opsin-category-heart-accent: oklch(0.714 0.177 15);
+    --opsin-category-mind-accent: oklch(0.714 0.145 310);
+    --opsin-category-labs-accent: oklch(0.714 0.114 210);
+    --opsin-category-activity-accent: oklch(0.714 0.166 140);
+    --opsin-category-sleep-accent: oklch(0.714 0.145 275);
+    --opsin-category-nutrition-accent: oklch(0.714 0.145 70);
   }
 }
 
@@ -459,41 +524,82 @@
   }
 }
 
+/* --------------------------------------------------------------------------
+   9. Generated token layer. Source: tokens/*.json → scripts/build-tokens.mts.
+   Committed, and diffed by `pnpm check:generated`. Never hand-edit it; change
+   the JSON and regenerate.
+
+   POSITION IS LOAD-BEARING, and it sits AFTER the whole of section 8 — its
+   :root and .dark blocks and its gamut, reduced-transparency and reduced-motion
+   overrides. This file redeclares the same custom properties from the token
+   source, with values `pnpm contrast` has measured, and it carries its own P3
+   escalation and its own reduced-motion block. `:root` here and `:root` there
+   have identical specificity, so whichever is declared LAST wins, and it must
+   be this one. Section 8 above is the authored fallback and nothing else: it
+   exists so a clean checkout renders in the right colours before anybody has
+   run `pnpm run generate`, and it is the source of truth for no value at all.
+   It was previously imported BEFORE section 8, which meant the authored guesses
+   silently beat the generated values — the drift this whole layer exists to
+   make impossible.
+   -------------------------------------------------------------------------- */
+
+@import "./tokens.generated.css";
+
 /* Expose the opsinjs layer as Tailwind utilities. `inline` so the utilities
    resolve the custom property at use time and therefore follow the theme, the
    gamut escalation and the media-query overrides above. */
 @theme inline {
-  --color-category-cardio: var(--opsin-category-cardio-accent);
-  --color-category-cardio-surface: var(--opsin-category-cardio-surface);
-  --color-category-cardio-ink: var(--opsin-category-cardio-ink);
-  --color-category-metabolic: var(--opsin-category-metabolic-accent);
-  --color-category-metabolic-surface: var(--opsin-category-metabolic-surface);
-  --color-category-metabolic-ink: var(--opsin-category-metabolic-ink);
-  --color-category-respiratory: var(--opsin-category-respiratory-accent);
-  --color-category-respiratory-surface: var(--opsin-category-respiratory-surface);
-  --color-category-respiratory-ink: var(--opsin-category-respiratory-ink);
-  --color-category-activity: var(--opsin-category-activity-accent);
-  --color-category-activity-surface: var(--opsin-category-activity-surface);
-  --color-category-activity-ink: var(--opsin-category-activity-ink);
+  /* Category — identity. `-<name>` is the accent (the identity fill), and it
+     is deliberately NOT offered as a text colour: use `-ink` on `-surface`,
+     and `-line` for a stroke or an edge. */
   --color-category-sleep: var(--opsin-category-sleep-accent);
   --color-category-sleep-surface: var(--opsin-category-sleep-surface);
+  --color-category-sleep-line: var(--opsin-category-sleep-line);
   --color-category-sleep-ink: var(--opsin-category-sleep-ink);
-  --color-category-body: var(--opsin-category-body-accent);
-  --color-category-body-surface: var(--opsin-category-body-surface);
-  --color-category-body-ink: var(--opsin-category-body-ink);
+  --color-category-heart: var(--opsin-category-heart-accent);
+  --color-category-heart-surface: var(--opsin-category-heart-surface);
+  --color-category-heart-line: var(--opsin-category-heart-line);
+  --color-category-heart-ink: var(--opsin-category-heart-ink);
+  --color-category-activity: var(--opsin-category-activity-accent);
+  --color-category-activity-surface: var(--opsin-category-activity-surface);
+  --color-category-activity-line: var(--opsin-category-activity-line);
+  --color-category-activity-ink: var(--opsin-category-activity-ink);
+  --color-category-nutrition: var(--opsin-category-nutrition-accent);
+  --color-category-nutrition-surface: var(--opsin-category-nutrition-surface);
+  --color-category-nutrition-line: var(--opsin-category-nutrition-line);
+  --color-category-nutrition-ink: var(--opsin-category-nutrition-ink);
+  --color-category-mind: var(--opsin-category-mind-accent);
+  --color-category-mind-surface: var(--opsin-category-mind-surface);
+  --color-category-mind-line: var(--opsin-category-mind-line);
+  --color-category-mind-ink: var(--opsin-category-mind-ink);
+  --color-category-labs: var(--opsin-category-labs-accent);
+  --color-category-labs-surface: var(--opsin-category-labs-surface);
+  --color-category-labs-line: var(--opsin-category-labs-line);
+  --color-category-labs-ink: var(--opsin-category-labs-ink);
 
-  --color-status-expected: var(--opsin-status-expected-line);
-  --color-status-expected-surface: var(--opsin-status-expected-surface);
-  --color-status-expected-ink: var(--opsin-status-expected-ink);
+  /* Status — verdict. `-<name>` is the line, because a status is most often
+     reached for as a border or a rule. `unknown` is the absence of a verdict
+     and is here so that 'we do not know' is as easy to render as a level. */
+  --color-status-steady: var(--opsin-status-steady-line);
+  --color-status-steady-surface: var(--opsin-status-steady-surface);
+  --color-status-steady-ink: var(--opsin-status-steady-ink);
+  --color-status-steady-accent: var(--opsin-status-steady-accent);
   --color-status-watch: var(--opsin-status-watch-line);
   --color-status-watch-surface: var(--opsin-status-watch-surface);
   --color-status-watch-ink: var(--opsin-status-watch-ink);
-  --color-status-act: var(--opsin-status-act-line);
-  --color-status-act-surface: var(--opsin-status-act-surface);
-  --color-status-act-ink: var(--opsin-status-act-ink);
+  --color-status-watch-accent: var(--opsin-status-watch-accent);
+  --color-status-attention: var(--opsin-status-attention-line);
+  --color-status-attention-surface: var(--opsin-status-attention-surface);
+  --color-status-attention-ink: var(--opsin-status-attention-ink);
+  --color-status-attention-accent: var(--opsin-status-attention-accent);
   --color-status-urgent: var(--opsin-status-urgent-line);
   --color-status-urgent-surface: var(--opsin-status-urgent-surface);
   --color-status-urgent-ink: var(--opsin-status-urgent-ink);
+  --color-status-urgent-accent: var(--opsin-status-urgent-accent);
+  --color-status-unknown: var(--opsin-status-unknown-line);
+  --color-status-unknown-surface: var(--opsin-status-unknown-surface);
+  --color-status-unknown-ink: var(--opsin-status-unknown-ink);
+  --color-status-unknown-accent: var(--opsin-status-unknown-accent);
 
   --ease-opsin-standard: var(--opsin-ease-standard);
   --ease-opsin-enter: var(--opsin-ease-enter);

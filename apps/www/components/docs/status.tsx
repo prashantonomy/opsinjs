@@ -9,7 +9,13 @@ import {
   type CatalogueEntry,
 } from "@/lib/catalogue"
 import { componentPath, docsPath, routes } from "@/lib/routes"
-import { STATUS_META, STATUS_ORDER, type Status } from "@/lib/status"
+import {
+  isStatus,
+  STATUSES,
+  STATUS_META,
+  STATUS_ORDER,
+  type Status,
+} from "@/lib/status"
 import { cn } from "@/lib/utils"
 
 /* ==========================================================================
@@ -72,7 +78,22 @@ const PHASE_CLASS: Record<Status, string> = {
  * product does, because a reviewer printing this site in greyscale still has to
  * be able to tell `stable` from `planned`.
  */
-export function StatusBadge({ status, plain, className }: StatusBadgeProps) {
+export function StatusBadge({
+  status: requested,
+  plain,
+  className,
+}: StatusBadgeProps) {
+  /**
+   * MDX props are not typechecked. An unrecognised release phase must not take
+   * the prerender down; it renders as `planned` (the honest default for a
+   * system where nothing is built) and logs. assert-ia is the real gate.
+   */
+  const status: Status = isStatus(requested) ? requested : "planned"
+  if (!isStatus(requested) && typeof window === "undefined") {
+    console.warn(
+      `[opsinjs:vocabulary] StatusBadge status="${String(requested)}" is not a release phase. Use one of ${STATUSES.join(", ")}.`
+    )
+  }
   const meta = STATUS_META[status]
   const body = (
     <span

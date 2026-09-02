@@ -5,7 +5,7 @@ status: planned
 kind: component
 since: "unreleased"
 category: health-data-display
-aliases: [reference range, normal range, range, bar, a1c]
+aliases: [reference range, normal range, range, bar, in range, range indicator, gauge bar]
 governedBy: [two-colour-axes, reference-ranges, numbers-units-precision, unit-systems]
 usedIn: [value-against-a-range, results-screen]
 ---
@@ -105,7 +105,7 @@ and the text summary all carry the same information independently, so the compon
 survives grayscale, all three common forms of colour-vision deficiency, and a monochrome
 print-out. See [Colour independence](../accessibility/colour-independence.mdx).
 
-<SafetyCallout severity="high" evidence="opinion">
+<SafetyCallout severity="urgent" evidence="opinion">
 If the reference range is unknown, RangeBar must render the value with an explicit *no
 reference range available* state and no band at all. It must never fall back to a default
 range, a population average, or a range inferred from the person's own history. A plausible

@@ -176,11 +176,22 @@ function isMetaKey(key: string): boolean {
   return key.startsWith("$")
 }
 
-/** camelCase and snake_case to kebab-case. Numbers keep their own segment. */
+/**
+ * camelCase and snake_case to kebab-case. Numbers keep their own segment.
+ *
+ * A full stop becomes a hyphen. space.json has half-steps keyed `0.5`, `1.5`
+ * and `2.5`, and `--opsin-space-0.5` is NOT a valid custom property: after
+ * `--opsin-space-0` the `.5` is a fresh token, so a CSS parser reports
+ * "Unexpected token Number" and the declaration is dropped — silently, which
+ * is the worst outcome for a spacing token. Tailwind solves the same problem
+ * by escaping the stop (`--spacing-0\.5`), but an escaped name has to be
+ * escaped again at every `var()` call site, which is a trap in a token nobody
+ * will look twice at. `--opsin-space-0-5` is plain, valid and greppable.
+ */
 function kebab(input: string): string {
   return input
     .replace(/([a-z])([A-Z])/g, "$1-$2")
-    .replace(/[_\s]+/g, "-")
+    .replace(/[_\s.]+/g, "-")
     .replace(/-+/g, "-")
     .toLowerCase()
 }
@@ -571,7 +582,7 @@ function emitSpace(source: JsonObject, out: TokenLeaf[]): void {
     const px = num(node?.px)
     out.push({
       path: `scale.${step}`,
-      cssVar: `${PREFIX}space-${step}`,
+      cssVar: `${PREFIX}space-${kebab(step)}`,
       namespace: "space",
       group: "space",
       tier: "primitive",

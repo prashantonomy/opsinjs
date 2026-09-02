@@ -8,6 +8,7 @@ import { Check, ShieldAlert, Stethoscope, X } from "lucide-react"
 import {
   CLINICAL_STATUSES,
   CLINICAL_STATUS_META,
+  isClinicalStatus,
   type ClinicalStatus,
 } from "@/lib/status"
 import { cn } from "@/lib/utils"
@@ -120,25 +121,43 @@ export function SafetyCallout({
 }: SafetyCalloutProps) {
   const declared =
     evidence === "opinion" || Boolean(cite) || evidence === "mixed"
-  const meta = CLINICAL_STATUS_META[severity]
+
+  /**
+   * MDX prop values are not typechecked, so `severity` arrives as an arbitrary
+   * string at runtime. An unrecognised level used to read `undefined.word` and
+   * take the whole prerender down — one mistyped attribute in one page killing
+   * the entire corpus. Fall back to the highest level (a safety note is never
+   * quietly downgraded), render a visible defect notice, and log it. The
+   * authoritative gate is assert-ia, which fails on the source.
+   */
+  const level: ClinicalStatus = isClinicalStatus(severity)
+    ? severity
+    : "urgent"
+  const meta = CLINICAL_STATUS_META[level]
+
+  if (!isClinicalStatus(severity) && typeof window === "undefined") {
+    console.warn(
+      `[opsinjs:vocabulary] SafetyCallout severity="${String(severity)}" is not a clinical status. Use one of ${CLINICAL_STATUSES.join(", ")}.`
+    )
+  }
 
   if (!declared && typeof window === "undefined") {
     console.warn(
-      `[opsinjs:evidence] SafetyCallout severity="${severity}" has neither a citation nor evidence="opinion".`
+      `[opsinjs:evidence] SafetyCallout severity="${String(severity)}" has neither a citation nor evidence="opinion".`
     )
   }
 
   return (
     <aside
       data-safety-callout=""
-      data-status={severity}
+      data-status={level}
       role="note"
       aria-label={`Safety note, severity ${meta.word}`}
       className={cn("not-prose my-6 border-l-4 p-4", className)}
       style={{
-        borderColor: `var(--opsin-status-${severity}-line, var(--border))`,
-        background: `var(--opsin-status-${severity}-surface, var(--muted))`,
-        color: `var(--opsin-status-${severity}-ink, var(--foreground))`,
+        borderColor: `var(--opsin-status-${level}-line, var(--border))`,
+        background: `var(--opsin-status-${level}-surface, var(--muted))`,
+        color: `var(--opsin-status-${level}-ink, var(--foreground))`,
       }}
     >
       <p className="m-0 flex items-center gap-2 text-sm font-semibold">

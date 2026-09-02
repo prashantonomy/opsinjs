@@ -219,7 +219,7 @@ export function ThemeTool() {
 
         <div>
           {supported === false ? (
-            <p className="rounded-md border border-status-act bg-status-act-surface p-4 text-sm leading-relaxed text-status-act-ink">
+            <p className="rounded-md border border-status-attention bg-status-attention-surface p-4 text-sm leading-relaxed text-status-attention-ink">
               This browser does not support CSS relative colour syntax, which is
               what derives the ramp. Nothing here will approximate it: the ramp
               would be wrong in a way you could not see. Chrome 119, Safari 16.4

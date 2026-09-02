@@ -1,28 +1,25 @@
+/* eslint-disable */
 /**
- * GENERATED FILE — DO NOT EDIT.
+ * GENERATED FILE - DO NOT EDIT.
  *
  * Source:    registry/catalogue.ts + registry/{bases,examples,screens}/**
  * Generator: scripts/build-registry.mts   (`pnpm run generate`)
  * Gate:      `pnpm check:generated` regenerates this file and fails on a diff.
  *
- * This is the committed placeholder, and it is deliberately EMPTY of entries
- * rather than full of stubs. `getRegistryEntry()` returning null is what makes
- * `<ComponentPreview>` render `<NotBuiltYet>`; a placeholder entry with a null
- * component would make the same call return an object and every preview would
- * have to re-check the same emptiness one level deeper.
+ * REGISTRY_INDEX is EMPTY of entries rather than full of stubs, and that is
+ * deliberate. `getRegistryEntry()` returning null is what makes
+ * <ComponentPreview> render <NotBuiltYet>; an entry whose `component` was null
+ * would make the same call return an object, and every consumer would have to
+ * re-check the same emptiness one level deeper. An entry appears here the
+ * moment a real file exists under registry/bases/<base>/, and not before.
  *
- * SHAPE CONTRACT for scripts/build-registry.mts — the generator must emit
- * exactly these five exports, because `lib/registry.ts` is typed against them:
+ * `component` is a dynamic import rather than a value so the preview surface can
+ * code-split per component, and so this file stays free of top-level imports of
+ * things that do not exist yet.
  *
- *   REGISTRY_BASES     string[]                        behaviour variants
- *   REGISTRY_STYLES    string[]                        CSS-only variants
- *   REGISTRY_INDEX     Record<string, RegistryEntry>   keyed `base/style/kind/name`
- *   REGISTRY_META      { generatedAt, sourceHash, count }
- *   RegistryEntry, RegistryKind                        the types below
- *
- * `component` is a dynamic import rather than a value so that the preview
- * surface can code-split per component and so that this file stays free of
- * top-level imports of things that do not exist yet.
+ * `REGISTRY_META.generatedAt` carries the source hash rather than a build time:
+ * this file is guarded by a byte-for-byte drift gate, and a timestamp would fail
+ * it on every run.
  */
 
 import type { ComponentType } from "react"
@@ -71,7 +68,7 @@ export const REGISTRY_STYLES: string[] = ["base-lyra"]
 export const REGISTRY_INDEX: Record<string, RegistryEntry> = {}
 
 export const REGISTRY_META: { generatedAt: string | null; sourceHash: string; count: number } = {
-  generatedAt: null,
-  sourceHash: "placeholder",
+  generatedAt: "e6ab0bb27941",
+  sourceHash: "e6ab0bb27941",
   count: 0,
 }

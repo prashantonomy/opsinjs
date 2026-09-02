@@ -5,7 +5,7 @@ status: planned
 kind: component
 since: "unreleased"
 category: health-communication
-aliases: [warning, notification, alert, banner]
+aliases: [warning, notification, alert, banner, warning banner, notification banner, inline alert]
 governedBy: [two-colour-axes, clinical-status-semantics, alarm-fatigue, motion-in-health-ui]
 usedIn: [staged-alert, results-screen]
 ---
@@ -95,7 +95,7 @@ governed surface rather than as a `div` with a red border.
 actively harmful to some readers, and it does not survive `prefers-reduced-motion`. See
 [Motion in health UI](../health/motion-in-health-ui.mdx).
 
-<SafetyCallout severity="high" evidence="opinion">
+<SafetyCallout severity="urgent" evidence="opinion">
 An `urgent` banner must never be the only place a serious message appears, and must never be
 dismissible without an explicit acknowledgement the product records. A reader who swipes a
 banner away on a bus has not been informed, and the product cannot tell the difference

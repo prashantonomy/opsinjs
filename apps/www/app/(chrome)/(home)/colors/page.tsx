@@ -139,7 +139,7 @@ export default function ColorsPage() {
             <p>
               Tailwind utilities exist for every token on this page —{" "}
               <Mono>bg-status-urgent-surface</Mono>,{" "}
-              <Mono>text-category-cardio</Mono> and so on. They are declared
+              <Mono>text-category-heart</Mono> and so on. They are declared
               with <Mono>@theme inline</Mono> so they resolve the custom
               property at use time rather than baking a value.{" "}
               <Link href={routes.docs("theming", "tailwind-v4")}>

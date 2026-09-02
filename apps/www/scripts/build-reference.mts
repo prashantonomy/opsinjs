@@ -120,10 +120,24 @@ function writeIfChanged(file: string, contents: string): boolean {
   return true
 }
 
-/** Markdown table cell: escape pipes, collapse newlines, never leave it empty. */
+/**
+ * Markdown table cell: escape pipes, collapse newlines, never leave it empty.
+ *
+ * `<` and `{` are also escaped. Source data is authored prose (glossary
+ * definitions say things like "the test did not find <what it looked for>"),
+ * and in MDX an unescaped `<` opens a JSX tag and an unescaped `{` opens an
+ * expression. Either one fails the build from inside a generated file, which
+ * is the worst place to debug it. A backslash escape renders the literal
+ * character. Cells rendered through code() are inside a code span and are
+ * therefore never parsed as MDX.
+ */
 function cell(value: unknown): string {
   if (value === undefined || value === null || value === "") return "-"
-  return String(value).replace(/\|/g, "\\|").replace(/\s*\n\s*/g, " ").trim()
+  return String(value)
+    .replace(/\|/g, "\\|")
+    .replace(/([<{}>])/g, "\\$1")
+    .replace(/\s*\n\s*/g, " ")
+    .trim()
 }
 
 /** Markdown table cell rendered as inline code. */

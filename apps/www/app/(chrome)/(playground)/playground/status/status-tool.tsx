@@ -63,12 +63,12 @@ const CATEGORY_ICONS: Record<
   CategoryId,
   ComponentType<SVGProps<SVGSVGElement>>
 > = {
-  cardio: Heart,
-  metabolic: Droplet,
-  respiratory: Wind,
-  activity: Activity,
   sleep: Moon,
-  body: Scale,
+  heart: Heart,
+  activity: Activity,
+  nutrition: Scale,
+  mind: Wind,
+  labs: Droplet,
 }
 
 /** Sample readings, so the specimen shows a plausible measurement per category. */
@@ -76,12 +76,12 @@ const SAMPLE: Record<
   CategoryId,
   { label: string; value: string; unit: string }
 > = {
-  cardio: { label: "Blood pressure", value: "148/96", unit: "mmHg" },
-  metabolic: { label: "Blood glucose", value: "9.4", unit: "mmol/L" },
-  respiratory: { label: "Blood oxygen", value: "94", unit: "%" },
-  activity: { label: "Active minutes", value: "18", unit: "min today" },
   sleep: { label: "Time asleep", value: "5h 10m", unit: "last night" },
-  body: { label: "Weight", value: "78.4", unit: "kg" },
+  heart: { label: "Blood pressure", value: "148/96", unit: "mmHg" },
+  activity: { label: "Active minutes", value: "18", unit: "min today" },
+  nutrition: { label: "Energy", value: "1,240", unit: "kcal today" },
+  mind: { label: "Mood check-in", value: "3", unit: "of 5" },
+  labs: { label: "Blood glucose", value: "9.4", unit: "mmol/L" },
 }
 
 type Application = "status-surface" | "category-surface" | "both"
@@ -112,7 +112,7 @@ const APPLICATIONS: Array<{
 ]
 
 export function StatusTool() {
-  const [category, setCategory] = useState<CategoryId>("cardio")
+  const [category, setCategory] = useState<CategoryId>("heart")
   const [status, setStatus] = useState<StatusLevelId>("attention")
   const [application, setApplication] = useState<Application>("status-surface")
   const [greyscale, setGreyscale] = useState(false)
@@ -229,12 +229,9 @@ export function StatusTool() {
               style={
                 application === "status-surface"
                   ? {
-                      // `level.tokenId`, not `status`: the stylesheet still
-                      // names these four levels differently from lib/status.ts.
-                      // See _shared/axes.ts for the shim and why it exists.
-                      backgroundColor: `var(--opsin-status-${level.tokenId}-surface)`,
-                      color: `var(--opsin-status-${level.tokenId}-ink)`,
-                      border: `1px solid var(--opsin-status-${level.tokenId}-line)`,
+                      backgroundColor: `var(--opsin-status-${level.id}-surface)`,
+                      color: `var(--opsin-status-${level.id}-ink)`,
+                      border: `1px solid var(--opsin-status-${level.id}-line)`,
                     }
                   : {
                       backgroundColor: `var(--opsin-category-${category}-surface)`,
@@ -371,7 +368,7 @@ function Refusal({ category, status }: { category: string; status: string }) {
           <strong className="font-medium">
             The reader cannot tell which colour is the verdict.
           </strong>{" "}
-          A tile that is cardio-red and urgent-red is a tile whose reader has to
+          A tile that is heart-red and urgent-red is a tile whose reader has to
           guess whether the red means &ldquo;heart&rdquo; or &ldquo;phone
           somebody&rdquo;. They will guess wrong at the worst moment, because
           the worst moment is when they are frightened.

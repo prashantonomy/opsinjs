@@ -5,7 +5,7 @@ status: planned
 kind: component
 since: "unreleased"
 category: health-data-display
-aliases: [badge, chip, tag, status chip]
+aliases: [badge, chip, tag, status chip, status badge, status label, traffic light]
 governedBy: [two-colour-axes, clinical-status-semantics, alarm-fatigue, category-identity]
 usedIn: [value-against-a-range, health-metric-card, results-screen]
 ---
@@ -101,7 +101,7 @@ scanning aid. See [Colour independence](../accessibility/colour-independence.mdx
 **Who assigns the level.** The consuming product, from its own rules or from a clinician.
 StatusPill derives nothing. It has no thresholds, no ranges and no opinions.
 
-<SafetyCallout severity="high" evidence="opinion">
+<SafetyCallout severity="urgent" evidence="opinion">
 At most one `urgent` pill may be visible on a screen. If the product's rules produce two,
 the screen is wrong and needs an [AlertBanner](./alert-banner.mdx) that says what to do
 about the most serious one. A screen of red pills teaches the reader that red means nothing,

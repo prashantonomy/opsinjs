@@ -72,15 +72,15 @@ site names both halves.
 
 ## Using it
 
-**In Tailwind**, use the utility alias: `bg-status-act-surface`,
-`text-status-act-ink`, `border-category-cardio`. The aliases are declared with
+**In Tailwind**, use the utility alias: `bg-status-attention-surface`,
+`text-status-attention-ink`, `border-category-heart`. The aliases are declared with
 `@theme inline`, so they resolve the custom property at use time and therefore
 follow the theme, the gamut escalation and every preference override
 automatically. `@theme` without `inline` would bake the value in at build time
 and none of that would work; the trap is documented in
 [Tailwind v4](../../theming/tailwind-v4.mdx).
 
-**Outside Tailwind**, use `var(--opsin-status-act-surface)` directly. Nothing in
+**Outside Tailwind**, use `var(--opsin-status-attention-surface)` directly. Nothing in
 the token layer depends on Tailwind — it is plain custom properties in a plain
 stylesheet, which is the reason a non-Tailwind consumer is a supported case
 rather than a workaround. See

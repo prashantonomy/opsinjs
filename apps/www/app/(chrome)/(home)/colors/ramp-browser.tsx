@@ -123,9 +123,7 @@ const GROUPS: TokenGroup[] = [
     keywords: "urgency severity triage alert warning verdict clinical",
     rows: statusLevels.flatMap((level) =>
       STATUS_ROLES.map((role) => ({
-        // `tokenId`, not `id`: the stylesheet and lib/status.ts currently
-        // disagree about the names of these four levels. See _shared/axes.ts.
-        property: `--opsin-status-${level.tokenId}-${role.suffix}`,
+        property: `--opsin-status-${level.id}-${role.suffix}`,
         role: `${level.label} · ${role.role}`,
         use: role.use,
       }))

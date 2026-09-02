@@ -75,10 +75,10 @@ export function ContrastTool() {
       const pairs: TokenPair[] = []
       for (const level of statusLevels) {
         const ink = toSrgbHex(
-          readCustomProperty(`--opsin-status-${level.tokenId}-ink`)
+          readCustomProperty(`--opsin-status-${level.id}-ink`)
         )
         const surface = toSrgbHex(
-          readCustomProperty(`--opsin-status-${level.tokenId}-surface`)
+          readCustomProperty(`--opsin-status-${level.id}-surface`)
         )
         if (ink && surface) {
           pairs.push({
@@ -301,7 +301,7 @@ export function ContrastTool() {
         ) : null}
 
         {state === "unavailable" ? (
-          <p className="mt-4 rounded-md border border-status-act bg-status-act-surface p-3 text-sm leading-relaxed text-status-act-ink">
+          <p className="mt-4 rounded-md border border-status-attention bg-status-attention-surface p-3 text-sm leading-relaxed text-status-attention-ink">
             The contrast service did not answer, so there is no measurement to
             show. Nothing here will estimate one — a plausible number from a
             broken tool is how a wrong figure ends up in a design review. If you
@@ -390,10 +390,10 @@ function Readout({
             className="rounded px-1.5 py-0.5 text-[10px] font-medium normal-case"
             style={{
               backgroundColor: passes
-                ? "var(--opsin-status-expected-surface)"
+                ? "var(--opsin-status-steady-surface)"
                 : "var(--opsin-status-urgent-surface)",
               color: passes
-                ? "var(--opsin-status-expected-ink)"
+                ? "var(--opsin-status-steady-ink)"
                 : "var(--opsin-status-urgent-ink)",
             }}
           >

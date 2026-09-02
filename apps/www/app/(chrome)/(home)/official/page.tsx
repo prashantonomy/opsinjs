@@ -43,7 +43,7 @@ export default function OfficialPage() {
       />
 
       <Container className="py-10">
-        <Panel className="border border-status-act bg-status-act-surface text-status-act-ink">
+        <Panel className="border border-status-attention bg-status-attention-surface text-status-attention-ink">
           <h2 className="font-medium">
             Nothing has been published, so everything is fake.
           </h2>

@@ -42,6 +42,57 @@ rule is absolute.
 
 {/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
 
-<NoDataYet script="scripts/build-reference.mts" />
+## A-Z
+| Term | Say this instead | Show both | Why |
+| --- | --- | --- | --- |
+| acute | sudden, or short-lasting | first-use | Often misread as 'severe'. It describes how quickly something started, not how bad it is. |
+| adherence | taking a medicine the way it was prescribed | plain-only | 'Compliance' frames the reader as obedient or not; 'adherence' is better but still clinical. Write what actually happened instead. |
+| adverse effect | an unwanted effect of a medicine | first-use | 'Adverse' is not everyday English. 'Side effect' is understood, but it can make a serious effect sound minor, so say what the effect is. |
+| benign | not cancer | always | This word appears on reports and is one of the few whose plain meaning is genuinely reassuring, so the reader should be able to match the two. |
+| biomarker | something measurable in your body that says something about your health | first-use | Common in product copy, almost never understood outside research. |
+| blood pressure | the pressure of blood pushing against the walls of your arteries, written as two numbers | first-use | The words are familiar but the two-number format is not. Always explain which number is which where both are shown. |
+| BMI | a number worked out from your height and weight | always | The abbreviation is widespread and the calculation is not. Anywhere BMI is shown, say that it does not distinguish muscle from fat and is a poor guide for some people. |
+| bradycardia | a slower than usual heart rate | first-use | Appears in device output. Also note that a slow resting heart rate is expected in many fit people. |
+| cholesterol | a fatty substance carried in your blood | first-use | Widely known as a word, widely misunderstood as a single number — most reports give several. |
+| chronic | long-lasting, or ongoing | first-use | Often heard as 'severe'. It describes duration. |
+| contraindication | a reason this treatment is not safe for you | plain-only | A word with no everyday equivalent that readers guess at. Never show it. |
+| diastolic | the pressure between heartbeats — the lower of the two blood pressure numbers | always | The reader's own record shows the clinical word, so both are needed to match them up. |
+| eGFR | an estimate of how well your kidneys are filtering | always | Appears on results with no explanation. The word 'estimated' matters and should never be dropped. |
+| false positive | a result that says something was found when it was not there | first-use | Essential for interpreting any screening result honestly, and impossible to explain after the fact if the first screen did not mention it. |
+| fasting | not eating or drinking anything except water for a set time before a test | first-use | Readers frequently assume water is included. Say the time and say that water is allowed. |
+| HbA1c | your average blood sugar over about the last three months | always | One of the most common results a consumer app displays and one of the least understood. Also flag that it is reported in two different units worldwide. |
+| HDL | one of the types of cholesterol measured in a blood test | always | Frequently described to readers as 'good cholesterol'. Avoid that shorthand: it invites the reader to treat one number as a verdict. |
+| hypertension | blood pressure that stays higher than the usual range | first-use | Frequently confused with 'tension' in the sense of stress. |
+| hypoglycaemia | blood sugar that has dropped below the range you were given | always | Time-critical. The reader may already know it as 'a hypo', and both forms must be recognisable. |
+| in range | inside the range this test uses for comparison | plain-only | The replacement for 'normal'. Always name whose range it is: a laboratory's range, a device maker's range, or a range a clinician set for this person. |
+| LDL | one of the types of cholesterol measured in a blood test | always | Usually captioned 'bad cholesterol'. Same objection as HDL: it turns one number into a moral judgement. |
+| malignant | cancer | always | Never soften this and never show it without a route to a person. See /docs/health/emergency-and-escalation. |
+| mg/dL | milligrams per decilitre — a unit used for blood test results | always | See mmol/L. Converting between the two is a correctness surface, not a display preference. |
+| mmol/L | millimoles per litre — a unit used for blood test results | always | The same measurement is reported in mmol/L in some countries and mg/dL in others, and the numbers are not close. Never show a value without its unit. |
+| oedema | swelling caused by fluid building up | first-use | Spelled two ways depending on country; the plain wording avoids the problem entirely. |
+| out of range | outside the range this test uses for comparison | plain-only | The replacement for 'abnormal'. It states a fact about a comparison and leaves the interpretation to whoever is entitled to make it. |
+| prognosis | what is likely to happen next | plain-only | A word no component should ever need. If a product is showing a prognosis, a clinician wrote it. |
+| reference range | the range a test result is compared against | always | The most important term in this glossary. A reference range is a comparison, not a target, and it belongs to a laboratory or a device rather than to the reader. Always name whose range it is and never call it a normal range. |
+| remission | a period when the signs of an illness have reduced or gone | first-use | Often heard as 'cured'. The plain wording keeps the distinction. |
+| resting heart rate | how many times your heart beats a minute when you are at rest | first-use | Understood as words but frequently confused with the heart rate shown during activity. Say when it was measured. |
+| screening | a test offered to people with no symptoms, to look for a possible problem early | first-use | Readers commonly assume a screening test is diagnostic. It is not, and the difference determines what the result means. |
+| SpO2 | an estimate of how much oxygen your blood is carrying | always | Shown by consumer devices as a bare percentage. The word 'estimate' is not optional: the measurement is affected by movement, cold hands and skin tone, and the product must say so. |
+| systolic | the pressure while your heart beats — the higher of the two blood pressure numbers | always | See diastolic. |
+| tachycardia | a faster than usual heart rate | first-use | Appears in device output with no explanation and reliably alarms people. |
+| titration | changing a dose in small steps until it is right for you | plain-only | No everyday equivalent; the plain wording is complete on its own. |
+| triglycerides | a type of fat measured in a blood test | always | Appears on the same report as cholesterol and is routinely mistaken for it. |
+## Words we do not use
+| Never | Instead | Why |
+| --- | --- | --- |
+| abnormal | outside the usual range | The counterpart of the same problem, and the version that frightens people. |
+| bad | the specific finding, stated plainly | Carries a verdict the system is not entitled to give. |
+| diagnosis | say what the reading is and who can interpret it | opsinjs components never diagnose. Using the word implies they do. |
+| don't worry | state what the reading means and what happens next | Reassurance the system cannot back up, and it reads as a reason to worry. |
+| failed | outside the range we expected | A reading is not a test the reader sat. |
+| just | delete it | 'Just a bit high' minimises a reading the reader may need to act on. |
+| negative | the test did not find \<what it looked for\> | Same collision, in the other direction. |
+| normal | in the usual range, or the expected range for you | Outside a reference range is not abnormal in the everyday sense of the word, and inside one is not a clean bill of health. 'Normal' also carries a judgement about the person rather than about the reading. This word is banned outright across the system, including in code identifiers. |
+| poor | lower than the range for you | Judges the person, not the measurement. |
+| positive | the test found \<what it found\> | In everyday English 'positive' means good news. In a test result it usually means the opposite, and the collision is dangerous. |
 
 {/* opsinjs:generated:end */}
