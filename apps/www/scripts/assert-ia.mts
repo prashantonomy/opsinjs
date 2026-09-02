@@ -815,7 +815,15 @@ async function loadCatalogue(): Promise<{ rows: CatalogueRow[]; source: string }
   if (exists(file)) {
     try {
       const mod = (await import(pathToFileURL(file).href)) as Record<string, unknown>
-      for (const key of ["catalogue", "components", "entries", "items", "default"]) {
+      /* `CATALOGUE` first, and it was missing. registry/catalogue.ts exports
+         `CATALOGUE` (uppercase), `SHIPPED`, `CONSIDERED` and `RESERVED_ALIASES`,
+         and none of the names below matched — so this branch silently found
+         nothing and fell through to the frozen roster, which carries NO aliases.
+         CAT005 and CAT006 would then have quietly stopped checking anything the
+         moment lib/generated/catalogue.json was deleted or corrupted, and a
+         gate that stops checking without saying so is worse than no gate.
+         scripts/build-registry.mts:253 already had it right. */
+      for (const key of ["CATALOGUE", "catalogue", "components", "entries", "items", "default"]) {
         const value = mod[key]
         if (Array.isArray(value) && value.length > 0) {
           return { rows: value as CatalogueRow[], source: "registry/catalogue.ts" }
