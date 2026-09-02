@@ -1,7 +1,7 @@
 {
   "$comment": "GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts, projected through lib/catalogue.ts. Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`. Consumed by the /r routes, the llms shards and the generated catalogue reference page. It exists as JSON rather than being imported from the TypeScript because the route handlers, the llms shards and any external tool all need the same rows without loading the app's module graph. `generatedAt` carries the source hash rather than a build time, because this file is guarded by a byte-for-byte drift gate.",
-  "generatedAt": "daae6f6a24eb",
-  "sourceHash": "daae6f6a24eb",
+  "generatedAt": "9c63b221e882",
+  "sourceHash": "9c63b221e882",
   "counts": {
     "shipped": 24,
     "considered": 36,
@@ -170,16 +170,20 @@
       "description": "A short label saying what a reading means and what, if anything, to do about it.",
       "type": "registry:ui",
       "category": "health-data-display",
-      "status": "planned",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
+        "chip",
         "status chip",
         "status badge",
         "status label",
         "traffic light"
       ],
       "implemented": true,
-      "docs": "/docs/components/status-pill"
+      "docs": "/docs/components/status-pill",
+      "dependencies": [
+        "lucide-react"
+      ]
     },
     {
       "name": "alert-banner",
@@ -1239,6 +1243,7 @@
     "steps": "metric-tile",
     "resting heart rate": "metric-tile",
     "spo2": "metric-tile",
+    "chip": "status-pill",
     "status chip": "status-pill",
     "status badge": "status-pill",
     "status label": "status-pill",

@@ -110,8 +110,12 @@ Stated plainly, because a statement without this section is not a statement.
   the tested matrix on [Screen readers](./screen-readers.mdx) says *Not tested*.
 - **`prefers-contrast` and `forced-colors` are unimplemented.** See
   [Increased contrast](./increased-contrast.mdx).
-- **No automated accessibility check runs in CI.** The only accessibility gate in
-  the build is the contrast diff.
+- **The automated gates cover source and layout, not conformance.** Three run:
+  the contrast diff, `scripts/check-a11y.mts` blocking every pull request on what
+  a component's source says, and that script's `--layout` half measuring hit
+  area, 1.3x and 200% in a browser once a night. All three check rules this
+  project wrote for itself. A passing run means nothing we know how to detect is
+  wrong; it is not evidence that any success criterion is met.
 - **The documentation site has not been audited against the standard it
   publishes.** See [This site's accessibility](./this-site.mdx).
 - **No user testing with disabled people has taken place.**

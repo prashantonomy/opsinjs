@@ -1,29 +1,31 @@
 ---
 title: StatusPill
 description: A short label that says which of four levels of attention something needs — shown as a word, an icon and a colour together, never as a colour alone.
-status: planned
+status: alpha
 kind: component
 since: "unreleased"
 category: health-data-display
-aliases: [badge, chip, tag, status chip, status badge, status label, traffic light]
+aliases: [chip, status chip, status badge, status label, traffic light]
 governedBy: [two-colour-axes, clinical-status-semantics, alarm-fatigue, category-identity]
 usedIn: [value-against-a-range, health-metric-card, results-screen]
 ---
-
-<PageTemplate kind="component" />
 
 ## Status
 
 <StubNotice
   name="status-pill"
+  status="alpha"
   issue="opsinjs/opsinjs#0"
   questions={[
-    "The four levels are fixed. What happens when a product supplies a fifth, and how loudly should the component refuse?",
-    "Is the word ever optional — in a dense table, on a tile, at the smallest size — or is icon-plus-colour always insufficient?",
-    "When a pill's level changes while it is on screen, what is announced, how urgently, and what stops a list of pills from flooding a screen reader?",
-    "Does the pill ever carry a category colour, or is the separation absolute?",
+    "When a pill's level changes while it is on screen, what is announced, how urgently, and what stops a list of pills from flooding a screen reader? The component mounts no live region today, on purpose.",
+    "The contrast pairs and the hit-area floor have not been measured for this component. Until they are, its accessibility section says which claims are checked and which are only argued.",
   ]}
-/>
+>
+  <code className="text-sm">status-pill</code> is implemented and installable.
+  It is <strong className="font-medium">alpha</strong>: it works and it is
+  documented, the API may change in any release without a deprecation cycle, and
+  it is not for a production health surface yet.
+</StubNotice>
 
 StatusPill is where the status axis becomes visible. It is a small component with an
 outsized job: it is the only place in the system where a clinical level is stated directly,
@@ -31,18 +33,31 @@ and every other status-bearing component either embeds it or copies its vocabula
 
 ## Preview
 
-The preview will show all four levels side by side in both themes, under grayscale and under
-each of the three common forms of colour-vision deficiency, because the claim that this
-component survives without colour should be visible rather than asserted.
+All four levels, plus the smaller size. Open it under the product theme and turn the text
+size up: the claim that this component survives without colour is meant to be checked
+rather than believed, and the fastest check is to look at it in greyscale and see whether
+you can still tell the four apart.
 
 <ComponentPreview name="status-pill" />
 
 ## Installation
 
-The registry item does not exist yet; the command below is shown for shape only and will
-fail.
+<ComponentInstall
+  name="status-pill"
+  unbuilt={false}
+  importPath="@/components/ui/status-pill"
+  dependencies={["lucide-react"]}
+/>
 
-<ComponentInstall name="status-pill" />
+## Usage
+
+```tsx
+import { StatusPill } from "@/components/ui/status-pill"
+```
+
+```tsx
+<StatusPill status="attention" describes="Second example measurement" />
+```
 
 ## When to use it
 
@@ -101,6 +116,11 @@ scanning aid. See [Colour independence](../accessibility/colour-independence.mdx
 **Who assigns the level.** The consuming product, from its own rules or from a clinician.
 StatusPill derives nothing. It has no thresholds, no ranges and no opinions.
 
+**A fifth level is refused rather than approximated.** `status` is typed to the four, and a
+JavaScript caller who passes something else gets a development warning and no pill at all.
+Rendering a plausible-looking fallback would be the component inventing a verdict, which is
+the one thing it exists not to do.
+
 <SafetyCallout severity="urgent" evidence="opinion">
 At most one `urgent` pill may be visible on a screen. If the product's rules produce two,
 the screen is wrong and needs an [AlertBanner](./alert-banner.mdx) that says what to do
@@ -110,61 +130,72 @@ and that lesson is permanent — see [Alarm fatigue](../health/alarm-fatigue.mdx
 
 ## Anatomy
 
-<Anatomy name="status-pill" />
+<Anatomy
+  name="status-pill"
+  parts={[
+    {
+      name: "StatusPill",
+      describes: "The root. Carries data-status and the level's surface, ink and line colours. Not focusable, and not interactive by default.",
+      prop: "status",
+    },
+    {
+      name: "StatusPill.Icon",
+      describes: "One distinct glyph per level, read from CLINICAL_STATUS_META[level].icon. aria-hidden, sized in em so it grows with the word.",
+    },
+    {
+      name: "StatusPill.Label",
+      describes: "The level in words, from CLINICAL_STATUS_META[level].word. Not removable by any prop; an empty label raises OPSIN-0002 and falls back to the level's own word.",
+      prop: "label",
+    },
+  ]}
+/>
 
-<CompositionTree name="status-pill" />
+<CompositionTree
+  name="status-pill"
+  tree={[
+    {
+      part: "StatusPill",
+      cardinality: "1",
+      note: "data-slot=\"status-pill\", data-status=\"<level>\"",
+      children: [
+        {
+          part: "StatusPill.Icon",
+          cardinality: "1",
+          note: "data-slot=\"status-pill-icon\", aria-hidden",
+        },
+        {
+          part: "StatusPill.Label",
+          cardinality: "1",
+          note: "data-slot=\"status-pill-label\"",
+        },
+      ],
+    },
+  ]}
+/>
 
 The pill is deliberately not composable. Icon, word and colour are one unit, and the API
 offers no way to remove the word, because every way of removing it that has ever been
-offered has been used.
-
-Proposed part hierarchy. This is the specification the implementation must match.
-
-```text
-StatusPill                     root; status is required, not defaulted
-├── StatusPill.Icon            one distinct glyph per level; never a colour swap
-└── StatusPill.Label           the level in words; not removable by any prop
-```
+offered has been used. The parts above are identified by `data-slot` and are styleable from
+outside; none of them is an export, and there is no way to render one without the others.
 
 There is no `StatusPill.Category`, no `color` prop and no `variant` prop. The four levels
 are the whole surface.
 
-## Proposed API
+## Examples
 
-<NotBuiltYet name="status-pill" />
+### Scanning a column
 
-```ts
-// PROPOSED. Not implemented. A specification for review, not an API to generate
-// code against. It will change without a deprecation cycle.
+A status is worth a component when the alternative is reading every row. The rule this shows
+is the escalation budget: four rows, and exactly one `urgent`.
 
-/**
- * The whole clinical status vocabulary. A union, not a string: a component that
- * accepts an arbitrary status accepts "critical", "abnormal" and "bad" on day
- * one, and the vocabulary is gone by the end of the week.
- */
-export type ClinicalStatus = "steady" | "watch" | "attention" | "urgent"
+<ComponentPreview name="status-pill-in-a-list" kind="example" align="start" />
 
-export interface StatusPillProps {
-  /** Required. There is no neutral default and no "unknown" level. */
-  status: ClinicalStatus
-  /**
-   * Overrides the default word for this level — for translation, or for a
-   * product whose readers use different language. It may not change the
-   * meaning, and it may not be an empty string.
-   */
-  label?: string
-  /**
-   * Visual weight only. Both sizes render icon, word and colour; neither drops
-   * the word.
-   */
-  size?: "sm" | "md"
-  /**
-   * What the pill applies to, for the accessible name: "HbA1c result". Without
-   * it a screen-reader user hears a level with no subject.
-   */
-  describes?: string
-}
-```
+### Both sizes keep the word
+
+`size` is visual weight and nothing else. There is no size at which a pill becomes a
+coloured dot — which is the request this prop exists to refuse.
+
+<ComponentPreview name="status-pill-sizes" kind="example" align="start" />
 
 ## Content guidelines
 
@@ -198,32 +229,70 @@ health needs attention* labels a human being, and the pill has no basis for that
   </DoDont.Dont>
 </DoDont>
 
-## Accessibility requirements
+## Accessibility
 
-Requirements for the implementation, not results.
+Two of these are checked by a gate on every commit. The rest are arguments, and they are
+labelled as such: `alpha` promises that accessibility is claimed only where it has been
+checked, with the gaps listed rather than left out.
 
-- **The word is in the accessible name, always.** The pill announces as *attention, HbA1c
-  result* — level plus subject. A pill with no subject is a level floating free.
-- **The icon is decorative** and hidden from assistive technology; the word carries the
-  meaning. Four distinct glyph *shapes*, not one glyph in four colours — see
-  [Iconography](../foundations/iconography.mdx).
-- **Status changes are announced once, politely**, when a pill's level changes on screen.
-  `urgent` is the only level that may use an assertive announcement, and only when the
-  product has also surfaced an [AlertBanner](./alert-banner.mdx). Ten pills updating in a
-  list produce one summary announcement, not ten. See
-  [Screen readers](../accessibility/screen-readers.mdx).
-- **All four levels clear the contrast floor** for label against fill and fill against page,
-  in both themes, and again under increased contrast. Measured, not asserted.
-- **The four levels are distinguishable in grayscale and under protanopia, deuteranopia and
-  tritanopia**, by glyph and word. Verified by the generated CVD audit.
-- **The pill is not interactive** by default. If a product makes it a filter control, it
-  becomes a button with a 44pt target and a name that states what activating it does.
+**Checked, by `pnpm run check:a11y` on every commit:**
+
+- **Colour is never the only carrier.** The static rig fails the build on any file that
+  paints a status colour without also reading `CLINICAL_STATUS_META` and a glyph, and on any
+  status surface with no `data-status`. The four glyphs are four distinct *shapes* — check,
+  eye, triangle, octagon — not one glyph in four colours, which is what the
+  measured CVD audit in `tokens/color.json` requires: `steady` and `attention` are identical
+  under deuteranopia and in greyscale, and `steady` and `urgent` are identical under
+  tritanopia. See [Iconography](../foundations/iconography.mdx).
+- **The status words are never restated.** They are read from
+  `CLINICAL_STATUS_META[level].word`, and a copy of one written as a literal fails the same
+  gate.
+
+**Argued, and true of the implementation, but not yet measured:**
+
+- **The word is in the accessible name, along with its subject.** With `describes`, the pill
+  announces as *Needs attention, Second example measurement* — level plus subject. Without
+  it a screen-reader user hears a level floating free, which is why the prop exists and why
+  every example passes it.
+- **The icon is decorative** and `aria-hidden`; the word carries the meaning. It is sized in
+  `em`, so it scales with the text rather than staying put while the word grows.
+- **The pill is not interactive** and is not in the tab order. If a product makes it a filter
+  control it becomes a button, and at that point it owes a 44×44 target and a name that says
+  what activating it does — neither of which this component provides.
 - **At 200% text the pill grows and wraps**; the word is never truncated to an ellipsis and
-  never replaced by the icon alone.
+  never replaced by the icon alone. Checked by eye at 200% in both themes; not yet checked by
+  a machine.
 
-<KeyboardTable name="status-pill" />
+**Not yet checked at all, and listed rather than omitted:**
+
+- Contrast for label against fill and fill against page, in both themes and under increased
+  contrast. `prefers-contrast` and `forced-colors` are not implemented anywhere in opsinjs
+  yet, so the increased-contrast claim cannot currently be made by anyone.
+- Behaviour when a pill's level changes while it is on screen. The component mounts no live
+  region, deliberately — it is not entitled to speak on the caller's behalf — and what the
+  caller should do instead is an open question on this page.
+
+<KeyboardTable
+  name="status-pill"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Skips the pill",
+      notes: "The pill is not focusable and has no keyboard behaviour of its own. That is the contract, not an omission: it is a label, and a tab stop that does nothing is a tab stop a keyboard user has to pass through on every row of a list.",
+    },
+    {
+      keys: "Shift + Tab",
+      action: "Skips the pill",
+      notes: "Same in reverse. A pill never appears in the focus order in either direction.",
+    },
+  ]}
+/>
 
 <ContrastReport component="status-pill" />
+
+## API reference
+
+<PropsTable name="StatusPillProps" />
 
 ## Related
 

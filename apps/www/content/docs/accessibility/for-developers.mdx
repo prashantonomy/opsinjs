@@ -129,9 +129,12 @@ so there is nothing to aggregate. When components land, each one carries its own
 
 ## Known gaps
 
-- **No automated accessibility assertions run anywhere.** There is no axe
-  integration, no jsdom accessibility test and no CI gate other than the contrast
-  check.
+- **The assertions that do run are static ones.** `pnpm run check:a11y` blocks
+  every pull request, but it reads your component as text: it sees that a file
+  imports a lucide icon and reads `CLINICAL_STATUS_META`, not that either one
+  reaches the DOM, and a status word hidden in an `sr-only` span passes it
+  clean. There is still no axe integration and no jsdom test, so nothing
+  anywhere asserts a property of a rendered accessibility tree.
 - **The announcement contract is specified but unimplemented,** so there is no
   shared helper for polite and assertive regions yet.
 - **No RTL testing has been done.** The system is authored logical-property-first

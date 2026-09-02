@@ -83,8 +83,13 @@ on any diff. See [ADR
   templates](./documentation-templates.mdx).
 - **Say when something is your opinion.** `evidence: opinion` is always
   preferred to a citation that does not quite say what you needed it to.
-- **Run `pnpm run check` before opening the pull request.** It runs the
-  generators, the IA assertions, the link check and the freshness report.
+- **Run `pnpm run check` before opening the pull request.** Four checks, in
+  order: `check:generated` regenerates and fails on a diff, `check:ia` asserts
+  the frontmatter, the section outlines and both link directions, `check:a11y`
+  reads the component sources for a status carried by colour alone and the rest
+  of the static accessibility rig, and `check:llms` proves the machine-readable
+  surface. Freshness is not in it — `pnpm run check:freshness` is separate, and
+  it reports rather than fails.
 - **Keep the change one thing.** A token rename and a new component in one pull
   request cannot be reviewed by the people who need to review each.
 

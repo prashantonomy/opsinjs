@@ -1,5 +1,5 @@
 {
-  "$comment": "AUTHORED SOURCE — not generated. Stable dev-mode warning codes. Each code names exactly one docs page that prevents the mistake, and that page is the code's permanent home. build-tokens.mts emits these into lib/generated/tokens.ts so the runtime and the docs cannot drift, and /docs/handbook/error-codes renders the table.",
+  "$comment": "AUTHORED SOURCE — not generated. Stable dev-mode warning codes. Each code names exactly one docs page that prevents the mistake, and that page is the code's permanent home. build-tokens.mts emits this file three ways so the runtime, the shipped substrate and the docs cannot drift: OPSIN_ERROR_CODES and OPSIN_ERROR_POLICY in lib/generated/tokens.ts, the OPSIN_ERRORS table inside lib/opsinjs.ts (which warnOnce() reads and which shadcn add copies into a consumer's project), and the generated table under `## How it works` on content/docs/handbook/error-codes.mdx. Edit here; never edit any of the three.",
   "version": 1,
   "namespace": "errors",
   "policy": {
@@ -32,7 +32,7 @@
       "code": "OPSIN-0003",
       "severity": "safety",
       "title": "A value was rendered without a unit",
-      "message": "<Value> received `{value}` with no `unit`. A bare number in a health context is ambiguous between unit systems; 7 is a normal HbA1c in one and a dangerous one in another.",
+      "message": "<Value> received `{value}` with no `unit`. A bare number in a health context is ambiguous between unit systems: the same digits are one reading in mmol/L and a very different one in mg/dL, and nothing on the surface tells the reader which was meant. Pass the unit the reading was measured in.",
       "docs": "health/unit-systems"
     },
     {
@@ -153,6 +153,13 @@
       "title": "Two theme providers are mounted",
       "message": "More than one theme provider is writing the `dark` class. Two providers race on first paint and produce a flash of the wrong theme.",
       "docs": "handbook/dark-mode"
+    },
+    {
+      "code": "OPSIN-0021",
+      "severity": "safety",
+      "title": "A status outside the four levels was passed",
+      "message": "<{component}> received `status=\"{status}\"`, which is not one of the four levels. The vocabulary is fixed at steady, watch, attention and urgent; a component that accepted a fifth would be inventing a verdict. Nothing was rendered.",
+      "docs": "health/clinical-status-semantics"
     }
   ]
 }

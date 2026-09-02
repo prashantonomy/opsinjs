@@ -116,9 +116,15 @@ product ships to phones. The type system's side of this is on
 <NoDataYet script="scripts/capture-registry.mts" />
 
 The intended generated artefact is a captured render of every component at 100%
-and 200% text in both themes, with an automated check that no element's
-`scrollWidth` exceeds its `clientWidth`. It needs components and a browser
-automation pass, and Playwright is deliberately not installed.
+and 200% text in both themes. The check underneath it exists and runs:
+`scripts/check-a11y.mts --layout` loads every built `/view` route at 390x844 at
+1x, again with the root font size at 1.3x, and again through the route's own
+`?text=200`, and it fails when an element's `scrollWidth` exceeds its
+`clientWidth` — with a separate, louder failure for any `[data-opsinjs-value]`
+that truncates, because a missing digit is the failure this page is about. It
+runs in `.github/workflows/nightly.yml`, the one job that installs Playwright;
+Playwright is still in no `package.json`. What is missing is the captured render:
+the check reports what failed and keeps no picture of what passed.
 
 ## Known gaps
 

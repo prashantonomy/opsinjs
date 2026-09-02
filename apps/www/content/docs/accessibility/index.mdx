@@ -125,9 +125,14 @@ because a conformance claim with no gaps section is not a conformance claim.
   `prefers-reduced-motion` and `prefers-reduced-transparency` today; there is no
   increased-contrast block. [Increased contrast](./increased-contrast.mdx) says
   what it will change and why the gap exists.
-- **No automated accessibility check runs in CI.** There is no axe or
-  Playwright pass; Playwright is deliberately not installed, and
-  `capture-registry.mts` no-ops without it.
+- **The automated checks read source and layout, never comprehension.** Two
+  now run. `scripts/check-a11y.mts` blocks every pull request and reads the
+  component sources as text — it can prove a file imports a glyph and reads the
+  status vocabulary, and it cannot prove either one reaches the screen. Its
+  `--layout` half runs once a night against the built `/view` routes and
+  measures three things: hit area, survival at 1.3x, and 200% with no truncated
+  value. Neither half is an axe pass, neither has met a screen reader, and
+  neither looks at this documentation site.
 - **No conformance evaluation has been performed.** The
   [conformance report](./conformance-report.mdx) is a complete ACR skeleton in
   which every criterion is marked *Not Evaluated*, which is the honest state.

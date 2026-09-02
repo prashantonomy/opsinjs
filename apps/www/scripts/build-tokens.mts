@@ -11,6 +11,15 @@
  *   lib/generated/glossary.json            committed; data behind <Term> and the A-Z
  *   registry/generated/themes/opsinjs-default.json   a shadcn-spec registry:theme item
  *
+ * AND REPLACES ONE NAMED REGION IN TWO HAND-WRITTEN FILES
+ *   lib/opsinjs.ts                         the OPSIN_ERRORS table warnOnce() reads
+ *   content/docs/handbook/error-codes.mdx  the published table of every code
+ *
+ * Both regions come from tokens/errors.json, which is authored data rather than
+ * a token source. The substrate copy is not in lib/generated/ on purpose: that
+ * directory does not travel with `shadcn add`, and a warning channel that
+ * compiles here and fails in a consumer's project is worse than none.
+ *
  * NEVER WRITES app/globals.css. globals.css owns exactly one line about this
  * file - the @import - and the two are separately owned on purpose (addendum A7).
  *
@@ -76,6 +85,32 @@ const OUT_GLOSSARY = join(APP_DIR, "lib", "generated", "glossary.json")
  * reason. Do not move this output into public/.
  */
 const OUT_THEME = join(APP_DIR, "registry", "generated", "themes", "opsinjs-default.json")
+
+/**
+ * Two outputs that are REGIONS of a file somebody else writes prose in, not
+ * whole generated files.
+ *
+ * `lib/opsinjs.ts` is the substrate every distributed component imports and
+ * `shadcn add` copies into a consumer's project. It carries the error table
+ * because `warnOnce()` lives there and a consumer has no `lib/generated/`; the
+ * rest of the file is hand-written and stays hand-written.
+ *
+ * `content/docs/handbook/error-codes.mdx` is the page a reader lands on with a
+ * code in their hand. Its table is the whole of `tokens/errors.json` and not
+ * one row of it is authored, per ADR 0006.
+ *
+ * Neither path is in `check:generated`'s diff list in package.json - that list
+ * names `lib/generated`, `registry/generated`, `app/tokens.generated.css` and
+ * the two reference directories - so `node scripts/build-tokens.mts --check` is
+ * what covers them, exactly as it covers registry/generated/themes.
+ */
+const OUT_SUBSTRATE = join(APP_DIR, "lib", "opsinjs.ts")
+const OUT_ERROR_CODES = join(APP_DIR, "content", "docs", "handbook", "error-codes.mdx")
+
+const SUBSTRATE_REGION_BEGIN = "/* opsinjs:errors:begin"
+const SUBSTRATE_REGION_END = "/* opsinjs:errors:end */"
+const MDX_REGION_BEGIN = "{/* opsinjs:errors:begin"
+const MDX_REGION_END = "{/* opsinjs:errors:end */}"
 
 const PREFIX = "--opsin-"
 
@@ -152,6 +187,26 @@ function exists(file: string): boolean {
     return true
   } catch {
     return false
+  }
+}
+
+/**
+ * Reads a file that must be there. Used only for the two committed files this
+ * script splices a region into: both are tracked, so an absent one means the
+ * working tree is broken rather than that the honest zero state has been
+ * reached, and guessing at the content would write a file with no prose in it.
+ */
+function mustRead(file: string, why: string): string {
+  try {
+    return readFileSync(file, "utf8")
+  } catch {
+    console.error(
+      [
+        `build-tokens: ${file.replace(APP_DIR, "")} is missing and cannot be regenerated.`,
+        `  ${why}`,
+      ].join("\n"),
+    )
+    process.exit(1)
   }
 }
 
@@ -857,6 +912,206 @@ function buildGlossary(source: JsonObject | undefined): {
 }
 
 /* ------------------------------------------------------------------ *
+ * Error codes                                                         *
+ *                                                                     *
+ * tokens/errors.json is not a token source - it declares no custom     *
+ * property - but it is authored data with exactly the same problem the *
+ * tokens have: three places need it and none of them may drift. This   *
+ * script is where the one source becomes all three.                    *
+ * ------------------------------------------------------------------ */
+
+interface ErrorCode {
+  code: string
+  severity: string
+  title: string
+  /** The message template, `{placeholder}` tokens and all. */
+  message: string
+  /** A docs page id - `health/two-colour-axes`, no leading slash and no `/docs/`. */
+  docs: string
+  /** The `{placeholder}` names in `message`, first appearance first, deduplicated. */
+  params: string[]
+}
+
+interface ErrorSeverity {
+  name: string
+  description: string
+}
+
+interface ErrorTable {
+  policy: {
+    format: string
+    stability: string
+    environment: string
+    message: string
+    severity: ErrorSeverity[]
+  }
+  codes: ErrorCode[]
+}
+
+/**
+ * The parameter names a message expects, in the order a reader meets them.
+ *
+ * The source has no `params` array: the parameters exist only as `{braced}`
+ * spans inside `message`, which is the right place for them - a list that has
+ * to be kept in step with a string by hand is a list that will not be. They
+ * are extracted here instead, so the runtime can name the ones a caller failed
+ * to supply and the docs table can show what a code needs.
+ */
+function placeholders(message: string): string[] {
+  const found: string[] = []
+  for (const match of message.matchAll(/\{([A-Za-z][A-Za-z0-9]*)\}/g)) {
+    const name = match[1] as string
+    if (!found.includes(name)) found.push(name)
+  }
+  return found
+}
+
+function buildErrors(source: JsonObject | undefined): ErrorTable {
+  const policySource = obj(source?.policy)
+  const severity: ErrorSeverity[] = []
+  for (const [name, description] of Object.entries(obj(policySource?.severity) ?? {})) {
+    if (isMetaKey(name)) continue
+    const text = str(description)
+    if (text === undefined) continue
+    severity.push({ name, description: text })
+  }
+
+  /* Source order is the numbering order, and the numbering is the point: the
+     codes are allocated in sequence and a code is permanent. Nothing is sorted
+     anywhere below, so every emitted table reads the way the file does. */
+  const codes: ErrorCode[] = []
+  const malformed: string[] = []
+  for (const row of arr(source?.codes)) {
+    const code = str(row.code)
+    const message = str(row.message)
+    /* A row with no code or no message cannot be warned with, and inventing a
+       placeholder for it would put a code in the published table that the
+       runtime would never emit.
+
+       It is not skipped silently, though, and that distinction is the whole of
+       this block. A code is a permanent public identifier; a misspelt `code` or
+       `mesage` key would drop it from all three emitted tables with exit 0, so
+       the identifier would simply cease to exist and the only symptom would be a
+       warning that never fires. Collected and reported below. */
+    if (code === undefined || message === undefined) {
+      malformed.push(
+        code ?? (str(row.title) ? `the row titled "${str(row.title)}"` : "a row with no code"),
+      )
+      continue
+    }
+    codes.push({
+      code,
+      severity: str(row.severity) ?? "",
+      title: str(row.title) ?? "",
+      message,
+      docs: str(row.docs) ?? "",
+      params: placeholders(message),
+    })
+  }
+
+  if (malformed.length > 0) {
+    console.error(
+      [
+        "build-tokens: tokens/errors.json has a row that is missing `code` or `message`.",
+        ...malformed.map((entry) => `  ${entry}`),
+        "",
+        "  Both keys are required. A row without them is dropped from the generated",
+        "  table, from the substrate that ships to consumers, and from the published",
+        "  handbook page - so a permanent public identifier would disappear and the",
+        "  only symptom would be a warning that never fires. Check the spelling of",
+        "  the keys.",
+      ].join("\n"),
+    )
+    process.exit(1)
+  }
+
+  /* THE SECOND WORDING OF OPSIN-0001, AND WHY IT IS ALLOWED TO EXIST.
+     `lib/status.ts` hand-writes OPSIN-0001's code, its docs id and a message,
+     because `axisConflict()` is the never-mix rule as a FUNCTION and that file
+     is required to have no imports at all - the scripts load it under plain
+     node. Its message is deliberately not identical: errors.json's opens with
+     `<{component}>`, and `axisConflict()` has no component name to interpolate.
+     What must never drift is which code it claims and where it sends a reader,
+     so that is asserted here rather than left to be noticed. */
+  const axis = codes.find((entry) => entry.code === "OPSIN-0001")
+  if (axis !== undefined) {
+    const statusSource = mustRead(
+      join(APP_DIR, "lib", "status.ts"),
+      "it hand-writes OPSIN-0001 and has to be checked against tokens/errors.json",
+    )
+    const claimsCode = statusSource.includes(`"${axis.code}"`)
+    const claimsDocs = axis.docs === "" || statusSource.includes(`"${axis.docs}"`)
+    if (!claimsCode || !claimsDocs) {
+      console.error(
+        [
+          "build-tokens: lib/status.ts and tokens/errors.json disagree about OPSIN-0001.",
+          `  errors.json: code ${axis.code}, docs ${axis.docs || "(none)"}`,
+          `  lib/status.ts: ${claimsCode ? "code found" : "code NOT found"}, ${claimsDocs ? "docs id found" : "docs id NOT found"}`,
+          "",
+          "  `axisConflict()` in lib/status.ts is the never-mix rule as a function and",
+          "  hand-writes the code and the docs id, because that file may have no",
+          "  imports. Its MESSAGE is allowed to differ - it has no component name to",
+          "  interpolate - but the code it claims and the page it sends a reader to",
+          "  are the same rule and must match.",
+        ].join("\n"),
+      )
+      process.exit(1)
+    }
+  }
+
+  /* A code appearing twice is the one mistake this file cannot survive. The
+     substrate emits a Record keyed by code, so the second row would silently
+     replace the first and the warning a component raises would be about a
+     different defect from the one the published table describes. */
+  const duplicates = codes
+    .map((entry) => entry.code)
+    .filter((code, index, all) => all.indexOf(code) !== index)
+  if (duplicates.length > 0) {
+    console.error(
+      [
+        "build-tokens: tokens/errors.json declares a code more than once.",
+        ...[...new Set(duplicates)].map((code) => `  ${code}`),
+        "",
+        "  A code is permanent and names exactly one defect. Give the second row",
+        "  the next unallocated number instead.",
+      ].join("\n"),
+    )
+    process.exit(1)
+  }
+
+  /* The severity union in the generated TypeScript is emitted from
+     policy.severity, so a value that block does not declare would produce a
+     table that does not typecheck - several steps away from the edit that
+     caused it, and in a file nobody is meant to read. */
+  const known = new Set(severity.map((entry) => entry.name))
+  const unknown = codes.filter((entry) => !known.has(entry.severity))
+  if (severity.length > 0 && unknown.length > 0) {
+    console.error(
+      [
+        "build-tokens: tokens/errors.json uses a severity that policy.severity does not declare.",
+        ...unknown.map((entry) => `  ${entry.code} is ${q(entry.severity)}`),
+        `  Declared: ${[...known].map(q).join(", ")}.`,
+        "",
+        "  Add the severity to policy.severity, with the sentence that says what it",
+        "  means, or correct the row.",
+      ].join("\n"),
+    )
+    process.exit(1)
+  }
+
+  return {
+    policy: {
+      format: str(policySource?.format) ?? "",
+      stability: str(policySource?.stability) ?? "",
+      environment: str(policySource?.environment) ?? "",
+      message: str(policySource?.message) ?? "",
+      severity,
+    },
+    codes,
+  }
+}
+
+/* ------------------------------------------------------------------ *
  * CSS                                                                 *
  * ------------------------------------------------------------------ */
 
@@ -1008,6 +1263,7 @@ function emitCss(tokens: TokenLeaf[], hash: string): string {
 function emitTs(
   tokens: TokenLeaf[],
   glossary: { terms: GlossaryEntry[]; banned: BannedWord[] },
+  errors: ErrorTable,
   hash: string,
 ): string {
   /* The shape below is the contract declared in the committed placeholder that
@@ -1016,6 +1272,15 @@ function emitTs(
      FILE (color, motion, space...) and `group` is the family within it (status,
      category, ladder), which is the order the token tables read in. */
   const namespaces = [...new Set(tokens.map((token) => token.group))]
+
+  /* The severity union comes from policy.severity's own keys rather than from
+     a list in this script, so adding a severity is one edit in one file. An
+     empty policy block degrades to `string` instead of `never`, which would
+     make every row in the table fail to typecheck. */
+  const severityUnion =
+    errors.policy.severity.length > 0
+      ? errors.policy.severity.map((entry) => q(entry.name)).join(" | ")
+      : "string"
 
   const rows = tokens
     .map((token) => {
@@ -1163,12 +1428,290 @@ export const GLOSSARY: GeneratedGlossaryEntry[] = ${JSON.stringify(glossary.term
 
 /** Words banned across the system, with the replacement and the reason. */
 export const BANNED_WORDS: GeneratedBannedWord[] = ${JSON.stringify(glossary.banned, null, 2)}
+
+/**
+ * How severe a warning is. The three classes and their sentences are declared in
+ * \`tokens/errors.json\`'s own \`policy.severity\` block, not here.
+ */
+export type GeneratedErrorSeverity = ${severityUnion}
+
+/** One development-mode warning code, as authored in \`tokens/errors.json\`. */
+export interface GeneratedErrorCode {
+  /** The stable code, \`OPSIN-NNNN\`. Permanent: never reused, never renumbered. */
+  code: string
+  severity: GeneratedErrorSeverity
+  /** One line naming the mistake, for a table a reader scans by eye. */
+  title: string
+  /**
+   * The message template. \`{name}\` spans are filled at runtime by
+   * \`warnOnce()\` in \`lib/opsinjs.ts\`, which carries its own copy of this table
+   * because it is the file \`shadcn add\` copies into a consumer's project.
+   */
+  message: string
+  /** The docs page that prevents the mistake: a page id, no leading slash. */
+  docs: string
+  /** The \`{name}\` spans in \`message\`, first appearance first. */
+  params: string[]
+}
+
+/**
+ * Every code the system can emit, in allocation order.
+ *
+ * The scheme is flat - \`OPSIN-0001\` upwards - and deliberately not grouped
+ * into ranges: see \`content/docs/project/decisions/0015-error-codes-are-flat.mdx\`.
+ */
+export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = ${JSON.stringify(errors.codes, null, 2)}
+
+/** What a code promises, what it never does, and what each severity means. */
+export const OPSIN_ERROR_POLICY: {
+  format: string
+  stability: string
+  environment: string
+  message: string
+  severity: { name: GeneratedErrorSeverity; description: string }[]
+} = ${JSON.stringify(errors.policy, null, 2)}
 `
 }
 
 /** A last-resort description, so the second column of a token table is never empty. */
 function describe(token: TokenLeaf): string {
   return `The ${token.namespace} token ${token.cssVar.replace(PREFIX, "")}.`
+}
+
+/* ------------------------------------------------------------------ *
+ * The shipped copy of the error table                                 *
+ * ------------------------------------------------------------------ */
+
+/**
+ * Replaces the region between two markers, keeping everything either side.
+ *
+ * The same three-way splice `scripts/build-reference.mts` performs on the
+ * generated MDX pages, for the same reason: two of this script's outputs are
+ * files a person owns and writes prose in, and only a named region of each is
+ * derived from `tokens/errors.json`. The begin line is reused exactly as the
+ * file has it rather than rewritten, so the wording of the marker belongs to
+ * the file it sits in.
+ *
+ * A missing marker is fatal rather than recoverable. The alternative - append
+ * the region, or rewrite the whole file - would silently produce a second copy
+ * of the error table in a file that already ships one, and a duplicate table is
+ * exactly the drift this pipeline exists to prevent.
+ */
+function spliceRegion(
+  file: string,
+  current: string,
+  beginPrefix: string,
+  endMarker: string,
+  region: string,
+): string {
+  const beginAt = current.indexOf(beginPrefix)
+  const endAt = current.indexOf(endMarker)
+  if (beginAt === -1 || endAt === -1 || endAt < beginAt) {
+    console.error(
+      [
+        `build-tokens: ${file.replace(APP_DIR, "")} has lost its generated region markers.`,
+        `  Expected a line beginning ${q(beginPrefix)} and, after it, ${q(endMarker)}.`,
+        "",
+        "  The error table in that file is generated from tokens/errors.json. Restore",
+        "  both markers - an empty region between them is fine, this script fills it -",
+        "  and run `pnpm run generate` again.",
+      ].join("\n"),
+    )
+    process.exit(1)
+  }
+  const lineEnd = current.indexOf("\n", beginAt)
+  const beginLine = lineEnd === -1 ? current.slice(beginAt) : current.slice(beginAt, lineEnd)
+  const head = current.slice(0, beginAt)
+  const tail = current.slice(endAt + endMarker.length)
+  return `${head}${beginLine}\n\n${region.trim()}\n\n${endMarker}${tail}`
+}
+
+/**
+ * The error table as TypeScript, for the region inside `lib/opsinjs.ts`.
+ *
+ * WHY THIS TABLE IS EMITTED TWICE, AND WHY THE SECOND COPY IS NOT IN
+ * `lib/generated/`. `lib/opsinjs.ts` is one of the two files
+ * `scripts/build-registry.mts` appends to every registry item, so `shadcn add`
+ * copies it into a project that has none of this repository - no `tokens/`, no
+ * `lib/generated/`, no generator. `warnOnce()` lives in that file and needs the
+ * message templates, so an import of `lib/generated/tokens.ts` would compile
+ * here and fail in every consumer. The table is therefore generated INTO the
+ * file that travels, from the same source, in the same run. Two emitted copies
+ * cannot drift from each other; a hand-kept second copy could.
+ */
+function emitSubstrateErrors(errors: ErrorTable): string {
+  const severityUnion =
+    errors.policy.severity.length > 0
+      ? errors.policy.severity.map((entry) => q(entry.name)).join(" | ")
+      : "string"
+
+  /* An empty source is a real state - `tokens/errors.json` may not exist in a
+     clone that has not been generated - and `export type X =` with nothing
+     after it is a syntax error, so the zero case widens to `string` instead of
+     narrowing to `never`. */
+  const codeUnion =
+    errors.codes.length > 0
+      ? errors.codes.map((entry) => `\n  | ${q(entry.code)}`).join("")
+      : " string"
+
+  const rows = errors.codes
+    .map((entry) =>
+      [
+        `  ${q(entry.code)}: {`,
+        `    code: ${q(entry.code)},`,
+        `    severity: ${q(entry.severity)},`,
+        `    title: ${q(entry.title)},`,
+        `    message: ${q(entry.message)},`,
+        `    docs: ${q(entry.docs)},`,
+        `    params: [${entry.params.map(q).join(", ")}],`,
+        "  },",
+      ].join("\n"),
+    )
+    .join("\n")
+
+  return `/**
+ * How severe a warning is.
+ *
+ * The three classes are declared in \`tokens/errors.json\`'s \`policy.severity\`
+ * block, which also carries the sentence that says what each one means:
+${errors.policy.severity.map((entry) => ` *   ${entry.name} - ${entry.description}`).join("\n")}
+ */
+export type OpsinErrorSeverity = ${severityUnion}
+
+/**
+ * Every warning code opsinjs can emit.
+ *
+ * Flat, allocated in sequence, and permanent: a code is never reused, never
+ * renumbered and never removed. The union is what makes \`warnOnce("OPSIN-0004")\`
+ * a compile error when the code does not exist, which is the difference between
+ * a stable code and a string somebody typed.
+ */
+export type OpsinErrorCode =${codeUnion}
+
+/** One warning code: what it is called, how severe it is, and the page that prevents it. */
+export interface OpsinError {
+  /** The stable code. Search by this, never by the message text. */
+  code: OpsinErrorCode
+  severity: OpsinErrorSeverity
+  /** One line naming the mistake. */
+  title: string
+  /** The message template. \`{name}\` spans are filled from \`warnOnce\`'s \`params\`. */
+  message: string
+  /** The docs page id that prevents the mistake, without a leading slash. */
+  docs: string
+  /** The \`{name}\` spans in \`message\`, first appearance first. */
+  params: string[]
+}
+
+/** The table \`warnOnce()\` reads. Generated from \`tokens/errors.json\`. */
+export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
+${rows}
+}`
+}
+
+/* ------------------------------------------------------------------ *
+ * The error-code table as MDX                                         *
+ * ------------------------------------------------------------------ */
+
+/**
+ * Escapes one table cell for MDX.
+ *
+ * Applied to every authored string that lands in a table cell - the titles and
+ * the severity sentences. Two characters need care, and only outside a code
+ * span, because MDX parses neither JSX nor expressions inside one: `<` starts
+ * an element and `{` starts an expression.
+ *
+ * `<` becomes `&lt;` rather than `\<` for a second reason. `assert-ia.mts`
+ * reads a `<` followed by a capital as a JSX tag and fails the build on it
+ * (MDX001), and a backslash in front of the angle bracket does not change what
+ * its regular expression sees. That the titles do not contain one today is not
+ * a reason to leave it out: the messages in the same file do (`<Value>`,
+ * `<TrendSparkline>`), which is why they are shown only inside a fenced block,
+ * where MDX parses nothing at all, and why a title that gains one tomorrow has
+ * to keep working rather than fail the build.
+ *
+ * The pipe moves in both contexts: GFM ends a cell on it even inside code.
+ */
+function mdxCell(text: string): string {
+  return text
+    .split(/(`[^`]*`)/g)
+    .map((part) => {
+      if (part.length >= 2 && part.startsWith("`") && part.endsWith("`")) {
+        return part.replace(/\|/g, "\\|")
+      }
+      return part
+        .replace(/\|/g, "\\|")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/([{}])/g, "\\$1")
+    })
+    .join("")
+}
+
+/**
+ * The generated half of `content/docs/handbook/error-codes.mdx`.
+ *
+ * It renders the whole table rather than a sample of it. A handbook page whose
+ * table is a selection is a page a reader has to leave to answer the question
+ * they arrived with, and the question they arrived with is always "what is this
+ * code". The worked example is the real OPSIN-0001 row, template braces and
+ * all, so nothing on the page is a message that the runtime cannot emit.
+ */
+function emitErrorCodesRegion(errors: ErrorTable): string {
+  if (errors.codes.length === 0) {
+    return '<NoDataYet script="scripts/build-tokens.mts" />\n\nNo codes are declared in `tokens/errors.json` yet.'
+  }
+
+  const first = errors.codes[0] as ErrorCode
+  const example = [
+    "```text",
+    `[opsinjs] ${first.code} (${first.severity}): ${first.message}`,
+    `  → https://opsinjs.dev/docs/${first.docs}`,
+    "```",
+  ].join("\n")
+
+  const counts = new Map<string, number>()
+  for (const entry of errors.codes) {
+    counts.set(entry.severity, (counts.get(entry.severity) ?? 0) + 1)
+  }
+  const severityRows = errors.policy.severity.map(
+    (entry) =>
+      `| \`${entry.name}\` | ${counts.get(entry.name) ?? 0} | ${mdxCell(entry.description)} |`,
+  )
+
+  const codeRows = errors.codes.map((entry) => {
+    const params =
+      entry.params.length === 0 ? "none" : entry.params.map((name) => `\`${name}\``).join(", ")
+    const docs = entry.docs === "" ? "—" : `[${entry.docs}](../${entry.docs}.mdx)`
+    return `| \`${entry.code}\` | ${entry.severity} | ${mdxCell(entry.title)} | ${params} | ${docs} |`
+  })
+
+  return [
+    "A warning is one `console.warn` call, and it looks like this. The braces are",
+    "filled from what the component passed; this is the template as authored, so",
+    "what you see below is what the code emits and not a paraphrase of it.",
+    "",
+    example,
+    "",
+    "### Severities",
+    "",
+    `${errors.policy.severity.length} classes, and they are a statement about consequence rather than about`,
+    "how noisy the warning is.",
+    "",
+    "| Severity | Codes | What it means |",
+    "| --- | --- | --- |",
+    ...severityRows,
+    "",
+    "### Every code",
+    "",
+    `${errors.codes.length} codes, in allocation order. "Values in the message" names the`,
+    "`{braced}` spans a component has to supply; a missing one is reported in the",
+    "warning itself rather than swallowed.",
+    "",
+    "| Code | Severity | What went wrong | Values in the message | Prevented by |",
+    "| --- | --- | --- | --- | --- |",
+    ...codeRows,
+  ].join("\n")
 }
 
 /* ------------------------------------------------------------------ *
@@ -1264,12 +1807,22 @@ function main(): void {
   if (glossarySource) rawSources.push(readFileSync(glossaryFile, "utf8"))
   const glossary = buildGlossary(glossarySource)
 
-  /* tokens/errors.json is authored data for handbook/error-codes rather than a
-     token source. It is hashed, so a change to it invalidates the generated
-     layer, but it emits no custom properties: the pages that document an error
-     code import the JSON directly. */
+  /* tokens/errors.json is authored data rather than a token source: it declares
+     no custom property, so it has no entry in EMITTERS and none in TOKEN_FILES.
+     It is still hashed, in this position, after the glossary - a change to the
+     warning table invalidates the generated layer like any other source change,
+     and moving it in this list would rewrite every hash for no reason.
+
+     What it does emit is three copies of one table, below: OPSIN_ERROR_CODES in
+     lib/generated/tokens.ts, OPSIN_ERRORS inside lib/opsinjs.ts where warnOnce()
+     can reach it in a consumer's project, and the table on the handbook page.
+     Parsing it here rather than only hashing it also means a syntactically
+     broken errors.json now fails the build with a line number instead of
+     quietly emptying the warning channel. */
   const errorsFile = join(TOKENS_DIR, "errors.json")
+  const errorsSource = readJson(errorsFile)
   if (exists(errorsFile)) rawSources.push(readFileSync(errorsFile, "utf8"))
+  const errors = buildErrors(errorsSource)
 
   resolveReferences(tokens)
 
@@ -1311,7 +1864,33 @@ function main(): void {
 
   const outputs = [
     { file: OUT_CSS, contents: emitCss(tokens, hash) },
-    { file: OUT_TS, contents: emitTs(tokens, glossary, hash) },
+    { file: OUT_TS, contents: emitTs(tokens, glossary, errors, hash) },
+    {
+      file: OUT_SUBSTRATE,
+      contents: spliceRegion(
+        OUT_SUBSTRATE,
+        mustRead(
+          OUT_SUBSTRATE,
+          "It is the shared substrate every registry item ships; restore it from git.",
+        ),
+        SUBSTRATE_REGION_BEGIN,
+        SUBSTRATE_REGION_END,
+        emitSubstrateErrors(errors),
+      ),
+    },
+    {
+      file: OUT_ERROR_CODES,
+      contents: spliceRegion(
+        OUT_ERROR_CODES,
+        mustRead(
+          OUT_ERROR_CODES,
+          "It is a hand-written handbook page with one generated region; restore it from git.",
+        ),
+        MDX_REGION_BEGIN,
+        MDX_REGION_END,
+        emitErrorCodesRegion(errors),
+      ),
+    },
     {
       file: OUT_GLOSSARY,
       contents: `${JSON.stringify(
@@ -1367,7 +1946,7 @@ function main(): void {
     [
       `build-tokens: ${tokens.length} tokens from ${rawSources.length} source files ` +
         `(hash ${hash}); ${glossary.terms.length} glossary terms, ` +
-        `${glossary.banned.length} banned words.`,
+        `${glossary.banned.length} banned words, ${errors.codes.length} error codes.`,
       `  ${[...byGroup.entries()].map(([group, count]) => `${count} ${group}`).join(" | ")}`,
       ...outputs.map(
         (output) =>

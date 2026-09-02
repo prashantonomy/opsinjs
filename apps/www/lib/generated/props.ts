@@ -41,10 +41,30 @@ export type GeneratedPropsTable = Record<string, GeneratedProp>
 /** Keyed by the exported interface name: `StatusPillProps`. */
 export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
   "StatusPillProps": {
+    "status": {
+      type: "ClinicalStatus",
+      description: "Required. There is no neutral default and no \"unknown\" level.",
+      required: true,
+    },
     "label": {
       type: "string",
-      description: "Placeholder. The real interface arrives in Phase 2.",
-      required: true,
+      description: "Overrides the default word for this level — for translation, or for a product whose readers use different language. It may not change the meaning, and it may not be an empty string.",
+      required: false,
+    },
+    "size": {
+      type: "\"sm\" | \"md\"",
+      description: "Visual weight only. Both sizes render icon, word and colour; neither drops the word.",
+      required: false,
+    },
+    "describes": {
+      type: "string",
+      description: "What the pill applies to, for the accessible name: \"HbA1c result\". Without it a screen-reader user hears a level with no subject.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. The pill's own classes win where they conflict.",
+      required: false,
     },
   },
 }
@@ -56,5 +76,5 @@ export const PROPS_SOURCES: Record<string, string> = {
 
 export const PROPS_META: { interfaces: number; props: number } = {
   interfaces: 1,
-  props: 1,
+  props: 5,
 }

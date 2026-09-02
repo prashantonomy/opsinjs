@@ -121,12 +121,22 @@ are `package.json` scripts, not a CLI, and they run under plain Node — the
 | --- | --- |
 | `pnpm run generate` | Tokens, registry and generated reference pages |
 | `pnpm run contrast` | Measures every token pair with APCA and WCAG 2.2 |
-| `pnpm run check` | `check:generated`, `check:ia` and `check:llms` together |
+| `pnpm run check` | `check:generated`, `check:ia`, `check:a11y` and `check:llms`, in that order |
 | `pnpm run check:generated` | Regenerates and fails on a diff |
 | `pnpm run check:ia` | Frontmatter, section outlines, link and reachability assertions |
+| `pnpm run check:a11y` | The accessibility rig's static half, over the component sources |
 | `pnpm run check:llms` | The index and shards against the page tree |
 | `pnpm run check:freshness` | Reports pages past their review SLA. Does not fail the build |
 | `pnpm run evals` | The agent eval suite |
+
+`check:a11y` is the one that reads `registry/` rather than `content/`. It parses
+each component source as text and fails on a status carried by colour alone, a
+type size in px, a raw colour literal, an element taking colour from both axes, a
+banned word, or a class that resolves under the docs chrome and to nothing under
+`/view`. It needs no browser and no running server, which is why it sits in the
+same one-command sweep as the other three. The half that does need a browser —
+hit area, 1.3x, 200% — runs only in `.github/workflows/nightly.yml`, and
+`--layout` is how you ask for it.
 
 Node 24 or newer is required, and each script starts with a version guard that
 exits with a readable message rather than a stack trace.

@@ -166,6 +166,7 @@ the documentation site itself is a public type.
 | `inGamut` | function | `lib/color/oklch.ts` | - |
 | `isBuilt` | function | `lib/registry.ts` | True only when there is a real renderable behind this name. Currently never. |
 | `isClinicalStatus` | function | `lib/status.ts` | - |
+| `isDevelopment` | function | `lib/opsinjs.ts` | True in development, and false wherever that cannot be established. |
 | `isHealthCategory` | function | `lib/catalogue.ts` | True for the four `health-*` categories, which carry the extra clinical obligations. |
 | `isHealthCategory` | function | `lib/status.ts` | - |
 | `isKind` | function | `lib/status.ts` | - |
@@ -200,6 +201,11 @@ the documentation site itself is a public type.
 | `oklchToOklab` | function | `lib/color/oklch.ts` | - |
 | `oklchToRgb255` | function | `lib/color/oklch.ts` | OKLCH → 0–255 sRGB integers, clamped. The input for both contrast models. |
 | `oklchToSrgb` | function | `lib/color/oklch.ts` | OKLCH → gamma-encoded sRGB, 0–1 per channel. Not clamped. |
+| `OPSIN_ERRORS` | const | `lib/opsinjs.ts` | The table `warnOnce()` reads. Generated from `tokens/errors.json`. |
+| [`OpsinError`](../api/OpsinError.mdx) | interface | `lib/opsinjs.ts` | One warning code: what it is called, how severe it is, and the page that prevents it. |
+| [`OpsinErrorCode`](../api/OpsinErrorCode.mdx) | type | `lib/opsinjs.ts` | Every warning code opsinjs can emit. |
+| [`OpsinErrorParams`](../api/OpsinErrorParams.mdx) | type | `lib/opsinjs.ts` | The values a message template asks for, keyed by placeholder name. |
+| [`OpsinErrorSeverity`](../api/OpsinErrorSeverity.mdx) | type | `lib/opsinjs.ts` | How severe a warning is. |
 | `ORPHAN_ALLOWLIST` | const | `lib/routes.ts` | Routes that exist but are not reachable from the top nav or the sidebar, and are allowed not to be. |
 | `OUTLINE_IS_EXACT` | const | `lib/status.ts` | `kind: project` is free-form and `kind: guide` has task sections between its fixed first and last headings, so for these two the outline is a REQUIRED SUBSET rather than the complete list. |
 | `P3_CHROMA_GAIN` | const | `lib/color/derive.ts` | How much more chroma Display-P3 is allowed to spend than sRGB at the same step. |
@@ -271,6 +277,7 @@ the documentation site itself is a public type.
 | [`ViewParams`](../api/ViewParams.mdx) | interface | `lib/routes.ts` | - |
 | `viewPath` | function | `lib/routes.ts` | `/view/base/base-lyra/component/range-bar?mode=dark&text=200`. |
 | [`WarningLevel`](../api/WarningLevel.mdx) | type | `lib/color/derive.ts` | - |
+| `warnOnce` | function | `lib/opsinjs.ts` | Report a defect in development, once, and never do anything else. |
 | `wcag` | const | `lib/color/wcag.ts` | The short name, matching `apca()`. Identical to `contrastRatio`. |
 | `WCAG_FLOOR` | const | `lib/color/wcag.ts` | The three WCAG 2.2 thresholds this system checks against. |
 | [`WcagUse`](../api/WcagUse.mdx) | type | `lib/color/wcag.ts` | - |

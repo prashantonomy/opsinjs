@@ -313,6 +313,14 @@ export interface AxisConflict {
  * `watch` pill is correct and common. What may not happen is one surface
  * carrying both, because then the reader cannot tell which of the two the
  * colour is answering.
+ *
+ * THE MESSAGE BELOW IS A SECOND WORDING OF OPSIN-0001, ON PURPOSE.
+ * `tokens/errors.json` owns the canonical one, and it opens with the component
+ * name — which this function does not have, because it is given two values and
+ * not the thing that holds them. So the sentence differs and the RULE does not.
+ * `scripts/build-tokens.mts` asserts that this file claims the same code and
+ * sends a reader to the same page; only the phrasing is free to differ, and if
+ * you are adding a third wording somewhere, do not.
  */
 export function axisConflict(input: {
   category?: HealthCategory | null

@@ -111,18 +111,26 @@ research finding.
 
 <NoDataYet script="scripts/run-evals.mts" />
 
-There are no published test results for this system. No component exists to test,
-Playwright is deliberately not installed, and `scripts/capture-registry.mts`
-detects its absence and no-ops rather than pretending to produce artefacts. When
-a suite exists, its dated results appear here and on
-[Conformance report](./conformance-report.mdx).
+There are no published test results for this system. Playwright is in no
+`package.json`, so a normal clone does not have it and
+`scripts/capture-registry.mts` detects its absence and no-ops rather than
+pretending to produce artefacts. One job installs it at job time —
+`.github/workflows/nightly.yml` — and runs the accessibility rig's browser half
+against the built `/view` routes. That half measures hit area, survival at 1.3x
+and 200% with no truncated value, and it publishes nothing: it fails on what is
+wrong and records nothing about what passed. When a suite exists, its dated
+results appear here and on [Conformance report](./conformance-report.mdx).
 
 ## Known gaps
 
 - **No test suite exists,** automated or manual, for the design system itself.
-- **There is no accessibility regression gate in CI.** The only accessibility
-  check in the build today is `pnpm run contrast`, which measures token pairs and
-  nothing else.
+- **The regression gate covers rules, not criteria.** `pnpm run check:a11y`
+  blocks a pull request on the rules in `scripts/check-a11y.mts`, and the nightly
+  adds the three browser measurements above. Between them they touch a handful of
+  the criteria on [Conformance report](./conformance-report.mdx) and none of the
+  ones a person has to judge. No rule engine — axe or any other — runs over a
+  rendered page anywhere, and the nightly is on a schedule, so it goes red the
+  morning after a merge rather than before it.
 - **No assistive technology has been used against this codebase.** The docs site
   itself is unaudited; see [This site's accessibility](./this-site.mdx).
 

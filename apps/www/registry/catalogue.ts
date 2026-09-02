@@ -272,16 +272,19 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A short label saying what a reading means and what, if anything, to do about it.",
     category: "health-data-display",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
-    aliases: ["status chip", "status badge", "status label", "traffic light"],
+    aliases: ["chip", "status chip", "status badge", "status label", "traffic light"],
     owner: "clinical",
     a11yDate: null,
     governedBy: [
       "clinical-status-semantics",
       "two-colour-axes",
       "alarm-fatigue",
+      "category-identity",
     ],
+    usedIn: ["value-against-a-range", "health-metric-card", "results-screen"],
+    dependencies: ["lucide-react"],
   },
 
   {

@@ -128,10 +128,17 @@ row.
 <NoDataYet script="scripts/build-registry.mts" />
 
 The intended generated artefact is a per-component measured hit area at each
-density, in both themes, taken from a rendered `(view)` route. It requires both
-components and a browser automation pass; Playwright is deliberately not
-installed, and `scripts/capture-registry.mts` no-ops in its absence rather than
-producing a fabricated table.
+density, in both themes, taken from a rendered `(view)` route. Nothing publishes
+that table, and `scripts/capture-registry.mts` no-ops in a normal clone rather
+than producing a fabricated one, because Playwright is in no `package.json`.
+
+The measurement itself does now happen, in one place.
+`.github/workflows/nightly.yml` installs Playwright at job time and runs
+`scripts/check-a11y.mts --layout`, which loads every built `/view` route at
+390x844 and fails on any interactive element whose border box is under 44x44. It
+is a gate rather than an artefact: it names the boxes that failed and writes down
+nothing about the ones that passed, it cannot see a hit area expanded by a
+pseudo-element, and it runs on a schedule rather than on a pull request.
 
 ## Known gaps
 

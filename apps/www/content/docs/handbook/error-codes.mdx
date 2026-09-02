@@ -12,14 +12,20 @@ owner: design-system
 
 ## The short version
 
-<NotBuiltYet />
+<NotBuiltYet what="A component that emits one of these" status="planned">
+  The codes are allocated, the table below is generated from them, and
+  `warnOnce()` ships in `lib/opsinjs.ts` alongside every component that will
+  call it. What does not exist yet is a component to do the calling, so nothing
+  in this system has warned anybody about anything.
+</NotBuiltYet>
 
-Every development-mode warning opsinjs emits will carry a stable code and a link:
+Every development-mode warning opsinjs emits carries a stable code, a sentence
+that says what to do instead, and a link:
 
-```
-[opsinjs] OPSIN-0104: `status` and `category` both change the surface colour of
-this StatusPill. A colour may carry identity or status, never both.
-→ https://opsinjs.dev/docs/health/two-colour-axes
+```text
+[opsinjs] OPSIN-NNNN (severity): what was passed, why it is wrong, and the one
+thing to do instead.
+  → https://opsinjs.dev/docs/<the page that prevents it>
 ```
 
 Three properties make this worth building rather than emitting a sentence:
@@ -30,41 +36,102 @@ Three properties make this worth building rather than emitting a sentence:
 - **Warnings are development-only.** Nothing in this list ships to production,
   and none of them throws.
 
-The complete table is generated from `tokens/errors.json` into
-[Reference](../reference/index.mdx) rather than maintained by hand here.
+The complete table is generated from `tokens/errors.json` into the section
+below. It is not maintained by hand here, and no row of it is written twice.
 
 ## How it works
 
-Codes are grouped by the kind of mistake, which makes an unfamiliar one
-approximately interpretable before you look it up:
+**The codes are flat.** `OPSIN-0001` upwards, allocated in sequence, with no
+grouped ranges and no meaning attached to the leading digits. A code is
+permanent: never reused, never renumbered, never removed. Retiring one leaves
+its row in place, because the code will outlive this release in somebody's log
+aggregator. The reason the scheme is flat rather than banded is written down in
+[ADR 0015](../project/decisions/0015-error-codes-are-flat.mdx); the short
+version is that a band is a promise about a code's meaning that the number
+cannot keep, and that the first mis-filed code makes every other one unsearchable.
 
-| Range | Concerns |
-| --- | --- |
-| `OPSIN-01xx` | The two colour axes — mixing status and category |
-| `OPSIN-02xx` | Tokens — a raw value where a token was expected |
-| `OPSIN-03xx` | Composition — wrong nesting of compound parts |
-| `OPSIN-04xx` | Accessibility — a missing accessible name, a lost label |
-| `OPSIN-05xx` | Data honesty — a value rendered without its unit or its status |
-| `OPSIN-06xx` | Theming — a token overridden outside its tier |
-| `OPSIN-07xx` | Registry and version — a mismatched or stale copied file |
+**One code names exactly one page.** The page is the code's permanent home and
+it is where the rule is argued rather than asserted. That is also why the
+severity column below is not a priority queue: it says what happens if you leave
+the defect in, not how soon somebody will shout at you.
 
-A warning fires once per unique cause per session rather than once per render,
-so a list of two hundred rows produces one message rather than two hundred.
+**A warning fires once per code and message per session, not once per render.**
+The message includes the values the component passed, so two components making
+the same mistake produce two warnings while one component making it in sixty
+consecutive frames produces one. React's Strict Mode double-invokes a render on
+purpose; the second invocation computes the same message, finds it already
+reported, and prints nothing.
 
-<Todo>
-  The generated code table lands with `tokens/errors.json` and
-  `build-reference.mts`. Until then the ranges above are the specification and
-  no individual code should be treated as final.
-</Todo>
+**The runtime and this page read the same source.** `tokens/errors.json` is the
+only place a code is authored. `scripts/build-tokens.mts` emits it into
+`lib/opsinjs.ts` — which is the file `shadcn add` copies into your project, so
+the messages travel with the components — into `lib/generated/tokens.ts` for
+the documentation site, and into the table below. Editing any of the three is
+undone by the next `pnpm run generate`.
+
+{/* opsinjs:errors:begin — replaced by scripts/build-tokens.mts from tokens/errors.json */}
+
+A warning is one `console.warn` call, and it looks like this. The braces are
+filled from what the component passed; this is the template as authored, so
+what you see below is what the code emits and not a paraphrase of it.
+
+```text
+[opsinjs] OPSIN-0001 (safety): <{component}> received both `category="{category}"` and `status="{status}"`. A surface carries one axis. Set the category on the surface and render the status as a StatusPill inside it.
+  → https://opsinjs.dev/docs/health/two-colour-axes
+```
+
+### Severities
+
+3 classes, and they are a statement about consequence rather than about
+how noisy the warning is.
+
+| Severity | Codes | What it means |
+| --- | --- | --- |
+| `safety` | 8 | A defect that can mislead a reader about their own health. Treat as a bug, not as a lint warning. |
+| `correctness` | 9 | The component will render something, but not what the author meant. |
+| `hygiene` | 4 | Works today, will not survive an upgrade. |
+
+### Every code
+
+21 codes, in allocation order. "Values in the message" names the
+`{braced}` spans a component has to supply; a missing one is reported in the
+warning itself rather than swallowed.
+
+| Code | Severity | What went wrong | Values in the message | Prevented by |
+| --- | --- | --- | --- | --- |
+| `OPSIN-0001` | safety | Both a category and a status were given to one surface | `component`, `category`, `status` | [health/two-colour-axes](../health/two-colour-axes.mdx) |
+| `OPSIN-0002` | safety | A status was rendered without a word | `component`, `status` | [health/clinical-status-semantics](../health/clinical-status-semantics.mdx) |
+| `OPSIN-0003` | safety | A value was rendered without a unit | `value` | [health/unit-systems](../health/unit-systems.mdx) |
+| `OPSIN-0004` | safety | A reference range was rendered without a source | `component` | [health/reference-ranges](../health/reference-ranges.mdx) |
+| `OPSIN-0005` | safety | More than one urgent surface on a screen | `count` | [health/alarm-fatigue](../health/alarm-fatigue.mdx) |
+| `OPSIN-0006` | safety | A banned word appeared in a component's copy | `text`, `word`, `replacement` | [content/plain-english-a-z](../content/plain-english-a-z.mdx) |
+| `OPSIN-0007` | safety | A health value was animated | `component`, `token` | [health/motion-in-health-ui](../health/motion-in-health-ui.mdx) |
+| `OPSIN-0008` | correctness | A raw colour value was passed where a token is required | `component`, `prop`, `value` | [foundations/token-architecture](../foundations/token-architecture.mdx) |
+| `OPSIN-0009` | correctness | A primitive token was referenced from a component | `token` | [foundations/token-architecture](../foundations/token-architecture.mdx) |
+| `OPSIN-0010` | correctness | An unknown category was requested | `category`, `known` | [theming/category-palettes](../theming/category-palettes.mdx) |
+| `OPSIN-0011` | correctness | `unknown` was used as a status level | none | [health/uncertainty-and-staleness](../health/uncertainty-and-staleness.mdx) |
+| `OPSIN-0012` | correctness | A trend was drawn from too few points | `count`, `minimum` | [health/trends-and-change](../health/trends-and-change.mdx) |
+| `OPSIN-0013` | correctness | A chart's y-axis was truncated | `component`, `min` | [foundations/data-visualisation/chart-anatomy](../foundations/data-visualisation/chart-anatomy.mdx) |
+| `OPSIN-0014` | correctness | Category colours were used as chart series colours | `count` | [foundations/data-visualisation/chart-colour](../foundations/data-visualisation/chart-colour.mdx) |
+| `OPSIN-0015` | correctness | A touch target is below the floor | `component`, `width`, `height` | [accessibility/target-size-and-motor](../accessibility/target-size-and-motor.mdx) |
+| `OPSIN-0016` | correctness | A stale reading was rendered as current | `component`, `age` | [health/uncertainty-and-staleness](../health/uncertainty-and-staleness.mdx) |
+| `OPSIN-0017` | hygiene | More than three translucent surfaces are composited | `count` | [foundations/materials/performance-budget](../foundations/materials/performance-budget.mdx) |
+| `OPSIN-0018` | hygiene | A deprecated token was referenced | `token`, `version`, `replacement`, `removal` | [project/deprecations](../project/deprecations.mdx) |
+| `OPSIN-0019` | hygiene | The token stylesheet was not loaded | none | [theming/tailwind-v4](../theming/tailwind-v4.mdx) |
+| `OPSIN-0020` | hygiene | Two theme providers are mounted | none | [handbook/dark-mode](../handbook/dark-mode.mdx) |
+| `OPSIN-0021` | safety | A status outside the four levels was passed | `component`, `status` | [health/clinical-status-semantics](../health/clinical-status-semantics.mdx) |
+
+{/* opsinjs:errors:end */}
 
 ## Do this
 
 - **Fix the cause, not the symptom.** Every code links to a page that explains
   why the thing is a rule; the fix is usually one line and the reasoning is
   usually worth two minutes.
-- **Treat `OPSIN-01xx` as an error even though it warns.** Mixing the axes is
-  the one category where the visible result looks fine and the meaning is wrong,
-  which is exactly the class of bug that survives review.
+- **Treat a `safety` code as an error even though it warns.** Those are the ones
+  where the visible result looks fine and the meaning is wrong, which is exactly
+  the class of bug that survives review — and the reader who is misled by it is
+  being misled about their own health.
 - **Search by code, not by message text.** Messages get clearer between
   versions; codes do not change.
 - **Turn warnings into failures in CI** if you want them enforced. They are
@@ -85,29 +152,37 @@ so a list of two hundred rows produces one message rather than two hundred.
   runtime must be validated by your own code.
 - **Do not parse the message string.** Parse the code. The prose is not a
   contract.
+- **Do not read a code's digits as a category.** `OPSIN-0007` is next to
+  `OPSIN-0008` because it was written first, not because they are related.
 
 ## Gotchas
 
 - **A warning fires once per cause, not once per instance.** Fixing one of five
   identical mistakes makes the message vanish and the other four persist.
+- **A message with a `{brace}` still in it is a second bug.** The component
+  raised a warning without supplying one of the values the message asks for.
+  The warning still prints, and names what was missing, because losing a safety
+  complaint to a typo in the complaint is the worse of the two outcomes.
 - **Development-only means bundler-dependent.** In an unusual build setup the
   `NODE_ENV` guard may not be applied, and you may see codes in a production
   bundle. That is a bundler configuration issue rather than a change in
-  behaviour.
+  behaviour. Where `process` is not defined at all the channel stays silent
+  rather than guessing.
 - **Server-rendered warnings appear in the server log**, not in the browser
   console — which is why a warning can seem to fire "sometimes".
-- **Codes are stable but their ranges may gain members.** A new `OPSIN-01xx`
-  code is not a breaking change; a renumbered existing one would be.
+- **New codes are not a breaking change.** The next one is `OPSIN-0021`,
+  whatever it turns out to be about. Renumbering an existing one would be.
 - **A warning about a copied file being out of date is not a bug in your
   code.** You own the source; see
   [Version stamps](../registry/version-stamps.mdx).
 
 ## Related
 
-- [The two colour axes](../health/two-colour-axes.mdx) — the rule behind the
-  `OPSIN-01xx` range.
+- [The two colour axes](../health/two-colour-axes.mdx) — the rule behind
+  `OPSIN-0001`, and the one most likely to look right and mean the wrong thing.
+- [ADR 0015](../project/decisions/0015-error-codes-are-flat.mdx) — why the
+  scheme is flat rather than banded.
 - [ESLint plugin](./tooling/eslint-plugin.mdx) — catching the same mistakes
   before they run.
-- [Reference](../reference/index.mdx) — the generated table of every code.
 - [Troubleshooting](../start/troubleshooting.mdx) — failures that are not
   warnings, with their exact error text.

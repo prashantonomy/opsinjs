@@ -43,11 +43,15 @@ When you say "don't", name what to do instead.
 generate code against it), `<NoDataYet>` (this generated table has no source data yet,
 here is the script that will fill it), `<Todo>` (a measured gap). Use them instead of
 softening the truth in prose. They are still required for everything that is not built,
-which is most of the corpus. A page sheds `<NotBuiltYet>`, `<StubNotice>` and `<Todo>`
-in the same commit that promotes it to `alpha`, and a promoted page carries none of
-those three. `<NoDataYet>` is different and may legitimately survive promotion: it means
-a generator has no source data yet, and an `alpha` page whose contrast pairs have not
-been measured must say so rather than print a table nobody produced. The MDX vocabulary is **closed**: only the
+which is most of the corpus.
+
+Promotion sheds exactly two of them. `<NotBuiltYet>` and `<Todo>` go in the same commit
+that moves a page to `alpha`, and a promoted page carries neither. The other two stay,
+for different reasons. `<StubNotice>` stays and gains its real `status` — at `alpha` it
+stops saying "nothing is implemented" and starts saying "this is not stable yet", which
+is the truth a reader needs, and its open safety questions are still open. `<NoDataYet>`
+stays wherever a generator genuinely has no source data: an `alpha` page whose contrast
+pairs have not been measured must say so rather than print a table nobody produced. The MDX vocabulary is **closed**: only the
 tags listed in the anatomy contract exist, `assert-ia` fails the build on any other JSX
 tag, and content work never defines a new one.
 

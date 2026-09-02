@@ -436,8 +436,8 @@ export const TOKEN_META: {
   count: number
   namespaces: TokenNamespace[]
 } = {
-  generatedAt: "1ded591878e6",
-  sourceHash: "1ded591878e6",
+  generatedAt: "f8a43d42e74f",
+  sourceHash: "f8a43d42e74f",
   count: 331,
   namespaces: ["color", "material", "motion", "type", "space", "shape"] as TokenNamespace[],
 }
@@ -832,3 +832,287 @@ export const BANNED_WORDS: GeneratedBannedWord[] = [
     "reason": "In everyday English 'positive' means good news. In a test result it usually means the opposite, and the collision is dangerous."
   }
 ]
+
+/**
+ * How severe a warning is. The three classes and their sentences are declared in
+ * `tokens/errors.json`'s own `policy.severity` block, not here.
+ */
+export type GeneratedErrorSeverity = "safety" | "correctness" | "hygiene"
+
+/** One development-mode warning code, as authored in `tokens/errors.json`. */
+export interface GeneratedErrorCode {
+  /** The stable code, `OPSIN-NNNN`. Permanent: never reused, never renumbered. */
+  code: string
+  severity: GeneratedErrorSeverity
+  /** One line naming the mistake, for a table a reader scans by eye. */
+  title: string
+  /**
+   * The message template. `{name}` spans are filled at runtime by
+   * `warnOnce()` in `lib/opsinjs.ts`, which carries its own copy of this table
+   * because it is the file `shadcn add` copies into a consumer's project.
+   */
+  message: string
+  /** The docs page that prevents the mistake: a page id, no leading slash. */
+  docs: string
+  /** The `{name}` spans in `message`, first appearance first. */
+  params: string[]
+}
+
+/**
+ * Every code the system can emit, in allocation order.
+ *
+ * The scheme is flat - `OPSIN-0001` upwards - and deliberately not grouped
+ * into ranges: see `content/docs/project/decisions/0015-error-codes-are-flat.mdx`.
+ */
+export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
+  {
+    "code": "OPSIN-0001",
+    "severity": "safety",
+    "title": "Both a category and a status were given to one surface",
+    "message": "<{component}> received both `category=\"{category}\"` and `status=\"{status}\"`. A surface carries one axis. Set the category on the surface and render the status as a StatusPill inside it.",
+    "docs": "health/two-colour-axes",
+    "params": [
+      "component",
+      "category",
+      "status"
+    ]
+  },
+  {
+    "code": "OPSIN-0002",
+    "severity": "safety",
+    "title": "A status was rendered without a word",
+    "message": "<{component}> has `status=\"{status}\"` and no accessible label. Status is carried by colour, icon and word together; colour alone does not survive grayscale, colour-vision deficiency or a black-and-white printout.",
+    "docs": "health/clinical-status-semantics",
+    "params": [
+      "component",
+      "status"
+    ]
+  },
+  {
+    "code": "OPSIN-0003",
+    "severity": "safety",
+    "title": "A value was rendered without a unit",
+    "message": "<Value> received `{value}` with no `unit`. A bare number in a health context is ambiguous between unit systems: the same digits are one reading in mmol/L and a very different one in mg/dL, and nothing on the surface tells the reader which was meant. Pass the unit the reading was measured in.",
+    "docs": "health/unit-systems",
+    "params": [
+      "value"
+    ]
+  },
+  {
+    "code": "OPSIN-0004",
+    "severity": "safety",
+    "title": "A reference range was rendered without a source",
+    "message": "<{component}> was given a `range` with no `rangeSource`. Name whose range it is — a laboratory, a device maker, or a clinician — because a range is a comparison somebody chose and not a fact about the reader.",
+    "docs": "health/reference-ranges",
+    "params": [
+      "component"
+    ]
+  },
+  {
+    "code": "OPSIN-0005",
+    "severity": "safety",
+    "title": "More than one urgent surface on a screen",
+    "message": "{count} surfaces on this screen have `status=\"urgent\"`. The escalation budget is one. When everything is urgent, nothing is.",
+    "docs": "health/alarm-fatigue",
+    "params": [
+      "count"
+    ]
+  },
+  {
+    "code": "OPSIN-0006",
+    "severity": "safety",
+    "title": "A banned word appeared in a component's copy",
+    "message": "The string \"{text}\" contains \"{word}\", which this system does not use. Write \"{replacement}\" instead.",
+    "docs": "content/plain-english-a-z",
+    "params": [
+      "text",
+      "word",
+      "replacement"
+    ]
+  },
+  {
+    "code": "OPSIN-0007",
+    "severity": "safety",
+    "title": "A health value was animated",
+    "message": "<{component}> is animating a health value with `{token}`. A value that overshoots has displayed, for one frame, a number that is not true. Use `spring-calm`, or render the final value immediately.",
+    "docs": "health/motion-in-health-ui",
+    "params": [
+      "component",
+      "token"
+    ]
+  },
+  {
+    "code": "OPSIN-0008",
+    "severity": "correctness",
+    "title": "A raw colour value was passed where a token is required",
+    "message": "<{component}> received `{prop}=\"{value}\"`. Components take a category or a status, never a colour. A raw value cannot be re-derived for dark mode, for Display-P3, or for a reader who has asked for more contrast.",
+    "docs": "foundations/token-architecture",
+    "params": [
+      "component",
+      "prop",
+      "value"
+    ]
+  },
+  {
+    "code": "OPSIN-0009",
+    "severity": "correctness",
+    "title": "A primitive token was referenced from a component",
+    "message": "`{token}` is a primitive-tier token. Components consume roles. Primitives may be re-tuned in a minor release; roles are covered by the versioning policy.",
+    "docs": "foundations/token-architecture",
+    "params": [
+      "token"
+    ]
+  },
+  {
+    "code": "OPSIN-0010",
+    "severity": "correctness",
+    "title": "An unknown category was requested",
+    "message": "`category=\"{category}\"` is not one of {known}. Adding a category means adding a ramp, not passing a new string.",
+    "docs": "theming/category-palettes",
+    "params": [
+      "category",
+      "known"
+    ]
+  },
+  {
+    "code": "OPSIN-0011",
+    "severity": "correctness",
+    "title": "`unknown` was used as a status level",
+    "message": "`unknown` is the absence of an assertion, not a fifth level. Use it when there is no reading or no range; do not use it to mean 'probably fine'.",
+    "docs": "health/uncertainty-and-staleness",
+    "params": []
+  },
+  {
+    "code": "OPSIN-0012",
+    "severity": "correctness",
+    "title": "A trend was drawn from too few points",
+    "message": "<TrendSparkline> received {count} points and `minimumWindow` is {minimum}. Two readings are not a trend, and drawing one implies a direction the data does not support.",
+    "docs": "health/trends-and-change",
+    "params": [
+      "count",
+      "minimum"
+    ]
+  },
+  {
+    "code": "OPSIN-0013",
+    "severity": "correctness",
+    "title": "A chart's y-axis was truncated",
+    "message": "<{component}> has `yAxisMin={min}` on a health value. Truncating the axis exaggerates change; a 2% move drawn across the full height of a card reads as a crisis.",
+    "docs": "foundations/data-visualisation/chart-anatomy",
+    "params": [
+      "component",
+      "min"
+    ]
+  },
+  {
+    "code": "OPSIN-0014",
+    "severity": "correctness",
+    "title": "Category colours were used as chart series colours",
+    "message": "This chart is colouring {count} series from the category ramps. Category colours identify what a reading is about; using them for series turns an identity into an arbitrary label.",
+    "docs": "foundations/data-visualisation/chart-colour",
+    "params": [
+      "count"
+    ]
+  },
+  {
+    "code": "OPSIN-0015",
+    "severity": "correctness",
+    "title": "A touch target is below the floor",
+    "message": "<{component}> renders a {width}x{height} hit area. The floor is 44x44, applied to the hit area rather than to the visible box.",
+    "docs": "accessibility/target-size-and-motor",
+    "params": [
+      "component",
+      "width",
+      "height"
+    ]
+  },
+  {
+    "code": "OPSIN-0016",
+    "severity": "correctness",
+    "title": "A stale reading was rendered as current",
+    "message": "<{component}> was given a reading from {age} ago with no staleness treatment. A number with no time attached is read as 'now'.",
+    "docs": "health/uncertainty-and-staleness",
+    "params": [
+      "component",
+      "age"
+    ]
+  },
+  {
+    "code": "OPSIN-0017",
+    "severity": "hygiene",
+    "title": "More than three translucent surfaces are composited",
+    "message": "{count} translucent material rungs are visible at once; the budget is 3. Beyond three the blur cost is measurable on mid-range devices and the backdrop is unreadable anyway.",
+    "docs": "foundations/materials/performance-budget",
+    "params": [
+      "count"
+    ]
+  },
+  {
+    "code": "OPSIN-0018",
+    "severity": "hygiene",
+    "title": "A deprecated token was referenced",
+    "message": "`{token}` was deprecated in {version} and is replaced by `{replacement}`. It will be removed in {removal}.",
+    "docs": "project/deprecations",
+    "params": [
+      "token",
+      "version",
+      "replacement",
+      "removal"
+    ]
+  },
+  {
+    "code": "OPSIN-0019",
+    "severity": "hygiene",
+    "title": "The token stylesheet was not loaded",
+    "message": "`--opsin-tokens-generated` is not set on :root. app/tokens.generated.css has not been imported, or `pnpm run generate` has not run, and every component is falling back to authored defaults.",
+    "docs": "theming/tailwind-v4",
+    "params": []
+  },
+  {
+    "code": "OPSIN-0020",
+    "severity": "hygiene",
+    "title": "Two theme providers are mounted",
+    "message": "More than one theme provider is writing the `dark` class. Two providers race on first paint and produce a flash of the wrong theme.",
+    "docs": "handbook/dark-mode",
+    "params": []
+  },
+  {
+    "code": "OPSIN-0021",
+    "severity": "safety",
+    "title": "A status outside the four levels was passed",
+    "message": "<{component}> received `status=\"{status}\"`, which is not one of the four levels. The vocabulary is fixed at steady, watch, attention and urgent; a component that accepted a fifth would be inventing a verdict. Nothing was rendered.",
+    "docs": "health/clinical-status-semantics",
+    "params": [
+      "component",
+      "status"
+    ]
+  }
+]
+
+/** What a code promises, what it never does, and what each severity means. */
+export const OPSIN_ERROR_POLICY: {
+  format: string
+  stability: string
+  environment: string
+  message: string
+  severity: { name: GeneratedErrorSeverity; description: string }[]
+} = {
+  "format": "OPSIN-NNNN",
+  "stability": "A code is permanent. It is never reused, never renumbered and never removed — a retired code is marked `retired: true` and keeps its row, because the code will outlive this release in somebody's log aggregator.",
+  "environment": "Warnings are emitted in development only, once per offending call site, through console.warn. Nothing in this list throws, and nothing in this list is emitted in production: a health product must not be made to crash by a documentation-quality complaint.",
+  "message": "Every message states what was passed, why it is wrong, and the one thing to do instead. A message that only says what is wrong makes the reader search this table, which is a worse version of putting the answer in the message.",
+  "severity": [
+    {
+      "name": "safety",
+      "description": "A defect that can mislead a reader about their own health. Treat as a bug, not as a lint warning."
+    },
+    {
+      "name": "correctness",
+      "description": "The component will render something, but not what the author meant."
+    },
+    {
+      "name": "hygiene",
+      "description": "Works today, will not survive an upgrade."
+    }
+  ]
+}

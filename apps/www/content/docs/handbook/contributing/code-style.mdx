@@ -63,9 +63,10 @@ that is a bad trade.
 
 ## Do this
 
-- **Run `pnpm run check` before opening a pull request.** It runs the
-  generators, the IA assertions, the type check and the lint in one pass, and
-  it is what CI runs.
+- **Run `pnpm run check` before opening a pull request.** It runs four things:
+  `check:generated`, `check:ia`, `check:a11y` and `check:llms`. It does not run
+  `pnpm typecheck` or `pnpm lint`, and CI runs those as separate steps, so run
+  them too — the three together are what the pull-request gate asks.
 - **Name the interface `<Component>Props` and export it.** This is the one
   convention that has a visible consequence in public if you get it wrong: an
   empty API table.
