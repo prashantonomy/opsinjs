@@ -1,6 +1,6 @@
 ---
 title: Category identity
-description: The six metric families, the three roles each one exposes, and the precise list of meanings a category colour is forbidden to carry.
+description: The six metric families, the four roles each one exposes, and the precise list of meanings a category colour is forbidden to carry.
 status: stable
 kind: health
 evidence: opinion
@@ -45,16 +45,29 @@ The six categories, and the boundary of each:
 | **Sleep** | Duration, timing, consistency, disturbance, sleep-derived recovery | Mood on waking — that is Mind |
 | **Nutrition** | Intake, hydration, glucose, cholesterol, weight and body composition | Digestive symptoms — those are a symptom surface, not a metric family |
 | **Mind** | Mood, stress, cognition, wellbeing check-ins | Sleep quality — that is Sleep |
-| **Cycle** | Menstrual cycle, ovulation, pregnancy tracking | General hormonal results — those are Nutrition or a clinical result surface |
+| **Labs** | Test results, panels, assays, anything reported by a laboratory | The interpretation of a result — that is a status, not a category |
 
-Each category exposes exactly three roles and no others:
+There is no **Cycle** category. Menstrual and reproductive tracking is the worked
+example on [Category palettes](../theming/category-palettes.mdx) for adding a
+seventh ramp, and `tokens/color.json` files it under `categoryExtensionExample`
+with a comment that begins "NOT SHIPPED". Nothing emits
+`--opsin-category-cycle-*`.
+
+Each category exposes four roles and no others:
 
 - `--opsin-category-<name>-accent` — the identity mark. A rule, a dot, an icon
-  tint, a chart accent. Never a large fill behind body text.
+  tint, a chart accent. Chosen for recognition rather than for contrast, so it
+  is never text and never a sole boundary. Never a large fill behind body text.
+- `--opsin-category-<name>-line` — the boundary, icon stroke or chart mark: the
+  lightest value in the ramp that clears the non-text contrast floor against
+  `-surface`.
 - `--opsin-category-<name>-surface` — a low-chroma background tint for a
   container. Always passes the contrast floor with `-ink` on top.
 - `--opsin-category-<name>-ink` — a foreground that is legible on `-surface` and
   on the page background in both themes.
+
+The status axis exposes the same four, which is what lets a component switch on
+one role name without knowing which axis it was handed.
 
 The prohibitions, each of which is testable:
 
@@ -66,8 +79,10 @@ The prohibitions, each of which is testable:
 3. **A category colour is never the only cue.** Every category-coloured element
    also carries its name in text, because six hues at tile size on a poor display
    in bright sun is not a reliable channel.
-4. **A category namespace never gains a fourth role.** If you find yourself
-   wanting `--opsin-category-heart-alert`, you want the status axis.
+4. **A category namespace never gains a role that carries a verdict.** The four
+   roles are contrast roles — where the colour goes and what it must be legible
+   against. If you find yourself wanting `--opsin-category-heart-alert`, you do
+   not want a fifth role; you want the status axis.
 5. **Category colour is not chart colour.** See
    [Chart colour](../foundations/data-visualisation/chart-colour.mdx).
 6. **Category colour is not brand colour.** Your accent lives in the brand

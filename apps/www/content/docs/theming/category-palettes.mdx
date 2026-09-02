@@ -10,11 +10,18 @@ aliases: [add a category, seventh category, category ramp]
 
 ## Overview
 
-opsinjs ships six category ramps — `cardio`, `metabolic`, `respiratory`,
-`activity`, `sleep` and `body` — and six is a starting set rather than a claim
-about the shape of human health. A cycle-tracking app needs a seventh. A
+opsinjs ships six category ramps — `sleep`, `heart`, `activity`, `nutrition`,
+`mind` and `labs` — and six is a starting set rather than a claim about the
+shape of human health. A cycle-tracking app needs a seventh. A
 medication-adherence app needs one that is not a body system at all. Adding one
 is supported, it is a tier-1 change, and it has exactly one hard constraint.
+
+Those six ids are the ones `tokens/color.json` defines and the ones
+`app/tokens.generated.css` emits as `--opsin-category-<id>-*`. There is no
+seventh in the box, and in particular there is no `cycle` — the `cycle` ramp you
+will find in `tokens/color.json` is filed under `categoryExtensionExample` and
+its own comment begins "NOT SHIPPED". It is the worked example on this page,
+not a category.
 
 **A category colour is identity. It carries no verdict.** What a category
 *means*, and why it is deliberately duller than you would choose if you were
@@ -27,21 +34,31 @@ accept that and shows you how to add one without breaking it.
 Before you add a ramp, decide its hue against this test: **could a reasonable
 person mistake this colour for a status?**
 
-The four status ramps sit at green (150°), amber (85°), orange (55°) and red
-(25°) in OKLCH hue, at high chroma. A new category at 40° and high chroma is not
-a new category; it is a fifth status that nobody declared, and the first time it
-appears next to an actual status the screen becomes ambiguous. The system cannot
-detect this for you — both are just colours — which is precisely why it is
-written down as a rule instead of enforced by a type.
+The four status seeds sit at OKLCH hues 27 (`urgent`), 45 (`attention`), 82
+(`watch`) and 178 (`steady`). A new category at 40° is not a new category; it is
+a fifth status that nobody declared, and the first time it appears next to an
+actual status the screen becomes ambiguous. The system cannot detect this for
+you — both are just colours — which is precisely why it is written down as a
+rule instead of enforced by a type.
 
 Two practical consequences:
 
-- **Stay away from the warm arc.** Hues roughly between 10° and 100° are where
-  the status ramps live. A category there needs to be visibly lower in chroma
-  than any status, at every rung, in both themes.
-- **Stay low-chroma anywhere.** The shipped ramps sit around 0.075–0.093 chroma
-  in light. That is not a house style; it is the margin that keeps a category
-  glyph from reading as an alarm.
+- **Stay off the three warm status hues.** 27, 45 and 82 are taken, and the arc
+  between them is where a reader has learnt to expect a verdict. The shipped
+  categories that sit nearest are `heart` at 15 and `nutrition` at 70, and both
+  of them are doing work a newcomer should not assume is available again.
+- **Watch 178 as well.** `steady` is the one status that is not warm, so "avoid
+  the warm arc" is not the whole rule: a teal category at 170–190 will read as
+  *this is fine* whether or not you meant it.
+
+Chroma will not save you. The shipped category seeds run from 0.11 (`labs`) to
+0.17 (`heart`), and the shipped status seeds from 0.11 (`steady`) to 0.20
+(`urgent`) — the two ranges overlap almost completely, so there is no chroma
+threshold that separates the axes. **Hue separation and the word beside the
+colour are what separate them.** If you want a rule of thumb, keep a new
+category at least 30° away from 27, 45, 82 and 178, and check it against
+[Colour blindness](../foundations/colour/colour-blindness.mdx) rather than
+trusting your own eyes.
 
 ## Add a ramp
 
