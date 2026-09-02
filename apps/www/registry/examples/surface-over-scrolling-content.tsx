@@ -1,0 +1,61 @@
+/**
+ * The `overlay` rung doing the job it is named for.
+ *
+ * This is the rung most often reached for by mistake, because "overlay" sounds
+ * like the thing that covers a page. On this ladder it is not: `overlay` is
+ * chrome that content scrolls *beneath* — a pinned toolbar, a tab bar, a
+ * floating action bar. The rung for a panel that covers the page is `sheet`.
+ * The two names swapped meaning between the retired vocabulary and this one, so
+ * an example that shows the job rather than the word is worth more than a
+ * paragraph about it.
+ *
+ * It is also the rung whose contrast floor is hardest to hold, because it is
+ * the thinnest material in the system and the content underneath is by
+ * definition moving. Scroll the panel: the header's blur and its scrim are what
+ * keep the heading legible while a light row and a dark row pass under it, and
+ * neither is optional.
+ */
+
+import { Surface } from "@/registry/base-lyra/ui/surface"
+
+/* Deliberately contentless rows. This example is about a material, and a
+   screenshot of an opsinjs example must never be mistakable for somebody's own
+   readings — so there is no number, no unit and no date anywhere in it. */
+const ROWS = [
+  "First example row",
+  "Second example row",
+  "Third example row",
+  "Fourth example row",
+  "Fifth example row",
+  "Sixth example row",
+  "Seventh example row",
+  "Eighth example row",
+  "Ninth example row",
+  "Tenth example row",
+]
+
+export default function SurfaceOverScrollingContent() {
+  return (
+    <div className="h-80 w-full max-w-sm overflow-y-auto rounded-opsin-lg border border-border bg-background">
+      {/* A direct child of the scroll container, so `top-0` sticks to it rather
+          than to the page. `z-10` puts it above the rows; it does not create a
+          backdrop root, so the blur still reaches the content passing under. */}
+      <Surface rung="overlay" className="sticky top-0 z-10">
+        <div className="px-opsin-4 py-opsin-3">
+          <p className="m-0 text-opsin-headline">Example section</p>
+        </div>
+      </Surface>
+
+      <ul className="m-0 flex list-none flex-col p-0">
+        {ROWS.map((row) => (
+          <li
+            key={row}
+            className="border-b border-border px-opsin-4 py-opsin-3 text-opsin-body"
+          >
+            {row}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}

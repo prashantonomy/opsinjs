@@ -1,7 +1,7 @@
 ---
 title: Field
 description: The wrapper that gives every input a visible label, a hint, an error message and the wiring that connects them — so no control in the system can ship without a name.
-status: planned
+status: alpha
 kind: component
 since: "unreleased"
 category: actions-and-forms
@@ -9,20 +9,24 @@ aliases: [form field, label, input wrapper, error message, hint, form control, v
 usedIn: [daily-log-entry, consent-before-collection, daily-log-screen]
 ---
 
-<PageTemplate kind="component" />
-
 ## Status
 
 <StubNotice
   name="field"
+  status="alpha"
   issue="opsinjs/opsinjs#0"
   questions={[
-    "Does Field own the control, or wrap one the product supplies? Owning it makes the wiring guaranteed; wrapping makes it composable, and only one of those can be true.",
-    "When is an error shown — on blur, on submit, or on change after the first submit? Getting this wrong is the most common validation cruelty in forms.",
-    "Optional or required: which one is marked, and does the answer change when most of a form is optional?",
-    "Does Field integrate with form libraries directly, or expose the ids and let the product wire it — and what does that mean for the guarantee?",
+    "Field ships two English words — “required” and “optional” — and no prop translates them. Every other string in the component comes from the product. Does the marker become a `ReactNode` prop, does it move to a locale object, or does a product override it through the `data-slot`?",
+    "An error is added to the control's description and marks it invalid; it is not announced while focus is elsewhere, because Field mounts no live region. A form of ten fields that fails on submit therefore says nothing until the reader arrives at each field. The pattern that closes this is an error summary at the top of the form — who owns it, and does Field need to expose the ids it generated so a summary can link to them?",
+    "The spec's part tree puts the error after the control. GOV.UK and the NHS put it before, so a software keyboard or an autocomplete list cannot cover it. This implementation follows the spec. Which is right for a phone held one-handed?",
+    "`validateOn` has three values and Base UI has two that fit them, so “submit” and “submit-then-change” resolve to the same mode. Is the third value worth keeping as a promise, or should the union shrink to what the runtime can actually distinguish?",
   ]}
-/>
+>
+  <code className="text-sm">field</code> is implemented and installable. It is{" "}
+  <strong className="font-medium">alpha</strong>: it works and it is documented,
+  the API may change in any release without a deprecation cycle, and it is not
+  for a production health surface yet.
+</StubNotice>
 
 Field is where the accessibility of every form in a product is decided, once. If the wrapper
 guarantees a visible label and a programmatic association, a product cannot ship an unlabelled
@@ -30,17 +34,41 @@ input by accident; if it does not, one will appear within a month.
 
 ## Preview
 
-The preview will show the field in its resting, hinted, errored and disabled states, at 200%
-text, with the error announcement demonstrated rather than described.
+Three fields, showing the three states that decide whether this component is worth having: a
+field with guidance, a field whose exception is marked in words, and a field with an error.
+The last one is the one to look at, and what matters is what has *not* happened — the hint is
+still underneath the error, because a reader who has just got something wrong still needs the
+sentence that would have prevented it.
+
+Turn the text size up while you are there. Nothing truncates: the label wraps, the field grows
+and the error takes the lines it needs.
 
 <ComponentPreview name="field" />
 
 ## Installation
 
-The registry item does not exist yet; the command below is shown for shape only and will
-fail.
+<ComponentInstall
+  name="field"
+  unbuilt={false}
+  importPath="@/components/ui/field"
+  dependencies={["@base-ui/react", "lucide-react"]}
+/>
 
-<ComponentInstall name="field" />
+Two packages and no opsinjs component. Base UI's `field` primitive is what owns the id
+relationships; `lucide-react` supplies the one glyph the error carries. Both are listed on the
+catalogue row, so `shadcn add` installs them.
+
+## Usage
+
+```tsx
+import { Field } from "@/components/ui/field"
+```
+
+```tsx
+<Field label="Example measurement" hint="For example, 14.">
+  <Field.Control name="example-measurement" inputMode="decimal" autoComplete="off" />
+</Field>
+```
 
 ## When to use it
 
@@ -59,16 +87,90 @@ fail.
   ]}
 />
 
-The last exclusion points at a pattern rather than a component. A long form that fails
-validation needs an error summary at the top, with each entry linking to its field; per-field
-errors alone leave a keyboard user hunting. See
+The last exclusion points at a pattern rather than a component, and it is the one that matters
+most for this component's real limits. A long form that fails validation needs an error summary
+at the top, with each entry linking to its field; per-field errors alone leave a keyboard user
+hunting, and — because Field mounts no live region — leave a screen-reader user with nothing
+said at all until they reach each field in turn. See
 [Error summaries](../patterns/forms/error-summaries.mdx).
 
 ## Anatomy
 
-<Anatomy name="field" />
+<Anatomy
+  name="field"
+  parts={[
+    {
+      name: "Field",
+      describes: "The root. Owns every id relationship, and carries data-invalid, data-touched, data-dirty, data-filled, data-focused and data-disabled so a product can style the states without tracking them.",
+      prop: "validateOn",
+    },
+    {
+      name: "Field.Label",
+      describes: "A real <label for> pointing at the control's generated id, so the accessible name comes from a native label relationship rather than an aria-label. Body size at the emphasis weight; it wraps rather than truncating.",
+      prop: "label",
+    },
+    {
+      name: "Field.Optionality",
+      describes: "The word required or optional, in brackets, rendered INSIDE the label so it joins the accessible name. Absent when optionality is none. Distinguished by weight, never by colour.",
+      prop: "optionality",
+    },
+    {
+      name: "Field.Hint",
+      describes: "Guidance before the mistake. Its id is registered into the control's aria-describedby, so it is announced on focus rather than found by chance. Set at body size, not smaller.",
+      prop: "hint",
+    },
+    {
+      name: "Field.Control",
+      describes: "The control, supplied by the product. The only part of Field that is a real export. Receives the generated id, the description list and aria-invalid; carries the 44px hit-area floor and the emphasis border when invalid.",
+      prop: "children",
+    },
+    {
+      name: "Field.Error",
+      describes: "The message, with a CircleAlert glyph beside it. Its id joins aria-describedby alongside the hint rather than replacing it, and it is removed from the list when it unmounts. It carries no status colour, deliberately.",
+      prop: "error",
+    },
+  ]}
+/>
 
-<CompositionTree name="field" />
+<CompositionTree
+  name="field"
+  tree={[
+    {
+      part: "Field",
+      cardinality: "1",
+      note: 'data-slot="field"; renders a <div>, gains data-invalid when the field is invalid',
+      children: [
+        {
+          part: "Field.Label",
+          cardinality: "1",
+          note: 'data-slot="field-label"; a native <label for> against the control id',
+          children: [
+            {
+              part: "Field.Optionality",
+              cardinality: "0..1",
+              note: 'data-slot="field-optionality"; nested inside the label, absent when optionality="none"',
+            },
+          ],
+        },
+        {
+          part: "Field.Hint",
+          cardinality: "0..1",
+          note: 'data-slot="field-hint"; renders a <p>, its id joins aria-describedby',
+        },
+        {
+          part: "Field.Control",
+          cardinality: "1",
+          note: 'data-slot="field-control"; the consumer’s element, passed as children',
+        },
+        {
+          part: "Field.Error",
+          cardinality: "0..1",
+          note: 'data-slot="field-error"; its id joins aria-describedby beside the hint',
+        },
+      ],
+    },
+  ]}
+/>
 
 **Label** is visible and persistent — always, with no prop to hide it. **Hint** is guidance
 shown before anything goes wrong. **Control** is the input. **Error** replaces nothing: it
@@ -76,56 +178,58 @@ appears in addition to the hint, because a reader who has made a mistake still n
 guidance that would have prevented it. **Optionality** marks whichever of required or optional
 is the exception in this form.
 
-Proposed part hierarchy. This is the specification the implementation must match.
-
-```text
-Field                          root; owns the id relationships
-├── Field.Label                visible and persistent; no way to hide it
-├── Field.Optionality          marks the exception — required or optional, not both
-├── Field.Hint                 guidance before the mistake; described-by the control
-├── Field.Control              the input; labelled-by the label, described-by hint + error
-└── Field.Error                appears in addition to the hint, never instead of it
-```
-
-The relationships are the component. `Field.Control` is associated with `Field.Label` through
-a real label relationship, and with `Field.Hint` and `Field.Error` through a description
+The relationships are the component. `Field.Control` is associated with `Field.Label` through a
+real label relationship, and with `Field.Hint` and `Field.Error` through a description
 relationship, generated rather than typed — hand-wired ids are where accessible forms rot.
 
-## Proposed API
+**`Field.Control` is a real export, and it is one of only three in the system.** Everywhere
+else in opsinjs a part is internal structure named by `data-slot`, because the content arrives
+as a prop. A control cannot: it has a type, a name, an `autocomplete` token, an `inputmode`, a
+value and a change handler, and no single prop carries that. So the slot is a component, and
+`render` puts the same generated id, the same `aria-describedby` and the same invalid state
+onto an element opsinjs does not ship — a `textarea`, a `select`, or a control from somewhere
+else entirely.
 
-<NotBuiltYet name="field" />
+**`Field.Optionality` is nested inside the label, and the specification's tree drew it as a
+sibling.** This is the one place the implementation departs from the part tree, and it is a
+deliberate departure rather than a slip. As a sibling the marker is a phrase near the label; as
+a child it is part of the accessible name, so a screen-reader user hears *Example note,
+optional* at the moment a sighted reader sees it, rather than meeting a stray word and having
+to work out which field it belongs to. The requirement the tree exists to serve — mark it in
+text — is only met by the nested version.
 
-```ts
-// PROPOSED. Not implemented. A specification for review, not an API to generate
-// code against. It will change without a deprecation cycle.
+There is no `Field.Legend`, and no symbol to explain. The marker is a word, so the sentence a
+form usually needs above its fields is about the form rather than about the marker: *we need
+all of these unless the field says otherwise*. That claim is the caller's to make, because no
+single Field knows how many others there are.
 
-export interface FieldProps {
-  /** Required, visible, and never hidden. There is no `hideLabel` prop. */
-  label: string
-  /**
-   * The control. Field supplies id, aria-describedby and invalid state through
-   * context, so a product never wires them by hand.
-   */
-  children: React.ReactNode
-  /** Guidance shown before an error. Stays visible when an error appears. */
-  hint?: string
-  /**
-   * The error message. Presence marks the control invalid and announces the
-   * message; it never removes the hint.
-   */
-  error?: string
-  /**
-   * Which state is marked. Mark the exception: in a form where most fields are
-   * required, mark the optional ones, and the reverse.
-   */
-  optionality?: "required" | "optional" | "none"
-  /**
-   * When errors appear. "submit" then "change" is the humane default: never
-   * tell someone their email is invalid while they are still typing it.
-   */
-  validateOn?: "blur" | "submit" | "submit-then-change"
-}
-```
+## Examples
+
+### The error keeps the hint
+
+The same field before and after. Almost every hand-rolled form swaps one for the other — the
+markup is simpler and the column is shorter — and the result is that at the exact moment a
+reader has got something wrong, the sentence that would have told them the right shape
+disappears.
+
+<ComponentPreview name="field-error-keeps-the-hint" kind="example" align="start" />
+
+### Marking the exception
+
+Four fields, three of them needed and one not, so the optional one is the one that carries a
+marker. The reverse form — a marker on every field except one — says the same thing four times
+and leaves the reader counting asterisks to work out which field is the odd one. See
+[Required and optional](../patterns/forms/required-and-optional.mdx).
+
+<ComponentPreview name="field-marking-the-exception" kind="example" align="start" />
+
+### A control opsinjs does not ship
+
+`render` on `Field.Control` puts the whole wiring onto a `textarea` and a `select`. Neither
+needed an id written by hand, and both are labelled and described by the same mechanism a plain
+text input uses.
+
+<ComponentPreview name="field-with-another-control" kind="example" align="start" />
 
 ## Content guidelines
 
@@ -134,7 +238,15 @@ Hints show the shape of a valid answer rather than restating a rule: *for exampl
 more than *must be a number between 70 and 250*.
 
 Errors say what went wrong and how to fix it, in the second person, without blame. Never
-*invalid*, never *error*, never *you must*.
+*invalid*, never *error*, never *you must*. Field supplies no default error text and never
+will: a message that says what to do about a particular field is a message only the product can
+write. What it does supply, when you omit `error` and the control fails a constraint of its
+own, is the browser's message — which is not opsinjs copy, is not held to any of this, and is
+the reason to pass `error` rather than rely on it.
+
+Field ships exactly two words of its own, *(required)* and *(optional)*, and no others. That is
+worth knowing before a translation project starts, because there is currently no prop that
+changes them.
 
 <DoDont>
   <DoDont.Do>
@@ -158,30 +270,165 @@ Errors say what went wrong and how to fix it, in the second person, without blam
   </DoDont.Dont>
 </DoDont>
 
-## Accessibility requirements
+## Accessibility
 
-Requirements for the implementation, not results.
+Some of this is checked by a gate on every commit, some is delegated to Base UI and can be read
+in its source, and some is an argument. They are separated below because `alpha` promises that
+accessibility is claimed only where it has been checked, with the gaps listed rather than left
+out. A component that delegates its central promise and does not say so is one nobody can
+audit.
 
-- **Every control has a visible, persistent, programmatically associated label.** This is the
-  whole reason the component exists, and there is no prop that can switch it off.
-- **Hints and errors are associated with the control** through a description relationship, so
-  they are announced when the control receives focus rather than discovered by chance.
-- **An error marks the control invalid** and is announced politely when it appears. It never
-  moves focus mid-typing, and it never announces on every keystroke.
-- **Errors are never conveyed by colour or by a border alone.** Text plus an icon plus the
-  invalid state, so grayscale and colour-vision deficiency lose nothing.
-- **Required and optional are marked in text**, with a legend where a symbol is used. An
-  asterisk with no explanation is a convention, not information.
-- **Autocomplete and input mode are set** so the right keyboard appears and the reader's own
-  stored details can fill the field — a substantial accessibility win, not a convenience.
-- **The label is not truncated at 200% text**; it wraps, and the field grows.
-- **Disabled fields are avoided** in favour of fields that explain what is missing.
-- **Error text meets the body-text contrast floor.** Red on white at the sizes error text is
-  usually set is one of the most reliable contrast failures in any product.
+**Checked, by `pnpm run check:a11y` on every commit:**
 
-<KeyboardTable name="field" />
+- **Every colour is a token, and none of them resolves to nothing under the product theme.**
+  The static rig fails the build on a hex literal, an `oklch()`, a Tailwind palette colour, a
+  numbered ramp step, and on the chrome-only roles that exist in `app/globals.css` and not in
+  `app/product.css`. That last one caught the first draft of this component: the obvious colour
+  for an error message is the docs chrome's danger role, and it paints nothing at all under
+  `/view`.
+- **No `px` font size**, so every step in this component scales with the reader's own text
+  size. See [Dynamic type](../foundations/typography/dynamic-type.mdx).
+- **No banned word**, in copy or in an identifier.
+
+**Delegated to Base UI's `field` primitive, and verifiable in its source rather than by us:**
+
+- **The label is a real `<label for>`** against an id the primitive generates, so the
+  accessible name comes from a native label relationship. Not `aria-label`, which cannot be
+  seen, and not a placeholder, which cannot survive typing.
+- **The hint and the error are joined to the control by a description relationship**, and each
+  one *removes* its id again when it unmounts. That is the half hand-rolled forms get wrong: an
+  `aria-describedby` still pointing at a message that has gone describes the control with
+  nothing. Note where it happens: the ids are registered in a layout effect, so
+  `aria-describedby` is absent from the server-rendered markup and appears on hydration. The
+  label relationship and `aria-invalid` are both in the first paint; the description is not.
+- **`aria-invalid` lands on the control**, not on the wrapper, whenever the field's computed
+  validity is false — which the `error` prop forces and a failed native constraint also
+  produces.
+
+**Argued, and true of the implementation, but not yet measured:**
+
+- **Errors are never carried by colour, because they carry no colour at all.** A form error is
+  not a clinical status: the red that means *this reading needs a decision* is not available to
+  say *check that number*, and lending it out would cost the status axis the meaning the whole
+  system is built on. See [The two colour axes](../health/two-colour-axes.mdx). What is left is
+  a glyph, the emphasis weight, an emphasis border on the control and the words — which is what
+  the requirement asked for anyway, reached from the other direction. The glyph is deliberately
+  not the triangle: that shape belongs to the `attention` level, and four distinct silhouettes
+  only work as a vocabulary if nothing else borrows one.
+- **Required and optional are marked in text, inside the label**, so the marker is part of the
+  accessible name. No asterisk, and therefore no legend to miss.
+- **The control clears the 44px target floor.** The product stylesheet's backstop covers
+  buttons, checkboxes and radios and not a text input, so Field sets `--opsin-target-minimum`
+  itself — a rem value, which grows with the reader's text size rather than staying at 44
+  physical pixels. See [Target size and motor](../accessibility/target-size-and-motor.mdx).
+- **Nothing truncates at 200% text.** The label wraps, the hint wraps, the error wraps and the
+  field grows; there is no fixed height anywhere in the component and no `text-overflow`. The
+  error's glyph is aligned to the first line rather than centred, so a three-line message does
+  not leave it floating. Checked by eye at 200% in both themes; not yet by a machine.
+- **Focus is never moved and never taken.** Field has no focus management: an error appearing
+  does not pull focus out of the control the reader is typing in, and nothing here fires on a
+  keystroke.
+
+**Not yet checked at all, and listed rather than omitted:**
+
+- **An error is not announced while focus is elsewhere.** It is in the control's description, so
+  it is read when the control receives focus — and a reader who blurs a field and moves on hears
+  nothing. Field mounts no live region on the caller's behalf, deliberately: ten fields would be
+  ten polite regions all speaking at once when a submit fails, which is the flooding the rule
+  exists to prevent. The pattern that closes the gap is an error summary at the top of the form,
+  and it is open on this page whether Field should expose its generated ids so a summary can
+  link to them.
+- **Contrast has not been measured for this component.** The hint takes the muted foreground
+  role and the error takes the plain one; both are theme roles rather than values, so they
+  inherit whatever the theme's own measurements say, and nothing on this page has measured the
+  pair on this surface. `prefers-contrast` and `forced-colors` are not implemented anywhere in
+  opsinjs yet, so the increased-contrast claim cannot currently be made by anyone.
+- **`autocomplete` and `inputmode` are required by the contract and set by nobody.** Field
+  cannot supply them: the right token depends on what is being asked for, and a guess would fill
+  somebody's postcode into a field asking for something else. Every example on this page sets
+  them, and nothing enforces it. See
+  [Autocomplete and input types](../patterns/forms/autocomplete-and-input-types.mdx).
+- **Field cannot tell whether a control is inside it.** If a caller puts something in `children`
+  that does not participate in the field context, the label points at nothing and the component
+  reports no error. That is the one failure mode of the wiring guarantee, and it is a structural
+  one rather than a bug.
+- **The disabled-and-invalid combination is unusual and undertested.** Base UI keeps an
+  app-controlled invalid state on a disabled field but withholds `aria-invalid`, matching
+  `:disabled` not taking part in constraint validation. Field ships no `disabled` prop; the
+  native attribute on the control is the only route in, and disabled fields should be avoided in
+  favour of fields that explain what is missing.
+
+<KeyboardTable
+  name="field"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Moves focus to the control",
+      notes: "Field adds no tab stop of its own. The label, the optionality marker, the hint and the error are not focusable and never receive focus, so a form of six fields is six stops rather than twenty-four.",
+    },
+    {
+      keys: "Shift + Tab",
+      action: "Moves focus back out of the control",
+      notes: "Reverse order matches the visual order, because there is exactly one focusable element per Field and it is where the DOM puts it.",
+    },
+    {
+      keys: "Enter",
+      action: "Asks the control to check itself, and submits an enclosing form",
+      notes: "Base UI commits the control's own constraint validation on Enter in a text input. Whatever the result, focus does not move and nothing is announced on the keystroke that produced it.",
+    },
+    {
+      keys: "Escape",
+      action: "Nothing",
+      notes: "Listed rather than omitted. An error message is not a popup, so there is nothing here for Escape to close — and Field does not swallow the key, so a sheet or dialog around the form still closes on it.",
+    },
+  ]}
+/>
 
 <ContrastReport component="field" />
+
+## API reference
+
+<PropsTable name="FieldProps" />
+
+`label` is required and there is no `hideLabel`. That is the whole component in one prop: every
+other guarantee on this page follows from a name existing, being visible, and being attached by
+a mechanism nobody has to remember. An empty string is refused with a development warning and
+no substitute is invented — a made-up name would silence the audit that would otherwise catch
+it.
+
+`error` is the product's own sentence, and its presence is what marks the control invalid. It
+never removes the hint, and an empty string is ignored with a warning rather than producing a
+control announced as invalid with nothing to say about why. Omit the prop entirely and the
+field falls back to the browser's message if and when the control fails a constraint of its
+own; that fallback exists because `aria-invalid` with no description is worse than a message in
+the wrong tone, not because the message is good.
+
+`validateOn` governs when the control's *own* constraints are checked — it does not gate the
+`error` prop, because a message the product passed in is a message the product has already
+decided to show. Two of its three values resolve to the same underlying mode: Base UI's submit
+mode is documented as validating on submit and then re-validating on change, which is exactly
+`"submit-then-change"`, and there is no mode that checks on submit and then refuses to look
+again. So `"submit"` is more forgiving than its name suggests, which is the harmless direction
+— the mode that cannot be expressed is the one that leaves a corrected field still marked
+invalid until the next submit. See [Validation timing](../patterns/forms/validation-timing.mdx).
+
+`optionality` defaults to `"none"`, because marking both required and optional is the same as
+marking neither. It renders one of two English words and there is no prop to translate them;
+that is a real gap and it is open at the top of this page.
+
+<PropsTable name="FieldControlProps" />
+
+`Field.Control` forwards every native input attribute unchanged and adds `render`, which
+replaces the element while keeping the wiring. It sets no `autocomplete` and no `inputmode` of
+its own, on purpose. There is no `id` prop worth reaching for either: the id is generated and
+matched to the label, and passing one by hand is how the two start to disagree.
+
+Field is a **server component**. Every Base UI part it composes carries its own `"use client"`,
+so the state, the effects and the id generation happen inside the boundary the primitive
+already declares; this file adds no hook, no state and no handler, so a directive here would
+only pull the wrapper into a bundle it does not need to be in. A product's own form — which
+does have state and handlers — is a client component, and importing Field into it works
+unchanged.
 
 ## Related
 
@@ -193,6 +440,8 @@ Requirements for the implementation, not results.
 - [LogSheet](./log-sheet.mdx) — where several Fields are captured together, with a ceiling on
   how many.
 - [Callout](./callout.mdx) — for guidance about a whole form rather than about one control.
+- [AlertBanner](./alert-banner.mdx) — for the summary at the top of a form that has failed, which
+  is the pattern per-field errors cannot replace.
 - `checkbox`, `radio-group`, `select`, `combobox`, `switch`, `textarea` (all considered, no
   pages yet — see the [roster](./index.mdx)) — the controls that will sit inside a Field.
 

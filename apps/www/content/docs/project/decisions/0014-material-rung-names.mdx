@@ -87,13 +87,19 @@ those names — in order to change a word.
   `overlay` means different depths in the two schemes, so a reader translating
   positionally lands a dismissible sheet on the chrome rung and a tab bar on the
   sheet rung.
-- **The ladder is ragged, and the prose describing it as uniform is also wrong.**
-  The emitted rungs do not all carry the same slots: `card`, `raised`, `sheet`
-  and `overlay` have no border token at all, and the only two rungs that emit one
-  emit the literal `none`. A component on any of those four takes its edge from
-  the general border colour or from the hairline width token, and its
-  specification has to say so rather than implying a border slot that does not
-  exist.
+- **The ladder is uniform, and it was not when this record was first written.**
+  The version of this consequence written on 2026-09-03 said that `card`,
+  `raised`, `sheet` and `overlay` had no border token at all. That was true of
+  the emitted CSS on the day it was written and false a few hours later:
+  `emitMaterial()` read `border` and `tintAlpha` with a string helper while
+  `tokens/material.json` stores several of them as `{light, dark}` objects, so
+  seven properties were silently never emitted. With the emitter fixed, all six
+  rungs carry all eight properties, and it is `canvas` and `scrim` — not the
+  other four — whose border is the literal `none`, which is correct: the page
+  itself has no edge, and neither does a dimming layer. A component reads
+  `--opsin-material-<rung>-border` and gets a value; `none` is a legitimate one
+  and is invalid inside `box-shadow`, so a rung's edge is a `border-color` and
+  not a ring.
 - **No token is renamed and no generated file changes.** The entire cost of this
   decision is prose, which is why it is cheap enough to take now and would not
   have been in six months.

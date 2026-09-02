@@ -1,7 +1,7 @@
 ---
 title: Sheet
 description: A panel that slides up from the bottom of the screen, stops at sensible heights, and can be dragged or dismissed — the one-handed way to do something without leaving the page.
-status: planned
+status: alpha
 kind: component
 since: "unreleased"
 category: surfaces
@@ -9,38 +9,73 @@ aliases: [drawer, bottom sheet, modal sheet, detent, side panel, slide over]
 usedIn: [daily-log-entry, daily-log-screen]
 ---
 
-<PageTemplate kind="component" />
-
 ## Status
 
 <StubNotice
   name="sheet"
+  status="alpha"
   issue="opsinjs/opsinjs#0"
   questions={[
-    "Modal or not? A sheet that does not trap focus is a different component with the same appearance, and conflating them is how keyboard traps and keyboard escapes both happen.",
-    "Which detents, and are they content-derived or fixed fractions of the viewport?",
-    "The software keyboard changes the viewport under the sheet. Does the sheet resize, scroll, or move to a taller detent — and what happens to the primary action?",
-    "Every drag needs a keyboard and switch-control equivalent. What are they, and are they visible or only available?",
+    "`content` is supported only as the sole detent. Base UI resolves every snap point against the popup's own height and clamps it there, so a sheet that can reach `full` is already as tall as the viewport and has no content height left to return to. Is a mixed list worth a measurement pass and the frame of jump it would cost, or is the restriction the right answer?",
+    "The sheet ships two words of its own — the close control's label and the grabber's accessible name — and there is no prop that translates either. Every other string in a sheet is the product's. Where does a component's own copy go when the product is not in English?",
+    "The software-keyboard handling is Base UI's `VirtualKeyboardProvider` plus a padded viewport. It has not been exercised on a device with a software keyboard and a visual viewport, so the claim that the primary action is never covered is argued rather than observed.",
+    "`onOpenChange` reports which route a close arrived by, so a product can ask before discarding unsaved input. Nothing in opsinjs shows that confirmation — it would be a Dialog opening from a Sheet, which this page calls a composition error. What is the shape of the answer?",
+    "Nothing in this component has been measured in a browser. Everything claimed below is argued from its own source and from Base UI's, which is the honest ceiling for `alpha` — so what gets measured first: the hit areas, the keyboard behaviour on a real device, or the scroll chaining on iOS?",
   ]}
-/>
+>
+  <code className="text-sm">sheet</code> is implemented and installable. It is{" "}
+  <strong className="font-medium">alpha</strong>: it is built against the
+  specification below and passes the static gates, the API may change in any
+  release without a deprecation cycle, and it is not for a production health
+  surface yet.
+</StubNotice>
 
 The bottom sheet is the defining interaction of a modern consumer health app, and it is also
 where accessibility most often quietly fails: gestures with no equivalent, focus that never
-arrives, and a save button under the keyboard.
+arrives, and a save button under the keyboard. Each of those three has an answer in this
+component, and each answer is named in [Accessibility](#accessibility) as either checked by a
+gate or argued from the code.
+
+It is a client component, and that is a requirement rather than an optimisation. It holds
+which detent it is resting at, it mounts a portal, it moves focus, and it listens for a drag.
+None of those has a CSS answer, which is the test [Surface](./surface.mdx) passes and this one
+does not.
 
 ## Preview
 
-The preview will show the sheet at each detent with the keyboard raised and under
-`prefers-reduced-motion`, where the slide is removed entirely.
+The default sheet: one content-sized detent, dismissible, modal. Open it and look for the two
+things that are easiest to leave out — the close control is in the header before you go looking
+for it, and the action is pinned below the content rather than sitting at the end of it.
 
 <ComponentPreview name="sheet" />
 
 ## Installation
 
-The registry item does not exist yet; the command below is shown for shape only and will
-fail. Sheet is built on [Surface](./surface.mdx).
+<ComponentInstall
+  name="sheet"
+  unbuilt={false}
+  importPath="@/components/ui/sheet"
+  dependencies={["@base-ui/react", "lucide-react"]}
+  registryDependencies={["surface", "button"]}
+/>
 
-<ComponentInstall name="sheet" />
+[Surface](./surface.mdx) comes with it because the sheet and its scrim are both rungs of the
+material ladder, and one component paints those. [Button](./button.mdx) comes with it because
+the demo shipped in the file uses the real one: a demo that hand-rolled its two controls would
+teach, in the first file a consumer reads, that the primary action at the foot of a sheet is a
+styled `<button>`.
+
+## Usage
+
+```tsx
+import { Sheet } from "@/components/ui/sheet"
+```
+
+```tsx
+<Sheet open={open} onOpenChange={setOpen} title="Add a reading">
+  <Sheet.Content>{/* … */}</Sheet.Content>
+</Sheet>
+```
 
 ## When to use it
 
@@ -65,66 +100,204 @@ the reader chose to go and can leave at any moment. A dialog is a question that 
 answered. Products that use a sheet for the second case end up with readers dismissing
 questions by accident.
 
+`dismissible={false}` is not a way to turn a sheet into a dialog, and the component will not
+let it become one. It closes the three ambient routes — the scrim, the escape key and a
+downward drag — and it never removes the close control, because a modal surface with no way
+out is a trap. The one surface that legitimately has no "went away" outcome is
+`Dialog severity="alert"`.
+
 ## Anatomy
 
-<Anatomy name="sheet" />
+<Anatomy
+  name="sheet"
+  parts={[
+    {
+      name: "Sheet",
+      describes: "The root. Renders no element of its own — it is Base UI's Drawer.Root, which groups the parts and owns open, modal, dismissible and the detents.",
+      prop: "open",
+    },
+    {
+      name: "Sheet.Scrim",
+      describes: "Present only when the sheet is modal. Dims and blocks what is behind; a Surface at the scrim rung sits inside it, so it inherits the ladder's reduced-transparency and no-backdrop-filter fallbacks instead of reimplementing them.",
+      prop: "modal",
+    },
+    {
+      name: "Sheet.Container",
+      describes: "The popup. Carries the top corner, the slide, the focus ring, and the transform that both the active detent and a drag in flight write into. This is where className lands.",
+      prop: "className",
+    },
+    {
+      name: "Sheet.Grabber",
+      describes: "A real button when there is more than one detent — the control that drag-between-detents owes a keyboard or switch user, with an accessible name saying which height it moves to. A decorative bar when there is only one, because there is then nothing to move between.",
+      prop: "detents",
+    },
+    {
+      name: "Sheet.Header",
+      describes: "Holds the title and the close control, above the scroll boundary so neither moves when the content does.",
+    },
+    {
+      name: "Sheet.Title",
+      describes: "An h2, and what the popup's aria-labelledby points at. The level is fixed because a modal surface starts its own outline rather than continuing the page's.",
+      prop: "title",
+    },
+    {
+      name: "Sheet.Close",
+      describes: "Always present and always keyboard-reachable. It is the one route dismissible={false} does not cancel, and it carries the word Close visibly beside its glyph rather than hiding the name inside an aria-label.",
+    },
+    {
+      name: "Sheet.Content",
+      describes: "The scrolling region, and the only real export. It stamps Base UI's data-drawer-content, which is what makes a flick inside it scroll rather than dismiss, and it prevents scroll chaining so the page behind never moves.",
+    },
+    {
+      name: "Sheet.Footer",
+      describes: "The pinned action area, outside the scrolling region and above both the software keyboard and the safe-area inset. Absent when no footer is passed.",
+      prop: "footer",
+    },
+  ]}
+/>
 
-<CompositionTree name="sheet" />
+<CompositionTree
+  name="sheet"
+  tree={[
+    {
+      part: "Sheet",
+      cardinality: "1",
+      note: "Drawer.Root; renders no element",
+      children: [
+        {
+          part: "Drawer.Portal",
+          cardinality: "1",
+          note: "a <div> appended to <body>; also renders Base UI's own pointer-blocking backdrop when modal",
+          children: [
+            {
+              part: "Sheet.Scrim",
+              cardinality: "0..1",
+              note: 'data-slot="sheet-scrim"; present when modal',
+              children: [
+                {
+                  part: "Surface",
+                  cardinality: "1",
+                  note: 'data-slot="surface"; rung="scrim"',
+                },
+              ],
+            },
+            {
+              part: "Drawer.Viewport",
+              cardinality: "1",
+              note: "Base UI's positioning container; carries the software-keyboard inset and passes pointer events through to the scrim",
+              children: [
+                {
+                  part: "Sheet.Container",
+                  cardinality: "1",
+                  note: 'data-slot="sheet-container"; Drawer.Popup',
+                  children: [
+                    {
+                      part: "Surface",
+                      cardinality: "1",
+                      note: 'data-slot="surface"; rung="sheet". Its scrim and edge render between it and the content; its backdrop is present because the sheet rung is translucent',
+                      children: [
+                        {
+                          part: "Surface.Content",
+                          cardinality: "1",
+                          note: 'data-slot="surface-content"; the parts are its children',
+                          children: [
+                            {
+                              part: "Sheet.Grabber",
+                              cardinality: "1",
+                              note: 'data-slot="sheet-grabber"; a <button> with more than one detent, an aria-hidden <div> otherwise',
+                            },
+                            {
+                              part: "Sheet.Header",
+                              cardinality: "1",
+                              note: 'data-slot="sheet-header"',
+                              children: [
+                                {
+                                  part: "Sheet.Title",
+                                  cardinality: "1",
+                                  note: 'data-slot="sheet-title"; an <h2>',
+                                },
+                                {
+                                  part: "Sheet.Close",
+                                  cardinality: "1",
+                                  note: 'data-slot="sheet-close"; a <button>',
+                                },
+                              ],
+                            },
+                            {
+                              part: "Sheet.Content",
+                              cardinality: "0..n",
+                              note: 'data-slot="sheet-content"; supplied by the caller. One is the usual case, and none raises a development warning',
+                            },
+                            {
+                              part: "Sheet.Footer",
+                              cardinality: "0..1",
+                              note: 'data-slot="sheet-footer"; present when footer is passed',
+                            },
+                          ],
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ]}
+/>
 
 **Scrim** dims and blocks the content behind when the sheet is modal. **Grabber** signals that
 the sheet can be dragged, and is never the only way to move it. **Header** names the sheet and
 holds the close control. **Content** scrolls internally once it exceeds the detent.
 **Footer** pins the primary action above the keyboard and the safe-area inset.
 
-Proposed part hierarchy. This is the specification the implementation must match.
-
-```text
-Sheet                          root; modal by default
-├── Sheet.Scrim                present when modal; dismisses on tap when permitted
-└── Sheet.Container            a Surface at the sheet rung
-    ├── Sheet.Grabber          drag affordance; never the only means of moving
-    ├── Sheet.Header
-    │   ├── Sheet.Title        the sheet's accessible name
-    │   └── Sheet.Close        always present, always keyboard-reachable
-    ├── Sheet.Content          scrolls internally; owns its own scroll boundary
-    └── Sheet.Footer           pinned above keyboard and safe-area inset
-```
+`Sheet.Content` is the only exported part, and it passes the narrow test that
+[ADR 0011](../project/decisions/0011-anatomy-parts-are-data-slots.mdx) sets: the consumer
+supplies its content, and a sheet may hold things that do not scroll beside the things that do,
+so no prop could carry it. Everything else is a `data-slot` — enough to style, not enough to
+take apart. The footer arrives as a prop for the same reason in reverse: a prop can carry it,
+and the pinning is the point.
 
 Nesting a `Sheet` inside a `Sheet` is a composition error. Two stacked modal surfaces produce
-a focus order nobody can predict and an escape key with two plausible meanings.
+a focus order nobody can predict and an escape key with two plausible meanings. Base UI's
+drawer supports nesting deliberately, so the primitive cannot report the mistake; the component
+counts its own depth through a context and warns in development.
 
-## Proposed API
+### Why `content` is the only detent that cannot be combined
 
-<NotBuiltYet name="sheet" />
+Base UI's snap points are fractions of the viewport, pixel values or rem strings — there is no
+content-sized one — and every snap point it resolves is clamped to the popup's own measured
+height, with the offset computed as `popupHeight − clampedHeight`. So a sheet that can reach
+`full` has to be as tall as the viewport, and once it is, its natural height *is* the viewport:
+there is no content height left to snap back to.
 
-```ts
-// PROPOSED. Not implemented. A specification for review, not an API to generate
-// code against. It will change without a deprecation cycle.
+`content` is therefore implemented as the absence of a snap point rather than the presence of
+one. The popup takes its own height, up to the full viewport, and the browser lays it out — no
+measurement in JavaScript, nothing frozen at first open, and nothing to go stale when the
+content changes. Passing it alongside `half` or `full` drops it with a development warning
+rather than approximating it.
 
-/** Heights the sheet rests at. "content" sizes to the content, once. */
-export type Detent = "content" | "half" | "full"
+## Examples
 
-export interface SheetProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  /**
-   * The sheet's accessible name. Required: an unnamed modal surface is
-   * announced as "dialog" and nothing else.
-   */
-  title: string
-  /** Rest positions, in order. A single entry disables drag-between-detents. */
-  detents?: Detent[]
-  /**
-   * Modal traps focus and blocks the page behind it. Non-modal does neither and
-   * is a genuinely different component; the flag exists so the difference is
-   * declared rather than emergent.
-   */
-  modal?: boolean
-  /** Whether the scrim and the escape key dismiss. Forms usually set this false. */
-  dismissible?: boolean
-  children: React.ReactNode
-}
-```
+### A form the reader cannot leave by accident
+
+`dismissible={false}` closes the three routes that are all reached by accident — the scrim, the
+escape key and a downward drag — and leaves the deliberate one alone. Try the escape key and a
+tap on the dimmed area; neither closes it, and the close control in the header does.
+
+<ComponentPreview name="sheet-a-form-that-stays-put" kind="example" align="start" />
+
+### Two detents, and the button the gesture owes
+
+The rule this shows is the expensive one: every gesture has a control. The bar at the top is
+not decoration here but a real button with a real accessible name, so the sheet travels between
+half and full for somebody who never touches it with a pointer. Watch the scrolling too — a
+flick that starts inside `Sheet.Content` scrolls the list, and the same flick started on the
+header drags the sheet.
+
+<ComponentPreview name="sheet-two-detents-and-a-control" kind="example" align="start" />
 
 ## Content guidelines
 
@@ -133,6 +306,13 @@ The primary action says what it does — *Save reading*, *Choose unit* — and n
 tells a reader nothing about what happens to what they typed.
 
 Keep sheets to one task. A sheet with its own tabs is a screen that has not admitted it yet.
+
+Sheet ships two words of its own and no more: the close control reads **Close**, and the
+grabber's accessible name is *Change the sheet height to half the screen* or the equivalent for
+whichever detent is next. Neither can be replaced by a prop today, which is a real gap for any
+product that is not in English and is an open question on this page. Every other word inside a
+sheet is the product's, and therefore the product's to check against
+[Plain English A–Z](../content/plain-english-a-z.mdx).
 
 <DoDont>
   <DoDont.Do>
@@ -154,34 +334,174 @@ Keep sheets to one task. A sheet with its own tabs is a screen that has not admi
   </DoDont.Dont>
 </DoDont>
 
-## Accessibility requirements
+<DoDont>
+  <DoDont.Do>
+    **The action in `footer`,** where it stays put while the content scrolls under it.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **The action as the last thing inside `Sheet.Content`.** It scrolls away, and on a phone
+    with the keyboard up it is the first thing to go.
+  </DoDont.Dont>
+</DoDont>
 
-Requirements for the implementation, not results.
+## Accessibility
 
-- **Modal sheets are dialogues**: named by their title, focus moved into the sheet on open,
-  focus trapped while open, focus returned to the trigger on close, and the page behind made
-  inert.
-- **Escape closes a dismissible sheet** and, when the sheet holds unsaved input, asks first —
-  by the same route as a background tap.
-- **Every gesture has a control.** Drag-to-dismiss has a close button; drag-between-detents
-  has a button or is simply not offered. See
+Some of this is checked by a gate on every commit and the rest is an argument. They are
+separated below because `alpha` promises that accessibility is claimed only where it has been
+checked, with the gaps listed rather than left out.
+
+**Checked, by `pnpm run check:a11y` on every commit:**
+
+- **Every colour is a token, and every token resolves under the product theme.** The static rig
+  fails the build on a hex literal, an `oklch()`, a Tailwind palette colour or a numbered ramp
+  step anywhere in `registry/**`, and separately on the chrome-only roles and radii that exist
+  in `app/globals.css` and not in `app/product.css`. The sheet paints three roles of its own —
+  the muted foreground on the close control, the plain foreground it takes on hover, and the
+  border role on the grabber's bar and the footer's rule — and everything else is Surface's
+  material.
+- **No `px` font size, and no banned word** in copy or in an identifier. Unlike most components
+  in the system this one ships two reader-facing strings, so the copy half of that gate is
+  doing real work here rather than guarding a future edit.
+
+**Argued, and true of the implementation, but not yet measured:**
+
+- **A modal sheet is a dialogue.** Base UI gives the popup the dialog role, points its
+  `aria-labelledby` at `Sheet.Title`, moves focus into it on open, traps focus while it is open,
+  and returns focus to whatever opened it on close. The page behind is made genuinely inert
+  rather than merely dimmed, so assistive technology cannot reach it either — the scrim's
+  dimming is the visible half of something that is also true in the accessibility tree.
+- **Escape closes a dismissible sheet, and the product is told which route a close came by.**
+  `onOpenChange` receives `close-control`, `scrim`, `escape`, `drag` or `other`, which is what
+  makes "ask before discarding unsaved input" possible: hold `open` where it is, show the
+  question, and close when the reader answers. With `dismissible={false}` the escape key, the
+  platform's close watcher, the scrim and a drag are all cancelled — Base UI's own flag covers
+  the pointer only, so the other two are cancelled by hand in the change handler.
+- **Every gesture has a control.** Drag-to-dismiss has the close button, which no prop removes.
+  Drag-between-detents has the grabber, which becomes a real `<button>` the moment there is more
+  than one detent and carries an accessible name that says which height it moves to. With one
+  detent there is nothing to move between and the bar is decorative and `aria-hidden`. See
   [Target size and motor](../accessibility/target-size-and-motor.mdx).
-- **The primary action is never covered by the software keyboard.** The sheet responds to the
-  visual viewport and respects safe-area insets on every edge — see
+- **Content scrolls inside the sheet, and scroll chaining is prevented.** `Sheet.Content` is
+  Base UI's `Drawer.Content`, and the drawer's pointer handling treats a touch that begins
+  inside it as a scroll rather than a swipe; `overscroll-contain` stops the page behind from
+  moving when that scroll reaches its end. Without `Sheet.Content` nothing scrolls and every
+  flick is a drag, which is why its absence raises a development warning.
+- **The primary action is not in the scrolling region.** The footer sits outside it, the
+  viewport carries Base UI's software-keyboard inset as padding so the sheet shrinks rather than
+  being covered, and the safe-area insets are padding *inside* the material so the sheet still
+  reaches the edge of the display while its content clears the home indicator. See
   [Layout](../foundations/layout.mdx).
-- **Content scrolls inside the sheet**, not the page behind it, and scroll chaining is
-  prevented so a flick at the top of the content does not dismiss the sheet unexpectedly.
-- **`prefers-reduced-motion` removes the slide**; the sheet appears at its detent, and drag
-  still works. Reduced motion is not reduced capability — see
-  [Reduced motion](../accessibility/reduced-motion.mdx).
-- **The scrim's dimming is not the only signal** that the content behind is inactive; the page
-  is genuinely inert, so assistive technology cannot reach it either.
-- **At 200% text the sheet takes the height it needs** up to full, and the header and footer
-  never overlap the content.
+- **`prefers-reduced-motion` removes the slide, and the drag still works.** The token layer
+  collapses the sheet spring to 120ms under that query, which is the right answer for a cue
+  saying a value changed and the wrong one for a panel travelling the height of a screen, so the
+  component removes the transition outright and the sheet appears at its detent. Reduced motion
+  is not reduced capability — see [Reduced motion](../accessibility/reduced-motion.mdx).
+- **At 200% text the sheet takes the height it needs.** Every measurement in it is a rem or a
+  fraction of the viewport, the container is capped at the viewport rather than at a pixel
+  height, and the header and footer sit outside the scrolling region so they cannot overlap the
+  content however tall it becomes.
+- **The close control's name is visible.** The glyph beside it is decorative and
+  `aria-hidden`; the word carries the meaning, which is what makes the control reachable by
+  voice and legible to somebody who has never met that glyph.
 
-<KeyboardTable name="sheet" />
+**Not yet checked at all, and listed rather than omitted:**
+
+- The 44×44 hit area on the grabber, the close control and the footer's actions, and the
+  separation between two adjacent targets in a footer. They are stated in the component as
+  `--opsin-target-minimum` and measured by nobody; the layout half of the accessibility rig runs
+  nightly against a browser and has no target for this component yet.
+- Contrast for the close control's muted foreground against the sheet rung's material, and for
+  the material against whatever the product puts behind it. `<ContrastReport>` below takes its
+  rows as a prop and nothing wires the measured file into it yet.
+- The software-keyboard behaviour. It needs a device with a software keyboard and a visual
+  viewport, and it has not been exercised on one.
+- Scroll chaining on iOS Safari specifically, where `overscroll-behavior` has historically been
+  the least reliable.
+- What a screen reader announces when the grabber's accessible name changes underneath the
+  focus that is on it. The component mounts no live region, deliberately.
+- `forced-colors: active`. Nothing in opsinjs answers it yet.
+- Anything at all in a browser. Every claim in the section above it is argued from this
+  component's source and from Base UI's; the type checker, the linter and the static
+  accessibility rig pass, and none of the three renders anything.
+
+<KeyboardTable
+  name="sheet"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Moves through the sheet's own controls",
+      notes: "Focus is trapped inside a modal sheet, so this cycles: the grabber when there is more than one detent, the close control, whatever the content holds, then the footer's actions. It never reaches the page behind, which is inert rather than merely dimmed.",
+    },
+    {
+      keys: "Shift + Tab",
+      action: "Moves backwards through the same controls",
+      notes: "Reverse order matches the visual order. The one thing to check when reviewing a sheet is that the footer's action is last in both directions, because it is last on the screen.",
+    },
+    {
+      keys: "Enter",
+      action: "Activates the focused control",
+      notes: "On the grabber it moves the sheet to the next detent. The sheet itself has no Enter behaviour: it holds the product's controls and has no basis for guessing which of them is primary.",
+    },
+    {
+      keys: "Space",
+      action: "Activates the focused button, or scrolls the content",
+      notes: "It never scrolls the page behind, because a modal sheet locks it. Inside Sheet.Content, Space scrolls that region — which is the behaviour the scroll boundary exists to keep local.",
+    },
+    {
+      keys: "Escape",
+      action: "Closes a dismissible sheet and returns focus to what opened it",
+      notes: "With dismissible={false} it does not close the sheet and the product is not asked to; the close control in the header is the way out and is never removed. Where a product needs to confirm before discarding, leave dismissible alone and read the route argument to onOpenChange.",
+    },
+    {
+      keys: "Arrow keys",
+      action: "Scroll the content",
+      notes: "A sheet is not a composite widget and has no roving focus of its own, so the arrows do what the browser does. There is no keyboard shortcut for changing detent other than activating the grabber.",
+    },
+  ]}
+/>
 
 <ContrastReport component="sheet" />
+
+## API reference
+
+### Sheet
+
+<PropsTable name="SheetProps" />
+
+`detents` takes the three members of [Detent](../reference/api/Detent.mdx), in order, and the
+first is where the sheet opens — every time, including after a reader has dragged the last one
+somewhere else. `half` and `full` are fractions of the viewport and combine freely; `content`
+is supported only on its own, for the reason under [Anatomy](#anatomy).
+
+`onOpenChange` takes a second argument the original specification did not declare. It is not
+decoration: the accessibility contract on this page requires that a sheet holding unsaved input
+asks first, *by the same route as a background tap*, and a product cannot do that unless it is
+told which route was taken. A one-argument handler is still assignable to the two-argument
+type, so `onOpenChange={setOpen}` keeps working unchanged.
+
+`open` and `onOpenChange` live here rather than on the components that extend Sheet. The
+specifications for [LogSheet](./log-sheet.mdx) and [ConsentSheet](./consent-sheet.mdx) both say
+they extend Sheet and neither declares either prop, which as written leaves both of them
+unopenable. A modal surface owns its own visibility, and a component that extends this one
+inherits both props unchanged.
+
+`footer` is a prop and not a compound part, and `className` lands on the container rather than
+on the root, because the root renders no element at all. There is no `as`, no `render`, no
+`trigger` prop and no `Sheet.Trigger`: a sheet is opened by setting `open`, which is the only
+shape that survives a product opening one from a notification, a deep link or a timer.
+
+There is deliberately no way to reach Base UI's third modal state, `'trap-focus'`. Two states
+are what this API models — the page behind is either reachable or it is not — and a third that
+traps focus while leaving the page scrollable is a surface nobody on this project has written
+guidance for.
+
+### Sheet.Content
+
+<PropsTable name="SheetContentProps" />
+
+`className` merges, and the region's own classes win where they conflict. Two of them should not
+be overridden by anything: it is the element Base UI identifies as the scroll container, and it
+contains its own overscroll. Replace either and a flick inside the sheet starts dismissing it.
 
 ## Related
 
@@ -194,7 +514,8 @@ Requirements for the implementation, not results.
 - [LogSheet](./log-sheet.mdx) — a Sheet with a capture contract and a field ceiling.
 - [ConsentSheet](./consent-sheet.mdx) — a Sheet with a consent contract and equally weighted
   decisions.
-- [Surface](./surface.mdx) — the layer Sheet is built from.
+- [Surface](./surface.mdx) — the layer Sheet is built from, twice: once for the sheet and once
+  for the scrim.
 - `popover` (considered, no page yet — see the [roster](./index.mdx)) — small, anchored, and
   attached to a control rather than to the screen.
 
@@ -209,3 +530,4 @@ Requirements for the implementation, not results.
 - [Layering, elevation and z-index](../foundations/layering-and-elevation.mdx)
 - [Choreography](../foundations/motion/choreography.mdx)
 - [Density and touch targets](../foundations/space/density-and-touch.mdx)
+- [0011 — Anatomy parts are data-slots](../project/decisions/0011-anatomy-parts-are-data-slots.mdx)

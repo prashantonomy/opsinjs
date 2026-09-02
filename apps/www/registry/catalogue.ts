@@ -458,7 +458,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "The base panel every other surface is built from, at one of six material rungs.",
     category: "surfaces",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: ["material", "glass", "blur", "elevation", "layer"],
     owner: "design",
@@ -469,11 +469,12 @@ export const SHIPPED: CatalogueEntry[] = [
     title: "Card",
     description: "A bounded block of related content.",
     category: "surfaces",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: ["panel", "container", "content box"],
     owner: "design",
     a11yDate: null,
+    registryDependencies: ["surface"],
   },
   {
     name: "sheet",
@@ -481,11 +482,14 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A panel that slides over the screen and can be dismissed by dragging.",
     category: "surfaces",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: ["bottom sheet", "drawer", "side panel", "slide over"],
     owner: "design",
     a11yDate: null,
+    dependencies: ["@base-ui/react", "lucide-react"],
+    registryDependencies: ["surface", "button"],
+    usedIn: ["daily-log-entry", "daily-log-screen"],
   },
   {
     name: "dialog",
@@ -493,11 +497,14 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A window that interrupts, for the one decision that cannot wait.",
     category: "surfaces",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: ["modal", "alert dialog", "confirm", "popup"],
     owner: "engineering",
     a11yDate: null,
+    dependencies: ["@base-ui/react", "lucide-react"],
+    registryDependencies: ["surface"],
+    usedIn: ["consent-flow"],
   },
 
   {
@@ -545,11 +552,12 @@ export const SHIPPED: CatalogueEntry[] = [
     title: "Button",
     description: "The control that makes something happen.",
     category: "actions-and-forms",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: ["cta", "action", "submit", "primary button"],
     owner: "engineering",
     a11yDate: null,
+    dependencies: ["@base-ui/react", "lucide-react"],
   },
   {
     name: "field",
@@ -557,7 +565,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A labelled input with its help text, its error, and the wiring that connects them.",
     category: "actions-and-forms",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: [
       "form field",
@@ -567,6 +575,7 @@ export const SHIPPED: CatalogueEntry[] = [
     ],
     owner: "engineering",
     a11yDate: null,
+    dependencies: ["@base-ui/react", "lucide-react"],
   },
 ]
 

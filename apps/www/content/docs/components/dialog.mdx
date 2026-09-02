@@ -1,7 +1,7 @@
 ---
 title: Dialog
 description: A window that opens over the page and waits for an answer — it takes your keyboard and your attention until you deal with it, and gives them back where it found them.
-status: planned
+status: alpha
 kind: component
 since: "unreleased"
 category: surfaces
@@ -9,38 +9,74 @@ aliases: [modal, alert dialog, popup, confirm]
 usedIn: [consent-flow]
 ---
 
-<PageTemplate kind="component" />
-
 ## Status
 
 <StubNotice
   name="dialog"
+  status="alpha"
   issue="opsinjs/opsinjs#0"
   questions={[
-    "Alert dialogues and ordinary dialogues have different roles and different escape behaviour. One component with a flag, or two components?",
-    "Where does initial focus go — the first control, the heading, or the least destructive action — and is that ever the product's decision?",
-    "Depth is expressed by scale rather than shadow in this system. What does that mean for a dialog opening over a sheet?",
-    "On a phone, is a dialog ever the right surface at all, or should it always become a sheet below a certain width?",
+    "`sheetBelow` is gone. The specification asked for the dialog to become a Sheet below a width, and a Sheet is draggable and dismissible by design — so an alert dialog nobody may dismiss on a laptop would have become dismissible with a thumb on a phone. The shape moved and the behaviour did not. Is a bottom-docked, non-draggable dialog the right answer on a phone, or is the honest answer that some of these questions should never have been dialogs at all?",
+    "Escape on an alert dialog does not close it and moves focus to the safest action, so the key is answered rather than swallowed. It does not say in words that an answer is needed: those words are about the product's own two answers, so they belong in `description` and a development warning asks for them. Is a focus move enough of a response for somebody who is not looking at the screen?",
+    "`actions` is a prop this component added. The specification's part tree requires a `Dialog.Actions` region with an ordering rule and a cap of two, and its proposed API had no way to fill one. The cap is stated and not enforced, because `ReactNode` does not say how many controls are inside it.",
+    "Depth in this system is carried by scale rather than by shadow, and the rung a dialog sits on is the same rung a Sheet sits on. Nothing yet says what a dialog over a sheet should look like — and the page below says it should not happen at all.",
   ]}
-/>
+>
+  <code className="text-sm">dialog</code> is implemented and installable. It is{" "}
+  <strong className="font-medium">alpha</strong>: it works and it is documented,
+  the API may change in any release without a deprecation cycle, and it is not
+  for a production health surface yet.
+</StubNotice>
 
-Dialog is the only component in the system that takes something away from the reader: their
-place, their focus and their ability to do anything else. That makes *is this really a
-dialog?* the first question on this page, and most of the time the honest answer is no.
+Dialog is the only component in the system that takes something away from the reader:
+their place, their focus and their ability to do anything else. That makes *is this
+really a dialog?* the first question on this page, and most of the time the honest
+answer is no.
 
 ## Preview
 
-The preview will show the ordinary and alert forms with the focus ring visible, and the phone
-width where the dialog becomes a sheet.
+An ordinary dialog: a question, the consequence of each answer, and two actions with
+initial focus on the one that changes nothing. Open it and press Escape, then open it
+and press Return without moving focus — both should leave the reading where it was.
+
+Narrow the preview below the `sm` breakpoint and the dialog meets the bottom edge of
+the screen, takes the full width and rounds only its top corners. It is still a dialog
+while it does that: same role, same trap, same rules about who may dismiss it.
 
 <ComponentPreview name="dialog" />
 
 ## Installation
 
-The registry item does not exist yet; the command below is shown for shape only and will
-fail. Dialog is built on [Surface](./surface.mdx).
+Dialog is built on [Surface](./surface.mdx) and installs it with the same command.
 
-<ComponentInstall name="dialog" />
+<ComponentInstall
+  name="dialog"
+  unbuilt={false}
+  importPath="@/components/ui/dialog"
+  dependencies={["@base-ui/react", "lucide-react"]}
+  registryDependencies={["surface"]}
+/>
+
+## Usage
+
+```tsx
+import { Dialog } from "@/components/ui/dialog"
+```
+
+```tsx
+<Dialog
+  open={open}
+  onOpenChange={setOpen}
+  title="Delete this reading?"
+  description="It will be removed from your history and from any trends it appears in."
+  actions={
+    <>
+      <Button variant="destructive" onClick={remove}>Delete reading</Button>
+      <Button variant="primary" onClick={() => setOpen(false)}>Keep it</Button>
+    </>
+  }
+/>
+```
 
 ## When to use it
 
@@ -61,79 +97,209 @@ fail. Dialog is built on [Surface](./surface.mdx).
 />
 
 Onboarding tours, feature announcements, rating prompts and newsletter offers are not
-dialogues. They are interruptions with a modal costume, and in a health product they are
-interruptions to somebody trying to find out about their own body.
+dialogues. They are interruptions with a modal costume, and in a health product they
+are interruptions to somebody trying to find out about their own body.
+
+The exclusion that costs most is [Sheet](./sheet.mdx), and the test that separates them
+is not the screen size. A sheet is a place the reader chose to go and may leave; a
+dialog is a question they did not ask for and must answer. This component will not
+turn into the other one at any width, so choosing wrongly is a decision that stays
+wrong on every device rather than one that quietly repairs itself on a phone.
 
 ## Anatomy
 
-<Anatomy name="dialog" />
+<Anatomy
+  name="dialog"
+  parts={[
+    {
+      name: "Dialog",
+      describes: "The root. A portal element appended to the document body, holding the scrim and everything above it. It renders nothing itself and is where a product hangs a selector for the whole surface.",
+      prop: "open",
+    },
+    {
+      name: "Dialog.Scrim",
+      describes: "The dimming layer, a Surface at the scrim rung. A sibling of the container and never its child, so it sits between the dialog and the page rather than inside the dialog's box. It is what the reader sees; the page behind is made genuinely inert by something else.",
+    },
+    {
+      name: "Dialog.Viewport",
+      describes: "The fixed, full-screen box the container is placed inside. It is what puts the dialog on the bottom edge of a phone and in the middle of a wider screen with no transform and no measurement, and it gives the container a definite height to stop growing at.",
+    },
+    {
+      name: "Dialog.Container",
+      describes: "The popup, and where the role, the accessible name and the description are attached. A Surface at the sheet rung sits inside it; one element cannot carry both the container's slot and the surface's.",
+      prop: "className",
+    },
+    {
+      name: "Dialog.Header",
+      describes: "Pinned. Holds the title and, on an ordinary dialog, the close control, so the question stays on screen while the consequence scrolls.",
+    },
+    {
+      name: "Dialog.Title",
+      describes: "An h2, always visible, and the dialog's accessible name. There is no prop that hides it and no state in which it is absent.",
+      prop: "title",
+    },
+    {
+      name: "Dialog.Close",
+      describes: "Present on an ordinary dialog and absent on an alert one. Carries the 44pt floor in rem so it grows with the reader's text size, and its accessible name is a word rather than the glyph.",
+      prop: "severity",
+    },
+    {
+      name: "Dialog.Body",
+      describes: "The scroll region, and the reason the actions stay reachable at 200% text. Scroll chaining is contained, so a flick at the end of the description does not scroll the inert page behind.",
+    },
+    {
+      name: "Dialog.Description",
+      describes: "A paragraph, programmatically the dialog's description. It says what happens if the reader answers one way and what happens if they answer the other. On an alert dialog it is also where the reader is told an answer is needed.",
+      prop: "description",
+    },
+    {
+      name: "Dialog.Content",
+      describes: "Optional; anything more than a question and its consequence. Nothing translucent goes in here — a card inside a dialog is a card, which is opaque.",
+      prop: "children",
+    },
+    {
+      name: "Dialog.Actions",
+      describes: "Pinned to the foot, in DOM order, least destructive last. At most two, and the gap between them is the published target separation.",
+      prop: "actions",
+    },
+  ]}
+/>
 
-<CompositionTree name="dialog" />
+<CompositionTree
+  name="dialog"
+  tree={[
+    {
+      part: "Dialog",
+      cardinality: "1",
+      note: "data-slot=\"dialog\"; the portal element, present only while open",
+      children: [
+        {
+          part: "Dialog.Scrim",
+          cardinality: "1",
+          note: "data-slot=\"dialog-scrim\", role=presentation, plus Base UI's data-open and data-starting-style; wraps a Surface at the scrim rung",
+        },
+        {
+          part: "Dialog.Viewport",
+          cardinality: "1",
+          note: "data-slot=\"dialog-viewport\", role=presentation, fixed inset-0",
+          children: [
+            {
+              part: "Dialog.Container",
+              cardinality: "1",
+              note: "data-slot=\"dialog-container\", role=dialog or alertdialog, aria-labelledby the title, aria-describedby the description, tabindex=-1; wraps a Surface at the sheet rung",
+              children: [
+                {
+                  part: "Dialog.Header",
+                  cardinality: "1",
+                  note: "data-slot=\"dialog-header\"",
+                  children: [
+                    {
+                      part: "Dialog.Title",
+                      cardinality: "1",
+                      note: "data-slot=\"dialog-title\", an h2",
+                    },
+                    {
+                      part: "Dialog.Close",
+                      cardinality: "0..1",
+                      note: "data-slot=\"dialog-close\", a button; absent when severity is alert",
+                    },
+                  ],
+                },
+                {
+                  part: "Dialog.Body",
+                  cardinality: "1",
+                  note: "data-slot=\"dialog-body\"; the scroll region, padded only when it holds something",
+                  children: [
+                    {
+                      part: "Dialog.Description",
+                      cardinality: "0..1",
+                      note: "data-slot=\"dialog-description\", a p",
+                    },
+                    {
+                      part: "Dialog.Content",
+                      cardinality: "0..1",
+                      note: "data-slot=\"dialog-content\"",
+                    },
+                  ],
+                },
+                {
+                  part: "Dialog.Actions",
+                  cardinality: "0..1",
+                  note: "data-slot=\"dialog-actions\"; at most two controls inside it",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ]}
+/>
 
-**Scrim** blocks and dims the page. **Title** is the question or the subject and is the
-dialog's accessible name. **Description** gives the consequence. **Actions** are at most two,
-ordered so the least destructive is the one a reader reaches by accident. **Close** is present
-on ordinary dialogues and absent on alert dialogues, where dismissing without answering is not
-a valid outcome.
+The parts are `data-slot` attributes and not exports. There is no `Dialog.Actions` to
+import and no way to render a container without a title, which is what makes "the
+dialog is always named" a fact about the DOM rather than a request in prose. Base UI
+adds `data-open`, `data-starting-style` and `data-ending-style` to the scrim, the
+viewport and the container; those pass through untouched. Nothing here carries
+`data-status`, `data-category` or `data-opsinjs-value`, because a dialog renders no
+measurement and asserts no clinical level.
 
-Proposed part hierarchy. This is the specification the implementation must match.
+Two parts are not in the specification's tree and are here on purpose. **Viewport** is
+the fixed box the container is positioned inside; having a real element to place
+against is what lets the dialog sit on the bottom edge of a phone and in the middle of
+a laptop with no transform, no measurement and no JavaScript. **Header** and **Body**
+split what the flat tree could not: the accessibility requirement below asks for the
+dialog to scroll internally *with its actions pinned*, and a single flat region cannot
+have one part that scrolls and two that do not.
 
-```text
-Dialog                         root; role depends on whether dismissal is valid
-├── Dialog.Scrim               blocks and dims; page behind is genuinely inert
-└── Dialog.Container           a Surface at the overlay rung
-    ├── Dialog.Title           the accessible name; a question where possible
-    ├── Dialog.Description     the consequence, in one or two sentences
-    ├── Dialog.Content         optional; anything more than that
-    ├── Dialog.Close           present on dialog, absent on alertdialog
-    └── Dialog.Actions         at most 2; destructive action is never the default focus
-```
+The container is a Surface at the **`sheet`** rung, not the `overlay` rung the
+specification names. The six rung names became the token names in
+[ADR 0014](../project/decisions/0014-material-rung-names.mdx), and the vocabulary the
+specification was written in used `overlay` for the rung that covers the page while
+leaving it recognisable. That rung is now `sheet`. This ladder's `overlay` is chrome
+that content scrolls beneath — a pinned toolbar, a tab bar — so translating the old
+name by spelling rather than by job would put a modal dialog on the rung built for a
+tab bar, and it would compile. See [The material ladder](../foundations/materials/the-ladder.mdx).
 
 A dialog opening from within a sheet is a composition error. If the sheet needs a
-confirmation, the confirmation belongs inside the sheet.
+confirmation, the confirmation belongs inside the sheet — which is also nesting rule
+N3 in [Choosing a layer](../foundations/materials/choosing-a-layer.mdx): at most one
+covering surface at a time.
 
-## Proposed API
+## Examples
 
-<NotBuiltYet name="dialog" />
+### Confirming something that cannot be undone
 
-```ts
-// PROPOSED. Not implemented. A specification for review, not an API to generate
-// code against. It will change without a deprecation cycle.
+The title asks the question, the description says what each answer does, and the
+action that changes something comes **first** so that the safest one is last — which
+is where `initialFocus="safest"` lands. A stray Return keeps the reading.
 
-export interface DialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  /** The accessible name. A question, where the dialog is asking one. */
-  title: string
-  /** The consequence of each answer, in one or two sentences. */
-  description?: string
-  /**
-   * `alert` renders role="alertdialog", removes the close control and makes the
-   * scrim non-dismissing: an alert dialogue has no valid "went away" outcome.
-   */
-  severity?: "default" | "alert"
-  /**
-   * Which action receives initial focus. Never a destructive one. Defaults to
-   * the safest available control.
-   */
-  initialFocus?: "safest" | "content"
-  /**
-   * Below this width the dialog renders as a Sheet instead. A modal window on a
-   * 360px screen is a sheet wearing the wrong clothes.
-   */
-  sheetBelow?: number
-  children: React.ReactNode
-}
-```
+<ComponentPreview name="dialog-confirming-a-deletion" kind="example" align="start" />
+
+### An answer is needed
+
+`severity="alert"` closes four exits at once: the role becomes `alertdialog`, the
+close control is absent, the scrim does not dismiss, and Escape does not close.
+Pressing Escape moves focus to the last action rather than doing nothing, so the key
+is answered instead of swallowed.
+
+<ComponentPreview name="dialog-an-answer-is-needed" kind="example" align="start" />
 
 ## Content guidelines
 
-The title asks the question. The description says what happens if the reader says yes, and
-what happens if they say no. Action labels are verbs that name the outcome, never *OK* and
-*Cancel*, which force the reader back up to the title to work out what they are agreeing to.
+The title asks the question. The description says what happens if the reader says yes,
+and what happens if they say no. Action labels are verbs that name the outcome, never
+*OK* and *Cancel*, which force the reader back up to the title to work out what they
+are agreeing to.
 
-Never phrase the dismissing action as a judgement about the reader — *No thanks, I do not care
-about my health* is a real pattern in real products and it is contemptuous.
+Never phrase the dismissing action as a judgement about the reader — *No thanks, I do
+not care about my health* is a real pattern in real products and it is contemptuous.
+
+On an alert dialog the description has one extra job, and this component will not do
+it for you: it is where the reader is told that an answer is needed and what each
+answer costs. Escape will not let them out, there is no close control, and opsinjs
+does not know what your two answers mean, so it ships no sentence about them. An alert
+dialog with no `description` raises a development warning for exactly this reason.
 
 <DoDont>
   <DoDont.Do>
@@ -148,7 +314,8 @@ about my health* is a real pattern in real products and it is contemptuous.
 
 <DoDont>
   <DoDont.Do>
-    **Initial focus on "Keep it"**, the action that changes nothing.
+    **Initial focus on "Keep it"**, the action that changes nothing — which means writing
+    it last, because `initialFocus="safest"` takes the last control in the row.
   </DoDont.Do>
   <DoDont.Dont>
     **Initial focus on "Delete reading"**, so a stray Return key destroys data. Focus is a
@@ -156,34 +323,154 @@ about my health* is a real pattern in real products and it is contemptuous.
   </DoDont.Dont>
 </DoDont>
 
-## Accessibility requirements
+## Accessibility
 
-Requirements for the implementation, not results.
+Some of this is checked by a gate on every commit. Most of it is argued, and the
+things nobody has measured are listed rather than left out — that separation is what
+`alpha` promises.
 
-- **Correct role.** `dialog` when dismissal is a valid outcome, `alertdialog` when it is not.
-  They differ in how assistive technology announces them and in what a reader expects Escape
-  to do.
-- **Named by its title**, described by its description, both associated programmatically
-  rather than merely adjacent.
-- **Focus moves in on open, is trapped while open, and returns to the trigger on close** —
-  including when the dialog closes because the underlying data changed rather than because the
-  reader acted.
-- **Initial focus is never on a destructive action**, and never on the scrim or the dialog
-  container when a control is available.
-- **Escape closes an ordinary dialog.** On an alert dialog it does not, and the dialog does not
-  simply swallow the key: it makes clear that an answer is needed.
-- **The page behind is inert**, not merely visually dimmed, so screen readers and keyboard
-  navigation cannot wander out of the dialog and get lost behind the scrim.
-- **Actions meet the 44pt floor** with 8pt separation, and their order is consistent across the
-  product.
-- **`prefers-reduced-motion` removes the scale and fade**; the dialog appears in place. Depth
-  is then carried by the scrim and the edge, which is why neither is optional.
-- **At 200% text the dialog scrolls internally** with its actions pinned and reachable, and
-  never grows beyond the viewport with its buttons off-screen.
+**Checked, by `pnpm run check:a11y` on every commit:**
 
-<KeyboardTable name="dialog" />
+- **Every colour here is a role token.** The static rig fails the build on a hex
+  literal, an `oklch()` call, a Tailwind palette colour or a numbered ramp step
+  anywhere under `registry/`, so the scrim, the surface and the close control all
+  follow dark mode and increased contrast rather than pinning a value.
+- **No class that resolves only in the docs chrome.** The roles a shadcn dialog reaches
+  for — `bg-popover`, `bg-accent`, `rounded-2xl` — are declared in `app/globals.css`
+  and produce no CSS at all under the product theme. The gate fails on them by name.
+- **No type size in `px`.** The title and the description take steps from the
+  eleven-step ramp, so they scale with the reader's own text size. See
+  [Dynamic type](../foundations/typography/dynamic-type.mdx).
+- **No banned word, in copy or in an identifier.**
+
+**Argued, and true of the implementation, but not measured:**
+
+- **The role matches whether dismissal is valid.** `severity="alert"` swaps Base UI's
+  alert-dialog root in rather than toggling props, so `role="alertdialog"`, the forced
+  modality and the refusal to dismiss on an outside press arrive together and cannot
+  be got three-quarters right by a later edit.
+- **Named by its title and described by its description**, both associated
+  programmatically by the primitive rather than by adjacency. An empty title raises a
+  development warning; there is no prop that hides it.
+- **Focus moves in on open, is trapped while open, and returns on close** to whatever
+  had it when the dialog opened — including when the dialog closes because the product
+  set `open` to false rather than because the reader acted. The component renders no
+  trigger part, so the return target is the previously focused element rather than a
+  control this component had to be told about.
+- **Initial focus is never on the scrim or the container while a control exists.**
+  `initialFocus="safest"` resolves to the *last* control in `actions`, which is where
+  the ordering rule puts the answer that changes nothing; `content` resolves to the
+  first control inside `children`. Both fall back to the primitive's own behaviour
+  rather than to leaving focus outside an inert page.
+- **Escape closes an ordinary dialog and does not close an alert one.** Base UI's alert
+  dialog closes on Escape out of the box; this component cancels that close through the
+  change event and moves focus to the safest action, so the key produces a visible ring
+  and an announced control instead of silence.
+- **The page behind is inert**, not merely dimmed — the primitive marks it, the scrim
+  only shows it. Under `prefers-reduced-transparency` the scrim keeps its opacity and
+  loses its blur, because the token layer swaps the tint for the rung's opaque fallback
+  rather than flattening the layer away.
+- **At 200% text the dialog scrolls internally.** The container stops at the height of
+  the viewport, the body scrolls, and the header and the actions are pinned outside it,
+  so the buttons never end up below the fold. Scroll chaining is contained. Checked by
+  eye at 200% in both themes, not by a machine.
+- **Nothing animates for a reader who asked for less.** The entrance and exit use
+  `--opsin-duration-base`, which the product theme collapses to 1ms under
+  `prefers-reduced-motion`, and the component also declares `transition-none` under the
+  same query so a consumer without that stylesheet gets the same answer. The dialog then
+  appears in place, and depth is carried by the scrim and the surface's edge — which is
+  why no prop removes either.
+
+**Not checked at all, and listed rather than omitted:**
+
+- **Contrast.** Title and description against the sheet rung's material, the close
+  control's hover fill, and the focus ring against both the dialog and the scrim behind
+  it, in both themes. The floor for a material is measured against its opaque fallback,
+  and nothing below has been measured for this component yet.
+- **The 44 by 44 target and the 8pt separation.** The close control and the actions row
+  both assert the floor in rem; neither is verified until the nightly layout job runs,
+  which needs a browser this repository deliberately does not install. See
+  [Target size and motor](../accessibility/target-size-and-motor.mdx).
+- **Whether a focus move is a sufficient answer to Escape** for somebody who is not
+  looking at the screen. It is announced, and it is not a sentence.
+- **A pinned header with a very long title.** The header does not scroll, so at 200%
+  text a title that is a paragraph rather than a question would leave the body a sliver.
+  The content guidelines say the title is a question; that has not been tested against a
+  title that is not one.
+- **`prefers-contrast: more` and `forced-colors`.** Neither is implemented anywhere in
+  opsinjs yet, so no increased-contrast claim can currently be made by anybody. The
+  surface strengthens its own edge under `contrast-more`; the dialog adds nothing to
+  that.
+
+<KeyboardTable
+  name="dialog"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Moves focus to the next control inside the dialog",
+      notes: "Focus is trapped for as long as the dialog is open, and the page behind is inert rather than merely dimmed, so Tab cannot wander out and get lost behind the scrim. The dialog is not one tab stop: it is a surface containing them.",
+    },
+    {
+      keys: "Shift + Tab",
+      action: "Moves focus back to the previous control",
+      notes: "Reverse order matches visual order everywhere in the component, which is why the close control sits after the title in the DOM as well as beside it on the screen, and why the actions are never visually reordered by CSS.",
+    },
+    {
+      keys: "Enter",
+      action: "Activates the focused action",
+      notes: "With initialFocus=\"safest\" that is the last control in the actions row, which the ordering rule reserves for the answer that changes nothing. A destructive action is never what a stray Return finds.",
+    },
+    {
+      keys: "Space",
+      action: "Activates the focused action",
+      notes: "And does not scroll anything: the page behind is inert, and a focused button consumes the key.",
+    },
+    {
+      keys: "Escape",
+      action: "Closes an ordinary dialog and returns focus to whatever opened it",
+      notes: "The scrim dismisses on a press for the same dialog and by the same route. Both are refused when severity is alert.",
+    },
+    {
+      keys: "Escape",
+      action: "Does not close an alert dialog; moves focus to the safest action instead",
+      notes: "Base UI's alert dialog closes on Escape out of the box, so this component cancels the close and answers the key rather than swallowing it. The words that say an answer is needed belong in the description, and the component warns in development when there are none.",
+    },
+  ]}
+/>
 
 <ContrastReport component="dialog" />
+
+## API reference
+
+<PropsTable name="DialogProps" />
+
+**`sheetBelow` is not implemented and is not a prop.** The specification asked for the
+dialog to render as a Sheet below a given width, and in the same API asked
+`severity="alert"` to remove every way of leaving without answering. A Sheet is
+draggable and dismissible by design, so the two together would have made an alert
+dialog dismissible with a thumb on a phone and not on a laptop — silently, at whichever
+width the caller happened to pass. What the sentence under that prop was complaining
+about is a complaint about shape, and the shape is here: below the `sm` breakpoint the
+dialog meets the bottom edge, takes the full width and rounds only its top corners,
+in CSS, with no prop and no change of component. The role, the trap, the inertness and
+the dismissal rules are identical at every width.
+
+**`actions` is a prop this component added.** The specification's part tree requires a
+`Dialog.Actions` region, caps it at two and fixes their order, and its proposed API had
+no way to fill one. A slot prop is how content arrives in this system where there is no
+dot-notation export, and having the component own the region is also what makes the
+actions pinnable, focusable by `initialFocus` and reachable by the Escape handler. The
+cap of two is stated and not enforced: `ReactNode` does not say how many controls are
+inside it, and `React.Children.count` cannot see through a fragment.
+
+**`children` is optional**, though the proposed API marked it required. The part tree
+calls `Dialog.Content` optional in the same document, and most confirmations are a
+question, a consequence and two verbs with nothing in between.
+
+`onOpenChange` takes one argument. Base UI reports a reason alongside it; every reason
+that matters here is handled inside the component — the Escape refusal is the whole of
+it — and a second parameter that only sometimes matters is a second parameter people
+copy without reading.
 
 ## Related
 
@@ -192,7 +479,8 @@ Requirements for the implementation, not results.
 **Easily confused with**
 
 - [Sheet](./sheet.mdx) — a place the reader chose to go, rather than a question they must
-  answer. The most common misuse in this family.
+  answer. The most common misuse in this family, and this component will not become one
+  at any width.
 - [AlertBanner](./alert-banner.mdx) — announces without blocking. If the reader can carry on,
   a banner is the honest surface.
 - [ConsentSheet](./consent-sheet.mdx) — a request with a consent contract and a recorded

@@ -1,7 +1,7 @@
 ---
 title: Surface
 description: The primitive behind every panel, sheet and card in the system — it decides how solid or translucent a layer looks, and guarantees that whatever sits on it stays readable.
-status: planned
+status: alpha
 kind: component
 since: "unreleased"
 category: surfaces
@@ -9,39 +9,67 @@ aliases: [material, blur, translucency, glass, vibrancy, elevation, layer]
 usedIn: [health-metric-card, results-screen]
 ---
 
-<PageTemplate kind="component" />
-
 ## Status
 
 <StubNotice
   name="surface"
+  status="alpha"
   issue="opsinjs/opsinjs#0"
   questions={[
-    "The contrast floor is guaranteed over an arbitrary backdrop. Is the scrim computed from the backdrop, or is it a fixed worst-case value per rung?",
-    "The performance budget is at most three composited translucent surfaces. Does the component count them at runtime, warn in development, or leave it to review?",
-    "Under prefers-reduced-transparency each rung has an opaque fallback. Does the ladder stay six rungs deep, or collapse — and if it collapses, what happens to the layering it was expressing?",
-    "backdrop-filter is not universally available. What renders where it is missing, and is that the same thing as the reduced-transparency fallback?",
+    "The performance budget is at most three composited translucent surfaces on a screen. Surface deliberately does not count them: a module-scoped counter in a server component is shared between requests, so it would report one reader's screen to another. Nothing enforces the budget today except review.",
+    "The published contrast floor is one figure per rung, measured against that rung's opaque fallback. There is no second, thinner floor for large text anywhere in the token source, so `contentWeight=\"large\"` is honoured as a promise and takes the body floor. Who measures the large-text floor, and against what?",
+    "`prefers-contrast: more` is answered in this component before it is answered in the token layer. That is where the accessibility page says the answer belongs; does the four-line degradation here move into `tokens/material.json`, and what happens to a component that has already shipped its own?",
   ]}
-/>
+>
+  <code className="text-sm">surface</code> is implemented and installable. It is{" "}
+  <strong className="font-medium">alpha</strong>: it works, the material it
+  renders comes entirely from measured tokens, the API may change in any release
+  without a deprecation cycle, and it is not for a production health surface
+  yet.
+</StubNotice>
 
 Surface is the least visible component in the system and the one most likely to be
-misunderstood as decoration. It is the mechanism that makes translucency safe: without a
-guaranteed floor, a blurred panel is a readability bug waiting for the wrong wallpaper.
+mistaken for decoration. It is the mechanism that makes translucency safe: without a
+guaranteed floor, a blurred panel is a readability bug waiting for the wrong wallpaper —
+and the wallpaper is whatever the reader happens to be scrolling past.
+
+It is a server component, and that is a requirement rather than an optimisation. Every
+state it has is a user preference or an engine capability, each is answered by a media or
+support query, and reading any of them in JavaScript would mean rendering one material on
+the server and swapping to another after hydration. A flash of the wrong depth is a
+cosmetic bug on a marketing page and a legibility bug on the surface holding somebody's
+result.
 
 ## Preview
 
-The preview will show all six rungs over a deliberately hostile photographic backdrop, with
-the scrim and reduced-transparency toggles live, so the floor is demonstrated rather than
-asserted.
+The whole ladder over a deliberately hostile backdrop: the page's darkest and lightest
+tones side by side under every rung, because a material that only holds its floor over a
+tasteful photograph has not been tested. The sixth rung, `scrim`, is shown doing its real
+job — dimming a page with content on a rung above it, never with text on the scrim itself.
 
 <ComponentPreview name="surface" />
 
 ## Installation
 
-The registry item does not exist yet; the command below is shown for shape only and will
-fail.
+<ComponentInstall
+  name="surface"
+  unbuilt={false}
+  importPath="@/components/ui/surface"
+/>
 
-<ComponentInstall name="surface" />
+Nothing else is installed with it. Surface has no npm dependency and composes no other
+opsinjs component; it imports `cn` and the `MaterialRung` union, both of which travel with
+every registry item.
+
+## Usage
+
+```tsx
+import { Surface } from "@/components/ui/surface"
+```
+
+```tsx
+<Surface rung="sheet">Everything the surface holds</Surface>
+```
 
 ## When to use it
 
@@ -60,87 +88,171 @@ fail.
   ]}
 />
 
-The last entry is a performance limit, not a style preference. Composited translucent layers
-are expensive on mid-range Android hardware, and the fourth one is where scrolling starts to
-stutter on exactly the devices most likely to belong to the people this system is for. See
+The last entry is a performance limit, not a style preference. Composited translucent
+layers are expensive on mid-range Android hardware, and the fourth one is where scrolling
+starts to stutter on exactly the devices most likely to belong to the people this system is
+for. Surface does not count them, and the [Status](#status) section says why. See
 [Performance budget](../foundations/materials/performance-budget.mdx).
+
+### The rung names, and the two that mean a different depth
+
+This page used to name the six rungs `base`, `raised`, `panel`, `overlay`, `sheet`,
+`chrome`. Those names are retired. The rung names are the token names —
+[ADR 0014](../project/decisions/0014-material-rung-names.mdx) settles it — because they are
+the ones a stylesheet resolves and a drift gate checks, and choosing a prose set instead
+would have meant renaming six generated custom properties in order to change a word.
+
+Translate by **job**, never by position on the ladder. Three of the retired names are also
+current names, and two of those moved:
+
+| Retired name | What it meant | Rung now |
+| --- | --- | --- |
+| `base` | the page itself | `canvas` |
+| `raised` | a bounded block of content | `card` |
+| `panel` | lifted above the page, not covering it | `raised` |
+| `overlay` | covering the page, which stays recognisable | `sheet` |
+| `sheet` | a dismissible bottom sheet | `sheet` |
+| `chrome` | a pinned toolbar or tab bar | `overlay` |
+
+Read the fourth and sixth rows twice. `overlay` on this ladder is chrome that content
+scrolls *beneath*; the panel that covers the page is `sheet`. A positional translation puts
+a dismissible sheet on the chrome rung and a tab bar on the sheet rung, and both of those
+compile, render and look almost right. A search-and-replace across an older design file is
+not a safe migration for the three shared names — only `base`, `panel` and `chrome` are
+unambiguous, and those are the three the component warns about in development.
+
+For choosing between rungs at all, the decision table on
+[Choosing a layer](../foundations/materials/choosing-a-layer.mdx) asks the questions in the
+order that resolves them fastest, and [The material ladder](../foundations/materials/the-ladder.mdx)
+carries the live specimen.
 
 ## Anatomy
 
-<Anatomy name="surface" />
+<Anatomy
+  name="surface"
+  parts={[
+    {
+      name: "Surface",
+      describes: "The root. Resolves the rung's material custom properties, carries the rung's drop shadow, and is position: relative and nothing else — never isolation: isolate, which would create a backdrop root and stop the blur seeing the page.",
+      prop: "rung",
+    },
+    {
+      name: "Surface.Backdrop",
+      describes: "Blur and saturation over whatever is behind. Rendered only on a translucent rung, and removed from the render under reduced transparency, under increased contrast, and where backdrop-filter is unavailable.",
+      prop: "opaque",
+    },
+    {
+      name: "Surface.Scrim",
+      describes: "The rung's tint at max(tint-alpha, minimum scrim opacity). Present on every rung, reachable by no prop, and the reason a translucent surface can be trusted with text.",
+      prop: "contentWeight",
+    },
+    {
+      name: "Surface.Edge",
+      describes: "A hairline inset ring in the rung's border colour, thickened under increased contrast. Absent on the two rungs whose border token is the keyword none, without a table saying which those are.",
+    },
+    {
+      name: "Surface.Content",
+      describes: "Everything the surface holds. Last in document order, so it paints above the other three. Carries no padding: spacing belongs to the composing component.",
+      prop: "children",
+    },
+  ]}
+/>
 
-<CompositionTree name="surface" />
+<CompositionTree
+  name="surface"
+  tree={[
+    {
+      part: "Surface",
+      cardinality: "1",
+      note: 'data-slot="surface"',
+      children: [
+        {
+          part: "Surface.Backdrop",
+          cardinality: "0..1",
+          note: 'data-slot="surface-backdrop", aria-hidden; absent on canvas, card, raised and under reduced transparency',
+        },
+        {
+          part: "Surface.Scrim",
+          cardinality: "1",
+          note: 'data-slot="surface-scrim", aria-hidden',
+        },
+        {
+          part: "Surface.Edge",
+          cardinality: "1",
+          note: 'data-slot="surface-edge", aria-hidden',
+        },
+        {
+          part: "Surface.Content",
+          cardinality: "1",
+          note: 'data-slot="surface-content"',
+        },
+      ],
+    },
+  ]}
+/>
 
 **Backdrop** is the blur and saturation applied to whatever is behind. **Scrim** is the
-computed layer that guarantees the contrast floor for content on top — the part that makes
-the whole thing safe, and the part most hand-rolled glass effects omit. **Content** is
-everything the surface holds. **Edge** is the hairline that separates the surface from what
-is behind it, which is what stops a translucent panel dissolving into a busy backdrop.
+layer that guarantees the contrast floor for content on top — the part that makes the whole
+thing safe, and the part most hand-rolled glass effects omit. **Edge** is the hairline that
+separates the surface from what is behind it, which is what stops a translucent panel
+dissolving into a busy backdrop. **Content** is everything the surface holds.
 
-Proposed part hierarchy. This is the specification the implementation must match.
+`Surface.Scrim` cannot be removed by any prop, and it is not merely undocumented — there is
+no prop, and no token value, that takes it below the floor. Its opacity is
+`max(tint-alpha, minimum-scrim-opacity)`, so a tint lightened for a design review still
+composites at the published minimum. A rung whose scrim is disabled is not a rung, and the
+contrast guarantee is the only reason to use this component rather than a `div` with a
+`backdrop-filter`.
 
-```text
-Surface                        root; declares a rung of the material ladder
-├── Surface.Backdrop           blur + saturation; absent under reduced transparency
-├── Surface.Scrim              computed to guarantee the floor; never optional
-├── Surface.Edge               hairline separation from the backdrop
-└── Surface.Content            everything the surface holds
-```
+Two parts are absent rather than neutralised, and the difference is the point.
+`app/tokens.generated.css` already collapses a rung's blur to `0px` under
+`prefers-reduced-transparency`, so the Backdrop's filter becomes an identity — but the
+element is still a backdrop root, and the browser still snapshots what is behind it on a
+rung that has asked not to be composited at all. Removing the element is the half a
+stylesheet cannot do, and it is why this component exists rather than a class. The Edge is
+absent on `canvas` and `scrim` for a different reason: both of those rungs publish the
+keyword `none` as their border, which is invalid inside a `box-shadow` and makes the whole
+declaration fall back to `none`. The CSS engine reaches the right answer, and no table of
+which rungs have an edge has to be kept up to date by hand.
 
-`Surface.Scrim` cannot be removed by any prop. A rung whose scrim is disabled is not a rung,
-and the contrast guarantee is the only reason to use this component rather than a `div` with
-a `backdrop-filter`.
+The parts are `data-slot` attributes, not exports. There is no `Surface.Backdrop` to
+import, no way to render a Content without its Scrim, and no `data-rung` attribute — the
+data-attribute vocabulary is closed at four, and the rung is legible from the resolved
+`--opsin-material-*` values in devtools. Surface also sets no corner of its own: shape is
+the composing component's decision, and every layer inside inherits whatever radius the
+caller applies.
 
-## Proposed API
+## Examples
 
-<NotBuiltYet name="surface" />
+### Chrome that content scrolls beneath
 
-```ts
-// PROPOSED. Not implemented. A specification for review, not an API to generate
-// code against. It will change without a deprecation cycle.
+The `overlay` rung doing the job it is named for, which is the one most often given to the
+wrong component. Scroll it: the blur and the scrim are what keep the heading legible while
+a light row and a dark row pass underneath.
 
-/**
- * The six rungs of the material ladder, ordered from most recessive to most
- * prominent. Named for their job, not for their blur radius, so a rung can be
- * retuned without renaming every use of it.
- */
-export type MaterialRung =
-  | "base"
-  | "raised"
-  | "panel"
-  | "overlay"
-  | "sheet"
-  | "chrome"
+<ComponentPreview name="surface-over-scrolling-content" kind="example" align="start" />
 
-export interface SurfaceProps {
-  /** Which rung. Required: there is no sensible default depth. */
-  rung: MaterialRung
-  /**
-   * Whether content on this surface must clear the floor for body text or only
-   * for large text. Drives the computed scrim.
-   */
-  contentWeight?: "body" | "large"
-  /** Renders opaque regardless of user preference — for print and export paths. */
-  opaque?: boolean
-  children: React.ReactNode
-}
-```
+### The degraded path, without changing a setting
 
-There is no `blur` prop, no `opacity` prop and no `tint` prop. Free-form values are how a
-ladder becomes a gradient of ad-hoc guesses, and how the contrast guarantee stops being
-computable.
+Reduce Transparency, `prefers-contrast: more` and a missing `backdrop-filter` all end at
+the same surface, deliberately, so that the fallback is exercised daily by real readers
+rather than only by an old engine. `opaque` is the fourth way in and the one a reviewer can
+look at. Note what does not change: the border, the shadow and the geometry stay, because
+they are what carries the layering once the translucency is gone.
+
+<ComponentPreview name="surface-opaque-fallback" kind="example" align="start" />
 
 ## Content guidelines
 
-Surface holds content; it does not generate any. The guideline that matters is about what you
-put on it: text over a translucent surface is the one place in this system where a
-readability failure is invisible in review, because it depends on what happened to be behind
-it in the designer's screenshot.
+Surface holds content; it generates none, and it ships no default copy at all. The
+guideline that matters is about what you put on it: text over a translucent surface is the
+one place in this system where a readability failure is invisible in review, because it
+depends on what happened to be behind it in the designer's screenshot.
 
 <DoDont>
   <DoDont.Do>
-    **Text and controls on a surface whose rung was chosen for the content's weight**, so the
-    computed scrim guarantees the floor over any backdrop.
+    **Text and controls on a surface whose rung was chosen for the content's weight**, so
+    the scrim holds the floor over any backdrop.
   </DoDont.Do>
   <DoDont.Dont>
     **Small grey caption text on a heavily blurred surface over a photograph**, checked once
@@ -159,29 +271,133 @@ it in the designer's screenshot.
   </DoDont.Dont>
 </DoDont>
 
-## Accessibility requirements
+<DoDont>
+  <DoDont.Do>
+    **A reading on `card`, or on `raised` while it is being acted on.** Those are the two
+    rungs `tokens/material.json` allows a health value to sit on.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A number on `sheet` or `overlay`.** A figure a person is trying to read must not sit
+    over a moving backdrop, however well the scrim holds — the value stays legible and the
+    reader still has to work to read it.
+  </DoDont.Dont>
+</DoDont>
 
-Requirements for the implementation, not results.
+## Accessibility
 
-- **The contrast floor is guaranteed, not hoped for.** Every rung's scrim is computed so that
-  content on it clears the published floor over any backdrop, and the result is measured in
-  CI — see [The contrast floor](../foundations/materials/the-contrast-floor.mdx).
-- **`prefers-reduced-transparency` produces a defined opaque fallback for every rung**, with
-  layering still legible through elevation and edges rather than through blur. Not a global
-  switch that flattens the interface into one plane — see
-  [Reduced transparency](../accessibility/reduced-transparency.mdx).
-- **`prefers-contrast: more` strengthens edges and scrims** rather than only darkening text.
-- **The surface is not announced.** It is a presentational layer with no role, no name and no
-  place in the accessibility tree; its content is the content.
-- **Where `backdrop-filter` is unsupported, the opaque fallback renders**, and it is the same
-  fallback used under reduced transparency, so the degraded path is the one that gets tested.
-  See [Browser support](../start/browser-support.mdx).
-- **No text is ever placed directly over an unscrimmed backdrop**, including text inside
-  images and icons that carry meaning.
+Some of this is checked by a gate on every commit, some is measured nightly, and some is an
+argument. They are separated below because `alpha` promises that accessibility is claimed
+only where it has been checked, with the gaps listed rather than left out.
 
-<KeyboardTable name="surface" />
+**Checked, by `pnpm run check:a11y` on every commit:**
 
-<ContrastReport component="surface" />
+- **Every colour is a token.** The static rig fails the build on a hex literal, an
+  `oklch()`, a Tailwind palette colour, a numbered ramp step or a neutral step anywhere in
+  `registry/**`. Every value this component paints is a `--opsin-material-*` custom
+  property or one of the eleven bridged surface roles, so a rung can be re-tuned or
+  re-measured without touching the component.
+- **Nothing here resolves to nothing under the product theme.** The same gate fails on the
+  chrome-only roles and radii that exist in `app/globals.css` and not in `app/product.css`
+  — the defect that looks correct in review because the preview renders inside the docs.
+- **No `px` font size, and no banned word** in copy or in an identifier. Surface renders no
+  copy of its own, so this is a guard against a future edit rather than a finding.
+
+**Measured, and re-verified nightly rather than on every commit:**
+
+- **The contrast floor for each rung.** `scripts/check-contrast.mts` measures body text
+  against every rung's *opaque fallback* — the worst case for text on that material, not a
+  flattering backdrop — in both themes, and records APCA Lc and WCAG 2.2 into
+  `lib/generated/contrast.json` under the `materials` scope. A regression fails the nightly
+  job. It is not in `pnpm check`, so a change made and merged in a day is measured that
+  night rather than at review time.
+
+**Argued, and true of the implementation, but not yet measured:**
+
+- **The surface is not announced.** It has no role, no name and no place in the
+  accessibility tree; the three decorative layers are empty and `aria-hidden`, and the
+  content is the content. It is also not focusable and adds no tab stop, which is what
+  makes it safe to nest.
+- **`prefers-reduced-transparency` produces a defined opaque fallback for every rung**, and
+  the layering stays legible through the shadow and the edge rather than through blur. It
+  is not a global switch that flattens the interface into one plane: the token layer swaps
+  four properties and deliberately leaves the border, the shadow and the geometry alone.
+  See [Reduced transparency](../accessibility/reduced-transparency.mdx).
+- **Where `backdrop-filter` is unavailable, the same fallback renders**, tested for both the
+  plain and the `-webkit-` spelling because the system's tested floor is Safari 16.4 and
+  Safari carried only the prefixed form until 18. The degraded path is therefore the one
+  real readers exercise. See [Browser support](../start/browser-support.mdx).
+- **`prefers-contrast: more` strengthens the edge and the scrim** rather than only darkening
+  text: the edge moves from the hairline width to the emphasis width, and the rung takes its
+  opaque fallback. That is the second and fourth of the four things
+  [Increased contrast](../accessibility/increased-contrast.mdx) specifies, implemented here
+  before the token layer implements them anywhere else — which makes that page's "today,
+  nothing" true of every component except this one.
+- **No text is ever placed directly over an unscrimmed backdrop.** There is no code path
+  that renders a Backdrop without a Scrim, including the path where the rung is unknown, and
+  including text inside images and icons that carry meaning.
+
+**Not yet checked at all, and listed rather than omitted:**
+
+- The rendered contrast figures are not on this page. `<ContrastReport>` takes its rows as a
+  prop and nothing wires `lib/generated/contrast.json` into it yet, and retyping ten
+  measured numbers into MDX would produce a page that quietly stops being true. Run
+  `pnpm run contrast` and read the `materials` scope.
+- Behaviour under `forced-colors: active`. Nothing in opsinjs answers it, and a material
+  ladder is precisely what a forced-colours environment replaces.
+- The composited-surface budget. Three translucent rungs at once is the designed worst case
+  and nothing counts them; a fourth is a screen that needs redesigning rather than tuning.
+- Whether the scrim's floor holds at `[data-text-size="200"]`. The floor is a colour
+  relationship and does not move with type size, but nobody has looked at a 200% sheet over
+  a hostile backdrop and said so.
+
+<KeyboardTable
+  name="surface"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Passes through the surface",
+      notes: "Surface is presentational. It has no role, takes no focus and adds no tab stop, which is what lets a screen nest three of them without giving a keyboard user three stops that do nothing. Anything focusable inside it is focusable on its own terms.",
+    },
+    {
+      keys: "Shift + Tab",
+      action: "Passes through the surface",
+      notes: "Same in reverse. A Surface never appears in the focus order in either direction, at any rung, including scrim.",
+    },
+  ]}
+/>
+
+<ContrastReport scope="materials" />
+
+## API reference
+
+<PropsTable name="SurfaceProps" />
+
+`rung` is required because there is no sensible default depth, and a component that guessed
+would place a surface at the wrong height silently rather than loudly. `MaterialRung` is
+declared once, in the shared substrate that ships with every registry item, and its six
+members are documented at [MaterialRung](../reference/api/MaterialRung.mdx).
+
+There is no `blur` prop, no `opacity` prop and no `tint` prop. Free-form values are how a
+ladder becomes a gradient of ad-hoc guesses, and how the contrast guarantee stops being
+computable. There is no radius prop either, and no polymorphic `as`: a component that needs
+a different element wraps a Surface rather than becoming one, which keeps the four layers'
+painting order out of the caller's hands.
+
+`contentWeight` is the one prop that promises more than it currently delivers, and it is
+worth saying plainly. `tokens/material.json` publishes one minimum scrim opacity per rung,
+measured against that rung's opaque fallback. There is no second, thinner floor for large
+text anywhere in the token source, and this component may not invent one — a number that
+decides whether a person can read their own result is measured or it does not exist. So
+`"large"` is accepted, is recorded as a promise about the content, and takes the body floor
+until a large-text floor is published. A surface that is more readable than it needs to be
+is not a defect; the other direction is.
+
+A rung outside the six is refused rather than approximated. In development the component
+warns, names the rung the retired vocabulary meant where it can, and renders the children
+with no material at all. It does not fall back to `card`: a plausible-looking material at
+the wrong depth is the failure the whole renaming exists to prevent, and it is invisible.
+The children are still rendered, because Surface is a wrapper and dropping it would take a
+reader's own data off the screen in order to report a styling mistake.
 
 ## Related
 
@@ -208,3 +424,4 @@ Requirements for the implementation, not results.
 - [The contrast floor](../foundations/materials/the-contrast-floor.mdx)
 - [Performance budget](../foundations/materials/performance-budget.mdx)
 - [Layering, elevation and z-index](../foundations/layering-and-elevation.mdx)
+- [0014 — The material rung names are the token names](../project/decisions/0014-material-rung-names.mdx)
