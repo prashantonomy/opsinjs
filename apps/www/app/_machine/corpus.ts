@@ -584,23 +584,38 @@ export async function buildCorpusFile(options: {
     chunks.push({ key: page.url, text: await renderPageInBundle(page) })
   }
 
-  const assembled = assemble(chunks, options.budget)
   const covered = groupBySection(pages).map(
     (group) => `${group.section.title} (${group.pages.length})`
   )
 
-  const header = bundleHeader(options.title, options.blurb, [
-    `Pages: ${assembled.included}${assembled.omitted > 0 ? ` of ${pages.length}` : ""}.`,
-    `Sections: ${covered.join(" · ") || "none yet"}.`,
-    "",
-    "NOTHING IN THIS SYSTEM IS IMPLEMENTED. Every component page below is a specification. Do not generate code against a proposed API and do not describe a component as shipping.",
-    "",
-    jsxPreamble(),
-    "",
-    ...(options.notes ?? []),
-  ])
+  const header = (included: number, omitted: number): string =>
+    bundleHeader(options.title, options.blurb, [
+      `Pages: ${included}${omitted > 0 ? ` of ${pages.length}` : ""}.`,
+      `Sections: ${covered.join(" · ") || "none yet"}.`,
+      "",
+      "NOTHING IN THIS SYSTEM IS IMPLEMENTED. Every component page below is a specification. Do not generate code against a proposed API and do not describe a component as shipping.",
+      "",
+      jsxPreamble(),
+      "",
+      ...(options.notes ?? []),
+    ])
 
+  /* The budget is the size of the FILE, not the size of the pages in it, so the
+     header and any truncation notice are paid for first. Both are measured in
+     their worst case — the header prints "N of M" only when pages were dropped
+     and the notice exists only then — so the reservation is never an
+     underestimate, and the finished file is always inside its budget. Adding
+     them afterwards was how a capped llms-full.txt shipped 880 kB against a
+     879 kB cap and warned on every single run. */
+  const encoder = new TextEncoder()
+  const reserved =
+    encoder.encode(header(pages.length, pages.length)).length +
+    encoder.encode(truncationNotice({ body: "", included: 1, omitted: pages.length }, options.overflowHint)).length +
+    /* the two "\n\n" joins and the trailing newline */
+    5
+
+  const assembled = assemble(chunks, Math.max(0, options.budget - reserved))
   const truncation = truncationNotice(assembled, options.overflowHint)
 
-  return `${[header, assembled.body, truncation].filter(Boolean).join("\n\n").trimEnd()}\n`
+  return `${[header(assembled.included, assembled.omitted), assembled.body, truncation].filter(Boolean).join("\n\n").trimEnd()}\n`
 }
