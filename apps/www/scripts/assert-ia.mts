@@ -1802,6 +1802,35 @@ function checkCatalogue(pages: ParsedPage[], catalogue: CatalogueRow[], source: 
     }
   }
 
+  /* CAT007 - an alias may not be a catalogue id.
+     registry/catalogue.ts's own header comment says assert-ia "fails the build
+     when ... an alias collides with any catalogue id". It did not: the check
+     did not exist. It was not hypothetical either — status-pill's page claimed
+     `badge` as a synonym while `badge` is a real catalogue row with a real page
+     of its own, so a reader searching for a badge could be sent to a component
+     that is its opposite. A pill is a judgement; a badge is a label. */
+  const catalogueIds = new Set(catalogue.map((row) => row.name))
+  for (const [alias, owners] of aliasOwners) {
+    if (!catalogueIds.has(alias)) continue
+    const owner = owners[0] ?? "unknown"
+    fail(
+      "CAT007",
+      `content/docs/${owner}.mdx`,
+      `the alias "${alias}" is also a catalogue id. A synonym that is somebody else's name resolves to two things and therefore to neither: a reader searching for "${alias}" is sent to ${owner} rather than to components/${alias}. Drop it from the aliases, or rename the component.`,
+    )
+  }
+  for (const row of catalogue) {
+    for (const alias of row.aliases ?? []) {
+      const key = alias.trim().toLowerCase()
+      if (key === "" || !catalogueIds.has(key) || key === row.name) continue
+      fail(
+        "CAT007",
+        "registry/catalogue.ts",
+        `the catalogue row "${row.name}" claims "${key}" as an alias, and "${key}" is itself a catalogue id. The alias namespace and the id namespace are one namespace.`,
+      )
+    }
+  }
+
   /* A component page's aliases must agree with the catalogue's, since search is
      fed from frontmatter while /r and llms.txt are fed from the catalogue. */
   const catalogueAliases = new Map(catalogue.map((row) => [row.name, row.aliases ?? []]))
