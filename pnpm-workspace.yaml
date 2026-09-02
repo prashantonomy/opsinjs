@@ -1,0 +1,13 @@
+packages:
+  - apps/*
+  - packages/*
+
+# pnpm 11 blocks postinstall/build scripts unless they are named here.
+# esbuild MUST be true: fumadocs-mdx shells out to esbuild to compile
+# source.config.ts, and without the build script it cannot generate the
+# .source/ directory — every route that imports it then fails to resolve.
+# sharp and unrs-resolver are optional native builds we do not need.
+allowBuilds:
+  esbuild: true
+  sharp: false
+  unrs-resolver: false

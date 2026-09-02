@@ -1,0 +1,39 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "tui",
+  "globalDependencies": ["tsconfig.base.json", ".npmrc"],
+  "tasks": {
+    "generate": {
+      "inputs": [
+        "tokens/**",
+        "registry/**",
+        "scripts/**",
+        "lib/color/**"
+      ],
+      "outputs": [
+        "lib/generated/**",
+        "registry/__index__.ts",
+        "app/tokens.generated.css",
+        "content/docs/reference/generated/**",
+        "public/r/**"
+      ]
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "public/r/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"]
+    },
+    "check": {
+      "dependsOn": ["^build"]
+    }
+  }
+}
