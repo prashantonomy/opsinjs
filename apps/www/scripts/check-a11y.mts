@@ -1228,6 +1228,23 @@ const THRESHOLD_NAMES =
   /(stale|threshold|cutoff|cut_?off|upperlimit|lowerlimit|minimum|maximum|\blimit\b|expire|expiry|freshfor|band|plausib|refrange|referencerange)/i
 
 /**
+ * The subset §7 names by name, which therefore has NO example exemption.
+ *
+ * "Never ship a reference range, threshold, plausibility bound, score band,
+ * staleness default, emergency number, or default disclaimer text — for any
+ * metric, in any population, ever… This applies to example data too."
+ *
+ * `minimumPoints` is not on that list and is not clinical in the same way: it
+ * decides whether a line is drawn, not whether a reading is current. So it keeps
+ * the `EXAMPLE_` route and these do not. The distinction is the enumeration's,
+ * not mine, and it is why `EXAMPLE_HOURS_A_READING_STAYS_CURRENT = 48` reaching
+ * a staleness prop is refused however it is spelled: renaming a staleness
+ * boundary does not stop it being one.
+ */
+const NEVER_EXEMPT =
+  /(stale|threshold|cutoff|cut_?off|expire|expiry|freshfor|band|plausib|refrange|referencerange)/i
+
+/**
  * Names that LOOK like a threshold and are not one.
  *
  * Every entry here is a real construct in this repository, and the list is short
@@ -1287,10 +1304,18 @@ function checkShippedThresholds(file: string, source: string, starts: number[]):
        — the whole point of `minimumPoints` is that a product supplies it, and
        an example with no product is the example standing in for one. Requiring
        the prefix makes that authorship explicit at the call site, so a reader
-       of the installed file sees "this number was the example's choice" rather
-       than a bare 4 that reads as the system's. It is deliberately impossible
-       to satisfy by accident. */
-    if (via.startsWith("EXAMPLE_")) continue
+       sees "this number was the example's choice" rather than a bare 4 that
+       reads as the system's.
+
+       IT DOES NOT REACH THE PROPS §7 NAMES, and that restriction was added
+       after the prefix was used to ship one. `metric-tile` wrote
+       `EXAMPLE_HOURS_A_READING_STAYS_CURRENT = 48` and passed it to a staleness
+       prop. Renaming a staleness boundary does not stop it being one, and §7
+       lists "staleness default" among the things forbidden "for any metric, in
+       any population, ever… This applies to example data too." So `NEVER_EXEMPT`
+       carries exactly that enumeration and the hatch does not open for it,
+       anywhere, however the constant is spelled. */
+    if (via.startsWith("EXAMPLE_") && !NEVER_EXEMPT.test(prop)) continue
     const key = `${prop}:${via}`
     if (reported.has(key)) continue
     reported.add(key)

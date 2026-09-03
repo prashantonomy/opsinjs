@@ -1,11 +1,11 @@
 {
   "$comment": "GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts, projected through lib/catalogue.ts. Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`. Consumed by the /r routes, the llms shards and the generated catalogue reference page. It exists as JSON rather than being imported from the TypeScript because the route handlers, the llms shards and any external tool all need the same rows without loading the app's module graph. `generatedAt` carries the source hash rather than a build time, because this file is guarded by a byte-for-byte drift gate.",
-  "generatedAt": "16e9321c4676",
-  "sourceHash": "16e9321c4676",
+  "generatedAt": "4a2db0c54f1e",
+  "sourceHash": "4a2db0c54f1e",
   "counts": {
     "shipped": 24,
     "considered": 36,
-    "implemented": 16
+    "implemented": 21
   },
   "categories": [
     {
@@ -76,7 +76,7 @@
       "description": "One test result, showing the number, what it is compared against, and what it means.",
       "type": "registry:ui",
       "category": "health-data-display",
-      "status": "planned",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
         "results",
@@ -86,8 +86,15 @@
         "blood pressure",
         "a1c"
       ],
-      "implemented": false,
-      "docs": "/docs/components/result-card"
+      "implemented": true,
+      "docs": "/docs/components/result-card",
+      "registryDependencies": [
+        "status-pill",
+        "value",
+        "range-bar",
+        "relative-time",
+        "button"
+      ]
     },
     {
       "name": "range-bar",
@@ -166,7 +173,7 @@
       "description": "A compact tile showing one reading, its unit and when it was taken.",
       "type": "registry:ui",
       "category": "health-data-display",
-      "status": "planned",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
         "stat",
@@ -177,8 +184,14 @@
         "resting heart rate",
         "spo2"
       ],
-      "implemented": false,
-      "docs": "/docs/components/metric-tile"
+      "implemented": true,
+      "docs": "/docs/components/metric-tile",
+      "registryDependencies": [
+        "surface",
+        "value",
+        "status-pill",
+        "relative-time"
+      ]
     },
     {
       "name": "status-pill",
@@ -207,15 +220,20 @@
       "description": "A prominent message about something that needs the reader's attention now.",
       "type": "registry:ui",
       "category": "health-communication",
-      "status": "planned",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
         "warning banner",
         "notification banner",
         "inline alert"
       ],
-      "implemented": false,
-      "docs": "/docs/components/alert-banner"
+      "implemented": true,
+      "docs": "/docs/components/alert-banner",
+      "registryDependencies": [
+        "status-pill",
+        "button",
+        "relative-time"
+      ]
     },
     {
       "name": "care-card",
@@ -223,7 +241,7 @@
       "description": "A card saying what to do next, and how urgently.",
       "type": "registry:ui",
       "category": "health-communication",
-      "status": "planned",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
         "what to do next",
@@ -232,8 +250,13 @@
         "next steps",
         "guidance card"
       ],
-      "implemented": false,
-      "docs": "/docs/components/care-card"
+      "implemented": true,
+      "docs": "/docs/components/care-card",
+      "registryDependencies": [
+        "card",
+        "button",
+        "status-pill"
+      ]
     },
     {
       "name": "term",
@@ -276,7 +299,7 @@
       "description": "The standing note about what this information is and is not.",
       "type": "registry:ui",
       "category": "health-communication",
-      "status": "planned",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
         "disclaimer",
@@ -284,8 +307,11 @@
         "legal note",
         "small print"
       ],
-      "implemented": false,
-      "docs": "/docs/components/disclaimer-note"
+      "implemented": true,
+      "docs": "/docs/components/disclaimer-note",
+      "dependencies": [
+        "lucide-react"
+      ]
     },
     {
       "name": "log-sheet",

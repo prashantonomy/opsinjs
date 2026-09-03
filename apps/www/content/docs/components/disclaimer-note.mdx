@@ -1,7 +1,7 @@
 ---
 title: DisclaimerNote
 description: The short standing note saying that what you are looking at is information, not medical advice — placed by rule so it is always in the same place and never in the way.
-status: planned
+status: alpha
 kind: component
 since: "unreleased"
 category: health-communication
@@ -10,38 +10,59 @@ governedBy: [regulatory-context, clinical-interaction-guidelines, safety-review-
 usedIn: [value-against-a-range, results-screen, consent-flow]
 ---
 
-<PageTemplate kind="component" />
-
 ## Status
 
 <StubNotice
   name="disclaimer-note"
+  status="alpha"
   issue="opsinjs/opsinjs#0"
   questions={[
-    "Once per screen, once per session, or once per surface that shows a health value? The placement rule is the component.",
-    "Is the text ever the product's own, or is a small set of vetted variants safer than free text on a legally significant surface?",
-    "Does it need to be dismissible, and if a reader dismisses it, does it return — and does the product record that they saw it?",
-    "What is the relationship between this note and the regulatory statements a product may separately be obliged to show?",
+    "Once per screen, once per session, or once per surface that shows a health value? The component enforces none of these — it renders where it is put, and a second note on the same surface is invisible to it. The placement rule is still a rule people follow rather than one the code keeps.",
+    "Does it need to be dismissible, and if a reader dismisses it, does it return — and does the product record that they saw it? There is no dismiss control, because one needs a name, a target floor and a memory that outlives a render, and none of the three has been designed.",
+    "textVersion renders as visible text, because the data-attribute vocabulary is closed at four and an id in an attribute is a record only the product that already had it can read. Is visible text the right home for it, or does the vocabulary need a fifth member?",
+    "Nobody has listened to this component in a screen reader, and its contrast pairs and its link's hit area have not been measured. Until they are, the accessibility section below says which claims are checked by a gate and which are only argued.",
   ]}
-/>
+>
+  <code className="text-sm">disclaimer-note</code> is implemented and
+  installable. It is <strong className="font-medium">alpha</strong>: it works
+  and it is documented, the API may change in any release without a deprecation
+  cycle, and it is not for a production health surface yet.
+</StubNotice>
 
 A disclaimer that appears everywhere is read nowhere, and a disclaimer that appears nowhere
 is a liability. This component exists so the placement decision is made once, in the system,
-rather than twenty times by twenty different people under deadline.
+rather than twenty times by twenty different people under deadline. What it does not do —
+and the refusal is the larger half of the component — is supply the words.
 
 ## Preview
 
-The preview will show the note in its three placements — inline under a result, in a screen
-footer, and inside a sheet — so the difference between present and prominent is visible.
+The note in place with everything it can carry, and beneath it the same note with no words
+supplied. The second is the state worth looking at: opsinjs ships no disclaimer text, so an
+empty one says on screen that none was written rather than filling the gap with a sentence
+nobody reviewed.
 
 <ComponentPreview name="disclaimer-note" />
 
 ## Installation
 
-The registry item does not exist yet; the command below is shown for shape only and will
-fail.
+<ComponentInstall
+  name="disclaimer-note"
+  unbuilt={false}
+  importPath="@/components/ui/disclaimer-note"
+  dependencies={["lucide-react"]}
+/>
 
-<ComponentInstall name="disclaimer-note" />
+## Usage
+
+```tsx
+import { DisclaimerNote } from "@/components/ui/disclaimer-note"
+```
+
+```tsx
+<DisclaimerNote placement="footer">
+  The product's own two sentences go here. opsinjs ships none of them.
+</DisclaimerNote>
+```
 
 ## When to use it
 
@@ -64,33 +85,45 @@ fail.
 Repetition is the failure mode this component exists to prevent. One note per surface, placed
 by the rule, and never repeated beside every individual result: a screen that seems to need
 four notes is a screen showing four things that each need explaining, and four identical
-notes will explain none of them.
+notes will explain none of them. The component does not enforce that — it renders where it is
+put and cannot see a second copy of itself — so the rule lives in review, and the example
+below is what it looks like when it is kept.
 
 ## Clinical meaning
 
 **What it asserts.** That this product provides information rather than clinical assessment,
 that it does not replace advice from a clinician, and — where relevant — that it is not a
-medical device.
+medical device. It asserts those things in the product's own words. The component supplies
+the position, the type size, the ink and the boundary, and not one syllable of the content.
 
 **What it must never be read as.** A waiver, an excuse, or a substitute for designing safely.
 A disclaimer does not make an unsafe screen safe, and no regulator, and no reader, has ever
 been persuaded otherwise. It also must never be read as *this number is unreliable*: the
 note is about the product's role, not about the quality of the measurement.
 
-**Which colour axis it may use.** Neither. The note is quiet, neutral and typographic. Status
-colour on a standing disclaimer is a permanent false alarm, and category colour makes a legal
-statement look like a topic.
+**Which colour axis it may use.** Neither, and this is the one component where the two-axis
+rule is answered by absence rather than by a choice. There is no `status` prop and no
+`category` prop, the root carries neither `data-status` nor `data-category`, and there is no
+fill of any kind. Status colour on a standing disclaimer is a permanent false alarm — it says
+the same level on every screen, from first launch to last, about nothing in particular — and
+category colour makes a legal statement look like a topic. See
+[The two colour axes](../health/two-colour-axes.mdx).
 
 **Where it goes.** Below the content it qualifies, above the surface's footer, once per
 surface. Never above the result — a reader who came to see a number should see the number
 first. Never in a collapsed section, and never in a modal the reader must dismiss before
-they can read the thing they came for.
+they can read the thing they came for. `placement` is the prop that says which of the two
+positions this note is in; it changes the space above the note and nothing else, because a
+placement that also changed the treatment would be a second way to make the note louder.
 
 **Who owns the words.** The consuming product, in consultation with whoever is accountable
 for it. opsinjs does not ship legal text, and nothing on this page is legal advice.
 [Regulatory context](../health/regulatory-context.mdx) sets out what DCB0129, DCB0160, the
 EU MDR and FDA SaMD expectations ask of the *consuming* product — the design system confers
-no status of any kind.
+no status of any kind. The implementation is written so that this cannot be got round by
+accident: there is no default string, no placeholder, no vetted variant and no translation
+key with a fallback, and a note rendered with nothing in it prints an admission that nothing
+was supplied.
 
 <SafetyCallout severity="attention" evidence="opinion">
 If a product finds itself relying on this component to make a screen acceptable, the screen
@@ -100,75 +133,152 @@ transfer risk onto the reader.
 
 ## Anatomy
 
-<Anatomy name="disclaimer-note" />
+<Anatomy
+  name="disclaimer-note"
+  parts={[
+    {
+      name: "DisclaimerNote",
+      describes: "The root. Neutral, quiet and outside both colour axes: no status prop, no category prop, no fill, no radius, no role and no live region. A hairline above it and the space it stands in are the whole treatment.",
+      prop: "placement",
+    },
+    {
+      name: "DisclaimerNote.Icon",
+      describes: "Optional and off by default. Decorative, aria-hidden and sized in em so it grows with the text. The glyph is the component's rather than the caller's, which is what makes \"never a warning triangle\" a fact about the API instead of a sentence in the documentation.",
+      prop: "icon",
+    },
+    {
+      name: "DisclaimerNote.Text",
+      describes: "The product's own one or two sentences, at body size in body ink, capped to a comfortable measure. With nothing supplied it prints one line saying so — deliberately unlovely, and impossible to mistake for a disclaimer.",
+      prop: "children",
+    },
+    {
+      name: "DisclaimerNote.Link",
+      describes: "The fuller statement. Label and destination arrive together as one object, so the label always names where it goes; a vague one raises a development warning and still renders.",
+      prop: "more",
+    },
+    {
+      name: "DisclaimerNote.Version",
+      describes: "The id of this note's wording, rendered exactly as the caller wrote it, with no word added around it. Present only when textVersion is, and at the same size and ink as the text.",
+      prop: "textVersion",
+    },
+  ]}
+/>
 
-<CompositionTree name="disclaimer-note" />
+<CompositionTree
+  name="disclaimer-note"
+  tree={[
+    {
+      part: "DisclaimerNote",
+      cardinality: "1",
+      note: "data-slot=\"disclaimer-note\". No role, no aria-live, no data-status, no data-category.",
+      children: [
+        {
+          part: "DisclaimerNote.Icon",
+          cardinality: "0..1",
+          note: "data-slot=\"disclaimer-note-icon\", aria-hidden",
+        },
+        {
+          part: "DisclaimerNote.Text",
+          cardinality: "1",
+          note: "data-slot=\"disclaimer-note-text\"",
+        },
+        {
+          part: "DisclaimerNote.Link",
+          cardinality: "0..1",
+          note: "data-slot=\"disclaimer-note-link\"",
+        },
+        {
+          part: "DisclaimerNote.Version",
+          cardinality: "0..1",
+          note: "data-slot=\"disclaimer-note-version\"",
+        },
+      ],
+    },
+  ]}
+/>
 
-**Icon** is optional and never a warning glyph — this is not an alert. **Text** is one or two
-sentences. **Link** points to a fuller statement for readers who want it. That is the whole
-component, deliberately: every part that could be added is a part that could be used to make
-the note louder.
+That is the whole component, deliberately: every part that could be added is a part that
+could be used to make the note louder. The parts are identified by `data-slot` and are
+styleable from outside; none of them is an export, and there is no way to render one without
+the root. The one part the specification did not name is `DisclaimerNote.Version`, and it
+exists because `textVersion` had to go somewhere a person could read it — see the
+[API reference](#api-reference).
 
-Proposed part hierarchy. This is the specification the implementation must match.
+There is no `DisclaimerNote.Heading`, no `DisclaimerNote.Actions` and no dismiss control. A
+note with a heading is a section; a note with an action is asking the reader to do something,
+and an instruction with somebody behind it is a [CareCard](./care-card.mdx).
 
-```text
-DisclaimerNote                 root; neutral, quiet, never status-coloured
-├── DisclaimerNote.Icon        optional; informational glyph, never a warning triangle
-├── DisclaimerNote.Text        1–2 sentences
-└── DisclaimerNote.Link        optional; to the product's fuller statement
-```
+## Examples
 
-## Proposed API
+### One note, at the foot of the surface
 
-<NotBuiltYet name="disclaimer-note" />
+The placement rule is the component. Three rows and one note underneath all three — not one
+note per row, and not one note above them. The rows carry no numbers and no status pills on
+purpose: a card holding a value, a coloured pill and a paragraph is a
+[ResultCard](./result-card.mdx) drawn without any of a ResultCard's guarantees.
 
-```ts
-// PROPOSED. Not implemented. A specification for review, not an API to generate
-// code against. It will change without a deprecation cycle.
+<ComponentPreview name="disclaimer-note-once-at-the-foot-of-a-surface" kind="example" align="start" />
 
-export interface DisclaimerNoteProps {
-  /**
-   * The product's own words. There is no default text: shipping default legal
-   * copy in a design system would put words into products whose authors never
-   * read them.
-   */
-  children: React.ReactNode
-  /**
-   * Where it sits. `inline` under the content it qualifies; `footer` once at
-   * the end of a surface. There is no `banner` value.
-   */
-  placement?: "inline" | "footer"
-  /** A link to the fuller statement, for readers who want it. */
-  moreHref?: string
-  /**
-   * Stable id of this note's text, so the product can record which version a
-   * reader was shown. Legal text changes; records should say which one applied.
-   */
-  textVersion?: string
-}
-```
+### When nobody wrote the words
+
+Legal copy arrives from a content service, a translation table or a flag saying whether the
+current wording has been reviewed, and every one of those can return nothing without anybody
+noticing. The note prints an admission rather than rendering empty, because an empty one
+passes review, passes every gate in this repository, and reaches a reader as a surface whose
+standing statement has silently gone missing. [EmptyState](./empty-state.mdx) refuses in the
+same shape and for the same reason.
+
+The boundary is worth stating, because it is narrower than that promise sounds. The note
+detects missing *words*: `undefined`, `false` from an `&&` branch, `0` from the same branch on
+an empty collection, an empty array, a whitespace-only string and a body that is nothing but a
+number are all read as none supplied. A caller who wraps the copy in an element —
+`<strong>{copy.text}</strong>` — is taken at their word, and an empty `copy.text` inside that
+element still renders an empty note with no admission and no development warning. Printing
+*nothing was supplied* over somebody's own markup would be a false accusation on their screen,
+so the component does not; the cost is that this one route stays open, and it is stated here
+rather than left for a reader to find.
+
+<ComponentPreview name="disclaimer-note-no-text-supplied" kind="example" align="start" />
 
 ## Content guidelines
 
 Two sentences at most. Say what the product does, then what it does not do. Use plain words:
-*this app*, not *the Service*; *a doctor or nurse*, not *a qualified healthcare
-professional*, unless a specific obligation requires the formal phrase.
+*this app*, not *the Service*; the concrete role a reader would recognise — *a doctor or
+nurse* in the UK, whatever those roles are called where the product is used — rather than *a
+qualified healthcare professional*, unless a specific obligation requires the formal phrase.
+The register is part of what has to be written locally: a care system's job titles do not
+travel, and a sentence carried across from another one names people the reader has never
+dealt with.
 
-Never write *always consult your doctor before making any decisions* on every screen. It is
-unactionable, it is not what the reader is being asked to do, and repeated often enough it
-teaches people that the app has nothing useful to say.
+The commonest wrong note is the blanket instruction to seek professional advice before
+doing anything — the one every app carries at the foot of every screen. It is not written
+out here, for the same reason nothing else is: a sentence in that shape, in a design
+system, is a sentence somebody pastes. It is worth naming as a shape because it is
+unactionable, it is not what the reader is being asked to do at that moment, and repeated
+often enough it teaches people that the app has nothing useful to say.
+
+No usable disclaimer sentence appears anywhere on this page, and the omission is the point
+rather than an oversight. Individual words are discussed — a register, a job title, the
+shape of a wrong note — because that is what guidance about wording has to do; what is
+never written is a sentence that could be lifted whole. A two-sentence note written here would name no product — which is exactly what
+would make it fit every product — and it would reach the next one looking reviewed, because it
+came from the design system. The words are written by whoever is legally accountable for the
+consuming product, in consultation with whoever is accountable for its clinical safety, in
+that product's own language and for its own jurisdiction. opsinjs is not that owner and cannot
+become one; what the pair below describes is the shape those sentences should have, not the
+sentences.
 
 <DoDont>
   <DoDont.Do>
-    **"This app shows you your own readings and information about them. It does not diagnose
-    conditions and it is not a substitute for advice from your doctor or nurse."** States the
-    role, then the limit, in words a reader will actually parse.
+    **Name what the product does, then the one limit that matters most to this reader — one
+    sentence each, in the product's own register.** Role before limit, because a reader who
+    does not yet know what they are looking at has nothing to attach a caveat to.
   </DoDont.Do>
   <DoDont.Dont>
-    **"The Service is provided for informational purposes only and does not constitute medical
-    advice, diagnosis or treatment. Reliance on any information provided is solely at your own
-    risk."** Written for a court, not for a reader, and the final clause is an attempt to move
-    risk rather than to inform.
+    **Open with the product's registered trading name, stack four abstract nouns for the
+    things it is not, and close by placing reliance on the reader.** Written for a court
+    rather than for a reader, and the closing move is an attempt to shift risk rather than to
+    inform.
   </DoDont.Dont>
 </DoDont>
 
@@ -184,27 +294,166 @@ teaches people that the app has nothing useful to say.
   </DoDont.Dont>
 </DoDont>
 
-## Accessibility requirements
+Name the link for where it goes. *Read our full statement* and *how this app uses your
+readings* are destinations; *learn more* is not, and a screen reader can list every link on a
+page with no sentence around any of them. `more` takes the label and the destination together
+so that a link cannot be added without one, and a label from a short list of vague ones raises
+a development warning. That list is nine English strings, so the identical failure in another
+language — a literal translation of *learn more* — is not caught, and the check covers one
+language of the many the requirement is written for.
 
-Requirements for the implementation, not results.
+If `textVersion` is used, write something a reader could quote back in a support conversation
+rather than an internal identifier. It is rendered exactly as written, with no word added
+around it, because any word this system added would be English in a note that may be read in
+any language.
 
-- **The note is ordinary text in the reading order**, not a live region, not an alert, and
-  never announced over what the reader is doing.
-- **It meets the same contrast floor as body text.** Legal text set in pale grey is a
-  well-established way of complying with the letter of a requirement and none of its
-  purpose — see [Contrast conformance](../accessibility/contrast-conformance.mdx).
-- **The text is at least the body text size** and scales with the rest of the page at 200%.
-  It never becomes a smaller class of type that Dynamic Type leaves behind.
-- **If an icon is present it is decorative** and never a warning triangle: the shape sets the
-  register before a word is read.
-- **The link, when present, names its destination** — *read our full statement*, not
-  *learn more*.
-- **Print** includes the note. A printed result that omits the product's own statement about
-  what it is misrepresents it.
+## Accessibility
 
-<KeyboardTable name="disclaimer-note" />
+Some of what follows is checked by a gate on every commit and the rest is argued. They are
+labelled separately, because `alpha` promises that accessibility is claimed only where it has
+been checked, with the gaps listed rather than left out. Nobody has yet listened to this
+component in a screen reader.
+
+**Checked, by `pnpm run check:a11y` on every commit:**
+
+- **No `px` type size anywhere.** The one type step this component uses is `text-opsin-body`,
+  which is a rem from the generated ramp, so the note scales with the reader's own text size
+  and with `[data-text-size]` rather than staying put at a fixed size. This is what makes
+  *at least the body text size, and it scales at 200%* checkable rather than asserted.
+- **No raw colour literal and no ramp step.** The ink and the hairline are the neutral
+  `--foreground` and `--border` roles, so they follow the theme; a hex, an `oklch()` or a
+  numbered ramp step fails the build.
+- **Nothing that resolves to nothing under the product theme.** `bg-secondary`, `bg-accent`
+  and `bg-destructive` exist only in the documentation chrome, and the gate fails on any of
+  them — which matters here because every one of them is a fill somebody would reach for to
+  make a disclaimer stand out.
+- **No banned word in the one reader-facing string this component owns, none in its
+  development warnings, and none as a code identifier.** That single string is the line
+  printed when no words were supplied, and it is the only sentence the component itself
+  puts in front of a reader.
+- **No shipped threshold and no unowned numeric interval.** No clinical number is written
+  into this component and none passes through it: no threshold, no reference range, no score
+  band, no plausibility bound and no staleness boundary, which is the honest shape for one
+  that says nothing about a reading. That, and only that, is what the gate checks. The
+  numbers the file does contain are layout steps and the target-size fallback described
+  below, and it audits neither.
+
+**Enforced by the API rather than by a gate:**
+
+- **If an icon is present it is never a warning triangle.** `icon` is a boolean and the glyph
+  is not a prop, so there is no `ReactNode` for a triangle to arrive in. The shape sets the
+  register before a word is read, and a component that accepted an arbitrary node could only
+  ask callers not to.
+- **The link names its destination.** `more` carries the label and the href together, so a
+  link cannot be added without a label, and the label this system would otherwise have had to
+  invent is exactly the one the requirement refuses.
+- **It cannot be tinted from either axis without being told.** There is no colour prop.
+  `className` reaches the root, which is the one hole, and a class from either axis raises a
+  development warning naming what to use instead.
+
+**Argued, and true of the implementation, but not yet measured:**
+
+- **The note is ordinary text in the reading order.** No `role`, no `aria-live`, no
+  `role="alert"`, and nothing that announces itself over what the reader is doing.
+  [AlertBanner](./alert-banner.mdx) is the one component in this system entitled to speak,
+  and styling a disclaimer as one is the most common mistake with this component. The cost of
+  a plain element is real and is not hidden here: a screen-reader user meets the note as two
+  loose sentences with no boundary and no name. `role="note"` or a named `<aside>` would
+  supply one; neither is adopted on a guess, and a landmark on every screen for a sentence
+  that never changes is its own kind of noise. It is an open question above.
+- **It meets the same contrast floor as body text**, because it uses the same two roles as
+  body text. There is no muted role and no footnote step anywhere in the component — legal
+  text set one step down in pale grey complies with the letter of a requirement and none of
+  its purpose. See [Contrast conformance](../accessibility/contrast-conformance.mdx).
+- **It reflows at 200% text** without truncating and without horizontal scroll: no fixed
+  height, no overflow container, `min-w-0` with `wrap-break-word` on the paragraph and on the
+  version marker, and `wrap-anywhere` on the link. The link needs the stronger of the two and
+  it is worth saying why, because it is the part a caller's own text arrives in: the anchor is
+  a grid item, so its `inline-flex` blockifies to `flex` and its label becomes an anonymous
+  flex item whose minimum size `min-w-0` does not reach and `break-word` does not reduce.
+  `anywhere` does. So a long word or a bare URL breaks in all three parts rather than widening
+  the layout past the viewport. Reasoned from the CSS; the measurement belongs to the nightly
+  layout job.
+- **There is no motion to reduce.** No transition, no animation, no transform, no duration or
+  easing token and no entrance treatment anywhere in the component or either example, so
+  `prefers-reduced-motion` has nothing here to act on and the component declares no handling
+  for it. Listed because the absence of a requirement is still an answer to it, and a reader
+  should not have to read the source to establish that there is nothing here to reduce.
+- **The 44x44 target floor is written twice, and nothing checks the two copies agree.** The
+  link declares `min-h-(--opsin-target-minimum,2.75rem)` and the same on the inline axis, and
+  the `2.75rem` inside the `var()` is a second copy of what the space tokens publish. It is
+  there because a bare `var(--opsin-target-minimum)` is invalid at computed-value time in a
+  project that installed this file without the generated token stylesheet — `min-height`
+  reverts to `auto` and the floor goes with it, silently. The cost is that raising the token
+  would leave this copy behind for exactly the consumers the fallback exists to protect, and
+  no gate in this repository compares them. [Card](./card.mdx) declares the same floor with no
+  fallback, so the two components disagree about this and one of them is wrong.
+- **Print includes the note.** Nothing here is `print:hidden`, and there is no fill to lose:
+  a browser drops background colours on paper unless the reader has changed a setting, and a
+  component whose whole treatment is a hairline and some space survives that. The residual
+  gap is the same one [Callout](./callout.mdx) records — printing from the dark theme gives
+  near-white ink on white paper, and the repair is a print block in the theme layer rather
+  than anything a component can do without writing a raw colour.
+
+**Not yet checked at all, and listed rather than omitted:**
+
+- Contrast for the text against the page and for the hairline against the page, in both
+  themes and under increased contrast. `prefers-contrast` and `forced-colors` are not
+  implemented anywhere in opsinjs yet, so nobody can currently make the increased-contrast
+  claim.
+- The link's hit area. The floor is declared in rem on both axes so that it grows with the
+  reader's text size rather than pinning at 44 device pixels, and no browser has measured it.
+  See [Target size and motor](../accessibility/target-size-and-motor.mdx).
+- Whether a reader using a screen reader finds the note at all, given that it has no
+  boundary. That is the open question above rather than a measurement waiting to happen.
+- How `textVersion` is announced. It renders as a bare span with no label, no association with
+  the paragraph it versions and — by design, since any word added would be English — no word
+  around it, so a listener meets it as a fragment arriving straight after the link with
+  nothing to place it by. A sighted reader has position and typographic separation to tell
+  them what it is; a listener has neither. Whether visible text is the right home for the
+  marker at all is the third open question above.
+
+<KeyboardTable
+  name="disclaimer-note"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Moves to the link, when there is one",
+      notes: "The note itself is not focusable and is not a tab stop: it is text. When a link is supplied it is the component's only focusable element, and there is never more than one — there is no dismiss control and no second action.",
+    },
+    {
+      keys: "Shift + Tab",
+      action: "Moves back out of the link",
+      notes: "Reverse order matches the visual order, which it can hardly fail to do with one stop. The link is the last interactive thing in the note.",
+    },
+    {
+      keys: "Enter",
+      action: "Follows the link",
+      notes: "Only when a link is present. It is an ordinary anchor rather than a button, so it is Enter and not Space — and a middle-click, a modifier-click and a long-press all get the browser's own behaviour, which is the point of not rebuilding it as a control.",
+    },
+    {
+      keys: "Space",
+      action: "Scrolls the page, as it does anywhere else",
+      notes: "Listed because it is a real answer rather than a gap: nothing in this component captures Space, and nothing here activates on it.",
+    },
+  ]}
+/>
 
 <ContrastReport component="disclaimer-note" />
+
+## API reference
+
+<PropsTable name="DisclaimerNoteProps" />
+
+`children` is typed optional and is required by the contract, which is the same shape
+[EmptyState](./empty-state.mdx) uses. Marking it required buys nothing — `{copy.text}` with an
+undefined `copy.text` type-checks either way — and it costs the ability to render the missing
+state at all, which is the state that most needs seeing.
+
+`textVersion` renders as visible text. An attribute would be tidier and would be a record only
+the product that already had the value could read: it survives no screenshot, no printout and
+no support ticket. The data-attribute vocabulary is closed at four in any case, so a fifth
+would be a change to the system rather than to this component.
 
 ## Related
 

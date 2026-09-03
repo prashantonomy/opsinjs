@@ -176,7 +176,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "One test result, showing the number, what it is compared against, and what it means.",
     category: "health-data-display",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: [
       "results",
@@ -195,6 +195,7 @@ export const SHIPPED: CatalogueEntry[] = [
       "numbers-units-precision",
     ],
     healthCategory: "labs",
+    registryDependencies: ["status-pill", "value", "range-bar", "relative-time", "button"],
   },
   {
     name: "range-bar",
@@ -262,7 +263,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A compact tile showing one reading, its unit and when it was taken.",
     category: "health-data-display",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: [
       "stat",
@@ -280,6 +281,8 @@ export const SHIPPED: CatalogueEntry[] = [
       "two-colour-axes",
       "uncertainty-and-staleness",
     ],
+    registryDependencies: ["surface", "value", "status-pill", "relative-time"],
+    usedIn: ["health-metric-card", "results-screen", "trends-screen"],
   },
   {
     name: "status-pill",
@@ -308,7 +311,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A prominent message about something that needs the reader's attention now.",
     category: "health-communication",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: [
       "warning banner",
@@ -323,13 +326,15 @@ export const SHIPPED: CatalogueEntry[] = [
       "emergency-and-escalation",
       "notifications-and-off-screen-alerts",
     ],
+    registryDependencies: ["status-pill", "button", "relative-time"],
+    usedIn: ["staged-alert", "results-screen"],
   },
   {
     name: "care-card",
     title: "CareCard",
     description: "A card saying what to do next, and how urgently.",
     category: "health-communication",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: [
       "what to do next",
@@ -345,6 +350,8 @@ export const SHIPPED: CatalogueEntry[] = [
       "alarm-fatigue",
       "emergency-and-escalation",
     ],
+    registryDependencies: ["card", "button", "status-pill"],
+    usedIn: ["staged-alert", "results-screen"],
   },
   {
     name: "term",
@@ -382,12 +389,14 @@ export const SHIPPED: CatalogueEntry[] = [
     title: "DisclaimerNote",
     description: "The standing note about what this information is and is not.",
     category: "health-communication",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: ["disclaimer", "not medical advice", "legal note", "small print"],
     owner: "clinical",
     a11yDate: null,
     governedBy: ["regulatory-context", "clinical-interaction-guidelines"],
+    dependencies: ["lucide-react"],
+    usedIn: ["value-against-a-range", "results-screen", "consent-flow"],
   },
 
   {

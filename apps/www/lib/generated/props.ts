@@ -40,6 +40,68 @@ export type GeneratedPropsTable = Record<string, GeneratedProp>
 
 /** Keyed by the exported interface name: `StatusPillProps`. */
 export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
+  "AlertBannerProps": {
+    "status": {
+      type: "ClinicalStatus",
+      description: "The level, assigned by the product. Required, and it drives the role, the announcement and the affordances rather than only the colour. `steady` is legal, and it is the level worth being careful with. Its one honest use is de-escalation — saying that a condition the product raised earlier has resolved, which is news the reader is owed and which no other component in the system delivers. It is not a place to put a message that needs nothing: a banner that can say \"nothing needs attention\" is a banner a product will reach for whenever it wants to be noticed, and it still spends one of the two the screen is allowed. If nothing has changed, the component is a Callout. There is no `unknown`. It is the absence of an assertion rather than a fifth level, and an interruption with no level is an interruption with no meaning. ESCALATE BY REMOUNTING, NOT BY RE-RENDERING. Raising the level on a banner that is already on the screen patches `role` and `aria-live` onto a DOM node assistive technology has already registered, and a live region is registered when its node is inserted: adding the role afterwards commonly announces nothing at all, which on the way up to `urgent` is the one failure this component exists to prevent. Give the element a key that contains the level — `key={status}` — so React replaces the node instead of patching it. Nobody has confirmed this with a screen reader; it is the conservative reading of the live-region model and it is written here rather than left implicit, because the recipe this component appears in escalates exactly this way.",
+      required: true,
+    },
+    "heading": {
+      type: "string",
+      description: "What happened, in the reader's words, naming the subject in under eight words. Sentence case, and no exclamation marks. It does NOT need to contain the level's word, and should not repeat it: the component renders the level as a StatusPill inside this heading, so the word is there whatever the caller writes and cannot disagree with `status`. The specification asked the caller to write it in; making it structural is the one change this implementation makes to that contract.",
+      required: true,
+    },
+    "children": {
+      type: "ReactNode",
+      description: "One or two sentences: what happened, then what it means for this reader, in that order and in the second person. Longer than that and the message is an instruction with steps, which is a CareCard.",
+      required: true,
+    },
+    "headingLevel": {
+      type: "AlertHeadingLevel",
+      description: "Which heading element the banner's heading renders as. Defaults to `h2`. The component cannot know where it sits, and a heading at the wrong level makes an outline that skips a level on one screen and repeats one on the next. Pass the level below the heading of the surface the banner is on — `h3` inside a section that already has an `h2`.",
+      required: false,
+    },
+    "detectedAt": {
+      type: "string",
+      description: "When the condition was detected, ISO 8601 with an offset. The instant the product's rules found the condition, not the instant this rendered — a banner stamped with its own render time tells the reader something that is true of the page and false of their data. It renders through RelativeTime, which needs `now` as well; without one the timestamp is omitted and a warning says why. IT IS LABELLED *Recorded*, AND THAT WORD IS NEAR RATHER THAN EXACT. RelativeTime's five event words contain no `detected`, a sixth member of that union is that component's decision rather than this one's, and drawing a second timestamp here would be a copy of formatting, rounding and absolute-date behaviour that would drift from the original. So read the phrase precisely: it is the age of the DETECTION, never the age of the reading. A rule that ran an hour ago may have found a reading taken days before it, and \"Recorded 1 hour ago\" over a sentence about a reading is exactly the pair of separately-true statements RelativeTime's own file calls the most consequential error in health dashboards. If the reader needs to know how old the reading is, show that where the reading is.",
+      required: false,
+    },
+    "now": {
+      type: "string",
+      description: "The instant `detectedAt` is measured against, in the same form. Required alongside it, because a component that read the clock itself would be impure and would make two timestamps on one screen disagree across a minute boundary. Read it once where the screen is rendered — `new Date().toISOString()` — and pass the same value to every timestamp on it. DO NOT REFRESH IT UNDER A MOUNTED `attention` OR `urgent` BANNER. Those two levels carry an atomic live region, so any change inside the banner re-announces the whole of it — heading, body, timestamp and every action label — and at `urgent` it does so assertively. The timestamp's visible phrase is a function of this prop, so a screen that ticks `now` on a minute boundary interrupts a listening reader in full, once a minute, for as long as the banner is up. `alarm-fatigue` is explicit that repetition is not escalation and that a re-raise belongs to a change of state rather than to a timer. Hold `now` still while the banner is mounted, and refresh it when something about the alert actually changes.",
+      required: false,
+    },
+    "actions": {
+      type: "AlertAction[]",
+      description: "At most two. Required at `attention` and `urgent`, where a banner with nothing to do about it is the most common way a health product creates anxiety it cannot resolve — and where this component reports the omission rather than quietly rendering it.",
+      required: false,
+    },
+    "dismissible": {
+      type: "boolean",
+      description: "Whether the reader may take the banner away. It needs `onAcknowledge` to do anything at any level: this component never removes itself, so the product is what stops rendering it, and a dismiss control with nowhere to report to is a control that does nothing.",
+      required: false,
+    },
+    "onAcknowledge": {
+      type: "() => void",
+      description: "Called when the reader dismisses the banner. At `urgent` it is the whole of the affordance: an urgent banner may only be taken away by an acknowledgement the product records, because a reader who swipes a banner away on a bus has not been informed and nothing downstream can tell dismissal apart from understanding.",
+      required: false,
+    },
+    "dismissLabel": {
+      type: "string",
+      description: "The dismiss control's visible word. Defaults to *Dismiss*, and the heading is appended to the accessible name so it says what it dismisses rather than standing alone. Override it to translate, or to say what acknowledgement means in this product — *I have read this*.",
+      required: false,
+    },
+    "locale": {
+      type: "string",
+      description: "BCP 47 language tag for the timestamp, which is the one formatted thing on the banner. Omitted, the reader's own environment decides. It does not translate the event word or the dismiss control; `dismissLabel` is the override for the second, and the first is a gap this component cannot close from here.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root, and a class passed here WINS over the component's own where the two conflict. A banner sets no width and no margin, because both belong to the surface it sits at the top of. It is also the one way left to hide what this component insists on: a `sr-only`, a zeroed type size or a `truncate` passed here reaches the root and takes the heading, the body or the actions off the screen while leaving them in the tree. The component says so rather than pretending the hole is not there.",
+      required: false,
+    },
+  },
   "ButtonProps": {
     "variant": {
       type: "ButtonVariant",
@@ -180,6 +242,69 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: true,
     },
   },
+  "CareCardProps": {
+    "heading": {
+      type: "string",
+      description: "The instruction. Starts with a verb, and says what rather than why: \"Book a repeat blood test\", not \"About your recent result\". It is the card's accessible name, so it is also what a reader hears when they list the regions on a screen.",
+      required: true,
+    },
+    "urgency": {
+      type: "CareUrgency",
+      description: "When the reader should do it, rendered as one of three fixed phrases inside the heading. Required, and never derived from `status`: a card with no timing is a demand with no deadline, and the reader supplies the missing urgency themselves — usually the wrong one.",
+      required: true,
+    },
+    "attribution": {
+      type: "string",
+      description: "Who is asking. Required, and free text rather than an enum, because \"your GP surgery\" and \"an automatic reminder from this app\" are both true answers and the difference matters more than any category we could invent. Left empty, the card says in words that it does not know, and warns in development — it never quietly drops the line.",
+      required: true,
+    },
+    "reason": {
+      type: "string",
+      description: "One sentence: what prompted this instruction.",
+      required: false,
+    },
+    "dueBy": {
+      type: "string",
+      description: "The deadline, as a calendar date — `2026-10-12`. Written out in full rather than as a relative phrase, because a date does not change meaning while the card sits on a screen. Anything that is not a calendar date is refused rather than guessed at, and no deadline line is rendered for it.",
+      required: false,
+    },
+    "overdue": {
+      type: "boolean",
+      description: "Whether that date is behind the reader now. An input, like everything else with a time in it here: the card reads no clock, and comparing a calendar date to \"now\" needs the reader's own time zone, which a component rendered on a server does not have. When it is true the card says so in words, and the product owns saying what to do about it — usually by changing `heading`.",
+      required: false,
+    },
+    "locale": {
+      type: "string",
+      description: "BCP 47 language tag for the deadline date. It does not translate the three timing phrases or the two admissions: those are English, and the gap is recorded on the page rather than hidden behind a prop that would also let a caller relabel \"Do this today\" as something more insistent.",
+      required: false,
+    },
+    "actions": {
+      type: "CareAction[]",
+      description: "At most two. More than two is a screen rather than a card; the extras are dropped, and development says which ones so nothing goes missing quietly.",
+      required: false,
+    },
+    "status": {
+      type: "ClinicalStatus",
+      description: "The clinical status of the thing that prompted this instruction, rendered as a StatusPill and nowhere else. Optional and independent of `urgency`: plenty of instructions have no reading behind them at all, and the two never derive from one another in either direction.",
+      required: false,
+    },
+    "statusOf": {
+      type: "string",
+      description: "What that status is about, for the pill's accessible name: \"your last blood test\". Without it a screen-reader user hears a level with no subject inside a card full of other nouns, and the likeliest thing they attach it to is the instruction — which is not what it describes.",
+      required: false,
+    },
+    "headingLevel": {
+      type: "2 | 3 | 4 | 5 | 6",
+      description: "Which heading element the card renders. The level belongs to the page and the appearance belongs to the card: a component that hard-codes its level produces an outline that jumps from h1 to h3 on one screen and a wall of h2s on another.",
+      default: "3",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. Layout belongs here — the card sets no width and no place in a grid, because both are decisions of the screen it is on. It is also the one hole in this component's refusal to take a status colour: a colour utility passed through here reaches the root, and a card tinted from the status axis is the thing the pill exists to make unnecessary.",
+      required: false,
+    },
+  },
   "DialogProps": {
     "open": {
       type: "boolean",
@@ -232,6 +357,40 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     "className": {
       type: "string",
       description: "Merged onto the container. Width belongs here: the dialog takes the full width of a phone and a readable measure above that, and a product with a genuinely wider dialog overrides it rather than asking for a prop.",
+      required: false,
+    },
+  },
+  "DisclaimerNoteProps": {
+    "children": {
+      type: "ReactNode",
+      description: "The product's own words. One or two sentences: what this product does, then what it does not do. It renders a paragraph, so it takes text or inline content rather than a block element. There is no default text and there will not be one. Legal copy shipped from a design system puts words into products whose authors never read them, and it arrives looking reviewed because it came from a library. Supply none and the note says on screen that none was supplied, rather than inventing a sentence — `false` from a `&&` branch, `0` from the same branch on an empty collection, an empty array and a whitespace-only string all count as supplying none. The boundary is words: a caller who wraps the copy in an element is taken at their word, so an empty string inside a `<strong>` is the one route to a silently empty note that stays open. TYPED OPTIONAL AND REQUIRED BY THE CONTRACT, which is the same shape `EmptyState.children` has. Marking it required buys nothing — `{copy.text}` with an undefined `copy.text` type-checks either way — and it costs the ability to render the state at all, which is the state that most needs seeing.",
+      required: false,
+    },
+    "placement": {
+      type: "\"inline\" | \"footer\"",
+      description: "Where it sits. `inline` goes under the content it qualifies; `footer` goes once at the end of a surface. There is no `banner` value and there is no `top` value: a reader who came to see a number sees the number first. The two differ by the space above the note and by nothing else. Neither changes the type size, the ink or the boundary.",
+      default: "\"inline\"",
+      required: false,
+    },
+    "more": {
+      type: "{ label: string; href: string }",
+      description: "The fuller statement, for readers who want it. BOTH HALVES TOGETHER, and that is why this is one object rather than a bare href. A destination with no label would need a label written here, and the label this system would have to invent is the exact one the specification refuses: *learn more* names nothing, and a screen reader's list of links is where that costs somebody the page they were looking for. The product names its own destination in its own words, in its reader's language.",
+      required: false,
+    },
+    "textVersion": {
+      type: "string",
+      description: "The id of this note's wording, so a product can record which version a reader was shown. Legal text changes, and a record should say which one applied. It renders as visible text, exactly as it is written here. An attribute would be tidier and would be a record only the product that already had the value could read: it survives no screenshot, no printout and no support ticket, and the data-attribute vocabulary is closed at four in any case. So write something a reader could quote back in a support conversation rather than an internal identifier, and write it in their language: no word is added around it, because any word added here would be English.",
+      required: false,
+    },
+    "icon": {
+      type: "boolean",
+      description: "Whether to show the informational glyph. The glyph itself is not configurable, and that is the point: an icon prop taking a `ReactNode` would accept a warning triangle, and a triangle sets the register before a word of the note is read. It is decorative, hidden from assistive technology, and sized in `em` so it grows with the text. The default is off. The quietest form of this component is the one to prefer, and a glyph is the first step towards a note that competes with the reading above it.",
+      default: "false",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. Width, margin and place in a layout belong here: they are decisions of the surface the note is standing on rather than of the note. It is also the one hole in this component's refusal to carry a colour, and the component says so rather than pretending otherwise: a utility from either axis passed through here reaches the root, and in development it raises a warning naming what to use instead.",
       required: false,
     },
   },
@@ -342,6 +501,73 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: false,
     },
   },
+  "MetricTileProps": {
+    "label": {
+      type: "string",
+      description: "What was measured, in the reader's words — two or three of them. Not an acronym and not an internal code: a dashboard that has to be learnt before it can be read is a dashboard that is read wrong.",
+      required: true,
+    },
+    "value": {
+      type: "number | null",
+      description: "The reading. `null` renders the no-reading state, which is not zero — zero is a real measurement for several metrics and a missing one is not a measurement at all. A number and not a string. A pre-formatted reading has already been rounded by somebody, carries no spoken unit and leaves nothing machine-readable behind it; a compound reading such as a pair is two measurements and takes two tiles.",
+      required: true,
+    },
+    "unit": {
+      type: "string",
+      description: "Display symbol, exactly as `tokens/units.json` spells it — \"kg\", \"mmol/L\", \"steps\". The spoken form is resolved from that table by Value, so this is the only place the unit is named. Optional by type and all but mandatory in practice: a bare number is ambiguous between unit systems, and Value raises OPSIN-0003 when one arrives without a unit rather than this file raising a second copy of the same complaint.",
+      required: false,
+    },
+    "precision": {
+      type: "number",
+      description: "Decimal places, from the precision of the measurement — the resolution of the device, or the number of places the laboratory reported. Forwarded to Value untouched. Omitted, nothing is rounded and nothing is padded, which for a value that arrived from arithmetic can be seventeen digits: on a tile that is also a layout problem, and it is the prompt to go and find out what the measurement's resolution actually is.",
+      required: false,
+    },
+    "measuredAt": {
+      type: "string",
+      description: "When the reading was taken, ISO 8601 with an offset. The time of MEASUREMENT, never of retrieval, sync or render — a tile that timestamps itself with the moment the screen was drawn tells every reader that every reading is current. Required, and refused rather than approximated: a value with no locatable time is undated, and for health data undated is the same as wrong.",
+      required: true,
+    },
+    "now": {
+      type: "string",
+      description: "The instant the age is measured against, in the same form as `measuredAt`. Required for the same reason RelativeTime requires it: a component that read the clock itself would be impure, would read it once per tile rather than once per screen, and would let a grid of eight disagree with itself across a minute boundary. Read it once where the screen is rendered — `new Date().toISOString()` — and pass the same value to every tile on it.",
+      required: true,
+    },
+    "staleAfterHours": {
+      type: "number",
+      description: "Hours after which the tile shows its stale treatment. Supplied by the product, and by nobody else: what counts as an old reading is clinical, it differs completely from one measurement to the next, and opsinjs holds no such number for any measurement in any population. Writing one here — or in an example, or in a comment as an illustration — would publish a boundary this system has no standing to publish. There is no default and there will not be one. Omitted, there is no stale treatment at all — the honest output when nobody has said what stale means here, and never a substituted number.",
+      required: false,
+    },
+    "status": {
+      type: "ClinicalStatus",
+      description: "The level the product assigned to this reading. Rendered as an embedded StatusPill and never as the tile's fill. Omitted, no pill is rendered at all: there is no neutral level to fall back on, and a pill invented to fill a gap would be a verdict nobody gave. PAIR `attention` AND `urgent` WITH AN `href`. Clinical status semantics says of `attention` that there is always a named action, and a tile has no room for a sentence — so on a tile the action is the tile itself, and a level on a tile that leads nowhere leaves a reader a verdict and no way to act on it. Nothing here enforces the pairing: the check belongs in the shared warning channel, which this file cannot add a code to, and it is recorded as an open gap on the component's page rather than left silent.",
+      required: false,
+    },
+    "category": {
+      type: "HealthCategory",
+      description: "Tints the icon and the label, and nothing else. Identity rather than meaning: in greyscale the tint is lost and not one fact goes with it.",
+      required: false,
+    },
+    "icon": {
+      type: "ReactNode",
+      description: "The category glyph, supplied by the product. opsinjs ships no category icon set — [category identity](https://opsinjs.dev/docs/health/category-identity) says an icon is governed separately — so this is a slot rather than a lookup, and a tile with no icon is a complete tile. Rendered decorative: the label beside it says the same thing in words, and a glyph announced as well would make a screen reader say the subject twice. It must not be interactive; the tile is one target and nothing nests inside it — and because the wrapper is `aria-hidden`, a control passed here would be reachable by Tab and absent from the accessibility tree at the same time. Nothing here checks that, so this sentence is the whole guard, and the page's claim that nothing inside a tile is focusable is scoped to what this component controls.",
+      required: false,
+    },
+    "href": {
+      type: "string",
+      description: "Where the tile leads. With it the whole tile is one link, meeting the target floor on both axes; without it the tile is a static readout. A clinical tile with nowhere to go raises a question the product refuses to answer, so most tiles should have one. ONE CONSTRAINT COMES WITH THE LINK, and it is named here because a product choosing a unit is the one who meets it. A link takes its accessible name from its content, and Value hides the unit SYMBOL from assistive technology and substitutes the spoken form — so a tile whose visible text reads \"kg\" is announced \"kilograms\", and the link's visible label shares no substring with its name. That is WCAG 2.2 SC 2.5.3, and this component cannot repair it: an `aria-label` would replace the whole sentence rather than mend one clause of it, so none is offered. It does not arise for a unit whose symbol and spoken form are the same word. It is recorded on the component's page rather than left to be discovered.",
+      required: false,
+    },
+    "locale": {
+      type: "string",
+      description: "BCP 47 locale for the number, its separators and the date. Passed through to Value and to RelativeTime together, so the reading and its timestamp cannot show two conventions on one tile. Omitted, the reader's own environment decides.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root with `tailwind-merge`, and a class passed here wins where the two conflict. That includes `truncate` and a fixed height, either of which can take digits off the end of a reading at 200% text — this component sets neither and never shortens a number on its own.",
+      required: false,
+    },
+  },
   "RangeBarProps": {
     "label": {
       type: "string",
@@ -438,6 +664,94 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     "className": {
       type: "string",
       description: "Merged onto the root. The merge puts it last, so a conflicting class passed here wins: a type size or a colour set on the caller's side displaces the component's own. The one thing it cannot displace is the muted stale treatment, which is addressed at the parts rather than at the root for exactly that reason — see the class list on the root below.",
+      required: false,
+    },
+  },
+  "ResultCardProps": {
+    "title": {
+      type: "string",
+      description: "What was measured, in the reader's language rather than an internal code. It is the card's accessible name and the card's heading, and it is the one part with no honest fallback.",
+      required: true,
+    },
+    "titleLevel": {
+      type: "2 | 3 | 4 | 5 | 6",
+      description: "The heading level for the title, so the card fits the outline of the page it is on rather than imposing one. Appearance does not follow it: the type step is set explicitly, so an `h4` card and an `h2` card look identical.",
+      default: "3",
+      required: false,
+    },
+    "value": {
+      type: "number | null",
+      description: "The reading. `null` renders the absence form — in words, never as `0` and never as a bare dash — because zero is a real measurement for several metrics and a missing one is not a measurement at all. Omit it only when the reading is compound and arrives through `segments`.",
+      required: false,
+    },
+    "segments": {
+      type: "ResultSegment[]",
+      description: "A compound reading: two or more numbers that are one measurement, such as the pair in a blood-pressure result. Each segment is a real `Value`, so each is formatted, shaped and spoken like every other number in the system. When this is supplied, `value` is not read.",
+      required: false,
+    },
+    "unit": {
+      type: "string",
+      description: "Display symbol exactly as `tokens/units.json` spells it — \"kg\", \"mmol/L\", \"mmHg\". It reaches every number on the card, so one card cannot show two units. `Value` resolves the spoken form from that table, which is why a listener hears \"millimoles per mole\" rather than the symbol read out letter by letter, and why a unit the table does not hold is rendered as written rather than pronounced by guesswork.",
+      required: false,
+    },
+    "precision": {
+      type: "number",
+      description: "DECIMAL PLACES, from the precision of the measurement — the resolution of the device, or the number of places the laboratory reported. Not significant figures: the same metric shown to a different number of decimal places at different magnitudes cannot be compared at a glance. It reaches the reading, every segment of a compound one, and both boundary labels on the bar, because a reading and the bound it is compared with are the same metric. Omitted, nothing is rounded and nothing is padded, and the digits the caller was handed are the digits that show.",
+      required: false,
+    },
+    "locale": {
+      type: "string",
+      description: "BCP 47 locale for separators, digit shaping and the dates. It reaches every number and every instant on the card, so one card cannot show two conventions. Omitted, the reader's own environment decides.",
+      required: false,
+    },
+    "measuredAt": {
+      type: "string",
+      description: "When the measurement was taken, ISO 8601 with an offset. The time of MEASUREMENT, never of retrieval, of sync or of render: a fetch timestamp here tells a reader their four-month-old reading was taken this morning. REQUIRED, AND WITH NO ABSENCE FORM — which is a known gap rather than a decision. Every other claim on this card degrades to a stated absence, and this one cannot: a card given `value={null}` still renders an instant at which that missing reading was measured. Do not invent one to satisfy the type. `RelativeTime`, which owns every instant in this system, has no absence form either, and inventing a sentence here would be a second copy of a rule that belongs there. Until it has one, a card whose reading is absent should not be given a measurement time the product does not have.",
+      required: true,
+    },
+    "now": {
+      type: "string",
+      description: "The instant the card is being read against, in the same form as `measuredAt`. Required, because a component that read the clock itself would read it once per card rather than once per screen and make a page of results disagree with itself across a minute boundary. Read it once where the screen is rendered — `new Date().toISOString()` — and pass the same value to every card on it.",
+      required: true,
+    },
+    "staleAfterHours": {
+      type: "number",
+      description: "Hours after which the card shows its staleness treatment. The product owns this number because it is clinical rather than visual, and it differs completely by measurement. There is no default: omit it and there is no staleness treatment at all, which is the honest output when nobody has said what old means here.",
+      required: false,
+    },
+    "range": {
+      type: "ReferenceRange",
+      description: "The interval this reading is being compared with, and whose it is. Omit it when there is none: the bar is then not drawn at all and nothing is substituted. Never defaulted, in any population, for any metric. It is drawn only where there is also a `unit` and a single `value` — a bar needs a scale, a scale needs a unit to be read in, and a compound reading has no single position on one line.",
+      required: false,
+    },
+    "status": {
+      type: "ClinicalStatus",
+      description: "The level of attention the PRODUCT has assigned to this result. Never derived here from `value` and `range`, and the derivation is not missing — it is refused. Omitted, no pill is rendered and no level is stated, which is what \"nobody has made a judgement about this\" looks like rather than a quiet reassurance.",
+      required: false,
+    },
+    "category": {
+      type: "HealthCategory",
+      description: "What the reading is ABOUT, for finding the heart results among the sleep results. It tints the title and nothing else: never the card's surface, never the pill, never the bar. Typed to the six rather than to `string`, because a component that accepts an arbitrary category accepts a seventh colour ramp that does not exist.",
+      required: false,
+    },
+    "meaning": {
+      type: "ReactNode",
+      description: "The plain-English paragraph: what the test looks at, what this result means in context, what usually happens next. Absent, the card says in words that there is no explanation rather than rendering nothing — silence reads as reassurance, and it is the default nobody chose.",
+      required: false,
+    },
+    "actions": {
+      type: "ResultAction[]",
+      description: "The next steps, at most two. More than two is a screen rather than a card, and a third is dropped with a warning rather than rendered.",
+      required: false,
+    },
+    "provenance": {
+      type: "string",
+      description: "Who measured it, with what device or assay, and — where it is not already on the bar — where the range came from. Rendered as the footnote. Omitted, there is no footnote: this component ships no default provenance and no default disclaimer. FREE TEXT, WITH NO PROVENANCE CLASS, AND THAT LIMITS WHAT A `status` HERE MAY MEAN. Data provenance and device accuracy sorts every value into four classes — clinically measured, device measured, device estimated, self-reported — and bounds what an interface may assert by the class: a device-estimated or self-reported value may not carry a clinical status on its own. This card cannot tell those apart, because nothing in the system carries the class yet. So the rule is the caller's to keep: do not pass a `status` derived from an estimated or self-reported value.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. Layout belongs here — a card sets no width and no place in a grid, because those are decisions of the screen it is on. A class passed here wins where the two conflict, `truncate` included, which is the one way to make a reading come back to somebody with digits missing.",
       required: false,
     },
   },
@@ -788,18 +1102,23 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
 
 /** Interface name to the file it is exported from, relative to apps/www. */
 export const PROPS_SOURCES: Record<string, string> = {
+  "AlertBannerProps": "registry/bases/base/alert-banner.tsx",
   "ButtonProps": "registry/bases/base/button.tsx",
   "CalloutProps": "registry/bases/base/callout.tsx",
   "CardBodyProps": "registry/bases/base/card.tsx",
   "CardFooterProps": "registry/bases/base/card.tsx",
   "CardHeaderProps": "registry/bases/base/card.tsx",
   "CardProps": "registry/bases/base/card.tsx",
+  "CareCardProps": "registry/bases/base/care-card.tsx",
   "DialogProps": "registry/bases/base/dialog.tsx",
+  "DisclaimerNoteProps": "registry/bases/base/disclaimer-note.tsx",
   "EmptyStateProps": "registry/bases/base/empty-state.tsx",
   "FieldControlProps": "registry/bases/base/field.tsx",
   "FieldProps": "registry/bases/base/field.tsx",
+  "MetricTileProps": "registry/bases/base/metric-tile.tsx",
   "RangeBarProps": "registry/bases/base/range-bar.tsx",
   "RelativeTimeProps": "registry/bases/base/relative-time.tsx",
+  "ResultCardProps": "registry/bases/base/result-card.tsx",
   "ScoreDialProps": "registry/bases/base/score-dial.tsx",
   "SheetContentProps": "registry/bases/base/sheet.tsx",
   "SheetProps": "registry/bases/base/sheet.tsx",
@@ -813,6 +1132,6 @@ export const PROPS_SOURCES: Record<string, string> = {
 }
 
 export const PROPS_META: { interfaces: number; props: number } = {
-  interfaces: 22,
-  props: 138,
+  interfaces: 27,
+  props: 198,
 }
