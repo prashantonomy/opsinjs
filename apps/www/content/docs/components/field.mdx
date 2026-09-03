@@ -19,7 +19,7 @@ usedIn: [daily-log-entry, consent-before-collection, daily-log-screen]
     "Field ships two English words — “required” and “optional” — and no prop translates them. Every other string in the component comes from the product. Does the marker become a `ReactNode` prop, does it move to a locale object, or does a product override it through the `data-slot`?",
     "An error is added to the control's description and marks it invalid; it is not announced while focus is elsewhere, because Field mounts no live region. A form of ten fields that fails on submit therefore says nothing until the reader arrives at each field. The pattern that closes this is an error summary at the top of the form — who owns it, and does Field need to expose the ids it generated so a summary can link to them?",
     "The spec's part tree puts the error after the control. GOV.UK and the NHS put it before, so a software keyboard or an autocomplete list cannot cover it. This implementation follows the spec. Which is right for a phone held one-handed?",
-    "`validateOn` has three values and Base UI has two that fit them, so “submit” and “submit-then-change” resolve to the same mode. Is the third value worth keeping as a promise, or should the union shrink to what the runtime can actually distinguish?",
+    "`validateOn` has three values and Base UI has two that fit them, so “submit” and “submit-then-change” resolve to the same mode. Worse, both of those need Base UI's `<Form>` around the fields — its submit mode is gated on a flag only that primitive sets — so inside a plain `<form>` the default value does nothing but the Enter key, and no example here mounts a `<Form>` to show otherwise. Should the union shrink to what the runtime can actually distinguish, and should Field refuse a submit mode it cannot honour?",
   ]}
 >
   <code className="text-sm">field</code> is implemented and installable. It is{" "}
@@ -178,6 +178,13 @@ appears in addition to the hint, because a reader who has made a mistake still n
 guidance that would have prevented it. **Optionality** marks whichever of required or optional
 is the exception in this form.
 
+Field's own spacing is fixed, and the density control above the preview does not move it. Every
+gap inside a Field is an `--opsin-space-*` step, which is a rem that stays put; density moves
+Tailwind's `--spacing` and nothing else. So the switch is not broken on this page — it has
+nothing here to act on. The space density is meant to change is the space *between* fields,
+which the form owns, and neither the target floor nor the type steps shrink when somebody asks
+for compact.
+
 The relationships are the component. `Field.Control` is associated with `Field.Label` through a
 real label relationship, and with `Field.Hint` and `Field.Error` through a description
 relationship, generated rather than typed — hand-wired ids are where accessible forms rot.
@@ -234,8 +241,16 @@ text input uses.
 ## Content guidelines
 
 Labels are nouns naming what goes in the field, in sentence case, with no trailing colon.
-Hints show the shape of a valid answer rather than restating a rule: *for example 128* helps
-more than *must be a number between 70 and 250*.
+Hints show the shape of a valid answer rather than restating a rule. *For example, 27 3 1985*
+tells a reader what to type; reciting the permitted range only repeats, in prose, the check the
+field is already doing, and leaves the reader to work the shape out from it.
+
+A hint on a health input must not carry a threshold, a plausibility bound, or a number that
+could be read as somebody's result. A figure written into a hint is copied into a screenshot,
+and a plausible-looking one is then indistinguishable from a reading — opsinjs owns nobody's
+ranges, and an example is exactly where a range that owns nothing gets in. Where a hint has to
+show a number at all, use one nobody would act on, the way the demo above uses *14*. See
+[Synthetic example data](../project/decisions/0012-synthetic-example-data.mdx).
 
 Errors say what went wrong and how to fix it, in the second person, without blame. Never
 *invalid*, never *error*, never *you must*. Field supplies no default error text and never
@@ -272,13 +287,15 @@ changes them.
 
 ## Accessibility
 
-Some of this is checked by a gate on every commit, some is delegated to Base UI and can be read
+Some of this is checked by a gate in CI, some is delegated to Base UI and can be read
 in its source, and some is an argument. They are separated below because `alpha` promises that
 accessibility is claimed only where it has been checked, with the gaps listed rather than left
 out. A component that delegates its central promise and does not say so is one nobody can
 audit.
 
-**Checked, by `pnpm run check:a11y` on every commit:**
+**Checked, by `pnpm run check:a11y` on every pull request:** it runs in CI, on `pull_request`
+and on a push to `main`. There is no pre-commit hook, so a commit that is never pushed is never
+checked.
 
 - **Every colour is a token, and none of them resolves to nothing under the product theme.**
   The static rig fails the build on a hex literal, an `oklch()`, a Tailwind palette colour, a
@@ -288,7 +305,11 @@ audit.
   `/view`.
 - **No `px` font size**, so every step in this component scales with the reader's own text
   size. See [Dynamic type](../foundations/typography/dynamic-type.mdx).
-- **No banned word**, in copy or in an identifier.
+- **No banned word** in a string literal, in JSX text, or in an identifier segment. That is the
+  gate's real scope and it is narrower than the sentence usually written here: it does not read
+  comments, by a deliberate decision the script argues for, and this component's prop doc
+  comments are comments — which the generator then publishes into the props table below. A
+  banned word introduced there would reach a reader unchecked.
 
 **Delegated to Base UI's `field` primitive, and verifiable in its source rather than by us:**
 
@@ -312,15 +333,30 @@ audit.
   say *check that number*, and lending it out would cost the status axis the meaning the whole
   system is built on. See [The two colour axes](../health/two-colour-axes.mdx). What is left is
   a glyph, the emphasis weight, an emphasis border on the control and the words — which is what
-  the requirement asked for anyway, reached from the other direction. The glyph is deliberately
+  the requirement asked for anyway, reached from the other direction. Count three rather than
+  four on paper: the emphasis border is a `box-shadow`, which forced-colors mode drops and the
+  print stylesheet sets to `none`, so it is the one carrier that does not survive either. The
+  glyph and the words do, and they are the two that carry the meaning. It is not an `outline`
+  instead because the control's outline is already spent on `:focus-visible`, and a focused
+  invalid field would then show one state or the other. The glyph is deliberately
   not the triangle: that shape belongs to the `attention` level, and four distinct silhouettes
   only work as a vocabulary if nothing else borrows one.
 - **Required and optional are marked in text, inside the label**, so the marker is part of the
   accessible name. No asterisk, and therefore no legend to miss.
-- **The control clears the 44px target floor.** The product stylesheet's backstop covers
-  buttons, checkboxes and radios and not a text input, so Field sets `--opsin-target-minimum`
-  itself — a rem value, which grows with the reader's text size rather than staying at 44
-  physical pixels. See [Target size and motor](../accessibility/target-size-and-motor.mdx).
+- **The control clears the 44px target floor, on both axes.** The product stylesheet's backstop
+  covers buttons, checkboxes and radios and not a text input, so Field applies
+  `--opsin-target-minimum` to the control itself — a rem value, which grows with the reader's
+  text size rather than staying at 44 physical pixels. It reads the token rather than declaring
+  it, and the token lives in a stylesheet that `shadcn add` does not ship, so the declaration
+  carries the same `2.75rem` fallback the product stylesheet writes; without it the floor would
+  quietly become `auto` in an app that had not wired the token sheet. The inline axis is set as
+  well as the block one, because a caller who narrows the control — `className="w-8"` for a
+  two-digit entry — would otherwise get a target below the floor on that axis and no warning.
+  Argued from the CSS, not measured, and deliberately without a figure: the width that
+  utility resolves to depends on `--spacing`, which the product theme sets differently from
+  the documentation chrome, so any number written here would be right in one document and
+  wrong in the other. The hit-area check runs in nightly, against a browser.
+  See [Target size and motor](../accessibility/target-size-and-motor.mdx).
 - **Nothing truncates at 200% text.** The label wraps, the hint wraps, the error wraps and the
   field grows; there is no fixed height anywhere in the component and no `text-overflow`. The
   error's glyph is aligned to the first line rather than centred, so a three-line message does
@@ -345,8 +381,15 @@ audit.
   opsinjs yet, so the increased-contrast claim cannot currently be made by anyone.
 - **`autocomplete` and `inputmode` are required by the contract and set by nobody.** Field
   cannot supply them: the right token depends on what is being asked for, and a guess would fill
-  somebody's postcode into a field asking for something else. Every example on this page sets
-  them, and nothing enforces it. See
+  somebody's postcode into a field asking for something else. Nothing enforces it either, and
+  the examples on this page are not the demonstration — every text input in them sets
+  `autocomplete="off"`, which is the opt-out of the win the requirement names, and the one
+  `select` sets nothing at all because a select has no autofill token to opt out of. That is
+  the right call for these fields and the wrong thing to copy: they collect nothing real, and a
+  token like `bday` on a field called *Example measurement* would be a made-up answer to a
+  made-up question. `inputmode` is set where it means something — the numeric and decimal inputs — and
+  omitted on the free-text note and the `select`, where it changes nothing. So what a real token
+  looks like is not shown here; it is at
   [Autocomplete and input types](../patterns/forms/autocomplete-and-input-types.mdx).
 - **Field cannot tell whether a control is inside it.** If a caller puts something in `children`
   that does not participate in the field context, the label points at nothing and the component
@@ -397,11 +440,12 @@ no substitute is invented — a made-up name would silence the audit that would 
 it.
 
 `error` is the product's own sentence, and its presence is what marks the control invalid. It
-never removes the hint, and an empty string is ignored with a warning rather than producing a
-control announced as invalid with nothing to say about why. Omit the prop entirely and the
-field falls back to the browser's message if and when the control fails a constraint of its
-own; that fallback exists because `aria-invalid` with no description is worse than a message in
-the wrong tone, not because the message is good.
+never removes the hint, and an empty string is ignored with a warning — once, not once per
+render — rather than producing a control announced as invalid with nothing to say about why.
+Omit the prop entirely and the field falls back to the browser's message if and when the control
+fails a constraint of its own; read the next paragraph before relying on that, because *if and
+when* is narrower than it sounds. The fallback exists because `aria-invalid` with no description
+is worse than a message in the wrong tone, not because the message is good.
 
 `validateOn` governs when the control's *own* constraints are checked — it does not gate the
 `error` prop, because a message the product passed in is a message the product has already
@@ -411,6 +455,15 @@ mode is documented as validating on submit and then re-validating on change, whi
 again. So `"submit"` is more forgiving than its name suggests, which is the harmless direction
 — the mode that cannot be expressed is the one that leaves a corrected field still marked
 invalid until the next submit. See [Validation timing](../patterns/forms/validation-timing.mdx).
+
+**Both submit values need Base UI's `<Form>` around the fields, and neither the examples on this
+page nor the demo mounts one.** Base UI's submit mode is not "the browser submitted the form":
+it is gated on a flag that only Base UI's own form primitive sets, and the default value of that
+flag is permanently false. So in a plain `<form onSubmit={…}>` the control's own constraints are
+checked on Enter in a text input and at no other moment — the default `validateOn` does nothing
+else, and the un-styled fallback error above almost never appears. This is the strongest reason
+to pass `error`: it applies the invalid state directly and goes through no validation mode at
+all. Nothing here has been demonstrated with a `<Form>` on this page, and it should be.
 
 `optionality` defaults to `"none"`, because marking both required and optional is the same as
 marking neither. It renders one of two English words and there is no prop to translate them;

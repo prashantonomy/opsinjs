@@ -71,20 +71,24 @@ const TRANSLUCENT_RUNGS: MaterialRung[] = ["sheet", "overlay", "scrim"]
  * from the density at runtime: `p-${density === "compact" ? 4 : 5}` generates
  * no CSS and renders a card with no padding at all.
  *
- * WHY THESE TWO STEPS. `tokens/space.json` publishes step 5 as "card inner
- * padding on a phone" and step 4 as the step below it; the density scale it
- * declares for `compact` is 0.875, and 0.875 of 20px is 17.5px, which is not a
- * step on a 4px grid — the token source's first rule is that there is no 13px.
- * So `compact` moves one published step down rather than multiplying, and the
- * two values stay values somebody chose.
+ * WHERE THE 5 AND THE 4 COME FROM, AND WHICH SCALE THEY ARE ON. The two
+ * numbers are borrowed from `tokens/space.json`, which publishes step 5 as
+ * "card inner padding on a phone" and step 4 as the step below it. What ships
+ * is not those steps. `p-5` and `p-4` are five and four multiples of Tailwind's
+ * `--spacing`, which `app/product.css` sets to 0.28rem and the document's
+ * `[data-density]` attribute moves to 0.24rem or 0.32rem; `p-opsin-5` and
+ * `p-opsin-4` are the utilities that read the fixed tokens instead. So neither
+ * rendered value is a published step and neither sits on the 4px grid, and this
+ * file claims neither. The numbers carry the intent; the scale carries the
+ * response to density.
  *
- * They are the density-SCALED utilities (`p-5`, not `p-opsin-5`), which is the
- * one place this component follows `app/product.css` rather than the token
- * steps directly: that file names "the inside of a card" as the canonical use
- * of the scaled scale, so a reader who asks for a denser interface gets one
- * here. The two controls multiply — a product asking for `compact` inside a
- * document already set to a compact density gets the tightest card the system
- * offers, and that is the intended floor rather than an accident.
+ * The scaled scale is the choice rather than an oversight, and it is the one
+ * place this component follows `app/product.css` rather than the token steps
+ * directly: that file names "the inside of a card" as the canonical use of the
+ * scaled scale, so a reader who asks for a denser interface gets one here. The
+ * two controls multiply — a product asking for `compact` inside a document
+ * already set to a compact density gets the tightest card the system offers,
+ * and that is the intended floor rather than an accident.
  */
 const PADDING: Record<"comfortable" | "compact", string> = {
   comfortable: "p-5",
@@ -134,10 +138,10 @@ export interface CardProps {
    */
   rung?: MaterialRung
   /**
-   * Padding scale. Affects space only, never type size. `"compact"` moves the
-   * padding one published step down the spacing scale; it does not shrink the
-   * type, the separation between two controls in the footer, or the card's
-   * touch target.
+   * Padding scale. Affects space only, never type size. `"compact"` drops the
+   * padding one multiplier on the density-scaled spacing scale — four times
+   * `--spacing` rather than five — and it does not shrink the type, the
+   * separation between two controls in the footer, or the card's touch target.
    *
    * @default "comfortable"
    */
@@ -206,7 +210,16 @@ export function Card({
      decorative layers are absolutely positioned to `inset-0`, whose containing
      block is the padding box, so the fill and the edge cover the padding rather
      than being inset from it. Padding the wrapper instead would leave a card
-     with a boundary drawn inside its own whitespace. */
+     with a boundary drawn inside its own whitespace.
+
+     `h-full` needs the root to give it a definite height, and only two things
+     do: a parent grid or flex row stretching the card, and — on the link root
+     below — that root being a grid itself. Without one of those the percentage
+     resolves against an auto height, computes to `auto`, and the material is
+     content-sized while the root is taller. That is visible rather than
+     theoretical: the fill and the edge are `inset-0` OF THE SURFACE, so a root
+     held open by the 44px floor would draw its boundary short of its own
+     bottom edge. */
   const material = (
     <Surface
       rung={rung}
@@ -229,13 +242,24 @@ export function Card({
 
   return (
     /* One control, and everything that follows from that.
-       `min-h-(--opsin-target-minimum)` carries the 44px floor in the component
-       rather than relying on the product theme's `a[data-opsin-target]`
-       backstop: that attribute is outside the four-attribute vocabulary a
-       component may stamp, and the stylesheet declaring it does not travel with
-       this file into somebody else's project. The token is rem, so the floor
+       `min-h-` and `min-w-(--opsin-target-minimum)` carry the 44px floor in the
+       component rather than relying on the product theme's
+       `a[data-opsin-target]` backstop: that attribute is outside the
+       four-attribute vocabulary a component may stamp, and the stylesheet
+       declaring it does not travel with this file into somebody else's project.
+       BOTH AXES, because the backstop sets both and the layout half of the
+       accessibility rig measures both — a card is usually far wider than its
+       floor, but a link card dropped into a narrow grid column is not, and a
+       floor that holds on one axis is not a floor. The token is rem, so it
        grows when a reader raises their text size instead of pinning at 44
        device pixels.
+
+       `grid` rather than `block` is what makes the material fill the floor. A
+       single grid item stretches on both axes by default, so the Surface — and
+       with it the fill, the edge and the padding — reaches the bottom of a root
+       that the 44px minimum is holding open. As `block` the Surface would be
+       content-sized inside a taller root, and the boundary would stop short of
+       the focus ring drawn around the whole of it.
 
        The focus ring is declared here for the same reason. `app/product.css`
        already gives every `:focus-visible` an outline, and a consumer's
@@ -249,7 +273,8 @@ export function Card({
       href={href}
       data-slot="card"
       className={cn(
-        "group block min-h-(--opsin-target-minimum) text-inherit no-underline",
+        "group grid min-h-(--opsin-target-minimum) min-w-(--opsin-target-minimum)",
+        "text-inherit no-underline",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         SHAPE,
         PRINT_BOUNDARY,
@@ -319,7 +344,13 @@ export function CardHeader({
       >
         {title}
       </div>
-      {description === undefined ? null : (
+      {/* `undefined` AND `null`, because `description` is a `ReactNode` and
+          both spellings type-check. `description={subtitle ?? null}` is the
+          ordinary way a caller says "there is no subtitle", and guarding on
+          `undefined` alone answers it with an empty paragraph carrying `mt-2` —
+          a blank gap substituted for an absence, which is the shape this system
+          refuses everywhere else. */}
+      {description === undefined || description === null ? null : (
         <p
           data-slot="card-description"
           className="mt-2 mb-0 text-opsin-footnote text-muted-foreground"
@@ -359,13 +390,20 @@ export function CardFooter({ children, className }: CardFooterProps) {
     <div
       data-slot="card-footer"
       className={cn(
-        /* `gap-opsin-2` and not `gap-2`: this is the one measurement in the
-           card that must not move with density. `--opsin-target-separation` is
-           the minimum gap between two adjacent controls, and a footer with two
-           buttons in it is exactly the case it was measured for. Padding may
-           tighten when somebody asks for a denser interface; the distance
-           between two things a thumb has to hit may not. */
-        "flex flex-wrap items-center gap-opsin-2",
+        /* The token the documentation names, read directly, rather than a
+           spacing step that happens to equal it today.
+           `--opsin-target-separation` is the published minimum gap between two
+           adjacent controls, and a footer with two buttons in it is exactly the
+           case it was published for. `gap-opsin-2` would render the same 0.5rem
+           and would keep rendering it if `tokens/space.json` ever raised the
+           separation floor — a divergence no gate in the system measures,
+           because both halves of the rig read elements and not gaps.
+
+           It is the fixed scale rather than `gap-2` for the reason the prop
+           documentation gives: padding may tighten when somebody asks for a
+           denser interface; the distance between two things a thumb has to hit
+           may not. */
+        "flex flex-wrap items-center gap-(--opsin-target-separation)",
         PART_RHYTHM,
         className,
       )}

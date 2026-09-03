@@ -35,14 +35,31 @@
  * non-dismissing surface still announced as a plain dialog, which is the
  * failure that looks correct in review.
  *
- * ESCAPE IS THE ONE PART BASE UI DOES NOT DO FOR US. `useDialogRoot` passes
- * `escapeKey: isTopmost` to `useDismiss` in every mode, alert-dialog included,
- * so an untouched alert dialog closes on Escape and the whole contract is lost
- * on the keyboard. This file cancels that close through the change event's own
- * `cancel()`, and then moves focus to the safest action so the key produces a
- * visible and an announced response rather than silence. It does not write a
- * sentence saying an answer is needed: those are the product's words, they
- * belong in `description`, and a development warning asks for them.
+ * ESCAPE IS THE ONE PART BASE UI DOES NOT DO FOR US, AND THE ANSWER IS
+ * INCOMPLETE. `useDialogRoot` passes `escapeKey: isTopmost` to `useDismiss` in
+ * every mode, alert-dialog included, so an untouched alert dialog closes on
+ * Escape and the whole contract is lost on the keyboard. This file cancels that
+ * close through the change event's own `cancel()`, which is the half that
+ * works: the dialog stays, in every configuration.
+ *
+ * The response is the half that does not. Focus returns to the safest action —
+ * which answers the key for a reader whose focus had moved into the body or
+ * onto the other control, and does nothing at all in the default one, because
+ * `initialFocus="safest"` has already put focus on that same element and
+ * calling `focus()` on `document.activeElement` is a specification no-op: no
+ * focus event, no change of ring, nothing for a screen reader to announce. A
+ * reader who presses Escape first, before moving anywhere, gets silence.
+ *
+ * That is a known limitation rather than a subtlety, and it is written down on
+ * the page in the gap list rather than described as a feature here. The three
+ * candidate repairs were all worse: focusing the FIRST action points the key at
+ * the control that changes something; focusing the container relies on an
+ * announcement nobody in this repository has verified with a screen reader; and
+ * a live region is banned outright, because a component never mounts one on the
+ * caller's behalf. `patterns/alert-escalation.mdx` asks for the reason to be
+ * announced, and the honest position is that this component does not do that
+ * yet. It does not write the sentence either: those are the product's words,
+ * they belong in `description`, and a development warning asks for them.
  *
  * IT IS A CLIENT COMPONENT, and the two refs are why. `initialFocus="safest"`
  * has to resolve to an ELEMENT — Base UI takes a ref or a function, never a
@@ -64,7 +81,7 @@ import {
   type DialogRootChangeEventDetails,
 } from "@base-ui/react/dialog"
 import { X } from "lucide-react"
-import { useRef, useState, type ReactNode } from "react"
+import { useEffect, useRef, useState, type ReactNode } from "react"
 
 import { isDevelopment } from "@/lib/opsinjs"
 import { cn } from "@/lib/utils"
@@ -195,13 +212,39 @@ export interface DialogProps {
    */
   severity?: "default" | "alert"
   /**
+   * The accessible name of the close control, which is the only reader-facing
+   * word this component owns. It exists so that the word can be translated:
+   * a component that ships an untranslatable English string into a product
+   * whose readers do not read English has removed their way out of the dialog
+   * as surely as deleting the control would.
+   *
+   * The default is English, and that is the residual gap — the same one
+   * `StatusPill.label` has, and it is listed on the page rather than described
+   * as solved. Ignored when `severity` is `alert`, which renders no close
+   * control at all.
+   *
+   * @default "Close"
+   */
+  closeLabel?: string
+  /**
    * Where focus lands when the dialog opens. `safest` puts it on the LAST
    * control in `actions`, which is where the specification's own example puts
    * the answer that changes nothing; `content` puts it on the first control
    * inside `children`, for a dialog whose job is a short task rather than a
    * question. Neither ever lands on the scrim or on the container while a
-   * control is available, and neither can be pointed at a destructive action
-   * without the caller ordering their actions the wrong way round.
+   * control is available.
+   *
+   * `content` falls back to the safest action when `children` holds nothing
+   * focusable, and only then to the primitive's own behaviour. That order is
+   * the point rather than a tidy-up: the primitive's default is the first
+   * tabbable element in the popup, an alert dialog has no close control, and so
+   * the first tabbable element in an alert dialog is the FIRST action — which
+   * the ordering rule reserves for the answer that changes something.
+   *
+   * The cost of `safest` is that it is the LAST tab stop in the dialog, so the
+   * first Tab wraps round to the close control and the other answer is reached
+   * with Shift+Tab. That is the trade: a stray Return is harmless, and the
+   * other answer is one key further away than it looks.
    *
    * @default "safest"
    */
@@ -240,6 +283,7 @@ export function Dialog({
   title,
   description,
   severity = "default",
+  closeLabel = "Close",
   initialFocus = "safest",
   actions,
   children,
@@ -250,12 +294,21 @@ export function Dialog({
 
   const nonDismissing = severity === "alert"
 
+  /* A blank string is an absence, not a description. `title` has had this
+     treatment since the first version and `description` had only an
+     `undefined` check, which meant `description=""` on an alert dialog raised
+     no warning and then wired an EMPTY `aria-describedby` onto the popup — a
+     surface with no close control, a refused Escape key and nothing announced
+     about why either of those is true. Absence and emptiness are the same
+     thing to a reader, so they are the same thing here. */
+  const hasDescription = description !== undefined && description.trim() !== ""
+
   /* Development-only, and none of these is an OPSIN code. `tokens/errors.json`
      allocates codes for mistakes a consumer makes with the CLINICAL API — a
      status without a word, a range without a source — and a component may not
      mint one, because that table is generated from that file and the codes are
-     a versioned contract. These three are ordinary interface defects, reported
-     in the ordinary channel.
+     a versioned contract. These, and the effect below them, are ordinary
+     interface defects, reported in the ordinary channel.
 
      They all render anyway. A dialog is already on screen and already holding
      the reader's focus by the time any of this is true; taking it away to
@@ -279,7 +332,7 @@ export function Dialog({
           "outcome.",
       )
     }
-    if (nonDismissing && description === undefined) {
+    if (nonDismissing && !hasDescription) {
       console.warn(
         '[opsinjs] <Dialog severity="alert"> has no `description`. On an alert ' +
           "dialog the description is where the reader is told that an answer is " +
@@ -290,6 +343,40 @@ export function Dialog({
     }
   }
 
+  /* THE SECOND HALF OF THE ALERT-DIALOG WARNING, AND IT HAS TO RUN AFTER THE
+     DOM EXISTS.
+
+     The check above catches `actions={undefined}` and nothing else, because at
+     render time that is all it can see. `actions` is a `ReactNode`: `null`,
+     `false`, `""` and `<></>` are every one of them legal, every one of them
+     not `undefined`, and every one of them renders an actions row with nothing
+     focusable in it. On an alert dialog that is a modal surface with no close
+     control, a scrim that does not dismiss, an Escape key that is refused and
+     nothing at all to press — which is the outcome the warning above describes
+     in words and, until this effect existed, did not report.
+
+     The ref is what makes the check possible: `React.Children.count` cannot see
+     through a fragment, and it cannot see a control a caller rendered
+     conditionally either. The ref sees the DOM, which is the thing the reader
+     is stuck in. It renders anyway, for the reason above: a dialog already
+     holding somebody's focus is not made safer by being unmounted. */
+  useEffect(() => {
+    if (!isDevelopment() || !open || !nonDismissing || actions === undefined) {
+      return
+    }
+    if (focusableIn(actionsRef.current, "last") === null) {
+      console.warn(
+        '[opsinjs] <Dialog severity="alert"> was given `actions` with nothing ' +
+          "focusable inside it. An alert dialog has no close control, its scrim " +
+          "does not dismiss and Escape does not close it, so its actions are the " +
+          "only way out — and an empty row, a `null`, a `false` or a fragment " +
+          "with no controls in it is a surface a reader cannot leave at all. " +
+          'Give it the answers it is asking for, or use severity="default", ' +
+          "where going away is a valid outcome.",
+      )
+    }
+  }, [open, nonDismissing, actions])
+
   /**
    * Base UI takes a ref, `true`, `false`, or a function returning an element.
    * There is no string form, so the two values this component publishes are
@@ -299,13 +386,28 @@ export function Dialog({
    * is Base UI's own behaviour, which puts focus on the first tabbable element
    * inside the popup, and `false` would leave focus outside a surface that has
    * made everything outside it inert.
+   *
+   * BUT `true` IS NOT SAFE ENOUGH TO REACH DIRECTLY FROM `content`, which is
+   * why the chain below has three links rather than two. `children` may be
+   * absent, in which case the content div is never rendered and the ref is
+   * null; or it may hold nothing focusable. Either way the old fallback landed
+   * on `true`, Base UI resolved that to the first tabbable element in the
+   * popup, and an alert dialog has no close control — so the first tabbable
+   * element in one is the FIRST action, which this component's own ordering
+   * rule reserves for the answer that changes something. A stray Return then
+   * did the destructive thing, on the path the props documentation said could
+   * not happen. Falling through the safest action first makes the sentence
+   * true in every branch instead of in the common one.
    */
   function resolveInitialFocus(): HTMLElement | true {
-    const target =
-      initialFocus === "content"
-        ? focusableIn(contentRef.current, "first")
-        : focusableIn(actionsRef.current, "last")
-    return target ?? true
+    if (initialFocus === "content") {
+      return (
+        focusableIn(contentRef.current, "first") ??
+        focusableIn(actionsRef.current, "last") ??
+        true
+      )
+    }
+    return focusableIn(actionsRef.current, "last") ?? true
   }
 
   /**
@@ -320,9 +422,20 @@ export function Dialog({
    *
    * Cancelling on its own would make the key do nothing at all, and the
    * specification is explicit that the dialog "does not simply swallow the
-   * key". So focus moves to the safest action: a sighted keyboard reader sees
-   * the ring land on the way out, and a screen-reader user hears that control
-   * announced. It is not a sentence, and it is not meant to be — the sentence
+   * key". So focus moves to the safest action — and that move is only a
+   * response when focus was somewhere else. In the default configuration it is
+   * not: `initialFocus="safest"` has already put focus on the last action, so
+   * this line focuses the element that already has focus, which the DOM
+   * specification defines as doing nothing. No focus event, no ring, no
+   * announcement.
+   *
+   * The line stays because it is right for the reader whose focus HAD moved,
+   * and because every alternative is worse (the file header sets out which and
+   * why). What does not stay is the claim: the page lists Escape-on-an-alert-
+   * dialog as answered-in-part, names the case where it is silent, and cites
+   * the pattern page whose requirement this does not yet meet.
+   *
+   * It is not a sentence, and it was never meant to be one — the sentence
    * lives in `description`, in the product's own words.
    */
   function handleOpenChange(
@@ -337,7 +450,7 @@ export function Dialog({
     onOpenChange(next)
   }
 
-  const hasBody = description !== undefined || children !== undefined
+  const hasBody = hasDescription || children !== undefined
 
   /* The whole tree below the root, written once. The root is the only thing
      `severity` changes, and building the body separately is what keeps that
@@ -451,9 +564,18 @@ export function Dialog({
                 hasBody || actions !== undefined ? null : "pb-opsin-5",
               )}
             >
+              {/* `wrap-break-word` is not decoration. The popup is
+                  `overflow-hidden` on both axes, so a token with no break
+                  opportunity in it — a medication name, an account identifier,
+                  a URL — overflows its line box and is then CLIPPED, with no
+                  scrollbar to recover it. At 200% text the header has around a
+                  third of a phone's width left after the padding and the close
+                  control double with it, so the token does not have to be long.
+                  Losing the end of the dialog's accessible name is content
+                  loss rather than a layout blemish. */}
               <DialogPrimitive.Title
                 data-slot="dialog-title"
-                className="m-0 min-w-0 flex-1 text-opsin-title3"
+                className="m-0 min-w-0 flex-1 wrap-break-word text-opsin-title3"
               >
                 {title}
               </DialogPrimitive.Title>
@@ -484,10 +606,13 @@ export function Dialog({
                   )}
                 >
                   <X aria-hidden="true" className="size-[1.25em]" />
-                  {/* The only reader-facing word this component owns, and it is
-                      English with no way to translate it. That is a real gap
-                      and it is listed on the page rather than hidden here. */}
-                  <span className="sr-only">Close</span>
+                  {/* The only reader-facing word this component owns. It takes
+                      a prop, for the reason `StatusPill.label` does: a word a
+                      product cannot translate is a word some readers cannot
+                      read, and this one is the label on their way out. The
+                      DEFAULT is still English, which is the gap that remains
+                      and is listed on the page rather than settled here. */}
+                  <span className="sr-only">{closeLabel}</span>
                 </DialogPrimitive.Close>
               )}
             </div>
@@ -503,15 +628,20 @@ export function Dialog({
                 hasBody ? "px-opsin-5 pt-opsin-2 pb-opsin-5" : null,
               )}
             >
-              {description === undefined ? null : (
+              {!hasDescription ? null : (
                 /* Plain foreground, not the muted role. A muted caption on a
                    translucent surface is the thing this system's own material
                    guidance tells products not to do, and the description is
                    where the consequence of each answer is written — which is
-                   the last text on the screen that should be quiet. */
+                   the last text on the screen that should be quiet.
+
+                   `wrap-break-word` for the same reason the title carries it:
+                   an account identifier or a URL in a consequence has no break
+                   opportunity in it, and the popup clips rather than scrolls
+                   horizontally. */
                 <DialogPrimitive.Description
                   data-slot="dialog-description"
-                  className="m-0 text-opsin-body text-foreground"
+                  className="m-0 wrap-break-word text-opsin-body text-foreground"
                 >
                   {description}
                 </DialogPrimitive.Description>

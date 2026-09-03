@@ -10,8 +10,10 @@
  * It is also the honest place to look at `destructive`, because opsinjs has no
  * destructive colour and does not borrow one from the clinical status axis. The
  * only differences between the outlined destructive control and the soft-filled
- * secondary one are the boundary weight and the words — which is why the label
- * here says what will be deleted rather than just "Delete".
+ * secondary one are the boundary weight and the words — and the boundary has
+ * not been measured against either surface it sits on, so on the evidence so
+ * far the words are carrying this alone. Which is why the label here says what
+ * will be deleted rather than saying "Delete" and stopping.
  *
  * The row is spaced by `gap-opsin-2`, which is 0.5rem, which is exactly
  * `--opsin-target-separation`. Adjacent targets need that gap and a component

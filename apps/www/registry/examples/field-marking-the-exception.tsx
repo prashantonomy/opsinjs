@@ -15,6 +15,13 @@
  * `autoComplete` and `inputMode` are set here rather than by the component. The
  * right token depends on what is being asked for, and a component that guessed
  * would put somebody's postcode in a field asking for something else.
+ *
+ * Do not copy the VALUE. `autocomplete="off"` is the opt-out of the win the
+ * accessibility contract names — the reader's own stored details filling the
+ * field — and it is used here only because these fields collect nothing real,
+ * so any genuine token would be a made-up answer to a made-up question. A real
+ * form names a real token. `inputMode` is omitted on the note for a different
+ * reason: it is free text, and the default keyboard is the right one.
  */
 
 import { Field } from "@/registry/base-lyra/ui/field"

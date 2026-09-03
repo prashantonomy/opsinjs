@@ -1,7 +1,7 @@
 ---
 title: Term
 description: A clinical word shown with its everyday meaning attached, so you can read a sentence without having to look anything up.
-status: planned
+status: alpha
 kind: component
 since: "unreleased"
 category: health-communication
@@ -10,20 +10,25 @@ governedBy: [who-this-is-for, clinical-interaction-guidelines]
 usedIn: [value-against-a-range, results-screen]
 ---
 
-<PageTemplate kind="component" />
-
 ## Status
 
 <StubNotice
   name="term"
+  status="alpha"
   issue="opsinjs/opsinjs#0"
   questions={[
-    "Is the definition always available without interaction, or is a disclosure acceptable on small screens where inline expansion would break the sentence?",
-    "What happens when the term is not in the glossary — silent passthrough, a development warning, or a build failure?",
-    "A word can mean different things in different specialities. Does the glossary allow more than one definition per term, and who chooses?",
-    "How does the term behave in print, where there is nothing to tap and no room for a panel?",
+    "A collapsed definition reaches a reader through the trigger's accessible description rather than through the collapsed element itself. That is the load-bearing claim in this component and it has not been tested with a real screen reader on a real phone.",
+    "`auto` chooses inline or disclosure by the LENGTH of the definition, because choosing by the width available means measuring, and measuring after the server has rendered means a flash. Is a character budget the right proxy, and is 40 the right number?",
+    "`once` is set by the caller, because a component cannot see where one surface ends and the next begins. Should the provider count appearances instead, and if it did, what would reset the count — a route change, a card, a paragraph?",
+    "The inline trigger does not reach a 44x44 hit area and relies on the inline-target exception. Is that the right trade for a reader with a tremor, or should a term behind a disclosure be given a line of its own?",
+    "`tokens/glossary.json`'s policy rule says the plain wording is the visible text and the clinical word is the annotation, and it names the shape this component implements as the thing not to do — while the same policy block's own note on `showBoth: \"always\"` argues the other way, because matching a printout needs the clinical spelling on the screen. Which of the two governs: does the component invert, or does the rule gain a stated exception?",
   ]}
-/>
+>
+  <code className="text-sm">term</code> is implemented and installable. It is{" "}
+  <strong className="font-medium">alpha</strong>: it works and it is documented,
+  the API may change in any release without a deprecation cycle, and it is not
+  for a production health surface yet.
+</StubNotice>
 
 Term is small, unglamorous and probably the component with the highest ratio of benefit to
 effort in the whole system. Most health interfaces are readable except for four words per
@@ -31,17 +36,33 @@ screen, and those four words are why people stop reading.
 
 ## Preview
 
-The preview will show the inline, disclosure and print treatments of the same sentence, so
-the trade-off between not breaking the line and not hiding the definition is visible.
+Two presentations of the same content, in one sentence. Nothing on the preview chose which
+is which: `auto` sends a three-word definition inline and a longer one behind a control, and
+the control is a real button that Enter, Space and a tap all reach.
 
 <ComponentPreview name="term" />
 
 ## Installation
 
-The registry item does not exist yet; the command below is shown for shape only and will
-fail.
+<ComponentInstall
+  name="term"
+  unbuilt={false}
+  importPath="@/components/ui/term"
+/>
 
-<ComponentInstall name="term" />
+## Usage
+
+```tsx
+import { Term, TermGlossaryProvider } from "@/components/ui/term"
+```
+
+```tsx
+<TermGlossaryProvider glossary={GLOSSARY}>
+  <p>
+    An <Term id="acute" /> problem started suddenly.
+  </p>
+</TermGlossaryProvider>
+```
 
 ## When to use it
 
@@ -49,7 +70,7 @@ fail.
   use={[
     "A clinical word the reader will meet elsewhere — on a letter, in a conversation with a clinician, on a test result — and therefore cannot simply be replaced with a plainer one.",
     "An abbreviation whose expansion the reader needs at least once: HbA1c, eGFR, BP, SpO2.",
-    "A word with an everyday meaning that differs from its clinical one, such as 'positive', 'chronic' or 'acute', where the mismatch is the whole problem.",
+    "A word with an everyday meaning that differs from its clinical one, such as 'chronic' or 'acute', where the mismatch is the whole problem.",
   ]}
   avoid={[
     { case: "The explanation runs to more than a sentence or two, or carries a caveat as well as a definition.", instead: "callout" },
@@ -70,92 +91,183 @@ say it plainly and skip the component.
 
 **What it asserts.** That this word has this everyday meaning, in this context, according to
 the product's glossary. It is a translation claim, and it is the product's claim, not a
-clinician's.
+clinician's. opsinjs supplies no definitions for a product to use: the component arrives
+with an empty glossary and a product hands it a full one. Two definitions do travel inside
+the file, because the zero-prop demo at the foot of `term.tsx` has to have something to
+define; they are unexported and no call site outside that demo can reach them. That is the
+exception to the sentence, stated rather than left for somebody to find in the source.
 
 **What it must never be read as.** A definition of the reader's condition, or advice.
 *Chronic means long-lasting* is a translation; *chronic means you will have this for life*
 is a prognosis, and the glossary is not the place for one. Definitions describe words.
 
-**Which colour axis it may use.** Neither. A term is typographic — a dotted underline or an
-equivalent mark that does not rely on colour to be visible. Tinting jargon by category makes
-words look like statuses, and tinting them by status is worse.
+**Which colour axis it may use.** Neither. A term is typographic — a dotted underline, which
+survives greyscale, increased contrast and a black-and-white printout. Tinting jargon by
+category makes words look like statuses, and tinting them by status is worse: a word in the
+`urgent` ramp is a clinical level that nobody assigned and nothing counts against the
+escalation budget.
 
-**The glossary is the product's, and it is data.** Definitions live in
-`tokens/glossary.json`, are written in plain English by the product, and are versioned and
-reviewable like any other content. They are never generated at runtime, never fetched from a
-third party, and never copied from a national health service — the NHS A-to-Z is Crown
-copyright and is not reusable, however tempting the shortcut. Cite sources; never paste
-them. See [Plain-English A–Z](../content/plain-english-a-z.mdx).
+**The glossary is the product's, and it is data.** In this repository the definitions live
+in `tokens/glossary.json`, are written in plain English, and are versioned and reviewable
+like any other content. They are never generated at runtime, never fetched from a third
+party, and never copied from a national health service — the NHS A-to-Z is Crown copyright
+and is not reusable, however tempting the shortcut. Cite sources; never paste them. See
+[Plain-English A–Z](../content/plain-english-a-z.mdx).
 
-<ClinicalNote evidence="opinion">
+**One entry can refuse to be shown.** A glossary entry marked `showBoth: "plain-only"` says
+the clinical word is never put in front of a reader — it is there so an author can look up
+what to write instead. Term honours that by rendering the plain wording as ordinary text and
+marking nothing, and by saying so in development. There is nothing to explain when the word
+on the screen is already the plain one. On that one path `children` is discarded rather than
+printed: `children` is where a call site writes the clinical word inflected for its own
+sentence, and printing it would be the component overruling the refusal it is implementing.
+The sentence a reader gets is therefore not the sentence the author wrote, so the discard
+warns in development, and the repair is to write the plain wording directly and drop the
+component.
+
+**The other two `showBoth` values are recorded and not implemented, and this page says so
+rather than letting the type imply otherwise.** In the glossary, `always` means *show the
+clinical word and the plain wording together every time*, and it exists for matching: a
+reader holding a printout has to be able to tell it is the same measurement as the one on the
+screen. Term chooses inline or disclosure from `present`, `once` and the length of the
+definition and never from `showBoth`, so an `always` entry with a long definition still lands
+behind a control with its plain wording out of sight. Obeying it would mean overriding the
+call site's own `present` and `once`, which a component does not get to do to the surface it
+is standing on — so the mismatch warns in development instead, and `present="inline"` is how
+a call site asks for what the glossary asked for. `first-use` is the caller's to express
+through `once`, for the same reason `once` is a prop at all: opsinjs cannot see where one
+surface ends and the next begins.
+
+**Where this component and the authored glossary disagree, and it is not settled.**
+`tokens/glossary.json` carries a policy rule reading *plain wording is the default and the
+clinical term is the annotation, never the other way around*, and it names the shape this
+component implements — a clinical word with its explanation on demand — as the thing not to
+do. The counter-argument is in the same policy block, in its own note on why `always` exists:
+matching a printout needs the clinical spelling visible on the screen. Both sentences are
+authored, they contradict each other, and neither the component nor the glossary settles it
+alone. The conflict is recorded here and at the top of `term.tsx` rather than resolved
+quietly in favour of whichever was written second, and it is the first thing to decide before
+this component leaves alpha.
+
+<SafetyCallout severity="attention" evidence="opinion">
+A definition that drifts into advice is the failure mode of this component, and it is not
+caught by anything: the sentence still reads well, the underline still looks right, and the
+product has quietly started telling somebody what to do about their own result through a
+tooltip. *Acute — sudden, or short-lasting* is a definition. *Acute — this will settle down
+on its own* is guidance with nobody behind it. Review the glossary as clinical content, not
+as microcopy.
+</SafetyCallout>
+
+<ResearchNote evidence="opinion">
 The definition should be readable by someone who has not finished secondary school, because
 a large share of adults in any population find health information hard to use. A definition
 that needs a second definition has failed, and *idiopathic: of unknown aetiology* is the
 canonical example of failing.
-</ClinicalNote>
+</ResearchNote>
 
 ## Anatomy
 
-<Anatomy name="term" />
+<Anatomy
+  name="term"
+  parts={[
+    {
+      name: "Term",
+      describes: "The root. Resolves id against the glossary supplied by TermGlossaryProvider and renders one of two presentations. Takes colour from neither axis, carries no data-status and no data-category, and is a client component because the disclosure holds open/closed state.",
+      prop: "id",
+    },
+    {
+      name: "Term.Trigger",
+      describes: "The word as it reads in this sentence. A dotted-underlined button in the disclosure presentation; an unmarked span in the inline one, because a mark pointing at a definition that is already on the screen promises nothing.",
+      prop: "children",
+    },
+    {
+      name: "Term.Definition",
+      describes: "The plain-English sentence. In the accessibility tree whether or not it is open: collapsed it is display:none and reaches the reader as the trigger's accessible description, which is the one hiding mechanism that keeps it readable.",
+      prop: "present",
+    },
+    {
+      name: "Term.Expansion",
+      describes: "The full form of an abbreviation, inside the definition and before it. A distinct thing from a definition, and most readers need both — an expansion on its own explains nothing.",
+    },
+  ]}
+/>
 
-<CompositionTree name="term" />
-
-**Trigger** is the word as it appears in the sentence, marked so a reader knows an
-explanation exists. **Definition** is the plain-English text. **Expansion** is the full form
-of an abbreviation, which is a distinct thing from a definition and often both are needed.
-The component has three presentations of the same content — inline, disclosure and print —
-and the content is identical in all three.
-
-Proposed part hierarchy. This is the specification the implementation must match.
-
-```text
-Term                           root; resolves an id against the glossary
-├── Term.Trigger               the word in the sentence; underlined, not coloured
-└── Term.Definition            plain English; always in the accessibility tree
-    └── Term.Expansion         the full form, when the term is an abbreviation
-```
+<CompositionTree
+  name="term"
+  tree={[
+    {
+      part: "Term",
+      cardinality: "1",
+      note: "data-slot=\"term\"",
+      children: [
+        {
+          part: "Term.Trigger",
+          cardinality: "0-1",
+          note: "data-slot=\"term-trigger\"; a <button> with aria-expanded and aria-describedby in the disclosure presentation, a <span> in the inline one. Absent on the two paths that render an unmarked word: an id the glossary does not hold, and an entry marked showBoth: \"plain-only\".",
+        },
+        {
+          part: "Term.Definition",
+          cardinality: "0-1",
+          note: "data-slot=\"term-definition\"; the trigger's next sibling, never portalled. Absent on the same two paths, which have nothing to define.",
+          children: [
+            {
+              part: "Term.Expansion",
+              cardinality: "0-1",
+              note: "data-slot=\"term-expansion\"; present only when the entry has an expansion",
+            },
+          ],
+        },
+      ],
+    },
+  ]}
+/>
 
 `Term.Definition` is never removed from the accessibility tree by a presentation choice. A
 disclosure hides it visually; it does not hide it from a screen reader before it is opened,
-because a reader using speech has no way to know something is there to open.
+because a reader using speech has no way to know something is there to open. That single
+sentence is what rules out every disclosure primitive in `@base-ui/react`: `preview-card`
+opens on hover and there is no hover on a phone, `popover` portals the definition out of the
+sentence and hides it from assistive technology while closed, and `collapsible` keeps the
+reading order but puts `hidden` on the closed panel, which is precisely what "removed from
+the accessibility tree" means. The disclosure here is built by hand and built the other way
+round: the definition is always exposed, and the control changes only whether it is on the
+screen.
 
-## Proposed API
+Because that control holds state, the whole file carries `"use client"` — a directive is
+file-level and a component here is one flat file, so the boundary lands on all of it or none
+of it. The inline presentation pays for a client boundary it does not need.
 
-<NotBuiltYet name="term" />
+The parts are identified by `data-slot` and are styleable from outside, and none of them is
+an export. Two render paths carry the root and nothing inside it — an `id` the glossary does
+not hold, and an entry marked `plain-only` — because both render an unmarked word and there
+is nothing there to mark or to define. A product stylesheet or a product-side test keyed on
+`[data-slot="term-trigger"]` matches nothing on those paths, which is why the tree says `0-1`
+rather than `1` and why the note names them. Nothing else distinguishes the two: the
+data-attribute vocabulary in this system is closed at four, and a fifth attribute to make the
+absence addressable is a change to that contract rather than to this component. Everywhere
+else the parts arrive together and there is no way to render one without the others.
 
-```ts
-// PROPOSED. Not implemented. A specification for review, not an API to generate
-// code against. It will change without a deprecation cycle.
+## Examples
 
-export interface TermProps {
-  /**
-   * The glossary key. Resolved against tokens/glossary.json at build time, so
-   * an unknown term is a build error rather than a blank tooltip in production.
-   */
-  id: string
-  /**
-   * The word as it should read in this sentence, when it differs from the
-   * glossary's headword — plural, tense, or capitalisation.
-   */
-  children?: React.ReactNode
-  /**
-   * How the definition is presented. `inline` places it in parentheses after
-   * the word; `disclosure` puts it behind a control. `auto` chooses by
-   * available width. There is no `hover` value, on purpose.
-   */
-  present?: "auto" | "inline" | "disclosure"
-  /**
-   * Show the definition only the first time the term appears on a surface.
-   * Repetition is noise; absence is a barrier. This is the compromise.
-   */
-  once?: boolean
-}
-```
+### Reading a paragraph without leaving it
 
-There is deliberately no way to supply a definition inline. Definitions live in the glossary
-so that they are consistent across every screen, reviewable in one place, translatable, and
-countable — a product can ask *how many words are we asking our readers to learn?* and get
-an answer.
+Two terms is already close to the ceiling for one paragraph. The third appearance is the
+thing to watch: it carries `once`, so the word is still marked and the definition is still
+one press away and still in the accessibility tree, and it is not printed a second time.
+
+<ComponentPreview name="term-in-a-sentence" kind="example" align="start" />
+
+### An abbreviation needs two things
+
+The expansion is what the letters stand for; the definition is what the thing is, and
+neither substitutes for the other. `SpO2` also shows the third field: written down it is
+read aloud as a word by speech synthesis, so the entry says how the letters are spoken and
+the letters are added to the control's accessible name after the written form — *SpO2 S P O
+2*. Added, not substituted. The written spelling is the one on the reader's own paperwork,
+and taking it out of the accessibility tree would withhold it from precisely the readers who
+cannot see it on the screen.
+
+<ComponentPreview name="term-an-abbreviation" kind="example" align="start" />
 
 ## Content guidelines
 
@@ -163,57 +275,211 @@ Definitions are one sentence, under about twenty words, in the second person whe
 Define the word, not the condition. Do not use a second piece of jargon inside a definition.
 Do not hedge to the point of vacuity.
 
-Expansions are the full form and nothing else: *HbA1c — haemoglobin A1c* is an expansion,
-and *a measure of your average blood sugar over the last two to three months* is the
-definition. Most readers need both, in that order.
+Expansions are the full form and nothing else: *eGFR — estimated glomerular filtration rate*
+is an expansion, and *an estimate of how well your kidneys are filtering* is the definition.
+Most readers need both, in that order, and the component renders them in that order.
+
+Length is not only a style question here. `auto` sends a definition inline when it is short
+enough to share a line with the sentence it interrupts and behind a control when it is not,
+so a definition written tightly is a definition the reader gets without pressing anything.
+
+One class of definition needs deciding before it is written at all: the ones whose plain
+wording turns into a verdict once it is spliced into a sentence about the reader's own
+result. *Benign — not cancer* is a definition in *a report describing a finding as benign*
+and is reassurance about a named person in *your biopsy was benign*, and the component call
+is identical in both. Term renders whatever the glossary holds into whatever sentence the
+product wrote and cannot tell those apart, so the surface has to: a word of that kind belongs
+on a screen that carries a route to a person. See
+[Delivering difficult results](../health/delivering-difficult-results.mdx).
 
 <DoDont>
   <DoDont.Do>
-    **"HbA1c (haemoglobin A1c) — a blood test that shows your average blood sugar level over
-    the past two to three months."** Expansion, then plain definition, then stop.
+    **"eGFR (estimated glomerular filtration rate) — an estimate of how well your kidneys
+    are filtering."** Expansion, then plain definition, then stop.
   </DoDont.Do>
   <DoDont.Dont>
-    **"HbA1c — glycated haemoglobin, a marker of glycaemic control."** Every word after the
-    dash needs its own definition. This is a definition written for a colleague.
+    **"eGFR — estimated glomerular filtration rate."** The expansion on its own. Every word
+    after the dash needs its own definition, and the reader is exactly where they started.
   </DoDont.Dont>
 </DoDont>
 
 <DoDont>
   <DoDont.Do>
-    **"Positive — the test found what it was looking for. For some tests that is good news
-    and for others it is not."** Names the mismatch with the everyday meaning, which is the
-    reason this term needs an entry at all.
+    **"Acute — sudden, or short-lasting."** Four words, and they correct the reading most
+    people arrive with, which is *severe*. That mismatch is the reason the word has an entry
+    at all.
   </DoDont.Do>
   <DoDont.Dont>
-    **"Positive — an affirmative result."** Restates the word in slightly longer words and
-    leaves the reader exactly where they started.
+    **"Acute — of rapid onset and short duration."** Restates the word in longer words,
+    keeps the mismatch, and is written for a colleague.
   </DoDont.Dont>
 </DoDont>
 
-## Accessibility requirements
+## Accessibility
 
-Requirements for the implementation, not results.
+Some of this is checked by a gate on every pull request and every push to `main`. Most of it
+is argued, and it is labelled as such: `alpha` promises that accessibility is claimed only where it has been checked, with
+the gaps listed rather than left out.
+
+**Checked, by `node scripts/check-a11y.mts` on every pull request and every push to `main`
+— there is no commit hook in this repository, and a sentence that implied one would be
+claiming a gate that does not run:**
+
+- **No type size in px anywhere in this component.** The word, the definition and the
+  control's padding are all relative, so a reader who has raised their text size gets a
+  larger definition and a larger target with it. See
+  [Dynamic type](../foundations/typography/dynamic-type.mdx).
+- **No colour literal, no numbered ramp step, and no class that resolves in the docs chrome
+  and to nothing in the product.** The gate proves this file contains no colour value it
+  could paint the trigger with; it does not prove the underline is there, which is why the
+  next section exists.
+
+**Argued, and true of the implementation, but not measured:**
 
 - **The definition is available without hover and without pointer precision.** Hover-only
   definitions do not exist on touch, do not exist for keyboard users, and are unreliable for
   anyone with a tremor. This is why `present` has no `hover` value.
-- **The trigger is not marked by colour alone.** An underline or equivalent non-colour mark
-  distinguishes it, so it survives grayscale and increased contrast.
-- **When the definition is behind a disclosure, the disclosure is a button** with an
-  accessible name naming the term (*what does HbA1c mean?*), correct expanded state, and a
-  44pt target.
-- **The word is never split from its definition in the reading order.** A screen-reader user
-  reaching the term hears, or can reach, the definition without leaving the sentence.
-- **Speech pronunciation is considered**: abbreviations that must be spelt out are marked so
-  they are not read as words. `SpO2` is not *spoh-two*.
-- **At 200% text an inline definition reflows** onto as many lines as it needs and never
-  becomes a horizontally scrolling strip.
-- **Print** expands every term inline, once per term per page. A printed page has no
-  disclosures, and the definition is the part the reader takes to the appointment.
+- **The definition is in the accessibility tree whether or not it is open.** Collapsed, it is
+  `display: none` on screen and reaches the reader as the trigger's accessible description —
+  a node referenced by `aria-describedby` contributes its text whether or not it is
+  displayed. A reader using speech therefore meets the definition without having to guess
+  that a control is worth pressing. The reference is kept while the definition is open too,
+  and that costs something worth naming: open, the definition is both the control's
+  description and the text immediately after it, so a reader moving through the sentence
+  meets it twice on every pass. Dropping the reference on opening would trade the repetition
+  for a relationship that changes underneath the reader, which some assistive technology will
+  not re-read. Neither answer is free, and this one is a choice rather than an oversight.
+- **The word is never split from its definition in the reading order.** The definition is the
+  trigger's next sibling. Nothing is portalled, and the component never moves focus.
+- **The disclosure trigger is not marked by colour alone.** A dotted underline distinguishes
+  it, and it is the only mark, so it survives greyscale and increased contrast. Its offset is
+  in `em` rather than pixels, so the rule stays clear of the descenders of a word a reader
+  has enlarged. The inline trigger carries no mark at all, deliberately — an underline
+  pointing at a definition that is already on the screen promises something already
+  delivered — so this bullet is a claim about the disclosure and not about every term.
+- **The disclosure is a button** with `aria-expanded`, native Enter and Space activation, and
+  an accessible name computed from its own content rather than replaced by an `aria-label`.
+  That is what keeps the word on the screen inside the name — *eGFR*, or *SpO2 S P O 2* where
+  the entry spells the letters out — which is what SC 2.5.3 Label in Name asks for and what a
+  speech-input user saying *click eGFR* needs in order to reach anything. An earlier version
+  named the control *what does e G F R mean?*, which replaced the visible word rather than
+  containing it and so did not meet that criterion on any disclosure this page renders. Escape
+  closes it and consumes the key only while the definition is open; focus never left the
+  control, so there is nothing to return.
+- **Abbreviations that must be spelt out carry both forms.** An entry carrying `speech` puts
+  the letters into the accessibility tree after the written word rather than in place of it,
+  so a speech reader hears the synthesiser's attempt at the word and then the letters, and a
+  braille reader still gets the spelling that is on their own paperwork. Substituting one for
+  the other — which is what this component used to do — withholds that spelling from exactly
+  the readers who cannot see it, and the spelling is what `word` exists for.
+- **At 200% text an inline definition reflows** onto as many lines as it needs. Nothing sets
+  a width, a fixed height, `white-space: nowrap` or an ellipsis, so there is nothing to
+  truncate and nothing to scroll sideways.
+- **Print expands the definition beside its word** and drops the underline, because a printed
+  page has no disclosures and the definition is the part the reader takes to the appointment.
+  An occurrence marked `once` stays closed on paper too.
 
-<KeyboardTable name="term" />
+**Not yet checked at all, and listed rather than omitted:**
+
+- **The 44x44 hit area is not met, and this is the exception being relied on.** The trigger is
+  an inline box inside running text: vertical padding grows the target without changing the
+  paragraph's leading, but reaching 44 CSS pixels would overlap the line above it and trade
+  one motor problem for a worse one. SC 2.5.8 exempts inline targets, and
+  [Target size and motor](../accessibility/target-size-and-motor.mdx) asks for the exception
+  to be named out loud rather than assumed. The nightly layout run measures every button's
+  box and will report this one.
+
+  Two of them can also meet, which is the part nothing will report. Vertical padding on an
+  inline box leaves the line box alone — that is why `inline` was chosen — but the padding
+  box still reaches past it above and below, so two terms on adjacent wrapped lines sitting
+  roughly over one another have overlapping targets, and a reader with a tremor lands on the
+  wrong definition rather than on nothing. SC 2.5.8's exemption covers the size of a target
+  and says nothing about two of them overlapping, and the nightly run measures each box
+  rather than the space between two, so this sentence is the only place it is recorded.
+- **No screen reader has been run against it.** The description-carries-the-collapsed-
+  definition technique is the load-bearing claim on this page and it is argued from the
+  accessible-name computation, not from a recording of VoiceOver or TalkBack.
+- **No speech-input software has been run against the trigger.** The accessible name is
+  computed from the button's own content, so it contains the visible word by construction —
+  but that is an argument about the name computation and not a recording of Voice Control or
+  Voice Access matching it. Related and outside this page:
+  [Conformance report](../accessibility/conformance-report.mdx) still records SC 2.5.3 as not
+  evaluated on the ground that no labelled control exists, which this component makes untrue.
+- **Contrast has not been measured for this component.** The definition uses the muted
+  foreground role; that pair is measured at the token layer and not on this surface, and
+  `prefers-contrast` and `forced-colors` are not implemented anywhere in opsinjs yet.
+
+<KeyboardTable
+  name="term"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Move focus to the disclosure control",
+      notes: "One tab stop per term, and only in the disclosure presentation. The inline presentation has no control and adds nothing to the focus order, because the definition is already on the screen.",
+    },
+    {
+      keys: "Shift + Tab",
+      action: "Move focus backwards to it",
+      notes: "Reverse order matches the visual order: the control sits where the word sits in the sentence.",
+    },
+    {
+      keys: "Enter",
+      action: "Show or hide the definition",
+      notes: "Native button activation. The definition appears beside the word rather than over it, so nothing covers the sentence being read.",
+    },
+    {
+      keys: "Space",
+      action: "Show or hide the definition",
+      notes: "Native button activation, which is also what stops the page scrolling when it fires.",
+    },
+    {
+      keys: "Escape",
+      action: "Hide the definition",
+      notes: "Focus stays on the control, because opening a definition never took it away. The key is consumed only while the definition is open, and both halves of it are — the default action as well as the propagation — so one press closes one thing. A term whose definition is shut does not swallow the Escape that closes the sheet or dialog around it, and a term whose definition is open inside a native <dialog> no longer closes both at once.",
+    },
+  ]}
+/>
 
 <ContrastReport component="term" />
+
+## API reference
+
+<PropsTable name="TermProps" />
+
+<PropsTable name="TermGlossaryProviderProps" />
+
+There is deliberately no way to supply a definition at a call site. Definitions live in the
+glossary so that they are consistent across every screen, reviewable in one place,
+translatable, and countable — a product can ask *how many words are we asking our readers to
+learn?* and get an answer. The glossary arrives once, through `TermGlossaryProvider`, as an
+array of entries; a context rather than a module-level registry, because a module registry
+exists once per module graph and a glossary registered on the server is not the one a client
+component sees.
+
+An entry is a `GlossaryEntry`: `id` is the key a call site writes, `word` is the clinical
+word spelt the way it appears on the reader's own paperwork, and `plain` is the everyday
+meaning. `expansion` is the full form when the word is an abbreviation, `speech` is how the
+letters are spoken when synthesis would otherwise read them as a word, and `showBoth`
+carries the glossary's own policy for the entry — of which only `plain-only` changes what is
+rendered, as *Clinical meaning* above sets out. An empty or whitespace-only `plain`,
+`expansion` or `speech` is read as an absent field rather than as a value, because an
+unfilled column in a spreadsheet export or a half-done translation pass is how a glossary
+usually acquires one; an entry whose `plain` is empty renders its word unmarked and warns,
+rather than printing an empty pair of brackets after it. The interface is not in the tables above
+because `scripts/build-reference.mts` extracts only interfaces whose name ends in `Props`;
+it is documented in `registry/bases/base/term.tsx`, beside the code that reads it.
+
+An `id` that is not in the glossary renders unmarked and warns in development. What renders
+is `children` where a call site supplied any, and otherwise the raw `id` — so
+`<Term id="blood-pressure" />` in an application that has forgotten the provider prints
+*blood-pressure* in the middle of a sentence, and `<Term id="egfr" />` prints *egfr*, which
+is not the spelling on anybody's paperwork. A hole where the word should be would break the
+sentence for every reader rather than only for the reviewer, so the key stays and the
+behaviour is written down here instead of being discovered. Marking a word whose explanation
+does not exist is the one outcome worse than leaving it plain, and a component cannot fail
+somebody else's build from inside a render — the warning is development-only by policy, so in
+the build a reader uses there is no signal at all. The build-time half of that promise
+belongs in a lint rule over the product's own source, and it does not exist yet.
 
 ## Related
 

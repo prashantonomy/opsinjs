@@ -16,6 +16,13 @@
  * implements the first half; the second half belongs to `link`, which is on the
  * considered roster and is not this component wearing a different tag.
  *
+ * The refusal is enforced rather than only typed. `render` and `nativeButton`
+ * are Base UI's own props and are absent from `ButtonProps`, which stops a
+ * TypeScript caller — but this file ships as source into JavaScript projects
+ * where a type is advice, and `{...rest}` would carry either of them straight
+ * through to the primitive. So both are pinned below, after the spread. Checked
+ * by rendering the primitive: `render={<a href="/x" />}` emits a <button>.
+ *
  * WHY BASE UI RATHER THAN A BARE <button>. Exactly one prop needs it. `busy`
  * has to make the control unactivatable WITHOUT removing it from the
  * accessibility tree — the native `disabled` attribute does both at once, and
@@ -25,6 +32,18 @@
  * element in the tab order, and swallows activation. Rebuilding that by hand
  * means merging the caller's own onClick and onKeyDown with ours, which is the
  * kind of code that works until somebody passes a handler we did not expect.
+ *
+ * WHAT BASE UI COSTS, AND IT IS NOT NOTHING. `useButton` merges `type: 'button'`
+ * into every native button before the caller's own props
+ * (`internals/use-button/useButton.js`), so this component does NOT inherit the
+ * platform's implicit `type="submit"`. A Button at the foot of a form needs
+ * `type="submit"` written on it or the form will not submit. That is the
+ * opposite of a bare <button> and it is the single most surprising thing about
+ * this file, which is why `type` is redeclared in `ButtonProps` below with the
+ * real default on it rather than left to be inherited silently. `useButton`
+ * also stamps `tabIndex={0}` on every button, which is harmless — 0 is the
+ * value a button already has — but it means "this component adds no tabindex"
+ * is not a true sentence about the rendered DOM.
  *
  * THERE IS NO DESTRUCTIVE COLOUR IN THIS SYSTEM, AND THIS FILE DOES NOT INVENT
  * ONE. The product palette is the two axes plus eleven neutral roles; the
@@ -37,15 +56,25 @@
  * around it. Colour is not carrying this, because in opsinjs there is no colour
  * available to carry it.
  *
- * WHAT IT DOES NOT DO. It does not derive anything, does not animate anything,
- * does not move focus, and does not mount a live region. `busy` is announced by
- * `aria-busy` on the control itself; whether a save is worth speaking aloud is
- * the product's call and not a decision a button is entitled to make.
+ * AND THE WEIGHT IS NOT CARRYING IT EITHER, ON THE EVIDENCE SO FAR. The
+ * boundary that is the whole of the non-label signal has not been measured
+ * against the surfaces this button sits on, and the pairs are close enough that
+ * a review by eye will not settle it. Until `scripts/check-contrast.mts` emits
+ * a component scope, the honest description of the emphasis ladder is that its
+ * unfilled rungs are told apart by their labels; the page says so rather than
+ * promising a ladder that is legible in greyscale.
+ *
+ * WHAT IT DOES NOT DO. It does not derive anything, does not animate anything
+ * but the busy spinner, does not move focus, and does not mount a live region.
+ * `busy` is EXPOSED on the control as `aria-busy` and `aria-disabled`; whether
+ * anything is spoken about it is a question of screen-reader behaviour that
+ * nobody here has tested, and whether a save is worth announcing is the
+ * product's call and not a decision a button is entitled to make.
  */
 
 import { Button as BaseButton } from "@base-ui/react/button"
 import { LoaderCircle } from "lucide-react"
-import type { ButtonHTMLAttributes, ReactNode } from "react"
+import { Children, type ButtonHTMLAttributes, type ReactNode } from "react"
 
 import { isDevelopment } from "@/lib/opsinjs"
 import { cn } from "@/lib/utils"
@@ -63,6 +92,48 @@ import { cn } from "@/lib/utils"
 type ButtonVariant = "primary" | "secondary" | "quiet" | "destructive"
 
 /**
+ * Development warnings, said once per distinct message.
+ *
+ * `warnOnce` in the substrate is keyed to an `OpsinErrorCode`, and the codes in
+ * tokens/errors.json describe mistakes a consumer makes with the CLINICAL API.
+ * "This control shipped with no accessible name" is a mistake anybody can make
+ * with any control and there is no code allocated for it. What the substrate is
+ * right about is the discipline rather than the registry: a warning channel that
+ * repeats on every render — and twice per render under Strict Mode — degrades
+ * into noise, and a noisy channel is one somebody switches off. So this file
+ * keeps its own small set. Allocating real codes and deleting this is a strict
+ * improvement, and belongs in lib/opsinjs.ts rather than here.
+ */
+const warned = new Set<string>()
+
+function warnDev(key: string, message: string): void {
+  if (!isDevelopment() || warned.has(key)) return
+  warned.add(key)
+  console.warn(message)
+}
+
+/**
+ * Whether `children` will render no text at all.
+ *
+ * TypeScript cannot see this: `children` is required and every value below
+ * satisfies a required `ReactNode`. Testing three sentinels — `""`, `null`,
+ * `undefined` — misses the way it actually happens, which is
+ * `{flag && "Save reading"}` evaluating to `false`, or a whitespace-only string
+ * arriving from a translation table. `Children.toArray` drops `null`,
+ * `undefined`, booleans and empty arrays for us; what it keeps and we must
+ * still reject is a string that is all whitespace.
+ *
+ * `0` is NOT blank, and the distinction is deliberate. It renders the character
+ * "0", which is a real accessible name — the same null-versus-zero split the
+ * rest of this system insists on for values, applied to a label.
+ */
+function hasNoLabel(children: ReactNode): boolean {
+  const parts = Children.toArray(children)
+  if (parts.length === 0) return true
+  return parts.every((part) => typeof part === "string" && part.trim() === "")
+}
+
+/**
  * Fill, ink and boundary per variant, written out as literal class strings.
  *
  * Tailwind reads class names out of source as text. `bg-${variant}` generates
@@ -77,13 +148,16 @@ type ButtonVariant = "primary" | "secondary" | "quiet" | "destructive"
  * four rungs below are built from the roles the product stylesheet actually
  * bridges: a strong fill, a soft fill, an outline, and nothing at all.
  *
- * Hover and press are approximations rather than derivations.
+ * Hover and press are approximations rather than derivations, and the gap is
+ * wider than "two states that resolve alike".
  * `foundations/interaction-states` specifies a state as a transformation in
  * OKLCH applied to the role the component already uses, but no state token is
- * generated yet, so there is nothing to consume. Until there is, the two filled
- * variants shift their own fill's alpha and the two unfilled ones take the
- * muted role, and `active:translate-y-px` gives every variant a press
- * acknowledgement that does not depend on colour at all.
+ * generated yet, so there is nothing to consume. The muted role the three
+ * unfilled variants borrow sits a hair from the surfaces they sit on, so on
+ * those three the hover fill is close to no signal at all — `active:translate-y-px`
+ * is doing the work, and it is a press cue rather than a hover one. Measuring
+ * these pairs into the generated contrast report is what turns this comment
+ * into a number; nobody has done it.
  */
 const TONE: Record<ButtonVariant, string> = {
   primary:
@@ -158,6 +232,16 @@ export interface ButtonProps
    */
   children: ReactNode
   /**
+   * Inherited from `button`, redeclared here because its default is the
+   * surprising one. **Defaults to `button`, not to `submit`.** Base UI's
+   * `useButton` merges `type: "button"` into every native button, so this
+   * component does not inherit the platform's implicit submit behaviour: a
+   * control at the foot of a form needs `type="submit"` written on it. The
+   * value you pass wins, so submitting is one word away — but it is a word you
+   * have to write.
+   */
+  type?: "button" | "submit" | "reset"
+  /**
    * An optional glyph beside the label. Always decorative and always hidden
    * from assistive technology — the label carries the meaning, and an announced
    * icon makes a screen reader say the action twice.
@@ -170,11 +254,14 @@ export interface ButtonProps
    */
   iconPosition?: "leading" | "trailing"
   /**
-   * In-place loading. The label stays visible and unchanged, the button stays
-   * in the accessibility tree and in the tab order, and it is announced as busy
-   * and unavailable rather than disappearing. It replaces the icon slot, so a
-   * button that has no icon grows by one glyph when it becomes busy; give a
-   * button an icon if its width must not move.
+   * In-place loading. The label stays visible and unchanged, and the button
+   * stays in the accessibility tree and in the tab order rather than
+   * disappearing. The state is EXPOSED on the control as `aria-busy` plus
+   * `aria-disabled`; whether any screen reader says anything about it has not
+   * been tested here, and `aria-busy` on a control that is not a live region is
+   * a hint rather than a promise. It replaces the icon slot, so a button that
+   * has no icon grows by one glyph when it becomes busy; give a button an icon
+   * if its width must not move.
    */
   busy?: boolean
   /**
@@ -197,20 +284,36 @@ export function Button({
   style,
   ...rest
 }: ButtonProps) {
-  /* Development-only, and not an OPSIN code. The codes in tokens/errors.json
-     describe mistakes a consumer makes with the clinical API; "this control
-     shipped with no accessible name" is a mistake anybody can make with any
-     control and there is no code allocated for it. Reported here rather than
-     passed over, because an unlabelled button is the exact failure the missing
-     `iconOnly` prop exists to prevent, and TypeScript cannot see it: `children`
-     is required, and `""` satisfies a required `ReactNode`. */
-  if (isDevelopment() && (children === "" || children === null || children === undefined)) {
-    console.warn(
+  /* An unlabelled button is the exact failure the missing `iconOnly` prop
+     exists to prevent, and it is invisible to the type system. */
+  if (isDevelopment() && hasNoLabel(children)) {
+    warnDev(
+      "no-label",
       "[opsinjs] <Button> was rendered with no label. The visible label is the " +
-        "accessible name; without it the control is announced as \"button\" and " +
-        "nothing else, and it is unreachable by voice control. There is no " +
-        "icon-only Button — if the design calls for one, it needs its own name " +
-        "and its own target rules.",
+        'accessible name; without it the control is announced as "button" and ' +
+        "nothing else, and it is unreachable by voice control. Note that a " +
+        "whitespace-only string and a falsy `&&` branch both count as no label. " +
+        "There is no icon-only Button — if the design calls for one, it needs " +
+        "its own name and its own target rules.",
+    )
+  }
+
+  /* Tabindex above zero is banned outright by `accessibility/keyboard-and-focus`:
+     it reorders the whole document rather than this control, and the damage
+     lands on a page nobody testing this button will have open. `ButtonProps`
+     extends ButtonHTMLAttributes, so `tabIndex` is part of the public surface
+     and reaches the DOM through the spread below — this file cannot make the
+     ban structural without narrowing the type and losing every legitimate
+     `tabIndex={-1}`. So it is reported, in the same channel as the other two. */
+  if (typeof rest.tabIndex === "number" && rest.tabIndex > 0) {
+    warnDev(
+      `tab-index-${rest.tabIndex}`,
+      `[opsinjs] <Button> was given tabIndex={${rest.tabIndex}}. A tabindex above ` +
+        "zero moves this control ahead of every element in the natural document " +
+        "order, across the whole page, and the resulting tab sequence is one " +
+        "nobody can predict from the markup. Use 0 to keep the natural order, or " +
+        "-1 to take the control out of the tab sequence, and reorder the DOM " +
+        "instead.",
     )
   }
 
@@ -219,14 +322,15 @@ export function Button({
      native disabled semantics; `busy` on its own gets `aria-disabled` with the
      element left in the tree. Asking for both at once is a contradiction — the
      native attribute takes the button out of the tab order, so the `aria-busy`
-     nobody can reach is announced to nobody. */
+     nobody can reach is exposed to nobody. */
   const nativeDisabled = rest.disabled === true
-  if (isDevelopment() && busy && nativeDisabled) {
-    console.warn(
+  if (busy && nativeDisabled) {
+    warnDev(
+      "busy-and-disabled",
       "[opsinjs] <Button> has both `busy` and `disabled`. `disabled` removes the " +
         "control from the tab order and from the accessibility tree, so the busy " +
-        "state it is meant to announce reaches nobody. Use `busy` alone: it " +
-        "blocks activation and keeps the button reachable and announced.",
+        "state it is meant to carry reaches nobody. Use `busy` alone: it " +
+        "blocks activation and keeps the button reachable and named.",
     )
   }
 
@@ -240,11 +344,25 @@ export function Button({
       aria-hidden="true"
       className="inline-flex shrink-0 items-center"
     >
-      {/* The spin is kept under `prefers-reduced-motion`. A frozen spinner
-          communicates nothing at all, and the alternative signals — the label
-          and `aria-busy` — are already present for everybody. This is a
-          deliberate exception to the reduce-motion default, not an oversight;
-          it is the one piece of motion in the component. */}
+      {/* THE SPIN IS KEPT UNDER `prefers-reduced-motion`, AND THAT IS AN
+          EXCEPTION RATHER THAN A DEFAULT. `foundations/motion/reduced-motion`
+          collapses rotation and names a looping animation as the classic
+          offender; `health/motion-in-health-ui` rule 5 asks every animation for
+          a reduced behaviour that is "an instant, complete, equally informative
+          state". This has no such state to fall back to: a frozen spinner
+          communicates nothing at all, and the non-motion carriers — the label,
+          `aria-busy`, `aria-disabled`, dropped pointer events — are already
+          present for everybody but are not VISIBLE. `animate-spin` is Tailwind's
+          own keyframe rather than an opsinjs motion token, so it sits outside
+          the per-token reduced-motion block and no stylesheet here stops it.
+
+          What would close this properly is a still busy treatment that a
+          sighted reader can see, promoted to a motion token with a declared
+          reduced fallback. That is a design decision and a token, neither of
+          which belongs in this file. Until then the exception is stated here,
+          on the page, and — where it is still missing — on the doctrine page it
+          excepts itself from. SC 2.2.2 (anything moving for more than five
+          seconds) has not been assessed for it. */}
       <LoaderCircle className="size-[1em] animate-spin" />
     </span>
   ) : icon ? (
@@ -261,6 +379,13 @@ export function Button({
     <BaseButton
       {...rest}
       data-slot="button"
+      /* The tag refusal, made structural. Both are Base UI props absent from
+         `ButtonProps`, so a TypeScript caller cannot reach them; pinning them
+         after the spread is what stops a JavaScript caller — or anything
+         forwarding a props object wholesale — from turning this into an anchor
+         or into a non-native control with a synthetic role. */
+      render={undefined}
+      nativeButton
       /* `disabled` + `focusableWhenDisabled` is the whole mechanism behind
          `busy`: Base UI sets `aria-disabled`, leaves the native attribute off,
          keeps the tab stop and refuses activation. With a real `disabled` from
@@ -277,6 +402,10 @@ export function Button({
            button has to grow with it — a truncated label is unreadable and
            unspeakable, and a fixed height is how it happens. */
         "relative inline-flex items-center justify-center whitespace-normal rounded-opsin-md text-center align-middle",
+        /* The second piece of motion in this file, and the one that needs no
+           branch: `--opsin-duration-fast` collapses to 1ms inside the product
+           stylesheet's own reduced-motion block, so the colour change becomes
+           instant for a reader who asked for that and nothing here has to know. */
         "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard",
         /* The press acknowledgement, and the only state signal in this file that
            does not depend on colour. `transition-colors` deliberately excludes
@@ -284,9 +413,15 @@ export function Button({
            is what `prefers-reduced-motion` asks a press feedback to be, so this
            needs no reduced-motion branch and behaves identically for everybody. */
         "active:translate-y-px",
-        /* Drawn outside the box with an offset, so it never changes layout and
-           never gets clipped. Declared here as well as in the product theme
-           because a consumer installs this file without that stylesheet. */
+        /* Drawn outside the box with an offset, so it never changes layout.
+           It IS clipped by an ancestor that clips — an outline is painted by the
+           element and an `overflow: hidden` parent eats it, which is a property
+           of outlines and not a defect here; a surface that clips has to leave
+           room for it. Declared on the component as well as in the product theme
+           because a consumer installs this file without that stylesheet — and
+           declared as a literal for the same reason, which is the trade: the
+           ring survives installation elsewhere but does not follow
+           `--opsin-border-focus` when a consumer retunes it. */
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         /* THE TWO UNAVAILABLE STATES LOOK DIFFERENT BECAUSE THEY ARE DIFFERENT,
            and the selectors land on exactly one each. Base UI sets the native
@@ -325,7 +460,16 @@ export function Button({
 
           The floor is a rem and not 44px on purpose. At 200% text the root font
           size genuinely doubles, so a rem floor grows with the label while a
-          pixel one leaves a doubled label overflowing a fixed box. */}
+          pixel one leaves a doubled label overflowing a fixed box.
+
+          THE EXPANSION IS NOT CLAMPED, and that is the sharp edge. A button
+          smaller than the floor grows a hit area that reaches past its own
+          border box with nothing stopping it, so two small controls set closer
+          together than the overhang will have overlapping hit areas and the
+          later one in the DOM wins the overlap. The fix for SC 2.5.5 can
+          therefore create an SC 2.5.8 problem, in a project without the product
+          stylesheet. A caller spacing small buttons owes them
+          `--opsin-target-separation` plus whatever this span adds. */}
       <span
         data-slot="button-target"
         aria-hidden="true"
@@ -345,8 +489,10 @@ export function Button({
  * consumer's project, so it is reviewed public code rather than a scratch
  * demo. It shows the four variants together because the only question worth
  * answering at a glance is whether the emphasis ladder reads as a ladder — and
- * that question is best asked in greyscale, where three of the four rungs have
- * to be told apart by fill and boundary alone.
+ * that question is worth asking in greyscale, where three of the four rungs
+ * have only fill and boundary to be told apart by. It has not been answered:
+ * the boundary carrying it is unmeasured against both surfaces, which is why
+ * the labels below are doing more work than the styling is.
  *
  * The labels name a fictional reading (ADR 0012). No number, no unit, nothing a
  * screenshot could be mistaken for.

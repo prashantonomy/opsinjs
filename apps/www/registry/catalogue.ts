@@ -345,12 +345,13 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A clinical word shown in plain English, with the original available on demand.",
     category: "health-communication",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: ["glossary term", "jargon", "plain word", "definition"],
     owner: "content",
     a11yDate: null,
     governedBy: ["who-this-is-for", "clinical-interaction-guidelines"],
+    usedIn: ["value-against-a-range", "results-screen"],
   },
   {
     name: "consent-sheet",
@@ -424,16 +425,13 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "One number and its unit, formatted the same way everywhere in the product.",
     category: "health-formatting",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: ["number", "unit", "format a number", "numeric display", "figure"],
     owner: "content",
     a11yDate: null,
-    governedBy: [
-      "numbers-units-precision",
-      "unit-systems",
-      "grammar-and-mechanics",
-    ],
+    governedBy: ["numbers-units-precision", "unit-systems"],
+    usedIn: ["health-metric-card", "value-against-a-range", "results-screen", "trends-screen"],
   },
   {
     name: "relative-time",
@@ -441,15 +439,13 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "When a reading was taken, said the way a person would say it.",
     category: "health-formatting",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: ["time ago", "timestamp", "last updated", "date display"],
     owner: "content",
     a11yDate: null,
-    governedBy: [
-      "uncertainty-and-staleness",
-      "grammar-and-mechanics",
-    ],
+    governedBy: ["uncertainty-and-staleness", "numbers-units-precision"],
+    usedIn: ["health-metric-card", "daily-log-screen", "trends-screen"],
   },
 
   {
@@ -510,13 +506,16 @@ export const SHIPPED: CatalogueEntry[] = [
   {
     name: "callout",
     title: "Callout",
-    description: "A short aside, tinted by one of the four status levels.",
+    description:
+      "A short piece of set-apart information — a note, a tip, a caveat — that helps you understand what you are reading without claiming anything about your health.",
     category: "feedback",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: ["admonition", "note box", "info box", "tip"],
     owner: "content",
     a11yDate: null,
+    usedIn: ["choose-a-component", "onboarding-screen"],
+    dependencies: ["lucide-react"],
   },
   {
     name: "empty-state",
@@ -524,7 +523,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "What a screen shows when there is nothing to show, and what to do about it.",
     category: "feedback",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: [
       "no data",
@@ -534,17 +533,19 @@ export const SHIPPED: CatalogueEntry[] = [
     ],
     owner: "content",
     a11yDate: null,
+    registryDependencies: ["button"],
   },
   {
     name: "skeleton",
     title: "Skeleton",
     description: "The shape of content that has not arrived yet.",
     category: "feedback",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: ["loading placeholder", "shimmer", "ghost", "loading state"],
     owner: "design",
     a11yDate: null,
+    usedIn: ["results-screen", "trends-screen"],
   },
 
   {

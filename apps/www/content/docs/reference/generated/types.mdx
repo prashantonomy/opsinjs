@@ -95,6 +95,7 @@ the documentation site itself is a public type.
 | `contrastRatio` | function | `lib/color/wcag.ts` | The contrast ratio, from 1 (identical) to 21 (black on white). |
 | `contrastRatioOklch` | function | `lib/color/wcag.ts` | - |
 | [`ContrastUse`](../api/ContrastUse.mdx) | type | `lib/color/apca.ts` | What a pair is being used for. Determines which floor applies. |
+| `convertUnit` | function | `lib/opsinjs.ts` | One value in another unit, or `undefined` when this system does not own the factor. |
 | `CORNER_SHAPE_VALUES` | const | `lib/preset.ts` | - |
 | `CVD_LABELS` | const | `lib/color/cvd.ts` | - |
 | `CVD_TYPES` | const | `lib/color/cvd.ts` | - |
@@ -131,6 +132,7 @@ the documentation site itself is a public type.
 | `findAliasProblems` | function | `lib/catalogue.ts` | The uniqueness check, as a function rather than as a comment. |
 | `findByAlias` | function | `lib/catalogue.ts` | - |
 | `findCollisions` | function | `lib/color/cvd.ts` | Check that a set of named colours stays mutually distinguishable under every simulation. |
+| `findUnit` | function | `lib/opsinjs.ts` | The unit a symbol names, or `undefined` when this system has never heard of it. |
 | `fit` | function | `lib/color/derive.ts` | Fit an arbitrary colour into the shipped gamut without moving its hue or lightness. |
 | `FLOOR_VALUES` | const | `lib/preset.ts` | Which APCA floor the theme is validated against. `standard` is the published one. |
 | `FORMAT_VERSION` | const | `lib/preset.ts` | Bump this, and add a decode branch, whenever a field changes shape. |
@@ -224,6 +226,8 @@ the documentation site itself is a public type.
 | [`RampStepValue`](../api/RampStepValue.mdx) | interface | `lib/color/derive.ts` | - |
 | `referencePath` | function | `lib/routes.ts` | - |
 | [`ReferenceRange`](../api/ReferenceRange.mdx) | interface | `lib/opsinjs.ts` | The interval a reading is being compared against, and who says so. |
+| `REFUSED_CONVERSIONS` | const | `lib/opsinjs.ts` | Conversions this system refuses to publish, and why. Generated from `tokens/units.json`. |
+| [`RefusedConversion`](../api/RefusedConversion.mdx) | interface | `lib/opsinjs.ts` | A pair people expect to be arithmetic and is not, with the reason. |
 | `registryInstallUrl` | function | `lib/routes.ts` | What a consumer types to install an item. Rendered by `\<ComponentInstall\>`. |
 | [`RegistryLookup`](../api/RegistryLookup.mdx) | type | `lib/registry.ts` | Both call shapes are supported on purpose. |
 | `registryMeta` | function | `lib/registry.ts` | Provenance for the registry surfaces: when it was generated and from what. |
@@ -247,6 +251,7 @@ the documentation site itself is a public type.
 | `simulateRgb255` | function | `lib/color/cvd.ts` | - |
 | `site` | const | `lib/routes.ts` | - |
 | `source` | const | `lib/source.ts` | - |
+| `spokenUnit` | function | `lib/opsinjs.ts` | How a screen reader should say this unit for this count. |
 | `srgbToLinear` | function | `lib/color/oklch.ts` | - |
 | `srgbToOklch` | function | `lib/color/oklch.ts` | Gamma-encoded sRGB, 0–1 per channel → OKLCH. |
 | [`Status`](../api/Status.mdx) | type | `lib/status.ts` | The release phase of a page or a catalogue entry. |
@@ -270,6 +275,12 @@ the documentation site itself is a public type.
 | `toRgb255` | function | `lib/color/oklch.ts` | 0–1 sRGB → 0–255 integers, clamped. |
 | `toRgb255Input` | function | `lib/color/apca.ts` | Coerce any accepted colour form to an sRGB triple. |
 | [`TrendPoint`](../api/TrendPoint.mdx) | interface | `lib/opsinjs.ts` | One reading in a series, for the components that draw change over time. |
+| [`Unit`](../api/Unit.mdx) | interface | `lib/opsinjs.ts` | One unit: what it is called, what a reader sees, and how it is SPOKEN. |
+| `UNIT_CONVERSIONS` | const | `lib/opsinjs.ts` | Every convertible ordered pair, composed by the generator. Never authored by hand. |
+| `unitConversion` | function | `lib/opsinjs.ts` | The authored conversion between two symbols, or `undefined` when there is none. |
+| [`UnitConversion`](../api/UnitConversion.mdx) | interface | `lib/opsinjs.ts` | An exact conversion between two units of the same kind. |
+| `UNITS` | const | `lib/opsinjs.ts` | Every unit this system can speak, sorted by id. Generated from `tokens/units.json`. |
+| `UNITS_BY_SYMBOL` | const | `lib/opsinjs.ts` | The lookup `findUnit()` reads, derived from `UNITS` rather than emitted twice. |
 | `unknownImplementsIds` | function | `lib/catalogue.ts` | Validate a doctrine page's `implements` list. |
 | [`UnknownStatus`](../api/UnknownStatus.mdx) | type | `lib/status.ts` | The absence of an assertion — no reading, a stale reading, or a reading whose reference range the product does not own. |
 | [`UnresolvedReason`](../api/UnresolvedReason.mdx) | interface | `lib/registry.ts` | Why a lookup came back empty. The input to `\<NotBuiltYet\>`. |

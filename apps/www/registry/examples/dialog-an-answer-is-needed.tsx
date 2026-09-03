@@ -10,12 +10,23 @@
  * swaps Base UI's alert-dialog root in — rather than four props a later edit
  * could get three-quarters right.
  *
- * ESCAPE IS NOT SWALLOWED. Press it and focus moves to the last action, which a
- * keyboard reader sees and a screen-reader user hears. What the key does NOT do
- * is produce a sentence about needing an answer, because that sentence is about
- * this product's own two answers and opsinjs does not know what they mean. It
- * belongs in the description, which is why the component warns in development
- * when an alert dialog ships without one.
+ * ESCAPE IS REFUSED, AND THE ANSWER TO IT IS INCOMPLETE. The key never closes
+ * this dialog — that half holds in every configuration. What it then does is
+ * return focus to the last action, which is a response for a reader whose focus
+ * had moved into the description or onto the other button, and is nothing at
+ * all here: `initialFocus` defaults to `safest`, focus is already on *Use this
+ * device*, and focusing the element that already has focus produces no event,
+ * no ring and no announcement. Press Escape first, before moving anywhere, and
+ * the key is silent.
+ *
+ * That gap is on the component's page under the things nobody has answered, and
+ * it is worth seeing in the example rather than reading about: an alert dialog
+ * is the one surface where a reader who cannot see the screen has the least to
+ * go on. What the key does NOT do, in any configuration, is produce a sentence
+ * about needing an answer, because that sentence is about this product's own
+ * two answers and opsinjs does not know what they mean. It belongs in the
+ * description, which is why the component warns in development when an alert
+ * dialog ships without one.
  *
  * WHY THIS QUESTION QUALIFIES AND ALMOST NONE DO. There is no state of the
  * world in which going away is a valid answer here: recording has to happen on

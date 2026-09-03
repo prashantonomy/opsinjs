@@ -185,6 +185,15 @@ const BANNED_ADDITIONS: { word: string; instead: string }[] = [
  * `normalise`, `normalized` and `isNormal` are the cases that matter, they are
  * the cases tokens/glossary.json:19 names, and they are all covered here.
  *
+ * `ly` was removed once and has been put back, and the round trip is worth
+ * recording. It was removed because it matched `positively` — an ordinary
+ * English adverb, in a COMMENT, in a correct file. But the real defect there
+ * was that this scan was reading comments at all: an identifier is not a
+ * comment, and the scan now reads the comment-blanked source. With that fixed,
+ * `ly` costs nothing and covers `normally` and `poorly`, so removing it as well
+ * was surplus leniency on a banned-word gate. Two independent reviewers said so
+ * and they were right.
+ *
  * The gap this leaves is the PREFIXED form: `denormalize` is one segment that
  * does not begin with a banned word, so it passes. Closing it means stripping
  * candidate prefixes, which puts `debadged` and `unjustified` back in range.
@@ -585,6 +594,31 @@ function looksLikeClassList(text: string): boolean {
  * source. A11Y002 reports a line number off this string; a shortened copy would
  * report the wrong one, which for a checker is worse than reporting nothing.
  */
+/**
+ * The text INSIDE comments, with backtick spans removed and offsets kept.
+ *
+ * The mirror of `withoutComments`. A comment quoting a class name in backticks
+ * is quoting code, not writing prose, and reporting it is what made an earlier
+ * version of the banned-word scan report a correct file twice.
+ */
+function commentText(source: string): { text: string; index: number }[] {
+  const blanked = withoutComments(source)
+  const regions: { text: string; index: number }[] = []
+  let start = -1
+  for (let index = 0; index <= source.length; index += 1) {
+    const isComment =
+      index < source.length && blanked[index] === " " && source[index] !== " "
+    if (isComment && start === -1) start = index
+    if (!isComment && start !== -1) {
+      /* Backtick spans out, whitespace kept so the offset still lands. */
+      const text = source.slice(start, index).replace(/`[^`]*`/g, (span) => " ".repeat(span.length))
+      if (text.trim() !== "") regions.push({ text, index: start })
+      start = -1
+    }
+  }
+  return regions
+}
+
 function withoutComments(source: string): string {
   /* Character-by-character rather than two regexes, and the reason is a real
      defect rather than fastidiousness: a `/*` inside one string literal pairs
@@ -1109,6 +1143,80 @@ function checkAxisConflict(
 }
 
 /* ------------------------------------------------------------------ *
+ * A11Y014 - a threshold with a number in it                           *
+ * ------------------------------------------------------------------ */
+
+/**
+ * Names that, given a number, make the number a clinical decision.
+ *
+ * `staleAfterHours`, `thresholdMmol`, `minimumPoints`, `upperLimit`: each of
+ * them, defaulted to a literal, is opsinjs deciding when a reading is old, when
+ * a trend is worth drawing, or when a value has crossed a line. §7 of the brief
+ * forbids every one of those outright — "for any metric, in any population,
+ * ever" — and an omitted one renders an explicit "we do not have this" rather
+ * than a substituted default.
+ */
+const THRESHOLD_NAMES =
+  /(stale|threshold|cutoff|cut_?off|upperlimit|lowerlimit|minimum|maximum|\blimit\b|expire|expiry|freshfor|band|plausib|refrange|referencerange)/i
+
+/**
+ * Names that LOOK like a threshold and are not one.
+ *
+ * Every entry here is a real construct in this repository, and the list is short
+ * on purpose: a suppression list that grows is a rule that is being argued with
+ * rather than obeyed.
+ */
+const THRESHOLD_EXEMPT =
+  /^(minWidth|maxWidth|minHeight|maxHeight|minLength|maxLength|maxFractionDigits|minimumFractionDigits|maximumFractionDigits|limitDepth)$/
+
+/**
+ * A11Y014 - a number that decides something clinical, shipped as a default.
+ *
+ * This rule exists because the same defect arrived three times in one batch and
+ * a human found it each time. `relative-time` shipped `staleAfterHours={24}` in
+ * the default export that `shadcn add` copies into a consumer's project, and an
+ * example carried `STALE_AFTER_HOURS = 48`. Neither number came from anywhere.
+ * opsinjs cannot know when a reading goes stale, because it does not know what
+ * was measured — and a component that guesses has decided, on behalf of a
+ * product that never asked, when to stop telling somebody their result is
+ * current.
+ *
+ * It reads only the code, so a threshold DISCUSSED in a comment or documented on
+ * a page is untouched. It fires on a default value and on a module constant,
+ * which are the two shapes that ship. It is an ERROR: unlike a word in a
+ * comment, this one changes what a reader is told.
+ */
+function checkShippedThresholds(file: string, source: string, starts: number[]): void {
+  const code = withoutComments(source)
+  /* `name = 42`, `name: 42`, `name={42}` — a default, a property, a JSX prop. */
+  const pattern = /\b([A-Za-z_$][\w$]*)\s*(?:=\s*|:\s*|=\{)\s*(-?\d+(?:\.\d+)?)\b/g
+  let match: RegExpExecArray | null
+  const reported = new Set<string>()
+  while ((match = pattern.exec(code)) !== null) {
+    const name = match[1] as string
+    const value = match[2] as string
+    if (THRESHOLD_EXEMPT.test(name)) continue
+    if (!THRESHOLD_NAMES.test(name)) continue
+    const key = `${name}:${value}`
+    if (reported.has(key)) continue
+    reported.add(key)
+    fail(
+      "A11Y014",
+      file,
+      `\`${name}\` is given the literal ${value}. A name like that with a number ` +
+        "in it is a clinical decision — when a reading is stale, when a trend is " +
+        "worth drawing, where a value has crossed a line — and opsinjs does not " +
+        "own one, for any metric, in any population. It does not know what was " +
+        "measured. Take the number from the caller and render an explicit \"we do " +
+        "not have this\" when they have not supplied one; never substitute a " +
+        "default. If this name is not a threshold, rename it so the next reader " +
+        "does not have to work that out.",
+      lineAt(starts, match.index),
+    )
+  }
+}
+
+/* ------------------------------------------------------------------ *
  * A11Y009-010 - banned words                                          *
  * ------------------------------------------------------------------ */
 
@@ -1164,11 +1272,59 @@ function checkBannedWords(
     }
   }
 
+  /* A11Y013 - THE SAME WORDS, IN A COMMENT THAT SHIPS.
+   *
+   * A comment in registry/** is not a private note. `shadcn add` copies the
+   * whole file into a consumer's project, so these comments are read by the
+   * next developer and by whatever reads their repository afterwards.
+   *
+   * It is a WARNING and not an error, and the split is the whole design of this
+   * rule. The ban's own sources scope it precisely: reference-ranges.mdx says
+   * "any user-facing string about a person's own result", and glossary.json:19
+   * extends it to "code identifiers". A comment is neither, so an ordinary
+   * English use — "a perfectly good comparison" — is not a defect and must not
+   * fail a build. But a shipped comment that says "when the reading is normal"
+   * is teaching the next person the vocabulary this system exists to retire,
+   * and that is worth a line on the way past. `--strict` makes it fail, which
+   * is where nightly reads it.
+   *
+   * Backtick spans are removed first. A comment quoting `whitespace-normal` or
+   * `font-normal` is quoting CODE, and that is what made the earlier version of
+   * this scan unusable: it reported a correct file twice for naming the class
+   * it uses. */
+  for (const entry of banned) {
+    for (const region of commentText(source)) {
+      const pattern = bannedWordPattern(entry.word)
+      let match: RegExpExecArray | null
+      while ((match = pattern.exec(region.text)) !== null) {
+        warn(
+          "A11Y013",
+          file,
+          `"${match[0]}" is a banned word, in a comment that ships. \`shadcn add\` ` +
+            "copies this file into a consumer's project, so the comment is read by " +
+            `the next person who opens it. Write "${entry.instead}", or leave it if ` +
+            "the word is being used in its ordinary English sense about something " +
+            "other than a reading — this is a warning because a comment is neither " +
+            "reader-facing copy nor an identifier, and only those two are banned " +
+            "outright.",
+          lineAt(starts, region.index),
+        )
+      }
+    }
+  }
+
+  /* Identifiers only, so this reads the comment-blanked source as well.
+     `code` above already has the comments removed. Without that, an ordinary
+     English adverb in a comment — "the routes it positively recognises" — was
+     reported as the banned word `positive` in an identifier, which is neither
+     an identifier nor that word. A rule that reports a comment as code is the
+     same class of mistake as one that reports a class name as prose, and it
+     ends the same way: switched off. */
   const single = banned.filter((entry) => !/\s/.test(entry.word))
   const identifiers = /[A-Za-z_$][A-Za-z0-9_$]*/g
   const reported = new Set<string>()
   let identifier: RegExpExecArray | null
-  while ((identifier = identifiers.exec(source)) !== null) {
+  while ((identifier = identifiers.exec(code)) !== null) {
     const text = identifier[0]
     const lowered = text.toLowerCase()
     const segments = identifierSegments(text).map((segment) => segment.toLowerCase())
@@ -1368,6 +1524,7 @@ async function staticChecks(): Promise<number> {
     ])
     if (generatedBanned) checkBannedWords(label, source, starts, banned)
     checkViewPalette(label, source, starts)
+    checkShippedThresholds(label, source, starts)
   }
 
   return files.length

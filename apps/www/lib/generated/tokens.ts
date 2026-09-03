@@ -436,8 +436,8 @@ export const TOKEN_META: {
   count: number
   namespaces: TokenNamespace[]
 } = {
-  generatedAt: "f8a43d42e74f",
-  sourceHash: "f8a43d42e74f",
+  generatedAt: "8cf8a1222661",
+  sourceHash: "8cf8a1222661",
   count: 331,
   namespaces: ["color", "material", "motion", "type", "space", "shape"] as TokenNamespace[],
 }

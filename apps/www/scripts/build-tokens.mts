@@ -9,16 +9,20 @@
  *   app/tokens.generated.css               committed; @import-ed by app/globals.css
  *   lib/generated/tokens.ts                committed; lib/tokens.ts is the reader
  *   lib/generated/glossary.json            committed; data behind <Term> and the A-Z
+ *   lib/generated/units.json               committed; the reviewable copy of the unit table
  *   registry/generated/themes/opsinjs-default.json   a shadcn-spec registry:theme item
  *
- * AND REPLACES ONE NAMED REGION IN TWO HAND-WRITTEN FILES
- *   lib/opsinjs.ts                         the OPSIN_ERRORS table warnOnce() reads
+ * AND REPLACES NAMED REGIONS IN TWO HAND-WRITTEN FILES
+ *   lib/opsinjs.ts                         TWO regions: the OPSIN_ERRORS table
+ *                                          warnOnce() reads, and the Unit/UNITS
+ *                                          table every rendered measurement reads
  *   content/docs/handbook/error-codes.mdx  the published table of every code
  *
- * Both regions come from tokens/errors.json, which is authored data rather than
- * a token source. The substrate copy is not in lib/generated/ on purpose: that
- * directory does not travel with `shadcn add`, and a warning channel that
- * compiles here and fails in a consumer's project is worse than none.
+ * Those regions come from tokens/errors.json and tokens/units.json, which are
+ * authored data rather than token sources. The substrate copies are not in
+ * lib/generated/ on purpose: that directory does not travel with `shadcn add`,
+ * and a warning channel - or a spoken unit form - that compiles here and fails
+ * in a consumer's project is worse than none.
  *
  * NEVER WRITES app/globals.css. globals.css owns exactly one line about this
  * file - the @import - and the two are separately owned on purpose (addendum A7).
@@ -73,6 +77,7 @@ const TOKENS_DIR = join(APP_DIR, "tokens")
 const OUT_CSS = join(APP_DIR, "app", "tokens.generated.css")
 const OUT_TS = join(APP_DIR, "lib", "generated", "tokens.ts")
 const OUT_GLOSSARY = join(APP_DIR, "lib", "generated", "glossary.json")
+const OUT_UNITS = join(APP_DIR, "lib", "generated", "units.json")
 
 /**
  * The theme payload lands in registry/generated/, NOT in public/.
@@ -111,6 +116,23 @@ const SUBSTRATE_REGION_BEGIN = "/* opsinjs:errors:begin"
 const SUBSTRATE_REGION_END = "/* opsinjs:errors:end */"
 const MDX_REGION_BEGIN = "{/* opsinjs:errors:begin"
 const MDX_REGION_END = "{/* opsinjs:errors:end */}"
+
+/**
+ * The unit table's own region inside lib/opsinjs.ts, and the reserved space it
+ * grows into the first time this script runs with tokens/units.json present.
+ *
+ * lib/opsinjs.ts shipped with a comment block saying the unit table was
+ * deliberately not there yet and reserving the space for it. That block is the
+ * anchor: `installUnitsRegion` below replaces it with an empty pair of markers,
+ * once, and every run after that is an ordinary three-way splice like the error
+ * table's. Anchoring on a sentence rather than appending is what stops a second
+ * copy of the table appearing in a file that already ships one - and a second
+ * spoken unit form that can disagree with the first is precisely the drift this
+ * pipeline exists to prevent.
+ */
+const UNITS_REGION_BEGIN = "/* opsinjs:units:begin"
+const UNITS_REGION_END = "/* opsinjs:units:end */"
+const UNITS_PLACEHOLDER_ANCHOR = "The unit table is deliberately NOT here yet"
 
 const PREFIX = "--opsin-"
 
@@ -1112,6 +1134,433 @@ function buildErrors(source: JsonObject | undefined): ErrorTable {
 }
 
 /* ------------------------------------------------------------------ *
+ * The unit table                                                      *
+ *                                                                     *
+ * tokens/units.json is authored data rather than a token source - it   *
+ * declares no custom property - and it is here for the same reason     *
+ * errors.json is: several places need one answer and none of them may  *
+ * drift. What it answers is how a unit is SPOKEN. A screen reader      *
+ * handed `mmHg` improvises, and "em em aitch gee" is a failure.        *
+ *                                                                     *
+ * WHAT THIS BUILDER REFUSES TO EMIT, and the refusal is the point: a   *
+ * reference range, a threshold, a plausibility bound, a "typical"      *
+ * value, or a default precision, for any metric in any population. A   *
+ * unit table says what a number is measured in; it never says what a   *
+ * number should be. `FORBIDDEN_UNIT_KEYS` below is that sentence as a  *
+ * gate, so the file cannot quietly become clinical content one pull    *
+ * request at a time.                                                   *
+ * ------------------------------------------------------------------ */
+
+/** An exact rational, as integers, so a conversion never depends on a float. */
+interface Rational {
+  n: bigint
+  d: bigint
+}
+
+/** How a unit reaches its family's base unit: `base = value * n/d + on/od`. */
+interface ToBase {
+  unit: string
+  scale: Rational
+  offset: Rational
+  basis: string
+}
+
+interface UnitRow {
+  id: string
+  symbol: string
+  spoken: string
+  plural: string
+  measures: string
+  toBase?: ToBase
+}
+
+/** One ordered pair, composed by the generator and never authored directly. */
+interface UnitConversionRow {
+  from: string
+  to: string
+  scale: Rational
+  offset: Rational
+  basis: string[]
+}
+
+interface RefusedRow {
+  between: [string, string]
+  reason: string
+  docs: string
+}
+
+interface UnitTable {
+  policy: { key: string; text: string }[]
+  units: UnitRow[]
+  conversions: UnitConversionRow[]
+  refused: RefusedRow[]
+}
+
+/**
+ * Keys a unit row may never carry, and the whole safety argument for this file.
+ *
+ * Every one of these is a statement about what a reading SHOULD be, and none of
+ * them is a property of a unit. `mmol/L` is used for glucose, cholesterol and
+ * several other analytes whose ranges have nothing in common, so a `low` on the
+ * unit would be wrong for all but one of them - and wrong in a place nobody
+ * would think to look, because it would be sitting in a file called "units".
+ *
+ * `precision` and `decimals` are in the list for a different reason and it is
+ * worth stating separately: they are not unsafe, they are simply not a property
+ * of a unit either. health/numbers-units-precision rule 2 is canonical -
+ * "Precision is a property of the metric, not of the value" - and a per-unit
+ * default would silently make two metrics reported in the same unit agree about
+ * something they do not agree about.
+ */
+const FORBIDDEN_UNIT_KEYS = [
+  "low",
+  "high",
+  "min",
+  "max",
+  "minimum",
+  "maximum",
+  "range",
+  "usualRange",
+  "reference",
+  "threshold",
+  "bound",
+  "plausible",
+  "typical",
+  "default",
+  "precision",
+  "decimals",
+  "decimalPlaces",
+]
+
+/** Greatest common divisor, for reducing a composed conversion to lowest terms. */
+function gcd(a: bigint, b: bigint): bigint {
+  let x = a < 0n ? -a : a
+  let y = b < 0n ? -b : b
+  while (y !== 0n) {
+    const t = x % y
+    x = y
+    y = t
+  }
+  return x === 0n ? 1n : x
+}
+
+/** Lowest terms, denominator always above zero, so one value has one spelling. */
+function reduce(value: Rational): Rational {
+  const sign = value.d < 0n ? -1n : 1n
+  const n = value.n * sign
+  const d = value.d * sign
+  const g = gcd(n, d)
+  return { n: n / g, d: d / g }
+}
+
+/**
+ * A reduced rational as two safe integers.
+ *
+ * BigInt is used all the way through the composition because the intermediate
+ * products overflow a double: composing stone against pound multiplies
+ * 635029318 by 100000000, which is 6.35e16 and past 2^53, so a float would lose
+ * the exactness that is the only reason these numbers are allowed in the file
+ * at all. The reduced result is small - stone to pound is 14/1 - and this is
+ * where that is checked rather than assumed.
+ */
+function safeInts(value: Rational, label: string): { n: number; d: number } {
+  const limit = BigInt(Number.MAX_SAFE_INTEGER)
+  if (value.n > limit || value.n < -limit || value.d > limit || value.d < -limit) {
+    console.error(
+      [
+        `build-tokens: the conversion ${label} does not reduce to exact integers.`,
+        `  Reduced to ${value.n}/${value.d}, which is past Number.MAX_SAFE_INTEGER.`,
+        "",
+        "  Every conversion in tokens/units.json is an exact definition and is",
+        "  emitted as an exact fraction. A value that cannot survive the trip",
+        "  through a double would be an approximation wearing a definition's",
+        "  provenance, which is worse than having no conversion at all. Author the",
+        "  pair with smaller integers, or remove it and add a refusedConversions",
+        "  row saying why it is not there.",
+      ].join("\n"),
+    )
+    process.exit(1)
+  }
+  return { n: Number(value.n), d: Number(value.d) }
+}
+
+function rationalFrom(
+  node: JsonObject,
+  numeratorKey: string,
+  denominatorKey: string,
+  fallback: Rational,
+): Rational {
+  const n = num(node[numeratorKey])
+  const d = num(node[denominatorKey])
+  if (n === undefined && d === undefined) return fallback
+  return { n: BigInt(n ?? 0), d: BigInt(d ?? 1) }
+}
+
+function buildUnits(source: JsonObject | undefined): UnitTable {
+  if (!source) return { policy: [], units: [], conversions: [], refused: [] }
+
+  const policy: { key: string; text: string }[] = []
+  for (const [key, value] of Object.entries(obj(source.policy) ?? {})) {
+    if (isMetaKey(key)) continue
+    const text = str(value)
+    if (text !== undefined) policy.push({ key, text })
+  }
+
+  const units: UnitRow[] = []
+  const malformed: string[] = []
+  const forbidden: string[] = []
+
+  for (const row of arr(source.units)) {
+    const id = str(row.id)
+    const symbol = str(row.symbol)
+    const spoken = str(row.spoken)
+    const plural = str(row.plural)
+    const measures = str(row.measures)
+
+    for (const key of FORBIDDEN_UNIT_KEYS) {
+      if (Object.hasOwn(row, key)) forbidden.push(`${id ?? symbol ?? "a row"} carries \`${key}\``)
+    }
+
+    /* A row missing any of the five is not a unit this table can use, and none
+       of the five has an honest default. A missing `spoken` is the worst of
+       them: it is the one thing this file exists to carry, and a row without it
+       would silently fall back to letting a screen reader improvise - which is
+       the failure, restored, from inside the fix. */
+    if (!id || !symbol || !spoken || !plural || !measures) {
+      malformed.push(
+        `${id ?? symbol ?? "a row with no id"} is missing ` +
+          [
+            !id ? "`id`" : "",
+            !symbol ? "`symbol`" : "",
+            !spoken ? "`spoken`" : "",
+            !plural ? "`plural`" : "",
+            !measures ? "`measures`" : "",
+          ]
+            .filter(Boolean)
+            .join(", "),
+      )
+      continue
+    }
+
+    const toBaseNode = obj(row.toBase)
+    let toBase: ToBase | undefined
+    if (toBaseNode) {
+      const unit = str(toBaseNode.unit)
+      const basis = str(toBaseNode.basis)
+      if (!unit || !basis) {
+        malformed.push(`${id} has a \`toBase\` with no \`unit\` or no \`basis\``)
+        continue
+      }
+      const scale = rationalFrom(toBaseNode, "numerator", "denominator", { n: 1n, d: 1n })
+      const offset = rationalFrom(toBaseNode, "offsetNumerator", "offsetDenominator", {
+        n: 0n,
+        d: 1n,
+      })
+      if (scale.d === 0n || offset.d === 0n || scale.n === 0n) {
+        malformed.push(`${id} has a \`toBase\` with a zero numerator or denominator`)
+        continue
+      }
+      toBase = { unit, scale: reduce(scale), offset: reduce(offset), basis }
+    }
+
+    units.push({ id, symbol, spoken, plural, measures, toBase })
+  }
+
+  if (forbidden.length > 0) {
+    console.error(
+      [
+        "build-tokens: tokens/units.json carries a key that says what a reading should be.",
+        ...forbidden.map((entry) => `  ${entry}`),
+        "",
+        "  A unit table says what a number is MEASURED IN. It never says what a",
+        "  number should be, for any metric, in any population - not a reference",
+        "  range, not a threshold, not a plausibility bound, not a 'typical' value.",
+        "  That line is the entire safety argument for this file existing, and this",
+        "  gate is that sentence. Whoever owns the threshold owns it; opsinjs is a",
+        "  presentation layer and does not.",
+        "",
+        "  `precision` and `decimals` are refused for a different reason: decimal",
+        "  places belong to the MEASUREMENT, not to the unit. Two metrics reported",
+        "  in mmol/L do not share a number of decimal places. See",
+        "  health/numbers-units-precision, rule 2, which is canonical.",
+      ].join("\n"),
+    )
+    process.exit(1)
+  }
+
+  if (malformed.length > 0) {
+    console.error(
+      [
+        "build-tokens: tokens/units.json has a row this table cannot use.",
+        ...malformed.map((entry) => `  ${entry}`),
+        "",
+        "  `id`, `symbol`, `spoken`, `plural` and `measures` are all required. A row",
+        "  without `spoken` is the defect this file exists to prevent: a screen",
+        "  reader handed a symbol with no spoken form invents a pronunciation, and",
+        "  'em em aitch gee' is not a blood pressure.",
+      ].join("\n"),
+    )
+    process.exit(1)
+  }
+
+  /* Two rows claiming one id, or one symbol, is the mistake this file cannot
+     survive. The emitted lookup is keyed by symbol, so the second row would
+     silently replace the first and a reading would be announced in a unit
+     nobody chose. */
+  for (const [field, values] of [
+    ["id", units.map((unit) => unit.id)],
+    ["symbol", units.map((unit) => unit.symbol)],
+  ] as const) {
+    const repeated = [...new Set(values.filter((v, i, all) => all.indexOf(v) !== i))]
+    if (repeated.length > 0) {
+      console.error(
+        [
+          `build-tokens: tokens/units.json declares a ${field} more than once.`,
+          ...repeated.map((value) => `  ${q(value)}`),
+          "",
+          `  Every ${field} names exactly one unit. The emitted table is looked up by`,
+          "  symbol, so a repeat means a reading is spoken in a unit nobody chose.",
+        ].join("\n"),
+      )
+      process.exit(1)
+    }
+  }
+
+  const byId = new Map(units.map((unit) => [unit.id, unit]))
+  const bySymbol = new Map(units.map((unit) => [unit.symbol, unit]))
+
+  /* A base unit has to declare itself as its own base, at 1/1 with no offset.
+     Writing it out rather than inferring it is what makes the family visible in
+     the source: a reader of units.json can see which unit the others are
+     defined against without running anything. */
+  const brokenBase: string[] = []
+  for (const unit of units) {
+    if (!unit.toBase) continue
+    const base = byId.get(unit.toBase.unit)
+    if (!base) {
+      brokenBase.push(`${unit.id} converts to ${q(unit.toBase.unit)}, which is not a unit here`)
+      continue
+    }
+    if (!base.toBase || base.toBase.unit !== base.id) {
+      brokenBase.push(
+        `${unit.id} converts to ${base.id}, which does not declare itself as its own base`,
+      )
+      continue
+    }
+    if (unit.id === base.id && (unit.toBase.scale.n !== 1n || unit.toBase.scale.d !== 1n || unit.toBase.offset.n !== 0n)) {
+      brokenBase.push(`${unit.id} is its own base but does not convert to itself at 1/1 with no offset`)
+    }
+  }
+  if (brokenBase.length > 0) {
+    console.error(
+      [
+        "build-tokens: tokens/units.json has a conversion family that does not close.",
+        ...brokenBase.map((entry) => `  ${entry}`),
+        "",
+        "  Every unit with a `toBase` names one base unit, and that base unit names",
+        "  itself at numerator 1, denominator 1 and no offset. The generator composes",
+        "  every other pair from those two facts, so a family that does not close",
+        "  would emit conversions with nothing underneath them.",
+      ].join("\n"),
+    )
+    process.exit(1)
+  }
+
+  /* THE CLOSURE. Authoring is one row per unit - how to reach the base - and
+     the generator does the rest, in both directions, exactly. Authoring pairs
+     by hand would mean n(n-1) rows kept in step with each other, and the first
+     one to fall out of step would be a conversion that disagrees with its own
+     inverse.
+
+       base = a * (na/da) + (oa/oda)
+       b    = (base - ob/odb) * (db/nb)
+
+     so, composing and collecting:
+
+       scale  = (na * db) / (da * nb)
+       offset = (oa*odb - ob*oda) * db / (oda * odb * nb)  */
+  const conversions: UnitConversionRow[] = []
+  for (const from of units) {
+    if (!from.toBase) continue
+    for (const to of units) {
+      if (!to.toBase || to.id === from.id) continue
+      if (to.toBase.unit !== from.toBase.unit) continue
+      const a = from.toBase
+      const b = to.toBase
+      const scale = reduce({ n: a.scale.n * b.scale.d, d: a.scale.d * b.scale.n })
+      const offset = reduce({
+        n: (a.offset.n * b.offset.d - b.offset.n * a.offset.d) * b.scale.d,
+        d: a.offset.d * b.offset.d * b.scale.n,
+      })
+      /* Both bases are named, and in this order, because a reader checking a
+         number wants to see the two definitions it was composed from rather
+         than a single sentence somebody wrote about the pair. */
+      const basis = from.id === a.unit ? [b.basis] : to.id === b.unit ? [a.basis] : [a.basis, b.basis]
+      conversions.push({ from: from.symbol, to: to.symbol, scale, offset, basis })
+    }
+  }
+  conversions.sort((x, y) => x.from.localeCompare(y.from, "en") || x.to.localeCompare(y.to, "en"))
+
+  const refused: RefusedRow[] = []
+  const unknownRefusal: string[] = []
+  for (const row of arr(source.refusedConversions)) {
+    const between = Array.isArray(row.between) ? (row.between as Json[]).map(String) : []
+    const reason = str(row.reason)
+    const docs = str(row.docs) ?? ""
+    const [first, second] = between
+    if (between.length !== 2 || !first || !second || !reason) {
+      unknownRefusal.push("a row with no `between` pair or no `reason`")
+      continue
+    }
+    for (const symbol of [first, second]) {
+      if (!bySymbol.has(symbol)) unknownRefusal.push(`${q(symbol)} is not a unit in this file`)
+    }
+    refused.push({ between: [first, second], reason, docs })
+  }
+
+  /* A pair cannot be both convertible and refused. If it ever were, which of
+     the two a component believed would depend on which list it read first -
+     and one of the two answers is a number on somebody's screen. */
+  for (const row of refused) {
+    const [first, second] = row.between
+    const clash = conversions.find(
+      (conversion) =>
+        (conversion.from === first && conversion.to === second) ||
+        (conversion.from === second && conversion.to === first),
+    )
+    if (clash) {
+      unknownRefusal.push(
+        `${q(first)} to ${q(second)} is both refused and reachable through a shared base unit`,
+      )
+    }
+  }
+
+  if (unknownRefusal.length > 0) {
+    console.error(
+      [
+        "build-tokens: tokens/units.json has a refusedConversions row that does not hold.",
+        ...unknownRefusal.map((entry) => `  ${entry}`),
+        "",
+        "  A refusal names two units that ARE in this file and says why the pair is",
+        "  not arithmetic. A refusal naming a unit that is not here documents",
+        "  nothing, and a pair that is both refused and reachable would leave a",
+        "  component to pick between two answers about somebody's reading.",
+      ].join("\n"),
+    )
+    process.exit(1)
+  }
+
+  units.sort((a, b) => a.id.localeCompare(b.id, "en"))
+  refused.sort(
+    (a, b) =>
+      a.between[0].localeCompare(b.between[0], "en") ||
+      a.between[1].localeCompare(b.between[1], "en"),
+  )
+
+  return { policy, units, conversions, refused }
+}
+
+/* ------------------------------------------------------------------ *
  * CSS                                                                 *
  * ------------------------------------------------------------------ */
 
@@ -1610,6 +2059,283 @@ ${rows}
 }
 
 /* ------------------------------------------------------------------ *
+ * The shipped copy of the unit table                                  *
+ * ------------------------------------------------------------------ */
+
+/**
+ * Grows the reserved space in lib/opsinjs.ts into a pair of region markers.
+ *
+ * Runs once, on the first generate after tokens/units.json lands, and is a
+ * no-op ever after: the moment the begin marker exists, this returns the file
+ * untouched and `spliceRegion` does the ordinary three-way splice.
+ *
+ * WHY AN ANCHOR RATHER THAN AN APPEND. lib/opsinjs.ts shipped with a comment
+ * block reserving this space, in this position, with the sentence "Leave the
+ * space; do not fill it from memory" - the table belongs above the error region
+ * and below the shared shapes, and appending would put it wherever the file
+ * happens to end. Anchoring on the block's own first line puts the generated
+ * table exactly where the file said it should go, and does it without a human
+ * hand-editing a file that another worker may be inside.
+ *
+ * A missing anchor is fatal for the same reason a missing marker is: silently
+ * recovering would put a second unit table in a file that may already ship one,
+ * and two spoken forms for one symbol is the drift this pipeline exists to
+ * prevent.
+ */
+function installUnitsRegion(file: string, current: string): string {
+  if (current.includes(UNITS_REGION_BEGIN)) return current
+
+  const anchor = current.indexOf(UNITS_PLACEHOLDER_ANCHOR)
+  const open = anchor === -1 ? -1 : current.lastIndexOf("/*", anchor)
+  const close = anchor === -1 ? -1 : current.indexOf("*/", anchor)
+  if (anchor === -1 || open === -1 || close === -1) {
+    console.error(
+      [
+        `build-tokens: ${file.replace(APP_DIR, "")} has neither the unit-table region nor the space reserved for it.`,
+        `  Expected either a line beginning ${q(UNITS_REGION_BEGIN)}, or the comment`,
+        `  block whose first line reads ${q(UNITS_PLACEHOLDER_ANCHOR)}.`,
+        "",
+        "  tokens/units.json is emitted into that file because it is one of the two",
+        "  modules `shadcn add` copies into a consumer's project, and a spoken unit",
+        "  form that exists here and not there would make every installed component",
+        "  read a symbol out letter by letter. Restore either the markers - an empty",
+        "  region between them is fine, this script fills it - or the reserved block,",
+        "  and run `pnpm run generate` again.",
+      ].join("\n"),
+    )
+    process.exit(1)
+  }
+
+  return (
+    current.slice(0, open) +
+    `${UNITS_REGION_BEGIN} — replaced by scripts/build-tokens.mts from tokens/units.json */\n\n${UNITS_REGION_END}` +
+    current.slice(close + 2)
+  )
+}
+
+/** A rational as the two integer fields the emitted table carries. */
+function conversionInts(row: UnitConversionRow): {
+  n: number
+  d: number
+  on: number
+  od: number
+} {
+  const label = `${row.from} to ${row.to}`
+  const scale = safeInts(row.scale, label)
+  const offset = safeInts(row.offset, label)
+  return { n: scale.n, d: scale.d, on: offset.n, od: offset.d }
+}
+
+/**
+ * The unit table as TypeScript, for the region inside `lib/opsinjs.ts`.
+ *
+ * Emitted into the file that TRAVELS, for the same reason the error table is:
+ * `lib/generated/` does not survive `shadcn add`, and a component installed
+ * into somebody else's project still has to know that `mmHg` is spoken
+ * "millimetres of mercury". The copy in lib/generated/units.json is the
+ * reviewable one, with the authored policy prose attached; this one is the one
+ * that renders.
+ *
+ * The lookup map is derived from the array at module load rather than emitted
+ * a second time. Two literal copies of the same twenty rows is two copies that
+ * can disagree about a unit, and this file is generated precisely so that
+ * cannot happen.
+ */
+function emitSubstrateUnits(table: UnitTable): string {
+  const unitRows = table.units
+    .map((unit) =>
+      [
+        "  {",
+        `    id: ${q(unit.id)},`,
+        `    symbol: ${q(unit.symbol)},`,
+        `    spoken: ${q(unit.spoken)},`,
+        `    plural: ${q(unit.plural)},`,
+        `    measures: ${q(unit.measures)},`,
+        "  },",
+      ].join("\n"),
+    )
+    .join("\n")
+
+  const conversionRows = table.conversions
+    .map((row) => {
+      const ints = conversionInts(row)
+      return [
+        "  {",
+        `    from: ${q(row.from)},`,
+        `    to: ${q(row.to)},`,
+        `    numerator: ${ints.n},`,
+        `    denominator: ${ints.d},`,
+        `    offsetNumerator: ${ints.on},`,
+        `    offsetDenominator: ${ints.od},`,
+        `    basis: [${row.basis.map(q).join(", ")}],`,
+        "  },",
+      ].join("\n")
+    })
+    .join("\n")
+
+  const refusedRows = table.refused
+    .map((row) =>
+      [
+        "  {",
+        `    between: [${q(row.between[0])}, ${q(row.between[1])}],`,
+        `    reason: ${q(row.reason)},`,
+        `    docs: ${q(row.docs)},`,
+        "  },",
+      ].join("\n"),
+    )
+    .join("\n")
+
+  return `/**
+ * One unit: what it is called, what a reader sees, and how it is SPOKEN.
+ *
+ * The spoken form is the whole reason this table exists. A screen reader handed
+ * \`mmHg\` improvises a pronunciation, and "one twenty over eighty em em aitch
+ * gee" is a failure rather than a quirk.
+ *
+ * There is no reference range here, no threshold, no plausibility bound and no
+ * default precision. A unit table says what a number is measured in; it never
+ * says what a number should be. Decimal places belong to the MEASUREMENT and
+ * travel with it from the product - health/numbers-units-precision, rule 2.
+ */
+export interface Unit {
+  /** Stable key. Never the display symbol: \`°C\` is \`celsius\`. */
+  id: string
+  /** What a reader sees beside the number. Looked up by exactly this string. */
+  symbol: string
+  /** How to say it for exactly one of the thing. British English. */
+  spoken: string
+  /** How to say it for every other count, zero included. British English. */
+  plural: string
+  /** What is being measured, dimensionally. Never what a reading should be. */
+  measures: string
+}
+
+/** Every unit this system can speak, sorted by id. Generated from \`tokens/units.json\`. */
+export const UNITS: Unit[] = [
+${unitRows}
+]
+
+/**
+ * The lookup \`findUnit()\` reads, derived from \`UNITS\` rather than emitted twice.
+ *
+ * Keyed by the exact symbol, case included. There is no fuzzy matching, because
+ * a table that guesses which unit somebody meant is a table that will one day
+ * guess wrong about a concentration.
+ */
+export const UNITS_BY_SYMBOL: Record<string, Unit> = Object.fromEntries(
+  UNITS.map((unit) => [unit.symbol, unit]),
+)
+
+/**
+ * An exact conversion between two units of the same kind.
+ *
+ * Applied as \`to = from * numerator / denominator + offsetNumerator /
+ * offsetDenominator\`. Every field is an integer, and that is deliberate: these
+ * are definitions rather than measurements, and a definition stored as a
+ * rounded decimal is an approximation wearing a definition's provenance.
+ *
+ * \`basis\` names the definition each factor comes from. A conversion with no
+ * basis does not belong in this system: opsinjs does not own a clinical number,
+ * and the ones it does carry are the ones that are true by definition rather
+ * than by measurement.
+ */
+export interface UnitConversion {
+  /** Symbol converted from. */
+  from: string
+  /** Symbol converted to. */
+  to: string
+  numerator: number
+  denominator: number
+  offsetNumerator: number
+  offsetDenominator: number
+  /** Where each factor comes from, in the order they were composed. */
+  basis: string[]
+}
+
+/** Every convertible ordered pair, composed by the generator. Never authored by hand. */
+export const UNIT_CONVERSIONS: UnitConversion[] = [
+${conversionRows}
+]
+
+/**
+ * A pair people expect to be arithmetic and is not, with the reason.
+ *
+ * This list is the load-bearing half of the unit table. An omitted conversion
+ * has to render as an explicit "we do not have this", never as a substituted
+ * default, and a component that wants to explain WHY reads its reason here.
+ */
+export interface RefusedConversion {
+  /** The two symbols, as authored. */
+  between: [string, string]
+  /** Why the pair is not a mathematical fact. Shown to a developer, not to a reader. */
+  reason: string
+  /** The docs page id that sets out the non-goal. */
+  docs: string
+}
+
+/** Conversions this system refuses to publish, and why. Generated from \`tokens/units.json\`. */
+export const REFUSED_CONVERSIONS: RefusedConversion[] = [
+${refusedRows}
+]
+
+/**
+ * The unit a symbol names, or \`undefined\` when this system has never heard of it.
+ *
+ * \`undefined\` rather than a fabricated entry, because the caller's honest
+ * response to an unknown symbol is to render it as written - awkward to listen
+ * to, but true - and never to guess at a pronunciation.
+ */
+export function findUnit(symbol: string): Unit | undefined {
+  return Object.prototype.hasOwnProperty.call(UNITS_BY_SYMBOL, symbol)
+    ? UNITS_BY_SYMBOL[symbol]
+    : undefined
+}
+
+/**
+ * How a screen reader should say this unit for this count.
+ *
+ * \`count\` is the value as DISPLAYED, after any rounding, because the words
+ * follow what is on the screen rather than what was in the database. English
+ * takes the singular for exactly one and the plural for everything else, zero
+ * included: "0 kilograms", "1 kilogram", "1.5 kilograms".
+ *
+ * The known limit, stated rather than hidden: a value shown as "1.0" because
+ * its measurement has one decimal place is still counted as one and is spoken
+ * "1.0 kilogram". Both wordings are defensible in English and neither is
+ * unsafe. The larger limit is that these words are British English in every
+ * locale; \`tokens/units.json\` has no translations yet and does not pretend to.
+ */
+export function spokenUnit(symbol: string, count: number): string | undefined {
+  const unit = findUnit(symbol)
+  if (unit === undefined) return undefined
+  return Math.abs(count) === 1 ? unit.spoken : unit.plural
+}
+
+/** The authored conversion between two symbols, or \`undefined\` when there is none. */
+export function unitConversion(from: string, to: string): UnitConversion | undefined {
+  return UNIT_CONVERSIONS.find((row) => row.from === from && row.to === to)
+}
+
+/**
+ * One value in another unit, or \`undefined\` when this system does not own the factor.
+ *
+ * \`undefined\` is the whole contract. mmol/L to mg/dL is not here, and it is
+ * not here because the factor depends on the molar mass of the substance being
+ * measured rather than on either unit - so a component that substituted a
+ * default would be converting cholesterol with the factor for glucose. Render
+ * "we do not have this"; never a number.
+ */
+export function convertUnit(value: number, from: string, to: string): number | undefined {
+  const conversion = unitConversion(from, to)
+  if (conversion === undefined) return undefined
+  return (
+    (value * conversion.numerator) / conversion.denominator +
+    conversion.offsetNumerator / conversion.offsetDenominator
+  )
+}`
+}
+
+/* ------------------------------------------------------------------ *
  * The error-code table as MDX                                         *
  * ------------------------------------------------------------------ */
 
@@ -1824,6 +2550,17 @@ function main(): void {
   if (exists(errorsFile)) rawSources.push(readFileSync(errorsFile, "utf8"))
   const errors = buildErrors(errorsSource)
 
+  /* tokens/units.json is the same shape of thing as errors.json: authored data
+     that declares no custom property, so it is neither in TOKEN_FILES nor in
+     EMITTERS, and it is hashed LAST so that adding it moved no existing entry
+     in this list. It emits two ways - lib/generated/units.json for review, and
+     the Unit/UNITS region inside lib/opsinjs.ts, which is the copy `shadcn add`
+     carries into a consumer's project and therefore the copy that renders. */
+  const unitsFile = join(TOKENS_DIR, "units.json")
+  const unitsSource = readJson(unitsFile)
+  if (exists(unitsFile)) rawSources.push(readFileSync(unitsFile, "utf8"))
+  const units = buildUnits(unitsSource)
+
   resolveReferences(tokens)
 
   /* Two tokens resolving to one custom property is a silent, expensive bug: the
@@ -1862,22 +2599,42 @@ function main(): void {
     }
   }
 
+  /* The substrate carries TWO generated regions and they are spliced in
+     sequence, errors first, over one read of the file. Reading it twice would
+     splice the second region into a copy that no longer matches what the first
+     splice produced, and the later write would silently drop the earlier one.
+
+     The unit region is only touched when there is something to put in it or a
+     region already exists. A tree with no tokens/units.json keeps the reserved
+     comment block exactly as it is, which is the honest zero state: an empty
+     UNITS array claims this system has looked and found no units, and it has
+     not looked. */
+  const substrateSource = mustRead(
+    OUT_SUBSTRATE,
+    "It is the shared substrate every registry item ships; restore it from git.",
+  )
+  const withErrors = spliceRegion(
+    OUT_SUBSTRATE,
+    substrateSource,
+    SUBSTRATE_REGION_BEGIN,
+    SUBSTRATE_REGION_END,
+    emitSubstrateErrors(errors),
+  )
+  const substrate =
+    exists(unitsFile) || withErrors.includes(UNITS_REGION_BEGIN)
+      ? spliceRegion(
+          OUT_SUBSTRATE,
+          installUnitsRegion(OUT_SUBSTRATE, withErrors),
+          UNITS_REGION_BEGIN,
+          UNITS_REGION_END,
+          emitSubstrateUnits(units),
+        )
+      : withErrors
+
   const outputs = [
     { file: OUT_CSS, contents: emitCss(tokens, hash) },
     { file: OUT_TS, contents: emitTs(tokens, glossary, errors, hash) },
-    {
-      file: OUT_SUBSTRATE,
-      contents: spliceRegion(
-        OUT_SUBSTRATE,
-        mustRead(
-          OUT_SUBSTRATE,
-          "It is the shared substrate every registry item ships; restore it from git.",
-        ),
-        SUBSTRATE_REGION_BEGIN,
-        SUBSTRATE_REGION_END,
-        emitSubstrateErrors(errors),
-      ),
-    },
+    { file: OUT_SUBSTRATE, contents: substrate },
     {
       file: OUT_ERROR_CODES,
       contents: spliceRegion(
@@ -1903,6 +2660,47 @@ function main(): void {
           terms: glossary.terms,
           banned: glossary.banned,
           index,
+        },
+        null,
+        2,
+      )}\n`,
+    },
+    {
+      file: OUT_UNITS,
+      contents: `${JSON.stringify(
+        {
+          $comment:
+            "GENERATED FILE - DO NOT EDIT. Source: tokens/units.json. Generator: scripts/build-tokens.mts (`pnpm run generate`). Gate: `pnpm check:generated`. This is the reviewable copy, with the authored policy attached; the copy that renders is the Unit/UNITS region inside lib/opsinjs.ts, because lib/generated/ does not travel with `shadcn add`. SAFETY: there is no reference range, threshold, plausibility bound, 'typical' value or default precision in this file, for any metric in any population. A unit table says what a number is measured in; it never says what a number should be. `generatedAt` carries the token source hash rather than a build time, because this file is guarded by a byte-for-byte drift gate.",
+          generatedAt: hash,
+          sourceHash: hash,
+          counts: {
+            units: units.units.length,
+            conversions: units.conversions.length,
+            refusedConversions: units.refused.length,
+          },
+          policy: Object.fromEntries(units.policy.map((entry) => [entry.key, entry.text])),
+          units: units.units.map((unit) => ({
+            id: unit.id,
+            symbol: unit.symbol,
+            spoken: unit.spoken,
+            plural: unit.plural,
+            measures: unit.measures,
+            base: unit.toBase?.unit,
+            basis: unit.toBase?.basis,
+          })),
+          conversions: units.conversions.map((row) => {
+            const ints = conversionInts(row)
+            return {
+              from: row.from,
+              to: row.to,
+              numerator: ints.n,
+              denominator: ints.d,
+              offsetNumerator: ints.on,
+              offsetDenominator: ints.od,
+              basis: row.basis,
+            }
+          }),
+          refusedConversions: units.refused,
         },
         null,
         2,
@@ -1946,7 +2744,9 @@ function main(): void {
     [
       `build-tokens: ${tokens.length} tokens from ${rawSources.length} source files ` +
         `(hash ${hash}); ${glossary.terms.length} glossary terms, ` +
-        `${glossary.banned.length} banned words, ${errors.codes.length} error codes.`,
+        `${glossary.banned.length} banned words, ${errors.codes.length} error codes, ` +
+        `${units.units.length} units with ${units.conversions.length} conversions ` +
+        `and ${units.refused.length} refusals.`,
       `  ${[...byGroup.entries()].map(([group, count]) => `${count} ${group}`).join(" | ")}`,
       ...outputs.map(
         (output) =>

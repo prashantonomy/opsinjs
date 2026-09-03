@@ -50,13 +50,14 @@
  * question is `Dialog`.
  */
 
-import { Drawer } from "@base-ui/react/drawer"
+import { Drawer, type DrawerRootChangeEventReason } from "@base-ui/react/drawer"
 import { X } from "lucide-react"
 import {
   Children,
   createContext,
   isValidElement,
   useContext,
+  useId,
   useState,
   type ReactNode,
 } from "react"
@@ -65,6 +66,44 @@ import { isDevelopment, type Detent } from "@/lib/opsinjs"
 import { cn } from "@/lib/utils"
 import { Button } from "@/registry/base-lyra/ui/button"
 import { Surface } from "@/registry/base-lyra/ui/surface"
+
+/**
+ * A development warning that fires once per distinct mistake rather than once
+ * per render.
+ *
+ * Not `warnOnce` from the substrate, and the reason is the same one Surface
+ * gives: `warnOnce` is keyed on a code from `tokens/errors.json`, that table has
+ * no code for any of the six mistakes below, and a component may not mint one.
+ * What can be borrowed is the policy — `tokens/errors.json` says a warning fires
+ * once per offending call site, because a repeated identical complaint teaches
+ * nothing and drowns the next one. Every one of these checks sits in the render
+ * path, so the un-deduplicated version printed on every pass of an open sheet
+ * and twice per pass under StrictMode; two of the six report an unnamed dialog
+ * and a missing scroll boundary, which is exactly the finding a reader loses
+ * when they filter the channel.
+ *
+ * The render path is still the right place for them. An effect would report the
+ * mistake after the frame that contains it has already been painted.
+ */
+const warnedKeys = new Set<string>()
+
+/**
+ * Bounded, because a development session runs for days and this set is never
+ * cleared. Sixteen distinct complaints means the report has been made several
+ * times over; going quiet beats growing without limit.
+ */
+const MAX_WARNED_KEYS = 16
+
+function warnOncePerSession(key: string, message: string): void {
+  if (!isDevelopment()) return
+  if (warnedKeys.has(key) || warnedKeys.size >= MAX_WARNED_KEYS) return
+  warnedKeys.add(key)
+  try {
+    console.warn(`[opsinjs] ${message}`)
+  } catch {
+    /* A patched console is not a reason to take a health product down. */
+  }
+}
 
 /**
  * How a close was asked for.
@@ -88,14 +127,14 @@ type SheetDismissRoute = "close-control" | "scrim" | "escape" | "drag" | "other"
  * through a key, and a product that confirms one and not the other has a hole
  * on exactly the devices where a sheet matters most.
  */
-function routeFor(reason: string): SheetDismissRoute {
+function routeFor(reason: DrawerRootChangeEventReason): SheetDismissRoute {
   switch (reason) {
-    case "closePress":
+    case "close-press":
       return "close-control"
-    case "outsidePress":
+    case "outside-press":
       return "scrim"
-    case "escapeKey":
-    case "closeWatcher":
+    case "escape-key":
+    case "close-watcher":
       return "escape"
     case "swipe":
       return "drag"
@@ -103,6 +142,59 @@ function routeFor(reason: string): SheetDismissRoute {
       return "other"
   }
 }
+
+/**
+ * THE VALUES ABOVE ARE BASE UI'S RUNTIME STRINGS, NOT ITS CONSTANT NAMES, AND
+ * THE DIFFERENCE ONCE MADE THIS COMPONENT A KEYBOARD TRAP.
+ *
+ * `@base-ui/react/internals/reason-parts` exports `closePress = 'close-press'`,
+ * `outsidePress = 'outside-press'`, `escapeKey = 'escape-key'` and
+ * `closeWatcher = 'close-watcher'`. The first version of this switch matched the
+ * NAMES. Only `swipe` happens to be spelled the same in both, so every other
+ * close fell through to `"other"` — and under `dismissible={false}` the handler
+ * below cancels everything that is not `"close-control"`. The close control was
+ * therefore cancelled along with the scrim and the escape key, and the shipped
+ * example that sets `dismissible={false}` became a modal sheet with focus
+ * trapped inside it and no exit at all.
+ *
+ * Two things follow, and the second is the one that matters.
+ *
+ * The parameter is typed `DrawerRootChangeEventReason` and not `string`, and
+ * that is the guard rather than the tidiness. `string` is what made the original
+ * mistake legal: a `case` label that can never match is a perfectly good
+ * comparison against a `string`, and the compiler had nothing to object to. Typed
+ * as the union, every label above has to be a member of it, so the day Base UI
+ * renames one this file stops compiling instead of quietly reclassifying a close.
+ * The `default` branch stays regardless: this file ships as source into
+ * JavaScript projects and into whatever version of Base UI the consumer resolves,
+ * where the type is advice.
+ *
+ * `KNOWN_REASONS` is the same guard from the other side — every reason the
+ * primitive declares, so a reason that reaches this handler and is NOT in the
+ * declared union is a development warning. Four of the nine are recognised and
+ * deliberately map to `"other"`: `trigger-press` (this API has no trigger),
+ * `focus-out`, `imperative-action` and `none` are all closes the sheet cannot
+ * attribute to anything a reader did, which is what `"other"` means. Warning on
+ * those would be crying wolf; the warning exists for the case that actually
+ * happened once, which is a reason nobody here has heard of.
+ *
+ * And the cancellation is allow-listed rather than deny-listed. It cancels only
+ * the three ambient routes it positively recognises. A route it does not
+ * understand CLOSES the sheet, because the failure modes are not symmetrical:
+ * closing a sheet somebody wanted to keep loses a form, and refusing to close a
+ * modal surface loses the reader.
+ */
+const KNOWN_REASONS = new Set<DrawerRootChangeEventReason>([
+  "close-press",
+  "outside-press",
+  "escape-key",
+  "close-watcher",
+  "swipe",
+  "trigger-press",
+  "focus-out",
+  "imperative-action",
+  "none",
+])
 
 /**
  * The two detents that have a numeric answer, as fractions of the viewport.
@@ -122,7 +214,8 @@ const VIEWPORT_FRACTION: Record<"half" | "full", number> = {
 }
 
 /**
- * What each detent is called when the grabber has to say what it will do.
+ * What each detent is called when the grabber has to say how tall the sheet
+ * currently is.
  *
  * Plain words rather than the API's own values: the reader of the accessible
  * name is a person using the product, not a person reading this file, and
@@ -158,6 +251,25 @@ function isDetent(value: unknown): value is Detent {
 const SheetDepth = createContext(0)
 
 /**
+ * The id of the element holding the sheet's title, or `undefined` outside a
+ * Sheet.
+ *
+ * It exists so `Sheet.Content` can name itself without inventing a string.
+ * The scrolling region is a focus stop (see below) and a nameless stop is a
+ * stop a screen-reader user arrives at with no idea why; pointing its
+ * `aria-labelledby` at the title the sheet already has reuses a name the
+ * product wrote, in the product's own language, rather than adding a third
+ * English string to the two this component already ships and already declares
+ * as a translation gap.
+ *
+ * `undefined` rather than a generated fallback when there is no provider,
+ * because `aria-labelledby` pointing at an id that does not exist is worse than
+ * no `aria-labelledby` at all: the name resolves to the empty string and the
+ * region goes from unnamed to falsely named.
+ */
+const SheetTitleId = createContext<string | undefined>(undefined)
+
+/**
  * Whether the caller placed a `Sheet.Content` among the direct children.
  *
  * SAY EXACTLY WHAT THIS CAN SEE, because a check that over-promises is worse
@@ -188,38 +300,35 @@ function resolveDetents(detents: Detent[]): Detent[] {
 
   for (const detent of detents) {
     if (!isDetent(detent)) {
-      if (isDevelopment()) {
-        console.warn(
-          `[opsinjs] <Sheet> was given the detent "${String(detent)}", which is ` +
-            "not one of content, half or full. It was ignored.",
-        )
-      }
+      warnOncePerSession(
+        `detent:${String(detent)}`,
+        `<Sheet> was given the detent "${String(detent)}", which is not one of ` +
+          "content, half or full. It was ignored.",
+      )
       continue
     }
     if (!stops.includes(detent)) stops.push(detent)
   }
 
   if (stops.length === 0) {
-    if (isDevelopment()) {
-      console.warn(
-        "[opsinjs] <Sheet> was given an empty `detents` array. A sheet with no " +
-          'rest position has no height, so it fell back to ["content"].',
-      )
-    }
+    warnOncePerSession(
+      "detents:empty",
+      "<Sheet> was given an empty `detents` array. A sheet with no rest " +
+        'position has no height, so it fell back to ["content"].',
+    )
     return DEFAULT_DETENTS
   }
 
   if (stops.length > 1 && stops.includes("content")) {
     const measured = stops.filter((stop) => stop !== "content")
-    if (isDevelopment()) {
-      console.warn(
-        "[opsinjs] <Sheet> was given `content` alongside another detent. A " +
-          "content-sized stop and a viewport-sized stop cannot both exist: a " +
-          "sheet that can reach half or full is as tall as the viewport, and a " +
-          "snap point is resolved against the sheet's own height. `content` was " +
-          `dropped; the sheet rests at ${measured.join(" and ")}.`,
-      )
-    }
+    warnOncePerSession(
+      `detents:content-beside:${measured.join("+")}`,
+      "<Sheet> was given `content` alongside another detent. A content-sized " +
+        "stop and a viewport-sized stop cannot both exist: a sheet that can " +
+        "reach half or full is as tall as the viewport, and a snap point is " +
+        "resolved against the sheet's own height. `content` was dropped; the " +
+        `sheet rests at ${measured.join(" and ")}.`,
+    )
     return measured
   }
 
@@ -276,17 +385,66 @@ const OFFSCREEN_TRANSFORM =
  * putting one spring's curve on another's duration produces a different spring
  * rather than a faster one.
  *
- * `motion-reduce:transition-none` is the component's own answer and not a
- * duplicate of the token layer's. Under `prefers-reduced-motion` the token
- * layer collapses `--opsin-duration-spring-sheet` to 120ms, which is the right
- * answer for a cue that says a value changed and the wrong one for a panel
- * travelling the height of the screen — 120ms of full-height translation is
- * still the slide the page says to remove. Removing the transition leaves the
- * sheet appearing at its detent, and the drag still works: reduced motion is
- * not reduced capability.
+ * No `motion-reduce:transition-none` here, and the reason is a correction. An
+ * earlier version of this file removed the transition outright under
+ * `prefers-reduced-motion` and argued the case in a comment. The argument was
+ * half right and the conclusion was wrong, and the page that settles it names
+ * this component by name: `health/motion-in-health-ui.mdx` lists `sheet` in its
+ * `implements`, its rule 5 says the reduced-motion fallback "is not 'no
+ * animation' by default — it is an instant, complete, equally informative
+ * state", and its Do/Dont pair is written about a sheet: DO "show the sheet in
+ * place with a crossfade of opacity only, retaining every affordance", DONT
+ * "remove the transition and let a modal appear with no change of context at
+ * all. Reduced motion means less movement, not less orientation." A surface
+ * that teleports onto the screen is harder to follow than one that arrives
+ * quickly, and the reader most likely to have reduced motion on is the reader
+ * least able to afford a surface appearing from nowhere.
+ *
+ * What was right in the old argument is that 120ms of full-height translation
+ * is still a full-height translation. So the distance goes and the transition
+ * stays, which is `REDUCED_MOTION_CROSSFADE` below.
  */
 const SLIDE =
-  "transition-transform duration-(--opsin-duration-spring-sheet) ease-opsin-spring-sheet motion-reduce:transition-none"
+  "transition-transform duration-(--opsin-duration-spring-sheet) ease-opsin-spring-sheet"
+
+/**
+ * The reduced-motion answer: the same arrival, in place, as opacity.
+ *
+ * Three overrides, all of them under `motion-reduce`, and all of them ordered
+ * after their unprefixed twins at the same specificity so the media query wins
+ * on source order — verified by compiling these exact candidates against the
+ * pinned tailwindcss 4.3.3 rather than assumed.
+ *
+ *   1. The transitioned property becomes `opacity` instead of `transform`.
+ *   2. The starting and ending transforms become the RESTING one rather than
+ *      `translateY(100%)`, so the sheet is already at its detent for the whole
+ *      of the transition and travels no distance at all. The value is written
+ *      out twice rather than interpolated from `RESTING_TRANSFORM`, because
+ *      Tailwind reads class names out of source as literal strings and a
+ *      template literal generates no CSS.
+ *   3. Opacity runs 0 → 1 on the way in and back on the way out.
+ *
+ * The duration and easing are NOT overridden, and that is the division of
+ * labour this file keeps. The token layer already declares this transition's
+ * reduced-motion fallback — `app/tokens.generated.css` collapses
+ * `--opsin-duration-spring-sheet` to 120ms and `--opsin-ease-spring-sheet` to
+ * `linear` under the query — so the crossfade is 120ms and flat without this
+ * file restating either. What the token layer cannot know is the DISTANCE,
+ * because distance is not a token; that is the component's own to answer, and
+ * it is the only thing answered here.
+ *
+ * The scrim is deliberately left alone for the same reason. Its fade is already
+ * opacity over `--opsin-duration-base`, which `app/product.css` collapses to
+ * 1ms under the query, so it has no distance to remove and its declared
+ * fallback is complete.
+ */
+const REDUCED_MOTION_CROSSFADE = [
+  "motion-reduce:transition-opacity",
+  "motion-reduce:data-starting-style:[transform:translateY(calc(var(--drawer-snap-point-offset,0px)_+_var(--drawer-swipe-movement-y,0px)))]",
+  "motion-reduce:data-ending-style:[transform:translateY(calc(var(--drawer-snap-point-offset,0px)_+_var(--drawer-swipe-movement-y,0px)))]",
+  "motion-reduce:data-starting-style:opacity-0",
+  "motion-reduce:data-ending-style:opacity-0",
+].join(" ")
 
 /**
  * How the Surface inside the popup is told to lay its content out.
@@ -363,9 +521,15 @@ export interface SheetProps {
   detents?: Detent[]
   /**
    * Traps focus and makes the page behind genuinely inert — not dimmed, but
-   * unreachable, by a pointer and by assistive technology alike. Non-modal does
-   * neither and is a different component wearing the same clothes; the flag
-   * exists so that the difference is declared rather than emergent.
+   * unreachable, by a pointer and by assistive technology alike. It is also the
+   * only state in which the sheet takes focus on appearance: `modal={false}`
+   * does none of the three, so it opens where the reader can see it and leaves
+   * the caret exactly where they left it.
+   *
+   * A non-modal sheet has no accessibility story on this page beyond that
+   * sentence. It is pinned to the bottom edge while the page behind stays
+   * focusable, which is the obscured-focus shape WCAG 2.4.11 is about, and
+   * nothing here has been checked against it.
    *
    * @default true
    */
@@ -412,6 +576,12 @@ export function Sheet({
   children,
 }: SheetProps) {
   const depth = useContext(SheetDepth)
+  /* Supplied to Drawer.Title rather than read back off it. Base UI's DialogTitle
+     takes an `id` and registers whatever it is given as the popup's
+     `titleElementId`, so one id ends up on the heading, in the popup's
+     `aria-labelledby`, and in the scrolling region's — three references, one
+     source. */
+  const titleId = useId()
   const stops = resolveDetents(detents)
   const snapPoints = toSnapPoints(stops)
   const [stopIndex, setStopIndex] = useState(0)
@@ -432,238 +602,320 @@ export function Sheet({
     if (open) setStopIndex(0)
   }
 
-  if (isDevelopment()) {
-    if (depth > 0) {
-      console.warn(
-        "[opsinjs] A <Sheet> is nested inside another <Sheet>. Two stacked " +
-          "modal surfaces produce a focus order nobody can predict and an " +
-          "escape key with two plausible meanings. Put the second task on the " +
-          "first sheet, or make it a screen.",
-      )
-    }
-    /* `typeof` first because this file ships as source into JavaScript
-       projects, where `title: string` is advice and `title.trim()` on whatever
-       arrived is a crash rather than a warning. */
-    if (typeof title !== "string" || title.trim() === "") {
-      console.warn(
-        "[opsinjs] <Sheet> was given an empty `title`. It is the accessible " +
-          "name, and without it the sheet is announced as \"dialog\" and " +
-          "nothing else. There is no honest default; name the task the reader " +
-          "came here to do.",
-      )
-    }
-    if (open && !hasContentSlot(children)) {
-      console.warn(
-        "[opsinjs] <Sheet> has no <Sheet.Content> among its direct children. " +
-          "That element is the scroll boundary: without it nothing inside the " +
-          "sheet scrolls, and a flick meant to scroll is read as a drag and " +
-          "dismisses the sheet. This check reads direct children only, so a " +
-          "Sheet.Content wrapped in another element is invisible to it.",
-      )
-    }
+  if (depth > 0) {
+    warnOncePerSession(
+      `nested:${depth}`,
+      "A <Sheet> is nested inside another <Sheet>. Two stacked modal surfaces " +
+        "produce a focus order nobody can predict and an escape key with two " +
+        "plausible meanings. Put the second task on the first sheet, or make " +
+        "it a screen.",
+    )
+  }
+  /* `typeof` first because this file ships as source into JavaScript projects,
+     where `title: string` is advice and `title.trim()` on whatever arrived is a
+     crash rather than a warning. */
+  if (typeof title !== "string" || title.trim() === "") {
+    warnOncePerSession(
+      "title:empty",
+      "<Sheet> was given an empty `title`. It is the accessible name, and " +
+        'without it the sheet is announced as "dialog" and nothing else. There ' +
+        "is no honest default; name the task the reader came here to do.",
+    )
+  }
+  if (open && !hasContentSlot(children)) {
+    warnOncePerSession(
+      `content:missing:${title}`,
+      "<Sheet> has no <Sheet.Content> among its direct children. That element " +
+        "is the scroll boundary: without it nothing inside the sheet scrolls, " +
+        "and a flick meant to scroll is read as a drag and dismisses the " +
+        "sheet. This check reads direct children only, so a Sheet.Content " +
+        "wrapped in another element is invisible to it.",
+    )
   }
 
   const index = Math.min(stopIndex, stops.length - 1)
-  const nextStop = stops[(index + 1) % stops.length]
   const canChangeDetent = stops.length > 1
 
   return (
     <SheetDepth.Provider value={depth + 1}>
-      <Drawer.Root
-        open={open}
-        modal={modal}
-        /* INVERTED, AND THE POLARITY IS THE WHOLE PROP. Base UI's flag disables
-           dismissal; this API's enables it. Getting it the wrong way round
-           ships a form sheet that throws away what somebody typed the first
-           time their thumb lands beside it. */
-        disablePointerDismissal={!dismissible}
-        snapPoints={snapPoints}
-        snapPoint={snapPoints ? snapPoints[index] : undefined}
-        onSnapPointChange={(snapPoint) => {
-          if (!snapPoints || typeof snapPoint !== "number") return
-          const next = snapPoints.indexOf(snapPoint)
-          if (next >= 0) setStopIndex(next)
-        }}
-        onOpenChange={(nextOpen, details) => {
-          const route = routeFor(details.reason)
-          /* `disablePointerDismissal` covers the pointer and nothing else — the
-             escape key and the platform's close watcher reach the primitive by
-             a different path and would close an undismissable sheet. Cancelling
-             here is the other half of the same promise. The close control is
-             never cancelled: `dismissible` governs the ambient routes, not the
-             deliberate one. */
-          if (!nextOpen && !dismissible && route !== "close-control") {
-            details.cancel()
-            return
-          }
-          onOpenChange(nextOpen, route)
-        }}
-      >
-        {/* Inside the root, because it reads the drawer's own store. It is what
-            publishes `--drawer-keyboard-inset` on the viewport, which is how
-            the footer stays above the software keyboard on a phone. */}
-        <Drawer.VirtualKeyboardProvider>
-          <Drawer.Portal>
-            {modal ? (
-              <Drawer.Backdrop
-                data-slot="sheet-scrim"
-                className={cn(
-                  "fixed inset-0 z-50",
-                  "transition-opacity duration-(--opsin-duration-base) ease-opsin-standard",
-                  "data-starting-style:opacity-0 data-ending-style:opacity-0",
-                )}
-              >
-                {/* The scrim rung, painted by the one component that knows how
-                    to paint a rung. Doing it here by hand would mean a second
-                    copy of the reduced-transparency and no-backdrop-filter
-                    fallbacks, and the copy is the one that would rot. It holds
-                    no content, so it is handed none — `null` is a legitimate
-                    `ReactNode` and this is the one place in the system that
-                    passes it. */}
-                <Surface rung="scrim" className="size-full">
-                  {null}
-                </Surface>
-              </Drawer.Backdrop>
-            ) : null}
+      <SheetTitleId.Provider value={titleId}>
+        <Drawer.Root
+          open={open}
+          modal={modal}
+          /* INVERTED, AND THE POLARITY IS THE WHOLE PROP. Base UI's flag disables
+             dismissal; this API's enables it. Getting it the wrong way round
+             ships a form sheet that throws away what somebody typed the first
+             time their thumb lands beside it. */
+          disablePointerDismissal={!dismissible}
+          snapPoints={snapPoints}
+          snapPoint={snapPoints ? snapPoints[index] : undefined}
+          onSnapPointChange={(snapPoint) => {
+            if (!snapPoints || typeof snapPoint !== "number") return
+            const next = snapPoints.indexOf(snapPoint)
+            if (next >= 0) setStopIndex(next)
+          }}
+          onOpenChange={(nextOpen, details) => {
+            const route = routeFor(details.reason)
 
-            {/* `pointer-events-none` so that a tap beside the sheet reaches the
-                scrim rather than this full-screen box, which is what makes
-                tap-to-dismiss work at all. Base UI's drag handlers live on this
-                element and still fire, because events from the popup bubble to
-                it regardless of what its own pointer-events say. */}
-            <Drawer.Viewport
-              className={cn(
-                "pointer-events-none fixed inset-0 z-50 flex items-end justify-center",
-                /* Present only while a software keyboard is up, and 0 otherwise.
-                   Padding on the viewport rather than a margin on the sheet, so
-                   the sheet's own max height shrinks with it and the footer is
-                   pushed up instead of being covered. */
-                "pb-(--drawer-keyboard-inset,0px)",
-              )}
-            >
-              <Drawer.Popup
-                data-slot="sheet-container"
-                className={cn(
-                  "pointer-events-auto flex w-full max-h-full flex-col overflow-hidden",
-                  "rounded-t-opsin-xl [corner-shape:var(--opsin-corner-shape)]",
-                  RESTING_TRANSFORM,
-                  OFFSCREEN_TRANSFORM,
-                  SLIDE,
-                  FOCUS_RING,
-                  /* A sheet with snap points has to be as tall as its tallest
-                     one, because a snap point is an offset from the popup's own
-                     height and cannot exceed it. A content-sized sheet must NOT
-                     be, or it would stop being content-sized. */
-                  snapPoints ? "h-full" : null,
-                  className,
-                )}
-              >
-                <Surface
-                  rung="sheet"
+            if (!KNOWN_REASONS.has(details.reason)) {
+              warnOncePerSession(
+                `reason:${details.reason}`,
+                `Sheet received the dismissal reason "${details.reason}", which ` +
+                  "is not one of the nine @base-ui/react 1.7.0 declares. It was " +
+                  'reported to onOpenChange as "other" and the sheet was allowed ' +
+                  "to close. If Base UI has renamed or added a reason, routeFor " +
+                  "and KNOWN_REASONS in sheet.tsx are the two places to fix — see " +
+                  "the note above them.",
+              )
+            }
+
+            /* `disablePointerDismissal` covers the pointer and nothing else — the
+               escape key and the platform's close watcher reach the primitive by
+               a different path and would close an undismissable sheet. Cancelling
+               here is the other half of the same promise.
+
+               ALLOW-LISTED, NOT DENY-LISTED. Only the three ambient routes are
+               cancelled. The close control is never cancelled, because
+               `dismissible` governs the routes a reader takes by accident and not
+               the one they take on purpose — and neither is a route this
+               component failed to recognise, because refusing to close a modal
+               surface on an unknown signal is how it becomes a trap. */
+            const ambient = route === "scrim" || route === "escape" || route === "drag"
+            if (!nextOpen && !dismissible && ambient) {
+              details.cancel()
+              return
+            }
+            onOpenChange(nextOpen, route)
+          }}
+        >
+          {/* Inside the root, because it reads the drawer's own store. It is what
+              publishes `--drawer-keyboard-inset` on the viewport, which is how
+              the footer stays above the software keyboard on a phone. */}
+          <Drawer.VirtualKeyboardProvider>
+            <Drawer.Portal>
+              {modal ? (
+                <Drawer.Backdrop
+                  data-slot="sheet-scrim"
                   className={cn(
-                    SURFACE_LAYOUT,
-                    "rounded-[inherit]",
-                    /* Safe-area insets as padding INSIDE the surface, never as
-                       a margin outside it: the material has to reach the edge
-                       of the display, and only the content has to stay clear of
-                       the notch and the home indicator. */
-                    "pb-(--opsin-safe-bottom) pl-(--opsin-safe-left) pr-(--opsin-safe-right)",
+                    "fixed inset-0 z-50",
+                    "transition-opacity duration-(--opsin-duration-base) ease-opsin-standard",
+                    "data-starting-style:opacity-0 data-ending-style:opacity-0",
                   )}
                 >
-                  {canChangeDetent ? (
-                    /* THE GESTURE'S CONTROL, not an ornament. Drag-between-
-                       detents does not exist for a keyboard user, a switch
-                       user, or anybody whose grip makes a precise drag
-                       unreliable, and the page's rule is that every gesture
-                       has one. The grabber is the control: the same bar, at a
-                       44pt target, that says in words which height it moves
-                       to. */
-                    <button
-                      type="button"
-                      data-slot="sheet-grabber"
-                      onClick={() =>
-                        setStopIndex((current) => (current + 1) % stops.length)
-                      }
-                      className={cn(
-                        "flex min-h-(--opsin-target-minimum) w-full shrink-0 items-center justify-center",
-                        FOCUS_RING,
-                      )}
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="h-opsin-1 w-opsin-10 rounded-full bg-border"
-                      />
-                      <span className="sr-only">
-                        Change the sheet height to {DETENT_WORD[nextStop]}
-                      </span>
-                    </button>
-                  ) : (
-                    /* One detent, so there is nothing to move between and the
-                       bar is decorative. It stays because it is what tells a
-                       reader the sheet can be pulled down at all — and the
-                       control for THAT gesture is the close button below, which
-                       is why it is never optional. */
-                    <div
-                      data-slot="sheet-grabber"
-                      aria-hidden="true"
-                      className="flex shrink-0 items-center justify-center pt-opsin-2 pb-opsin-1"
-                    >
-                      <span className="h-opsin-1 w-opsin-10 rounded-full bg-border" />
-                    </div>
+                  {/* The scrim rung, painted by the one component that knows how
+                      to paint a rung. Doing it here by hand would mean a second
+                      copy of the reduced-transparency and no-backdrop-filter
+                      fallbacks, and the copy is the one that would rot. It holds
+                      no content, so it is handed none — `null` is a legitimate
+                      `ReactNode` and this is the one place in the system that
+                      passes it. */}
+                  <Surface rung="scrim" className="size-full">
+                    {null}
+                  </Surface>
+                </Drawer.Backdrop>
+              ) : null}
+
+              {/* `pointer-events-none` so that a tap beside the sheet reaches the
+                  scrim rather than this full-screen box, which is what makes
+                  tap-to-dismiss work at all. Base UI's drag handlers live on this
+                  element and still fire, because events from the popup bubble to
+                  it regardless of what its own pointer-events say. */}
+              <Drawer.Viewport
+                className={cn(
+                  "pointer-events-none fixed inset-0 z-50 flex items-end justify-center",
+                  /* Present only while a software keyboard is up, and 0 otherwise.
+                     Padding on the viewport rather than a margin on the sheet, so
+                     the sheet's own max height shrinks with it and the footer is
+                     pushed up instead of being covered. */
+                  "pb-(--drawer-keyboard-inset,0px)",
+                )}
+              >
+                <Drawer.Popup
+                  data-slot="sheet-container"
+                  /* A MODAL SURFACE MAY TAKE FOCUS; A NON-MODAL ONE MAY NOT.
+                     Base UI resolves initial focus without consulting `modal` —
+                     `resolvedInitialFocus = initialFocus === undefined ? popupRef
+                     : initialFocus` in DrawerPopup — so left alone, a
+                     `modal={false}` sheet pulls the reader out of whatever they
+                     were doing on the page it deliberately left reachable. The
+                     repository's focus doctrine allows a component to move focus
+                     on appearance only into a modal surface, so the non-modal
+                     path declines it explicitly.
+
+                     `finalFocus` is deliberately NOT set alongside it. Its
+                     default already returns focus only when focus was inside the
+                     sheet at the moment it closed (FloatingFocusManager gates the
+                     return on `isFocusInsideFloatingTree` for a boolean
+                     `returnFocus`), so a non-modal sheet that never took focus
+                     never gives any back, and one the reader tabbed into still
+                     hands it back where they came from. */
+                  initialFocus={modal ? undefined : false}
+                  className={cn(
+                    "pointer-events-auto flex w-full max-h-full flex-col overflow-hidden",
+                    "rounded-t-opsin-xl [corner-shape:var(--opsin-corner-shape)]",
+                    RESTING_TRANSFORM,
+                    OFFSCREEN_TRANSFORM,
+                    SLIDE,
+                    REDUCED_MOTION_CROSSFADE,
+                    FOCUS_RING,
+                    /* A sheet with snap points has to be as tall as its tallest
+                       one, because a snap point is an offset from the popup's own
+                       height and cannot exceed it. A content-sized sheet must NOT
+                       be, or it would stop being content-sized. */
+                    snapPoints ? "h-full" : null,
+                    className,
                   )}
-
-                  <div
-                    data-slot="sheet-header"
-                    className="flex shrink-0 items-start justify-between gap-opsin-4 px-opsin-5 pt-opsin-2 pb-opsin-2"
+                >
+                  <Surface
+                    rung="sheet"
+                    className={cn(
+                      SURFACE_LAYOUT,
+                      "rounded-[inherit]",
+                      /* Safe-area insets as padding INSIDE the surface, never as
+                         a margin outside it: the material has to reach the edge
+                         of the display, and only the content has to stay clear of
+                         the notch and the home indicator. */
+                      "pb-(--opsin-safe-bottom) pl-(--opsin-safe-left) pr-(--opsin-safe-right)",
+                    )}
                   >
-                    {/* Renders an `<h2>`, and Base UI points the popup's
-                        `aria-labelledby` at it. The level is fixed because a
-                        modal surface starts its own outline; it is not part of
-                        the page's. */}
-                    <Drawer.Title
-                      data-slot="sheet-title"
-                      className="m-0 text-opsin-title3"
-                    >
-                      {title}
-                    </Drawer.Title>
+                    {canChangeDetent ? (
+                      /* THE GESTURE'S CONTROL, not an ornament. Drag-between-
+                         detents does not exist for a keyboard user, a switch
+                         user, or anybody whose grip makes a precise drag
+                         unreliable, and the page's rule is that every gesture
+                         has one. The grabber is the control: the same bar, at a
+                         44pt target, that says in words how tall the sheet is.
+                         The wrapper exists to centre it; see the width note
+                         below for why it is not the whole row. */
+                      <div className="flex shrink-0 items-center justify-center">
+                        <button
+                          type="button"
+                          data-slot="sheet-grabber"
+                          /* NAMES THE CURRENT HEIGHT, NOT THE NEXT ONE, and the
+                             difference is the whole finding. A name that said
+                             only where the button goes left the sheet's actual
+                             height unreadable: nothing else in the accessibility
+                             tree carries it, the component mounts no live region
+                             on purpose, and pressing the control changed nothing
+                             a reader could hear except the silent mutation of the
+                             name they were already on.
 
-                    {/* ALWAYS PRESENT. It is the control for drag-to-dismiss,
-                        the only exit a keyboard or switch user has, and the one
-                        route `dismissible={false}` does not cancel. The word is
-                        visible rather than hidden behind the glyph: an icon
-                        with an invisible name is a control a voice-control user
-                        cannot say, and this system's readers are laypeople
-                        reading about their own health. */}
-                    <Drawer.Close
-                      data-slot="sheet-close"
-                      className={cn(
-                        "inline-flex min-h-(--opsin-target-minimum) shrink-0 items-center gap-opsin-1",
-                        "rounded-opsin-sm px-opsin-2 text-opsin-footnote text-muted-foreground",
-                        "hover:text-foreground",
-                        FOCUS_RING,
-                      )}
-                    >
-                      <X aria-hidden="true" className="size-[1em] shrink-0" />
-                      Close
-                    </Drawer.Close>
-                  </div>
+                             `aria-expanded` carries the change. With more than
+                             one detent the list is always exactly half and full —
+                             `content` cannot be combined with either — so this is
+                             a two-state disclosure and the platform announces the
+                             state itself on press, without a live region. Base
+                             UI's own vocabulary agrees: it stamps `data-expanded`
+                             on the popup at the tallest snap point. */
+                          aria-expanded={stops[index] === "full"}
+                          onClick={() =>
+                            setStopIndex((current) => (current + 1) % stops.length)
+                          }
+                          className={cn(
+                            "flex min-h-(--opsin-target-minimum) shrink-0 items-center justify-center",
+                            /* NOT `w-full`, and the width is a target-separation
+                               fix. A full-width 44pt band sits directly above the
+                               header, whose `pt-opsin-2` is exactly
+                               `--opsin-target-separation` and no more, so a miss
+                               on Close landed on the grabber and resized the
+                               sheet instead of leaving it — for the reader whose
+                               grip makes precision unreliable, who is the reader
+                               this button exists for. Centred and only as wide as
+                               it needs to be, it is nowhere near the close
+                               control, which sits at the opposite end of the row
+                               below. Dragging is unaffected: Base UI reads the
+                               drag off the popup, not off this element. */
+                            "px-opsin-8",
+                            FOCUS_RING,
+                          )}
+                        >
+                          <span
+                            aria-hidden="true"
+                            className="h-opsin-1 w-opsin-10 rounded-full bg-border"
+                          />
+                          <span className="sr-only">
+                            Sheet height: {DETENT_WORD[stops[index]]}
+                          </span>
+                        </button>
+                      </div>
+                    ) : (
+                      /* One detent, so there is nothing to move between and the
+                         bar is decorative. It stays because it is what tells a
+                         reader the sheet can be pulled down at all — and the
+                         control for THAT gesture is the close button below, which
+                         is why it is never optional. */
+                      <div
+                        data-slot="sheet-grabber"
+                        aria-hidden="true"
+                        className="flex shrink-0 items-center justify-center pt-opsin-2 pb-opsin-1"
+                      >
+                        <span className="h-opsin-1 w-opsin-10 rounded-full bg-border" />
+                      </div>
+                    )}
 
-                  {children}
-
-                  {footer ? (
                     <div
-                      data-slot="sheet-footer"
-                      className="flex shrink-0 flex-wrap items-center gap-opsin-2 border-t border-border px-opsin-5 pt-opsin-3 pb-opsin-3"
+                      data-slot="sheet-header"
+                      className="flex shrink-0 items-start justify-between gap-opsin-4 px-opsin-5 pt-opsin-2 pb-opsin-2"
                     >
-                      {footer}
+                      {/* Renders an `<h2>`, and Base UI points the popup's
+                          `aria-labelledby` at it. The level is fixed because a
+                          modal surface starts its own outline; it is not part of
+                          the page's. */}
+                      <Drawer.Title
+                        id={titleId}
+                        data-slot="sheet-title"
+                        /* `min-w-0 break-words` and not decoration. The popup is
+                           `overflow-hidden` for the top corner radius and this is
+                           a flex item, whose default `min-width: auto` refuses to
+                           shrink below its min-content width — so at 200% root
+                           font size a single long token (a compound word, a
+                           medication name) pushed past the available inline size
+                           and was clipped with no scrollbar, which WCAG 1.4.4
+                           counts as loss of content. The close control's
+                           `shrink-0` is correct and stays. */
+                        className="m-0 min-w-0 break-words text-opsin-title3"
+                      >
+                        {title}
+                      </Drawer.Title>
+
+                      {/* ALWAYS PRESENT. It is the control for drag-to-dismiss,
+                          the only exit a keyboard or switch user has, and the one
+                          route `dismissible={false}` does not cancel. The word is
+                          visible rather than hidden behind the glyph: an icon
+                          with an invisible name is a control a voice-control user
+                          cannot say, and this system's readers are laypeople
+                          reading about their own health. */}
+                      <Drawer.Close
+                        data-slot="sheet-close"
+                        className={cn(
+                          "inline-flex min-h-(--opsin-target-minimum) shrink-0 items-center gap-opsin-1",
+                          "rounded-opsin-sm px-opsin-2 text-opsin-footnote text-muted-foreground",
+                          "hover:text-foreground",
+                          FOCUS_RING,
+                        )}
+                      >
+                        <X aria-hidden="true" className="size-[1em] shrink-0" />
+                        Close
+                      </Drawer.Close>
                     </div>
-                  ) : null}
-                </Surface>
-              </Drawer.Popup>
-            </Drawer.Viewport>
-          </Drawer.Portal>
-        </Drawer.VirtualKeyboardProvider>
-      </Drawer.Root>
+
+                    {children}
+
+                    {footer ? (
+                      <div
+                        data-slot="sheet-footer"
+                        className="flex shrink-0 flex-wrap items-center gap-opsin-2 border-t border-border px-opsin-5 pt-opsin-3 pb-opsin-3"
+                      >
+                        {footer}
+                      </div>
+                    ) : null}
+                  </Surface>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.VirtualKeyboardProvider>
+        </Drawer.Root>
+      </SheetTitleId.Provider>
     </SheetDepth.Provider>
   )
 }
@@ -693,13 +945,39 @@ export interface SheetContentProps {
  * flick at the top of a scrolled list from dismissing the sheet, and it is why
  * `overscroll-contain` sits beside it: one stops the sheet from being dragged,
  * the other stops the page behind from being scrolled.
+ *
+ * IT IS A FOCUS STOP, DELIBERATELY AND UNCONDITIONALLY. A scroll container that
+ * holds nothing focusable can only be reached and scrolled from the keyboard
+ * where the browser decides to make scrollers focusable on its own — Chrome and
+ * Edge from 127, and not Safari or Firefox. This system's readers are on Safari,
+ * and a sheet holding a long list of things nobody can reach with the keyboard
+ * is a WCAG 2.1.1 failure whatever the page says about arrow keys. `tabIndex={0}`
+ * makes it the same stop in every engine.
+ *
+ * Unconditional, and the alternative was worse. Measuring whether the content
+ * actually overflows would mean measuring layout in JavaScript on every render
+ * and every resize, and a tab stop that appears and disappears as the content
+ * changes is harder to learn than one that is always there. The cost is one
+ * extra stop in a sheet whose content fits.
+ *
+ * `role="group"` with the sheet's own name, because a nameless stop is a stop a
+ * screen-reader user arrives at without being told what it is or why focus
+ * paused there. The name is the title the product already wrote — see
+ * `SheetTitleId` — so nothing here needs translating, and the role is dropped
+ * entirely rather than pointed at a missing id when there is no Sheet above it.
  */
 export function SheetContent({ children, className }: SheetContentProps) {
+  const titleId = useContext(SheetTitleId)
+
   return (
     <Drawer.Content
       data-slot="sheet-content"
+      tabIndex={0}
+      role={titleId ? "group" : undefined}
+      aria-labelledby={titleId}
       className={cn(
         "min-h-0 flex-auto overflow-y-auto overscroll-contain px-opsin-5 py-opsin-2",
+        FOCUS_RING,
         className,
       )}
     >
@@ -740,8 +1018,9 @@ export default function SheetDemo() {
   return (
     <div className="flex w-full flex-col items-center gap-opsin-4 p-opsin-4">
       <p className="m-0 max-w-sm text-center text-opsin-footnote text-muted-foreground">
-        The sheet covers this frame while it is open. Close it with the button
-        in its header, with the escape key, or by tapping the dimmed area.
+        The sheet portals to the end of the document, so it covers the whole
+        page rather than this frame. Close it with the button in its header,
+        with the escape key, or by tapping the dimmed area.
       </p>
 
       <Button onClick={() => setOpen(true)}>Open the example sheet</Button>

@@ -108,6 +108,21 @@ const OPTIONALITY_WORD: Record<"required" | "optional", string> = {
  * typed; the mode this cannot express would leave a corrected field still
  * marked invalid until the next submit, which is the cruelty the specification
  * names. Field is more forgiving than asked, never less.
+ *
+ * AND BOTH SUBMIT MODES NEED BASE UI'S `<Form>`, WHICH IS NOT SOMETHING THE
+ * NAME SUGGESTS. `onSubmit` is not "the browser submitted the form": Base UI
+ * gates it on a `submitAttemptedRef` that lives on its own form context
+ * (`form/Form.js`), and the context's default value is a ref that is
+ * permanently `false`. So inside a plain `<form onSubmit={…}>` with no
+ * `<Form>` ancestor, the control's OWN constraints are never checked on submit
+ * and never re-checked on change; the only remaining trigger is Base UI's
+ * Enter-key commit, and that fires on `<input>` alone. `"blur"` needs no
+ * `<Form>` and works as its name reads.
+ *
+ * This does not touch the `error` prop, which is the path a product should be
+ * on: `invalid` is applied from `error` directly and does not go through a
+ * validation mode at all. What it changes is how much the un-styled fallback
+ * branch below is really worth without a `<Form>`, and the page says so.
  */
 const VALIDATION_MODE: Record<
   "blur" | "submit" | "submit-then-change",
@@ -122,14 +137,30 @@ const VALIDATION_MODE: Record<
  * Written out rather than assembled, because Tailwind reads class names as
  * literal strings and anything built at runtime generates no CSS at all.
  *
- * Three things here are load-bearing and easy to mistake for taste:
+ * Four things here are load-bearing and easy to mistake for taste:
  *
- *   `min-h-[var(--opsin-target-minimum)]` — the product stylesheet's 44px
- *   backstop covers `button`, `[role="button"]`, checkboxes and radios, and
- *   NOT a text input. The floor has to be set here or it is not set. The
- *   generated token is a rem, so it grows with the reader's own text size; the
- *   shorter authored spelling in `app/product.css` is a hard 44px that does
- *   not, and it is being retired.
+ *   `min-h-` AND `min-w-[var(--opsin-target-minimum,2.75rem)]` — the product
+ *   stylesheet's 44px backstop covers `button`, `[role="button"]`, checkboxes
+ *   and radios, and NOT a text input. The floor has to be set here or it is not
+ *   set. The generated token is a rem, so it grows with the reader's own text
+ *   size; the shorter authored spelling in `app/product.css` is a hard 44px
+ *   that does not, and it is being retired.
+ *
+ *   Both axes, not just the block one, because `w-full` holds the inline axis
+ *   only while nobody narrows the control. `FieldControlProps.className` is
+ *   merged onto the control and the caller's classes win, so a two-digit
+ *   numeric entry written `<Field.Control className="w-8" />` is a 32px target
+ *   and nothing says so. `app/product.css` sets both `min-block-size` and
+ *   `min-inline-size` on the controls it does cover; this matches it.
+ *
+ *   And the `2.75rem` fallback is not decoration. This file ships to a
+ *   consumer through `shadcn add`, and `app/tokens.generated.css` — the one
+ *   place `--opsin-target-minimum` is declared — does not go with it. Without
+ *   the fallback the declaration is invalid at computed-value time in an app
+ *   that has not wired the token sheet, `min-height` becomes `auto`, and the
+ *   input still looks like an input and is simply short. That is the one
+ *   degradation of this component nobody would notice. `app/product.css` and
+ *   `button.tsx` both write the same fallback, for the same reason.
  *
  *   No focus styles. `app/product.css` already gives every `:focus-visible` a
  *   two-pixel ring in `--ring` with a two-pixel offset, so a component that
@@ -140,7 +171,14 @@ const VALIDATION_MODE: Record<
  *   control, so the emphasis border tracks the field's real validity — the
  *   `error` prop AND a native constraint that failed — rather than only the
  *   half this file knows about. It is an inset shadow rather than a wider
- *   border so that nothing moves by a pixel when the error appears.
+ *   border so that nothing moves by a pixel when the error appears. Know what
+ *   that costs: a `box-shadow` is dropped by forced-colors mode and by the
+ *   docs stylesheet's print rules, so on paper and under Windows High Contrast
+ *   this carrier is gone. It is the third of four, and the two that carry the
+ *   meaning — the glyph and the words — survive both. It is not swapped for an
+ *   `outline` because `app/product.css` already spends the control's outline
+ *   on `:focus-visible`, and a focused invalid field would then show one state
+ *   or the other rather than both.
  *
  * AND ONE TRAP, because this list goes through `cn()` and the parts above do
  * not. `cn` is `twMerge(clsx(...))`, and tailwind-merge is unconfigured — it
@@ -153,13 +191,45 @@ const VALIDATION_MODE: Record<
  * would remove the type step, not sit beside it.
  */
 const CONTROL_CLASS = [
-  "block w-full min-h-[var(--opsin-target-minimum)]",
+  "block w-full min-h-[var(--opsin-target-minimum,2.75rem)]",
+  "min-w-[var(--opsin-target-minimum,2.75rem)]",
   "rounded-opsin-sm border border-input bg-background",
   "px-opsin-3 py-opsin-2",
   "placeholder:text-muted-foreground text-opsin-body",
   "data-[invalid]:shadow-[inset_0_0_0_var(--opsin-border-emphasis)_currentColor]",
   "disabled:opacity-70",
 ].join(" ")
+
+/**
+ * Once per cause, not once per render.
+ *
+ * `tokens/errors.json`'s policy says warnings are emitted "once per offending
+ * call site, through console.warn", and `warnOnce()` in `lib/opsinjs.ts`
+ * implements that half for the codes in the table. Neither warning below has a
+ * code — see the note at the top of `Field` — but the once-per-cause half of
+ * the policy is not attached to the code, and dropping it along with the code
+ * is how a component floods a console. Field is imported into a product's own
+ * form, which is a client component with state, so an empty `label` on a
+ * controlled field prints once per keystroke; Strict Mode doubles it; and the
+ * warning that gets buried is somebody else's.
+ *
+ * The key is the cause, never the whole message, so a message that carries the
+ * label does not mint a new key every time the label changes. Two consequences,
+ * both the same trade `warnOnce()` documents: the empty-`label` cause has
+ * nothing to distinguish one offender from another, so it collapses to one
+ * warning for the whole session; and on the server the module scope is the
+ * process, so it is one warning per process rather than per request. Coarse is
+ * the right direction — a repeated identical complaint teaches nothing.
+ */
+const warnedCauses = new Set<string>()
+
+function warnDevelopmentOnce(cause: string, message: string): void {
+  if (!isDevelopment() || warnedCauses.has(cause)) {
+    return
+  }
+  warnedCauses.add(cause)
+  console.warn(message)
+}
 
 /**
  * The error's classes, shared by both branches below so they cannot drift.
@@ -211,6 +281,12 @@ export interface FieldProps {
    * not the `error` prop — a message the product passed in is a message the
    * product has already decided to show. Defaults to `"submit-then-change"`:
    * never tell somebody their answer is wrong while they are still typing it.
+   *
+   * Both submit values need Base UI's `<Form>` around the fields. Base UI gates
+   * them on a flag that only its own form primitive ever sets, so inside a
+   * plain `<form>` the constraints are checked on Enter in a text input and at
+   * no other moment. `"blur"` needs no `<Form>`. Passing `error` is unaffected
+   * either way, and is the path to be on.
    */
   validateOn?: "blur" | "submit" | "submit-then-change"
   /**
@@ -233,13 +309,15 @@ export function Field({
   /* THE TWO FAILURES THAT ARE WORTH A WARNING, and neither gets an OPSIN code.
      `tokens/errors.json` has no entry for either, and a component may not mint
      one: the table is generated from that file and the codes are a versioned
-     contract. A plain development warning is the honest channel.
+     contract. A plain development warning, de-duplicated by cause the way that
+     file's policy asks for, is the honest channel.
 
      Nothing is dropped from the render in either case. Field wraps somebody's
      form control, and refusing to draw it in order to report a copy mistake
      takes the form off the screen. */
-  if (isDevelopment() && label.trim() === "") {
-    console.warn(
+  if (label.trim() === "") {
+    warnDevelopmentOnce(
+      "empty-label",
       "[opsinjs] <Field> was given an empty `label`. The control now has no " +
         "accessible name, which is the single thing this component exists to " +
         "prevent. No substitute is invented here on purpose: a made-up name " +
@@ -250,8 +328,9 @@ export function Field({
 
   const message = error !== undefined && error.trim() !== "" ? error : undefined
 
-  if (isDevelopment() && error !== undefined && message === undefined) {
-    console.warn(
+  if (error !== undefined && message === undefined) {
+    warnDevelopmentOnce(
+      "empty-error:" + label,
       '[opsinjs] <Field label="' +
         label +
         '"> was given an empty `error` string. An ' +
@@ -414,6 +493,14 @@ Field.Control = FieldControl
  *
  * The labels are deliberately unreal (ADR 0012). Nothing here is a measurement
  * anybody could mistake for their own, and the date is one nobody has.
+ *
+ * `autoComplete="off"` is the one thing here NOT to copy. The accessibility
+ * contract wants the reader's own stored details to be able to fill the field,
+ * and `off` is the opt-out; it is used here because these fields collect
+ * nothing real and a token like `bday` on "Example measurement" would be a
+ * made-up answer to a made-up question. Replace it with the token for whatever
+ * you are actually asking for. `inputMode` is set where it changes the keyboard
+ * and omitted on the free-text note, where it does not.
  */
 export default function FieldDemo() {
   return (

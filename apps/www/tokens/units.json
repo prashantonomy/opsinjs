@@ -1,0 +1,199 @@
+{
+  "$comment": "AUTHORED SOURCE — not generated. The unit table: what a number is measured in, how that unit is written, and how it is SPOKEN. scripts/build-tokens.mts reads this file and emits lib/generated/units.json plus the Unit/UNITS region inside lib/opsinjs.ts, which is the copy `shadcn add` carries into a consumer's project. Edit here; never edit either output. THE SAFETY LINE THAT MAKES THIS FILE POSSIBLE: a unit table says what a number is measured in. It never says what a number should be. There is no reference range here, no threshold, no plausibility bound, no 'typical' value and no default precision, for any metric, in any population — and there never will be, because the moment one appears this file has become clinical content that opsinjs is not entitled to own.",
+  "version": 1,
+  "namespace": "units",
+  "policy": {
+    "whyThisExists": "A screen reader handed `mmHg` improvises a pronunciation, and the improvisation is rarely close. 'One twenty over eighty em em aitch gee' is a failure. The spoken form is the whole reason this table exists; the symbol is the part everybody remembers to supply.",
+    "spoken": "`spoken` is the wording for exactly one of the thing and `plural` is the wording for every other count, zero included. Both are British English, and that is a stated limit rather than a claim: a localised spoken form is not in this table yet, so a component asked for a non-English locale gets English words beside locale-formatted digits. Naming the gap is the honest state; inventing translations is not.",
+    "precision": "THERE IS NO DEFAULT PRECISION IN THIS FILE, and its absence is the point. health/numbers-units-precision is canonical and its rule 2 reads 'Precision is a property of the metric, not of the value'. A unit is not a metric: blood glucose and cholesterol are both reported in mmol/L and do not share a number of decimal places, and a per-unit default would therefore be wrong for one of them on every screen. Decimal places travel with the measurement, from the product, or they are not asserted at all.",
+    "conversion": "A conversion belongs here only when it is a mathematical fact — an exact definition of one unit in terms of another. Every one carries `basis`, which names the definition it comes from. `toBase` is how to reach the family's base unit; the generator composes the full pairwise closure from it, in exact integer arithmetic, in both directions. A unit with no `toBase` converts to nothing, and that renders as an explicit 'we do not have this' rather than a substituted default.",
+    "refusal": "`refusedConversions` is the load-bearing half. A pair listed there is one that people expect to be arithmetic and is not, and each row says why. Publishing a factor for one of them would invite somebody to apply the glucose factor to cholesterol — see health/unit-systems, which states the non-goal directly: 'opsinjs ships no factors and no thresholds. Your clinical source owns the factor; the interface owns the labelling.'",
+    "lookup": "Units are found by their exact `symbol`, case included. There is no fuzzy matching and no alias list, because a table that guesses which unit somebody meant is a table that will one day guess wrong about a concentration. An unrecognised symbol resolves to nothing, and the component renders the symbol as written rather than guessing at a pronunciation."
+  },
+  "units": [
+    {
+      "id": "kilogram",
+      "symbol": "kg",
+      "spoken": "kilogram",
+      "plural": "kilograms",
+      "measures": "mass",
+      "toBase": { "unit": "kilogram", "numerator": 1, "denominator": 1, "basis": "The base unit of this family. Every other mass in this table is defined against it." }
+    },
+    {
+      "id": "gram",
+      "symbol": "g",
+      "spoken": "gram",
+      "plural": "grams",
+      "measures": "mass",
+      "toBase": { "unit": "kilogram", "numerator": 1, "denominator": 1000, "basis": "The SI prefix 'kilo' is exactly one thousand. This is a definition of the prefix, not a measurement of anything." }
+    },
+    {
+      "id": "pound",
+      "symbol": "lb",
+      "spoken": "pound",
+      "plural": "pounds",
+      "measures": "mass",
+      "toBase": { "unit": "kilogram", "numerator": 45359237, "denominator": 100000000, "basis": "The international avoirdupois pound is defined as exactly 0.45359237 kilograms by the 1959 international yard and pound agreement. An exact definition, adopted by every signatory, and not a rounded measurement." }
+    },
+    {
+      "id": "stone",
+      "symbol": "st",
+      "spoken": "stone",
+      "plural": "stone",
+      "measures": "mass",
+      "toBase": { "unit": "kilogram", "numerator": 635029318, "denominator": 100000000, "basis": "One stone is exactly fourteen avoirdupois pounds, and one pound is exactly 0.45359237 kilograms; fourteen times that is 6.35029318 kilograms exactly. Two definitions composed, no measurement involved. Note the plural: British body weight is 'eleven stone', not 'eleven stones'." }
+    },
+    {
+      "id": "celsius",
+      "symbol": "°C",
+      "spoken": "degree Celsius",
+      "plural": "degrees Celsius",
+      "measures": "temperature",
+      "toBase": { "unit": "celsius", "numerator": 1, "denominator": 1, "basis": "The base unit of this family." }
+    },
+    {
+      "id": "fahrenheit",
+      "symbol": "°F",
+      "spoken": "degree Fahrenheit",
+      "plural": "degrees Fahrenheit",
+      "measures": "temperature",
+      "toBase": {
+        "unit": "celsius",
+        "numerator": 5,
+        "denominator": 9,
+        "offsetNumerator": -160,
+        "offsetDenominator": 9,
+        "basis": "The Fahrenheit scale is defined against Celsius: a Fahrenheit degree is exactly five ninths of a Celsius degree and the scales meet where 32 °F is 0 °C, so °C = °F × 5/9 − 160/9. This conversion is affine rather than a ratio, which is why a temperature and a temperature DIFFERENCE do not convert the same way — 2 °C of change is 3.6 °F of change, not 35.6 °F."
+      }
+    },
+    {
+      "id": "millimole-per-litre",
+      "symbol": "mmol/L",
+      "spoken": "millimole per litre",
+      "plural": "millimoles per litre",
+      "measures": "amount-of-substance concentration"
+    },
+    {
+      "id": "milligram-per-decilitre",
+      "symbol": "mg/dL",
+      "spoken": "milligram per decilitre",
+      "plural": "milligrams per decilitre",
+      "measures": "mass concentration"
+    },
+    {
+      "id": "millimole-per-mole",
+      "symbol": "mmol/mol",
+      "spoken": "millimole per mole",
+      "plural": "millimoles per mole",
+      "measures": "amount-of-substance ratio"
+    },
+    {
+      "id": "microgram-per-litre",
+      "symbol": "µg/L",
+      "spoken": "microgram per litre",
+      "plural": "micrograms per litre",
+      "measures": "mass concentration"
+    },
+    {
+      "id": "millimetre-of-mercury",
+      "symbol": "mmHg",
+      "spoken": "millimetre of mercury",
+      "plural": "millimetres of mercury",
+      "measures": "pressure"
+    },
+    {
+      "id": "beat-per-minute",
+      "symbol": "bpm",
+      "spoken": "beat per minute",
+      "plural": "beats per minute",
+      "measures": "rate"
+    },
+    {
+      "id": "per-cent",
+      "symbol": "%",
+      "spoken": "per cent",
+      "plural": "per cent",
+      "measures": "proportion"
+    },
+    {
+      "id": "step",
+      "symbol": "steps",
+      "spoken": "step",
+      "plural": "steps",
+      "measures": "count"
+    },
+    {
+      "id": "centimetre",
+      "symbol": "cm",
+      "spoken": "centimetre",
+      "plural": "centimetres",
+      "measures": "length"
+    },
+    {
+      "id": "metre",
+      "symbol": "m",
+      "spoken": "metre",
+      "plural": "metres",
+      "measures": "length"
+    },
+    {
+      "id": "foot",
+      "symbol": "ft",
+      "spoken": "foot",
+      "plural": "feet",
+      "measures": "length"
+    },
+    {
+      "id": "inch",
+      "symbol": "in",
+      "spoken": "inch",
+      "plural": "inches",
+      "measures": "length"
+    },
+    {
+      "id": "kilometre",
+      "symbol": "km",
+      "spoken": "kilometre",
+      "plural": "kilometres",
+      "measures": "length"
+    },
+    {
+      "id": "mile",
+      "symbol": "mi",
+      "spoken": "mile",
+      "plural": "miles",
+      "measures": "length"
+    },
+    {
+      "id": "kilocalorie",
+      "symbol": "kcal",
+      "spoken": "kilocalorie",
+      "plural": "kilocalories",
+      "measures": "energy"
+    },
+    {
+      "id": "kilojoule",
+      "symbol": "kJ",
+      "spoken": "kilojoule",
+      "plural": "kilojoules",
+      "measures": "energy"
+    }
+  ],
+  "refusedConversions": [
+    {
+      "between": ["mmol/L", "mg/dL"],
+      "reason": "Molar concentration and mass concentration are related by the molar mass of the substance being measured, which is a property of the SUBSTANCE and not of either unit. Glucose, cholesterol and creatinine each carry a different factor, and this table does not know which analyte a reading is. A single published factor here would be applied to all three by somebody in a hurry, and the answer would be wrong by a multiple rather than by a rounding.",
+      "docs": "health/unit-systems"
+    },
+    {
+      "between": ["mmol/mol", "%"],
+      "reason": "The two ways of reporting HbA1c are related by a fitted regression between two assay standardisations, not by an exact definition. A regression is a measurement with a residual, it is periodically re-fitted, and it belongs to the laboratory that reports the result. This table carries definitions only.",
+      "docs": "health/unit-systems"
+    },
+    {
+      "between": ["kcal", "kJ"],
+      "reason": "There is more than one calorie. The thermochemical calorie is exactly 4.184 joules and the fifteen-degree calorie is not, and food energy labelling picks one by regulation rather than by physics. Naming a single factor here would hide which calorie was meant, so the pair is refused until this file can carry the choice explicitly.",
+      "docs": "health/unit-systems"
+    }
+  ]
+}

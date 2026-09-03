@@ -78,6 +78,17 @@ const TRANSLUCENT: Record<MaterialRung, boolean> = {
  * The three rung names that exist only in the retired vocabulary, and the rung
  * each one meant, matched by JOB rather than by position on the ladder.
  *
+ * The job each retired name did, spelled out, because this table is the one
+ * place a by-position translation can be introduced silently and it has been
+ * once already: retired `base` was the page itself, which is `canvas`; retired
+ * `panel` was a layer lifted above the page without covering it, which is
+ * `raised`; retired `chrome` was a pinned toolbar or tab bar, which is
+ * `overlay`. It must stay in step with the translation table on
+ * `content/docs/components/surface.mdx`, and the row to check first is `panel`
+ * — the retired vocabulary also had a `raised`, meaning a bounded block of
+ * content, and taking that row's answer lands a lifted panel one rung too low
+ * on the flat `card` material.
+ *
  * Only three of the six can be caught here. `raised`, `sheet` and `overlay` are
  * spelled the same in both vocabularies, so a component cannot tell a caller
  * who meant this ladder from one who meant the other — which is exactly why the
@@ -85,7 +96,7 @@ const TRANSLUCENT: Record<MaterialRung, boolean> = {
  */
 const RENAMED_RUNGS: Record<string, MaterialRung> = {
   base: "canvas",
-  panel: "card",
+  panel: "raised",
   chrome: "overlay",
 }
 
@@ -99,39 +110,130 @@ function isMaterialRung(value: unknown): value is MaterialRung {
 }
 
 /**
+ * The complaints this file has already made, so it makes each of them once.
+ *
+ * Not `warnOnce`, and the reason is the same one the rung warning gives below:
+ * `tokens/errors.json` has no code for either of these mistakes, a component
+ * may not mint one, and `warnOnce` is keyed on a code. What can be borrowed
+ * from it is the policy — `tokens/errors.json` says a warning fires once per
+ * offending call site, because a repeated identical complaint teaches nothing
+ * and drowns the next one, and an unrecognised rung inside a mapped list
+ * otherwise prints once per row per render pass.
+ *
+ * Module scope in a server component is shared between requests, which is a
+ * disqualifying property for anything that touches a reader's screen — the
+ * reason this file refuses to count composited surfaces — and a harmless one
+ * here. The only thing this set ever holds is a rung or weight string a
+ * developer typed into a prop, nothing is written to it outside a development
+ * build, and one request silencing a repeat of the same complaint in the next
+ * is the behaviour `warnOnce` already has.
+ */
+const warnedKeys = new Set<string>()
+
+/**
+ * Bounded, because a development server can run for days and this set is never
+ * cleared. Reaching sixteen distinct malformed values in one session means the
+ * report has already been made several times over; going quiet is better than
+ * growing without limit.
+ */
+const MAX_WARNED_KEYS = 16
+
+function warnOncePerSession(key: string, message: string): void {
+  if (!isDevelopment()) return
+  if (warnedKeys.has(key) || warnedKeys.size >= MAX_WARNED_KEYS) return
+  warnedKeys.add(key)
+  try {
+    console.warn(`[opsinjs] ${message}`)
+  } catch {
+    /* A patched console is not a reason to take a health product down. */
+  }
+}
+
+/**
  * The opacity the scrim has to reach for this rung, as a CSS expression over
  * the rung's own tokens.
  *
  * `max()` rather than either token alone, and the reason is the whole point of
  * the part. `-tint-alpha` is how the rung wants to look; `-scrim` is the
- * minimum opacity `tokens/material.json` publishes for it. They are equal for
- * every rung today, so the expression is currently a no-op — but the day
- * somebody lightens a tint for a design review, the floor is what stops the
- * change reaching a reader. That is what "the scrim cannot be removed by any
- * prop" means in code: there is no prop, and there is also no token value, that
- * takes this below the published floor.
+ * minimum opacity `tokens/material.json` publishes for it. That is what "the
+ * scrim cannot be removed by any prop" means in code: there is no prop, and
+ * there is also no token value, that takes this below the published floor.
+ *
+ * THE EXPRESSION IS NOT A NO-OP, and an earlier version of this comment said it
+ * was. `app/tokens.generated.css` emits `-scrim` in the `:root` block only; the
+ * dark block redeclares `-tint`, `-tint-alpha`, `-border` and `-opaque` and
+ * never redeclares `-scrim`. So the floor is theme-agnostic while the tint alpha
+ * is not, and in dark theme it currently binds on `sheet` and on `overlay`,
+ * whose dark `tintAlpha` values sit below the single published floor and are
+ * raised to it here. The direction is safe — more opaque is more readable — but
+ * a maintainer must not read this expression as removable, and whether
+ * `minScrimOpacity` should be published per theme the way `tintAlpha` is, is a
+ * question for the token owner rather than for this file.
  */
 function publishedScrimFloor(rung: MaterialRung): string {
   return `max(var(--opsin-material-${rung}-tint-alpha), var(--opsin-material-${rung}-scrim))`
 }
 
 /**
+ * The weights a scrim floor is published for.
+ *
+ * Written out again in `SurfaceProps.contentWeight` rather than referred to by
+ * name, deliberately: `lib/generated/props.ts` records a prop's type as the
+ * source text of its annotation, so a local alias would publish an API-reference
+ * row naming a type a consumer cannot import. This alias is for the record and
+ * the guard below, which are internal.
+ */
+type ContentWeight = "body" | "large"
+
+/**
  * The floor each content weight has to clear.
  *
  * BOTH ENTRIES ARE THE SAME EXPRESSION, and that is the finding rather than an
- * oversight. `tokens/material.json` publishes one `minScrimOpacity` per rung and
- * measures it against that rung's opaque fallback, which is the worst case for
- * text on it. There is no second, thinner floor for large text anywhere in the
- * token source, and a component is not allowed to invent one: a number that
- * decides whether somebody can read their own result is measured or it does not
- * exist. So `contentWeight="large"` is accepted, is honoured as a promise about
- * the content, and takes the body floor until a large-text floor is published.
- * A surface that is more readable than it needs to be is not a defect; the
- * other direction is.
+ * oversight. `tokens/material.json` publishes one `minScrimOpacity` per rung,
+ * and the figures published beside it are measured against that rung's OPAQUE
+ * FALLBACK — the material as it renders once translucency is gone, which is the
+ * degraded path rather than the translucent one. There is no second, thinner
+ * floor for large text anywhere in the token source, and a component is not
+ * allowed to invent one: a number that decides whether somebody can read their
+ * own result is measured or it does not exist. So `contentWeight="large"` is
+ * accepted, is honoured as a promise about the content, and takes the body
+ * floor until a large-text floor is published. A surface that is more readable
+ * than it needs to be is not a defect; the other direction is.
  */
-const SCRIM_FLOOR: Record<"body" | "large", (rung: MaterialRung) => string> = {
+const SCRIM_FLOOR: Record<ContentWeight, (rung: MaterialRung) => string> = {
   body: publishedScrimFloor,
   large: publishedScrimFloor,
+}
+
+/**
+ * The weight to resolve a floor for, defaulting to `body` for anything outside
+ * the union.
+ *
+ * `SCRIM_FLOOR[contentWeight](rung)` on an unchecked value is a TypeError, not a
+ * styling mistake: `undefined(rung)` throws during render and takes the nearest
+ * error boundary's whole subtree with it — a Surface's subtree being, by
+ * design, somebody's readings. That is a strictly worse outcome than the one
+ * the `rung` guard exists to prevent, and the default parameter does not cover
+ * it, because a default fires on `undefined` alone and not on `null`, `"Body"`
+ * or a weight that was renamed upstream.
+ *
+ * Falling back to `body` changes nothing rendered while both entries resolve to
+ * the same expression, and it is the stricter of the two if they ever diverge,
+ * so the repair is always in the readable direction. It is a warning rather
+ * than a refusal for the same reason the unrecognised rung is: the mistake is
+ * in a styling prop, and taking a reader's own data off the screen to report
+ * one is the worse of the two outcomes.
+ */
+function resolveContentWeight(value: unknown): ContentWeight {
+  if (value === "body" || value === "large") return value
+  warnOncePerSession(
+    `contentWeight:${String(value)}`,
+    `<Surface> received contentWeight="${String(value)}", which is not "body" ` +
+      'or "large". The body floor was used, which is the stricter of the two, ' +
+      "so nothing on this surface is less readable than it should be — but the " +
+      "prop is not recording what you meant.",
+  )
+  return "body"
 }
 
 /**
@@ -192,6 +294,13 @@ export interface SurfaceProps {
   /**
    * Merged onto the root. Shape belongs here: Surface sets no corner of its
    * own, and every layer inside it inherits whatever radius the caller applies.
+   *
+   * It is also unrestricted, so it is the one prop through which a caller can
+   * put colour on a Surface, and the two-colour-axes rule applies to it in full:
+   * a Surface may take a category tint or sit under a status, never both. A
+   * category-tinted Surface renders its status as a StatusPill inside it rather
+   * than as a tint on the root. Both axes on one element is OPSIN-0001, and this
+   * component cannot detect it — `cn` merges whatever it is handed.
    */
   className?: string
   /** Everything the surface holds. */
@@ -217,19 +326,19 @@ export function Surface({
        and dropping it would take a reader's own readings off the screen to
        report a styling mistake. So the material is omitted, visibly, and the
        content is left where it was. */
-    if (isDevelopment()) {
-      const suggestion = RENAMED_RUNGS[String(rung)]
-      console.warn(
-        `[opsinjs] <Surface> received rung="${String(rung)}", which is not one of ` +
-          "canvas, card, raised, sheet, overlay, scrim. " +
-          (suggestion === undefined
-            ? "No material was applied."
-            : `That name is from the retired vocabulary; the rung that does that ` +
-              `job is now "${suggestion}". Map the old names by job, never by ` +
-              `position: the retired "overlay" is this ladder's "sheet". `) +
-          "See /docs/project/decisions/0014-material-rung-names.",
-      )
-    }
+    const offending = String(rung)
+    const suggestion = RENAMED_RUNGS[offending]
+    warnOncePerSession(
+      `rung:${offending}`,
+      `<Surface> received rung="${offending}", which is not one of ` +
+        "canvas, card, raised, sheet, overlay, scrim. " +
+        (suggestion === undefined
+          ? "No material was applied."
+          : `That name is from the retired vocabulary; the rung that does that ` +
+            `job is now "${suggestion}". Map the old names by job, never by ` +
+            `position: the retired "overlay" is this ladder's "sheet". `) +
+        "See /docs/project/decisions/0014-material-rung-names.",
+    )
     return (
       <div data-slot="surface" className={cn("relative", className)}>
         <div data-slot="surface-content" className="relative">
@@ -239,12 +348,18 @@ export function Surface({
     )
   }
 
+  /* Checked, not indexed. `tokens/errors.json` is explicit that a
+     documentation-quality complaint must not be allowed to crash a health
+     product, and an unchecked `SCRIM_FLOOR[contentWeight](rung)` does exactly
+     that by calling `undefined`. */
+  const weight = resolveContentWeight(contentWeight)
+
   const style: SurfaceStyle = {
     "--opsinjs-surface-tint": opaque
       ? `var(--opsin-material-${rung}-opaque)`
       : `var(--opsin-material-${rung}-tint)`,
     "--opsinjs-surface-opaque": `var(--opsin-material-${rung}-opaque)`,
-    "--opsinjs-surface-alpha": opaque ? "1" : SCRIM_FLOOR[contentWeight](rung),
+    "--opsinjs-surface-alpha": opaque ? "1" : SCRIM_FLOOR[weight](rung),
     "--opsinjs-surface-blur": `var(--opsin-material-${rung}-blur)`,
     "--opsinjs-surface-saturation": `var(--opsin-material-${rung}-saturation)`,
     "--opsinjs-surface-edge": `var(--opsin-material-${rung}-border)`,
@@ -337,10 +452,21 @@ export function Surface({
         aria-hidden="true"
         className={cn(
           "pointer-events-none absolute inset-0 rounded-[inherit]",
-          /* "Make every border explicit" is the second of the four things
-             increased contrast is specified to do. On a rung whose border token
-             is `none` there is no edge to strengthen, and inventing one would
-             be this component overruling the ladder. */
+          /* WIDTH ONLY, AND THAT IS NOT THE SECOND REQUIREMENT. Increased
+             contrast asks for hairline dividers at low alpha to "become solid
+             at full token colour"; this line takes the hairline width to the
+             emphasis width and leaves `--opsinjs-surface-edge` at
+             `--opsin-material-<rung>-border`, which several rungs publish at a
+             low alpha. A wider edge at the same alpha is more visible than a
+             thinner one and is not the same as an explicit one, and whether the
+             result clears the non-text contrast floor has not been measured.
+
+             It stops at the width on purpose. Substituting a solid colour here
+             would be this component choosing a border colour the ladder did not
+             publish, and it would give `canvas` and `scrim` — whose border token
+             is the keyword `none` — an edge they are specified not to have. The
+             colour half belongs to `tokens/material.json`, and the page says so
+             rather than claiming this line answers it. */
           "contrast-more:[--opsinjs-surface-edge-width:var(--opsin-border-emphasis)]",
         )}
         style={{
@@ -431,12 +557,14 @@ export default function SurfaceDemo() {
             rung={entry.rung}
             className="rounded-opsin-md"
           >
-            <div className="p-opsin-3">
-              <p className="m-0 text-opsin-headline">{entry.label}</p>
-              <p className="m-0 text-opsin-footnote">
-                {entry.job}
-              </p>
-            </div>
+            {/* A description list rather than two paragraphs, because that is
+                what these are: six name/job pairs. Sibling `<p>`s look the same
+                and reach a screen reader as twelve unrelated blocks of text,
+                with nothing saying which job belongs to which rung. */}
+            <dl className="m-0 p-opsin-3">
+              <dt className="m-0 text-opsin-headline">{entry.label}</dt>
+              <dd className="m-0 text-opsin-footnote">{entry.job}</dd>
+            </dl>
           </Surface>
         ))}
 
@@ -446,13 +574,13 @@ export default function SurfaceDemo() {
         <Surface rung="scrim" className="rounded-opsin-md">
           <div className="p-opsin-3">
             <Surface rung="card" className="rounded-opsin-sm">
-              <div className="p-opsin-2">
-                <p className="m-0 text-opsin-headline">Scrim</p>
-                <p className="m-0 text-opsin-footnote">
+              <dl className="m-0 p-opsin-2">
+                <dt className="m-0 text-opsin-headline">Scrim</dt>
+                <dd className="m-0 text-opsin-footnote">
                   The dimming layer behind a modal. Content sits on a rung above
                   it.
-                </p>
-              </div>
+                </dd>
+              </dl>
             </Surface>
           </div>
         </Surface>

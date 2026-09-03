@@ -192,18 +192,450 @@ export type MaterialRung =
   | "overlay"
   | "scrim"
 
-/* ------------------------------------------------------------------ *
- * The unit table is deliberately NOT here yet                         *
- *                                                                     *
- * `Unit` and `UNITS` — mmol/L and mg/dL, kg and lb and st, °C and °F,  *
- * and the spoken form of each — are Batch B's work, and they arrive as *
- * an authored `tokens/units.json` with an emitter, exactly like every  *
- * other token source. They do not arrive as a literal in a             *
- * component and they do not arrive as a hand-written table here: a     *
- * conversion factor somebody typed into a component file is a clinical *
- * number with no provenance, and this system does not own one of       *
- * those. Leave the space; do not fill it from memory.                  *
- * ------------------------------------------------------------------ */
+/* opsinjs:units:begin — replaced by scripts/build-tokens.mts from tokens/units.json */
+
+/**
+ * One unit: what it is called, what a reader sees, and how it is SPOKEN.
+ *
+ * The spoken form is the whole reason this table exists. A screen reader handed
+ * `mmHg` improvises a pronunciation, and "one twenty over eighty em em aitch
+ * gee" is a failure rather than a quirk.
+ *
+ * There is no reference range here, no threshold, no plausibility bound and no
+ * default precision. A unit table says what a number is measured in; it never
+ * says what a number should be. Decimal places belong to the MEASUREMENT and
+ * travel with it from the product - health/numbers-units-precision, rule 2.
+ */
+export interface Unit {
+  /** Stable key. Never the display symbol: `°C` is `celsius`. */
+  id: string
+  /** What a reader sees beside the number. Looked up by exactly this string. */
+  symbol: string
+  /** How to say it for exactly one of the thing. British English. */
+  spoken: string
+  /** How to say it for every other count, zero included. British English. */
+  plural: string
+  /** What is being measured, dimensionally. Never what a reading should be. */
+  measures: string
+}
+
+/** Every unit this system can speak, sorted by id. Generated from `tokens/units.json`. */
+export const UNITS: Unit[] = [
+  {
+    id: "beat-per-minute",
+    symbol: "bpm",
+    spoken: "beat per minute",
+    plural: "beats per minute",
+    measures: "rate",
+  },
+  {
+    id: "celsius",
+    symbol: "°C",
+    spoken: "degree Celsius",
+    plural: "degrees Celsius",
+    measures: "temperature",
+  },
+  {
+    id: "centimetre",
+    symbol: "cm",
+    spoken: "centimetre",
+    plural: "centimetres",
+    measures: "length",
+  },
+  {
+    id: "fahrenheit",
+    symbol: "°F",
+    spoken: "degree Fahrenheit",
+    plural: "degrees Fahrenheit",
+    measures: "temperature",
+  },
+  {
+    id: "foot",
+    symbol: "ft",
+    spoken: "foot",
+    plural: "feet",
+    measures: "length",
+  },
+  {
+    id: "gram",
+    symbol: "g",
+    spoken: "gram",
+    plural: "grams",
+    measures: "mass",
+  },
+  {
+    id: "inch",
+    symbol: "in",
+    spoken: "inch",
+    plural: "inches",
+    measures: "length",
+  },
+  {
+    id: "kilocalorie",
+    symbol: "kcal",
+    spoken: "kilocalorie",
+    plural: "kilocalories",
+    measures: "energy",
+  },
+  {
+    id: "kilogram",
+    symbol: "kg",
+    spoken: "kilogram",
+    plural: "kilograms",
+    measures: "mass",
+  },
+  {
+    id: "kilojoule",
+    symbol: "kJ",
+    spoken: "kilojoule",
+    plural: "kilojoules",
+    measures: "energy",
+  },
+  {
+    id: "kilometre",
+    symbol: "km",
+    spoken: "kilometre",
+    plural: "kilometres",
+    measures: "length",
+  },
+  {
+    id: "metre",
+    symbol: "m",
+    spoken: "metre",
+    plural: "metres",
+    measures: "length",
+  },
+  {
+    id: "microgram-per-litre",
+    symbol: "µg/L",
+    spoken: "microgram per litre",
+    plural: "micrograms per litre",
+    measures: "mass concentration",
+  },
+  {
+    id: "mile",
+    symbol: "mi",
+    spoken: "mile",
+    plural: "miles",
+    measures: "length",
+  },
+  {
+    id: "milligram-per-decilitre",
+    symbol: "mg/dL",
+    spoken: "milligram per decilitre",
+    plural: "milligrams per decilitre",
+    measures: "mass concentration",
+  },
+  {
+    id: "millimetre-of-mercury",
+    symbol: "mmHg",
+    spoken: "millimetre of mercury",
+    plural: "millimetres of mercury",
+    measures: "pressure",
+  },
+  {
+    id: "millimole-per-litre",
+    symbol: "mmol/L",
+    spoken: "millimole per litre",
+    plural: "millimoles per litre",
+    measures: "amount-of-substance concentration",
+  },
+  {
+    id: "millimole-per-mole",
+    symbol: "mmol/mol",
+    spoken: "millimole per mole",
+    plural: "millimoles per mole",
+    measures: "amount-of-substance ratio",
+  },
+  {
+    id: "per-cent",
+    symbol: "%",
+    spoken: "per cent",
+    plural: "per cent",
+    measures: "proportion",
+  },
+  {
+    id: "pound",
+    symbol: "lb",
+    spoken: "pound",
+    plural: "pounds",
+    measures: "mass",
+  },
+  {
+    id: "step",
+    symbol: "steps",
+    spoken: "step",
+    plural: "steps",
+    measures: "count",
+  },
+  {
+    id: "stone",
+    symbol: "st",
+    spoken: "stone",
+    plural: "stone",
+    measures: "mass",
+  },
+]
+
+/**
+ * The lookup `findUnit()` reads, derived from `UNITS` rather than emitted twice.
+ *
+ * Keyed by the exact symbol, case included. There is no fuzzy matching, because
+ * a table that guesses which unit somebody meant is a table that will one day
+ * guess wrong about a concentration.
+ */
+export const UNITS_BY_SYMBOL: Record<string, Unit> = Object.fromEntries(
+  UNITS.map((unit) => [unit.symbol, unit]),
+)
+
+/**
+ * An exact conversion between two units of the same kind.
+ *
+ * Applied as `to = from * numerator / denominator + offsetNumerator /
+ * offsetDenominator`. Every field is an integer, and that is deliberate: these
+ * are definitions rather than measurements, and a definition stored as a
+ * rounded decimal is an approximation wearing a definition's provenance.
+ *
+ * `basis` names the definition each factor comes from. A conversion with no
+ * basis does not belong in this system: opsinjs does not own a clinical number,
+ * and the ones it does carry are the ones that are true by definition rather
+ * than by measurement.
+ */
+export interface UnitConversion {
+  /** Symbol converted from. */
+  from: string
+  /** Symbol converted to. */
+  to: string
+  numerator: number
+  denominator: number
+  offsetNumerator: number
+  offsetDenominator: number
+  /** Where each factor comes from, in the order they were composed. */
+  basis: string[]
+}
+
+/** Every convertible ordered pair, composed by the generator. Never authored by hand. */
+export const UNIT_CONVERSIONS: UnitConversion[] = [
+  {
+    from: "°C",
+    to: "°F",
+    numerator: 9,
+    denominator: 5,
+    offsetNumerator: 32,
+    offsetDenominator: 1,
+    basis: ["The Fahrenheit scale is defined against Celsius: a Fahrenheit degree is exactly five ninths of a Celsius degree and the scales meet where 32 °F is 0 °C, so °C = °F × 5/9 − 160/9. This conversion is affine rather than a ratio, which is why a temperature and a temperature DIFFERENCE do not convert the same way — 2 °C of change is 3.6 °F of change, not 35.6 °F."],
+  },
+  {
+    from: "°F",
+    to: "°C",
+    numerator: 5,
+    denominator: 9,
+    offsetNumerator: -160,
+    offsetDenominator: 9,
+    basis: ["The Fahrenheit scale is defined against Celsius: a Fahrenheit degree is exactly five ninths of a Celsius degree and the scales meet where 32 °F is 0 °C, so °C = °F × 5/9 − 160/9. This conversion is affine rather than a ratio, which is why a temperature and a temperature DIFFERENCE do not convert the same way — 2 °C of change is 3.6 °F of change, not 35.6 °F."],
+  },
+  {
+    from: "g",
+    to: "kg",
+    numerator: 1,
+    denominator: 1000,
+    offsetNumerator: 0,
+    offsetDenominator: 1,
+    basis: ["The SI prefix 'kilo' is exactly one thousand. This is a definition of the prefix, not a measurement of anything."],
+  },
+  {
+    from: "g",
+    to: "lb",
+    numerator: 100000,
+    denominator: 45359237,
+    offsetNumerator: 0,
+    offsetDenominator: 1,
+    basis: ["The SI prefix 'kilo' is exactly one thousand. This is a definition of the prefix, not a measurement of anything.", "The international avoirdupois pound is defined as exactly 0.45359237 kilograms by the 1959 international yard and pound agreement. An exact definition, adopted by every signatory, and not a rounded measurement."],
+  },
+  {
+    from: "g",
+    to: "st",
+    numerator: 50000,
+    denominator: 317514659,
+    offsetNumerator: 0,
+    offsetDenominator: 1,
+    basis: ["The SI prefix 'kilo' is exactly one thousand. This is a definition of the prefix, not a measurement of anything.", "One stone is exactly fourteen avoirdupois pounds, and one pound is exactly 0.45359237 kilograms; fourteen times that is 6.35029318 kilograms exactly. Two definitions composed, no measurement involved. Note the plural: British body weight is 'eleven stone', not 'eleven stones'."],
+  },
+  {
+    from: "kg",
+    to: "g",
+    numerator: 1000,
+    denominator: 1,
+    offsetNumerator: 0,
+    offsetDenominator: 1,
+    basis: ["The SI prefix 'kilo' is exactly one thousand. This is a definition of the prefix, not a measurement of anything."],
+  },
+  {
+    from: "kg",
+    to: "lb",
+    numerator: 100000000,
+    denominator: 45359237,
+    offsetNumerator: 0,
+    offsetDenominator: 1,
+    basis: ["The international avoirdupois pound is defined as exactly 0.45359237 kilograms by the 1959 international yard and pound agreement. An exact definition, adopted by every signatory, and not a rounded measurement."],
+  },
+  {
+    from: "kg",
+    to: "st",
+    numerator: 50000000,
+    denominator: 317514659,
+    offsetNumerator: 0,
+    offsetDenominator: 1,
+    basis: ["One stone is exactly fourteen avoirdupois pounds, and one pound is exactly 0.45359237 kilograms; fourteen times that is 6.35029318 kilograms exactly. Two definitions composed, no measurement involved. Note the plural: British body weight is 'eleven stone', not 'eleven stones'."],
+  },
+  {
+    from: "lb",
+    to: "g",
+    numerator: 45359237,
+    denominator: 100000,
+    offsetNumerator: 0,
+    offsetDenominator: 1,
+    basis: ["The international avoirdupois pound is defined as exactly 0.45359237 kilograms by the 1959 international yard and pound agreement. An exact definition, adopted by every signatory, and not a rounded measurement.", "The SI prefix 'kilo' is exactly one thousand. This is a definition of the prefix, not a measurement of anything."],
+  },
+  {
+    from: "lb",
+    to: "kg",
+    numerator: 45359237,
+    denominator: 100000000,
+    offsetNumerator: 0,
+    offsetDenominator: 1,
+    basis: ["The international avoirdupois pound is defined as exactly 0.45359237 kilograms by the 1959 international yard and pound agreement. An exact definition, adopted by every signatory, and not a rounded measurement."],
+  },
+  {
+    from: "lb",
+    to: "st",
+    numerator: 1,
+    denominator: 14,
+    offsetNumerator: 0,
+    offsetDenominator: 1,
+    basis: ["The international avoirdupois pound is defined as exactly 0.45359237 kilograms by the 1959 international yard and pound agreement. An exact definition, adopted by every signatory, and not a rounded measurement.", "One stone is exactly fourteen avoirdupois pounds, and one pound is exactly 0.45359237 kilograms; fourteen times that is 6.35029318 kilograms exactly. Two definitions composed, no measurement involved. Note the plural: British body weight is 'eleven stone', not 'eleven stones'."],
+  },
+  {
+    from: "st",
+    to: "g",
+    numerator: 317514659,
+    denominator: 50000,
+    offsetNumerator: 0,
+    offsetDenominator: 1,
+    basis: ["One stone is exactly fourteen avoirdupois pounds, and one pound is exactly 0.45359237 kilograms; fourteen times that is 6.35029318 kilograms exactly. Two definitions composed, no measurement involved. Note the plural: British body weight is 'eleven stone', not 'eleven stones'.", "The SI prefix 'kilo' is exactly one thousand. This is a definition of the prefix, not a measurement of anything."],
+  },
+  {
+    from: "st",
+    to: "kg",
+    numerator: 317514659,
+    denominator: 50000000,
+    offsetNumerator: 0,
+    offsetDenominator: 1,
+    basis: ["One stone is exactly fourteen avoirdupois pounds, and one pound is exactly 0.45359237 kilograms; fourteen times that is 6.35029318 kilograms exactly. Two definitions composed, no measurement involved. Note the plural: British body weight is 'eleven stone', not 'eleven stones'."],
+  },
+  {
+    from: "st",
+    to: "lb",
+    numerator: 14,
+    denominator: 1,
+    offsetNumerator: 0,
+    offsetDenominator: 1,
+    basis: ["One stone is exactly fourteen avoirdupois pounds, and one pound is exactly 0.45359237 kilograms; fourteen times that is 6.35029318 kilograms exactly. Two definitions composed, no measurement involved. Note the plural: British body weight is 'eleven stone', not 'eleven stones'.", "The international avoirdupois pound is defined as exactly 0.45359237 kilograms by the 1959 international yard and pound agreement. An exact definition, adopted by every signatory, and not a rounded measurement."],
+  },
+]
+
+/**
+ * A pair people expect to be arithmetic and is not, with the reason.
+ *
+ * This list is the load-bearing half of the unit table. An omitted conversion
+ * has to render as an explicit "we do not have this", never as a substituted
+ * default, and a component that wants to explain WHY reads its reason here.
+ */
+export interface RefusedConversion {
+  /** The two symbols, as authored. */
+  between: [string, string]
+  /** Why the pair is not a mathematical fact. Shown to a developer, not to a reader. */
+  reason: string
+  /** The docs page id that sets out the non-goal. */
+  docs: string
+}
+
+/** Conversions this system refuses to publish, and why. Generated from `tokens/units.json`. */
+export const REFUSED_CONVERSIONS: RefusedConversion[] = [
+  {
+    between: ["kcal", "kJ"],
+    reason: "There is more than one calorie. The thermochemical calorie is exactly 4.184 joules and the fifteen-degree calorie is not, and food energy labelling picks one by regulation rather than by physics. Naming a single factor here would hide which calorie was meant, so the pair is refused until this file can carry the choice explicitly.",
+    docs: "health/unit-systems",
+  },
+  {
+    between: ["mmol/L", "mg/dL"],
+    reason: "Molar concentration and mass concentration are related by the molar mass of the substance being measured, which is a property of the SUBSTANCE and not of either unit. Glucose, cholesterol and creatinine each carry a different factor, and this table does not know which analyte a reading is. A single published factor here would be applied to all three by somebody in a hurry, and the answer would be wrong by a multiple rather than by a rounding.",
+    docs: "health/unit-systems",
+  },
+  {
+    between: ["mmol/mol", "%"],
+    reason: "The two ways of reporting HbA1c are related by a fitted regression between two assay standardisations, not by an exact definition. A regression is a measurement with a residual, it is periodically re-fitted, and it belongs to the laboratory that reports the result. This table carries definitions only.",
+    docs: "health/unit-systems",
+  },
+]
+
+/**
+ * The unit a symbol names, or `undefined` when this system has never heard of it.
+ *
+ * `undefined` rather than a fabricated entry, because the caller's honest
+ * response to an unknown symbol is to render it as written - awkward to listen
+ * to, but true - and never to guess at a pronunciation.
+ */
+export function findUnit(symbol: string): Unit | undefined {
+  return Object.prototype.hasOwnProperty.call(UNITS_BY_SYMBOL, symbol)
+    ? UNITS_BY_SYMBOL[symbol]
+    : undefined
+}
+
+/**
+ * How a screen reader should say this unit for this count.
+ *
+ * `count` is the value as DISPLAYED, after any rounding, because the words
+ * follow what is on the screen rather than what was in the database. English
+ * takes the singular for exactly one and the plural for everything else, zero
+ * included: "0 kilograms", "1 kilogram", "1.5 kilograms".
+ *
+ * The known limit, stated rather than hidden: a value shown as "1.0" because
+ * its measurement has one decimal place is still counted as one and is spoken
+ * "1.0 kilogram". Both wordings are defensible in English and neither is
+ * unsafe. The larger limit is that these words are British English in every
+ * locale; `tokens/units.json` has no translations yet and does not pretend to.
+ */
+export function spokenUnit(symbol: string, count: number): string | undefined {
+  const unit = findUnit(symbol)
+  if (unit === undefined) return undefined
+  return Math.abs(count) === 1 ? unit.spoken : unit.plural
+}
+
+/** The authored conversion between two symbols, or `undefined` when there is none. */
+export function unitConversion(from: string, to: string): UnitConversion | undefined {
+  return UNIT_CONVERSIONS.find((row) => row.from === from && row.to === to)
+}
+
+/**
+ * One value in another unit, or `undefined` when this system does not own the factor.
+ *
+ * `undefined` is the whole contract. mmol/L to mg/dL is not here, and it is
+ * not here because the factor depends on the molar mass of the substance being
+ * measured rather than on either unit - so a component that substituted a
+ * default would be converting cholesterol with the factor for glucose. Render
+ * "we do not have this"; never a number.
+ */
+export function convertUnit(value: number, from: string, to: string): number | undefined {
+  const conversion = unitConversion(from, to)
+  if (conversion === undefined) return undefined
+  return (
+    (value * conversion.numerator) / conversion.denominator +
+    conversion.offsetNumerator / conversion.offsetDenominator
+  )
+}
+
+/* opsinjs:units:end */
 
 /* ------------------------------------------------------------------ *
  * Error codes — GENERATED from tokens/errors.json                     *

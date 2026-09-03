@@ -26,7 +26,18 @@
  * The rung is `raised` rather than the default `card`, following the decision
  * table on `choosing-a-layer`: a tappable card is an object, and an object may
  * look lifted. A card that is not tappable stays on the `card` rung, where
- * nothing is lifted and nothing looks it.
+ * nothing is lifted and nothing looks it. The shadow is not the affordance,
+ * though — `rung` is a free prop that any resting card may also take, so at
+ * rest a link card and a static card can look the same. That gap is named on
+ * the component's Accessibility section rather than papered over here.
+ *
+ * WHERE ENTER GOES. A preview has nowhere to navigate to: a link that left the
+ * example would take the reader out of the thing they are trying to try. So
+ * each href is a same-document fragment whose id is on the list item that holds
+ * the card. The anchor is real and the reference resolves — pressing Enter is
+ * the browser following a link, not a handler pretending to — and because the
+ * target is already on screen, following it moves the reader's position and
+ * changes nothing visible.
  */
 
 import { Card } from "@/registry/base-lyra/ui/card"
@@ -49,9 +60,20 @@ const SECTIONS = [
 
 export default function CardAsALink() {
   return (
-    <ul className="m-0 flex w-full max-w-sm list-none flex-col gap-opsin-4 p-0">
+    /* `role="list"` on a list that has already got one, because `list-style:
+       none` is the signal WebKit uses to drop list semantics: without it,
+       VoiceOver announces neither "list, 2 items" on entry nor "1 of 2" on each
+       card, which is the position information a reader scanning a list of link
+       cards navigates by. NVDA keeps the semantics either way, so the loss is
+       invisible in a desktop-Windows test and lands on the platform this
+       audience most uses. The role on the item is the same answer to the same
+       cause, and costs nothing where the parent role was enough on its own. */
+    <ul
+      role="list"
+      className="m-0 flex w-full max-w-sm list-none flex-col gap-opsin-4 p-0"
+    >
       {SECTIONS.map((section) => (
-        <li key={section.href}>
+        <li key={section.href} id={section.href.slice(1)} role="listitem">
           <Card rung="raised" href={section.href}>
             <Card.Header
               title={<h3>{section.title}</h3>}
