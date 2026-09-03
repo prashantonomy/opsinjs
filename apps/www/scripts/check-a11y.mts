@@ -595,6 +595,36 @@ function looksLikeClassList(text: string): boolean {
  * report the wrong one, which for a checker is worse than reporting nothing.
  */
 /**
+ * The banned words worth reporting in a COMMENT, which is a smaller list than
+ * the one worth reporting in copy.
+ *
+ * The full union contains words with common technical meanings — a constraint
+ * that `failed`, `just` the block axis, a `positive` integer, a `perfectly
+ * good` comparison, `normal` flow. In reader-facing copy every one of them is a
+ * defect. In a comment about code, almost every occurrence is ordinary English,
+ * and a rule that reports eight legitimate uses to catch one real one is a rule
+ * that gets switched off — which would cost the real one too.
+ *
+ * So the comment scan takes the words that have no common technical sense: the
+ * ones that can only be about a person. `normal` is kept because it is the word
+ * this system most wants retired, with an exemption for the two collocations
+ * that are terms of art.
+ *
+ * This is narrower than A11Y009 on purpose, and the narrowing is the reason the
+ * rule is usable at all.
+ */
+const COMMENT_SCANNED = new Set([
+  "abnormal",
+  "diagnosis",
+  "don't worry",
+  "healthy",
+  "unhealthy",
+  "optimal",
+  "elevated",
+  "normal",
+])
+
+/**
  * The text INSIDE comments, with backtick spans removed and offsets kept.
  *
  * The mirror of `withoutComments`. A comment quoting a class name in backticks
@@ -602,22 +632,60 @@ function looksLikeClassList(text: string): boolean {
  * version of the banned-word scan report a correct file twice.
  */
 function commentText(source: string): { text: string; index: number }[] {
-  const blanked = withoutComments(source)
   const regions: { text: string; index: number }[] = []
-  let start = -1
-  for (let index = 0; index <= source.length; index += 1) {
-    const isComment =
-      index < source.length && blanked[index] === " " && source[index] !== " "
-    if (isComment && start === -1) start = index
-    if (!isComment && start !== -1) {
-      /* Backtick spans out, whitespace kept so the offset still lands. */
-      const text = source.slice(start, index).replace(/`[^`]*`/g, (span) => " ".repeat(span.length))
-      if (text.trim() !== "") regions.push({ text, index: start })
-      start = -1
+  let index = 0
+  const length = source.length
+
+  /* Its own scanner rather than a diff against `withoutComments`. The first
+     version compared the blanked string to the source and treated any position
+     where they differed as comment — which is every character EXCEPT the spaces,
+     because a blanked space equals a real space. Each comment WORD became its
+     own region, so "normal flow" arrived as "normal" with nothing after it and
+     the terms-of-art exemption below could never fire. The rule appeared to
+     work and its exemption never ran once. */
+  while (index < length) {
+    const char = source[index] as string
+    const next = source[index + 1]
+
+    if (char === '"' || char === "'" || char === "`") {
+      const quote = char
+      index += 1
+      while (index < length) {
+        const inner = source[index] as string
+        if (inner === "\\") {
+          index += 2
+          continue
+        }
+        index += 1
+        if (inner === quote) break
+      }
+      continue
     }
+
+    if (char === "/" && (next === "*" || next === "/")) {
+      const start = index
+      if (next === "*") {
+        index += 2
+        while (index < length && !(source[index] === "*" && source[index + 1] === "/")) index += 1
+        index = Math.min(index + 2, length)
+      } else {
+        while (index < length && source[index] !== "\n") index += 1
+      }
+      /* Backtick spans out, length preserved so the offset still lands: a
+         comment quoting `whitespace-normal` is quoting code, not writing prose. */
+      const text = source
+        .slice(start, index)
+        .replace(/`[^`]*`/g, (span) => " ".repeat(span.length))
+      if (text.trim() !== "") regions.push({ text, index: start })
+      continue
+    }
+
+    index += 1
   }
+
   return regions
 }
+
 
 function withoutComments(source: string): string {
   /* Character-by-character rather than two regexes, and the reason is a real
@@ -1266,7 +1334,7 @@ function checkBannedWords(
             `"${entry.instead}" instead. It reaches somebody who is reading about ` +
             "their own health, and every word on the list is one that describes " +
             "the person rather than the measurement.",
-          lineAt(starts, region.index),
+          lineAt(starts, region.index + match.index),
         )
       }
     }
@@ -1293,10 +1361,15 @@ function checkBannedWords(
    * this scan unusable: it reported a correct file twice for naming the class
    * it uses. */
   for (const entry of banned) {
+    if (!COMMENT_SCANNED.has(entry.word)) continue
     for (const region of commentText(source)) {
       const pattern = bannedWordPattern(entry.word)
       let match: RegExpExecArray | null
       while ((match = pattern.exec(region.text)) !== null) {
+        /* "normal flow" and "normal form" are terms of art about layout and
+           about data, not about a person, and a rule that reports them is a
+           rule somebody switches off. */
+        if (/^\s*(flow|form)\b/.test(region.text.slice(match.index + match[0].length))) continue
         warn(
           "A11Y013",
           file,
@@ -1307,7 +1380,10 @@ function checkBannedWords(
             "other than a reading — this is a warning because a comment is neither " +
             "reader-facing copy nor an identifier, and only those two are banned " +
             "outright.",
-          lineAt(starts, region.index),
+          /* The match offset, not the region's. A block comment can be forty
+             lines long, and pointing at its first line sends the reader to a
+             sentence that does not contain the word. */
+          lineAt(starts, region.index + match.index),
         )
       }
     }
