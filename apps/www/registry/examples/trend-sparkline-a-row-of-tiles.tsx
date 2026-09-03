@@ -21,6 +21,13 @@
  * its line would still fill the tile edge to edge. Two tiles side by side are
  * comparable when a product makes them so, and this component cannot check it.
  *
+ * NO TILE NAMES A DIRECTION. None of the three passes a `changeThreshold`, so
+ * each caption gives its first and last reading and stops. A direction word
+ * needs the difference below which a series is presented as unchanged, and that
+ * belongs to the metric — three tiles that all said "Up" because three numbers
+ * happened to end higher than they started would be three verdicts nobody
+ * signed.
+ *
  * Every reading is fictional, in a unit chosen because nobody has a reference
  * range for it, and no number here is one a reader could take for their own.
  */
@@ -29,7 +36,7 @@ import { type TrendPoint } from "@/lib/opsinjs"
 import { TrendSparkline } from "@/registry/base-lyra/ui/trend-sparkline"
 
 /** The product's rule about how many readings make a trend. See the demo. */
-const READINGS_A_TREND_NEEDS = 4
+const EXAMPLE_READINGS_A_TREND_NEEDS = 4
 
 const AT = [
   "2026-04-01T08:00:00Z",
@@ -77,7 +84,7 @@ export default function TrendSparklineARowOfTiles() {
             category={tile.category}
             window="the last six entries"
             series={series([...tile.values])}
-            minimumPoints={READINGS_A_TREND_NEEDS}
+            minimumPoints={EXAMPLE_READINGS_A_TREND_NEEDS}
           />
         </div>
       ))}

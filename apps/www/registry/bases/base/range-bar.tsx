@@ -24,7 +24,11 @@
  * file. `ReferenceRange.source` is required because a band with no author is an
  * assertion nobody signed; a range that arrives without one is reported as
  * OPSIN-0004 and drawn as nothing at all, because a plausible band is worse
- * than no band — the reader cannot tell the two apart.
+ * than no band — the reader cannot tell the two apart. A range that is not an
+ * interval — neither bound supplied, or bounds that run downwards — is
+ * discarded on the same terms, in the sentence as well as in the picture: the
+ * word "within" is what arithmetic falls through to, and "within the range"
+ * against bounds nobody gave is a reassurance derived from nothing.
  *
  * A BAR NEEDS TWO BOUNDS. A one-sided range ("up to 20") has no width, and a
  * width is what a scale is made of; drawing one would mean inventing the other
@@ -129,7 +133,15 @@ const TICK_TONE: Record<ClinicalStatus, string> = {
  *
  * `-ink` rather than the line role, because this is text on the surface behind
  * the component rather than a stroke: the ink roles are the ones tuned to be
- * read, and they flip with the theme so the word stays legible in both.
+ * read, and they flip with the theme.
+ *
+ * WHAT HAS NOT BEEN ESTABLISHED IS THE GROUND. `tokens/color.json` defines
+ * `ink` as text on the matching `-surface` and tunes it to clear the text floor
+ * against that surface; this component sets no surface of its own, so the word
+ * lands on whatever background the host card provides. That pairing has not
+ * been measured, in either theme, and the page says so rather than inheriting a
+ * guarantee from a pairing this component does not use. `CATEGORY_INK` below
+ * sits on the same unmeasured ground.
  */
 const STATUS_INK: Record<ClinicalStatus, string> = {
   steady: "text-status-steady-ink",
@@ -235,11 +247,15 @@ export interface RangeBarProps {
   precision?: number
   /**
    * When the measurement was taken, ISO 8601. Rendered as a date in the
-   * footnote so that a number on a screen is not read as "now".
+   * footnote so that a number on a screen is not read as "now". Omitted, the
+   * footnote says that nobody knows when the reading was taken rather than
+   * saying nothing — the same answer this component gives for a range nobody
+   * has dated, and for the same reason: silence about a time is read as now.
    *
-   * There is NO staleness treatment here and no `staleAfterHours`: how old is
-   * too old is clinical, differs by metric, and opsinjs does not own it. A
-   * surface that needs one wraps the reading in `RelativeTime`, which takes the
+   * That is a recency signal, and it is not a staleness treatment. There is no
+   * `staleAfterHours` here and there will not be one: how old is too old is
+   * clinical, differs by metric, and opsinjs does not own it. A surface that
+   * needs a boundary wraps the reading in `RelativeTime`, which takes the
    * boundary from you.
    */
   measuredAt?: string
@@ -281,7 +297,9 @@ function drawnExtent(
   const { low, high } = range
   if (low === undefined || high === undefined) return null
   /* A range whose bounds are equal or inverted has no width, and a width is
-     what a scale is made of. Reported below, and drawn as words instead. */
+     what a scale is made of. Such a range is refused before it reaches here —
+     it never becomes `compared` — and this stays so the function is honest read
+     on its own rather than honest by arrangement with its caller. */
   if (!(high > low)) return null
   const reach = high - low
   const start = Math.min(low - reach, value)
@@ -296,6 +314,11 @@ function drawnExtent(
  * Three words, all of them arithmetic. This is the one comparison the component
  * performs, and it is the same comparison the drawing performs; it says where a
  * number is and never what being there means.
+ *
+ * IT IS ONLY EVER CALLED WITH A RANGE THAT HAS A BOUND. `within` is the
+ * fall-through, so a range carrying neither bound would come back `within` — a
+ * position, in the reassuring direction, against an interval nobody supplied.
+ * That range is discarded in the component body before it reaches here.
  */
 function positionOf(value: number, range: ReferenceRange): Position {
   if (range.low !== undefined && value < range.low) return "below"
@@ -303,7 +326,14 @@ function positionOf(value: number, range: ReferenceRange): Position {
   return "within"
 }
 
-/** The range as a noun phrase, open at either end when only one bound is known. */
+/**
+ * The range as a noun phrase, open at either end when only one bound is known.
+ *
+ * A range with neither bound is discarded upstream and never reaches here; the
+ * empty return is what keeps this function total, and it is not a state the
+ * sentence is ever built from — an empty phrase spliced into "within the range
+ * …, from …" is a comparison with nothing in it.
+ */
 function rangePieces(range: ReferenceRange, unit: string): SummaryPiece[] {
   const { low, high } = range
   if (low !== undefined && high !== undefined) {
@@ -394,13 +424,27 @@ function summaryText(
   return pieces
     .map((piece) => {
       if (typeof piece === "string") return piece
-      /* Mirrors `Value`'s own default wording for an absence. It is only ever
-         reached in a state that renders no graphic and therefore no accessible
-         name, and it is here so that this function is total rather than
-         conditional on a caller's state. */
-      if (piece.reading === null || !Number.isFinite(piece.reading)) return "no reading yet"
+      /* THREE STATES, KEPT THREE, in `Value`'s own words rather than in a
+         second set. A reading is a reading, `null` is an absence, and a number
+         that arrived broken is a failure: a reader told "no reading yet" about
+         a number that DID exist and arrived broken has been told something
+         untrue about their own record, which is
+         `health/numbers-units-precision` rule 13. Both branches are reached
+         only in a state that draws no graphic and therefore has no accessible
+         name — but they agree with what `Value` renders, so the sentence and
+         its picture cannot start disagreeing if the drawing rules change. */
+      if (piece.reading === null) return "no reading yet"
+      if (!Number.isFinite(piece.reading)) return "not available"
       const digits = digitsOf(piece.reading, precision, locale)
-      return `${digits} ${spokenUnit(piece.unit, piece.reading) ?? piece.unit}`
+      /* THE PLURAL FOLLOWS WHAT IS ON THE SCREEN, decided the way `Value`
+         decides it: by asking the same formatter what one looks like, rather
+         than by inspecting the raw number. A reading of 1.4 shown to no decimal
+         places is "1" in the picture and was "1 milligrams" in the picture's
+         name — the two halves of one sentence disagreeing about a number they
+         had both got right. */
+      const singular =
+        digits === digitsOf(1, precision, locale) || digits === digitsOf(-1, precision, locale)
+      return `${digits} ${spokenUnit(piece.unit, singular ? 1 : piece.reading) ?? piece.unit}`
     })
     .join("")
 }
@@ -478,25 +522,47 @@ export function RangeBar({
   if (range !== undefined && !attributed) {
     warnOnce("OPSIN-0004", { component: "RangeBar" })
   }
-  const compared = attributed ? range : undefined
 
-  const extent = drawnExtent(compared, value)
+  /* AN INTERVAL, OR NOTHING AT ALL — the second and third ways a range arrives
+     unusable, and they are dangerous in the sentence rather than in the
+     picture. Both bounds are optional on `ReferenceRange`, so `{ source }` on
+     its own typechecks, and a pair that runs downwards typechecks too. Neither
+     is an interval, and neither may be half-used: the drawing already refuses
+     both, and the SENTENCE is what would otherwise state a position against
+     them — "within the range ,", in the reassuring direction, naming an
+     interval printed nowhere on the screen, or "below the range 20 to 10".
+     They take the exit an unattributed range already takes: the reading, and
+     the words for having nothing to compare it with. */
+  const boundless = range !== undefined && range.low === undefined && range.high === undefined
+  const inverted =
+    range !== undefined &&
+    range.low !== undefined &&
+    range.high !== undefined &&
+    !(range.high > range.low)
+  const compared = attributed && !boundless && !inverted ? range : undefined
 
-  if (
-    isDevelopment() &&
-    compared !== undefined &&
-    compared.low !== undefined &&
-    compared.high !== undefined &&
-    !(compared.high > compared.low)
-  ) {
+  if (isDevelopment() && attributed && boundless) {
     console.warn(
-      `[opsinjs] <RangeBar> was given low=${String(compared.low)} and ` +
-        `high=${String(compared.high)}, which leaves the range no width to draw a ` +
-        "scale from. The sentence still states both bounds; no bar was drawn, " +
-        "because a line whose two ends are the same number puts every reading in " +
-        "the same place.",
+      "[opsinjs] <RangeBar> was given a `range` with neither `low` nor `high`, " +
+        "which is a source with no interval underneath it. It was discarded " +
+        "rather than compared against, because a reading is not `within` an " +
+        "interval nobody supplied. The sentence states the reading and says " +
+        "there is nothing to compare it with.",
     )
   }
+
+  if (isDevelopment() && inverted) {
+    console.warn(
+      `[opsinjs] <RangeBar> was given low=${String(range?.low)} and ` +
+        `high=${String(range?.high)}, which leaves the range no width to draw a ` +
+        "scale from and no order to place a reading against. It was discarded: " +
+        "no bar is drawn, and the sentence says there is nothing to compare the " +
+        "reading with rather than naming a position between two bounds that run " +
+        "downwards.",
+    )
+  }
+
+  const extent = drawnExtent(compared, value)
 
   /* Both boundary labels rounding to the same digits is not a drawing bug and
      is not repaired by quietly adding a decimal place: a number shown to more
@@ -539,11 +605,46 @@ export function RangeBar({
 
   const StatusGlyph = level === undefined ? null : ICONS[level]
 
+  /* THE PICTURE'S NAME CARRIES THE LEVEL AS WELL AS THE POSITION. The tick is
+     the element that takes the status colour, and it lives inside the
+     `role="img"`, whose children are pruned from the accessibility tree — so
+     without this, a reader who reaches the graphic through a rotor, or who is
+     magnified into it, meets a coloured mark and no word.
+     `accessibility/screen-readers` rule 4 is that the status word is in the
+     accessible name and not only in the colour, and a screen reader is a
+     permanently greyscale device. It goes on the NAME and never inside the
+     visible sentence, because a caller who replaces `summary` must not be able
+     to take the word away with it. */
+  const graphicName =
+    level === undefined
+      ? spokenSummary
+      : `${spokenSummary} ${CLINICAL_STATUS_META[level].word}.`
+
   const at = (point: number) =>
     extent === null ? 0 : ((point - extent.start) / (extent.end - extent.start)) * 100
 
+  /* NEVER SILENT ABOUT WHEN. A number on a screen with no time beside it is
+     read as "now", so an absent `measuredAt` is STATED — the same answer this
+     component already gives for a range nobody has dated, and the reader is
+     the person entitled to know that nobody knows. It is a recency signal and
+     not a staleness treatment: there is no boundary here and there will not be
+     one, because how old is too old is clinical, differs by metric, and
+     belongs to whoever owns the range. */
   const asOf = compared?.asOf
-  const footnote = compared !== undefined || measuredAt !== undefined
+  const hasReading = value !== null && Number.isFinite(value)
+  const provenance: string[] = []
+  if (compared !== undefined) {
+    provenance.push(
+      asOf === undefined
+        ? "We do not know when this range was last confirmed."
+        : `This range was last confirmed on ${formatDate(asOf, locale)}.`,
+    )
+  }
+  if (measuredAt !== undefined) {
+    provenance.push(`This reading was taken on ${formatDate(measuredAt, locale)}.`)
+  } else if (hasReading) {
+    provenance.push("We do not know when this reading was taken.")
+  }
 
   return (
     <div
@@ -616,23 +717,35 @@ export function RangeBar({
                else assigned. It is not focusable and it is not in the tab order,
                because a stop that does nothing is a stop every keyboard user
                pays for on every row of a list. The name is the summary
-               sentence, which the reader also has in full underneath — the
-               repetition is the cost of the picture having a name at all. */
+               sentence — which the reader also has in full underneath, and the
+               repetition is the cost of the picture having a name at all —
+               plus the status word, which is inside the picture as a colour
+               and nowhere inside it as a word. */
             role="img"
-            aria-label={spokenSummary}
+            aria-label={graphicName}
             className="relative h-[0.9em] rounded-full border border-border bg-muted"
           >
             {/* THE BAND IS NEVER STATUS-COLOURED. It is the range, which is a
                 fact about a laboratory rather than about the reader, and a
-                coloured band is read as a verdict on everything inside it. The
-                border is what carries it in print, where the fill is dropped. */}
+                coloured band is read as a verdict on everything inside it.
+
+                OUTLINED RATHER THAN ONLY FILLED, because the fill is a
+                near-neutral on a near-neutral and is the first thing a printer
+                drops — an intent rather than a tested outcome, since opsinjs
+                has no print stylesheet yet. The outline takes the same ink as
+                the two boundary marks rather than the theme's generic
+                hairline: `lib/generated/contrast.json` records a neutral
+                hairline on the page at APCA Lc 22.42 and WCAG 1.47:1 against a
+                non-text floor of Lc 45 and 3:1, and the band is the primary
+                graphic. Neither of this component's own pairings has been
+                measured; the page lists them rather than claiming them. */}
             <div
               data-slot="range-bar-band"
               style={{
                 insetInlineStart: `${at(extent.low).toFixed(3)}%`,
                 inlineSize: `${(at(extent.high) - at(extent.low)).toFixed(3)}%`,
               }}
-              className="absolute inset-y-0 rounded-full border border-border bg-background"
+              className="absolute inset-y-0 rounded-full border border-muted-foreground bg-background"
             />
 
             {[extent.low, extent.high].map((bound) => (
@@ -701,24 +814,14 @@ export function RangeBar({
           )}
       </p>
 
-      {footnote ? (
+      {provenance.length === 0 ? null : (
         <p
           data-slot="range-bar-footnote"
           className="m-0 text-opsin-caption1 text-muted-foreground"
         >
-          {compared === undefined
-            ? null
-            : asOf === undefined
-              ? /* Never today's date, and never silence. A range nobody has
-                   dated may have been superseded, and the reader is the person
-                   entitled to know that nobody knows. */
-                "We do not know when this range was last confirmed."
-              : `This range was last confirmed on ${formatDate(asOf, locale)}.`}
-          {measuredAt === undefined
-            ? null
-            : ` This reading was taken on ${formatDate(measuredAt, locale)}.`}
+          {provenance.join(" ")}
         </p>
-      ) : null}
+      )}
     </div>
   )
 }
@@ -734,10 +837,15 @@ export function RangeBar({
  * small asterisk.
  *
  * The numbers are obviously unreal (ADR 0012) and the range cites the one string
- * an opsinjs example may cite. No date is given for the range either, so the
- * demo also shows what the footnote says when nobody knows: this file is one
- * `shadcn add` away from somebody else's project, and a plausible confirmation
- * date is a claim that would travel with it.
+ * an opsinjs example may cite. No date is given for the range, so the demo also
+ * shows what the footnote says when nobody knows: this file is one `shadcn add`
+ * away from somebody else's project, and a plausible confirmation date is a
+ * claim that would travel with it.
+ *
+ * The first reading carries the time it was taken and the second deliberately
+ * does not, so both halves of the recency rule are on screen: a dated reading,
+ * and a component saying outright that nobody knows when the other one was
+ * taken rather than letting it be read as "now".
  */
 export default function RangeBarDemo() {
   return (
@@ -750,6 +858,7 @@ export default function RangeBarDemo() {
         range={{ low: 10, high: 20, source: EXAMPLE_SOURCE }}
         status="watch"
         category="labs"
+        measuredAt="2026-03-14T08:12:00+00:00"
       />
       <RangeBar
         label="Second example measurement"

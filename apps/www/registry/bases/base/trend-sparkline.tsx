@@ -7,21 +7,30 @@
  * refusing to draw a line the data does not support, and about making sure the
  * words beside the line carry everything the line carries.
  *
- * THE CAPTION IS NOT A CONVENIENCE. It is the component. There is no prop that
- * turns it off, no `sr-only` variant of it and no `showCaption={false}`, because
- * a graphic has no word in it at all — worse off than a status pill, whose
- * measured problem is only that four hues cannot be told apart. A reader who
- * cannot see the plot must lose the picture and keep the information, and the
- * only way to promise that is to make the sentence mandatory and visible.
+ * THE CAPTION IS THE COMPONENT. There is no prop that turns it off, no
+ * `sr-only` variant of it and no `showCaption={false}`, because a graphic has no
+ * word in it at all — worse off than a status pill, whose measured problem is
+ * only that four hues cannot be told apart. A reader who cannot see the plot
+ * must lose the picture and keep the information. What that promise does NOT
+ * survive is `className`: it is merged onto the root with `tailwind-merge`, so a
+ * caller who passes `hidden`, `sr-only` or a `[&_[data-slot=…]]:hidden` variant
+ * removes the sentence, and nothing here can stop them. That is stated on the
+ * page rather than claimed away.
  *
- * NOTHING HERE IS DERIVED FROM A NUMBER. There is no reference range in this
- * file, no change threshold, no smoothing, no minimum point count and no rule
- * about how much movement counts as movement. Every one of those is a clinical
- * judgement belonging to the product that knows what was measured and who the
- * reader is. `minimumPoints` is required and has no default for exactly that
- * reason: how many readings make a trend is not a question a design system is
- * entitled to answer, and three readings drawn as a slope is a picture that
- * carries far more authority than three readings deserve.
+ * NOTHING HERE IS DERIVED FROM A NUMBER THIS FILE CHOSE. There is no reference
+ * range, no smoothing, no minimum point count and no rule about how much
+ * movement counts as movement. `minimumPoints` and `changeThreshold` both come
+ * from the caller: the first is required, and without the second this component
+ * prints both endpoints and names no direction at all. Naming a direction from
+ * any difference whatever would mean this file had picked a change threshold of
+ * zero and applied it to somebody else's metric, which doctrine gives to the
+ * metric and not to us.
+ *
+ * A BAND NEEDS BOTH OF ITS ENDS. A one-sided range is a real range and it is
+ * drawn as words, never as a rectangle with an edge this file supplied: taking
+ * the missing bound from the data extent — or from zero — and then telling the
+ * reader in the caption that the whole band came from their laboratory credits
+ * that laboratory with a number it never gave.
  *
  * THE STATUS AXIS IS NOT DRAWN. `TrendPoint.status` decides which reading is
  * emphasised and what the caption says about it; it never tints the marker. The
@@ -39,6 +48,7 @@
 
 import {
   HEALTH_CATEGORIES,
+  isClinicalStatus,
   isDevelopment,
   isHealthCategory,
   spokenUnit,
@@ -52,12 +62,14 @@ import { StatusPill } from "@/registry/base-lyra/ui/status-pill"
 import { Value } from "@/registry/base-lyra/ui/value"
 
 /**
- * Direction is a fact about the series. Valence is a judgement, and not ours.
+ * Direction is a fact about the series measured against the caller's own change
+ * threshold. Valence is a judgement, and not ours.
  *
  * All four members are the vocabulary a product may use in a caption of its own.
- * This component only ever produces `up`, `down` and `level`, and `level` only
- * on exact equality — see `directionOf` for why `unsettled` is unreachable from
- * here and what a product that wants it should do instead.
+ * This component produces `up`, `down` and `level`, and only when the caller has
+ * said how much movement counts as movement — see `directionOf`. `unsettled` is
+ * unreachable from here, because deciding a series is unsettled needs a noise
+ * measure that no prop carries.
  */
 export type TrendDirection = "up" | "down" | "level" | "unsettled"
 
@@ -109,6 +121,49 @@ const DIRECTION_WORD: Record<TrendDirection, string> = {
   unsettled: "Unsettled",
 }
 
+/**
+ * The formatter's ceiling, and the same one `Value` uses.
+ *
+ * Opened all the way rather than left at `Intl`'s default of three, because
+ * rounding a reader's measurement to a precision nobody stated is a display
+ * decision this component is not entitled to make.
+ */
+const MAX_FRACTION_DIGITS = 20
+
+/**
+ * A number for the accessible name, written the way `Value` writes the same
+ * number in the caption below it.
+ *
+ * The spoken name and the printed sentence have to say one number one way. A
+ * bare `String(…)` prints a full stop where a de-DE reader's locale writes a
+ * comma, and prints an arithmetic result as seventeen digits, which asserts an
+ * accuracy no instrument has. Separators and grouping are never hand-rolled.
+ */
+function formatNumber(value: number, locale: string | undefined): string {
+  return new Intl.NumberFormat(locale, {
+    maximumFractionDigits: MAX_FRACTION_DIGITS,
+    roundingMode: "halfExpand",
+  }).format(value)
+}
+
+/**
+ * A date, or `undefined` when the timestamp is not one.
+ *
+ * `timeZone: "UTC"` rather than the reader's zone, because this renders on a
+ * server and again in a browser: a date that resolved differently in the two
+ * places would hydrate into a mismatch, and a date on somebody's reading that
+ * moves under them is worse than one that is a few hours out. Same treatment as
+ * the sibling components' provenance dates, for the same reason.
+ */
+function formatDate(iso: string, locale: string | undefined): string | undefined {
+  const instant = new Date(iso)
+  if (Number.isNaN(instant.getTime())) return undefined
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "long",
+    timeZone: "UTC",
+  }).format(instant)
+}
+
 /** A reading that survived to be drawn: a finite value with a position. */
 interface PlottedReading {
   /** Index into the caller's `series`, so a marker can be traced back. */
@@ -118,43 +173,29 @@ interface PlottedReading {
   y: number
 }
 
-/**
- * Which readings are real.
- *
- * `null` is a recorded gap and is the shape the API asks for. A non-finite
- * number is a different failure — a parse that produced nothing, a division with
- * no divisor — and it is treated as a gap for drawing purposes because there is
- * no honest place to put it, with a development warning so the caller knows
- * their pipeline leaked rather than that their reader skipped a day.
- */
+/** A reading that was taken and is a number. */
 function isReading(point: TrendPoint): boolean {
   return point.value !== null && Number.isFinite(point.value)
 }
 
+/** An entry the caller says nobody recorded. `null` is the shape the API asks for. */
+function isGap(point: TrendPoint): boolean {
+  return point.value === null
+}
+
 /**
- * Direction, from the first real reading to the last, and nothing cleverer.
+ * An entry that says a reading was taken and did not survive the trip.
  *
- * FIRST AND LAST, NOT A FITTED SLOPE. A regression line is a better summary of a
- * noisy series and a worse thing to print beside one, because a reader cannot
- * check it against the picture. The content guidance for this component asks for
- * a caption whose every word can be checked against the plot, and first-to-last
- * is the only summary that qualifies.
- *
- * `level` ONLY ON EXACT EQUALITY, and this is the uncomfortable part. Doctrine
- * says a metric declares a change threshold below which a difference is
- * presented as unchanged — and `TrendSparklineProps` has no prop to carry one.
- * With no threshold from the caller, calling a small difference "unchanged"
- * would be this file inventing the threshold, which is the one thing it must not
- * do. So a difference of any size reads as up or down, the caption prints both
- * endpoints so the reader can see how small it is, and a product with a real
- * threshold passes its own `caption`. That is also why `unsettled` is
- * unreachable: deciding a series is unsettled needs a noise measure, and there
- * is no prop for one either.
+ * A FAILURE IS NOT AN ABSENCE. A parse that produced nothing, or a division with
+ * no divisor, arrives here as a non-finite number, and folding it into the gap
+ * count would tell a reader they recorded nothing on a day they did record
+ * something. `uncertainty-and-staleness` rule 6 keeps the two sentences apart —
+ * "we could not load this" is not "you have not recorded any readings yet" — and
+ * `Value` keeps the same three states apart for a single number, so the series
+ * has to keep them apart too. Counted separately and said separately.
  */
-function directionOf(first: number, last: number): TrendDirection {
-  if (last > first) return "up"
-  if (last < first) return "down"
-  return "level"
+function isBrokenReading(point: TrendPoint): boolean {
+  return point.value !== null && !Number.isFinite(point.value)
 }
 
 /**
@@ -172,6 +213,33 @@ function pathFor(run: PlottedReading[]): string {
     .map((reading) => `L ${String(reading.x)} ${String(reading.y)}`)
     .join(" ")
   return rest === "" ? `${move} L ${String(head.x)} ${String(head.y)}` : `${move} ${rest}`
+}
+
+/**
+ * Direction, from the first real reading to the last, against the change the
+ * caller says counts as a change.
+ *
+ * FIRST AND LAST, NOT A FITTED SLOPE. A regression line is a better summary of a
+ * noisy series and a worse thing to print beside one, because a reader cannot
+ * check it against the picture. The content guidance for this component asks for
+ * a caption whose every word can be checked against the plot, and first-to-last
+ * is the only summary that qualifies.
+ *
+ * `smallestChange` IS THE CALLER'S, ALWAYS. This function is called only when
+ * the caller supplied one. Doctrine gives the metric the job of declaring the
+ * difference below which a series is presented as unchanged — below the noise
+ * floor, "about the same as last week" is the true statement — and a component
+ * that answered it would be applying a change threshold of zero to a weight
+ * series where a hundred grams is the scale's own resolution. With none
+ * supplied there is no direction word at all: the caption prints both endpoints
+ * and the accessible name says "with no clear direction", which is the wording
+ * `content/alt-text-and-descriptions` gives for this case.
+ */
+function directionOf(first: number, last: number, smallestChange: number): TrendDirection {
+  if (Math.abs(last - first) < smallestChange) return "level"
+  if (last > first) return "up"
+  if (last < first) return "down"
+  return "level"
 }
 
 export interface TrendSparklineProps {
@@ -194,6 +262,9 @@ export interface TrendSparklineProps {
    * `value: null`, never an omitted one: an entry missing from the array is one
    * this component cannot know about, and a line drawn straight through it
    * asserts a measurement nobody took.
+   *
+   * An entry whose value is a number but not a finite one is a failure rather
+   * than a gap, is counted and described as one, and is not drawn.
    */
   series: TrendPoint[]
   /**
@@ -215,10 +286,27 @@ export interface TrendSparklineProps {
    */
   window: string
   /**
+   * The smallest difference this metric counts as a change, in the reading's own
+   * unit. There is no default, and without it the caption names no direction.
+   *
+   * A metric declares the difference below which a series is presented as
+   * unchanged; below that noise floor "about the same" is the true sentence.
+   * Supplied, the caption reads "Up, from … to …"; omitted, it prints both
+   * endpoints and stops, and the accessible name says "with no clear direction".
+   * Zero is a legitimate value and means your metric counts any difference at
+   * all — but it has to be your product saying so, not this file.
+   */
+  changeThreshold?: number
+  /**
    * An interval to shade behind the line, in neutral tones. Never
    * status-coloured, and never invented: omit it and no band is drawn. Its
    * `source` is required and is named in the caption, because a shaded band with
    * no owner is an assertion with no author.
+   *
+   * A band is drawn only when BOTH bounds are present and the lower is below the
+   * upper. A one-sided range is stated in the caption as words — "10 steps and
+   * above" — and drawn as nothing, because the missing edge would have to come
+   * from the data or from zero and would then be attributed to your source.
    */
   range?: ReferenceRange
   /**
@@ -227,16 +315,33 @@ export interface TrendSparklineProps {
    */
   category?: HealthCategory
   /**
-   * Your own sentence, replacing the composed one. Use it when you have a change
-   * threshold, a cadence or a phrasing this component cannot know about.
+   * Your own sentence, in place of the composed one. Use it when you have a
+   * cadence, a phrasing or a comparison this component cannot know about.
    *
-   * It replaces the direction-and-magnitude sentence only. The clause naming a
-   * marked reading and the clause naming the band's source are appended by the
-   * component and cannot be removed by any prop — one is a status that owes a
-   * word, the other is an attribution.
+   * It replaces the direction-and-magnitude sentence. It does not replace the
+   * coverage clause (how many readings there are and what is missing), the
+   * clause naming a marked reading, or the clause naming a range's source —
+   * those are appended either way, because a count of absent measurements, a
+   * status and an attribution are not decoration. Where there are too few
+   * readings to draw, your sentence is appended to the refusal rather than
+   * replacing it: the refusal is the one sentence that explains why there is no
+   * picture.
    */
   caption?: string
-  /** Merged onto the root. There is no class that hides the caption. */
+  /**
+   * BCP 47 locale for number separators, digit shapes and the date in the
+   * caption. Passed through to every `Value` this component renders and used for
+   * the plot's accessible name, so the spoken name and the printed sentence
+   * cannot show two conventions. Omitted, the reader's environment decides.
+   */
+  locale?: string
+  /**
+   * Merged onto the root with `tailwind-merge`, and a class you pass wins where
+   * the two conflict. That includes `hidden` and `sr-only`, and it includes a
+   * variant that targets the caption's `data-slot`: this prop reaches the whole
+   * subtree, and a caller who hides the caption hides the text twin. Nothing in
+   * this component prevents it and no gate checks for it.
+   */
   className?: string
 }
 
@@ -245,25 +350,35 @@ export function TrendSparkline({
   unit,
   series,
   minimumPoints,
-  window,
+  window: windowLabel,
+  changeThreshold,
   range,
   category,
   caption,
+  locale,
   className,
 }: TrendSparklineProps) {
+  /* `window` is bound to a differently named local on purpose. The prop is
+     called `window` because that is the right word in the API, and a parameter
+     of that name shadows the global for the whole function body — so a future
+     SSR guard written here as `typeof window === "undefined"` would read the
+     prop, get "string", and take the client branch on the server without ever
+     reporting. This file is copied into consumer projects and edited there. */
   const points = Array.isArray(series) ? series : []
   const readings = points.filter(isReading)
-  const gaps = points.length - readings.length
+  const gaps = points.filter(isGap).length
+  const brokenReadings = points.filter(isBrokenReading).length
 
   if (isDevelopment()) {
     for (const point of points) {
-      if (point.value === null || Number.isFinite(point.value)) continue
+      if (!isBrokenReading(point)) continue
       console.warn(
         `[opsinjs] <TrendSparkline> received ${String(point.value)} as a reading ` +
-          `at ${String(point.at)}, which is not a finite number. It has been drawn ` +
-          "as a gap, and that is a guess: a gap means nobody took a reading, and " +
-          "this one says a reading was taken and did not survive the trip. Pass " +
-          "`value: null` for a gap and fix the pipeline for the rest.",
+          `at ${String(point.at)}, which is not a finite number. It has not been ` +
+          "drawn, and it is counted and described to the reader as a reading that " +
+          "could not be read rather than as a gap — a gap means nobody took a " +
+          "reading, and this one says a reading was taken and did not survive the " +
+          "trip. Pass `value: null` for a gap and fix the pipeline for the rest.",
       )
     }
   }
@@ -286,14 +401,44 @@ export function TrendSparkline({
      the type is advice in a JavaScript project — so the check is for the caller
      who has none, and the repair is to draw NO BAND rather than an unowned one.
      A shaded interval with no attribution is the consuming product asking this
-     system to vouch for a comparison it has never seen. */
+     system to vouch for a comparison it has never seen.
+
+     The message in tokens/errors.json names `rangeSource`, which is not a prop
+     on anything: the prop is `range.source`. That is a defect in the message
+     table rather than in this file, and it is reported upward rather than worked
+     around here — the same treatment, and for the same reason, as the
+     `minimumWindow` span in OPSIN-0012 below. */
   const rangeOwner = range?.source?.trim()
   const rangeIsOwned = range !== undefined && rangeOwner !== undefined && rangeOwner !== ""
   if (range !== undefined && !rangeIsOwned) {
     warnOnce("OPSIN-0004", { component: "TrendSparkline" })
   }
-  const shaded =
-    rangeIsOwned && (range.low !== undefined || range.high !== undefined) ? range : undefined
+
+  /* A BAND NEEDS BOTH ENDS, AND THEY HAVE TO BE IN ORDER.
+     `ReferenceRange` says an omitted bound renders as an open end, never as zero
+     and never as an assumed limit. A rectangle has four edges, so a one-sided
+     range drawn as one would take its missing edge from the data extent or from
+     zero and the caption would then credit the caller's source with a bound it
+     never gave. The honest rendering of an open end here is the words in the
+     caption; the picture declines. Equal or inverted bounds have no width and go
+     the same way. */
+  const bandLow = rangeIsOwned ? range.low : undefined
+  const bandHigh = rangeIsOwned ? range.high : undefined
+  const bandBounds: number[] =
+    bandLow !== undefined && bandHigh !== undefined && bandHigh > bandLow
+      ? [bandLow, bandHigh]
+      : []
+  const bandIsClosed = bandBounds.length > 0
+  if (rangeIsOwned && !bandIsClosed && isDevelopment()) {
+    console.warn(
+      "[opsinjs] <TrendSparkline> was given a `range` it cannot shade: a band " +
+        "needs a lower bound and an upper bound, with the lower below the upper. " +
+        "The interval has been stated in the caption in words instead, open end " +
+        "and all. It has NOT been drawn with an edge this component supplied, " +
+        "because that edge would then be attributed in the caption to your " +
+        "source, which never gave it.",
+    )
+  }
 
   /* THE RULE ABOUT DRAWING, AND IT FAILS TOWARDS NOT DRAWING.
      A `minimumPoints` that is not a whole number above zero is a caller who has
@@ -326,30 +471,58 @@ export function TrendSparkline({
     warnOnce("OPSIN-0012", { count: readings.length, minimum: minimumPoints })
   }
 
+  /* THE CHANGE THRESHOLD IS THE CALLER'S OR THERE IS NO DIRECTION WORD.
+     Same failure direction as `minimumPoints`, and for the same reason: a value
+     that is not a finite number at or above zero is a caller who has not
+     decided, and the repair is to say less rather than to guess. */
+  const smallestChange =
+    changeThreshold !== undefined &&
+    Number.isFinite(changeThreshold) &&
+    !(changeThreshold < 0)
+      ? changeThreshold
+      : undefined
+  if (changeThreshold !== undefined && smallestChange === undefined && isDevelopment()) {
+    console.warn(
+      `[opsinjs] <TrendSparkline> received changeThreshold=${String(changeThreshold)}. ` +
+        "It is the smallest difference your metric counts as a change, in the " +
+        "reading's own unit, so it has to be a finite number that is not below " +
+        "zero. No direction word was printed: the caption gives both endpoints " +
+        "and stops. There is deliberately no default, because a difference small " +
+        "enough to be the instrument's own noise is a property of what was " +
+        "measured.",
+    )
+  }
+
   /* THE X-AXIS IS THE SERIES' OWN EXTENT, and it cannot be anything else.
      `window` is a display string, so this component is never told how long the
      period actually is and cannot lay the readings out against it. Timestamps
-     are used where they parse, so a gap sits in the right place along the line
-     rather than being collapsed to an even step; where they do not, position
-     falls back to the index, which is at least stable. The consequence — two
-     sparklines side by side are only comparable when their series cover the
-     same span — is stated on the page, because the repair is a duration prop
-     that the specification does not have. */
+     are used where they parse AND run forwards across the WHOLE array, not
+     merely at its two ends: a middle reading dated before the first one produces
+     a fraction below zero, and with `overflow-visible` on the plot that segment is
+     drawn outside this component, over whatever sits beside it. Where the check
+     fails, position falls back to the index, which is at least stable. The
+     consequence — two sparklines side by side are only comparable when their
+     series cover the same span — is stated on the page, because the repair is a
+     duration prop that the specification does not have. */
   const times = points.map((point) => Date.parse(String(point.at)))
   const firstTime = times.at(0)
   const lastTime = times.at(-1)
+  const timesRunForwards = times.every(
+    (time, index) => index === 0 || time >= times[index - 1],
+  )
   const timesUsable =
     firstTime !== undefined &&
     lastTime !== undefined &&
     times.every((time) => Number.isFinite(time)) &&
+    timesRunForwards &&
     lastTime > firstTime
   if (!timesUsable && points.length > 1 && isDevelopment()) {
     console.warn(
-      "[opsinjs] <TrendSparkline> could not read its timestamps as an increasing " +
-        "run of ISO dates, so the readings have been spaced evenly by their " +
-        "position in the array instead. A gap will therefore sit at the wrong " +
-        "place along the line. `TrendPoint.at` is an ISO 8601 timestamp and the " +
-        "series is chronological.",
+      "[opsinjs] <TrendSparkline> could not read its timestamps as a run of ISO " +
+        "dates that never goes backwards, so the readings have been spaced evenly " +
+        "by their position in the array instead. A gap will therefore sit at the " +
+        "wrong place along the line. `TrendPoint.at` is an ISO 8601 timestamp and " +
+        "the series is chronological.",
     )
   }
 
@@ -372,14 +545,16 @@ export function TrendSparkline({
      happened. Anchoring at zero means many real series draw as a nearly flat
      line — which is the honest picture, and why the caption carries the
      magnitude in words. There is no `yAxisMin` prop for a caller to reach for
-     either; OPSIN-0013 is the code for the mistake this API cannot express. */
+     either; OPSIN-0013 is the code for the mistake this API cannot express.
+
+     A band that IS drawn widens the scale so that it fits. A band that is not
+     drawn does not touch the scale at all, because a bound nobody is shown must
+     not move the picture either. */
   const magnitudes = readings.flatMap((point) =>
     point.value === null ? [] : [point.value],
   )
-  const shadedLow = shaded?.low
-  const shadedHigh = shaded?.high
-  const low = Math.min(0, ...magnitudes, ...(shadedLow === undefined ? [] : [shadedLow]))
-  const high = Math.max(0, ...magnitudes, ...(shadedHigh === undefined ? [] : [shadedHigh]))
+  const low = Math.min(0, ...magnitudes, ...bandBounds)
+  const high = Math.max(0, ...magnitudes, ...bandBounds)
   const spanY = high - low
   const yAt = (value: number): number => {
     if (spanY <= 0) return PLOT_HEIGHT / 2
@@ -397,7 +572,9 @@ export function TrendSparkline({
   /* THE LINE BREAKS AT EVERY GAP, and the break is a real one in the path data
      rather than a lighter stroke or a dotted segment. A subpath is opened at
      each run of consecutive readings and closed by the first gap after it, so a
-     fortnight of absent data leaves a fortnight of absent line.
+     fortnight of absent data leaves a fortnight of absent line. A reading that
+     arrived broken breaks the line the same way, because it cannot be given a
+     position — the difference between the two is carried by the words.
 
      A run of exactly one reading becomes a zero-length subpath, which with a
      round line cap renders as a dot. That is deliberate: an isolated reading
@@ -429,14 +606,32 @@ export function TrendSparkline({
      does not require it, and taking the permission would be shipping a red dot
      that a substantial minority of readers cannot tell from an amber one.
 
+     A LEVEL OUTSIDE THE FOUR MARKS NOTHING. `unknown` is the likeliest wrong
+     answer and it is the absence of an assertion rather than a fifth level, so a
+     reading carrying it would otherwise keep the emphasis — the halo and the
+     heavier marker — while StatusPill declined to render the word. Emphasis with
+     no word beside it is this file's own argument turned inside out, so the
+     selection is gated on the same predicate the pill uses.
+
      AT MOST ONE, and the last one wins. The specification is explicit that the
      status axis appears on a single emphasised point, and the reason is the same
      rule: the caption names one verdict in words, so the plot emphasises one
      reading. A caller who marked several is told which was drawn rather than
      left to discover it. */
-  const marked = plotted.filter((reading) => points.at(reading.index)?.status !== undefined)
+  const marked = plotted.filter((reading) =>
+    isClinicalStatus(points.at(reading.index)?.status),
+  )
   const flagged = marked.at(-1)
-  const flaggedStatus = flagged === undefined ? undefined : points.at(flagged.index)?.status
+  const flaggedPoint = flagged === undefined ? undefined : points.at(flagged.index)
+  const flaggedStatus = flaggedPoint?.status
+  for (const point of points) {
+    const status: unknown = point.status
+    if (status === undefined || isClinicalStatus(status)) continue
+    warnOnce(status === "unknown" ? "OPSIN-0011" : "OPSIN-0021", {
+      component: "TrendSparkline",
+      status: String(status),
+    })
+  }
   if (marked.length > 1 && isDevelopment()) {
     console.warn(
       `[opsinjs] <TrendSparkline> was given ${String(marked.length)} readings ` +
@@ -450,49 +645,130 @@ export function TrendSparkline({
 
   const first = plotted.at(0)
   const last = plotted.at(-1)
+  const drawn = enoughReadings && first !== undefined && last !== undefined
   const direction =
-    first === undefined || last === undefined ? undefined : directionOf(first.value, last.value)
+    first === undefined || last === undefined || smallestChange === undefined
+      ? undefined
+      : directionOf(first.value, last.value, smallestChange)
+
+  const bandDrawn = bandIsClosed && drawn
 
   const spoken = spokenUnit(unit, high) ?? unit
   const lowest = magnitudes.length > 0 ? Math.min(...magnitudes) : undefined
   const highest = magnitudes.length > 0 ? Math.max(...magnitudes) : undefined
 
+  /* WHEN, NOT ONLY HOW LONG. `window` is a display string this component can
+     never check, so on its own it reads as current at any age: a series whose
+     last reading was taken three months ago renders identically to one taken
+     this morning. Every point already carries its own `at`, so the last real
+     reading's date is printed rather than inferred. No staleness boundary is
+     invented here and none is available to be — how old is too old belongs to
+     the metric, and a product that wants a verdict about age puts a
+     RelativeTime beside the plot. */
+  const lastReadingAt = last === undefined ? undefined : points.at(last.index)?.at
+  const measuredOn =
+    lastReadingAt === undefined ? undefined : formatDate(String(lastReadingAt), locale)
+  const whenSentence =
+    last === undefined
+      ? ""
+      : measuredOn === undefined
+        ? " We do not know when the last reading was taken."
+        : ` The last reading was taken on ${measuredOn}.`
+
   /* The plot's accessible name, which is the picture described as a picture:
-     what was measured, over what period, how many readings there are and what
-     they range between. It deliberately says something the caption does not —
-     the extent — because a name identical to the sentence below it would be the
-     same words read out twice. The pattern is the one in
-     content/alt-text-and-descriptions: measure, period, coverage, extent,
-     direction. It never says "chart of", "the red zone", or "trending up". */
+     what was measured, over what period, how many readings there are, what they
+     range between, which way they went, and what is missing. The pattern is the
+     one in content/alt-text-and-descriptions — measure, period, coverage,
+     extent, direction — including its own wording for a series whose direction
+     nobody has told us how to judge. Its final element, a pointer to the table
+     twin, is absent because there is no table twin to point at; that gap is
+     recorded on the page rather than papered over here. It never says "chart
+     of", "the red zone", or "trending up". */
   const extent =
     lowest === undefined || highest === undefined
       ? ""
       : lowest === highest
-        ? `every one of them ${String(lowest)} ${spoken}`
-        : `between ${String(lowest)} and ${String(highest)} ${spoken}`
+        ? `every one of them ${formatNumber(lowest, locale)} ${spoken}`
+        : `between ${formatNumber(lowest, locale)} and ${formatNumber(highest, locale)} ${spoken}`
+
+  const directionPhrase =
+    direction === undefined
+      ? "with no clear direction"
+      : `${DIRECTION_WORD[direction].toLowerCase()} from the first reading to the last`
 
   /* Said as whole entries rather than as a bare count, because "1 with no
-     reading" leaves a listener asking one what. */
-  const gapSentence =
-    gaps === 0
+     reading" leaves a listener asking one what — and said as two separate
+     sentences, because an entry nobody recorded and a reading that arrived
+     broken are two different things to be told about your own record. */
+  const missingSentence =
+    (gaps === 0
       ? ""
       : gaps === 1
         ? " 1 entry has no reading."
-        : ` ${String(gaps)} entries have no reading.`
+        : ` ${String(gaps)} entries have no reading.`) +
+    (brokenReadings === 0
+      ? ""
+      : brokenReadings === 1
+        ? " 1 reading could not be read."
+        : ` ${String(brokenReadings)} readings could not be read.`)
+
+  const bandSentence =
+    bandDrawn && bandLow !== undefined && bandHigh !== undefined
+      ? ` A shaded band, ${formatNumber(bandLow, locale)} to ${formatNumber(bandHigh, locale)} ${spoken}, from ${String(rangeOwner)}.`
+      : ""
 
   const plotName =
-    direction === undefined || extent === ""
-      ? `${label} over ${window}. No readings to draw.`
-      : `${label} over ${window}: ${String(readings.length)} readings, ${extent}. ` +
-        `From the first reading to the last, ` +
-        `${DIRECTION_WORD[direction].toLowerCase()}.${gapSentence}`
+    extent === ""
+      ? `${label} over ${windowLabel}. No readings to draw.`
+      : `${label} over ${windowLabel}: ${String(readings.length)} readings, ${extent}, ` +
+        `${directionPhrase}.${bandSentence}${missingSentence}${whenSentence}`
 
-  const gapClause =
-    gaps === 0
-      ? "with none missing."
-      : gaps === 1
-        ? "and 1 gap where nothing was recorded."
-        : `and ${String(gaps)} gaps where nothing was recorded.`
+  /* The same two facts as the accessible name's missing sentence, in the
+     caption's own grammar, and the one clause a caller's own sentence does not
+     displace: how much of the window has no measurement in it. */
+  const missingParts: string[] = []
+  if (gaps > 0) {
+    missingParts.push(
+      gaps === 1
+        ? "1 gap where nothing was recorded"
+        : `${String(gaps)} gaps where nothing was recorded`,
+    )
+  }
+  if (brokenReadings > 0) {
+    missingParts.push(
+      brokenReadings === 1
+        ? "1 reading that could not be read"
+        : `${String(brokenReadings)} readings that could not be read`,
+    )
+  }
+  const missingClause =
+    missingParts.length === 0 ? "with none missing." : `and ${missingParts.join(" and ")}.`
+
+  const ownCaption = caption !== undefined && caption.trim() !== "" ? caption.trim() : undefined
+
+  /* The words for the caller's interval, open end and all, so that a band the
+     picture declines to draw is still a thing the reader has been told. */
+  const rangeInterval =
+    bandLow !== undefined && bandHigh !== undefined ? (
+      <>
+        <Value value={bandLow} unit={unit} locale={locale} /> to{" "}
+        <Value value={bandHigh} unit={unit} locale={locale} />
+      </>
+    ) : bandLow !== undefined ? (
+      <>
+        <Value value={bandLow} unit={unit} locale={locale} /> and upwards
+      </>
+    ) : bandHigh !== undefined ? (
+      <>
+        up to <Value value={bandHigh} unit={unit} locale={locale} />
+      </>
+    ) : undefined
+
+  const bandRefusal = !bandIsClosed
+    ? bandLow !== undefined && bandHigh !== undefined
+      ? "because its lower bound is not below its upper one"
+      : "because a band needs both of its ends"
+    : "because no line was drawn"
 
   return (
     <div
@@ -507,13 +783,13 @@ export function TrendSparkline({
           period at all, so this stays in the accessibility tree. */}
       <p
         data-slot="trend-sparkline-window"
-        aria-hidden={caption === undefined ? "true" : undefined}
+        aria-hidden={ownCaption === undefined ? "true" : undefined}
         className="m-0 text-opsin-caption1 text-muted-foreground"
       >
-        {window}
+        {windowLabel}
       </p>
 
-      {enoughReadings && direction !== undefined ? (
+      {drawn ? (
         <svg
           data-slot="trend-sparkline-plot"
           /* role="img" with a name, and never `meter`, `slider` or
@@ -528,15 +804,18 @@ export function TrendSparkline({
           focusable="false"
           viewBox={`0 0 ${String(PLOT_WIDTH)} ${String(PLOT_HEIGHT)}`}
           /* Stretched rather than fitted, so the plot fills whatever column it
-             is given. Every stroke below carries `vectorEffect` so that the
-             uneven scale does not thin the line at one width and thicken it at
-             another, and every marker is a zero-length round-capped segment
-             rather than a circle, because a circle in a stretched viewBox is an
-             ellipse. */
+             is given. That has a cost the page states: the apparent slope is a
+             function of the column's width and of the reader's text size rather
+             than of the data, so two of these are comparable only at the same
+             width and the same text size. Every stroke below carries
+             `vectorEffect` so that the uneven scale does not thin the line at
+             one width and thicken it at another, and every marker is a
+             zero-length round-capped segment rather than a circle, because a
+             circle in a stretched viewBox is an ellipse. */
           preserveAspectRatio="none"
           className="h-opsin-12 w-full overflow-visible"
         >
-          {shaded === undefined ? null : (
+          {bandDrawn && bandLow !== undefined && bandHigh !== undefined ? (
             <rect
               data-slot="trend-sparkline-band"
               /* Neutral, and neutral is the whole specification for this part. A
@@ -545,16 +824,18 @@ export function TrendSparkline({
                  verdict about the readings sitting inside it, which is a
                  comparison this component was never given. The dashed edge is
                  what distinguishes the band from the line without colour, in
-                 greyscale and in print. */
+                 greyscale and in print — and whether either neutral clears the
+                 non-text contrast floor has not been measured for this
+                 component, which the page says rather than assumes. */
               x={PLOT_INSET}
               width={PLOT_WIDTH - PLOT_INSET * 2}
-              y={yAt(shadedHigh ?? high)}
-              height={Math.max(0, yAt(shadedLow ?? low) - yAt(shadedHigh ?? high))}
+              y={yAt(bandHigh)}
+              height={Math.max(0, yAt(bandLow) - yAt(bandHigh))}
               strokeDasharray="2 2"
               vectorEffect="non-scaling-stroke"
               className="fill-muted stroke-border"
             />
-          )}
+          ) : null}
 
           <path
             data-slot="trend-sparkline-line"
@@ -609,41 +890,56 @@ export function TrendSparkline({
 
       {/* THE TEXT TWIN. Visible, in the DOM, and read by everybody — not
           `sr-only`, not a `title`, not an `aria-label` hung on something else.
-          Three clauses, and only the first can be replaced by the caller: the
-          marked reading owes a word because it is a status, and the band owes an
-          attribution because it is somebody's comparison. */}
+          The caller's own sentence stands in for the direction-and-magnitude
+          clause and for nothing else: what is missing, which reading was marked,
+          when the last one was taken and whose the range is are appended either
+          way, because a count of absent measurements, a status, a date and an
+          attribution are each somebody's own record rather than decoration. */}
       <p data-slot="trend-sparkline-caption" className="m-0 text-pretty">
-        {caption !== undefined && caption.trim() !== "" ? (
-          caption
-        ) : enoughReadings &&
-          direction !== undefined &&
-          first !== undefined &&
-          last !== undefined ? (
+        {drawn && first !== undefined && last !== undefined ? (
           <>
-            {DIRECTION_WORD[direction]}, from <Value value={first.value} unit={unit} /> to{" "}
-            <Value value={last.value} unit={unit} />, over {window}.{" "}
-            {String(readings.length)} readings, {gapClause}
+            {ownCaption ?? (
+              <>
+                {direction === undefined ? "From" : `${DIRECTION_WORD[direction]}, from`}{" "}
+                <Value value={first.value} unit={unit} locale={locale} /> to{" "}
+                <Value value={last.value} unit={unit} locale={locale} />, over {windowLabel}.
+              </>
+            )}{" "}
+            {String(readings.length)} readings, {missingClause}
           </>
         ) : (
           <>
-            Not enough readings to draw a trend over {window}: there are{" "}
-            {String(readings.length)}
+            Not enough readings to draw a trend over {windowLabel}: there{" "}
+            {readings.length === 1 ? "is only 1" : `are ${String(readings.length)}`}
             {ruleIsUsable
               ? `, and this needs ${String(minimumPoints)}.`
-              : ", and the number this needs has not been set."}
+              : ", and the number this needs is not a whole number above zero."}
+            {missingSentence}
+            {ownCaption === undefined ? null : ` ${ownCaption}`}
           </>
         )}
 
-        {flaggedStatus === undefined || flagged === undefined || !enoughReadings ? null : (
+        {whenSentence}
+
+        {flaggedStatus === undefined || flagged === undefined ? null : (
           <>
             {" "}
-            One reading is marked: <Value value={flagged.value} unit={unit} />{" "}
+            One reading is marked: <Value
+              value={flagged.value}
+              unit={unit}
+              locale={locale}
+            />{" "}
             <StatusPill status={flaggedStatus} describes={label} size="sm" />
           </>
         )}
 
-        {shaded === undefined || !enoughReadings ? null : (
-          <> The shaded band comes from {rangeOwner}.</>
+        {!rangeIsOwned || rangeInterval === undefined ? null : bandDrawn ? (
+          <> The shaded band, {rangeInterval}, comes from {rangeOwner}.</>
+        ) : (
+          <>
+            {" "}
+            The range from {rangeOwner} is {rangeInterval}. It is not shaded, {bandRefusal}.
+          </>
         )}
       </p>
     </div>
@@ -653,14 +949,20 @@ export function TrendSparkline({
 /**
  * How many readings the demo's imaginary product decided make a trend.
  *
- * A named constant rather than a literal beside the prop, because a number
- * written next to `minimumPoints` is exactly the shape the accessibility gate
- * refuses — and it is right to. In a real product this number arrives from the
- * metric's own definition, decided by somebody who knows what is being measured.
- * Nothing in opsinjs supplies it, this demo is not a source for it, and it means
- * nothing outside this file.
+ * IT IS THE DEMO'S NUMBER AND IT IS NOT A RULE. In a real product this arrives
+ * from the metric's own definition, decided by somebody who knows what is being
+ * measured; nothing in opsinjs supplies it, the component has no default for it,
+ * and it means nothing outside this file. A consumer who receives this file from
+ * `shadcn add` replaces it with their own metric's number or deletes the demo.
+ *
+ * A GAP WORTH KNOWING ABOUT: A11Y014 fails the build on a threshold-shaped NAME
+ * given a numeric literal, and it cannot see this one, so no gate is holding
+ * this line. What holds it is the API — `minimumPoints` is required with no
+ * default, so a caller cannot inherit this number by forgetting to pass one, and
+ * the demo cannot be written without passing something. That tension is recorded
+ * on the page instead of being hidden here.
  */
-const DEMO_READINGS_A_TREND_NEEDS = 4
+const EXAMPLE_READINGS_A_TREND_NEEDS = 4
 
 /**
  * Six entries with one gap in the middle, so the break in the line is visible
@@ -685,6 +987,10 @@ const DEMO_SERIES: TrendPoint[] = [
  * gap in it and one reading marked; and a series that is not long enough, which
  * draws nothing at all and says why.
  *
+ * Neither passes a `changeThreshold`, so neither caption names a direction —
+ * which is the state opsinjs can render honestly without being told anything
+ * about the metric, and is what a reader should see here.
+ *
  * The readings are obviously unreal (ADR 0012) — round numbers of steps nobody
  * would take for their own — and there is no reference range anywhere in sight.
  * A screenshot of an opsinjs demo must never be mistakable for somebody's own
@@ -701,7 +1007,7 @@ export default function TrendSparklineDemo() {
           category="activity"
           window="the last six entries"
           series={DEMO_SERIES}
-          minimumPoints={DEMO_READINGS_A_TREND_NEEDS}
+          minimumPoints={EXAMPLE_READINGS_A_TREND_NEEDS}
         />
       </div>
       <div className="flex flex-col gap-opsin-1">
@@ -712,7 +1018,7 @@ export default function TrendSparklineDemo() {
           category="activity"
           window="the last six entries"
           series={DEMO_SERIES.slice(0, 2)}
-          minimumPoints={DEMO_READINGS_A_TREND_NEEDS}
+          minimumPoints={EXAMPLE_READINGS_A_TREND_NEEDS}
         />
       </div>
     </div>

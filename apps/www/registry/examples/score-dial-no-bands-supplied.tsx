@@ -11,6 +11,10 @@
  *
  * The rule to take from this example: an omitted input renders an explicit
  * "we do not have this", never a substituted default.
+ *
+ * The scale is ten to twenty and the score is fourteen, which is the shape ADR
+ * 0012 asks for: round, obviously invented, and nothing anybody could mistake
+ * for their own result.
  */
 
 import { EXAMPLE_SOURCE } from "@/lib/opsinjs"
@@ -20,9 +24,9 @@ export default function ScoreDialNoBandsSupplied() {
   return (
     <ScoreDial
       label="Example composite score"
-      value={62}
-      min={0}
-      max={100}
+      value={14}
+      min={10}
+      max={20}
       precision={0}
       /* Empty, deliberately. In development this prints one warning saying so,
          which is what the state is for: it is honest on screen and loud in the

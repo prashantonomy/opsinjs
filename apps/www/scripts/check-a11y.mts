@@ -1260,6 +1260,53 @@ function checkShippedThresholds(file: string, source: string, starts: number[]):
   const pattern = /\b([A-Za-z_$][\w$]*)\s*(?:=\s*|:\s*|=\{)\s*(-?\d+(?:\.\d+)?)\b/g
   let match: RegExpExecArray | null
   const reported = new Set<string>()
+  /* THE INDIRECTION ROUTE, which is how one got past the first version of this
+     rule. `minimumPoints={READINGS_A_TREND_NEEDS}` with
+     `const READINGS_A_TREND_NEEDS = 4` above it is the same defect wearing a
+     name the pattern above cannot recognise — and it is the name somebody
+     reaches for precisely BECAUSE it reads as prose rather than as a threshold.
+     So a numeric constant is resolved through to the prop it reaches: the prop
+     name is the thing that says what the number decides, and a caller cannot
+     rename that. */
+  const numericConsts = new Map<string, string>()
+  const constPattern = /\bconst\s+([A-Za-z_$][\w$]*)\s*(?::\s*number\s*)?=\s*(-?\d+(?:\.\d+)?)\b/g
+  let constMatch: RegExpExecArray | null
+  while ((constMatch = constPattern.exec(code)) !== null) {
+    numericConsts.set(constMatch[1] as string, constMatch[2] as string)
+  }
+  const indirect = /\b([A-Za-z_$][\w$]*)\s*=\{\s*([A-Za-z_$][\w$]*)\s*\}/g
+  let indirectMatch: RegExpExecArray | null
+  while ((indirectMatch = indirect.exec(code)) !== null) {
+    const prop = indirectMatch[1] as string
+    const via = indirectMatch[2] as string
+    const literal = numericConsts.get(via)
+    if (literal === undefined) continue
+    if (THRESHOLD_EXEMPT.test(prop) || !THRESHOLD_NAMES.test(prop)) continue
+    /* `EXAMPLE_` is the same convention `EXAMPLE_SOURCE` uses, and it is the
+       only way to write a threshold in this repository. A demo has to pass one
+       — the whole point of `minimumPoints` is that a product supplies it, and
+       an example with no product is the example standing in for one. Requiring
+       the prefix makes that authorship explicit at the call site, so a reader
+       of the installed file sees "this number was the example's choice" rather
+       than a bare 4 that reads as the system's. It is deliberately impossible
+       to satisfy by accident. */
+    if (via.startsWith("EXAMPLE_")) continue
+    const key = `${prop}:${via}`
+    if (reported.has(key)) continue
+    reported.add(key)
+    fail(
+      "A11Y014",
+      file,
+      `\`${prop}\` is given ${literal}, by way of \`${via}\`. Naming the constant ` +
+        "does not change what the number decides — and a name that reads as prose " +
+        "is the one somebody reaches for when a literal beside the prop looks " +
+        "wrong. opsinjs does not own this number for any metric in any " +
+        "population: take it from the caller and render an explicit \"we do not " +
+        "have this\" when they have not supplied one.",
+      lineAt(starts, indirectMatch.index),
+    )
+  }
+
   while ((match = pattern.exec(code)) !== null) {
     const name = match[1] as string
     const value = match[2] as string

@@ -16,6 +16,11 @@
  * greyscale, because each one carries its position, its numbers and its
  * sentence independently of any colour.
  *
+ * EVERY ROW CARRIES THE TIME ITS READING WAS TAKEN, which is the other thing a
+ * list gets wrong: three numbers under one another with no dates read as three
+ * numbers from this morning. The dates differ per row because in a real list
+ * they always do.
+ *
  * The readings are deliberately unreal and every range cites the same
  * non-source. Three ranges that looked like laboratory ranges, screenshotted,
  * would outlive this page.
@@ -29,10 +34,28 @@ const ROWS: {
   value: number
   category: HealthCategory
   status?: ClinicalStatus
+  measuredAt: string
 }[] = [
-  { label: "First example measurement", value: 14, category: "labs", status: "steady" },
-  { label: "Second example measurement", value: 24, category: "heart", status: "attention" },
-  { label: "Third example measurement", value: 12, category: "sleep" },
+  {
+    label: "First example measurement",
+    value: 14,
+    category: "labs",
+    status: "steady",
+    measuredAt: "2026-03-14T08:12:00+00:00",
+  },
+  {
+    label: "Second example measurement",
+    value: 24,
+    category: "heart",
+    status: "attention",
+    measuredAt: "2026-03-13T21:05:00+00:00",
+  },
+  {
+    label: "Third example measurement",
+    value: 12,
+    category: "sleep",
+    measuredAt: "2026-03-12T07:45:00+00:00",
+  },
 ]
 
 export default function RangeBarInAListOfResults() {
@@ -48,6 +71,7 @@ export default function RangeBarInAListOfResults() {
             range={{ low: 10, high: 20, source: EXAMPLE_SOURCE }}
             category={row.category}
             status={row.status}
+            measuredAt={row.measuredAt}
             locale="en-GB"
           />
         </li>

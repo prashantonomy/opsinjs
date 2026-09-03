@@ -380,7 +380,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "measuredAt": {
       type: "string",
-      description: "When the measurement was taken, ISO 8601. Rendered as a date in the footnote so that a number on a screen is not read as \"now\". There is NO staleness treatment here and no `staleAfterHours`: how old is too old is clinical, differs by metric, and opsinjs does not own it. A surface that needs one wraps the reading in `RelativeTime`, which takes the boundary from you.",
+      description: "When the measurement was taken, ISO 8601. Rendered as a date in the footnote so that a number on a screen is not read as \"now\". Omitted, the footnote says that nobody knows when the reading was taken rather than saying nothing — the same answer this component gives for a range nobody has dated, and for the same reason: silence about a time is read as now. That is a recency signal, and it is not a staleness treatment. There is no `staleAfterHours` here and there will not be one: how old is too old is clinical, differs by metric, and opsinjs does not own it. A surface that needs a boundary wraps the reading in `RelativeTime`, which takes the boundary from you.",
       required: false,
     },
     "summary": {
@@ -449,7 +449,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "value": {
       type: "number | null",
-      description: "The score. `null` renders the no-score state, which is not a score of zero: zero is a real result on many scales and an absent one is not a result.",
+      description: "The score. `null` renders the no-score state, which is not a score of zero: zero is a real result on many scales and an absent one is not a result. A value that is not a finite number is a third state again — a calculation that ran and failed — and it is announced as one.",
       required: true,
     },
     "min": {
@@ -464,8 +464,13 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "bands": {
       type: "ScoreBand[]",
-      description: "The product's bands: contiguous, non-overlapping, covering the whole scale. opsinjs ships none and never supplies a default. An empty list renders the number with no band and says so, rather than inventing one.",
+      description: "The product's bands: contiguous, non-overlapping, covering the whole scale, each named and each with a source. opsinjs ships none and never supplies a default. An empty list renders the number with no band and says so, rather than inventing one.",
       required: true,
+    },
+    "status": {
+      type: "DialStatus",
+      description: "The level of attention this reading needs, assigned by the product from a reference range or a threshold the product owns. An INPUT, never a derivation: this component does not compare the score with anything and decide what it means, because it does not know the reader. Only `steady` and `watch` are accepted. `attention` and `urgent` are refused and reported, because both are defined as carrying a named action and a dial has nowhere to put one — use CareCard or AlertBanner, which do.",
+      required: false,
     },
     "derivation": {
       type: "string",
@@ -482,24 +487,24 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       description: "Tints the label, and nothing else. Never the track, the bands or the indicator — those belong to the status axis, and one surface carries one axis.",
       required: false,
     },
-    "measuredAt": {
+    "calculatedAt": {
       type: "string",
-      description: "When the score was calculated, ISO 8601. Rendered as a date beside the derivation. It gets no staleness treatment and no relative phrasing: a relative phrase needs the instant to measure against, which this API does not carry, so a caller who wants \"2 hours ago\" renders a RelativeTime beside the dial and passes it one `now` for the whole screen.",
+      description: "When the score was calculated, ISO 8601. Rendered as a date beside the derivation. It gets no staleness treatment and no relative phrasing: a relative phrase needs the instant to measure against, which this API does not carry, and a staleness window is a number opsinjs does not own for any metric. A caller who needs \"2 hours ago\", or needs an old score to LOOK old, renders a RelativeTime beside the dial and passes it one `now` for the whole screen. This prop is not `measuredAt`: nothing here was measured.",
       required: false,
     },
     "precision": {
       type: "number",
-      description: "Decimal places for the score, from the product. Omitted, the number is shown with exactly the digits it arrived with — nothing is rounded and nothing is padded, because precision belongs to the metric and there is no honest default for a composite score.",
+      description: "Decimal places for the score, from the product. Omitted, the number is shown with exactly the digits it arrived with — nothing is rounded and nothing is padded, because precision belongs to the metric and there is no honest default for a composite score. It is load-bearing for layout as well as for honesty: an unstated precision can print nineteen digits of a double as one unbreakable token.",
       required: false,
     },
     "locale": {
       type: "string",
-      description: "BCP 47 locale for the number and the date. Omitted, the reader's own environment decides.",
+      description: "BCP 47 locale for every number and the date. Omitted, the reader's own environment decides.",
       required: false,
     },
     "className": {
       type: "string",
-      description: "Merged onto the root. A class passed here wins where the two conflict.",
+      description: "Merged onto the root, and a class passed here WINS over the component's own where the two conflict. That includes `truncate`, `sr-only`, a zeroed type size and any fixed height. The band name, the scale and the derivation are mandatory content that no prop of this component removes, and a class that clips or hides them is the one way left to remove them anyway. The accessible sentence on the arc would survive; the words a sighted reader needs would not.",
       required: false,
     },
   },
@@ -698,7 +703,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "series": {
       type: "TrendPoint[]",
-      description: "The readings, in chronological order. A gap is an explicit entry with `value: null`, never an omitted one: an entry missing from the array is one this component cannot know about, and a line drawn straight through it asserts a measurement nobody took.",
+      description: "The readings, in chronological order. A gap is an explicit entry with `value: null`, never an omitted one: an entry missing from the array is one this component cannot know about, and a line drawn straight through it asserts a measurement nobody took. An entry whose value is a number but not a finite one is a failure rather than a gap, is counted and described as one, and is not drawn.",
       required: true,
     },
     "minimumPoints": {
@@ -711,9 +716,14 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       description: "The period the series covers, as the reader should see it — \"the last 14 days\". A display string rather than a duration, which has a consequence worth knowing: the x-axis is the extent of the series you passed, not the extent of this period, so two sparklines are only comparable side by side when their series cover the same span.",
       required: true,
     },
+    "changeThreshold": {
+      type: "number",
+      description: "The smallest difference this metric counts as a change, in the reading's own unit. There is no default, and without it the caption names no direction. A metric declares the difference below which a series is presented as unchanged; below that noise floor \"about the same\" is the true sentence. Supplied, the caption reads \"Up, from … to …\"; omitted, it prints both endpoints and stops, and the accessible name says \"with no clear direction\". Zero is a legitimate value and means your metric counts any difference at all — but it has to be your product saying so, not this file.",
+      required: false,
+    },
     "range": {
       type: "ReferenceRange",
-      description: "An interval to shade behind the line, in neutral tones. Never status-coloured, and never invented: omit it and no band is drawn. Its `source` is required and is named in the caption, because a shaded band with no owner is an assertion with no author.",
+      description: "An interval to shade behind the line, in neutral tones. Never status-coloured, and never invented: omit it and no band is drawn. Its `source` is required and is named in the caption, because a shaded band with no owner is an assertion with no author. A band is drawn only when BOTH bounds are present and the lower is below the upper. A one-sided range is stated in the caption as words — \"10 steps and above\" — and drawn as nothing, because the missing edge would have to come from the data or from zero and would then be attributed to your source.",
       required: false,
     },
     "category": {
@@ -723,12 +733,17 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "caption": {
       type: "string",
-      description: "Your own sentence, replacing the composed one. Use it when you have a change threshold, a cadence or a phrasing this component cannot know about. It replaces the direction-and-magnitude sentence only. The clause naming a marked reading and the clause naming the band's source are appended by the component and cannot be removed by any prop — one is a status that owes a word, the other is an attribution.",
+      description: "Your own sentence, in place of the composed one. Use it when you have a cadence, a phrasing or a comparison this component cannot know about. It replaces the direction-and-magnitude sentence. It does not replace the coverage clause (how many readings there are and what is missing), the clause naming a marked reading, or the clause naming a range's source — those are appended either way, because a count of absent measurements, a status and an attribution are not decoration. Where there are too few readings to draw, your sentence is appended to the refusal rather than replacing it: the refusal is the one sentence that explains why there is no picture.",
+      required: false,
+    },
+    "locale": {
+      type: "string",
+      description: "BCP 47 locale for number separators, digit shapes and the date in the caption. Passed through to every `Value` this component renders and used for the plot's accessible name, so the spoken name and the printed sentence cannot show two conventions. Omitted, the reader's environment decides.",
       required: false,
     },
     "className": {
       type: "string",
-      description: "Merged onto the root. There is no class that hides the caption.",
+      description: "Merged onto the root with `tailwind-merge`, and a class you pass wins where the two conflict. That includes `hidden` and `sr-only`, and it includes a variant that targets the caption's `data-slot`: this prop reaches the whole subtree, and a caller who hides the caption hides the text twin. Nothing in this component prevents it and no gate checks for it.",
       required: false,
     },
   },
@@ -799,5 +814,5 @@ export const PROPS_SOURCES: Record<string, string> = {
 
 export const PROPS_META: { interfaces: number; props: number } = {
   interfaces: 22,
-  props: 135,
+  props: 138,
 }

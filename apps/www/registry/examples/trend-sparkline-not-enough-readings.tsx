@@ -10,21 +10,27 @@
  * picture.
  *
  * THE NUMBER IN THE SENTENCE IS THE PRODUCT'S, NOT OURS. The refusal names the
- * count the caller set and the count they actually have — "3 of the 4 this
- * needs" — because a reader who is told there is not enough data is entitled to
- * know how much would be enough. opsinjs has no view about what that number
+ * count the caller set and the count they actually have — "there are 3, and this
+ * needs 4" — because a reader who is told there is not enough data is entitled
+ * to know how much would be enough. opsinjs has no view about what that number
  * should be, which is why `minimumPoints` is required and has no default.
  *
+ * NEITHER CAPTION NAMES A DIRECTION, and that is not an omission. A direction
+ * word needs a change threshold — the difference below which a series is
+ * presented as unchanged — and that belongs to the metric. Neither sparkline
+ * here passes one, so both print their endpoints and stop.
+ *
  * The second sparkline also passes its own `caption`. That is how a product says
- * what a reader should do next; the component keeps refusing to draw either way,
- * because the caption controls the words and never the picture.
+ * what a reader should do next, and it is APPENDED to the refusal rather than
+ * replacing it: the sentence explaining why there is no picture is the one
+ * sentence a caller cannot take away.
  */
 
 import { type TrendPoint } from "@/lib/opsinjs"
 import { TrendSparkline } from "@/registry/base-lyra/ui/trend-sparkline"
 
 /** The product's rule about how many readings make a trend. See the demo. */
-const READINGS_A_TREND_NEEDS = 4
+const EXAMPLE_READINGS_A_TREND_NEEDS = 4
 
 const ENOUGH: TrendPoint[] = [
   { at: "2026-03-01T08:00:00Z", value: 12 },
@@ -46,7 +52,7 @@ export default function TrendSparklineNotEnoughReadings() {
           category="activity"
           window="the last four entries"
           series={ENOUGH}
-          minimumPoints={READINGS_A_TREND_NEEDS}
+          minimumPoints={EXAMPLE_READINGS_A_TREND_NEEDS}
         />
       </div>
       <div className="flex flex-col gap-opsin-1">
@@ -57,8 +63,8 @@ export default function TrendSparklineNotEnoughReadings() {
           category="activity"
           window="the last four entries"
           series={TOO_FEW}
-          minimumPoints={READINGS_A_TREND_NEEDS}
-          caption="Not enough entries yet. This example shows a line once there are four of them, and there are three."
+          minimumPoints={EXAMPLE_READINGS_A_TREND_NEEDS}
+          caption="Add one more entry and this example will draw a line."
         />
       </div>
     </div>

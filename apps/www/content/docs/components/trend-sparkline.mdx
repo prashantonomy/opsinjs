@@ -1,6 +1,6 @@
 ---
 title: TrendSparkline
-description: A small line showing how one measurement has moved over time, with a caption that says what changed without telling you whether that is good news.
+description: A small line showing how one measurement has moved over time, with a caption that says what changed and leaves the verdict to you.
 status: alpha
 kind: component
 since: "unreleased"
@@ -18,8 +18,9 @@ usedIn: [trend-with-a-caption, trends-screen]
   issue="opsinjs/opsinjs#0"
   questions={[
     "`window` is a display string, so the component is never told how long the period is and lays the readings out across the extent of the series it was given. Two sparklines side by side are therefore only comparable when their series cover the same span, and nothing checks that. A duration prop would close it; the specification does not have one.",
-    "Doctrine says a metric declares a change threshold below which a difference is presented as unchanged, and `TrendSparklineProps` has no prop to carry one. Until it does, the composed caption calls any difference up or down, and prints both endpoints so the reader can see how small it is.",
-    "Doctrine requires a data-table twin for every chart, on the same surface. This component has no slot, prop or part for one, so the twin is the caller's to place beside it. Whether the twin belongs inside this component or beside it is unsettled.",
+    "This component does not meet the definition of done in Accessible charts, which requires a data-table twin for every chart on the same surface. There is no slot, prop or part for one, so the twin is the caller's to place beside it and nothing checks that they did. That is a known, required gap rather than an untested one.",
+    "`changeThreshold` is required before any direction word is printed, and no example in this repository passes one — A11Y014 refuses a threshold-shaped name given a numeric literal anywhere under `registry/**`, which is right and which also means the direction wording is demonstrated nowhere but in a consumer's own project.",
+    "`minimumPoints` is required with no default, so the zero-prop demo `shadcn add` copies into a consumer's project has to pass a number of its own. A11Y014's name pattern cannot see it. Whether a demonstration value should be exempt, gated by shape, or removed by making the demo refuse to draw is a decision above this page.",
     "Contrast has not been measured for this component, in either theme, and its behaviour at 200% text has not been observed — it is reasoned from the source. The Accessibility section below says which claims a gate holds up and which are only argued.",
   ]}
 >
@@ -38,9 +39,12 @@ beside the line carries everything the line carries.
 
 Two states, because they are the two that decide whether this component is doing its job: a
 series long enough to draw, with a gap in it and one reading marked, and a series that is
-not long enough, which draws nothing at all and says so. Open it under the product theme,
-turn the text size up, and look at it in greyscale — the caption should still tell you
-everything, because that is the whole promise.
+not long enough, which draws nothing at all and says so. Neither passes a `changeThreshold`,
+so neither caption names a direction — that is the most this component can say honestly
+without being told how much movement counts as movement, and it is what a demo shipped by a
+design system should show. Open it under the product theme, turn the text size up, and look at
+it in greyscale — the caption should still tell you everything, because that is the whole
+promise.
 
 <ComponentPreview name="trend-sparkline" />
 
@@ -88,8 +92,8 @@ import { TrendSparkline } from "@/components/ui/trend-sparkline"
 
 The third exclusion is the one products get wrong. A sparkline is a glyph, not a chart: no
 axes, no gridlines, no hover, no tooltip, and this implementation offers none of them. The
-moment a reader needs to know *which* day the spike was, the component has failed and a real
-chart belongs there instead — see
+moment a reader needs to know *which* day the spike was, this is the wrong component and a
+real chart belongs there instead — see
 [Chart anatomy](../foundations/data-visualisation/chart-anatomy.mdx).
 
 The first exclusion is handled inside the component rather than by you remembering it.
@@ -109,19 +113,53 @@ several common measurements it depends on the person. The component therefore st
 **direction** and leaves valence to whatever the product chooses to say beside it, as
 [Trends and change](../health/trends-and-change.mdx) requires.
 
-**Direction is first-to-last arithmetic, and nothing cleverer.** The composed caption
-compares the first real reading with the last one, prints both, and calls the difference up
-or down. It is not a fitted slope, because a reader cannot check a regression line against
-the picture and can check two endpoints against it in a second. It says *unchanged* only
-when the two are exactly equal: doctrine asks for a change threshold below which a
-difference is presented as unchanged, this API has no prop to carry one, and inventing the
-threshold would be worse than printing both numbers and letting the reader see how small the
-difference is. A product with a real threshold passes its own `caption`.
+**There is no direction word until you say how much movement counts.** Doctrine gives the
+metric the job of declaring the change threshold below which a difference is presented as
+unchanged, and `changeThreshold` is that number: required in the reading's own unit before
+the composed caption will name a direction, with no default. Pass it and the caption reads
+*"Up, from 12 steps to 20 steps, over the last 14 days"*. Omit it and the caption prints both
+endpoints and stops, and the plot's accessible name says *"with no clear direction"* — the
+wording [Alt text and descriptions](../content/alt-text-and-descriptions.mdx) gives for
+exactly this case. The alternative was calling any difference at all up or down, which is a
+change threshold of zero chosen by opsinjs and applied to somebody else's metric: it puts the
+word *"Up"* on a fortnight of readings that moved less than the instrument they were taken
+with can resolve.
+
+**Direction, when there is one, is first-to-last arithmetic and nothing cleverer.** The
+caption compares the first real reading with the last one and prints both. It is not a fitted
+slope, because a reader cannot check a regression line against the picture and can check two
+endpoints against it in a second.
+
+**A band needs both of its ends.** `range` shades an interval behind the line only when it
+carries a lower bound, an upper bound and a `source`, with the lower below the upper. A
+one-sided range is a real range and is rendered as words in the caption — *"The range from
+your laboratory is up to 20 steps. It is not shaded, because a band needs both of its
+ends."* — and as no rectangle at all. A rectangle has four edges, so drawing one would mean
+taking the missing edge from the readings or from zero and then telling the reader, in the
+same sentence, that the whole band came from their laboratory. The caption also states the
+band's two numbers, because a reader told a shaded interval exists and who owns it, and never
+what it says, has been shown a picture with no twin.
+
+**Every caption says when the last reading was taken.** `TrendPoint.at` is already required,
+so the date is printed rather than inferred: *"The last reading was taken on 6 February
+2026."* `window` on its own is a display string this component can never check, and a series
+whose last reading is three months old otherwise renders identically to one taken this
+morning. No staleness boundary is invented here — how old is too old belongs to the metric,
+and a product that wants a verdict about age puts a [RelativeTime](./relative-time.mdx)
+beside the plot.
 
 **Nothing is derived.** There is no reference range in this component, no smoothing, no
-default window, no default minimum point count and no rule about how much movement counts as
-movement. `TrendPoint.status` is an input: the product assigned it, and the component only
-decides where to put the words.
+default window, no default minimum point count, no default change threshold and no staleness
+rule. `TrendPoint.status` is an input: the product assigned it, and the component only
+decides where to put the words. A status outside the four levels — `unknown` most likely —
+marks nothing and says nothing, because emphasis in the plot with no word in the caption is
+a status carried by colour alone.
+
+**A gap and a failure are two different sentences.** An entry with `value: null` is a reading
+nobody took and is counted as a gap. An entry whose value is a number but not a finite one is
+a reading that was taken and did not survive the trip; it is counted and described separately
+— *"and 2 readings that could not be read"* — because telling somebody they recorded nothing
+on a day they did record something is untrue about their own record.
 
 **Which colour axis it may use.** The **category** axis, on the line itself, because a
 sparkline's job in a dashboard is to be findable among five others. The **status** axis is
@@ -132,10 +170,13 @@ because a status is carried by colour *and* a glyph *and* the word *and* `data-s
 together, and a dot the size of a full stop can carry one of the four. See
 [The two colour axes](../health/two-colour-axes.mdx).
 
-**Who owns the window and the minimum.** The product. `minimumPoints` is required, has no
-default, and a value that is not a whole number above zero is treated the same as too few
-readings: no line. That is the failure direction on purpose — a component with no rule about
-when a trend exists has no basis for drawing one.
+**Who owns the window, the minimum and the change threshold.** The product. `minimumPoints`
+is required, has no default, and a value that is not a whole number above zero is treated the
+same as too few readings: no line, and a caption saying which of the two happened.
+`changeThreshold` is optional and has no default either, and without it there is no direction
+word. Both fail towards saying less — a component with no rule about when a trend exists has
+no basis for drawing one, and one with no rule about how much movement is noise has no basis
+for naming a direction.
 
 **Gaps are data.** A missing reading is an explicit `{ value: null }` entry, drawn as a real
 break in the path rather than a lighter stroke, and counted in the caption. A run of exactly
@@ -174,7 +215,7 @@ in words rather than leaving it to the slope.
     },
     {
       name: "TrendSparkline.Band",
-      describes: "The optional shaded interval, in neutral grey with a dashed edge so it is distinguishable from the line without colour. Never status-coloured, and never drawn at all when the range has no source.",
+      describes: "The optional shaded interval, in neutral grey with a dashed edge so it is distinguishable from the line without colour. Never status-coloured. Drawn only when the range carries a source, both bounds, and a lower bound below its upper one; a one-sided range is stated in the caption as words and drawn as nothing.",
       prop: "range",
     },
     {
@@ -189,7 +230,7 @@ in words rather than leaving it to the slope.
     },
     {
       name: "TrendSparkline.Caption",
-      describes: "The mandatory text twin. Visible, in the DOM, read by everybody. Three clauses: the sentence, the marked reading with its StatusPill, and the band's attribution. Only the first can be replaced.",
+      describes: "The text twin. Visible, in the DOM, read by everybody. Five clauses: the sentence, the coverage (how many readings and what is missing), when the last reading was taken, the marked reading with its StatusPill, and the range with its interval and its source. Only the first can be replaced by `caption`, and where there are too few readings to draw, your sentence is appended to the refusal rather than replacing it.",
       prop: "caption",
     },
   ]}
@@ -216,7 +257,7 @@ in words rather than leaving it to the slope.
             {
               part: "TrendSparkline.Band",
               cardinality: "0-1",
-              note: "data-slot=\"trend-sparkline-band\"; drawn only when range.source is present",
+              note: "data-slot=\"trend-sparkline-band\"; drawn only when range.source, range.low and range.high are all present",
             },
             {
               part: "TrendSparkline.Line",
@@ -241,23 +282,42 @@ in words rather than leaving it to the slope.
 />
 
 The parts above are identified by `data-slot` and are styleable from outside. None of them is
-an export: there is no `TrendSparkline.Caption` component, no `showCaption` prop and no way
-to render the plot without the sentence. The caption is the component, and every way of
-removing a mandatory text twin that has ever been offered has been used.
+an export: there is no `TrendSparkline.Caption` component, no `showCaption` prop and no
+`sr-only` variant of the sentence.
+
+**`className` is the exception, and it is a real one.** It is merged onto the root with
+`tailwind-merge`, so `className="hidden"` takes the whole component out of the accessibility
+tree, `className="sr-only"` leaves the plot's `aria-label` in place while removing the
+sentence from sighted readers — the inversion this component exists to prevent — and a
+variant targeting the caption's `data-slot` hides the sentence alone. Nothing in the
+implementation prevents any of the three and no gate checks for them. The honest statement is
+that the caption is mandatory *by construction of the API* and not against a caller who
+reaches past it.
 
 Two departures from the specification's part tree, both deliberate and both visible in the
 DOM above. `TrendSparkline.Window` renders once rather than twice — the composed caption
 also names the period, so the standalone element is hidden from assistive technology in that
-case only. And the band's attribution is a clause of the caption rather than a part of its
-own, because a part could be styled away and an unowned band must not be renderable at all.
+case only. And the range's interval and attribution are a clause of the caption rather than a
+part of its own, because a part could be styled away and an unowned band must not be
+renderable at all.
+
+One clause is conditional in a way the earlier wording did not admit: the range clause exists
+only when a `range` with a usable `source` was supplied, and the marked-reading clause only
+when a reading carries one of the four levels. Both survive a caller's `caption` and both
+survive the too-few-readings branch — a verdict the product assigned to a reading is not
+withdrawn because no line was drawn — but neither is conjured when there is nothing to say.
 
 ## Examples
 
 ### A band behind the line, and one marked reading
 
-The two optional parts together. The band is neutral and dashed, never tinted by status, and
-the caption names whose interval it is. The marked reading gets a heavier dot in the line's
-own colour and a StatusPill in the caption; the plot never turns red.
+The two optional parts together, and then the same range with one end taken away. The first
+band is neutral and dashed, never tinted by status, and the caption gives both its numbers
+and whose interval it is. The second range has an upper bound and no lower one: it is a real
+range, it is stated in the caption as *"up to 20 steps"*, and it is drawn as nothing — the
+missing edge would have to come from the readings or from zero and would then be attributed
+to a source that never gave it. The marked reading gets a heavier dot in the line's own colour
+and a StatusPill in the caption; the plot never turns red.
 
 <ComponentPreview name="trend-sparkline-a-band-and-a-marked-reading" kind="example" align="start" />
 
@@ -266,7 +326,9 @@ own colour and a StatusPill in the caption; the plot never turns red.
 The same rule, four readings, applied to a series that has four and a series that has three.
 The second draws nothing: no line, no dots, no faint placeholder shaped like a trend. It also
 passes its own `caption`, which is how a product says what to do next — the caption controls
-the words and never the picture.
+the words and never the picture, and here it is appended to the refusal rather than replacing
+it, because the sentence explaining why there is no picture is the one sentence a caller
+cannot take away.
 
 <ComponentPreview name="trend-sparkline-not-enough-readings" kind="example" align="start" />
 
@@ -281,24 +343,28 @@ the only condition under which these three pictures may be compared with one ano
 
 ## Content guidelines
 
-Captions state direction, magnitude, window and gaps, in that order, and stop. Leave the
+Captions state direction where a `changeThreshold` makes one available, then magnitude,
+window, coverage and when the last reading was taken, in that order, and stop. Leave the
 interpretation to the product's own copy in the surrounding
 [CareCard](./care-card.mdx) or paragraph, where it can be attributed to somebody.
 
 Avoid *improving*, *worsening*, *better*, *worse*, *on track* and *off track* inside the
 component. They are all valence, and valence in a caption is a verdict nobody signed.
 
-Pass your own `caption` when you have something the component cannot know: a change
-threshold, a cadence, a reader's own language. It replaces the direction-and-magnitude
-sentence and nothing else — the clause naming a marked reading and the clause naming the
-band's source are appended either way, because one is a status that owes a word and the other
-is an attribution that cannot be dropped.
+Pass your own `caption` when you have something the component cannot know: a cadence, a
+comparison, a reader's own language. It replaces the direction-and-magnitude sentence and
+nothing else. The coverage clause, the date of the last reading, the clause naming a marked
+reading and the clause naming a range's interval and source are appended either way — a count
+of absent measurements, a date, a status and an attribution are each part of somebody's own
+record rather than decoration, and a caller who replaces the sentence has not been given the
+right to withdraw them.
 
 <DoDont>
   <DoDont.Do>
     **"Down, from 20 steps to 16 steps, over the last 14 days. 11 readings, and 3 gaps where
-    nothing was recorded."** Direction, magnitude, window, gaps. A reader can check every word
-    of it against the picture.
+    nothing was recorded. The last reading was taken on 6 February 2026."** Direction — because
+    this product declared a change threshold — then magnitude, window, coverage and when. A
+    reader can check every word of it against the picture.
   </DoDont.Do>
   <DoDont.Dont>
     **"Trending in the right direction. Keep it up."** Valence with no author, praise for
@@ -309,8 +375,23 @@ is an attribution that cannot be dropped.
 
 <DoDont>
   <DoDont.Do>
-    **"Not enough readings to draw a trend over the last 14 days: 3 of the 7 this needs."**
-    Names the rule, names the gap, and the number is the product's rather than ours.
+    **"From 12 steps to 13 steps, over the last 14 days."** No `changeThreshold`, so no
+    direction word. Both endpoints are stated and the reader can see for themselves how small
+    the difference is.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Up, from 12 steps to 13 steps, over the last 14 days."** The same two numbers with a
+    verdict on the front, produced by comparing them against a change threshold of zero that
+    opsinjs chose and nobody signed. On a metric whose instrument cannot resolve a difference
+    that small, the word is louder than the data.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **"Not enough readings to draw a trend over the last 14 days: there are 3, and this needs
+    7."** Names the rule, names the shortfall, and the number is the product's rather than
+    ours.
   </DoDont.Do>
   <DoDont.Dont>
     **A line through three points.** It looks exactly like a trend and it is not one, and
@@ -328,8 +409,17 @@ checked, with the gaps listed rather than left out.
 
 - **No clinical number ships as a default.** A11Y014 fails the build on any name matching
   `minimum`, `threshold`, `stale`, `limit` or `band` that is given a numeric literal anywhere
-  under `registry/**`. That is what keeps `minimumPoints` required: the gate would refuse
-  `minimumPoints = 7` in this file, in the demo, or in an example, and it is right to.
+  under `registry/**`, and A11Y015 fails on any object literal carrying two numeric bounds
+  with no `source` beside them. Between them they refuse `minimumPoints = 7`, a literal
+  `changeThreshold`, and a band written as `{ low: 10, high: 20 }` with nobody's name on it.
+  **What A11Y014 does not refuse is a threshold-shaped number under a name its pattern cannot
+  see**, and the demo in this file has one: `minimumPoints` is required with no default, so
+  the zero-prop demo `shadcn add` copies into a consumer's project must pass a number, and it
+  passes `DEMO_READINGS_A_TREND_NEEDS = 4` under a name the regex does not match. The three
+  examples do the same. What holds that line is the API rather than the gate — a caller cannot
+  inherit the number by forgetting to pass one — and the tension between "a required prop must
+  be demonstrable" and "never ship a threshold, not even in an example" is recorded in the
+  status notice above rather than resolved here.
 - **No raw colour and no ramp step.** A11Y005 and A11Y006 fail on a hex value, an `oklch()`,
   a Tailwind palette colour or a numbered step. Every colour here is a role on one of the two
   axes or one of the eleven bridged surface roles.
@@ -346,13 +436,26 @@ checked, with the gaps listed rather than left out.
 
 **Held by the API rather than by a gate, which is a weaker promise honestly stated:**
 
-- **The caption cannot be turned off.** There is no prop for it, no `sr-only` variant and no
-  class that hides it — but nothing checks that a future edit keeps it that way. A gate that
-  asserted a visible text twin on all four graphics would be worth having and does not exist.
+- **The caption cannot be turned off by a prop.** There is no `showCaption`, no `sr-only`
+  variant and no value of `caption` that renders the component without a sentence. **It can be
+  turned off by `className`**, and that is worth stating plainly rather than claiming away:
+  `className` is merged onto the root with `tailwind-merge`, so `hidden` removes the whole
+  component from the accessibility tree, `sr-only` removes the visible twin while leaving the
+  plot's `aria-label` in place, and a variant targeting `[data-slot=trend-sparkline-caption]`
+  hides the sentence alone. Nothing in the implementation prevents any of the three and no gate
+  checks for them. A gate asserting a visible text twin on all four graphics would be worth
+  having and does not exist.
 - **The y-axis cannot be truncated.** There is no `yAxisMin` prop, so OPSIN-0013 describes a
   mistake this API cannot express.
-- **A range with no source is not drawn.** The type requires `source`; a JavaScript caller
-  who omits it raises OPSIN-0004 in development and gets no band.
+- **A range with no source is not drawn**, and neither is a one-sided one. The type requires
+  `source`; a JavaScript caller who omits it raises OPSIN-0004 in development and gets no band.
+  A range with only one bound is stated in the caption in words and drawn as nothing, so no
+  edge this component supplied is ever attributed to the caller's source.
+- **A status outside the four levels marks nothing.** A reading carrying `unknown`, or any
+  value the vocabulary does not hold, leaves the plot unmarked and the caption unbroken, and
+  raises OPSIN-0011 or OPSIN-0021 in development. Emphasis in the plot with no word in the
+  caption is a status carried by colour alone, which is the failure this component's whole
+  marker design is written against.
 
 **Argued, and true of the implementation, but not yet measured:**
 
@@ -360,38 +463,79 @@ checked, with the gaps listed rather than left out.
   `meter` or `progressbar`. All three of those announce a value the reader can inspect or
   change, and this is a picture of readings somebody else took. It is not announced point by
   point: a fourteen-point series read aloud one point at a time is worse than silence.
-- **The name says something the caption does not.** It names the measurement, the period, how
-  many readings there are and what they range between; the caption says the direction, the
-  endpoints and the gaps. A name identical to the sentence below it would be the same words
-  read out twice, and there is currently no way to have the caption *be* the name without a
-  `useId` hook and therefore a client boundary this component does not need.
-- **The line is distinguishable from the band without colour**, by weight and by the dashed
-  edge on the band, and the break pattern across gaps survives greyscale. Not yet checked
-  against the generated colour-vision audit, which has no entry for this component.
+- **The name follows the doctrine's pattern, and it overlaps the caption.** It gives the
+  measurement, the period, the reading count, the extent, the direction and what is missing,
+  which is the `TrendSparkline` pattern in
+  [Alt text and descriptions](../content/alt-text-and-descriptions.mdx) — minus its final
+  element, a pointer to the table twin, because there is no table twin to point at. The
+  earlier claim here was that the name says something the caption does not; in a series whose
+  first and last readings are also its lowest and highest, which is every series this page
+  ships, the extent and the endpoints are the same two numbers and a listener hears the window,
+  the count and both numbers twice. That is a real cost of `role="img"` with a visible twin,
+  and it is not resolved. Hiding the plot from assistive technology entirely, which
+  [Accessible charts](../foundations/data-visualisation/accessible-charts.mdx) permits when the
+  twin sits beside it, is the alternative and would need a decision this page has not made.
+- **The summary comes after the chart, not before it.** Accessible charts states the order as
+  load-bearing — summary, then chart, then table — and the DOM order here is the period label,
+  the plot, then the caption. The departure is deliberate: a sparkline is read as a glyph
+  beside a number, and a paragraph above a 3 rem picture reads as the surface's own copy rather
+  than as the picture's twin. It is a departure all the same, and a caller who wants doctrine's
+  order can style the flex column to reverse it. Recorded here so it is visibly a choice rather
+  than an oversight.
 - **Category tint never encodes meaning**, so greyscale loses findability and nothing else.
+  The break pattern across a gap in the series is drawn as a shape rather than a colour, so
+  it should survive greyscale too. Should: it has not been put through the generated
+  colour-vision audit, which measures token pairs and not rendered marks, and an earlier
+  draft of this page stated the greyscale survival without that qualification.
 - **At 200% text the caption reflows** to as many lines as it needs; nothing here sets a
   height, a `truncate` or an ellipsis. The plot keeps its height in `rem`, so it grows with
-  the text rather than shrinking away from it — which is the opposite of what the
-  specification asked for, and is the honest trade in a component that does not own its
-  container. Checked by eye, not by a machine.
+  the text rather than shrinking away from it. **Growing has a cost the earlier wording did not
+  state.** `preserveAspectRatio="none"` stretches a fixed 100×32 viewBox into a `rem` height
+  and a fluid width, so the apparent slope of the line is a function of the column's width and
+  of the reader's text size rather than of the data: the same series draws about twice as steep
+  at 200% text in the same column, and about three times as steep in a third-width tile. Two
+  sparklines are comparable only at the same width and the same text size — the same class of
+  caveat as `window`. And the strokes do not grow with the type: the line, the marker and the
+  halo carry `vector-effect="non-scaling-stroke"`, so they stay at their device-pixel widths
+  while the plot doubles, which thins the graphic relative to everything around it at exactly
+  the setting a reader chose because thin things are hard to see. Checked by eye, not by a
+  machine.
 - **Nothing animates.** No path-drawing, no entrance transition, no morph on a value change,
   on first paint or after it. There is no reduced-motion fallback because there is nothing to
   fall back from.
+
+**Known to be missing, which is a different thing from untested:**
+
+- **The data-table twin.**
+  [Accessible charts](../foundations/data-visualisation/accessible-charts.mdx) states it as a
+  requirement rather than a recommendation — "a chart component that does not provide a table
+  twin does not meet the definition of done" — and this component does not provide one. There
+  is no slot, prop or part for it, so the twin is the caller's to place beside the sparkline
+  and nothing checks that they did. The consequence is concrete: a reader who wants Tuesday's
+  number cannot get it from this component in any modality, and the plot's accessible name
+  cannot carry the doctrine's closing "full readings in the table below" because there is no
+  table to point at. This is a stated gap in the definition of done, not an item awaiting a
+  test.
 
 **Not yet checked at all, and listed rather than omitted:**
 
 - Contrast for the line against the band, the band against the page, and the caption text in
   both themes. `scripts/check-contrast.mts` has no pairs for this component yet, which is why
-  the report below is empty rather than green.
+  the report below is empty rather than green. **Whether the band is visible at all is the open
+  question, not whether it can be told from the line.** It is drawn `fill-muted` with a
+  `stroke-border` dashed edge, and the nearest thing the generated audit does measure — a
+  hairline neutral boundary on the page — fails the non-text floor in both themes: APCA Lc
+  22.42 against a floor of 45, WCAG 1.47 against 3, in light; APCA Lc −8.21 and WCAG 1.9 in
+  dark. That pair is not this component's and the numbers are not a measurement of this band,
+  which is exactly why the pairs need adding to `scripts/check-contrast.mts` before anything
+  here is called distinguishable. Picking a darker neutral by hand instead would be replacing
+  an unmeasured choice with another one.
 - Print behaviour. The line should print as a solid stroke, the band as an outline and the
   gaps as visible breaks; the dashed edge and the `stroke-background` halo behind the marker
   have not been tested on paper.
 - Right-to-left. The plot draws left to right in time order and does not flip, because the
   component cannot read the document's direction at render time and a chart that mirrored
   only sometimes would be worse than one that never does.
-- The data-table twin that [Accessible charts](../foundations/data-visualisation/accessible-charts.mdx)
-  requires for every chart. This component has no slot for one; it is the caller's to place
-  beside the sparkline, and nothing checks that they did.
 
 <KeyboardTable
   name="trend-sparkline"
@@ -420,12 +564,18 @@ checked, with the gaps listed rather than left out.
 
 <PropsTable name="TrendSparklineProps" />
 
+Two props are required and neither has a default: `series` and `minimumPoints`. Two more decide
+how much the component is allowed to say: `changeThreshold`, without which no direction word is
+printed, and `range.source`, without which no band is drawn. Those four are the whole of the
+safety design, and if the table below is empty the generated props data has not been rebuilt —
+run the generate step and check that `minimumPoints` appears as required with no default.
+
 `TrendPoint` and `ReferenceRange` are declared once, in the substrate, and imported from
 `@/lib/opsinjs` rather than from this component — a second copy of either is a second copy
 that can drift. `TrendDirection` is exported from this file as the vocabulary a product may
-use in its own caption; the component itself only ever produces `up`, `down` and `level`, and
-never `unsettled`, because deciding a series is unsettled needs a noise measure that no prop
-carries.
+use in its own caption; the component itself only ever produces `up`, `down` and `level`, only
+when a `changeThreshold` was supplied, and never `unsettled`, because deciding a series is
+unsettled needs a noise measure that no prop carries.
 
 ## Related
 

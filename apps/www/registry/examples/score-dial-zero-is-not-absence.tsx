@@ -14,15 +14,25 @@
  * untrue about their own record, and a dial is the worst place for it: the
  * indicator sitting hard against the low end of a ring is a strong, wordless
  * claim that this is how they did.
+ *
+ * There is a third state neither dial shows, and it is worth knowing about: a
+ * value that is not a finite number — a division with no divisor upstream — is
+ * a calculation that RAN AND FAILED, and both the printed words and the arc's
+ * accessible sentence say "not available" for it rather than "no score yet".
+ *
+ * The bands are invented and say so. `source` is required on every band for the
+ * same reason `ReferenceRange.source` is: two numbers that define an interval
+ * somebody is compared against are a comparison a person chose, and here that
+ * person was nobody.
  */
 
 import { EXAMPLE_SOURCE } from "@/lib/opsinjs"
 import { ScoreDial } from "@/registry/base-lyra/ui/score-dial"
 
 const EXAMPLE_BANDS = [
-  { from: 0, to: 40, name: "First example band" },
-  { from: 40, to: 70, name: "Second example band" },
-  { from: 70, to: 100, name: "Third example band" },
+  { from: 0, to: 10, name: "First example band", source: EXAMPLE_SOURCE },
+  { from: 10, to: 15, name: "Second example band", source: EXAMPLE_SOURCE },
+  { from: 15, to: 20, name: "Third example band", source: EXAMPLE_SOURCE },
 ]
 
 const DERIVATION = `${EXAMPLE_SOURCE}. The score, the scale and the bands here are invented, and nothing was calculated from anybody.`
@@ -34,7 +44,7 @@ export default function ScoreDialZeroIsNotAbsence() {
         label="Example composite score"
         value={0}
         min={0}
-        max={100}
+        max={20}
         precision={0}
         bands={EXAMPLE_BANDS}
         derivation={DERIVATION}
@@ -43,7 +53,7 @@ export default function ScoreDialZeroIsNotAbsence() {
         label="Example composite score"
         value={null}
         min={0}
-        max={100}
+        max={20}
         precision={0}
         bands={EXAMPLE_BANDS}
         derivation={DERIVATION}

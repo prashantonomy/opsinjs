@@ -11,6 +11,10 @@
  * zero, the reader's own history — and draw a bar that looks like every other
  * bar. That bar would be a scale nobody chose, and the reader would have no way
  * to tell it apart from one that came from a laboratory.
+ *
+ * The reading carries the time it was taken, as every reading on a real screen
+ * should: a number with no time beside it is read as "now", and losing the
+ * picture is no reason to lose the date as well.
  */
 
 import { EXAMPLE_SOURCE } from "@/lib/opsinjs"
@@ -25,6 +29,7 @@ export default function RangeBarAnOpenEndedRange() {
         unit="mg/dL"
         precision={0}
         range={{ high: 20, source: EXAMPLE_SOURCE }}
+        measuredAt="2026-03-14T08:12:00+00:00"
         locale="en-GB"
       />
     </div>
