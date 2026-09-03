@@ -404,7 +404,6 @@ function digitsOf(reading: number, precision: number | undefined, locale: string
   return new Intl.NumberFormat(locale, {
     minimumFractionDigits: precision,
     maximumFractionDigits: precision ?? MAX_FRACTION_DIGITS,
-    roundingMode: "halfExpand",
   }).format(reading)
 }
 

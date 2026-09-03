@@ -1,11 +1,11 @@
 {
   "$comment": "GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts, projected through lib/catalogue.ts. Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`. Consumed by the /r routes, the llms shards and the generated catalogue reference page. It exists as JSON rather than being imported from the TypeScript because the route handlers, the llms shards and any external tool all need the same rows without loading the app's module graph. `generatedAt` carries the source hash rather than a build time, because this file is guarded by a byte-for-byte drift gate.",
-  "generatedAt": "4a2db0c54f1e",
-  "sourceHash": "4a2db0c54f1e",
+  "generatedAt": "9188e4a474fa",
+  "sourceHash": "9188e4a474fa",
   "counts": {
     "shipped": 24,
     "considered": 36,
-    "implemented": 21
+    "implemented": 24
   },
   "categories": [
     {
@@ -281,7 +281,7 @@
       "description": "A sheet that asks permission for one specific thing, and records the answer.",
       "type": "registry:ui",
       "category": "health-communication",
-      "status": "planned",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
         "consent",
@@ -290,8 +290,15 @@
         "data sharing",
         "agree"
       ],
-      "implemented": false,
-      "docs": "/docs/components/consent-sheet"
+      "implemented": true,
+      "docs": "/docs/components/consent-sheet",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "sheet",
+        "button"
+      ]
     },
     {
       "name": "disclaimer-note",
@@ -319,7 +326,7 @@
       "description": "A form for writing down what happened today, in as few taps as possible.",
       "type": "registry:ui",
       "category": "health-input",
-      "status": "planned",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
         "log",
@@ -327,16 +334,21 @@
         "journal",
         "daily entry"
       ],
-      "implemented": false,
-      "docs": "/docs/components/log-sheet"
+      "implemented": true,
+      "docs": "/docs/components/log-sheet",
+      "registryDependencies": [
+        "sheet",
+        "field",
+        "button"
+      ]
     },
     {
       "name": "reading-input",
       "title": "ReadingInput",
-      "description": "An input for typing in a measurement, with its unit and a check that it is plausible.",
+      "description": "An input for typing in a measurement, with the unit shown and switchable beside the number.",
       "type": "registry:ui",
       "category": "health-input",
-      "status": "planned",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
         "enter a reading",
@@ -344,8 +356,14 @@
         "numeric entry",
         "manual entry"
       ],
-      "implemented": false,
-      "docs": "/docs/components/reading-input"
+      "implemented": true,
+      "docs": "/docs/components/reading-input",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "field"
+      ]
     },
     {
       "name": "value",

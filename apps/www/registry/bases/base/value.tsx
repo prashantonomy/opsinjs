@@ -256,12 +256,15 @@ export function Value({
   const absenceWords =
     absenceLabel !== undefined && !emptyLabel ? absenceLabel : "no reading yet"
 
-  /* `halfExpand` is round-half-away-from-zero, which is
-     `numbers-units-precision` rule 3 and also this formatter's own default.
-     Named rather than inherited, because a rounding rule a reader can be shown
-     is worth more than one that happens to be right. Rounded ONCE, here, at the
-     point of display — never before a comparison, and never over an
-     already-rounded value.
+  /* Rounding is `halfExpand` — round-half-away-from-zero, which is
+     `numbers-units-precision` rule 3. It is INHERITED rather than named, and
+     that is a portability decision rather than a preference: `roundingMode` is
+     an ES2023 addition to `Intl.NumberFormatOptions`, so writing it out made
+     this file fail to typecheck in any consumer whose `lib` stops at ES2022 —
+     found by installing it into one. `halfExpand` is this formatter's own
+     default, so the behaviour is identical and only the documentation moved,
+     which is where it now is. Rounded ONCE, here, at the point of display —
+     never before a comparison, and never over an already-rounded value.
 
      With no `places`, `maximumFractionDigits` is opened all the way rather than
      left at the formatter's default of three, which would round a reader's
@@ -269,7 +272,6 @@ export function Value({
   const formatter = new Intl.NumberFormat(locale, {
     minimumFractionDigits: places,
     maximumFractionDigits: places ?? MAX_FRACTION_DIGITS,
-    roundingMode: "halfExpand",
   })
   const formatted = reading === null ? "" : formatter.format(reading)
 

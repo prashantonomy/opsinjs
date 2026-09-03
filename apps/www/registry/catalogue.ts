@@ -373,16 +373,15 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A sheet that asks permission for one specific thing, and records the answer.",
     category: "health-communication",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: ["consent", "permission", "opt in", "data sharing", "agree"],
     owner: "clinical",
     a11yDate: null,
-    governedBy: [
-      "consent-and-disclosure",
-      "on-screen-privacy",
-      "crisis-and-self-harm",
-    ],
+    governedBy: ["consent-and-disclosure", "clinical-interaction-guidelines", "crisis-and-self-harm", "regulatory-context"],
+    dependencies: ["lucide-react"],
+    registryDependencies: ["sheet", "button"],
+    usedIn: ["consent-before-collection", "consent-flow"],
   },
   {
     name: "disclaimer-note",
@@ -405,20 +404,22 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A form for writing down what happened today, in as few taps as possible.",
     category: "health-input",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: ["log", "diary", "journal", "daily entry"],
     owner: "design",
     a11yDate: null,
     governedBy: ["clinical-interaction-guidelines", "who-this-is-for"],
+    registryDependencies: ["sheet", "field", "button"],
+    usedIn: ["daily-log-entry", "daily-log-screen"],
   },
   {
     name: "reading-input",
     title: "ReadingInput",
     description:
-      "An input for typing in a measurement, with its unit and a check that it is plausible.",
+      "An input for typing in a measurement, with the unit shown and switchable beside the number.",
     category: "health-input",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: [
       "enter a reading",
@@ -428,11 +429,10 @@ export const SHIPPED: CatalogueEntry[] = [
     ],
     owner: "engineering",
     a11yDate: null,
-    governedBy: [
-      "unit-systems",
-      "numbers-units-precision",
-      "reference-ranges",
-    ],
+    governedBy: ["numbers-units-precision", "unit-systems", "uncertainty-and-staleness"],
+    dependencies: ["lucide-react"],
+    registryDependencies: ["field"],
+    usedIn: ["daily-log-entry", "daily-log-screen"],
   },
 
   {

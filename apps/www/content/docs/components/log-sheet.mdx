@@ -1,7 +1,7 @@
 ---
 title: LogSheet
 description: A small sheet that slides up so you can record something in a few seconds — one reading, one dose, one note — without leaving the screen you were on.
-status: planned
+status: alpha
 kind: component
 since: "unreleased"
 category: health-input
@@ -10,47 +10,87 @@ governedBy: [numbers-units-precision, unit-systems, consent-and-disclosure]
 usedIn: [daily-log-entry, daily-log-screen]
 ---
 
-<PageTemplate kind="component" />
-
 ## Status
 
 <StubNotice
   name="log-sheet"
+  status="alpha"
   issue="opsinjs/opsinjs#0"
   questions={[
-    "What is the ceiling? Three fields, five, or a time budget — and what does the component do when a product exceeds it?",
-    "Does the sheet ever save without an explicit confirmation, and if a reader dismisses it mid-entry, what happens to what they typed?",
-    "Backdating is normal in a log and dangerous in a record. How far back may an entry be dated, and how is a backdated entry marked?",
-    "When the same reading is logged twice within minutes, is that a duplicate to merge or a real second measurement?",
+    "The field ceiling is a design rule and is not enforced, because it cannot be enforced honestly: React.Children sees direct children only, so a product that wraps its own two fields in one component of its own would be counted as having one. Is the answer a lint rule, a `fields` prop that enumerates them, or leaving it a rule people follow?",
+    "The same reading logged twice within minutes is either a duplicate to merge or a real second measurement, and this component cannot tell — it has no slot key and no view of the rest of the log. Does that stay entirely the product's problem, or does the entry need to carry something that lets the product decide?",
+    "Daily logging names six states — draft, saving, queued offline, conflict, failed, and the empty first use. LogSheet expresses one of them, through `onDiscard`. The other five happen after `onSave` returns, on a surface this component cannot see. Where do they belong?",
+    "The component ships four strings of its own — the time control's label, and the three words of the discard question — and `timeLabel` is the only override. Every other string in the sheet is the product's. Where does a component's own copy go when the product is not in English? Sheet has the same open question and they want the same answer.",
+    "Nothing here has been measured in a browser. The `autoFocus` that moves focus to the discard question, the keyboard-safe inset under the save action, and the platform picker's reading of `min` on the time control are all argued from source rather than observed — which is the honest ceiling for `alpha`, and it means the first three things to measure are already named.",
   ]}
-/>
+>
+  <code className="text-sm">log-sheet</code> is implemented and installable. It
+  is <strong className="font-medium">alpha</strong>: it is built against the
+  specification below and passes the static gates, the API may change in any
+  release without a deprecation cycle, and it is not for a production health
+  surface yet.
+</StubNotice>
 
 Daily logging fails on friction. Every second between the intention to record something and
 the record existing loses entries, and lost entries make every trend downstream less true.
-LogSheet exists to make that path short, and its specification is mostly about resisting the
+LogSheet exists to make that path short, and most of its specification is about resisting the
 pressure to put one more field on it.
+
+It is a client component, and that is a requirement rather than an optimisation. It holds the
+time the entry is about, whether the reader moved it, the note, and whether the discard
+question is on screen — and it extends [Sheet](./sheet.mdx), which mounts a portal, traps
+focus and listens for a drag. None of that has a CSS answer.
 
 ## Preview
 
-The preview will show the sheet at its detents with the keyboard raised, because a capture
-sheet that works beautifully until the keyboard appears is a capture sheet that does not
-work.
+One field, a time defaulted to the moment the sheet opened, an optional note, and one save.
+Type something and then try to leave: the escape key, the background, a downward drag and the
+close control all ask the same question in the same place.
 
 <ComponentPreview name="log-sheet" />
 
 ## Installation
 
-The registry item does not exist yet; the command below is shown for shape only and will
-fail. LogSheet composes [Sheet](./sheet.mdx), [Field](./field.mdx),
-[ReadingInput](./reading-input.mdx) and [Button](./button.mdx).
+<ComponentInstall
+  name="log-sheet"
+  unbuilt={false}
+  importPath="@/components/ui/log-sheet"
+  registryDependencies={["sheet", "field", "button"]}
+/>
 
-<ComponentInstall name="log-sheet" />
+[Sheet](./sheet.mdx) is what LogSheet extends: the surface, the detents, the focus trap, the
+keyboard-safe inset and the dismissal routes are all its. [Field](./field.mdx) wires the time
+control and the note — the label relationship, the description list and the invalid state,
+none of which this component hand-rolls. [Button](./button.mdx) is the save action and the two
+answers to the discard question. LogSheet imports no npm package of its own; `@base-ui/react`
+and `lucide-react` arrive with those three.
+
+## Usage
+
+```tsx
+import { LogSheet } from "@/components/ui/log-sheet"
+```
+
+```tsx
+<LogSheet
+  open={open}
+  onOpenChange={setOpen}
+  title="An example entry"
+  values={values}
+  saveLabel="Save the example entry"
+  onSave={(entry) => store(entry)}
+>
+  <Field label="Example measurement">
+    <Field.Control value={held ?? ""} onChange={write} />
+  </Field>
+</LogSheet>
+```
 
 ## When to use it
 
 <WhenToUse
   use={[
-    "Recording one thing the reader does repeatedly — a blood pressure reading, a dose taken, a symptom, a weight, a note about how they feel.",
+    "Recording one thing the reader does repeatedly — a reading, a dose taken, a symptom, a weight, a note about how they feel.",
     "Capture that must happen without losing the reader's place, from a dashboard, a trend view or a notification.",
     "Any entry that should take under about fifteen seconds one-handed, standing up, without reading instructions.",
   ]}
@@ -69,114 +109,237 @@ seven fields is a form, and a form belongs on a page where it can breathe, be sa
 draft, and be abandoned without losing the reader's place. Sheets are for the entries people
 make every day; forms are for the ones they make once.
 
+**The ceiling is not enforced, and the component says so rather than pretending.** `children`
+is an opaque element tree, and `React.Children` sees only direct children — so a product that
+wraps its own two fields in a component of its own would be counted as having one. A count
+that is wrong in the common case teaches the wrong lesson twice: it clears a sheet that is too
+long and complains about one that is not. Better an unenforced rule than a check nobody can
+trust.
+
 ## Clinical meaning
 
-**What it asserts.** That the reader recorded this value, at this time, themselves. That is
-a weaker and more specific claim than a device measurement, and the record must preserve the
-difference: a self-reported blood pressure and one read from a cuff over Bluetooth are not
-interchangeable downstream. See
-[Data provenance and device accuracy](../health/data-provenance-and-device-accuracy.mdx).
+**What it asserts.** That the reader recorded this value, at this time, themselves. That is a
+weaker and more specific claim than a device measurement, and the record preserves the
+difference: `LogEntry.provenance` is the literal `"self-reported"` and there is no prop that
+changes it. A self-reported reading and one read from a cuff over Bluetooth are not
+interchangeable downstream — see
+[Data provenance and device accuracy](../health/data-provenance-and-device-accuracy.mdx). A
+device-assisted flow is a different surface, not this one with a flag on it.
 
 **What it must never be read as.** A clinical observation, or an assessment of anything.
 Logging is recording. The sheet does not evaluate what is entered, does not colour it by
-status, and does not tell the reader whether their number is good — that is a job for the
-surface that displays the value afterwards, if the product has grounds for it.
+status, and does not tell the reader whether their number is worth acting on — that is a job
+for the surface that displays the value afterwards, if the product has grounds for it.
 
-**Which colour axis it may use.** The **category** axis, on the sheet's heading and icon, so
-a reader knows whether they are logging sleep or blood pressure. The **status** axis may not
-appear on a capture surface at all. Colouring a field amber while somebody is typing their
-own blood pressure into it is an implied verdict delivered mid-keystroke, and it is the
-fastest way to teach a person to stop logging honestly.
+**Which colour axis it may use.** The **category** axis, on one band beneath the sheet's
+heading, so a reader knows whether they are logging sleep or a heart measurement. That band
+carries `data-category`, no words and no glyph, which is what the category axis is entitled to
+say: it is identity, not urgency, and the title above it already names what is being logged in
+full. The **status** axis does not appear on this surface at any price. Colouring a field
+amber while somebody is typing their own measurement into it is a verdict delivered
+mid-keystroke, and it is the fastest way to teach a person to stop logging honestly.
 
-**Plausibility is not judgement.** The sheet may warn that a value looks unlikely — a
-digit-transposition, a unit confusion, a decimal in the wrong place — because those are data
-quality problems. It may never block the entry: unlikely values happen, and a log that
-refuses them is a log with a hole in it exactly where the interesting data was. See
-[ReadingInput](./reading-input.mdx) for the plausibility contract in detail.
+**Plausibility is not judgement, and this component performs none.** LogSheet holds no
+thresholds, no ranges and no bounds, and it never blocks a save for any reason. Where a
+warning about an unlikely value belongs is on the control that knows what was measured, which
+is the product's — see [ReadingInput](./reading-input.mdx) for that contract. What LogSheet
+guarantees is only that nothing it does can stop the save going through: unlikely values
+happen, and a log that refuses them is a log with a hole in it exactly where the interesting
+data was.
 
-**Timing is part of the record.** Every entry carries the time it refers to, not the time it
-was typed, and the two are stored separately. A reading logged at 9pm for 8am that morning is
-a backdated entry and downstream surfaces need to know that.
+**Timing is part of the record, and the two times are stored separately.** `occurredAt` is the
+time the entry is *about*, defaulted to the moment the sheet opened and editable throughout.
+`recordedAt` is the time the save happened, read at the save and never editable.
+
+**`backdated` is the reader's action, not arithmetic.** It is true when the reader moved the
+time control away from the time the sheet opened at. Deriving it from `occurredAt !==
+recordedAt` is the obvious implementation and is wrong: those two always differ by however
+long the entry took to type, so every record would come back marked and the flag would mean
+nothing.
+
+**`maxBackdateDays` is the product's number and nothing is substituted for it.** Omit it and
+no earliest date is offered and none is stated. Supply it and the platform's date picker is
+told where the window starts and the field's guidance names the date in words — and a time
+outside the window still saves, because refusing an entry is the one thing this sheet will not
+do.
 
 ## Anatomy
 
-<Anatomy name="log-sheet" />
+<Anatomy
+  name="log-sheet"
+  parts={[
+    {
+      name: "LogSheet",
+      describes: "The capture region inside the sheet's scrolling area. Carries data-slot=\"log-sheet\". The surface, the header, the title, the close control, the grabber and the pinned footer are Sheet's parts, not this component's.",
+    },
+    {
+      name: "LogSheet.Category",
+      describes: "One tinted band beneath the header, carrying data-category and the category's accent fill. aria-hidden: it carries identity, no word and no glyph, and the title above it already names the measurement. Rendered only when category is supplied — there is no default.",
+      prop: "category",
+    },
+    {
+      name: "LogSheet.Fields",
+      describes: "The product's own entry controls, rendered in order and never inspected. What they hold reaches onSave through the values prop, not through this element.",
+      prop: "children",
+    },
+    {
+      name: "LogSheet.Time",
+      describes: "A Field wrapping a datetime-local control, defaulted to the moment the sheet opened. Its min comes from maxBackdateDays when there is one, and it never blocks the save.",
+      prop: "timeLabel",
+    },
+    {
+      name: "LogSheet.Note",
+      describes: "A Field wrapping a textarea, marked optional. Rendered only when noteLabel is supplied: the label is the opting-in, because a free-text line counts against the sheet's budget like any other field.",
+      prop: "noteLabel",
+    },
+    {
+      name: "LogSheet.Save",
+      describes: "The one primary action, pinned in Sheet's footer, full width. Its label is required and has no default, because the content rule is that the action says what it saves.",
+      prop: "saveLabel",
+    },
+    {
+      name: "LogSheet.Confirm",
+      describes: "Replaces the save action in the footer when a dismissal arrives over unsaved input. It is the discard question and its two answers, asked in place rather than in a second modal surface.",
+    },
+    {
+      name: "LogSheet.Keep",
+      describes: "The safe answer, and the one focus lands on. Returns to the entry with nothing lost.",
+    },
+    {
+      name: "LogSheet.Discard",
+      describes: "The destructive answer, and the only route out of the question. Calls onDiscard with the entry that was about to be lost, then closes by whichever route asked.",
+      prop: "onDiscard",
+    },
+  ]}
+/>
 
-<CompositionTree name="log-sheet" />
+<CompositionTree
+  name="log-sheet"
+  tree={[
+    {
+      part: "Sheet",
+      cardinality: "1",
+      note: "open, onOpenChange, title, detents and className pass through unchanged",
+      children: [
+        {
+          part: "Sheet.Content",
+          cardinality: "1",
+          note: "data-slot=\"sheet-content\" — the scrolling region, Sheet's",
+          children: [
+            {
+              part: "LogSheet",
+              cardinality: "1",
+              note: "data-slot=\"log-sheet\"",
+              children: [
+                {
+                  part: "LogSheet.Category",
+                  cardinality: "0..1",
+                  note: "data-slot=\"log-sheet-category\", data-category=\"<category>\", aria-hidden",
+                },
+                {
+                  part: "LogSheet.Fields",
+                  cardinality: "1",
+                  note: "data-slot=\"log-sheet-fields\" — children, verbatim",
+                },
+                {
+                  part: "LogSheet.Time",
+                  cardinality: "1",
+                  note: "data-slot=\"log-sheet-time\", wrapping a Field",
+                },
+                {
+                  part: "LogSheet.Note",
+                  cardinality: "0..1",
+                  note: "data-slot=\"log-sheet-note\", wrapping a Field",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          part: "LogSheet.Save",
+          cardinality: "0..1",
+          note: "data-slot=\"log-sheet-save\" in Sheet's footer; absent while the question is up",
+        },
+        {
+          part: "LogSheet.Confirm",
+          cardinality: "0..1",
+          note: "data-slot=\"log-sheet-confirm\" in Sheet's footer; present only over unsaved input",
+          children: [
+            {
+              part: "LogSheet.Keep",
+              cardinality: "1",
+              note: "data-slot=\"log-sheet-keep\"",
+            },
+            {
+              part: "LogSheet.Discard",
+              cardinality: "1",
+              note: "data-slot=\"log-sheet-discard\"",
+            },
+          ],
+        },
+      ],
+    },
+  ]}
+/>
 
-**Header** names what is being logged and offers the escape. **Fields** are the entry
-controls, ordered so the most important one is focused first. **Time** is the when, defaulted
-to now and always editable. **Note** is an optional free-text line, which people use more
-than product teams expect. **Save** is one primary action; **Cancel** is available at every
-moment and never discards silently.
+Every part above is internal structure identified by `data-slot`, and none of them is an
+export. Content arrives as a prop or as `children`; there is no `LogSheet.Time` to render on
+its own and no way to have the save action without the sheet around it.
 
-Proposed part hierarchy. This is the specification the implementation must match.
+Three of the parts sit in a wrapper element rather than on the control itself, and it is worth
+knowing why before you write a selector: `Button` stamps `data-slot="button"` after spreading
+whatever it was given, so a slot passed to it never reaches the DOM. `LogSheet.Save`,
+`LogSheet.Keep` and `LogSheet.Discard` are therefore the wrappers, each holding one `Button`.
+The alternative was hand-rolling three controls, which would teach in shipped source that the
+primary action at the foot of a sheet is a styled `<button>`.
 
-```text
-LogSheet                       root; extends Sheet; keyboard-safe insets
-├── LogSheet.Header
-│   ├── LogSheet.Title         what is being logged; category-tinted icon
-│   └── LogSheet.Cancel        always present; never discards without asking
-├── LogSheet.Fields            at most ~5; the first is focused on open
-│   ├── ReadingInput           a numeric measurement with its unit
-│   └── Field                  any other single-value control
-├── LogSheet.Time              defaults to now; backdating is explicit and marked
-├── LogSheet.Note              optional free text
-└── LogSheet.Save              one primary action; states what it saves
-```
+The **header, title and close control belong to Sheet**, which is why they are not listed as
+LogSheet's parts. The specification's tree named a `LogSheet.Cancel` "always present, never
+discards without asking" — that is Sheet's close control, and this component keeps the second
+half of the promise by intercepting every dismissal route rather than by rendering a second
+exit. Two exits in one header is a choice a reader should not have to make.
 
 Nesting a second `LogSheet` inside a `LogSheet`, or putting a navigation control inside one,
-is a composition error: a capture sheet has one exit and one destination.
+is a composition error: a capture sheet has one exit and one destination. Sheet raises a
+development warning for the first of those on its own behalf.
 
-## Proposed API
+## Examples
 
-<NotBuiltYet name="log-sheet" />
+### Leaving with unsaved input
 
-```ts
-// PROPOSED. Not implemented. A specification for review, not an API to generate
-// code against. It will change without a deprecation cycle.
+The behaviour the component exists for. Every route out — the escape key, the background, a
+downward drag, the close control — asks the same question in the same place, and `onDiscard`
+receives the entry that was about to be lost so the product can keep it as a draft.
 
-import type { HealthCategory } from "opsinjs"
+<ComponentPreview name="log-sheet-leaving-with-unsaved-input" kind="example" align="start" />
 
-export interface LogEntry {
-  /** What the entry refers to, keyed by the product. */
-  values: Record<string, number | string | null>
-  /** The time the entry is ABOUT. Defaults to now, always editable. */
-  occurredAt: string
-  /** The time the entry was RECORDED. Set by the component, never editable. */
-  recordedAt: string
-  /** True when occurredAt was moved away from recordedAt by the reader. */
-  backdated: boolean
-  /** Always "self-reported" from this component. Never inferred as a device reading. */
-  provenance: "self-reported"
-  note?: string
-}
+### Two fields, and the window the product owns
 
-export interface LogSheetProps {
-  title: string
-  category?: HealthCategory
-  /** Rendered in order. The first is focused on open. Keep it under five. */
-  children: React.ReactNode
-  /** How far back an entry may be dated, in days. The product owns this. */
-  maxBackdateDays?: number
-  /** Called only on explicit save. There is no autosave and no implicit commit. */
-  onSave: (entry: LogEntry) => void
-  /**
-   * Called when the reader dismisses with unsaved input. The component asks
-   * before discarding; the product decides whether to keep a draft.
-   */
-  onDiscard?: () => void
-}
-```
+Two controls writing two keys into one entry, which is what the `values` channel is for: the
+key is written beside the control rather than inferred from it. `maxBackdateDays` is the
+example standing in for a product — opsinjs ships no default for it, and a time outside the
+window still saves.
+
+<ComponentPreview
+  name="log-sheet-two-fields-and-a-backdate-window"
+  kind="example"
+  align="start"
+/>
 
 ## Content guidelines
 
 The title is what is being logged, as a noun phrase: *Blood pressure*, *Morning weight*, *How
 you slept*. The save action says what it saves — *Save reading*, not *Done*, and never *OK*.
+`saveLabel` is required for that reason: there is no honest default, and a component that
+shipped one would let every product skip the rule without noticing it had one.
 
 Do not ask for anything you can infer, and do not ask for anything you will not use. Every
 field is a small tax paid every single day, and the fourth field is the one that stops people
 logging at all.
+
+The note is opt-in through its own label, so a product that has no use for free text does not
+pay for it. When you do want one, name what it is for: *Anything worth remembering* asks a
+different question from *Notes*, and gets a different answer.
 
 <DoDont>
   <DoDont.Do>
@@ -192,7 +355,8 @@ logging at all.
 
 <DoDont>
   <DoDont.Do>
-    **"You have not saved this reading. Discard it?"** on dismissal with unsaved input.
+    **"You have not saved this entry. Discard it?"** on dismissal with unsaved input, asked in
+    the sheet's own footer with *Keep editing* focused.
   </DoDont.Do>
   <DoDont.Dont>
     **Closing the sheet on a background tap and losing what was typed.** The reader tried to
@@ -200,33 +364,177 @@ logging at all.
   </DoDont.Dont>
 </DoDont>
 
-## Accessibility requirements
+## Accessibility
 
-Requirements for the implementation, not results.
+Three of these are checked by a gate on every commit. The rest are arguments, and they are
+labelled as such: `alpha` promises that accessibility is claimed only where it has been
+checked, with the gaps listed rather than left out. Nothing on this page has been measured in
+a browser.
 
-- **The sheet is a modal dialogue** named by its title, with focus moved to the first field
-  on open, trapped while open, and returned to the trigger on close.
-- **The keyboard never covers the save action.** The sheet resizes to the visual viewport and
-  respects safe-area insets; the primary action stays reachable at every detent — see
-  [Layout](../foundations/layout.mdx).
-- **Every field has a visible, persistent label**, never a placeholder standing in for one.
-  Placeholder-as-label disappears exactly when the reader needs it and is invisible to some
-  assistive technology — see [Field](./field.mdx).
-- **Numeric fields declare their input mode and autocomplete** so the right keyboard appears
-  and the reader does not have to hunt for a decimal point.
-- **Plausibility warnings are advisory, associated with their field, announced politely, and
-  never block save.** They are announced once, not on every keystroke.
-- **Dismissal with unsaved input asks first**, by keyboard as well as by gesture. Escape is
-  the keyboard equivalent of the background tap and behaves identically.
-- **Every gesture has a control.** Drag-to-dismiss and drag-between-detents each have a
-  button equivalent — see [Target size and motor](../accessibility/target-size-and-motor.mdx).
-- **At 200% text the sheet scrolls internally**, the save action stays pinned, and no field
-  label truncates.
-- **Reduced motion** removes the slide; the sheet appears at its detent.
+**Checked, by `pnpm run check:a11y` on every commit:**
 
-<KeyboardTable name="log-sheet" />
+- **No status colour anywhere on this surface.** The static rig fails the build on any file
+  that paints a status colour without the word and the glyph beside it, and it fails on any
+  element that takes colour from both axes at once. This component paints one category band
+  and nothing else, so the check has nothing to complain about — which is the point: a capture
+  surface that could be tinted by status would be one somebody eventually tints.
+- **The category band carries `data-category`.** The attribute and the class are two spellings
+  of one decision, and the attribute is the DOM contract a product's stylesheet, its print
+  rules and its own tests key on.
+- **No threshold, bound or interval ships in this file or its examples.** A11Y014 and A11Y015
+  fail the build on a name like `plausible` or `cutoff` given a number, and on any object
+  literal holding two numeric bounds with nobody's name on it. `maxBackdateDays` has no
+  default here and none in the demo.
+
+**Argued, and true of the implementation, but not yet measured:**
+
+- **The sheet is a modal dialogue named by its title**, focus trapped while open and returned
+  to the trigger on close. All of that is Sheet's, unchanged, and Sheet's page says the same
+  thing about it.
+- **Focus is not moved to the first field on open.** The specification asked for that and this
+  component declines, for three reasons: a component moving focus on appearance is refused by
+  the repository's own focus doctrine; landing in a control raises the software keyboard over
+  a sheet the reader has not read yet; and a screen-reader user who arrives inside an input
+  never hears the name of the surface that just took the screen. Sheet moves focus into the
+  popup, where the title is announced, and the first field is one `Tab` away.
+- **Every field has a visible, persistent label.** The time and the note get theirs from
+  [Field](./field.mdx), which has no way to hide one. The product's own fields are the
+  product's responsibility, and `Field` is the component that makes them cheap to get right.
+- **The discard question is announced by focus rather than by a live region.** This component
+  mounts no live region — it is not entitled to speak on the caller's behalf — so the way a
+  keyboard or screen-reader user learns that a question has appeared is that focus is on it.
+  Focus lands on *Keep editing*, which is the non-destructive answer; the destructive one is
+  never the default. It moves in reply to the reader asking to leave, not on appearance.
+- **The question is asked in place, not in a second modal surface.** A confirmation dialogue
+  opening from a sheet is two stacked modal surfaces, a focus order nobody can predict, and an
+  escape key with two plausible meanings.
+- **Nothing blocks the save.** No validation runs here, no field is marked invalid by this
+  component, and `min` on the time control constrains what the platform picker offers rather
+  than what can be typed.
+- **Numeric input mode and autocomplete are the product's to declare** on its own controls.
+  `Field.Control` sets neither, deliberately: the right `autocomplete` token depends on what
+  is being asked for, and a guess would fill somebody's postcode into a field asking for
+  something else.
+- **At 200% text the sheet scrolls internally and the save action stays pinned.** Both are
+  Sheet's, and both are argued from its source rather than observed.
+
+**Not yet checked at all, and listed rather than omitted:**
+
+- The `autoFocus` that moves focus to the discard question. It is React's own behaviour on
+  mount, inside a portal that is itself resolving initial focus, and that ordering has not been
+  watched in a browser.
+- Whether the platform's date picker honours `min` the way this page describes. Picker
+  behaviour for `datetime-local` differs between engines and none of them has been checked.
+- The keyboard-safe inset under the save action on a real device with a software keyboard.
+  Sheet's page carries the same gap and it is the same mechanism.
+- Contrast for the category band against the sheet's material, in both themes and under
+  increased contrast. `prefers-contrast` and `forced-colors` are not implemented anywhere in
+  opsinjs yet.
+- What a screen reader says when the footer's contents are replaced. The swap is a
+  re-render inside a region nobody is listening to, and focus arriving is the only signal.
+
+<KeyboardTable
+  name="log-sheet"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Moves through the sheet's parts in visual order",
+      notes: "The sheet is not one tab stop. Sheet's scrolling region, then each of the product's fields, then the time, then the note, then the pinned action — a form is a sequence of controls and every one of them has to be reachable.",
+    },
+    {
+      keys: "Shift + Tab",
+      action: "The same sequence, backwards",
+      notes: "Sheet's close control sits above the content in both orders, so it is the first stop forwards and the last stop backwards.",
+    },
+    {
+      keys: "Escape",
+      action: "Asks before discarding when there is unsaved input; closes when there is not",
+      notes: "The keyboard equivalent of a tap on the background, and it behaves identically — that is the whole reason Sheet reports which route a close arrived by. With the question already up, Escape answers it with Keep editing, which is the safe answer; the way out is the Discard control, two stops away.",
+    },
+    {
+      keys: "Enter",
+      action: "Activates the focused control",
+      notes: "It never saves from inside a field. There is no form element here and no implicit submit: a sheet that holds a multiline note and a date is one where Enter would sometimes insert a newline and sometimes commit a record, and a coin flip is not a keyboard contract.",
+    },
+    {
+      keys: "Space",
+      action: "Activates the focused button",
+      notes: "Save, Keep editing and Discard are real buttons, so Space activates them and does not scroll the sheet.",
+    },
+  ]}
+/>
 
 <ContrastReport component="log-sheet" />
+
+## API reference
+
+<PropsTable name="LogSheetProps" />
+
+`LogSheetProps` extends `Omit<SheetProps, "children" | "footer" | "modal" | "dismissible">`,
+so **`open`, `onOpenChange`, `title`, `detents` and `className` come from
+[Sheet](./sheet.mdx) unchanged** and are documented in its table rather than repeated in this
+one. That is [ADR 0021](../project/decisions/0021-modal-surfaces-own-their-open-state.mdx):
+this component's specification said it "extends Sheet" and declared neither `open` nor
+`onOpenChange`, which as written left it unopenable. It inherits both rather than minting a
+third copy of the same pair.
+
+Three of Sheet's props are omitted rather than inherited, and each omission is a promise.
+`footer` — the save action is this component's, which is what makes "no autosave and no
+implicit commit" checkable. `modal` — the sheet *is* a modal dialogue, and `modal={false}`
+would leave the page behind focusable underneath a half-typed record. `dismissible` — the
+discard question depends on the ambient close routes reaching this component, and
+`dismissible={false}` makes Sheet cancel all three before they arrive, so the sheet would
+refuse to close and never say why.
+
+`LogEntry` is exported from the same file. It does not appear in the table above, which is
+generated only from interfaces whose name ends in `Props`.
+
+```tsx
+export interface LogEntry {
+  values: Record<string, number | string | null>
+  occurredAt: string
+  recordedAt: string
+  backdated: boolean
+  provenance: "self-reported"
+  note?: string
+}
+```
+
+`values` is the whole answer to the question this component's specification could not answer.
+`children` is an opaque element tree and `onSave` has to return structured data, and there is
+no way to get from one to the other without a mechanism. Three were available. A **registration
+context** was rejected because it needs every control to opt in — including ones the product
+wrote itself, which is most of them — and a collector that silently returns an incomplete
+record is worse than none. A **`<form>` and `FormData`** was rejected because `FormData`
+returns `""` for a control the reader emptied and `""` for one they never touched, and returns
+strings for everything: `null` is a first-class absence here, distinct from `0` and distinct
+from *not typed yet*, and a channel that cannot carry the distinction turns "no answer" into
+"zero" somewhere downstream in somebody's record. A **controlled `values` prop** was chosen,
+because the product already holds this state to render its own controlled inputs — nothing is
+duplicated, the key is simply written down beside the control. `children` stays genuinely
+opaque: this component never walks it, never counts it and never reads a value out of it.
+
+So the division is: the product owns every field it rendered, and this component owns exactly
+the two it renders itself, plus the four facts about the record that only it is in a position
+to state. Nothing is added to `values`, nothing is dropped from it for being empty, and
+nothing in it is coerced.
+
+`onDiscard` takes an argument the original signature did not. The specification said "the
+product decides whether to keep a draft" and then handed the product nothing to keep; widening
+the parameter list is the smallest repair, and it is the same widening Sheet made to
+`onOpenChange` for the same reason. A zero-argument handler is still assignable, so
+`onDiscard={clearForm}` typechecks unchanged.
+
+`onSave` does not close the sheet, and neither does anything else in this component. `open`
+belongs to the product, which is the only party that knows whether the save reached anywhere —
+a queued entry, a rejected one and a stored one all arrive here identically, and a sheet that
+closed itself would have decided the reader was finished on the strength of a function call
+returning. Both examples close it themselves, in one line. A save does reset what
+"unsaved" is measured against, so a product that keeps the sheet open — to retry, or to log a
+second entry — is not afterwards told that it holds input nobody has saved.
+
+There is no `fields` prop, no `values` schema, no `saveOnEnter`, and no way to make the save
+action anything other than the last thing in the tab order.
 
 ## Related
 
@@ -234,13 +542,16 @@ Requirements for the implementation, not results.
 
 **Easily confused with**
 
-- [Sheet](./sheet.mdx) — the general surface. LogSheet is Sheet plus a capture contract and a
-  field ceiling.
-- [ReadingInput](./reading-input.mdx) — the single control inside it. One value with a unit
-  needs no sheet of its own.
+- [Sheet](./sheet.mdx) — the general surface. LogSheet is Sheet plus a capture contract, a
+  time, a note and one save that asks before it lets anything go.
+- [ReadingInput](./reading-input.mdx) — the single control that goes inside it. One value with
+  a unit needs no sheet of its own.
 - `questionnaire` (considered, no page yet — see the [roster](./index.mdx)) — a set of
   questions forming an assessment, which is a different thing from a record.
-- [Field](./field.mdx) — for entries that belong on a page rather than in a sheet.
+- [Field](./field.mdx) — for entries that belong on a page rather than in a sheet, and the
+  component that wires every control inside this one.
+- [ConsentSheet](./consent-sheet.mdx) — a Sheet that asks for permission rather than for a
+  record. If you need one before you may store the other, it comes first.
 
 **Used by**
 

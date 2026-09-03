@@ -305,6 +305,63 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: false,
     },
   },
+  "ConsentSheetProps": {
+    "consentId": {
+      type: "string",
+      description: "Stable id of the consent being asked for. It is not shown to the reader; it is what a product's own record is keyed on, and it is required because a decision with nothing to attach it to is not a record.",
+      required: true,
+    },
+    "textVersion": {
+      type: "string",
+      description: "The version of the wording on this sheet. Change it whenever any of the text changes, and never reuse one: a consent record with no version cannot answer the only question anybody will ever ask of it, which is what the person actually read.",
+      required: true,
+    },
+    "heading": {
+      type: "string",
+      description: "What is being asked, phrased as a question the reader can answer yes or no to. It is the sheet's accessible name and its visible heading — the two are the same element, which is why there is no separate `title`.",
+      required: true,
+    },
+    "purpose": {
+      type: "string",
+      description: "What the data is for, in one or two sentences, in terms of what the reader gets rather than what the product does internally. One decision per sheet: bundling is a design error rather than a prop, so there is no array here and no way to make this the introduction to a list of switches.",
+      required: true,
+    },
+    "scope": {
+      type: "ConsentScope",
+      description: "What is collected, who can see it and how long it is kept. Rendered as a list.",
+      required: true,
+    },
+    "withdrawalPath": {
+      type: "string",
+      description: "Where the reader can change this decision later, as a sentence in their own language. Required, and the sheet will not ask without it: a consent with no exit is not revocable whatever the copy says. It renders as text and is deliberately not turned into a link. A string is not a destination, and the doctrine's answer is that revocation lives where the data lives rather than inside the sheet that asked for it — so what belongs here is the sentence that tells the reader where to go, and the control belongs on the screen showing the data.",
+      required: true,
+    },
+    "details": {
+      type: "ConsentDetails",
+      description: "The full wording, disclosed in place behind a named control, for the reader who wants all of it. Omitted, no control is drawn: an empty disclosure is a promise of more that there is no more of.",
+      required: false,
+    },
+    "consequenceOfDeclining": {
+      type: "string",
+      description: "What the reader loses by declining, stated before they choose. Optional, because opsinjs cannot know whether a product still works after a refusal — and required by the doctrine whenever it does not. If refusing breaks something the reader came for, this is where they are told, and they are told before the controls rather than in a confirmation afterwards.",
+      required: false,
+    },
+    "acceptLabel": {
+      type: "string",
+      description: "The word on the accept control. Required, with no default anywhere in this file, and there is no fallback if it is blank. Name the outcome rather than the press: a label that begins with the reader's own word for yes and then says what will happen is an answer, and one that only describes pressing the button is not. A generic label raises a development warning and is rendered exactly as written — only the product knows what it is agreeing to, and a component that rewrote the word would be writing consent copy.",
+      required: true,
+    },
+    "declineLabel": {
+      type: "string",
+      description: "The word on the decline control. Required, and it carries the same weight as `acceptLabel` in every dimension this component controls: there is no `hideDecline`, no `declineVariant`, and no way to make this one quieter. Name the outcome it refuses, in the same shape and at about the same length as the accept label. A word that postpones rather than answers raises a development warning, because in a screen reader's list of controls a postponement and a refusal are not the same choice.",
+      required: true,
+    },
+    "onDecision": {
+      type: "(decision: ConsentDecision) => void",
+      description: "Called when the reader presses one of the two controls, and at no other time. Closing the sheet without pressing either calls nothing: it is not a refusal, and it is certainly not consent. The component does not close itself afterwards. `open` is the caller's, as it is on every Sheet, so a product can show what happens next before the surface goes away.",
+      required: true,
+    },
+  },
   "DialogProps": {
     "open": {
       type: "boolean",
@@ -501,6 +558,53 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: false,
     },
   },
+  "LogSheetProps": {
+    "values": {
+      type: "Record<string, number | string | null>",
+      description: "What the product's own controls currently hold, keyed the way the product wants them back. Handed to `onSave` verbatim. This is the channel that makes `onSave` possible at all: `children` is an opaque element tree and no component can read structured data out of one. The product already holds this state to render its own controlled inputs, so nothing here is duplicated — the key is simply written down beside the control instead of being inferred from it. `{}` is legitimate, for an entry that is a note and a time and nothing else. It is also how the sheet knows there is unsaved input. What is here when the sheet opens is the baseline; what is here when the reader tries to leave is compared against it, and a save resets the baseline so that a sheet the product keeps open afterwards does not claim to hold input nobody has saved.",
+      required: true,
+    },
+    "children": {
+      type: "ReactNode",
+      description: "The entry controls, rendered in order at the top of the sheet. They stay opaque. This component never walks them, never counts them and never reads a value out of them — `values` is the channel for that. There is no enforced ceiling, and the \"about five\" in the specification is deliberately not implemented as a check. `React.Children` sees only direct children, so a product that wraps its own two fields in one component of its own would be counted as having one, and a count that is wrong in the common case teaches the wrong lesson twice: it clears a sheet that is too long and complains about one that is not. The ceiling is a design rule, and this is the file saying so rather than pretending to enforce it.",
+      required: true,
+    },
+    "category": {
+      type: "HealthCategory",
+      description: "What the entry is about, tinting one band and nothing else. Omit it and the band is not rendered — there is no default category, because a capture sheet with the wrong identity colour is worse than one with none. The status axis is not available here at any price. Colouring a field while somebody is typing their own measurement into it is a verdict delivered mid-keystroke, and it is the fastest way to teach a person to stop logging honestly.",
+      required: false,
+    },
+    "saveLabel": {
+      type: "string",
+      description: "The primary action's label, and it is required because there is no honest default. The content rule is that the action says what it saves — *Save reading*, *Save this dose* — and a component that shipped *Save* would let every product skip the rule without noticing it had one.",
+      required: true,
+    },
+    "timeLabel": {
+      type: "string",
+      description: "Overrides the time control's label, for translation or for a product whose readers use different words. The time field is always present, so unlike the note this component has to ship a word for it.",
+      required: false,
+    },
+    "noteLabel": {
+      type: "string",
+      description: "The note control's label. Supplying it is what adds the note field; omit it and there is no note. Opt-in rather than always-on, and the label carries the opting: a free-text line is a field like any other and counts against the sheet's budget, and this component has no wording of its own that would suit every product's note.",
+      required: false,
+    },
+    "maxBackdateDays": {
+      type: "number",
+      description: "How far back an entry may be dated, in days. The product owns this number; omit it and no earliest date is offered or stated. What it does: it sets the time control's `min`, which is what the platform date picker reads, and it names the earliest date in the field's guidance. What it does NOT do is block: a time typed outside the window still saves, and `onSave` still fires. A log that refuses an entry is a log with a hole in it exactly where the interesting record was.",
+      required: false,
+    },
+    "onSave": {
+      type: "(entry: LogEntry) => void",
+      description: "Called on an explicit save and at no other moment. There is no autosave, no commit on close, and no debounce. It does not close the sheet. `open` belongs to the product, which is the only party that knows whether the save reached anywhere — a queued entry, a rejected one and a stored one all arrive here identically, and a sheet that closed itself would have decided the reader was finished on the strength of a function call returning.",
+      required: true,
+    },
+    "onDiscard": {
+      type: "(entry: LogEntry) => void",
+      description: "Called when the reader answers the confirmation by discarding. IT TAKES THE ENTRY, which the specification's signature did not. The specification says \"the product decides whether to keep a draft\" and then hands the product nothing to keep; widening the parameter list is the smallest repair, and it is the same widening Sheet made to `onOpenChange` for the same reason. A zero-argument handler is still assignable, so `onDiscard={clearForm}` typechecks unchanged. The entry is the one that was about to be lost, built exactly as `onSave` would have built it. Keeping it is a draft; ignoring it is a discard.",
+      required: false,
+    },
+  },
   "MetricTileProps": {
     "label": {
       type: "string",
@@ -622,6 +726,83 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     "className": {
       type: "string",
       description: "Merged onto the root. A class passed here wins where the two conflict.",
+      required: false,
+    },
+  },
+  "ReadingInputProps": {
+    "label": {
+      type: "string",
+      description: "The measurement, in the reader's words. Required, visible and persistent — a placeholder is not a label and disappears the moment somebody types. Put the unit in `unit`, not in here. The label names WHAT is being measured; a label reading \"Weight (kg)\" leaves readers who think in pounds typing pounds, with nothing on screen to stop them or to record what they meant.",
+      required: true,
+    },
+    "unit": {
+      type: "string",
+      description: "The unit shown beside the number, and the unit `value` and every segment's value are in. Required: a bare number in a health context is ambiguous between unit systems, and the same digits are one reading in mmol/L and a very different one in mg/dL. Use the display symbol exactly as `tokens/units.json` spells it — \"kg\", \"°C\", \"mmHg\". The spoken form comes from that table, so a listener hears \"in kilograms\" rather than the letters. A symbol the table does not hold is spoken as written rather than pronounced by guesswork.",
+      required: true,
+    },
+    "value": {
+      type: "number | null",
+      description: "The reading, in `unit`. Controlled: what you pass is what is shown, and a change reaches the screen only when you apply it. Omitted, or `null`, is an empty field — never a zero. Ignored when `segments` is supplied, because a compound reading has no single number.",
+      required: false,
+    },
+    "segments": {
+      type: "ReadingSegment[]",
+      description: "A compound reading — two or more numbers that are one measurement, such as a blood pressure. Each becomes its own labelled box inside one named group, which is what makes them separately typable and separately announced. `numbers-units-precision` rule 11 says a compound value is DISPLAYED in its conventional form — 118/76, one string, not two fields — and that rule is about display. This is entry, where `patterns/forms/units-and-numeric-entry` requires the opposite: separate fields under one legend, because asking somebody to type a solidus is asking them to format their own record. Both are right about their own half; the page says so.",
+      required: false,
+    },
+    "onChange": {
+      type: "(next: ReadingInputChange) => void",
+      description: "Every change: a typed digit, a cleared box, a unit switch. There is no uncontrolled mode and no internal value — a caller that does not apply the change gets a field that will not accept typing, which is the ordinary behaviour of a controlled input rather than a fault.",
+      required: true,
+    },
+    "units": {
+      type: "string[]",
+      description: "Units the reader may switch between. Two or more makes the unit a real control with its own name and a 44px target; fewer leaves it as text beside the number, which is where it has to be either way. Every pair the reader can reach should be one this system can convert: kg/lb/st and °C/°F are exact definitions and are converted for you. mmol/L and mg/dL are refused by name — the factor is the molar mass of the substance being measured, which is a property of the substance and not of either unit — so a switch between them clears the entry and says so, and a product that needs it supplies its own arithmetic on `cause: \"unit\"`.",
+      required: false,
+    },
+    "hint": {
+      type: "string",
+      description: "The shape of an answer, shown before anything is typed. Passed to `Field`, so it stays on screen when a warning appears. Write the SHAPE, never a bound and never a sample reading. \"Two digits\" or \"to one decimal place\" helps; \"for example 128\" hands the reader a plausible systolic to anchor on, and \"must be between 70 and 250\" is a threshold with no clinical owner presented as a rule the reader has broken.",
+      required: false,
+    },
+    "warning": {
+      type: "string",
+      description: "An advisory sentence about what has been typed, in the product's own words. The product decides when to show it, because deciding when a number looks like a typing mistake needs bounds, and bounds are clinical and belong to whoever owns them. This component performs no comparison of any kind. What it guarantees is what happens to the sentence once you pass it: it is tied to the control's description so a screen reader reaches it, it does NOT mark the field invalid, it does not move focus, it does not clear the entry and it does not stop a form being submitted. The reader always wins the argument. Ask a question and offer the likely fix. Never \"invalid\", never \"error\", and never a bound for the reader to satisfy: most of the time they have typed exactly what they meant, and real readings fall outside plausible ranges precisely when they matter most.",
+      required: false,
+    },
+    "precision": {
+      type: "number",
+      description: "Decimal places, from the precision of the MEASUREMENT — the resolution of the instrument, or the places the laboratory reports. It is used for one thing only: rounding a number this component converted when the reader switched units. It never reformats, rounds or pads what the caller passed or what the reader typed, because rewriting digits underneath somebody's cursor is how a field loses a keystroke. Omitted, a conversion is not rounded at all and 5 kg becomes 11.023113109243878 lb.",
+      required: false,
+    },
+    "name": {
+      type: "string",
+      description: "The form control name, put on every box. For a compound reading each box gets the name with its index appended, so the parts stay distinguishable in a `FormData`.",
+      required: false,
+    },
+    "inputMode": {
+      type: "\"decimal\" | \"numeric\"",
+      description: "Which keypad appears. `\"decimal\"` for a measurement that can be fractional, `\"numeric\"` for one that cannot. Defaults to `\"decimal\"`: a decimal keypad can type a whole number and a numeric one cannot type a fraction, so the default is the one that fails safely.",
+      required: false,
+    },
+    "enterKeyHint": {
+      type: "\"done\" | \"enter\" | \"go\" | \"next\" | \"previous\" | \"search\" | \"send\"",
+      description: "What the return key says it will do. Only the form around this knows.",
+      required: false,
+    },
+    "optionality": {
+      type: "\"required\" | \"optional\" | \"none\"",
+      description: "Which state is marked, in words, inside the label. Passed to `Field`: mark the exception, because marking both is the same as marking neither.",
+      required: false,
+    },
+    "disabled": {
+      type: "boolean",
+      description: "Disables every box and the unit switch.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. Layout is the caller's.",
       required: false,
     },
   },
@@ -1110,13 +1291,16 @@ export const PROPS_SOURCES: Record<string, string> = {
   "CardHeaderProps": "registry/bases/base/card.tsx",
   "CardProps": "registry/bases/base/card.tsx",
   "CareCardProps": "registry/bases/base/care-card.tsx",
+  "ConsentSheetProps": "registry/bases/base/consent-sheet.tsx",
   "DialogProps": "registry/bases/base/dialog.tsx",
   "DisclaimerNoteProps": "registry/bases/base/disclaimer-note.tsx",
   "EmptyStateProps": "registry/bases/base/empty-state.tsx",
   "FieldControlProps": "registry/bases/base/field.tsx",
   "FieldProps": "registry/bases/base/field.tsx",
+  "LogSheetProps": "registry/bases/base/log-sheet.tsx",
   "MetricTileProps": "registry/bases/base/metric-tile.tsx",
   "RangeBarProps": "registry/bases/base/range-bar.tsx",
+  "ReadingInputProps": "registry/bases/base/reading-input.tsx",
   "RelativeTimeProps": "registry/bases/base/relative-time.tsx",
   "ResultCardProps": "registry/bases/base/result-card.tsx",
   "ScoreDialProps": "registry/bases/base/score-dial.tsx",
@@ -1132,6 +1316,6 @@ export const PROPS_SOURCES: Record<string, string> = {
 }
 
 export const PROPS_META: { interfaces: number; props: number } = {
-  interfaces: 27,
-  props: 198,
+  interfaces: 30,
+  props: 233,
 }
