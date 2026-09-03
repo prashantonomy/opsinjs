@@ -1,11 +1,11 @@
 {
   "$comment": "GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts, projected through lib/catalogue.ts. Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`. Consumed by the /r routes, the llms shards and the generated catalogue reference page. It exists as JSON rather than being imported from the TypeScript because the route handlers, the llms shards and any external tool all need the same rows without loading the app's module graph. `generatedAt` carries the source hash rather than a build time, because this file is guarded by a byte-for-byte drift gate.",
-  "generatedAt": "d09791da48c1",
-  "sourceHash": "d09791da48c1",
+  "generatedAt": "9bca9c83f653",
+  "sourceHash": "9bca9c83f653",
   "counts": {
     "shipped": 24,
     "considered": 36,
-    "implemented": 13
+    "implemented": 16
   },
   "categories": [
     {
@@ -95,7 +95,7 @@
       "description": "A bar showing where one reading sits against the range it is compared with.",
       "type": "registry:ui",
       "category": "health-data-display",
-      "status": "planned",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
         "reference range",
@@ -104,8 +104,14 @@
         "range indicator",
         "gauge bar"
       ],
-      "implemented": false,
-      "docs": "/docs/components/range-bar"
+      "implemented": true,
+      "docs": "/docs/components/range-bar",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "value"
+      ]
     },
     {
       "name": "score-dial",
@@ -113,7 +119,7 @@
       "description": "A single composite number drawn as a ring, with the words that say what it counts.",
       "type": "registry:ui",
       "category": "health-data-display",
-      "status": "planned",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
         "dial",
@@ -123,8 +129,14 @@
         "index",
         "bmi"
       ],
-      "implemented": false,
-      "docs": "/docs/components/score-dial"
+      "implemented": true,
+      "docs": "/docs/components/score-dial",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "value"
+      ]
     },
     {
       "name": "trend-sparkline",
@@ -132,7 +144,7 @@
       "description": "A small chart of one reading over time, with an honest caption saying what changed.",
       "type": "registry:ui",
       "category": "health-data-display",
-      "status": "planned",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
         "sparkline",
@@ -141,8 +153,12 @@
         "mini chart",
         "line chart"
       ],
-      "implemented": false,
-      "docs": "/docs/components/trend-sparkline"
+      "implemented": true,
+      "docs": "/docs/components/trend-sparkline",
+      "registryDependencies": [
+        "status-pill",
+        "value"
+      ]
     },
     {
       "name": "metric-tile",

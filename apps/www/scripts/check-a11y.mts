@@ -1285,6 +1285,69 @@ function checkShippedThresholds(file: string, source: string, starts: number[]):
 }
 
 /* ------------------------------------------------------------------ *
+ * A11Y015 - a numeric interval with nobody's name on it               *
+ * ------------------------------------------------------------------ */
+
+/**
+ * A11Y015 - two numeric bounds in one object literal, and no `source`.
+ *
+ * This is a reference range, a score band or a plausibility bound, whichever
+ * word the surrounding code uses, and §7 forbids every one of them: "for any
+ * metric, in any population, ever". The tell is not the name — `score-dial`
+ * shipped `{ from: 0, to: 40 }` and `trend-sparkline` invented a band bound and
+ * attributed it to the caller's source — it is the SHAPE: two numbers that
+ * define an interval somebody is compared against, with nothing saying whose
+ * interval it is.
+ *
+ * `ReferenceRange.source` is required by the type for exactly this reason, and
+ * an example's must be `EXAMPLE_SOURCE`. So the rule is: a literal with two
+ * numeric bounds must carry a `source` in the same literal. That is what makes
+ * `{ low: 10, high: 20, source: EXAMPLE_SOURCE }` legitimate and
+ * `{ from: 0, to: 40 }` not, and it is checkable without this script knowing
+ * anything clinical.
+ *
+ * A11Y014 catches the same defect when it is spelled as a named constant. This
+ * one catches it when it is spelled as a shape, which is how it arrived in
+ * Batch C — three components, none of them caught by a name.
+ */
+const BOUND_PAIRS: [string, string][] = [
+  ["low", "high"],
+  ["from", "to"],
+  ["lower", "upper"],
+  ["start", "end"],
+]
+
+function checkUnownedIntervals(file: string, source: string, starts: number[]): void {
+  const code = withoutComments(source)
+  /* Object literals, non-greedy, no nesting: a band is always flat. */
+  const literal = /\{[^{}]*\}/g
+  let match: RegExpExecArray | null
+  while ((match = literal.exec(code)) !== null) {
+    const body = match[0]
+    for (const [lo, hi] of BOUND_PAIRS) {
+      const hasLow = new RegExp(`\\b${lo}\\s*:\\s*-?\\d`).test(body)
+      const hasHigh = new RegExp(`\\b${hi}\\s*:\\s*-?\\d`).test(body)
+      if (!hasLow || !hasHigh) continue
+      if (/\bsource\s*:/.test(body)) break
+      fail(
+        "A11Y015",
+        file,
+        `This literal sets \`${lo}\` and \`${hi}\` to numbers and names no ` +
+          "`source`. Two numbers that define an interval a reading is compared " +
+          "against are a reference range, a score band or a plausibility bound, " +
+          "and opsinjs ships none of those for any metric in any population — the " +
+          "product owns them, because the product knows who is reading. Take the " +
+          "interval from the caller, require a `source` beside it, and render an " +
+          "explicit \"we do not have this\" when there is none. In an example the " +
+          "source is `EXAMPLE_SOURCE`.",
+        lineAt(starts, match.index),
+      )
+      break
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ *
  * A11Y009-010 - banned words                                          *
  * ------------------------------------------------------------------ */
 
@@ -1601,6 +1664,7 @@ async function staticChecks(): Promise<number> {
     if (generatedBanned) checkBannedWords(label, source, starts, banned)
     checkViewPalette(label, source, starts)
     checkShippedThresholds(label, source, starts)
+    checkUnownedIntervals(label, source, starts)
   }
 
   return files.length

@@ -202,7 +202,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A bar showing where one reading sits against the range it is compared with.",
     category: "health-data-display",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: [
       "reference range",
@@ -218,6 +218,9 @@ export const SHIPPED: CatalogueEntry[] = [
       "two-colour-axes",
       "uncertainty-and-staleness",
     ],
+    dependencies: ["lucide-react"],
+    registryDependencies: ["value"],
+    usedIn: ["value-against-a-range", "results-screen"],
   },
   {
     name: "score-dial",
@@ -225,7 +228,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A single composite number drawn as a ring, with the words that say what it counts.",
     category: "health-data-display",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: ["dial", "ring", "gauge", "score", "index", "bmi"],
     owner: "design",
@@ -235,6 +238,9 @@ export const SHIPPED: CatalogueEntry[] = [
       "two-colour-axes",
       "motion-in-health-ui",
     ],
+    dependencies: ["lucide-react"],
+    registryDependencies: ["value"],
+    usedIn: ["health-metric-card", "results-screen"],
   },
   {
     name: "trend-sparkline",
@@ -242,12 +248,13 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A small chart of one reading over time, with an honest caption saying what changed.",
     category: "health-data-display",
-    status: "planned",
+    status: "alpha",
     since: "unreleased",
     aliases: ["sparkline", "trend", "over time", "mini chart", "line chart"],
     owner: "clinical",
     a11yDate: null,
     governedBy: ["trends-and-change", "uncertainty-and-staleness"],
+    registryDependencies: ["status-pill", "value"],
   },
   {
     name: "metric-tile",

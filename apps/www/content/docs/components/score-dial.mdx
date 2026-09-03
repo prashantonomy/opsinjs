@@ -1,49 +1,82 @@
 ---
 title: ScoreDial
 description: A single composite score shown on a dial with its band named in words, alongside an honest statement of what went into the number.
-status: planned
+status: alpha
 kind: component
 since: "unreleased"
 category: health-data-display
 aliases: [gauge, dial, ring, score, index, bmi]
-governedBy: [reference-ranges, risk-and-statistics, numbers-units-precision]
+governedBy: [reference-ranges, risk-and-statistics, numbers-units-precision, two-colour-axes, motion-in-health-ui, category-identity]
 usedIn: [health-metric-card, results-screen]
 ---
-
-<PageTemplate kind="component" />
 
 ## Status
 
 <StubNotice
   name="score-dial"
+  status="alpha"
   issue="opsinjs/opsinjs#0"
   questions={[
-    "Is the derivation disclosure optional? If a product cannot say what went into the score, may the dial render at all?",
-    "Bands are the product's, but the dial draws them — how does it stop a three-band dial reading as a traffic light when the middle band is not a verdict?",
-    "What does it render when only some of the inputs were available, so the score is real but weaker than usual?",
-    "Does a dial ever animate on entry, and if so what does urgency look like when it must not be carried by motion?",
+    "A composite score has no unit, and Value has no way to be told that. Every dial therefore prints one OPSIN-0003 warning per development session about a unit it is right not to have. The fix belongs in ValueProps or in the error's own condition, not here, and it is reported upward rather than worked around.",
+    "ScoreBand has no `source`. A range without one raises OPSIN-0004, and a band set is the same kind of claim — somebody chose those boundaries — but the only place to say whose they are is inside the derivation sentence, where nothing checks it.",
+    "What is announced when a score changes while the dial is on screen? The component mounts no live region, deliberately, and the caller has no guidance here yet.",
+    "The contrast pairs this component actually composes have not been measured for it. The roles it uses are measured; the arc against a card, and the indicator against the band beneath it, are not.",
   ]}
-/>
+>
+  <code className="text-sm">score-dial</code> is implemented and installable. It
+  is <strong className="font-medium">alpha</strong>: it works and it is
+  documented, the API may change in any release without a deprecation cycle, and
+  it is not for a production health surface yet.
+</StubNotice>
 
-A dial is the most persuasive graphic in this set and therefore the most dangerous. A
-number inside a ring reads as authoritative, complete and personal, regardless of how thin
-the evidence behind it is. Everything in this specification is arranged around making the
-derivation as visible as the score.
+A dial is the most persuasive graphic in the set and therefore the most dangerous. A number
+inside a ring reads as authoritative, complete and personal regardless of how thin the
+evidence behind it is, and a ring that fills up reads as a mark out of a maximum. Everything
+in this component is arranged so the words carry the message and the arc only illustrates it:
+cover the arc with your hand and nothing is lost.
 
 ## Preview
 
-The preview will show the dial at its three sizes with the bands both named and unnamed, so
-the difference between a dial that explains itself and one that does not is visible rather
-than argued.
+The default demo is a three-band dial with a status mapped to the middle band. Two things are
+worth checking rather than believing. Turn the text size up: the arc, the score, the band name
+and the derivation sentence all grow together, because the layout is stacked at every size and
+there is no overlaid arrangement to reflow away from. Then look at it in greyscale: the band
+name and the status word are still there, which is the whole reason they are visible text
+rather than an `aria-label`.
 
 <ComponentPreview name="score-dial" />
 
 ## Installation
 
-The registry item does not exist yet; the command below is shown for shape only and will
-fail.
+<ComponentInstall
+  name="score-dial"
+  unbuilt={false}
+  importPath="@/components/ui/score-dial"
+  dependencies={["lucide-react"]}
+  registryDependencies={["value"]}
+/>
 
-<ComponentInstall name="score-dial" />
+## Usage
+
+```tsx
+import { ScoreDial } from "@/components/ui/score-dial"
+```
+
+```tsx
+<ScoreDial
+  label="Example composite score"
+  value={62}
+  min={0}
+  max={100}
+  precision={0}
+  bands={[
+    { from: 0, to: 40, name: "First example band" },
+    { from: 40, to: 70, name: "Second example band", status: "watch" },
+    { from: 70, to: 100, name: "Third example band" },
+  ]}
+  derivation="Example data — not a reference range. The score, the scale and the bands here are invented."
+/>
+```
 
 ## When to use it
 
@@ -69,6 +102,10 @@ deep sleep* is a sentence you can stand behind, the dial is earned. If the deriv
 proprietary, unstable, or nobody in the room can describe it, the dial is a decorative
 authority claim and [Value](./value.mdx) is the honest component.
 
+The implementation makes that test hard to dodge. `derivation` is required, it is always
+rendered, and an empty one produces a development warning and a visible sentence saying that
+this dial cannot explain itself — which is true, and is not something anybody wants on screen.
+
 ## Clinical meaning
 
 **What it asserts.** That the product computed a number from stated inputs, that the number
@@ -77,130 +114,278 @@ not a fact about the reader's body.
 
 **What it must never be read as.** A measurement, a diagnosis, or a comparison with other
 people. A score of 62 is not sixty-two per cent of anything, it is not a mark out of a
-hundred, and it is not a rank. Where the underlying scale is a validated instrument, the
-dial must not imply a clinical cut-off the instrument does not have.
+hundred, and it is not a rank. This is why the scale renders as *on a scale of 0 to 100*
+rather than *out of 100*: the second phrasing is the one that produces the reading the
+paragraph above forbids, and the component would otherwise be arguing with itself.
 
-**Which colour axis it may use.** The **status** axis, on the band the value falls in, and
-only when the product has mapped that band to a clinical status. Bands are not statuses by
-default: a three-band dial coloured green, amber and red is a traffic light, and a traffic
-light is a verdict. When no status mapping exists the bands are drawn in neutral tones and
-distinguished by position and label. The **category** axis may tint the dial's label and
-icon, never the track or the bands.
+**Which colour axis it may use.** The **status** axis, on the band the score fell in and on
+the indicator, and only when the product has mapped that band to a clinical status. Only that
+one band is tinted, never the whole set: a three-band dial coloured green, amber and red is a
+traffic light, and a traffic light is a verdict. Every other band is drawn in the same neutral
+tone and is told apart by its position, by a boundary mark, and by its name in the list
+beneath the arc. The **category** axis tints the label and nothing else — never the track,
+the bands or the indicator.
 
-**Who owns the bands and the thresholds.** The consuming product, always. ScoreDial ships
-no scales, no bands and no cut-offs. A component library that shipped a BMI banding would be
-shipping a contested clinical judgement into every product that installed it.
+**Status is never carried by colour alone, here or anywhere.** When a band maps to a status,
+the dial renders that status as a word from `CLINICAL_STATUS_META` and one of the four
+distinct glyphs beside it, and stamps `data-status` on the elements that take the tint. The
+band's own name is the product's word for that range of the scale; the status word is this
+system's word for how much attention it wants. Both are shown, because they answer different
+questions and a reader is entitled to both answers.
+
+**Who owns the bands and the thresholds.** The consuming product, always. ScoreDial ships no
+scales, no bands and no cut-offs, and there is no default anywhere in the file. A component
+library that shipped a BMI banding would be shipping a contested clinical judgement into every
+product that installed it. Hand it no bands and it draws the scale, places the number on it,
+and says in words that it has no band for it — see
+[the first example](#opsinjs-ships-no-bands) below.
 
 **Derivation is mandatory content, not an option.**
 [Risk and statistics](../health/risk-and-statistics.mdx) makes the wider argument: a bare
 number with no denominator and no method invites the reader to fill in both, and they will
 fill them in with something worse than the truth.
 
+**Nothing derives a status.** The indicator's angle is arithmetic on `value`, `min` and `max`.
+There is no rule in the source of the shape *if the score is past here then it needs
+attention*, and a score outside its own scale is clamped onto the arc and reported in
+development rather than quietly widening a scale the product declared.
+
 <SafetyCallout severity="attention" evidence="opinion">
 When only part of the input data was available, the dial must say so on its face — *based on
-4 of 6 nights* — rather than presenting a weaker score as if it were a normal one. Products
-that quietly compute a score from partial data teach readers to trust a number that
-sometimes means much less than it appears to.
+4 of 6* — rather than presenting a weaker score as if it were a full one. Products that
+quietly compute a score from partial data teach readers to trust a number that sometimes means
+much less than it appears to. `coverage` is how you say it; what was counted — nights,
+readings, days — belongs in your derivation sentence, because this component does not know and
+will not guess a noun.
 </SafetyCallout>
 
 ## Anatomy
 
-<Anatomy name="score-dial" />
+<Anatomy
+  name="score-dial"
+  parts={[
+    {
+      name: "ScoreDial",
+      describes: "The root. A stacked column: label, arc, reading, scale, derivation, in that order at every text size. Carries no colour of its own and is not focusable.",
+      prop: "className",
+    },
+    {
+      name: "ScoreDial.Label",
+      describes: "What the score is called. The only part the category axis touches, tinted with the category's ink role and stamped data-category.",
+      prop: "category",
+    },
+    {
+      name: "ScoreDial.Track",
+      describes: "The SVG. role=\"img\", labelled with the whole component as one sentence, never focusable, never a meter or a progressbar. The full sweep is always drawn, whether or not there is a score to place on it.",
+      prop: "min, max",
+    },
+    {
+      name: "ScoreDial.Band",
+      describes: "One arc segment per band, drawn as a dash over the shared track path. Neutral, except the single band the score fell in when the product mapped it to a status — that one takes the status accent and data-status.",
+      prop: "bands",
+    },
+    {
+      name: "ScoreDial.Boundary",
+      describes: "A radial mark at each internal band edge. This is how bands are told apart with no colour at all, alongside their position and their names.",
+    },
+    {
+      name: "ScoreDial.Indicator",
+      describes: "The score's position, as a mark crossing the track. Status-inked when the band it sits in maps to one, otherwise the foreground colour. Absent when there is no score and when the scale has no width.",
+      prop: "value",
+    },
+    {
+      name: "ScoreDial.Reading",
+      describes: "The group holding the number, the band name and the status. This is the text twin: it is visible, it is in the accessibility tree, and no prop removes it.",
+    },
+    {
+      name: "ScoreDial.Score",
+      describes: "The number, rendered through Value so that rounding, absence and tabular figures behave as they do everywhere else. Value stamps data-opsinjs-value.",
+      prop: "value, precision, locale",
+    },
+    {
+      name: "ScoreDial.BandName",
+      describes: "The band in words. Never omitted: with no score, no bands or a score outside every band it says which of those happened rather than falling silent or reaching for a nearby band.",
+    },
+    {
+      name: "ScoreDial.Status",
+      describes: "The level in words from CLINICAL_STATUS_META with its own distinct glyph, shown only when the band the score fell in maps to a status. Carries data-status; the glyph is aria-hidden because the word beside it already says it.",
+    },
+    {
+      name: "ScoreDial.Scale",
+      describes: "The bounds in words, and every band named with the range it covers. A dial with no visible bounds is a dial the reader assumes runs to a hundred.",
+      prop: "min, max, bands",
+    },
+    {
+      name: "ScoreDial.Coverage",
+      describes: "The partial-data sentence, rendered inside the derivation only when coverage is short. Nothing is shown when the score used everything it expected.",
+      prop: "coverage",
+    },
+    {
+      name: "ScoreDial.Derivation",
+      describes: "What went into the score and over what window. Always rendered; an empty one is reported in development and replaced by words saying the dial cannot explain itself.",
+      prop: "derivation",
+    },
+    {
+      name: "ScoreDial.MeasuredAt",
+      describes: "When the score was calculated, as a time element carrying the ISO instant. No staleness treatment and no relative phrasing — a relative phrase needs an instant to measure against, which this API does not carry.",
+      prop: "measuredAt",
+    },
+  ]}
+/>
 
-<CompositionTree name="score-dial" />
+<CompositionTree
+  name="score-dial"
+  tree={[
+    {
+      part: "ScoreDial",
+      cardinality: "1",
+      note: "data-slot=\"score-dial\"",
+      children: [
+        {
+          part: "ScoreDial.Label",
+          cardinality: "1",
+          note: "data-slot=\"score-dial-label\", data-category=\"<category>\"",
+        },
+        {
+          part: "ScoreDial.Track",
+          cardinality: "1",
+          note: "data-slot=\"score-dial-track\", role=\"img\", aria-label=\"<the whole component, in one sentence>\"",
+          children: [
+            {
+              part: "ScoreDial.Band",
+              cardinality: "0..n",
+              note: "data-slot=\"score-dial-band\", one per band; data-status only on the band the score fell in",
+            },
+            {
+              part: "ScoreDial.Boundary",
+              cardinality: "0..n",
+              note: "data-slot=\"score-dial-boundary\", one per internal band edge",
+            },
+            {
+              part: "ScoreDial.Indicator",
+              cardinality: "0..1",
+              note: "data-slot=\"score-dial-indicator\", data-status=\"<level>\"",
+            },
+          ],
+        },
+        {
+          part: "ScoreDial.Reading",
+          cardinality: "1",
+          note: "data-slot=\"score-dial-reading\"",
+          children: [
+            {
+              part: "ScoreDial.Score",
+              cardinality: "1",
+              note: "data-slot=\"score-dial-score\", wrapping a Value",
+            },
+            {
+              part: "ScoreDial.BandName",
+              cardinality: "1",
+              note: "data-slot=\"score-dial-band-name\"",
+            },
+            {
+              part: "ScoreDial.Status",
+              cardinality: "0..1",
+              note: "data-slot=\"score-dial-status\", data-status=\"<level>\"",
+            },
+          ],
+        },
+        {
+          part: "ScoreDial.Scale",
+          cardinality: "1",
+          note: "data-slot=\"score-dial-scale\"",
+        },
+        {
+          part: "ScoreDial.Derivation",
+          cardinality: "1",
+          note: "data-slot=\"score-dial-derivation\"",
+          children: [
+            {
+              part: "ScoreDial.Coverage",
+              cardinality: "0..1",
+              note: "data-slot=\"score-dial-coverage\"",
+            },
+            {
+              part: "ScoreDial.MeasuredAt",
+              cardinality: "0..1",
+              note: "data-slot=\"score-dial-measured-at\", a time element with dateTime",
+            },
+          ],
+        },
+      ],
+    },
+  ]}
+/>
 
-**Track** is the full sweep of the scale. **Bands** are the named regions the product
-defined, drawn once and labelled in words. **Indicator** is the score's position.
-**Reading** is the number and, more importantly, the band's name — the word is what the
-reader remembers. **Derivation** is the sentence saying what went into it and over what
-window. **Scale** states the bounds, because a dial with no visible bounds is a dial the
-reader will assume runs to a hundred.
+The parts above are `data-slot` attributes, not exports. There is no `ScoreDial.Band` you can
+import and no way to render one part without the others, which is what makes `BandName` and
+`Derivation` genuinely mandatory rather than mandatory-by-convention: there is no composition
+that omits them.
 
-Proposed part hierarchy. This is the specification the implementation must match.
+Two parts are here that the original specification's tree did not name, and both were forced
+by its own accessibility section. `ScoreDial.Boundary` exists because bands have to be
+distinguishable "by position, boundary marks and their names", and nothing was drawing the
+marks. `ScoreDial.Status` exists because a status carried by a tint on an arc is a status
+carried by colour alone, which
+[the two colour axes](../health/two-colour-axes.mdx) forbids outright — the band's name is the
+product's word for a range, and it is not a substitute for the system's word for a level.
 
-```text
-ScoreDial                      root; owns value, scale, bands, no defaults
-├── ScoreDial.Track            the full sweep, always fully drawn
-│   ├── ScoreDial.Band         a named region; neutral unless the product maps a status
-│   └── ScoreDial.Indicator    the score's position; the only status-coloured part
-├── ScoreDial.Reading
-│   ├── ScoreDial.Score        the number
-│   └── ScoreDial.BandName     the band in words — never omitted, never colour alone
-├── ScoreDial.Scale            the bounds, e.g. "out of 100"
-└── ScoreDial.Derivation       what went into it, over what window, from how much data
-```
+There is no `size` prop. The dial is one arrangement at every text size, and it grows with the
+reader rather than switching between layouts at a breakpoint.
 
-`ScoreDial.BandName` and `ScoreDial.Derivation` are mandatory parts. A dial rendered without
-them should fail loudly in development with a named error code rather than degrade quietly.
+## Examples
 
-## Proposed API
+### opsinjs ships no bands
 
-<NotBuiltYet name="score-dial" />
+The common case is a product with a number and no agreed bands for it — the arithmetic
+usually lands long before anybody has decided what the answer means. Handed an empty `bands`,
+the dial draws the scale, places the number on it, and says in words that it has no band. It
+does not reach for thirds of the scale, a population average, or a band set from somewhere
+else.
 
-```ts
-// PROPOSED. Not implemented. A specification for review, not an API to generate
-// code against. It will change without a deprecation cycle.
+<ComponentPreview name="score-dial-no-bands-supplied" kind="example" align="start" />
 
-import type { ClinicalStatus, HealthCategory } from "opsinjs"
+### A score built from less than usual
 
-export interface ScoreBand {
-  /** Inclusive lower bound on the score's own scale. */
-  from: number
-  /** Exclusive upper bound. */
-  to: number
-  /** The band in words. Required — a band with no name cannot be read aloud. */
-  name: string
-  /**
-   * Optional mapping to the clinical status axis. Omit it and the band is drawn
-   * in neutral tones: bands are not statuses unless the product says so.
-   */
-  status?: ClinicalStatus
-}
+`coverage` puts the gap on the dial's face. This example also shows the two axes staying
+apart: the label carries the category tint, the indicator and the one band the score fell in
+carry the status, and they never meet on a single element.
 
-export interface ScoreDialProps {
-  label: string
-  /** `null` renders the no-score state, which is not a score of zero. */
-  value: number | null
-  /** The scale's bounds. Both required: an unbounded dial is unreadable. */
-  min: number
-  max: number
-  /** Contiguous, non-overlapping, covering the whole scale. */
-  bands: ScoreBand[]
-  /**
-   * One sentence: what went into the score and over what window. Required.
-   * A dial that cannot explain itself should not be drawn.
-   */
-  derivation: string
-  /**
-   * Data completeness behind the score, e.g. { available: 4, expected: 6 }.
-   * When present and short, the dial shows its partial-data treatment.
-   */
-  coverage?: { available: number; expected: number }
-  /** Label and icon treatment only. Never the track or the bands. */
-  category?: HealthCategory
-  measuredAt?: string
-}
-```
+<ComponentPreview name="score-dial-partial-data" kind="example" align="start" />
+
+### Zero is a score; absence is not
+
+Two dials that look almost the same and mean entirely different things. On the left a
+calculation that ran and came to the bottom of its scale; on the right nothing calculated at
+all, so there is no position to draw and no band to name.
+
+<ComponentPreview name="score-dial-zero-is-not-absence" kind="example" align="start" />
 
 ## Content guidelines
 
-Lead with the band name, not the number. *Your sleep score is 62 — fair* is read as a
-grade; *fair, 62 out of 100* is read as a description. The band names are the product's
-vocabulary and they should be plain, non-judgemental, and free of the words banned across
-the system: **normal**, **abnormal**, **good**, **bad**, **poor**, **failed**.
+Band names are the product's vocabulary. Keep them plain, non-judgemental, and free of the
+words banned across the system: **normal**, **abnormal**, **good**, **bad**, **poor**,
+**failed**. A band name describes a range of a scale; it does not describe the person whose
+score landed in it.
 
-The derivation sentence is one sentence in the second person, naming the inputs a reader
-would recognise and the window they cover.
+The derivation sentence is one sentence in the second person, naming the inputs a reader would
+recognise and the window they cover. It is also the only place band provenance can currently
+be stated, so if the bands came from somewhere — a published instrument, your own clinical
+review — say so there.
+
+`coverage` renders as *Based on 4 of 6*, with no noun. Name the noun in the derivation
+sentence: this component does not know whether the six were nights, readings or days, and it
+will not guess.
 
 <DoDont>
   <DoDont.Do>
-    **"Sleep score 62 out of 100 — fair. Based on how long you slept, how often you woke,
-    and how much deep sleep you had, over the last 4 nights."** The band is named, the scale
-    is stated, the method is disclosed, and the window is explicit.
+    **"62. Fair. On a scale of 0 to 100. Based on how long you slept, how often you woke, and
+    how much deep sleep you had, over the last 4 nights."** The band is named, the scale is
+    stated, the method is disclosed, and the window is explicit.
   </DoDont.Do>
   <DoDont.Dont>
     **"Sleep score: 62"** in a coloured ring with no scale, no band and no method. Every
-    missing piece is one the reader supplies from imagination, and 62 out of what is the
+    missing piece is one the reader supplies from imagination, and *62 out of what* is the
     first thing they get wrong.
   </DoDont.Dont>
 </DoDont>
@@ -216,32 +401,137 @@ would recognise and the window they cover.
   </DoDont.Dont>
 </DoDont>
 
-## Accessibility requirements
+## Accessibility
 
-Requirements for the implementation, not results.
+Some of this is checked by a gate on every commit and the rest is argued. The split is
+labelled, because `alpha` promises that accessibility is claimed only where it has been
+checked, with the gaps listed rather than left out.
 
-- **The dial is a static image with an accessible name**, not a `meter` and not a
-  `progressbar`: neither role carries the band vocabulary, and `progressbar` implies a task
-  advancing towards completion.
-- **The accessible name is a sentence**, not a number: *sleep score 62 out of 100, fair,
-  based on 4 of the last 6 nights*. It is the whole component in one utterance.
-- **Bands are distinguishable without colour** by position, boundary marks and their names.
-  Verified by the generated CVD audit — see
-  [Colour independence](../accessibility/colour-independence.mdx).
-- **The number and the band name meet the contrast floor against every band fill** they can
-  appear over, in both themes.
-- **At 200% text the dial reflows** to a stacked form with the score and band name above a
-  reduced-height arc; the derivation sentence never truncates.
-- **No entry animation carries meaning.** If the indicator sweeps into position, it is a
-  single short transition, identical at every band, and removed entirely under
-  `prefers-reduced-motion`. A dial that animates faster when the score is worse is exactly
-  the failure [Motion in health UI](../health/motion-in-health-ui.mdx) prohibits.
-- **Print** renders the arc as an outline with the indicator as a solid mark, plus the
-  reading, band name and derivation as text.
+**Checked, by `pnpm run check:a11y` on every commit:**
 
-<KeyboardTable name="score-dial" />
+- **Colour is never the only carrier of a status.** The static rig fails the build on any file
+  that paints a status colour without also reading `CLINICAL_STATUS_META` and a lucide glyph,
+  and on any status surface with no `data-status`. This component reads the word and the glyph
+  from that table and stamps the attribute on the band, the indicator and the status line. The
+  four glyphs are four distinct *shapes* — check, eye, triangle, octagon — which is what the
+  measured CVD audit in `tokens/color.json` requires: `steady` and `attention` are identical
+  under deuteranopia and in greyscale, and `steady` and `urgent` are identical under
+  tritanopia. See [Colour independence](../accessibility/colour-independence.mdx).
+- **The status words are never restated.** They are read from
+  `CLINICAL_STATUS_META[level].word`; a copy written as a literal fails the same gate.
+- **The two axes never resolve on one element.** The rig reads every JSX element and every
+  `cn()` body and fails on any that takes colour from both. The category reaches the label and
+  the status reaches the arc, and they are separate elements by construction.
+- **No thresholds ship.** A11Y014 fails the build on any name matching
+  `stale|threshold|cutoff|limit|minimum|maximum|band|plausib` given a numeric literal, in a
+  default, a property or a JSX prop. There is no number in this component that decides
+  anything clinical, and the gate is what keeps it that way.
+- **No type size in `px`, no raw colour, no numbered ramp step, no class that resolves to
+  nothing under the product theme.** All four are gate-enforced across `registry/**`.
+
+**Argued, and true of the implementation, but not yet measured:**
+
+- **The graphic is a labelled image and nothing else.** `role="img"` with the whole component
+  as its accessible sentence — *Example composite score: 62, on a scale of 0 to 100. Second
+  example band. Watch. Based on 4 of 6. …* It is not a `meter`, not a `progressbar` and not a
+  `slider`: all three announce a value within a range, which is the assertion this component
+  is not entitled to make, and `progressbar` additionally implies a task advancing towards
+  completion. It carries `focusable="false"` and is not in the tab order.
+- **The text twin is visible, not hidden.** The band name, the status word, the scale, the band
+  list and the derivation are ordinary text in the document. Nothing is `sr-only`, nothing is
+  behind a hover, and no prop turns any of it off. The accessible sentence on the arc repeats
+  it deliberately, so a reader who lands on the graphic hears what it depicts without going
+  looking for the words.
+- **Bands survive greyscale.** Only one band is ever tinted, the internal edges are drawn as
+  radial marks, and every band is named with its range in the list beneath the arc.
+- **At 200% text nothing truncates.** The layout is a stacked column at every size, so there is
+  no overlaid arrangement to reflow away from and no case where the score sits inside a ring
+  that stops fitting it. The arc's width is set in `em`, so it grows with the text rather than
+  staying put beside it. Checked by eye in both themes; not yet checked by a machine.
+- **Nothing animates.** There is no transition, no sweep and no count-up anywhere in the
+  source, on first paint or on a change. Under `prefers-reduced-motion` there is nothing to
+  degrade because there was never anything there —
+  [Motion in health UI](../health/motion-in-health-ui.mdx) names the dial sweep specifically,
+  and a sweep displays, for every frame of its travel, a score that is not true.
+
+**Not yet checked at all, and listed rather than omitted:**
+
+- Contrast for the pairs this component actually composes. The roles it uses are measured
+  individually — `status.<level>.ink-on-page`, `status.<level>.accent-on-page`,
+  `category.<name>.ink-on-page`, `neutral.hairline-on-page` — but the arc against a card and
+  the indicator against the band beneath it are not, and neither is the whole component under
+  `prefers-contrast` or `forced-colors`, which are not implemented anywhere in opsinjs yet.
+- Print. The arc should render as an outline with the indicator as a solid mark and the
+  reading, band name and derivation as text. There is no print stylesheet in this repository
+  to make that true, so it is a requirement rather than a result.
+- What a screen reader does when the score changes while the dial is on screen. The component
+  mounts no live region, deliberately — it is not entitled to speak on the caller's behalf —
+  and what a caller should do instead is an open question on this page.
+
+<KeyboardTable
+  name="score-dial"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Skips the dial",
+      notes: "Nothing in this component is focusable and it has no keyboard behaviour of its own. That is the contract, not an omission: it is a picture of a reading somebody else assigned, and a tab stop that does nothing is one a keyboard user has to pass through on every card that holds a dial.",
+    },
+    {
+      keys: "Shift + Tab",
+      action: "Skips the dial",
+      notes: "Same in reverse. The graphic carries focusable=\"false\" as well, so an SVG is never a stop in either direction.",
+    },
+  ]}
+/>
 
 <ContrastReport component="score-dial" />
+
+## API reference
+
+<PropsTable name="ScoreDialProps" />
+
+`bands` is required and opsinjs supplies no default for it — that is the single most important
+line in the interface. An empty array is a legitimate value and renders the explicit no-band
+state; it is not an error to be repaired with a guess.
+
+`derivation` is required too, and it is the only prop whose absence changes what the component
+says about itself rather than what it draws. `min` and `max` are both required because an
+unbounded dial is unreadable, and `value` is `number | null` because a score of zero and a
+score that was never calculated are different facts about somebody's record.
+
+Three props are additions to the original specification, and they are named here rather than
+slipped in. `precision` and `locale` exist because
+[Numbers, units and precision](../health/numbers-units-precision.mdx) governs this page and
+requires every number to render through [Value](./value.mdx), which takes both — without them
+a fractional score would print whatever digits the double happened to hold. `className` is the
+merge point every component in the system carries.
+
+`ScoreBand` is exported alongside the props interface. The generator only emits a table for
+interfaces named `<Pascal>Props`, so there is no generated one for it; this is the shipped
+declaration, copied from `registry/bases/base/score-dial.tsx`:
+
+```ts
+export interface ScoreBand {
+  /** Inclusive lower bound, on the score's own scale. */
+  from: number
+  /** Exclusive upper bound, on the score's own scale. */
+  to: number
+  /** The band in words, in the reader's language. Required. */
+  name: string
+  /** The clinical status the product mapped this band to, if it mapped one. */
+  status?: ClinicalStatus
+}
+```
+
+Bands are half-open, so contiguous bands can be written without a gap and without an overlap.
+The one exception is the top of the scale: a score exactly equal to `max` falls in the band
+whose `to` is `max`, because otherwise the highest score a scale allows would belong to no band
+at all. Overlapping bands resolve to the first match in declaration order — the component does
+not reorder, merge or repair them, and it has no rule of its own about which should win.
+
+There is no `size`, no `color`, no `variant` and no prop that hides the band name or the
+derivation. There is no `sweep`, `animate` or `duration` either: a dial that animates is the
+failure this component's own doctrine page names first.
 
 ## Related
 
@@ -268,3 +558,6 @@ Requirements for the implementation, not results.
 - [Reference ranges and normal](../health/reference-ranges.mdx)
 - [Risk and statistics](../health/risk-and-statistics.mdx)
 - [Numbers, units and precision](../health/numbers-units-precision.mdx)
+- [The two colour axes](../health/two-colour-axes.mdx)
+- [Motion in health UI](../health/motion-in-health-ui.mdx)
+- [Category identity](../health/category-identity.mdx)

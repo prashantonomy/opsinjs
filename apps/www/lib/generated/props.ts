@@ -342,6 +342,63 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: false,
     },
   },
+  "RangeBarProps": {
+    "label": {
+      type: "string",
+      description: "What was measured, in the reader's language rather than an internal code. It opens the summary sentence, so it reads as the subject of a sentence: \"Morning blood pressure is …\".",
+      required: true,
+    },
+    "value": {
+      type: "number | null",
+      description: "The measurement. `null` is a first-class state meaning there is no reading, distinct from `0`, and renders the words rather than a tick at zero — a mark at the bottom of a range is a reading, and a missing one is not.",
+      required: true,
+    },
+    "unit": {
+      type: "string",
+      description: "Display symbol exactly as `tokens/units.json` spells it — \"kg\", \"mmol/L\", \"mg/dL\". Every number this component renders goes through `Value`, which resolves the spoken form from that table, so a listener hears \"milligrams per decilitre\" rather than an improvised pronunciation.",
+      required: true,
+    },
+    "range": {
+      type: "ReferenceRange",
+      description: "The range this reading is being compared with, and whose it is. Omit it entirely when none is available: the component then draws no band, says so in the summary, and substitutes nothing. `source` is required — a range with an empty one is reported as OPSIN-0004 and not drawn.",
+      required: false,
+    },
+    "status": {
+      type: "ClinicalStatus",
+      description: "The level of attention the PRODUCT has assigned to this reading. RangeBar never derives it from position on its own bar: \"outside the range\" and \"needs attention\" are different claims. Omitted, the tick is drawn in a neutral tone and no level is stated, which is the correct rendering of \"no verdict has been made\" rather than a quiet \"nothing to see here\".",
+      required: false,
+    },
+    "category": {
+      type: "HealthCategory",
+      description: "What the reading is ABOUT, for findability in a screen full of readings. It tints the label and nothing else: never the track, the band or the tick. Typed to the six rather than to `string`, because a component that accepts an arbitrary category accepts a seventh ramp that does not exist.",
+      required: false,
+    },
+    "precision": {
+      type: "number",
+      description: "DECIMAL PLACES, from the precision of the measurement — the resolution of the device, or the number of places the laboratory reported. Not significant figures: the same metric shown to a different number of decimal places at different magnitudes cannot be compared at a glance, which is what `health/numbers-units-precision` rule 2 forbids. It applies to the reading and to the two boundary labels alike, because a value and the bound it is being compared with are the same metric. Omitted, nothing is rounded and nothing is padded.",
+      required: false,
+    },
+    "measuredAt": {
+      type: "string",
+      description: "When the measurement was taken, ISO 8601. Rendered as a date in the footnote so that a number on a screen is not read as \"now\". There is NO staleness treatment here and no `staleAfterHours`: how old is too old is clinical, differs by metric, and opsinjs does not own it. A surface that needs one wraps the reading in `RelativeTime`, which takes the boundary from you.",
+      required: false,
+    },
+    "summary": {
+      type: "string",
+      description: "Replaces the generated sentence — for a unit whose phrasing does not fit the template, or for a reader whose language is not English. It cannot remove the sentence: there is no value of this prop that renders the component without one, because the sentence is the component.",
+      required: false,
+    },
+    "locale": {
+      type: "string",
+      description: "BCP 47 locale for number separators, digit shapes and the dates in the footnote. Passed through to every `Value` this component renders, so one bar cannot show two conventions. Omitted, the reader's environment decides.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. A class passed here wins where the two conflict.",
+      required: false,
+    },
+  },
   "RelativeTimeProps": {
     "at": {
       type: "string",
@@ -381,6 +438,68 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     "className": {
       type: "string",
       description: "Merged onto the root. The merge puts it last, so a conflicting class passed here wins: a type size or a colour set on the caller's side displaces the component's own. The one thing it cannot displace is the muted stale treatment, which is addressed at the parts rather than at the root for exactly that reason — see the class list on the root below.",
+      required: false,
+    },
+  },
+  "ScoreDialProps": {
+    "label": {
+      type: "string",
+      description: "What the score is called, in the reader's language. Not an internal code.",
+      required: true,
+    },
+    "value": {
+      type: "number | null",
+      description: "The score. `null` renders the no-score state, which is not a score of zero: zero is a real result on many scales and an absent one is not a result.",
+      required: true,
+    },
+    "min": {
+      type: "number",
+      description: "The scale's lower bound. Required: an unbounded dial is unreadable.",
+      required: true,
+    },
+    "max": {
+      type: "number",
+      description: "The scale's upper bound. Required, and it is stated to the reader.",
+      required: true,
+    },
+    "bands": {
+      type: "ScoreBand[]",
+      description: "The product's bands: contiguous, non-overlapping, covering the whole scale. opsinjs ships none and never supplies a default. An empty list renders the number with no band and says so, rather than inventing one.",
+      required: true,
+    },
+    "derivation": {
+      type: "string",
+      description: "One sentence saying what went into the score and over what window. Required, and always rendered. A dial that cannot explain itself is a decorative authority claim, and Value is the honest component instead.",
+      required: true,
+    },
+    "coverage": {
+      type: "{ available: number; expected: number }",
+      description: "How much of the expected input the score was actually calculated from — `{ available: 4, expected: 6 }`. When it is short the dial says so on its face, because a reader has no other way to know that today's number rests on a third of the usual evidence. What was counted is the derivation sentence's job to name: this component does not know whether they were nights, readings or days.",
+      required: false,
+    },
+    "category": {
+      type: "HealthCategory",
+      description: "Tints the label, and nothing else. Never the track, the bands or the indicator — those belong to the status axis, and one surface carries one axis.",
+      required: false,
+    },
+    "measuredAt": {
+      type: "string",
+      description: "When the score was calculated, ISO 8601. Rendered as a date beside the derivation. It gets no staleness treatment and no relative phrasing: a relative phrase needs the instant to measure against, which this API does not carry, so a caller who wants \"2 hours ago\" renders a RelativeTime beside the dial and passes it one `now` for the whole screen.",
+      required: false,
+    },
+    "precision": {
+      type: "number",
+      description: "Decimal places for the score, from the product. Omitted, the number is shown with exactly the digits it arrived with — nothing is rounded and nothing is padded, because precision belongs to the metric and there is no honest default for a composite score.",
+      required: false,
+    },
+    "locale": {
+      type: "string",
+      description: "BCP 47 locale for the number and the date. Omitted, the reader's own environment decides.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. A class passed here wins where the two conflict.",
       required: false,
     },
   },
@@ -566,6 +685,53 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: false,
     },
   },
+  "TrendSparklineProps": {
+    "label": {
+      type: "string",
+      description: "What was measured, in the reader's language. It names the subject in the plot's accessible name, which is otherwise a description of a line with no subject. It is deliberately not drawn: the anatomy has no label part, and the surface a sparkline sits in has already said what it is about.",
+      required: true,
+    },
+    "unit": {
+      type: "string",
+      description: "Unit symbol as `tokens/units.json` spells it — \"bpm\", \"mmol/L\", \"steps\". Every reading in the caption is rendered through `Value`, which resolves the spoken form from that table so a screen reader says \"millimoles per litre\" rather than improvising.",
+      required: true,
+    },
+    "series": {
+      type: "TrendPoint[]",
+      description: "The readings, in chronological order. A gap is an explicit entry with `value: null`, never an omitted one: an entry missing from the array is one this component cannot know about, and a line drawn straight through it asserts a measurement nobody took.",
+      required: true,
+    },
+    "minimumPoints": {
+      type: "number",
+      description: "How many real readings there must be before a line may be drawn at all. Required, with no default, and the omission is the point. How many readings make a trend depends on what was measured, how often it is measured and who is reading it — a number opsinjs cannot know and must never guess. Below it this component draws nothing and says so, naming your number and the count it actually has.",
+      required: true,
+    },
+    "window": {
+      type: "string",
+      description: "The period the series covers, as the reader should see it — \"the last 14 days\". A display string rather than a duration, which has a consequence worth knowing: the x-axis is the extent of the series you passed, not the extent of this period, so two sparklines are only comparable side by side when their series cover the same span.",
+      required: true,
+    },
+    "range": {
+      type: "ReferenceRange",
+      description: "An interval to shade behind the line, in neutral tones. Never status-coloured, and never invented: omit it and no band is drawn. Its `source` is required and is named in the caption, because a shaded band with no owner is an assertion with no author.",
+      required: false,
+    },
+    "category": {
+      type: "HealthCategory",
+      description: "Tints the line so it is findable in a grid of six. It is identity, not meaning: in greyscale the tint is lost and nothing else is.",
+      required: false,
+    },
+    "caption": {
+      type: "string",
+      description: "Your own sentence, replacing the composed one. Use it when you have a change threshold, a cadence or a phrasing this component cannot know about. It replaces the direction-and-magnitude sentence only. The clause naming a marked reading and the clause naming the band's source are appended by the component and cannot be removed by any prop — one is a status that owes a word, the other is an attribution.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. There is no class that hides the caption.",
+      required: false,
+    },
+  },
   "ValueProps": {
     "value": {
       type: "number | null",
@@ -617,7 +783,9 @@ export const PROPS_SOURCES: Record<string, string> = {
   "EmptyStateProps": "registry/bases/base/empty-state.tsx",
   "FieldControlProps": "registry/bases/base/field.tsx",
   "FieldProps": "registry/bases/base/field.tsx",
+  "RangeBarProps": "registry/bases/base/range-bar.tsx",
   "RelativeTimeProps": "registry/bases/base/relative-time.tsx",
+  "ScoreDialProps": "registry/bases/base/score-dial.tsx",
   "SheetContentProps": "registry/bases/base/sheet.tsx",
   "SheetProps": "registry/bases/base/sheet.tsx",
   "SkeletonProps": "registry/bases/base/skeleton.tsx",
@@ -625,10 +793,11 @@ export const PROPS_SOURCES: Record<string, string> = {
   "SurfaceProps": "registry/bases/base/surface.tsx",
   "TermGlossaryProviderProps": "registry/bases/base/term.tsx",
   "TermProps": "registry/bases/base/term.tsx",
+  "TrendSparklineProps": "registry/bases/base/trend-sparkline.tsx",
   "ValueProps": "registry/bases/base/value.tsx",
 }
 
 export const PROPS_META: { interfaces: number; props: number } = {
-  interfaces: 19,
-  props: 103,
+  interfaces: 22,
+  props: 135,
 }
