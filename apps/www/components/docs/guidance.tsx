@@ -755,7 +755,14 @@ export function WhenToUse({ use, avoid, className }: WhenToUseProps) {
   if (orphans.length > 0 && typeof window === "undefined") {
     console.warn(
       `[opsinjs:whentouse] ${orphans.length} prohibition(s) with no alternative: ` +
-        orphans.map((entry) => entry.case).join(" | ")
+        orphans.map((row) => row.entry.case).join(" | ")
+    )
+  }
+
+  if (strangers.length > 0 && typeof window === "undefined") {
+    console.warn(
+      `[opsinjs:whentouse] ${strangers.length} alternative(s) that are neither a catalogue id nor an href: ` +
+        strangers.map((row) => row.entry.instead).join(", ")
     )
   }
 
@@ -778,20 +785,19 @@ export function WhenToUse({ use, avoid, className }: WhenToUseProps) {
       <section>
         <h3 className="m-0 text-sm font-semibold">Do not use it when</h3>
         <ul className="mt-2 mb-0 list-none p-0 text-sm">
-          {avoid.map((entry) => (
-            <li key={entry.case} className="m-0 mb-2">
+          {rows.map(({ entry, resolved }) => (
+            <li
+              key={entry.case}
+              className="m-0 mb-2"
+              data-instead={entry.instead || undefined}
+              data-instead-built={
+                entry.instead ? String(resolved.built) : undefined
+              }
+            >
               {entry.case}
               <span className="block text-xs text-muted-foreground">
                 {entry.instead ? (
-                  <>
-                    Use{" "}
-                    {entry.href ? (
-                      <a href={entry.href}>{entry.instead}</a>
-                    ) : (
-                      <code className="text-xs">{entry.instead}</code>
-                    )}{" "}
-                    instead.
-                  </>
+                  <InsteadPointer entry={entry} resolved={resolved} />
                 ) : (
                   <strong className="font-semibold text-foreground">
                     No alternative named. Every prohibition must say what to
