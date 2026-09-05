@@ -431,6 +431,16 @@ export default function HomePage() {
             <h3 className="font-medium">Real and usable now</h3>
             <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
               <li>
+                <strong className="font-medium text-foreground">
+                  {builtComponentCount()} components.
+                </strong>{" "}
+                Implemented, rendered live on their own pages, and installable
+                as source from the registry. All of them are alpha: the API may
+                change in any release without a deprecation cycle, and none has
+                been through an independent accessibility or clinical review, so
+                none is ready for a production health surface.
+              </li>
+              <li>
                 <strong className="font-medium text-foreground">Tokens.</strong>{" "}
                 Two colour axes, six material rungs, spring easings, and the
                 type, space and shape scales — authored as JSON and compiled
@@ -455,7 +465,7 @@ export default function HomePage() {
             </ul>
           </Panel>
           <Panel>
-            <h3 className="font-medium">Specified, not built</h3>
+            <h3 className="font-medium">Specified or refused, not built</h3>
             <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
               <li>
                 <strong className="font-medium text-foreground">
