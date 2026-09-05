@@ -547,7 +547,13 @@ export function TokenTable({
           <Cell>{token.description}</Cell>
           <Cell>
             <span className="text-muted-foreground">
-              {token.usedBy?.length ? token.usedBy.join(", ") : "Nothing yet"}
+              {/* "no component", not "Nothing yet". `usedBy` is derived by
+                  scanning registry/bases, and empty is the settled state for a
+                  primitive rather than a queue: components consume roles, roles
+                  reference primitives, so nothing will ever read this one
+                  directly. build-reference.mts prints the same two words in the
+                  generated reference table. */}
+              {token.usedBy?.length ? token.usedBy.join(", ") : "no component"}
             </span>
           </Cell>
         </Row>
@@ -594,9 +600,9 @@ export function BundleSize({
         script="scripts/build-registry.mts"
         className={className}
       >
-        Size is measured from a real build of the component. There is nothing to
-        build, and an estimate here would be a number nobody measured — which is
-        exactly what this column exists to replace.
+        Size is measured from a real build. No size has been measured for this
+        component, and an estimate here would be a number nobody measured —
+        which is exactly what this table exists to replace.
       </NoDataYet>
     )
   }
