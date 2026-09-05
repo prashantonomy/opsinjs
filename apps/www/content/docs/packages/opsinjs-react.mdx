@@ -34,9 +34,12 @@ those teams onto something with no health doctrine at all.
   ]}
 />
 
-**Nothing is published, and nothing is built.** Every component is a
-specification. This page exists so the packaging decision can be reviewed before
-either happens.
+**Nothing is published to npm, and nothing will be until this decision is
+made.** Twenty-four components are implemented today and distributed as
+registry copy-in source, which is what
+[0002 — shadcn registry distribution](../project/decisions/0002-shadcn-registry-distribution.mdx)
+chose. This page exists so the remaining question — whether to *also* publish
+them as a package — can be reviewed before anything is published.
 
 ## The trade, stated plainly
 
@@ -66,8 +69,9 @@ export { ResultCard, RangeBar, StatusPill, AlertBanner /* … */ }
 // The prop interfaces, exported so consumers can type wrappers.
 export type { ResultCardProps, RangeBarProps /* … */ }
 
-// The status vocabulary, as the single source of truth.
-export type Status = "expected" | "watch" | "act" | "urgent"
+// The ClinicalStatus vocabulary, re-exported. The registry's lib/status.ts
+// owns it, and `unknown` is the absence of a status rather than a fifth one.
+export type Status = "steady" | "watch" | "attention" | "urgent"
 ```
 
 Four packaging decisions:
