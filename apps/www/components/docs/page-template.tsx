@@ -190,7 +190,7 @@ export function PageTemplate({
   // An empty table of contents means it was not passed down, not that the page
   // is empty. Never fail a build on an absent input; assert-ia reads the source.
   if (headings.length > 0) {
-    const present = headings.map(normalise)
+    const present = headings.map(normalize)
 
     let cursor = -1
     let previous: string | undefined
@@ -241,14 +241,12 @@ export function PageTemplate({
       })
     }
 
-    const exact = kind === "component" ? true : OUTLINE_IS_EXACT[kind]
-
     if (exact) {
       const allowed = new Set(expected.flatMap(candidatesFor))
       if (kind === "component") {
         // Both spellings of section 14 are allowed at any status; the canonical
         // one for this status is what assert-ia asks for.
-        allowed.add(normalise(accessibilitySectionFor(status)))
+        allowed.add(normalize(accessibilitySectionFor(status)))
         allowed.add("clinical meaning")
       }
       for (const heading of present) {
