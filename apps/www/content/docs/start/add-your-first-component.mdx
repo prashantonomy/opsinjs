@@ -21,11 +21,15 @@ review checks, [Quick start](./quick-start.mdx) is the longer version. If you wa
 to know what the command will actually write into your repository before you run
 it, that is here too, at the bottom.
 
-<Callout title="Nothing installs yet">
-  There is no published package and no live registry. The command below is the
-  intended contract; today it fails to resolve `@opsinjs`. It is documented now so
-  the shape can be reviewed, and so an agent reading this page gets a definite
-  answer instead of inventing one.
+<Callout title="Alpha, and no published host yet">
+  `status-pill` is implemented and its registry item carries the whole of its
+  source, so the command below is a real one rather than a sketch. What is
+  missing is somewhere to fetch it from by default: there is no npm package and
+  there will not be one, and `opsinjs.dev` is not serving yet, so `@opsinjs`
+  resolves only once you point it at a host that is —
+  [components.json](./installation/components-json.mdx) has the entry. The
+  component is `alpha`: the API will change without a deprecation, so use it in a
+  prototype and not in front of a patient.
 </Callout>
 
 ## Run one command
@@ -40,7 +44,7 @@ tokens arrive as CSS.
 
 ## Know what it writes
 
-The intended result of that one command, so it is not a surprise:
+Three files, so it is not a surprise:
 
 ```text
 components/opsinjs/status-pill.tsx     the component source — yours now, edit freely
