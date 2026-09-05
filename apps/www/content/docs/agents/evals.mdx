@@ -205,10 +205,12 @@ pnpm run evals                                    # score the corpus on disk
 pnpm run evals -- --base http://127.0.0.1:4000    # score the served .md twins
 ```
 
-The script needs a model endpoint configured in the environment; without one it
-exits with a readable message rather than reporting zeros, because a zero and an
-un-run suite are not the same fact and must never look the same on this page.
+There is no endpoint to configure and no key to set. The script reads
+`content/docs` directly, or fetches the `.md` twins when `--base` is given, so a
+run reproduces from a clone with nothing else installed. Running it against a
+base URL is the stricter of the two: it scores what the site actually serves,
+including whatever the twin renderer did to the page on the way out.
 
-Results are written dated. A run is attached to a documentation version, so a
-regression can be traced to the change that caused it — see
-[Docs freshness](../project/docs-freshness.mdx).
+Results are written dated to `public/r/evals.json`. A run is attached to a
+documentation version, so a regression can be traced to the change that caused
+it — see [Docs freshness](../project/docs-freshness.mdx).
