@@ -11,7 +11,7 @@ import { NotBuiltYet } from "./stub"
    anatomy.tsx — <Anatomy>, <CompositionTree>, <RelatedComponents>, <ApiLink>,
    <FlowDiagram>.
 
-   These four exist for a reader who is deciding, and — increasingly — for a
+   These five exist for a reader who is deciding, and — increasingly — for a
    model that is generating.
 
    <CompositionTree> is the one to keep. Wrong nesting of compound parts is the
