@@ -52,17 +52,19 @@ Each entry carries the page title, its one-sentence description, and its search
 aliases, because an alias is what a model was actually thinking of. Sections
 match the sidebar's sixteen groups.
 
-The status of each page is included too. Given that nothing is built, this is
-the single most load-bearing field in the file: an index that lists twenty-four
-components without saying `planned` beside every one of them would be an
-invitation to import them.
+The status of each page is included too, and it is the most load-bearing field
+in the file. Twenty-four component ids are `alpha` — there is source in the
+registry item and an API that may move without a deprecation cycle — and
+thirty-six are `considered`, a reserved name with nothing behind it. An index
+that did not separate the two would be an invitation to import the wrong ones.
+Each entry is one line, and the tail in brackets carries the status, the kind
+and the aliases:
 
 ```txt
 ## Components
 
-- [ResultCard](https://opsinjs.dev/docs/components/result-card): A single test
-  result shown with what it means and how confident you should be. — status:
-  planned — aliases: results, lab result, test result, report card
+- [Card](https://opsinjs.dev/docs/components/card): A bounded group of related content with a border and consistent padding — the ordinary box that most of a screen is made of. (status: alpha · kind: component · also known as: panel, container, box, tile group, content box)
+- [Select](https://opsinjs.dev/docs/components/select): Choosing one option from a list. (status: considered · kind: component · also known as: dropdown, picker)
 ```
 
 ## The size budget
