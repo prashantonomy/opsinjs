@@ -25,10 +25,12 @@ nothing will tell you an upgrade exists unless you build the habit of asking.
 
 ### Find out what changed
 
-Read the [changelog](../project/changelog/index.mdx), or use the version stamp in
-your file to ask what has changed since that version — see
-[Version stamps](./version-stamps.mdx). Do this before touching anything; an
-upgrade you cannot describe is one you cannot review.
+Read the [changelog](../project/changelog/index.mdx). The specified shortcut — a
+version stamp in the file itself, so it can name the version it came from — is
+not emitted yet, and [Version stamps](./version-stamps.mdx) explains what blocks
+it; until it lands, the changelog and your own record of what you installed are
+the whole answer. Do this before touching anything; an upgrade you cannot
+describe is one you cannot review.
 
 ### Diff before you fetch
 
@@ -69,10 +71,10 @@ measurement.
 `--overwrite` is a two-way operation: upstream replaces yours. When you have
 made substantial deliberate changes, do it as a proper three-way merge instead.
 
-The three sides are: the upstream version you originally copied (from the
-version stamp), the upstream version you want, and your current file. Any merge
-tool can take it from there, and the result is a merge with conflicts you
-resolve rather than a choice between two whole files.
+The three sides are: the upstream version you originally copied, the upstream
+version you want, and your current file. Any merge tool can take it from there,
+and the result is a merge with conflicts you resolve rather than a choice between
+two whole files.
 
 This only works if you can obtain the version you originally copied — which is
 the entire argument for keeping the stamp in the file, and for opsinjs serving
