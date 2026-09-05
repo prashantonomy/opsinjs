@@ -19,6 +19,7 @@ import {
   CLINICAL_STATUSES,
   CLINICAL_STATUS_META,
   type ClinicalStatus,
+  type Status,
 } from "@/lib/status"
 import { cn } from "@/lib/utils"
 import { NotBuiltYet } from "./stub"
@@ -56,14 +57,18 @@ import { NotBuiltYet } from "./stub"
    only way to see the opsinjs PRODUCT theme — squircle, platform UI font,
    generous — because the two stylesheets deliberately never meet.
 
-   Rendering a component INLINE here instead would be a quiet lie. `--background`,
-   `--card`, `--radius` and `--spacing` exist in both stylesheets and would
-   resolve; `--secondary`, `--accent`, `--destructive`, `--popover`, `--sidebar*`,
-   `--chart-1..5` and `--radius-2xl/3xl/4xl` exist ONLY in globals.css and
-   resolve to nothing under product.css. An inline preview therefore shows a
-   component that is materially not the component the consumer installs, and
-   shows it in the one place a reviewer would most trust it. ADR 0004 and
-   ADR 0007 exist to stop exactly that.
+   Rendering a component INLINE here instead would be a quiet lie, in two
+   different ways. `--secondary`, `--accent`, `--destructive`, `--popover`,
+   `--sidebar*` and `--chart-1..5` exist ONLY in globals.css and resolve to
+   nothing under product.css, so anything painted with them disappears. The
+   quieter failure is the one that still renders: `--background`, `--card`,
+   `--radius`, `--spacing` and the `--radius-2xl/3xl/4xl` ladder resolve under
+   BOTH sheets and to DIFFERENT values — product.css sets `--radius: 1rem` and
+   inherits Tailwind's own radius defaults, where globals.css derives the same
+   names from the lyra `--radius`. An inline preview therefore shows a component
+   that is materially not the component the consumer installs, and shows it in
+   the one place a reviewer would most trust it. ADR 0004 and ADR 0007 exist to
+   stop exactly that.
 
    <ComponentPreview> is the preview block on a component page: one component,
    at the page's width, with the theme / density / text / status switches above
