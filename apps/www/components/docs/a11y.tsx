@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useState, type ReactNode } from "react"
 
+import contrast from "@/lib/generated/contrast.json"
 import { apiRoutes } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import { NoDataYet } from "./stub"
@@ -14,6 +15,14 @@ import { NoDataYet } from "./stub"
    the hand-written APCA-W3 and WCAG 2.2 implementations in lib/color/ over
    every token pair in both themes, writes lib/generated/contrast.json, and CI
    fails on a regression. Until that has run, these components say so.
+
+   <ContrastReport> READS THAT FILE. It used to render only what an MDX author
+   passed as a `pairs` prop, which no page has ever done, so every call site
+   printed "has not been generated" over a file that was generated, committed
+   and full. The `pairs` prop is still honoured first — it is how a page shows a
+   subset the generator does not group — but the default is the measurement.
+   The file groups pairs by TOKEN SCOPE, not by component, so a component-scoped
+   report still has nothing to show and still says so.
 
    <ContrastOracle> is the exception and it is not really one. It is a tool, not
    a report: the reader types two colours and gets an answer about THOSE, which
@@ -48,7 +57,12 @@ export interface ContrastPair {
 }
 
 export interface ContrastReportProps {
-  /** A token namespace: `materials`, `status`, `category`. */
+  /**
+   * A token namespace the generator measures — `category`, `materials`,
+   * `neutral` or `status` — or `all` for every measured pair. The authoritative
+   * list is the `scopes` array in lib/generated/contrast.json; a name that is
+   * not in it renders the empty state naming the ones that are.
+   */
   scope?: string
   /** Or a component id, for the pairs that component actually uses. */
   component?: string
