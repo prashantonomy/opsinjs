@@ -160,6 +160,14 @@ export default async function ViewPage(
   // nothing, and that ambiguity is exactly what this scaffold exists to remove.
   if (!isViewKind(kind)) notFound()
 
+  /* A base or a style outside the matrix is the same class of mistake, and it
+     reaches this route in practice: `?base=&style=` on a documentation page is
+     linkable state, and the preview toolbar rebuilds every iframe src from
+     whatever it finds there. Without this guard a mistyped base answered "this
+     component does not exist in any released version of opsinjs" — a definitive
+     claim about the component, in reply to a question about the base. */
+  if (!listBases().includes(base) || !listStyles().includes(style)) notFound()
+
   const entry = getRegistryEntry(name, base, style, kind)
 
   /**
@@ -170,10 +178,16 @@ export default async function ViewPage(
    * server component, so it can simply await the module — no `next/dynamic`, no
    * client boundary, and the iframe renders the component in the first paint
    * rather than after a loading state.
-   *
-   * Today this is always null, and that is the interesting case.
    */
   const Preview = entry?.component ? (await entry.component()).default : null
+
+  /* Null here means one of two very different things, and the roster is what
+     tells them apart: a name that is specified and unbuilt, or a name nobody
+     has ever specified. The second one is a 404 — the same answer `/r` already
+     gives it, and the only answer that does not hand an agent its own invention
+     back as a roadmap entry. */
+  const unbuilt = Preview ? null : describeUnbuilt(kind, name)
+  if (!Preview && !unbuilt) notFound()
 
   return (
     <main
