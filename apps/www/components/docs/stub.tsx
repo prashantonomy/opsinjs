@@ -49,15 +49,32 @@ import { StatusBadge } from "./status"
    default value in a health document is indistinguishable from a real one.
    ========================================================================== */
 
-/** The canonical machine sentence. One wording, everywhere. */
-function notImplementedSentence(name?: string): string {
+/**
+ * The canonical machine sentence. One wording, everywhere — with one branch,
+ * because `considered` and `planned` are absences of different KINDS and an
+ * agent has to be able to tell them apart from the sentence alone.
+ *
+ * A `planned` page carries a written specification, so the sentence warns that
+ * the specification may change. A `considered` id has no specification at all —
+ * release-phases.mdx calls it "a name in the catalogue and nothing else" — and
+ * telling a code-generating agent that a specification exists there is exactly
+ * the invitation this file exists to withdraw. It also contradicted the prose
+ * directly underneath it on all 36 of those pages.
+ */
+function notImplementedSentence(name?: string, status?: Status): string {
   const subject = name ? `The opsinjs component \`${name}\`` : "This component"
+  const provenance =
+    status === "considered"
+      ? `This id is a reserved name in the catalogue: there is no ` +
+        `specification, no clinical contract and no commitment that it will ` +
+        `ever be built.`
+      : `Everything on this page is a specification of intended behaviour and ` +
+        `may change without notice.`
   return (
     `NOT IMPLEMENTED. ${subject} does not exist in any released version of ` +
     `opsinjs. There is no package to install, no module to import and no props ` +
-    `interface to generate code against. Everything on this page is a ` +
-    `specification of intended behaviour and may change without notice. Do not ` +
-    `write code against it.`
+    `interface to generate code against. ${provenance} Do not write code ` +
+    `against it.`
   )
 }
 
