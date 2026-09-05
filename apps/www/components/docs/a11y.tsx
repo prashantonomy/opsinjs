@@ -141,11 +141,42 @@ export function ContrastReport({
         command="pnpm run contrast"
         className={className}
       >
-        Every figure here is measured from the token values by{" "}
-        <code className="text-xs">scripts/check-contrast.mts</code> into{" "}
-        <code className="text-xs">lib/generated/contrast.json</code>, in both
-        themes, and a regression fails the build. Nothing on this site quotes a
-        contrast number that a person typed.
+        {MEASURED.length === 0 ? (
+          <>
+            Every figure here is measured from the token values by{" "}
+            <code className="text-xs">scripts/check-contrast.mts</code> into{" "}
+            <code className="text-xs">lib/generated/contrast.json</code>, in
+            both themes, and a regression fails the build. Nothing on this site
+            quotes a contrast number that a person typed.
+          </>
+        ) : component ? (
+          <>
+            <code className="text-xs">lib/generated/contrast.json</code> holds{" "}
+            {MEASURED.length} measured pairs and groups them by token scope, not
+            by component: nothing records which of them{" "}
+            <code className="text-xs">{component}</code> puts on screen, so
+            running <code className="text-xs">pnpm run contrast</code> again
+            adds no row here. The scopes it draws from are measured, and their
+            tables are on the Foundations pages.
+          </>
+        ) : scope ? (
+          <>
+            <code className="text-xs">lib/generated/contrast.json</code> holds{" "}
+            {MEASURED.length} measured pairs, under{" "}
+            {MEASURED_SCOPES.join(", ")} — none under{" "}
+            <code className="text-xs">{scope}</code>. Either that group is not
+            one the generator measures, or the name on this page has drifted
+            from the one it emits. Nothing here types a number to close the gap.
+          </>
+        ) : (
+          <>
+            This call names neither a scope nor a component, so there is nothing
+            to select from the {MEASURED.length} measured pairs in{" "}
+            <code className="text-xs">lib/generated/contrast.json</code>. Pass{" "}
+            <code className="text-xs">scope</code> — {MEASURED_SCOPES.join(", ")}{" "}
+            or <code className="text-xs">all</code>.
+          </>
+        )}
       </NoDataYet>
     )
   }
@@ -173,7 +204,7 @@ export function ContrastReport({
           </tr>
         </thead>
         <tbody>
-          {pairs.map((row) => (
+          {rows.map((row) => (
             <tr
               key={`${row.pair}-${row.theme}`}
               className="border-b border-border/60"
@@ -243,10 +274,10 @@ export function A11yReport({
         script="scripts/check-contrast.mts"
         className={className}
       >
-        Nothing has been tested, because nothing has been built. The
-        accessibility bar this component has to clear is stated on this page as
-        a requirement; a conformance figure would imply a test that was never
-        run.
+        No conformance run has been recorded for this component. The
+        accessibility bar it has to clear is stated on this page as a
+        requirement, which is a different kind of claim; printing a figure here
+        would imply a test that was never run.
       </NoDataYet>
     )
   }
