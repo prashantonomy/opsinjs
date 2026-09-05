@@ -319,6 +319,7 @@ export const SHIPPED: CatalogueEntry[] = [
       "category-identity",
     ],
     registryDependencies: ["status-pill", "value"],
+    usedIn: ["trend-with-a-caption", "trends-screen"],
   },
   {
     name: "metric-tile",
@@ -336,6 +337,7 @@ export const SHIPPED: CatalogueEntry[] = [
       "steps",
       "resting heart rate",
       "spo2",
+      "tile",
     ],
     owner: "design",
     a11yDate: null,
