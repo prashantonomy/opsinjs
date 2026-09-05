@@ -573,13 +573,19 @@ this section.
   the page, and the indicator against the band beneath it. Neither pair is in the measured set.
   Nor is the whole component under `prefers-contrast` or `forced-colors`, which are not
   implemented anywhere in opsinjs yet.
-- Print. A print stylesheet does exist — `app/globals.css` collapses translucency, prints at
-  11pt on white and resolves link hrefs — so the reading, the band name, the scale and the
-  derivation print as text. What is untested is the arc, and one thing about it is known
-  rather than untested: the stylesheet's `[data-status] { border: 1pt solid #000 }` rule cannot
-  outline an SVG `<path>` or `<line>`, because CSS `border` does not apply to SVG shapes. So
-  the printed dial has no outline around the tinted band. The word beside the number still
-  carries the level, and the rule does apply to the status line, which is a `<p>`.
+- Print. The `@media print` block in `app/globals.css` is this documentation site's own
+  chrome — it is why a compliance reviewer's paper copy of *this page* collapses translucency,
+  prints at 11pt on white and resolves link hrefs — and `shadcn add` does not ship it.
+  `score-dial.tsx` carries no `print:` variant of its own either, so a consumer who copies the
+  dial in gets no print treatment from opsinjs at all and the dial prints as whatever that
+  app's own stylesheet leaves standing. Nothing here has been on paper in either setting. One
+  thing is known rather than untested, and it holds wherever such a rule is written: a
+  `[data-status] { border: 1pt solid #000 }` rule of the kind the docs chrome uses cannot
+  outline an SVG `<path>` or `<line>`, because CSS `border` does not apply to SVG shapes, so
+  that route will not give the tinted band an outline. The argument — not the measurement — is
+  that the words are what survive a printer dropping backgrounds: the reading, the band name,
+  the scale, the band list and the derivation are text, and the word beside the number carries
+  the level a second time.
 - What a screen reader does when the score changes while the dial is on screen. The component
   mounts no live region, deliberately — it is not entitled to speak on the caller's behalf —
   and what a caller should do instead is an open question on this page.
