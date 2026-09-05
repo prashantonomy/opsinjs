@@ -25,8 +25,13 @@ explained it.
 each item is there because of a specific failure:
 
 - **Removes chrome that carries no information on paper** — the banner, the main
-  navigation, asides, the sidebar and the table of contents — so the printed page
-  starts with the content.
+  navigation, the sidebar, the sub-navigation and the table of contents, each
+  named individually — so the printed page starts with the content. It never
+  removes `aside` as an element, and it says so in a comment: `<StubNotice>`,
+  `<SafetyCallout>` and `<ResearchNote>` are all asides, and the same block
+  restores those three positively so that a later chrome selector cannot quietly
+  take them out again. A caveat that vanishes on paper is worse than no caveat,
+  because the reader cannot tell it was ever there.
 - **Forces a white background and black text at 11pt,** because a dark-theme
   print is unreadable and wastes toner.
 - **Strips `backdrop-filter`, `box-shadow` and `text-shadow` globally.**
