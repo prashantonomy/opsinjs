@@ -179,7 +179,15 @@ consequences and one non-consequence.
   a status is allowed to depend on — see
   [Colour blindness](./colour-blindness.mdx).
 
-<ContrastReport scope="gamut" />
+<NoDataYet what="A measurement of the escalated P3 values" script="scripts/check-contrast.mts">
+There is no `gamut` scope to report. `scripts/check-contrast.mts` reads the sRGB
+value of every token and never the `p3Value`, so the figures published on
+[Contrast and APCA](./contrast-and-apca.mdx) describe the fallback each reader
+gets on a narrow-gamut display and say nothing about the escalated colour. The
+first bullet above is the reason that is tolerable rather than the reason it is
+fine: luminance is what contrast is made of, and the escalation moves chroma.
+Measuring the P3 branch is still the outstanding work.
+</NoDataYet>
 
 ## Related
 
