@@ -43,15 +43,21 @@ export interface StatusMeta {
   /** One sentence a reader can act on, shown in the status legend and on hover. */
   summary: string
   /**
-   * What this phase PROMISES. Published verbatim on
-   * /docs/project/release-phases; the versioning policy is written against it.
+   * What this phase PROMISES, in the wording the versioning policy is written
+   * against. Nothing renders it: `<StatusBadge>` shows `label` and `summary`,
+   * and `project/release-phases.mdx` states the same commitments in its own
+   * prose. So this is the source a reviewer checks that page against, not a
+   * string the page interpolates — change a promise here and edit that page in
+   * the same commit, because nothing will do it for you.
    */
   promise: string
   /** Sort order for the status matrix and the section-progress counts. */
   order: number
   /**
-   * Whether a page at this status may show a working example. Exactly one
-   * phase may not, and it is the one every page is currently at.
+   * Whether a page at this status may show a working example. TWO phases may
+   * not, for two different reasons: `planned`, which is a specification with no
+   * code behind it, and `considered`, which was declined and never had any. The
+   * other four all have something real to render.
    */
   canDemonstrate: boolean
   /** The clinical status level the docs chrome tints this badge with. */
