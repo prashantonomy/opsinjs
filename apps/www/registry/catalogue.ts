@@ -818,8 +818,8 @@ export const CONSIDERED: CatalogueEntry[] = [
     aliases: ["pain scale", "rating scale", "likert"],
     owner: "clinical",
     a11yDate: null,
-    why: "The anchors and the number of points on a rating scale are what make it comparable over time, and they belong to whichever instrument the product is using.",
-    useInstead: ["field", "radio-group"],
+    why: "The anchors and the number of points on a rating scale are what make it comparable over time, and they belong to whichever instrument the product is using. A fixed set of labelled options is a radio group, and opsinjs delegates that to Base UI rather than wrapping it.",
+    useInstead: ["field"],
   },
   {
     name: "source-citation",
@@ -897,8 +897,7 @@ export const CONSIDERED: CatalogueEntry[] = [
     aliases: ["tab list", "view switcher"],
     owner: "engineering",
     a11yDate: null,
-    why: "Delegated to Base UI unchanged. Documented in the handbook rather than re-wrapped.",
-    useInstead: ["segmented-control"],
+    why: "Delegated to Base UI unchanged: Base UI's own Tabs is the component, and opsinjs documents it in the handbook rather than re-wrapping it. Nothing on the shipped roster switches between views, so there is no opsinjs component to reach for instead of it.",
   },
   {
     name: "accordion",
@@ -923,8 +922,8 @@ export const CONSIDERED: CatalogueEntry[] = [
     aliases: ["dropdown", "picker"],
     owner: "engineering",
     a11yDate: null,
-    why: "Delegated to Base UI. opsinjs adds guidance — for short lists a radio group is easier for the reader — rather than a component.",
-    useInstead: ["field", "radio-group"],
+    why: "Delegated to Base UI. opsinjs adds guidance — for short lists a radio group is easier for the reader, and Base UI has one — rather than a component.",
+    useInstead: ["field"],
   },
   {
     name: "combobox",
