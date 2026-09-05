@@ -55,24 +55,29 @@ properties carry the same names — `--opsin-material-sheet-blur`, never
 not arithmetic. The ordinals in the first column are the ordering and nothing
 addresses a rung by one.
 
-Each rung is exactly `--opsin-material-<n>-bg`, `-blur`, `-border` and
-`-shadow`. The shape of the ladder is easier to see as a set of movements than
-as a table of values:
+### The properties, rung by rung
 
-- **0 → 1** adds a border and changes the backing from the page colour to the
-  card colour. No shadow. A `panel` is a *region*, not an object.
-- **1 → 2** adds the only ordinary shadow in the system. Rung 2 is where a
-  surface becomes an object you could pick up.
-- **2 → 3** is the boundary. The backing gains an alpha, a blur appears, and the
-  border becomes a hairline expressed in alpha rather than a solid neutral. The
-  shadow shrinks almost to nothing, because a bar's separation comes from the
-  blur, not from a drop shadow.
-- **3 → 4** lowers the alpha slightly and raises the blur substantially, and
-  brings back a large soft shadow. An `overlay` is further from the page than a
-  `bar` and has to look it.
-- **4 → 5** is a different kind of thing entirely: `scrim` is a dark wash with
-  almost no blur, whose job is to *remove* information rather than to present
-  any.
+Each rung resolves the same eight custom properties —
+`--opsin-material-<rung>-tint`, `-tint-alpha`, `-blur`, `-saturation`,
+`-border`, `-shadow`, `-scrim` and `-opaque` — and
+[Materials](./index.mdx) is where each of them is defined. The shape of the
+ladder is easier to see as a set of movements than as a table of values:
+
+- **canvas → card** adds a boundary. No shadow, and in dark the backing lifts one
+  step off the page colour. A `card` is a *region of content*, not an object.
+- **card → raised** adds the only ordinary shadow in the system. Rung 2 is where
+  a surface becomes an object that is temporarily above the page.
+- **raised → sheet** is the boundary. The backing gains an alpha, a blur
+  appears, the saturation is lifted above 1 to compensate for the desaturation
+  the blur causes, and the border becomes a hairline expressed in alpha rather
+  than a solid neutral. The shadow shrinks almost to nothing, because a sheet's
+  separation comes from the blur.
+- **sheet → overlay** lowers the alpha, raises the blur and the saturation
+  further, and brings back a large soft shadow. It is the thinnest material in
+  the system and therefore the one whose contrast floor is hardest to hold.
+- **overlay → scrim** is a different kind of thing entirely: `scrim` is a dark
+  wash with almost no blur, whose job is to *remove* information rather than to
+  present any.
 
 Exact resolved values are in the generated table below, in both themes. They are
 not repeated in prose anywhere on this site, because a value in prose is a value
