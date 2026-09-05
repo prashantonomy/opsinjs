@@ -586,7 +586,7 @@ export function deriveTheme(
     warnings.push({
       level: shortfall.use === "body" ? "error" : "warning",
       code: "DERIVE-PAIR-BELOW-FLOOR",
-      message: `${failed.pair} measures Lc ${failed.apcaLc.toFixed(1)} and ${failed.wcagRatio.toFixed(2)}:1, below the ${failed.use} floor of Lc ${APCA_FLOOR[failed.use]}.`,
+      message: `${shortfall.pair} measures Lc ${shortfall.apcaLc.toFixed(1)} and ${shortfall.wcagRatio.toFixed(2)}:1, below the ${shortfall.use} floor of Lc ${APCA_FLOOR[shortfall.use]}.`,
     })
   }
 
