@@ -18,9 +18,10 @@ which means it is decoration.
 These five are written as prohibitions, because a prohibition is checkable. Each
 one names a specific thing you may not do, the harm it does to somebody reading
 their own health data, and the alternative you reach for instead. Each is also
-enforced somewhere — by a lint rule, by a generated report, by a build-time
-assertion, or by a section that `<PageTemplate>` refuses to let you omit. Where a
-principle is currently enforced only by review, this page says so.
+enforced somewhere — by a check that fails the build, by a generated report, or
+by a section that `<PageTemplate>` refuses to let you omit. Each enforcer named
+below is one that runs today; where a principle is enforced only by review, or
+by tooling that is specified and not built, this page says which.
 
 The thing these are most often confused with is a style guide. A style guide
 tells you what opsinjs looks like. These tell you what opsinjs will not do even
@@ -48,8 +49,12 @@ reds.
   </DoDont.Dont>
 </DoDont>
 
-Enforced by: `<StatusAxisDemo>`, which refuses to render a mixed pair; and the
-ESLint and Stylelint rules described in
+Enforced by: `scripts/check-a11y.mts` rule A11Y008, which fails `pnpm check` on
+any element under `registry/` that carries both `data-status` and
+`data-category`, resolves both axes on one CSS property, or takes colour from
+both axes at all; and `<StatusAxisDemo>`, which refuses to render a mixed pair.
+The ESLint and Stylelint rules that would catch the same thing inside a
+consumer's own project are specified and not built —
 [Handbook → Tooling](../handbook/tooling/index.mdx). Doctrine lives at
 [The two colour axes](../health/two-colour-axes.mdx).
 
