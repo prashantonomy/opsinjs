@@ -798,10 +798,20 @@
    -------------------------------------------------------------------------- */
 
 @media print {
-  /* Chrome that carries no information on paper. */
+  /* Chrome that carries no information on paper.
+
+     NAMED, never `aside`. The bare element selector used to be in this list and
+     it took the honesty components with it: <StubNotice>, <SafetyCallout> and
+     <ResearchNote> are all <aside>, so a printed component page lost its release
+     phase, its "do not generate code against it" sentence, its open safety
+     questions, its clinical safety notes and the evidence label saying whether a
+     claim was cited or opinion — and printed as settled documentation. Three
+     pages promise this stylesheet produces an artefact fit for a review file,
+     and those are exactly the parts a reviewer is there to read. The prefix
+     selector covers `nd-sidebar` and `nd-sidebar-mobile`, which is what the
+     bare element selector was really catching. */
   header[role="banner"],
   nav[aria-label="Main"],
-  aside,
   [data-print="hide"],
   [data-opsinjs-chrome],
   #nd-sidebar,
