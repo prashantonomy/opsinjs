@@ -13,10 +13,14 @@ import {
   Section,
   StatusSpecimen,
 } from "@/app/_shared/ui"
+import { getConsidered } from "@/lib/catalogue"
+import { builtComponentCount } from "@/lib/registry"
 import { agentRoutes, registryRoutes, routes, site } from "@/lib/routes"
 
 export const metadata: Metadata = {
-  title: "opsinjs — a design system for consumer health apps",
+  /* `absolute` because the group layout appends " — opsinjs" to every title
+     below it, and this one already opens with the name. */
+  title: { absolute: "opsinjs — a design system for consumer health apps" },
   description: site.tagline,
 }
 
@@ -24,9 +28,16 @@ export const metadata: Metadata = {
  * The landing page.
  *
  * It has one job: tell a developer, in under a minute, what this system decides
- * that a general-purpose one does not — and tell them honestly that none of it
- * is implemented yet. A landing page that oversells a scaffold costs more trust
- * than it buys attention, and on a health system trust is the entire product.
+ * that a general-purpose one does not — and tell them honestly which part of it
+ * is built, which part is a specification, and which part was considered and
+ * refused. A landing page that oversells a scaffold costs more trust than it
+ * buys attention, and on a health system trust is the entire product. The same
+ * is true of one that undersells it: a page still claiming nothing is built the
+ * week components start shipping is wrong in the direction that costs a reader
+ * the working code they came for. Which is why the counts on this page are read
+ * from `builtComponentCount()` rather than typed: a sentence that names a number
+ * is a sentence that can be caught being wrong, and the fix is to stop typing
+ * the number rather than to remember to update it.
  *
  * Every specimen below renders from the live token layer. Nothing on this page
  * has a colour, a duration or an easing curve typed into it: the status ladder,
