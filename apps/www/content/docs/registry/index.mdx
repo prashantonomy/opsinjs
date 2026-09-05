@@ -23,10 +23,12 @@ This page explains what the trade actually is, because it is a real trade with a
 real cost and the cost is usually described less clearly than the benefit.
 
 <Callout>
-Nothing is built. Every registry item today carries metadata and no files, and
-`add` will resolve an item and find nothing to write. The registry is real, the
-inventory is genuinely empty, and both facts are visible in
-`/r/registry.json`.
+Twenty-four of the sixty ids carry real `files` with `content` — the component
+itself plus the shared substrate, `lib/opsinjs.ts` and `lib/status.ts`. The
+other thirty-six are reserved names on the considered roster: they resolve, they
+omit `files` entirely, and they carry `meta.opsinjs.implemented: false`, which is
+a definitive answer rather than a failure. Which is which is visible in
+`/r/index.json`.
 </Callout>
 
 ## What you get
@@ -67,7 +69,9 @@ problem.
 
 **Drift is invisible without help.** Two teams in one company copy the same
 component in different months and now have two different components with one
-name. Version stamps make that visible; nothing makes it impossible.
+name. [Version stamps](./version-stamps.mdx) are the specified answer and are
+not emitted yet, so until they are, the thing that makes drift visible is your
+own record of what you took and when.
 
 ## The shape of the registry
 
