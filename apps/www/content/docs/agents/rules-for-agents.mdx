@@ -99,8 +99,8 @@ screen-reader user hears a subject, and `label` only re-words the level for
 translation.
 
 ```tsx
-// Right: the level is data, the colour is the system's business.
-<StatusPill status="watch">Slightly above your usual range</StatusPill>
+// Right: the level is data, the word and the colour are the system's business.
+<StatusPill status="watch" describes="HbA1c result" />
 
 // Wrong: a colour decision, an invented prop, and no word.
 <StatusPill color="#f59e0b" />
@@ -120,12 +120,12 @@ makes a hallucination obvious rather than plausible.
 
 ### Prefer a full URL for an install
 
-A full registry URL works in any project. A namespace only works in a project
+A full registry URL resolves in any project. A namespace only works in a project
 that has configured it, and the failure is a confusing error rather than a
 missing dependency.
 
 ```bash
-npx shadcn@latest add https://opsinjs.dev/r/result-card.json
+npx shadcn@latest add https://opsinjs.dev/r/status-pill.json
 ```
 
 ## Not this
