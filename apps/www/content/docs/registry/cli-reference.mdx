@@ -27,8 +27,13 @@ for is at the bottom, and it is specified rather than built.
 ## Install and add
 
 ```npm
-npx shadcn@latest add https://opsinjs.dev/r/result-card.json
+npx shadcn@latest add https://opsinjs.dev/r/status-pill.json
 ```
+
+A full URL is self-contained only for an item that depends on nothing else here.
+Fourteen items name their siblings namespaced in `registryDependencies`, so
+installing one of those needs an `@opsinjs` entry in `components.json` even by
+URL — see [the registry overview](./index.mdx) for the list and the block.
 
 The flags worth knowing:
 
