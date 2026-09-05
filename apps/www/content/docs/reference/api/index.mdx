@@ -88,11 +88,20 @@ interface page shows its declaration line only.</Todo>
 
 ### What exists today
 
-No package has been published, so the generator has nothing to read and the pages
-beneath this one are the two seeds below: a hand-written specification of each,
-clearly marked as a specification, kept here so that the links pointing at them
-resolve. They will be replaced wholesale the first time `pnpm run generate` runs
-against a real build. Do not write code against them.
+A page for every `type` and `interface` under `lib/` — the colour model, the
+status and category vocabulary, the catalogue, preset and registry shapes, and
+the error types — each one written by `pnpm run generate` and replaced wholesale
+on the next run. The full list, with the functions and constants that do not get
+a page, is [Types](../generated/types.mdx).
+
+Two of them predate the generator and are still half hand-written above their
+generated block:
 
 - [ClinicalStatus](ClinicalStatus.mdx) — the four clinical status levels
 - [HealthCategory](HealthCategory.mdx) — the subject-identity categories
+
+Their prose was written as a specification, before the types were declared, and
+it is still marked as one. Where that prose and the generated block below it
+disagree, the generated block is what the code says and the prose is what was
+intended. No other symbol page here has two halves like that; every other one is
+generated end to end.
