@@ -109,13 +109,41 @@ preference upwards, is the correct shape.
 
 ## Tokens
 
-Every token in `tokens/motion.json` carries its reduced variant beside its full
-one, and `scripts/build-tokens.mts` emits both — the full values at the top level
-and the reduced values inside `@media (prefers-reduced-motion: reduce)`. The
-generated table publishes them side by side, so the reduced variant is reviewable
-rather than buried in a media query.
+`tokens/motion.json` is where a reduced variant is declared, one token at a time.
+Five of the twelve motion tokens carry one: the four springs — `spring-snap`,
+`spring-settle`, `spring-calm` and `spring-sheet` — which each become a `linear`
+easing over a shortened duration of their own, and `ease-standard`, which becomes
+`linear`. Those five are what `scripts/build-tokens.mts` emits inside
+`@media (prefers-reduced-motion: reduce)` in `app/tokens.generated.css`: an easing
+and a duration for each spring, plus the easing for `ease-standard`.
+
+The other seven declare nothing, so the media query leaves them alone and they
+keep their full values for a reader who has asked for less movement. They are
+`ease-enter`, `ease-exit`, and the five plain durations `duration-instant`,
+`duration-fast`, `duration-base`, `duration-slow` and `duration-deliberate`. This
+is a gap in the token layer rather than a position: a transition written with
+`--opsin-duration-base` and `--opsin-ease-enter` still runs for its full 220ms
+under the preference. Until those declarations exist, a component built on a
+plain duration has to reduce itself — put the transition inside the query in the
+component's own stylesheet, or reach for a spring token, which carries its
+fallback with it.
+
+The table below is the generated list of what each motion token is and what reads
+it. The reduced variants are not a column in it: `scripts/build-tokens.mts`
+records one as `reducedMotionValue` in `lib/generated/tokens.ts`, and no view has
+been written that publishes it yet.
 
 <TokenTable scope="motion" />
+
+<Todo>
+  Declare a `reducedMotion` fallback on the seven motion tokens that have none,
+  then make `scripts/build-tokens.mts --check` fail when a motion token omits
+  one, so that the policy `tokens/motion.json` states about itself is enforced
+  rather than asserted. What each duration becomes under the preference is a
+  design decision nobody has taken, and it is not a number this page may pick;
+  publishing the reduced variant beside the full one in `<TokenTable>` waits on
+  the same decision.
+</Todo>
 
 ## Accessibility impact
 
