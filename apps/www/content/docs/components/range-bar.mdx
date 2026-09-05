@@ -5,7 +5,7 @@ status: alpha
 kind: component
 since: "unreleased"
 category: health-data-display
-aliases: [reference range, normal range, range, bar, in range, range indicator, gauge bar]
+aliases: [reference range, normal range, in range, range indicator, gauge bar]
 governedBy: [two-colour-axes, reference-ranges, numbers-units-precision, unit-systems]
 usedIn: [value-against-a-range, results-screen]
 ---
@@ -144,8 +144,9 @@ indistinguishable, which is the single failure mode
 [The two colour axes](../health/two-colour-axes.mdx) exists to prevent.
 
 The implementation keeps them apart by element rather than by convention. `category` tints
-`RangeBar.Label` and stamps `data-category` there; `status` colours `RangeBar.Tick` and
-stamps `data-status` there; the root, the track and the band take colour from neither. No
+`RangeBar.Label` and stamps `data-category` there; `status` colours `RangeBar.Status` and
+`RangeBar.Tick` and stamps `data-status` on both; the root, the track and the band take
+colour from neither. No
 element in the rendered DOM carries both attributes, which is what the axis-conflict gate
 checks and what makes a bar safe to drop into a category-tinted card.
 
