@@ -155,10 +155,10 @@ Prefer an error.
 
 <Steps>
 
-### It parses and has a version
+### It parses, and you know what it left out
 
 ```bash
-node -e "const d=require('./opsinjs-docs.json'); console.log(d.version, d.pages.length)"
+node -e "const d=require('./opsinjs-docs.json'); console.log(d.version, d.included, 'of', d.total, d.truncated ? '(truncated)' : '')"
 ```
 
 ### A known page is present with its status
