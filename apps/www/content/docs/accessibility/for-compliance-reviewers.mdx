@@ -121,17 +121,18 @@ props rather than reading a measurement, so there is no evaluation to publish an
 none is invented here.
 </NoDataYet>
 
-Nothing has been evaluated. The only measurement this project can currently
-produce is token-pair contrast, and it appears on
-[Contrast conformance](./contrast-conformance.mdx) once `pnpm run contrast` has
-run.
+Nothing has been evaluated against a success criterion. The one measurement this
+project does produce is token-pair contrast: it is generated, committed, and
+published on [Contrast conformance](./contrast-conformance.mdx).
 
 ## Known gaps
 
 - **No conformance evaluation of any kind has been performed.** No third-party
   audit, no internal audit, no assistive technology testing.
-- **No component exists,** so component-level conformance data cannot exist
-  either.
+- **No component-level conformance data exists.** Twenty-four components ship at
+  `alpha`, and not one of them has been evaluated: `a11yDate` is `null` on every
+  catalogue row. Code existing is not evidence, and nothing here treats it as
+  evidence.
 - **`prefers-contrast` is unimplemented,** which is a real gap against
   SC 1.4.11-adjacent expectations in high-contrast operating-system modes; see
   [Increased contrast](./increased-contrast.mdx).
