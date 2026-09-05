@@ -506,9 +506,7 @@ export function TrendSparkline({
      code describes — a caller with fewer readings than their own rule allows —
      is exactly this one, and it is the only code in the table allocated to this
      component. A developer whose sparkline has silently become a sentence is
-     entitled to know why. The message also names `minimumWindow`, which is not a
-     prop on anything; that is a defect in tokens/errors.json and is reported
-     upward rather than worked around here. */
+     entitled to know why. */
   if (ruleIsUsable && !enoughReadings) {
     warnOnce("OPSIN-0012", { count: readings.length, minimum: minimumPoints })
   }
@@ -524,7 +522,8 @@ export function TrendSparkline({
       ? changeThreshold
       : undefined
   if (changeThreshold !== undefined && smallestChange === undefined && isDevelopment()) {
-    console.warn(
+    warnDevOnce(
+      `change-threshold:${String(changeThreshold)}`,
       `[opsinjs] <TrendSparkline> received changeThreshold=${String(changeThreshold)}. ` +
         "It is the smallest difference your metric counts as a change, in the " +
         "reading's own unit, so it has to be a finite number that is not below " +
