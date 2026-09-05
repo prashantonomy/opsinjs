@@ -77,12 +77,12 @@ surface has no bounded worst case, so the contrast floor cannot be computed for
 it.
 
 **N2 — A scrim is a sibling of the rung it serves, never its child.** It sits
-between the overlay and everything below, in the stacking order, not inside the
-overlay's box.
+between the `sheet` and everything below, in the stacking order, not inside the
+sheet's box.
 
-**N3 — At most one `overlay` at a time.** A dialog opened from a dialog is a bug
+**N3 — At most one `sheet` at a time.** A dialog opened from a dialog is a bug
 in the flow, not a stack to be styled. If a decision genuinely requires two
-steps, it requires two steps *inside* one overlay.
+steps, it requires two steps *inside* one sheet.
 
 **N4 — When an `overlay` is open, the `bar` goes under the scrim.** A nav bar
 that stays bright and crisp above a scrim looks interactive and is not. Dim it
