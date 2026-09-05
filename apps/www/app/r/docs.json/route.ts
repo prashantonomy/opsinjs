@@ -79,11 +79,10 @@ interface BundlePage {
 }
 
 export async function GET(): Promise<Response> {
-  const pages = allPages()
+  const pages = truncationOrder(allPages())
 
   const rendered: BundlePage[] = []
   let size = 0
-  let omitted = 0
 
   for (const page of pages) {
     const meta = metaOf(page)
