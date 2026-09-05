@@ -1,5 +1,7 @@
+import { getEntry } from "@/lib/catalogue"
 import { getRegistryEntry } from "@/lib/registry"
 import { DEFAULT_BASE, DEFAULT_STYLE } from "@/lib/routes"
+import type { Status } from "@/lib/status"
 import {
   ComponentPreview as ComponentPreviewSurface,
   IframePreview as IframePreviewSurface,
