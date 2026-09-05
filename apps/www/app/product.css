@@ -463,10 +463,25 @@
      `linear()` stop list is normalised to 0-1, so running spring-calm's curve
      over spring-snap's 283ms is a different spring, not a faster one. Write
      `ease-opsin-spring-calm duration-(--opsin-duration-spring-calm)` and never
-     cross the pairs. `spring-calm` is the one for anything that displays a
-     health value: it is the only spring of the four that neither overshoots nor
-     bounces, and a number that overshoots has displayed, for one frame, a
-     figure that is not true. --- */
+     cross the pairs.
+
+     `spring-calm` is the only one of the four cleared to carry a health value,
+     and only for a figure that CHANGES while the reader is already looking at
+     it: a bar re-filling from one reading to the next, a dial travelling
+     between two values they have already been shown. Never a first paint and
+     never a first reveal — a value arrives at its final figure, with no
+     count-up, no dial sweep and no line drawing itself in
+     (health/motion-in-health-ui rule 2). It is cleared for the morph because it
+     is overdamped: it reaches its target without passing it, and a number that
+     overshoots has displayed, for one frame, a figure that is not true.
+
+     Overdamping is necessary and not sufficient, so do not reason your way to a
+     second candidate. `spring-sheet` is overdamped too (zeta 1.025, zero
+     overshoot) and is still not cleared: 483ms of travel is a surface's settle,
+     and a figure that takes half a second to arrive reads as a figure the system
+     is unsure of. `spring-settle` and `spring-snap` overshoot by 0.88% and 1.52%
+     and are ruled out on the frame-of-untruth argument alone.
+     tokens/motion.json carries the same rule on each token itself. --- */
   --ease-opsin-enter: var(--opsin-ease-enter);
   --ease-opsin-exit: var(--opsin-ease-exit);
   --ease-opsin-spring-calm: var(--opsin-ease-spring-calm);
@@ -588,7 +603,18 @@
 
      The var() fallback is the same 2.75rem rather than 44px, for the same
      reason: on a clean checkout, before `pnpm run generate` has written
-     tokens.generated.css, the backstop still has to scale. */
+     tokens.generated.css, the backstop still has to scale.
+
+     TEXT ENTRY IS IN THE LIST. It used to name only buttons, links carrying
+     `data-opsin-target`, checkboxes and radios, which left every text input,
+     `<select>` and `<textarea>` outside the floor — so a hand-rolled `<input>`
+     next to a correctly sized `<Field>` reproduced the sub-floor target in
+     silence, and a text field is the control a reader with a tremor has the
+     hardest time hitting. `input` is matched by exclusion rather than by listing
+     the twenty-odd type values, so a type nobody thought about is inside the
+     floor rather than outside it. `[type="hidden"]` is excluded because it has
+     no box at all, and a minimum size on a box that does not render is noise in
+     the cascade rather than a rule. */
   button,
   [role="button"],
   a[data-opsin-target],
