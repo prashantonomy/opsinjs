@@ -76,9 +76,12 @@ version you want, and your current file. Any merge tool can take it from there,
 and the result is a merge with conflicts you resolve rather than a choice between
 two whole files.
 
-This only works if you can obtain the version you originally copied — which is
-the entire argument for keeping the stamp in the file, and for opsinjs serving
-historical items rather than only the latest.
+This only works if you can identify and obtain the version you originally copied,
+and today nothing in the file tells you which that was — the commit that ran
+`add` is the only record, which is why committing the install on its own is the
+first habit below. It is also the entire argument for the specified
+[version stamp](./version-stamps.mdx), and for opsinjs serving historical items
+rather than only the latest.
 
 ```bash
 git merge-file --diff3 mine.tsx base.tsx theirs.tsx
@@ -108,8 +111,9 @@ what has changed upstream is a small habit that prevents a large migration.
 ## What an upgrade can break
 
 <Callout>
-Nothing is built yet, so no upgrade path has been exercised in anger. The list
-below is the set of hazards the design anticipates, and it is a specification of
+No upgrade path has been exercised in anger: every catalogue row is still
+`since: unreleased`, so there is not yet a second version of anything to upgrade
+to. The list below is the set of hazards the design anticipates, and it is a specification of
 what upgrade notes will have to cover — not a report of observed breakage.
 </Callout>
 
