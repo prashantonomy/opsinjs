@@ -52,9 +52,14 @@ type Status =
   | "considered"  // thought about, decided nothing, no implementation
 ```
 
-The two at the bottom are the ones a machine must handle correctly. `planned`
-means there is a specification you may read and must not generate against.
-`considered` means there is a catalogue row and nothing else.
+`alpha` and `considered` are the two a machine must handle correctly, because
+between them they account for every component id: `alpha` means there is source
+in the registry item and an API that may move without a deprecation cycle,
+`considered` means there is a catalogue row and nothing else. `planned` — a
+specification you may read and must not generate against — is still live on
+documentation pages, and no component carries it today. Handle all six anyway:
+the vocabulary is closed, not fixed, and a client that only knows the values it
+saw once will misread the day one of them moves.
 
 The clinical status levels are a **different, unrelated** four-value vocabulary
 — `steady`, `watch`, `attention`, `urgent` — and confusing the two is a real
@@ -101,10 +106,13 @@ If your tool needs to know whether `symptom-picker` exists, fetch
 `/r/index.json` and look. Do not infer it from a URL pattern and do not ask a
 model.
 
-### Check `status` on every read
+### Check `status` and `implemented` on every read
 
-Every item is `planned` today. A tool that ignores the field will behave, next
-year, as though half-built components were finished.
+Twenty-four items are `alpha` and thirty-six are `considered`. `status` tells
+you how stable a thing is; `implemented` tells you whether there is source to
+install, which is the question most tools are actually asking. A tool that
+ignores either will behave, next year, as though half-built components were
+finished — or refuse to install a component that ships.
 
 ### Treat aliases as input, not as output
 
