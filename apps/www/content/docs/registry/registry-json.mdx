@@ -171,9 +171,10 @@ registry it is worth asserting the same thing.
 **The CLI reports an invalid registry.** Usually `files[].content` present in the
 catalog, or an item missing `type`.
 
-**An item resolves but installs nothing.** Correct in opsinjs today — nothing is
-built. In your own registry, check that `files[].path` points at a file that
-exists relative to the registry root.
+**An item resolves but installs nothing.** Correct for the thirty-six reserved
+names, which carry no `files` at all; read `meta.opsinjs.implemented` to tell
+which you have. For one of the twenty-four, or in your own registry, check that
+`files[].path` points at a file that exists relative to the registry root.
 
 **Search finds nothing.** `search` matches on `name`, `title` and `description`.
 An item with a terse description is hard to find; that is a content bug.
@@ -185,7 +186,7 @@ An item with a terse description is hard to find; that is a content bug.
 
 - [registry-item.json](./registry-item-json.mdx) — one distributed item, in
   full.
-- [Version stamps](./version-stamps.mdx) — what gets written into the files an
-  item emits.
+- [Version stamps](./version-stamps.mdx) — the line that is specified for the
+  head of every emitted file, and is not written yet.
 - [Machine-readable schemas](../agents/machine-readable-schemas.mdx) — the
   companion `/r/index.json`.
