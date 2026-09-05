@@ -236,10 +236,12 @@ export function ImplementationStatusNotice({
 }) {
   return (
     <div className="rounded-lg border border-dashed border-border bg-muted/40 p-4 text-sm leading-relaxed text-muted-foreground">
-      <p className="mb-1 font-medium text-foreground">Nothing is built yet.</p>
+      <p className="mb-1 font-medium text-foreground">
+        Alpha, and not yet packaged.
+      </p>
       <p>
         {children ??
-          "opsinjs is a specification and a token system at this point. No component has been implemented, no package has been published, and every component page is a proposal you can review and argue with rather than code you can install."}
+          "Every component that exists today is alpha: installable as source from the shadcn registry this site serves, and free to change its API in any release without a deprecation cycle. Nothing is published to npm, most of the catalogue is still a specification or a reserved name rather than code, and none of it has been through an independent accessibility or clinical review — so none of it belongs on a production health surface yet."}
       </p>
       {href ? (
         <p className="mt-2">
