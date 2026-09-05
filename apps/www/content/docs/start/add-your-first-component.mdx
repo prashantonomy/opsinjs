@@ -73,8 +73,10 @@ survivable.
 
 Three checks, in order of how much they tell you:
 
-1. **The file is there and it compiles.** `components/opsinjs/status-pill.tsx`
-   imports cleanly and your typechecker is quiet.
+1. **The file is there and it compiles.** It landed where `aliases.ui` points,
+   it imports cleanly, and your typechecker is quiet. If the only complaint is
+   `@/lib/utils`, `shadcn init` was never run in this project: the registry does
+   not ship that file and every copied component imports `cn` from it.
 2. **The tokens resolved.** Render one pill and inspect it: its background should
    come from a custom property in the opsinjs status scope, not from a literal
    colour. If you see a hard-coded hex, the token layer was not imported.
@@ -85,9 +87,12 @@ Three checks, in order of how much they tell you:
 
 ## Troubleshooting
 
-**`Unknown registry @opsinjs`.** Expected today. When the registry is live, this
-means `components.json` has no `registries` entry; see
-[components.json](./installation/components-json.mdx).
+**`Unknown registry @opsinjs`.** `components.json` has no `registries` entry
+mapping the namespace to a URL. Nothing preconfigures it and the CLI has no
+default for it, so this is the first thing to check; see
+[components.json](./installation/components-json.mdx). A DNS or network failure
+rather than an unknown-registry error means the entry is there and points at
+`opsinjs.dev`, which is not serving yet.
 
 **The component renders unstyled.** The token layer is not imported, or it is
 imported before Tailwind. CSS order in opsinjs is load-bearing and the exact
