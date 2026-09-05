@@ -112,8 +112,6 @@ problem as much as a visual one.
 
 <ContrastReport scope="materials" />
 
-<NoDataYet script="scripts/check-contrast.mts" />
-
 Contrast on rungs 3 and 4 is measured against each rung's declared opaque
 fallback, which is the reduced-transparency value. That makes the published
 figure the *reduced-transparency* figure, and the normal case is measured against
@@ -126,8 +124,10 @@ simplification that is stated here rather than hidden.
   against a distribution of photographs.
 - **Windows and Linux support for the query is not verified** in this codebase,
   and there is no JavaScript fallback.
-- **Nothing renders the ladder yet,** so the table above describes CSS custom
-  properties that no component consumes.
+- **One component renders the ladder.** `Surface` reads
+  `--opsin-material-<rung>-*` for all six rungs and swaps to the opaque fallback
+  under the query; every other built component sits on a rung rather than
+  choosing one, so the ladder has had exactly one implementation to be wrong in.
 
 ## Updates to this page
 
