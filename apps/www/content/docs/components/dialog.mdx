@@ -532,7 +532,7 @@ what `alpha` promises.
     {
       keys: "Space",
       action: "Activates the focused action",
-      notes: "And does not scroll anything: the page behind is inert, and a focused button consumes the key.",
+      notes: "And does not scroll anything: a focused button consumes the key, and the page behind is scroll-locked for as long as the dialog is open.",
     },
     {
       keys: "Escape",
@@ -561,8 +561,8 @@ dialog dismissible with a thumb on a phone and not on a laptop — silently, at 
 width the caller happened to pass. What the sentence under that prop was complaining
 about is a complaint about shape, and the shape is here: below the `sm` breakpoint the
 dialog meets the bottom edge, takes the full width and rounds only its top corners,
-in CSS, with no prop and no change of component. The role, the trap, the inertness and
-the dismissal rules are identical at every width.
+in CSS, with no prop and no change of component. The role, the trap, the hidden background
+and the dismissal rules are identical at every width.
 
 **`actions` is a prop this component added.** The specification's part tree requires a
 `Dialog.Actions` region, caps it at two and fixes their order, and its proposed API had
