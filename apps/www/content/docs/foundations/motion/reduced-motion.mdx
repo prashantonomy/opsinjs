@@ -21,8 +21,11 @@ That is a downgrade, not an accommodation. Somebody who set the preference did
 not ask to be told less about where things went; they asked not to be made to
 feel unwell. Those are different requests and the second one has a better answer.
 
-So in opsinjs reduced motion is a **property of each token**, declared alongside
-it. Every motion token states what it becomes, and the answer is rarely "nothing".
+So in opsinjs reduced motion is a **property of a token**, declared alongside it
+rather than bolted on underneath every token at once. A token that declares a
+reduced variant states what it becomes, and the answer is rarely "nothing". Five
+of the twelve motion tokens declare one today; the token section below names
+which, and says what the other seven mean for a component built on them.
 
 This is often confused with an accessibility feature you add at the end. It is
 not: a token whose reduced variant was not considered when it was authored
@@ -61,7 +64,12 @@ been specified does not ship. The variant is part of the component's `Motion`
 section, demonstrated with `<MotionDemo>` so the fallback is observable rather
 than described, and it is checked at review.
 
-<MotionDemo token="--opsin-ease-spring" />
+<MotionDemo
+  easing="--opsin-ease-spring-sheet"
+  duration="--opsin-duration-spring-sheet"
+  property="translate"
+  label="A sheet arriving, with and without the preference"
+/>
 
 ## Using it
 
