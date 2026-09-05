@@ -49,15 +49,29 @@ disagrees with it, the script is right and this page is the thing to correct.
 | `component` | 12 months | `design` | The implementation moves, but a component page moves with it in the same commit |
 | `foundation` | 12 months | `design` | Token changes arrive through the generated tables, which the drift gate checks every build |
 | `pattern` | 12 months | `design` | Patterns outlive the components implementing them |
+| `recipe`, `screen` | 12 months | `design` | Compose components, so they rot when components change |
 | `handbook` | 12 months | `engineering` | Mechanics, tied to releases rather than the calendar |
-| `reference` | 12 months | `engineering` | Bodies are generated; only the header block is reviewed |
-| `project` | 12 months | `engineering` | Policy pages, changed deliberately |
+| `guide` | 12 months | `engineering` | Installation instructions age fastest of all, which is why the ones that matter override this down to 3 months rather than relying on the default |
+| `reference` | never | `engineering` | Bodies are generated and are checked by the drift gate on every build, so a calendar review would report an age the gate has already disproved |
+
+The `reference` exemption is the one that surprises people. It is not a claim
+that those pages cannot be wrong; it is that a date is the wrong instrument for
+them. `pnpm run check:generated` regenerates every one of them and fails on a
+single changed byte, which is a stronger guarantee than a human re-reading a
+table of two hundred rows twice a year. The hand-written half above each
+generated marker is not covered by that, and a reference page whose prose needs
+a cadence sets `reviewEvery` explicitly — as
+[contrast](../reference/generated/contrast.mdx) and
+[catalogue](../reference/generated/catalogue.mdx) both do.
 
 **Pages that override the default downwards to 3 months** are the ones where
-being wrong is most expensive: the emergency and crisis health pages, the
-measured [contrast](../reference/generated/contrast.mdx) table, the
-[catalogue](../reference/generated/catalogue.mdx), the
-[roadmap](roadmap.mdx) and [state of the system](state-of-the-system.mdx).
+being wrong is most expensive. They include the emergency and crisis health
+pages, the accessibility statement and the two contrast pages, the six `start/`
+guides a newcomer follows literally — quick start, installation, the Next guide,
+`components.json`, the first component and troubleshooting — the measured
+[contrast](../reference/generated/contrast.mdx) table, the
+[catalogue](../reference/generated/catalogue.mdx), the [roadmap](roadmap.mdx)
+and [state of the system](state-of-the-system.mdx).
 
 `reviewEvery: never` exists for pages whose content is fixed by history — a dated
 changelog entry, a decision record that has been superseded. Use it rarely; it is
