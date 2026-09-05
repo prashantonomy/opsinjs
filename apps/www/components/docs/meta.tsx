@@ -421,7 +421,18 @@ export interface EvalResultProps {
   score?: number
   /** ISO date the score was produced. */
   date?: string
-  /** The model the score belongs to. A score with no model is meaningless. */
+  /**
+   * The model a score is attributed to, when it is attributed to one at all.
+   *
+   * `scripts/run-evals.mts` produces no such score: it scores the CORPUS —
+   * whether the page an agent would need exists, at the address it would guess,
+   * still saying the thing it exists to say — and its payload records
+   * `"scored": "the opsinjs documentation corpus, not a model"`. So a run-evals
+   * number arrives here with no model and renders "model not recorded", which
+   * is the honest label. The prop exists for a hand-entered score that DID come
+   * from one model on one day, where naming it is the difference between a
+   * measurement and a rumour.
+   */
   model?: string
   className?: string
 }
@@ -430,8 +441,18 @@ export interface EvalResultProps {
  * The current dated score for one eval task.
  *
  * Model and date are shown next to every score because a bare percentage is not
- * a fact about opsinjs — it is a fact about one model on one day, and the same
- * documentation will score differently next month without anybody touching it.
+ * a fact about opsinjs — it is a fact about one corpus, or one model, on one
+ * day, and the same documentation will score differently next month without
+ * anybody touching it.
+ *
+ * NOTHING READS THE SCORES YET. `scripts/run-evals.mts` writes
+ * `public/r/evals.json` and this component takes `score` as a prop, so a suite
+ * that passed and a suite nobody ran are indistinguishable on the page. Closing
+ * that needs three files moving together — a route in `lib/routes.ts`, the read
+ * here, and the paragraph plus `<Todo>` on `content/docs/agents/evals.mdx` that
+ * currently describe the gap correctly — so it is not something this component
+ * can fix on its own, and the honest absence below is what stands until it
+ * does.
  */
 export function EvalResult({
   task,
