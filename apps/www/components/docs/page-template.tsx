@@ -110,8 +110,15 @@ function textOf(node: ReactNode): string {
 export interface PageTemplateProps {
   kind: Kind
   /**
-   * The page's release phase. Only `component` gates its outline on it, and
-   * `planned` is the right default for every component page in this scaffold.
+   * The page's release phase. Only `component` gates its outline on it.
+   *
+   * The default is `planned` because it is the CONSERVATIVE answer, not the
+   * common one. No component page sits at `planned` today — every generated
+   * page passes its real status, and registry/catalogue.ts is where those
+   * live — so the default only ever catches a page that forgot to declare
+   * one. `planned` is what that page should be held to: it claims the
+   * least about the code while still resolving to a real outline, where
+   * `considered` resolves to an empty one and would check nothing at all.
    */
   status?: Status
   /**
@@ -157,6 +164,26 @@ export function PageTemplate({
     .filter((item) => item.depth === 2)
     .map((item) => textOf(item.title))
     .filter((title) => title.length > 0)
+
+  /**
+   * Whether an H2 the outline does not name is a problem.
+   *
+   * `component` is exact — unless the outline is EMPTY. `componentSections()`
+   * returns `[]` at `considered` (ADR 0008: those pages are generated and thin
+   * by design), and an empty allowed-set makes every heading UNEXPECTED, which
+   * put a developer error dump naming repo paths above the fold on all 36 of
+   * them in production. An empty outline is the absence of a contract, not a
+   * contract that forbids everything.
+   *
+   * Nothing is unguarded by this. assert-ia.mts checks `considered` pages
+   * against CONSIDERED_COMPONENT_HEADINGS in both directions, before it
+   * resolves an outline at all, precisely because `componentSections()` returns
+   * `[]` — its comment says this branch is "the same gate on the authoring
+   * side". The fix belongs here rather than in lib/status.ts: giving
+   * `considered` a non-empty outline there would collide with that gate.
+   */
+  const exact =
+    kind === "component" ? expected.length > 0 : OUTLINE_IS_EXACT[kind]
 
   const problems: Problem[] = []
 
