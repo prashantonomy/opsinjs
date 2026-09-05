@@ -158,22 +158,18 @@ const SCAN_DIRS = [
  * The vocabularies this check is written against                      *
  * ------------------------------------------------------------------ */
 
-/**
- * The six words banned by health/reference-ranges.mdx:48-54 that are not in the
- * generated BANNED_WORDS list. The generated ten come from tokens/glossary.json
- * and are read at run time rather than copied here, so this file cannot drift
- * from the token source; these six have no token row yet, so they are declared
- * with the same shape and the same citation discipline. Adding a row to
- * tokens/glossary.json and deleting it from here is a strict improvement.
+/*
+ * There is no local banned-word list here, and its absence is the point.
+ *
+ * Six words - healthy, unhealthy, good, perfect, optimal, elevated - were once
+ * declared in this file because tokens/glossary.json had no row for them, with
+ * a note saying that adding the rows and deleting the copy would be a strict
+ * improvement. The rows exist now, so the copy is gone. Every word this check
+ * enforces comes from BANNED_WORDS in lib/generated/tokens.ts, which is emitted
+ * from tokens/glossary.json, which means the advice a developer reads in a
+ * failure message is the same sentence a writer reads on the glossary page.
+ * Add the next banned word to tokens/glossary.json and nowhere else.
  */
-const BANNED_ADDITIONS: { word: string; instead: string }[] = [
-  { word: "healthy", instead: "in the usual range" },
-  { word: "unhealthy", instead: "higher than the usual range" },
-  { word: "good", instead: "say the direction - higher, or lower" },
-  { word: "perfect", instead: "in the usual range" },
-  { word: "optimal", instead: "in the usual range" },
-  { word: "elevated", instead: "higher than" },
-]
 
 /**
  * Suffixes an identifier may add to a banned word and still be that word.
