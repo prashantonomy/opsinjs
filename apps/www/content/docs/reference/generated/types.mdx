@@ -43,11 +43,12 @@ single document. Functions and constants are listed here only — a page per
 `STATUS_META` would be a page of nothing. The index carries the summary; the
 symbol page carries the declaration line and the file it was read from.
 
-**Four columns.** *Symbol* is the exported identifier, exactly as you would
-import it. *Kind* is what it is — interface, type alias, enum-like union,
-function, component. *Package* is which `@opsinjs/*` module exports it. *Summary*
-is the first sentence of its doc comment, which means the way to improve this
-page is to improve the comment.
+**Four columns.** *Symbol* is the exported identifier, exactly as it is written
+in the source. *Kind* is what the declaration is — `const`, `function`, `type`
+or `interface`. *Declared in* is the file it lives in, relative to `apps/www`.
+*Summary* is the first sentence of its doc comment, which means the way to
+improve this page is to improve the comment; a row whose summary reads `-` is a
+symbol nobody has written one for yet.
 
 **Two symbols are load-bearing** and are worth knowing before you read anything
 else. `ClinicalStatus` is the union of the four clinical status levels, and it is
@@ -56,8 +57,9 @@ the type that makes the never-mix rule checkable rather than merely written down
 takes one takes it as a prop of that type, so a mixed pair is a compile error and
 not a design review finding. Both are specified in
 [Clinical status semantics](../../health/clinical-status-semantics.mdx) and
-[Category identity](../../health/category-identity.mdx); this page is where you
-find their exact members once the packages ship.
+[Category identity](../../health/category-identity.mdx); their declarations are
+on [ClinicalStatus](../api/ClinicalStatus.mdx) and
+[HealthCategory](../api/HealthCategory.mdx).
 
 **What is deliberately excluded.** Symbols marked `@internal` are suppressed.
 Types re-exported unchanged from Base UI or React are listed with a link to
