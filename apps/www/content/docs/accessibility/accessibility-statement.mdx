@@ -104,9 +104,15 @@ output is committed, and the figures appear on
 [generated contrast reference](../reference/generated/contrast.mdx) with the date
 of the run that produced them.
 
-The only measurement this project can produce today is token-pair contrast. It is
-published on [Contrast conformance](./contrast-conformance.mdx) with its
-generation date. Nothing else has been measured.
+<NoDataYet
+  script="scripts/capture-registry.mts"
+  what="A measured result for any rendered component"
+>
+Nothing that renders has been measured. The two scripts that would do it —
+`scripts/check-a11y.mts --layout` and `scripts/capture-registry.mts` — both need
+Playwright, which is deliberately in no `package.json`, so they run only in the
+nightly workflow and neither publishes a figure here.
+</NoDataYet>
 
 ## Known gaps
 
@@ -116,7 +122,10 @@ Stated plainly, because a statement without this section is not a statement.
   audit, no internal audit, no expert review.
 - **No assistive technology has been used against this codebase.** Every cell of
   the tested matrix on [Screen readers](./screen-readers.mdx) says *Not tested*.
-- **`prefers-contrast` and `forced-colors` are unimplemented.** See
+- **`forced-colors` is unimplemented, and `prefers-contrast` is answered in one
+  component rather than in the token layer.** `Surface` drops its translucency
+  and widens its edge under `prefers-contrast: more`; nothing else responds to
+  either query, and neither behaviour has been measured. See
   [Increased contrast](./increased-contrast.mdx).
 - **The automated gates cover source and layout, not conformance.** Three run:
   the contrast diff, `scripts/check-a11y.mts` blocking every pull request on what
