@@ -1,6 +1,6 @@
 ---
 title: Types
-description: Every TypeScript symbol the @opsinjs packages export, with a link to its own page.
+description: Every TypeScript symbol this documentation site's own lib/ exports, with a page of its own for each type and interface.
 status: stable
 kind: reference
 full: true
@@ -15,9 +15,15 @@ aliases: [exported types, TypeScript API, ClinicalStatus, HealthCategory]
 
 ## How this is generated
 
-**Source:** the declaration files published by the `@opsinjs` packages — the
-`.d.ts` a consumer actually installs, never a hand-maintained list.
-**Script:** `scripts/build-reference.mts`, using `fumadocs-typescript`.
+**Source:** the `export` declarations under `apps/www/lib/`, read from the
+TypeScript sources themselves. There is no published `.d.ts` behind this table
+and there will not be one: opsinjs is distributed by copying source into your
+own repository rather than as an npm package, which is
+[decision 0002](../../project/decisions/0002-shadcn-registry-distribution.mdx).
+**Script:** `scripts/build-reference.mts`, which scans declaration lines
+textually rather than through `fumadocs-typescript` — for the same reason the
+props tables are extracted textually: a reference generator has to run before
+anything compiles and produce identical bytes on every machine.
 **Command:** `pnpm run generate`.
 
 This page is an index. Each symbol also gets a page of its own under
