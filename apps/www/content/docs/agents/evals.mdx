@@ -190,14 +190,19 @@ slot renders the honest absence rather than a number.
 
 <EvalResult task="never-mix-the-axes" />
 
-<EvalResult task="refuse-threshold" />
+<EvalResult task="normal-is-banned" />
 
-<EvalResult task="cite-the-page" />
+<EvalResult task="no-invented-evidence" />
+
+<Todo owner="agents">Wire `public/r/evals.json` into `<EvalResult>` so a run
+reaches this page. Today the script writes the file and nothing reads it, which
+means a green suite and a suite nobody has run look identical here.</Todo>
 
 ### Reproducing a run
 
 ```bash
-pnpm run evals
+pnpm run evals                                    # score the corpus on disk
+pnpm run evals -- --base http://127.0.0.1:4000    # score the served .md twins
 ```
 
 The script needs a model endpoint configured in the environment; without one it
