@@ -9,11 +9,11 @@
  * that has landed since.
  *
  * This is the shard that matters most for generation. A model that has read
- * only the component specifications knows the names of things; a model that
- * has read this knows that "normal" is a banned word, that a category colour
- * may never carry clinical status, that a percentage without its natural
- * frequency is not an honest statistic, and that at most one urgent surface
- * may appear on a screen. Those are the rules that make generated health UI
+ * only the component pages knows the names of things; a model that has read
+ * this knows that "normal" is a banned word, that a category colour may never
+ * carry clinical status, that a percentage without its natural frequency is
+ * not an honest statistic, and that at most one urgent surface may appear on a
+ * screen. Those are the rules that make generated health UI
  * safe rather than merely plausible.
  *
  * Pages declare `evidence: cited | opinion | mixed`. Treat an `opinion` page
