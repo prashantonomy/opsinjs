@@ -577,9 +577,14 @@ export function deriveTheme(
     ),
   ]
 
-  for (const failed of checks.filter((c) => !c.passes && !c.advisory)) {
+  /* `shortfall`, not `failed`: "failed" is on the banned list
+     (tokens/glossary.json) for copy and identifiers alike, and an identifier is
+     the copy of tomorrow — this one is one rename away from a prop table. The
+     name is also the more accurate of the two, because the warning it builds
+     reports a distance below a floor rather than a pass/fail verdict. */
+  for (const shortfall of checks.filter((c) => !c.passes && !c.advisory)) {
     warnings.push({
-      level: failed.use === "body" ? "error" : "warning",
+      level: shortfall.use === "body" ? "error" : "warning",
       code: "DERIVE-PAIR-BELOW-FLOOR",
       message: `${failed.pair} measures Lc ${failed.apcaLc.toFixed(1)} and ${failed.wcagRatio.toFixed(2)}:1, below the ${failed.use} floor of Lc ${APCA_FLOOR[failed.use]}.`,
     })
