@@ -52,12 +52,16 @@ export interface GeneratedToken {
   /** What this token controls - the second column of every token table. */
   description: string
   /**
-   * Which components and pages consume it. The THIRD column, and the one that
+   * Which registry components consume it. The THIRD column, and the one that
    * turns a token list into a decision aid.
    *
-   * Empty for every token today, and that is the honest answer rather than a
-   * missing feature: nothing is built, so nothing consumes anything. The field
-   * is populated from the component sources the moment the first one lands.
+   * Derived by scanning `registry/bases` for two things: the token's custom
+   * property written literally, and any Tailwind utility that app/product.css
+   * bridges back to it in `@theme inline` - which is how the status, category,
+   * type, space and radius tokens are really consumed. Empty means no shipped
+   * component reads this token, which for a primitive is the expected state:
+   * components consume roles, and roles reference primitives. Examples and
+   * screens are out of scope, so a token used only by a demo reads empty too.
    */
   usedBy: string[]
   deprecated?: { since: string; replacement: string; removal: string }
@@ -122,9 +126,9 @@ export const TOKENS: GeneratedToken[] = [
   { name: "category-sleep-900", cssVar: "--opsin-category-sleep-900", namespace: "color", tier: "primitive", group: "category", value: "oklch(0.276 0.081 275)", p3Value: "oklch(0.276 0.096 275)", description: "Sleep ramp, step 900.", usedBy: [], sourcePath: "color.json#categories.sleep.steps.900" },
   { name: "category-sleep-950", cssVar: "--opsin-category-sleep-950", namespace: "color", tier: "primitive", group: "category", value: "oklch(0.208 0.062 275)", p3Value: "oklch(0.208 0.073 275)", description: "Sleep ramp, step 950.", usedBy: [], sourcePath: "color.json#categories.sleep.steps.950" },
   { name: "category-sleep-surface", cssVar: "--opsin-category-sleep-surface", namespace: "color", tier: "semantic", group: "category", value: "oklch(0.972 0.013 275)", darkValue: "oklch(0.276 0.081 275)", p3Value: "oklch(0.972 0.015 275)", p3DarkValue: "oklch(0.276 0.096 275)", description: "The tinted background a component in this ramp sits on.", usedBy: [], sourcePath: "color.json#categories.sleep.roles.surface" },
-  { name: "category-sleep-line", cssVar: "--opsin-category-sleep-line", namespace: "color", tier: "semantic", group: "category", value: "oklch(0.541 0.136 275)", darkValue: "oklch(0.806 0.092 275)", p3Value: "oklch(0.541 0.16 275)", p3DarkValue: "oklch(0.806 0.107 275)", description: "The boundary, icon stroke or chart mark. The lightest value in the ramp that clears the non-text floor against `surface`.", usedBy: [], sourcePath: "color.json#categories.sleep.roles.line" },
-  { name: "category-sleep-ink", cssVar: "--opsin-category-sleep-ink", namespace: "color", tier: "semantic", group: "category", value: "oklch(0.362 0.104 275)", darkValue: "oklch(0.941 0.028 275)", p3Value: "oklch(0.362 0.122 275)", p3DarkValue: "oklch(0.941 0.031 275)", description: "Text and text-sized icons on `surface`. Clears the text floor against `surface`.", usedBy: [], sourcePath: "color.json#categories.sleep.roles.ink" },
-  { name: "category-sleep-accent", cssVar: "--opsin-category-sleep-accent", namespace: "color", tier: "semantic", group: "category", value: "oklch(0.58 0.14 275)", darkValue: "oklch(0.714 0.123 275)", p3DarkValue: "oklch(0.714 0.145 275)", description: "The identity fill: a bar fill, a dial track, a legend dot. Chosen for recognition, not for contrast. It must be bounded by `line` or labelled in `ink`; it is never the only thing that carries the meaning.", usedBy: [], sourcePath: "color.json#categories.sleep.roles.accent" },
+  { name: "category-sleep-line", cssVar: "--opsin-category-sleep-line", namespace: "color", tier: "semantic", group: "category", value: "oklch(0.541 0.136 275)", darkValue: "oklch(0.806 0.092 275)", p3Value: "oklch(0.541 0.16 275)", p3DarkValue: "oklch(0.806 0.107 275)", description: "The boundary, icon stroke or chart mark. The lightest value in the ramp that clears the non-text floor against `surface`.", usedBy: ["trend-sparkline"], sourcePath: "color.json#categories.sleep.roles.line" },
+  { name: "category-sleep-ink", cssVar: "--opsin-category-sleep-ink", namespace: "color", tier: "semantic", group: "category", value: "oklch(0.362 0.104 275)", darkValue: "oklch(0.941 0.028 275)", p3Value: "oklch(0.362 0.122 275)", p3DarkValue: "oklch(0.941 0.031 275)", description: "Text and text-sized icons on `surface`. Clears the text floor against `surface`.", usedBy: ["metric-tile", "range-bar", "result-card", "score-dial"], sourcePath: "color.json#categories.sleep.roles.ink" },
+  { name: "category-sleep-accent", cssVar: "--opsin-category-sleep-accent", namespace: "color", tier: "semantic", group: "category", value: "oklch(0.58 0.14 275)", darkValue: "oklch(0.714 0.123 275)", p3DarkValue: "oklch(0.714 0.145 275)", description: "The identity fill: a bar fill, a dial track, a legend dot. Chosen for recognition, not for contrast. It must be bounded by `line` or labelled in `ink`; it is never the only thing that carries the meaning.", usedBy: ["log-sheet"], sourcePath: "color.json#categories.sleep.roles.accent" },
   { name: "category-heart-50", cssVar: "--opsin-category-heart-50", namespace: "color", tier: "primitive", group: "category", value: "oklch(0.972 0.014 15)", p3Value: "oklch(0.972 0.018 15)", description: "Heart ramp, step 50.", usedBy: [], sourcePath: "color.json#categories.heart.steps.50" },
   { name: "category-heart-100", cssVar: "--opsin-category-heart-100", namespace: "color", tier: "primitive", group: "category", value: "oklch(0.941 0.03 15)", p3Value: "oklch(0.941 0.039 15)", description: "Heart ramp, step 100.", usedBy: [], sourcePath: "color.json#categories.heart.steps.100" },
   { name: "category-heart-200", cssVar: "--opsin-category-heart-200", namespace: "color", tier: "primitive", group: "category", value: "oklch(0.884 0.062 15)", p3Value: "oklch(0.884 0.081 15)", description: "Heart ramp, step 200.", usedBy: [], sourcePath: "color.json#categories.heart.steps.200" },
