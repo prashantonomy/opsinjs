@@ -1,6 +1,6 @@
 ---
 title: Colour roles
-description: The three roles every colour token plays — surface, line and ink — and the rule that a contrast guarantee attaches to a pair, never to a colour.
+description: The four roles every colour token plays — surface, line, ink and accent — and the rule that a contrast guarantee attaches to a pair, never to a colour.
 status: stable
 kind: foundation
 aliases: [surface line ink, semantic colour, token naming, measured pair, role tokens]
@@ -16,10 +16,12 @@ a11yDate: 2026-09-02
 ## Overview
 
 A ramp of eleven steps is not a colour system, because it does not tell you
-which step to use. Roles are the layer that does. opsinjs has exactly three of
-them — `surface`, `line` and `ink` — and the reason there are three rather than
-thirty is that three is the number of distinct *contrast obligations* a colour
-can have.
+which step to use. Roles are the layer that does. opsinjs has four of them —
+`surface`, `line`, `ink` and `accent` — and the reason there are four rather
+than thirty is that three is the number of distinct *contrast obligations* a
+colour can have, plus one deliberate exception. `accent` clears no floor of its
+own: it is chosen for recognition rather than for legibility, which is exactly
+why it may never carry text and may never be an element's only boundary.
 
 The important idea on this page is not the naming. It is this:
 
