@@ -324,8 +324,16 @@ export interface AxisConflict {
  * THE NEVER-MIX RULE, as a function.
  *
  * Returns a conflict when a single surface has been given both a category and a
- * clinical status. `<StatusAxisDemo>` calls this and REFUSES to render the
- * mixed pair; the dev-mode warning OPSIN-0001 is the same check at runtime.
+ * clinical status. `<StatusAxisDemo>` in this documentation calls it and
+ * REFUSES to render the mixed pair. Nothing else calls it: none of the shipped
+ * components resolves both axes on one element, so none of them has anything to
+ * report, and a blanket per-props call would flag every correct tile and card
+ * (`metric-tile.tsx` and `result-card.tsx` say so at their own tops). What
+ * catches the mistake today is A11Y008 in `scripts/check-a11y.mts`, a static
+ * check over component sources — which runs here and does not run in a consumer
+ * project, so do not build on a warning appearing at runtime. OPSIN-0001 is
+ * reserved in `tokens/errors.json` for the day a component does resolve both
+ * axes and has to report it; this is the function it will call.
  *
  * Both axes may appear on one SCREEN — a heart-tinted card containing a
  * `watch` pill is correct and common. What may not happen is one surface
@@ -475,11 +483,18 @@ export const OUTLINE_IS_EXACT: Record<Exclude<Kind, "component">, boolean> = {
  * way. `## Clinical meaning` is included here but is mandatory only for a
  * `health-*` category and forbidden outside one; `assert-ia.mts` checks both
  * directions, which is why it is listed separately below.
+ *
+ * `considered` is the short one, and it is a real outline rather than an empty
+ * list. Those pages are not authored: `emitConsideredStub()` in
+ * `scripts/build-registry.mts` generates each one from its catalogue row with
+ * exactly these three headings, which is the whole of what ADR 0008 allows a
+ * page for a component nobody has designed. Leaving the entry out would make
+ * `componentSections("considered", …)` empty, and the machine-readable page
+ * contract `<PageTemplate>` emits would then tell an agent that a considered
+ * page is entitled to no sections at all — while the page in front of it has
+ * three. Keep this list and the generator in step.
  */
-export const COMPONENT_SECTIONS_BY_STATUS: Record<
-  Exclude<Status, "considered">,
-  string[]
-> = {
+export const COMPONENT_SECTIONS_BY_STATUS: Record<Status, string[]> = {
   planned: [
     "Status",
     "Preview",
