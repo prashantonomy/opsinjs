@@ -82,8 +82,8 @@ function notImplementedSentence(name?: string, status?: Status): string {
  * The visually-hidden half of the marker. Rendered inside every not-built
  * surface; never rendered on its own.
  */
-function MachineSentence({ name }: { name?: string }) {
-  return <p className="sr-only">{notImplementedSentence(name)}</p>
+function MachineSentence({ name, status }: { name?: string; status?: Status }) {
+  return <p className="sr-only">{notImplementedSentence(name, status)}</p>
 }
 
 /* --------------------------------------------------------------------------
@@ -128,20 +128,33 @@ export function NotBuiltYet({
         className
       )}
     >
-      <MachineSentence name={name} />
+      <MachineSentence name={name} status={status} />
       <CircleDashed aria-hidden="true" className="size-5 opacity-60" />
       <p className="m-0 text-sm font-medium text-foreground">
         {name ? <code className="text-sm">{name}</code> : what} is not built yet
       </p>
-      <p className="m-0 max-w-prose text-sm">
-        {children ?? (
-          <>
-            There is nothing to render because there is nothing to install. What
-            you can read on this page is the specification the implementation
-            will have to satisfy.
-          </>
-        )}
-      </p>
+      {/* A div, not a p. MDX wraps prose children in their own <p>, and a <p>
+          inside a <p> is closed by the HTML parser at the inner tag — the
+          browser then builds a tree React never serialised and hydration
+          throws. Same reason for the wrappers in <StubNotice>, <NoDataYet>
+          and <Todo>. */}
+      <div className="max-w-prose text-sm [&>p]:m-0 [&>p+p]:mt-2">
+        {children ??
+          (status === "considered" ? (
+            <>
+              There is nothing to render because there is nothing to install,
+              and nothing specified either. This id is reserved in the catalogue
+              so that the address answers; the page points at what to use
+              instead.
+            </>
+          ) : (
+            <>
+              There is nothing to render because there is nothing to install.
+              What you can read on this page is the specification the
+              implementation will have to satisfy.
+            </>
+          ))}
+      </div>
       <p className="m-0 flex flex-wrap items-center justify-center gap-2 text-xs">
         <StatusBadge status={status} plain />
         <Link href={routes.roadmap()}>Roadmap</Link>
