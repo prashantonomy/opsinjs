@@ -37,8 +37,11 @@ It is not the answer to "is this ready to use". That takes three things agreeing
 in the directory, the page's `status`, and the catalogue row's `status`. They are moved
 together, in one commit, and only after the component renders at `/view` and the gates
 pass. A file can be in the directory and the component still not be a component — a
-throwaway used to prove the pipeline is exactly that, and the honest signal is that the
-page is still `planned` and still carries its `<StubNotice>`.
+helper or a throwaway dropped in beside them picks up a `/view` route and a preview with
+no catalogue row behind it, and the honest signal there is that the page is still
+`considered` and still carries its `<StubNotice status="considered">`. Component pages
+sit at `alpha` or at `considered` and at nothing else; `planned` is a status for pages
+that are not components, and it says nothing about code.
 
 ## 2. This is not the Next.js you know
 
@@ -105,13 +108,23 @@ Node type stripping rejects anything that needs code generation.
 Prop tables, token tables, data-attribute tables, CSS-variable tables, contrast numbers,
 bundle sizes, catalogue rows and the glossary are **generated** into committed files.
 `pnpm check:generated` regenerates and then does `git add -N . && git diff --exit-code`
-over seven paths — `lib/generated`, `registry/__index__.ts`, `registry/generated`,
-`app/tokens.generated.css`, `content/docs/reference/generated`,
-`content/docs/reference/api` and `public/r`. The list here is the one in
-`apps/www/package.json`'s `check:generated` script; if the two ever disagree, that
-script wins and this line is the bug. If you hand-edit one of those paths, CI fails —
-which is the point. Change the source (`tokens/*.json`, `registry/catalogue.ts`, or the
-file under `registry/bases/` the generator reads) and regenerate.
+over nine paths — `lib/generated`, `lib/opsinjs.ts`, `registry/__index__.ts`,
+`registry/generated`, `app/tokens.generated.css`, `content/docs/reference/generated`,
+`content/docs/reference/api`, `content/docs/handbook/error-codes.mdx` and `public/r`.
+The list here is the one in `apps/www/package.json`'s `check:generated` script; if the
+two ever disagree, that script wins and this line is the bug. If you hand-edit one of
+those paths, CI fails — which is the point. Change the source (`tokens/*.json`,
+`registry/catalogue.ts`, or the file under `registry/bases/` the generator reads) and
+regenerate.
+
+Two of those nine paths are hand-written files carrying one spliced generated region
+each: `lib/opsinjs.ts`, the substrate `shadcn add` copies into a consumer's project, and
+`content/docs/handbook/error-codes.mdx`. The prose outside the markers is yours to write;
+everything between them is rewritten by `build-tokens.mts` on every run. And one
+generated output is not on the list at all — the 36 `considered` stubs under
+`content/docs/components`, which `node scripts/build-registry.mts --check` guards
+instead. CI runs that check *before* `generate`, because afterwards it would only be
+comparing freshly written files with themselves.
 
 `app/tokens.generated.css` is emitted by `scripts/build-tokens.mts`. `app/globals.css`
 owns only the one `@import` line that pulls it in, at its fixed position.
