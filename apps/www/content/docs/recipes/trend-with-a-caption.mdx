@@ -27,17 +27,21 @@ is wrong the moment the reader is somebody for whom down is not good.
 
 ## What you need
 
-<NotBuiltYet />
+Everything the chart itself needs is at `alpha`: the code exists and installs,
+the API may change in any release without a deprecation cycle, and none of it
+has been through an accessibility or a clinical review. The last row is
+`considered` — reserved names, no code — so the band labels and the data-table
+twin are yours to build until those land.
 
 | Part | Component | Status | What it does here |
 | --- | --- | --- | --- |
-| The series | [TrendSparkline](../components/trend-sparkline.mdx) | <StatusBadge status="planned" /> | The line or points, the axis rules, and the data-table twin. |
-| The current value | [Value](../components/value.mdx) | <StatusBadge status="planned" /> | The latest reading, formatted once. |
-| The window | [RelativeTime](../components/relative-time.mdx) | <StatusBadge status="planned" /> | The period the trend covers and when it ends. |
-| Unfamiliar words | [Term](../components/term.mdx) | <StatusBadge status="planned" /> | Plain-English expansion in the caption. |
-| The container | [Card](../components/card.mdx) | <StatusBadge status="planned" /> | Chart, caption and table as one unit. |
-| The glance version | [MetricTile](../components/metric-tile.mdx) | <StatusBadge status="planned" /> | Where a sparkline is a decoration, not the point. |
-| Loading and empty | [Skeleton](../components/skeleton.mdx) · [EmptyState](../components/empty-state.mdx) | <StatusBadge status="planned" /> | Never a flat line at zero while loading. |
+| The series | [TrendSparkline](../components/trend-sparkline.mdx) | <StatusBadge status="alpha" /> | The line or points, the axis rules, and the accessible description of the series. |
+| The current value | [Value](../components/value.mdx) | <StatusBadge status="alpha" /> | The latest reading, formatted once. |
+| The window | [RelativeTime](../components/relative-time.mdx) | <StatusBadge status="alpha" /> | The period the trend covers and when it ends. |
+| Unfamiliar words | [Term](../components/term.mdx) | <StatusBadge status="alpha" /> | Plain-English expansion in the caption. |
+| The container | [Card](../components/card.mdx) | <StatusBadge status="alpha" /> | Chart, caption and table as one unit. |
+| The glance version | [MetricTile](../components/metric-tile.mdx) | <StatusBadge status="alpha" /> | Where a sparkline is a decoration, not the point. |
+| Loading and empty | [Skeleton](../components/skeleton.mdx) · [EmptyState](../components/empty-state.mdx) | <StatusBadge status="alpha" /> | Never a flat line at zero while loading. |
 | Band labels, data twin | `range-legend` · `table` | <StatusBadge status="considered" /> | Considered, not implemented. |
 
 Tokens, by family:
