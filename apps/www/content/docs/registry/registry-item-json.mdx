@@ -80,10 +80,10 @@ serves the same envelope with `implemented: false`, a `why` sentence, and no
 | --- | --- | --- |
 | `name` | The item id | Identical to the catalogue id and the docs URL segment |
 | `type` | What kind of thing this is | See the table in [registry.json](./registry-json.mdx) |
-| `title` | Human-readable name | Sentence case |
+| `title` | Human-readable name | PascalCase, the same string as the catalogue `title` and the exported component — `ResultCard`, not "Result card" |
 | `description` | One sentence | Plain English, written for the patient not the engineer |
-| `author` | Attribution | Omitted; the registry's `homepage` is the attribution |
-| `dependencies` | npm packages | Kept as small as possible; a health component that pulls a charting library is a design failure |
+| `author` | Attribution | The literal string `opsinjs` on every item; the registry's `homepage` carries the URL |
+| `dependencies` | npm packages | Kept as small as possible, and omitted rather than sent empty; a health component that pulls a charting library is a design failure |
 | `devDependencies` | npm dev packages | Unused |
 | `registryDependencies` | Other items, by name or full URL | Composition is explicit — `result-card` names `status-pill`, it does not inline it |
 | `files` | The code, with `path`, `type`, optional `target` and `content` | Empty today |
