@@ -457,7 +457,7 @@ export function NoDataYet({
             <code className="text-xs">{command}</code> and reload.
           </>
         )}
-      </p>
+      </div>
       <p className="m-0 mt-2 text-xs">
         Nothing on this site types a measured number by hand, so an ungenerated
         table shows this rather than an example.
@@ -498,6 +498,11 @@ export interface TodoProps {
  * unwritten will not mistake silence for a considered answer.
  */
 export function Todo({ children, owner, issue, className }: TodoProps) {
+  // Null when the id is the `#0` placeholder; see issueHref. The reference is
+  // still printed, because "issue not filed yet" is information — it just is
+  // not a link to anywhere that resolves.
+  const issueUrl = issue ? issueHref(issue) : null
+
   if (typeof window === "undefined") {
     // Prerender-time signal. One line per occurrence, greppable, no stack.
     console.warn(
@@ -508,7 +513,7 @@ export function Todo({ children, owner, issue, className }: TodoProps) {
   }
 
   return (
-    <p
+    <div
       data-opsinjs-todo=""
       data-owner={owner}
       className={cn(
