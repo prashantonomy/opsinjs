@@ -340,18 +340,20 @@ export function StubNotice({
         ) : null}
 
         <p className="m-0 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
-          {issue ? (
-            <a
-              href={issueHref(issue)}
-              rel="noreferrer noopener"
-              target="_blank"
-            >
+          {issueUrl ? (
+            <a href={issueUrl} rel="noreferrer noopener" target="_blank">
               Tracking issue {issue}
             </a>
           ) : (
             <span>No tracking issue yet.</span>
           )}
-          <Link href={routes.roadmap()}>Roadmap</Link>
+          {status === "considered" ? (
+            <Link href={routes.components()}>
+              Every component and its status
+            </Link>
+          ) : (
+            <Link href={routes.roadmap()}>Roadmap</Link>
+          )}
           <Link href={docsPath("project", "proposals")}>
             Propose a change to this specification
           </Link>
