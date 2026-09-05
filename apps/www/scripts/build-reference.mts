@@ -775,9 +775,13 @@ function keyboardPage(): PageSpec {
       "a measurement, and an aggregate that lost that distinction would be worse than",
       "no aggregate.",
     ].join("\n"),
+    /* The blocks exist; the parser does not. Aggregating them also has to carry
+       each row's status with it - a `<KeyboardTable>` on a `planned` page states
+       a requirement, not a measured behaviour - and a flat table that dropped
+       that would read as evidence for keys nobody has pressed. */
     body: noData(
       "scripts/build-reference.mts",
-      "Nothing is built yet, so there is no measured keyboard behaviour to aggregate. The global contract every component must meet is in Accessibility under Keyboard and focus.",
+      "This script does not parse the `<KeyboardTable>` blocks yet, so nothing is aggregated here - not because no component documents its keys. Every component page carries its own table, and that is where the contract is readable today. The global contract every component must meet is in Accessibility under Keyboard and focus.",
     ),
   }
 }
@@ -914,10 +918,13 @@ function typesPage(symbols: ExportedSymbol[]): PageSpec {
       "scroll to reliably. The summary column is the first sentence of the symbol's own",
       "doc comment - if it reads badly here, fix the comment, not this page.",
       "",
-      "Component prop interfaces are not listed yet. They arrive through",
-      "`fumadocs-typescript` from a named exported interface on each component, and no",
-      "component exists. The clinical vocabulary types - the status ladder and the",
-      "category set - are here today because they live in `lib/`, not in a component.",
+      "Component prop interfaces are not in this table, and not because they do not",
+      "exist. `extractPropsInterfaces()` in this same script reads the named",
+      "`export interface <Component>Props` out of each `registry/bases/base/*.tsx` and",
+      "emits it to `lib/generated/props.ts`, which is what a component page's props",
+      "table renders. This table lists what `lib/` exports - the clinical vocabulary",
+      "types, the status ladder and the category set - because those are the symbols",
+      "`<ApiLink>` has to resolve to an address of their own.",
     ].join("\n"),
     body:
       symbols.length === 0
