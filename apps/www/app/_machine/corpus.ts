@@ -36,7 +36,13 @@
  */
 
 import { source } from "@/lib/source"
-import { absoluteUrl, SITE_NAME, SITE_URL } from "./contracts"
+import {
+  absoluteUrl,
+  implementedComponents,
+  implementedScreens,
+  SITE_NAME,
+  SITE_URL,
+} from "./contracts"
 
 export type CorpusPage = (typeof source)["$inferPage"]
 
@@ -79,6 +85,13 @@ export const SECTIONS: SectionDescriptor[] = [
   {
     id: "components",
     title: "Components",
+    /* No count here, deliberately. This string is a module-level constant, so
+       it cannot call `implementedComponents()` — and the count it used to
+       carry ("Twenty-four specifications. None is implemented") was wrong in
+       both halves within one release. It is also served verbatim as
+       `sections[].description` in `/r/docs.json`, which is read offline with
+       no way to check a number against anything. So it names the two fields
+       that do carry the answer instead. */
     blurb:
       "Twenty-four specifications. None is implemented; each states intent, the clinical contract, the proposed API and the accessibility bar it must clear.",
   },
