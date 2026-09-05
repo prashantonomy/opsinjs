@@ -15,12 +15,17 @@ Most design systems cannot answer the question "which icons does this system rel
 on?" — the glyphs are imported one by one in whichever component happens to need
 them, and the only way to find out is to grep.
 
-opsinjs answers it, because components do not import glyphs. They ask for a
-**role**: the icon for *status: urgent*, for *category: sleep*, for *action:
-dismiss*. A single mapping resolves each role to a lucide name, and this page is
-that mapping, generated.
+opsinjs answers it for the half of the set that is mapped, and this page is
+where the rest is specified. The design is that a component asks for a **role** —
+the icon for *status: urgent*, for *category: sleep*, for *action: dismiss* —
+and a single mapping resolves each role to a lucide name.
 
-<NoDataYet script="scripts/build-registry.mts" />
+<NoDataYet what="The generated role-to-glyph table" script="scripts/build-registry.mts">
+No generator emits icon data yet: `scripts/build-registry.mts` reads the
+catalogue and the component sources and has no icon step, so running it will not
+fill this table. What exists instead is described below, in prose, with the file
+that holds it.
+</NoDataYet>
 
 The mapping does not exist yet, because nothing is built. What is fixed now is
 the shape of it, and the shape is what makes the rest possible: swapping a glyph
