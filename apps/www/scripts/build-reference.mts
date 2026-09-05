@@ -185,6 +185,21 @@ interface PageSpec {
   body: string
 }
 
+/**
+ * The FIRST-CREATION page, not the shipped one. assemble() calls this only when
+ * the target file is absent, so for all eight reference pages - every one of
+ * which exists - the `howItIsGenerated` prose in this file is unread, and what
+ * a reader sees above the `opsinjs:generated:begin` marker is the hand-written
+ * half of the .mdx, frontmatter included. Editing a `howItIsGenerated` block
+ * changes no shipped byte; it changes what would be written if that page were
+ * ever deleted and regenerated, which is the documented recovery route, so the
+ * blocks still have to be true.
+ *
+ * Note what a from-scratch header loses: the shipped pages carry `owner`,
+ * `reviewed`, `reviewer`, `reviewEvery` and `aliases` in their frontmatter and
+ * this header writes none of them, so a regenerated page needs those restored
+ * by hand before check-freshness can see it again.
+ */
 function defaultHeader(spec: PageSpec): string {
   return [
     "---",
@@ -310,7 +325,7 @@ function tokensPage(tokens: GeneratedToken[]): PageSpec {
               cell(token.description),
               code(token.value),
               token.darkValue ? code(token.darkValue) : "same",
-              token.usedBy.length > 0 ? cell(token.usedBy.join(", ")) : "not yet",
+              token.usedBy.length > 0 ? cell(token.usedBy.join(", ")) : "no component",
             ])
           return [
             `#### ${group}`,
