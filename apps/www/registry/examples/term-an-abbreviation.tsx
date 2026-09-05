@@ -60,7 +60,7 @@ const GLOSSARY: readonly GlossaryEntry[] = [
 export default function TermAnAbbreviation() {
   return (
     <TermGlossaryProvider glossary={GLOSSARY}>
-      <div className="flex w-full max-w-(--opsin-measure-comfortable) flex-col gap-opsin-4 text-opsin-body">
+      <div className="flex w-full max-w-(--opsin-measure-comfortable,66ch) flex-col gap-opsin-4 text-opsin-body">
         <p className="m-0">
           A wrist device reports <Term id="spo2" />, and it is an estimate rather
           than a measurement — movement, cold hands and skin tone all affect it.
