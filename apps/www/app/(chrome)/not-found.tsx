@@ -1,5 +1,7 @@
 import Link from "next/link"
 
+import { getConsidered } from "@/lib/catalogue"
+import { builtComponentCount } from "@/lib/registry"
 import { agentRoutes, registryRoutes, routes } from "@/lib/routes"
 
 /**
@@ -12,7 +14,9 @@ import { agentRoutes, registryRoutes, routes } from "@/lib/routes"
  * nearest not-found boundary instead, and without this file it fell through to
  * Next's built-in page: an empty server-rendered body, no `lang`, no title, with
  * the real copy painted only after hydration. This file renders inside the real
- * root layout, so it is server-rendered, styled, and reachable without JS.
+ * root layout, so it is server-rendered, styled, and reachable without JS — and
+ * it carries its own `<title>`, because the root layout it renders inside
+ * exports no metadata and a 404 with no title is announced by its URL.
  */
 export default function NotFound() {
   return (
