@@ -361,7 +361,7 @@ export function IconBrowser() {
           group.title.toLowerCase().includes(needle)
       ),
     })).filter((group) => group.icons.length > 0)
-  }, [normalised])
+  }, [needle])
 
   const total = GROUPS.reduce((count, group) => count + group.icons.length, 0)
   const shown = groups.reduce((count, group) => count + group.icons.length, 0)
@@ -391,7 +391,7 @@ export function IconBrowser() {
           a documented job, not a mirror of the whole lucide library — if what
           you need is not here, that is a question for{" "}
           <span className="font-medium">Proposing a component</span> rather than
-          a search that failed.
+          a search that found nothing.
         </p>
       ) : null}
 
