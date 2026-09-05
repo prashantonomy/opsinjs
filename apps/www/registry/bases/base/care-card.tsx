@@ -751,7 +751,30 @@ export function CareCard({
      silence. */
   const askedForAction = supplied.length > 0 && controls.length === 0
 
-  const Heading = `h${headingLevel}` as "h2" | "h3" | "h4" | "h5" | "h6"
+  /* THE LEVEL IS CHECKED, FOR THE REASON EVERY OTHER PROP HERE IS CHECKED. A
+     type is advice in the JavaScript project this file ships into, and a level
+     is exactly the prop a caller computes rather than types — `headingLevel={
+     section.depth + 1}`, or a number off a CMS row. `headingLevel={7}` builds
+     `<h7>`, an unknown element with no heading role at all, so this card's
+     instruction — which is the whole component — drops out of the document
+     outline and out of a screen reader's heading list while the `aria-label` on
+     the section below still advertises a named region with nothing navigable in
+     it. `headingLevel={1}` puts a second `h1` on the page. Both fall back to the
+     documented default rather than being rendered. */
+  const LEVELS = [2, 3, 4, 5, 6]
+  let level = headingLevel
+  if (!LEVELS.includes(level)) {
+    warnDev(
+      `heading-level:${String(headingLevel)}`,
+      `[opsinjs] <CareCard> was given headingLevel ${String(headingLevel)}. The ` +
+        "instruction is a real heading and the level has to be one a document " +
+        "outline has: 2 to 6. An h1 makes a card compete with the page's own " +
+        "name and anything outside the range is not a heading element at all. " +
+        "It was rendered at the default, 3.",
+    )
+    level = 3
+  }
+  const Heading = `h${String(level)}` as "h2" | "h3" | "h4" | "h5" | "h6"
 
   return (
     /* A `section` with a name is a region, which is what makes the card
