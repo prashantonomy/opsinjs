@@ -31,7 +31,7 @@ import { DisclaimerNote } from "@/registry/base-lyra/ui/disclaimer-note"
 
 export default function DisclaimerNoteNoTextSupplied() {
   return (
-    <div className="w-full max-w-(--opsin-measure-comfortable)">
+    <div className="w-full max-w-(--opsin-measure-comfortable,66ch)">
       {/* No children, which is what `{wording.forThisLocale}` looks like on the
           day the locale has no wording. A development warning names the same
           thing in the console, so an author working on the screen finds it
