@@ -497,7 +497,6 @@ function spokenScore(score: number, places: number | undefined, locale: string |
   return new Intl.NumberFormat(locale, {
     minimumFractionDigits: places,
     maximumFractionDigits: places ?? MAX_FRACTION_DIGITS,
-    roundingMode: "halfExpand",
   }).format(score)
 }
 
@@ -727,7 +726,13 @@ export function ScoreDial({
   const derivationWords = derivationGiven
     ? derivation
     : "We cannot say what went into this score."
-  const bandSourceWords = bandSources.length > 0
+  /* ATTRIBUTION IS ALL-OR-NOTHING. The gate is `bandSourcesComplete`, not
+     "some band named a source": printing "Bands from Dr Okafor's 2025 review."
+     over a list where only the first interval came from that review credits the
+     rest of the scale to somebody who never chose it, which is a
+     reference-range-class claim with a false author — the thing OPSIN-0004
+     exists to stop. One unattributed band makes the whole set unattributed. */
+  const bandSourceWords = bandSourcesComplete
     ? `Bands from ${bandSources.join("; ")}.`
     : "We do not know whose bands these are."
 
