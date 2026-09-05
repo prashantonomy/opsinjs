@@ -40,11 +40,15 @@ match, the cause, and the fix.
 
 ### Nothing is published yet
 
-**Symptom.** Any `shadcn add @opsinjs/...` command fails to resolve. The registry
-URL returns nothing useful. There is no `@opsinjs` package on npm.
+**Symptom.** A `shadcn add @opsinjs/...` command fails with a network or DNS
+error rather than a registry one, and `npm install` finds no `@opsinjs` package.
 
-**Cause.** This is the current state of the project, not a fault. There is no
-published package and no live registry.
+**Cause.** Two separate absences, and only the first is permanent. There is no
+npm package and there is not going to be one: opsinjs is distributed as source
+copied in through the shadcn CLI, so `npm install` is not a step that is missing.
+Separately, `opsinjs.dev` — the canonical host every command on this site names,
+and the URL the `registries` entry is written with — is not serving yet, so a
+`components.json` pointing there fails before the CLI reaches a registry at all.
 
 **Fix.** None, and none is needed. Every installation page on this site carries
 this warning at the top. If you are evaluating opsinjs, the specification is what
