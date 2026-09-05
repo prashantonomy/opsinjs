@@ -98,9 +98,13 @@ the parts that make the system self-checking. A fork that keeps the tokens and
 drops the checks has kept the values and lost the guarantee, and it will drift
 within one release.
 
-**Keep the version stamps.** They are how your own developers will later work
-out which upstream version a file came from. See
-[Version stamps](./version-stamps.mdx).
+**Emit a version stamp.** There is nothing upstream to keep — opsinjs specifies
+the stamp and does not yet write one, for the reasons on
+[Version stamps](./version-stamps.mdx) — but a fork is not blocked by either of
+them: your catalogue rows can carry real versions, and you own the generator that
+emits the files. One comment naming your registry, the item and the version is
+how your own developers will later work out which version a copied file came
+from.
 
 **Record the divergence.** One page in your own docs listing everything you
 changed and why. This is the single highest-value artefact of a fork and it is
@@ -154,8 +158,11 @@ adjacent to something that can.
 
 ### A consumer can install from you with no configuration
 
-Test the full-URL form from a clean project. If it needs your namespace, it is
-not really public.
+Test the full-URL form from a clean project, using an item that composes nothing.
+An item that names its siblings by namespace needs that namespace configured
+whichever form the consumer types — fourteen opsinjs items are in exactly that
+position — so either keep your leaf items self-contained, or make the namespace
+part of your published contract and say so on your own install page.
 
 ### Your catalog validates
 
