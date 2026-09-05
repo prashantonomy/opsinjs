@@ -148,21 +148,20 @@ covers the page while leaving it recognisable is `sheet`, chrome that content
 passes beneath is `overlay`, and anything else that needs to look lifted is
 `raised`, opaque, with a shadow. There is no half-translucent card.
 
-**A toast is `raised`, not `bar`.** A toast appears over arbitrary content it
+**A toast is `raised`, not `overlay`.** A toast appears over arbitrary content it
 knows nothing about, frequently over a photograph or a chart, and it usually
 carries a message that matters. It must not depend on what is behind it, so it
 is opaque.
 
-**Rung 5 never appears without rung 4.** A scrim exists to isolate an overlay. A
-dimmed screen with nothing on top of it is a loading state pretending to be a
-modal.
+**A `scrim` never appears alone.** A scrim exists to isolate a `sheet`. A dimmed
+screen with nothing on top of it is a loading state pretending to be a modal.
 
 <DoDont>
   <DoDont.Do>
-    A results list on `ground`, sections grouped as `panel`, each tappable
-    reading as `raised`, a sticky summary bar as `bar`, and a detail sheet as
-    `overlay` over a `scrim`. Five rungs on one screen, at most three of them
-    composited at any moment.
+    A results list on `canvas`, each reading as a `card`, a menu opened from a
+    row as `raised`, a sticky summary bar as `overlay`, and a detail panel as a
+    `sheet` over a `scrim`. Six rungs on one screen and never more than three
+    composited at any moment, because only the last three are translucent.
   </DoDont.Do>
   <DoDont.Dont>
     Every card given the `bar` material because the frosted look reads as
