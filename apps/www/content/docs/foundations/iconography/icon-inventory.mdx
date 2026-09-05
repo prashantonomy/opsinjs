@@ -27,10 +27,23 @@ fill this table. What exists instead is described below, in prose, with the file
 that holds it.
 </NoDataYet>
 
-The mapping does not exist yet, because nothing is built. What is fixed now is
-the shape of it, and the shape is what makes the rest possible: swapping a glyph
-is one line, auditing the whole set is one table, and a product that wants its own
-icon library replaces the mapping rather than editing components.
+**The status half of the mapping is live.** `CLINICAL_STATUS_META[level].icon`
+in `lib/status.ts` names the lucide glyph for each of the four levels and for
+`unknown`, and `lib/status.ts` ships inside all twenty-four implemented registry
+items. `StatusPill`, `RangeBar` and `ScoreDial` each keep a local binding from
+that name to a component and assert in development that the two agree, so the
+four shapes cannot drift apart from the four words.
+
+**The other halves are not mapped.** Category, data-state, action and provenance
+roles have no table, and eight built components import their glyphs from lucide
+directly as a result. That is a debt this page records, not a design: a direct
+import is invisible to this table, to the contrast audit and to anybody swapping
+the icon set.
+
+What is fixed now is the shape of the whole set, and the shape is what makes the
+rest possible: swapping a glyph is one line, auditing the whole set is one table,
+and a product that wants its own icon library replaces the mapping rather than
+editing components.
 
 The browsable version, where you can search and copy, is at
 [/icons](/icons); this page is the reference form of the same data.
@@ -71,9 +84,11 @@ and the generator is where that could be checked mechanically.
 
 ## Using it
 
-**Reference the role, never the glyph.** `icon(status.urgent)` rather than
-importing the lucide component. A direct import is invisible to this table, to
-the contrast audit and to anybody swapping the icon set.
+**Reference the role, never the glyph, wherever a role exists.** For status,
+that means resolving through `CLINICAL_STATUS_META[level].icon` rather than
+choosing a lucide component yourself. For the roles with no mapping yet, keep the
+glyph in one place per role rather than at each call site, so that the eventual
+mapping is a move rather than a hunt.
 
 **Check the accessible-name column before shipping an icon-only control.** If the
 role has no default name, the control needs one written for it, describing the
