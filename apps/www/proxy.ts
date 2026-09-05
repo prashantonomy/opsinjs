@@ -131,13 +131,13 @@ export default function proxy(request: NextRequest) {
     return NextResponse.redirect(target, rule.permanent ? 308 : 307)
   }
 
-  // Case normalisation, documentation paths only. Query and hash are preserved
-  // so a deep link into a section survives the redirect.
+  // Case folding, documentation paths only. Query and hash are preserved so a
+  // deep link into a section survives the redirect.
   //
   // The per-symbol API pages are the one exception, and they have to be. Their
   // slugs ARE TypeScript symbol names (addendum B11: <ApiLink> resolves to
   // /docs/reference/api/<Symbol>), so `Oklch` and `oklch` are two different
-  // exports and lower-casing is not a normalisation but a rename. Without this
+  // exports and lower-casing is not a canonical form but a rename. Without this
   // guard every one of those pages 308s to a URL that does not exist, which is
   // exactly what it did: 43 pages and every .md twin returned 404 while each
   // page itself built and prerendered perfectly.
