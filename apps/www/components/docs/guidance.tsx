@@ -30,13 +30,21 @@ import { cn } from "@/lib/utils"
    levels — steady, watch, attention, urgent — as well as fumadocs' own info/
    warn/error types, and maps the clinical ones onto the same tokens the product
    uses. A documentation site that admonishes in one colour language while
-   teaching another is teaching two.
+   teaching another is teaching two. `expected` and `act` are dead vocabulary:
+   they are not accepted here, and reintroducing either — in a comment, a
+   default or an identifier — puts the two vocabularies back.
 
    EVIDENCE IS DECLARED, NEVER IMPLIED. <ResearchNote> and <ClinicalNote> take
    an `evidence` value and a date, and `cited` means a source a reader can open.
    An honest `opinion` is always better than a plausible reference: a fabricated
    citation in a health document is the single worst thing this repository could
    contain, and it is the easiest thing for a generated page to produce.
+
+   A REDIRECTION IS ONLY AS GOOD AS ITS DESTINATION. <WhenToUse> resolves the
+   id it is about to send a reader to, and says so when nothing has been built
+   behind it. This file is therefore server-only, like status.tsx and
+   anatomy.tsx: it reads the catalogue and the registry index, and adding
+   "use client" to it would drag both into a browser bundle.
    ========================================================================== */
 
 /** Pull plain text out of arbitrary children, for counting and for aria. */
@@ -135,9 +143,7 @@ export function SafetyCallout({
    * quietly downgraded), render a visible defect notice, and log it. The
    * authoritative gate is assert-ia, which fails on the source.
    */
-  const level: ClinicalStatus = isClinicalStatus(severity)
-    ? severity
-    : "urgent"
+  const level: ClinicalStatus = isClinicalStatus(severity) ? severity : "urgent"
   const meta = CLINICAL_STATUS_META[level]
 
   if (!isClinicalStatus(severity) && typeof window === "undefined") {
