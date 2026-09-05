@@ -128,8 +128,12 @@ the check reports what failed and keeps no picture of what passed.
 
 ## Known gaps
 
-- **Nothing has been tested at 200%,** because nothing renders yet. The
-  mechanism exists and is verifiable in `app/product.css`; the result does not.
+- **No 200% result is published.** The check exists and has real routes to
+  point at — every implemented component renders at `/view` and
+  `scripts/check-a11y.mts --layout` loads them through `?text=200` — but it
+  needs Playwright, which is deliberately in no `package.json`, so it runs only
+  in the nightly workflow and nothing on this site reports what a run found. The
+  mechanism is verifiable in `app/product.css`; the result is not.
 - **Text spacing (SC 1.4.12) is not addressed anywhere in this system.** Line
   height is a token; the behaviour of the layout when a user stylesheet
   overrides it is untested and unspecified.
