@@ -1673,9 +1673,8 @@ function checkBannedWords(
     const text = identifier[0]
     const segments = identifierSegments(text).map((segment) => segment.toLowerCase())
     for (const entry of single) {
-      /* The whole-file pass above already has the bare word; this pass is only
-         for the compound, where a word boundary cannot reach. */
-      if (lowered === entry.word) continue
+      /* IDENTIFIER_SUFFIXES carries the empty suffix, so a bare `normal` is a
+         segment that equals the word and is caught here like any other. */
       const hit = segments.some((segment) =>
         IDENTIFIER_SUFFIXES.some((suffix) => segment === `${entry.word}${suffix}`),
       )
@@ -1740,11 +1739,27 @@ function checkViewPalette(file: string, source: string, starts: number[]): void 
   const chromeVariable =
     /(?<![\w-])--(secondary|accent|destructive|popover|sidebar|chart-[1-5]|radius-[234]xl|font-heading)(?:-[a-z-]+)?(?![\w-])/g
   while ((match = chromeVariable.exec(source)) !== null) {
+    /* TWO FAILURE MODES, AND NAMING THE WRONG ONE COSTS A DEBUGGING HOUR.
+       Most of the names this regex catches - --secondary, --accent, --popover,
+       --sidebar, --chart-N, --font-heading - are docs-chrome inventions that
+       exist in no other stylesheet, so a component that reads one gets nothing
+       and the declaration is dropped. --radius-2xl, --radius-3xl and --radius-4xl
+       are different: Tailwind's own default theme declares them, so the read
+       succeeds and returns a value the opsinjs scale never chose. The corner
+       diverges rather than vanishing, which is why it survives review. The
+       sibling `rounded-2xl` rule above already words it this way; the two must
+       agree, because they are the same defect reached through two spellings. */
+    const fallsThroughToTailwind = (match[1] ?? "").startsWith("radius-")
     fail(
       "A11Y011",
       file,
-      `\`${match[0]}\` is declared only in app/globals.css and resolves to nothing ` +
-        "under /view. Everything a component may reach for is in app/product.css's " +
+      `\`${match[0]}\` is declared only in app/globals.css` +
+        (fallsThroughToTailwind
+          ? ", so under /view it falls through to Tailwind's own default and stops " +
+            "being a multiple of the system's corner. Use --opsin-radius-xl, or " +
+            "rounded-xl."
+          : " and resolves to nothing under /view.") +
+        " Everything a component may reach for is in app/product.css's " +
         "@theme inline block or in app/tokens.generated.css, which both stylesheets " +
         "import.",
       lineAt(starts, match.index),
