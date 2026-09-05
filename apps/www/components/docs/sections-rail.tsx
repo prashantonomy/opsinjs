@@ -92,7 +92,7 @@ export function SectionsRail({ className }: SectionsRailProps) {
                    product floor and is not claimed to: the chrome is dense by
                    design, and the floor is a rule about product surfaces. */
                 className={cn(
-                  "block border border-border px-1.5 py-0.5 text-[0.6875rem] no-underline",
+                  "block border border-border px-1.5 py-1.5 text-[0.6875rem] no-underline",
                   active
                     ? "border-foreground bg-foreground text-background"
                     : "text-muted-foreground hover:text-foreground"
