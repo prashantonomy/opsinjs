@@ -113,12 +113,18 @@ know how much.
 
 ### Ship the data-table twin and the text summary
 
-Every chart in opsinjs has a text equivalent and a table equivalent, not as an
-accessibility afterthought but because they are frequently the more useful
-representations —
-[Accessible charts](../foundations/data-visualisation/accessible-charts.mdx). If
-the table is hidden behind a control, that control is visible and keyboard
-reachable, and the summary sentence is always present.
+A chart needs a text equivalent and a table equivalent, not as an accessibility
+afterthought but because they are frequently the more useful representations —
+[Accessible charts](../foundations/data-visualisation/accessible-charts.mdx).
+
+`TrendSparkline` supplies the text half. Its accessible description names what
+was measured, over what period, how many readings there are, what they range
+between, which way they went, and what is missing — and it says when the last
+reading was actually taken rather than letting a three-month-old series read as
+current. It does **not** supply the table half and does not point at one, because
+`table` is a considered id with no code behind it. That twin is yours to build.
+If you hide it behind a control, that control is visible and keyboard reachable,
+and the summary sentence is always present.
 
 </Steps>
 
