@@ -69,12 +69,19 @@ is likewise hand-written; only the per-symbol pages beneath it are generated.
 
 ### Empty tables are honest, not broken
 
-No component has been built. Several of these lists are therefore empty, and
-they say so with a `<NoDataYet>` block naming the script that will fill them.
-An empty generated table means the source is empty. It never means the page
-failed to load, and it is never padded with a plausible example row — a fake row
-in a reference table is indistinguishable from a real one, which is the exact
-failure this pillar exists to prevent.
+Two of the eight lists are empty — [Data attributes](generated/data-attributes.mdx)
+and [Keyboard](generated/keyboard.mdx) — and they say so with a `<NoDataYet>`
+block naming the script that will fill them. The reason is a gap in the
+aggregator rather than an empty system: the implemented components do emit data
+attributes and every component page carries its own `<KeyboardTable>`, but
+`build-reference.mts` does not yet read the component sources for the first or
+parse those blocks for the second. Each page states that on itself, because
+"empty because nothing exists" and "empty because nobody wrote the extractor" are
+different problems and only one of them gets fixed by somebody reading this. What
+an empty table never means is that the page failed to load, and it is never
+padded with a plausible example row — a fake row in a reference table is
+indistinguishable from a real one, which is the exact failure this pillar exists
+to prevent.
 
 ### Where these lists also appear
 
