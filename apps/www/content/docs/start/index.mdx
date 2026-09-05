@@ -77,7 +77,9 @@ are on tells you what you can expect from it:
   twenty-four names its intent, when *not* to use it, its clinical contract, its
   API, and the accessibility bar it must clear.
 - **Recipes and screens** — [Recipes](../recipes/index.mdx). Task-first
-  assemblies: components plus tokens plus copy rules, in one scroll.
+  assemblies: components plus tokens plus copy rules, in one scroll. The five
+  [Screens](../screens/index.mdx) specimens are specifications; none has been
+  built.
 
 Two more you will need eventually: [Handbook](../handbook/index.mdx) and
 [Theming](../theming/index.mdx) tell you how to *change* things, and
@@ -85,15 +87,23 @@ Two more you will need eventually: [Handbook](../handbook/index.mdx) and
 
 ## Know what pre-release means here
 
-Nothing installs. There is no published package and no live registry, so every
-command on the installation pages describes an intended contract rather than a
-working path. Every one of those pages says so at the top, and every component
-page carries a machine-readable marker saying it is not implemented.
+There is code, and there is no host serving it. `opsinjs.dev` does not resolve
+yet, so the commands on the installation pages work only against a registry you
+point `@opsinjs` at yourself; and there is no npm package, which is a permanent
+answer rather than a gap — distribution is registry copy-in, decided in
+[ADR 0002](../project/decisions/0002-shadcn-registry-distribution.mdx). Every
+installation page says so at the top.
 
-The useful consequence is that the specification is reviewable *now*, while it is
-still cheap to change. If a proposed API looks wrong to you, that is the most
-valuable thing you can tell us, and [Community](../project/community.mdx) is where
-to say it.
+Everything implemented is `alpha`: the API may change in any release with no
+deprecation cycle, and none of it has been through an accessibility or a clinical
+review. A page for a `considered` id carries a machine-readable marker saying
+there is no implementation, so an agent reading the markup gets a definite answer
+rather than a plausible blank.
+
+The useful consequence is that both layers are reviewable *now*, while they are
+still cheap to change. If an API looks wrong to you, that is the most valuable
+thing you can tell us, and [Community](../project/community.mdx) is where to say
+it.
 
 ## Verify it worked
 
