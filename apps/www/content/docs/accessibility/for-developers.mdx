@@ -123,13 +123,20 @@ by a greyer colour. See
 
 ## Measured results
 
-<NoDataYet script="scripts/build-registry.mts" />
+<NoDataYet what="The aggregated conformance table" script="scripts/build-registry.mts">
+The registry holds twenty-four built components, but no generator reads an
+accessibility result out of them: `scripts/build-registry.mts` has no
+conformance step, `<A11yReport>` takes its counts as props, and `a11yDate` is
+`null` on every catalogue row. There is code to aggregate and no measurement to
+aggregate from.
+</NoDataYet>
 
 Per-component conformance blocks, keyboard tables and the aggregated keyboard
-reference are generated from the registry. The registry has no components in it,
-so there is nothing to aggregate. When components land, each one carries its own
-`<A11yReport>` and its numbers appear here and in
-[Reference](../reference/index.mdx).
+reference are all meant to be generated from the registry. Until a component has
+actually been evaluated — by a person, or by a tool that reads a rendered
+accessibility tree — its row here would be a number nobody produced, and the
+placeholder above is the honest substitute. What does run today is described
+under *Known gaps*: static source assertions, and nothing else.
 
 ## Known gaps
 
