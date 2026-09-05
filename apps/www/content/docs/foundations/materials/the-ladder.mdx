@@ -140,12 +140,13 @@ designed rather than tolerated.
 
 **Say the rung's name.** A design review conversation that contains "make it a
 bit more glassy" produces a screen with four different alphas. One that contains
-"that should be `bar`, not `overlay`" produces a screen with two.
+"that should be `overlay`, not `sheet`" produces a screen with two.
 
-**The boundary between rung 2 and rung 3 is a decision, not a gradient.** Ask:
-does content scroll under this, or does it sit on the page? Chrome that content
-passes beneath is `bar`. Anything else that needs to look lifted is `raised`,
-opaque, with a shadow. There is no half-translucent card.
+**The boundary between rung 2 and rung 3 is a decision, not a gradient.** Ask
+what is behind the surface and whether the reader still needs it: a surface that
+covers the page while leaving it recognisable is `sheet`, chrome that content
+passes beneath is `overlay`, and anything else that needs to look lifted is
+`raised`, opaque, with a shadow. There is no half-translucent card.
 
 **A toast is `raised`, not `bar`.** A toast appears over arbitrary content it
 knows nothing about, frequently over a photograph or a chart, and it usually
