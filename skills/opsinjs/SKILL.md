@@ -1,6 +1,6 @@
 ---
 name: opsinjs
-description: Use when building, reviewing or generating consumer- and patient-facing health UI with opsinjs - result cards, reference ranges, clinical status, alerts, consent, health logging, vitals, lab results - or when asked to add an opsinjs component, use its colour tokens, or answer a question about the opsinjs design system. Enforces the two-colour-axes rule, tokens over raw values, the registry namespace, and the fact that no opsinjs component has been implemented yet.
+description: Use when building, reviewing or generating consumer- and patient-facing health UI with opsinjs - result cards, reference ranges, clinical status, alerts, consent, health logging, vitals, lab results - or when asked to add an opsinjs component, use its colour tokens, or answer a question about the opsinjs design system. Enforces the two-colour-axes rule, tokens over raw values, the registry namespace, and the split between the components that are implemented and the reserved names that are not.
 ---
 
 # opsinjs
@@ -10,7 +10,12 @@ layperson reads something about their own body. Its documentation is at
 `https://opsinjs.dev`, its machine-readable index is `https://opsinjs.dev/llms.txt`,
 and every page is available as plain markdown at its own URL with a `.md` suffix.
 
-## Read this first: nothing has been implemented
+**`opsinjs.dev` is the canonical address and is not registered yet**, so every URL
+in this skill is a *path* that resolves against whichever host is serving the site
+- a local `pnpm dev` on port 4000, or a preview deployment - and not against the
+public internet today. Keep the paths; substitute the origin. If nothing is
+serving them, say that you could not reach the documentation. Answering from
+recall instead is the failure this whole skill exists to prevent.
 
 Every component in opsinjs is currently at `status: planned`. The documentation
 pages are **specifications**, not references for shipped code. There is no
