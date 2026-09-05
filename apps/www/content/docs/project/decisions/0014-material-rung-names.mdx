@@ -44,6 +44,26 @@ in a comment saying that rungs are addressed by name and never by number,
 other two sets are prose. Nothing resolves them, nothing checks them, and neither
 has ever been true of a rendered element, because no component exists yet.
 
+**Amendment, after the component layer shipped.** Two clauses above are stale and
+are left standing rather than rewritten: "because no component exists yet" here,
+and the aside under [Alternatives considered](#alternatives-considered) placing
+this decision "at a moment when none of the components that would use the names
+exists". Twenty-four components are now implemented at `alpha`, and two of them
+resolve these names in code. `surface.tsx` imports the `MaterialRung` union from
+the shared substrate, keys its translucency table off it so that adding a rung
+breaks the build rather than defaulting, and carries a table of the three retired
+names that can be told apart — `base` to `canvas`, `panel` to `raised`, `chrome`
+to `overlay`, mapped by job and not by position — so that a caller who passes one
+gets a development warning naming the rung that now does that job, and gets their
+content rendered with no material rather than dropped. `card.tsx` defaults its
+`rung` to `card`, which is the correction the first Consequence below asks for. The clause "neither has ever been true of a rendered element"
+still holds: a rendered element resolves the token names and nothing else. What
+the shipped code changes is the cost of the outstanding half — the rung table,
+`description` and alias on [The ladder](../../foundations/materials/the-ladder.mdx)
+still carry the losing vocabulary, and a reader who translates `bar` or `overlay`
+positionally against a component that now exists lands a surface at the wrong
+depth.
+
 ## Decision
 
 **The token names win.** The material ladder is `canvas`, `card`, `raised`,
