@@ -211,16 +211,28 @@ const AXIS_TINT = new RegExp(
  * page is generated from that file. A development warning is the honest channel
  * until an entry exists.
  *
- * The cost of not having a code is that this does not go through `warnOnce`,
- * which is keyed on one — so it repeats on every render that carries the
- * offending class rather than printing once per session. That is worse than
- * `warnOnce` and better than silence, and it goes away the day the table gains
- * an entry for it.
+ * Not having a code costs the substrate's `warnOnce`, which is keyed on one.
+ * It does not cost deduplication: this warning lives in a render body, so a
+ * bare `console.warn` would print on every render and twice again under Strict
+ * Mode, and a Callout inside a list that re-renders on scroll would fill the
+ * console until an author filters it — at which point the channel no longer
+ * carries its one real finding. A module-local set keyed on the offending class
+ * list says it once per distinct offence, which is as close to the policy's
+ * "once per offending call site" as a function that cannot see its own call
+ * site can get, and is what `card.tsx` and `dialog.tsx` do for the same reason.
+ * Allocating a code in `tokens/errors.json` and deleting the set is a strict
+ * improvement.
+ *
+ * The key is the class list rather than a constant, because two different
+ * offending class lists are two different mistakes in two different places and
+ * an author fixing the first still needs to be told about the second.
  *
  * It warns and renders. The class list is the caller's and the content is the
  * reader's; taking a paragraph off the screen over a styling mistake would be
  * the larger error, and a Callout with the wrong fill still says what it says.
  */
+const warnedAxisTints = new Set<string>()
+
 function warnIfTintedFromAnAxis(className: string | undefined): void {
   if (!isDevelopment() || className === undefined) return
   if (!AXIS_TINT.test(className)) return
