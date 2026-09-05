@@ -249,6 +249,7 @@ export const SHIPPED: CatalogueEntry[] = [
     ],
     healthCategory: "labs",
     registryDependencies: ["status-pill", "value", "range-bar", "relative-time", "button"],
+    usedIn: ["value-against-a-range", "health-metric-card", "results-screen"],
   },
   {
     name: "range-bar",
@@ -268,9 +269,10 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "clinical",
     a11yDate: null,
     governedBy: [
-      "reference-ranges",
       "two-colour-axes",
-      "uncertainty-and-staleness",
+      "reference-ranges",
+      "numbers-units-precision",
+      "unit-systems",
     ],
     dependencies: ["lucide-react"],
     registryDependencies: ["value"],
