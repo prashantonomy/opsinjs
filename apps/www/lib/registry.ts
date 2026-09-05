@@ -132,7 +132,12 @@ export function explainUnresolved(name: string): UnresolvedReason {
   }
 }
 
-/** True only when there is a real renderable behind this name. Currently never. */
+/**
+ * True only when there is a real renderable behind this name — a base component
+ * on disk, not a catalogue row. A `considered` id and a specified-but-unbuilt id
+ * both answer false, and so does a built id asked for at a base that does not
+ * carry it.
+ */
 export function isBuilt(
   lookup: RegistryLookup,
   base?: string,
@@ -158,6 +163,23 @@ export function listStyles(): string[] {
 /** Every entry of a kind, for the examples gallery and the screens index. */
 export function listByKind(kind: RegistryKind): RegistryEntry[] {
   return Object.values(REGISTRY_INDEX).filter((entry) => entry.kind === kind)
+}
+
+/**
+ * How many distinct components have a real renderable behind them.
+ *
+ * For prose that states the number — the landing page and the 404 both do, and
+ * a page that names a count is a page that can be caught being wrong. Deriving
+ * it means the sentence cannot outlive the fact: delete a base file and the
+ * claim moves with it, in the same build.
+ *
+ * DISTINCT NAMES, not `registryMeta().count`. That field counts index ENTRIES,
+ * which is files × bases × styles, so it would report a doubled roster the day a
+ * second style directory appears. It also counts examples and screens. The
+ * number a reader means by "how many components are there" is this one.
+ */
+export function builtComponentCount(): number {
+  return new Set(listByKind("component").map((entry) => entry.name)).size
 }
 
 /**
