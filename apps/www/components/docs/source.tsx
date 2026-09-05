@@ -351,11 +351,17 @@ export function ComponentInstall({
   const command = `npx shadcn@latest add ${site.registryNamespace}/${name}`
   const target = importPath ?? `@/components/ui/${name}`
 
+  /*
+   * Spread an object, never `unbuilt ? name : undefined`, for the reason
+   * <StubNotice> in stub.tsx spells out: an attribute set to `undefined`
+   * reaches the RSC flight payload as the string `$undefined`, which makes a
+   * built page grep as unbuilt. Both emitters have to use this form or the
+   * false positive survives in the other one.
+   */
+  const marker = unbuilt ? { "data-opsinjs-not-implemented": name } : {}
+
   return (
-    <div
-      className={cn("not-prose my-4", className)}
-      data-opsinjs-not-implemented={unbuilt ? name : undefined}
-    >
+    <div className={cn("not-prose my-4", className)} {...marker}>
       {unbuilt ? (
         <p className="sr-only">
           NOT INSTALLABLE. The opsinjs registry contains no item named {name}.
