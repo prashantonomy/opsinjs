@@ -50,16 +50,18 @@ Separately, `opsinjs.dev` — the canonical host every command on this site name
 and the URL the `registries` entry is written with — is not serving yet, so a
 `components.json` pointing there fails before the CLI reaches a registry at all.
 
-**Fix.** None, and none is needed. Every installation page on this site carries
-this warning at the top. If you are evaluating opsinjs, the specification is what
-there is to evaluate; [Roadmap](../project/roadmap.mdx) is dated and says what
-will exist when.
+**Fix.** Point `@opsinjs` at a host that is actually serving the registry items
+under `/r`; the twenty-four implemented components resolve from it with their
+complete source, and
+[Registry](../registry/index.mdx) says which components those are. If instead the
+CLI reports an *unknown* registry rather than a network failure, the cause is not
+this one at all: it is **The registry namespace is not configured**, under
+failures at install time below.
 
 ### An agent generated opsinjs code that does not exist
 
-**Symptom.** You have a file importing `@opsinjs/result-card` or
-`@/components/opsinjs/...`, nothing resolves, and nobody on the team remembers
-writing it.
+**Symptom.** You have a file importing `@/components/opsinjs/...`, nothing
+resolves, and nobody on the team remembers writing it.
 
 **Cause.** A coding assistant read a `planned` component page, treated the proposed
 API as documentation of a shipped component, and generated against it.
