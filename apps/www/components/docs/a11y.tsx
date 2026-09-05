@@ -72,6 +72,44 @@ export interface ContrastReportProps {
 }
 
 /**
+ * The measured rows, projected onto the shape the table renders.
+ *
+ * `theme` is narrowed rather than asserted: JSON gives `string`, and a cast
+ * would hide the day the generator emits a third theme.
+ */
+const MEASURED: (ContrastPair & { scope: string })[] = contrast.pairs.map(
+  (row) => ({
+    pair: row.pair,
+    scope: row.scope,
+    theme: row.theme === "dark" ? "dark" : "light",
+    apcaLc: row.apcaLc,
+    wcag: row.wcag,
+    passes: row.passes,
+  })
+)
+
+/** The scope names the file actually carries, for the empty state to name. */
+const MEASURED_SCOPES: string[] = contrast.scopes
+
+/**
+ * Which measured rows this call site is asking for.
+ *
+ * `all` is resolved here rather than in the data because it is a question about
+ * the report, not a group the generator emits. Everything else must match a
+ * scope name verbatim: guessing that `color` means "the colour scopes" would be
+ * this file inventing a grouping and publishing it as a measurement.
+ */
+function measuredPairs(
+  scope: string | undefined,
+  component: string | undefined
+): ContrastPair[] {
+  if (component) return []
+  if (!scope) return []
+  if (scope === "all") return MEASURED
+  return MEASURED.filter((row) => row.scope === scope)
+}
+
+/**
  * CI-measured APCA Lc and WCAG 2.2 ratios for every token pair a page or a
  * component uses, in both themes, against the published floor.
  *
@@ -87,7 +125,9 @@ export function ContrastReport({
   pairs,
   className,
 }: ContrastReportProps) {
-  if (!pairs?.length) {
+  const rows = pairs?.length ? pairs : measuredPairs(scope, component)
+
+  if (!rows.length) {
     return (
       <NoDataYet
         what={
