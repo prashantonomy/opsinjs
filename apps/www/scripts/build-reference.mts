@@ -526,6 +526,13 @@ function contrastPage(): PageSpec {
       "what carries the meaning instead is more honest than either hiding it or forcing",
       "a choice between an identity colour and a green build.",
       "",
+      "The Verdict column therefore has three words rather than two. `advisory` is a",
+      "pair that is not gated and clears its floor anyway; `advisory - below floor` is",
+      "a pair that is not gated and does not. Neither fails the build, and the",
+      "difference is the whole of what the column is for: the second is where the",
+      "bounding line or the ink label stops being good practice and starts being the",
+      "only thing carrying the meaning.",
+      "",
       "**The colour-vision audit is the last table.** Two accents that collapse under a",
       "simulation are not a palette defect a different hue would fix: four ordered",
       "levels cannot be made mutually distinguishable by hue alone for every form of",
@@ -548,8 +555,18 @@ function contrastPage(): PageSpec {
             "",
             [
               data?.generatedAt ? `Measured on ${data.generatedAt}.` : "",
+              /* Counted from `pairs` rather than read from `summary`, on
+                 purpose. `pnpm run contrast` is not part of `pnpm run generate`,
+                 so this page can be rebuilt against a contrast.json written
+                 before `summary.advisoryFailing` existed - and a headline that
+                 silently said "undefined" or dropped the clause would be the
+                 same omission this sentence was added to fix. The rows are
+                 always there; the derived count is always true of them. */
               data?.summary
-                ? `${data.summary.total} pairs: ${data.summary.passing} pass, ${data.summary.failing} fail, ${data.summary.advisory} advisory.`
+                ? `${data.summary.total} pairs: ${data.summary.passing} pass, ${data.summary.failing} fail, ${data.summary.advisory} advisory` +
+                  (advisoryBelowFloor > 0
+                    ? `, and ${advisoryBelowFloor} of the advisory pairs measure below the floor for their role. Advisory pairs are not gated, so none of those is a build failure; each is an accent that has to be bounded by \`line\` or labelled in \`ink\` rather than read as text.`
+                    : ".")
                 : "",
             ]
               .filter((line) => line !== "")
