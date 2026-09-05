@@ -1558,16 +1558,7 @@ function checkHardcodedDocsPaths(): void {
     const lines = stringLiteralsOnly(executable).split("\n")
     for (let index = 0; index < lines.length; index += 1) {
       const line = lines[index] ?? ""
-      /* Next's generated route keys — `PageProps<"/docs/[[...slug]]">` and the
-         Layout/Route equivalents — are the route's own identity, produced by
-         `next typegen`. They cannot be built through lib/routes.ts and renaming
-         the segment would change them anyway, so they are not what this rule is
-         looking for. */
-      const executable = line.replace(
-        /\b(?:PageProps|LayoutProps|RouteContext|LayoutSlots)<[^>]*>/g,
-        "",
-      )
-      if (pattern.test(executable)) {
+      if (pattern.test(line)) {
         fail(
           "TS001",
           relative_,
@@ -1804,7 +1795,12 @@ function checkRouteReachability(pages: ParsedPage[]): void {
  * Catalogue consistency, both directions (addendum B18)               *
  * ------------------------------------------------------------------ */
 
-function checkCatalogue(pages: ParsedPage[], catalogue: CatalogueRow[], source: string): void {
+function checkCatalogue(
+  pages: ParsedPage[],
+  catalogue: CatalogueRow[],
+  source: string,
+  authored: CatalogueRow[] | null,
+): void {
   const ids = new Set(catalogue.map((row) => row.name))
   const bySlug = new Map(pages.map((page) => [page.slug, page]))
 
