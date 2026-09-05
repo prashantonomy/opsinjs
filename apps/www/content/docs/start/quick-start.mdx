@@ -56,8 +56,6 @@ You own the result. See [Registry](../registry/index.mdx) for what the namespace
 resolves to and [Upgrading](./installation/upgrading.mdx) for how you take changes
 to code you own.
 
-<NotBuiltYet name="result-card" />
-
 ## Decide what the number means — before you render it
 
 This is the step that a general-purpose UI library does not have, and it is the
@@ -83,9 +81,11 @@ level, who may assign it, and what it must never be read as.
 ### Choose the category, independently
 
 The category says which part of a person's health this is — it never says how
-concerning the reading is. Both attributes travel on the component; they are
-rendered on different visual channels and a build-time lint rule refuses a
-category colour that has been used to signal severity. See
+concerning the reading is. Both attributes travel on the component and are
+rendered on different visual channels, which is what keeps them apart in the
+markup. There is no build-time rule refusing a category colour used to signal
+severity — the [lint plugins](../handbook/tooling/index.mdx) that would do it are
+specified and not built — so this is a review check today. See
 [The two colour axes](../health/two-colour-axes.mdx).
 
 ### Write the sentence
