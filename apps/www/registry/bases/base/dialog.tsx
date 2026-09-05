@@ -814,7 +814,7 @@ export default function DialogDemo() {
               type="button"
               onClick={() => setOpen(false)}
               className={cn(
-                "inline-flex min-h-(--opsin-target-minimum) items-center rounded-opsin-md",
+                "inline-flex min-h-(--opsin-target-minimum,2.75rem) items-center rounded-opsin-md",
                 "border-2 border-border px-opsin-4 text-opsin-body",
                 "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
               )}
@@ -824,11 +824,15 @@ export default function DialogDemo() {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className={cn(
-                "inline-flex min-h-(--opsin-target-minimum) items-center rounded-opsin-md",
-                "bg-primary px-opsin-4 text-opsin-body text-primary-foreground",
-                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-              )}
+              /* Joined rather than merged, for the reason the first button in
+                 this demo gives: `text-opsin-body` and `text-primary-foreground`
+                 are one conflict group to an unconfigured tailwind-merge, and
+                 only the later of the two survived. */
+              className={
+                "inline-flex min-h-(--opsin-target-minimum,2.75rem) items-center rounded-opsin-md " +
+                "bg-primary px-opsin-4 text-opsin-body text-primary-foreground " +
+                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              }
             >
               Keep it
             </button>
