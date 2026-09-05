@@ -244,7 +244,7 @@ Nobody has run a trial on them.
     },
     {
       name: "RangeBar.Status",
-      describes: "The level the product assigned, as a word from CLINICAL_STATUS_META and one of four distinct lucide glyphs. Rendered only when status is supplied, and outside the summary so that a caller's own sentence cannot remove the word.",
+      describes: "The level the product assigned, as a word from CLINICAL_STATUS_META and one of four distinct lucide glyphs. It takes the status ink and carries data-status, as the tick inside the picture does. Rendered only when status is supplied, and outside the summary so that a caller's own sentence cannot remove the word.",
       prop: "status",
     },
     {
@@ -263,7 +263,7 @@ Nobody has run a trial on them.
     },
     {
       name: "RangeBar.Tick",
-      describes: "The reading's position. The only part that may carry status colour, and it carries data-status with it; thicker and rounder than a boundary mark so the two are told apart by shape before colour.",
+      describes: "The reading's position. The only part inside the track that carries status colour, and it carries data-status with it; RangeBar.Status carries both as well, outside the picture and beside the word. Thicker and rounder than a boundary mark so the two are told apart by shape before colour.",
       prop: "value",
     },
     {
@@ -547,8 +547,10 @@ disabled user, and `a11yDate` is therefore still empty.
   dropping backgrounds leaves standing — but opsinjs has no print stylesheet, none of this
   has been put on paper, and the one print rule in the docs chrome keys on `data-status`,
   which the band does not carry. Treat the outline as an intent.
-- `prefers-contrast` and `forced-colors`, which are not implemented anywhere in opsinjs, so
-  no component can currently make a claim about either.
+- `forced-colors`, which is implemented nowhere in opsinjs, and `prefers-contrast: more`,
+  which is implemented in [Surface](./surface.mdx#accessibility) alone rather than in the
+  token layer. This bar renders no Surface, so neither mode changes the band, the tick or
+  the labels, and nothing here has been measured under either.
 - What the two rows of labels do at very large text sizes. Each label is centred on its
   own mark and each holds its number and unit together, so nothing clips and nothing is
   truncated — but where the band is a sliver two boundary labels will overlap, and a mark
