@@ -113,7 +113,7 @@ export default function proxy(request: NextRequest) {
       : pathname
   const lower = canonicalPath.toLowerCase()
 
-  const exact = EXACT_REDIRECTS[normalised.toLowerCase()]
+  const exact = EXACT_REDIRECTS[lower]
   if (exact) {
     const target = url.clone()
     target.pathname = exact.to
@@ -121,12 +121,14 @@ export default function proxy(request: NextRequest) {
   }
 
   for (const rule of PREFIX_REDIRECTS) {
-    const lower = normalised.toLowerCase()
-    if (lower === rule.from || lower.startsWith(`${rule.from}/`) || lower.startsWith(rule.from.endsWith("/") ? rule.from : `${rule.from}/`)) {
-      const target = url.clone()
-      target.pathname = rule.to.replace(/\/$/, "") + lower.slice(rule.from.replace(/\/$/, "").length)
-      return NextResponse.redirect(target, rule.permanent ? 308 : 307)
-    }
+    /* Both sides are compared without a trailing slash, so a rule written with
+       one and a rule written without behave identically, and the bare prefix
+       (`/docs/components/base`) redirects rather than 404ing on its own. */
+    const from = rule.from.replace(/\/$/, "")
+    if (lower !== from && !lower.startsWith(`${from}/`)) continue
+    const target = url.clone()
+    target.pathname = rule.to.replace(/\/$/, "") + lower.slice(from.length)
+    return NextResponse.redirect(target, rule.permanent ? 308 : 307)
   }
 
   // Case normalisation, documentation paths only. Query and hash are preserved
