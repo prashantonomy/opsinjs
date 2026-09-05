@@ -1098,14 +1098,20 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
      refers to, why it is not on the roster, and the alternative. Nothing else.
      Holding it to the `planned` outline would demand a Proposed API and an
      Accessibility bar for a component nobody has designed - which is exactly
-     the padding-into-substance the ADR rejects. `componentSections()` in
-     lib/status.ts already returns [] here for <PageTemplate>; this is the same
-     gate on the authoring side.
+     the padding-into-substance the ADR rejects. `<PageTemplate>` enforces the
+     same three-heading outline at render time; this is the same gate on the
+     authoring side, and both read it from lib/status.ts.
 
-     This runs BEFORE the outline is resolved, and it has to:
-     `componentSections("considered", …)` returns an empty array, which is
-     truthy, so a considered page would otherwise reach the `exact` branch with
-     an empty allow-list and fail OUT002 on every one of its own headings. */
+     This runs BEFORE the outline is resolved even though the resolved outline
+     is now these same three headings, and the ordering is deliberate. Falling
+     through would put a considered page through the machinery a specification
+     page needs and this one has no part of - the heading aliases, the
+     conditional sections, and the section-14 rule that insists a component page
+     spell its accessibility heading by its status. A page with three headings
+     and no accessibility section would be failed by a rule that is right about
+     every other component page and wrong about this one. Returning here also
+     means the message a contributor reads names ADR 0008, which is the document
+     that decides what belongs on one of these pages. */
   if (kind === "component" && status === "considered") {
     for (const heading of CONSIDERED_COMPONENT_HEADINGS) {
       if (!presentSet.has(heading)) {
@@ -1267,11 +1273,23 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
     )
   }
 
-  /* Nothing is built (contract C6). A component page at `planned` must carry
-     the machine-readable not-implemented affordance, because the page's whole
-     job is to be a definitive negative answer rather than an invitation to
-     generate code against a specification. */
-  if (kind === "component" && asText(page.frontmatter.status) === "planned") {
+  /* THIS ONE is not built (contract C6), whatever else is. A component page at
+     `planned` must carry the machine-readable not-implemented affordance,
+     because that page's whole job is to be a definitive negative answer rather
+     than an invitation to generate code against a specification. The rule is
+     per page and always has been; the heading on this comment used to read
+     "Nothing is built", which was a description of the corpus rather than of
+     the check, and it stopped being true the day the first component shipped.
+
+     `alpha` is held to the same requirement for a different reason. Promotion
+     sheds <NotBuiltYet> and <Todo> and nothing else: <StubNotice> survives it
+     and gains its real phase, where it stops saying "nothing is implemented"
+     and starts saying "this is not stable yet, and here is what is still open".
+     That was a convention 23 of the 24 built pages kept and no check enforced,
+     which is how the one page with the most unmeasured questions came to be the
+     one publishing no machine-readable marker at all. A page's prose is not
+     what /r, the markdown twins or the search shards read. */
+  if (kind === "component" && (status === "planned" || status === "alpha")) {
     if (!/<StubNotice[\s/>]/.test(stripCode(page.body))) {
       fail(
         "C6001",
