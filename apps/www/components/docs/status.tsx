@@ -197,7 +197,9 @@ export function StatusLegend({ className }: { className?: string }) {
         considered has no code behind it.
       </p>
       <ul className="m-0 flex list-none flex-wrap gap-1 p-0">
-        {(["stable", "beta", "alpha", "planned"] as const).map((phase) => (
+        {(
+          ["stable", "beta", "alpha", "planned", "considered"] as const
+        ).map((phase) => (
           <li key={phase} className="m-0">
             <StatusBadge status={phase} plain />
           </li>
@@ -226,7 +228,7 @@ export interface SectionProgressProps {
 }
 
 /**
- * "24 planned · 36 considered" on a section index. Honesty as a feature: a
+ * "24 alpha · 36 considered" on a section index. Honesty as a feature: a
  * reader arriving at Components should learn in one line how much of it is
  * real, without opening a page to find out.
  *
