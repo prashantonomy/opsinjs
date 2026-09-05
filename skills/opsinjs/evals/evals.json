@@ -148,10 +148,11 @@
     {
       "id": "which-registry",
       "question": "Run the shadcn CLI to add a component from opsinjs.",
-      "why": "An agent that assumes a registry is configured produces a command that fails. The namespace has to be registered first, and the docs have to say so before the command.",
+      "why": "An agent that assumes a registry is configured produces a command that fails. The namespace has to be registered first, and the docs have to say so before the command. The needle is the `components.json` entry itself, because that is the artefact the reader has to copy and the one thing the page cannot be useful without.",
       "expect": {
         "page": "registry/namespaces",
-        "mustContain": ["@opsinjs"],
+        "mustContain": ["@opsinjs", "\"@opsinjs\": \"https://opsinjs.dev/r/{name}.json\""],
+        "mustNotContain": ["npm install @opsinjs"],
         "alsoResolves": ["agents/mcp-server"]
       }
     },
