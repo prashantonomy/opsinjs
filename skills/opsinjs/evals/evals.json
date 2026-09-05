@@ -137,11 +137,12 @@
     {
       "id": "install-path",
       "question": "How do I add opsinjs to a Next.js app?",
-      "why": "The ordinary install path must be findable in one hop and must name the file the CLI reads.",
+      "why": "The ordinary install path must be findable in one hop and must name the file the CLI reads. It must also not name a package: there is no npm distribution and ADR 0002 says there will not be one, so an install page that reaches for `npm install` has invented the thing a reader would then fail to install.",
       "expect": {
         "page": "start/installation/next",
-        "mustContain": ["components.json"],
-        "alsoResolves": ["start/installation/index", "registry/namespaces"]
+        "mustContain": ["components.json", "@opsinjs"],
+        "mustNotContain": ["npm install @opsinjs", "@opsinjs/react"],
+        "alsoResolves": ["start/installation", "registry/namespaces"]
       }
     },
     {
