@@ -21,9 +21,9 @@
  * bottom edge of the screen, takes the full width and rounds only its top
  * corners, which is what `tokens/shape.json` publishes `radius-xl` for. It does
  * that in CSS, at every width, with no prop, no measurement and no change of
- * component — so the role, the focus trap, the inertness and the dismissal
- * rules are identical on a phone and on a desktop. A dialog never becomes
- * something else.
+ * component — so the role, the focus trap, the treatment of the background and
+ * the dismissal rules are identical on a phone and on a desktop. A dialog never
+ * becomes something else.
  *
  * TWO ROOTS, NOT A FLAG. `severity` swaps `AlertDialog.Root` for `Dialog.Root`
  * rather than toggling props on one of them. Base UI's alert-dialog root is the
@@ -102,6 +102,32 @@ import { Surface } from "@/registry/base-lyra/ui/surface"
 const FOCUSABLE =
   'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),' +
   'textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
+
+/**
+ * Development warnings, said once per offending call site.
+ *
+ * `tokens/errors.json` states the policy — development only, once per offending
+ * call site, through `console.warn` — and every warning in this file is in a
+ * render body or in an effect keyed on a `ReactNode`, which is the shape that
+ * repeats. A dialog wrapped around a short form re-renders on every keystroke
+ * and the same two paragraphs printed on every pass, twice more again under
+ * Strict Mode; the effect below was worse still, because `actions` is a fresh
+ * identity on every parent render. A channel somebody filters is a channel that
+ * no longer carries the one finding they needed, and this file's warnings are
+ * about a reader who cannot leave a modal surface.
+ *
+ * It is a module-local set rather than the substrate's `warnOnce` for the reason
+ * the block at the call sites gives: `warnOnce` is keyed to an `OpsinErrorCode`,
+ * and none of these interface defects has a code allocated. The key names the
+ * offence first and the dialog second, so an empty `title` still dedupes.
+ */
+const warned = new Set<string>()
+
+function warnDev(key: string, message: string): void {
+  if (!isDevelopment() || warned.has(key)) return
+  warned.add(key)
+  console.warn(message)
+}
 
 /**
  * The first or the last place focus can go inside a region.
