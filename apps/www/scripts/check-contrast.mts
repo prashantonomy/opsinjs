@@ -907,6 +907,7 @@ async function main(): Promise<void> {
       passing: required.filter((pair) => pair.passes).length,
       failing: failures.length,
       advisory: measured.filter((pair) => pair.advisory).length,
+      advisoryFailing: advisoryFailures.length,
     },
   }
 
@@ -933,7 +934,10 @@ async function main(): Promise<void> {
     [
       `check-contrast: ${measured.length} pairs across both themes in ${scopes.length} scopes - ` +
         `${payload.summary.passing} pass, ${payload.summary.failing} fail, ` +
-        `${payload.summary.advisory} advisory.`,
+        `${payload.summary.advisory} advisory` +
+        (advisoryFailures.length > 0
+          ? ` (${advisoryFailures.length} of the advisory pairs measure below the floor).`
+          : "."),
       `  ${changed ? "wrote    " : "unchanged"} lib/generated/contrast.json`,
       ...failures
         .slice(0, 20)
