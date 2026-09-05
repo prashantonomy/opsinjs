@@ -59,8 +59,11 @@ floor is handled by enhancement rather than by exclusion.
 ## The enhancement contract
 
 Read this as a promise about degradation. Every row is implemented with an
-`@supports` query or a media query, never with user-agent detection, and every
-fallback is a designed state rather than an accident.
+`@supports` query, a media query, or — for `linear()` easing, where a guard is not
+available — CSS's own rule for a value an engine cannot compute; never with
+user-agent detection. Each fallback is a designed state rather than an accident,
+and the one that is a bare browser default says so below rather than dressing
+itself up as a curve we chose.
 
 ### Backdrop blur — the material ladder
 
@@ -95,9 +98,16 @@ category and status hues stay distinguishable in both. See
 ### Spring easing — `linear()`
 
 Motion tokens are springs, exported as `linear()` easing functions with many
-stops. Where `linear()` is not understood, the declaration is ignored and a
-`cubic-bezier` approximation declared before it applies. Durations are identical,
-so nothing in a sequence gets out of step.
+stops. Each spring is a single custom property, and there is no `cubic-bezier`
+approximation behind it: a custom property holds `linear(…)` even where the engine
+cannot compute it, so the cascade has nothing to fall back to. What happens instead
+is that the declaration using it — `transition-timing-function:
+var(--opsin-ease-spring-…)` — is invalid at computed-value time, the property takes
+its initial value, and the move runs on the browser's default easing. Durations are
+separate tokens and are identical either way, so nothing in a sequence gets out of
+step and no transition is lost; what is lost is the shape of the curve. The matrix
+above tests the feature in the browser you are reading this in, which is the only
+honest answer here — the version table is not published yet.
 
 Under `prefers-reduced-motion: reduce`, both paths are replaced by the reduced
 variant — which is not "no animation", but the specific degradation documented per
