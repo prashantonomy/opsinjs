@@ -649,7 +649,7 @@ export function IframePreview({
       </div>
 
       <div className="bg-muted/40 p-4">
-        {embed ? (
+        {embed && built ? (
           <DeviceFrame device={device} height={height}>
             <iframe
               key={src}
@@ -681,7 +681,7 @@ export function IframePreview({
           </DeviceFrame>
         ) : (
           <DeviceFrame device={device} height={height}>
-            <NotBuiltYet name={name} className="h-full border-0">
+            <NotBuiltYet name={name} status={phase} className="h-full border-0">
               This frame will embed <code className="text-xs">{src}</code>,
               which renders under the product theme rather than the
               documentation chrome. There is nothing at that address yet.
