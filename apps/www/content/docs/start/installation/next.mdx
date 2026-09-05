@@ -73,7 +73,9 @@ the wrong colour.
 ```css title="app/globals.css"
 @import "tailwindcss";
 
-/* The opsinjs token layer. After Tailwind, before anything of yours. */
+/* The opsinjs token layer, in the position that makes it work. Adding a
+   component does not create this: you either vendor the token stylesheet here
+   or let the theme registry item write its block into this file instead. */
 @import "./opsinjs.css";
 
 /* Tailwind v4 finds classes by scanning. The copied components live in your
@@ -134,8 +136,10 @@ root element will do; opsinjs takes no opinion and adds no dependency.
 
 ## Render something
 
-The intended usage, for review only — `StatusPill` is not built yet, so this
-snippet will not resolve:
+`StatusPill` is implemented, and this is the whole of its simplest use. The
+level is a required prop with no default, and `describes` is what a screen
+reader announces the level as being about — without it a listener hears a
+verdict with no subject:
 
 ```tsx title="app/page.tsx"
 import { StatusPill } from "@/components/opsinjs/status-pill"
