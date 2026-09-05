@@ -28,9 +28,12 @@
    9  tokens.generated.css   emitted by scripts/build-tokens.mts from
                              tokens/*.json. Never hand-edited; committed and
                              diffed by `pnpm check:generated`. Imported AFTER
-                             section 8 so the generated values win the cascade —
-                             equal specificity, so last declaration wins.
-   10 @layer base + @media print
+                             section 8 so it wins the cascade; the two
+                             reduced-motion overrides — the token collapse, then
+                             the blanket that reaches the fumadocs chrome the
+                             tokens do not — sit BELOW that import for the same
+                             reason.
+   10 @layer base, the 640-767px nav reflow repair, @media print
    11 @custom-variant dark   pinned LAST on purpose — see the note there.
 
    The docs chrome is lyra. The opsinjs PRODUCT theme lives in ./product.css
@@ -507,7 +510,36 @@
   }
 }
 
-/* Reduced motion collapses duration but never removes the state change: an
+/* --------------------------------------------------------------------------
+   9. Generated token layer. Source: tokens/*.json → scripts/build-tokens.mts.
+   Committed, and diffed by `pnpm check:generated`. Never hand-edit it; change
+   the JSON and regenerate.
+
+   POSITION IS LOAD-BEARING, and it sits AFTER the whole of section 8 — its
+   :root and .dark blocks and its gamut and reduced-transparency overrides. This
+   file redeclares the same custom properties from the token source, with values
+   `pnpm contrast` has measured, and it carries its own P3 escalation and its
+   own reduced-motion block. `:root` here and `:root` there have identical
+   specificity, so whichever is declared LAST wins, and it must be this one.
+   Section 8 above is the authored fallback and nothing else: it exists so a
+   clean checkout renders in the right colours before anybody has run
+   `pnpm run generate`, and it is the source of truth for no value at all. It
+   was previously imported BEFORE section 8, which meant the authored guesses
+   silently beat the generated values — the drift this whole layer exists to
+   make impossible.
+
+   What follows it is the pair of reduced-motion blocks immediately below — the
+   token collapse and then the blanket that reaches the fumadocs chrome — and
+   that ordering is deliberate for the same cascade reason read the other way
+   round; see the comments on those blocks.
+   -------------------------------------------------------------------------- */
+
+@import "./tokens.generated.css";
+
+/* Reduced motion, and it has to be declared HERE, below the import, rather
+   than beside the authored durations in section 8.
+
+   Reduced motion collapses duration but never removes the state change: an
    element still arrives, it simply arrives immediately. Opacity cross-fades are
    kept because they do not move; translation and scale are what cause trouble.
    The degradation is observable in <MotionDemo> rather than described. */
