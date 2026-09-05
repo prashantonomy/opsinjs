@@ -26,7 +26,7 @@ them:
 | --- | --- |
 | `reviewed` | The ISO date somebody last **re-read** the page against the system |
 | `reviewer` | Which discipline reviewed it: `design`, `engineering`, `clinical` or `content` |
-| `reviewEvery` | How long that review is good for: `3m`, `6m`, `12m` or `never` |
+| `reviewEvery` | How long that review stands before it expires: `3m`, `6m`, `12m` or `never` |
 | `owner` | The team accountable for the next review |
 | `a11yDate` | Where a page makes an accessibility claim, when that claim was last checked |
 
@@ -36,7 +36,9 @@ the age of what they are reading without opening a file.
 ## The cadence, by page kind
 
 `reviewEvery` is optional in frontmatter. When it is absent, the default for the
-page's `kind` applies:
+page's `kind` applies. Those defaults live in one place, `DEFAULT_CADENCE` in
+`scripts/check-freshness.mts`, and that is the authority: if the table below ever
+disagrees with it, the script is right and this page is the thing to correct.
 
 | Kind | Default cadence | Usual reviewer | Why |
 | --- | --- | --- | --- |
