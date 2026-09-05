@@ -218,7 +218,8 @@ export function Value({
   const reading: number | null = value === null || broken ? null : value
 
   if (broken && isDevelopment()) {
-    console.warn(
+    warnDevOnce(
+      `broken:${String(value)}`,
       `[opsinjs] <Value> received ${String(value)}, which is not a finite number. ` +
         'The words "not available" were rendered in its place, because a broken ' +
         "number is a failure rather than a reading that was never taken, and the " +
@@ -234,7 +235,8 @@ export function Value({
   }
 
   if (unit !== undefined && findUnit(unit) === undefined && isDevelopment()) {
-    console.warn(
+    warnDevOnce(
+      `unknown-unit:${unit}`,
       `[opsinjs] <Value> was given the unit "${unit}", which is not in the unit ` +
         "table. It has been rendered as written and has NOT been given a spoken " +
         'form, because guessing at a pronunciation is how "mmHg" becomes "em em ' +
@@ -251,7 +253,8 @@ export function Value({
     precision === undefined ||
     (Number.isInteger(precision) && precision >= 0 && precision <= MAX_FRACTION_DIGITS)
   if (!usable && isDevelopment()) {
-    console.warn(
+    warnDevOnce(
+      `precision-range:${String(precision)}`,
       `[opsinjs] <Value> received precision={${String(precision)}}. Precision is a ` +
         `count of decimal places: a whole number from 0 to ${MAX_FRACTION_DIGITS}. ` +
         "It was ignored, so the number below is showing exactly the digits it was " +
