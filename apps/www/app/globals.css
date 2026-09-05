@@ -542,7 +542,26 @@
    Reduced motion collapses duration but never removes the state change: an
    element still arrives, it simply arrives immediately. Opacity cross-fades are
    kept because they do not move; translation and scale are what cause trouble.
-   The degradation is observable in <MotionDemo> rather than described. */
+   The degradation is observable in <MotionDemo> rather than described.
+
+   `@media` contributes no specificity. `:root` inside a media query and `:root`
+   in the imported sheet are both (0,1,0), so the one declared last simply wins.
+   This block used to sit above the @import, where tokens.generated.css
+   re-declared all five plain durations at their full lengths a few lines later
+   and quietly undid it: a reader who had asked for reduced motion still got the
+   full 80ms to 560ms everywhere in the docs chrome, including in <MotionDemo>,
+   which is billed as the observable proof that it works. Moving this block
+   below the import is the fix — app/product.css carries the same block, in the
+   same place, for the same reason, and this file was never brought into line
+   with it. Moving the import is NOT the fix, because the import's position is
+   the only thing that makes the measured values beat the authored fallbacks at
+   all.
+
+   The two springs stay in the list because they are authored in section 8 and
+   the generator does not emit them. The four sampled springs and `ease-standard`
+   are absent because tokens.generated.css collapses those itself, per token, to
+   the settle times tokens/motion.json declares for each of them — a better
+   answer than 1ms for a cue whose job is to say that a value changed. */
 @media (prefers-reduced-motion: reduce) {
   :root,
   .opsin-product {
@@ -556,10 +575,7 @@
   }
 }
 
-/* --------------------------------------------------------------------------
-   9. Generated token layer. Source: tokens/*.json → scripts/build-tokens.mts.
-   Committed, and diffed by `pnpm check:generated`. Never hand-edit it; change
-   the JSON and regenerate.
+/* THE CHROME'S OWN MOTION, WHICH THE BLOCK ABOVE DOES NOT REACH.
 
    POSITION IS LOAD-BEARING, and it sits AFTER the whole of section 8 — its
    :root and .dark blocks and its gamut, reduced-transparency and reduced-motion
