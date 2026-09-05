@@ -29,17 +29,21 @@ The target is three taps from the screen the person was on: open, enter, save.
 
 ## What you need
 
-<NotBuiltYet />
+The components this entry flow composes are all at `alpha`: the code exists and
+installs, the API may change in any release without a deprecation cycle, and
+none of it has been through an accessibility or a clinical review. The last row
+is `considered` — reserved names with no code — so a stepped or segmented entry
+is yours to build for now.
 
 | Part | Component | Status | What it does here |
 | --- | --- | --- | --- |
-| The capture surface | [LogSheet](../components/log-sheet.mdx) | <StatusBadge status="planned" /> | Low-friction bottom sheet, sized to the entry. |
-| The number entry | [ReadingInput](../components/reading-input.mdx) | <StatusBadge status="planned" /> | Numeric input with a unit switch and a plausibility warning. |
-| The sheet mechanics | [Sheet](../components/sheet.mdx) | <StatusBadge status="planned" /> | Detents, drag, keyboard-safe insets, focus return. |
-| Label and error | [Field](../components/field.mdx) | <StatusBadge status="planned" /> | The label/control/hint/error composition every input sits inside. |
-| Save and undo | [Button](../components/button.mdx) | <StatusBadge status="planned" /> | The primary action, within thumb reach. |
-| The confirmation | [Value](../components/value.mdx) · [RelativeTime](../components/relative-time.mdx) | <StatusBadge status="planned" /> | Shows what was saved, where it will live. |
-| First run | [EmptyState](../components/empty-state.mdx) | <StatusBadge status="planned" /> | Before there is anything logged. |
+| The capture surface | [LogSheet](../components/log-sheet.mdx) | <StatusBadge status="alpha" /> | Low-friction bottom sheet, sized to the entry. |
+| The number entry | [ReadingInput](../components/reading-input.mdx) | <StatusBadge status="alpha" /> | Numeric input with a unit switch and a plausibility warning. |
+| The sheet mechanics | [Sheet](../components/sheet.mdx) | <StatusBadge status="alpha" /> | Detents, drag, keyboard-safe insets, focus return. |
+| Label and error | [Field](../components/field.mdx) | <StatusBadge status="alpha" /> | The label/control/hint/error composition every input sits inside. |
+| Save and undo | [Button](../components/button.mdx) | <StatusBadge status="alpha" /> | The primary action, within thumb reach. |
+| The confirmation | [Value](../components/value.mdx) · [RelativeTime](../components/relative-time.mdx) | <StatusBadge status="alpha" /> | Shows what was saved, where it will live. |
+| First run | [EmptyState](../components/empty-state.mdx) | <StatusBadge status="alpha" /> | Before there is anything logged. |
 | Stepped entry | `number-field` · `segmented-control` | <StatusBadge status="considered" /> | Considered, not implemented. |
 
 Tokens, by family:
