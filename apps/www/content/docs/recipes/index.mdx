@@ -82,7 +82,7 @@ recipe is a bug.
 
 ## The recipes
 
-<SectionProgress />
+<SectionProgress counts={{ planned: 7 }} />
 
 Start with **[Choose a component](./choose-a-component.mdx)** if you are not sure
 what you are building yet. It is the only recipe whose output is a decision
@@ -157,9 +157,12 @@ what you just built, without looking anything up:
 
 ## Troubleshooting
 
-**"The recipe uses a component that does not exist."** All of them do — nothing
-is built. The recipe is still the specification the component will be built
-against, and reviewing it now is the cheapest time to find that it is wrong.
+**"The recipe uses a component that does not exist."** Check its chip in **What
+you need**. An `alpha` chip means the code is there and the install command on
+the component's own page will fetch it. A `considered` chip means a reserved
+name and nothing behind it: the recipe names it so that you reach for a
+deliberate substitute rather than inventing an API that happens to share the
+name.
 
 **"The recipe and a component page disagree."** The component page wins on the
 component's own API and anatomy; the doctrine page wins on the rule. Recipes are
