@@ -131,10 +131,16 @@ choice and could change. The two colour axes are a safety contract and will not.
 
 Take it from a preview, not from the page around it. A component rendered in
 `/view/…` is showing you the product theme at a real device width. A component
-described in prose on this page is being described, not demonstrated — and while
-nothing is built yet, every preview on the site renders
-`<NotBuiltYet>` in a bordered frame with the switches still present, so that the
-shape of the eventual thing is communicated without pretending it exists.
+described in prose on this page is being described, not demonstrated. Previews
+come in three states and only one of them is safe to capture. A preview of an
+implemented component embeds its `/view` route in the bordered frame, so what
+you photograph is the product theme, not this chrome. A preview whose page has
+not asked to mount the frame shows a dashed note carrying the `/view` address
+instead — open that address and screenshot there. And a preview of an id with
+no code behind it renders `<NotBuiltYet>` in the same frame with the switches
+still present, so the shape of the eventual thing is communicated without
+pretending it exists; that placeholder is a specimen of the honesty vocabulary
+and never a specimen of the theme.
 
 <LastUpdated />
 
