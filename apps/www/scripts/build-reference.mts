@@ -736,9 +736,17 @@ function dataAttributesPage(): PageSpec {
       "`data-*` attribute is part of the public API and is covered by the same semver",
       "promise as the JavaScript surface.",
       "",
-      "This table is derived from the built components. It is empty until the first",
-      "component lands, and no row here has ever been typed by hand.",
+      "No row here is ever typed by hand. The table is empty for a reason this page",
+      "states rather than hides: the components emit data attributes, and this script",
+      "does not extract them yet.",
     ].join("\n"),
+    /* This is a generator gap, not an empty system, and the difference decides
+       whether anyone fixes it. The base layer does emit data attributes; what is
+       missing is the extraction. Two of the four columns are the reason it has
+       not been written yet: `data-slot` values are literals a scan can read, but
+       the condition that sets `data-status` and the closed set it can take are
+       not recoverable from the source text, and a table that guessed them would
+       be inventing a styling contract that consumers then select on. */
     body: noData(
       "scripts/build-reference.mts",
       "Nothing is built yet, so no component emits a data attribute. The vocabulary this table will be filled from - Base UI's `data-open`, `data-starting-style` and `data-ending-style`, plus opsinjs's `data-status` and `data-category` - is specified in the Handbook under Data attributes.",
