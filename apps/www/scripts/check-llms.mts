@@ -176,6 +176,47 @@ async function fetchAll(
   return results
 }
 
+/**
+ * The same pool, keeping the bodies and the headers.
+ *
+ * `fetchAll` throws the response away because most of what it checks is
+ * reachability, and a few hundred page bodies held at once is a lot of memory
+ * for a status code. The twin/roster agreement check below needs the text, so
+ * it gets its own helper rather than making every caller pay for it.
+ *
+ * The headers come with it because that check now compares three surfaces on
+ * one response - the roster, the twin's frontmatter and the twin's
+ * `x-opsinjs-implemented` header - and fetching the same three hundred URLs a
+ * second time for a HEAD request would double the slowest part of the run to
+ * read four hundred bytes that were already on the wire.
+ */
+async function fetchAllText(
+  urls: string[],
+  concurrency: number,
+): Promise<Map<string, { status: number; body: string; headers: Headers }>> {
+  const results = new Map<string, { status: number; body: string; headers: Headers }>()
+  let cursor = 0
+  const workers = Array.from({ length: Math.min(concurrency, urls.length) }, async () => {
+    while (cursor < urls.length) {
+      const index = cursor
+      cursor += 1
+      const url = urls[index] as string
+      try {
+        const response = await fetch(url, { redirect: "follow" })
+        results.set(url, {
+          status: response.status,
+          body: await response.text(),
+          headers: response.headers,
+        })
+      } catch {
+        results.set(url, { status: 0, body: "", headers: new Headers() })
+      }
+    }
+  })
+  await Promise.all(workers)
+  return results
+}
+
 /* ------------------------------------------------------------------ *
  * Offline checks                                                      *
  * ------------------------------------------------------------------ */
@@ -349,7 +390,25 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
     )
   }
 
-  /* The shards and the full corpus. */
+  /* THE SHARDS AND THE FULL CORPUS.
+     Byte size was the only thing this loop used to look at, and byte size is
+     the half of the budget that cannot go wrong: assemble() stops adding pages
+     at the cap, so a corpus file is under budget by construction and the size
+     warning below has almost no way to fire. What it stops at the cap is PAGES,
+     and nothing reported that. The files say so themselves - each one prints
+     "Pages: N of M." and a "## Truncated" section - so the number is there to
+     be read, and reading it is the difference between a shard that is small and
+     a shard that has quietly stopped carrying two thirds of its section.
+
+     WARN, NOT FAIL, AND WHY. agents/llms-txt.mdx says an over-budget shard "is
+     a signal that it needs splitting, not trimming. That is a build failure,
+     not a silent degradation." Splitting the shards is a design change nobody
+     has made, and every corpus file drops pages today, so failing here would
+     put the build in a state whose only exits are raising BUDGETS or deleting
+     this check - both of which are the silent degradation the page forbids.
+     A warning that names the dropped count is what makes the state visible
+     while the decision is taken. Raise it to fail() once the shards are split. */
+  const corpusBodies = new Map<string, string>()
   for (const shard of ["llms-full.txt", ...Object.keys(SHARDS)]) {
     const response = await fetchText(`${base}/${shard}`)
     if (!response || response.status !== 200) {
