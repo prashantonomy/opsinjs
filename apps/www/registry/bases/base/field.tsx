@@ -178,7 +178,12 @@ const VALIDATION_MODE: Record<
  *   meaning — the glyph and the words — survive both. It is not swapped for an
  *   `outline` because `app/product.css` already spends the control's outline
  *   on `:focus-visible`, and a focused invalid field would then show one state
- *   or the other rather than both.
+ *   or the other rather than both. `--opsin-border-emphasis` carries its
+ *   `2px` fallback for the same reason the two above carry theirs, and the
+ *   consequence here is worse: an invalid `box-shadow` is not a short shadow but
+ *   no shadow at all, so in an app without the token sheet the whole
+ *   declaration drops and the third carrier is gone before forced-colors mode
+ *   or a printer ever gets to it. `button.tsx` writes the token the same way.
  *
  * AND ONE TRAP, because this list goes through `cn()` and the parts above do
  * not. `cn` is `twMerge(clsx(...))`, and tailwind-merge is unconfigured — it
@@ -196,7 +201,7 @@ const CONTROL_CLASS = [
   "rounded-opsin-sm border border-input bg-background",
   "px-opsin-3 py-opsin-2",
   "placeholder:text-muted-foreground text-opsin-body",
-  "data-[invalid]:shadow-[inset_0_0_0_var(--opsin-border-emphasis)_currentColor]",
+  "data-[invalid]:shadow-[inset_0_0_0_var(--opsin-border-emphasis,2px)_currentColor]",
   "disabled:opacity-70",
 ].join(" ")
 
