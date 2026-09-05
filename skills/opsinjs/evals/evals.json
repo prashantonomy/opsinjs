@@ -89,17 +89,28 @@
       "why": "No. Colour-blind readers, sunlight, grayscale printing and screen readers all lose it. A status always carries a word, and there are four of those words: a page that still offers `expected` or `act` is describing a vocabulary the system dropped.",
       "expect": {
         "page": "health/clinical-status-semantics",
-        "mustContain": ["colour"],
+        "mustContain": [
+          "status is never conveyed by colour alone",
+          "steady",
+          "watch",
+          "attention",
+          "urgent"
+        ],
         "alsoResolves": ["accessibility/colour-independence", "content/writing-status-and-alerts"]
       }
     },
     {
       "id": "normal-is-banned",
       "question": "How should I label a result that is inside the reference range?",
-      "why": "Not \"normal\". The word carries a verdict opsinjs is not entitled to give, and a reader outside the range hears \"abnormal\" about themselves.",
+      "why": "Not \"normal\". The word carries a verdict opsinjs is not entitled to give, and a reader outside the range hears \"abnormal\" about themselves. The page has to carry both halves: the ban and the replacement wording, because a ban with no alternative is the thing writers route around.",
       "expect": {
         "page": "health/reference-ranges",
-        "mustContain": ["normal"],
+        "mustContain": [
+          "normal",
+          "is banned",
+          "in the usual range",
+          "describes the person, not the measurement"
+        ],
         "alsoResolves": ["content/writing-status-and-alerts"]
       }
     },
