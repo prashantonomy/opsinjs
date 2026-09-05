@@ -60,11 +60,13 @@ export default function NotFound() {
               You asked for a component that is only <em>considered</em>.
             </h2>
             <p>
-              Around thirty component ideas are recorded in the catalogue without
-              a page, because a page here has to carry a real specification and
-              those do not have one yet. The catalogue is the definitive list of
-              what exists, what is planned, and what was considered and set
-              aside.
+              Thirty-six component ideas were considered and left off the
+              roster. Each one still answers at its canonical address under the
+              component catalogue, with the reason it was refused and what to
+              use instead — so if a considered id brought you here, it was the
+              address that was wrong rather than the name. The catalogue is the
+              definitive list of what is built, what is specified and what was
+              set aside.
             </p>
             <p>
               <Link href={routes.docs("components")}>
