@@ -41,6 +41,14 @@ import type { Status } from "@/lib/status"
  * Adding a second base later is a folder under `registry/bases/`, never a URL
  * migration. See locked decision 6.
  *
+ * EVERY SEGMENT IS VALIDATED, and that is the whole safety property of this
+ * route. It answers exactly two questions — "here is the component" and "this
+ * name is on the roster and has no code yet" — and it must never answer either
+ * one about a URL it did not understand. A path this route cannot place is a
+ * 404, because the alternative is telling an agent that the id it invented is a
+ * specified opsinjs component awaiting implementation, which is the
+ * hallucination this scaffold exists to close rather than confirm.
+ *
  * ROBOTS. `/view` is the single disallowed path in robots.txt, and this page
  * additionally declares `noindex`. Every URL here duplicates content that has a
  * canonical home on a documentation page, stripped of the guidance that makes it
@@ -65,8 +73,81 @@ const VIEW_KIND_NOUN: Record<ViewKind, string> = {
   screen: "This screen",
 }
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false, nocache: true },
+/**
+ * The honest empty state's contents, or `null` when there is nothing honest to
+ * say because nobody has ever specified this name.
+ */
+interface UnbuiltFrame {
+  /** The real release phase, never a default. */
+  status: Status
+  /** Replaces the generic empty-state prose when the roster says something better. */
+  detail?: string
+}
+
+/**
+ * Is this name on the roster for its kind, and if so at what status?
+ *
+ * The roster is a different file for each kind, which is why this cannot be one
+ * lookup:
+ *
+ * - `component` — `registry/catalogue.ts`, through `explainUnresolved()`. It
+ *   already separates the three answers this route needs, and for a `considered`
+ *   id it carries the reason and the alternative, which is the opposite message
+ *   from "planned" and must not be flattened into it.
+ * - `example` — the generated registry index, which is the whole roster: an
+ *   example exists because a file exists under `registry/examples/`, so there is
+ *   no such thing as a specified-but-unbuilt example and a miss is a 404. The
+ *   caller has already tried that lookup, so a miss arrives here as `null`.
+ * - `screen` — the documentation corpus, where a screen is specified as a page
+ *   under `content/docs/screens/` and nothing else declares one. Its frontmatter
+ *   `status` is the status, so this route never has to guess at one.
+ */
+function describeUnbuilt(kind: ViewKind, name: string): UnbuiltFrame | null {
+  if (kind === "component") {
+    const unresolved = explainUnresolved(name)
+    if (unresolved.reason === "unknown" || unresolved.status === null)
+      return null
+    return {
+      status: unresolved.status,
+      /* A `considered` id is a decision rather than a gap, and the catalogue
+         already holds the sentence that says so — the reason it was refused and
+         what to use instead. A reader sent here by a stale link is owed that,
+         not the generic "the implementation will have to satisfy it" copy,
+         which would describe an implementation nobody intends to write. */
+      detail:
+        unresolved.reason === "considered" ? unresolved.message : undefined,
+    }
+  }
+
+  if (kind === "screen") {
+    const page = getPage(["screens", name])
+    return page ? { status: page.data.status } : null
+  }
+
+  return null
+}
+
+/**
+ * A title, because these URLs are navigable rather than private: every
+ * `<ComponentPreview>` caption links here with `target="_blank"`, so a reader
+ * arrives at a real document in a real tab. With no `<title>` the tab and the
+ * screen reader announce the URL instead — WCAG 2.2 SC 2.4.2, and a Level A
+ * failure on a site that publishes a conformance report. The base and the style
+ * are in it because the whole reason this surface exists is that the same
+ * component renders differently across the matrix, and a row of
+ * identically-titled tabs would lose exactly that distinction.
+ *
+ * `robots` is carried here verbatim rather than left on a static `metadata`
+ * export: a route may declare one or the other, never both.
+ */
+export async function generateMetadata(
+  props: PageProps<"/view/[base]/[style]/[kind]/[name]">
+): Promise<Metadata> {
+  const { base, style, kind, name } = await props.params
+  return {
+    title: `${name} — ${kind} at ${base}/${style} · opsinjs product theme`,
+    robots: { index: false, follow: false, nocache: true },
+  }
 }
 
 export default async function ViewPage(
