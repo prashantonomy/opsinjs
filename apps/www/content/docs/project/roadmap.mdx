@@ -38,8 +38,8 @@ Renaming a token after twenty components consume it is the expensive mistake
 this project front-loaded to avoid, and everything built since was written
 against a token layer that had stopped moving.
 
-**2. The health data-display components come first**, in this order:
-`StatusPill`, `RangeBar`, `ResultCard`. They are ordered by how much of the
+**2. The health data-display components came first**, in this order:
+`StatusPill`, `RangeBar`, `ResultCard`. They were ordered by how much of the
 system they exercise rather than by how much anyone wants them. `StatusPill` is
 the smallest complete test of the status axis and the colour-independence rule.
 `RangeBar` is the first component that has to render a value against a range
@@ -47,12 +47,12 @@ without implying a diagnosis, which is the hardest content problem in the system
 `ResultCard` composes both and is the component most people arrive wanting.
 
 **3. Then the surfaces**: `Surface`, `Card`, `Sheet`, `Dialog`. The material
-ladder is currently documented and tokenised but not exercised by anything, and a
-ladder nothing climbs is a ladder nobody has tested.
+ladder had been documented and tokenised with nothing climbing it, and a ladder
+nothing climbs is a ladder nobody has tested. Those four exercise it now.
 
 **4. Then communication**: `AlertBanner`, `CareCard`, `Callout`,
-`DisclaimerNote`. These carry the alarm-fatigue budget, so they are built after
-there is enough of a screen to measure a budget against.
+`DisclaimerNote`. These carry the alarm-fatigue budget, so they were built after
+there was enough of a surface to measure a budget against.
 
 **5. Input and formatting last**: `ReadingInput`, `LogSheet`, `Value`,
 `RelativeTime`. `Value` is small and tempting to do first; it is deliberately
