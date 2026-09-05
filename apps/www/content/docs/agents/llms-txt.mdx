@@ -1,6 +1,6 @@
 ---
 title: llms.txt and the shards
-description: The curated index a model should read first, the four shards that exist because context windows are finite, and the size budget that governs all of them.
+description: The curated index a model should read first, the three topic shards that exist because context windows are finite, and the size budget that governs all of them.
 status: stable
 kind: guide
 aliases: [llms.txt, llms-full.txt, shards, context budget]
@@ -34,6 +34,16 @@ Shards let a caller spend context where it changes the answer.
 Every URL in every one of these files is absolute. A relative URL in an index is
 useless to a client that fetched the file from somewhere else and no longer
 knows where it came from — which is the normal case for a model.
+
+The three topic shards do not cover the whole tree, so "use the shards" misleads
+for the half they miss. Between them they carry eight of the sixteen sections:
+Components, Screens, Health, Accessibility, Content & language,
+Foundations, Theming & tokens and Reference. Start here, Recipes, Patterns,
+Handbook, Agents, Registry & distribution, Project and the introduction have no
+shard, and neither do the package pages, which sit outside the sixteen groups.
+`/llms.txt` names the sections with no shard rather than leaving you to work it
+out, and for a page in one of them the markdown twin is the route: one request,
+exactly the page you asked for.
 
 ## What is in the index
 
