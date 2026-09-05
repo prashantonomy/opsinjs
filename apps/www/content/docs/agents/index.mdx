@@ -123,8 +123,9 @@ one will usually catch another.
 curl -s https://opsinjs.dev/docs/components/range-bar.md | head -20
 ```
 
-You should get frontmatter and prose, not HTML and not raw MDX with unresolved
-JSX tags.
+You should get frontmatter and prose, not HTML. Documentation components arrive
+as `<PascalCase … />` tags and that is the format working; an `import` statement
+at the top means you have raw MDX from somewhere else.
 
 ### The index is reachable and absolute
 
@@ -145,9 +146,13 @@ point of the whole design.
 The rewrite applies to `/docs/:path*.md` and to `/docs.md`; other routes have no
 twin.
 
-**The MCP server sees no components.** Correct. Nothing is built, so the
-registry contains metadata and no source files. The server is working; the
-inventory is genuinely empty.
+**The MCP server sees no components.** That is now a real fault. Twenty-four
+items list source files, and the per-item payloads at `/r/<name>.json` carry
+that source inline; the other thirty-six are reserved names that resolve with
+metadata and no files, so an empty inventory for one of *those* is the server
+working. An inventory that is empty across the board is not: check that
+`components.json` carries the `@opsinjs` entry in the `{name}` template form and
+that the fetch is not being blocked.
 
 **An agent invented a prop that is not in the proposed API.** Report it as an
 eval failure rather than as a documentation bug — that is exactly the signal the
