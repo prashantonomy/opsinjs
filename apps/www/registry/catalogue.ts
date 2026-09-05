@@ -22,18 +22,33 @@
  *   CAT007  fatal    an alias is also a catalogue id — added after `status-pill`
  *                    claimed `badge`, which is a real component and its opposite
  *   CAT006  warning  a page is MISSING an alias its catalogue row has
- * A page carrying an EXTRA alias its row does not have is still not reported, so
- * "copies the array verbatim" is a convention rather than a gate. Do not read the
- * absence of an error as agreement.
+ *   CAT011  warning  a page claims an alias its catalogue row does NOT have
+ * CAT011 closed the gap this paragraph used to describe. The agreement between a
+ * row and its page is now checked in both directions, so "copies the array
+ * verbatim" is a gate rather than a convention, and a synonym invented in
+ * frontmatter is reported rather than silently indexed.
  *
- * The reserved doctrine aliases at the bottom of this file are the synonyms
- * that belong to Health and Content pages rather than to components, recorded
- * here so the uniqueness check can see them.
+ * What is still NOT checked anywhere is the reserved list at the bottom of this
+ * file against the rows above it. See the comment on `RESERVED_ALIASES` for the
+ * two words that divergence has already cost.
  * ────────────────────────────────────────────────────────────────────────────
  *
- * NOTHING IS BUILT. Every shipped row is `status: "planned"` and every
- * considered row is `status: "considered"`. A `planned` row means there is a
- * written specification at a guessable URL; it does not mean there is code.
+ * TWENTY-FOUR ROWS ARE BUILT. Each of them carries `status: "alpha"`, has a
+ * file at `registry/bases/base/<id>.tsx`, renders at
+ * `/view/base/base-lyra/component/<id>`, and installs with `shadcn add`. Alpha
+ * is not a promise of stability: the API may change in any release without a
+ * deprecation cycle, and none of it has been through an accessibility or
+ * clinical review. The other thirty-six rows carry `status: "considered"` — a
+ * reserved name and a reason to reach for something else, with no code and no
+ * hand-written page — only the stub `scripts/build-registry.mts` generates
+ * from this row so the address answers instead of returning a 404.
+ *
+ * `planned` — specified in full, no code, see `lib/status.ts` — is still a
+ * legal status and pages elsewhere in the corpus use it, but no row in this
+ * file does. Do not copy it onto a new row on the assumption that it is what a
+ * shipped row says. A row reaches `alpha` in the same commit as the file under
+ * `registry/bases/base/` that implements it and the `status` in that
+ * component's page frontmatter; the three never move apart.
  *
  * Imports here are relative and carry an explicit `.ts` extension because
  * `scripts/build-registry.mts` is executed by plain `node`, which does not read
