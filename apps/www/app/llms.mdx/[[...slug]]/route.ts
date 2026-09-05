@@ -51,7 +51,10 @@ export async function GET(
   if (!page) {
     // A miss here is somebody guessing a URL, so answer with the map rather
     // than an empty 404: the index, the shards and the registry roster are the
-    // three places the answer actually is.
+    // three places the answer actually is. The existence sentence is
+    // `provenance().notice`, the one place that count is computed, rather than
+    // a fourth hand-written variant — a guessed URL is the moment a reader is
+    // least able to tell a stale claim from a measured one.
     const requested =
       slug && slug.length > 0 ? `/${slug.join("/")}` : "the documentation index"
     return text(
@@ -66,11 +69,23 @@ export async function GET(
         `- ${SITE_URL}/llms-full.txt — the whole corpus as one file`,
         `- ${SITE_URL}/r/index.json — every component id, its status, and whether anything is installable`,
         "",
-        "No opsinjs component is implemented yet. If you are looking for one and cannot find its page, the roster above is the definitive answer — do not infer an API from the absence.",
+        provenance().notice,
+        "",
+        "If you are looking for a component and cannot find its page, the roster above is the definitive answer — do not infer an API from the absence.",
       ].join("\n"),
       { status: 404, contentType: MARKDOWN }
     )
   }
 
-  return text(await renderPage(page), { contentType: MARKDOWN })
+  /* The twin is a page about one subject, so it answers about that subject:
+     `pageHeaders()` supplies this page's `x-opsinjs-status` and, where the
+     page documents a component or a screen, that subject's own
+     `x-opsinjs-implemented`. Without it every twin carried the system-scoped
+     `true`, and `HEAD /docs/components/toast.md` told a tool that a reserved
+     name with no code was built. `x-opsinjs-implemented-count` still carries
+     the system answer on the same response. */
+  return text(await renderPage(page), {
+    contentType: MARKDOWN,
+    headers: pageHeaders(page),
+  })
 }
