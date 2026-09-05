@@ -9,6 +9,17 @@
  * other answers "how much attention does it want". Put a category colour inside
  * the bar and both meanings are gone at once.
  *
+ * NO ROW TAKES ITS LEVEL FROM ITS POSITION, and the first two rows are written
+ * so that the data says so rather than only the prose. Both sit inside the same
+ * range, two units apart, and one is `steady` while the other is `attention`,
+ * because the product that owns the rule reached those two decisions
+ * separately. RangeBar never makes the conversion in either direction: "inside
+ * the range" and "nothing to attend to" are different claims, and so are
+ * "outside it" and "needs attention". A list whose rows lined position up with
+ * level would teach the conversion by example whatever the comment beside it
+ * said, and this is one of the files `shadcn add` copies into a project.
+ * `range-bar-outside-the-range.tsx` shows the same rule from the other side.
+ *
  * THE THIRD ROW HAS NO STATUS, and that is not an oversight. A product assigns
  * a level when it has a rule that says so; where it has none, the tick is drawn
  * in a neutral tone and the row says nothing about attention rather than
