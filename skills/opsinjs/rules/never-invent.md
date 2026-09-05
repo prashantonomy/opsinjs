@@ -64,8 +64,8 @@ X?". It is not a gap you should fill by inventing X. The catalogue at
 
 This is the one that does real damage.
 
-opsinjs is a presentation layer. It never decides what counts as high, low,
-elevated or urgent, for any measurement, ever. Whoever supplies the data owns
+opsinjs is a presentation layer. It never decides what counts as high, low, or
+urgent, for any measurement, ever. Whoever supplies the data owns
 the thresholds and the reference ranges, because those depend on the assay, the
 laboratory, the population, the person's age and sex, and often on their
 clinical history.
@@ -80,6 +80,8 @@ that is a supported, designed state with its own token family
 (`--opsin-status-unknown-*`), not a fallback:
 
 ```tsx
+// Shape, not an API: ResultSurface is not an opsinjs component. Read the real
+// props off the component page or its registry item before you write this.
 <ResultSurface status={result.status ?? undefined}>
   {result.status === undefined && <p>Your clinic has not added a range for this test.</p>}
 </ResultSurface>
@@ -112,10 +114,12 @@ Every `kind: health` page in the documentation declares `evidence: cited`,
 ## Never invent a page
 
 If you cannot find something in the documentation, say that you could not find
-it. `https://opsinjs.dev/llms.txt` is the index and it is complete; a URL that
-is not in it does not exist. A confidently cited page that 404s costs the reader
-more than "I could not find guidance on this" - and the second answer is often
-itself the useful finding.
+it. `llms.txt` is the index and it is complete; a path that is not in it does not
+exist. A confidently cited page that 404s costs the reader more than "I could not
+find guidance on this" - and the second answer is often itself the useful
+finding. That includes not being able to reach the site at all: `opsinjs.dev` is
+not registered yet, and "the documentation is not reachable from here" is a
+better answer than a page reconstructed from memory.
 
 ## Where the detail lives
 
