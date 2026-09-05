@@ -1105,8 +1105,8 @@ export const CONSIDERED: CatalogueEntry[] = [
     aliases: ["segmented buttons", "toggle group"],
     owner: "design",
     a11yDate: null,
-    why: "Likely to be promoted — it is the right control for switching a chart between day, week and month. Held back until TrendSparkline exists to use it.",
-    useInstead: ["tabs", "button"],
+    why: "Likely to be promoted — it is the right control for switching a chart between day, week and month. It was held back until TrendSparkline existed to use it; TrendSparkline is implemented now and this is not, so the only thing keeping it here is that nobody has built it.",
+    useInstead: ["button"],
   },
   {
     name: "stepper",
@@ -1206,11 +1206,30 @@ export const CATALOGUE: CatalogueEntry[] = [...SHIPPED, ...CONSIDERED]
 
 /**
  * RESERVED ALIASES — synonyms that belong to a doctrine or content page rather
- * than to a component. They are declared here so that the global uniqueness
- * check can see them and a content author cannot take one by accident.
+ * than to a component, recorded here so that the whole alias namespace is
+ * declared in one file rather than discovered a page at a time.
  *
- * The page id is the key; the array is exactly what that page's frontmatter
- * `aliases` must contain.
+ * BE CLEAR ABOUT WHAT THIS LIST DOES AND DOES NOT DO, because the sentence that
+ * used to stand here — "the array is exactly what that page's frontmatter
+ * `aliases` must contain" — was not true of seven of the thirteen entries and
+ * nothing was ever going to notice. Nothing reads this map at build time. It is
+ * not compared against the pages it names, so a reserved synonym the page never
+ * carries is simply absent from search; and it is not compared against the rows
+ * above it, so a component row may claim a word reserved here without a warning
+ * anywhere. CAT005 catches the case that actually breaks a reader — two PAGES
+ * claiming one synonym — and that is the only alias collision any gate sees.
+ *
+ * TWO WORDS HAVE ALREADY GONE THE OTHER WAY, and they are named rather than
+ * quietly deleted: `term` claims "plain english", which is reserved below for
+ * `plain-english-a-z`, and `surface` claims "translucency", which is reserved
+ * below for `the-contrast-floor`. Both component pages carry the word too, so
+ * CAT006 and CAT011 are satisfied and search sends the reader to the component.
+ * Neither doctrine page carries it, so no CAT005 collision exists today.
+ * Deciding which of the two should own each word is a content decision and is
+ * not taken here; recording that the reservation has been overtaken is.
+ *
+ * The page id is the key. Treat the array as the claim this file makes on those
+ * words, not as a description of what any page currently publishes.
  */
 export const RESERVED_ALIASES: Record<string, string[]> = {
   "clinical-status-semantics": ["severity", "urgency", "triage"],
