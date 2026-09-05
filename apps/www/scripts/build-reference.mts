@@ -353,9 +353,12 @@ function tokensPage(tokens: GeneratedToken[]): PageSpec {
       "A row exists for every token that reaches CSS. **What it controls** is the",
       "`description` field in the token source, and it is the column that turns a list",
       "into a decision aid - a token with no description is a token nobody can choose",
-      "correctly. **Used by** reads \"not yet\" for every row today, and that is the",
-      "honest answer rather than a missing feature: nothing is built, so nothing",
-      "consumes anything.",
+      "correctly. **Used by** is derived by `scripts/build-tokens.mts` from the",
+      "component sources under `registry/bases`, counting both a literal",
+      "`var(--opsin-...)` and any Tailwind utility that `app/product.css` bridges back",
+      "to the token. It reads \"no component\" where nothing in the base layer reads the",
+      "token directly, which is the ordinary state of a primitive: components consume",
+      "roles, and roles reference primitives.",
       "",
       "To change a value, change the JSON and regenerate. Editing this page does",
       "nothing except fail `pnpm check:generated`.",
@@ -444,6 +447,9 @@ function contrastPage(): PageSpec {
     | undefined
   const pairs = Array.isArray(data?.pairs) ? data.pairs : []
   const collisions = Array.isArray(data?.cvd?.collisions) ? data.cvd.collisions : []
+  const advisoryBelowFloor = pairs.filter(
+    (pair) => pair.advisory === true && pair.passes !== true,
+  ).length
 
   const scopes = [...new Set(pairs.map((pair) => String(pair.scope ?? "other")))]
   const sections = scopes
@@ -457,7 +463,22 @@ function contrastPage(): PageSpec {
               cell(pair.use),
               cell(typeof pair.apcaLc === "number" ? pair.apcaLc.toFixed(1) : pair.apcaLc),
               cell(typeof pair.wcag === "number" ? `${pair.wcag.toFixed(2)}:1` : pair.wcag),
-              pair.advisory === true ? "advisory" : pair.passes === true ? "pass" : "FAIL",
+              /* THREE VERDICTS, NOT TWO. Testing `advisory` first is right - an
+                 advisory pair is not gated, so it cannot be a FAIL - but a plain
+                 "advisory" then says the same word about a pair that clears the
+                 floor and a pair that does not, and eleven of the forty-six do
+                 not. The reader of this table is deciding whether to bound an
+                 accent with `line` or label it in `ink`; "advisory" alone tells
+                 them the pair is exempt, which is the opposite of the answer.
+                 No floor moves here and no pair is reclassified: the same rows
+                 stay ungated, and the column stops rounding two states into one. */
+              pair.advisory === true
+                ? pair.passes === true
+                  ? "advisory"
+                  : "advisory - below floor"
+                : pair.passes === true
+                  ? "pass"
+                  : "FAIL",
             ])
           if (rows.length === 0) return ""
           return [
