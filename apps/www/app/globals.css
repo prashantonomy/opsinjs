@@ -577,21 +577,58 @@
 
 /* THE CHROME'S OWN MOTION, WHICH THE BLOCK ABOVE DOES NOT REACH.
 
-   POSITION IS LOAD-BEARING, and it sits AFTER the whole of section 8 — its
-   :root and .dark blocks and its gamut, reduced-transparency and reduced-motion
-   overrides. This file redeclares the same custom properties from the token
-   source, with values `pnpm contrast` has measured, and it carries its own P3
-   escalation and its own reduced-motion block. `:root` here and `:root` there
-   have identical specificity, so whichever is declared LAST wins, and it must
-   be this one. Section 8 above is the authored fallback and nothing else: it
-   exists so a clean checkout renders in the right colours before anybody has
-   run `pnpm run generate`, and it is the source of truth for no value at all.
-   It was previously imported BEFORE section 8, which meant the authored guesses
-   silently beat the generated values — the drift this whole layer exists to
-   make impossible.
-   -------------------------------------------------------------------------- */
+   Collapsing the tokens was necessary and it was not sufficient. Nothing in the
+   docs chrome consumes an opsin duration: everything that actually moves on a
+   docs page is fumadocs' — the page cross-fade (`fd-fade-out`, 0.3s), the
+   sidebar (`fd-sidebar-out`, 0.25s), 0.15s on the header, 0.1s on every link
+   and button — and fumadocs ships no `prefers-reduced-motion` rule of its own.
+   Measured on /docs/components/result-card with the preference emulated both
+   ways, every one of those computed identically in both states while the tokens
+   on the same page collapsed correctly. A reader who has asked their operating
+   system for less movement was getting the full-length chrome and a collapsed
+   token layer that no chrome element read.
 
-@import "./tokens.generated.css";
+   `foundations/motion/reduced-motion` is right that a blanket kill switch is the
+   wrong answer for OUR motion: a token that declares what it becomes carries the
+   spatial information through, and a rule at the bottom of a stylesheet cannot.
+   That doctrine governs what opsinjs authors. This is the other case — motion in
+   a third-party chrome we do not author and cannot give per-token variants to —
+   and there the choice is between the coarse collapse and ignoring the
+   preference. `accessibility/reduced-motion` already publishes 1ms as what this
+   site's durations become, so the chrome collapses to the same number rather
+   than a second one.
+
+   IT COLLAPSES DURATION AND NOTHING ELSE. No `animation: none`, no
+   `transition: none`, no change to fill mode: the state change still happens and
+   still lands in its finished state, which matters most for the exit animations
+   — an exit that is removed rather than shortened leaves a dismissed sidebar on
+   the screen. `animation-iteration-count` is deliberately not forced to 1 here,
+   because that stops a looping indicator mid-cycle and a frozen spinner tells a
+   reader nothing; a looping animation instead guards itself with
+   `(prefers-reduced-motion: no-preference)`, as `opsin-motion-dot` on the home
+   page does, and any new one must do the same rather than rely on this block.
+
+   SCOPE. This file dresses the docs chrome only. Every component preview is an
+   iframe onto /view, which loads app/product.css, and nothing under
+   registry/bases/ is rendered directly by a chrome page — so the one animation
+   in the system with a documented reduced-motion EXCEPTION, Button's busy
+   spinner, is not reached by this rule and keeps its speed where it lives. If a
+   base component is ever imported into a chrome page, that exception has to be
+   re-examined here before it is. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-delay: 0ms !important;
+    animation-duration: 1ms !important;
+    transition-delay: 0ms !important;
+    transition-duration: 1ms !important;
+  }
+
+  html {
+    scroll-behavior: auto !important;
+  }
+}
 
 /* Expose the opsinjs layer as Tailwind utilities. `inline` so the utilities
    resolve the custom property at use time and therefore follow the theme, the
@@ -695,6 +732,61 @@
   /* Never let a health number be selected as a fragment of a larger string. */
   [data-opsinjs-value] {
     font-variant-numeric: tabular-nums;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   The 640-767px navigation reflow.
+
+   fumadocs' home header shows its `type: "main"` row from its own `sm`
+   breakpoint (the `max-sm:hidden` <ul> in fumadocs-ui/layouts/home/slots/
+   header) and only collapses it again at `lg`. Measured on the home page at a
+   640px viewport - a 1280px window at the 200% zoom a low-vision reader
+   typically sets - the wordmark, the six labels and the trailing search-and-
+   menu cluster come to 703px, so the document scrolls sideways and the search
+   button sits off-screen. 600px and 768px are both clean.
+
+   The repair is here rather than in lib/layout.shared.tsx because that file
+   cannot reach fumadocs' own markup, and it is deliberately TWO rules. Hiding
+   the bar row alone would make all six destinations unreachable between 640px
+   and 767px, because fumadocs marks the same items `sm:hidden` inside the
+   collapsed menu - the menu is only populated below 640px. Both halves move
+   together or the fix is worse than the bug.
+
+   Attribute selectors rather than escaped class names (`.max-sm\:hidden`)
+   because the token form says plainly which upstream class is being answered,
+   and `~=` matches a whole space-separated token, so `max-sm:hidden` and
+   `sm:hidden` cannot match each other.
+
+   Do not narrow this to the home page. `#nd-nav` is the home header, which the
+   `(home)` and `(playground)` groups both mount; the docs shell has its own.
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 40rem) and (max-width: 47.9375rem) {
+  /* 1. Take the horizontal main-link row out of the header bar. */
+  #nd-nav ul[class~="max-sm:hidden"] {
+    display: none;
+  }
+
+  /* 2. Put the same six back inside the collapsed menu, which fumadocs has
+        already hidden at this width. */
+  #nd-nav [class~="sm:hidden"] {
+    display: inline-flex;
+  }
+
+  /* 3. The menu panel turns into a right-aligned row from `sm` up, which is
+        right for the two icons it normally holds here and wrong for six
+        labelled links. Stack them. */
+  #nd-nav [class~="sm:flex-row"] {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+
+  /* 4. The secondary cluster's own gap is a `max-sm:` utility, so it is off at
+        this width and the icons sit flush against the last link. */
+  #nd-nav [class~="max-sm:mt-2"] {
+    margin-top: 0.5rem;
   }
 }
 
