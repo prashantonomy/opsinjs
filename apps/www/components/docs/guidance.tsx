@@ -730,9 +730,27 @@ function InsteadPointer({
  * and not told what to use instead does one of two things: uses it anyway, or
  * invents something. On a health surface both are worse than the mistake the
  * prohibition was trying to prevent.
+ *
+ * Naming an alternative is necessary and is not sufficient. The catalogue's own
+ * `useInstead` arrays were made to point only at ids with code behind them; the
+ * `instead` values written on component pages are not constrained that way and
+ * should not be, because the most honest answer to "do not use a status pill
+ * for a category label" is sometimes a name this system decided against. What
+ * a renderer must not do is present that name as though it were available.
+ * Every entry is therefore resolved through `getEntry` and `isBuilt` — see
+ * `<InsteadPointer>` — and the `data-instead-built` attribute records the
+ * answer on the row, so the distinction is legible to a checker as well as to a
+ * reader.
  */
 export function WhenToUse({ use, avoid, className }: WhenToUseProps) {
-  const orphans = avoid.filter((entry) => !entry.instead)
+  const rows = avoid.map((entry) => ({
+    entry,
+    resolved: resolveInstead(entry),
+  }))
+  const orphans = rows.filter((row) => !row.entry.instead)
+  const strangers = rows.filter(
+    (row) => row.entry.instead && !row.entry.href && !row.resolved.target
+  )
 
   if (orphans.length > 0 && typeof window === "undefined") {
     console.warn(
