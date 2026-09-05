@@ -175,14 +175,16 @@ curl -s https://opsinjs.dev/r/result-card.json | head -20
 
 ### Its dependencies exist
 
-Every name in `registryDependencies` should itself resolve. A dangling
+Every name in `registryDependencies` should itself resolve, which for a
+namespaced name means the consuming project has an `@opsinjs` entry. A dangling
 dependency fails at install time, in somebody else's project, which is the worst
 place to discover it.
 
 ### Its status is visible
 
-`meta.opsinjs.status` should be present and should agree with `/r/index.json`
-and with the documentation page. Three copies of one fact, asserted to agree.
+`meta.opsinjs.implemented` and `meta.opsinjs.status` should be present and should
+agree with `/r/index.json` and with the documentation page. Three copies of one
+fact, asserted to agree.
 
 </Steps>
 
