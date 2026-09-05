@@ -21,13 +21,19 @@ discriminator: a problem at install time has a completely different cause set fr
 one that only appears in a production build. Each entry states a symptom you can
 match, the cause, and the fix.
 
-<Todo>
+<Todo owner="engineering">
   This page is specified to quote the exact error text for each failure, anchored
-  by error code. Nothing is implemented, so those strings have not been produced by
-  a real failure — and inventing plausible-looking error text in a troubleshooting
-  page is worse than omitting it, because it makes the page unsearchable in exactly
-  the situation where someone is pasting an error into a search box. Entries below
-  are therefore matched by symptom until the first release generates the real text.
+  by error code. Half of that is now possible and is not done here. The
+  implemented components emit their development warnings under `OPSIN-` codes
+  declared in `tokens/errors.json`, and
+  [Error codes](../handbook/error-codes.mdx) is generated from that file, so a
+  reader pasting a code into a search box should be landing there — this page
+  should quote and link the runtime entries rather than describing them. The
+  install-time and build-time failures still have no captured text, because
+  nothing has been published and so nobody has produced one; inventing
+  plausible-looking error text is worse than omitting it, since it makes the page
+  unsearchable in exactly the situation it exists for. Those entries stay matched
+  by symptom.
 </Todo>
 
 ## Failures before anything is installed
