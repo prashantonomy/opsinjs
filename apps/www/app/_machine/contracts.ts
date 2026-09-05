@@ -48,6 +48,13 @@ import pkg from "@/package.json"
  * Overridable for preview deployments. Every route below is statically
  * rendered, so this is baked at build time — set it in the build environment,
  * not at request time.
+ *
+ * THE DEFAULT DOES NOT RESOLVE. `dig opsinjs.dev` returns no record, so every
+ * absolute URL built from this constant — in `llms.txt`, in the four shards, in
+ * every `/r` payload, in each `.md` twin's frontmatter, in the sitemap and in
+ * the feed — is a name the project intends to own rather than a URL an agent
+ * can fetch. Set `NEXT_PUBLIC_SITE_URL` to the origin that actually serves the
+ * build, and do not treat the fallback as a contract until the domain exists.
  */
 /**
  * NOTE FOR THE SEQUENTIAL FINISH: `app/_shared/site.ts` (the human-facing
@@ -76,8 +83,8 @@ export const SITE_TAGLINE =
 /**
  * The one paragraph every machine surface opens with. It has to do two jobs at
  * once: say what the system is for, and say — before anything else is read —
- * how little of it is built, so a model does not answer a question about a
- * component by inventing its API.
+ * exactly how much of it is built, so a model neither invents the API of a
+ * component that does not exist nor hand-rolls one that does.
  *
  * It is computed rather than asserted, and computed LAZILY.
  *
