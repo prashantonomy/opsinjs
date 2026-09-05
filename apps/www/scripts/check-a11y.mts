@@ -1669,9 +1669,8 @@ function checkBannedWords(
   const identifiers = /[A-Za-z_$][A-Za-z0-9_$]*/g
   const reported = new Set<string>()
   let identifier: RegExpExecArray | null
-  while ((identifier = identifiers.exec(code)) !== null) {
+  while ((identifier = identifiers.exec(identifierSource)) !== null) {
     const text = identifier[0]
-    const lowered = text.toLowerCase()
     const segments = identifierSegments(text).map((segment) => segment.toLowerCase())
     for (const entry of single) {
       /* The whole-file pass above already has the bare word; this pass is only
