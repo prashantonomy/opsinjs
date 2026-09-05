@@ -21,7 +21,11 @@ import { agentRoutes, registryRoutes, routes } from "@/lib/routes"
  * It also renders inside a Next-generated `<html>` with no root layout and so no
  * `lang` attribute, which is why the language is declared on the wrapper below:
  * a site this insistent about accessibility should not ship a 404 that fails
- * WCAG 2.2 SC 3.1.1.
+ * WCAG 2.2 SC 3.1.1. The `lang` cannot reach `<html>` from here at all — there
+ * is no layout in which to set it — so the wrapper is the whole of what is
+ * available, and it is stated as a limit rather than as a fix. The `<title>`
+ * below is the same situation with a different ending: React hoists it into the
+ * head, so SC 2.4.2 is genuinely satisfied rather than approximated.
  *
  * WHAT A 404 IS FOR ON THIS SITE. Every other page here exists to stop an agent
  * inventing an API. A 404 is the one response that invites exactly that: ask an
@@ -33,6 +37,14 @@ import { agentRoutes, registryRoutes, routes } from "@/lib/routes"
 export default function NotFound() {
   return (
     <div lang="en" className="nf-root">
+      {/* Rendered in the tree rather than exported as `metadata`, because the
+          Metadata API is collected from `layout` and `page` segments only and
+          this file is neither — and, with no root layout above it, there is no
+          layout here to carry a title either. React hoists a <title> rendered
+          anywhere into the document head, which is the only way this file can
+          have one. WCAG 2.2 SC 2.4.2: a page with no title is announced by its
+          URL, and a URL is what the reader already could not make sense of. */}
+      <title>Page not found — opsinjs</title>
       <main className="nf-main">
         <p className="nf-eyebrow">404</p>
         <h1 className="nf-title">There is no page at this address.</h1>
