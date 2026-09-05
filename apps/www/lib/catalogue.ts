@@ -70,8 +70,7 @@ export function getEntry(id: string): CatalogueEntry | undefined {
  * exists without a page, or a page exists without a row.
  */
 export function hasComponentPage(id: string): boolean {
-  const entry = getEntry(id)
-  return entry !== undefined && entry.status !== "considered"
+  return isKnownId(id)
 }
 
 /**
@@ -224,10 +223,15 @@ export function searchCatalogue(
   )
 }
 
-/** Every component whose `governedBy` names this doctrine page. The reverse of `implements`. */
-export function entriesGovernedBy(doctrineId: string): CatalogueEntry[] {
-  return CATALOGUE.filter((entry) => entry.governedBy?.includes(doctrineId))
-}
+/* `entriesGovernedBy(doctrineId)` used to live here: the reverse index, every
+   component whose catalogue `governedBy` names a doctrine page. It was exported
+   and imported by nothing, because a doctrine page lists what it governs from
+   its own `implements:` frontmatter instead, and has since the templates were
+   written. Deleted rather than left as a plausible-looking helper somebody
+   reaches for and then wonders why the two lists disagree — the catalogue's
+   `governedBy` and a page's `implements` are maintained separately and nothing
+   compares them. If the reverse index is ever wanted, write it back with a
+   consumer and a check that the two directions agree, in one commit. */
 
 /**
  * Validate a doctrine page's `implements` list. Every entry must be a real
