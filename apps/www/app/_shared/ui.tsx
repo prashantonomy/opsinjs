@@ -218,9 +218,16 @@ export function LinkCard({
  * additionally emit the machine-readable not-implemented marker an agent reads.
  * This is the human-facing equivalent for pages that are not about one named
  * component, so it deliberately does NOT emit that marker — an agent must never
- * conclude from the landing page that a specific component was answered for.
+ * conclude from the landing page that a specific component was answered for,
+ * in either direction. The marker is per-component and this notice is not.
+ *
+ * It is named for the question it answers rather than for the answer, because
+ * the answer changes: it opened as "nothing is built", it says "alpha and not
+ * packaged" now, and the day something reaches `stable` it will say that. A
+ * component whose name asserts one of those is a component that lies as soon as
+ * the sentence under it stops being true.
  */
-export function NothingBuiltNotice({
+export function ImplementationStatusNotice({
   children,
   href,
 }: {
