@@ -771,12 +771,16 @@ async function main(): Promise<void> {
        every other check - this exit is the only thing that reports it. */
     const baselineExists = exists(OUT_FILE)
     let previous: { pairs?: MeasuredPair[] } | undefined
-    try {
-      previous = JSON.parse(readFileSync(OUT_FILE, "utf8")) as { pairs?: MeasuredPair[] }
-    } catch {
-      previous = undefined
+    let unreadable: string | undefined
+    if (baselineExists) {
+      try {
+        previous = JSON.parse(readFileSync(OUT_FILE, "utf8")) as { pairs?: MeasuredPair[] }
+      } catch (error) {
+        unreadable = (error as Error).message
+      }
     }
-    if (!previous || !Array.isArray(previous.pairs) || previous.pairs.length === 0) {
+
+    if (!baselineExists) {
       console.warn(
         "check-contrast --verify: there are no committed measurements to compare against.\n" +
           "  Run `pnpm run contrast` and commit lib/generated/contrast.json first.",
