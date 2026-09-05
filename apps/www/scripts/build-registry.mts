@@ -1058,6 +1058,13 @@ async function main(): Promise<void> {
         [
           "build-registry --check: generated output is out of date.",
           ...drifted.map((output) => `  ${relative(APP_DIR, output.file)}`),
+          ...(staleStubs.length > 0
+            ? [
+                "",
+                "  These pages have no catalogue row and `pnpm run generate` will remove them:",
+                ...staleStubs.map((file) => `  ${relative(APP_DIR, file)}`),
+              ]
+            : []),
           "",
           "  Run `pnpm run generate` and commit the result.",
         ].join("\n"),
