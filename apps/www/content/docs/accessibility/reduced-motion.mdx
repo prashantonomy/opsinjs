@@ -116,8 +116,15 @@ source exists; the table is not generated yet.
 
 ## Known gaps
 
-- **No component consumes these tokens,** so the guarantee currently describes
-  CSS that nothing exercises.
+- **Nothing fails the build when a token stops collapsing.** The guarantee is
+  exercised rather than theoretical — `button`, `care-card`, `dialog`,
+  `consent-sheet` and `sheet` read a duration through
+  `duration-(--opsin-duration-*)`, and `skeleton` gates its pulse on
+  `motion-safe:` — but the collapse itself is asserted by no check. The table
+  under Measured results is the artefact that would catch a regression; until it
+  is generated, the only evidence is a manual read of the three stylesheets, and
+  the ordering that makes the collapse work is easy to undo by moving an
+  `@import`.
 - **There is no lint rule** preventing a hard-coded duration in component source.
   A stylelint plugin is proposed on
   [Tooling](../handbook/tooling/index.mdx) and is not built.
