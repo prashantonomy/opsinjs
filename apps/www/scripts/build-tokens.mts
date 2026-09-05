@@ -68,7 +68,7 @@ if (!Number.isFinite(NODE_MAJOR) || NODE_MAJOR < 24) {
 }
 
 import { createHash } from "node:crypto"
-import { mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs"
+import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
 
@@ -78,6 +78,15 @@ const OUT_CSS = join(APP_DIR, "app", "tokens.generated.css")
 const OUT_TS = join(APP_DIR, "lib", "generated", "tokens.ts")
 const OUT_GLOSSARY = join(APP_DIR, "lib", "generated", "glossary.json")
 const OUT_UNITS = join(APP_DIR, "lib", "generated", "units.json")
+
+/**
+ * Two READ-ONLY inputs, for the `usedBy` column only. They are deliberately not
+ * in the hashed source list below: `--opsin-tokens-generated` records which
+ * TOKEN sources produced this layer, and folding component files into it would
+ * make every component edit rewrite the provenance value of every theme.
+ */
+const PRODUCT_CSS = join(APP_DIR, "app", "product.css")
+const BASES_DIR = join(APP_DIR, "registry", "bases")
 
 /**
  * The theme payload lands in registry/generated/, NOT in public/.
@@ -104,10 +113,14 @@ const OUT_THEME = join(APP_DIR, "registry", "generated", "themes", "opsinjs-defa
  * code in their hand. Its table is the whole of `tokens/errors.json` and not
  * one row of it is authored, per ADR 0006.
  *
- * Neither path is in `check:generated`'s diff list in package.json - that list
- * names `lib/generated`, `registry/generated`, `app/tokens.generated.css` and
- * the two reference directories - so `node scripts/build-tokens.mts --check` is
- * what covers them, exactly as it covers registry/generated/themes.
+ * Both paths ARE in `check:generated`'s diff list in package.json, which names
+ * `lib/generated`, `lib/opsinjs.ts`, `registry/__index__.ts`,
+ * `registry/generated`, `app/tokens.generated.css`, the two reference
+ * directories, `content/docs/handbook/error-codes.mdx` and `public/r`. So a
+ * region that drifts is caught twice: by that diff, and by
+ * `node scripts/build-tokens.mts --check`, which is what covers
+ * registry/generated/themes on its own. package.json is the authority; if the
+ * two ever disagree, the diff list wins and this comment is the stale half.
  */
 const OUT_SUBSTRATE = join(APP_DIR, "lib", "opsinjs.ts")
 const OUT_ERROR_CODES = join(APP_DIR, "content", "docs", "handbook", "error-codes.mdx")
