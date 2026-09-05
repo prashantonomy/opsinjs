@@ -575,6 +575,11 @@ export const COMPONENT_SECTIONS_BY_STATUS: Record<Status, string[]> = {
     "API reference",
     "Related",
   ],
+  considered: [
+    "What this name refers to",
+    "Why it is not on the roster",
+    "What to use instead",
+  ],
 }
 
 /**
@@ -600,7 +605,6 @@ export function accessibilitySectionFor(status: Status): string {
 
 /** The sections required for a component page at a given status and category. */
 export function componentSections(status: Status, category: string): string[] {
-  if (status === "considered") return []
   const base = COMPONENT_SECTIONS_BY_STATUS[status]
   return base.filter((section) => {
     const gate = CATEGORY_GATED_SECTIONS.find((g) => g.section === section)
