@@ -27,6 +27,23 @@ import { site } from "@/lib/routes"
  * the docs source is loaded, and the link set has to be readable as a list. The
  * literals are checked against `routes.ts` by `assert-ia.mts` so the exception
  * cannot rot.
+ *
+ * THE SIX DO NOT FIT AT 640px, AND THIS FILE CANNOT FIX IT. fumadocs shows the
+ * `type: "main"` row from its own `sm` breakpoint (`max-sm:hidden` on the `<ul>`
+ * in `fumadocs-ui/layouts/home/slots/header`) and only collapses it again at
+ * `lg`. Measured on the home page: at a 640px viewport — a 1280px window at the
+ * 200% zoom a low-vision reader typically sets — the wordmark, the six labels
+ * and the trailing search-and-menu cluster come to 703px, so the page scrolls
+ * sideways and the search button sits off-screen. 600px and 768px are both
+ * clean. Do not fix it by dropping a link: `TOP_NAV` in `assert-ia.mts` names
+ * all six and IA006 warns for any this file stops declaring, and the set is the
+ * cross-worker contract above. The repair lives in `app/globals.css`, in the
+ * section headed "The 640-767px navigation reflow": it hides the bar row below
+ * `md` AND un-hides the same items inside the collapsed menu, which fumadocs
+ * marks `sm:hidden`. Both halves are load-bearing — hiding only the first makes
+ * the six unreachable between 640px and 767px — so if you change the link set
+ * here, re-measure `documentElement.scrollWidth` at 640, 672, 700 and 767.
+ * Adding a seventh link makes this worse at every width.
  */
 export function baseOptions(): BaseLayoutProps {
   return {
