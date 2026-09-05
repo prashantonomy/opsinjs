@@ -174,15 +174,19 @@ usually the cap — check `omitted` before reporting anything.
 
 ### The page bodies are under `markdown`
 
-Search a `content` field for `<` followed by a capital letter. There should be
-none.
+Read `pages[0].markdown`. It is markdown, and it will contain `<PascalCase … />`
+tags; that is the format rather than a fault. Reaching for `pages[0].content`
+returns `undefined`, which is the quietest way a vendored reader ends up
+indexing an empty corpus.
 
 </Steps>
 
 ## Troubleshooting
 
-**The download is truncated.** It is a large single response. Check for a proxy
-with a body-size limit, and prefer a client that streams to disk.
+**The download is truncated.** Check `truncated` and `omitted` in the payload
+first: the server caps this response on purpose and reports the cap in
+`truncationNote`. A proxy body-size limit is only the likely cause if the JSON
+will not parse at all — in which case prefer a client that streams to disk.
 
 **The bundle disagrees with the site.** Compare version strings. If they match
 and the content differs, that is a real bug and worth reporting.
