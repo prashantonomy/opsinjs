@@ -422,14 +422,14 @@ export const TOKENS: GeneratedToken[] = [
   { name: "safe-left", cssVar: "--opsin-safe-left", namespace: "space", tier: "semantic", group: "safe", value: "env(safe-area-inset-left, 0px)", description: "The left safe-area inset, for installed web apps where browser chrome does not protect the edge.", usedBy: ["sheet"], sourcePath: "space.json#safeArea.left" },
   { name: "radius-base", cssVar: "--opsin-radius-base", namespace: "shape", tier: "semantic", group: "radius", value: "0.875rem", description: "The one radius the whole ladder is derived from.", usedBy: [], sourcePath: "shape.json#base" },
   { name: "radius-none", cssVar: "--opsin-radius-none", namespace: "shape", tier: "semantic", group: "radius", value: "0rem", description: "Full-bleed media and anything that meets a screen edge.", usedBy: [], sourcePath: "shape.json#ladder.radius-none" },
-  { name: "radius-xs", cssVar: "--opsin-radius-xs", namespace: "shape", tier: "semantic", group: "radius", value: "0.25rem", description: "The floor for a nested corner. Tags inside a chip, a swatch inside a legend.", usedBy: [], sourcePath: "shape.json#ladder.radius-xs" },
-  { name: "radius-sm", cssVar: "--opsin-radius-sm", namespace: "shape", tier: "semantic", group: "radius", value: "0.4375rem", description: "Inputs and small controls inside a card.", usedBy: [], sourcePath: "shape.json#ladder.radius-sm" },
-  { name: "radius-md", cssVar: "--opsin-radius-md", namespace: "shape", tier: "semantic", group: "radius", value: "0.875rem", description: "The default. Buttons, chips, status pills, cards.", usedBy: [], sourcePath: "shape.json#ladder.radius-md" },
-  { name: "radius-lg", cssVar: "--opsin-radius-lg", namespace: "shape", tier: "semantic", group: "radius", value: "1.3125rem", description: "Cards on a phone, where the card is nearly the width of the screen.", usedBy: [], sourcePath: "shape.json#ladder.radius-lg" },
-  { name: "radius-xl", cssVar: "--opsin-radius-xl", namespace: "shape", tier: "semantic", group: "radius", value: "1.75rem", description: "Sheets and dialogs. Applied to the leading edge only when the surface meets a screen edge on the other side.", usedBy: [], sourcePath: "shape.json#ladder.radius-xl" },
-  { name: "corner-shape", cssVar: "--opsin-corner-shape", namespace: "shape", tier: "semantic", group: "corner-shape", value: "superellipse(4)", description: "The squircle curvature. Degrades to `round` where corner-shape is unsupported.", usedBy: [], sourcePath: "shape.json#cornerShape.value" },
-  { name: "border-hairline", cssVar: "--opsin-border-hairline", namespace: "shape", tier: "semantic", group: "border", value: "1px", description: "Every boundary in the system by default.", usedBy: [], sourcePath: "shape.json#borders.hairline.px" },
-  { name: "border-emphasis", cssVar: "--opsin-border-emphasis", namespace: "shape", tier: "semantic", group: "border", value: "2px", description: "The boundary of a surface carrying `attention` or `urgent`, where the boundary is one of the three non-colour carriers of the status.", usedBy: [], sourcePath: "shape.json#borders.emphasis.px" },
+  { name: "radius-xs", cssVar: "--opsin-radius-xs", namespace: "shape", tier: "semantic", group: "radius", value: "0.25rem", description: "The floor for a nested corner. Tags inside a chip, a swatch inside a legend.", usedBy: ["term"], sourcePath: "shape.json#ladder.radius-xs" },
+  { name: "radius-sm", cssVar: "--opsin-radius-sm", namespace: "shape", tier: "semantic", group: "radius", value: "0.4375rem", description: "Inputs and small controls inside a card.", usedBy: ["consent-sheet", "field", "reading-input", "sheet", "surface"], sourcePath: "shape.json#ladder.radius-sm" },
+  { name: "radius-md", cssVar: "--opsin-radius-md", namespace: "shape", tier: "semantic", group: "radius", value: "0.875rem", description: "The default. Buttons, chips, status pills, cards.", usedBy: ["alert-banner", "button", "callout", "card", "care-card", "dialog", "empty-state", "metric-tile", "result-card", "skeleton", "surface"], sourcePath: "shape.json#ladder.radius-md" },
+  { name: "radius-lg", cssVar: "--opsin-radius-lg", namespace: "shape", tier: "semantic", group: "radius", value: "1.3125rem", description: "Cards on a phone, where the card is nearly the width of the screen.", usedBy: ["surface"], sourcePath: "shape.json#ladder.radius-lg" },
+  { name: "radius-xl", cssVar: "--opsin-radius-xl", namespace: "shape", tier: "semantic", group: "radius", value: "1.75rem", description: "Sheets and dialogs. Applied to the leading edge only when the surface meets a screen edge on the other side.", usedBy: ["dialog", "sheet"], sourcePath: "shape.json#ladder.radius-xl" },
+  { name: "corner-shape", cssVar: "--opsin-corner-shape", namespace: "shape", tier: "semantic", group: "corner-shape", value: "superellipse(4)", description: "The squircle curvature. Degrades to `round` where corner-shape is unsupported.", usedBy: ["alert-banner", "callout", "card", "dialog", "metric-tile", "result-card", "sheet"], sourcePath: "shape.json#cornerShape.value" },
+  { name: "border-hairline", cssVar: "--opsin-border-hairline", namespace: "shape", tier: "semantic", group: "border", value: "1px", description: "Every boundary in the system by default.", usedBy: ["button", "care-card", "surface"], sourcePath: "shape.json#borders.hairline.px" },
+  { name: "border-emphasis", cssVar: "--opsin-border-emphasis", namespace: "shape", tier: "semantic", group: "border", value: "2px", description: "The boundary of a surface carrying `attention` or `urgent`, where the boundary is one of the three non-colour carriers of the status.", usedBy: ["button", "field", "surface"], sourcePath: "shape.json#borders.emphasis.px" },
   { name: "border-focus", cssVar: "--opsin-border-focus", namespace: "shape", tier: "semantic", group: "border", value: "2px", description: "The focus ring. Always 2px with a 2px offset, always in a colour measured against both the surface and the page behind it, and never removed — see /docs/accessibility/keyboard-and-focus.", usedBy: [], sourcePath: "shape.json#borders.focus.px" },
   { name: "border-focus-offset", cssVar: "--opsin-border-focus-offset", namespace: "shape", tier: "semantic", group: "border", value: "2px", description: "Offset for the focus boundary.", usedBy: [], sourcePath: "shape.json#borders.focus.offsetPx" },
 ]
@@ -440,8 +440,8 @@ export const TOKEN_META: {
   count: number
   namespaces: TokenNamespace[]
 } = {
-  generatedAt: "8cf8a1222661",
-  sourceHash: "8cf8a1222661",
+  generatedAt: "20d89e51921d",
+  sourceHash: "20d89e51921d",
   count: 331,
   namespaces: ["color", "material", "motion", "type", "space", "shape"] as TokenNamespace[],
 }
@@ -804,6 +804,11 @@ export const BANNED_WORDS: GeneratedBannedWord[] = [
     "word": "don't worry",
     "instead": "state what the reading means and what happens next",
     "reason": "Reassurance the system cannot back up, and it reads as a reason to worry."
+  },
+  {
+    "word": "elevated",
+    "instead": "higher than",
+    "reason": "Clinical register; means little to a lay reader, and it sounds like a verdict to the readers who do recognise it."
   },
   {
     "word": "failed",
