@@ -45,15 +45,23 @@ data behind it is stale or partial.
 are documented per component under Accessibility. Attributes emitted by the
 documentation site's own chrome are not part of the system.
 
-**Today this list has one entry that is real:**
-`data-opsinjs-not-implemented`, emitted by every not-built-yet marker on this
-site so that a program can tell a specification from a component without parsing
-prose. Everything else appears when the components do.
+**The table below is empty, and the components are not.** The implemented
+components under `registry/bases/base` carry `data-slot` on every part, plus
+`data-status`, `data-category`, `data-opsin-shape` and `data-opsinjs-value` where
+those apply, and they inherit Base UI's `data-open`, `data-starting-style` and
+`data-ending-style`. What is missing is the extraction: the generator does not
+read the component sources for `data-*` yet, and a table filled by guessing the
+condition and the value set would be inventing a styling contract that consumers
+then select on. Until it is written, read the attributes off the anatomy block on
+each component's own page. Separately from the system,
+`data-opsinjs-not-implemented` is emitted
+by every not-built-yet marker on this site, so a program can tell a specification
+from a component without parsing prose.
 
 {/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
 
 <NoDataYet script="scripts/build-reference.mts" />
 
-Nothing is built yet, so no component emits a data attribute. The vocabulary this table will be filled from - Base UI's `data-open`, `data-starting-style` and `data-ending-style`, plus opsinjs's `data-status` and `data-category` - is specified in the Handbook under Data attributes.
+This script does not read the component sources for `data-*` attributes yet, so the table below has no rows - not because no attribute is emitted. The base layer under `registry/bases/base` emits `data-slot` on every part, plus opsinjs's `data-status`, `data-category`, `data-opsinjs-value` and `data-opsin-shape`, and inherits Base UI's `data-open`, `data-starting-style` and `data-ending-style`. Filling this table needs the attribute, the part, the condition and the value set together; the vocabulary itself is specified in the Handbook under Data attributes.
 
 {/* opsinjs:generated:end */}
