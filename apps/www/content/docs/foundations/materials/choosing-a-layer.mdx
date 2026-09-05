@@ -35,29 +35,34 @@ question people most often skip.
 **2. Does it cover the page, so that what is behind it is no longer usable?** If
 yes, it is `sheet`, and it needs a `scrim` beneath it. Both, or neither.
 
-**3. Otherwise: is it an object, or a region?** An object you could imagine
-picking up — tappable, dismissible, transient — is `raised`. A region that
-organises content in place is `panel`. If it is neither, it is `ground` and it
-needs no material at all.
+**3. Otherwise: is it temporarily above the page, or part of it?** A surface that
+appears, is dismissed and leaves nothing behind — a menu, a popover, a dragged
+card — is `raised`. A bounded piece of content that belongs to the page is
+`card`. If it is neither, it is `canvas` and it needs no material at all.
+
+`overlay` and `sheet` are the pair people get backwards, because two retired
+vocabularies used those words the other way round. Chrome that content scrolls
+beneath is `overlay`; the panel that covers the page is `sheet`. See
+[ADR 0014](../../project/decisions/0014-material-rung-names.mdx).
 
 ### The decision table
 
 | The surface | Rung | Why |
 | --- | --- | --- |
-| Page background | `ground` | it is the thing everything else separates from |
-| A section of a list or a form | `panel` | a region, in place, not an object |
-| A card showing one reading, tappable | `raised` | an object; also, a health value, which must be opaque |
-| A card showing one reading, not tappable | `panel` | nothing is lifted, so nothing should look lifted |
-| Menu, dropdown, select list | `raised` | transient object over arbitrary content |
+| Page background | `canvas` | nothing is behind it, so nothing shows through it |
+| A section of a list or a form | `card` | a bounded piece of content, in place, not above the page |
+| A card showing one reading, tappable | `card` | tapping is an affordance, not a depth; `card` is the default home for a health value |
+| A card showing one reading, not tappable | `card` | the same rung — the difference between the two rows is the affordance, and nothing else |
+| Menu, dropdown, select list | `raised` | temporarily above the page, over arbitrary content |
 | Popover, tooltip | `raised` | same, and small enough that translucency would be noise |
 | Toast, snackbar | `raised` | appears over content it knows nothing about; must not depend on it |
-| Sticky nav bar or app bar | `bar` | content scrolls under it |
-| Bottom tab bar | `bar` | content scrolls under it |
-| Sticky section header inside a list | `bar` | content scrolls under it |
-| Sticky summary showing today's value | `bar`, conditionally | see the exception below |
-| Bottom sheet | `overlay` | takes over; needs a scrim |
-| Modal dialog | `overlay` | takes over; needs a scrim |
-| Full-screen takeover, camera or scanner UI | `overlay` | takes over; the scrim may be the camera feed's own dimming |
+| Sticky nav bar or app bar | `overlay` | content scrolls under it |
+| Bottom tab bar | `overlay` | content scrolls under it |
+| Sticky section header inside a list | `overlay` | content scrolls under it |
+| Sticky summary showing today's value | `overlay`, conditionally | see the exception below |
+| Bottom sheet | `sheet` | covers the page; needs a scrim |
+| Modal dialog | `sheet` | covers the page; needs a scrim |
+| Full-screen takeover, camera or scanner UI | `sheet` | covers the page; the scrim may be the camera feed's own dimming |
 | The dimmer behind any of the above | `scrim` | its only job is to remove information |
 | Side navigation on a wide screen, always visible | `panel` | it is a region of the page, not an object above it |
 | Side navigation on a phone, dismissible | `overlay` | it takes over; needs a scrim |
