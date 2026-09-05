@@ -1294,7 +1294,9 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
       fail(
         "C6001",
         file,
-        "a component page at status: planned must render <StubNotice> under ## Status. Without it the page reads as documentation for something that exists.",
+        status === "planned"
+          ? "a component page at status: planned must render <StubNotice> under ## Status. Without it the page reads as documentation for something that exists."
+          : 'a component page at status: alpha must render <StubNotice status="alpha"> under ## Status. Promotion sheds <NotBuiltYet> and <Todo>; <StubNotice> stays and carries the phase and the open safety questions, which are still open at alpha.',
       )
     }
   }
@@ -1393,11 +1395,10 @@ function checkMdxLinks(page: ParsedPage): void {
 /**
  * Blank out comments in a TypeScript source, preserving line count.
  *
- * The hardcoded-`/docs` rule looks for a quote character immediately before
- * the path, which is what tells a route literal apart from a filesystem path
- * like "content/docs/…". In a JSDoc block a backtick is markdown emphasis, not
- * a template literal, so a comment that merely NAMES the `/docs/<slug>.md`
- * route read as a hardcoded route and three files were failed for documenting
+ * The hardcoded-`/docs` rule reads string and template literals, and a comment
+ * is neither. In a JSDoc block a backtick is markdown emphasis rather than a
+ * template literal, so a comment that merely NAMES the `/docs/<slug>.md` route
+ * read as a hardcoded route and three files were failed for documenting
  * themselves accurately. A comment cannot be a link, so comments are removed
  * before the rule runs.
  *
