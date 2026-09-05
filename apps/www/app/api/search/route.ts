@@ -60,16 +60,42 @@ export const { GET } = createFromSource(source, {
     const structured = page.data.structuredData
 
     const contents = [...structured.contents]
+
+    /* A component page is the one whose last slug segment is a registry id;
+       every other page has no id to be implemented or not. */
+    const id = meta.kind === "component" ? page.slugs.at(-1) : undefined
+
+    if (id) {
+      contents.push({ heading: undefined, content: `Component id: ${id}.` })
+    }
     if (meta.aliases.length > 0) {
       contents.push({
         heading: undefined,
         content: `Also known as: ${meta.aliases.join(", ")}.`,
       })
     }
-    if (meta.status !== "stable") {
+
+    if (id && implementedComponents().includes(id)) {
+      /* The stability half is conditional on the status rather than stated
+         flat. "The API is not stable yet" is true of every built component
+         today and would be a false sentence, indexed on the surface an agent
+         queries first, on the day one of them is promoted. */
+      contents.push({
+        heading: undefined,
+        content:
+          meta.status === "stable"
+            ? `Release status: ${meta.status}. Implemented and installable from the registry.`
+            : `Release status: ${meta.status}. Implemented and installable from the registry; the API is not stable yet.`,
+      })
+    } else if (meta.status === "planned" || meta.status === "considered") {
       contents.push({
         heading: undefined,
         content: `Release status: ${meta.status}. Not implemented.`,
+      })
+    } else if (meta.status !== "stable") {
+      contents.push({
+        heading: undefined,
+        content: `Release status: ${meta.status}.`,
       })
     }
 
