@@ -18,8 +18,10 @@
  *
  * The registry specification requires a flat catalog served next to its items
  * (`/r/registry.json` alongside `/r/<name>.json`) and forbids a `content`
- * property inside a catalog's `files`. Neither is violated here: nothing is
- * built, so no item carries files at all.
+ * property inside a catalog's `files`. Neither is violated here. A built id
+ * does carry `files`, with their paths, types and targets — that is what a
+ * catalog is read for — and `buildCatalogEntry` strips the bytes, so the
+ * catalog stays a roster rather than becoming a sixty-row download.
  */
 
 import {
