@@ -16,8 +16,10 @@ import { NoDataYet } from "./stub"
 /* ==========================================================================
    health.tsx — <RangeDemo>, <Glossary>, <Term>.
 
-   The docs site dogfooding its own vocabulary. <Term> is the documentation's
-   version of the component the design system will eventually ship, and it
+   The docs site dogfooding its own vocabulary. <Term> here is the
+   documentation's own version of the shipped `term` component — a docs-chrome
+   twin, not a copy of it, because the shipped one lives under
+   registry/bases/base/ and renders in the product theme inside /view. It
    behaves the way the shipped one has to: plain English first, the clinical
    word kept, and a link to the full definition rather than a tooltip that a
    touch reader cannot open.
