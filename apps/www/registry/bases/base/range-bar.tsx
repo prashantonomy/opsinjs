@@ -790,14 +790,47 @@ export function RangeBar({
               className="absolute inset-y-0 rounded-full border border-muted-foreground bg-background"
             />
 
-            {[extent.low, extent.high].map((bound) => (
+            {[extent.low, extent.high].map((bound, index) => (
               <div
                 key={bound}
                 data-slot="range-bar-mark"
                 style={{ insetInlineStart: `${at(bound).toFixed(3)}%` }}
                 className="absolute -top-opsin-1 -bottom-opsin-1 w-px -translate-x-1/2 bg-muted-foreground rtl:translate-x-1/2"
               >
-                <span className="absolute top-full mt-opsin-1 start-1/2 -translate-x-1/2 whitespace-nowrap text-opsin-caption1 text-muted-foreground rtl:translate-x-1/2">
+                {/* THE TWO BOUND LABELS GROW OUTWARDS, AND THAT IS WHAT STOPS
+                    THEM COLLIDING. Centred on their marks they overlapped at
+                    200% text on a phone — measured at 20px of overlap at 390px
+                    and 42px at 320px, which prints the reference range as
+                    "10 mg/d20 mg/dL" and is invisible to an overflow check
+                    because the document never widens. They cannot wrap out of
+                    it either: the mark is a 1px containing block, so dropping
+                    `whitespace-nowrap` would break the label after every
+                    character.
+
+                    So the lower bound's label ends on its mark and the upper
+                    bound's label starts on its mark. Each still points at the
+                    position it names — the tick anchoring is untouched, which
+                    matters because these marks sit at computed positions inside
+                    the track and are not its ends — and the low label occupies
+                    only the space before its mark while the high label occupies
+                    only the space after its, so at any type size there is a
+                    whole band between them. `end-1/2` and `start-1/2` are
+                    logical properties and flip on their own in a
+                    right-to-left locale, which is why the translate pair the
+                    centring needed is gone rather than mirrored.
+
+                    JOINED RATHER THAN MERGED, for the reason `disclaimer-note`
+                    sets out at length: `cn` is `twMerge(clsx(…))` and
+                    tailwind-merge has never been told that `--text-opsin-*` is a
+                    font-size namespace, so it files `text-opsin-caption1` with
+                    `text-muted-foreground` and drops one of them. Both lists here
+                    are written in this file and set different properties, so
+                    there is nothing to reconcile. */}
+                <span
+                  className={`absolute top-full mt-opsin-1 whitespace-nowrap text-opsin-caption1 text-muted-foreground ${
+                    index === 0 ? "end-1/2 pe-opsin-1" : "start-1/2 ps-opsin-1"
+                  }`}
+                >
                   <Value
                     value={bound}
                     unit={unit}
