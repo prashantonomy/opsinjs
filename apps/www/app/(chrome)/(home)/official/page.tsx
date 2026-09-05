@@ -52,12 +52,15 @@ export default function OfficialPage() {
             Nothing has been published to npm, so every package is fake.
           </h2>
           <p className="mt-2 text-sm leading-relaxed">
-            There is no <Mono>{site.npmScope}</Mono> package on npm. There is no
-            released component, no CLI, and no installable registry item. If you
-            find a package by this name today, whoever published it is not us —
-            do not install it, and please report it. This paragraph will change
-            the day something is genuinely released, and the release will be
-            announced in the changelog with a version and a date.
+            There is no <Mono>{site.npmScope}</Mono> package on npm and no CLI
+            of ours. If you find a package by this name today, whoever published
+            it is not us — do not install it, and please report it. The
+            components that do exist are installed as source from the registry
+            URL below and from no other origin. Every one of them is at{" "}
+            <Mono>alpha</Mono> and carries no version number: nothing here has
+            been released. This paragraph will change the day something is, and
+            the release will be announced in the changelog with a version and a
+            date.
           </p>
         </Panel>
 
