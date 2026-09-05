@@ -42,11 +42,14 @@ rather than asserted:
    run, the page says so instead of showing a plausible figure.
 
 <Callout>
-Nothing in the component roster is built yet. That changes what these
-commitments currently cover: they cover the token layer, the CSS in
-`app/globals.css` and `app/product.css`, and the page contracts that every
-component specification must satisfy before it can move past `planned`. They do
-not yet cover any rendered component, because there is not one.
+Twenty-four of the sixty components in the roster are implemented at `alpha`;
+the other thirty-six are `considered` and have no code. That changes what these
+commitments cover, though less than it sounds. They cover the token layer, the
+CSS in `app/globals.css` and `app/product.css`, the page contracts every
+component specification must satisfy, and — for the twenty-four — whatever
+`pnpm run check:a11y` can prove by reading a component source. What they do not
+yet cover is any *rendered* component: nothing built here has met a screen
+reader, and `a11yDate` is `null` on all sixty catalogue rows.
 </Callout>
 
 ## What you own
@@ -61,10 +64,11 @@ your product that it cannot know.
 - **Reading and focus order.** The DOM order is written by you. A visually
   correct two-column layout with a scrambled tab order passes every automated
   check we could ship.
-- **Thresholds and clinical meaning.** opsinjs will render "act" in the act
-  colours with the act word. Deciding that a systolic reading of a particular
-  value *is* "act" is a clinical decision owned by your product and whoever
-  signs off its clinical safety case. See
+- **Thresholds and clinical meaning.** opsinjs will render "attention" in the
+  attention colours, with its own glyph shape and the word "Needs attention".
+  Deciding that a systolic reading of a particular value *is* "attention" is a
+  clinical decision owned by your product and whoever signs off its clinical
+  safety case. See
   [Safety, scope and limitations](../start/safety-scope-and-limitations.mdx).
 - **Announcement politeness.** We can specify that a status change must be
   announced. Only you know whether the change happened because the reader
