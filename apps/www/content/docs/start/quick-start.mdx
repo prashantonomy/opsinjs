@@ -99,7 +99,10 @@ with *normal*, which is banned everywhere.
 
 ## Render it
 
-The intended usage, for review only:
+The shape of the screen. Read the props off
+[ResultCard](../components/result-card.mdx) before you copy this block — it was
+written against the proposal and has not been brought back into line with the
+component that now exists:
 
 ```tsx title="app/results/page.tsx"
 import { ResultCard } from "@/components/opsinjs/result-card"
@@ -108,7 +111,7 @@ export default function Page() {
   return (
     <ResultCard
       label="Blood pressure"
-      category="cardio"
+      category="heart"
       status="watch"
       value={{ systolic: 138, diastolic: 86 }}
       unit="mmHg"
@@ -122,8 +125,20 @@ export default function Page() {
 }
 ```
 
-Three things in that block are load-bearing, and all three are enforced rather
-than suggested:
+<Todo owner="engineering">
+  Reconcile this example with the shipped props on
+  [ResultCard](../components/result-card.mdx). The card takes `title` rather than
+  `label`, a compound reading such as a blood pressure through `segments` rather
+  than an object in `value`, the explanation through `meaning` rather than as
+  children, and a required `now` read once per screen so a page of cards cannot
+  disagree with itself across a minute boundary. A `range` is drawn only against
+  a single reading, so the corrected example has to choose between the pair and
+  the bar rather than showing both.
+</Todo>
+
+Three things in that block are load-bearing, and all three survive the rename
+described above — the shipped component requires them under its own prop names,
+so they are enforced by the type checker rather than suggested by this page:
 
 - **`status` and `category` are separate props.** They cannot be collapsed into
   one "variant", because they answer different questions.
