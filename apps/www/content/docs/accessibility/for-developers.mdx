@@ -14,14 +14,16 @@ aliases: [aria, accessible name, focus order, semantics]
 
 ## What we guarantee
 
-opsinjs components will be built on Base UI primitives, which means the roles,
-the keyboard interaction model and the state attributes for anything that behaves
-like a dialog, a menu or a listbox come from a primitive library that already
-implements the APG pattern, rather than from us re-deriving it. That is the
-single largest accessibility decision in the system and it is recorded as
+opsinjs components are built on Base UI primitives wherever they behave like a
+dialog, a menu or a listbox: five of the twenty-four implementations import
+`@base-ui/react`, so the roles, the keyboard interaction model and the state
+attributes for those patterns come from a library that already implements the
+APG pattern rather than from us re-deriving it. The rest either compose one of
+those five or present no APG pattern of their own. That choice is the single
+largest accessibility decision in the system and it is recorded as
 [ADR 0001](../project/decisions/0001-base-ui-not-radix.mdx).
 
-On top of that, three contracts will hold for every component in the roster:
+On top of that, three contracts are required of every component in the roster:
 
 - **State is exposed as data attributes, not as class names.** `data-status`,
   `data-category`, `data-open`, `data-starting-style` and `data-ending-style` are
