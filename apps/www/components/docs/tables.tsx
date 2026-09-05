@@ -250,9 +250,10 @@ export function DataAttributesTable({
         script="scripts/build-reference.mts"
         className={className}
       >
-        Data attributes are read off the implementation. There is none yet, and
-        listing the ones it is expected to have would be a guess presented as a
-        contract.
+        Data attributes are read off the implementation, and none has been
+        recorded for this component. Listing the ones it is expected to have
+        would be a guess presented as a styling contract, which is the one thing
+        a styling contract may not be.
       </NoDataYet>
     )
   }
@@ -402,9 +403,10 @@ export function KeyboardTable({ name, rows, className }: KeyboardTableProps) {
           <strong className="font-medium text-foreground">
             Requirements, not results.
           </strong>{" "}
-          {name ? <code className="text-xs">{name}</code> : "This component"} is
-          not implemented, so nothing has been tested. This is the baseline the
-          implementation will have to clear, plus whatever its own anatomy adds.
+          No keyboard rows have been recorded for{" "}
+          {name ? <code className="text-xs">{name}</code> : "this component"}.
+          This is the baseline every interactive component has to clear, plus
+          whatever its own anatomy adds — a bar, not a result.
         </p>
       ) : null}
       <Table head={["Key", "Action", "Notes"]}>
