@@ -106,8 +106,6 @@ looks like, because "test with a screen reader" is not a test.
 
 <SectionProgress />
 
-<NoDataYet script="scripts/check-contrast.mts" />
-
 Contrast is the accessibility property this system measures most confidently,
 because it is a property of the tokens rather than of a component: `pnpm run
 contrast` computes it without rendering anything. The measured APCA Lc and WCAG
@@ -132,13 +130,18 @@ would carry those numbers say so in words rather than filling the gap.
 These are real, and they are listed here rather than in an internal tracker
 because a conformance claim with no gaps section is not a conformance claim.
 
-- **No component has been tested with a screen reader,** because no component
-  exists. [Screen readers](./screen-readers.mdx) states the intended tested
-  matrix and marks every cell untested.
-- **`prefers-contrast` is not implemented.** `app/globals.css` handles
-  `prefers-reduced-motion` and `prefers-reduced-transparency` today; there is no
-  increased-contrast block. [Increased contrast](./increased-contrast.mdx) says
-  what it will change and why the gap exists.
+- **No component has been tested with a screen reader.** Twenty-four are built
+  and not one of them has been listened to.
+  [Screen readers](./screen-readers.mdx) states the intended tested matrix and
+  marks every cell untested.
+- **`prefers-contrast` is not answered in the token layer.** `app/globals.css`
+  handles `prefers-reduced-motion` and `prefers-reduced-transparency` today and
+  carries no increased-contrast block. One component has gone ahead of it:
+  `Surface` drops its translucency and widens its edge under
+  `prefers-contrast: more` in its own utilities, unmeasured, and the colour half
+  of the escalation is answered nowhere. See
+  [Increased contrast](./increased-contrast.mdx) for what the token layer will
+  change and [Surface](../components/surface.mdx) for what already changes.
 - **The automated checks read source and layout, never comprehension.** Two
   now run. `scripts/check-a11y.mts` blocks every pull request and reads the
   component sources as text — it can prove a file imports a glyph and reads the
