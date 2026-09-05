@@ -551,8 +551,11 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
   other claim on the card degrades to a stated absence and this one does not.
   [RelativeTime](./relative-time.mdx) has no absence form either, which is where one would
   belong; inventing a sentence here would put a second copy of that rule in this file.
-- **`prefers-contrast` and `forced-colors`**, which are not implemented anywhere in opsinjs,
-  so no component can currently make a claim about either.
+- **`prefers-contrast` and `forced-colors`.** `forced-colors` is implemented nowhere in
+  opsinjs. `prefers-contrast: more` is implemented in
+  [Surface](./surface.mdx#accessibility) alone rather than in the token layer, and this card
+  is a bordered `bg-card` rather than a Surface, so nothing on it responds to the mode. No
+  claim about either can currently be made.
 
 <KeyboardTable
   name="result-card"
