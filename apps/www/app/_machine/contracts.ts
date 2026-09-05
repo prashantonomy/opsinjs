@@ -800,7 +800,11 @@ export function json(
  */
 export function text(
   body: string,
-  init: { status?: number; contentType?: string } = {}
+  init: {
+    status?: number
+    contentType?: string
+    headers?: Record<string, string>
+  } = {}
 ): Response {
   return new Response(body, {
     status: init.status ?? 200,
@@ -809,6 +813,7 @@ export function text(
       "cache-control": STATIC_CACHE_CONTROL,
       "x-opsinjs-docs-version": DOCS_VERSION,
       ...implementedHeaders(),
+      ...init.headers,
     },
   })
 }
