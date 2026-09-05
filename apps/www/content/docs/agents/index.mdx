@@ -26,7 +26,9 @@ failure impossible rather than unlikely. The strategy has three parts:
    machine can read. A 404 is what an agent fills with an invention; a definite
    negative is not.
 2. **Every page has a machine twin.** Add `.md` to any docs URL and you get the
-   processed markdown of that page — no JSX, no chrome, no scraping.
+   processed markdown of that page — no chrome, no scraping, and the
+   documentation components left as self-describing tags whose attributes are
+   the content.
 3. **Everything measurable is generated.** Prop tables, token tables, contrast
    figures and the catalogue come from source, so what a machine reads is the
    same thing CI checks.
@@ -89,9 +91,10 @@ Fetch [the offline bundle](./offline-docs-bundle.mdx) once and carry it.
 
 ## The one rule that matters most
 
-Nothing in opsinjs is built yet. Every component page is a **specification**
-carrying a machine-readable not-implemented marker, and every registry item
-resolves to metadata rather than to source.
+Twenty-four components are implemented and the rest of the catalogue is not, so
+an agent's first job is to tell the two apart before it writes anything. The
+surface is arranged so that it can, without guessing: every id resolves, and the
+answer carries the distinction in a field.
 
 An agent that reads a component page and emits an import statement has misread
 it. The correct behaviour is to say that the component is specified and not
