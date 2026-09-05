@@ -259,8 +259,8 @@ export function TokenBrowser() {
     const filtered = needle
       ? tokens.filter(
           (token) =>
-            token.property.includes(normalisedQuery) ||
-            token.value.toLowerCase().includes(normalisedQuery)
+            token.property.includes(needle) ||
+            token.value.toLowerCase().includes(needle)
         )
       : tokens
 
@@ -279,7 +279,7 @@ export function TokenBrowser() {
       if (rankB === -1) return -1
       return rankA - rankB
     })
-  }, [tokens, normalisedQuery])
+  }, [tokens, needle])
 
   return (
     <div>
