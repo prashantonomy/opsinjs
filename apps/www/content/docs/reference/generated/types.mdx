@@ -184,13 +184,13 @@ shared substrate a copied component carries with it is listed under
 | `getTokens` | function | `lib/tokens.ts` | - |
 | `grouped` | function | `lib/tokens.ts` | Tokens grouped for a table: namespace → group → tokens, in emit order. |
 | `groupedByCategory` | function | `lib/catalogue.ts` | Every category that has at least one row, in the declared order, with its rows. |
-| `hasComponentPage` | function | `lib/catalogue.ts` | True when this id has a hand-written page at `/docs/components/\<id\>`. |
+| `hasComponentPage` | function | `lib/catalogue.ts` | True when `/docs/components/\<id\>` resolves to a page. |
 | `HEALTH_CATEGORIES` | const | `lib/status.ts` | - |
 | `HEALTH_CATEGORY_LABELS` | const | `lib/status.ts` | - |
 | [`HealthCategory`](../api/HealthCategory.mdx) | type | `lib/status.ts` | What a reading is ABOUT. |
 | `healthPath` | function | `lib/routes.ts` | A health doctrine page, by page id — the form `governedBy` and `implements` use. |
 | `inGamut` | function | `lib/color/oklch.ts` | - |
-| `isBuilt` | function | `lib/registry.ts` | True only when there is a real renderable behind this name. Currently never. |
+| `isBuilt` | function | `lib/registry.ts` | True only when there is a real renderable behind this name — a base component on disk, not a catalogue row. |
 | `isClinicalStatus` | function | `lib/status.ts` | - |
 | `isDevelopment` | function | `lib/opsinjs.ts` | True in development, and false wherever that cannot be established. |
 | `isHealthCategory` | function | `lib/catalogue.ts` | True for the four `health-*` categories, which carry the extra clinical obligations. |
