@@ -73,7 +73,7 @@ registry, not here.
 | `empty-state` | feedback | alpha | unreleased | no data, nothing here, zero state, blank slate |
 | `skeleton` | feedback | alpha | unreleased | loading placeholder, shimmer, ghost, loading state, placeholder |
 | `button` | actions-and-forms | alpha | unreleased | cta, action, submit, primary button |
-| `field` | actions-and-forms | alpha | unreleased | form field, input wrapper, form control, validation message |
+| `field` | actions-and-forms | alpha | unreleased | form field, input wrapper, form control, validation message, label, error message, hint |
 
 ## Considered
 
@@ -85,7 +85,7 @@ registry, not here.
 | `body-map` | health-input | A body diagram must represent a range of bodies, ages, skin tones and disabilities, or it tells some readers they are not the intended user. Doing that properly is an illustration commission, not a component. | field |
 | `goal-ring` | health-data-display | Goal rings are strongly associated with one platform's fitness product, and the pattern rewards streaks — which is the wrong incentive for a reader managing a condition rather than training for one. | score-dial, metric-tile |
 | `timeline-entry` | health-data-display | A timeline is a layout, and every product's timeline holds different things. Shipping one would ship a data model with it. | card, relative-time |
-| `scale-input` | health-input | The anchors and the number of points on a rating scale are what make it comparable over time, and they belong to whichever instrument the product is using. | field, radio-group |
+| `scale-input` | health-input | The anchors and the number of points on a rating scale are what make it comparable over time, and they belong to whichever instrument the product is using. A fixed set of labelled options is a radio group, and opsinjs delegates that to Base UI rather than wrapping it. | field |
 | `source-citation` | health-communication | Strongly wanted and likely to be promoted. Held back only because provenance is currently doctrine rather than a component, and shipping the box before the rules would encourage products to cite whatever is to hand. | disclaimer-note, callout |
 | `range-legend` | health-data-display | A legend that can be separated from its chart is a legend that will be. The bands are documented inside RangeBar instead. | range-bar |
 | `toast` | feedback | A message that removes itself is the wrong shape for anything about someone's health: the reader who most needs it is the one most likely to miss it. Kept on the roster because products use toasts for save confirmations, which is legitimate. | alert-banner, callout |
