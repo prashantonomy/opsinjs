@@ -714,6 +714,7 @@ export function truncationNotice(
     "",
     `${result.omitted} of ${result.included + result.omitted} pages were omitted to keep this file inside its size budget.`,
     shardHint,
+    ...manifest,
   ].join("\n")
 }
 
@@ -733,6 +734,46 @@ export function bundleHeader(
  * ------------------------------------------------------------------ */
 
 /**
+ * Reading order, with exactly one exception: inside a section, a page that
+ * documents a component with real source behind it is emitted before one that
+ * does not.
+ *
+ * These files are size-capped and truncated at a page boundary, so what gets
+ * dropped is the tail. In plain alphabetical order that tail was `metric-tile`
+ * through `value` — thirteen of the twenty-four built components, including
+ * every one an agent reaching for a health readout would want — while the head
+ * kept two-kilobyte `considered` stubs for names that have no code at all. The
+ * shard the site nominates as the authority on "what opsinjs provides" was
+ * spending its budget on reserved names.
+ *
+ * This does not make the file complete; it makes what survives the useful half.
+ * The budget itself is a separate, human decision, and `truncationNotice` now
+ * names every page that still did not fit.
+ *
+ * Promotion is decided by whether something is built, never by status and never
+ * by hand, so nothing here has to be maintained as components land. Section
+ * order and a section's own index page are untouched, and
+ * `Array.prototype.sort` is stable, so pages that tie keep the order
+ * `allPages()` gave them.
+ *
+ * Exported because `/r/docs.json` is the fifth capped file over this corpus and
+ * drops its tail for the same reason. A bundle that truncated in plain
+ * alphabetical order while the shards truncated in this one would be two
+ * different answers to "what did opsinjs give me offline".
+ */
+export function truncationOrder(pages: CorpusPage[]): CorpusPage[] {
+  const built = builtIds()
+  const rank = (page: CorpusPage): number => {
+    const section = sectionRank.get(sectionOf(page).id) ?? SECTIONS.length
+    const isIndex = page.slugs.length <= 1 ? 0 : 1
+    const id = componentIdOf(page)
+    const isBuilt = id !== null && built.has(id) ? 0 : 1
+    return section * 4 + isIndex * 2 + isBuilt
+  }
+  return [...pages].sort((a, b) => rank(a) - rank(b))
+}
+
+/**
  * Build one of the four concatenated corpus files: `llms-full.txt` and the
  * three shards. They differ only in which sections they include and how much
  * they are allowed to carry, so they are one function — a shard that drifted
@@ -749,7 +790,7 @@ export async function buildCorpusFile(options: {
   /** Extra lines for the header block, after the blurb. */
   notes?: string[]
 }): Promise<string> {
-  const pages =
+  const pages = truncationOrder(
     options.sections === null ? allPages() : pagesInSections(options.sections)
 
   const chunks: { key: string; text: string }[] = []
