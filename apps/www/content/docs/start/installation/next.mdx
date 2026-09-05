@@ -145,7 +145,7 @@ verdict with no subject:
 import { StatusPill } from "@/components/opsinjs/status-pill"
 
 export default function Page() {
-  return <StatusPill status="watch">Slightly higher than usual</StatusPill>
+  return <StatusPill status="watch" describes="Blood pressure" />
 }
 ```
 
@@ -156,9 +156,8 @@ explains which and why.
 
 ## Verify it worked
 
-When the component exists, these are the checks that decide whether the install
-is correct. Until then, only the token checks below can actually be run — steps
-that mention the pill are written for the day it lands.
+These are the checks that decide whether the install is correct, in the order
+that isolates the most failures soonest.
 
 1. **The page renders and the pill is styled.** Unstyled means the `@source` line
    is missing or points at the wrong directory.
