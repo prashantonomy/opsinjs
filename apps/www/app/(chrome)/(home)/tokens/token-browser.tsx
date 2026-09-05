@@ -140,10 +140,12 @@ const NAMESPACE_ORDER = [
   "status",
   "category",
   "material",
+  "neutral",
   "ease",
   "duration",
   "radius",
   "corner",
+  "border",
   "target",
 ]
 
