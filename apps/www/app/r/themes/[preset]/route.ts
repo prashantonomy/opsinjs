@@ -2,9 +2,11 @@
  * GET /r/themes/<preset>.json — a theme-only registry item.
  *
  * A theme item carries `cssVars` and nothing else: no files, no dependencies.
- * That makes it the one thing in this registry that is genuinely installable
- * today, because the tokens are real even though no component is
- * (locked decision 9).
+ * Installing it gives a consuming project the variables and none of the
+ * components that read them, and that split is deliberate (locked decision 9):
+ * the tokens stand on their own, which is why this was the first surface here
+ * that anybody could install. Component source installs separately, one id at a
+ * time, from `/r/<id>.json`.
  *
  * WHERE THE PAYLOAD COMES FROM. `scripts/build-tokens.mts` compiles
  * `tokens/*.json` into a committed theme payload; `pnpm check:generated` fails
@@ -22,9 +24,9 @@
  * never reaches `app/r/registry.json/route.ts` and no warning is printed. So
  * the generated theme payloads must land somewhere that is not served, or this
  * route stops running and the envelope below (the schema URL, the provenance
- * block, the note that no component consumes these variables yet) silently
- * disappears from the response. `registry/generated/themes` is the primary
- * location for that reason. `public/r/themes` is still checked, so that a
+ * block, the note saying what a theme install does and does not bring with it)
+ * silently disappears from the response. `registry/generated/themes` is the
+ * primary location for that reason. `public/r/themes` is still checked, so that a
  * payload written to the old place is at least found by
  * `generateStaticParams` — but if it is there, the static file is what a
  * reader receives.
