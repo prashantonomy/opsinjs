@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import { Tab, Tabs } from "fumadocs-ui/components/tabs"
 import { CodeBlock, Pre } from "fumadocs-ui/components/codeblock"
 
+import { getEntry } from "@/lib/catalogue"
 import { getRegistryEntry } from "@/lib/registry"
 import { DEFAULT_BASE, DEFAULT_STYLE, site } from "@/lib/routes"
 import { cn } from "@/lib/utils"
@@ -273,7 +274,15 @@ export function ComponentSource({
      bury the one the reader needs to know about. */
   const body =
     source == null ? (
-      <NotBuiltYet name={name} className={cn("my-0", className)}>
+      /* The phase reaches <NotBuiltYet> because its visually-hidden sentence
+         differs at `considered`, where there is no specification, from what it
+         says at `planned`, where there is one. Reading it off the catalogue
+         rather than accepting it as a prop keeps a page from asserting one. */
+      <NotBuiltYet
+        name={name}
+        status={getEntry(name)?.status}
+        className={cn("my-0", className)}
+      >
         The source for this component would be read from{" "}
         <code className="text-xs">{path}</code> (style{" "}
         <code className="text-xs">{style}</code>) by{" "}
