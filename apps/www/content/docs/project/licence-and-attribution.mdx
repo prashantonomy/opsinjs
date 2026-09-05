@@ -104,6 +104,16 @@ installed in this repository:
 | Lucide | ISC | The one icon library, used for both chrome and components |
 | Inter | SIL Open Font License 1.1 | The typeface of this documentation site — not of the product theme, which uses `system-ui` |
 
+`clsx` and `tailwind-merge` are on that list because emitted source reaches them,
+not because this site does. A component copied out of the registry travels with
+its own substrate — `lib/opsinjs.ts` and `lib/status.ts` are shipped as files
+beside it — and imports exactly one module it does not carry: `@/lib/utils`,
+which `shadcn init` writes into your project and which is those two packages and
+nothing else. That is why [installing by hand](../start/installation/manual.mdx)
+has you write the helper before a copied component will compile. Packages this
+repository depends on but emitted code never reaches are deliberately absent:
+they are our problem to license, not something you inherit.
+
 <LastUpdated />
 
 <Reviewed />
