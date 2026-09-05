@@ -447,8 +447,33 @@ export function EmptyState({
      one screen and a wall of h2s on another; `titleLevel` keeps the two
      separable. The explicit type step and the zeroed margin below are what
      stop the level carrying visual weight it is not entitled to — left to the
-     browser, the same title would be a different size in an h2 and an h4. */
-  const Heading = `h${titleLevel}` as "h2" | "h3" | "h4" | "h5" | "h6"
+     browser, the same title would be a different size in an h2 and an h4.
+
+     AND THE LEVEL IS CHECKED, not merely typed, for the reason every other prop
+     here is checked: a type is advice in the JavaScript project this file ships
+     into, and a level is exactly the prop a caller computes rather than types —
+     `titleLevel={section.depth + 1}`, or a number off a CMS row. `titleLevel={7}`
+     builds `<h7>`, an unknown element with no heading role at all, so the one
+     line saying what is not here drops out of the document outline and out of a
+     screen reader's heading list, which is the whole point of rendering it as a
+     heading. `titleLevel={1}` puts a second `h1` on the page. Both fall back to
+     the documented default rather than being rendered. `care-card.tsx` guards
+     its own `headingLevel` the same way and falls back to its own default of 3;
+     the shape travels, the number does not. */
+  const LEVELS = [2, 3, 4, 5, 6]
+  let level = titleLevel
+  if (!LEVELS.includes(level)) {
+    warnDev(
+      `title-level:${String(titleLevel)}`,
+      `[opsinjs] <EmptyState> was given titleLevel ${String(titleLevel)}. The ` +
+        "title is a real heading and the level has to be one a document outline " +
+        "has: 2 to 6. An h1 makes an empty state compete with the page's own " +
+        "name and anything outside the range is not a heading element at all. " +
+        "It was rendered at the default, 2.",
+    )
+    level = 2
+  }
+  const Heading = `h${String(level)}` as "h2" | "h3" | "h4" | "h5" | "h6"
 
   return (
     <div
