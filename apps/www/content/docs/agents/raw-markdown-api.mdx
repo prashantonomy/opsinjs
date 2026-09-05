@@ -1,6 +1,6 @@
 ---
 title: Raw markdown API
-description: Every documentation page is available as markdown at the same URL with .md appended — processed markdown, not the MDX source, and stamped with the version it came from.
+description: Every documentation page is available as markdown at the same URL with .md appended — processed markdown rather than the MDX source, with the documentation components left as self-describing tags.
 status: stable
 kind: guide
 aliases: [".md", markdown twin, copy page, page as markdown]
@@ -28,10 +28,9 @@ Copy Markdown, View as `.md`, and open-in-assistant options. Same content.
 
 This is the part that matters and the part most sites get wrong.
 
-The twin is not the raw `.mdx` file. Raw MDX is full of JSX tags — `<TokenTable>`,
-`<StatusLadder>`, `<ComponentPreview>` — that mean nothing outside this
-application, and a model reading them either ignores them (losing the content
-they render) or hallucinates what they contained.
+The twin is not the raw `.mdx` file. Raw MDX carries imports, and its JSX is
+written for this application rather than for a reader; a model handed the source
+either ignores half of it or invents what it contained.
 
 The twin is *processed*: components have been resolved to their textual content,
 so a token table arrives as a markdown table of real generated values, and a
