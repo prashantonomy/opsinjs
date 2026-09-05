@@ -125,13 +125,13 @@ mixing the two produces a screen where urgency is encoded in blur radius. See
 
 <DoDont>
   <DoDont.Do>
-    A dismissible filter sheet as `overlay` over a `scrim`, with its internal
-    grouping as `panel` and its primary action as an ordinary button. One
+    A dismissible filter panel on `sheet` over a `scrim`, with its internal
+    grouping on `card` and its primary action as an ordinary button. One
     translucent rung and one scrim: two composited surfaces.
   </DoDont.Do>
   <DoDont.Dont>
-    The same sheet as `overlay`, its sections as `bar` "for consistency with the
-    header", and the header still crisp above the scrim. Four composited
+    The same panel on `sheet`, its sections on `overlay` "for consistency with
+    the header", and the header still crisp above the scrim. Four composited
     surfaces, a nested blur whose contrast cannot be computed, and a nav bar that
     looks live while the sheet is modal.
   </DoDont.Dont>
@@ -139,8 +139,8 @@ mixing the two produces a screen where urgency is encoded in blur radius. See
 
 **When you cannot decide, the surface is doing two jobs.** The recurring example
 is a header that is both page chrome and a content card. Split it: the chrome is
-`bar`, the card is `panel` inside the scroll area, and the screen immediately
-becomes easier to describe.
+`overlay`, the card is a `card` inside the scroll area, and the screen
+immediately becomes easier to describe.
 
 ## Tokens
 
