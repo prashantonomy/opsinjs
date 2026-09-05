@@ -62,8 +62,8 @@ That is the component's half of the same answer, not a second policy.
 | 0 `canvas` | opaque | unchanged |
 | 1 `card` | opaque | unchanged |
 | 2 `raised` | opaque, shadowed | unchanged |
-| 3 `bar` | tinted alpha, small blur | the opaque card colour, blur removed; border and shadow kept |
-| 4 `overlay` | tinted alpha, large blur | the opaque card colour, blur removed; border and shadow kept |
+| 3 `sheet` | tinted alpha, large blur | the opaque card colour, blur removed; border and shadow kept |
+| 4 `overlay` | tinted alpha, largest blur | the opaque card colour, blur removed; border and shadow kept |
 | 5 `scrim` | dark wash, minimal blur | **higher** opacity, blur removed |
 
 ### The four invariants
@@ -75,9 +75,10 @@ stay exactly where it was, and a reader who has it on permanently gets an
 identically proportioned product rather than a variant nobody tested.
 
 **2. The rung stays distinguishable.** Borders and shadows are kept, not
-removed. Translucency was one of several cues that a bar is a bar; take it away
-and the others have to carry the separation on their own, which is why rungs 3
-and 4 have a border at all rather than relying on the blur edge.
+removed. Translucency was one of several cues that a `sheet` is above the page
+and that an `overlay` is chrome; take it away and the others have to carry the
+separation on their own, which is why rungs 3 and 4 have a border at all rather
+than relying on the blur edge.
 
 **3. The scrim gets stronger, not weaker.** This is the one that surprises
 people. A scrim's job is to isolate the overlay from what is behind it, and part
