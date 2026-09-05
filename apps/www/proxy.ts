@@ -142,12 +142,12 @@ export default function proxy(request: NextRequest) {
   // exactly what it did: 43 pages and every .md twin returned 404 while each
   // page itself built and prerendered perfectly.
   if (
-    normalised.startsWith(`${DOCS_PREFIX}/`) &&
-    !normalised.startsWith(API_PREFIX) &&
-    normalised !== normalised.toLowerCase()
+    canonicalPath.startsWith(`${DOCS_PREFIX}/`) &&
+    !canonicalPath.startsWith(API_PREFIX) &&
+    canonicalPath !== lower
   ) {
     const target = url.clone()
-    target.pathname = normalised.toLowerCase()
+    target.pathname = lower
     return NextResponse.redirect(target, 308)
   }
 
