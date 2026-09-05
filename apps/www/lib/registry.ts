@@ -77,7 +77,7 @@ export function getRegistryEntry(
 ): RegistryEntry | null {
   const query: RegistryQuery =
     typeof lookup === "string" ? { name: lookup, base, style, kind } : lookup
-  const wanted = normalise(query)
+  const wanted = canonicalise(query)
   const exact = REGISTRY_INDEX[key(wanted)]
   if (exact) return exact
   if (wanted.style !== DEFAULT_STYLE) {
