@@ -201,10 +201,12 @@ export default async function ViewPage(
        * `[data-opsin-view-state="ready"]` and clips to `#opsin-view-root`, so a
        * capture can never race the render and can never accidentally photograph
        * a not-built placeholder as though it were a component. Both states are
-       * declared here rather than inferred from the DOM.
+       * declared here rather than inferred from the DOM, and there are still
+       * exactly two: everything this route cannot place is a 404 above, so a
+       * capture never waits on a state that will not arrive.
        */
       data-opsin-view-state={Preview ? "ready" : "not-built"}
-      className="flex min-h-[100dvh] w-full items-center justify-center p-6"
+      className="flex min-h-dvh w-full items-center justify-center p-6"
     >
       {Preview ? (
         <Preview />
