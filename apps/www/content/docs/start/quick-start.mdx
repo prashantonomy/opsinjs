@@ -1,6 +1,6 @@
 ---
 title: Quick start
-description: Build a result card that shows one value, its reference range and its clinical status — written as the specification it currently is.
+description: Build a result card that shows one value, its reference range and its clinical status, from three components that are implemented and alpha.
 status: planned
 kind: guide
 icon: Zap
@@ -22,12 +22,17 @@ what `ResultCard` is for, and building it exercises almost every rule the system
 has: the two colour axes, the number formatting contract, the reference-range
 rule, and the accessibility floor.
 
-<Callout title="This is a specification, not a working tutorial">
-  Nothing is implemented. There is no published package and no live registry, so
-  none of the commands below will succeed today and the code blocks describe an
-  intended API rather than an existing one. They are here so the design can be
-  reviewed and argued with before it is built — which is the only point at which
-  changing it is cheap. Do not generate an implementation from them.
+<Callout title="Alpha components, and no published host yet">
+  All three components below are implemented, and their registry items carry the
+  full source that `shadcn add` copies. Two things are still absent. There is no
+  npm package and there will not be one — distribution is registry copy-in, and
+  [ADR 0002](../project/decisions/0002-shadcn-registry-distribution.mdx) is why —
+  and `opsinjs.dev`, the canonical host every command on this site names, is not
+  serving yet, so `@opsinjs` resolves only against a registry you point it at
+  yourself. Everything implemented is `alpha`: the API will change without a
+  deprecation, so this belongs in a prototype rather than in front of a patient.
+  The `ResultCard` block further down is older than the implementation and still
+  uses the names the specification proposed; the marked gap under it says which.
 </Callout>
 
 You will need a React 19 project with Tailwind v4 already working. If you do not
