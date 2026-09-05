@@ -111,8 +111,15 @@ export interface CatalogueEntry {
   title: string
   /**
    * One plain-English sentence describing what a READER sees, written for the
-   * patient and not for the engineer. This is the page's H1 subtitle, the
-   * catalogue row's second column and the card subtitle in `<ComponentsList>`.
+   * patient and not for the engineer. This is the second column of the status
+   * matrix and the card subtitle in `<ComponentsList>`.
+   *
+   * It is NOT the page's H1 subtitle. That comes from the page's own
+   * frontmatter `description`, and on all but one row the two sentences are
+   * worded differently — a card subtitle has to survive on one line and a page
+   * subtitle does not. Nothing compares them, so editing this one will not
+   * change the page: when you change either, read the other and make sure they
+   * still describe the same component.
    */
   description: string
   category: CatalogueCategory
@@ -124,10 +131,11 @@ export interface CatalogueEntry {
   /** The discipline that reviews this component's specification. */
   owner: "design" | "engineering" | "clinical" | "content"
   /**
-   * Date of the last accessibility review, ISO 8601. `null` until a review has
-   * happened — and it has not, because nothing is built. Rendering a date here
-   * that nobody produced would be the exact dishonesty this scaffold exists to
-   * avoid, so the matrix prints "not yet reviewed" rather than a placeholder.
+   * Date of the last accessibility review, ISO 8601. `null` on every row,
+   * because no accessibility review has happened — not for the twenty-four
+   * built components either. Rendering a date here that nobody produced would
+   * be the exact dishonesty this file exists to avoid, so the matrix prints
+   * "not yet reviewed" rather than a placeholder.
    */
   a11yDate: string | null
   /**
