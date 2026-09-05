@@ -112,6 +112,34 @@ if (isDevelopment()) {
 }
 
 /**
+ * Development warnings, said once per offending call site.
+ *
+ * `tokens/errors.json` states the policy — development only, once per offending
+ * call site, through `console.warn` — and `warnOnce` in the substrate keeps to
+ * it, but `warnOnce` is keyed to an `OpsinErrorCode` and the four complaints in
+ * the component body below have no code allocated: they are drawing and
+ * labelling defects rather than mistakes with the clinical API, and a component
+ * may not mint a code, because the errors table is generated from that file.
+ *
+ * Without a keyed set they print on every render, and twice again per render
+ * under Strict Mode. A bar inside a list that re-renders on scroll would repeat
+ * the same paragraph until the console is unusable, and a channel somebody
+ * filters is one that no longer carries the finding they needed — which here is
+ * a range with no interval under it, or two bounds that read as one number.
+ *
+ * The key names the offence and the values that caused it, never the reading:
+ * one bar with a bad range says so once, and a second bar with a different bad
+ * range still gets its own line.
+ */
+const warned = new Set<string>()
+
+function warnDev(key: string, message: string): void {
+  if (!isDevelopment() || warned.has(key)) return
+  warned.add(key)
+  console.warn(message)
+}
+
+/**
  * The tick's fill, one class per level, written out rather than built.
  *
  * Tailwind reads class names out of source as literal strings, so
@@ -135,13 +163,25 @@ const TICK_TONE: Record<ClinicalStatus, string> = {
  * the component rather than a stroke: the ink roles are the ones tuned to be
  * read, and they flip with the theme.
  *
- * WHAT HAS NOT BEEN ESTABLISHED IS THE GROUND. `tokens/color.json` defines
- * `ink` as text on the matching `-surface` and tunes it to clear the text floor
- * against that surface; this component sets no surface of its own, so the word
- * lands on whatever background the host card provides. That pairing has not
- * been measured, in either theme, and the page says so rather than inheriting a
- * guarantee from a pairing this component does not use. `CATEGORY_INK` below
- * sits on the same unmeasured ground.
+ * WHAT HAS AND HAS NOT BEEN ESTABLISHED IS THE GROUND, and the two halves are
+ * worth separating. `tokens/color.json` defines `ink` as text on the matching
+ * `-surface` and tunes it to clear the text floor against that surface; this
+ * component sets no surface of its own, so the word lands on whatever
+ * background the host provides, which is a different pairing from the one the
+ * token contract guarantees.
+ *
+ * The rig has nonetheless measured the pairing this component most often lands
+ * on. `lib/generated/contrast.json` carries `status.<level>.ink-on-page` for
+ * all four levels in both themes, and every one of them passes the text floor.
+ * The ground it measures against is `--opsin-neutral-0` in light and
+ * `--opsin-neutral-950` in dark. In light that is exactly `--card`, so a bar on
+ * a card is on precisely the measured ground; in dark `--card` is one step
+ * lighter than `--opsin-neutral-950`, so the recorded figure is close to but
+ * not the pairing on a card, and no number for that pairing has been produced.
+ * This file therefore claims what was measured and no more — see
+ * `score-dial.tsx`, which reads the same rows for the same roles. `CATEGORY_INK`
+ * below stands on the same ground, and `category.<name>.ink-on-page` is
+ * measured and passing in the same way.
  */
 const STATUS_INK: Record<ClinicalStatus, string> = {
   steady: "text-status-steady-ink",
