@@ -70,16 +70,37 @@ const MAX_FRACTION_DIGITS = 20
  * exists for the session, which is what "once" means — a column of thirty
  * readings with no `precision` prints one warning rather than thirty.
  *
- * It is not `warnOnce` itself because there is no OPSIN code for this. That
- * table is generated from `tokens/errors.json` and allocating a code in it is
- * not this component's to do; the omission is reported upward instead. The
- * channel and the wording are the same either way.
+ * It is not `warnOnce` itself because none of the five complaints below has an
+ * OPSIN code. That table is generated from `tokens/errors.json` and allocating
+ * a code in it is not this component's to do; the omission is reported upward
+ * instead. The channel and the wording are the same either way. The one
+ * complaint that does have a code — OPSIN-0003, a reading with no unit — goes
+ * through `warnOnce` and not through here.
  *
- * The key is the unit and the number of unasked-for digits, never the reading —
- * exactly the identity/payload split `warnOnce` makes, and for the same reason:
- * keying on the value turns "warn once" into "warn every render".
+ * EVERY KEY NAMES THE MISTAKE, NEVER THE READING. That is exactly the
+ * identity/payload split `warnOnce` makes, and for the same reason: keying on
+ * the value turns "warn once" into "warn every render", because the next tile
+ * in the column carries a different number and the same defect. So the
+ * unstated-precision key is the unit and the count of unasked-for digits, the
+ * unknown-unit key is the unit as written, the out-of-range-precision key is
+ * the precision as written, and the empty-`absenceLabel` key is a constant,
+ * that complaint having only one shape. The broken-value key is the only one
+ * that carries the value, and it can: a value reaches that branch only when it
+ * is not finite, so the key ranges over NaN and the two infinities and cannot
+ * grow with the data.
+ *
+ * Every one of these lives in a render body, so without the set they print on
+ * every render and twice again under Strict Mode — and a console an author
+ * filters is a channel that no longer carries its one real finding.
  */
-let warnedUnstatedPrecision: Set<string> | undefined
+let warnedDev: Set<string> | undefined
+
+function warnDevOnce(key: string, message: string): void {
+  if (warnedDev?.has(key) === true) return
+  warnedDev ??= new Set<string>()
+  warnedDev.add(key)
+  console.warn(message)
+}
 
 /**
  * Visual weight, and only visual weight.
