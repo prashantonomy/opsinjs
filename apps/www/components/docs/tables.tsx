@@ -495,17 +495,23 @@ export function TokenTable({
 
   const tokens =
     rows ??
-    (component ? tokensUsedBy(component) : scope ? byNamespace(scope) : [])
+    selected
+      .filter((token) => group === undefined || token.group === group)
+      .filter((token) => tier === undefined || token.tier === tier)
 
   if (tokens.length === 0) {
     return (
       <NoDataYet
         what={
-          scope
-            ? `The ${scope} token table`
-            : component
-              ? `The token table for ${component}`
-              : "This token table"
+          group
+            ? `The ${group} token table`
+            : tier
+              ? `The ${tier} token table`
+              : scope
+                ? `The ${scope} token table`
+                : component
+                  ? `The token table for ${component}`
+                  : "This token table"
         }
         script="scripts/build-tokens.mts"
         className={className}
