@@ -53,10 +53,12 @@ velocity, the displacement at time `t` is:
 ```
 
 **The sampling.** `linear()` takes a list of output values; the browser
-interpolates linearly between them. So the generator solves the spring at evenly
+interpolates linearly between them. So the sampler solves the spring at evenly
 spaced times, normalises the time axis by the settling duration, and prints the
-samples. This is the derivation, and `scripts/build-tokens.mts` is its
-implementation of record:
+samples. That derivation is run by the token author, not by the build: the stop
+list it produces is recorded in `tokens/motion.json` beside the parameters it
+came from, and `scripts/build-tokens.mts` copies it out to CSS unchanged, so the
+curve a page plots and the curve the browser runs are the same numbers:
 
 ```ts
 export interface SpringToken {
