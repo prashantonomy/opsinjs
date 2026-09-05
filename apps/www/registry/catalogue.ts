@@ -658,6 +658,7 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "content",
     a11yDate: null,
     registryDependencies: ["button"],
+    usedIn: ["onboarding-screen", "trends-screen"],
   },
   {
     name: "skeleton",
@@ -666,7 +667,7 @@ export const SHIPPED: CatalogueEntry[] = [
     category: "feedback",
     status: "alpha",
     since: "unreleased",
-    aliases: ["loading placeholder", "shimmer", "ghost", "loading state"],
+    aliases: ["loading placeholder", "shimmer", "ghost", "loading state", "placeholder"],
     owner: "design",
     a11yDate: null,
     usedIn: ["results-screen", "trends-screen"],
@@ -683,6 +684,12 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "engineering",
     a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
+    usedIn: [
+      "health-metric-card",
+      "daily-log-entry",
+      "consent-flow",
+      "onboarding-screen",
+    ],
   },
   {
     name: "field",
