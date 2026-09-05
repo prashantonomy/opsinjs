@@ -14,9 +14,20 @@ owner: design-system
 
 <NotBuiltYet />
 
-You are not testing opsinjs; opsinjs tests itself. You are testing that **your
-composition behaves**, which is a much smaller and much more interesting set of
-assertions.
+**opsinjs has no test suite of its own** — none, automated or manual, for the
+design system itself; [Accessibility for
+testing](../accessibility/for-testing.mdx) records the same gap. What runs on
+every change is static: `check:generated`, `check:ia`, `check:a11y` over
+component source, `check:llms`, eslint and `tsc`. None of those mounts a
+component. The nightly adds a browser half — hit area, survival at 1.3x and at
+200% — against the built `/view` routes, which is a real measurement but arrives
+the morning after a merge rather than before it.
+
+So assume nothing underneath your composition is covered, and assert what
+matters to you. The list below is what you would want to assert about **your
+composition** regardless of who owns the layer beneath it, and until opsinjs has
+a suite it is also the only thing standing between a regression in a component
+and a reader.
 
 Assert against contracts that are covered by semver:
 
