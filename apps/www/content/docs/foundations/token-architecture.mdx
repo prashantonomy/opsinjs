@@ -109,9 +109,9 @@ The generated list of every token, its tier, what it controls and what consumes
 it, is at [Reference → Tokens](../reference/generated/tokens.mdx); the raw
 custom-property names, for consumers that do not use Tailwind, are at
 [Reference → CSS variables](../reference/generated/css-variables.mdx). Both are
-produced by `scripts/build-tokens.mts` from `tokens/*.json`.
-
-<NoDataYet script="scripts/build-tokens.mts" />
+produced by `scripts/build-tokens.mts` from `tokens/*.json`, and both are
+current. This page owns no family of its own, so it prints no table here rather
+than a slice of somebody else's.
 
 ## Accessibility impact
 
@@ -122,11 +122,20 @@ because those pairs have stable names. A component that inlines a value is
 excluded from `pnpm contrast` silently: no error, no failure, just a surface
 nobody has checked.
 
-The same applies to the three user preferences. `prefers-reduced-motion`,
-`prefers-reduced-transparency` and `prefers-contrast` are implemented by
-redefining semantic roles inside a media query, once. A component holding its own
-duration or its own translucency does not respond to any of them, and the person
-who set the preference gets no signal that it was ignored.
+The same applies to the user preferences, and the current state of them is worth
+knowing precisely. `prefers-reduced-transparency` is answered in the token layer
+exactly as this page argues it should be: one media query in
+`app/tokens.generated.css` redefines the tint, alpha, blur and saturation of all
+six material rungs, so every surface responds and no component has to know.
+`prefers-reduced-motion` is answered the same way but only for the spring
+easings and durations; the plain duration steps are not redefined, so a
+transition timed with one of those still runs at full length. `prefers-contrast`
+has no block in the token layer at all — the one place it is answered today is
+`Surface`, in that component's own utilities, which is precisely the pattern
+this section argues against. The gap is tracked on
+[Increased contrast](../accessibility/increased-contrast.mdx). A component
+holding its own duration or its own translucency does not respond to any of
+these, and the person who set the preference gets no signal that it was ignored.
 
 ## Related
 
