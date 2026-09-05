@@ -163,10 +163,14 @@ that there is nothing to write, rather than creating an empty file.
 
 ## Troubleshooting
 
-**`add` writes nothing.** Correct today — see the callout. Nothing is built.
+**`add` wrote nothing.** The id is a reserved name on the considered roster: it
+resolves, and it has no files. Check `implemented` for that name in
+`/r/index.json`.
 
 **`@opsinjs` is not found.** Missing or malformed `registries` block. The `{name}`
-placeholder is required; a URL without it cannot be substituted into.
+placeholder is required; a URL without it cannot be substituted into. The same
+error at the *second* step of an install — the item resolved, one of its
+`registryDependencies` did not — is the same cause: add the block and retry.
 
 **A file was written to the wrong directory.** The CLI uses the `aliases` in your
 `components.json`. See
