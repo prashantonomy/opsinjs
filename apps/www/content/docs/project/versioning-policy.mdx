@@ -105,12 +105,15 @@ the change is more than a rename, a
 
 ## How a change reaches you
 
-**In the code you own.** Every file the registry emits carries a version stamp
-comment naming the component and the version it was copied at — see
-[Version stamps](../registry/version-stamps.mdx). That comment is how a tool, or
-a person, can tell what an old copy is missing. This matters more here than in a
-library you `npm install`, because an out-of-date copy of a component in your repo
-does not announce itself.
+**In the code you own — and this is the weak link today.** An out-of-date copy of
+a component in your repository does not announce itself the way a version range
+in a lockfile does. The intended answer is a
+[version stamp](../registry/version-stamps.mdx): one comment at the top of every
+emitted file naming the item and the version it was copied at, so that a tool or
+a person can diff a copy against its origin. **Nothing emits it yet**, and that
+page says why. Until it does, the only record of which version you copied is the
+one you write down yourself — a note in the pull request that installed it is
+enough, and it is worth doing.
 
 **In the documentation.** Pages describing an archived version render a version
 notice. Changing the URL of a page is treated as a breaking change to the
