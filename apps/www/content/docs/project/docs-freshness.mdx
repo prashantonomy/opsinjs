@@ -79,10 +79,24 @@ the one setting that cannot be reported as stale.
 
 ## What the check actually does
 
-`scripts/check-freshness.mts` reads every page, adds `reviewEvery` to `reviewed`,
-and reports the pages whose review has expired, grouped by owner. It runs in the
-nightly job rather than on every pull request, because a page expiring is not a
-reason to block an unrelated change — it is a reason for somebody to be told.
+`scripts/check-freshness.mts` reads every page, adds the page's `reviewEvery` —
+or its kind's default — to its `reviewed` date, and sorts the corpus into three
+states. It prints one summary line and then up to three tables, headed
+`OVERDUE`, `DUE WITHIN 30 DAYS` and `NO REVIEW DATE`; a table is omitted when it
+would be empty. Each row is one page: its slug, its `kind`, its `reviewer`, its
+`reviewed` date and its due date, with the overdue rows ordered by how far past
+due they are so the worst is at the top. `--json` prints the same three sets plus
+the totals, and `--strict` exits non-zero when anything is overdue.
+
+`owner` is read into every row but is not what the tables group by, so do not
+expect a per-team digest from this script — the grouping is by state, which is
+what somebody clearing a backlog needs. Grouping the JSON by owner is a `jq`
+away if you want the digest.
+
+It runs both places, differently. On a pull request it is advisory and
+`continue-on-error`, because a page expiring is not a reason to block somebody
+else's change. In the nightly job it runs with `--strict` and blocks, which is
+the only thing that makes `reviewed:` and `reviewEvery:` mean anything.
 
 A page with `kind: health` and no `reviewed` date is a different matter: that
 fails `assert-ia.mts` on every build. Health doctrine without a review date is
@@ -118,7 +132,10 @@ unrecognised owner rather than silently grouping under it.
 
 The review date at the foot of the page is the truth. Cross-check against the
 [changelog](changelog/index.mdx): if a release landed after the review date and
-touched what you are reading, believe the changelog. Then tell us — the
+touched what you are reading, believe the changelog. Right now the changelog is
+itself behind — the component layer landed without an entry — so
+[State of the system](state-of-the-system.mdx) is the more current of the two and
+is the one to check first. Then tell us — the
 report-a-problem control at the foot of every page is prefilled with the page
 path and the docs version, and a stale page is exactly what it is for.
 
