@@ -90,13 +90,17 @@ A page inside the bundle also omits the per-page block quote that a standalone
 twin carries about those tags, so nothing in a page body explains them; this
 paragraph is the explanation.
 
-The bundle carries the documentation. It does not carry component source,
-because there is none, and it does not carry the registry — fetch
-`/r/registry.json` separately if you need the catalog too.
+`counts` tallies the pages this response carried, not the corpus. It sums to
+`included` rather than to `total`, which is easy to misread when the two sit
+next to each other.
+
+The bundle carries the documentation, not the code. Component source lives in
+the registry items — `/r/<name>.json` for one of the twenty-four implemented
+components — and the catalog is `/r/registry.json`. Fetch either separately.
 
 ## Size and freshness
 
-The bundle is a whole corpus and it is not small. Two habits keep it usable:
+The bundle is most of a corpus and it is not small. Two habits keep it usable:
 
 **Index it, do not paste it.** It is meant to be searched, chunked or embedded
 locally. Putting the entire file in a context window spends the window on the
