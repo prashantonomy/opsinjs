@@ -68,11 +68,13 @@ repository:
 
 <Steps>
 
-### Verify the "no components" claim
+### Verify the "no evaluation" claim
 
-Look at [Components](../components/index.mdx). Every entry in the roster is at
-`status: planned` and every component page carries a machine-readable
-not-implemented marker. There is nothing to test.
+Open [Components](../components/index.mdx) and pick any component at `alpha`.
+Its catalogue row carries `a11yDate: null` — the field this project uses to
+record when a component was last reviewed for accessibility — and it is `null`
+on all sixty rows, so the status matrix prints "not yet reviewed" rather than a
+date. Nothing here has been through a review and nothing claims it has.
 
 ### Verify the "generated numbers" claim
 
@@ -95,7 +97,12 @@ defects rather than as feedback.
 
 ## Measured results
 
-<NoDataYet script="scripts/check-contrast.mts" />
+The only measurement this project publishes is token-pair contrast.
+`scripts/check-contrast.mts` computes it from the shipped token values, its
+output is committed, and the figures appear on
+[Contrast conformance](./contrast-conformance.mdx) and in the
+[generated contrast reference](../reference/generated/contrast.mdx) with the date
+of the run that produced them.
 
 The only measurement this project can produce today is token-pair contrast. It is
 published on [Contrast conformance](./contrast-conformance.mdx) with its
