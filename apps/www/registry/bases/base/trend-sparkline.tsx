@@ -122,6 +122,44 @@ const DIRECTION_WORD: Record<TrendDirection, string> = {
 }
 
 /**
+ * Which development warnings this session has already printed.
+ *
+ * `tokens/errors.json` states the policy — development only, once per offending
+ * call site — and the six complaints below all live in a render body. Without a
+ * keyed set they print on every render and twice again under Strict Mode, and a
+ * row of sparkline tiles fed from one bad series is the largest concentration
+ * of them in the registry: an author would have the console full before they
+ * reached the first message, and a channel somebody filters is a channel that
+ * no longer carries its one real finding.
+ *
+ * It is a module-local set rather than the substrate's `warnOnce` because
+ * `warnOnce` is keyed to an `OpsinErrorCode` and none of the six has one. The
+ * four complaints that do — OPSIN-0004, OPSIN-0010, OPSIN-0012 and the
+ * OPSIN-0011/0021 pair — go through `warnOnce` and not through here. Allocating
+ * codes in `tokens/errors.json` for the rest and deleting this is a strict
+ * improvement.
+ *
+ * EVERY KEY NAMES THE MISTAKE, NEVER THE SERIES. Keying on a reading or a
+ * timestamp would turn "warn once" into "warn every render", because the next
+ * tile along carries different data and the same defect. So the keys are the
+ * rejected prop value where there is one — which ranges over the handful of
+ * values a caller gets wrong — and a constant where the message interpolates
+ * nothing.
+ *
+ * Declared rather than created, the way `warnOnce` does it in the substrate: in
+ * a production bundle `isDevelopment()` is statically false, every body that
+ * touches this is dead code, and the set is never allocated.
+ */
+let warnedDev: Set<string> | undefined
+
+function warnDevOnce(key: string, message: string): void {
+  if (warnedDev?.has(key) === true) return
+  warnedDev ??= new Set<string>()
+  warnedDev.add(key)
+  console.warn(message)
+}
+
+/**
  * The formatter's ceiling, and the same one `Value` uses.
  *
  * Opened all the way rather than left at `Intl`'s default of three, because
@@ -138,6 +176,14 @@ const MAX_FRACTION_DIGITS = 20
  * bare `String(…)` prints a full stop where a de-DE reader's locale writes a
  * comma, and prints an arithmetic result as seventeen digits, which asserts an
  * accuracy no instrument has. Separators and grouping are never hand-rolled.
+ *
+ * Rounding is `halfExpand` — round-half-away-from-zero, `numbers-units-precision`
+ * rule 3 — and it is INHERITED rather than named. `roundingMode` is an ES2023
+ * addition to `Intl.NumberFormatOptions`, so spelling it out here makes this
+ * file fail to typecheck in a consumer whose `lib` stops at ES2022, and this
+ * file ships as source into those projects. `halfExpand` is the formatter's own
+ * default, so the behaviour is identical either way; see the longer note in
+ * `value.tsx`, which records where the regression was found. Do not put it back.
  */
 function formatNumber(value: number, locale: string | undefined): string {
   return new Intl.NumberFormat(locale, {
