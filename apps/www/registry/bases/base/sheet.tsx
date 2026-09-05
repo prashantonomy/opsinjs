@@ -887,12 +887,27 @@ export function Sheet({
                           reading about their own health. */}
                       <Drawer.Close
                         data-slot="sheet-close"
-                        className={cn(
-                          "inline-flex min-h-(--opsin-target-minimum) shrink-0 items-center gap-opsin-1",
-                          "rounded-opsin-sm px-opsin-2 text-opsin-footnote text-muted-foreground",
-                          "hover:text-foreground",
-                          FOCUS_RING,
-                        )}
+                        /* JOINED, NOT MERGED, and the join is the fix rather
+                           than a style. `cn` is `twMerge(clsx(…))` and
+                           tailwind-merge is unconfigured: it has never been told
+                           that `--text-opsin-*` is a font-size namespace, so it
+                           files `text-opsin-footnote` and `text-muted-foreground`
+                           in the SAME conflict group and keeps only the later
+                           one — which silently cost this control its type step,
+                           its leading and its tracking, verified against the
+                           pinned tailwind-merge. The two utilities set different
+                           CSS properties, so passing both through applies both.
+                           `score-dial.tsx` keeps `LABEL_ROW` and `STATUS_ROW`
+                           whole for exactly this reason and says so; there is no
+                           caller `className` on this control, so nothing is lost
+                           by not merging. The real repair belongs in
+                           `lib/utils.ts` and is reported upward. */
+                        className={
+                          "inline-flex min-h-(--opsin-target-minimum,2.75rem) shrink-0 items-center gap-opsin-1 " +
+                          "rounded-opsin-sm px-opsin-2 text-opsin-footnote text-muted-foreground " +
+                          "hover:text-foreground " +
+                          FOCUS_RING
+                        }
                       >
                         <X aria-hidden="true" className="size-[1em] shrink-0" />
                         Close
