@@ -93,6 +93,34 @@ import { Surface } from "@/registry/base-lyra/ui/surface"
 import { Value } from "@/registry/base-lyra/ui/value"
 
 /**
+ * The undated-reading warning, said once per distinct offending value.
+ *
+ * `tokens/errors.json` states the policy — development only, once per offending
+ * call site — and this warning lives in a render body. Without a keyed set it
+ * repeats on every render and twice again under Strict Mode, and a grid of
+ * tiles fed from one undated feed would print the same ten sentences per tile
+ * per scroll until an author filters the console, at which point the channel no
+ * longer carries its one real finding.
+ *
+ * It is a module-local set rather than the substrate's `warnOnce` because
+ * `warnOnce` is keyed to an `OpsinErrorCode` and no code is allocated for an
+ * instant that cannot be located — OPSIN-0010 below has one and uses it.
+ * Allocating a code in `tokens/errors.json` and deleting this is a strict
+ * improvement.
+ *
+ * The key is the rejected value rather than a constant, because two different
+ * unparseable timestamps are two different mistakes and an author who has fixed
+ * the first still needs to be told about the second.
+ */
+const warnedUndated = new Set<string>()
+
+function warnUndatedOnce(received: string, message: string): void {
+  if (!isDevelopment() || warnedUndated.has(received)) return
+  warnedUndated.add(received)
+  console.warn(message)
+}
+
+/**
  * The category tint, written out because Tailwind reads class names as literal
  * strings. `text-category-${category}-ink` generates no CSS and renders a tile
  * with no tint at all, which looks like a missing category rather than a
@@ -427,19 +455,18 @@ export function MetricTile({
      what the form is. */
   const taken = instantOf(measuredAt)
   if (taken === null) {
-    if (isDevelopment()) {
-      console.warn(
-        `[opsinjs] <MetricTile> received measuredAt="${String(measuredAt)}", which ` +
-          "is not an instant this component can locate — either it carries no " +
-          "offset, or it names a date that does not exist. The age of the " +
-          "reading could not be established and nothing was rendered. The forms " +
-          'accepted are the ones RelativeTime accepts: "2026-03-14T08:12:00+01:00", ' +
-          '"2026-03-14 08:12:00+0100" and "2026-03-14T07:12:00Z". A tile carries ' +
-          "three claims — the value, the unit and the time — and it has no room to " +
-          "explain a missing one, so it renders none of them rather than a number " +
-          "a reader would take for today's.",
-      )
-    }
+    warnUndatedOnce(
+      String(measuredAt),
+      `[opsinjs] <MetricTile> received measuredAt="${String(measuredAt)}", which ` +
+        "is not an instant this component can locate — either it carries no " +
+        "offset, or it names a date that does not exist. The age of the " +
+        "reading could not be established and nothing was rendered. The forms " +
+        'accepted are the ones RelativeTime accepts: "2026-03-14T08:12:00+01:00", ' +
+        '"2026-03-14 08:12:00+0100" and "2026-03-14T07:12:00Z". A tile carries ' +
+        "three claims — the value, the unit and the time — and it has no room to " +
+        "explain a missing one, so it renders none of them rather than a number " +
+        "a reader would take for today's.",
+    )
     return null
   }
 
