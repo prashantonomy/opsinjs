@@ -34,7 +34,11 @@ export function getCatalogue(): CatalogueEntry[] {
   return CATALOGUE
 }
 
-/** The 24 rows that have a specification page. */
+/**
+ * The 24 rows on the roster: the ids opsinjs has committed to, each with a
+ * hand-written page. Not a claim about code — read `implemented` in
+ * `/r/index.json`, or `toIndexRow`'s `isBuilt` argument, for that.
+ */
 export function getShipped(): CatalogueEntry[] {
   return SHIPPED
 }
@@ -48,7 +52,23 @@ export function getEntry(id: string): CatalogueEntry | undefined {
   return CATALOGUE.find((entry) => entry.name === id)
 }
 
-/** True when this id has a hand-written page at `/docs/components/<id>`. */
+/**
+ * True when `/docs/components/<id>` resolves to a page.
+ *
+ * EVERY catalogue id does, considered ones included. This used to exclude
+ * `considered`, on the assumption that a row decided against had no address —
+ * which was true before ADR 0008 and has not been true since: `pnpm generate`
+ * writes a stub for each of the 36, precisely "so that this address answers
+ * instead of returning a 404". The stale answer was visible, because
+ * `<StatusMatrix>` and `<ComponentsList>` ask this question to decide whether to
+ * link a row: all 36 rendered as inert grey text, or linked to the index, while
+ * the page that says why the name was declined sat one click away and unreachable
+ * from the table that named it.
+ *
+ * It is therefore the same predicate as `isKnownId` today, and deliberately kept
+ * separate: they answer different questions and will diverge the moment an id
+ * exists without a page, or a page exists without a row.
+ */
 export function hasComponentPage(id: string): boolean {
   const entry = getEntry(id)
   return entry !== undefined && entry.status !== "considered"
