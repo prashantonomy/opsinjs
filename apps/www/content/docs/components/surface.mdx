@@ -11,12 +11,27 @@ usedIn: [health-metric-card, results-screen]
 
 ## Status
 
-`surface` is implemented and installable. It is **alpha**: it works, the material it
-renders comes entirely from measured tokens, the API may change in any release without a
-deprecation cycle, and it is not for a production health surface yet. What keeps it at
-alpha is the last list in [Accessibility](#accessibility), and it is stated there rather
-than summarised here because most of it is a measurement nobody has taken — including the
-one for the translucent material this component exists to make safe.
+<StubNotice
+  name="surface"
+  status="alpha"
+  questions={[
+    "The translucent case, which is the one this component exists for, has not been measured. Every published materials figure is text against a rung's opaque fallback; nothing measures the tint composited at its published floor over the darkest and the lightest tone the theme can produce, and `minScrimOpacity` is published alongside that measurement rather than derived from it.",
+    "Whether `prefers-contrast: more` belongs in this component at all. It is answered here before it is answered in the token layer, which is where Increased contrast says the answer belongs, and what happens to a component that has already shipped its own is unsettled. The colour half is unmeasured as well: the edge widens and keeps its published alpha, and nobody has checked the result against the non-text floor.",
+    "Behaviour under `forced-colors: active`. Nothing in opsinjs answers it, and a material ladder is precisely what a forced-colours environment replaces.",
+    "The composited-surface budget. Three translucent rungs at once is the designed worst case and nothing counts them — a module-scoped counter in a server component would report one reader's screen to another — so review is the only thing enforcing it.",
+    "Whether the scrim's floor holds at 200% text. The floor is a colour relationship and does not move with type size, but nobody has looked at a 200% sheet over a hostile backdrop, and the edge widths are fixed pixel values, so the material thins relative to its content as the type grows.",
+  ]}
+>
+  <code className="text-sm">surface</code> is implemented and installable. It is{" "}
+  <strong className="font-medium">alpha</strong>: it works, the material it
+  renders comes entirely from measured tokens, the API may change in any release
+  without a deprecation cycle, and it is not for a production health surface
+  yet.
+</StubNotice>
+
+What keeps it at alpha is the last list in [Accessibility](#accessibility), and it is
+stated there rather than summarised here because most of it is a measurement nobody has
+taken — including the one for the translucent material this component exists to make safe.
 
 Surface is the least visible component in the system and the one most likely to be
 mistaken for decoration. It is the mechanism that makes translucency safe: without a
