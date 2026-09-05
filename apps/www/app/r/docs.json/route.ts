@@ -44,9 +44,11 @@ import {
   SHARDS,
   allPages,
   metaOf,
+  pageImplemented,
   pageMarkdownUrl,
   pageUrl,
   sectionOf,
+  truncationOrder,
 } from "@/app/_machine/corpus"
 
 export const dynamic = "force-static"
@@ -59,6 +61,13 @@ interface BundlePage {
   title: string
   description?: string
   status: string
+  /**
+   * Whether the thing this page documents is built. Absent — not `false` — on
+   * a page that documents nothing buildable, which is most of the corpus; see
+   * `pageImplemented()`. It is the same answer as the twin's frontmatter and
+   * the roster's `implemented` field, because it is the same function.
+   */
+  implemented?: boolean
   kind?: string
   evidence?: string
   aliases: string[]
