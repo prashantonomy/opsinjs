@@ -71,13 +71,42 @@ Three consequences worth knowing:
 
 ## The version stamp
 
-Every twin carries the docs version and the page's last-modified date in its
-frontmatter. This is not decoration: it is the only way a cached copy can be
-distinguished from a current one, and the only way a bug report six months from
-now can say *which* version of the documentation an agent read.
+Every twin response carries the docs version on the `x-opsinjs-docs-version`
+header. It is a header and not a frontmatter key, which matters more than it
+sounds: a twin saved to a file loses it, so read it at fetch time and store it
+beside the body yourself. Without it a cached copy cannot be distinguished from a
+current one, and a bug report six months from now cannot say *which* version of
+the documentation an agent read.
 
-If you cache twins, cache the stamp with them, and include it when you report a
-problem.
+Three more headers ride on the same response, and the four of them do not all
+answer at the same scope. Mistaking one for another is the expensive error, so
+the scope is worth reading off a table rather than inferring:
+
+| Header | Answers about | Value |
+| --- | --- | --- |
+| `x-opsinjs-docs-version` | The site | The docs version this build serves |
+| `x-opsinjs-status` | This page | The page's own `status`, the same string its frontmatter carries |
+| `x-opsinjs-implemented` | This page, when the page documents a component or a screen; otherwise the system | Whether that subject has source behind it |
+| `x-opsinjs-implemented-count` | The system | How many component ids have real source behind them |
+
+A component or screen twin overrides `x-opsinjs-implemented` with its own
+subject's answer, exactly as `/r/<id>.json` does, so `HEAD` on
+`/docs/components/toast.md` returns `false` for a reserved name even though the
+count beside it is not zero. Every other page — a guide, a handbook chapter, a
+doctrine page — names nothing buildable, so the header keeps its system value
+there, which answers "is anything implemented" rather than "is this
+implemented". `x-opsinjs-status` is sent on every twin and is always the page's
+own, which is how you tell which of the two scopes you were handed. If you need
+a per-id answer for something that has no documentation page, ask
+`/r/<id>.json` or the roster at `/r/index.json` instead of inferring one from a
+header.
+
+There is no per-page last-modified date, in the frontmatter or anywhere else.
+Nothing in the build computes one, and a fabricated date would be worse than an
+absent one — the version is the only freshness signal this surface offers.
+
+If you cache twins, cache the version with them, and include it when you report
+a problem.
 
 ## What has a twin and what does not
 
@@ -97,7 +126,7 @@ application.
 
 The first bytes should be a frontmatter delimiter, not `<!DOCTYPE`.
 
-### JSX has been resolved
+### PascalCase tags are present and explained
 
 Search the output for a `<` followed by an uppercase letter. There should be
 none. If there are unresolved tags, you have fetched raw source from somewhere
