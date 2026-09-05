@@ -111,12 +111,16 @@ retrieval problem you were trying to avoid. If your tool wants a subset, the
 whole file. A vendored bundle is a snapshot, and a snapshot that nobody ever
 compares to the live version quietly becomes wrong. A weekly job that fetches
 the current version string — a few bytes — and warns on a mismatch is enough.
+Compare `included` and `total` at the same time: the set of pages a snapshot
+carries moves as the corpus grows, so two bundles at the same version are the
+same text and two at different versions may not even be the same pages.
 
 <Callout>
-Given that nothing is built, the most important content in this bundle is the
-word `planned` on every component page. An agent working from a stale bundle a
-year from now must be able to discover that the world has moved; the version
-stamp is how.
+The most important field on every page in this bundle is `status`: `alpha` where
+there is source in the registry item, `considered` where there is a reserved
+name and nothing behind it. An agent working from a stale bundle a year from now
+must be able to discover that the world has moved — the version stamp is how it
+finds out, and `status` is what will have changed.
 </Callout>
 
 ## Using it in an air-gapped build
@@ -130,9 +134,9 @@ build time from a network you do not control is not an offline strategy.
 
 ### Record where it came from
 
-Keep the `version` and `generated` fields visible to whatever consumes the
-bundle, and surface them in any answer the tool produces. "According to opsinjs
-docs version X" is a checkable claim; "according to opsinjs" is not.
+Keep `version` and `generatedAt` visible to whatever consumes the bundle, and
+surface them in any answer the tool produces. "According to opsinjs docs version
+X" is a checkable claim; "according to opsinjs" is not.
 
 ### Refresh on a schedule you own
 
