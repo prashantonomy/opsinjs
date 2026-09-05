@@ -138,9 +138,12 @@ shard is usually a page in a group nobody assigned.
 
 ## Troubleshooting
 
-**`/llms-full.txt` is missing pages I can see on the site.** The cap. Read the
-notice at the top of the file, which names what was dropped, then fetch the
-shard or the individual twin.
+**`/llms-full.txt` is missing pages I can see on the site.** The cap. The header
+counts how many pages survived and the `## Truncated` block at the foot lists
+every page that was dropped, with the `.md` URL to fetch it from — read that
+block first rather than diffing the file against `/llms.txt`. Then fetch the
+twin, or take the shard that covers its section, remembering that eight of the
+sixteen sections have no shard at all.
 
 **A page's aliases are missing from the index.** Aliases come from frontmatter.
 A page with none contributes none — that is a documentation gap, reportable
@@ -150,8 +153,9 @@ through the feedback control at the foot of the page.
 Rebuild, or in development restart — `pnpm run generate` does not rebuild the
 index on its own.
 
-**I want an index of only the built components.** That would currently be an
-empty file. Nothing is built.
+**I want an index of only the built components.** Filter the Components section
+on `status: alpha`; there are twenty-four. `/r/index.json` answers the same
+question in a field — `implemented` — and is cheaper to parse than a text index.
 
 ## Next
 
