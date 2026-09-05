@@ -348,10 +348,10 @@ const GROUPS: IconGroup[] = [
 
 export function IconBrowser() {
   const [query, setQuery] = useState("")
-  const normalised = query.trim().toLowerCase()
+  const needle = query.trim().toLowerCase()
 
   const groups = useMemo(() => {
-    if (!normalised) return GROUPS
+    if (!needle) return GROUPS
     return GROUPS.map((group) => ({
       ...group,
       icons: group.icons.filter(
