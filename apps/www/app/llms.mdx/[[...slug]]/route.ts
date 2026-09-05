@@ -22,10 +22,14 @@
  * The response carries YAML frontmatter — status, kind, evidence, aliases, the
  * doctrine pages that govern the page and the canonical URL — because a page
  * retrieved by a search is read alone, with none of the site around it.
+ *
+ * It also carries `x-opsinjs-status` and, on a page that documents a component
+ * or a screen, that subject's own `x-opsinjs-implemented`, so a HEAD request
+ * answers about this page rather than about the system.
  */
 
-import { SITE_URL, text } from "@/app/_machine/contracts"
-import { renderPage } from "@/app/_machine/corpus"
+import { SITE_URL, provenance, text } from "@/app/_machine/contracts"
+import { pageHeaders, renderPage } from "@/app/_machine/corpus"
 import { source } from "@/lib/source"
 
 export const dynamic = "force-static"
