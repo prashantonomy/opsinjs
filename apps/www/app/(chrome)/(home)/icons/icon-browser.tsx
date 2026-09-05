@@ -356,9 +356,9 @@ export function IconBrowser() {
       ...group,
       icons: group.icons.filter(
         (icon) =>
-          icon.name.toLowerCase().includes(normalised) ||
-          icon.use.toLowerCase().includes(normalised) ||
-          group.title.toLowerCase().includes(normalised)
+          icon.name.toLowerCase().includes(needle) ||
+          icon.use.toLowerCase().includes(needle) ||
+          group.title.toLowerCase().includes(needle)
       ),
     })).filter((group) => group.icons.length > 0)
   }, [normalised])
