@@ -82,16 +82,21 @@ opsinjs package, so `@opsinjs/react` never resolves and an install that copies
 source into the project is the only shape that works.
 
 ```txt
-RangeBar is specified in opsinjs but not implemented (status: planned).
-The proposed prop interface is documented on the RangeBar component page.
-I have not generated an import, because the module does not exist yet.
+RangeBar is implemented in opsinjs, at status: alpha. Its source is served as a
+registry item and is copied into the project rather than imported from a
+package. Alpha means the API may change in any release without a deprecation
+cycle, so read the installed source instead of guessing the props, and do not
+put it on a production health surface yet.
 ```
 
 ### Use the status vocabulary
 
 Four ordinal levels, token ids `steady`, `watch`, `attention`, `urgent`. Set the
 level; never pick the colour. And never render a status without a word — colour
-is a second channel, not the only one.
+is a second channel, not the only one. `StatusPill` takes no children: it draws
+the word for the level itself, `describes` names what the level is about so a
+screen-reader user hears a subject, and `label` only re-words the level for
+translation.
 
 ```tsx
 // Right: the level is data, the colour is the system's business.
