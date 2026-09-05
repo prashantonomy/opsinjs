@@ -41,15 +41,17 @@ have one, [Installation](./installation/index.mdx) covers each framework.
 ## Add the pieces
 
 Three registry items: the card itself, the range bar it composes, and the status
-pill that carries the clinical level. The intended command is a plain
-`shadcn` add against the `@opsinjs` namespace — opsinjs does not ship its own CLI,
-because the shadcn CLI already does this job.
+pill that carries the clinical level. The command is a plain `shadcn` add against
+the `@opsinjs` namespace — opsinjs does not ship its own CLI, because the shadcn
+CLI already does this job. `result-card` names the other two as registry
+dependencies, so adding it alone brings them, along with the two `lib` modules
+every opsinjs component imports.
 
 ```npm
 npx shadcn@latest add @opsinjs/result-card @opsinjs/range-bar @opsinjs/status-pill
 ```
 
-That intends to copy real source files into your project, not add a dependency.
+That copies real source files into your project rather than adding a dependency.
 You own the result. See [Registry](../registry/index.mdx) for what the namespace
 resolves to and [Upgrading](./installation/upgrading.mdx) for how you take changes
 to code you own.
