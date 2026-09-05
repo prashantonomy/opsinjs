@@ -137,10 +137,11 @@ what upgrade notes will have to cover — not a report of observed breakage.
 Re-run `add --diff` after upgrading. It should report no differences except your
 own deliberate local changes.
 
-### The stamp advanced
+### The install is recorded
 
-The version comment in the file should now name the version you took. If it does
-not, the file was written by something other than the CLI.
+Your commit should name the item and the version you took, because the file will
+not: nothing emits a version stamp yet. That record is what the next upgrade's
+three-way merge needs, and reconstructing it afterwards is guesswork.
 
 ### Your local change is still there
 
