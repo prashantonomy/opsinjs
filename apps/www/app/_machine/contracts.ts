@@ -361,7 +361,15 @@ export interface CatalogueRow {
   /** e.g. `health-data-display`, `surfaces`, `feedback`. */
   category: string
   status: string
-  /** `true` only for the 24 ids with a hand-written specification page. */
+  /**
+   * `true` for every id that is more than a reserved name — one with a written
+   * specification page behind it, whether or not that page's component has been
+   * built yet. It is NOT an implementation flag: `implemented` on the roster row
+   * answers that, from the registry index. Defaulted from `status !== "considered"`
+   * when the catalogue row does not declare it, which is the same rule stated
+   * twice; no count is written down here, because a count in a comment is a
+   * count nobody updates.
+   */
   shipped: boolean
   since?: string
   owner?: string
@@ -629,7 +637,10 @@ export function getBuiltFiles(
  *
  * Memoised because `registry/__index__.ts` is a compile-time constant and `json`
  * calls this on every response. The cache has the same lifetime as
- * `catalogueCache`: the module, and the routes are all `force-static`.
+ * `catalogueCache`: the module, and the routes are all `force-static`. It is
+ * keyed by registry kind because `implementedScreens()` below asks the same
+ * index the same way, and one memo for two questions would answer the second
+ * with the first one's list.
  */
 let implementedCache: string[] | null = null
 
