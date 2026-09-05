@@ -212,14 +212,23 @@ export default async function ViewPage(
         <Preview />
       ) : (
         /*
-         * The honest empty state, and the reason this route is worth shipping
-         * before a single component exists. It names the component, states its
-         * status, points at the specification, and emits the machine-readable
-         * not-implemented marker — so an agent that follows a preview URL gets a
-         * definitive negative answer instead of a blank iframe it will interpret
-         * as a rendering failure and work around by inventing an API.
+         * The honest empty state, and the reason this route was worth shipping
+         * before a single component existed. It names the component, states the
+         * status the roster actually records for it — never a default, because
+         * `considered` and `planned` mean opposite things and the chip is the
+         * first thing read — points at the specification, and emits the
+         * machine-readable not-implemented marker, so an agent that follows a
+         * preview URL is told plainly that there is nothing to render, instead
+         * of getting a blank iframe it will read as a broken renderer and work
+         * around by inventing an API.
          */
-        <NotBuiltYet name={name} what={VIEW_KIND_NOUN[kind]} />
+        <NotBuiltYet
+          name={name}
+          what={VIEW_KIND_NOUN[kind]}
+          status={unbuilt?.status}
+        >
+          {unbuilt?.detail}
+        </NotBuiltYet>
       )}
     </main>
   )
