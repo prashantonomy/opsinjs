@@ -1,10 +1,14 @@
 import { isValidElement, type ComponentProps, type ReactNode } from "react"
+import Link from "next/link"
 import {
   Callout as FumaCallout,
   type CalloutType,
 } from "fumadocs-ui/components/callout"
 import { Check, ShieldAlert, Stethoscope, X } from "lucide-react"
 
+import { getEntry, type CatalogueEntry } from "@/lib/catalogue"
+import { isBuilt } from "@/lib/registry"
+import { componentPath } from "@/lib/routes"
 import {
   CLINICAL_STATUSES,
   CLINICAL_STATUS_META,
