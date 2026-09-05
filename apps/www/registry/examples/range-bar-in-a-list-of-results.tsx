@@ -56,7 +56,7 @@ const ROWS: {
   },
   {
     label: "Second example measurement",
-    value: 24,
+    value: 16,
     category: "heart",
     status: "attention",
     measuredAt: "2026-03-13T21:05:00+00:00",
