@@ -13,21 +13,22 @@ import {
   CLINICAL_STATUSES,
   CLINICAL_STATUS_META,
   isClinicalStatus,
+  STATUS_META,
   type ClinicalStatus,
 } from "@/lib/status"
 import { cn } from "@/lib/utils"
 
 /* ==========================================================================
    guidance.tsx — <DoDont>, <Callout>, <SafetyCallout>, <ClinicalNote>,
-   <ResearchNote>, <Reviewed>, <PlainLanguage>, <ReadingLevel>.
+   <ResearchNote>, <Reviewed>, <PlainLanguage>, <ReadingLevel>, <WhenToUse>.
 
    These are the components that carry opinion, evidence and prohibition, and
    the rules they enforce are the ones the site would be most damaged by
    breaking.
 
    ONE STATUS VOCABULARY, DOCS AND PRODUCT. <Callout> accepts the four clinical
-   levels — expected, watch, act, urgent — as well as fumadocs' own info/warn/
-   error types, and maps the clinical ones onto the same tokens the product
+   levels — steady, watch, attention, urgent — as well as fumadocs' own info/
+   warn/error types, and maps the clinical ones onto the same tokens the product
    uses. A documentation site that admonishes in one colour language while
    teaching another is teaching two.
 
