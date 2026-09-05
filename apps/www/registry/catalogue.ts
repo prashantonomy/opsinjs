@@ -290,7 +290,9 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "design",
     a11yDate: null,
     governedBy: [
+      "reference-ranges",
       "risk-and-statistics",
+      "numbers-units-precision",
       "two-colour-axes",
       "motion-in-health-ui",
     ],
