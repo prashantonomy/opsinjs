@@ -31,10 +31,24 @@ To change a value, change the JSON and regenerate. Editing
 
 ### Tier 2 — role tokens
 
-The tier you retheme. Names follow the shadcn convention: a surface token, and a
-`-foreground` partner naming the text and icons that sit on it.
+The tier you retheme, and the tier the versioning policy covers. An opsinjs role
+is named for the job it does on one of the two colour axes, and every ramp
+exposes exactly four: `-surface` is the tinted background, `-line` the boundary
+or icon stroke, `-ink` the text and text-sized icons that sit on the surface,
+and `-accent` the identity fill. There is no `-foreground` partner. That is the
+shadcn convention the documentation chrome is built on, and those variables are
+not opsinjs tokens and carry no promise.
 
-<TokenTable scope="role" />
+`<TokenTable>` filters by source file rather than by tier, so the table below is
+`tokens/color.json` in full — the neutrals, plus the status and category ramps
+the two Tier 1 sections further down explain. Read the `-surface`, `-line`,
+`-ink` and `-accent` rows and ignore the numbered steps beside them; those are
+primitives, and a component that references one has skipped the tier this page
+is about. The generated reference carries the same rows with a tier column and
+separate light and dark values:
+[Reference → Tokens](../reference/generated/tokens.mdx#color).
+
+<TokenTable scope="color" />
 
 ### Shape and space
 
