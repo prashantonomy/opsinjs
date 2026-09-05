@@ -95,9 +95,14 @@ The types opsinjs uses:
 | `registry:lib` | Shared non-component code — `lib/opsinjs.ts` and `lib/status.ts`, which ride along inside each component item. A file type, never an item type |
 | `registry:theme` | A theme: `cssVars` and no files, served from `/r/themes/<preset>.json` |
 
-The specification defines more than opsinjs uses. Consult shadcn's schema rather
-than this table if you are authoring a registry of your own — this list is what
-opsinjs emits, not the full vocabulary.
+Three, and no more. The specification also defines `registry:component`,
+`registry:hook`, `registry:block` and others; opsinjs emits none of them today,
+so a consumer switching on type only ever sees the three above. `registry:block`
+is the one worth naming, because it is where composed multi-file screens would
+go and the catalogue has no screens in it — a tool that branches on it will
+branch on a case that never arrives. Consult shadcn's schema rather than this
+table if you are authoring a registry of your own: this list is what opsinjs
+emits, not the full vocabulary.
 
 ## opsinjs conventions on top
 
@@ -114,13 +119,18 @@ somebody with no clinical training, in the same voice as the product itself.
 "Shows a value against a reference range" — not "RangeBar component with
 configurable thresholds".
 
-**No private fields.** Status, category, aliases and accessibility dates live in
-`/r/index.json`.
+**No field outside the schema.** Status, `implemented`, category, aliases and the
+accessibility-review date are opsinjs's, not shadcn's, so they go under `meta` —
+the place the specification set aside for them — and are republished flat at
+`/r/index.json` for a consumer that would rather not walk into `meta` to find
+them. Nothing is invented at the top level, which is what keeps an opsinjs item
+valid against a validator that has never heard of opsinjs.
 
-**Every id resolves.** Both the twenty-four specified components and the
-considered roster appear somewhere addressable. An agent asking about a
-considered component gets a definite "considered, not implemented" answer and
-never a 404 — that is the failure the whole design exists to eliminate.
+**Every id resolves.** Both the twenty-four implemented components and the
+thirty-six names on the considered roster appear somewhere addressable. An agent
+asking about a considered component gets a definite "considered, not implemented"
+answer and never a 404 — that is the failure the whole design exists to
+eliminate.
 
 ## Generated, not hand-written
 
