@@ -87,12 +87,15 @@ to do more work, so its opacity goes **up**. A scrim that got lighter under this
 preference would leave a fully legible, fully distracting background behind a
 modal.
 
-**4. Contrast improves; it never regresses.** Every fallback is an opaque colour
-that is already a measured pair with the ink on it — the same pair the opaque
-rungs use. So the reduced-transparency path is, by construction, at least as
-readable as the default path. That is the reason the fallback is the card colour
-rather than a new value: a new value would need its own measurements and would
-be the least-tested surface in the system.
+**4. Contrast improves; it never regresses.** For rungs 3 and 4 the fallback is
+an opaque colour that is already a measured pair with the ink on it — the same
+pair `card` uses. So the reduced-transparency path is, by construction, at least
+as readable as the default path. That is the reason the fallback is the card
+colour rather than a new value: a new value would need its own measurements and
+would be the least-tested surface in the system. Rung 5 is the exception and is
+not a counter-example: a `scrim`'s fallback is its own wash at a higher alpha,
+because nothing sits on a scrim to be measured and a scrim forced fully opaque
+would be a blank screen.
 
 ### Support, and why an in-app switch is still worth having
 
@@ -127,8 +130,8 @@ preference on and look at the screen; it is a two-second check and it catches
 the two failures below.
 
 **Do not remove the border along with the blur.** The most common bug in this
-area is a `bar` that becomes an opaque rectangle with no edge, floating in the
-middle of the content it was supposed to be chrome for.
+area is an `overlay` that becomes an opaque rectangle with no edge, floating in
+the middle of the content it was supposed to be chrome for.
 
 **Do not use `backdrop-filter` for anything that is not a material.** A blurred
 decorative flourish, a blurred image treatment, an animated blur behind a hero —
