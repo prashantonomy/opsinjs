@@ -1848,15 +1848,10 @@ async function staticChecks(): Promise<number> {
     )
   }
 
-  /* The six additions are declared here only because tokens/glossary.json has
-     no row for them yet. The moment somebody adds one, the generated list wins
-     and the local copy drops out, so the same word is never linted twice under
-     two different pieces of advice. */
-  const generatedWords = new Set((generatedBanned ?? []).map((entry) => entry.word.toLowerCase()))
-  const banned = [
-    ...(generatedBanned ?? []),
-    ...BANNED_ADDITIONS.filter((entry) => !generatedWords.has(entry.word)),
-  ]
+  /* One list, one source. `generatedBanned` is the whole vocabulary; the
+     A11Y000 failure above has already fired if it could not be read, so the
+     empty fallback here never runs a silently toothless check. */
+  const banned = generatedBanned ?? []
   const statusWords = Object.values(statusMeta ?? {}).map((meta) => meta.word)
   const statusLevels = Object.keys(statusMeta ?? {})
 
@@ -1875,8 +1870,15 @@ async function staticChecks(): Promise<number> {
     if (statusMeta) {
       checkStatusCarriers(label, source, starts, elements, statusWords, statusLevels)
     }
-    checkTypeSize(label, source, starts)
-    checkColourLiterals(label, source, starts)
+    /* A11Y004-007 read the source with quoted code inside comments blanked.
+       They are looking for a value a browser will resolve, and a token name or
+       a colour a doc comment names in backticks resolves to nothing: it is the
+       component explaining which ground its contrast was measured against, not
+       the component painting with it. Commented-out code is still read, so a
+       hex literal parked behind a `//` is still A11Y005. */
+    const quotedBlanked = withoutQuotedCodeInComments(source)
+    checkTypeSize(label, quotedBlanked, starts)
+    checkColourLiterals(label, quotedBlanked, starts)
     checkAxisConflict(label, starts, [
       ...elements.map((element) => ({ ...element, noun: "This element" })),
       ...styleCallBodies(source).map((body) => ({ ...body, noun: "This class list" })),
