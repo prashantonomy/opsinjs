@@ -1923,7 +1923,7 @@ function emitTs(
       if (token.p3 !== undefined) fields.push(`p3Value: ${q(token.p3)}`)
       if (token.p3Dark !== undefined) fields.push(`p3DarkValue: ${q(token.p3Dark)}`)
       fields.push(`description: ${q(token.description ?? describe(token))}`)
-      fields.push("usedBy: []")
+      fields.push(`usedBy: [${(usedBy.get(token.cssVar) ?? []).map(q).join(", ")}]`)
       if (token.resolved !== undefined) fields.push(`resolvedValue: ${q(token.resolved)}`)
       if (token.darkResolved !== undefined)
         fields.push(`darkResolvedValue: ${q(token.darkResolved)}`)
@@ -1990,12 +1990,16 @@ export interface GeneratedToken {
   /** What this token controls - the second column of every token table. */
   description: string
   /**
-   * Which components and pages consume it. The THIRD column, and the one that
+   * Which registry components consume it. The THIRD column, and the one that
    * turns a token list into a decision aid.
    *
-   * Empty for every token today, and that is the honest answer rather than a
-   * missing feature: nothing is built, so nothing consumes anything. The field
-   * is populated from the component sources the moment the first one lands.
+   * Derived by scanning \`registry/bases\` for two things: the token's custom
+   * property written literally, and any Tailwind utility that app/product.css
+   * bridges back to it in \`@theme inline\` - which is how the status, category,
+   * type, space and radius tokens are really consumed. Empty means no shipped
+   * component reads this token, which for a primitive is the expected state:
+   * components consume roles, and roles reference primitives. Examples and
+   * screens are out of scope, so a token used only by a demo reads empty too.
    */
   usedBy: string[]
   deprecated?: { since: string; replacement: string; removal: string }
