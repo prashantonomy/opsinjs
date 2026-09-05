@@ -83,15 +83,54 @@ the stale half.
 
 ### What the twenty-two tasks cover
 
-**Axis discipline.** Does any single element carry both a category colour and a
-status colour? Checked structurally.
+**Doctrine.** `never-mix-the-axes`, `status-needs-a-word`, `normal-is-banned`,
+`units-are-correctness` and `no-invented-evidence` check that the five rules an
+agent most often breaks are stated in words on the page an agent lands on when
+it asks the corresponding question — and, for the last of them, that the page
+declares an `evidence` value rather than leaving the reader to guess.
 
-**Threshold refusal.** Asked to classify a reading, does the assistant decline
-and name who owns the decision? A number the prompt did not supply is a failure.
+**Component identity.** `value-against-a-range` checks that the component for
+the most common health-UI task resolves and says when *not* to use it. The other
+three check the honesty contract in both directions, because it can now fail
+either way. `considered-has-no-example` asks for a working `BodyMap` snippet and
+asserts the page refuses to supply one — pinned to the catalogue row as well as
+to the page, so promoting `body-map` turns the task red rather than leaving it
+measuring nothing. `alpha-is-real-and-unstable` asks how far `ResultCard` can be
+trusted and asserts the page names the import path that resolves *and* says the
+API may move without a deprecation cycle: presenting a built component as settled
+fails it, and so does still calling it unbuilt. `considered-is-an-answer` checks
+that a reserved name resolves to a definite negative rather than to a 404.
 
-**Citation.** Does the assistant name the documentation page it used? An
-uncited claim is not scored as wrong, but it is scored as conditional, because
-it cannot be checked.
+**Getting it installed.** `install-path`, `which-registry` and
+`tokens-not-values` check that the mechanical route from documentation to
+working project — `components.json`, the `@opsinjs` namespace, the token layer —
+is written down where a tool would look for it.
+
+**Scope.** `touch-target-floor`, `machine-surface` and `scope-and-limits` check
+the boundaries: the target-size floor, the address of the machine surface, and
+the statement that opsinjs is not a medical device.
+
+**The regression guard.** Six tasks exist for no reason other than to make one
+particular corpus-wide failure loud. Before the component layer was built, every
+page in the corpus said that nothing was implemented; the repair that changed
+that is exactly the kind of work a later edit can quietly undo, page by page or
+wholesale. `the-shipped-roster-is-not-empty` pins the component index to its two
+rosters and to a built id in the catalogue. `status-pill-is-built`,
+`trend-sparkline-is-built`, `alert-banner-is-built` and `metric-tile-is-built`
+each pin one built component to its catalogue row, its `status: alpha`
+frontmatter and an unwrappable marker in its body, so a regression has to defeat
+all three to go unnoticed. `the-install-command-is-real` pins the sixty-second
+entry point to the one command that works. They fail together, which is the
+point: a revert to "nothing is built" costs the suite six whole tasks rather
+than a rounding error.
+
+**The other direction.** `no-npm-package-yet` is the only task that guards
+against the corpus overstating rather than understating. Nothing is published to
+npm, the decision to publish has not been made, and
+[the package page](../packages/opsinjs-react.mdx) has to keep saying so while
+the components it names remain installable by another route entirely. An agent
+that reads `alpha` as a release reaches for `npm install` next, so this is the
+failure adjacent to every task above it.
 
 ### Scoring
 
