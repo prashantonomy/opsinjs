@@ -1439,6 +1439,80 @@ function stripTsComments(source: string): string {
   return out
 }
 
+/**
+ * Blank out everything that is NOT the text of a string or template literal,
+ * preserving line count, offsets and the literal's own delimiters.
+ *
+ * The rule below used to require a quote character immediately before the path,
+ * which is a cheap way of telling a route literal apart from a filesystem path
+ * - and it left a hole wide enough to drive a route through. `${base}/docs/${slug}`
+ * has an interpolation before the path, not a quote, so the one construction
+ * most likely to be a hand-built route was the one construction the rule could
+ * not see. So did any route named inside a longer sentence in an error message.
+ *
+ * Narrowing to literal TEXT is what lets the check drop that requirement safely.
+ * Two things fall out of it that a looser regex over raw source gets wrong:
+ *
+ *   - A REGEX LITERAL is not a string. `pathname.replace(/^\/docs\/?/, "")` is
+ *     a component reading a prefix off a value it was handed, not a component
+ *     minting a route, and components/docs/meta.tsx does exactly that.
+ *   - An INTERPOLATION is not literal text either. The expression inside `${…}`
+ *     is code, and it is blanked, which is what keeps the regex-literal case
+ *     above true even when the regex sits inside a template.
+ *
+ * Nested quotes inside an interpolation are tracked so that a `}` inside a
+ * string does not close the interpolation early.
+ */
+function stringLiteralsOnly(source: string): string {
+  let out = ""
+  let quote: string | null = null
+  /* One frame per `${` depth, each remembering the quote it is inside. */
+  const interpolations: { depth: number; quote: string | null }[] = []
+  const blank = (ch: string): string => (ch === "\n" ? "\n" : " ")
+
+  for (let i = 0; i < source.length; i += 1) {
+    const ch = source[i] as string
+    const next = source[i + 1]
+
+    const frame = interpolations[interpolations.length - 1]
+    if (frame) {
+      if (frame.quote) {
+        if (ch === "\\") { out += blank(ch) + blank(source[i + 1] ?? " "); i += 1; continue }
+        if (ch === frame.quote) frame.quote = null
+        out += blank(ch)
+        continue
+      }
+      if (ch === '"' || ch === "'" || ch === "`") { frame.quote = ch; out += blank(ch); continue }
+      if (ch === "{") { frame.depth += 1; out += blank(ch); continue }
+      if (ch === "}") {
+        frame.depth -= 1
+        out += blank(ch)
+        if (frame.depth === 0) interpolations.pop()
+        continue
+      }
+      out += blank(ch)
+      continue
+    }
+
+    if (quote) {
+      if (ch === "\\") { out += ch + (source[i + 1] ?? ""); i += 1; continue }
+      if (quote === "`" && ch === "$" && next === "{") {
+        interpolations.push({ depth: 1, quote: null })
+        out += blank(ch) + blank(next)
+        i += 1
+        continue
+      }
+      out += ch
+      if (ch === quote) quote = null
+      continue
+    }
+
+    if (ch === '"' || ch === "'" || ch === "`") { quote = ch; out += ch; continue }
+    out += blank(ch)
+  }
+  return out
+}
+
 function checkHardcodedDocsPaths(): void {
   const files: string[] = []
   for (const dir of ["app", "components", "lib"]) {
@@ -1447,9 +1521,23 @@ function checkHardcodedDocsPaths(): void {
   const configFile = join(APP_DIR, "next.config.mjs")
   if (exists(configFile)) files.push(configFile)
 
-  /* A string literal that begins an absolute /docs path. "content/docs/..." is
-     a filesystem path and is deliberately not matched. */
-  const pattern = /(["'`])\/docs(\/|\1)/
+  /* An absolute `/docs` route, anywhere inside a string or template literal.
+     Both halves of this pattern are doing work.
+
+     WHAT MUST COME BEFORE IT: anything that is not a word character, a dot, a
+     hyphen or a slash - so the start of the literal, a space in a sentence, or
+     the blank an interpolation leaves behind. That single character class is
+     what spares every path this rule has always been meant to spare, and it
+     spares them by their own shape rather than by an allowlist:
+     "content/docs/…" and "fumadocs-ui/layouts/docs/page" have a word character
+     there, "./docs/anatomy" and "@/components/docs/status" have a dot or a
+     slash, and "https://example.com/docs/x" has the `m` of the hostname.
+
+     WHAT MUST COME AFTER IT: the end of the segment. `/docs` may be followed by
+     another segment, a fragment, a query, the closing quote, or the punctuation
+     that ends a clause in a sentence - but not by a letter, which is what keeps
+     "/docsearch" out of it. */
+  const pattern = /(^|[^A-Za-z0-9_.\-/])\/docs(?=$|[/#?"'`\s,.);\\])/
 
   for (const file of files) {
     const relative_ = rel(file)
@@ -1457,7 +1545,17 @@ function checkHardcodedDocsPaths(): void {
     if (relative_.startsWith("lib/generated/")) continue
     const contents = readMaybe(file)
     if (contents === undefined) continue
-    const lines = stripTsComments(contents).split("\n")
+    /* Next's generated route keys — `PageProps<"/docs/[[...slug]]">` and the
+       Layout/Route equivalents — are the route's own identity, produced by
+       `next typegen`. They cannot be built through lib/routes.ts and renaming
+       the segment would change them anyway, so they are not what this rule is
+       looking for. Blanked rather than deleted, and confined to one line, so
+       that every offset below still names the line it came from. */
+    const executable = stripTsComments(contents).replace(
+      /\b(?:PageProps|LayoutProps|RouteContext|LayoutSlots)<[^>\n]*>/g,
+      (matched) => " ".repeat(matched.length),
+    )
+    const lines = stringLiteralsOnly(executable).split("\n")
     for (let index = 0; index < lines.length; index += 1) {
       const line = lines[index] ?? ""
       /* Next's generated route keys — `PageProps<"/docs/[[...slug]]">` and the
