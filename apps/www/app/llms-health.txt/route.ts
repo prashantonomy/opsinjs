@@ -3,9 +3,10 @@
  *
  * Health, accessibility, and content and language: the three pillars that
  * decide what a health interface is allowed to assert, how it must be
- * operable, and how it must be worded. Unlike the component shard, almost
- * everything here is real today — it is written against the tokens, not
- * against code, so it did not have to wait for an implementation.
+ * operable, and how it must be worded. None of it waited on an implementation:
+ * it is written against the tokens and the language rather than against React,
+ * so it was binding before the first component was built and it binds each one
+ * that has landed since.
  *
  * This is the shard that matters most for generation. A model that has read
  * only the component specifications knows the names of things; a model that
