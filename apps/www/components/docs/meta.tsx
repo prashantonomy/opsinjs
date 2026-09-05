@@ -190,7 +190,7 @@ const FEATURES: Feature[] = [
     label: "linear() easing",
     test: "transition-timing-function: linear(0, 0.5 50%, 1)",
     degradation:
-      "A cubic-bezier approximation of the same spring. Slightly less lively; identical duration and identical end state.",
+      "The browser's default easing. A spring is one custom property holding one linear() value, so there is no cubic-bezier approximation behind it: the declaration that substitutes it is invalid at computed-value time and the timing function is lost. Identical duration and identical end state; the curve is what goes.",
   },
   {
     id: "has",
@@ -337,10 +337,12 @@ export function RegistryItem({ name, className }: RegistryItemProps) {
         script="scripts/build-registry.mts"
         className={className}
       >
-        <code className="text-xs">/r/{name}.json</code> does not resolve. The
-        registry is generated from{" "}
-        <code className="text-xs">registry/catalogue.ts</code> and the files in{" "}
-        <code className="text-xs">registry/bases/</code>, which is empty.
+        <code className="text-xs">/r/{name}.json</code> did not resolve, which
+        is not the same as saying the component is unbuilt: every id in{" "}
+        <code className="text-xs">registry/catalogue.ts</code> answers, and one
+        with no code answers with{" "}
+        <code className="text-xs">meta.opsinjs.implemented: false</code>. So
+        either no row uses this id, or the request itself failed.
       </NoDataYet>
     )
   }
