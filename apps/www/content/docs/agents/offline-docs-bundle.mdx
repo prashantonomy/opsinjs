@@ -161,12 +161,18 @@ Prefer an error.
 node -e "const d=require('./opsinjs-docs.json'); console.log(d.version, d.included, 'of', d.total, d.truncated ? '(truncated)' : '')"
 ```
 
+`included` below `total` is the budget, not a corrupt download.
+`truncationNote` says so in a sentence and the `shards` array is where to fetch
+the rest.
+
 ### A known page is present with its status
 
-Look up any component page and confirm `status` is `planned` and the prose says
-so. If the field is missing, you have an incomplete bundle.
+Look up a component page and confirm it carries a `status`: `alpha` for one of
+the twenty-four implemented components, `considered` for a reserved name. A page
+present with no `status` is a bug worth reporting. A page absent altogether is
+usually the cap — check `omitted` before reporting anything.
 
-### JSX is resolved
+### The page bodies are under `markdown`
 
 Search a `content` field for `<` followed by a capital letter. There should be
 none.
