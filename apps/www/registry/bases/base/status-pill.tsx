@@ -137,8 +137,9 @@ const TONE: Record<ClinicalStatus, string> = {
   watch:
     "border-status-watch bg-status-watch-surface [color:var(--opsin-status-watch-ink)]",
   attention:
-    "border-status-attention bg-status-attention-surface text-status-attention-ink",
-  urgent: "border-status-urgent bg-status-urgent-surface text-status-urgent-ink",
+    "border-status-attention bg-status-attention-surface [color:var(--opsin-status-attention-ink)]",
+  urgent:
+    "border-status-urgent bg-status-urgent-surface [color:var(--opsin-status-urgent-ink)]",
 }
 
 const SIZE = {
@@ -165,7 +166,26 @@ export interface StatusPillProps {
    * it a screen-reader user hears a level with no subject.
    */
   describes?: string
-  /** Merged onto the root. The pill's own classes win where they conflict. */
+  /**
+   * Merged onto the root with `tailwind-merge`, and a class you pass WINS over
+   * the pill's own where the two conflict: `cn(…, TONE[status], SIZE[size],
+   * className)` puts yours last and `twMerge` keeps the later of a conflicting
+   * pair.
+   *
+   * That includes the level's fill and its boundary. A class that removes
+   * either of them leaves the word and the glyph carrying the status on their
+   * own, so if you need the pill to sit quietly in a dense row, change `size`
+   * rather than stripping the surface.
+   *
+   * THE INK IS THE ONE EXCEPTION, and the comment above `TONE` says why: it is
+   * written as `[color:var(--opsin-status-<level>-ink)]`, an arbitrary
+   * property, so `tailwind-merge` does not file it against a `text-*` class and
+   * a `text-*` class you pass does not replace it. Both declarations are
+   * emitted and source order decides. Recolour it with a rule of your own on
+   * `[data-slot="status-pill"]` instead — and read `tokens/color.json` first,
+   * because the ink you would be replacing is the half of the pairing that was
+   * tuned to stay legible on the surface underneath it.
+   */
   className?: string
 }
 
