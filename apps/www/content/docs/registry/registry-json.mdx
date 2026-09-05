@@ -16,10 +16,13 @@ what a search command indexes.
 
 The authoritative schema is shadcn's, published at
 `https://ui.shadcn.com/schema/registry.json`, and opsinjs implements it without
-extension. Where opsinjs needs a field the schema does not have — status,
-category, aliases, the last accessibility-review date — those go in a second
-file, `/r/index.json`, rather than into a shape other tools validate. An item
-that fails somebody else's validator is a worse outcome than a second request.
+extending it. Where opsinjs needs a field the schema has no column for — status,
+`implemented`, category, aliases, the doctrine pages that govern a component —
+those sit under `meta`, which the specification reserves for exactly this, and
+are republished in a flatter shape at `/r/index.json` for a consumer that wants
+them without having to know where inside `meta` they live. Nothing opsinjs emits
+sits outside the schema: an item that fails somebody else's validator is a worse
+outcome than a second request.
 
 ## The file
 
@@ -31,9 +34,11 @@ that fails somebody else's validator is a worse outcome than a second request.
   "items": [
     {
       "name": "result-card",
-      "type": "registry:component",
-      "title": "Result card",
-      "description": "A single test result shown with what it means and how confident you should be.",
+      "type": "registry:ui",
+      "title": "ResultCard",
+      "description": "One test result, showing the number, what it is compared against, and what it means.",
+      "categories": ["health-data-display"],
+      "registryDependencies": ["@opsinjs/status-pill", "@opsinjs/value", "…"],
       "files": [
         { "path": "registry/bases/base/result-card.tsx", "type": "registry:component" }
       ]
