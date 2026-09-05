@@ -25,9 +25,11 @@ import {
    every one of the ~380 documentation pages, whether or not that page has a
    preview on it.
 
-   So the lookup happens here, in a server component, and the only thing that
-   crosses the boundary is `built: boolean`. The client surface keeps every bit
-   of its interactivity and gains nothing it has to download.
+   So the lookup happens here, in a server component, and the only things that
+   cross the boundary are `built: boolean` and `phase`, one release-phase word
+   off the catalogue row. The client surface keeps every bit of its
+   interactivity and gains nothing it has to download. Anything else a lookup
+   turns up belongs on this side of the line.
 
    These two exports carry the public names. `components/mdx.tsx` registers
    `ComponentPreview` and `IframePreview` FROM THIS FILE; the same names in
@@ -55,6 +57,21 @@ function resolvesToARender(
   if (!name) return false
   const entry = getRegistryEntry(name, base, style, kind)
   return entry?.component != null
+}
+
+/**
+ * The catalogue row's release phase, for the empty state's machine sentence.
+ *
+ * Resolved here for the same reason `built` is: the phase is a fact about
+ * registry/catalogue.ts, and `lib/catalogue` must not cross into a client
+ * module. Only the resolved word crosses, and it matters because <NotBuiltYet>
+ * says something different at `considered` — where there is no specification —
+ * from what it says at `planned`, where there is one. An id that is not a
+ * catalogue row (an example, a screen) resolves to nothing and the surface
+ * falls back to its own default.
+ */
+function phaseOf(name: string | undefined): Status | undefined {
+  return name ? getEntry(name)?.status : undefined
 }
 
 /**
