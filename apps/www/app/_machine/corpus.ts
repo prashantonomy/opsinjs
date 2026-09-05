@@ -93,7 +93,7 @@ export const SECTIONS: SectionDescriptor[] = [
        no way to check a number against anything. So it names the two fields
        that do carry the answer instead. */
     blurb:
-      "Twenty-four specifications. None is implemented; each states intent, the clinical contract, the proposed API and the accessibility bar it must clear.",
+      "Every component opsinjs has claimed, in one list. Some have real source behind them and install from /r/<id>.json; the rest are specifications, or names reserved so the URL answers with something better than a 404. A specification page states intent, when not to use it, the clinical contract, the API and the accessibility bar. Each entry's `status`, and `implemented` in /r/index.json, say which kind you are reading.",
   },
   {
     id: "screens",
@@ -189,7 +189,7 @@ export const SHARDS = {
     title: "Components and screens",
     sections: ["components", "screens"],
     blurb:
-      "Every component specification and every screen specimen. Read this before answering a question about what opsinjs provides.",
+      "Every component page and every screen specimen — the built components, the specifications and the reserved names, each carrying its own status. Read this before answering a question about what opsinjs provides.",
   },
   health: {
     file: "/llms-health.txt",
@@ -344,6 +344,76 @@ export function pageMarkdownUrl(page: CorpusPage): string {
 /* ------------------------------------------------------------------ *
  * Rendering
  * ------------------------------------------------------------------ */
+
+/**
+ * The built set as a lookup, resolved once per build.
+ *
+ * Lazily, and never as a module-level `const`: `implementedComponents()`
+ * reaches through `./contracts` into `lib/registry.ts`, and evaluating it while
+ * a module is still initialising is the ReferenceError that file's docblock
+ * warns about. Memoised because `renderFrontmatter` runs once per page and this
+ * corpus has four hundred of them.
+ */
+let builtIdCache: Set<string> | null = null
+
+function builtIds(): Set<string> {
+  if (!builtIdCache) builtIdCache = new Set(implementedComponents())
+  return builtIdCache
+}
+
+/** The same lookup for screen specimens, and empty for the same honest reason. */
+let builtScreenIdCache: Set<string> | null = null
+
+function builtScreenIds(): Set<string> {
+  if (!builtScreenIdCache) builtScreenIdCache = new Set(implementedScreens())
+  return builtScreenIdCache
+}
+
+/**
+ * The catalogue id this page documents, or `null` when it documents no single
+ * component.
+ *
+ * Only `content/docs/components/<id>.mdx` carrying `kind: component` qualifies.
+ * The same directory also holds the section index (`kind: reference`) and the
+ * page-anatomy handbook (`kind: handbook`), and a screen page is a specimen
+ * rather than a registry item — none of the three is a component, and none has
+ * a catalogue id or anything to install. A screen is still a thing that can be
+ * composed, so `pageImplemented()` answers for it separately, from the registry
+ * rather than from here.
+ */
+export function componentIdOf(page: CorpusPage): string | null {
+  if (page.slugs[0] !== "components" || page.slugs.length !== 2) return null
+  if (metaOf(page).kind !== "component") return null
+  return page.slugs[1] ?? null
+}
+
+/**
+ * Whether the thing THIS page documents has been built, or `undefined` when the
+ * page documents no such thing.
+ *
+ * Three surfaces need this answer about one page — the twin's `implemented:`
+ * frontmatter, its `x-opsinjs-implemented` header, and the page record in
+ * `/r/docs.json` — and before this they disagreed: the frontmatter answered per
+ * page, the header answered for the system, and the bundle did not answer at
+ * all while its own docblock said it did. One function, three callers.
+ *
+ * A component page answers for its catalogue id. A screen page answers for the
+ * screen, read from the registry by kind rather than written down as `false`,
+ * so the day a screen is composed the answer moves with it. Everything else —
+ * a guide, a doctrine page, an ADR, a generated token reference — documents
+ * nothing that can be built, and gets `undefined` rather than a `false` that
+ * would assert something untrue about a page that is real today.
+ */
+export function pageImplemented(page: CorpusPage): boolean | undefined {
+  const componentId = componentIdOf(page)
+  if (componentId) return builtIds().has(componentId)
+  const meta = metaOf(page)
+  if (meta.kind === "screen") {
+    const name = page.slugs[1]
+    return name ? builtScreenIds().has(name) : false
+  }
+  return undefined
+}
 
 function annotations(meta: PageMeta): string[] {
   const notes: string[] = [`status: ${meta.status}`]
