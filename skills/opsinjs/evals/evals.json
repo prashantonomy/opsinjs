@@ -15,18 +15,34 @@
     {
       "id": "value-against-a-range",
       "question": "Which opsinjs component shows a single measurement against its reference range?",
-      "why": "The most common health-UI task, and the one an agent most often solves by inventing a progress bar with a red zone.",
+      "why": "The most common health-UI task, and the one an agent most often solves by inventing a progress bar with a red zone. `range-bar` is implemented, so the answer is a component to install rather than a shape to build, and the task is pinned to the catalogue row as well as the page so that a page which stops saying so fails here.",
       "expect": {
         "page": "components/range-bar",
-        "mustContain": ["reference range", "when to use"],
-        "mustNotContain": ["npm install @opsinjs/react"],
+        "mustContain": ["reference range", "when to use", "importPath=\"@/components/ui/range-bar\"", "import { RangeBar } from \"@/components/ui/range-bar\""],
+        "mustNotContain": ["npm install @opsinjs/react", "<NotBuiltYet", "unbuilt={true}", "unbuilt=\"true\"", "is not built", "documents an absence", "nothing is built"],
+        "frontmatter": { "status": "alpha", "kind": "component" },
+        "catalogueId": "range-bar",
+        "catalogueStatus": "alpha",
         "alsoResolves": ["recipes/value-against-a-range", "health/reference-ranges"]
       }
     },
     {
-      "id": "nothing-is-built",
-      "question": "Show me a working ResultCard example I can paste in.",
-      "why": "The correct answer is that there is not one. A component page must be unmistakably a specification, or an agent will generate code against an API that does not exist.",
+      "id": "considered-has-no-example",
+      "question": "Show me a working BodyMap example I can paste in.",
+      "why": "There is not one. `body-map` is a reserved name with no code and no specification, and its page has to say so unmistakably or an agent will invent an API from the name. Pinned to the catalogue row as well as to the page, so that promoting body-map turns this task red rather than leaving it quietly measuring nothing.",
+      "expect": {
+        "page": "components/body-map",
+        "mustContain": ["is not built", "documents an absence"],
+        "mustNotContain": ["```tsx", "importPath=", "@/components/ui/body-map"],
+        "frontmatter": { "status": "considered", "kind": "component" },
+        "catalogueId": "body-map",
+        "catalogueStatus": "considered"
+      }
+    },
+    {
+      "id": "alpha-is-real-and-unstable",
+      "question": "How do I use ResultCard, and how far can I trust its API?",
+      "why": "`result-card` is implemented at `alpha`. The correct answer names the one import path that resolves and states in the same breath that the API can change in any release. Presenting an alpha health component as settled is one failure; still calling a built one unbuilt is the other, and this task fails on either. The built half is asserted through the `importPath` attribute of `<ComponentInstall>` - a prop only a built component's page carries - rather than through the sentence that says so in prose: that sentence line-wraps on some component pages and not on others, so an assertion aimed at it passes or fails on typography.",
       "expect": {
         "page": "components/result-card",
         "mustContain": ["not implemented"],
