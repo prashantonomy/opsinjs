@@ -558,7 +558,8 @@ export function TrendSparkline({
     timesRunForwards &&
     lastTime > firstTime
   if (!timesUsable && points.length > 1 && isDevelopment()) {
-    console.warn(
+    warnDevOnce(
+      "timestamps-not-chronological",
       "[opsinjs] <TrendSparkline> could not read its timestamps as a run of ISO " +
         "dates that never goes backwards, so the readings have been spaced evenly " +
         "by their position in the array instead. A gap will therefore sit at the " +
@@ -674,7 +675,8 @@ export function TrendSparkline({
     })
   }
   if (marked.length > 1 && isDevelopment()) {
-    console.warn(
+    warnDevOnce(
+      `many-marked:${String(marked.length)}`,
       `[opsinjs] <TrendSparkline> was given ${String(marked.length)} readings ` +
         "carrying a status and has emphasised the last of them. One reading is " +
         "emphasised because the caption names one verdict in words, and a marker " +
