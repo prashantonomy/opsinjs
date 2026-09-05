@@ -73,7 +73,7 @@
       "wcag": 3,
       "appliesTo": "Boundaries, icons, chart strokes, focus rings and any graphic that carries meaning."
     },
-    "$comment": "opsinjs publishes BOTH an APCA Lc figure and a WCAG 2.2 ratio for every pair, and a pair must clear both. APCA models real text rendering better; WCAG 2.2 is what a procurement reviewer and a VPAT ask for. The measured numbers live in lib/generated/contrast.json and are produced by scripts/check-contrast.mts — they are never written by hand and never quoted in prose."
+    "$comment": "opsinjs publishes BOTH an APCA Lc figure and a WCAG 2.2 ratio for every pair, and a pair must clear both. APCA models real text rendering better; WCAG 2.2 is what a procurement reviewer and a VPAT ask for. The measured numbers live in lib/generated/contrast.json and are produced by scripts/check-contrast.mts — they are never written by hand and never quoted in prose. One copy in this file is the named exception: `colourIndependence.statusCollisions` is a rounded snapshot kept so that an author reading the palette does not have to open the generated file, it is not authoritative, and nothing diffs it against the generator. Where the two disagree, the generated file is right."
   },
   "roles": {
     "order": ["surface", "line", "ink", "accent"],
