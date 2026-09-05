@@ -73,7 +73,7 @@ wrong quietly if they are wrong.
 | Field | What it does | What opsinjs needs from it |
 | --- | --- | --- |
 | `$schema` | Editor validation | Nothing, but keep it |
-| `style` | Selects a style variant within a registry | Chooses which opsinjs style is served for a component; the default is named in [Registry](../../registry/index.mdx) |
+| `style` | Selects a style variant within a registry | Required: the CLI validates against a schema that demands it, so a file without it is rejected whole. It reaches opsinjs only through the URL template — the CLI substitutes it wherever a registry URL contains `{style}` — so it matters if you point the entry at `/r/styles/{style}/{name}.json`, which [Registry](../../registry/index.mdx) documents, and not with the `/r/{name}.json` entry this page publishes |
 | `rsc` | Whether the project uses server components | Controls whether a `"use client"` directive is written into files that need one. Wrong value, wrong build errors |
 | `tsx` | TypeScript or JavaScript output | opsinjs source is TypeScript; `false` is not supported |
 | `tailwind.css` | Path to your main stylesheet | Where the token layer import is written |
@@ -100,7 +100,12 @@ repository root. [Monorepo](./monorepo.mdx) has the details.
 
 ## A complete example
 
-A consumer project's file, with the opsinjs entry in place:
+A consumer project's file, with the opsinjs entry in place. It is complete, and
+the `style` key is the reason it has to be: the CLI validates the whole file
+against its schema before it fetches anything, `style` is required by that
+schema, and a `components.json` it rejects writes nothing at all rather than
+failing on the item you asked for. `new-york` is what `shadcn init` writes; keep
+whatever value it wrote for you rather than copying this one over it.
 
 ```json title="components.json"
 {
