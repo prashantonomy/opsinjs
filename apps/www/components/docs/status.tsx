@@ -180,6 +180,11 @@ const IMPLEMENTED_PHASES: readonly Status[] = [
  * with a delay fuse. Do not put a number in this JSX.
  */
 export function StatusLegend({ className }: { className?: string }) {
+  const rows = getCatalogue()
+  const built = rows.filter((row) =>
+    IMPLEMENTED_PHASES.includes(row.status)
+  ).length
+
   return (
     <div
       data-opsinjs-chrome=""
@@ -187,7 +192,9 @@ export function StatusLegend({ className }: { className?: string }) {
       className={cn("flex flex-col gap-2 text-xs", className)}
     >
       <p className="m-0 leading-snug text-muted-foreground">
-        Nothing is built yet. Every component page is a specification.
+        {built} of the {rows.length} catalogued components are built and
+        installable. The rest are specifications: a page marked planned or
+        considered has no code behind it.
       </p>
       <ul className="m-0 flex list-none flex-wrap gap-1 p-0">
         {(["stable", "beta", "alpha", "planned"] as const).map((phase) => (
