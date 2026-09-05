@@ -111,7 +111,8 @@ default, a threshold behaviour or a screen-reader announcement is not the same
 kind of change as a refactor, and a report that lists them identically will get
 skimmed. Marking them differently is cheap; noticing them late is not.
 
-Until the tool exists, the manual form works: read the stamp, read the
+Until the stamp and the tool both exist, the manual form works: keep your own
+note of what you installed and when, read the
 [changelog](../project/changelog/index.mdx), run `add --diff`.
 
 ## Why not a lockfile
@@ -140,8 +141,9 @@ A manifest is a reasonable *addition*. It is not a substitute.
 grep -rL "@opsinjs" components/ui/
 ```
 
-Files listed by that command were installed by something that stripped the
-stamp, or were copied by hand.
+Today that command lists everything you installed, because nothing emits a
+stamp. Once the build does, a file it still lists was installed by something
+that stripped the stamp, or was copied by hand.
 
 ### The stamp is accurate
 
@@ -158,9 +160,10 @@ the comment survives. Some header-comment rules will remove it.
 
 ## Troubleshooting
 
-**A file has no stamp.** Hand-copied, or installed by an older tool. Diff against
-the current upstream, decide which version it most resembles, and add the stamp
-by hand — an approximate stamp with a note is better than none.
+**A file has no stamp.** Expected for everything installed so far: the registry
+emits none. Diff against the current upstream, record what you took and when,
+and add the stamp by hand once versions exist — an approximate stamp with a note
+is better than none.
 
 **Two files claim different versions of the same item.** Two installs at
 different times. Bring them to the same version before you next upgrade, or you
