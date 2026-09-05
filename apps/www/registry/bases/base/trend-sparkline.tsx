@@ -447,13 +447,7 @@ export function TrendSparkline({
      the type is advice in a JavaScript project — so the check is for the caller
      who has none, and the repair is to draw NO BAND rather than an unowned one.
      A shaded interval with no attribution is the consuming product asking this
-     system to vouch for a comparison it has never seen.
-
-     The message in tokens/errors.json names `rangeSource`, which is not a prop
-     on anything: the prop is `range.source`. That is a defect in the message
-     table rather than in this file, and it is reported upward rather than worked
-     around here — the same treatment, and for the same reason, as the
-     `minimumWindow` span in OPSIN-0012 below. */
+     system to vouch for a comparison it has never seen. */
   const rangeOwner = range?.source?.trim()
   const rangeIsOwned = range !== undefined && rangeOwner !== undefined && rangeOwner !== ""
   if (range !== undefined && !rangeIsOwned) {
@@ -476,7 +470,8 @@ export function TrendSparkline({
       : []
   const bandIsClosed = bandBounds.length > 0
   if (rangeIsOwned && !bandIsClosed && isDevelopment()) {
-    console.warn(
+    warnDevOnce(
+      "range-not-shadeable",
       "[opsinjs] <TrendSparkline> was given a `range` it cannot shade: a band " +
         "needs a lower bound and an upper bound, with the lower below the upper. " +
         "The interval has been stated in the caption in words instead, open end " +
@@ -493,7 +488,8 @@ export function TrendSparkline({
      readings, and the caption says which of the two happened. */
   const ruleIsUsable = Number.isInteger(minimumPoints) && minimumPoints > 0
   if (!ruleIsUsable && isDevelopment()) {
-    console.warn(
+    warnDevOnce(
+      `minimum-points:${String(minimumPoints)}`,
       `[opsinjs] <TrendSparkline> received minimumPoints=${String(minimumPoints)}. ` +
         "It is the number of real readings your product requires before a line may " +
         "be drawn, so it has to be a whole number above zero. No line was drawn, " +
