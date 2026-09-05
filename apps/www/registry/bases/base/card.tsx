@@ -278,6 +278,14 @@ export function Card({
        grows when a reader raises their text size instead of pinning at 44
        device pixels.
 
+       THE `2.75rem` INSIDE THE `var()` IS LOAD-BEARING, and for the same reason
+       the backstop is not trusted: `--opsin-target-minimum` is declared only in
+       `app/tokens.generated.css`, which does not travel with this file. Written
+       bare, `min-h-(--opsin-target-minimum)` is invalid at computed-value time
+       in a project that installed the card without the token sheet, `min-height`
+       reverts to `auto`, and the floor this comment is about disappears with no
+       error anywhere.
+
        `grid` rather than `block` is what makes the material fill the floor. A
        single grid item stretches on both axes by default, so the Surface — and
        with it the fill, the edge and the padding — reaches the bottom of a root
@@ -297,7 +305,7 @@ export function Card({
       href={href}
       data-slot="card"
       className={cn(
-        "group grid min-h-(--opsin-target-minimum) min-w-(--opsin-target-minimum)",
+        "group grid min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem)",
         "text-inherit no-underline",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
         SHAPE,
@@ -427,7 +435,7 @@ export function CardFooter({ children, className }: CardFooterProps) {
            documentation gives: padding may tighten when somebody asks for a
            denser interface; the distance between two things a thumb has to hit
            may not. */
-        "flex flex-wrap items-center gap-(--opsin-target-separation)",
+        "flex flex-wrap items-center gap-(--opsin-target-separation,0.5rem)",
         PART_RHYTHM,
         className,
       )}
