@@ -37,10 +37,33 @@ in front of it.
 
 ```ts
 {
+  name: string
   version: string          // the docs version this bundle was built from
-  generated: string        // ISO timestamp
+  generator: string
+  docsVersion: string      // the same version, under the name the header uses
+  generatedAt: string      // ISO timestamp of the build
+  site: string
+  implemented: boolean     // whether any component has source
+  implementedCount: number
+  notice: string           // the one paragraph a machine must not skip
+  homepage: string
+  format: "processed-markdown"
+  characters: number       // the page text carried, in JS characters — the
+                           // unit the budget is applied in
+  total: number            // pages in the corpus
+  included: number         // pages in this response
+  omitted: number          // pages the budget dropped
+  truncated: boolean
+  truncationNote?: string  // present only when truncated
+  sections: Array<{…}>     // the sixteen sidebar groups
+  shards: Array<{…}>       // where to fetch what was dropped
+  counts: Record<string, number>   // pages per status, of the included pages
+  conventions: {…}         // the twin, catalog, roster and search URLs
   pages: Array<{
-    path: string           // canonical page path
+    url: string            // canonical page URL
+    markdownUrl: string    // the same page's .md twin
+    slug: string[]
+    section: string
     title: string
     description: string
     kind: string           // component | health | foundation | …
