@@ -142,6 +142,16 @@ function isDialStatus(candidate: string): candidate is DialStatus {
  * indicator sits on the card rather than on the level's own tinted surface, and
  * `status.<level>.ink-on-page` is a pair the contrast rig actually measures —
  * and passes, in both themes, for both levels this component accepts.
+ *
+ * BE EXACT ABOUT WHAT "PAGE" IS THERE, because a card is not always it. The rig
+ * measures those rows against `--opsin-neutral-0` in light and
+ * `--opsin-neutral-950` in dark. In light `--card` is `oklch(1 0 0)`, which is
+ * `--opsin-neutral-0` exactly, so a dial on a card is on the measured ground. In
+ * dark `--card` sits one step lighter than `--opsin-neutral-950`, so the
+ * recorded figure is near neighbour to the pairing on a card rather than the
+ * pairing itself, and nothing has measured that one. `range-bar.tsx` reads the
+ * same rows for the same roles and says the same thing; neither file asserts a
+ * number for a pair the rig has not produced.
  */
 const INDICATOR_TONE: Record<ClinicalStatus, string> = {
   steady: "text-status-steady-ink",
@@ -474,6 +484,14 @@ function bandAt(list: ScoreBand[], score: number, max: number): ScoreBand | unde
  * disagree: `Value` prints the reading with these same options, and a label
  * that said "14" beside a dial reading "14.0" would be two answers to one
  * question.
+ *
+ * Rounding is `halfExpand` — round-half-away-from-zero, `numbers-units-precision`
+ * rule 3 — and it is INHERITED rather than named. `roundingMode` is an ES2023
+ * addition to `Intl.NumberFormatOptions`, so spelling it out here makes this
+ * file fail to typecheck in a consumer whose `lib` stops at ES2022, and this
+ * file ships as source into those projects. `halfExpand` is the formatter's own
+ * default, so the behaviour is identical either way; see the longer note in
+ * `value.tsx`, which records where the regression was found. Do not put it back.
  */
 function spokenScore(score: number, places: number | undefined, locale: string | undefined): string {
   return new Intl.NumberFormat(locale, {
