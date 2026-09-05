@@ -66,25 +66,35 @@ declarations applied together.
    rungs' tints are near-black rather than near-white, and the borders flip from
    dark-at-low-alpha to white-at-low-alpha, because a dark border on a dark
    surface is invisible.
-3. A `@media (prefers-reduced-transparency: reduce)` block collapsing rungs 3, 4
-   and 5 to their opaque fallbacks
-   ([Reduced transparency](./reduced-transparency.mdx)).
+3. A `@media (prefers-reduced-transparency: reduce)` block collapsing every rung
+   to its opaque fallback ([Reduced transparency](./reduced-transparency.mdx)).
+   All six are emitted, not only the three that are translucent: for `canvas`,
+   `card` and `raised` the declarations repeat the values above and the block is
+   a no-op, and what that buys is a component being able to read
+   `var(--opsin-material-<rung>-blur)` for any rung and be right, with no
+   conditional and no table of which rungs are translucent this month.
 
 The print stylesheet removes `backdrop-filter` and `box-shadow` outright rather
 than overriding the tokens, because a printed page has no backdrop to filter.
 
 ### Rungs 0, 1 and 2 reference other tokens
 
-The opaque rungs do not carry their own colours. `ground` takes `--background`,
-`panel` and `raised` take `--card`, and their borders take `--border`. This is
-deliberate: an opaque material is a *composition* of the neutral palette, not a
-parallel palette, and a theme change should move the ladder with it.
-Translucent rungs are the exception — their tint carries an alpha the neutral
-palette does not have, so it is authored on the rung.
+The opaque rungs do not carry literal colours. `canvas`, `card` and `raised` all
+resolve their tint to a step of the neutral ramp — `--opsin-neutral-0` in light,
+and `950`, `900`, `800` respectively in dark, so the ladder lifts one step at a
+time where a flat colour would leave the three indistinguishable. Their borders
+resolve the same way: `--opsin-neutral-200` in light, `800` and `700` in dark.
+`canvas` is the exception to the exception and has no border at all — `none`,
+literally, because the page itself has no edge.
+
+This is deliberate: an opaque material is a *composition* of the neutral palette,
+not a parallel palette, and a theme change should move the ladder with it. The
+translucent rungs still resolve a neutral step for their tint, and what they add
+is the alpha the neutral palette does not have, which is authored on the rung.
 
 ## Using it
 
-**Apply all four properties together.** A rung's blur without its backing tint
+**Apply all eight properties together.** A rung's blur without its backing tint
 is the exact failure the contrast floor exists to prevent, and a rung's tint
 without its border is a surface with no edge under reduced transparency. When
 `Surface` exists, it will apply them as a unit; until then, applying them as a
