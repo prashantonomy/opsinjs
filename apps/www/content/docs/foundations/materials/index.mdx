@@ -82,16 +82,16 @@ screen ends up somewhere different in it.
 
 ### The `Surface` primitive
 
-The intended way to consume a rung in product code is the `Surface` component,
-which takes the rung by name and applies the four properties together, so that a
-surface cannot be assembled half-way. Nothing is built yet, and `Surface` is a
-specification rather than a component.
+The way to consume a rung in product code is the
+[Surface](../../components/surface.mdx) component, which takes the rung by name
+and applies its properties together, so that a surface cannot be assembled
+half-way. It is built and at `alpha`, which means the API may still move; the
+ladder it resolves will not.
 
-<NotBuiltYet name="surface" />
-
-Until it exists, apply the four properties together by hand, and treat
-"together" as the rule — a rung's blur without its backing tint is precisely the
-failure mode the contrast floor exists to prevent.
+If you are applying a rung without `Surface` — in a stylesheet, or in a
+component of your own — apply the properties together and treat "together" as
+the rule. A rung's blur without its backing tint is precisely the failure mode
+the contrast floor exists to prevent.
 
 ### The three preference queries
 
