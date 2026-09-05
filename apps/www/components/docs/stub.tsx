@@ -229,9 +229,9 @@ function issueHref(issue: string): string | null {
  * it says: not "nothing is implemented" but "this is not stable yet", which is
  * the truth a reader of a built component needs.
  *
- * The questions list is mandatory in spirit even though the prop is optional:
- * a component page with no open safety questions is either finished or has not
- * been thought about, and at `planned` it is never the former.
+ * The questions list survives promotion. A component page with no open safety
+ * questions is either finished or has not been thought about, and shipping an
+ * alpha is not the same as answering them.
  */
 export function StubNotice({
   name,
@@ -243,9 +243,24 @@ export function StubNotice({
 }: StubNoticeProps) {
   const isPlanned = status === "planned" || status === "considered"
 
+  /*
+   * Spread an object, never `isPlanned ? … : undefined`. An attribute whose
+   * value is `undefined` survives into the RSC flight payload as the literal
+   * string `$undefined`, so `curl <page> | grep data-opsinjs-not-implemented`
+   * matched on all 24 built component pages even though their DOM was clean.
+   * Omitting the key entirely is the only form the wire agrees with. The two
+   * unconditional emitters below — <NotBuiltYet> and <PlannedApi> — are correct
+   * as they are, because they only ever render for something unbuilt.
+   */
+  const marker = isPlanned
+    ? { "data-opsinjs-not-implemented": name ?? "true" }
+    : {}
+
+  const issueUrl = issue ? issueHref(issue) : null
+
   return (
     <aside
-      data-opsinjs-not-implemented={isPlanned ? (name ?? "true") : undefined}
+      {...marker}
       data-opsinjs-stub-notice=""
       data-release-phase={status}
       aria-labelledby={name ? `stub-${name}` : undefined}
