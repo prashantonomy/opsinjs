@@ -85,8 +85,8 @@ that will be wrong after the next regeneration.
 
 ### Blur, tint, saturation and vibrancy
 
-Four things are commonly bundled into "frosted glass". opsinjs uses two of them
-and deliberately declines the other two.
+Four things are commonly bundled into "frosted glass". opsinjs uses three of
+them, each for a stated reason, and deliberately declines the fourth.
 
 **Tint — used.** The backing colour and its alpha. This is the safety parameter:
 it is what bounds the composite and therefore what makes contrast measurable.
@@ -98,22 +98,24 @@ a photograph so that glyph edges are not competing with edges behind them. It
 does **not** meaningfully change the local mean luminance, so it does not fix
 contrast, and it is never traded against tint.
 
-**Saturation boost — not used.** Boosting the saturation of the backdrop is what
-gives platform materials their characteristic liveliness. We decline it because
-it changes the backdrop's colour in a direction we cannot bound: the composite is
-no longer a simple interpolation between the tint and the backdrop, and the
-worst-case calculation stops being valid. If it is ever added it will be a
-per-rung token defaulting to no boost, so that the default remains measurable.
+**Saturation boost — used, on two rungs only.** Boosting the saturation of the
+backdrop is what gives platform materials their characteristic liveliness, and
+here it does a narrower job: a large blur desaturates whatever is behind it, so
+without a boost `sheet` and `overlay` look grey rather than translucent. It is a
+per-rung token and the other four rungs sit at 1, the identity, so a boost is
+something a rung declares rather than something the ladder does everywhere.
 
 **Vibrancy — not used.** Platform vibrancy blends the *foreground* text with the
 backdrop as well, which is a beautiful effect and an unbounded contrast
 liability. Text on an opsinjs material is opaque, always.
 
 <Todo>
-  Evaluate an opt-in per-rung saturation token. The open question is whether the
-  worst-case composite can still be bounded when the backdrop has been saturated,
-  or whether a boosted rung would have to carry a higher minimum tint to
-  compensate. Until that is answered the ladder ships without it.
+  Bound the composite for the two saturated rungs. The published figures for a
+  material are measured against its opaque fallback, which saturation never
+  touches, so the boost on `sheet` and `overlay` is outside every number this
+  site prints. The open question is whether a saturated backdrop can still be
+  bounded by the tint and its alpha alone, or whether a boosted rung needs a
+  higher minimum tint to compensate.
 </Todo>
 
 ### Browser support, honestly
