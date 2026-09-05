@@ -77,7 +77,7 @@ export default function HomePage() {
           <div className="mt-8 flex flex-wrap gap-3">
             <CtaLink href={routes.docs()}>Read the documentation</CtaLink>
             <CtaLink href={routes.docs("components")} variant="secondary">
-              Browse the component specifications
+              Browse the components
             </CtaLink>
             <CtaLink href={routes.playground()} variant="secondary">
               Open the playground
@@ -85,16 +85,20 @@ export default function HomePage() {
           </div>
 
           <div className="mt-10 max-w-2xl">
-            <NothingBuiltNotice
+            <ImplementationStatusNotice
               href={routes.docs("project", "state-of-the-system")}
             >
-              There is no npm package and no component you can install. What
-              exists today is the token system, the doctrine, and twenty-four
-              component pages that are specifications rather than documentation:
-              intent, when not to use it and what to use instead, the clinical
-              contract, a proposed API, and the accessibility bar the
-              implementation has to clear.
-            </NothingBuiltNotice>
+              Nothing is published to npm. opsinjs is distributed the shadcn
+              way — registry source copied into your project — and{" "}
+              {builtComponentCount()} components are implemented and installable
+              that way today. All of them are alpha: the API may change in any
+              release without a deprecation cycle, none has been through an
+              independent accessibility or clinical review, and none is ready
+              for a production health surface. Each page carries intent, when
+              not to use it and what to use instead, the clinical contract, the
+              API, and the accessibility bar — including what has not been
+              measured.
+            </ImplementationStatusNotice>
           </div>
         </Container>
       </section>
