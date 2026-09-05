@@ -97,6 +97,8 @@ installed in this repository:
 | Base UI (`@base-ui/react`) | MIT | The unstyled primitives every interactive component is built on — [ADR 0001](decisions/0001-base-ui-not-radix.mdx) |
 | React and Next.js | MIT | The framework this site runs on |
 | Tailwind CSS | MIT | The utility layer the emitted components use |
+| `clsx` | MIT | Half of the `cn()` helper in `@/lib/utils`, which every emitted component imports: it joins conditional class names |
+| `tailwind-merge` | MIT | The other half of `cn()`: it resolves conflicting Tailwind utilities so that a class you pass in wins over the one the component set |
 | fumadocs | MIT | The documentation engine — [ADR 0004](decisions/0004-lyra-docs-chrome.mdx) |
 | shadcn/ui | MIT | The registry specification we distribute through, and the chrome components on this site |
 | Lucide | ISC | The one icon library, used for both chrome and components |
