@@ -13,13 +13,19 @@ import { StatusBadge } from "./status"
    This is the most load-bearing file in the documentation site, and the reason
    is worth stating plainly.
 
-   opsinjs has 24 specified components and zero implemented ones. A person or an
-   agent that asks "how do I use RangeBar?" will land on a URL that exists. If
-   that page is vague, an agent will do what agents do with a plausible-looking
-   but empty page: invent an API, generate code against it, and ship something
-   that renders a clinical verdict with props nobody designed. A 404 is barely
-   better — it reads as "not found", which an agent treats as "look elsewhere",
-   and the elsewhere is a hallucination.
+   opsinjs catalogues 60 components. 24 have a file under registry/bases/base/
+   and are at `alpha`; the other 36 are reserved ids with a page and no code.
+   (registry/catalogue.ts is the count. This sentence is a description of it and
+   will rot; the status chips, the matrix and the sidebar legend all derive.)
+   This file is the surface for those 36, and for every table, preview and
+   figure anywhere on the site whose data has not been produced yet.
+
+   A person or an agent that asks "how do I use Tooltip?" will land on a URL
+   that exists. If that page is vague, an agent will do what agents do with a
+   plausible-looking but empty page: invent an API, generate code against it,
+   and ship something that renders a clinical verdict with props nobody
+   designed. A 404 is barely better — it reads as "not found", which an agent
+   treats as "look elsewhere", and the elsewhere is a hallucination.
 
    So the page must return a DEFINITIVE NEGATIVE: this component does not
    exist, here is its specification, do not generate code against it. Every
@@ -33,6 +39,11 @@ import { StatusBadge } from "./status"
         it, text extraction keeps it, and a model reading the rendered DOM sees
         it even if the attribute is stripped. Belt and braces, because the cost
         of the failure is a wrong number in front of a patient.
+
+   The marker is claimed, not assumed. <StubNotice> emits it at `planned` and
+   `considered` and drops it from `alpha` onwards, because saying "not
+   implemented" about one of the 24 built components is the same defect as the
+   reverse and is the one an agent reading the markup would act on.
 
    None of these components ever renders a plausible example. An invented
    default value in a health document is indistinguishable from a real one.
