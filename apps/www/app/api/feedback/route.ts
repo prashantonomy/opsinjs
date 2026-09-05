@@ -147,10 +147,21 @@ export async function POST(request: Request): Promise<Response> {
     "_Opened from the feedback control on the documentation site. Nothing was stored server-side; this text came from the browser that submitted it._",
   ].join("\n")
 
+  // The issue FORM in .github/ISSUE_TEMPLATE/docs-issue.yml tells the reader
+  // its Page and Docs version fields arrive pre-filled from this link, so they
+  // have to be set here. A form prefills only from `?<field-id>=value` — the
+  // ids, not the labels — and it ignores `body` entirely, which is why the
+  // plain URL below exists alongside it rather than instead of it. `page` is
+  // required on the form and is absent on a zero-result search, so it is only
+  // sent when there is one. `kind` is deliberately left empty: it is a dropdown
+  // and prefills only from an exact option string, which this route cannot
+  // infer from a thumbs-down.
   const templated = new URL(GITHUB_NEW_ISSUE_URL)
   templated.searchParams.set("template", "docs-issue.yml")
   templated.searchParams.set("title", title)
   templated.searchParams.set("labels", "documentation")
+  if (page) templated.searchParams.set("page", absoluteUrl(page))
+  templated.searchParams.set("version", readerVersion)
 
   const plain = new URL(GITHUB_NEW_ISSUE_URL)
   plain.searchParams.set("title", title)
