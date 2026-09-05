@@ -63,13 +63,13 @@ export function contrastRatioOklch(a: Oklch, b: Oklch): number {
 
 /** The three WCAG 2.2 thresholds this system checks against. */
 export const WCAG_FLOOR = {
-  /** SC 1.4.3 Contrast (Minimum), normal text. */
+  /** SC 1.4.3 Contrast (Minimum), body text — anything not large-scale. */
   bodyAA: 4.5,
   /** SC 1.4.3, large text — 24px, or 18.66px bold. */
   largeAA: 3,
   /** SC 1.4.11 Non-text Contrast: UI components and meaningful graphics. */
   nonTextAA: 3,
-  /** SC 1.4.6 Contrast (Enhanced), normal text. Reported, not required. */
+  /** SC 1.4.6 Contrast (Enhanced), body text. Reported, not required. */
   bodyAAA: 7,
   /** SC 1.4.6, large text. Reported, not required. */
   largeAAA: 4.5,
