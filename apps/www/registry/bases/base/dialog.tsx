@@ -423,7 +423,7 @@ export function Dialog({
     return () => {
       cancelAnimationFrame(frame)
     }
-  }, [open, nonDismissing, actions])
+  }, [open, nonDismissing, actions, title])
 
   /**
    * Base UI takes a ref, `true`, `false`, or a function returning an element.
@@ -433,7 +433,8 @@ export function Dialog({
    * Falling back to `true` rather than to `false` is the safe direction: `true`
    * is Base UI's own behaviour, which puts focus on the first tabbable element
    * inside the popup, and `false` would leave focus outside a surface that has
-   * made everything outside it inert.
+   * hidden everything outside it from assistive technology and holds the tab
+   * ring inside itself.
    *
    * BUT `true` IS NOT SAFE ENOUGH TO REACH DIRECTLY FROM `content`, which is
    * why the chain below has three links rather than two. `children` may be
