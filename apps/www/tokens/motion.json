@@ -30,7 +30,7 @@
       "overshootPercent": 1.52,
       "durationMs": 283,
       "easing": "linear(0, 0.0715, 0.2271, 0.4053, 0.5722, 0.7119, 0.8198, 0.8978, 0.9505, 0.9836, 1.0025, 1.0118, 1.015, 1.0147, 1.0126, 1.01, 1.0073, 1.0051, 1.0033, 1.0019, 1)",
-      "use": "Direct manipulation only: a switch the reader just flipped, a segmented control, a pressed button settling. The only token in the system that overshoots, and it overshoots by 1.5% — enough to feel physical, not enough to look playful.",
+      "use": "Direct manipulation only: a switch the reader just flipped, a segmented control, a pressed button settling. It overshoots by 1.5% — enough to feel physical, not enough to look playful — which is the largest overshoot in the system but not the only one: `spring-settle` overshoots by 0.88%. Only `spring-calm` and `spring-sheet` reach their target without passing it.",
       "doNotUse": "Anything that displays a health value. A number that overshoots its target has, for one frame, displayed a number that is not true.",
       "reducedMotion": {
         "easing": "linear",
@@ -47,7 +47,7 @@
       "durationMs": 382,
       "easing": "linear(0, 0.0742, 0.2328, 0.4113, 0.5758, 0.7116, 0.8157, 0.8905, 0.9412, 0.9736, 0.9928, 1.003, 1.0076, 1.0088, 1.0082, 1.0068, 1.0053, 1.0038, 1.0026, 1.0017, 1)",
       "use": "The workhorse for chrome: popovers, tooltips, menus, chips appearing and disappearing.",
-      "doNotUse": "Full-screen transitions, where 382ms reads as hesitant.",
+      "doNotUse": "Full-screen transitions, where 382ms reads as hesitant. And anything that displays a health value: 0.88% is a small overshoot but it is still an overshoot, so the objection `spring-snap` carries applies unchanged, and OPSIN-0007 states it for every token — for one frame the reader is shown a number that is not true.",
       "reducedMotion": {
         "easing": "linear",
         "durationMs": 100,
@@ -62,8 +62,8 @@
       "overshootPercent": 0,
       "durationMs": 550,
       "easing": "linear(0, 0.0829, 0.2457, 0.4157, 0.5642, 0.6832, 0.774, 0.841, 0.8893, 0.9236, 0.9476, 0.9643, 0.9757, 0.9836, 0.9889, 0.9926, 0.995, 0.9967, 0.9978, 0.9985, 1)",
-      "use": "Health values. A range bar filling, a dial sweeping to its reading, a sparkline drawing, a number counting to its value. Slightly overdamped (zeta just over 1) so it never overshoots and never bounces.",
-      "doNotUse": "Anything the reader is waiting on to make a decision inside a form.",
+      "use": "A health value that changes while it is already on screen: a bar re-filling from one reading to the next, a dial travelling between two values the reader has already been shown. Never a first paint and never a first reveal — a value arrives at its final figure, with no count-up, no dial sweep and no line drawing itself in (health/motion-in-health-ui rule 2). Slightly overdamped (zeta just over 1) so it never overshoots and never bounces.",
+      "doNotUse": "Anything the reader is waiting on to make a decision inside a form, and the first appearance of any health value — morphing a figure the reader has already read is the whole of this token's job.",
       "reducedMotion": {
         "easing": "linear",
         "durationMs": 0,
