@@ -814,10 +814,22 @@
   nav[aria-label="Main"],
   [data-print="hide"],
   [data-opsinjs-chrome],
-  #nd-sidebar,
+  [id^="nd-sidebar"],
   #nd-tocnav,
   #nd-subnav {
     display: none !important;
+  }
+
+  /* And stated positively as well, so the next selector added above cannot
+     quietly take them out again. A caveat that disappears on paper is worse
+     than no caveat: the reader cannot tell it was ever there. All three are
+     block-level <aside> elements, so `block` restores them exactly; <ClinicalNote>
+     is a flex <p> and is deliberately not listed, because no chrome selector
+     here matches it and forcing `block` on it would break its icon row. */
+  [data-opsinjs-stub-notice],
+  [data-safety-callout],
+  [data-opsinjs-note="research"] {
+    display: block !important;
   }
 
   html,
