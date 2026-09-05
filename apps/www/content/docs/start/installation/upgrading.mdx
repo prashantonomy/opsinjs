@@ -123,7 +123,8 @@ from outside is a legitimate integration strategy rather than a hack.
 4. **The greyscale check still passes.** A visual change that quietly makes status
    colour-only is exactly the kind of regression an upgrade can introduce and a
    test suite will not catch.
-5. **The version stamp in the file is the version you meant to take.**
+5. **You have recorded which version you took**, in the commit message or the
+   pull request. Nothing in the file records it for you.
 
 ## Troubleshooting
 
@@ -137,9 +138,11 @@ comparing, or the real change will be invisible inside the noise.
 **Your edits are gone.** The upgrade overwrote them. This is why the dry run and
 the diff come first; recover from version control, then re-apply on top.
 
-**You cannot tell which version you have.** Look for the version stamp in the file
-header. If it is absent, the file predates stamping or has been reformatted; take
-the current version cleanly and start stamping from there.
+**You cannot tell which version you have.** There is no stamp in the file to look
+at — emitting one is specified and not built. Fall back to version control: find
+the commit that added or last updated the file and read the date, then diff
+against the registry to see how far apart you are. If that is hopeless, take the
+current version cleanly and record it this time.
 
 ## Next
 
