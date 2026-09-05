@@ -24,9 +24,9 @@ The budget is one number:
 > **At most three composited surfaces visible at once.**
 
 Three is not a round number picked for tidiness. It is what the worst legitimate
-screen in the system needs: a `bar` at the top, a `scrim` over the content, and
-an `overlay` above the scrim. Anything beyond that is a screen that has acquired
-translucency it did not design for.
+screen in the system needs: an `overlay` pinned at the top, a `scrim` over the
+content, and a `sheet` above the scrim. Anything beyond that is a screen that has
+acquired translucency it did not design for.
 
 The thing this is most often confused with is *bundle size*. They are unrelated
 costs with unrelated fixes;
@@ -60,10 +60,10 @@ health app, and the one where a dropped frame is most visible.
 
 | Surfaces | Typical screen | Verdict |
 | --- | --- | --- |
-| 0 | a list of readings on `ground` and `panel` | the common case; costs nothing |
-| 1 | the same list with a sticky `bar` | fine |
-| 2 | a bottom sheet over a `scrim`, no bar | fine |
-| 3 | a `bar`, a `scrim` and an `overlay` | the designed worst case |
+| 0 | a list of readings on `canvas` and `card` | the common case; costs nothing |
+| 1 | the same list with a sticky `overlay` | fine |
+| 2 | a `sheet` over a `scrim`, no pinned chrome | fine |
+| 3 | an `overlay`, a `scrim` and a `sheet` | the designed worst case |
 | 4+ | a list of translucent cards, or a nested blur | over budget |
 
 The step from 3 to 4 is almost always caused by one of two mistakes: giving a
