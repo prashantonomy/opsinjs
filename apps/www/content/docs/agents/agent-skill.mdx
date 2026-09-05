@@ -103,7 +103,9 @@ they are specified rather than built.
 ### The assistant refuses to invent
 
 Ask for a component from the considered roster. A correct response names the
-status and stops. A confident API means the skill did not load.
+status and stops. A confident API means the skill did not load. Then ask for an
+`alpha` one: a refusal there is the opposite failure, and it means the skill
+loaded against a stale idea of what is built.
 
 ### It reaches for tokens
 
@@ -133,9 +135,13 @@ restate the opsinjs rules before a generation step.
 files in this repository, and a fork that keeps the clinical rules while
 changing the mechanical ones is a reasonable thing to maintain.
 
-**It suggested code that does not compile.** Expected, and important: nothing is
-built. If the assistant emitted an import for an opsinjs component, that is a
-rule failure and worth reporting as an eval case.
+**It suggested code that does not compile.** Check which id and what shape. An
+import from `@opsinjs/react` is always wrong — there is no published package —
+and is a rule failure worth reporting as an eval case. A component copied in
+from the registry that does not compile is a different bug: the usual cause is a
+missing `@/lib/utils`, which `shadcn init` writes and a hand-made
+`components.json` does not, and it belongs in the component's tracker rather
+than the skill's.
 
 ## Next
 
