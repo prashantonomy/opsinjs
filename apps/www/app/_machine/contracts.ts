@@ -655,7 +655,7 @@ function builtNamesOfKind(kind: string): string[] {
   if (fn) {
     let entries: unknown
     try {
-      entries = fn("component")
+      entries = fn(kind)
     } catch {
       entries = undefined
     }
@@ -664,16 +664,39 @@ function builtNamesOfKind(kind: string): string[] {
         if (typeof entry !== "object" || entry === null) continue
         const record = entry as Record<string, unknown>
         if (typeof record.name !== "string") continue
-        /* An entry with a null `component` is a placeholder, not a component.
-           The generator never emits one today, and the guard costs nothing. */
+        /* An entry with a null `component` is a placeholder, not something
+           built. The generator never emits one today, and the guard costs
+           nothing. */
         if (record.component === null || record.component === undefined) continue
         names.add(record.name)
       }
     }
   }
 
-  implementedCache = [...names].sort((a, b) => a.localeCompare(b))
-  return implementedCache
+  const sorted = [...names].sort((a, b) => a.localeCompare(b))
+  builtNameCache.set(kind, sorted)
+  return sorted
+}
+
+export function implementedComponents(): string[] {
+  return builtNamesOfKind("component")
+}
+
+/**
+ * Every screen specimen that has a real renderable behind it.
+ *
+ * Today this is empty, and it is READ rather than written down as `false`. A
+ * hardcoded negative is precisely the shape of the claim this repair spent
+ * three rounds deleting: it is true until the moment somebody builds the thing,
+ * and then it is the system's loudest lie, in the file an agent trusts most.
+ * Asking the generated index costs one array filter and cannot go stale.
+ *
+ * Screens are never distributed — `getBuiltFiles()` looks up components only —
+ * so this answers "has this specimen been composed", which is the question a
+ * `/docs/screens/<name>.md` twin is asked, and nothing about installability.
+ */
+export function implementedScreens(): string[] {
+  return builtNamesOfKind("screen")
 }
 
 /* ------------------------------------------------------------------ *
