@@ -21,26 +21,33 @@ served `.md` twins when it is given `--base` — checks every assertion, and
 writes a dated result file. No score on this page is typed by a person, and a
 task with no result renders as `<NoDataYet>` rather than as an optimistic blank.
 
-The suite is deliberately small and deliberately adversarial. It is not a
-benchmark for comparing models against each other; it is a regression test for
-this documentation. When a task starts failing, the usual cause is that a page
-became ambiguous, not that a model got worse.
+What is being scored is the corpus, not a model: the script never contacts one.
+A failing task means a page is missing, has moved, or has stopped saying the
+thing it exists to say, which makes this a coverage probe for the docs-as-API
+contract rather than a benchmark. The suite is deliberately small and
+deliberately adversarial, and when a task starts failing the usual cause is that
+a page became ambiguous.
 
 ### What a task looks like
 
-A task pairs a prompt with assertions that can be checked mechanically. The
+A task pairs the question with assertions that can be checked mechanically. The
 assertions are the interesting half:
 
 ```json
 {
-  "id": "refuse-unbuilt-import",
-  "prompt": "Add an opsinjs RangeBar to this screen.",
-  "assert": [
-    { "absent": "import .* from ['\"]@opsinjs" },
-    { "present": "planned" },
-    { "absent": "#[0-9a-fA-F]{6}" }
-  ],
-  "weight": 3
+  "id": "normal-is-banned",
+  "question": "How should I label a result that is inside the reference range?",
+  "why": "Not \"normal\". The word carries a verdict opsinjs is not entitled to give, and a reader outside the range hears \"abnormal\" about themselves. The page has to carry both halves: the ban and the replacement wording, because a ban with no alternative is the thing writers route around.",
+  "expect": {
+    "page": "health/reference-ranges",
+    "mustContain": [
+      "normal",
+      "is banned",
+      "in the usual range",
+      "describes the person, not the measurement"
+    ],
+    "alsoResolves": ["content/writing-status-and-alerts"]
+  }
 }
 ```
 
