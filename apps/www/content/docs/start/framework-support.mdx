@@ -24,10 +24,11 @@ Within React the question is not really "which framework" but "which four
 capabilities does your setup have". Those four are what this page is about.
 
 <Callout title="The tested matrix is not published yet">
-  Nothing is implemented, so no combination has been tested. The matrix below
-  fills from generated results once there are any. What is stated here instead is
-  the *requirement set* and the boundary rules, which are design decisions and are
-  true now.
+  Twenty-four components are implemented, and none of the rows below has a
+  recorded test result: no framework in the matrix has been exercised end to end
+  and the result written down. The matrix fills from generated results once there
+  are any. What is stated here instead is the *requirement set* and the boundary
+  rules, which are design decisions and are true now.
 </Callout>
 
 ## Meet four requirements
@@ -72,9 +73,10 @@ the exact position for that framework.
 This is the part that differs most between frameworks, and the part where an
 incorrect assumption costs a day.
 
-**Most opsinjs components are intended to be server-renderable.** A `ResultCard`
-showing a value, a range and a status is static markup; there is no reason for it
-to ship JavaScript, and it is a design goal that it does not.
+**Most opsinjs components are server-renderable.** Seventeen of the twenty-four
+carry no `"use client"` directive at all. A `ResultCard` showing a value, a range
+and a status is static markup; there is no reason for it to ship JavaScript, and
+it does not.
 
 **A minority require a client boundary**, and each one says so on its own page in
 its cost section — the ones that manage focus, hold open/closed state, or observe
