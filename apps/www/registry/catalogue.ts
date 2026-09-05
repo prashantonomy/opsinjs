@@ -581,6 +581,7 @@ export const SHIPPED: CatalogueEntry[] = [
     aliases: ["material", "glass", "blur", "elevation", "layer", "translucency", "vibrancy"],
     owner: "design",
     a11yDate: null,
+    usedIn: ["health-metric-card", "results-screen"],
   },
   {
     name: "card",
@@ -589,10 +590,11 @@ export const SHIPPED: CatalogueEntry[] = [
     category: "surfaces",
     status: "alpha",
     since: "unreleased",
-    aliases: ["panel", "container", "content box"],
+    aliases: ["panel", "container", "content box", "box", "tile group"],
     owner: "design",
     a11yDate: null,
     registryDependencies: ["surface"],
+    usedIn: ["health-metric-card", "results-screen", "trends-screen"],
   },
   {
     name: "sheet",
