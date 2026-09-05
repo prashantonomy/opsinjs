@@ -469,11 +469,11 @@ export default function HomePage() {
             <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
               <li>
                 <strong className="font-medium text-foreground">
-                  Twenty-four components.
+                  Five screens.
                 </strong>{" "}
-                Each has a page carrying a full specification and a
-                machine-readable not-implemented marker. None has an
-                implementation.
+                Results, trends, the daily log, onboarding and the consent flow
+                have pages carrying a full specification and a machine-readable
+                not-implemented marker. None has an implementation.
               </li>
               <li>
                 <strong className="font-medium text-foreground">
