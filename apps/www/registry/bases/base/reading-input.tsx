@@ -159,6 +159,38 @@ function toText(value: number | null): string {
 }
 
 /**
+ * A CONVERTED number as the digits that go in a box, padded to the precision the
+ * field promised.
+ *
+ * `roundTo` returns a Number and `String()` drops a trailing zero, so a field
+ * carrying `precision={1}` and the hint "To one decimal place." converted 12.5 kg
+ * to stone and printed "2" — one significant figure fewer than the sentence
+ * above the box had just guaranteed. A reader cannot tell a rounded 1.97 from an
+ * exact 2, which is the whole point of stating a precision.
+ *
+ * It is used ONLY on the conversion path, and that restriction is the design.
+ * `toText` also renders the caller's own digits and re-seeds the buffer from
+ * props, and padding there would rewrite a number under somebody's cursor as
+ * they type — "5." would become "5.0" mid-keystroke and the reader could never
+ * reach "5.2". `reported` stays Numbers either way, so `onChange` and
+ * `data-opsinjs-value` are untouched.
+ *
+ * With no `places` nothing is padded, because there is nothing to pad to and a
+ * made-up decimal place is the false precision `roundTo` already refuses. The
+ * range check is not decoration: `toFixed` throws a RangeError outside 0 to 100
+ * where `String()` never threw, and this component does not validate `precision`
+ * the way `Value` does — turning a formatting defect into a crash would be the
+ * larger mistake.
+ */
+function toConvertedText(value: number | null, places: number | undefined): string {
+  if (value === null) return ""
+  if (places === undefined || !Number.isInteger(places) || places < 0 || places > 100) {
+    return toText(value)
+  }
+  return value.toFixed(places)
+}
+
+/**
  * A converted number at the caller's precision.
  *
  * `unit-systems` rule 6: round AFTER conversion, at the destination's precision,
@@ -491,6 +523,41 @@ export function ReadingInput({
   const parts: ReadingSegment[] = compound
     ? (segments as ReadingSegment[])
     : [{ label, value }]
+
+  /* A NUMBER THAT DID NOT SURVIVE ITS JOURNEY IS NOT A READING, AND THE CRASH IS
+     WHY THIS IS HERE RATHER THAN IN THE PROP TYPES. `value` and
+     `segments[].value` are typed `number | null`, and NaN is a `number`:
+     `Number(row.weight)` on "—", "" or `undefined` produces one, TypeScript
+     accepts it, and nothing else in this file narrows it. Two things then go
+     wrong at once. `toText(NaN)` puts the literal string "NaN" in the box — and
+     `NaN === NaN` is false, so the buffer below never reconciles with the props,
+     the render-phase `setEntry` fires on every pass, and React aborts the whole
+     tree with "Too many re-renders", taking the form and everything around it
+     off the screen. A degradation is arguable; a crash is not.
+
+     So it is narrowed once, here, at the boundary where the two public shapes
+     become one internal one, and `null` is what it becomes: the empty box every
+     path below already knows how to render, with `toText` returning "" for it
+     unchanged. Every other numeric component in this registry narrows a
+     non-finite number to an explicit third state rather than drawing it — this
+     is that rule, arriving late. The caller is told in development, because a
+     silently emptied box is a reading a product thinks it passed. */
+  const incoming = parts.map((part) =>
+    part.value !== null && Number.isFinite(part.value) ? part.value : null,
+  )
+  if (parts.some((part) => part.value !== null && !Number.isFinite(part.value))) {
+    warnDevelopmentOnce(
+      "non-finite-value:" + label,
+      '[opsinjs] <ReadingInput label="' +
+        label +
+        '"> was given a value that is not a ' +
+        "finite number — NaN or an infinity, which is what `Number(x)` returns " +
+        "for an em dash, an empty string or `undefined`. That is not a reading, " +
+        'so the box was left empty rather than filled with the word "NaN". ' +
+        "Pass `null` for a measurement you do not have; the field already says " +
+        "so in the reader's own words.",
+    )
+  }
 
   /* THE TEXT BUFFER, AND WHY IT IS NOT THE VALUE.
      "5." parses to 5. If the box were rendered from the parsed number the full
