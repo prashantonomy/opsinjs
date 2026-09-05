@@ -65,6 +65,29 @@ import { Surface } from "@/registry/base-lyra/ui/surface"
 const TRANSLUCENT_RUNGS: MaterialRung[] = ["sheet", "overlay", "scrim"]
 
 /**
+ * Development warnings, said once per distinct offence.
+ *
+ * `tokens/errors.json` states the policy — warnings are emitted in development
+ * only, once per offending call site — and the warning below lives in a render
+ * body, so without a keyed set it repeats on every render and twice again under
+ * Strict Mode. A card inside a list that re-renders on scroll would print the
+ * same four sentences until the console is unusable, and a channel somebody
+ * filters is a channel that no longer carries its one real finding.
+ *
+ * It is a module-local set rather than the substrate's `warnOnce` for the reason
+ * the warning itself gives: `warnOnce` is keyed to an `OpsinErrorCode`, and no
+ * code is allocated for a card asked to be a layer. Allocating one in
+ * `tokens/errors.json` and deleting this is a strict improvement.
+ */
+const warned = new Set<string>()
+
+function warnDev(key: string, message: string): void {
+  if (!isDevelopment() || warned.has(key)) return
+  warned.add(key)
+  console.warn(message)
+}
+
+/**
  * Padding, as literal class strings.
  *
  * Tailwind reads class names out of source as text, so this cannot be built
@@ -187,8 +210,9 @@ export function Card({
      about it, names the retired rung the caller probably meant, and renders the
      children with no material, and a second warning would only make the first
      harder to read. */
-  if (isDevelopment() && TRANSLUCENT_RUNGS.includes(rung)) {
-    console.warn(
+  if (TRANSLUCENT_RUNGS.includes(rung)) {
+    warnDev(
+      `translucent-rung:${rung}`,
       `[opsinjs] <Card rung="${rung}"> puts a card on a translucent rung. A card ` +
         "is a block of content on the page, not a layer over it: `sheet`, " +
         "`overlay` and `scrim` composite what is behind them, and a card on one " +
