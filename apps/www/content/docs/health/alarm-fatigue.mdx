@@ -173,8 +173,12 @@ because they cannot be ignored politely. See
 
 `AlertBanner` is specified to expose the budget rather than hide it: a screen
 that mounts a second `urgent` banner should fail loudly in development instead of
-rendering two. That is a specification, not a shipped behaviour — nothing in this
-system is built yet — but it is the behaviour the component will be held to.
+rendering two. That part is still a specification. The component itself ships at
+`alpha` and does warn in development about several things — a missing heading
+level, an `attention` or `urgent` banner with no action — but nothing counts
+banners across a screen, because a component cannot see its siblings. The budget
+is enforced by review today, and this is the behaviour the component will be held
+to when something can enforce it.
 
 ## What this does not cover
 
