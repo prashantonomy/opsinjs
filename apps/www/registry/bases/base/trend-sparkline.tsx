@@ -188,7 +188,6 @@ const MAX_FRACTION_DIGITS = 20
 function formatNumber(value: number, locale: string | undefined): string {
   return new Intl.NumberFormat(locale, {
     maximumFractionDigits: MAX_FRACTION_DIGITS,
-    roundingMode: "halfExpand",
   }).format(value)
 }
 
@@ -418,7 +417,8 @@ export function TrendSparkline({
   if (isDevelopment()) {
     for (const point of points) {
       if (!isBrokenReading(point)) continue
-      console.warn(
+      warnDevOnce(
+        `broken-reading:${String(point.value)}`,
         `[opsinjs] <TrendSparkline> received ${String(point.value)} as a reading ` +
           `at ${String(point.at)}, which is not a finite number. It has not been ` +
           "drawn, and it is counted and described to the reader as a reading that " +
