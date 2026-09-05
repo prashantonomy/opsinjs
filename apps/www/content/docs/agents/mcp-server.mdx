@@ -17,8 +17,8 @@ one and everything you learn transfers to any other shadcn-compatible registry.
 
 What the connection buys you is inventory. Without it, an assistant asked for a
 health component answers from its training data. With it, the assistant can list
-what exists, read each item's metadata, and — critically — discover that the
-thing it was about to import is `status: planned` and has no files.
+what exists, read each item's metadata, and — critically — discover whether the
+thing it was about to write has source behind it, and at what stability.
 
 Budget five minutes. You need a project with a `components.json`.
 
@@ -95,9 +95,11 @@ the [evals](./evals.mdx) exist to measure, and
 ## What the server can and cannot do here
 
 <Callout>
-**Nothing is built.** The registry contains item metadata and no source files.
-`add` will resolve an item and find nothing to write. That is the correct
-behaviour and not a broken configuration.
+**Twenty-four items carry source; thirty-six do not.** `add` against an
+implemented id writes real files. Against a `considered` id it resolves the item
+and finds nothing to write — that is the correct behaviour and not a broken
+configuration. `meta.opsinjs.implemented` on the item is the discriminator, and
+it is worth checking before you conclude anything from an empty result.
 </Callout>
 
 | The server can | The server cannot |
