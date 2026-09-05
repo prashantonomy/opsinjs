@@ -41,10 +41,14 @@ fixes that.
   you have engineers and a liability if you wanted a black box.
 - **You are on React 19 with Tailwind v4.** These are hard requirements, not
   preferences. See [Framework support](./framework-support.mdx).
-- **You are willing to be told no by your own design system.** opsinjs will refuse
-  to render a category colour used as a severity signal, and it bans the word
-  *normal* from result copy. Those are features. If your stakeholders will
-  experience them as obstruction, budget for that conversation now.
+- **You are willing to be told no by your own design system.** The doctrine bans
+  the word *normal* from result copy and forbids a category colour used as a
+  severity signal. Several components warn in the console in development when you
+  cross that line — they warn and still render, because taking a message off the
+  screen over a styling mistake would be the larger error — and the rest is
+  enforced by review, since the lint plugins are specified and not built. Those
+  are features. If your stakeholders will experience them as obstruction, budget
+  for that conversation now.
 
 ## opsinjs is the wrong choice when
 
@@ -72,8 +76,12 @@ not useful.
 - **You are not on React.** There is no Vue, Svelte or web-component build, and
   none is planned. The tokens are plain CSS custom properties and are reusable;
   the components are not.
-- **You need a mature, shipping library today.** Nothing is implemented. See
-  [Roadmap](../project/roadmap.mdx) for what exists and what does not.
+- **You need a mature, shipping library today.** Twenty-four components are
+  implemented and every one of them is `alpha`: the API may change in any release
+  with no deprecation cycle, none of it has been independently audited for
+  accessibility, and none has been through a clinical review. Nothing is
+  `stable`. See [State of the system](../project/state-of-the-system.mdx) for the
+  blunt version and [Roadmap](../project/roadmap.mdx) for the order.
 
 ## The awkward middle cases
 
