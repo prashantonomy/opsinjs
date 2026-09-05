@@ -54,14 +54,21 @@ colour the same element. The check is structural: a `status` prop plus a colour
 class on the same element fails.
 
 **`rules/never-invent.md`** — a component that is not in the catalogue does not
-exist, and neither do props that are not in a page's proposed API. The correct
-answer to a request for a missing component is a refusal that names the status.
-Given that every component is currently `planned`, this rule fires on nearly
-every generation, which is exactly right.
+exist, and neither does a prop that is not in the component's source. The rule
+binds in both directions, because the catalogue now has two kinds of row in it.
+For a name on the considered roster the correct answer is a refusal that names
+the status and stops. For one of the twenty-four `alpha` ids the correct answer
+is to install it and say, in the same breath, that an `alpha` API can change in
+any release without a deprecation cycle. A false refusal is the mirror image of
+an invention, and the rule file treats it as the same class of mistake.
 
-**`rules/registry.md`** — do not emit an install command for a namespace the
-project has not configured; prefer the full URL form. Do not claim an item has
-files when the registry says it has none.
+**`rules/registry.md`** — never emit `add @opsinjs/<name>` without first checking
+that `components.json` registers the namespace, and offer the one-line addition
+*before* the install command rather than as a footnote after it. The failure it
+prevents is specific: an unresolvable namespace produces an error that reads like
+a network problem, and the next thing that happens is somebody hand-writes a
+component and calls it opsinjs. The rule also forbids claiming an item has files
+when the registry says it has none.
 
 ## What it reads from your project
 
