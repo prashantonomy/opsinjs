@@ -413,7 +413,7 @@ what `alpha` promises.
   reaches the primitive's own behaviour. That middle link matters: an alert dialog has
   no close control, so the primitive's first-tabbable default would land on the *first*
   action, which the ordering rule reserves for the answer that changes something.
-  Neither value ever leaves focus outside an inert page.
+  Neither value ever resolves to a control outside the dialog.
 - **The cost of `safest` is that it is the last tab stop.** The DOM runs close control,
   body, actions, so from where focus starts the first Tab wraps round to the
   close control and the other answer is behind a Shift + Tab. A
@@ -426,10 +426,19 @@ what `alpha` promises.
   a control when focus had wandered, and does nothing whatever in the default
   configuration, where `initialFocus="safest"` has already put focus on that control
   and focusing it again is a specification no-op. See the gap list below.
-- **The page behind is inert**, not merely dimmed — the primitive marks it, the scrim
-  only shows it. Under `prefers-reduced-transparency` the scrim **loses its blur and
-  becomes more opaque**: the token layer swaps the tint for the rung's opaque fallback
-  and forces its alpha to 1, and that fallback is itself still slightly translucent
+- **The page behind is hidden and unreachable, and it is not `inert`.** While the dialog
+  is open the primitive marks everything outside the popup `aria-hidden`, the scrim covers
+  the viewport so a pointer never reaches the page, and Tab is held inside by the focus
+  trap; the scrim only shows what those three do. None of them sets the `inert` attribute,
+  and the difference is observable: focus moved programmatically from behind the dialog —
+  an autofocus in a background component, a late `ref.focus()` — takes and keeps focus on a
+  control the accessibility tree has just been told is not there. Closing that hole is a
+  change to the component rather than to this page; until it is made, build on this
+  sentence rather than on the word *inert*.
+
+  The scrim's own behaviour is separate. Under `prefers-reduced-transparency` it **loses
+  its blur and becomes more opaque**: the token layer swaps the tint for the rung's opaque
+  fallback and forces its alpha to 1, and that fallback is itself still slightly translucent
   (`--opsin-material-scrim-opaque` in `app/tokens.generated.css`), so the page behind
   stays recognisable rather than being replaced by a flat panel. The dimming is never
   reduced by the preference — being able to see through it less is the point of it.
