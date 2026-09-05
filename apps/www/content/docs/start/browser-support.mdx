@@ -148,9 +148,10 @@ It is cosmetic, and no measurement, target size or contrast result depends on it
 page is being rendered in an sRGB context. The sRGB values are the conformant
 ones; the documentation is showing you the wide-gamut enhancement.
 
-**Motion looks linear and mechanical.** `linear()` was not understood and the
-`cubic-bezier` fallback is running. Timing is preserved; only the shape of the
-curve differs.
+**Motion runs, but the springs feel generic.** `linear()` was not understood, so
+the timing function was dropped at substitution and the browser's default easing is
+running — there is no `cubic-bezier` approximation waiting behind it. Durations and
+end states are preserved; only the shape of the curve differs.
 
 **Something genuinely breaks below the floor.** Report it. We will not necessarily
 fix it, and we will tell you which of those two it is rather than leaving the issue
