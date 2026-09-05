@@ -59,14 +59,32 @@ would bury the symbols an `<ApiLink>` has to resolve to.
 
 ### What a symbol page contains
 
-The signature, rendered from the declaration rather than retyped. The members,
-with their types linked to their own pages. Defaults, where the symbol has any.
-Which components and functions consume it, which is the part a type reference
-manual usually omits and the part you usually need. And, for the health types,
-a link to the doctrine page that defines what the values *mean* — the type says
-there are four status levels, and only
+Four things, and no more than a line scanner can honestly produce: the symbol's
+name, the first sentence of its doc comment, a table giving its kind and the
+file it is declared in, and the declaration line itself, copied from the source
+rather than reconstructed. Improve a page by improving its doc comment — there
+is nowhere else the summary can come from.
+
+For the health types the page is only ever half the answer. The declaration says
+there are four status levels; only
 [Clinical status semantics](../../health/clinical-status-semantics.mdx) says what
-`attention` obliges you to do.
+`attention` obliges you to do, and that is the half a type reference cannot
+carry. The two pages here that keep hand-written prose above their generated
+block, below, both do that linking by hand; for the rest, follow the symbol back
+to the doctrine pillar yourself.
+
+What a symbol page does not yet contain is the part such a page is usually
+judged on. Members are not expanded, so an interface page carries
+`export interface Oklch` and not its fields. Defaults are not listed. Nor is the
+set of components and functions that consume the symbol, which is the part a
+type reference usually omits and the part you usually need. All three need a
+type checker rather than the textual scan, and until the generator grows one the
+declaration and its file are what these pages promise.
+
+<Todo owner="engineering">Expand members, defaults and consumers on the
+per-symbol pages. It needs `build-reference.mts` to read the declarations
+through a TypeScript program instead of a line regex, and until it does, an
+interface page shows its declaration line only.</Todo>
 
 ### What exists today
 
