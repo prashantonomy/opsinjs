@@ -24,9 +24,13 @@ That trade is a good one for a health interface, where an unreviewed change to h
 a clinical status renders is a genuine hazard. But it only holds if upgrading is
 survivable, and this page is how opsinjs intends to make it so.
 
-<Callout title="Nothing has shipped, so nothing can be upgraded yet">
-  There is no released version, so there is no upgrade path to exercise. The
-  mechanics below are the intended contract.
+<Callout title="There is code, but no released version to upgrade from">
+  The twenty-four implemented components are `alpha` and every catalogue row is
+  `since: unreleased`. So there is no earlier version of anything to move off,
+  no changelog entry to read, and no diff to run — the mechanics below are the
+  intended contract rather than a path anybody has walked. Emitted files carry
+  no [version stamp](../../registry/version-stamps.mdx) either, which is what
+  would otherwise tell you which version you have.
   [Troubleshooting](../troubleshooting.mdx#nothing-is-published-yet).
 </Callout>
 
@@ -73,9 +77,11 @@ change to new code is more reliable than reasoning about a merge — and it make
 re-justify the edit, which is often useful on its own.
 
 **You have edited it heavily.** Treat it as a three-way merge between the version
-you started from, your current file, and the new one. The version stamp in the file
-header is what tells you the first of those three; without it, you are guessing.
-[Version stamps](../../registry/version-stamps.mdx).
+you started from, your current file, and the new one. A
+[version stamp](../../registry/version-stamps.mdx) in the file header is what
+would tell you the first of those three, and it is not emitted yet — so today
+that base comes from your own version control, or from the note you wrote in the
+pull request that installed the file. Write that note.
 
 If you find yourself doing a heavy merge repeatedly on the same component, the
 divergence is telling you something. Either your change belongs upstream — propose
