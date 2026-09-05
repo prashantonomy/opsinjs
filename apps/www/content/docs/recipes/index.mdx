@@ -38,13 +38,16 @@ If you are choosing between a recipe and a pattern: a recipe fits in one scroll
 and produces one composed thing. A pattern spans several screens and describes a
 sequence of decisions.
 
-<Callout title="Nothing here is installable yet">
-Every opsinjs component is at `status: planned`. Until they ship, a recipe is a
-**specification of the build**, not a transcript of one: it tells you what to
-assemble and why, and it deliberately contains no code you could paste. That is
-not a placeholder — a recipe that names the wrong component or approves the wrong
-sentence is wrong today and would still be wrong after the code lands, so the
-prose is written to be reviewable now.
+<Callout title="The parts install; the recipes are still specifications">
+Most of the components a recipe names are at `alpha` — installable, and free to
+change their API in any release. A few are `considered`, which means a reserved
+name and no code. Each recipe's **What you need** table carries the current
+status of every part, and that table is the thing to trust; no recipe restates a
+count in prose. What a recipe itself contains is a **specification of the
+build**, not a transcript of one: it tells you what to assemble and why, and it
+deliberately holds no code you could paste, because a recipe that names the
+wrong component or approves the wrong sentence would be wrong whether or not the
+code beneath it existed.
 </Callout>
 
 ## What a recipe contains
@@ -65,8 +68,11 @@ the one you need.
 Two conventions are worth knowing before you read one:
 
 **A recipe's `status` is the status of the thing it builds, not of the prose.**
-A recipe that composes unbuilt components is `planned`, however finished its
-writing is. Only these two overview pages are `stable`.
+All seven recipes are `planned`: however finished the writing is, and however
+much of the component roster is now installable, no recipe has been assembled
+and reviewed end to end as a working example. The per-part statuses in **What
+you need** are the ones that tell you what will compile. Only this overview page
+is `stable`.
 
 **Recipes name components; they never define behaviour.** If a recipe seems to
 be inventing a rule, it is quoting one. The rule lives in
