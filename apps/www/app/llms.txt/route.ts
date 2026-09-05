@@ -8,10 +8,12 @@
  * of paths that used to exist.
  *
  * The header does the work the list cannot. A model that reaches an opsinjs
- * page through a search has no way to know that the component described on it
- * has never been written, so the statement is made once at the top, and again
- * per page in the markdown twins, and again per row in the registry. Repeating
- * it is not redundancy; each of those is a separate entry point.
+ * page through a search has no way to know whether the component described on
+ * it has been written, so the answer is stated once at the top, and again per
+ * page in the markdown twins, and again per row in the registry. Repeating it
+ * is not redundancy; each of those is a separate entry point. It has to stay
+ * honest in both directions, which is why the summary and the existence rule
+ * below are computed from `implementedComponents()` rather than asserted.
  *
  * ALIASES. The synonyms come from the catalogue, which owns the whole alias
  * namespace — so the phrase a clinician would use ("reference range") reaches
@@ -25,6 +27,7 @@ import {
   DOCS_VERSION,
   GENERATED_AT,
   absoluteUrl,
+  implementedComponents,
   text,
 } from "@/app/_machine/contracts"
 import {
