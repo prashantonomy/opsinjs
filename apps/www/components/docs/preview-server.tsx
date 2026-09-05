@@ -77,9 +77,12 @@ function phaseOf(name: string | undefined): Status | undefined {
 /**
  * `built` is resolved here and never accepted from a caller. An MDX page that
  * could assert a component exists would be able to do the one thing this whole
- * site is built to prevent.
+ * site is built to prevent. `phase` is resolved on the same terms.
  */
-export type ComponentPreviewServerProps = Omit<ComponentPreviewProps, "built">
+export type ComponentPreviewServerProps = Omit<
+  ComponentPreviewProps,
+  "built" | "phase"
+>
 
 /** The preview block on a component page. See `./preview` for the surface. */
 export function ComponentPreview(props: ComponentPreviewServerProps) {
@@ -102,7 +105,9 @@ export function ComponentPreview(props: ComponentPreviewServerProps) {
    */
   const built = resolvesToARender(name, base, style, kind)
 
-  return <ComponentPreviewSurface {...props} built={built} />
+  return (
+    <ComponentPreviewSurface {...props} built={built} phase={phaseOf(name)} />
+  )
 }
 
 /** See `ComponentPreviewServerProps` — `built` is resolved, never passed. */
