@@ -71,6 +71,8 @@ schema's own.
 | `items[].dependencies` | No | npm packages the item needs |
 | `items[].registryDependencies` | No | Other items it needs, by name or by URL. opsinjs names them namespaced, `@opsinjs/status-pill` |
 | `items[].categories` | No | Free-form grouping used by search |
+| `items[].docs` | No | The note the CLI prints after install |
+| `items[].meta` | No | The schema's escape hatch, and where every opsinjs-specific field lives — `implemented`, `status`, `category`, `aliases`, `governedBy` |
 
 ### The catalog carries no file contents
 
@@ -89,12 +91,9 @@ The types opsinjs uses:
 
 | Type | Used for |
 | --- | --- |
-| `registry:component` | A component, the ordinary case |
-| `registry:ui` | A primitive that lands in the `ui` alias directory |
-| `registry:lib` | Shared non-component code — the colour engine, formatting helpers |
-| `registry:hook` | A hook |
-| `registry:block` | A composed multi-file specimen; opsinjs uses it for screens |
-| `registry:item` | A universal item. Themes are this: `cssVars` and no files |
+| `registry:ui` | Every catalogue item, and the component file inside it. All sixty rows are this |
+| `registry:lib` | Shared non-component code — `lib/opsinjs.ts` and `lib/status.ts`, which ride along inside each component item. A file type, never an item type |
+| `registry:theme` | A theme: `cssVars` and no files, served from `/r/themes/<preset>.json` |
 
 The specification defines more than opsinjs uses. Consult shadcn's schema rather
 than this table if you are authoring a registry of your own — this list is what
