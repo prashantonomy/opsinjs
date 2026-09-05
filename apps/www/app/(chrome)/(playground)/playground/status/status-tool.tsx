@@ -246,9 +246,15 @@ export function StatusTool() {
               </p>
               <p className="mt-3 text-4xl font-semibold tracking-tight">
                 {sample.value}
-                <span className="ml-2 text-base font-normal">
-                  {sample.unit}
-                </span>
+                {/* A no-break space in the text, not a margin. A CSS gap is
+                    invisible to copy, to speech and to anything that reads the
+                    text node, so `ml-2` alone rendered "148/96mmHg" —
+                    content/grammar-and-mechanics rule: a space between the
+                    number and the unit, and a non-breaking one so the pair
+                    never wraps apart. The margin goes with it: one separator,
+                    not two. */}
+                {"\u00A0"}
+                <span className="text-base font-normal">{sample.unit}</span>
               </p>
 
               {application === "status-surface" ? (
