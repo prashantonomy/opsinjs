@@ -31,8 +31,10 @@ the same class and a toggle that works only sometimes.
 
 A class on the root beats a media query for one decisive reason: a media query
 cannot be overridden by the reader. With a class, three states exist — light,
-dark, and follow the system — and the third is the default rather than the only
-option.
+dark, and follow the system — and the reader chooses between them instead of
+being handed whichever one their operating system decided on. Which of the three
+a reader starts on is a separate decision, taken below; this site starts on
+light.
 
 The Tailwind v4 variant is declared once:
 
@@ -78,8 +80,14 @@ in both themes and the numbers are generated, not asserted; see
 - **Set `color-scheme`** on the root so form controls, scrollbars and the
   browser's own UI follow. It is one declaration and it fixes the white
   scrollbar nobody can find the cause of.
-- **Keep "system" as the default** and offer light and dark as explicit
-  overrides.
+- **Default to light, and offer light, dark and "system" as explicit choices.**
+  This site ships `defaultTheme: "light"` with `enableSystem: true`, because a
+  health surface is read outdoors and printed for review, and a reader who has
+  expressed no preference is better served by the theme the contrast floor was
+  authored against — the reasoning is in
+  [Dark mode](../foundations/colour/dark-mode.mdx). Offering "system" still
+  matters: it is how a reader delegates the choice, and it is the option a
+  reader who has already set an OS preference expects to find.
 - **Check status colours in both themes at the contrast floor**, not by eye. The
   four status levels must remain distinguishable from each other, not merely
   legible against the background.
