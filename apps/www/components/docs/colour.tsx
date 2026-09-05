@@ -55,8 +55,9 @@ import { NoDataYet } from "./stub"
    because then a reader cannot tell which question the colour is answering.
 
    <StatusAxisDemo> is the artifact that makes that teachable. It calls
-   `axisConflict()` — the same function that raises the OPSIN-0001 dev warning
-   in product code — and REFUSES to render the mixed pair, then shows the two
+   `axisConflict()` from lib/status.ts — the one caller in the repo, because no
+   shipped component resolves both axes on one element and so none of them has
+   anything to report — and REFUSES to render the mixed pair, then shows the two
    legal alternatives rendered side by side. A rule you read is forgotten; a
    tool that declines to draw the thing you asked for is not.
 
@@ -138,8 +139,8 @@ function toSrgbHex(color: string): string | null {
   if (!context) return null
   context.fillStyle = "#000000"
   context.fillStyle = color
-  const normalised = context.fillStyle
-  return typeof normalised === "string" ? normalised : null
+  const normalized = context.fillStyle
+  return typeof normalized === "string" ? normalized : null
 }
 
 /* --------------------------------------------------------------------------
