@@ -23,9 +23,13 @@ means the screen is now emphasising the wrong thing.
 
 Light is the default because of who the reader is: somebody checking a
 measurement, often outdoors, often at whatever brightness their phone decided
-on. Dark is a preference we support properly rather than a mode we prefer.
-`enableSystem` is on, so a reader who has told their operating system what they
-want gets it; the default when nothing has been said is light.
+on. Dark is a preference we support properly rather than a mode we prefer, and
+"properly" here has a consequence worth stating plainly, because it surprises
+people: a reader who has expressed no preference *in the product* resolves to
+light, including a reader whose operating system says dark. Following the
+system is offered in the theme control and is not the default, because the
+contrast floor was authored against light and that is the theme the guarantee
+was measured in. Choosing dark, once, is remembered.
 
 The thing this is most often confused with is the *implementation* of theme
 switching — the class strategy, the provider, the flash of the wrong theme on
@@ -40,8 +44,8 @@ what the colours have to mean.
 Dark is allowed to change a great deal. These seven things it may not change,
 and `scripts/check-contrast.mts` plus review enforce them between them.
 
-**1. Hue is preserved exactly.** Cardio is hue 12 in both themes; `urgent` is
-hue 25 in both. A theme where the reds drift warmer at night is a theme where
+**1. Hue is preserved exactly.** Heart is hue 15 in both themes; `urgent` is
+hue 27 in both. A theme where the reds drift warmer at night is a theme where
 "the same measurement" is not the same colour, and the category axis's entire
 claim is that a colour is an identity.
 
