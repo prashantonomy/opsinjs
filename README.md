@@ -4,16 +4,25 @@ A React design system for consumer- and patient-facing health apps — the kind 
 screen where somebody who is not a clinician reads their own blood pressure, HbA1c
 or symptom log and has to decide what, if anything, to do next.
 
-This repository currently contains **the documentation site only**. No component
-has been built yet. Every component page in `apps/www/content/docs/components` is
-a *specification*: intent, when not to use it (naming the alternative), the clinical
-contract, the proposed anatomy and API, and the accessibility bar the implementation
-must clear. Pages say so out loud, in machine-readable form, so that an agent asking
-"does opsinjs have a RangeBar?" gets a definitive *not yet, here is the spec* instead
-of a 404 it will answer by inventing an API.
+This repository contains **the documentation site and the component layer**.
+Twenty-four components are implemented under `apps/www/registry/bases/base/` and are
+served as shadcn-spec registry items from `/r/<name>.json`; install them through the
+`@opsinjs` namespace registered in a project's `components.json`, never by pasting a
+raw URL.
+
+The other thirty-six ids in `apps/www/registry/catalogue.ts` are `considered`: reserved
+names with no code and no specification behind them. Each still answers at a page in
+`apps/www/content/docs/components`, generated from the catalogue row — what the name
+refers to, why it is not on the roster, and which built component to use instead. The
+page says all of that out loud, in machine-readable form, so that an agent asking "does
+opsinjs have a Toast?" gets a definitive *considered, not implemented, use this
+instead* rather than a 404 it will answer by inventing an API.
 
 ## What is actually real today
 
+- **Twenty-four components.** Implemented, installable, `alpha`. Nothing is `stable`,
+  nothing is independently accessibility-audited, and none of them is for a production
+  health surface yet: the API may change in any release without a deprecation cycle.
 - **Tokens.** The two colour axes, the material ladder, the motion springs and the
   type/space/shape scales are authored in `apps/www/tokens/*.json` and are the source
   for every generated table on the site.
