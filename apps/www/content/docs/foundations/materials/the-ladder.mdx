@@ -33,18 +33,27 @@ floor is something you can see rather than something this page asserts.
 
 | # | Name | Opaque? | Blur | Its job |
 | --- | --- | --- | --- | --- |
-| 0 | `ground` | yes | — | the page itself; the thing everything else sits on |
-| 1 | `panel` | yes | — | an inline grouping: a list section, a form block, a card that is not interactive |
-| 2 | `raised` | yes | — | a thing lifted off the page: a tappable card, a menu, a popover, a toast |
-| 3 | `bar` | no | small | persistent edge chrome that content scrolls **under**: nav bar, tab bar, toolbar, sticky summary |
-| 4 | `overlay` | no | large | something that takes over: a sheet, a dialog, a full-screen panel |
-| 5 | `scrim` | no | minimal | the dimming layer that isolates rung 4 from everything below it |
+| 0 | `canvas` | yes | — | the page itself; nothing is behind it, so nothing shows through it |
+| 1 | `card` | yes | — | a distinct piece of content on the page, bounded by a line rather than a shadow; the default home for a health value |
+| 2 | `raised` | yes | — | temporarily above the page but not covering it: a menu, a popover, a tooltip, a dragged card; the highest opaque rung |
+| 3 | `sheet` | no | large | something covering the page while leaving it recognisable underneath: a bottom sheet, a side panel, a modal |
+| 4 | `overlay` | no | largest | chrome floating over scrolling content: a pinned toolbar, a tab bar, a floating action bar |
+| 5 | `scrim` | no | minimal | the dimming layer behind a `sheet`, whose job is to remove the page from consideration |
 
-The names are the vocabulary. Use them in design review, in commit messages and
-in component props; the numeric tokens exist because CSS custom properties
-cannot be tidily namespaced and because the ordering has to be machine-readable.
+Read rows 3 and 4 twice. `overlay` here is the chrome that content scrolls
+*beneath*; the surface that covers the page is `sheet`. Two retired vocabularies
+used those two words the other way round, so a positional translation puts a
+dismissible sheet on the chrome rung and a tab bar on the sheet rung, and both
+compile and render.
+[ADR 0014](../../project/decisions/0014-material-rung-names.mdx) settles which
+set wins and why: translate by job, never by ordinal.
 
-### The four properties, rung by rung
+The names are the vocabulary. Use them in design review, in commit messages, and
+in the `rung` prop on [Surface](../../components/surface.mdx). The custom
+properties carry the same names — `--opsin-material-sheet-blur`, never
+`--opsin-material-3-blur` — because a number invites arithmetic and the ladder is
+not arithmetic. The ordinals in the first column are the ordering and nothing
+addresses a rung by one.
 
 Each rung is exactly `--opsin-material-<n>-bg`, `-blur`, `-border` and
 `-shadow`. The shape of the ladder is easier to see as a set of movements than
