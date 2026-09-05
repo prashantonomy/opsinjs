@@ -46,6 +46,16 @@
  * this example depends on nothing but Button, and it is deliberately about
  * nothing: a note, no units, no number, nothing a screenshot could be mistaken
  * for. The submit handler stops the browser rather than sending anywhere.
+ *
+ * IT STILL CARRIES THE TARGET FLOOR, and depending on nothing is exactly why it
+ * has to. `app/product.css` backstops `button`, `[role="button"]`,
+ * `a[data-opsin-target]`, checkboxes and radios — not text inputs — so a
+ * hand-rolled input has nothing holding it open, and this one measured 40px
+ * beside a 44px Button. `shadcn add` copies this file into somebody else's
+ * project as the worked answer to "what does an opsinjs form look like", so a
+ * short box here is a short box in a patient-facing app. The class is the same
+ * one every control in the registry carries, fallback included; it adds a
+ * utility, not a dependency.
  */
 
 import { ArrowRight } from "lucide-react"
@@ -70,7 +80,7 @@ export default function ButtonBusyAtTheFootOfAForm() {
           name="example-note"
           type="text"
           autoComplete="off"
-          className="rounded-opsin-md border border-border bg-card px-opsin-3 py-opsin-2 text-opsin-body text-foreground"
+          className="min-h-(--opsin-target-minimum,2.75rem) rounded-opsin-md border border-border bg-card px-opsin-3 py-opsin-2 text-opsin-body text-foreground"
         />
         <p className="m-0 text-opsin-footnote text-muted-foreground">
           Anything at all. Nothing here is stored or sent.
