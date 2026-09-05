@@ -31,12 +31,16 @@ list.
 ### The naming grammar
 
 ```text
---opsin-material-<n>-bg        backing colour, including alpha
---opsin-material-<n>-blur      backdrop-filter blur radius
---opsin-material-<n>-border    hairline colour, or transparent
---opsin-material-<n>-shadow    drop shadow, or none
+--opsin-material-<rung>-tint         backing colour, without its alpha
+--opsin-material-<rung>-tint-alpha   that colour's alpha, 0..1
+--opsin-material-<rung>-blur         backdrop-filter blur radius
+--opsin-material-<rung>-saturation   backdrop-filter saturation multiplier
+--opsin-material-<rung>-border       hairline colour, or `none`
+--opsin-material-<rung>-shadow       drop shadow, or `none`
+--opsin-material-<rung>-scrim        minimum scrim opacity for text to clear the floor
+--opsin-material-<rung>-opaque       the fallback when translucency is unavailable
 
-<n> ∈ 0..5   →   ground · panel · raised · bar · overlay · scrim
+<rung> ∈ canvas · card · raised · sheet · overlay · scrim
 ```
 
 The numeric index is what appears in CSS; the name is what appears in
