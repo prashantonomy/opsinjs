@@ -21,9 +21,12 @@ release. Read this page even if you use another framework — the CSS order rule
 the theme-class rule are identical everywhere, and this is where they are stated in
 full.
 
-<Callout title="Nothing installs yet">
-  There is no published registry, so the commands below do not resolve today. They
-  describe the intended contract. See
+<Callout title="Alpha, and no published host yet">
+  `status-pill` and the twenty-three other implemented components are real code,
+  and their registry items carry the source `shadcn add` copies. What does not
+  exist yet is the canonical host: `opsinjs.dev` is not serving, so the commands
+  below resolve only against a registry you point `@opsinjs` at yourself, and
+  there is no npm package to fall back to. See
   [Troubleshooting](../troubleshooting.mdx#nothing-is-published-yet).
 </Callout>
 
@@ -52,8 +55,12 @@ Every field is annotated in [components.json](./components-json.mdx).
 npx shadcn@latest add @opsinjs/status-pill
 ```
 
-This copies source into your repository and writes the token layer alongside it if
-it is not already there.
+This copies source into your repository: the component, plus the two `lib`
+modules every opsinjs component imports. It writes no CSS at all. The token
+layer is a separate registry item, and until you add it every custom property
+these components read resolves to nothing — which is the failure the next
+section is about. [Presets](../../theming/presets.mdx) has the item and what it
+writes.
 
 </Steps>
 
