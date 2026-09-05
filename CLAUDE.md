@@ -85,6 +85,9 @@ pnpm --filter @opsinjs/www run generate
 Do not run `git`, `pnpm install`, `turbo` or a build during a parallel authoring phase —
 the sequential phases own those.
 
+Do not commit, and do not discuss or propose committing, unless the human explicitly asks
+for it in that turn.
+
 ## Ownership
 
 File sets are disjoint and assigned. Touching a file outside your set corrupts a worker
