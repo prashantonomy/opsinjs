@@ -146,7 +146,7 @@ and that lesson is permanent — see [Alarm fatigue](../health/alarm-fatigue.mdx
   parts={[
     {
       name: "StatusPill",
-      describes: "The root. Carries data-status and the level's surface, ink and line colours. Not focusable, and not interactive by default.",
+      describes: "The root. Carries data-status and the level's surface and line colours. It sets the level's ink here too, but that class does not reach the DOM today — the shared cn() merge files it against the size's font-size utility and keeps the size — so the word takes its colour by inheritance. status-pill.tsx records why, and the repair is in lib/utils.ts rather than in this component. Not focusable, and not interactive by default.",
       prop: "status",
     },
     {
@@ -277,8 +277,10 @@ checked, with the gaps listed rather than left out.
 **Not yet checked at all, and listed rather than omitted:**
 
 - Contrast for label against fill and fill against page, in both themes and under increased
-  contrast. `prefers-contrast` and `forced-colors` are not implemented anywhere in opsinjs
-  yet, so the increased-contrast claim cannot currently be made by anyone.
+  contrast. `forced-colors` is implemented nowhere in opsinjs, and `prefers-contrast: more`
+  is implemented in [Surface](./surface.mdx#accessibility) alone rather than in the token
+  layer — the pill renders no Surface and does not respond to it, though the material it is
+  laid on may. The increased-contrast claim cannot currently be made by anyone.
 - Behaviour when a pill's level changes while it is on screen. The component mounts no live
   region, deliberately — it is not entitled to speak on the caller's behalf — and what the
   caller should do instead is an open question on this page.
