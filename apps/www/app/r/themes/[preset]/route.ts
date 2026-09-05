@@ -42,6 +42,7 @@ import {
   REGISTRY_ITEM_SCHEMA_URL,
   SITE_NAME,
   absoluteUrl,
+  implementedComponents,
   json,
   provenance,
 } from "@/app/_machine/contracts"
@@ -121,6 +122,27 @@ function normalise(segment: string): string {
 
 function isSafePreset(preset: string): boolean {
   return /^[a-z0-9][a-z0-9-]*$/i.test(preset)
+}
+
+/**
+ * What installing a theme gives a reader, and what it does not.
+ *
+ * The sentence this replaces ended "Components are not implemented", which was
+ * the true half of the point on the day it was typed and became a false
+ * statement on a machine surface the moment the first component landed — served
+ * on the same object as a `provenance()` block reporting a non-zero
+ * `implementedCount`, which is the shape of contradiction every surface in this
+ * app exists to prevent. The part worth keeping survives either way: a theme
+ * item installs variables and no component source, so it says that, and reads
+ * the rest off the built set rather than asserting it.
+ */
+function themeNote(): string {
+  const built = implementedComponents().length
+  const carried =
+    "Tokens are real and generated. This item installs the CSS variables and nothing else — no component source, no dependencies."
+  return built === 0
+    ? `${carried} No opsinjs component is implemented yet, so nothing in the registry consumes these variables today.`
+    : `${carried} ${built} opsinjs component${built === 1 ? "" : "s"} consume them and install separately, one id at a time, from /r/<id>.json.`
 }
 
 export async function GET(
