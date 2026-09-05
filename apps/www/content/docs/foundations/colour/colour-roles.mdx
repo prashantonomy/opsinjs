@@ -57,12 +57,17 @@ produces a system whose charts are muddy.
 --opsin-<axis>-<name>-<role>
 
 axis  ∈ { category, status }
-name  ∈ { cardio, metabolic, respiratory, activity, sleep, body }   when axis = category
-      ∈ { expected, watch, act, urgent }                            when axis = status
-role  ∈ { surface, line, ink }
+name  ∈ { sleep, heart, activity, nutrition, mind, labs }   when axis = category
+      ∈ { steady, watch, attention, urgent, unknown }       when axis = status
+role  ∈ { surface, line, ink, accent }
 ```
 
-There is no fourth position. No `-hover`, no `-subtle`, no `-2`. Interaction
+`unknown` is a fifth status *stem* and deliberately not a fifth level. It is the
+absence of an assertion — no reading, a stale one, or one whose reference range
+the product does not own — so it is never ordered against the four; see
+[Two colour axes](../../health/two-colour-axes.mdx).
+
+There is no fourth *segment*. No `-hover`, no `-subtle`, no `-2`. Interaction
 states are derived from the role token at use time, in OKLCH, by the rules in
 [Interaction states](../interaction-states.mdx) — they are not additional
 tokens, because a hover variant of every role on every name on both axes is
