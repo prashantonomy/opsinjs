@@ -96,11 +96,10 @@ is the alpha the neutral palette does not have, which is authored on the rung.
 
 **Apply all eight properties together.** A rung's blur without its backing tint
 is the exact failure the contrast floor exists to prevent, and a rung's tint
-without its border is a surface with no edge under reduced transparency. When
-`Surface` exists, it will apply them as a unit; until then, applying them as a
-unit is your job.
-
-<NotBuiltYet name="surface" />
+without its border is a surface with no edge under reduced transparency.
+[Surface](../../components/surface.mdx) applies them as a unit and is at `alpha`,
+so reach for it before reaching for the custom properties; if you are writing the
+CSS yourself, the unit is your responsibility.
 
 **Reference the token, never the resolved value.** A copied `oklch(… / 0.82)` is
 a translucent surface outside the ladder: it will not respond to reduced
@@ -123,8 +122,8 @@ that is intake, not CSS — see
 
 ## Accessibility impact
 
-Every translucent rung above is measured against both of its compositing
-extremes, in both themes, on every commit. The published results:
+Each rung is measured with body text on it, in both themes, on every commit. The
+published results:
 
 <ContrastReport scope="materials" />
 
