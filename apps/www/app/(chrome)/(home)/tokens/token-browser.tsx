@@ -147,6 +147,13 @@ const NAMESPACE_ORDER = [
   "corner",
   "border",
   "target",
+  "space",
+  "gutter",
+  "safe",
+  "text",
+  "font",
+  "numerals",
+  "measure",
 ]
 
 function classify(value: string): TokenKind {
