@@ -72,11 +72,15 @@ side of the line a page is on. The count in the legend above is derived from
 Three rules, and they are the difference between this site being useful to you and
 being dangerous.
 
-1. **A `planned` page is a definitive negative answer.** It exists so you do not
-   have to guess. The proposed API on it is a specification under review — do not
-   emit an implementation of it, do not import from it, and do not tell a user it
-   is available. The page carries a `data-opsinjs-not-implemented` marker and a
-   visually-hidden sentence saying so, in both the HTML and the `.md` twin.
+1. **Read the page's `status`; it is the whole answer.** At `planned` or
+   `considered` there is no implementation, and the page exists so that you do
+   not have to guess: the API on it is a specification under review — do not emit
+   an implementation of it, do not import from it, and do not tell a user it is
+   available. Those pages carry a `data-opsinjs-not-implemented` marker and a
+   visually-hidden sentence saying so, in both the HTML and the `.md` twin, and
+   the marker is *absent* from `alpha` onwards. At `alpha` there is real code and
+   a real install command, and the honest caveat to pass on is that the API may
+   change in any release without a deprecation cycle.
 2. **Every page has a markdown twin.** Append `.md` to any documentation URL and
    you get the processed markdown — JSX resolved into text, not raw MDX. The
    corpus is also published as `llms.txt` with per-pillar shards. See
@@ -92,11 +96,14 @@ The full contract, including the machine-readable schemas, is in
 
 A page's `kind` fixes its headings. The five you will meet most often:
 
-- **`component`** — a twenty-two section anatomy, status-gated. At `planned` you
-  get intent, when *not* to use it, the clinical contract, the proposed anatomy
-  and API, the content rules and the accessibility requirements. The sections that
-  need a build to be truthful — examples, states, props table, bundle size — are
-  *omitted*, not left empty. [Anatomy of a component page](../components/anatomy-of-a-component-page.mdx)
+- **`component`** — a twenty-two section anatomy, status-gated. Below `alpha`
+  you get intent, when *not* to use it, the clinical contract, the proposed
+  anatomy and API, the content rules and the accessibility requirements; the
+  sections that need a build to be truthful — examples, states, props table,
+  bundle size — are *omitted*, not left empty. From `alpha` those sections
+  appear, generated from the code, and any whose source has still not been
+  measured renders `<NoDataYet>` rather than a number.
+  [Anatomy of a component page](../components/anatomy-of-a-component-page.mdx)
   teaches the whole contract once.
 - **`health`** — what this means, the rule, why (with evidence), applying it, the
   components that implement it, what it does not cover, and when it was last
@@ -124,7 +131,7 @@ Two habits will keep you out of trouble:
   Components reference semantic tokens and never primitives, and so should you.
   See [Token architecture](../foundations/token-architecture.mdx).
 
-<NoDataYet script="build-tokens.mts" />
+<NoDataYet script="scripts/build-tokens.mts" />
 
 ## Read a contrast report correctly
 
