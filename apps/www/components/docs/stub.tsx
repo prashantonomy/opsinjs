@@ -537,8 +537,10 @@ export function Todo({ children, owner, issue, className }: TodoProps) {
           >
             {issue}
           </a>
+        ) : issue ? (
+          <span className="block text-xs">{issue} — not filed yet</span>
         ) : null}
       </span>
-    </p>
+    </div>
   )
 }
