@@ -33,13 +33,17 @@ as an entry in the bundles and shards. The second and third are what a machine
 sees, and the transformation between them is where authoring choices become
 consequences.
 
-Processing resolves components to text. A `<TokenTable>` becomes a markdown
-table of real values. A `<ComponentPreview>` becomes an explicit sentence saying
-nothing is built. A `<ContrastOracle>` becomes a line naming the tool and where
-to find it. This works well, and it works only because the components are a
-closed set whose textual fallbacks are written once. A tag outside that set has
-no fallback, fails `assert-ia`, and — had it slipped through — would arrive in
-the twin as nothing at all.
+Processing does not render the components. Remark runs over the MDX and
+stringifies it back to markdown, so imports are gone and tables and code fences
+arrive as markdown — but `<TokenTable scope="color" />` comes out as that tag,
+attributes and all, and so does `<ComponentPreview name="range-bar" />`. That is
+why the attributes are the content: they name the component or the scope, and
+the values themselves are published separately at `/r/index.json` and under the
+Reference section. Every twin carrying such a tag opens with a block quote
+saying exactly that, so a machine is told where to go rather than left with a
+hole. The quote can be written once only because the components are a closed
+set; a tag outside it fails `assert-ia`, and — had it slipped through — would
+arrive in the twin unexplained.
 
 Frontmatter survives the transformation intact, which is why it carries so much
 weight. A model deciding whether to trust a page reads `status`, `evidence` and
