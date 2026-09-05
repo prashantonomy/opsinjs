@@ -743,10 +743,14 @@ export const STATIC_CACHE_CONTROL =
 /**
  * `x-opsinjs-implemented` answers "is the thing at THIS URL implemented".
  *
- * On a route that serves one registry item it is that item's answer; everywhere
- * else — the index, the catalog, the corpus, `/llms.txt` — the URL is the
- * system, so it is the system's answer. `serveRegistryItem()` supplies the
- * per-item value through `json()`'s caller-headers-last spread.
+ * On a route that serves one registry item it is that item's answer; on a
+ * documentation twin that documents one component or one screen it is that
+ * subject's answer; everywhere else — the index, the catalog, the corpus,
+ * `/llms.txt`, and prose pages whose subject is the system rather than a
+ * buildable thing — the URL is the system, so it is the system's answer.
+ * `serveRegistryItem()` and `/llms.mdx/<slug>` supply their per-subject value
+ * through the caller-headers-last spread in `json()` and `text()`, and both
+ * send `x-opsinjs-status` beside it so a reader can tell which scope it got.
  *
  * The alternative was to make it uniformly system-scoped on every response, on
  * the grounds that one header meaning two things is a header nobody can read
@@ -786,6 +790,14 @@ export function json(
   })
 }
 
+/**
+ * `init.headers` is spread LAST, exactly as in `json()`, so a route that serves
+ * one nameable thing can replace the system-scoped `x-opsinjs-implemented`
+ * with that thing's own answer. `/llms.mdx/<slug>` is the caller that needs it:
+ * a documentation twin is read as a page about one component, and answering
+ * "yes, something in this system is built" to `HEAD /docs/components/toast.md`
+ * is the wrong-value failure the docblock above calls worse than ambiguity.
+ */
 export function text(
   body: string,
   init: { status?: number; contentType?: string } = {}
