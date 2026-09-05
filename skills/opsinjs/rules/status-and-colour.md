@@ -105,7 +105,7 @@ The four levels are ordinal, and each has a tone as well as a colour:
 
 | Level | Means | Tone |
 | --- | --- | --- |
-| `steady` | Where this reading is expected to be | Neutral. Do not congratulate. |
+| `steady` | Where this reading usually sits for this person | Neutral. Do not congratulate. |
 | `watch` | Worth noticing, nothing to do today | Calm, specific, no urgency verbs |
 | `attention` | There is something to do, and it is nameable | Direct, one action, no hedging |
 | `urgent` | Stop and act now | Short, plain, unambiguous, never alarming for effect |
