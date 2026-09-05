@@ -91,11 +91,11 @@ registry, not here.
 | `toast` | feedback | A message that removes itself is the wrong shape for anything about someone's health: the reader who most needs it is the one most likely to miss it. Kept on the roster because products use toasts for save confirmations, which is legitimate. | alert-banner, callout |
 | `tooltip` | overlay | There is no hover on a phone, and this is a phone-first system. Anything important enough for a tooltip is important enough to be on the screen. | term, field |
 | `popover` | overlay | Base UI's popover is complete and unopinionated, and opsinjs has nothing to add to it beyond tokens. | sheet, dialog |
-| `tabs` | navigation | Delegated to Base UI unchanged. Documented in the handbook rather than re-wrapped. | segmented-control |
+| `tabs` | navigation | Delegated to Base UI unchanged: Base UI's own Tabs is the component, and opsinjs documents it in the handbook rather than re-wrapping it. Nothing on the shipped roster switches between views, so there is no opsinjs component to reach for instead of it. | - |
 | `accordion` | navigation | Delegated to Base UI unchanged. Note that hiding a safety message inside a collapsed section is a defect regardless of the component used. | card |
-| `select` | actions-and-forms | Delegated to Base UI. opsinjs adds guidance — for short lists a radio group is easier for the reader — rather than a component. | field, radio-group |
+| `select` | actions-and-forms | Delegated to Base UI. opsinjs adds guidance — for short lists a radio group is easier for the reader, and Base UI has one — rather than a component. | field |
 | `combobox` | actions-and-forms | Delegated to Base UI. The hard part in a health product is the vocabulary being searched, not the widget. | field |
-| `switch` | actions-and-forms | Delegated to Base UI. A switch must never be used for consent — consent is a decision with a record, not a setting. | consent-sheet, checkbox |
+| `switch` | actions-and-forms | Delegated to Base UI. A switch must never be used for consent — consent is a decision with a record, not a setting — so ConsentSheet is the opsinjs answer for that case, and the setting itself stays Base UI's. | consent-sheet |
 | `checkbox` | actions-and-forms | Delegated to Base UI. | field |
 | `radio-group` | actions-and-forms | Delegated to Base UI. Preferred over Select for anything under about seven options. | field |
 | `slider` | actions-and-forms | Delegated to Base UI, and discouraged for entering a measurement: a slider cannot express precision, and a reading typed in is a reading the person meant. | reading-input, number-field |
