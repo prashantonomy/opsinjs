@@ -186,10 +186,10 @@ export function RampBrowser() {
     return () => observer.disconnect()
   }, [])
 
-  const normalisedQuery = query.trim().toLowerCase()
+  const needle = query.trim().toLowerCase()
 
   const groups = useMemo(() => {
-    if (!normalisedQuery) return GROUPS
+    if (!needle) return GROUPS
     return GROUPS.map((group) => ({
       ...group,
       rows: group.rows.filter(
