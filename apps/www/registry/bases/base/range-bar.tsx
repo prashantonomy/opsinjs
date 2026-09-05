@@ -841,10 +841,16 @@ export function RangeBar({
               </div>
             ))}
 
-            {/* The tick is the only part that may carry status colour, and it is
-                thicker and rounder than a boundary mark so the two are told
+            {/* The tick is the only part of the RAIL that may carry status
+                colour — the band, the track and the boundary marks stay
+                neutral, so the one coloured thing on the bar is the reader's
+                own reading. The status word above it carries the same level in
+                `-ink`, which is the point: the colour is redundant to a word
+                that is always there. Neither is the sole carrier, and the tick
+                is thicker and rounder than a boundary mark so the two are told
                 apart by shape before colour. `data-status` is the DOM contract
-                the print stylesheet and every product-side test key on. */}
+                the print stylesheet and every product-side test key on, and it
+                is stamped here and on the status word alike. */}
             <div
               data-slot="range-bar-tick"
               data-status={level}
