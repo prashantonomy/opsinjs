@@ -124,11 +124,33 @@ export function siteSummary(): string {
 
   /* Once something is built the old paragraph is simply false, on the surface a
      model trusts most. The replacement has to do the same job in the other
-     direction: say how few, name them, and say that the rest are still
-     specifications — because a reader who saw "nothing is implemented" last week
-     must not now conclude that the roster shipped. The ids are listed here, and
+     direction: say how many, name them, and say what the REST of the roster
+     actually is — because a reader who saw "nothing is implemented" last week
+     must not conclude that the whole roster shipped, and a reader arriving
+     today must not conclude that none of it did. The ids are listed here, and
      only here, because this is the one payload that has no per-item rows to
-     carry the answer instead. */
+     carry the answer instead.
+
+     Every number below is read off the catalogue. The first version of this
+     paragraph typed "24 specified components" as a literal; it was true on the
+     day it was written and became a self-contradiction the moment the
+     twenty-fourth component landed, shouting that most of the system was
+     unbuilt one line above a computed sentence saying all of it was. A
+     denominator somebody has to remember to change is a denominator that
+     rots. */
+  const rows = getCatalogue().rows
+  /* `shipped` is the catalogue's own word for "more than a reserved name":
+     every row that is not `considered` has a written specification page. */
+  const specified = rows.filter((row) => row.shipped).length
+  const reserved = rows.length - specified
+  const builtSet = new Set(built)
+  const builtRows = rows.filter((row) => builtSet.has(row.name))
+  /* Derived, not asserted. "They are all alpha" is true today and is exactly
+     the kind of sentence that stops being true on the first promotion. */
+  const allAlpha =
+    builtRows.length === built.length &&
+    builtRows.every((row) => row.status === "alpha")
+
   const roster =
     built.length === 1
       ? `only one component is implemented: ${built[0]}.`
