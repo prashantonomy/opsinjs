@@ -1049,7 +1049,11 @@ async function main(): Promise<void> {
         return true
       }
     })
-    if (drifted.length > 0) {
+    /* A stale stub is drift too. `generate` deletes these files, so a --check
+       that looked only at `outputs` reported "up to date" in the one state
+       where the next generate changes the tree - and the dead page went on
+       answering agents about a component the catalogue no longer names. */
+    if (drifted.length > 0 || staleStubs.length > 0) {
       console.error(
         [
           "build-registry --check: generated output is out of date.",
