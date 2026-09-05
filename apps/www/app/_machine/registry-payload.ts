@@ -132,12 +132,14 @@ function docsSentence(row: CatalogueRow, files: RegistryItemFile[]): string {
 
      A row keeps `status: "planned"` until its page has been rewritten from a
      specification into documentation, and source can land under
-     `registry/bases/<base>/` before that rewrite happens — which is the state
-     this repository is in. In that window the old sentence is self-contradicting
-     twice over: it opens "is NOT IMPLEMENTED" and it goes on to say "there are
-     no files to install yet", beside a payload that ships three of them. So the
-     branch is chosen on the payload, not on the status, and each branch says one
-     coherent thing. */
+     `registry/bases/<base>/` before that rewrite happens. No row is in that
+     window today — the catalogue holds `alpha` and `considered` rows and
+     nothing else — but the window is a real state of this repository and it is
+     where the failure lives: in it the single old sentence contradicted itself
+     twice, opening "is NOT IMPLEMENTED" and going on to say "there are no files
+     to install yet", beside a payload that shipped some. So the branch is
+     chosen on the payload, not on the status, and each branch says one coherent
+     thing. */
   if (row.status === "planned" && files.length === 0) {
     return [
       `${row.title} is NOT IMPLEMENTED. This registry entry is a specification, not a component:`,
@@ -155,6 +157,20 @@ function docsSentence(row: CatalogueRow, files: RegistryItemFile[]): string {
       `Treat the page as the contract and this code as an implementation under review:`,
       `read it before you depend on the API, because it names the safety questions the`,
       `component has to answer — at ${url}`,
+    ].join(" ")
+  }
+
+  /* A row that is neither `considered` nor `planned` and has source behind it —
+     today that is every `alpha` id. The CLI has just written this component into
+     somebody's project, so `Title — url` is the one moment where saying nothing
+     costs something: the reader has the code and no statement about how much
+     they may rely on it. The caveat is read off `row.status` rather than typed,
+     so the day a row is promoted the sentence stops making it. */
+  if (files.length > 0 && row.status !== "stable") {
+    return [
+      `${row.title} installs real source, and its documentation page is \`${row.status}\` rather than \`stable\`,`,
+      `so the API may still change. Read the page before you depend on it — it names the clinical`,
+      `contract and the accessibility bar this component has to clear — at ${url}`,
     ].join(" ")
   }
 
