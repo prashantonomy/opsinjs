@@ -36,10 +36,14 @@ route handlers) stay at `app/` and are unaffected by the grouping.
 
 ## Where a built component lives
 
-The component layer is being built against the twenty-four specifications that already
-exist under `content/docs/components/`. Those specifications are binding: you implement
-against them, you do not redesign them, and where one genuinely contradicts itself you
-resolve it deliberately with an ADR and fix the losing side in the same commit.
+The component layer is being built against the specifications that already exist under
+`content/docs/components/`. Those specifications are binding: you implement against
+them, you do not redesign them, and where one genuinely contradicts itself you resolve
+it deliberately with an ADR and fix the losing side in the same commit. The `considered`
+pages are not specifications and are not implementation targets — they are generated
+stubs that record a reserved name, say why it is not on the roster and name what to use
+instead, and `scripts/build-registry.mts` rewrites them from `registry/catalogue.ts` on
+every run.
 
 A component page moves to `alpha` only once its component renders at
 `/view/base/base-lyra/component/<id>` with `data-opsin-view-state="ready"` and the gates
