@@ -678,8 +678,35 @@ export function assemble(
   }
 }
 
-export function truncationNotice(result: Assembled, shardHint: string): string {
+/**
+ * The footer a truncated file ends with — and, when the caller supplies the
+ * dropped pages, a manifest of them.
+ *
+ * "44 of 68 pages were omitted" tells a reader that something is missing and
+ * not one thing about WHAT, which is the harder half of the problem: an agent
+ * that cannot name the gap cannot go and fetch it. Each line is a `.md` twin
+ * URL, so the manifest is not an apology, it is the fetch list. Callers must
+ * pay for it in the byte reservation — see `buildCorpusFile`.
+ */
+export function truncationNotice(
+  result: Assembled,
+  shardHint: string,
+  omittedPages: readonly CorpusPage[] = []
+): string {
   if (result.omitted === 0) return ""
+  const manifest =
+    omittedPages.length === 0
+      ? []
+      : [
+          "",
+          "Nothing here has been hidden. Every page this file dropped is listed",
+          "below and can be fetched on its own:",
+          "",
+          ...omittedPages.map(
+            (page) =>
+              `- ${metaOf(page).title} — ${pageMarkdownUrl(page)} (status: ${metaOf(page).status})`
+          ),
+        ]
   return [
     "---",
     "",
