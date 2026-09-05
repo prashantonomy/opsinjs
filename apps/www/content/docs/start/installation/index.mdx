@@ -20,12 +20,16 @@ There are four install paths and they differ less than you would expect. Every o
 of them does the same four things; the pages differ only in *where* those four
 things go in your particular framework.
 
-<Callout title="Nothing installs yet">
-  There is no published package and no live registry, so every command in this
-  section describes an intended contract rather than a working path. It is
-  documented now so the shape can be reviewed before it is built, and so a reader
-  or an agent gets a definite answer instead of guessing.
-  [Roadmap](../../project/roadmap.mdx) has the dated state.
+<Callout title="Alpha, and no published host yet">
+  Twenty-four components are implemented, and their registry items carry the
+  whole of the source `shadcn add` copies; the other thirty-six entries in the
+  catalogue are specifications with no code behind them.
+  [Registry](../../registry/index.mdx) says which is which. Two things are still
+  absent, and they fail differently. There is no npm package and there will not
+  be one — distribution is registry copy-in — and `opsinjs.dev`, the host every
+  command in this section names, is not serving yet, so `@opsinjs` resolves only
+  against a registry you point it at yourself. Everything implemented is
+  `alpha`: the API will change without a deprecation.
 </Callout>
 
 ## Pick your path
@@ -104,8 +108,11 @@ different failure:
 
 ## Troubleshooting
 
-**The command fails to resolve `@opsinjs`.** Expected today; nothing is published.
-See [Troubleshooting](../troubleshooting.mdx#nothing-is-published-yet).
+**The command fails to resolve `@opsinjs`.** Either `components.json` has no
+`registries` entry for the namespace, or it has one pointing at `opsinjs.dev`,
+which is not serving yet. The two produce different errors — an unknown registry
+against a network failure — and
+[Troubleshooting](../troubleshooting.mdx#nothing-is-published-yet) separates them.
 
 **Everything works except the styling.** Almost certainly the `@source` line. This
 is a Tailwind configuration fact and no opsinjs setting changes it.
