@@ -816,6 +816,16 @@ export const BANNED_WORDS: GeneratedBannedWord[] = [
     "reason": "A reading is not a test the reader sat."
   },
   {
+    "word": "good",
+    "instead": "say the direction - higher, or lower",
+    "reason": "Moral framing of something largely outside the reader's control."
+  },
+  {
+    "word": "healthy",
+    "instead": "in the usual range",
+    "reason": "A verdict on a life, from one number. A reading can sit inside a range while the person is unwell, and outside it while they are fine."
+  },
+  {
     "word": "just",
     "instead": "delete it",
     "reason": "'Just a bit high' minimises a reading the reader may need to act on."
@@ -829,6 +839,16 @@ export const BANNED_WORDS: GeneratedBannedWord[] = [
     "word": "normal",
     "instead": "in the usual range, or the expected range for you",
     "reason": "Outside a reference range is not abnormal in the everyday sense of the word, and inside one is not a clean bill of health. 'Normal' also carries a judgement about the person rather than about the reading. This word is banned outright across the system, including in code identifiers."
+  },
+  {
+    "word": "optimal",
+    "instead": "in the usual range",
+    "reason": "Sets up every future reading as a decline, in the register of a fitness tracker rather than a clinic."
+  },
+  {
+    "word": "perfect",
+    "instead": "in the usual range",
+    "reason": "Sets up every future reading as a decline."
   },
   {
     "word": "poor",
