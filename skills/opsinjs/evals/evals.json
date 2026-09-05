@@ -73,14 +73,20 @@
       "why": "The system's headline invariant. Category colour says what kind of measurement this is; status colour says how urgent it is; one element takes its colour from exactly one axis. The needles are the numbered rule block itself rather than the three words the page happens to use around it, so a page that keeps the vocabulary and drops the rule still fails.",
       "expect": {
         "page": "health/two-colour-axes",
-        "mustContain": ["category", "status", "never"],
+        "mustContain": [
+          "category",
+          "status",
+          "the never-mix rule, stated so it can be tested",
+          "status is never expressed by colour alone",
+          "<StatusAxisDemo"
+        ],
         "alsoResolves": ["health/category-identity", "health/clinical-status-semantics"]
       }
     },
     {
       "id": "status-needs-a-word",
       "question": "Can I show urgency with colour alone?",
-      "why": "No. Colour-blind readers, sunlight, grayscale printing and screen readers all lose it. A status always carries a word.",
+      "why": "No. Colour-blind readers, sunlight, grayscale printing and screen readers all lose it. A status always carries a word, and there are four of those words: a page that still offers `expected` or `act` is describing a vocabulary the system dropped.",
       "expect": {
         "page": "health/clinical-status-semantics",
         "mustContain": ["colour"],
