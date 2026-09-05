@@ -143,15 +143,19 @@ Prefer the documentation over recall, in this order:
 2. `https://opsinjs.dev/docs/<path>.md` - any page as plain markdown.
 3. `https://opsinjs.dev/llms-health.txt`, `llms-components.txt`,
    `llms-foundations.txt` - the three shards, when you need a whole pillar.
-4. `https://opsinjs.dev/r/registry.json` - the component catalogue, including
-   every considered component and its status. This is also what the shadcn MCP
-   server reads.
-5. `https://opsinjs.dev/r/docs.json` - the whole corpus in one bundle, for
+4. `https://opsinjs.dev/r/index.json` - the roster: every component id with its
+   status and its `implemented` flag. This is the authority for what is built.
+5. `https://opsinjs.dev/r/registry.json` - the component catalogue in shadcn
+   item shape, including every considered component. This is what the shadcn MCP
+   server reads. The per-item `https://opsinjs.dev/r/<id>.json` is what carries
+   the source.
+6. `https://opsinjs.dev/r/docs.json` - the whole corpus in one bundle, for
    working without a network.
 
-Every measured number on the site - contrast ratios, token values, prop tables,
-the catalogue - is generated from source and regenerated in CI. Quote those
-freely. Do not quote a number that is not on one of those pages.
+All six are paths on whichever host is serving the site, per the note at the top
+of this file. Every measured number on them - contrast ratios, token values, prop
+tables, the catalogue - is generated from source and regenerated in CI. Quote
+those freely. Do not quote a number that is not on one of those pages.
 
 ## Reviewing someone else's health UI
 
