@@ -334,9 +334,12 @@ checked.
   system is built on. See [The two colour axes](../health/two-colour-axes.mdx). What is left is
   a glyph, the emphasis weight, an emphasis border on the control and the words — which is what
   the requirement asked for anyway, reached from the other direction. Count three rather than
-  four on paper: the emphasis border is a `box-shadow`, which forced-colors mode drops and the
-  print stylesheet sets to `none`, so it is the one carrier that does not survive either. The
-  glyph and the words do, and they are the two that carry the meaning. It is not an `outline`
+  four on paper: the emphasis border is a `box-shadow`, which forced-colors mode drops, and
+  which the docs site's own print rules in `app/globals.css` set to `none` — and a consumer
+  gets no better, because that stylesheet does not travel with `shadcn add` and `field.tsx`
+  sets no `print:` variant, so on paper the shadow is at the mercy of the consuming app. Either
+  way it is the one carrier that cannot be counted on. The glyph and the words can, and they
+  are the two that carry the meaning. It is not an `outline`
   instead because the control's outline is already spent on `:focus-visible`, and a focused
   invalid field would then show one state or the other. The glyph is deliberately
   not the triangle: that shape belongs to the `attention` level, and four distinct silhouettes
