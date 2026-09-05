@@ -2,8 +2,15 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import { NotBuiltYet } from "@/components/docs/stub"
-import { getRegistryEntry } from "@/lib/registry"
+import {
+  explainUnresolved,
+  getRegistryEntry,
+  listBases,
+  listStyles,
+} from "@/lib/registry"
 import type { ViewKind } from "@/lib/routes"
+import { getPage } from "@/lib/source"
+import type { Status } from "@/lib/status"
 
 /**
  * The isolated render surface.
