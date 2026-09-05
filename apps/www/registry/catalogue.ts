@@ -148,8 +148,14 @@ export interface CatalogueEntry {
   healthCategory?: HealthCategory
   /**
    * The recipes and screens that use this component: the reverse of a recipe's
-   * component list. Populated as those pages land; `assert-ia.mts` enforces
-   * both directions.
+   * component list. Bare page ids — `health-metric-card`, not
+   * `recipes/health-metric-card`.
+   *
+   * This is what `/r/index.json` publishes as the reverse index. The component
+   * page's own frontmatter carries the same list and is what renders in the
+   * page's anatomy block; nothing in `assert-ia.mts` compares the two, so a row
+   * left empty after its page gained a recipe is a silent gap. Populate it in
+   * the same edit that adds the component to the recipe.
    */
   usedIn?: string[]
   /**
@@ -179,11 +185,31 @@ export interface CatalogueEntry {
    */
   registryDependencies?: string[]
   /**
-   * Considered rows only: why it is not on the shipped roster, and what to
-   * reach for instead. This is what an agent gets back instead of a 404, and it
-   * is the reason the considered roster is in the catalogue at all.
+   * Considered rows only: why it is not on the shipped roster. This is what an
+   * agent gets back instead of a 404, and it is the reason the considered
+   * roster is in the catalogue at all. Plain prose, no markdown: it is rendered
+   * as MDX on the generated stub page AND as a text node in the status matrix,
+   * and a link written here shows up as literal brackets in the second.
    */
   why?: string
+  /**
+   * Considered rows only: what to reach for instead, and EVERY ID HERE MUST BE
+   * ONE OF THE 24 BUILT ONES.
+   *
+   * `emitConsideredStub` in `scripts/build-registry.mts` turns each id into a
+   * link on the stub page, so naming another `considered` row resolves — and
+   * hands the reader a second page that also says "not built, use something
+   * else". That is the dead end this roster exists to prevent: the point of the
+   * row is that the answer ends here. `tabs` and `segmented-control` used to
+   * name each other, which sent an agent round in a circle, and four other rows
+   * pointed one hop into the unbuilt set.
+   *
+   * When no built component is the honest answer, OMIT THE FIELD rather than
+   * naming an unbuilt id. The generator then says there is no direct
+   * replacement and points at the catalogue, and `why` above carries the real
+   * answer — for the rows delegated to Base UI, that answer is Base UI's own
+   * component, which is not ours to list here.
+   */
   useInstead?: string[]
 }
 
