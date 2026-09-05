@@ -19,15 +19,28 @@ aliases: [components.json, registry configuration, shadcn config, opsinjs namesp
 rather than introducing one of its own. If you already have shadcn/ui in your
 project, you already have this file and adding opsinjs is one entry.
 
-<Callout title="Nothing installs yet">
-  The registry URL below is the intended canonical location and does not serve
-  anything today. [Troubleshooting](../troubleshooting.mdx#nothing-is-published-yet).
+<Callout title="The URL below is not serving yet">
+  `opsinjs.dev` is the intended canonical host and does not resolve today, so an
+  add against the entry below fails before the CLI reaches a registry. The
+  twenty-four implemented components resolve from any host that is serving the
+  registry items — `/r/status-pill.json` and the rest — so point the entry at one
+  and everything on this page applies unchanged.
+  [Troubleshooting](../troubleshooting.mdx#nothing-is-published-yet).
 </Callout>
 
 ## Add the `@opsinjs` entry
 
-This is the only change opsinjs strictly requires, and the only one you have to
-make by hand:
+Run `npx shadcn@latest init` first if this project has never had it. That is
+what writes `components.json`, and it is also what writes `lib/utils.ts`, which
+exports the `cn` helper every opsinjs component imports. The registry does not
+ship that file on purpose — a third copy would collide with the one you already
+have and may have extended, which is
+[ADR 0010](../../project/decisions/0010-shared-code-ships-with-every-item.mdx) —
+so a project that skips `init` gets components that land in the right place and
+then every one of them fails to typecheck on the same missing module.
+
+The registries entry is then the only change opsinjs strictly requires, and the
+only one you have to make by hand:
 
 ```json title="components.json"
 {
