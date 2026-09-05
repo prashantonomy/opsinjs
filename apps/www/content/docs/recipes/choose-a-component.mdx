@@ -52,28 +52,30 @@ reference range to understand it**. If you cannot answer the first question, you
 do not yet have a component decision to make — you have a clinical rules
 question, and the answer belongs in your product, not in the UI.
 
-<NotBuiltYet />
-
-The components below are the full display roster. All are `status: planned`.
+The components below are the full display roster, and every one of them is at
+`alpha`: the code exists and installs, and the API may change in any release
+without a deprecation cycle. None of it has been through an accessibility or a
+clinical review. Read the fourth column before you install anything — the wrong
+choice compiles exactly as well as the right one.
 
 | What you have | Component | Status | Why not the obvious alternative |
 | --- | --- | --- | --- |
-| One measurement the reader is meant to interpret | [ResultCard](../components/result-card.mdx) | <StatusBadge status="planned" /> | Not MetricTile: a tile is a glance, a result is a reading with meaning attached. |
-| One measurement whose position in a range is the point | [RangeBar](../components/range-bar.mdx) | <StatusBadge status="planned" /> | Not ScoreDial: a dial implies a composite index, a range bar shows one measured value. |
-| A composite index derived from several inputs | [ScoreDial](../components/score-dial.mdx) | <StatusBadge status="planned" /> | Not Value: a number whose derivation is hidden must show that it is derived. |
-| The same measurement over time | [TrendSparkline](../components/trend-sparkline.mdx) | <StatusBadge status="planned" /> | Not a chart library: the y-axis rules and the data-table twin are the component's job. |
-| One number at a glance, on a dashboard | [MetricTile](../components/metric-tile.mdx) | <StatusBadge status="planned" /> | Not ResultCard: a tile that carries interpretation is a result card wearing the wrong size. |
-| A clinical status on its own | [StatusPill](../components/status-pill.mdx) | <StatusBadge status="planned" /> | Not Callout: a callout is outside the status axis by design. |
-| Something the reader has to read now | [AlertBanner](../components/alert-banner.mdx) | <StatusBadge status="planned" /> | Not Dialog: interruption is the last rung, not the first. |
-| Something the reader has to *do*, and by when | [CareCard](../components/care-card.mdx) | <StatusBadge status="planned" /> | Not AlertBanner: a banner states, a care card instructs. |
-| A word the reader may not know | [Term](../components/term.mdx) | <StatusBadge status="planned" /> | Not a tooltip: the expansion must survive keyboard, touch and print. |
-| A number that needs formatting | [Value](../components/value.mdx) | <StatusBadge status="planned" /> | Not string interpolation: precision, unit adjacency and locale are correctness. |
-| A timestamp | [RelativeTime](../components/relative-time.mdx) | <StatusBadge status="planned" /> | Not a formatted date: staleness thresholds are per metric and belong in the component. |
-| Ordinary information, no clinical grading | [Callout](../components/callout.mdx) | <StatusBadge status="planned" /> | Not StatusPill: the status axis is reserved for clinical meaning. |
-| The standard not-medical-advice note | [DisclaimerNote](../components/disclaimer-note.mdx) | <StatusBadge status="planned" /> | Not free prose: placement and wording are governed, so the note is a component. |
-| Nothing to show yet | [EmptyState](../components/empty-state.mdx) | <StatusBadge status="planned" /> | Not a zero: a zero is a measurement, an absence is not. |
-| Data on its way | [Skeleton](../components/skeleton.mdx) | <StatusBadge status="planned" /> | Not a spinner over stale content: never let an old value read as a new one. |
-| A bounded group of the above | [Card](../components/card.mdx) · [Surface](../components/surface.mdx) | <StatusBadge status="planned" /> | Card is the content group; Surface is the material rung underneath it. |
+| One measurement the reader is meant to interpret | [ResultCard](../components/result-card.mdx) | <StatusBadge status="alpha" /> | Not MetricTile: a tile is a glance, a result is a reading with meaning attached. |
+| One measurement whose position in a range is the point | [RangeBar](../components/range-bar.mdx) | <StatusBadge status="alpha" /> | Not ScoreDial: a dial implies a composite index, a range bar shows one measured value. |
+| A composite index derived from several inputs | [ScoreDial](../components/score-dial.mdx) | <StatusBadge status="alpha" /> | Not Value: a number whose derivation is hidden must show that it is derived. |
+| The same measurement over time | [TrendSparkline](../components/trend-sparkline.mdx) | <StatusBadge status="alpha" /> | Not a chart library: the y-axis rules and the honest accessible description are the component's job. |
+| One number at a glance, on a dashboard | [MetricTile](../components/metric-tile.mdx) | <StatusBadge status="alpha" /> | Not ResultCard: a tile that carries interpretation is a result card wearing the wrong size. |
+| A clinical status on its own | [StatusPill](../components/status-pill.mdx) | <StatusBadge status="alpha" /> | Not Callout: a callout is outside the status axis by design. |
+| Something the reader has to read now | [AlertBanner](../components/alert-banner.mdx) | <StatusBadge status="alpha" /> | Not Dialog: interruption is the last rung, not the first. |
+| Something the reader has to *do*, and by when | [CareCard](../components/care-card.mdx) | <StatusBadge status="alpha" /> | Not AlertBanner: a banner states, a care card instructs. |
+| A word the reader may not know | [Term](../components/term.mdx) | <StatusBadge status="alpha" /> | Not a tooltip: the expansion must survive keyboard, touch and print. |
+| A number that needs formatting | [Value](../components/value.mdx) | <StatusBadge status="alpha" /> | Not string interpolation: precision, unit adjacency and locale are correctness. |
+| A timestamp | [RelativeTime](../components/relative-time.mdx) | <StatusBadge status="alpha" /> | Not a formatted date: staleness thresholds are per metric and belong in the component. |
+| Ordinary information, no clinical grading | [Callout](../components/callout.mdx) | <StatusBadge status="alpha" /> | Not StatusPill: the status axis is reserved for clinical meaning. |
+| The standard not-medical-advice note | [DisclaimerNote](../components/disclaimer-note.mdx) | <StatusBadge status="alpha" /> | Not free prose: placement and wording are governed, so the note is a component. |
+| Nothing to show yet | [EmptyState](../components/empty-state.mdx) | <StatusBadge status="alpha" /> | Not a zero: a zero is a measurement, an absence is not. |
+| Data on its way | [Skeleton](../components/skeleton.mdx) | <StatusBadge status="alpha" /> | Not a spinner over stale content: never let an old value read as a new one. |
+| A bounded group of the above | [Card](../components/card.mdx) · [Surface](../components/surface.mdx) | <StatusBadge status="alpha" /> | Card is the content group; Surface is the material rung underneath it. |
 
 ## Build it
 
