@@ -61,10 +61,15 @@ not a design review finding. Both are specified in
 on [ClinicalStatus](../api/ClinicalStatus.mdx) and
 [HealthCategory](../api/HealthCategory.mdx).
 
-**What is deliberately excluded.** Symbols marked `@internal` are suppressed.
-Types re-exported unchanged from Base UI or React are listed with a link to
-upstream rather than re-documented — opsinjs documents what it adds. Nothing in
-the documentation site itself is a public type.
+**What is deliberately excluded.** Everything under `lib/generated/`, because a
+generated module is documented by the page that generates it rather than twice
+over. Anything whose name begins with an underscore. And everything outside
+`lib/`: component props are extracted separately from
+`registry/bases/base/*.tsx` and render as the props table on each component
+page. A symbol appears under the file whose `export` line declares it, so the
+shared substrate a copied component carries with it is listed under
+`lib/opsinjs.ts` and the clinical vocabulary it re-exports is listed under
+`lib/status.ts`, once each.
 
 {/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
 
@@ -91,6 +96,7 @@ the documentation site itself is a public type.
 | [`AxisConflict`](../api/AxisConflict.mdx) | interface | `lib/status.ts` | - |
 | `baseOptions` | function | `lib/layout.shared.tsx` | THE FROZEN TOP NAV. |
 | `baseStyleQuery` | function | `lib/routes.ts` | The `?base=&style=` query a docs page uses for the same switch. |
+| `builtComponentCount` | function | `lib/registry.ts` | How many distinct components have a real renderable behind them. |
 | `byNamespace` | function | `lib/tokens.ts` | - |
 | `byTier` | function | `lib/tokens.ts` | - |
 | [`CatalogueIndexRow`](../api/CatalogueIndexRow.mdx) | interface | `lib/catalogue.ts` | - |
