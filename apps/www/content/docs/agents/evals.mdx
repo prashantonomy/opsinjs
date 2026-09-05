@@ -51,12 +51,29 @@ assertions are the interesting half:
 }
 ```
 
-Assertions are regular expressions over the output rather than judgements by
-another model. That makes them narrow and makes them honest: a task either
-caught the failure or it did not, and nobody can argue with a regex about
-whether a hex colour is a hex colour.
+`mustContain` and `mustNotContain` are lowercase substring checks over the whole
+page, not regular expressions and not judgements by another model. The
+substrings are chosen because the page cannot be correct without them — a rule
+it exists to state, a unit it exists to disambiguate — rather than because an
+author happened to phrase it that way. `frontmatter` and `frontmatterAny` pin a
+declared field, `catalogueId` and `catalogueStatus` check the catalogue row
+instead of the prose, and `alsoResolves` asserts that the pages a good answer
+would link to are actually there.
 
-### The five families
+A needle also has to survive typography and serialisation, which is why so many
+of them are JSX attributes rather than sentences. The runner matches plain
+substrings against the page text, so a phrase lifted from running prose passes
+or fails on where the author happened to break the line — the sentence saying a
+component is implemented wraps on `TrendSparkline` and does not on `ResultCard`.
+An attribute (`importPath="@/components/ui/result-card"`, `status="alpha"`), a
+token name, a table cell or a fenced command is on one line by construction.
+Prefer an attribute whose value is already a string, because those survive both
+forms of the page: the `.md` twin serialises every JSX expression attribute,
+so `unbuilt={false}` on disk arrives as `unbuilt="false"` over HTTP. A needle
+written in the brace form then stops matching under `--base` — as a
+`mustContain` it fails against a page that is correct, and as a `mustNotContain`
+it passes while measuring nothing. Where the suite has to pin one of those, it
+asserts both spellings.
 
 **Refusal.** Does the assistant refuse to emit an import for a component that is
 specified and not implemented? This is the highest-weighted family, because it
