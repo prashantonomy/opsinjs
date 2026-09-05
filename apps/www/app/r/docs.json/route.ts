@@ -88,10 +88,13 @@ export async function GET(): Promise<Response> {
     const meta = metaOf(page)
     const markdown = (await page.data.getText("processed")).trim()
 
-    if (size + markdown.length > BUDGETS.bundle && rendered.length > 0) {
-      omitted += 1
-      continue
-    }
+    /* `break`, not `continue`. Skipping one oversized page and then admitting
+       the smaller pages behind it keeps `omitted` correct and makes the omitted
+       SET arbitrary — scattered through the corpus, in no order a reader can
+       reconstruct. A prefix of the ordering is what `assemble()` keeps for the
+       concatenated files, and this is the same corpus truncated for the same
+       reason; the tail is then exactly what `omittedPages` lists. */
+    if (size + markdown.length > BUDGETS.bundle && rendered.length > 0) break
     size += markdown.length
 
     rendered.push({
@@ -102,6 +105,7 @@ export async function GET(): Promise<Response> {
       title: meta.title,
       description: meta.description,
       status: meta.status,
+      implemented: pageImplemented(page),
       kind: meta.kind,
       evidence: meta.evidence,
       aliases: meta.aliases,
@@ -112,6 +116,9 @@ export async function GET(): Promise<Response> {
       markdown,
     })
   }
+
+  /* The loop keeps a prefix, so the tail is precisely what the budget dropped. */
+  const dropped = pages.slice(rendered.length)
 
   const counts: Record<string, number> = {}
   for (const page of rendered)
