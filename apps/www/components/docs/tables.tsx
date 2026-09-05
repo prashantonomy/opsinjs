@@ -8,9 +8,12 @@ import { TypeTable } from "fumadocs-ui/components/type-table"
 import { PROPS_SOURCES, PROPS_TABLES } from "@/lib/generated/props"
 import {
   byNamespace,
+  byTier,
+  getTokens,
   tokensUsedBy,
   type GeneratedToken,
   type TokenNamespace,
+  type TokenTier,
 } from "@/lib/tokens"
 import { cn } from "@/lib/utils"
 import { NoDataYet } from "./stub"
