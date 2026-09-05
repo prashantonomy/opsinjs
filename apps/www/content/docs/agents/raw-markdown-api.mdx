@@ -32,20 +32,42 @@ The twin is not the raw `.mdx` file. Raw MDX carries imports, and its JSX is
 written for this application rather than for a reader; a model handed the source
 either ignores half of it or invents what it contained.
 
-The twin is *processed*: components have been resolved to their textual content,
-so a token table arrives as a markdown table of real generated values, and a
-component preview arrives as an explicit sentence saying that nothing is built.
-What a model reads is what a reader sees, minus the chrome.
+The twin is *processed*: remark has run over the MDX and stringified it back to
+markdown, so imports are gone, headings carry explicit ids, and tables and code
+blocks arrive as markdown. What processing does **not** do is render the
+documentation components. `<StubNotice name="range-bar" status="alpha" …/>`
+comes out verbatim, attributes and all, and the sentence it renders in the
+browser is not in the string. That is measured rather than assumed — it is
+written down in `app/_machine/corpus.ts` — and this surface is built around it
+instead of pretending otherwise.
 
 Three consequences worth knowing:
 
-- **Generated content is included.** Contrast figures, prop tables and catalogue
-  rows are in the twin, with the same values CI measured.
-- **Interactive content degrades to a description.** `<ContrastOracle>` is a
-  tool; in markdown it becomes a sentence naming the tool and its URL.
-- **Frontmatter is preserved.** `status`, `kind`, `evidence` and `aliases` all
-  come through, which is how a machine learns that a page is a specification
-  rather than a manual.
+- **The tags are the machine-readable part.** A component's attributes are its
+  content: `<ComponentPreview name="range-bar" />` names the component,
+  `<ContrastReport scope="materials" />` names the scope. The values those
+  components draw are generated from `tokens/*.json` and `registry/catalogue.ts`
+  and published separately, at `/r/index.json` and under the Reference section.
+  Nothing on the page is unreachable; it is just not in the prose.
+- **A twin that contains tags says so.** Any twin with a `<PascalCase … />` in
+  it carries a block quote, between the frontmatter and the body, explaining
+  what the elements are and where their data lives. A page that is not
+  implemented carries a second quote above that one saying so. If you are
+  writing a parser, those quotes are the cue to go and fetch the data — not
+  errors to report.
+- **Frontmatter is rebuilt, not copied through.** The twin carries the authored
+  fields plus `url`, `source` and `section`, so a page read in isolation still
+  knows where it came from. `status` is the field to trust: `alpha` for an
+  implemented component, `considered` for a reserved name. One field is not
+  authored at all: a twin whose page documents something buildable — a component
+  page, or a screen specimen — also carries `implemented`, read from the
+  generated index rather than from the MDX, so no edit to the page can contradict
+  it. A guide, a doctrine page or a generated token reference carries no
+  `implemented` key, because it documents nothing that could be built and a
+  `false` there would assert something untrue about a page that is real today.
+  For a per-id answer outside the docs tree, read `implemented` on
+  `/r/index.json`, which is where that field is generated and where it is
+  guaranteed current.
 
 ## The version stamp
 
