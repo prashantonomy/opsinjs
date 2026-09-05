@@ -522,16 +522,16 @@ export function Todo({ children, owner, issue, className }: TodoProps) {
       )}
     >
       <Ban aria-hidden="true" className="mt-0.5 size-4 shrink-0 opacity-60" />
-      <span>
+      <span className="[&>p]:m-0 [&>p]:inline">
         <strong className="font-medium text-foreground">
           Not written yet.
         </strong>{" "}
         {children}
         {owner ? <span className="block text-xs">Owner: {owner}</span> : null}
-        {issue ? (
+        {issue && issueUrl ? (
           <a
             className="block text-xs"
-            href={issueHref(issue)}
+            href={issueUrl}
             rel="noreferrer noopener"
             target="_blank"
           >
