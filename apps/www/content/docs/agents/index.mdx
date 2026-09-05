@@ -96,17 +96,21 @@ an agent's first job is to tell the two apart before it writes anything. The
 surface is arranged so that it can, without guessing: every id resolves, and the
 answer carries the distinction in a field.
 
-An agent that reads a component page and emits an import statement has misread
-it. The correct behaviour is to say that the component is specified and not
-implemented, quote the proposed API as a proposal, and stop. This is stated in
-full, as testable rules, in [Rules for agents](./rules-for-agents.mdx), and it
-is what the [evals](./evals.mdx) measure.
+For an implemented id the correct behaviour is to install it from the registry —
+the source is copied into the project, because there is no published opsinjs
+package to import — and to say that `alpha` means the API may change in any
+release without a deprecation cycle. For a `considered` id the correct behaviour
+is to say that the name is reserved, that there is no code and no specification,
+and stop. Inventing the missing one, or refusing the one that ships, are the two
+failures this whole surface exists to prevent. Both are stated in full, as
+testable rules, in [Rules for agents](./rules-for-agents.mdx), and they are what
+the [evals](./evals.mdx) measure.
 
 <Callout>
-The marker is `data-opsinjs-not-implemented` in the HTML, a
-`"status": "planned"` field in every JSON surface, and an explicit sentence in
-the markdown twin. Three redundant channels, because an agent that misses one
-will usually catch another.
+The discriminator is `implemented` on `/r/index.json`, `meta.opsinjs.implemented`
+on a registry item, and the `x-opsinjs-implemented-count` response header on
+every machine surface. Three redundant channels, because an agent that misses
+one will usually catch another.
 </Callout>
 
 ## Verify it worked
