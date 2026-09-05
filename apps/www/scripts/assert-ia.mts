@@ -849,6 +849,65 @@ interface CatalogueRow {
   status?: string
   category?: string
   aliases?: string[]
+  useInstead?: string[]
+}
+
+/**
+ * The rows as AUTHORED, imported from registry/catalogue.ts, or null when that
+ * file is absent, throws, or exports nothing array-shaped.
+ *
+ * It is its own function because two checks want different copies of the same
+ * table. Most of them want the copy the site actually serves, which is the
+ * generated JSON `loadCatalogue()` prefers; CAT012 wants the file a reader
+ * would have to edit to fix what it reports. See the comment on that rule.
+ */
+async function importAuthoredCatalogue(): Promise<CatalogueRow[] | null> {
+  const file = join(APP_DIR, "registry", "catalogue.ts")
+  if (!exists(file)) return null
+  try {
+    const mod = (await import(pathToFileURL(file).href)) as Record<string, unknown>
+    /* `CATALOGUE` first, and it was missing. registry/catalogue.ts exports
+       `CATALOGUE` (uppercase), `SHIPPED`, `CONSIDERED` and `RESERVED_ALIASES`,
+       and none of the names below matched — so this branch silently found
+       nothing and fell through to the frozen roster, which carries NO aliases.
+       CAT005 and CAT006 would then have quietly stopped checking anything the
+       moment lib/generated/catalogue.json was deleted or corrupted, and a
+       gate that stops checking without saying so is worse than no gate.
+       The key list in `loadCatalogue()` in scripts/build-registry.mts
+       already had it right, and naming the function rather than its line
+       number is deliberate: the line this comment used to cite has since
+       moved seventy lines and pointed at an unrelated helper. */
+    for (const key of ["CATALOGUE", "catalogue", "components", "entries", "items", "default"]) {
+      const value = mod[key]
+      if (Array.isArray(value) && value.length > 0) return value as CatalogueRow[]
+    }
+  } catch {
+    return null
+  }
+  return null
+}
+
+/**
+ * Every component id with a real renderable behind it, read from the authored
+ * source directory rather than from `registry/__index__.ts`, which is
+ * generated and can be a regeneration behind the files it indexes.
+ *
+ * Empty when the directory cannot be read at all. Callers treat that as "no
+ * opinion" rather than "nothing is built": reporting sixty components as
+ * unbuilt because a path moved would be the loudest possible false claim in a
+ * repository whose whole discipline is not claiming things.
+ */
+function builtComponentIds(): Set<string> {
+  const dir = join(APP_DIR, "registry", "bases", "base")
+  try {
+    return new Set(
+      readdirSync(dir)
+        .filter((name) => name.endsWith(".tsx") || name.endsWith(".ts"))
+        .map((name) => name.replace(/\.tsx?$/, "")),
+    )
+  } catch {
+    return new Set()
+  }
 }
 
 async function loadCatalogue(): Promise<{ rows: CatalogueRow[]; source: string }> {
@@ -864,28 +923,8 @@ async function loadCatalogue(): Promise<{ rows: CatalogueRow[]; source: string }
     }
   }
 
-  const file = join(APP_DIR, "registry", "catalogue.ts")
-  if (exists(file)) {
-    try {
-      const mod = (await import(pathToFileURL(file).href)) as Record<string, unknown>
-      /* `CATALOGUE` first, and it was missing. registry/catalogue.ts exports
-         `CATALOGUE` (uppercase), `SHIPPED`, `CONSIDERED` and `RESERVED_ALIASES`,
-         and none of the names below matched — so this branch silently found
-         nothing and fell through to the frozen roster, which carries NO aliases.
-         CAT005 and CAT006 would then have quietly stopped checking anything the
-         moment lib/generated/catalogue.json was deleted or corrupted, and a
-         gate that stops checking without saying so is worse than no gate.
-         scripts/build-registry.mts:253 already had it right. */
-      for (const key of ["CATALOGUE", "catalogue", "components", "entries", "items", "default"]) {
-        const value = mod[key]
-        if (Array.isArray(value) && value.length > 0) {
-          return { rows: value as CatalogueRow[], source: "registry/catalogue.ts" }
-        }
-      }
-    } catch {
-      /* fall through to the frozen roster */
-    }
-  }
+  const authored = await importAuthoredCatalogue()
+  if (authored) return { rows: authored, source: "registry/catalogue.ts" }
 
   return {
     rows: [
