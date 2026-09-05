@@ -122,8 +122,14 @@ than a measurement, and aggregating the tables would not make it one.
 
 ## Known gaps
 
-- **No keyboard behaviour has been implemented or verified.** The table above is
-  the contract every component must meet, not a description of shipped code.
+- **No keyboard behaviour has been verified.** It has been implemented: `Dialog`
+  and `Sheet` sit on Base UI and add their own handling of <Kbd>Esc</Kbd> — a
+  dismissal that can be refused, and focus returned to the trigger — and
+  `Button` warns in development when it is handed the positive `tabIndex` the
+  table above bans. None of it has been walked with a keyboard by anyone,
+  no automated check presses a key, and `a11yDate` is `null` on every catalogue
+  row. The table above is the contract every component must meet, and it is
+  still not a report of tested behaviour.
 - **There is no shipped skip link or landmark helper.**
 - **Focus-restoration behaviour after destructive actions is specified in prose
   only** and has no tested implementation.
