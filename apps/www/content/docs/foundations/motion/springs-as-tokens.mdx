@@ -185,7 +185,7 @@ the boundary between them is a safety rule, not a taste one.
 
 **Do not hand-write a `linear()` value.** They are unreadable, unreviewable and
 impossible to adjust — that is the whole reason for generating them. Change the
-three numbers in `tokens/motion.json` and regenerate.
+three numbers in `tokens/motion.json`, resample, and regenerate.
 
 **Do not tune a spring inside a component.** If a component needs a curve the
 scale does not have, that is a proposal for a new token, with a name and a
@@ -193,9 +193,11 @@ rationale — see
 [Contributing tokens](../../handbook/contributing/contributing-tokens.mdx).
 
 **Sample count is a trade.** More stops means a closer fit and a longer custom
-property. Twenty-four is enough that the linear interpolation between stops is
-imperceptible for the durations opsinjs uses, and short enough that the emitted
-stylesheet stays legible.
+property. `sampling.stops` in `tokens/motion.json` is twenty-one, and the file
+records why: below about sixteen the overshoot starts to look visibly polygonal,
+and above about twenty-four the extra stops buy nothing a viewer can see while
+every stylesheet that inlines the token grows. Change the number there if you
+must; do not change one curve by hand to match a different count.
 
 ## Tokens
 
