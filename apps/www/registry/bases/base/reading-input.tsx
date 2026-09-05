@@ -589,7 +589,7 @@ export function ReadingInput({
      is an infinite render loop rather than a wrong string. */
   const inSync =
     entry.reported.length === incoming.length &&
-    entry.reported.every((reported, index) => reported === incoming[index])
+    entry.reported.every((reported, index) => Object.is(reported, incoming[index]))
 
   if (!inSync) {
     setEntry({
@@ -734,7 +734,7 @@ export function ReadingInput({
     const rounded = converted.map((result) =>
       result === undefined || result === null ? null : roundTo(result, precision),
     )
-    const nextText = rounded.map(toText)
+    const nextText = rounded.map((result) => toConvertedText(result, precision))
     setEntry({
       text: nextText,
       reported: rounded,
