@@ -429,8 +429,10 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "clinical",
     a11yDate: null,
     governedBy: [
-      "clinical-interaction-guidelines",
+      "two-colour-axes",
+      "clinical-status-semantics",
       "alarm-fatigue",
+      "clinical-interaction-guidelines",
       "emergency-and-escalation",
     ],
     registryDependencies: ["card", "button", "status-pill"],
