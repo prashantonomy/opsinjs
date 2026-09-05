@@ -212,18 +212,22 @@ export interface StubNoticeProps {
  */
 function issueHref(issue: string): string | null {
   if (issue.startsWith("http")) return issue
-  const [repo, number] = issue.split("#")
-  // `owner/repo#123` is the form the templates use. A bare number is resolved
-  // against this repository so a page never has to repeat the org name.
-  return repo && repo.includes("/")
-    ? `https://github.com/${repo}/issues/${number ?? ""}`
-    : `${site.github}/issues/${number ?? repo ?? ""}`
+  const [left, right] = issue.split("#")
+  const number = (right ?? left ?? "").trim()
+  if (!/^[1-9][0-9]*$/.test(number)) return null
+  const repo = right === undefined ? "" : (left ?? "")
+  return repo.includes("/")
+    ? `https://github.com/${repo}/issues/${number}`
+    : `${site.github}/issues/${number}`
 }
 
 /**
  * The banner at the top of every page whose status is not `stable`. On a
- * `planned` page it is the second thing on the page, immediately under the
- * title, and it carries the same machine-readable marker as <NotBuiltYet>.
+ * `planned` or `considered` page it is the second thing on the page,
+ * immediately under the title, and it carries the same machine-readable marker
+ * as <NotBuiltYet>. From `alpha` onwards it drops the marker and changes what
+ * it says: not "nothing is implemented" but "this is not stable yet", which is
+ * the truth a reader of a built component needs.
  *
  * The questions list is mandatory in spirit even though the prop is optional:
  * a component page with no open safety questions is either finished or has not
