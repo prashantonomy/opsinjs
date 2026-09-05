@@ -43,15 +43,24 @@ wrong one — see [Reduced motion](../motion/reduced-motion.mdx).
 ```
 
 The override sits in the generated token layer, so it applies to both the
-documentation chrome and the product theme from one source, and it changes only
-the four material properties. No component reads the query itself.
+documentation chrome and the product theme from one source, and it touches four
+of a rung's eight properties — `tint`, `tint-alpha`, `blur` and `saturation`.
+`border`, `shadow`, `scrim` and `opaque` are deliberately left alone, which is
+invariant 2 below. The emitter writes the block for all six rungs rather than
+only the three translucent ones, so a component can read any rung's `blur` and be
+right with no conditional.
+
+One component reads the query as well. `Surface` hides its own backdrop layer
+under `[@media(prefers-reduced-transparency:reduce)]`, because the token layer
+can collapse the blur to zero but cannot stop the element being a backdrop root.
+That is the component's half of the same answer, not a second policy.
 
 ### Rung by rung
 
 | Rung | Normally | Under reduced transparency |
 | --- | --- | --- |
-| 0 `ground` | opaque | unchanged |
-| 1 `panel` | opaque | unchanged |
+| 0 `canvas` | opaque | unchanged |
+| 1 `card` | opaque | unchanged |
 | 2 `raised` | opaque, shadowed | unchanged |
 | 3 `bar` | tinted alpha, small blur | the opaque card colour, blur removed; border and shadow kept |
 | 4 `overlay` | tinted alpha, large blur | the opaque card colour, blur removed; border and shadow kept |
