@@ -143,9 +143,16 @@ re-enable the server in your client. This is by far the most common cause.
 **`@opsinjs` is not found.** The registry block is missing from
 `components.json`, or the file is not at the project root the client opened.
 The full-URL form — `npx shadcn@latest add https://opsinjs.dev/r/<name>.json` —
-needs no configuration and is a good way to isolate the problem.
+needs no configuration for an item that composes nothing, and is a quick way to
+isolate the problem. It will not rescue one of the fourteen items whose
+`registryDependencies` are namespaced; those need the block whichever form you
+use.
 
-**It lists items but `add` writes nothing.** Correct. See the callout above.
+**It lists items but `add` writes nothing.** Check the id first. For a
+`considered` id that is correct — see the callout above. For one of the
+twenty-four implemented ids it is a real fault: the item carries files, so an
+empty write means the fetch failed, the CLI resolved a different registry, or
+the aliases in `components.json` do not name a directory it can write to.
 
 **The assistant still invents components.** The server supplies inventory, not
 judgement. Install the [agent skill](./agent-skill.mdx) or paste
