@@ -845,12 +845,22 @@ export async function buildCorpusFile(options: {
   const encoder = new TextEncoder()
   const reserved =
     encoder.encode(header(pages.length, pages.length)).length +
-    encoder.encode(truncationNotice({ body: "", included: 1, omitted: pages.length }, options.overflowHint)).length +
+    /* The manifest is measured over EVERY page, which is the worst case: the
+       real notice lists a subset of the same lines, so the reservation cannot
+       be an underestimate. It costs a few per cent of the budget in exchange
+       for a file that never drops a page without naming it. */
+    encoder.encode(truncationNotice({ body: "", included: 1, omitted: pages.length }, options.overflowHint, pages)).length +
     /* the two "\n\n" joins and the trailing newline */
     5
 
   const assembled = assemble(chunks, Math.max(0, options.budget - reserved))
-  const truncation = truncationNotice(assembled, options.overflowHint)
+  /* `assemble` keeps a prefix of `chunks`, and `chunks` is `pages` in order, so
+     the tail is exactly what was dropped. */
+  const truncation = truncationNotice(
+    assembled,
+    options.overflowHint,
+    pages.slice(assembled.included)
+  )
 
   return `${[header(assembled.included, assembled.omitted), assembled.body, truncation].filter(Boolean).join("\n\n").trimEnd()}\n`
 }
