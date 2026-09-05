@@ -31,8 +31,10 @@ and a principle is not.
 Everything below is the reasoning, the failure each rule prevents, and how to
 check whether an agent is following it.
 
-Copy-paste form: these six rules are also the content of
-`skills/opsinjs/rules/` and are what the [agent skill](./agent-skill.mdx)
+Copy-paste form: these six rules are distributed as the four files in
+`skills/opsinjs/rules/` — appearance rules 1 to 3 across `tokens-not-values.md`
+and `status-and-colour.md`, invention rules 4 and 6 in `never-invent.md`, and
+rule 5 in `registry.md` — and are what the [agent skill](./agent-skill.mdx)
 installs. Prefer installing the skill over pasting prose, because the skill
 also reads the project's own configuration.
 
@@ -65,11 +67,19 @@ answer from its prior.
 
 ### Resolve a component before using it
 
-Before emitting `import { RangeBar } from …`, check the catalogue. Every id in
-it — shipped or considered — resolves, and every one of them today has
-`"status": "planned"`. The right output is a statement that the component is
-specified and not implemented, followed by the proposed API quoted **as a
-proposal**.
+Before emitting `import { RangeBar } from …`, check the catalogue — and check
+`/r/index.json`, which answers the same question in a field rather than in
+prose. Every id resolves, and there are two kinds of answer behind them.
+Twenty-four ids carry `"implemented": true` at `"status": "alpha"`: the registry
+item for one of those carries its source, and the right output installs it from
+the registry this project has configured and says what `alpha` costs. The other
+thirty-six carry `"implemented": false` at `"status": "considered"`: a reserved
+name, no specification and no code, and the right output is a refusal that names
+the status and stops.
+
+What is wrong for either is an import from a package. There is no published
+opsinjs package, so `@opsinjs/react` never resolves and an install that copies
+source into the project is the only shape that works.
 
 ```txt
 RangeBar is specified in opsinjs but not implemented (status: planned).
