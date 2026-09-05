@@ -39,18 +39,20 @@ On top of that, three contracts are required of every component in the roster:
   always returns focus to the element that opened it.
 
 <Callout>
-None of this is implemented. The component roster is entirely at
-`status: planned`, so these are the requirements each component must satisfy
-before it can move to `alpha`, not descriptions of shipped behaviour. Do not
-generate code against them.
+None of this has been verified on a rendered page. Twenty-four components are
+implemented at `alpha` and the other thirty-six are at `considered` with no code;
+nothing is at `beta` or `stable`, and `a11yDate` is `null` on all sixty catalogue
+rows. So these remain the requirements an implementation has to satisfy, not
+descriptions of tested behaviour — and the twenty-four having been written is not
+evidence that they meet them.
 </Callout>
 
 ## What you own
 
 **The accessible name of everything you render.** This is the most common real
 failure, and it is not something a component can fix. An icon-only button gets
-its name from you. A `RangeBar` will render a bar; the sentence that says *what*
-is in range is yours.
+its name from you. A `RangeBar` renders a bar; the sentence that says *what* is
+in range is yours.
 
 **DOM order.** CSS order is not reading order. `order`, `grid-area`, `row-reverse`
 and absolute positioning all decouple the two, and screen readers, sequential
