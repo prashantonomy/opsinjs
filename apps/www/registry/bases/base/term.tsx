@@ -786,7 +786,7 @@ const DEMO_GLOSSARY: readonly GlossaryEntry[] = [
 export default function TermDemo() {
   return (
     <TermGlossaryProvider glossary={DEMO_GLOSSARY}>
-      <p className="m-0 max-w-(--opsin-measure-comfortable) text-opsin-body">
+      <p className="m-0 max-w-(--opsin-measure-comfortable,66ch) text-opsin-body">
         An <Term id="acute" /> problem is not the same as a long-lasting one, and
         your <Term id="egfr" /> is measured differently again.
       </p>
