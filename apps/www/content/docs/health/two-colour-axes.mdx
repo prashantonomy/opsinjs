@@ -109,10 +109,14 @@ The meanings, the tone and the assignment rules are on
   information, indicating an action or distinguishing a visual element. In a
   health interface the consequence is unusually concrete: a red-only "high"
   marker is simply absent for a reader with a common form of colour vision
-  deficiency, and colour vision deficiency is more prevalent among men, who are
-  already less likely to engage with health apps. We test this and publish the
-  result at
-  [Colour independence](../accessibility/colour-independence.mdx).
+  deficiency. We measure that rather than assert it: `scripts/check-contrast.mts`
+  projects both axes through protanopia, deuteranopia, tritanopia and greyscale
+  and lists every pair that collapses in the
+  [Colour-vision audit](../reference/generated/contrast.mdx#colour-vision-audit),
+  which the nightly job regenerates. How the check is built, and the forms of
+  low vision it says nothing about, are on
+  [Colour independence](../accessibility/colour-independence.mdx), which does not
+  render the table itself.
 
   **The opinion part.** The separation into exactly two axes, and the choice of
   six categories, is our design judgement. We are not aware of a study comparing
