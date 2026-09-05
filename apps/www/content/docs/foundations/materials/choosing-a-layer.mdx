@@ -64,16 +64,17 @@ beneath is `overlay`; the panel that covers the page is `sheet`. See
 | Modal dialog | `sheet` | covers the page; needs a scrim |
 | Full-screen takeover, camera or scanner UI | `sheet` | covers the page; the scrim may be the camera feed's own dimming |
 | The dimmer behind any of the above | `scrim` | its only job is to remove information |
-| Side navigation on a wide screen, always visible | `panel` | it is a region of the page, not an object above it |
-| Side navigation on a phone, dismissible | `overlay` | it takes over; needs a scrim |
+| Side navigation on a wide screen, always visible | `card` | it is a region of the page, not a surface above it |
+| Side navigation on a phone, dismissible | `sheet` | it covers the page; needs a scrim |
 | Loading skeleton | same rung as the thing it replaces | a skeleton that changes rung makes the page jump |
 
 ### The five nesting rules
 
 **N1 — A translucent rung may never contain another translucent rung.** A card
-inside a sheet is `panel` or `raised`, never `bar`. Two stacked blurs cost twice
-as much, and the composite of a translucent surface over a translucent surface
-has no bounded worst case, so the contrast floor cannot be computed for it.
+inside a sheet is `card` or `raised`, never `overlay`. Two stacked blurs cost
+twice as much, and the composite of a translucent surface over a translucent
+surface has no bounded worst case, so the contrast floor cannot be computed for
+it.
 
 **N2 — A scrim is a sibling of the rung it serves, never its child.** It sits
 between the overlay and everything below, in the stacking order, not inside the
