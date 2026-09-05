@@ -27,7 +27,7 @@ import { routes } from "@/lib/routes"
  *  - Mixed-case documentation paths are a real, constant source of dead links,
  *    because slugs get capitalised by chat clients, ticket trackers and people
  *    typing from memory. The corpus is entirely lower-case and hyphenated, so
- *    normalising case is unambiguous and cannot collide.
+ *    folding a path to lower case is unambiguous and cannot collide.
  *
  * ADDING ONE. A redirect is permanent (308) when the old URL is genuinely gone,
  * and temporary (307) when it may come back. Record the reason in the table, not
@@ -38,7 +38,7 @@ const DOCS_PREFIX = routes.docs()
 
 /**
  * The generated per-symbol API pages. Case-sensitive by construction — see the
- * guard in the case-normalisation branch below.
+ * guard in the case-folding branch below.
  */
 const API_PREFIX = `${DOCS_PREFIX}/reference/api/`
 
