@@ -128,6 +128,13 @@ missing dependency.
 npx shadcn@latest add https://opsinjs.dev/r/status-pill.json
 ```
 
+One exception, and it is worth stating in the same breath: a component that
+composes others names them namespaced. Fourteen items — among them `result-card`,
+`range-bar`, `metric-tile` and `consent-sheet` — carry `@opsinjs/…` entries in
+`registryDependencies`, so installing one of those needs the `@opsinjs` block in
+`components.json` even when you gave the full URL. Say so up front rather than
+letting the install fail halfway through.
+
 ## Not this
 
 ### Do not emit raw colour values
@@ -189,10 +196,14 @@ generated contrast tables.
 
 ## Gotchas
 
-**The proposed API looks like an API.** Component pages carry a fenced
-TypeScript interface under **Proposed API**. It is a specification, it is marked
-as one, and it will change without a deprecation cycle. Quoting it is correct;
-generating against it is not.
+**An `alpha` API reference is real and still moving.** An implemented
+component page carries its prop interface under **API reference**, generated
+from the same source the registry serves, so it is accurate on the day you read
+it and carries no promise past that: `alpha` changes without a deprecation
+cycle. Read the source you installed rather than a cached interface, and record
+the version you took in the commit that installed it — nothing writes a version
+stamp into the file yet, so that commit is the only record a later upgrade can be
+measured against.
 
 **A `considered` component resolves.** Getting an answer is not evidence that
 something exists. Read the `status` field; `considered` means "we have thought
