@@ -17,11 +17,16 @@ import { useMediaQuery } from "@/app/_shared/use-client-value"
  *
  * Why that is worth the awkwardness of a client component. The token layer is
  * generated: `scripts/build-tokens.mts` rewrites `app/tokens.generated.css` from
- * `tokens/*.json`, and namespaces will be added to it — type and space scales
- * are authored but not yet emitted as custom properties. A browser built from a
- * hand-kept list would silently omit them and nobody would notice for a month. A
- * browser that reads the stylesheet gains them the moment they exist, with no
- * coordination between this file and the script that writes them.
+ * `tokens/*.json`, and namespaces keep being added to it. The type and space
+ * scales are the worked example — they were authored long before they were
+ * emitted as custom properties, they are emitted now, and this page picked them
+ * up on the run that emitted them without a line changing here. A browser built
+ * from a hand-kept list would have omitted them silently and nobody would have
+ * noticed for a month.
+ *
+ * The same is true one level down, in NAMESPACE_LABELS below: a namespace with
+ * no entry there is still listed, under its raw name, with a paragraph saying so.
+ * Missing prose is a smaller failure than a missing token.
  *
  * It also means this page reports the value in EFFECT rather than the value
  * authored: after the Display-P3 escalation, after dark mode, after
@@ -83,6 +88,51 @@ const NAMESPACE_LABELS: Record<string, { title: string; description: string }> =
       title: "Target size",
       description:
         "Minimum tappable dimensions. Deliberately above the WCAG 2.2 SC 2.5.8 floor, because these screens are used one-handed and in a hurry.",
+    },
+    text: {
+      title: "Type scale",
+      description:
+        "Eleven named steps from large title down to caption, each carrying a size, a line height, a tracking and a weight. Anchored on a 17px body rather than the 16px web convention, and expressed in rem so the reader's own browser setting still scales it.",
+    },
+    font: {
+      title: "Font families",
+      description:
+        "Three stacks — sans, mono and the numeric face — each starting at the platform's own UI or monospace font rather than at a webfont. A health value should look like it belongs to the device the reader is holding.",
+    },
+    numerals: {
+      title: "Numerals",
+      description:
+        "Tabular figures, set by every component that renders a number. Proportional digits make a value that updates in place appear to twitch and make a column of readings impossible to scan, so this is a correctness requirement rather than a preference.",
+    },
+    space: {
+      title: "Space",
+      description:
+        "The spacing scale, in multiples of 4px plus a hairline step. Density switches which rungs a layout uses; it never changes the scale itself.",
+    },
+    gutter: {
+      title: "Gutters",
+      description:
+        "The page margin at each of the three breakpoints — 16px on a phone, 24px from 640px, 32px from 1024px.",
+    },
+    measure: {
+      title: "Measure",
+      description:
+        "Maximum line lengths, in characters: 45 for a caption or a legend, 66 for prose anywhere in the product including a disclaimer nobody wants to read, and 80 for code and machine output only.",
+    },
+    border: {
+      title: "Borders",
+      description:
+        "Hairline by default, 2px where a boundary is carrying `attention` or `urgent` as one of the non-colour signals, and the focus ring — always 2px with a 2px offset, and never removed.",
+    },
+    safe: {
+      title: "Safe area",
+      description:
+        "The four device safe-area insets, so a sheet, a bar or a consent footer clears the notch and the home indicator rather than sitting under them.",
+    },
+    neutral: {
+      title: "Neutral ramp",
+      description:
+        "A very slightly cool grey ramp — chroma 0.002 to 0.009 at hue 250 — because a perfectly achromatic grey beside any of the chromatic ramps reads as a rendering fault rather than as a colour choice. 0 and 1000 are exact white and black.",
     },
   }
 
