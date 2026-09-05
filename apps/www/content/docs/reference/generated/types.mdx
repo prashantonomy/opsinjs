@@ -26,11 +26,22 @@ props tables are extracted textually: a reference generator has to run before
 anything compiles and produce identical bytes on every machine.
 **Command:** `pnpm run generate`.
 
-This page is an index. Each symbol also gets a page of its own under
+**Read this table as the site's own vocabulary, not as an installable API.**
+Every row below is a symbol of this documentation site — the routing helpers,
+the colour maths, the catalogue and status models the pages are rendered from.
+That is worth publishing, because the status ladder, the category set and the
+colour derivation are defined here and are the same definitions the doctrine
+pages describe in prose. It is not, however, anything you can install: an
+import from `@opsinjs/…` will not resolve, and what a consumer actually receives
+is component source copied in from the registry, whose props are documented on
+each component's own page rather than here.
+
+This page is an index. Types and interfaces also get a page of their own under
 [API](../api/index.mdx), at `reference/api/<Symbol>`, because a type name in
 prose should be a link to a page and not an anchor two thousand words down a
-single document. The index carries the summary; the symbol page carries the
-members, the defaults and the things it is used by.
+single document. Functions and constants are listed here only — a page per
+`STATUS_META` would be a page of nothing. The index carries the summary; the
+symbol page carries the declaration line and the file it was read from.
 
 **Four columns.** *Symbol* is the exported identifier, exactly as you would
 import it. *Kind* is what it is — interface, type alias, enum-like union,
