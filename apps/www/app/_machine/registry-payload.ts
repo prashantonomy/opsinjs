@@ -106,9 +106,15 @@ export function componentIndexUrl(): string | undefined {
 
 /**
  * The shadcn CLI prints an item's `docs` string after `add`. It is therefore
- * the only channel that reaches a developer who never opened this site, and
- * the only place a "this does not exist yet" can arrive at the exact moment
- * somebody tries to install it.
+ * the only channel that reaches a developer who never opened this site, and the
+ * only place either half of the answer — "this does not exist yet", or "this
+ * exists and here is how far you may lean on it" — can arrive at the exact
+ * moment somebody tries to install it.
+ *
+ * Every branch below is chosen on the PAYLOAD where it can be, and on
+ * `row.status` only for the part status actually decides. A sentence about
+ * whether files were written must never be derived from a phase word, and a
+ * sentence about stability must never be typed as a constant.
  */
 function docsSentence(row: CatalogueRow, files: RegistryItemFile[]): string {
   const url = componentDocsUrl(row.name) ?? componentIndexUrl() ?? SITE_URL
@@ -121,7 +127,7 @@ function docsSentence(row: CatalogueRow, files: RegistryItemFile[]): string {
     ].join(" ")
   }
 
-  /* `planned` has two shapes now, and they need two sentences rather than one
+  /* `planned` has two shapes, and they need two sentences rather than one
      sentence with a patched clause.
 
      A row keeps `status: "planned"` until its page has been rewritten from a
