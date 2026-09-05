@@ -43,13 +43,20 @@ list.
 <rung> ∈ canvas · card · raised · sheet · overlay · scrim
 ```
 
-The numeric index is what appears in CSS; the name is what appears in
-conversation, in review and in component props. They are the same thing and the
-mapping never changes — a rung's number is part of its identity, because the
-ordering has to be machine-readable for the compositing budget and the contrast
-job to reason about it.
+**The name is what appears in CSS, and the ordinal appears nowhere.**
+`--opsin-material-sheet-blur`, never `--opsin-material-3-blur`. The numbers on
+[The ladder](./the-ladder.mdx) are the ordering and nothing addresses a rung by
+one, because a number invites arithmetic — "one more than a card" — and the
+ladder is not arithmetic: each rung answers a different question about what is
+behind it. The rule is stated in `tokens/material.json` itself, which is where
+the emitter reads it.
 
-There is no fifth property and no per-rung variant. A rung is those four
+`tint` and `tint-alpha` are two properties rather than one colour because the
+alpha is the safety parameter: it is the number the contrast floor is calculated
+from, and it has to be readable on its own by a component and by
+`scripts/check-contrast.mts`.
+
+There is no ninth property and no per-rung variant. A rung is those eight
 declarations applied together.
 
 ### What the generator emits
