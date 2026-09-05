@@ -95,10 +95,23 @@ const PREFIX_REDIRECTS: { from: string; to: string; permanent: boolean }[] = [
 export default function proxy(request: NextRequest) {
   const url = request.nextUrl
   const pathname = url.pathname
-  const normalised =
+
+  /* The path with any trailing slash removed, which is the form every table
+     above is keyed in, and its lower-cased twin, which is what the tables are
+     matched against.
+
+     THE NAME MATTERS. The obvious name for this variable is a banned glossary
+     word with `-ised` on the end, and tokens/glossary.json:19 bans that word
+     outright across the system, code identifiers included; check-a11y's A11Y010
+     segments identifiers against a suffix list that carries `-ise`, `-ised` and
+     `-isation` for exactly that reason. `canonicalPath` says the same thing and
+     survives the check. This file sits outside A11Y010's SCAN_DIRS today; it
+     should read the same as one that does not. */
+  const canonicalPath =
     pathname.length > 1 && pathname.endsWith("/")
       ? pathname.slice(0, -1)
       : pathname
+  const lower = canonicalPath.toLowerCase()
 
   const exact = EXACT_REDIRECTS[normalised.toLowerCase()]
   if (exact) {
