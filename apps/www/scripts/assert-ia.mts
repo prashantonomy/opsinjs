@@ -65,7 +65,8 @@ import { fileURLToPath, pathToFileURL } from "node:url"
    plain `node` under native type stripping, which does not rewrite specifiers
    and does not read tsconfig's `@/*` alias. `lib/status.ts` has no imports of
    its own and no non-erasable syntax, so this costs nothing at load time.
-   `registry/catalogue.ts:36` imports the same module the same way. */
+   `registry/catalogue.ts` imports the same module the same way, in its
+   `import type { HealthCategory, Status } from "../lib/status.ts"`. */
 import {
   accessibilitySectionFor,
   componentSections,
@@ -79,14 +80,30 @@ const DOCS_DIR = join(APP_DIR, "content", "docs")
 const TEMPLATES_DIR = join(APP_DIR, "content", "_templates")
 
 /* ADR 0008. The complete outline for a `considered` component page - the only
-   kind of page in the corpus that is generated rather than authored. Kept here
-   rather than in a template file because there is no _templates/considered.mdx:
-   a contributor never writes one of these by hand. */
-const CONSIDERED_COMPONENT_HEADINGS = [
-  "What this name refers to",
-  "Why it is not on the roster",
-  "What to use instead",
-]
+   kind of page in the corpus that is generated rather than authored. There is no
+   _templates/considered.mdx to check it against, because a contributor never
+   writes one of these by hand: `emitConsideredStub()` in
+   scripts/build-registry.mts generates each page from its catalogue row.
+
+   Read from lib/status.ts rather than retyped. This list used to be a literal
+   here, from the days when `componentSections("considered", …)` returned an
+   empty array and there was nothing to read; it returns the three headings now,
+   and a second copy of a three-item list is exactly the kind of duplicate that
+   diverges in the commit nobody reviews. The category argument is empty on
+   purpose - no section in the considered outline is category-gated, so no
+   category can filter one out.
+
+   The emptiness guard is not defensive padding. An empty outline would make
+   every loop below vacuous, and this gate would pass 36 pages while checking
+   nothing at all. */
+const CONSIDERED_COMPONENT_HEADINGS = componentSections("considered", "")
+if (CONSIDERED_COMPONENT_HEADINGS.length === 0) {
+  throw new Error(
+    "assert-ia: componentSections(\"considered\", …) returned no sections, so the " +
+      "considered-component outline check would pass every page without reading it. " +
+      "COMPONENT_SECTIONS_BY_STATUS.considered in lib/status.ts is the source; see ADR 0008.",
+  )
+}
 
 /* ================================================================== *
  * FROZEN CONTRACTS                                                    *
