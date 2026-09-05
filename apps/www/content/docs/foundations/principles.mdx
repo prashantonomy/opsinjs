@@ -58,10 +58,12 @@ consumer's own project are specified and not built —
 [Handbook → Tooling](../handbook/tooling/index.mdx). Doctrine lives at
 [The two colour axes](../health/two-colour-axes.mdx).
 
-**2. Never colour alone.** Every status distinction is carried by at least two of
-colour, icon and word. This is not a concession to colour-blind readers on the
-margin; it is what makes the system survive a greyscale printout, a phone in
-sunlight, a screenshot pasted into a message, and a screen reader.
+**2. Never colour alone.** Every status distinction is carried by the word, a
+distinct glyph shape and colour, together. The word is the primary carrier and is
+never omitted; colour is the one that fails first. This is not a concession to
+colour-blind readers on the margin; it is what makes the system survive a
+greyscale printout, a phone in sunlight, a screenshot pasted into a message, and
+a screen reader.
 
 <DoDont>
   <DoDont.Do>
@@ -75,7 +77,11 @@ sunlight, a screenshot pasted into a message, and a screen reader.
   </DoDont.Dont>
 </DoDont>
 
-Enforced by: the generated CVD audit rendered by `<CvdSimulator>` and reported on
+Enforced by: `scripts/check-a11y.mts` rule A11Y001, which fails a file under
+`registry/` that paints a status without rendering a word and a distinct glyph
+beside it, and warns where those come from a component it composes rather than
+from the file itself; and the generated CVD audit rendered by `<CvdSimulator>`
+and reported on
 [Colour independence](../accessibility/colour-independence.mdx).
 
 **3. Say what you do not know.** Missing, stale, estimated and partial data are
