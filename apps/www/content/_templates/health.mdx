@@ -4,7 +4,6 @@ description: One sentence stating the rule, in the words a product team would us
 status: stable
 kind: health
 evidence: opinion
-reviewed: 2026-09-02
 reviewer: clinical
 reviewEvery: 6m
 implements: [status-pill, alert-banner]
@@ -15,7 +14,18 @@ aliases: [the clinical vocabulary a reader would search]
   TEMPLATE — kind: health. Seven sections, in this order. The densest prose in
   the repository, and the pages a clinical reviewer opens first.
 
-  MANDATORY frontmatter for this kind: `evidence` and `reviewed`.
+  MANDATORY frontmatter for this kind: `evidence`, declared before the page is
+  published and meant.
+
+  `reviewed` is deliberately absent from this template, and the omission is the
+  point. It is a signature, not a field to fill in on copy: it names the day a
+  person actually re-read the page, and next to `reviewer: clinical` it says a
+  clinical reviewer stood behind it. assert-ia (FM010) fails the build on a
+  health page with no `reviewed` date, so a copy of this template stops until you
+  put a real one in — which is the gate working, not a gate to route around by
+  carrying a date over. Bumping or inheriting a date without re-reading the page
+  is the one prohibited operation in project/docs-freshness. The same discipline
+  governs the `date` on <ResearchNote> below; it is a placeholder here.
 
   EVIDENCE DISCIPLINE, and there is no flexibility here:
    - `evidence: cited` requires a real, checkable source. A DOI or a URL a
@@ -47,7 +57,7 @@ put in a checklist, then the qualifications.
 
 ## Why (evidence)
 
-<ResearchNote evidence="opinion" date="2026-09-02">
+<ResearchNote evidence="opinion" date="YYYY-MM-DD">
   The reasoning. If this is opinion, say which parts are opinion and what would
   change your mind. If it is cited, cite something a reader can open and verify.
 </ResearchNote>
