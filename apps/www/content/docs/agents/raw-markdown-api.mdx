@@ -128,15 +128,18 @@ The first bytes should be a frontmatter delimiter, not `<!DOCTYPE`.
 
 ### PascalCase tags are present and explained
 
-Search the output for a `<` followed by an uppercase letter. There should be
-none. If there are unresolved tags, you have fetched raw source from somewhere
-rather than the twin.
+Search the output for a `<` followed by an uppercase letter. On most pages you
+will find several, and that is the twin working: read their attributes, and take
+the block quote above them as the pointer to where the rendered values are
+published. What you should *not* find is an `import` statement or a `<!DOCTYPE`
+— either means you have raw source or the HTML page rather than the twin.
 
 ### The status is present
 
-Every component page's twin says `status: planned` in frontmatter and repeats it
-in prose. If a twin ever omits it, that is a bug worth reporting — it is the
-field that stops an agent generating an import.
+Every component page's twin carries `status` in frontmatter — `alpha` for an
+implemented component, `considered` for a reserved name. If a twin omits
+`status` altogether, that is a bug worth reporting: it is the field that stops an
+agent generating against something that does not exist.
 
 </Steps>
 
