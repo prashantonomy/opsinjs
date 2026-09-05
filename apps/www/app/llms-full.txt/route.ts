@@ -7,10 +7,10 @@
  * about X" and X could be anywhere.
  *
  * It is capped. Health doctrine, accessibility requirements and component
- * specifications are all things that are dangerous half-read, so the file
- * truncates at a page boundary, states how many pages it dropped, and names
- * the shards that carry them in full. A silently truncated corpus is a corpus
- * that answers confidently and wrongly.
+ * pages are all things that are dangerous half-read, so the file truncates at
+ * a page boundary, states how many pages it dropped, and names the shards that
+ * carry them in full. A silently truncated corpus is a corpus that answers
+ * confidently and wrongly.
  */
 
 import { absoluteUrl, text } from "@/app/_machine/contracts"
