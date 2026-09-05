@@ -177,7 +177,11 @@ export async function POST(request: Request): Promise<Response> {
         "Feedback is not collected by this site. Your report has not been saved anywhere. Open it as an issue instead — the link below is already filled in.",
       fallback: {
         kind: "github-issue",
-        /** Uses the repository's issue form when it exists. */
+        /**
+         * Uses the repository's issue form when it exists. Carries the page and
+         * the docs version into the form's own fields; the free text cannot
+         * travel this way, because a form ignores `body`.
+         */
         url: templated.toString(),
         /** Works with or without the issue form; carries the whole report. */
         prefilledUrl: plain.toString(),
