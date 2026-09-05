@@ -1,9 +1,31 @@
 import type { ReactNode } from "react"
+import type { Metadata } from "next"
 import Link from "next/link"
 import { HomeLayout } from "fumadocs-ui/layouts/home"
 
 import { baseOptions } from "@/lib/layout.shared"
 import { agentRoutes, registryRoutes, routes, site } from "@/lib/routes"
+
+/**
+ * THE TITLE TEMPLATE FOR THIS GROUP.
+ *
+ * `app/(chrome)/layout.tsx` deliberately exports no metadata: it is a root
+ * layout and it is also the layout `app/(chrome)/not-found.tsx` renders inside,
+ * and a `title.default` there would put a second <title> in the head of the 404
+ * alongside the one that file hoists itself. So the template is declared on each
+ * nested group instead, where every descendant is a real `page`.
+ *
+ * Pages below here set a bare noun — "Tokens", "Icons", "Official resources" —
+ * and this appends the system name, so a reader with a dozen tabs open can tell
+ * ours apart. `/` overrides it with `title: { absolute }` because its own title
+ * already names the system.
+ */
+export const metadata: Metadata = {
+  title: {
+    template: `%s — ${site.name}`,
+    default: `${site.name} — a design system for consumer health apps`,
+  },
+}
 
 /**
  * Chrome for the six routes that are not documentation and not tools:
