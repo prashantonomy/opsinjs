@@ -531,7 +531,7 @@ export function ComponentPreview({
               style={{ height: minHeight }}
             />
           ) : (
-            <NotBuiltYet name={name} className="w-full border-0" />
+            <NotBuiltYet name={name} status={phase} className="w-full border-0" />
           ))}
       </div>
 
@@ -571,7 +571,8 @@ export interface IframePreviewProps {
    * The default stays `false` even for a name that resolves. A screen page
    * decides for itself whether a 560px frame earns its place, and taking that
    * decision away from the page to save one attribute would be the wrong
-   * trade.
+   * trade. The page decides; it does not overrule `built`, so setting this on
+   * a name that does not render yet still falls through to <NotBuiltYet>.
    */
   embed?: boolean
   /** Caption under the frame. */
