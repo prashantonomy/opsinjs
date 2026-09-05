@@ -209,19 +209,32 @@ curve plots is on [Motion tokens](tokens.mdx).
 
 ## Accessibility impact
 
-- **`linear()` degrades to a keyword, not to nothing.** Where it is unsupported
-  the declaration is invalid and the previous declaration in the cascade wins, so
-  every spring token is authored with a plain easing fallback immediately before
-  it. The animation still runs, with less character; nothing breaks and nothing
-  disappears. Support is published by `<BrowserSupport>` on
-  [Browser support](../../start/browser-support.mdx).
+- **`linear()` degrades to the engine's default curve, not to nothing — and not
+  to a fallback of ours.** A spring token is one custom property holding one
+  `linear()` value, and there is no second declaration behind it. There could not
+  usefully be: a custom property accepts `linear(…)` as an arbitrary token
+  sequence even on an engine that cannot compute it, so the value is stored, the
+  cascade never reaches an earlier declaration, and an author-written fallback
+  above it would be dead code. The failure happens one step later, at
+  substitution — `transition-timing-function: var(--opsin-ease-spring-snap)` is
+  invalid at computed-value time, so the property takes its initial value and the
+  move runs on the browser's default easing. Say what that costs and what it does
+  not: the paired duration is a separate token and is untouched, so nothing in a
+  sequence gets out of step, nothing is switched off and nothing disappears; what
+  is lost is the curve, which is the whole of what a spring token carries. Which
+  engines take that path is a runtime question rather than a remembered one, and
+  `<BrowserSupport>` on [Browser support](../../start/browser-support.mdx) tests
+  it in the reader's own browser.
 - **Overshoot is a vestibular consideration as well as an honesty one.**
   Oscillation is more provocative than a monotonic move, which is a second
   independent reason the damped family exists.
 - **Reduced motion replaces the curve, not just the duration.** Under
-  `prefers-reduced-motion: reduce` the spring tokens resolve to a two-stop
-  `linear(0, 1)` and the durations collapse — the per-token contract is on
-  [Reduced motion](reduced-motion.mdx).
+  `prefers-reduced-motion: reduce` each spring easing resolves to the plain
+  `linear` keyword and its paired duration drops to the fallback that spring's
+  own entry declares — `0ms` for the spring a reader initiates and for the one
+  that carries a health value, and a cross-fade of about a tenth of a second for
+  the two that announce something arriving. Nothing is switched off wholesale;
+  the per-token contract is on [Reduced motion](reduced-motion.mdx).
 - **A spring's settling time is part of its accessibility budget.** A long settle
   means a control is still moving when a reader tries to hit it. Every token's
   computed duration is published, and the ones used for anything interactive sit
