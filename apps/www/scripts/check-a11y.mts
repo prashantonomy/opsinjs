@@ -683,6 +683,75 @@ function commentText(source: string): { text: string; index: number }[] {
 }
 
 
+/**
+ * The source with backtick spans INSIDE comments blanked, offsets kept.
+ *
+ * The third of the three views this file takes of a file, and the one the
+ * colour and type rules needed and did not have. `withoutComments` is too
+ * blunt for them: a commented-out `className="bg-[#ff0000]"` is still a hex
+ * literal somebody is one keystroke from restoring, and A11Y005 should keep
+ * catching it. Reading the raw source is too blunt in the other direction: a
+ * doc comment that explains WHY a component is measured against
+ * `--opsin-neutral-0`, or records that `--card` is `oklch(1 0 0)` in light, was
+ * failed for documenting itself accurately - which is precisely the failure
+ * this file's own docblock gives as the reason A11Y002 blanks comments, and
+ * precisely what `commentText` already spares the banned-word scan.
+ *
+ * So: inside a comment, a backtick span is a quotation and is blanked; every
+ * other character of the comment, and every character outside one, is left
+ * exactly where it was. Newlines survive inside a blanked span, so a multi-line
+ * quotation does not shift a single reported line number.
+ */
+function withoutQuotedCodeInComments(source: string): string {
+  let out = ""
+  let index = 0
+  const length = source.length
+
+  while (index < length) {
+    const char = source[index] as string
+    const next = source[index + 1]
+
+    /* A string literal is code and is copied through untouched. It is tracked
+       only so that a `//` inside "https://…" does not open a comment. */
+    if (char === '"' || char === "'" || char === "`") {
+      const quote = char
+      const start = index
+      index += 1
+      while (index < length) {
+        const inner = source[index] as string
+        if (inner === "\\") {
+          index += 2
+          continue
+        }
+        index += 1
+        if (inner === quote) break
+      }
+      out += source.slice(start, index)
+      continue
+    }
+
+    if (char === "/" && (next === "*" || next === "/")) {
+      const start = index
+      if (next === "*") {
+        index += 2
+        while (index < length && !(source[index] === "*" && source[index + 1] === "/")) index += 1
+        index = Math.min(index + 2, length)
+      } else {
+        while (index < length && source[index] !== "\n") index += 1
+      }
+      out += source
+        .slice(start, index)
+        .replace(/`[^`]*`/g, (span) => span.replace(/[^\n]/g, " "))
+      continue
+    }
+
+    out += char
+    index += 1
+  }
+
+  return out
+}
+
 function withoutComments(source: string): string {
   /* Character-by-character rather than two regexes, and the reason is a real
      defect rather than fastidiousness: a `/*` inside one string literal pairs
@@ -798,6 +867,63 @@ function jsxTextNodes(source: string): { text: string; index: number }[] {
     }
   }
   return nodes
+}
+
+/**
+ * A copy of the source with every string literal's contents and every JSX text
+ * node blanked to spaces - the mirror image of `withoutComments`, and the buffer
+ * A11Y010 reads.
+ *
+ * Offsets and newlines are preserved, so an index into the result is the same
+ * index into the source and a reported line number is still real. A `${…}` hole
+ * inside a template literal is left alone: the text around it is copy, the
+ * expression inside it is code, and blanking it would hide an identifier this
+ * file is meant to see.
+ *
+ * jsxTextNodes collapses whitespace, so a node's `text.length` is not the length
+ * of the span it came from; the walk below consumes the source with any
+ * whitespace run standing in for the one space, which is what makes the blank
+ * cover the whole run rather than a prefix of it.
+ */
+function withoutCopy(source: string): string {
+  const chars = source.split("")
+
+  const blank = (start: number, length: number, keepHoles: boolean): void => {
+    const keep = new Set<number>()
+    if (keepHoles) {
+      const holes = /\$\{[^{}]*\}/g
+      const region = source.slice(start, start + length)
+      let hole: RegExpExecArray | null
+      while ((hole = holes.exec(region)) !== null) {
+        for (let at = hole.index; at < hole.index + hole[0].length; at += 1) keep.add(at)
+      }
+    }
+    for (let offset = 0; offset < length; offset += 1) {
+      if (keep.has(offset)) continue
+      const at = start + offset
+      if (chars[at] === "\n") continue
+      chars[at] = " "
+    }
+  }
+
+  for (const literal of stringLiterals(source)) {
+    blank(literal.index + 1, literal.text.length, true)
+  }
+
+  for (const node of jsxTextNodes(source)) {
+    let cursor = node.index
+    for (let index = 0; index < node.text.length; index += 1) {
+      if (node.text[index] === " ") {
+        while (cursor < source.length && /\s/.test(source[cursor] ?? "")) cursor += 1
+        continue
+      }
+      if (source[cursor] !== node.text[index]) break
+      cursor += 1
+    }
+    blank(node.index, cursor - node.index, false)
+  }
+
+  return chars.join("")
 }
 
 function statusColourPattern(levels: string[]): RegExp {
@@ -1520,13 +1646,25 @@ function checkBannedWords(
     }
   }
 
-  /* Identifiers only, so this reads the comment-blanked source as well.
-     `code` above already has the comments removed. Without that, an ordinary
-     English adverb in a comment — "the routes it positively recognises" — was
-     reported as the banned word `positive` in an identifier, which is neither
-     an identifier nor that word. A rule that reports a comment as code is the
-     same class of mistake as one that reports a class name as prose, and it
-     ends the same way: switched off. */
+  /* Identifiers only, so this reads a buffer with the comments, the string
+     literals and the JSX text all blanked to spaces - offsets preserved, so the
+     line numbers below are still the file's own.
+
+     WHY THE BUFFER RATHER THAN AN EXEMPTION. This pass used to run over `code`,
+     which has only the comments removed, and it skipped an identifier that WAS
+     a banned word outright (`lowered === entry.word`) on the grounds that the
+     copy pass above had already reported it. The copy pass reads string
+     literals and JSX text, not code, so nothing had reported it: `const normal
+     = value >= low && value <= high` passed both rules and travelled through
+     `shadcn add` into a consumer's editor. The skip existed for a real reason -
+     `whitespace-normal` and `font-normal` inside a class string must not be
+     reported - and blanking the copy keeps that without switching the rule off
+     for anybody else. A `${…}` hole stays open: the expression inside it is
+     code, and an identifier there is still an identifier.
+
+     One word therefore belongs to exactly one rule: copy to A11Y009, comments
+     to A11Y013, identifiers to A11Y010. */
+  const identifierSource = withoutCopy(code)
   const single = banned.filter((entry) => !/\s/.test(entry.word))
   const identifiers = /[A-Za-z_$][A-Za-z0-9_$]*/g
   const reported = new Set<string>()
