@@ -69,10 +69,14 @@ export default function NotFound() {
               You asked for a component that does not exist at all.
             </h2>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              Nothing on this site is implemented yet — opsinjs is a token
-              system and a set of specifications. If an assistant told you a
-              component exists and sent you here, the honest answer is that it
-              does not, and the roadmap says when it might.
+              {builtComponentCount()} components are implemented, at alpha, and
+              installable from this origin&rsquo;s registry; the rest of the
+              roster is a specification or a name that was considered and
+              refused. An id in neither group has no page, no specification and
+              no roadmap entry. If an assistant told you such a component exists
+              and sent you here, the honest answer is that it does not — and the
+              machine-readable catalogue at the foot of this page, not the
+              assistant, is the authority on which group any name is in.
             </p>
             <p className="mt-2 text-sm">
               <Link
@@ -143,7 +147,7 @@ export default function NotFound() {
           catalogue at{" "}
           <code className="font-mono">{registryRoutes.index()}</code> is the
           machine-readable list of every component id and its status, and it
-          will tell you that a component is unimplemented rather than leaving
+          will tell you whether a component is implemented rather than leaving
           you to guess.
         </p>
       </main>
