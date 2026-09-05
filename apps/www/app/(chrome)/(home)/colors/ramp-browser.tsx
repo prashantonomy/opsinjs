@@ -194,13 +194,13 @@ export function RampBrowser() {
       ...group,
       rows: group.rows.filter(
         (row) =>
-          row.property.includes(normalisedQuery) ||
-          row.role.toLowerCase().includes(normalisedQuery) ||
-          row.use.toLowerCase().includes(normalisedQuery) ||
-          group.keywords.includes(normalisedQuery)
+          row.property.includes(needle) ||
+          row.role.toLowerCase().includes(needle) ||
+          row.use.toLowerCase().includes(needle) ||
+          group.keywords.includes(needle)
       ),
     })).filter((group) => group.rows.length > 0)
-  }, [normalisedQuery])
+  }, [needle])
 
   return (
     <div>
