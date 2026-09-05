@@ -266,9 +266,10 @@ export function OpenInSandbox({
       >
         There is no sandbox for{" "}
         {name ? <code className="text-xs">{name}</code> : "this example"} yet.
-        Examples live in <code className="text-xs">registry/examples/</code>,
-        which is empty until the first component is built; the fork link appears
-        here automatically once it is not.
+        The source lives in <code className="text-xs">registry/examples/</code>{" "}
+        and you can copy it from the block above; a fork link needs a public
+        repository for StackBlitz to clone, and appears here automatically once
+        there is one.
       </p>
     )
   }
