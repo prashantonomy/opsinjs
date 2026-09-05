@@ -580,8 +580,9 @@ export function RangeBar({
     !(range.high > range.low)
   const compared = attributed && !boundless && !inverted ? range : undefined
 
-  if (isDevelopment() && attributed && boundless) {
-    console.warn(
+  if (attributed && boundless) {
+    warnDev(
+      `range-boundless:${label}`,
       "[opsinjs] <RangeBar> was given a `range` with neither `low` nor `high`, " +
         "which is a source with no interval underneath it. It was discarded " +
         "rather than compared against, because a reading is not `within` an " +
@@ -590,8 +591,9 @@ export function RangeBar({
     )
   }
 
-  if (isDevelopment() && inverted) {
-    console.warn(
+  if (inverted) {
+    warnDev(
+      `range-inverted:${String(range?.low)}:${String(range?.high)}`,
       `[opsinjs] <RangeBar> was given low=${String(range?.low)} and ` +
         `high=${String(range?.high)}, which leaves the range no width to draw a ` +
         "scale from and no order to place a reading against. It was discarded: " +
