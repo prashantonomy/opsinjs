@@ -29,7 +29,11 @@ export const metadata: Metadata = {
  *
  * The page is most valuable NOW, before anything is published, because right now
  * the honest statement is unusually strong: there are no packages, so every
- * package is fake.
+ * package is fake. That strength is exactly why the sentence has to be kept
+ * accurate as the system moves. Components are installable from this origin's
+ * registry today, so a page still claiming no installable item exists would
+ * tell a developer that the working @opsinjs items they just added came from an
+ * impostor — the inverse of what this page is for.
  */
 export default function OfficialPage() {
   const registryUrl = absoluteUrl(registryRoutes.catalog())
@@ -45,7 +49,7 @@ export default function OfficialPage() {
       <Container className="py-10">
         <Panel className="border border-status-attention bg-status-attention-surface text-status-attention-ink">
           <h2 className="font-medium">
-            Nothing has been published, so everything is fake.
+            Nothing has been published to npm, so every package is fake.
           </h2>
           <p className="mt-2 text-sm leading-relaxed">
             There is no <Mono>{site.npmScope}</Mono> package on npm. There is no
