@@ -704,10 +704,14 @@ export const SHIPPED: CatalogueEntry[] = [
       "input wrapper",
       "form control",
       "validation message",
+      "label",
+      "error message",
+      "hint",
     ],
     owner: "engineering",
     a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
+    usedIn: ["daily-log-entry", "consent-before-collection", "daily-log-screen"],
   },
 ]
 
