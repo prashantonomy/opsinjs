@@ -315,15 +315,15 @@ JSON source; this page cannot be edited.
 
 | Token | Tier | What it controls | Light | Dark | Used by |
 | --- | --- | --- | --- | --- | --- |
-| `--opsin-duration-spring-snap` | semantic | Settle time for the spring-snap spring, measured from its own parameters. | `283ms` | same | not yet |
-| `--opsin-duration-spring-settle` | semantic | Settle time for the spring-settle spring, measured from its own parameters. | `382ms` | same | not yet |
-| `--opsin-duration-spring-calm` | semantic | Settle time for the spring-calm spring, measured from its own parameters. | `550ms` | same | not yet |
-| `--opsin-duration-spring-sheet` | semantic | Settle time for the spring-sheet spring, measured from its own parameters. | `483ms` | same | not yet |
-| `--opsin-duration-instant` | semantic | State change with no travel: hover tint, focus ring, checkbox tick. | `80ms` | same | not yet |
-| `--opsin-duration-fast` | semantic | Small elements moving a small distance. | `140ms` | same | not yet |
-| `--opsin-duration-base` | semantic | The default for chrome that is not spring-driven. | `220ms` | same | not yet |
-| `--opsin-duration-slow` | semantic | Layout change: a list reflowing, a card expanding. | `360ms` | same | not yet |
-| `--opsin-duration-deliberate` | semantic | The ceiling. Used for a first-run reveal or a consent sheet, where the point is that the reader notices. Nothing may exceed it. | `560ms` | same | not yet |
+| `--opsin-duration-spring-snap` | semantic | Settle time for the spring-snap spring, measured from its own parameters. | `283ms` | same | no component |
+| `--opsin-duration-spring-settle` | semantic | Settle time for the spring-settle spring, measured from its own parameters. | `382ms` | same | no component |
+| `--opsin-duration-spring-calm` | semantic | Settle time for the spring-calm spring, measured from its own parameters. | `550ms` | same | no component |
+| `--opsin-duration-spring-sheet` | semantic | Settle time for the spring-sheet spring, measured from its own parameters. | `483ms` | same | sheet |
+| `--opsin-duration-instant` | semantic | State change with no travel: hover tint, focus ring, checkbox tick. | `80ms` | same | no component |
+| `--opsin-duration-fast` | semantic | Small elements moving a small distance. | `140ms` | same | button, care-card, consent-sheet, dialog, skeleton |
+| `--opsin-duration-base` | semantic | The default for chrome that is not spring-driven. | `220ms` | same | dialog, sheet |
+| `--opsin-duration-slow` | semantic | Layout change: a list reflowing, a card expanding. | `360ms` | same | no component |
+| `--opsin-duration-deliberate` | semantic | The ceiling. Used for a first-run reveal or a consent sheet, where the point is that the reader notices. Nothing may exceed it. | `560ms` | same | no component |
 
 ### type
 
@@ -331,9 +331,9 @@ JSON source; this page cannot be edited.
 
 | Token | Tier | What it controls | Light | Dark | Used by |
 | --- | --- | --- | --- | --- | --- |
-| `--opsin-font-sans` | semantic | The sans family stack. | `system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif` | same | not yet |
-| `--opsin-font-mono` | semantic | The mono family stack. | `ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace` | same | not yet |
-| `--opsin-font-numeric` | semantic | The numeric family stack. | `system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif` | same | not yet |
+| `--opsin-font-sans` | semantic | The sans family stack. | `system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif` | same | no component |
+| `--opsin-font-mono` | semantic | The mono family stack. | `ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace` | same | no component |
+| `--opsin-font-numeric` | semantic | The numeric family stack. | `system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif` | same | result-card, value |
 
 #### text
 
