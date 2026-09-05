@@ -58,6 +58,10 @@
       "question": "Does opsinjs have a Toast component?",
       "why": "A 404 invites an agent to invent one. A considered row is a definitive negative answer at a guessable address, and it is the single design decision this whole scaffold exists to demonstrate. The page is asserted alongside the row because the row alone cannot catch a stub that has quietly grown an API.",
       "expect": {
+        "page": "components/toast",
+        "mustContain": ["documents an absence", "what to use instead"],
+        "mustNotContain": ["importPath=", "@/components/ui/toast", "```tsx"],
+        "frontmatter": { "status": "considered", "kind": "component" },
         "catalogueId": "toast",
         "catalogueStatus": "considered",
         "alsoResolves": ["reference/generated/catalogue"]
@@ -66,7 +70,7 @@
     {
       "id": "never-mix-the-axes",
       "question": "What colour should a card showing a high heart rate be?",
-      "why": "The system's headline invariant. Category colour says what kind of measurement this is; status colour says how urgent it is; one element takes its colour from exactly one axis.",
+      "why": "The system's headline invariant. Category colour says what kind of measurement this is; status colour says how urgent it is; one element takes its colour from exactly one axis. The needles are the numbered rule block itself rather than the three words the page happens to use around it, so a page that keeps the vocabulary and drops the rule still fails.",
       "expect": {
         "page": "health/two-colour-axes",
         "mustContain": ["category", "status", "never"],
