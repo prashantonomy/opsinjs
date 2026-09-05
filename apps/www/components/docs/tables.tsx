@@ -438,6 +438,20 @@ export function KeyboardTable({ name, rows, className }: KeyboardTableProps) {
 export interface TokenTableProps {
   /** A token namespace: `color`, `material`, `motion`, `type`, `space`, `shape`. */
   scope?: TokenNamespace
+  /**
+   * A sub-group within the namespace — `status`, `category`, `ladder`. This is
+   * the selector most token pages actually want: a whole namespace is a table
+   * nobody reads, and `scope` on its own was forcing pages to print one.
+   * Combine with `scope` to disambiguate a group name that two namespaces
+   * share.
+   */
+  group?: string
+  /**
+   * A tier: primitive, role or component-level. Orthogonal to `scope`, and the
+   * other axis a token page teaches — the whole point of the three-tier ladder
+   * is that a reader can look at one rung at a time.
+   */
+  tier?: TokenTier
   /** Or a component id, to list only the tokens that component consumes. */
   component?: string
   /** Override the rows. Rarely needed — the generated map is the source. */
@@ -456,10 +470,29 @@ export interface TokenTableProps {
  */
 export function TokenTable({
   scope,
+  group,
+  tier,
   component,
   rows,
   className,
 }: TokenTableProps) {
+  /*
+   * One selector wins, in this order: explicit rows, a component, then the
+   * declarative filters, which compose. `scope` alone is still a whole
+   * namespace; `scope` plus `group` or `tier` narrows it; `group` or `tier`
+   * alone reaches across namespaces, which is what a tier page wants.
+   */
+  const selected =
+    component !== undefined
+      ? tokensUsedBy(component)
+      : scope !== undefined
+        ? byNamespace(scope)
+        : tier !== undefined
+          ? byTier(tier)
+          : group !== undefined
+            ? getTokens()
+            : []
+
   const tokens =
     rows ??
     (component ? tokensUsedBy(component) : scope ? byNamespace(scope) : [])
