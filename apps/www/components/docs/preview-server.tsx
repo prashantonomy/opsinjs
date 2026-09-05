@@ -111,7 +111,10 @@ export function ComponentPreview(props: ComponentPreviewServerProps) {
 }
 
 /** See `ComponentPreviewServerProps` — `built` is resolved, never passed. */
-export type IframePreviewServerProps = Omit<IframePreviewProps, "built">
+export type IframePreviewServerProps = Omit<
+  IframePreviewProps,
+  "built" | "phase"
+>
 
 /** A `/view` route framed at a device width. See `./preview` for the surface. */
 export function IframePreview(props: IframePreviewServerProps) {
@@ -126,6 +129,7 @@ export function IframePreview(props: IframePreviewServerProps) {
     <IframePreviewSurface
       {...props}
       built={resolvesToARender(name, base, style, kind)}
+      phase={phaseOf(name)}
     />
   )
 }
