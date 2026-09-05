@@ -357,12 +357,24 @@ export interface DisclaimerNoteProps {
 /**
  * The escape hatch, reported rather than closed.
  *
- * Not an OPSIN code, for the reason given on `warnDev` above. It warns and
- * renders: the class list is the caller's and the words are the product's, and
- * taking a legal statement off a screen over a styling mistake would be the
- * larger error.
+ * Not an OPSIN code, for the reason given on `warnDev` above — which is also
+ * why it goes THROUGH `warnDev` rather than round it. This runs in a render
+ * body, so a bare `console.warn` here would print on every render and twice
+ * again under Strict Mode, and a disclaimer sits at the foot of a surface that
+ * re-renders whenever anything above it changes. The key is the offending class
+ * list, because two different tinted notes are two different mistakes in two
+ * different places. `callout.tsx` guards its own copy of this warning the same
+ * way.
+ *
+ * It warns and renders: the class list is the caller's and the words are the
+ * product's, and taking a legal statement off a screen over a styling mistake
+ * would be the larger error.
  */
 function warnIfTintedFromAnAxis(className: string | undefined): void {
+  /* `isDevelopment()` first, and again inside `warnDev`. The second check is the
+     one that gates the print; this one keeps the regular expression off the
+     production render path, where it would run against every note's class list
+     to reach a branch that can never be taken. */
   if (!isDevelopment() || className === undefined) return
   if (!AXIS_TINT.test(className)) return
   console.warn(
