@@ -231,8 +231,9 @@ export interface OpenInSandboxProps {
   name?: string
   /**
    * `owner/repo/tree/branch/path` on GitHub. StackBlitz forks it directly.
-   * While nothing is built there is nothing to point at, and the component
-   * says so instead of linking to an empty project.
+   * Left unset on every page today, because the fork has to resolve to a
+   * public repository and this one is not published yet; the component says so
+   * instead of linking somewhere that 404s.
    */
   repoPath?: string
   /** The file StackBlitz should open first. */
@@ -257,7 +258,7 @@ export function OpenInSandbox({
   if (!repoPath) {
     return (
       <p
-        data-opsinjs-no-data="registry/examples"
+        data-opsinjs-no-data="sandbox"
         className={cn(
           "not-prose my-3 text-xs text-muted-foreground",
           className
