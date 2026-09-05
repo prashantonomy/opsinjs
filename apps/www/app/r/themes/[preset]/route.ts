@@ -189,7 +189,7 @@ export async function GET(
       {
         error: "malformed-theme",
         preset,
-        message: `public/r/themes/${preset}.json is not valid JSON: ${String(error)}`,
+        message: `The generated payload for "${preset}" is not valid JSON: ${String(error)}. It is read from registry/generated/themes, or from public/r/themes if it is still written to the old location. Regenerate it with scripts/build-tokens.mts rather than repairing it by hand.`,
       },
       { status: 500 }
     )
@@ -222,7 +222,7 @@ export async function GET(
       opsinjs: {
         ...provenance(),
         kind: "theme",
-        note: "Tokens are real and generated. Components are not implemented; installing this theme gives you the variables, not the components that would consume them.",
+        note: themeNote(),
         catalogue: absoluteUrl("/r/index.json"),
       },
     },
