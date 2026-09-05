@@ -28,7 +28,7 @@ import { Card } from "@/registry/base-lyra/ui/card"
 
 export default function CalloutOnACard() {
   return (
-    <div className="w-full max-w-(--opsin-measure-tight)">
+    <div className="w-full max-w-(--opsin-measure-tight,45ch)">
       <Card>
         <Card.Header
           title={<h3>How this section is put together</h3>}
