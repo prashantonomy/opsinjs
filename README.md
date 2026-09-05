@@ -45,7 +45,8 @@ Node 24 or newer is required: the build scripts are `.mts` files executed direct
 
 ```
 apps/www          the documentation site (Next.js 16 App Router + fumadocs)
-packages/*        reserved — the published @opsinjs/* packages will live here
+packages/*        reserved and empty — nothing is published to npm today, and
+                  components never will be (ADR 0002: distribution is copy-in)
 skills/opsinjs    the Agent Skill: rules an assistant must follow to use opsinjs
 .rawres           the research that produced the architecture decisions
 ```
@@ -54,7 +55,7 @@ skills/opsinjs    the Agent Skill: rules an assistant must follow to use opsinjs
 
 | Command | What it does |
 | --- | --- |
-| `pnpm dev` | Runs the docs site (regenerates tokens and the registry index first) |
+| `pnpm dev` | Runs the docs site (`predev` regenerates tokens, the registry index and the reference tables first) |
 | `pnpm build` | Generates, compiles MDX, then builds the site |
 | `pnpm typecheck` | Regenerates `.source`, runs `next typegen`, then `tsc --noEmit` |
 | `pnpm check` | Drift gate: generated files, information architecture, accessibility from source, `llms.txt` |
