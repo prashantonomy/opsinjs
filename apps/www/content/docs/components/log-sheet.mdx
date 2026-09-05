@@ -15,7 +15,6 @@ usedIn: [daily-log-entry, daily-log-screen]
 <StubNotice
   name="log-sheet"
   status="alpha"
-  issue="opsinjs/opsinjs#0"
   questions={[
     "The field ceiling is a design rule and is not enforced, because it cannot be enforced honestly: React.Children sees direct children only, so a product that wraps its own two fields in one component of its own would be counted as having one. Is the answer a lint rule, a `fields` prop that enumerates them, or leaving it a rule people follow?",
     "The same reading logged twice within minutes is either a duplicate to merge or a real second measurement, and this component cannot tell — it has no slot key and no view of the rest of the log. Does that stay entirely the product's problem, or does the entry need to carry something that lets the product decide?",
@@ -428,8 +427,12 @@ a browser.
 - The keyboard-safe inset under the save action on a real device with a software keyboard.
   Sheet's page carries the same gap and it is the same mechanism.
 - Contrast for the category band against the sheet's material, in both themes and under
-  increased contrast. `prefers-contrast` and `forced-colors` are not implemented anywhere in
-  opsinjs yet.
+  increased contrast. `forced-colors` is implemented nowhere in opsinjs.
+  `prefers-contrast: more` is implemented in [Surface](./surface.mdx#accessibility) alone
+  rather than in the token layer, and the sheet this component opens is backed by one — so
+  under the mode that material goes to its opaque fallback and its edge widens to the
+  emphasis width, which changes the very pairing this bullet is about. Nobody has measured
+  it in either state.
 - What a screen reader says when the footer's contents are replaced. The swap is a
   re-render inside a region nobody is listening to, and focus arriving is the only signal.
 
