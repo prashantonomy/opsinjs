@@ -433,18 +433,18 @@ JSON source; this page cannot be edited.
 
 | Token | Tier | What it controls | Light | Dark | Used by |
 | --- | --- | --- | --- | --- | --- |
-| `--opsin-measure-tight` | semantic | A caption or a legend. | `45ch` | same | not yet |
-| `--opsin-measure-comfortable` | semantic | The maximum line length for prose anywhere in the product, including a disclaimer nobody wants to read. | `66ch` | same | not yet |
-| `--opsin-measure-wide` | semantic | Code and machine output only. | `80ch` | same | not yet |
+| `--opsin-measure-tight` | semantic | A caption or a legend. | `45ch` | same | dialog, empty-state |
+| `--opsin-measure-comfortable` | semantic | The maximum line length for prose anywhere in the product, including a disclaimer nobody wants to read. | `66ch` | same | disclaimer-note, result-card, term |
+| `--opsin-measure-wide` | semantic | Code and machine output only. | `80ch` | same | no component |
 
 #### safe
 
 | Token | Tier | What it controls | Light | Dark | Used by |
 | --- | --- | --- | --- | --- | --- |
-| `--opsin-safe-top` | semantic | The top safe-area inset, for installed web apps where browser chrome does not protect the edge. | `env(safe-area-inset-top, 0px)` | same | not yet |
-| `--opsin-safe-right` | semantic | The right safe-area inset, for installed web apps where browser chrome does not protect the edge. | `env(safe-area-inset-right, 0px)` | same | not yet |
-| `--opsin-safe-bottom` | semantic | The bottom safe-area inset, for installed web apps where browser chrome does not protect the edge. | `env(safe-area-inset-bottom, 0px)` | same | not yet |
-| `--opsin-safe-left` | semantic | The left safe-area inset, for installed web apps where browser chrome does not protect the edge. | `env(safe-area-inset-left, 0px)` | same | not yet |
+| `--opsin-safe-top` | semantic | The top safe-area inset, for installed web apps where browser chrome does not protect the edge. | `env(safe-area-inset-top, 0px)` | same | no component |
+| `--opsin-safe-right` | semantic | The right safe-area inset, for installed web apps where browser chrome does not protect the edge. | `env(safe-area-inset-right, 0px)` | same | sheet |
+| `--opsin-safe-bottom` | semantic | The bottom safe-area inset, for installed web apps where browser chrome does not protect the edge. | `env(safe-area-inset-bottom, 0px)` | same | dialog, sheet |
+| `--opsin-safe-left` | semantic | The left safe-area inset, for installed web apps where browser chrome does not protect the edge. | `env(safe-area-inset-left, 0px)` | same | sheet |
 
 ### shape
 
@@ -452,13 +452,13 @@ JSON source; this page cannot be edited.
 
 | Token | Tier | What it controls | Light | Dark | Used by |
 | --- | --- | --- | --- | --- | --- |
-| `--opsin-radius-base` | semantic | The one radius the whole ladder is derived from. | `0.875rem` | same | not yet |
-| `--opsin-radius-none` | semantic | Full-bleed media and anything that meets a screen edge. | `0rem` | same | not yet |
-| `--opsin-radius-xs` | semantic | The floor for a nested corner. Tags inside a chip, a swatch inside a legend. | `0.25rem` | same | not yet |
-| `--opsin-radius-sm` | semantic | Inputs and small controls inside a card. | `0.4375rem` | same | not yet |
-| `--opsin-radius-md` | semantic | The default. Buttons, chips, status pills, cards. | `0.875rem` | same | not yet |
-| `--opsin-radius-lg` | semantic | Cards on a phone, where the card is nearly the width of the screen. | `1.3125rem` | same | not yet |
-| `--opsin-radius-xl` | semantic | Sheets and dialogs. Applied to the leading edge only when the surface meets a screen edge on the other side. | `1.75rem` | same | not yet |
+| `--opsin-radius-base` | semantic | The one radius the whole ladder is derived from. | `0.875rem` | same | no component |
+| `--opsin-radius-none` | semantic | Full-bleed media and anything that meets a screen edge. | `0rem` | same | no component |
+| `--opsin-radius-xs` | semantic | The floor for a nested corner. Tags inside a chip, a swatch inside a legend. | `0.25rem` | same | term |
+| `--opsin-radius-sm` | semantic | Inputs and small controls inside a card. | `0.4375rem` | same | consent-sheet, field, reading-input, sheet, surface |
+| `--opsin-radius-md` | semantic | The default. Buttons, chips, status pills, cards. | `0.875rem` | same | alert-banner, button, callout, card, care-card, dialog, empty-state, metric-tile, result-card, skeleton, surface |
+| `--opsin-radius-lg` | semantic | Cards on a phone, where the card is nearly the width of the screen. | `1.3125rem` | same | surface |
+| `--opsin-radius-xl` | semantic | Sheets and dialogs. Applied to the leading edge only when the surface meets a screen edge on the other side. | `1.75rem` | same | dialog, sheet |
 
 #### corner-shape
 
