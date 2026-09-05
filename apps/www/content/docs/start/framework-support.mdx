@@ -79,11 +79,13 @@ and a status is static markup; there is no reason for it to ship JavaScript, and
 it does not.
 
 **A minority require a client boundary**, and each one says so on its own page in
-its cost section — the ones that manage focus, hold open/closed state, or observe
-the viewport: `Sheet`, `Dialog`, `ConsentSheet`, `LogSheet`, `ReadingInput`, and
-the interactive parts of `TrendSparkline`. Where a component is split, the
-interactive part is a separate file, so importing the display half does not drag a
-client boundary into your server tree.
+its cost section. Seven of the twenty-four carry `"use client"` today: `Sheet`,
+`Dialog`, `ConsentSheet`, `LogSheet` and `ReadingInput`, which manage focus and
+open/closed state; `Term`, whose plain-English expansion is a disclosure the
+reader opens; and `RelativeTime`, for the reason below. `TrendSparkline` is not
+among them — it renders as static markup, so a series is safe in a server tree.
+Where a component is split, the interactive part is a separate file, so importing
+the display half does not drag a client boundary into your server tree.
 
 **Theme and density are CSS, not context.** There is no provider to mount for
 theming: the mode is a class and the tokens are custom properties. That is what
@@ -109,7 +111,7 @@ discover the mismatch.
 | Create React App | Not targeted | Unmaintained; no Tailwind v4 story worth documenting. |
 | React Native | Not targeted | The tokens are portable; nothing else is. |
 
-<NoDataYet script="build-reference.mts" />
+<NoDataYet script="scripts/build-reference.mts" />
 
 ## Verify it worked
 
