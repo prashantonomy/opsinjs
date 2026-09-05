@@ -38,7 +38,7 @@ const ROWS = [
 
 export default function DisclaimerNoteOnceAtTheFootOfASurface() {
   return (
-    <div className="w-full max-w-(--opsin-measure-comfortable)">
+    <div className="w-full max-w-(--opsin-measure-comfortable,66ch)">
       <Card>
         <Card.Header
           title={<h3>Example surface</h3>}
