@@ -80,10 +80,62 @@ if (isDevelopment()) {
  * LINE role, which is the boundary. `-accent` is deliberately absent: it is the
  * identity fill, chosen for recognition rather than contrast, and it is never
  * text and never a sole boundary.
+ *
+ * AND THE INK IS AN ARBITRARY PROPERTY, WHICH IS NOT A STYLE CHOICE. `cn` is
+ * `twMerge(clsx(…))` and tailwind-merge is unconfigured: it has never been told
+ * that `--text-opsin-*` is a font-size namespace, so it files
+ * `text-opsin-caption1` and `text-status-watch-ink` in the SAME conflict group
+ * and keeps whichever comes last. Spelled `text-status-<level>-ink`, the ink was
+ * deleted by `SIZE[size]` on the line after it in the `cn()` call below — at
+ * both sizes and for all four levels — and the word took its colour from
+ * whatever ancestor happened to supply one, on a status-tinted surface, in a
+ * pairing nothing has measured. Reordering rescues nothing: `TONE` last keeps
+ * the ink and drops the type step and its weight instead, which is the
+ * regression `care-card.tsx` records at its own action list, and `field.tsx`
+ * states flatly that there is no ordering that keeps both.
+ *
+ * `[color:…]` is grouped by tailwind-merge under the CSS property rather than
+ * under the `text-` prefix, so the size and the colour no longer meet and both
+ * survive. `button.tsx` and `disclaimer-note.tsx` answer the identical trap the
+ * same way. The components that set a type step beside a colour on an element
+ * `cn` never touches — `range-bar.tsx`, `score-dial.tsx`, `result-card.tsx`,
+ * `metric-tile.tsx` — join the two strings instead; that answer works only
+ * outside a `cn()` call, so it is not available on this root. A Tailwind editor
+ * plugin will offer to rewrite these four lines as `text-status-<level>-ink`;
+ * do not accept it, because that is the spelling that loses.
+ *
+ * TEACHING `lib/utils.ts` THE NAMESPACE WOULD NOT FIX THIS COMPONENT, which is
+ * why the repair is here rather than reported upward a second time.
+ * `scripts/build-registry.mts` leaves `@/lib/utils` out of the shipped
+ * substrate on purpose — `shadcn init` has already written it — so an installed
+ * pill merges its classes with whatever `cn` the consuming app owns, and a
+ * component that renders its own colours only under this repository's build is
+ * not repaired.
+ *
+ * The variable is `--opsin-status-<level>-ink` and not the theme's
+ * `--color-status-<level>-ink`, because the `@theme inline` block that declares
+ * the colour namespace inlines its values into utilities and emits no custom
+ * property to read back. No literal fallback is written beside it: in an app
+ * without the token sheet the declaration resolves to nothing and the word
+ * inherits, which is the same ground on which `bg-status-<level>-surface` is
+ * also absent, and inventing a colour value here would be worse than inheriting
+ * one.
+ *
+ * WHAT IT COSTS, STATED RATHER THAN SOFTENED: because the two no longer
+ * conflict, a `text-*` class passed in `className` can no longer recolour the
+ * word — both declarations are emitted and source order decides. The surface
+ * and the boundary are still overridable that way, and there is no `style`
+ * prop and no spread here to reach past a class with, so the remaining way to
+ * recolour the ink is a rule of your own on `[data-slot="status-pill"]`, which
+ * is what the slots are for. `field.tsx` documents the same trap from the other
+ * side and answers it by declining to set a colour at all; that answer is not
+ * available to a component whose fill is the point.
  */
 const TONE: Record<ClinicalStatus, string> = {
-  steady: "border-status-steady bg-status-steady-surface text-status-steady-ink",
-  watch: "border-status-watch bg-status-watch-surface text-status-watch-ink",
+  steady:
+    "border-status-steady bg-status-steady-surface [color:var(--opsin-status-steady-ink)]",
+  watch:
+    "border-status-watch bg-status-watch-surface [color:var(--opsin-status-watch-ink)]",
   attention:
     "border-status-attention bg-status-attention-surface text-status-attention-ink",
   urgent: "border-status-urgent bg-status-urgent-surface text-status-urgent-ink",
