@@ -16,10 +16,14 @@ inside a container with egress disabled on purpose. Those are the environments
 where a health design system is most likely to be used and least likely to be
 reachable.
 
-`/r/docs.json` is one request that returns everything: the processed markdown of
-every documentation page, its frontmatter, and the version stamp that identifies
-the build it came from. Fetch it once, vendor it, and an agent can answer
-questions about opsinjs with no further access.
+`/r/docs.json` is one request that returns as much of the corpus as fits inside
+a size budget: the processed markdown of each page it carries, that page's
+frontmatter, and the version stamp identifying the build it came from. It is
+capped, and today it is truncated — which the response says about itself.
+`total`, `included`, `omitted`, `truncated` and `truncationNote` are top-level
+fields, and reading them is the difference between vendoring a corpus and
+vendoring a portion of one. Fetch the [shards](./llms-txt.mdx) for the sections
+it dropped.
 
 ```bash
 curl -s https://opsinjs.dev/r/docs.json -o opsinjs-docs.json
@@ -27,8 +31,9 @@ curl -s https://opsinjs.dev/r/docs.json -o opsinjs-docs.json
 
 ## What is in it
 
-Each entry is a page. The fields are exactly the ones a machine needs to decide
-whether the page answers the question in front of it.
+A wrapper of build and budget metadata, then one entry per page carrying the
+fields a machine needs in order to decide whether that page answers the question
+in front of it.
 
 ```ts
 {
