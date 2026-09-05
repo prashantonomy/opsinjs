@@ -21,6 +21,10 @@ next-env.d.ts
 # generated registry payloads that are rebuilt per environment
 apps/www/public/r/screens/
 
+# eval run artefact: run-evals.mts stamps it with a wall-clock date, so a run
+# would otherwise show up as drift under `check:generated`'s public/r diff.
+apps/www/public/r/evals.json
+
 # environment
 .env
 .env.*
