@@ -23,7 +23,11 @@ Check for this, in `components.json`:
 ```
 
 If it is absent, say so and offer the one-line addition before the install
-command - not after it, and not as a footnote.
+command - not after it, and not as a footnote. `opsinjs.dev` is the canonical
+host and is not registered yet, so point the entry at whichever host is actually
+serving `/r` - a local `pnpm dev` on port 4000 while that is all there is - and
+say which one you used. The `{name}` placeholder and the `/r/{name}.json` path
+are the parts that do not change.
 
 ## Ask before you assume
 
@@ -56,7 +60,7 @@ dependency, three consequences follow that a package would not have.
   component including the considered ones, with status and category. Prefer it
   over guessing a component name from prose.
 
-## Right now, every item is empty
+## Which items carry files
 
 Nothing is built. Every registry item at `/r/<name>.json` currently carries an
 empty `files` array and a `meta.notImplemented: true` marker. `npx shadcn add`
