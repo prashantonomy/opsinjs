@@ -17,25 +17,72 @@ public internet today. Keep the paths; substitute the origin. If nothing is
 serving them, say that you could not reach the documentation. Answering from
 recall instead is the failure this whole skill exists to prevent.
 
-Every component in opsinjs is currently at `status: planned`. The documentation
-pages are **specifications**, not references for shipped code. There is no
-package to install, no import that resolves, and no prop interface that is
-stable.
+## Read this first: check before you claim
+
+opsinjs has a six-status scale - `/docs/project/release-phases.md` says what
+each one promises - and its components occupy exactly two of them. `alpha` means
+implemented: the code exists, it renders, and it installs into a project as
+source. `considered` means a reserved name with no code and no specification
+page: the address answers instead of returning a 404, and "considered, not
+implemented" is a complete answer rather than a gap to fill. No component has
+reached `beta` or `stable`, none is `planned`, and there is no npm package
+today: distribution is registry copy-in, so `import … from "@opsinjs/react"`
+does not resolve. (Pages that are not components still use `planned`; that says nothing
+about code.)
+
+Which id is which is generated, so read the roster instead of trusting a count
+written in prose, including one written here. Three addresses answer for a
+single id, and they are the only three that do:
+
+- `https://opsinjs.dev/r/index.json` - every id with its `status` and an
+  `implemented` boolean, in one document. This is the roster; read it once and
+  you have all of them.
+- `https://opsinjs.dev/r/<id>.json` - the same answer for one id at
+  `meta.opsinjs.implemented`, repeated in the `x-opsinjs-implemented` and
+  `x-opsinjs-status` response headers. This is the one URL where a HEAD request
+  settles it, because it is the one that scopes those headers to the id you
+  asked about - and the `x-opsinjs-status` beside the boolean is what proves the
+  scoping.
+- `https://opsinjs.dev/docs/components/<id>.md` - the page itself. Its
+  frontmatter carries `status:` and a per-page `implemented:` field, and that
+  field is about the component the page is for.
+
+**Do not HEAD a documentation URL to decide whether a component is built.** On
+`/docs/…` and on its `.md` twin, `x-opsinjs-implemented` is scoped to the
+system - it says whether opsinjs has implemented components at all, not whether
+this one is among them - and no `x-opsinjs-status` is sent beside it to
+disambiguate, so it can read `true` on the page of a reserved name with no code.
+Nothing in the build gates that header against the body underneath it. If you
+have the page open, read its `implemented:` frontmatter; if all you want is the
+boolean, ask `/r/<id>.json`. A header on a docs response is never the answer
+about one component.
+
+Do not look for `meta.notImplemented`, and do not read a missing key as a
+negative answer.
 
 That means:
 
-- **Never write code against an opsinjs component API.** A page describing
-  `<RangeBar>` is describing a component that does not exist. Generating an
-  import for it produces code that cannot run and an API that will be wrong.
-- **Never claim an opsinjs component exists** in an answer, a comment, a commit
-  message or a plan.
-- When someone asks for an opsinjs component, say plainly that it is specified
-  and not built, then either implement the behaviour directly against the
-  specification or use a primitive they already have. The specification is
-  genuinely useful for that: it states the intent, the cases where the component
-  is the wrong answer, the accessibility bar, and the clinical contract.
-- The catalogue also lists components at `status: considered` - deliberately not
-  shipping. "Considered, not implemented" is a complete answer. Do not invent one.
+- **Check `implemented` before you claim anything, in either direction.**
+  Telling someone that a built component does not exist costs them a
+  hand-written clinical surface nobody reviewed. Telling them a reserved name is
+  built costs them an import that cannot resolve. These are the same mistake and
+  the first one is the more expensive.
+- **`alpha` is real, and it is unstable.** The code exists and the API will
+  change without a deprecation cycle. Accessibility is claimed only where it has
+  been checked, and each component page lists its own unmeasured gaps rather than
+  omitting them. Hand someone an alpha component with both halves said out loud:
+  it works, and it belongs in a prototype rather than in a production health
+  surface.
+- **Never invent a prop.** An alpha surface is narrow. Read the component page's
+  generated props table, or the source in the `files` of its registry item. Do
+  not infer the API from the component's name.
+- **Install it; do not rewrite it.** `npx shadcn@latest add @opsinjs/<id>` is the
+  path, but only once `@opsinjs` is registered in the project's
+  `components.json` - check that first, every time. `rules/registry.md` is the
+  rule and it comes before the command.
+- When the id is `considered`, say so and stop. The page names what to use
+  instead, and that answer is better than a component opsinjs deliberately did
+  not ship.
 
 ## When to use this skill
 
@@ -83,9 +130,9 @@ they show up.
 4. **Urgency has a budget.** Every alert makes the next one weaker. At most one
    urgent surface per screen, and an alert that cannot be acted on is not an
    alert.
-5. **Uncertainty is content, not an edge case.** Stale, estimated, partial and
-   missing are five distinct states with five distinct renderings, and the empty
-   state is the one a real person meets first.
+5. **Uncertainty is content, not an edge case.** Fresh, stale, partial,
+   estimated and absent are five distinct states with five distinct renderings,
+   and absent is the one a real person meets first.
 
 ## Answering questions about opsinjs
 
