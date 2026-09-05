@@ -87,7 +87,7 @@ and reported on
 **3. Say what you do not know.** Missing, stale, estimated and partial data are
 first-class states with their own rendering, not a blank space or a zero. A
 health surface that shows nothing where a number should be is indistinguishable
-from a health surface showing a normal result, and the reader will assume the
+from a health surface showing a steady reading, and the reader will assume the
 latter.
 
 Enforced by: [Data states](data-states.mdx), which every data-bearing component
@@ -100,8 +100,12 @@ theme rather than a find-and-replace, and it is why the contrast floor can be
 measured at all: you cannot audit a hex code that only exists inside one
 component.
 
-Enforced by: `scripts/assert-ia.mts`, the Stylelint rule, and the fact that every
-value printed anywhere on this site comes from `scripts/build-tokens.mts`.
+Enforced by: `scripts/check-a11y.mts` rules A11Y005 and A11Y006, which fail
+`pnpm check` on a hex colour, a raw `oklch()`, a Tailwind palette class or a
+numbered axis ramp step anywhere under `registry/`, with A11Y007 warning on a
+neutral ramp step; and the fact that every value printed anywhere on this site
+comes from `scripts/build-tokens.mts`. The Stylelint rule that would extend the
+same check to a consumer's own stylesheets is specified and not built.
 
 **5. The system does not practise medicine.** opsinjs decides how a number is
 *presented*. It never decides what the number *means*. Thresholds, reference
