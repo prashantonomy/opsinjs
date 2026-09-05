@@ -155,7 +155,13 @@ function SwitchGroup<T extends string>({
   name,
 }: SwitchGroupProps<T>) {
   return (
-    <fieldset className="m-0 flex items-center gap-1 border-0 p-0">
+    // `flex-wrap` is load-bearing, not tidiness. The Status group has five
+    // options and measures 332px; the docs shell clips at `overflow-x: clip`,
+    // so at a 320px viewport the last option — Urgent, of all of them — was
+    // sliced by the edge with no scroll to reach it and no page-level overflow
+    // for a checker to catch. Wrapping to a second row is the fix; the labels
+    // carry their own borders, so a wrapped row still reads as a row.
+    <fieldset className="m-0 flex flex-wrap items-center gap-1 border-0 p-0">
       <legend className="sr-only">{label}</legend>
       <span
         aria-hidden="true"
@@ -339,6 +345,18 @@ export interface ComponentPreviewProps {
    * would ship all of it to the browser on every documentation page.
    */
   built?: boolean
+  /**
+   * The catalogue row's release phase, resolved on the server alongside
+   * `built` and never passed by a page.
+   *
+   * It reaches <NotBuiltYet>, whose visually-hidden sentence differs between
+   * `considered` and `planned`: a `planned` id has a written specification and
+   * the sentence warns that it may change, a `considered` id has none and the
+   * sentence must not imply one. Without this the empty state on all 36
+   * `considered` component pages announced a specification the page itself
+   * denies two paragraphs above.
+   */
+  phase?: Status
 }
 
 /**
@@ -359,6 +377,7 @@ export function ComponentPreview({
   minHeight = 220,
   className,
   built = false,
+  phase,
 }: ComponentPreviewProps) {
   const id = useId()
   const [mode, setMode] = useState<PreviewMode>("light")
