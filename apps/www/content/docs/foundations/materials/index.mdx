@@ -95,17 +95,24 @@ the contrast floor exists to prevent.
 
 ### The three preference queries
 
-The ladder responds to three declared preferences, and each gets a different
-answer rather than a shared kill switch:
+The ladder is specified to answer three declared preferences, each with a
+different answer rather than a shared kill switch. One of the three is
+implemented:
 
-| Preference | What changes |
-| --- | --- |
-| `prefers-reduced-transparency: reduce` | translucent rungs collapse to their opaque fallback and drop their blur |
-| `prefers-contrast: more` | borders strengthen and tints deepen; blur is unaffected |
-| `forced-colors: active` | the palette is replaced by the operating system's; the ladder survives as borders alone |
+| Preference | What changes | Implemented? |
+| --- | --- | --- |
+| `prefers-reduced-transparency: reduce` | translucent rungs collapse to their opaque fallback, drop their blur and reset their saturation | yes, in the token layer, for all six rungs |
+| `prefers-contrast: more` | borders strengthen and tints deepen; blur is unaffected | no. `Surface` alone answers it, in its own utilities: it collapses the tint to the opaque fallback and widens the edge, and it does not deepen a tint or change a border colour — see [Increased contrast](../../accessibility/increased-contrast.mdx) |
+| `forced-colors: active` | the palette is replaced by the operating system's; the ladder survives as borders alone | no. Nothing in opsinjs answers it — see [Increased contrast](../../accessibility/increased-contrast.mdx) |
+
+The two unimplemented rows stay on the page because the specification is worth
+publishing; the third column is there so that nobody plans a translucent sheet
+under forced colours believing the layer boundary already survives it.
 
 Print is a fourth case and behaves like the first, with the additional rule that
-shadows and blur are removed rather than approximated.
+shadows and blur are removed rather than approximated. That one is real but it
+is site chrome, not a token: `app/globals.css` drops `backdrop-filter` and every
+shadow on paper, and a consumer's own build has to carry the same rule itself.
 
 ## Using it
 
