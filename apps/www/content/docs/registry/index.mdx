@@ -147,13 +147,17 @@ You should get a `name`, a `homepage` and an `items` array.
 npx shadcn@latest search @opsinjs
 ```
 
-A list of items, each `planned`. An error naming the namespace means
-`components.json` was not read.
+Sixty items: the twenty-four that are implemented and the thirty-six reserved
+names, which the search output does not distinguish — `implemented` in
+`/r/index.json` does. An error naming the namespace means `components.json` was
+not read.
 
 ### `add` behaves honestly
 
-Add any component. The CLI should resolve the item and report that there is
-nothing to write, rather than creating an empty file.
+Add an implemented component and you get its source: the component file plus
+`lib/opsinjs.ts` and `lib/status.ts`, in the directories your `components.json`
+aliases name. Add a reserved name and the CLI should resolve the item and report
+that there is nothing to write, rather than creating an empty file.
 
 </Steps>
 
