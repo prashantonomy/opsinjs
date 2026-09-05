@@ -27,7 +27,7 @@ is not the one that is wrong.
 | `/r/registry.json` | The shadcn-spec catalog: every item, its type, title, description and dependencies | `registry/catalogue.ts` |
 | `/r/index.json` | Name, type, status, category, links and aliases per item — the opsinjs view rather than the shadcn one | `registry/catalogue.ts` |
 | `/r/<name>.json` | One registry item, resolved at the default base and style | `registry/catalogue.ts` |
-| `/r/docs.json` | The whole documentation corpus, versioned — see [the offline bundle](./offline-docs-bundle.mdx) | the page tree |
+| `/r/docs.json` | The documentation corpus, versioned and size-capped — see [the offline bundle](./offline-docs-bundle.mdx) | the page tree |
 
 Two more are files in the repository rather than routes, because their consumers
 are build tools rather than clients:
@@ -46,8 +46,8 @@ registry and this site's chrome:
 type Status =
   | "stable"      // shipped, supported, changes go through deprecation
   | "beta"        // shipped, API may still move
-  | "alpha"       // shipped, expect breakage
-  | "planned"     // specified, not implemented — every component today
+  | "alpha"       // shipped, expect breakage — every implemented component
+  | "planned"     // specified, not implemented — no component sits here today
   | "deprecated"  // shipped, being removed
   | "considered"  // thought about, decided nothing, no implementation
 ```
