@@ -85,12 +85,12 @@ serves the same envelope with `implemented: false`, a `why` sentence, and no
 | `author` | Attribution | The literal string `opsinjs` on every item; the registry's `homepage` carries the URL |
 | `dependencies` | npm packages | Kept as small as possible, and omitted rather than sent empty; a health component that pulls a charting library is a design failure |
 | `devDependencies` | npm dev packages | Unused |
-| `registryDependencies` | Other items, by name or full URL | Composition is explicit — `result-card` names `status-pill`, it does not inline it |
-| `files` | The code, with `path`, `type`, optional `target` and `content` | Empty today |
+| `registryDependencies` | Other items, by name or full URL | Composition is explicit, and namespaced — `result-card` names `@opsinjs/status-pill`, it does not inline it |
+| `files` | The code, with `path`, `type`, `target` and `content` | Present on the twenty-four implemented items; omitted entirely on the other thirty-six |
 | `cssVars` | `theme`, `light`, `dark` objects | Used by themes; components contribute none |
 | `css` | Raw CSS to merge into the stylesheet | Avoided — see below |
-| `meta` | Free-form | Where opsinjs puts `status`, `category` and `since` |
-| `docs` | A note shown after install | Used to restate that nothing is built |
+| `meta` | Free-form | Where opsinjs puts `implemented`, `status`, `category`, `since` and the page URLs |
+| `docs` | A note shown after install | The title and docs URL for an implemented item; the reserved-roster explanation for the rest |
 | `categories` | Grouping for search | Mirrors the catalogue category |
 
 ### `files`
