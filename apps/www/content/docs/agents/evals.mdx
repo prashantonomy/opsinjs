@@ -146,17 +146,31 @@ justified in writing.
 - **FAIL** — none did, which for a task with a `page` usually means the page has
   moved or been renamed.
 
-The headline figure is the weighted pass rate of the refusal family, because a
-suite that scores well on style and badly on refusal describes an assistant that
-writes beautiful imports of modules that do not exist.
+The headline figure is the mean of the task scores against the `passMark`
+declared in the suite file, currently 0.9. The mark is high because the suite is
+small and its failures are correlated: at 0.8 a suite this size absorbed four
+whole failing tasks without complaining, which is more than the regression guard
+above is willing to lose quietly.
+
+Scores are advisory everywhere they run today. `run-evals` reports them, writes
+them to `public/r/evals.json` and never blocks a pull request; the nightly job
+scores the deployed `.md` twins with `--base`, uploads the result as an artefact
+and is marked `continue-on-error`, so a red task there is a finding to read
+rather than a broken build. `--strict` exits non-zero below the pass mark and
+nothing invokes it yet.
 
 ### What this suite does not measure
 
-It does not measure clinical correctness, and it cannot. Every assertion is
-mechanical. An assistant can pass every task and still produce a screen that a
+It does not measure clinical correctness, and it cannot. Every assertion is a
+substring or a declared field. A corpus can score 100% and still carry a page a
 clinical reviewer would reject, and the safety argument continues to rest on
 [the review checklist](../health/safety-review-checklist.mdx) rather than on a
 score.
+
+It does not measure a model. There is no prompt, no completion and no model
+endpoint anywhere in the script, so no number produced here is a fact about an
+assistant. `<EvalResult>` prints a model name beside a score for exactly that
+reason: a score with no model attached is one nobody may attribute to one.
 
 It also does not measure whether the *documentation* is right. It measures
 whether the documentation is legible to a machine — which is a lower and more
