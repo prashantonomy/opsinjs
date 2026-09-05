@@ -658,8 +658,16 @@ export function Dialog({
                        product stylesheet's backstop, because that stylesheet
                        does not travel with this file. It is a rem, so at 200%
                        text it doubles with the glyph instead of pinning at 44
-                       device pixels. */
-                    "min-h-(--opsin-target-minimum) min-w-(--opsin-target-minimum)",
+                       device pixels.
+
+                       The `2.75rem` inside the `var()` is the same argument one
+                       step further in: `--opsin-target-minimum` is declared only
+                       in `app/tokens.generated.css`, which does not travel
+                       either, and a bare reference to an undeclared property is
+                       invalid at computed-value time — `min-height` would revert
+                       to `auto` and this control, the only exit from a modal
+                       surface, would lose its floor with no error anywhere. */
+                    "min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem)",
                     "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard",
                     "hover:bg-muted",
                     "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
@@ -680,7 +688,8 @@ export function Dialog({
             {/* Dialog.Body — the scroll region, and the reason the actions stay
                 reachable at 200% text. `overscroll-contain` stops a flick at
                 the end of the description turning into a scroll of the page
-                behind, which is inert and should not move. */}
+                behind, which is hidden from assistive technology and should not
+                move under the reader either. */}
             <div
               data-slot="dialog-body"
               className={cn(
@@ -778,11 +787,18 @@ export default function DialogDemo() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={cn(
-          "inline-flex min-h-(--opsin-target-minimum) items-center rounded-opsin-md",
-          "border border-border bg-card px-opsin-4 text-opsin-body text-card-foreground",
-          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-        )}
+        /* JOINED RATHER THAN MERGED. `cn` is `twMerge(clsx(…))` and
+           tailwind-merge is unconfigured, so it files `text-opsin-body` and
+           `text-card-foreground` in one conflict group and keeps only the later
+           — which cost this button its type step every time it rendered. The
+           two utilities set different CSS properties and both should apply.
+           Nothing here needs merging: there is no caller `className` on a demo.
+           `sheet.tsx` carries the same note at its close control. */
+        className={
+          "inline-flex min-h-(--opsin-target-minimum,2.75rem) items-center rounded-opsin-md " +
+          "border border-border bg-card px-opsin-4 text-opsin-body text-card-foreground " +
+          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+        }
       >
         Delete this reading
       </button>
