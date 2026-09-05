@@ -253,10 +253,10 @@ export function TokenBrowser() {
     return () => observer.disconnect()
   }, [])
 
-  const normalisedQuery = query.trim().toLowerCase()
+  const needle = query.trim().toLowerCase()
 
   const groups = useMemo(() => {
-    const filtered = normalisedQuery
+    const filtered = needle
       ? tokens.filter(
           (token) =>
             token.property.includes(normalisedQuery) ||
