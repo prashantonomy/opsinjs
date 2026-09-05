@@ -157,10 +157,14 @@ one:
   colour alone. That is a structural rule enforced at the component level, not a
   guideline — see [Colour independence](../../accessibility/colour-independence.mdx).
 - **Adaptation.** `prefers-contrast: more`, `forced-colors: active` and dark mode
-  are three different requests and get three different answers. Dark mode is a
-  re-derivation, not an inversion ([Dark mode](./dark-mode.mdx)); forced colours
-  hands the palette to the operating system and the system must survive losing
-  it entirely.
+  are three different requests and the engine owes each a different answer. One
+  of the three is shipped: dark mode is a re-derivation, not an inversion
+  ([Dark mode](./dark-mode.mdx)). `prefers-contrast: more` is honoured in exactly
+  one place — `Surface` drops its translucent layer under `contrast-more:` — and
+  nowhere else. `forced-colors: active` is implemented nowhere at all; the
+  specified answer, that the palette is handed to the operating system and the
+  system survives losing it entirely, is a specification and not yet a behaviour.
+  See [Increased contrast](../../accessibility/increased-contrast.mdx).
 
 The failure mode that motivates all of this is specific: a reader with a
 red–green colour vision deficiency, on a phone at 40% brightness outdoors,
