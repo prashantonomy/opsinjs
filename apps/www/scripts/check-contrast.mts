@@ -5,6 +5,14 @@
  *   node scripts/check-contrast.mts             # measure and write
  *   node scripts/check-contrast.mts --verify    # measure, write nothing, fail on a regression
  *   node scripts/check-contrast.mts --strict    # also fail when a required pair is below the floor
+ *   node scripts/check-contrast.mts --selftest  # only check the maths against known answers
+ *
+ * THE SELF-TEST RUNS FIRST, ALWAYS. `--verify` compares fresh measurements
+ * against a baseline this same code wrote, which proves reproducibility and
+ * nothing else; a wrong formula would agree with itself forever. So every
+ * invocation starts by checking the two models against answers that do not
+ * come from this repository - see the self-test section for what is allowed to
+ * be asserted there, and what emphatically is not.
  *
  * WHY BOTH NUMBERS. WCAG 2.2's ratio is what a procurement questionnaire and a
  * VPAT ask for. APCA's Lc models perceived lightness contrast far better at the
@@ -232,6 +240,163 @@ function pick<T>(
     if (candidate !== undefined) return candidate as T
   }
   return undefined
+}
+
+/* ------------------------------------------------------------------ *
+ * Self-test: known-answer and structural assertions                   *
+ *                                                                     *
+ * WHY THIS EXISTS. `--verify` proves the published numbers are        *
+ * REPRODUCIBLE, which is not the same as proving they are right. It   *
+ * recomputes every pair with lib/color/ and diffs the result against  *
+ * a baseline the same code wrote, so a wrong formula is wrong         *
+ * identically on both sides of that diff and the gate stays green     *
+ * while every Lc and ratio on the site carries the error. This runs   *
+ * first, and closes the loop with answers that do not come from this  *
+ * repository's own output.                                            *
+ *                                                                     *
+ * WHAT MAY BE ASSERTED HERE. Only two kinds of claim. DEFINITIONAL:   *
+ * it falls straight out of the published formula, like               *
+ * (1 + 0.05) / (0 + 0.05) = 21 for black on white, or a pure primary  *
+ * at full intensity having exactly its own WCAG channel coefficient   *
+ * as its relative luminance. STRUCTURAL: a property lib/color/apca.ts *
+ * states about itself in its own header - Lc is signed, it is         *
+ * directional, and it clamps to zero near zero.                       *
+ *                                                                     *
+ * Nothing here may be a fitted APCA constant or a figure recalled     *
+ * from memory. Lc 106.04 for black on white is a real published       *
+ * number, but typing it in from recall would make this file assert an *
+ * unchecked human figure, which is the exact failure the rest of the  *
+ * script exists to abolish. If someone wants the decimals pinned,     *
+ * they belong in a vector file quoting APCA-W3 0.1.9 by version and   *
+ * constant set, not in a fixer's memory.                              *
+ * ------------------------------------------------------------------ */
+
+/** Either colour form the assertions below use. */
+type SelfTestColor = string | [number, number, number]
+
+interface SelfTestFailure {
+  /** What was claimed, in the terms the reader of a failing build needs. */
+  readonly claim: string
+  /** The measurement that contradicted it. */
+  readonly detail: string
+}
+
+/** Floating-point slack. Every assertion here is exact maths, so this is tight. */
+const SELF_TEST_EPSILON = 1e-9
+
+async function runSelfTest(): Promise<{
+  ran: boolean
+  checks: number
+  failures: SelfTestFailure[]
+}> {
+  const apcaMod = await importModule(join("lib", "color", "apca.ts"))
+  const wcagMod = await importModule(join("lib", "color", "wcag.ts"))
+
+  const apcaContrast = pick<(text: SelfTestColor, background: SelfTestColor) => number>(
+    apcaMod,
+    ["apcaContrast", "apca", "apcaLc"],
+  )
+  const contrastRatio = pick<(a: SelfTestColor, b: SelfTestColor) => number>(wcagMod, [
+    "contrastRatio",
+    "wcag",
+    "wcagContrast",
+  ])
+  const relativeLuminance = pick<(color: SelfTestColor) => number>(wcagMod, [
+    "relativeLuminance",
+  ])
+
+  /* The main path already explains a missing lib/color/ and exits 0 rather
+     than replacing measurements with silence. Do not turn that into a hard
+     failure here: absent maths is a different state from wrong maths. */
+  if (!apcaContrast || !contrastRatio || !relativeLuminance) {
+    return { ran: false, checks: 0, failures: [] }
+  }
+
+  const failures: SelfTestFailure[] = []
+  let checks = 0
+
+  const equals = (claim: string, actual: number, expected: number): void => {
+    checks += 1
+    if (!Number.isFinite(actual) || Math.abs(actual - expected) > SELF_TEST_EPSILON) {
+      failures.push({ claim, detail: `expected ${expected}, measured ${actual}` })
+    }
+  }
+  const holds = (claim: string, condition: boolean, detail: string): void => {
+    checks += 1
+    if (!condition) failures.push({ claim, detail })
+  }
+
+  /* ---- WCAG 2.2, definitional ---- */
+
+  equals("relative luminance of black is 0", relativeLuminance("#000000"), 0)
+  equals("relative luminance of white is 1", relativeLuminance("#ffffff"), 1)
+
+  /* A pure primary at full intensity has a linearised channel of exactly 1, so
+     its relative luminance is its own WCAG coefficient. This is the assertion
+     that catches a red/blue channel swap, which no amount of self-consistent
+     re-measurement ever would. */
+  equals("full-intensity red carries the WCAG red coefficient", relativeLuminance("#ff0000"), 0.2126)
+  equals("full-intensity green carries the WCAG green coefficient", relativeLuminance("#00ff00"), 0.7152)
+  equals("full-intensity blue carries the WCAG blue coefficient", relativeLuminance("#0000ff"), 0.0722)
+
+  equals("black on white is 21:1", contrastRatio("#000000", "#ffffff"), 21)
+  equals("white on black is also 21:1 - the ratio is symmetric", contrastRatio("#ffffff", "#000000"), 21)
+  equals("a colour against itself is 1:1", contrastRatio("#0b6bcb", "#0b6bcb"), 1)
+  equals("white against itself is 1:1", contrastRatio("#ffffff", "#ffffff"), 1)
+  equals(
+    "argument order does not change a WCAG ratio",
+    contrastRatio("#123456", "#abcdef") - contrastRatio("#abcdef", "#123456"),
+    0,
+  )
+
+  /* Notation, not formula: the same colour written three ways must measure the
+     same. lib/color/oklch.ts's parser sits under every published figure and a
+     silent mis-parse would land as a plausible wrong number. */
+  equals("shorthand hex parses to the same colour", contrastRatio("#000", "#fff"), 21)
+  equals("an sRGB triple parses to the same colour", contrastRatio([0, 0, 0], [255, 255, 255]), 21)
+  equals("rgb() notation parses to the same colour", contrastRatio("rgb(0 0 0)", "#ffffff"), 21)
+
+  holds(
+    "a mid grey on white sits between the two extremes",
+    contrastRatio("#777777", "#ffffff") > 1 && contrastRatio("#777777", "#ffffff") < 21,
+    `measured ${contrastRatio("#777777", "#ffffff")}`,
+  )
+  holds(
+    "an unparseable colour yields NaN rather than a plausible number",
+    Number.isNaN(contrastRatio("not-a-colour", "#ffffff")),
+    `measured ${contrastRatio("not-a-colour", "#ffffff")}`,
+  )
+
+  /* ---- APCA-W3, structural ---- */
+
+  const darkOnLight = apcaContrast("#000000", "#ffffff")
+  const lightOnDark = apcaContrast("#ffffff", "#000000")
+
+  holds("Lc is positive for dark text on a light background", darkOnLight > 0, `measured ${darkOnLight}`)
+  holds("Lc is negative for light text on a dark background", lightOnDark < 0, `measured ${lightOnDark}`)
+  holds(
+    "Lc is directional: swapping text and background is not a sign flip",
+    Math.abs(darkOnLight + lightOnDark) > SELF_TEST_EPSILON,
+    `black-on-white ${darkOnLight}, white-on-black ${lightOnDark}`,
+  )
+  equals("a colour against itself is Lc 0", apcaContrast("#777777", "#777777"), 0)
+  equals(
+    "a difference below the clamp reports Lc 0 rather than a small number",
+    apcaContrast("#fefefe", "#ffffff"),
+    0,
+  )
+  holds(
+    "a mid grey on white has less lightness contrast than black on white",
+    Math.abs(apcaContrast("#777777", "#ffffff")) < Math.abs(darkOnLight),
+    `grey ${apcaContrast("#777777", "#ffffff")}, black ${darkOnLight}`,
+  )
+  holds(
+    "an unparseable colour yields NaN rather than a plausible Lc",
+    Number.isNaN(apcaContrast("not-a-colour", "#ffffff")),
+    `measured ${apcaContrast("not-a-colour", "#ffffff")}`,
+  )
+
+  return { ran: true, checks, failures }
 }
 
 /* ------------------------------------------------------------------ *
