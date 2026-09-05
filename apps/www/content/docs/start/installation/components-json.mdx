@@ -140,9 +140,11 @@ whatever value it wrote for you rather than copying this one over it.
    erroring on an unknown registry.
 2. **The file lands where the alias says.** If it does not, the alias and the
    tsconfig path disagree.
-3. **The import inside the copied file resolves** — particularly the `cn` import,
-   which comes from `aliases.utils` and is the first thing to break when that alias
-   is wrong.
+3. **The `cn` import inside the copied file resolves.** It comes from
+   `aliases.utils` and it breaks two ways: the alias points somewhere real but
+   wrong, or `lib/utils.ts` was never written because `init` was never run.
+   Identical `TS2307` errors on every copied file at once is the second one; a
+   single file resolving to the wrong place is the first.
 4. **`"use client"` appears only where expected.** If it is on everything, `rsc` is
    probably `false` when it should be `true`.
 
@@ -153,7 +155,9 @@ missing its `@`. The key includes the `@`; the URL template must include `{name}
 
 **Components land in the wrong folder.** `aliases` versus `tsconfig` paths.
 
-**`cn is not exported`.** `aliases.utils` points somewhere that does not export it.
+**`cn is not exported`, or `Cannot find module '@/lib/utils'`.** `aliases.utils`
+points somewhere that does not export it, or `shadcn init` was never run and the
+file is not there at all. Nothing in the registry creates it.
 
 **Icons are missing or wrong.** `iconLibrary` is not lucide. There is no automatic
 substitution; you are editing copied source.
