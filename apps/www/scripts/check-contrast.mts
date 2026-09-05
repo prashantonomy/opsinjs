@@ -788,7 +788,33 @@ async function main(): Promise<void> {
       return
     }
 
-    const before = new Map(previous.pairs.map((pair) => [`${pair.id}:${pair.theme}`, pair]))
+    if (
+      unreadable !== undefined ||
+      !previous ||
+      !Array.isArray(previous.pairs) ||
+      previous.pairs.length === 0
+    ) {
+      console.error(
+        [
+          "check-contrast --verify: the committed baseline is unusable.",
+          `  lib/generated/contrast.json ${
+            unreadable !== undefined ? `is not valid JSON - ${unreadable}` : "parses but carries no pairs"
+          }.`,
+          "",
+          "  This is not the same as never having measured. A baseline that exists and",
+          "  cannot be read means this run compared nothing against nothing, and passing",
+          "  would make every night after it green regardless of what contrast does.",
+          "",
+          "  Restore the file from git, or run `pnpm run contrast` and commit the result",
+          "  deliberately - it is written by that command, not by `pnpm run generate`,",
+          "  so `check:generated` will not rebuild it for you.",
+        ].join("\n"),
+      )
+      process.exit(1)
+    }
+
+    const committed = previous?.pairs ?? []
+    const before = new Map(committed.map((pair) => [`${pair.id}:${pair.theme}`, pair]))
     const regressions: string[] = []
 
     for (const pair of measured) {
@@ -868,6 +894,14 @@ async function main(): Promise<void> {
     // while also counting those same pairs under `advisory`, so the published
     // summary read "126 pairs: 115 pass, 0 fail, 46 advisory" and did not add up.
     // A contrast report that cannot do arithmetic is worse than no report.
+    //
+    // `advisoryFailing` is a SUBSET of `advisory` and deliberately outside the
+    // partition, which is why the assertion below still reads only the four
+    // keys above it. It exists because the partition alone cannot say the one
+    // thing a reader most wants to know: an advisory pair is not gated, but it
+    // is still measured, and some of them sit below the floor. Publishing
+    // "46 advisory" over a table containing measured floor misses is arithmetic
+    // that adds up and a report that misleads.
     summary: {
       total: measured.length,
       passing: required.filter((pair) => pair.passes).length,
