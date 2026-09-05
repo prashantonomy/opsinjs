@@ -576,10 +576,46 @@ function parsePage(file: string): ParsedPage {
     }
     const key = match[1] as string
     const raw = (match[2] ?? "").trim()
-    if (raw === "") {
-      frontmatter[key] = []
+
+    /* A FLOW SEQUENCE PRETTIER HAS WRAPPED. `implements:` followed by `[` on
+       the next line and one id per line is the same value as `implements: [a,
+       b]`, and four pages are written that way. Reading only the single-line
+       form left their ids invisible to CAT001, so a page could name a component
+       that does not exist and no gate would say so - and CAT004 then reported
+       those pages for not listing components they do list. Consume the lines up
+       to the closing bracket and hand the joined text to the same parser rather
+       than reflowing the pages, which prettier would only wrap again. */
+    if (raw === "" || (raw.startsWith("[") && !raw.endsWith("]"))) {
+      const buffer: string[] = []
+      let scan = index + 1
+      if (raw === "") {
+        while (scan < end && (lines[scan] ?? "").trim() === "") scan += 1
+        if (scan >= end || !(lines[scan] ?? "").trim().startsWith("[")) {
+          /* An empty value that is not the head of a wrapped list: the key is
+             present with nothing after it, which stays an empty list. */
+          frontmatter[key] = []
+          continue
+        }
+      } else {
+        buffer.push(raw)
+      }
+
+      let closed = false
+      for (; !closed && scan < end; scan += 1) {
+        const text = (lines[scan] ?? "").trim()
+        buffer.push(text)
+        if (text.endsWith("]")) closed = true
+      }
+      if (!closed) {
+        error = `the list after "${key}:" is never closed`
+        frontmatter[key] = []
+        continue
+      }
+      frontmatter[key] = parseInlineArray(buffer.join(" "))
+      index = scan - 1
       continue
     }
+
     frontmatter[key] = raw.startsWith("[") && raw.endsWith("]")
       ? parseInlineArray(raw)
       : parseScalar(raw)
@@ -792,7 +828,7 @@ function checkTemplateOutlines(): void {
       continue
     }
     const found = parsePage(file).headings
-    if (found.join(" ") === expected.join(" ")) continue
+    if (found.join("\0") === expected.join("\0")) continue
     fail(
       "OUT012",
       relative(APP_DIR, file),
