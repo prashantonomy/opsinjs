@@ -269,7 +269,7 @@ export function StubNotice({
         className
       )}
     >
-      {isPlanned ? <MachineSentence name={name} /> : null}
+      {isPlanned ? <MachineSentence name={name} status={status} /> : null}
 
       <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-2">
         <Hammer aria-hidden="true" className="size-4 opacity-70" />
@@ -277,31 +277,52 @@ export function StubNotice({
           id={name ? `stub-${name}` : undefined}
           className="m-0 text-sm font-medium"
         >
-          {isPlanned
-            ? "Specification only — nothing is implemented"
-            : "This is not stable yet"}
+          {/* Three headings, not two. "Specification only" is true of a
+              `planned` page and false of a `considered` one, which has no
+              specification — and the MDX underneath a considered notice says
+              so in its first sentence, so the two used to disagree. */}
+          {status === "considered"
+            ? "A reserved name — no specification, nothing implemented"
+            : isPlanned
+              ? "Specification only — nothing is implemented"
+              : "This is not stable yet"}
         </h2>
         <StatusBadge status={status} plain className="ml-auto" />
       </div>
 
       <div className="flex flex-col gap-3 px-4 py-3 text-sm">
-        <p className="m-0">
-          {children ?? (
-            <>
-              {name ? (
-                <code className="text-sm">{name}</code>
-              ) : (
-                "This component"
-              )}{" "}
-              is described here so that its intent, its refusals and its
-              accessibility bar can be reviewed before a line of it is written.
-              Treat everything below as a proposal under review.{" "}
-              <strong className="font-medium">
-                Do not generate code against it.
-              </strong>
-            </>
-          )}
-        </p>
+        <div className="[&>p]:m-0 [&>p+p]:mt-2">
+          {children ??
+            (status === "considered" ? (
+              <>
+                {name ? (
+                  <code className="text-sm">{name}</code>
+                ) : (
+                  "This component"
+                )}{" "}
+                is a name recorded in the catalogue so that this address answers
+                instead of returning a 404. Nothing below it is a
+                specification.{" "}
+                <strong className="font-medium">
+                  Do not generate code against it.
+                </strong>
+              </>
+            ) : (
+              <>
+                {name ? (
+                  <code className="text-sm">{name}</code>
+                ) : (
+                  "This component"
+                )}{" "}
+                is described here so that its intent, its refusals and its
+                accessibility bar can be reviewed before a line of it is
+                written. Treat everything below as a proposal under review.{" "}
+                <strong className="font-medium">
+                  Do not generate code against it.
+                </strong>
+              </>
+            ))}
+        </div>
 
         {questions && questions.length > 0 ? (
           <div>
