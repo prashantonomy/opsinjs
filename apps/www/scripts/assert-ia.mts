@@ -1860,6 +1860,71 @@ function checkCatalogue(
     )
   }
 
+  /* CAT012 - `useInstead` must name a real component, and ought to name one
+     that has code.
+
+     A considered row is a deliberate no, and `useInstead` is the whole of its
+     usefulness: it is the sentence lib/registry.ts hands an agent that asks for
+     the component ("... Use X or Y instead."), and the column the generated
+     catalogue table prints for a reader who has just been told no. Nothing
+     anywhere checked it. Six edges pointed at ids with no code behind them, so
+     the answer to "you cannot have a slider" was "use the number field", which
+     is also a specification - a redirect from one unbuilt thing to another,
+     phrased as help. They were fixed by hand, and nothing would have caught
+     the seventh.
+
+     ERROR when the target is not a catalogue id at all, or is the row's own
+     name. That is the treatment CAT001 gives `implements:` naming a stranger
+     and CAT004 gives an unresolvable `usedIn`: a dangling reference into the
+     one namespace, which sends its reader nowhere and cannot be right.
+
+     WARN when the target is a real id with no renderable. CAT008 is the
+     precedent - a considered component with no address of its own is reported
+     rather than enforced - and the asymmetry is the same. There are honest
+     cases: a row whose only sensible alternative is itself unbuilt has nothing
+     better to say, and failing the build would push an author into deleting
+     `useInstead` or inventing a worse alternative, which is a downgrade
+     disguised as a green gate. Naming it keeps the state visible instead.
+
+     Read from registry/catalogue.ts, not from the copy `loadCatalogue()`
+     preferred: `useInstead` is authored, the fix is always in the authored
+     file, and reporting a defect that the named file does not contain sends
+     the reader hunting for a line that is not there. Drift between the two
+     copies is check:generated's job and is caught there. When the authored
+     file cannot be read the loaded rows are used instead, so the rule degrades
+     to checking the served copy rather than switching itself off. */
+  const useInsteadRows = authored ?? catalogue
+  const useInsteadSource = authored ? "registry/catalogue.ts" : source
+  const useInsteadIds = new Set(useInsteadRows.map((row) => row.name))
+  const builtIds = builtComponentIds()
+  for (const row of useInsteadRows) {
+    for (const target of row.useInstead ?? []) {
+      if (target === row.name) {
+        fail(
+          "CAT012",
+          useInsteadSource,
+          `\`${row.name}\` names itself in \`useInstead\`. A reader told to use \`${row.name}\` instead of \`${row.name}\` has been sent back to the page that just refused them.`,
+        )
+        continue
+      }
+      if (!useInsteadIds.has(target)) {
+        fail(
+          "CAT012",
+          useInsteadSource,
+          `\`${row.name}\` says \`useInstead: ${target}\`, and \`${target}\` is not a catalogue id. The alternative offered to somebody who has just been told no must be a component this system actually names - the catalogue is the only namespace.`,
+        )
+        continue
+      }
+      if (builtIds.size > 0 && !builtIds.has(target)) {
+        warn(
+          "CAT012",
+          useInsteadSource,
+          `\`${row.name}\` says \`useInstead: ${target}\`, and \`${target}\` has no file under registry/bases/base/. The redirect points from one specification to another, so a reader who follows it still has nothing to install. Name a built component, or say in \`why\` what to reach for outside opsinjs.`,
+        )
+      }
+    }
+  }
+
   /* implements -> a real catalogue id, and the reverse. */
   const implementsByComponent = new Map<string, string[]>()
   for (const page of pages) {
@@ -2037,12 +2102,20 @@ function checkCatalogue(
   }
 
   /* A component page's aliases must agree with the catalogue's, since search is
-     fed from frontmatter while /r and llms.txt are fed from the catalogue. */
+     fed from frontmatter while /r and llms.txt are fed from the catalogue. That
+     is a TWO-WAY agreement and it used to be checked one way: an alias the page
+     was missing was reported, an alias the page had invented was not, and a row
+     with no aliases at all switched the check off. Promotion is when pages grow
+     synonyms, so the undetected direction was the one that actually happened.
+
+     `componentPages` includes components/index.mdx and the anatomy page, which
+     have no catalogue row; those have nothing to disagree with, so they are the
+     one case that is still skipped. */
   const catalogueAliases = new Map(catalogue.map((row) => [row.name, row.aliases ?? []]))
   for (const page of componentPages) {
     const id = page.slug.replace(/^components\//, "")
     const fromCatalogue = catalogueAliases.get(id)
-    if (!fromCatalogue || fromCatalogue.length === 0) continue
+    if (!fromCatalogue) continue
     const fromPage = asArray(page.frontmatter.aliases)
     const missing = fromCatalogue.filter((alias) => !fromPage.includes(alias))
     if (missing.length > 0) {
