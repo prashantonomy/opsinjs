@@ -309,7 +309,7 @@ export function PageTemplate({
             status,
             category: category ?? null,
             requiredSections: expected,
-            exactOutline: kind === "component" ? true : OUTLINE_IS_EXACT[kind],
+            exactOutline: exact,
           }),
         }}
       />
@@ -337,8 +337,17 @@ function buildMessage(
         `    - ${problem.kind.toUpperCase()} "${problem.section}": ${problem.detail}`
     ),
     "",
-    `  A "${kind}" page at status "${status}" has exactly these H2 sections, in this order:`,
-    ...expected.map((section, index) => `    ${index + 1}. ## ${section}`),
+    // An empty outline must not print as a heading followed by nothing: that
+    // reads as "this page may have no sections at all", which is the opposite
+    // of what an absent outline means.
+    ...(expected.length > 0
+      ? [
+          `  A "${kind}" page at status "${status}" has exactly these H2 sections, in this order:`,
+          ...expected.map((section, index) => `    ${index + 1}. ## ${section}`),
+        ]
+      : [
+          `  lib/status.ts declares no outline for a "${kind}" page at status "${status}", so there is no list to print here. Fix the outline before fixing the page.`,
+        ]),
     "",
     "  Fix it by copying the template rather than editing headings by hand:",
     `    apps/www/content/_templates/${kind}.mdx`,
