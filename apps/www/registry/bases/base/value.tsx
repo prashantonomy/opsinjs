@@ -271,7 +271,8 @@ export function Value({
      "dash", so a reader who is listening is told nothing at all. */
   const emptyLabel = absenceLabel !== undefined && absenceLabel.trim() === ""
   if (emptyLabel && isDevelopment()) {
-    console.warn(
+    warnDevOnce(
+      "empty-absence-label",
       "[opsinjs] <Value> received absenceLabel=\"\", which would render an em dash " +
         'with no words. The default wording was used instead. An absence is said in ' +
         "words, and the words are the part a screen reader can hear.",
@@ -322,10 +323,9 @@ export function Value({
       .formatToParts(reading)
       .find((part) => part.type === "fraction")
     const key = `${unit ?? ""}:${String(fraction?.value.length ?? 0)}`
-    if (fraction !== undefined && !warnedUnstatedPrecision?.has(key)) {
-      warnedUnstatedPrecision ??= new Set<string>()
-      warnedUnstatedPrecision.add(key)
-      console.warn(
+    if (fraction !== undefined) {
+      warnDevOnce(
+        `precision-unstated:${key}`,
         `[opsinjs] <Value> is showing ${String(fraction.value.length)} decimal ` +
           `places and was given no \`precision\` to show them to: "${formatted}". ` +
           "With no precision this component rounds nothing and pads nothing, so " +
