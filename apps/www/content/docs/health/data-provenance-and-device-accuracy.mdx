@@ -170,6 +170,18 @@ for this job: an attributed, dated, linkable statement of where a number or a
 claim came from, usable next to a value and inside a longer explanation. It is
 not yet specified in full.
 
+Of the ids on this page that are built, only `ResultCard` can carry provenance at
+all, and it carries it as a free-text footnote rather than as one of the four
+classes above, so nothing in the system can act on the class or check that rule 3
+was kept. `Value` has no provenance prop. `MetricTile` fixes `event="measured"`,
+which means a device-estimated or self-reported figure routed through it is
+announced in the words of a measurement — a gap
+[MetricTile](../components/metric-tile.mdx) records on its own page and in its own
+file. `RelativeTime`'s five events name the moment a number belongs to, not where
+it came from, and `DisclaimerNote` renders a sentence the product wrote. Rules 1
+and 2 are therefore the caller's to keep in its own data layer today, and the
+interface will not stop a screen that skips them.
+
 ## What this does not cover
 
 - **Device accuracy figures.** None are published here, by design.
@@ -182,6 +194,11 @@ not yet specified in full.
   schema.
 - **Freshness and staleness**, which are
   [Uncertainty, staleness and missing data](./uncertainty-and-staleness.mdx).
+
+<Todo>Specify the four provenance classes as a shared type, and the prop that
+carries one, across every component that renders a health value — so that rule 3
+can be enforced rather than reviewed, and a figure whose class forbids a status
+cannot be given one by accident.</Todo>
 
 ## Updates to this page
 
