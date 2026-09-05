@@ -148,13 +148,15 @@ agent generating against something that does not exist.
 **404 on a `.md` URL.** The path is not a documentation page. Twins exist for
 the docs tree and `/docs.md` only.
 
-**The twin is missing a table that the page shows.** The table is generated and
-`pnpm run generate` had not run when the page was built. Check whether the human
-page shows the same gap; if it shows real values and the twin does not, that is
-a genuine bug.
+**The twin shows a tag where the page shows a table.** Expected. The
+documentation components are not rendered into markdown; fetch the values from
+`/r/index.json` or the Reference section. If the *human* page shows the same gap
+— an empty table rather than a filled one — that is a different fault:
+`pnpm run generate` had not run when it was built.
 
-**Content differs between the twin and the page.** It should not. Report it —
-this is the invariant the whole surface rests on.
+**The prose differs between the twin and the page.** The rendering differs by
+design; the words should not. Report a wording difference — that invariant is
+what the whole surface rests on.
 
 **I need many pages at once.** Do not crawl. Use
 [the shards](./llms-txt.mdx) or [the offline bundle](./offline-docs-bundle.mdx),
