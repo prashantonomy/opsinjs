@@ -98,7 +98,7 @@ registry, not here.
 | `switch` | actions-and-forms | Delegated to Base UI. A switch must never be used for consent — consent is a decision with a record, not a setting — so ConsentSheet is the opsinjs answer for that case, and the setting itself stays Base UI's. | consent-sheet |
 | `checkbox` | actions-and-forms | Delegated to Base UI. | field |
 | `radio-group` | actions-and-forms | Delegated to Base UI. Preferred over Select for anything under about seven options. | field |
-| `slider` | actions-and-forms | Delegated to Base UI, and discouraged for entering a measurement: a slider cannot express precision, and a reading typed in is a reading the person meant. | reading-input, number-field |
+| `slider` | actions-and-forms | Delegated to Base UI, and discouraged for entering a measurement: a slider cannot express precision, and a reading typed in is a reading the person meant. A number with no clinical semantics behind it is Base UI's number field, unwrapped. | reading-input |
 | `number-field` | actions-and-forms | Delegated to Base UI. ReadingInput is the health-aware wrapper, and it is on the shipped roster. | reading-input |
 | `textarea` | actions-and-forms | A native element that needs tokens, not a component. | field |
 | `progress` | feedback | Delegated to Base UI. Never use it to show a health value: a progress bar implies a target, and most readings do not have one. | range-bar, score-dial |
@@ -107,7 +107,7 @@ registry, not here.
 | `divider` | layout | A border and a spacing token. Documented in Foundations rather than shipped. | card |
 | `scroll-area` | layout | Delegated to Base UI. Custom scrollbars are also a frequent cause of unreachable content at 200% text. | card |
 | `tab-bar` | navigation | Application navigation is a product decision, not a design-system one. The material rung, the safe-area handling and the touch-target floor it needs are all documented. | surface |
-| `segmented-control` | navigation | Likely to be promoted — it is the right control for switching a chart between day, week and month. Held back until TrendSparkline exists to use it. | tabs, button |
+| `segmented-control` | navigation | Likely to be promoted — it is the right control for switching a chart between day, week and month. It was held back until TrendSparkline existed to use it; TrendSparkline is implemented now and this is not, so the only thing keeping it here is that nobody has built it. | button |
 | `stepper` | navigation | The pattern that matters is one question per page, and that is documented in Patterns. A stepper component tends to encourage the opposite. | field |
 | `menu` | overlay | Delegated to Base UI. Hiding a destructive or a safety-relevant action in an overflow menu is a defect whatever renders it. | sheet, button |
 | `icon-button` | actions-and-forms | A variant of Button rather than a component, and one that needs a visible label far more often than products assume. | button |
