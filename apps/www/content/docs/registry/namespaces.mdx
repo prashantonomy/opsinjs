@@ -108,8 +108,13 @@ reachable, that it validates against the registry schema, and that the served
 catalog is flat — items at the root, no nested includes, and no inlined file
 contents in the catalog itself.
 
-You do **not** need to do this to be used. A full URL works for anybody, always,
-with no configuration and no directory entry.
+You do **not** need to do this to be used. A full URL works for anybody, with no
+configuration and no directory entry — for as long as the item names nothing
+else. The moment an item lists a namespaced sibling in `registryDependencies`,
+the consumer needs that namespace configured however they asked for the item.
+Fourteen opsinjs items are in that position, which is why
+[Registry and distribution](./index.mdx) asks consumers to add the `@opsinjs`
+block regardless of which form they type.
 
 ## Verify it worked
 
@@ -125,9 +130,12 @@ A list of items means the mapping is read and the URL is reachable.
 
 ### Fall back to prove the diagnosis
 
-If the namespace fails, try the same item by full URL. If the URL works and the
-namespace does not, the problem is `components.json` — usually a missing
-`{name}` or a file at a different root than the one your tool opened.
+If the namespace fails, try the same item by full URL. Probe with an item that
+composes nothing — `status-pill` is the reliable one — because an item carrying
+namespaced `registryDependencies` fails by URL too, for the same missing block,
+and so tells you nothing. If the URL works and the namespace does not, the
+problem is `components.json`: usually a missing `{name}`, or a file at a
+different root than the one your tool opened.
 
 ### Secrets are not in the file
 
