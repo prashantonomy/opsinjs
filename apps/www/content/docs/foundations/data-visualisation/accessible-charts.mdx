@@ -22,7 +22,12 @@ modal, not visually hidden and reachable only by a screen reader — available.
 Sighted readers use it too, because the exact value on Tuesday is a question
 everybody has.
 
-<NotBuiltYet />
+<NotBuiltYet what="A chart with a table twin">
+`trend-sparkline` is the only chart in the registry and it ships at `alpha`
+without one: its own source records that the pointer to a table twin is absent
+because there is no table twin to point at. So this requirement is met by no
+component today. Everything below is the specification one will have to satisfy.
+</NotBuiltYet>
 
 This is a requirement, not a recommendation. A chart component that does not
 provide a table twin does not meet the definition of done on
@@ -125,7 +130,7 @@ the space scale. There are no tokens specific to this page.
   copies it out.
 - **Missing values are announced as missing.** An empty cell that reads as
   nothing is the [data states](../data-states.mdx) failure again: absence
-  mistaken for a normal result.
+  mistaken for a reading in the usual range.
 
 The tested screen-reader combinations and the announcement contract are on
 [Screen readers](../../accessibility/screen-readers.mdx); the descriptive-writing
