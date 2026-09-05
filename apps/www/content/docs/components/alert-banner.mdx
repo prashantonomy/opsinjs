@@ -15,7 +15,6 @@ usedIn: [staged-alert, results-screen]
 <StubNotice
   name="alert-banner"
   status="alpha"
-  issue="opsinjs/opsinjs#0"
   questions={[
     "The escalation budget is not enforced at runtime, and the component argues below that it cannot be from inside one banner. A lint rule over a screen file could see what a component cannot; nobody has written one.",
     "`steady` is legal, and the implementation keeps it for de-escalation — the sentence that withdraws an earlier alert. That is one honest use against a standing risk: a banner that can be steady is a banner a product will reach for whenever it wants to be noticed.",
@@ -603,8 +602,10 @@ the glyph are the first things inside the heading.
 - Whether a `-line` boundary that clears the non-text floor is enough to read the pill as a
   distinct object when its fill and the banner's are the same token. That is a legibility
   question rather than a contrast one, and it needs eyes rather than a script.
-- `prefers-contrast` and `forced-colors` are not implemented anywhere in opsinjs yet, so the
-  increased-contrast half of the requirement cannot currently be met by anyone.
+- `forced-colors` is implemented nowhere in opsinjs. `prefers-contrast: more` is implemented
+  in [Surface](./surface.mdx#accessibility) alone rather than in the token layer, and this
+  banner renders no Surface, so nothing drawn here moves under the mode. The
+  increased-contrast half of the requirement therefore cannot currently be met by anyone.
 - The root has no accessible name and is therefore not a landmark. A screen-reader user gets
   the heading and no boundary — no start, no end, and no announcement of where the banner
   stops.
