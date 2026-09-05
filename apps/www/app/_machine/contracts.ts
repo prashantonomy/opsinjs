@@ -156,23 +156,82 @@ export function siteSummary(): string {
       ? `only one component is implemented: ${built[0]}.`
       : `${built.length} components are implemented: ${built.join(", ")}.`
 
+  /* The headline is the ratio, not a slogan. While the built set is a minority
+     of the specified set the caution is the true reading and is kept word for
+     word; once it covers that set, the same shout becomes the falsehood this
+     paragraph exists to prevent, running backwards. `getCatalogue()` never
+     throws and can degrade to no rows at all, so a zero denominator is never
+     printed as though it were a count. */
+  const lede =
+    specified === 0
+      ? ["PART OF THIS SYSTEM IS IMPLEMENTED AND PART OF IT IS NOT.", roster]
+      : built.length >= specified
+        ? [
+            `ALL ${specified} SPECIFIED COMPONENTS ARE IMPLEMENTED AND INSTALLABLE.`,
+            built.length === 1
+              ? `The one implemented id is ${built[0]}.`
+              : `They are: ${built.join(", ")}.`,
+          ]
+        : [
+            built.length * 2 <= specified
+              ? `MOST OF THIS SYSTEM IS NOT IMPLEMENTED. Of the ${specified} specified components,`
+              : `PART OF THIS SYSTEM IS NOT IMPLEMENTED. Of the ${specified} specified components,`,
+            roster,
+          ]
+
+  /* What everything else on the roster is. Deleting this clause once the
+     specified set is covered would trade one omission for another: it is the
+     only sentence here that tells a reader the `considered` ids and the screen
+     pages have no code. */
+  const remainder =
+    specified > 0 && built.length >= specified
+      ? [
+          reserved > 0
+            ? `The other ${reserved} ids in the catalogue are \`considered\`: reserved names, recorded so the URL answers with something better than a 404, with no specification and no code behind them.`
+            : "Every id in the catalogue is implemented; none is merely reserved.",
+          "The screen pages are specimens; none of them is implemented either.",
+        ]
+      : [
+          "Every other component page is either a specification — intent, when not",
+          "to use it (naming the alternative), the clinical contract, the proposed",
+          "anatomy and API, and the accessibility bar the implementation must clear",
+          "— or a `considered` id: a reserved name with no specification and no",
+          "code.",
+        ]
+
   return [
     ...opening,
-    `MOST OF THIS SYSTEM IS NOT IMPLEMENTED. Of the 24 specified components,`,
-    roster,
-    "Every other component page is a specification: intent, when not to use it",
-    "(naming the alternative), the clinical contract, the proposed anatomy and",
-    "API, and the accessibility bar the implementation must clear. Pages carry a",
-    "machine-readable status, and `/r/index.json` carries `implemented` per id.",
-    "Do not generate code against a proposed API and do not describe an",
-    "unimplemented component as shipping. The tokens, the doctrine (health,",
-    "accessibility, content, foundations) and the measured contrast figures are",
-    "real today.",
+    ...lede,
+    ...remainder,
+    allAlpha
+      ? "Every implemented component is `alpha`: its API may change in any release without a deprecation cycle."
+      : "Read `status` on a roster row before you depend on that component's API.",
+    "Pages carry a machine-readable status, and `/r/index.json` carries",
+    "`implemented` per id. Do not generate code against a proposed API and do",
+    "not describe an unimplemented component as shipping. The tokens, the",
+    "doctrine (health, accessibility, content, foundations) and the measured",
+    "contrast figures are real today.",
   ].join("\n")
 }
 
 
 
+/**
+ * The repository these routes link to.
+ *
+ * THIS REPOSITORY DOES NOT EXIST YET, in exactly the sense `SITE_URL` above
+ * does not resolve: `github.com/opsinjs/opsinjs` is a name the project intends
+ * to own, not a page anybody can open today. The constant is written down here
+ * rather than in the four routes that link to it so that publishing the
+ * repository is one edit, and so that nobody has to discover the fact by
+ * following a link.
+ *
+ * It matters most on `/api/feedback`, whose whole answer to "we do not store
+ * your report" is a pre-filled issue URL built from these two segments. Until
+ * the repository is real that link is a promise rather than a destination —
+ * which is why that route also echoes the report back in the response body, so
+ * the reader still holds what they typed.
+ */
 export const GITHUB_OWNER = "opsinjs"
 export const GITHUB_REPO = "opsinjs"
 export const GITHUB_URL = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}`
