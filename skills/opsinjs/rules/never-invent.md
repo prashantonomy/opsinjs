@@ -1,13 +1,16 @@
 # Rule 3 - never invent a component, an API, a threshold or a citation
 
 opsinjs documents things that do not exist yet, on purpose, at addresses you can
-guess. That is useful precisely as long as nobody treats a specification as an
-implementation.
+guess, alongside the things that do. That is useful precisely as long as nobody
+confuses the two - in either direction.
 
-## Components: planned means not built
+## Components: check the status before you generate
 
-Every opsinjs component is at `status: planned`. There is no published package,
-no import that resolves and no prop interface that is stable.
+A component sits at one of two statuses. `alpha` means implemented: the code
+exists, it renders, and it installs as source. `considered` means a reserved
+name with no code and no specification page. There is no published npm package
+at any status - distribution is registry copy-in - so no bare `@opsinjs/*`
+import resolves.
 
 A component page carries a `<StubNotice>`, a `<NotBuiltYet>` marker and a
 machine-readable `data-opsinjs-not-implemented` attribute. Its `.md` twin
