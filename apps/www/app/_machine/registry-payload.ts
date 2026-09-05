@@ -2,15 +2,24 @@
  * app/_machine/registry-payload.ts — the shadcn-spec registry, built from the
  * catalogue.
  *
- * WHY A REGISTRY WITH NO CODE IN IT
+ * WHY EVERY CLAIMED ID IS PUBLISHED, BUILT OR NOT
  * `npx shadcn@latest mcp` points an assistant at `/r/registry.json`. If that
  * catalog is missing or malformed the MCP server fails quietly and the
  * assistant falls back on what it thinks it remembers about a "RangeBar" —
  * which is nothing, so it invents one. A catalog that lists every id opsinjs
- * has claimed, each carrying `meta.opsinjs.status` and a `docs` sentence
- * saying it is not built, converts that silent failure into a definitive
- * negative answer. That is the whole reason these routes exist before any
- * component does.
+ * has claimed, each carrying `meta.opsinjs.status`, `meta.opsinjs.implemented`
+ * and a `docs` sentence that says which of the two it is, converts that silent
+ * failure into a definitive answer in either direction. That was the whole
+ * reason these routes existed before any component did, and it is still the
+ * reason the reserved names are served now that some ids install real source:
+ * the answer an assistant must not have to guess at is "no", and it is only
+ * trustworthy if "yes" comes from the same place.
+ *
+ * Every payload below therefore branches on `getBuiltFiles(...)` — the actual
+ * source in `registry/__index__.ts` — rather than on a status word or a
+ * constant. `implemented` in `meta.opsinjs`, the presence of `files`, and the
+ * `docs` sentence are three renderings of that one lookup, and they cannot
+ * disagree.
  *
  * Item names never carry a base or style. The docs page for a component has
  * exactly one canonical URL; the base × style matrix is addressable here, at
