@@ -43,13 +43,36 @@ therefore not evidence that a component exists. The field to read is
   "docs": "ResultCard — https://opsinjs.dev/docs/components/result-card",
   "meta": {
     "opsinjs": {
-      "status": "planned",
-      "category": "health-result",
-      "since": "unreleased"
+      "implemented": true,
+      "status": "alpha",
+      "category": "health-data-display",
+      "base": "base",
+      "style": "base-lyra",
+      "since": "unreleased",
+      "owner": "clinical",
+      "healthCategory": "labs"
     }
-  }
+  },
+  "registryDependencies": [
+    "@opsinjs/status-pill",
+    "@opsinjs/value",
+    "@opsinjs/range-bar",
+    "@opsinjs/relative-time",
+    "@opsinjs/button"
+  ],
+  "files": [
+    { "path": "registry/bases/base/result-card.tsx", "type": "registry:ui", "target": "@ui/result-card.tsx", "content": "…" },
+    { "path": "lib/opsinjs.ts", "type": "registry:lib", "target": "@lib/opsinjs.ts", "content": "…" },
+    { "path": "lib/status.ts", "type": "registry:lib", "target": "@lib/status.ts", "content": "…" }
+  ]
 }
 ```
+
+`meta.opsinjs` is abridged above: the served object also carries `aliases`,
+`governedBy`, `usedIn` and the three URLs — `docs`, `markdown` and `catalogue` —
+so an item read on its own can find its own documentation. A reserved name
+serves the same envelope with `implemented: false`, a `why` sentence, and no
+`files` and no `registryDependencies` at all.
 
 ## Field by field
 
