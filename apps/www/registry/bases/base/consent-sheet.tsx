@@ -704,7 +704,7 @@ export function ConsentSheet({
                 aria-controls={detailsId}
                 onClick={() => setDetailsOpen((current) => !current)}
                 className={cn(
-                  "flex min-h-(--opsin-target-minimum) w-full items-center gap-opsin-2",
+                  "flex min-h-(--opsin-target-minimum,2.75rem) w-full items-center gap-opsin-2",
                   "rounded-opsin-sm text-left underline underline-offset-2",
                   FOCUS_RING,
                 )}
