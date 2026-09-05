@@ -111,11 +111,18 @@ write in them.
 
 ## Measured results
 
-<NoDataYet script="scripts/check-contrast.mts" />
-
 The design-time numbers you are entitled to rely on are the published token-pair
-measurements. Until `pnpm run contrast` has run in this checkout, there are none,
-and you should measure any pair you depend on yourself rather than assuming.
+measurements, and they exist. `scripts/check-contrast.mts` has run in this
+checkout, `lib/generated/contrast.json` is committed, and `contrast:verify`
+fails the build if a token edit moves a figure — so the numbers on
+[Contrast conformance](./contrast-conformance.mdx) and in the
+[generated contrast reference](../reference/generated/contrast.mdx) are the ones
+the shipped tokens actually produce, in both themes, dated by the run.
+
+What is not measured is anything you compose. A pair you invent, text over a
+photograph, two chart series against each other, and the effective background of
+a translucent rung over your content are all outside that file. Measure those
+yourself rather than assuming the published figure covers them.
 
 ## Known gaps
 
