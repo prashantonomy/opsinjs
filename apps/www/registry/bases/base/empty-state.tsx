@@ -549,7 +549,7 @@ export function EmptyState({
            about 45 characters loses the reader's return sweep, and an empty
            state is read once, quickly, by somebody who is already unsure what
            they are looking at. */
-        className="m-0 max-w-(--opsin-measure-tight) text-opsin-body text-foreground"
+        className="m-0 max-w-(--opsin-measure-tight,45ch) text-opsin-body text-foreground"
       >
         {bodyMissing
           ? "No explanation has been supplied for why this is empty."
