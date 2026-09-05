@@ -75,8 +75,8 @@ with no code behind them, and an import of one of those was invented outright.
 run the add. Not implemented: delete the file, because the proposed API is still
 under review and will change, then point the assistant at
 [Rules for agents](../agents/rules-for-agents.mdx), which states the constraint in
-the form an agent will actually follow. Every `planned` page carries a
-`data-opsinjs-not-implemented` marker for exactly this reason.
+the form an agent will actually follow. Every page for something that does not
+exist carries a `data-opsinjs-not-implemented` marker for exactly this reason.
 
 ## Failures at install time
 
@@ -90,6 +90,26 @@ registry URL.
 
 **Fix.** Add it. Every field opsinjs reads, and the exact entry, are in
 [components.json](./installation/components-json.mdx).
+
+### Every copied component fails on `@/lib/utils`
+
+**Symptom.** The files landed where you expected, and the typechecker reports the
+same error once per copied file: it cannot find the module `@/lib/utils`. Nothing
+else is wrong.
+
+**Cause.** `shadcn init` was never run in this project. Every opsinjs component
+imports `cn` from `@/lib/utils`, and the registry does not ship that file on
+purpose — a third copy would collide with the one a project already has and may
+have extended, which is
+[ADR 0010](../project/decisions/0010-shared-code-ships-with-every-item.mdx).
+`init` is what creates it, so a project that went straight to `add` gets every
+component failing on the same missing module.
+
+**Fix.** Run `npx shadcn@latest init`. Where that is not possible, add the `cn`
+helper by hand at whatever path `aliases.utils` names — it is shadcn's own
+`utils` item, not an opsinjs one. The tell is that the error is identical on
+every copied file at once: a wrong alias breaks one path, an absent file breaks
+all of them.
 
 ### Files land in the wrong directory
 
