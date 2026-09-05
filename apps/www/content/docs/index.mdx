@@ -41,10 +41,17 @@ a general-purpose UI kit:
   token values, prop tables and bundle sizes come out of the source and fail the
   build when they drift. See [Reading these docs](./start/reading-these-docs.mdx).
 
-### Nothing is built yet, and this page will not pretend otherwise
+### Alpha, not unbuilt — and this page will not overstate it either
 
-There is no npm package. There is no registry you can install from. There is no
-component you can render. Every component page is `status: planned`.
+There is no npm package of components, and there is not meant to be: distribution
+is copy-in through a shadcn registry, decided in
+[ADR 0002](./project/decisions/0002-shadcn-registry-distribution.mdx). There *is*
+a registry. Twenty-four components are implemented and served from `/r/<name>.json`,
+and `npx shadcn add @opsinjs/<name>` writes their source into a shadcn-initialised
+project and compiles. Every one of them is `alpha`: the code works, the API may
+change in any release with no deprecation cycle, and none of it has been audited
+for accessibility or reviewed by a clinician. Nothing here belongs on a production
+health surface yet.
 
 What exists today is the **specification** — and it is deliberately the part that
 is hardest to retrofit. Twenty-four component pages state exactly what each
