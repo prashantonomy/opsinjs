@@ -415,6 +415,7 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
       fail(`GET ${base}/${shard} returned ${response?.status ?? "no response"}; expected 200.`)
       continue
     }
+    corpusBodies.set(shard, response.body)
     const bytes = Buffer.byteLength(response.body, "utf8")
     if (bytes === 0) fail(`${shard} is empty.`)
     if (shard === "llms-full.txt" && bytes > FULL_SIZE_WARNING) {
@@ -422,6 +423,219 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
         `llms-full.txt is ${Math.round(bytes / 1024)} kB, above the ${Math.round(
           FULL_SIZE_WARNING / 1024,
         )} kB budget. Point readers at the shards and cap it - an agent that cannot fit the file gets nothing, not less.`,
+      )
+    }
+
+    const coverage = /^Pages:\s*(\d+) of (\d+)/m.exec(response.body)
+    if (!coverage) {
+      warn(
+        `${shard} carries no "Pages: N of M." line, so nothing here can tell how much of ` +
+          "the corpus it dropped. That header is what makes truncation measurable; restore it " +
+          "in app/_machine/corpus.ts.",
+      )
+      continue
+    }
+    const included = Number(coverage[1])
+    const total = Number(coverage[2])
+    const omitted = total - included
+    if (omitted > 0) {
+      warn(
+        `${shard} carries ${included} of ${total} pages - ${omitted} dropped at the byte budget ` +
+          `(${Math.round((included / total) * 100)}% coverage). An agent reading this file cannot ` +
+          "see the missing pages and is not told which they are beyond the file's own Truncated " +
+          "list. Split the section rather than trimming it.",
+      )
+    }
+  }
+
+  /* THE ASSERTION THAT WOULD HAVE CAUGHT THE HEADLINE PROBLEM. A component the
+     roster says is implemented is the single most likely thing an agent comes
+     looking for, and the components shard is where it is meant to find it.
+     Truncation drops pages in corpus order, which is alphabetical, so the built
+     components at the end of the alphabet are exactly the ones that fall off. */
+  const roster = await fetchText(`${base}/r/index.json`)
+  if (roster && roster.status === 200) {
+    let items: { name?: string; implemented?: boolean }[] = []
+    try {
+      items = (JSON.parse(roster.body) as { items?: { name?: string; implemented?: boolean }[] })
+        .items ?? []
+    } catch {
+      fail(`${base}/r/index.json is not valid JSON, so the roster cannot be compared to the corpus.`)
+    }
+    const components = corpusBodies.get("llms-components.txt")
+    const implemented = items.filter((item) => item.implemented === true && item.name)
+    if (components !== undefined && implemented.length > 0) {
+      const absent = implemented
+        .map((item) => item.name as string)
+        .filter((name) => !new RegExp(`/docs/components/${name}(?![a-z0-9-])`).test(components))
+      if (absent.length > 0) {
+        warn(
+          `${absent.length} implemented component${absent.length === 1 ? "" : "s"} ` +
+            `${absent.length === 1 ? "is" : "are"} absent from llms-components.txt: ` +
+            `${absent.join(", ")}. /r/index.json says they exist and can be installed; the corpus ` +
+            "file an agent reads to learn what the system provides does not mention them.",
+        )
+      }
+    }
+
+    /* THE TWO MACHINE SURFACES THAT ANSWER THE SAME QUESTION, ASKED TOGETHER.
+       `/r/index.json` carries `implemented` per id, and every component page's
+       .md twin carries an `implemented:` frontmatter line generated from the
+       same index in app/_machine/corpus.ts. They are produced a long way apart
+       and an agent will believe whichever it reads first, so a disagreement is
+       not a formatting slip: it is the system telling two different stories
+       about whether code exists. This is the class of defect that shipped
+       `implemented: false` on twenty-four built components while the roster
+       said otherwise, and it went unseen because nothing compared them.
+
+       THE HEADER ON THE SAME RESPONSE IS NOW COMPARED TOO, and this paragraph
+       used to explain why it could not be. The reasoning was that a docs twin's
+       URL is the system rather than one registry item, so `x-opsinjs-implemented`
+       read `true` on every page while any component was built - including the
+       36 `considered` ones - and asserting it against the frontmatter would
+       have failed 36 correct pages.
+
+       That stopped being true when `pageHeaders()` in app/_machine/corpus.ts
+       started answering per page: a twin that documents a component or a screen
+       now sends that subject's own `x-opsinjs-implemented`, and `/llms.mdx`
+       spreads it through the caller-headers-last hole in `text()`. So a third
+       surface answers the same question about the same id, produced a third way
+       - and a header is the one an installing tool reads without parsing
+       anything, which makes it the copy most worth checking and the copy whose
+       staleness would be least visible.
+
+       `x-opsinjs-status` is how this tells the two scopes apart rather than
+       guessing. It is sent on every twin and only by the per-page path, so its
+       absence means the running build predates that change and its
+       `x-opsinjs-implemented` is still the old system-scoped `true`. Comparing
+       that value would produce exactly the 36 false failures the old paragraph
+       was right to avoid, so it is reported once, as a warning naming the
+       build, rather than as 36 defects that are not in the source. */
+    const rosterImplemented = new Map(
+      items
+        .filter((item) => typeof item.name === "string")
+        .map((item) => [item.name as string, item.implemented === true]),
+    )
+    const twinsByName = await fetchAllText(
+      [...rosterImplemented.keys()].map((name) => `${base}/docs/components/${name}.md`),
+      8,
+    )
+    const disagreements: string[] = []
+    const headerDisagreements: string[] = []
+    const headerMissing: string[] = []
+    const systemScopedTwins: string[] = []
+    for (const [name, expected] of rosterImplemented) {
+      const twin = twinsByName.get(`${base}/docs/components/${name}.md`)
+      /* A missing or unreachable twin is already reported by the twin sweep
+         further down; reporting it twice under a different heading would send
+         the reader looking for a second defect that is not there. */
+      if (!twin || twin.status !== 200) continue
+      const declared = /^implemented:\s*(true|false)\s*$/m.exec(twin.body)
+      if (!declared) {
+        fail(
+          `/docs/components/${name}.md carries no \`implemented:\` frontmatter line. It is ` +
+            "generated in app/_machine/corpus.ts from the same index /r/index.json is built " +
+            "from, and an agent reading the twin has no other way to tell a specification " +
+            "from a component with code behind it.",
+        )
+        continue
+      }
+      const declaredValue = declared[1] === "true"
+      if (declaredValue !== expected) {
+        disagreements.push(
+          `${name} (twin says ${declared[1]}, /r/index.json says ${String(expected)})`,
+        )
+      }
+
+      /* The third surface. `x-opsinjs-status` first, as the scope marker: see
+         the paragraph above. */
+      const scope = twin.headers.get("x-opsinjs-status")
+      if (scope === null) {
+        systemScopedTwins.push(name)
+        continue
+      }
+      const header = twin.headers.get("x-opsinjs-implemented")
+      if (header === null) {
+        headerMissing.push(name)
+        continue
+      }
+      const headerValue = header === "true"
+      if (headerValue !== expected || headerValue !== declaredValue) {
+        headerDisagreements.push(
+          `${name} (header says ${header}, the twin's frontmatter says ${String(declaredValue)}, ` +
+            `/r/index.json says ${String(expected)})`,
+        )
+      }
+    }
+    if (disagreements.length > 0) {
+      fail(
+        `${disagreements.length} component${disagreements.length === 1 ? "" : "s"} ` +
+          `disagree${disagreements.length === 1 ? "s" : ""} with the roster about whether code ` +
+          `exists: ${disagreements.join("; ")}. Both are generated, so the fix is in the ` +
+          "generator that is wrong, never in the page. registry/catalogue.ts and the files " +
+          "under registry/bases/base/ are the ground truth both of them read.",
+      )
+    }
+    if (headerDisagreements.length > 0) {
+      fail(
+        `${headerDisagreements.length} component twin${headerDisagreements.length === 1 ? "" : "s"} ` +
+          `send${headerDisagreements.length === 1 ? "s" : ""} an \`x-opsinjs-implemented\` header ` +
+          `that contradicts the page it is attached to: ${headerDisagreements.slice(0, 10).join("; ")}` +
+          `${headerDisagreements.length > 10 ? `, and ${headerDisagreements.length - 10} more` : ""}. ` +
+          "The header is the copy a tool reads before deciding to install, so it is the one that " +
+          "must not be wrong. All three come from `implementedComponents()` in " +
+          "app/_machine/contracts.ts by way of `pageImplemented()` in app/_machine/corpus.ts; " +
+          "fix whichever path stopped reading it.",
+      )
+    }
+    if (headerMissing.length > 0) {
+      fail(
+        `${headerMissing.length} component twin${headerMissing.length === 1 ? "" : "s"} ` +
+          `carr${headerMissing.length === 1 ? "ies" : "y"} \`x-opsinjs-status\` but no ` +
+          `\`x-opsinjs-implemented\`: ${headerMissing.slice(0, 10).join(", ")}` +
+          `${headerMissing.length > 10 ? `, and ${headerMissing.length - 10} more` : ""}. ` +
+          "`pageHeaders()` omits the header only when the page documents nothing buildable, so a " +
+          "component page reaching that branch means `componentIdOf()` no longer recognises it - " +
+          "and a HEAD request that answers nothing is read as a component with no code.",
+      )
+    }
+    if (systemScopedTwins.length > 0) {
+      warn(
+        `${systemScopedTwins.length} component twin${systemScopedTwins.length === 1 ? "" : "s"} ` +
+          `send${systemScopedTwins.length === 1 ? "s" : ""} no \`x-opsinjs-status\` header, so ` +
+          "the build being served predates the per-page machine headers and its " +
+          "`x-opsinjs-implemented` is still the system-scoped answer - `true` on every twin, " +
+          "including the considered components that have no code. The header was not compared " +
+          "against the pages, because on this build it is not a claim about them. Rebuild the " +
+          "site and run this again to check it.",
+      )
+    }
+
+    /* The system-scoped header, against the roster it is meant to be counting.
+       `x-opsinjs-implemented-count` is on every machine response and is the
+       number an agent uses to decide whether this design system has any code at
+       all; it is derived independently of the JSON body it travels with. */
+    const expectedCount = [...rosterImplemented.values()].filter(Boolean).length
+    try {
+      const headers = (await fetch(`${base}/r/index.json`, { method: "HEAD" })).headers
+      const reported = headers.get("x-opsinjs-implemented-count")
+      if (reported === null) {
+        fail(
+          "/r/index.json carries no `x-opsinjs-implemented-count` header. It is part of the " +
+            "machine contract in app/_machine/contracts.ts, and it is how a tool reads the " +
+            "system's answer without parsing the body.",
+        )
+      } else if (Number(reported) !== expectedCount) {
+        fail(
+          `/r/index.json reports x-opsinjs-implemented-count: ${reported}, but its own items ` +
+            `array carries ${expectedCount} implemented component${expectedCount === 1 ? "" : "s"}. ` +
+            "The header and the body are computed separately and must not disagree.",
+        )
+      }
+    } catch (error) {
+      warn(
+        `the HEAD request for /r/index.json's headers failed - ${(error as Error).message}. ` +
+          "The implemented-count header could not be checked.",
       )
     }
   }
