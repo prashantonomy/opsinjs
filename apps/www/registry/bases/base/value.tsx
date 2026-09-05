@@ -62,10 +62,10 @@ import { cn } from "@/lib/utils"
 const MAX_FRACTION_DIGITS = 20
 
 /**
- * Which unformatted-fraction warnings this session has already printed.
+ * Which development warnings this session has already printed.
  *
  * Declared rather than created, the way `warnOnce` does it in the substrate: in
- * a production bundle `isDevelopment()` is statically false, the body that
+ * a production bundle `isDevelopment()` is statically false, every body that
  * touches this is dead code, and the set is never allocated. In development it
  * exists for the session, which is what "once" means — a column of thirty
  * readings with no `precision` prints one warning rather than thirty.
