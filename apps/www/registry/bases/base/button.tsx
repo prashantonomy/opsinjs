@@ -158,10 +158,41 @@ function hasNoLabel(children: ReactNode): boolean {
  * is doing the work, and it is a press cue rather than a hover one. Measuring
  * these pairs into the generated contrast report is what turns this comment
  * into a number; nobody has done it.
+ *
+ * WHY PRIMARY'S INK IS AN ARBITRARY PROPERTY AND THE OTHER THREE ARE NOT. `cn`
+ * is `twMerge(clsx(...))` and tailwind-merge is unconfigured, so it has never
+ * been told that `--text-opsin-*` is a font-size namespace: it files
+ * `text-opsin-headline` and `text-primary-foreground` in the SAME conflict group
+ * and keeps whichever comes last. Written `text-primary-foreground`, the ink was
+ * silently deleted by `SIZE[size]` on the line below it in the `cn()` call and
+ * every primary button in the system rendered the page's default near-black
+ * label on the primary fill — a dark ink on a mid-blue ground, on the control
+ * that commits a reading. No gate could see it:
+ * `scripts/check-contrast.mts` measures the `--primary` / `--primary-foreground`
+ * token PAIR and that pair is fine, while the class that would have applied it
+ * never reached the DOM. Reordering does not help either: it keeps the ink and
+ * drops the type step and its weight instead, which is the regression
+ * `care-card.tsx` documents at its own action list. `[color:…]` is an
+ * arbitrary property, which tailwind-merge groups by the CSS property rather
+ * than by the `text-` prefix, so the two no longer meet and both survive —
+ * `disclaimer-note.tsx` answers the identical trap the same way, and its comment
+ * is the longer version of this one. A Tailwind editor plugin will offer to
+ * rewrite the line as `text-primary-foreground`; do not accept it, because that
+ * is exactly the spelling that loses.
+ *
+ * The cost, stated: because the two no longer conflict, a caller cannot recolour
+ * a primary button by passing a `text-*` class — both declarations are emitted
+ * and source order decides. `style={{ color: … }}` still works and is spread
+ * last, so that is the way to do it. The other three variants keep
+ * `text-foreground`, which is the page colour they would inherit anyway; giving
+ * them an arbitrary property would start asserting a colour they have never
+ * asserted. Configuring `extendTailwindMerge` in `lib/utils.ts` with the
+ * `text-opsin-*` namespace would retire this whole comment, and is a change to
+ * every component in the registry at once rather than a change to this file.
  */
 const TONE: Record<ButtonVariant, string> = {
   primary:
-    "border-transparent bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80",
+    "border-transparent bg-primary [color:var(--primary-foreground)] hover:bg-primary/90 active:bg-primary/80",
   secondary:
     "border-border bg-card text-foreground hover:bg-muted active:bg-muted",
   quiet:
