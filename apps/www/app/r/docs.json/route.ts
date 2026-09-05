@@ -124,6 +124,12 @@ export async function GET(): Promise<Response> {
   for (const page of rendered)
     counts[page.status] = (counts[page.status] ?? 0) + 1
 
+  const corpusCounts: Record<string, number> = {}
+  for (const page of pages) {
+    const status = metaOf(page).status
+    corpusCounts[status] = (corpusCounts[status] ?? 0) + 1
+  }
+
   return json({
     name: `${SITE_NAME}-docs`,
     version: DOCS_VERSION,
@@ -133,8 +139,8 @@ export async function GET(): Promise<Response> {
     characters: size,
     total: pages.length,
     included: rendered.length,
-    omitted,
-    ...(omitted > 0
+    omitted: dropped.length,
+    ...(dropped.length > 0
       ? {
           truncated: true,
           truncationNote: `${omitted} page(s) exceeded the ${BUDGETS.bundle}-character budget for this bundle. Fetch the missing sections from the shards instead.`,
