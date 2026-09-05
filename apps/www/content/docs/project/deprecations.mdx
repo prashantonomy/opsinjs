@@ -48,10 +48,12 @@ Read [Versioning policy](versioning-policy.mdx) for the full process, and the
 deprecation needs more than a paragraph to migrate through, it gets a
 [migration guide](migration/index.mdx) rather than a longer changelog entry.
 
-The version stamp in every file the registry emits is the other half of this: it
-records which version your copy came from, which is how you can tell whether a
-deprecation applies to code sitting in your repository. See
-[Version stamps](../registry/version-stamps.mdx).
+The other half of this is knowing which version your copy came from, because that
+is what tells you whether a deprecation applies to code already sitting in your
+repository. A [version stamp](../registry/version-stamps.mdx) is the intended
+answer — one comment at the top of every emitted file — and it is specified
+rather than emitted, so for now that answer has to come from your own version
+control or from the note you left when you copied the file.
 
 <LastUpdated />
 
