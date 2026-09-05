@@ -25,7 +25,7 @@ import { Callout } from "@/registry/base-lyra/ui/callout"
 
 export default function CalloutNextToWhatItExplains() {
   return (
-    <div className="flex w-full max-w-(--opsin-measure-tight) flex-col gap-opsin-4">
+    <div className="flex w-full max-w-(--opsin-measure-tight,45ch) flex-col gap-opsin-4">
       <h3 className="m-0 text-opsin-title3">Your weekly summary</h3>
 
       <p className="m-0 text-opsin-body">
