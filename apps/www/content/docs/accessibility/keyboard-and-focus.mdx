@@ -107,13 +107,18 @@ this finds more than any audit checklist.
 
 ## Measured results
 
-<NoDataYet script="scripts/build-registry.mts" />
+<NoDataYet script="scripts/build-reference.mts" what="The aggregated keyboard table">
+It would be assembled from the `<KeyboardTable>` on each component page, and
+`scripts/build-reference.mts` does not parse those blocks yet.
+</NoDataYet>
 
 The per-component keyboard tables — mandatory on every component page — are
-aggregated here and into
-[the generated keyboard reference](../reference/generated/keyboard.mdx). There
-are no components, so there is nothing to aggregate. The global contract above is
-authored, not generated, because it is a specification rather than a measurement.
+meant to be aggregated here and into
+[the generated keyboard reference](../reference/generated/keyboard.mdx). Every
+implemented component carries one; nothing collects them, so the reference is
+empty for a reason that has nothing to do with the components. The global
+contract above is authored, not generated, because it is a specification rather
+than a measurement, and aggregating the tables would not make it one.
 
 ## Known gaps
 
