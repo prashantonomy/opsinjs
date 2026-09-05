@@ -70,14 +70,17 @@ the product does not own — so it is never ordered against the four; see
 There is no fourth *segment*. No `-hover`, no `-subtle`, no `-2`. Interaction
 states are derived from the role token at use time, in OKLCH, by the rules in
 [Interaction states](../interaction-states.mdx) — they are not additional
-tokens, because a hover variant of every role on every name on both axes is
-seventy-two tokens nobody can hold in their head.
+tokens, because a hover variant of every role on every one of the eleven stems
+is another forty-four tokens nobody can hold in their head.
 
 Tailwind utilities are exposed for each token through `@theme inline`, so
 `bg-status-attention-surface` and `text-status-attention-ink` resolve to the same custom
 properties and follow the theme, the gamut escalation and the media-query
-overrides automatically. Raw `var()` access is supported for consumers who are
-not on Tailwind; see [CSS variables](../../theming/css-variables.mdx).
+overrides automatically. Two of those utilities are shorter than they look, and
+the two axes disagree about which role the bare name means: `bg-status-urgent`
+resolves to the **line**, `bg-category-heart` resolves to the **accent**. The
+other roles are always spelt out. Raw `var()` access is supported for consumers
+who are not on Tailwind; see [CSS variables](../../theming/css-variables.mdx).
 
 ### Chrome roles are a separate namespace
 
@@ -98,14 +101,24 @@ See [Alarm fatigue](../../health/alarm-fatigue.mdx).
 `scripts/check-contrast.mts` measures a *declared* list of pairs, in both
 themes and both gamuts. The list is, exactly:
 
-1. every `ink` against the `surface` of the same axis and name;
-2. every `line` against the `surface` of the same axis and name;
-3. every `ink` and `line` against `--background` and `--card`, because a status
-   line frequently sits on the page rather than on its own tint;
-4. `--foreground` and `--muted-foreground` against every material rung's
-   worst-case composite (see [The contrast floor](../materials/the-contrast-floor.mdx));
-5. `--ring` against `--background` and `--card`, because a focus ring that
-   cannot be seen is a keyboard trap with good intentions.
+1. every `ink` against the `surface` of the same axis and name, at the body-text
+   floor;
+2. every `line` against that same surface, at the non-text floor;
+3. every `accent` against that same surface **and** against the page, at the
+   non-text floor and advisory rather than gated, because an identity fill is
+   chosen for recognition and is not something a reader has to read;
+4. every `ink` against the page, at the body-text floor, because a status or
+   category word frequently sits on the page rather than on its own tint;
+5. the three neutral roles — body text, secondary text, and a hairline boundary,
+   the last advisory — against the page;
+6. body text against every material rung's opaque fallback, `scrim` excepted
+   because nothing is written on a dimmer (see
+   [The contrast floor](../materials/the-contrast-floor.mdx)).
+
+"The page" in clauses 3 to 6 is the end of the neutral ramp — `--opsin-neutral-0`
+in light and `--opsin-neutral-950` in dark — and not `--card`. In light the two
+resolve to the same white, so a card is inside the measured pair; in dark `--card`
+sits a step lighter than the ramp's end, so a card is one step away from it.
 
 Anything not on that list is **unmeasured**. Unmeasured is not the same as
 failing — it may well be fine — but it is not something this system is promising
