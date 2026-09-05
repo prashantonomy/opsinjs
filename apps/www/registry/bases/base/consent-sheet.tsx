@@ -575,8 +575,13 @@ export function ConsentSheet({
                The gap is the target-separation token rather than a space step.
                They are the same 0.5rem today; the token is the one that means
                "two adjacent 44pt targets", so it is the one that will follow if
-               the separation rule ever changes. */
-            className="grid w-full grid-cols-2 gap-(--opsin-target-separation)"
+               the separation rule ever changes. The literal fallback is in the
+               class because the variable is declared in this repository's
+               product stylesheet and a consumer who copies this file in with
+               `shadcn add` does not get that stylesheet: a bare read resolves
+               to nothing, `gap` falls back to 0, and decline and accept end up
+               touching on the surface where a mis-tap costs the most. */
+            className="grid w-full grid-cols-2 gap-(--opsin-target-separation,0.5rem)"
           >
             {/* DECLINE IS FIRST IN THE DOM AND SO IS FIRST IN THE TAB ORDER,
                 which is the order the specification's own worked example writes:
