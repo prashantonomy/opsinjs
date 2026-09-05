@@ -121,8 +121,11 @@ Match a user's phrasing against aliases. Never emit an alias as an identifier â€
 
 ### Cache with the version
 
-`/r/docs.json` and every markdown twin carry a version stamp. Cache it alongside
-the data so a stale answer can be identified as stale.
+`/r/docs.json` carries `docsVersion` and `generatedAt` in its body. A markdown
+twin carries the same version on its `x-opsinjs-docs-version` response header
+and not in its frontmatter, so a twin saved to a file loses it â€” record it as
+you fetch. Cache the version alongside the data either way, so a stale answer
+can be identified as stale.
 
 </Steps>
 
@@ -132,9 +135,10 @@ the data so a stale answer can be identified as stale.
 curl -s https://opsinjs.dev/r/index.json | head -30
 ```
 
-You should get JSON with one entry per catalogue row, each carrying a `status`.
-Then confirm the negative: request an id from the considered roster and check
-you get a `considered` item rather than a 404.
+You should get JSON with one entry per catalogue row, each carrying a `status`
+and an `implemented` flag. Then confirm the negative: request an id from the
+considered roster and check you get a `considered` item with `implemented:
+false` rather than a 404.
 
 ## Troubleshooting
 
