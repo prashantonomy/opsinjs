@@ -143,14 +143,29 @@ export async function GET(): Promise<Response> {
     ...(dropped.length > 0
       ? {
           truncated: true,
-          truncationNote: `${omitted} page(s) exceeded the ${BUDGETS.bundle}-character budget for this bundle. Fetch the missing sections from the shards instead.`,
+          truncationNote: `${dropped.length} page(s) did not fit the ${BUDGETS.bundle}-character budget for this bundle and are listed in \`omittedPages\`. Fetch them individually from their \`markdownUrl\`, or take the whole section from the shards.`,
+          omittedPages: dropped.map((page) => {
+            const meta = metaOf(page)
+            return {
+              url: pageUrl(page),
+              markdownUrl: pageMarkdownUrl(page),
+              section: sectionOf(page).title,
+              title: meta.title,
+              status: meta.status,
+            }
+          }),
         }
       : {}),
     sections: SECTIONS.map((section) => ({
       id: section.id === "" ? "index" : section.id,
       title: section.title,
       description: section.blurb,
+      /** Pages of this section carried by THIS response. */
       pages: rendered.filter((page) => page.section === section.title).length,
+      /** Pages of this section in the corpus, carried or not. */
+      pagesInCorpus: pages.filter(
+        (page) => sectionOf(page).title === section.title
+      ).length,
     })),
     shards: Object.entries(SHARDS).map(([id, shard]) => ({
       id,
