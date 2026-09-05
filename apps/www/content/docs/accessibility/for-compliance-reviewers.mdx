@@ -97,9 +97,9 @@ method and its date, or the row is unsupported.
 ### Minutes 12–16 — the measured evidence
 
 Open [Contrast conformance](./contrast-conformance.mdx). This is the one property
-of the system that is measurable before components exist. Check that the numbers
-carry a generation date and a script name, that both APCA Lc and WCAG 2.2 ratios
-are given, and that failures are shown rather than filtered out.
+of the system that is measured today: token pairs, not components. Check that the
+numbers carry a generation date and a script name, that both APCA Lc and WCAG 2.2
+ratios are given, and that failures are shown rather than filtered out.
 
 ### Minutes 16–20 — the honesty test
 
@@ -114,7 +114,12 @@ documentation is trustworthy.
 
 ## Measured results
 
-<NoDataYet script="scripts/check-contrast.mts" />
+<NoDataYet what="The conformance evaluation record" script="scripts/build-registry.mts">
+Nothing generates a conformance number on this site. `a11yDate` is `null` on
+every row of `registry/catalogue.ts`, and `<A11yReport>` takes its counts as
+props rather than reading a measurement, so there is no evaluation to publish and
+none is invented here.
+</NoDataYet>
 
 Nothing has been evaluated. The only measurement this project can currently
 produce is token-pair contrast, and it appears on
