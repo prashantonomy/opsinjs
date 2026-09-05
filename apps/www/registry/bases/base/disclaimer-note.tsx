@@ -377,7 +377,8 @@ function warnIfTintedFromAnAxis(className: string | undefined): void {
      to reach a branch that can never be taken. */
   if (!isDevelopment() || className === undefined) return
   if (!AXIS_TINT.test(className)) return
-  console.warn(
+  warnDev(
+    `axis-tint:${className}`,
     `[opsinjs] <DisclaimerNote className="${className}"> takes a colour from one ` +
       "of the two axes. This component sits outside both, and that is the whole " +
       "of it: a standing note tinted from the status ramps says the same level on " +
@@ -574,8 +575,13 @@ export function DisclaimerNote({
           /* The measure is capped because this is prose rather than a label,
              and a line of legal text run to the full width of a desktop card
              loses the reader's return sweep on the one paragraph they are least
-             motivated to finish. */
-          "m-0 min-w-0 max-w-(--opsin-measure-comfortable) wrap-break-word",
+             motivated to finish. The `66ch` inside the `var()` is the cap's
+             only guarantee outside this repository: `--opsin-measure-comfortable`
+             is declared in `app/tokens.generated.css`, which does not travel
+             with this file, and a bare reference to an undeclared property is
+             invalid at computed-value time — `max-width` would revert to `none`
+             and the cap would be gone with no error anywhere. */
+          "m-0 min-w-0 max-w-(--opsin-measure-comfortable,66ch) wrap-break-word",
         )}
       >
         {/* Unlovely on purpose. An author who sees this line writes the
@@ -628,7 +634,7 @@ export default function DisclaimerNoteDemo() {
           label: "Read the placeholder statement",
           href: "#example-destination",
         }}
-        textVersion="example-wording-0"
+        textVersion="Example wording, version one"
       >
         Placeholder wording, for layout only. The product that installs this
         component writes the two sentences that belong here, and opsinjs ships
