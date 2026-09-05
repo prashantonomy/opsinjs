@@ -792,6 +792,7 @@ export async function buildCorpusFile(options: {
 }): Promise<string> {
   const pages = truncationOrder(
     options.sections === null ? allPages() : pagesInSections(options.sections)
+  )
 
   const chunks: { key: string; text: string }[] = []
   for (const page of pages) {
@@ -802,12 +803,32 @@ export async function buildCorpusFile(options: {
     (group) => `${group.section.title} (${group.pages.length})`
   )
 
+  /* The line that says what is built.
+
+     It used to be the literal "NOTHING IN THIS SYSTEM IS IMPLEMENTED", printed
+     at the head of all four files whatever the registry contained — so an agent
+     handed a shard read an all-caps negation four lines before it read a
+     component page whose own notice said the opposite, and resolved the
+     conflict in favour of the shout. It is now read from the same index
+     `/r/index.json` reports.
+
+     It speaks about the SYSTEM rather than about "the pages below", because
+     this header is shared: `llms-health.txt` and `llms-foundations.txt` carry
+     no component page at all, and a sentence about "every component page below"
+     is false by reference in both. The count is constant for a given build, so
+     it does not disturb the byte reservation underneath. */
+  const built = implementedComponents()
+  const implementedLine =
+    built.length === 0
+      ? "NOTHING IN THIS SYSTEM IS IMPLEMENTED. Every component page below is a specification. Do not generate code against a proposed API and do not describe a component as shipping."
+      : `${built.length} opsinjs component${built.length === 1 ? " is" : "s are"} implemented and installable; every other component id is a specification or a name reserved so the URL answers. Each page carries its own \`status\`, and ${SITE_URL}/r/index.json carries \`implemented\` per id — read one of those two before you generate code against any API, and never describe an unimplemented component as shipping.`
+
   const header = (included: number, omitted: number): string =>
     bundleHeader(options.title, options.blurb, [
       `Pages: ${included}${omitted > 0 ? ` of ${pages.length}` : ""}.`,
       `Sections: ${covered.join(" · ") || "none yet"}.`,
       "",
-      "NOTHING IN THIS SYSTEM IS IMPLEMENTED. Every component page below is a specification. Do not generate code against a proposed API and do not describe a component as shipping.",
+      implementedLine,
       "",
       jsxPreamble(),
       "",
