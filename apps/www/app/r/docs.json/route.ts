@@ -9,13 +9,25 @@
  * The markdown is `getText("processed")`: remark-processed, imports stripped,
  * headings given explicit ids. Documentation components remain as JSX elements
  * with their attributes — see `app/_machine/corpus.ts` for what that does and
- * does not include — which is why every record also carries `status` and
- * `implemented` as fields rather than leaving them to be read out of the prose.
+ * does not include — which is why every record carries `status` as a field, and
+ * every record for a page that documents a component or a screen carries
+ * `implemented` too, rather than leaving either to be read out of the prose.
+ * That field used to be described here and not emitted, so an offline reader
+ * had to join against `/r/index.json` to answer the one question this whole
+ * surface exists to answer.
  *
- * The bundle is capped. When the corpus outgrows the budget the response says
- * how many pages were dropped and points at the shards, because a truncated
- * bundle that admits it is truncated is usable and one that does not is a
- * quiet source of wrong answers.
+ * THE BUNDLE IS CAPPED, AND EVERYTHING BELOW FOLLOWS FROM THAT.
+ *
+ * It drops a suffix of its own ordering, in `truncationOrder` — the same order
+ * the concatenated corpus files use, so a component with real source outranks a
+ * reserved name inside its section and the half that survives is the useful
+ * half. It names every page it dropped in `omittedPages`, because a reader who
+ * cannot name the gap cannot go and fetch it.
+ *
+ * And it publishes TWO status tallies. `counts` sums to `included` and
+ * `corpusCounts` sums to `total`. A single tally taken over the pages that fit,
+ * sitting next to `total`, is read as the corpus figure and is not one: it
+ * under-reports every status by whatever the budget dropped.
  */
 
 import {
