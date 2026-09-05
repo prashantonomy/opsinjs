@@ -172,7 +172,7 @@
       "why": "The agent surface is only useful if it is discoverable from the human surface, and only trustworthy if the page names the address that answers what is built. `/r/index.json` is that address, so the page that introduces the machine surface has to point at it.",
       "expect": {
         "page": "agents/llms-txt",
-        "mustContain": ["llms.txt"],
+        "mustContain": ["llms.txt", "/llms-components.txt", "/r/index.json"],
         "alsoResolves": ["agents/raw-markdown-api", "agents/machine-readable-schemas"]
       }
     },
@@ -194,6 +194,99 @@
         "page": "start/safety-scope-and-limitations",
         "mustContain": ["not a medical device"],
         "alsoResolves": ["health/regulatory-context"]
+      }
+    },
+    {
+      "id": "the-shipped-roster-is-not-empty",
+      "question": "Which opsinjs components actually exist?",
+      "why": "The index of the component section is where that question is answered in one hop, and it is the page a corpus-wide regression would flatten first: before the component layer was built, this page listed one roster and it was the reserved names. Two rosters, rendered from the catalogue, is the structural fact - the `<StatusMatrix>` call and `<SectionProgress>` are asserted rather than the count in the prose above them, because the count is allowed to move and the rosters are not allowed to vanish. The roster's own contents are then pinned through the catalogue rather than through the rendered table, which is generated and does not appear in the page text at all: `score-dial` is the built id this task holds, and it is deliberately not one of the four the `*-is-built` tasks hold.",
+      "expect": {
+        "page": "components",
+        "mustContain": [
+          "<StatusMatrix rosters=",
+          "shipped",
+          "considered",
+          "<SectionProgress",
+          "registry/catalogue.ts"
+        ],
+        "mustNotContain": ["<NotBuiltYet", "nothing is built", "no component is implemented"],
+        "catalogueId": "score-dial",
+        "catalogueStatus": "alpha",
+        "alsoResolves": ["reference/generated/catalogue", "project/release-phases"]
+      }
+    },
+    {
+      "id": "status-pill-is-built",
+      "question": "Is StatusPill something I can install today, or a specification?",
+      "why": "StatusPill is the component the clinical status vocabulary is carried by and the one every install walkthrough uses, so it is the single id most likely to be asked about and the most expensive one to describe as unbuilt. Row, frontmatter and body are asserted together: a regression has to survive all three to go unnoticed, and no regression that flattens the corpus does.",
+      "expect": {
+        "page": "components/status-pill",
+        "mustContain": ["importPath=\"@/components/ui/status-pill\"", "import { StatusPill } from \"@/components/ui/status-pill\"", "status=\"alpha\""],
+        "mustNotContain": ["<NotBuiltYet", "unbuilt={true}", "unbuilt=\"true\"", "npm install @opsinjs", "@opsinjs/react", "is not built", "documents an absence", "nothing is built"],
+        "frontmatter": { "status": "alpha", "kind": "component" },
+        "catalogueId": "status-pill",
+        "catalogueStatus": "alpha"
+      }
+    },
+    {
+      "id": "trend-sparkline-is-built",
+      "question": "Can I install TrendSparkline, or do I have to draw the trend myself?",
+      "why": "A second built id from the health-data-display family, because one component pinned is a spot check and several across families is a guard. This page is also the worked example for the needle rule in the notes - the sentence saying it is implemented wraps across a line here and does not on ResultCard, which is precisely why nothing in this task depends on that sentence.",
+      "expect": {
+        "page": "components/trend-sparkline",
+        "mustContain": ["importPath=\"@/components/ui/trend-sparkline\"", "import { TrendSparkline } from \"@/components/ui/trend-sparkline\"", "status=\"alpha\""],
+        "mustNotContain": ["<NotBuiltYet", "unbuilt={true}", "unbuilt=\"true\"", "@opsinjs/react", "is not built", "documents an absence", "nothing is built"],
+        "frontmatter": { "status": "alpha", "kind": "component" },
+        "catalogueId": "trend-sparkline",
+        "catalogueStatus": "alpha"
+      }
+    },
+    {
+      "id": "alert-banner-is-built",
+      "question": "Is AlertBanner implemented, and what does it install as?",
+      "why": "The urgent end of the status axis, where claiming that nothing exists costs the most: a team told there is no alert component writes its own, and an alert written from scratch is where the urgency budget and the colour-alone rule get lost. Pinned the same way as the other built ids so that a wholesale revert cannot take it quietly.",
+      "expect": {
+        "page": "components/alert-banner",
+        "mustContain": ["importPath=\"@/components/ui/alert-banner\"", "import { AlertBanner } from \"@/components/ui/alert-banner\"", "status=\"alpha\""],
+        "mustNotContain": ["<NotBuiltYet", "unbuilt={true}", "unbuilt=\"true\"", "@opsinjs/react", "is not built", "documents an absence", "nothing is built"],
+        "frontmatter": { "status": "alpha", "kind": "component" },
+        "catalogueId": "alert-banner",
+        "catalogueStatus": "alpha"
+      }
+    },
+    {
+      "id": "metric-tile-is-built",
+      "question": "Is there a component for a single metric on a dashboard?",
+      "why": "The fourth built id in the suite, and the one an agent reaches for when it is composing a screen rather than a page. Its presence in the suite is what makes a regression arithmetically loud: four `*-is-built` tasks, the roster task and the install task all fail together, which is more than a mean over the suite can absorb.",
+      "expect": {
+        "page": "components/metric-tile",
+        "mustContain": ["importPath=\"@/components/ui/metric-tile\"", "import { MetricTile } from \"@/components/ui/metric-tile\"", "status=\"alpha\""],
+        "mustNotContain": ["<NotBuiltYet", "unbuilt={true}", "unbuilt=\"true\"", "@opsinjs/react", "is not built", "documents an absence", "nothing is built"],
+        "frontmatter": { "status": "alpha", "kind": "component" },
+        "catalogueId": "metric-tile",
+        "catalogueStatus": "alpha"
+      }
+    },
+    {
+      "id": "the-install-command-is-real",
+      "question": "What is the one command that puts an opsinjs component in my project?",
+      "why": "The sixty-second entry point, and the page where a regression to \"nothing is built\" is most costly: a reader who is told here that the command is a sketch never reaches a component page at all. The command is asserted verbatim because it is a fenced line that cannot wrap, and the npm forms are asserted absent because the page names the id that actually installs and must not offer a package that does not exist.",
+      "expect": {
+        "page": "start/add-your-first-component",
+        "mustContain": ["npx shadcn@latest add @opsinjs/status-pill", "components.json"],
+        "mustNotContain": ["<NotBuiltYet", "nothing is built", "npm install @opsinjs", "@opsinjs/react"],
+        "alsoResolves": ["start/quick-start", "start/installation", "start/installation/components-json"]
+      }
+    },
+    {
+      "id": "no-npm-package-yet",
+      "question": "Can I npm install the opsinjs components instead of copying source?",
+      "why": "No, and this is the one direction the rest of the suite does not guard: every other regression here is a page understating what exists, and this is a page overstating it. Nothing is published to npm, the decision to publish has not been made, and the page has to keep saying so while the components it describes remain installable by another route entirely. An agent that reads `alpha` as a release reaches for `npm install` next, so this is the failure adjacent to every task above it.",
+      "expect": {
+        "page": "packages/opsinjs-react",
+        "mustContain": ["nothing is published to npm", "<StubNotice"],
+        "frontmatter": { "status": "planned" },
+        "alsoResolves": ["project/decisions/0002-shadcn-registry-distribution", "registry"]
       }
     }
   ]
