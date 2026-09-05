@@ -127,18 +127,29 @@ published results:
 
 <ContrastReport scope="materials" />
 
-Three properties of the table that matter and are easy to take for granted:
+Three properties of that table matter and are easy to take for granted:
 
-- **The alpha column is a floor, not a style.** It is the smallest value at which
-  the rung's ink clears the contrast floor against a pure-black and a pure-white
-  backdrop. Lowering it in a fork is a safety change, not a visual one.
-- **Borders are measured as non-text pairs.** A hairline that disappears over a
-  particular backdrop is an SC 1.4.11 failure, and it is the failure most often
-  missed because it looks correct in the one mock everybody reviewed.
-- **The reduced-transparency fallbacks are not separately measured, because they
-  do not need to be** — they are the same opaque pairs rungs 1 and 2 already
-  use, which is precisely why the fallback is the card colour rather than a new
-  value.
+- **It measures the opaque fallback, not the composite.** `check-contrast.mts`
+  reads `--opsin-material-<rung>-opaque`, because that is the only backdrop the
+  generator knows. So the published figure for `sheet` and `overlay` is their
+  *reduced-transparency* figure, and the translucent case is bounded by the alpha
+  and the scrim minimum instead — that calculation is
+  [The contrast floor](./the-contrast-floor.mdx), and it is stated here rather
+  than hidden behind a number that looks like it covers more than it does.
+- **`scrim` has no row, and that is correct.** Rung 5 exists to remove the page
+  from consideration, so nothing sits on it and there is no text pair to measure.
+  The generator skips it by name rather than by accident.
+- **Borders are not measured.** A hairline at low alpha that disappears over a
+  particular backdrop is an SC 1.4.11 failure, and it is the one most often
+  missed because it looks correct in the single mock everybody reviewed. Nothing
+  on this site has measured one. That is an open gap, and it is named here rather
+  than left to be inferred from a table that does not contain it.
+
+There is no separate reduced-transparency row for the same reason there is no
+duplicate: `sheet` and `overlay` fall back to the card colour, so their fallback
+pair and `card`'s row are the same measurement. `scrim` is the one rung whose
+fallback is its own value — a dark wash at a higher alpha — because a scrim that
+became opaque would be a blank screen.
 
 ## Related
 
