@@ -181,8 +181,11 @@ The emergency surface is specified as a distinct configuration of `AlertBanner`
 and `CareCard` rather than a separate component, so that it inherits the same
 announcement and contrast contract as every other alert and cannot drift into
 being a bespoke screen nobody audits. Its suppression behaviour — hiding every
-other alert on the screen — is part of the specification, not a caller's
-responsibility.
+other alert on the screen — is part of that specification. What ships today is
+narrower. Both components are at `alpha`, and neither can see a sibling, let
+alone silence one, so rule 4 is the caller's to implement and the caller's to
+test on every screen that can reach this path. Write it down as product code with
+an owner rather than assuming a component is holding it.
 
 ## What this does not cover
 
@@ -196,6 +199,12 @@ responsibility.
 - **Clinical escalation between professionals**, which is not a consumer surface.
 - **Legal duties.** Whether you have a duty to act on a flagged value is a
   question for your clinical safety and legal teams.
+
+<Todo>Specify the suppression mechanism rule 4 asks for: what a screen calls to
+enter the emergency state, what happens to an alert that has already been
+announced, and how the state is unwound on acknowledgement. It is the only rule
+here that asks a component to behave differently because of what is beside it,
+and no component in the system can see what is beside it.</Todo>
 
 ## Updates to this page
 
