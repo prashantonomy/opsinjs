@@ -339,34 +339,35 @@ export function Dialog({
      They all render anyway. A dialog is already on screen and already holding
      the reader's focus by the time any of this is true; taking it away to
      report a mistake would leave a reader stranded mid-decision. */
-  if (isDevelopment()) {
-    if (title.trim() === "") {
-      console.warn(
-        "[opsinjs] <Dialog> was given an empty `title`. The title is the " +
-          "dialog's accessible name, so without it the surface is announced as " +
-          '"dialog" and nothing else, and a reader arriving by screen reader is ' +
-          "told that something has taken over without being told what.",
-      )
-    }
-    if (nonDismissing && actions === undefined) {
-      console.warn(
-        '[opsinjs] <Dialog severity="alert"> has no `actions`. An alert dialog ' +
-          "has no close control, its scrim does not dismiss and Escape does not " +
-          "close it, so its actions are the only way out of it. One with none is " +
-          "a surface a reader cannot leave. Either give it the answers it is " +
-          'asking for, or use severity="default", where going away is a valid ' +
-          "outcome.",
-      )
-    }
-    if (nonDismissing && !hasDescription) {
-      console.warn(
-        '[opsinjs] <Dialog severity="alert"> has no `description`. On an alert ' +
-          "dialog the description is where the reader is told that an answer is " +
-          "needed and what each answer does — Escape will not let them out, and " +
-          "this component will not write that sentence on your behalf, because " +
-          "the words belong to the product that knows what the answers mean.",
-      )
-    }
+  if (title.trim() === "") {
+    warnDev(
+      "title-empty",
+      "[opsinjs] <Dialog> was given an empty `title`. The title is the " +
+        "dialog's accessible name, so without it the surface is announced as " +
+        '"dialog" and nothing else, and a reader arriving by screen reader is ' +
+        "told that something has taken over without being told what.",
+    )
+  }
+  if (nonDismissing && actions === undefined) {
+    warnDev(
+      `alert-no-actions:${title}`,
+      '[opsinjs] <Dialog severity="alert"> has no `actions`. An alert dialog ' +
+        "has no close control, its scrim does not dismiss and Escape does not " +
+        "close it, so its actions are the only way out of it. One with none is " +
+        "a surface a reader cannot leave. Either give it the answers it is " +
+        'asking for, or use severity="default", where going away is a valid ' +
+        "outcome.",
+    )
+  }
+  if (nonDismissing && !hasDescription) {
+    warnDev(
+      `alert-no-description:${title}`,
+      '[opsinjs] <Dialog severity="alert"> has no `description`. On an alert ' +
+        "dialog the description is where the reader is told that an answer is " +
+        "needed and what each answer does — Escape will not let them out, and " +
+        "this component will not write that sentence on your behalf, because " +
+        "the words belong to the product that knows what the answers mean.",
+    )
   }
 
   /* THE SECOND HALF OF THE ALERT-DIALOG WARNING, AND IT HAS TO RUN AFTER THE
@@ -385,21 +386,42 @@ export function Dialog({
      through a fragment, and it cannot see a control a caller rendered
      conditionally either. The ref sees the DOM, which is the thing the reader
      is stuck in. It renders anyway, for the reason above: a dialog already
-     holding somebody's focus is not made safer by being unmounted. */
+     holding somebody's focus is not made safer by being unmounted.
+
+     AND IT IS DEFERRED A FRAME, WHICH IS THE WHOLE DIFFERENCE BETWEEN A GUARD
+     AND A LIAR. Read on the render where `open` flips true, `actionsRef.current`
+     is still null: the popup lives in a portal Base UI has not mounted yet, so
+     the check reported "nothing focusable" against a row that had not been
+     built. The dependency array never changes again after that, so the verdict
+     stood for the life of the dialog — and it was wrong on this repository's own
+     alert-dialog example, where two buttons are present and Tab cycles between
+     them. A developer who is told their reader is trapped, opens the dialog and
+     finds two working answers learns that this warning lies, which costs more
+     than the warning was ever worth. One frame is enough: Base UI has portalled
+     the popup and placed initial focus by then, through the same
+     `focusableIn(actionsRef.current, "last")` call `resolveInitialFocus` makes.
+     The frame is cancelled on cleanup so a dialog closed or unmounted inside it
+     never reads a torn-down ref. */
   useEffect(() => {
     if (!isDevelopment() || !open || !nonDismissing || actions === undefined) {
       return
     }
-    if (focusableIn(actionsRef.current, "last") === null) {
-      console.warn(
-        '[opsinjs] <Dialog severity="alert"> was given `actions` with nothing ' +
-          "focusable inside it. An alert dialog has no close control, its scrim " +
-          "does not dismiss and Escape does not close it, so its actions are the " +
-          "only way out — and an empty row, a `null`, a `false` or a fragment " +
-          "with no controls in it is a surface a reader cannot leave at all. " +
-          'Give it the answers it is asking for, or use severity="default", ' +
-          "where going away is a valid outcome.",
-      )
+    const frame = requestAnimationFrame(() => {
+      if (focusableIn(actionsRef.current, "last") === null) {
+        warnDev(
+          `alert-actions-empty:${title}`,
+          '[opsinjs] <Dialog severity="alert"> was given `actions` with nothing ' +
+            "focusable inside it. An alert dialog has no close control, its scrim " +
+            "does not dismiss and Escape does not close it, so its actions are the " +
+            "only way out — and an empty row, a `null`, a `false` or a fragment " +
+            "with no controls in it is a surface a reader cannot leave at all. " +
+            'Give it the answers it is asking for, or use severity="default", ' +
+            "where going away is a valid outcome.",
+        )
+      }
+    })
+    return () => {
+      cancelAnimationFrame(frame)
     }
   }, [open, nonDismissing, actions])
 
