@@ -14,9 +14,9 @@ aliases: ["404", component not found, considered ids, no such component]
 
 ## Status
 
-**Accepted, not yet implemented.** 2026-09-02. The decision is binding; the
-generator that implements it has not been written. What resolves today is
-described under [What exists today](#what-exists-today).
+**Accepted and implemented.** Accepted 2026-09-02; the generator was written
+afterwards and the stub pages are committed. What resolves today is described
+under [What exists today](#what-exists-today).
 
 ## Context
 
@@ -89,8 +89,14 @@ We did *not* adopt a catch-all route.
 
 ## What exists today
 
-Until the generator is written, a considered id resolves through two surfaces and
-not at a guessable page URL:
+**This section said, when the record was written, that the generator did not
+exist and that guessing `docs/components/tooltip` still returned a 404.** That
+was true then. It is not true now: `scripts/build-registry.mts` writes one MDX
+stub per `considered` catalogue row into the components directory, thirty-six of
+them today, each carrying the `GENERATED FILE - DO NOT EDIT` marker comment,
+`status: considered` frontmatter and a `<StubNotice>`, and each covered by
+`pnpm check:generated`. `docs/components/tooltip` resolves and says that Tooltip
+is not built.
 
 - The [catalogue](../../reference/generated/catalogue.mdx), which lists every id,
   shipped and considered, with its status and aliases.
