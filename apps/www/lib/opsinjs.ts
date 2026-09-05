@@ -942,8 +942,9 @@ const IDENTITY_PARAMS = [
  * did not write. A module-scoped `declare const` shadows the global where one
  * exists, emits nothing, and asks for exactly the two properties actually read.
  *
- * Every bundler this system supports replaces `process.env.NODE_ENV` at build
- * time, so in a production bundle the guarded body is dead code and is removed.
+ * Every bundler this system supports substitutes the literal member expression
+ * `process.env.NODE_ENV` at build time, which is what makes `isDevelopment()`
+ * fold to `false` in a production bundle.
  */
 declare const process: { env?: { NODE_ENV?: string } } | undefined
 
@@ -953,9 +954,23 @@ declare const process: { env?: { NODE_ENV?: string } } | undefined
  * Exported because a component must never reach for `process` itself: this is
  * the one place in the shipped substrate that knows how the environment is
  * detected, and a component that guessed differently would log in production.
+ *
+ * WRITE THE LAST TERM AS A PLAIN MEMBER EXPRESSION. `process.env.NODE_ENV` is
+ * the exact text a bundler's define plugin substitutes; `process?.env?.NODE_ENV`
+ * and `process.env?.NODE_ENV` are not, so they survive into the browser bundle
+ * and are then evaluated against a bundler's empty `process` shim, which says
+ * "not production" and turns every development reproach into console output an
+ * end user sees. That is not hypothetical: it is what this line did until it was
+ * written this way. The two `typeof` guards ahead of it are for the environment
+ * a bundler never touched — a plain ESM import with no build step, where
+ * `process` really is absent and the bare member expression would throw.
  */
 export function isDevelopment(): boolean {
-  return typeof process !== "undefined" && process?.env?.NODE_ENV !== "production"
+  return (
+    typeof process !== "undefined" &&
+    typeof process.env !== "undefined" &&
+    process.env.NODE_ENV !== "production"
+  )
 }
 
 /** The point at which the warning channel stops rather than grows. */
