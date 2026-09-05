@@ -859,6 +859,11 @@ export const BANNED_WORDS: GeneratedBannedWord[] = [
     "word": "positive",
     "instead": "the test found <what it found>",
     "reason": "In everyday English 'positive' means good news. In a test result it usually means the opposite, and the collision is dangerous."
+  },
+  {
+    "word": "unhealthy",
+    "instead": "higher than the usual range",
+    "reason": "The same verdict in the other direction. Say which way the reading sits and against whose range; the replacement wording assumes the common case, so where the reading is low, say 'lower than the usual range'."
   }
 ]
 
@@ -931,7 +936,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "code": "OPSIN-0004",
     "severity": "safety",
     "title": "A reference range was rendered without a source",
-    "message": "<{component}> was given a `range` with no `rangeSource`. Name whose range it is — a laboratory, a device maker, or a clinician — because a range is a comparison somebody chose and not a fact about the reader.",
+    "message": "<{component}> was given a `range` with no `range.source`. Name whose range it is — a laboratory, a device maker, or a clinician — because a range is a comparison somebody chose and not a fact about the reader.",
     "docs": "health/reference-ranges",
     "params": [
       "component"
@@ -1015,7 +1020,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "code": "OPSIN-0012",
     "severity": "correctness",
     "title": "A trend was drawn from too few points",
-    "message": "<TrendSparkline> received {count} points and `minimumWindow` is {minimum}. Two readings are not a trend, and drawing one implies a direction the data does not support.",
+    "message": "<TrendSparkline> received {count} points and `minimumPoints` is {minimum}. Two readings are not a trend, and drawing one implies a direction the data does not support.",
     "docs": "health/trends-and-change",
     "params": [
       "count",
