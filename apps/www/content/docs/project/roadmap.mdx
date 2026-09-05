@@ -27,10 +27,16 @@ from the catalogue, so it cannot drift from what the system actually contains.
 
 ## The order, and why
 
-**1. Nothing ships before the token layer is fixed.** Every component reads
+Every component named below now exists, which is why this reads in the past
+tense. It is kept on the page because it explains the shape of what was built —
+which components lean on which — rather than because anything in it is still
+waiting.
+
+**1. Nothing shipped before the token layer was fixed.** Every component reads
 semantic tokens, and every published contrast number describes a token pair.
-Renaming a token after twenty components consume it is the expensive mistake this
-project is deliberately front-loading to avoid.
+Renaming a token after twenty components consume it is the expensive mistake
+this project front-loaded to avoid, and everything built since was written
+against a token layer that had stopped moving.
 
 **2. The health data-display components come first**, in this order:
 `StatusPill`, `RangeBar`, `ResultCard`. They are ordered by how much of the
