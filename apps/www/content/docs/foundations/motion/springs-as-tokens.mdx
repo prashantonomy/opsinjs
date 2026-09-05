@@ -83,7 +83,8 @@ export interface DerivedEasing {
 
 export function springToLinear(
   spring: SpringToken,
-  samples = 24,
+  // Emits samples + 1 stops: `sampling.stops` in motion.json, minus one.
+  samples = 20,
 ): DerivedEasing {
   const { stiffness: k, damping: c, mass: m, epsilon = 0.001 } = spring
   const w0 = Math.sqrt(k / m)
@@ -138,7 +139,7 @@ const round = (n: number): string => String(Math.round(n * 1000) / 1000)
 Two details in there matter more than they look.
 
 **The settling time is computed, not chosen.** A spring has no natural end; it
-approaches its target forever. The generator finds the first moment the curve
+approaches its target forever. The sampler finds the first moment the curve
 stays within `epsilon` of 1 and calls that the duration, which is why every
 spring token ships with a duration derived from its own physics rather than one
 somebody picked to match.
