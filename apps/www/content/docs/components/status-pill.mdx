@@ -15,7 +15,6 @@ usedIn: [value-against-a-range, health-metric-card, results-screen]
 <StubNotice
   name="status-pill"
   status="alpha"
-  issue="opsinjs/opsinjs#0"
   questions={[
     "When a pill's level changes while it is on screen, what is announced, how urgently, and what stops a list of pills from flooding a screen reader? The component mounts no live region today, on purpose.",
     "The contrast pairs and the hit-area floor have not been measured for this component. Until they are, its accessibility section says which claims are checked and which are only argued.",
@@ -108,6 +107,18 @@ StatusPill never carries a category colour: a pill tinted for *heart* sitting be
 tinted for *attention* is precisely the collision the two-axis rule exists to prevent. If
 you need to show which category something belongs to, that is a `badge`, and it belongs
 somewhere else on the surface.
+
+**Do not put a text colour on anything that contains a pill.** The pill cannot defend
+itself here yet: its own ink class is lost in the class merge described in
+[Anatomy](#anatomy), so the word takes its colour from the nearest ancestor that sets one.
+Tint a list row with `text-category-heart-ink` — the obvious way to build a
+category-coloured row — and the word inside the pill resolves from the category namespace
+while the fill behind it resolves from the status namespace: one element reading from both
+axes, which is the thing the rule forbids. Leave the colour to the pill and let the row
+inherit the page's own foreground. The compositions opsinjs ships are clear of this today —
+in [ResultCard](./result-card.mdx) the pill is the category-tinted heading's sibling rather
+than its descendant — but that is a property of those compositions, not a guarantee the
+component gives you.
 
 **Colour is never alone.** Every pill renders a word and an icon alongside its colour, and
 the three are redundant by design. The word is the primary carrier; the colour is the
