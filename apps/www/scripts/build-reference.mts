@@ -749,7 +749,7 @@ function dataAttributesPage(): PageSpec {
        be inventing a styling contract that consumers then select on. */
     body: noData(
       "scripts/build-reference.mts",
-      "Nothing is built yet, so no component emits a data attribute. The vocabulary this table will be filled from - Base UI's `data-open`, `data-starting-style` and `data-ending-style`, plus opsinjs's `data-status` and `data-category` - is specified in the Handbook under Data attributes.",
+      "This script does not read the component sources for `data-*` attributes yet, so the table below has no rows - not because no attribute is emitted. The base layer under `registry/bases/base` emits `data-slot` on every part, plus opsinjs's `data-status`, `data-category`, `data-opsinjs-value` and `data-opsin-shape`, and inherits Base UI's `data-open`, `data-starting-style` and `data-ending-style`. Filling this table needs the attribute, the part, the condition and the value set together; the vocabulary itself is specified in the Handbook under Data attributes.",
     ),
   }
 }
@@ -769,10 +769,11 @@ function keyboardPage(): PageSpec {
       "across a system to be learnable, and inconsistency is invisible while every",
       "component is documented only on its own page.",
       "",
-      "Until components exist, the keyboard contract lives as requirements on each",
-      "component specification rather than as measured results here. Accessibility is",
-      "mandatory at every release phase, including `planned`; what changes with status",
-      "is whether the row is a promise or a measurement.",
+      "Until this script parses those blocks, the keyboard contract is readable only on",
+      "each component's own page. Accessibility is mandatory at every release phase,",
+      "including `planned`; what changes with status is whether the row is a promise or",
+      "a measurement, and an aggregate that lost that distinction would be worse than",
+      "no aggregate.",
     ].join("\n"),
     body: noData(
       "scripts/build-reference.mts",
