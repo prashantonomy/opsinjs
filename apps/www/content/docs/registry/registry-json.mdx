@@ -40,12 +40,20 @@ outcome than a second request.
       "categories": ["health-data-display"],
       "registryDependencies": ["@opsinjs/status-pill", "@opsinjs/value", "…"],
       "files": [
-        { "path": "registry/bases/base/result-card.tsx", "type": "registry:component" }
-      ]
+        { "path": "registry/bases/base/result-card.tsx", "type": "registry:ui", "target": "@ui/result-card.tsx" },
+        { "path": "lib/opsinjs.ts", "type": "registry:lib", "target": "@lib/opsinjs.ts" },
+        { "path": "lib/status.ts", "type": "registry:lib", "target": "@lib/status.ts" }
+      ],
+      "docs": "ResultCard — https://opsinjs.dev/docs/components/result-card",
+      "meta": { "opsinjs": { "implemented": true, "status": "alpha", "…": "…" } }
     }
   ]
 }
 ```
+
+One row, abridged. Note what is present and what is not: paths and targets but no
+`content`, and the opsinjs fields tucked inside `meta` rather than beside the
+schema's own.
 
 ## Field by field
 
@@ -57,7 +65,7 @@ outcome than a second request.
 | `items` | Yes | The array. Order is not significant |
 | `items[].name` | Yes | The item id. Kebab-case, and in opsinjs it is exactly the catalogue id and the docs URL segment |
 | `items[].type` | Yes | What kind of thing it is — see below |
-| `items[].title` | Yes | Human-readable. Sentence case |
+| `items[].title` | Yes | Human-readable. PascalCase in opsinjs, the same string as the exported component — `ResultCard`, not "Result card" |
 | `items[].description` | Yes | One sentence. In opsinjs this is the plain-English definition written for the patient, not the engineer |
 | `items[].files` | For anything with code | Path and type per file. **No `content`** in the catalog — see the rule below |
 | `items[].dependencies` | No | npm packages the item needs |
