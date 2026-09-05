@@ -69,17 +69,43 @@ and the aliases:
 
 ## The size budget
 
-Two limits, applied by the generator and checked by `pnpm run check:llms`.
+Two limits, both applied by the generator, and both now reported by
+`pnpm run check:llms` when it is pointed at a running server.
 
-**`/llms-full.txt` is capped.** When the corpus outgrows the cap, the generator
-drops whole pages in reverse priority order and says so at the top of the file
-rather than truncating mid-page. A truncated markdown document ending in the
-middle of a table is worse than a shorter complete one, because a model will
-happily complete the table from imagination.
+**`/llms-full.txt` is capped.** When the corpus outgrows the cap the generator
+keeps whole pages, in the order the sidebar presents them, and stops when the
+next one would not fit — it never truncates mid-page. A markdown document
+ending in the middle of a table is worse than a shorter complete one, because a
+model will happily finish the table from imagination. The header counts what
+survived (`Pages: N of M.`) and a `## Truncated` block at the foot of the file
+counts what was dropped, names the shards to fetch instead, and then lists every
+dropped page by title with its `.md` URL and its status. Nothing is hidden: the
+manifest is budgeted for before any page is, and measured over the whole corpus
+so the reservation can never be an underestimate. That costs a few per cent of
+the cap, in exchange for a file that never drops a page without naming it.
 
-**Every shard is capped independently.** A shard that would exceed its budget is
-a signal that it needs splitting, not trimming. That is a build failure, not a
-silent degradation.
+**Every shard is capped independently, and the cap trims rather than fails.** A
+shard at its budget is a signal that it needs splitting, and all three are at
+their cap today, dropping their overflow the way `/llms-full.txt` does — each
+with its own header count and its own `## Truncated` block. The drop is no
+longer silent: run against a server, `check:llms` reads the `Pages: N of M.`
+line out of every corpus file and warns with the number dropped and the coverage
+percentage, and warns separately when an implemented component is missing from
+`/llms-components.txt`. That second check matters more than it sounds, because
+truncation drops pages in corpus order, which is alphabetical, so the components
+that fall off are the ones at the end of the alphabet rather than a random
+sample.
+
+Those are warnings and not failures, deliberately. Splitting the shards is a
+design change nobody has made, and every corpus file drops pages today, so
+failing the build would leave two exits — raise the budgets, or delete the check
+— and both are the silent degradation the warning exists to prevent.
+
+<Todo owner="agents">Split the three shards so that each fits its budget whole,
+then raise the coverage warning in `scripts/check-llms.mts` to a failure. Until
+that happens the warnings tell you how much is missing but nothing stops it
+growing, so treat a shard as a sample of its sections rather than all of
+them.</Todo>
 
 If you need a specific page rather than a shard, fetch its markdown twin — see
 [Raw markdown API](./raw-markdown-api.mdx). Fetching one page is almost always
