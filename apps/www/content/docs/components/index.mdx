@@ -25,17 +25,17 @@ product that shows people their own health data. A definitive *considered, not b
 
 <SectionProgress />
 
-Two rosters, one table. **Shipped** ids have a written specification and a page.
-**Considered** ids are recorded in the catalogue with a category and a reason, and have no
-page until someone writes the specification — they are held here rather than in a private
-backlog so that a question about `toast` or `body-map` gets a real answer instead of
-silence. Filter by category or status, or search the synonyms: `normal range`, `kpi`,
-`gauge`, `not medical advice`, `ago`.
+Two rosters, one table. **Shipped** ids have code, a registry item and a hand-written
+page. **Considered** ids are recorded in the catalogue with a category and a reason and
+have neither code nor a specification; their address answers with a generated stub
+carrying that reason rather than a 404, so a question about `toast` or `body-map` gets a
+real answer instead of silence. Filter by category or status, or search the synonyms:
+`normal range`, `kpi`, `gauge`, `not medical advice`, `ago`.
 
 <StatusMatrix rosters={["shipped", "considered"]} />
 
-**Status is a promise about change, not a quality score.** `planned` means the
-specification is public and the API may still move without a deprecation cycle.
+**Status is a promise about change, not a quality score.** `alpha` means the code exists
+and is documented, and the API may move in any release without a deprecation cycle.
 `considered` means even the specification is unwritten. The full ladder — what each phase
 promises about semver, accessibility and the registry — is on
 [Release phases](../project/release-phases.mdx).
