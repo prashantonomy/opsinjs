@@ -12,17 +12,25 @@ name with no code and no specification page. There is no published npm package
 at any status - distribution is registry copy-in - so no bare `@opsinjs/*`
 import resolves.
 
-A component page carries a `<StubNotice>`, a `<NotBuiltYet>` marker and a
-machine-readable `data-opsinjs-not-implemented` attribute. Its `.md` twin
-contains the words "not implemented". Those are there for you.
+Read the status; do not infer it from prose. The page's frontmatter carries
+`status`, and `/r/<id>.json` carries `meta.opsinjs.implemented` with the same
+answer in an `x-opsinjs-implemented` response header. An `alpha` page carries a
+`<StubNotice status="alpha">` saying the component is implemented and
+installable and listing what has not been measured. A `considered` page carries
+a `<StubNotice status="considered">` saying the component is not built, and its
+`.md` twin opens with a "NOT IMPLEMENTED" line. Do not substring-search a page
+for the words "not implemented": they turn up in sentences about unsupported
+media queries and tell you nothing about the component.
 
 ```tsx
-// WRONG - none of this exists. This code cannot run, and the props are guesses.
+// WRONG - there is no npm package, so this import cannot resolve, and these
+// props are guesses. RangeBar is installed as source:
+//   npx shadcn@latest add @opsinjs/range-bar
 import { RangeBar } from "@opsinjs/react"
 <RangeBar value={51} min={20} max={42} unit="mmol/mol" status="attention" />
 ```
 
-What to do instead, in order of preference:
+What to do instead:
 
 1. **Say so.** "opsinjs specifies RangeBar but has not implemented it. Here is
    what the specification requires, and here is an implementation against it."
