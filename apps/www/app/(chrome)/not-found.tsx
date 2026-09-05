@@ -21,6 +21,12 @@ import { agentRoutes, registryRoutes, routes } from "@/lib/routes"
 export default function NotFound() {
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center px-6 py-16">
+      {/* Rendered in the tree rather than exported as `metadata`: the Metadata
+          API is collected from `layout` and `page` segments only, and a
+          `not-found` file is neither. React hoists a <title> rendered anywhere
+          into the document head, so this is the one route to a titled 404.
+          Without it the page is announced by its URL — WCAG 2.2 SC 2.4.2. */}
+      <title>Page not found — opsinjs</title>
       <main className="w-full max-w-xl">
         <p className="font-mono text-xs tracking-[0.16em] text-muted-foreground uppercase">
           404
@@ -40,11 +46,13 @@ export default function NotFound() {
               You asked for a component that is only <em>considered</em>.
             </h2>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              Around thirty component ideas are recorded in the catalogue
-              without a page, because a page here has to carry a real
-              specification and those do not have one yet. The catalogue is the
-              definitive list of what exists, what is planned and what was
-              considered and set aside.
+              {getConsidered().length} component ideas were considered and left
+              off the roster. Each one still answers at its canonical address
+              under the component catalogue, with the reason it was refused and
+              what to use instead — so if a considered id brought you here, it
+              was the address that was wrong rather than the name. The catalogue
+              is the definitive list of what is built, what is specified and
+              what was set aside.
             </p>
             <p className="mt-2 text-sm">
               <Link
