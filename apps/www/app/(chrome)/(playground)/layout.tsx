@@ -1,8 +1,23 @@
 import type { ReactNode } from "react"
+import type { Metadata } from "next"
 import { HomeLayout } from "fumadocs-ui/layouts/home"
 
 import { baseOptions } from "@/lib/layout.shared"
+import { site } from "@/lib/routes"
 import { ToolNav } from "./tool-nav"
+
+/**
+ * The same title template the other two groups carry, for the same reason: the
+ * three tools are titled "Playground", "Theme generator", "Contrast oracle" and
+ * "Two-axis lab", none of which names the system on its own. See the note on
+ * `app/(chrome)/(home)/layout.tsx` for why this is not on the root layout.
+ */
+export const metadata: Metadata = {
+  title: {
+    template: `%s — ${site.name}`,
+    default: `Playground — ${site.name}`,
+  },
+}
 
 /**
  * Chrome for the three playground tools.
