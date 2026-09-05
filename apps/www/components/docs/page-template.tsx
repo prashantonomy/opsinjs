@@ -81,7 +81,7 @@ const ALIASES: Record<string, string[]> = {
 }
 
 /** "Approved / Rejected" and "approved  /  rejected" are the same heading. */
-function normalise(value: string): string {
+function normalize(value: string): string {
   return value
     .toLowerCase()
     .replace(/[‘’]/g, "'")
@@ -92,8 +92,8 @@ function normalise(value: string): string {
 }
 
 function candidatesFor(heading: string): string[] {
-  const key = normalise(heading)
-  return [key, ...(ALIASES[key] ?? []).map(normalise)]
+  const key = normalize(heading)
+  return [key, ...(ALIASES[key] ?? []).map(normalize)]
 }
 
 /** TOC titles are ReactNode. Pull the text out of whatever shape arrived. */
