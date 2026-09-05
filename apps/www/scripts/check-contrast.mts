@@ -537,6 +537,39 @@ function buildPairs(tokens: GeneratedToken[]): PairDefinition[] {
 async function main(): Promise<void> {
   const verify = process.argv.includes("--verify")
   const strict = process.argv.includes("--strict")
+  const selftestOnly = process.argv.includes("--selftest")
+
+  /* Before anything is measured, before any baseline is read. A formula that
+     fails here has already published wrong numbers, and continuing on to diff
+     them against themselves would report success. */
+  const selfTest = await runSelfTest()
+  if (selfTest.failures.length > 0) {
+    console.error(
+      [
+        "",
+        `check-contrast: the colour maths failed ${selfTest.failures.length} of ${selfTest.checks} known-answer checks.`,
+        "",
+        ...selfTest.failures.flatMap((failure) => [
+          `  ${failure.claim}`,
+          `    ${failure.detail}`,
+        ]),
+        "",
+        "  Fix lib/color/, not this check. Every contrast figure on the site comes",
+        "  from those two modules, so a failure here means the published numbers are",
+        "  wrong and lib/generated/contrast.json agrees with them.",
+        "",
+      ].join("\n"),
+    )
+    process.exit(1)
+  }
+  if (selftestOnly) {
+    console.log(
+      selfTest.ran
+        ? `check-contrast --selftest: ${selfTest.checks} known-answer checks passed.`
+        : "check-contrast --selftest: lib/color/ is not available, so nothing was checked.",
+    )
+    return
+  }
 
   const generated = await importModule(join("lib", "generated", "tokens.ts"))
   const tokens = (pick<GeneratedToken[]>(generated, ["TOKENS", "tokens"]) ?? []).filter(
@@ -729,6 +762,14 @@ async function main(): Promise<void> {
 
   /* ---------------- verify ---------------- */
   if (verify) {
+    /* TWO STATES THAT LOOK ALIKE AND ARE NOT. A tree that has never been
+       measured has no baseline and nothing to compare against, which is a real
+       zero state; a baseline that exists but cannot be read is a broken gate,
+       and it must not exit 0. lib/generated/contrast.json is written by
+       `pnpm run contrast` and NOT by `pnpm run generate`, so `check:generated`
+       never regenerates it and a corrupt committed baseline is invisible to
+       every other check - this exit is the only thing that reports it. */
+    const baselineExists = exists(OUT_FILE)
     let previous: { pairs?: MeasuredPair[] } | undefined
     try {
       previous = JSON.parse(readFileSync(OUT_FILE, "utf8")) as { pairs?: MeasuredPair[] }
