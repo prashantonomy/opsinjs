@@ -642,10 +642,11 @@ export function getBuiltFiles(
  * index the same way, and one memo for two questions would answer the second
  * with the first one's list.
  */
-let implementedCache: string[] | null = null
+const builtNameCache = new Map<string, string[]>()
 
-export function implementedComponents(): string[] {
-  if (implementedCache) return implementedCache
+function builtNamesOfKind(kind: string): string[] {
+  const cached = builtNameCache.get(kind)
+  if (cached) return cached
 
   const names = new Set<string>()
   const fn = callable(
