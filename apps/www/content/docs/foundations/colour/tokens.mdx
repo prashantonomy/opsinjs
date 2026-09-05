@@ -104,11 +104,23 @@ variant, the answer is a different role or a
 ## Accessibility impact
 
 Every row above belongs to a measured pair, and the measurements are published
-rather than asserted:
+rather than asserted. `scripts/check-contrast.mts` groups its output by token
+scope rather than by source file, so the colour namespace arrives as three
+tables rather than one.
 
-<ContrastReport scope="color" />
+The status stems, which are the pairs a reader's safety depends on:
 
-Three properties of this table are load-bearing for accessibility and worth
+<ContrastReport scope="status" />
+
+The six category ramps, whose `-line` and `-ink` roles carry the identity marks:
+
+<ContrastReport scope="category" />
+
+And the neutral ramp, which every other pair is eventually measured against:
+
+<ContrastReport scope="neutral" />
+
+Three properties of those tables are load-bearing for accessibility and worth
 stating explicitly, because a generated table looks like it could not possibly
 be wrong:
 
