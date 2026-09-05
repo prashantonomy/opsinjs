@@ -101,9 +101,9 @@ documentation, and it stays correct as the catalogue changes.
 
 ## Where the detail lives
 
-- `/docs/registry/index.md` - what shipping as a registry buys and costs
+- `/docs/registry.md` - what shipping as a registry buys and costs
 - `/docs/registry/namespaces.md` - registering `@opsinjs`, composing registries
-- `/docs/registry/registry-item.md` - the item schema, field by field
+- `/docs/registry/registry-item-json.md` - the item schema, field by field
 - `/docs/registry/upgrades-and-diffs.md` - upgrading source you own
 - `/docs/registry/version-stamps.md` - the fork problem and the stamp that solves it
 - `/docs/agents/mcp-server.md` - client configuration
