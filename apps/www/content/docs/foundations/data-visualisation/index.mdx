@@ -29,12 +29,13 @@ and each has its own page:
 - **Every chart ships a table twin.** The same data, in a real table, reachable
   by everyone. [Accessible charts](accessible-charts.mdx).
 
-<NotBuiltYet />
-
-The components these rules will govern — `TrendSparkline`, `RangeBar` and
-`ScoreDial` — are specified and not built. These pages are the contract they will
-have to satisfy, written first on purpose: a chart component built before its
-axis rules exist will encode the wrong ones.
+The three components these rules govern — [TrendSparkline](../../components/trend-sparkline.mdx),
+[RangeBar](../../components/range-bar.mdx) and
+[ScoreDial](../../components/score-dial.mdx) — are built and at `alpha`. These
+pages are the contract they satisfy, and they were written first on purpose: a
+chart component built before its axis rules exist encodes the wrong ones. The
+rules are older than the code, which is why the code can be checked against
+them.
 
 ## How it works
 
@@ -107,10 +108,12 @@ data. The rules are on [Using motion](../motion/using-motion.mdx).
 
 ## Tokens
 
-Data visualisation consumes the chart ramp, the neutral roles for axes and
-gridlines, and the space scale. The chart ramp is generated from
-`tokens/color.json` by `scripts/build-tokens.mts` and is deliberately separate
-from both the category and status ramps — see [Chart colour](chart-colour.mdx).
+Data visualisation is specified to consume a chart ramp of its own, deliberately
+separate from both the category and status ramps — see
+[Chart colour](chart-colour.mdx) — plus the neutral roles for axes and gridlines
+and the space scale. The neutral roles and the space scale exist today. The
+chart ramp does not: `tokens/color.json` declares no chart family, so
+`scripts/build-tokens.mts` emits none and there is nothing to tabulate.
 
 <NoDataYet script="scripts/build-tokens.mts" />
 
