@@ -44,7 +44,7 @@ The flags worth knowing:
 | `--view [path]` | Print file contents without installing | Read a health component's source before you accept it |
 | `-o, --overwrite` | Overwrite existing files | Discards your edits. Use with `--diff` first, never alone |
 | `-p, --path <path>` | Install somewhere specific | Overrides the alias resolution from `components.json` |
-| `-a, --all` | Add everything | Never a good idea against opsinjs, and currently a no-op |
+| `-a, --all` | Add everything | Never a good idea against opsinjs: sixty items, of which thirty-six have no files to write |
 
 `--view` deserves emphasis. In a copy-not-dependency model you are accepting
 source into your repository, and being able to read it before it lands is the
@@ -126,7 +126,7 @@ are `package.json` scripts, not a CLI, and they run under plain Node — the
 | --- | --- |
 | `pnpm run generate` | Tokens, registry and generated reference pages |
 | `pnpm run contrast` | Measures every token pair with APCA and WCAG 2.2 |
-| `pnpm run check` | `check:generated`, `check:ia`, `check:a11y` and `check:llms`, in that order |
+| `pnpm run check` | The three generators in `--check` mode, then `check:generated`, `check:ia`, `check:a11y` and `check:llms`, in that order |
 | `pnpm run check:generated` | Regenerates and fails on a diff |
 | `pnpm run check:ia` | Frontmatter, section outlines, link and reachability assertions |
 | `pnpm run check:a11y` | The accessibility rig's static half, over the component sources |
@@ -205,7 +205,9 @@ the fix for an MCP server reporting no tools.
 **A command works globally and not in a monorepo.** Use `-c, --cwd` to point at
 the package rather than the workspace root.
 
-**`add` wrote nothing and reported success.** Nothing is built. See
+**`add` wrote nothing and reported success.** The id is one of the thirty-six
+reserved names: it resolves, and it carries no `files`. Check `implemented` for
+that name in `/r/index.json`, and see
 [the registry overview](./index.mdx).
 
 **A script fails with a syntax error in a `.mts` file.** Node is older than 24
