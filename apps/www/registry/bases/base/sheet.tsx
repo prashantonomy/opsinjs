@@ -812,7 +812,7 @@ export function Sheet({
                             setStopIndex((current) => (current + 1) % stops.length)
                           }
                           className={cn(
-                            "flex min-h-(--opsin-target-minimum) shrink-0 items-center justify-center",
+                            "flex min-h-(--opsin-target-minimum,2.75rem) shrink-0 items-center justify-center",
                             /* NOT `w-full`, and the width is a target-separation
                                fix. A full-width 44pt band sits directly above the
                                header, whose `pt-opsin-2` is exactly
