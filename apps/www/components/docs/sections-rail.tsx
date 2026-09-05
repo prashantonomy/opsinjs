@@ -40,7 +40,7 @@ import { cn } from "@/lib/utils"
  */
 const HINTS: Record<string, string> = {
   Introduction: "What opsinjs is, who it is for, and what it refuses to do.",
-  Components: "The 24 specifications and the considered roster.",
+  Components: "What is built, what is specified, and what was left off.",
   Health:
     "The doctrine layer: two colour axes, status semantics, alarm fatigue.",
   Foundations:
@@ -83,6 +83,14 @@ export function SectionsRail({ className }: SectionsRailProps) {
                 href={pillar.url}
                 title={HINTS[pillar.title]}
                 aria-current={active ? "page" : undefined}
+                /* `py-1.5` rather than `py-0.5`: at 320px the rail wraps to
+                   four rows, and a 22.5px chip only cleared WCAG 2.2 SC 2.5.8
+                   through the undersized-target spacing exception, with 26px
+                   between row centres and 3.4px between neighbours. That is a
+                   pass contingent on a line-height nobody is watching. This
+                   clears 24px on the target itself. It does not reach the 44px
+                   product floor and is not claimed to: the chrome is dense by
+                   design, and the floor is a rule about product surfaces. */
                 className={cn(
                   "block border border-border px-1.5 py-0.5 text-[0.6875rem] no-underline",
                   active
