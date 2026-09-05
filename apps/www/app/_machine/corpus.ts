@@ -435,9 +435,10 @@ export function renderIndexEntry(page: CorpusPage): string {
 
 /**
  * YAML frontmatter for a single page's markdown twin. Deliberately a superset
- * of the authored frontmatter: it adds the canonical URL and the
- * not-implemented marker, so a page read in isolation still knows where it
- * came from and what it may be used for.
+ * of the authored frontmatter: it adds the canonical URL and, on a component
+ * page, the implementation marker read from the registry index — so a page
+ * read in isolation still knows where it came from and what it may be used
+ * for.
  */
 export function renderFrontmatter(page: CorpusPage): string {
   const meta = metaOf(page)
@@ -466,15 +467,46 @@ export function renderFrontmatter(page: CorpusPage): string {
   putList("implements", meta.implements)
   putList("governedBy", meta.governedBy)
   putList("usedIn", meta.usedIn)
-  lines.push("implemented: false")
+  /* The one field on this page that nobody authored, and therefore the one
+     field no MDX edit can correct. It used to be the literal `false`, which
+     told every reader that the twenty-four built components did not exist — on
+     the same HTTP response whose `x-opsinjs-implemented` header said they did,
+     and directly under a `status: "alpha"` line saying so too. It is now read
+     from the generated index that both of those are read from.
+
+     It is emitted only on a page that documents something buildable — a
+     component or a screen specimen — which is what `pageImplemented()` decides,
+     and what the twin's `x-opsinjs-implemented` header and the `/r/docs.json`
+     page record now decide with it. A health doctrine page, a token reference
+     or an ADR is not an unimplemented anything; stamping `implemented: false`
+     on one asserts something false about a page that is real today. A
+     `considered` id still gets `implemented: false`, which is the correct
+     answer for it. */
+  const implemented = pageImplemented(page)
+  if (implemented !== undefined) lines.push(`implemented: ${implemented}`)
   lines.push("---")
   return lines.join("\n")
 }
 
 /**
- * The one-paragraph warning that precedes any page describing a component. It
- * is repeated per page rather than stated once at the top of a shard because a
- * page is very often read alone, retrieved by a search, with no preamble.
+ * The one-paragraph warning that precedes an unbuilt component or screen
+ * specification. It is repeated per page rather than stated once at the top of
+ * a shard because a page is very often read alone, retrieved by a search, with
+ * no preamble.
+ *
+ * It is scoped by `kind` for exactly the reason the `implemented:` frontmatter
+ * field above it is. A component and a screen are the only things on this site
+ * that can be built, so they are the only things whose page can honestly say
+ * it has not been. On a guide, a handbook chapter, a foundation or a recipe,
+ * `planned` means the writing is unfinished, not that the subject is vapour —
+ * and stamping "do not tell a reader that it exists" on the `.md` twin of
+ * `/docs/start/installation` contradicted the working install instructions
+ * twenty lines below it, in the one copy of the page only machines read.
+ *
+ * The general signal is still on every page: `status` in the frontmatter this
+ * module renders, and in the llms.txt annotations. This notice is the specific
+ * one, and it says something a status alone cannot — do not write code against
+ * the API sketched below. Keep it narrow enough to stay true.
  */
 export function notImplementedNotice(page: CorpusPage): string | null {
   const meta = metaOf(page)
