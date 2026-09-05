@@ -56,21 +56,29 @@ because of its z-index, not because of its blur.
 Every rung resolves the same eight custom properties, and there is no ninth:
 
 ```text
---opsin-material-<n>-bg       the backing colour, including its alpha
---opsin-material-<n>-blur     the backdrop-filter blur radius
---opsin-material-<n>-border   the hairline, or transparent
---opsin-material-<n>-shadow   the drop shadow, or none
+--opsin-material-<rung>-tint         the backing colour
+--opsin-material-<rung>-tint-alpha   how opaque that tint is
+--opsin-material-<rung>-blur         the backdrop-filter blur radius
+--opsin-material-<rung>-saturation   the backdrop-filter saturation multiplier
+--opsin-material-<rung>-border       the boundary, or `none`
+--opsin-material-<rung>-shadow       the drop shadow, or `none`
+--opsin-material-<rung>-scrim        the minimum scrim opacity text on this rung needs
+--opsin-material-<rung>-opaque       the substitute used when translucency is off
 ```
 
-`<n>` runs from 0 to 5. The named rungs map onto those numbers one-to-one and
-the names are what you should use in conversation and in review;
-[The ladder](./the-ladder.mdx) is the mapping table and the job description for
-each.
+`<rung>` is a name — `canvas`, `card`, `raised`, `sheet`, `overlay`, `scrim` —
+and never an index. A number invites arithmetic, "one more than a card", and the
+ladder is not arithmetic: each rung answers a different question about what is
+behind it. [The ladder](./the-ladder.mdx) is the six questions and the job
+description for each, and
+[ADR 0014](../../project/decisions/0014-material-rung-names.mdx) is why these are
+the names.
 
-Constraining a material to four properties is deliberate. A system that lets a
-surface vary in tint, blur, saturation, border, shadow, inset highlight and
-noise has no ladder at all — it has a parameter space, and every screen ends up
-somewhere different in it.
+Constraining a material to one closed set is deliberate, and so is fixing all
+eight per rung rather than exposing them for tuning. A system where a surface
+may vary its tint, blur, saturation, border, shadow, inset highlight and noise
+screen by screen has no ladder at all — it has a parameter space, and every
+screen ends up somewhere different in it.
 
 ### The `Surface` primitive
 
