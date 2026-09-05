@@ -14,6 +14,19 @@ aliases: [vulnerability, responsible disclosure, report a security issue]
 
 ## Reporting a vulnerability
 
+<Todo>
+There is no working reporting channel today. The canonical repository is not
+public, so the Security tab described below does not exist, and this project
+deliberately publishes no security email — so a vulnerability cannot be reported
+to us privately at all right now. The escalation route under "What to expect" and
+the safety route under "What is not a security issue" both end at the same
+missing tracker. Opening the repository is a release blocker for that reason and
+not only for distribution. Do not read this as permission to disclose publicly;
+read it as the reason the policy below cannot yet be followed. Remove this note
+when the Security tab exists, and check that the routes on
+[Community](community.mdx) resolve at the same time.
+</Todo>
+
 **Do not open a public issue.** Use private vulnerability reporting on the
 canonical repository — the Security tab, "Report a vulnerability" — so that the
 report is visible only to the maintainers until there is a fix.
@@ -58,9 +71,11 @@ model is not that of a runtime dependency:
 **A clinical safety concern is not a vulnerability, and routing it here delays
 it.** If a component, a piece of guidance or an example could lead a person to
 misread their own health data, that is more urgent than most security reports and
-belongs in a public issue where a clinical reviewer can see it. Say clearly that
-it is a safety concern; the [safety review checklist](../health/safety-review-checklist.mdx)
-is the shape of the argument that helps most.
+belongs in a public issue where a clinical reviewer can see it — once there is an
+issue tracker to open it in, which today there is not, for the reason in the note
+at the top of this page. Say clearly that it is a safety concern; the
+[safety review checklist](../health/safety-review-checklist.mdx) is the shape of
+the argument that helps most.
 
 Also not vulnerabilities: a missing hardening header on a documentation page with
 no accounts and no data; the absence of a feature; a dependency advisory that
