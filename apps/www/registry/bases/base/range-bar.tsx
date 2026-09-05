@@ -611,11 +611,11 @@ export function RangeBar({
      means the precision this metric is reported to cannot separate its own
      bounds, and the caller is the only one who can say what it should be. */
   if (
-    isDevelopment() &&
     extent !== null &&
     digitsOf(extent.low, precision, locale) === digitsOf(extent.high, precision, locale)
   ) {
-    console.warn(
+    warnDev(
+      `bounds-collapse:${String(precision)}:${String(extent.low)}:${String(extent.high)}`,
       `[opsinjs] <RangeBar> is labelling both ends of the range ` +
         `"${digitsOf(extent.low, precision, locale)}", because ` +
         `precision=${String(precision)} rounds ${String(extent.low)} and ` +
@@ -633,8 +633,9 @@ export function RangeBar({
      carried by a position on a line — which is nothing at all in a screen
      reader, on a printout, or to a reader who cannot see it. */
   const blankSummary = summary !== undefined && summary.trim() === ""
-  if (blankSummary && isDevelopment()) {
-    console.warn(
+  if (blankSummary) {
+    warnDev(
+      `summary-blank:${label}`,
       '[opsinjs] <RangeBar> received summary="", which would render the bar with ' +
         "no sentence beside it. The generated sentence was used instead. The " +
         "wording is yours to replace; the sentence is not optional, because it is " +
