@@ -69,16 +69,26 @@ in front of it.
     status: string         // stable | alpha | considered | …
     kind: string           // component | health | foundation | …
     evidence?: string      // health pages declare this
+    aliases: string[]
+    implements: string[]
+    governedBy: string[]
+    usedIn: string[]
     reviewed?: string
-    content: string        // processed markdown, JSX resolved
+    markdown: string       // processed markdown; documentation components
+                           // arrive as <PascalCase … /> tags
   }>
 }
 ```
 
-The `content` field is the same processed markdown the `.md` twins serve — JSX
-resolved, generated tables filled in with the values CI measured, interactive
-components degraded to a sentence naming the tool. See
-[Raw markdown API](./raw-markdown-api.mdx) for what "processed" means in detail.
+The page body is `markdown`, not `content`, and `markdown` is the same processed
+text the `.md` twins serve. "Processed" is narrower than it sounds: remark has
+run, so imports are gone and tables and code blocks are markdown, but the
+documentation components are not rendered — `<ComponentPreview name="range-bar" />`
+arrives as that tag and its attributes are the content. See
+[Raw markdown API](./raw-markdown-api.mdx) for what survives and what does not.
+A page inside the bundle also omits the per-page block quote that a standalone
+twin carries about those tags, so nothing in a page body explains them; this
+paragraph is the explanation.
 
 The bundle carries the documentation. It does not carry component source,
 because there is none, and it does not carry the registry — fetch
