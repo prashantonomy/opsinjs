@@ -81,8 +81,10 @@ until the first deadline. Until the ESLint and Stylelint plugins described in
 [Tooling](../handbook/tooling/index.mdx) exist, this is enforced by review, which
 is to say weakly.
 
-**Accessibility conformance cannot be claimed without an audit**, and an audit
-cannot be run against a specification. The [accessibility statement](../accessibility/accessibility-statement.mdx)
+**Accessibility conformance cannot be claimed without an audit**, and none has
+been run. There is now code an auditor could be pointed at, so the reason is no
+longer that there is nothing to audit; it is the ordinary one, that nobody
+independent has looked. The [accessibility statement](../accessibility/accessibility-statement.mdx)
 lists what is unknown today rather than implying it is fine.
 
 **The `[lang]` segment is not blocked, it is deferred**, with the exact retrofit
@@ -103,8 +105,10 @@ if you need one, opsinjs is the wrong dependency:
   gives rules and an accessible chart contract; it will not ship a chart engine.
 - **A general form library.** `Field` exists to make health inputs correct, not to
   compete with the form libraries that already work.
-- **A CLI, first.** `npx shadcn` installs from our registry today. Writing a CLI
-  before writing a component would be building the shop before the stock —
+- **A CLI.** `npx shadcn` installs from our registry today and there is nothing a
+  CLI of our own would add. Writing one before writing a component would have
+  been building the shop before the stock; now that there is stock, the shop
+  still belongs to somebody else —
   [ADR 0002](decisions/0002-shadcn-registry-distribution.mdx).
 - **Native mobile.** The system targets the web, including web views in native
   apps. React Native is not on this list.
