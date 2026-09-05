@@ -580,11 +580,29 @@ export interface IframePreviewProps {
   className?: string
   /**
    * Whether `name` resolves to something that really renders at `/view`. Set
-   * by <IframePreview> in ./preview-server; a page never passes it. It changes
-   * only what the UNMOUNTED frame says, so that a page which has not opted in
-   * to `embed` does not go on claiming a built screen does not exist.
+   * by <IframePreview> in ./preview-server; a page never passes it.
+   *
+   * It does two things. It decides what the UNMOUNTED frame says, so a page
+   * that has not opted in to `embed` does not go on claiming a built screen
+   * does not exist. And it gates `embed`: asking for a frame around a route
+   * that renders its own not-built state would nest one dashed box inside
+   * another and move `data-opsinjs-not-implemented` inside an iframe, where
+   * the page-level scrapers cannot see it. A page opts in to the frame; the
+   * resolver decides whether there is anything to put in it.
    */
   built?: boolean
+  /**
+   * The catalogue row's release phase, resolved on the server alongside
+   * `built` and never passed by a page.
+   *
+   * It reaches <NotBuiltYet>, whose visually-hidden sentence differs between
+   * `considered` and `planned`: a `planned` id has a written specification and
+   * the sentence warns that it may change, a `considered` id has none and the
+   * sentence must not imply one. Without this the empty state on all 36
+   * `considered` component pages announced a specification the page itself
+   * denies two paragraphs above.
+   */
+  phase?: Status
 }
 
 /**
@@ -603,6 +621,7 @@ export function IframePreview({
   children,
   className,
   built = false,
+  phase,
 }: IframePreviewProps) {
   const [device, setDevice] = useState<Device>(initialDevice)
   const [mode, setMode] = useState<PreviewMode>("light")
