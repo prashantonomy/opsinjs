@@ -236,6 +236,8 @@ const warnedAxisTints = new Set<string>()
 function warnIfTintedFromAnAxis(className: string | undefined): void {
   if (!isDevelopment() || className === undefined) return
   if (!AXIS_TINT.test(className)) return
+  if (warnedAxisTints.has(className)) return
+  warnedAxisTints.add(className)
   console.warn(
     `[opsinjs] <Callout className="${className}"> takes a colour from one of the ` +
       "two axes. Callout sits outside both, and that is the component: a callout " +
