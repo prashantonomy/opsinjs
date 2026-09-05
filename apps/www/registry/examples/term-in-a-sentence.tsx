@@ -47,7 +47,7 @@ const GLOSSARY: readonly GlossaryEntry[] = [
 export default function TermInASentence() {
   return (
     <TermGlossaryProvider glossary={GLOSSARY}>
-      <div className="flex w-full max-w-(--opsin-measure-comfortable) flex-col gap-opsin-4 text-opsin-body">
+      <div className="flex w-full max-w-(--opsin-measure-comfortable,66ch) flex-col gap-opsin-4 text-opsin-body">
         <p className="m-0">
           Your letter uses the word <Term id="acute" />, which describes how
           quickly something started rather than how serious it is.
