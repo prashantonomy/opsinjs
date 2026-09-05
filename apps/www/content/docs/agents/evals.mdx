@@ -1,6 +1,6 @@
 ---
 title: Evals
-description: The task suite that measures whether an assistant generates safe opsinjs UI, what each task is checking, and the current scores.
+description: The task suite that checks whether this documentation answers the questions an agent actually asks, at the address it would guess — what each task asserts, and how a run is scored.
 status: stable
 kind: reference
 full: true
@@ -14,11 +14,12 @@ aliases: [eval suite, agent scores, benchmark, model evaluation]
 Source file: `skills/opsinjs/evals/evals.json`. Script: `scripts/run-evals.mts`.
 Command: `pnpm run evals`.
 
-Each task in the source file is a prompt, a set of assertions over the output,
-and a weight. The script runs the suite, scores each task pass, conditional or
-fail, and writes the dated results that `<EvalResult>` renders below. No score
-on this page is typed by a person, and a run that has not happened renders as
-`<NoDataYet>` rather than as an optimistic blank.
+Each task in the source file is a question an agent asks in practice, the
+address the answer has to live at, and the things that answer cannot omit or
+claim. The script resolves each page — from `content/docs` on disk, or from the
+served `.md` twins when it is given `--base` — checks every assertion, and
+writes a dated result file. No score on this page is typed by a person, and a
+task with no result renders as `<NoDataYet>` rather than as an optimistic blank.
 
 The suite is deliberately small and deliberately adversarial. It is not a
 benchmark for comparing models against each other; it is a regression test for
