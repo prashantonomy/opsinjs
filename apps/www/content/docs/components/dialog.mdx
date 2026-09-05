@@ -503,10 +503,13 @@ what `alpha` promises.
   frame, inside a container that fades in, is not any of those, and under reduced motion
   it does not move at all. That is the reading this page takes, and it is a reading
   rather than a ruling from the page that owns the rule.
-- **`prefers-contrast: more` and `forced-colors`.** Neither is implemented anywhere in
-  opsinjs yet, so no increased-contrast claim can currently be made by anybody. The
-  surface strengthens its own edge under `contrast-more`; the dialog adds nothing to
-  that.
+- **`prefers-contrast: more` and `forced-colors`.** `forced-colors` is implemented nowhere
+  in opsinjs. `prefers-contrast: more` is implemented in
+  [Surface](./surface.mdx#accessibility) alone rather than in the token layer, and both the
+  scrim and the popup material here are Surfaces — so under the mode the material drops to
+  its opaque fallback and its edge widens to the emphasis width. The dialog adds nothing to
+  that, and none of it has been measured, so no increased-contrast claim can currently be
+  made by anybody.
 
 <KeyboardTable
   name="dialog"
@@ -514,7 +517,7 @@ what `alpha` promises.
     {
       keys: "Tab",
       action: "Moves focus to the next control inside the dialog",
-      notes: "Focus is trapped for as long as the dialog is open, and the page behind is inert rather than merely dimmed, so Tab cannot wander out and get lost behind the scrim. The dialog is not one tab stop: it is a surface containing them. With the default initialFocus=\"safest\" focus starts on the LAST of them, so the first Tab wraps round to the top of the dialog — the close control on an ordinary dialog, the first action on an alert one.",
+      notes: "Focus is trapped for as long as the dialog is open, and everything outside the popup is aria-hidden rather than merely dimmed, so Tab cannot wander out and get lost behind the scrim. The dialog is not one tab stop: it is a surface containing them. With the default initialFocus=\"safest\" focus starts on the LAST of them, so the first Tab wraps round to the top of the dialog — the close control on an ordinary dialog, the first action on an alert one.",
     },
     {
       keys: "Shift + Tab",
