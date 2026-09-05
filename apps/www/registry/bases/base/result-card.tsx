@@ -641,14 +641,47 @@ export function ResultCard({
                  contract a product's own stylesheet and its tests key on, while
                  the class is what actually paints. */
               data-category={tint}
-              className={cn(
-                /* The level is the page's and the size is this component's.
-                   Left to the browser the same title would be one size in an h2
-                   and another in an h4, and the heading level would be carrying
-                   visual weight it is not entitled to. */
-                "m-0 text-opsin-title3",
-                tint === undefined ? undefined : CATEGORY_INK[tint],
-              )}
+              /* The level is the page's and the size is this component's. Left
+                 to the browser the same title would be one size in an h2 and
+                 another in an h4, and the heading level would be carrying visual
+                 weight it is not entitled to.
+
+                 WHICH IS WHY THIS IS JOINED AND NOT `cn`. `cn` is
+                 `twMerge(clsx(…))` and tailwind-merge is unconfigured: it has
+                 never been told that `--text-opsin-*` is a font-size namespace,
+                 so it filed `text-opsin-title3` and `text-category-<name>-ink`
+                 in one conflict group and kept the later. A tinted title
+                 therefore lost the exact type step the paragraph above insists
+                 on, and only when a category was supplied — right in review,
+                 wrong in the case the component exists for. The two utilities
+                 set different CSS properties, so passing both through applies
+                 both. `score-dial.tsx` keeps its own type-plus-colour strings
+                 whole for the same reason; the repair belongs in `lib/utils.ts`
+                 and is reported upward.
+
+                 `wrap-break-word` IS THE REFLOW REPAIR, and it is the same one
+                 `callout.tsx` and `alert-banner.tsx` carry. `flex-wrap` on the
+                 header gets the pill out of the title's way and `min-w-0` on the
+                 column above lets that column shrink, but neither does anything
+                 about a single word wider than the column it lands in: at 320px
+                 with text at 200% the pill leaves this column about 121px,
+                 "measurement" alone paints about 247px, and a word cannot wrap
+                 at a space that is not there. The line box overflowed while
+                 every BOX stayed inside the viewport — which is why only a
+                 measurement of the text itself found it — and the document
+                 scrolled sideways at 346px against a 320px client width. That is
+                 WCAG 1.4.10 Reflow, and a result card is where it bites: a long
+                 single-word measurement name is the ordinary case here, not the
+                 pathological one. `overflow-wrap: break-word` breaks such a word
+                 only when it does not otherwise fit, so a title with spaces in it
+                 still wraps at them and nothing changes below 200%. Not
+                 `wrap-anywhere`, which would break mid-word while a usable space
+                 was still available; not `hyphens`, which invents a hyphen inside
+                 a name somebody has to read back to a clinician. */
+              className={
+                "m-0 wrap-break-word text-opsin-title3" +
+                (tint === undefined ? "" : ` ${CATEGORY_INK[tint]}`)
+              }
             >
               {heading}
             </Heading>
