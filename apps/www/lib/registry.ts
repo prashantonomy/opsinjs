@@ -2,10 +2,13 @@
  * The typed read model over the generated registry index.
  *
  * Its most important behaviour is returning `null`, and returning it in a way
- * callers cannot ignore. Nothing is built: every lookup fails, and it fails
- * with an explanation that names the component, its catalogue status and where
- * to read about it, so `<ComponentPreview>` can render an honest empty state
- * instead of a blank frame or a thrown error.
+ * callers cannot ignore. Most of the catalogue has no code behind it: the
+ * ids that carry a base implementation resolve to a real renderable, and every
+ * other lookup fails with an explanation that names the component, its
+ * catalogue status and where to read about it, so `<ComponentPreview>` can
+ * render an honest empty state instead of a blank frame or a thrown error. The
+ * count is not hardcoded here — `REGISTRY_INDEX` and `registryMeta()` are the
+ * only places that know it, so this comment cannot go stale as the number moves.
  *
  * Relative `.ts` imports and erasable syntax only: the scripts import this.
  */
@@ -47,7 +50,7 @@ function key(query: Required<RegistryQuery>): string {
   return `${query.base}/${query.style}/${query.kind}/${query.name}`
 }
 
-function normalise(query: RegistryQuery): Required<RegistryQuery> {
+function canonicalise(query: RegistryQuery): Required<RegistryQuery> {
   return {
     name: query.name,
     base: query.base ?? DEFAULT_BASE,
