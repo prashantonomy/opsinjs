@@ -15,9 +15,11 @@
  * say. That makes this a coverage probe for the docs-as-API contract rather than
  * a benchmark, and it is why the scores are advisory in CI and blocking nightly.
  *
- * The most valuable assertions are the negative ones. A design system with no
- * components fails in exactly one direction: a page that reads as documentation
- * for something shipped. `mustNotContain` is what catches that.
+ * The most valuable assertions are the negative ones. A page can be wrong in
+ * both directions - claiming more than its status supports, or still announcing
+ * an absence that the registry has since filled - and `mustNotContain` is what
+ * catches either. When one trips, check the page's status against
+ * registry/catalogue.ts before editing the page: the task may be the stale half.
  */
 
 /* ------------------------------------------------------------------ *
@@ -206,7 +208,7 @@ async function runTask(
       label: `does not say "${needle}"`,
       passed: !found,
       detail: found
-        ? "the page reads as documentation for something that has been built. Nothing has been built."
+        ? "the page states something its status does not support. Check the page's status against registry/catalogue.ts before changing the page - the assertion may be the stale half."
         : undefined,
     })
   }
