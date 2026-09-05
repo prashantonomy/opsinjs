@@ -157,7 +157,15 @@ export function NotBuiltYet({
       </div>
       <p className="m-0 flex flex-wrap items-center justify-center gap-2 text-xs">
         <StatusBadge status={status} plain />
-        <Link href={routes.roadmap()}>Roadmap</Link>
+        {/* A `considered` id is on nobody's plan — the roadmap says so in one
+            sentence and lists none of them — so linking it "Roadmap" from a
+            reserved name would promise a schedule that does not exist. Send
+            that reader to the catalogue instead. */}
+        {status === "considered" ? (
+          <Link href={routes.components()}>Every component and its status</Link>
+        ) : (
+          <Link href={routes.roadmap()}>Roadmap</Link>
+        )}
         <span aria-hidden="true">·</span>
         <Link href={routes.releasePhases()}>
           What &ldquo;{status}&rdquo; means
@@ -189,7 +197,20 @@ export interface StubNoticeProps {
   className?: string
 }
 
-function issueHref(issue: string): string {
+/**
+ * The href for a tracking issue, or `null` when the value is a placeholder.
+ *
+ * `owner/repo#123` is the form the templates use, and a bare number resolves
+ * against this repository so a page never has to repeat the org name.
+ *
+ * The `null` matters. `content/_templates/component.mdx` seeds `opsinjs#0`, and
+ * 31 pages still carry it, meaning "no issue has been filed". GitHub numbers
+ * issues from 1, so resolving that produced a link that could only ever fail —
+ * strictly worse than the "No tracking issue yet." <StubNotice> already renders
+ * when `issue` is absent. Anything whose number is missing, zero or not a
+ * positive integer is therefore treated as absent rather than linked.
+ */
+function issueHref(issue: string): string | null {
   if (issue.startsWith("http")) return issue
   const [repo, number] = issue.split("#")
   // `owner/repo#123` is the form the templates use. A bare number is resolved
