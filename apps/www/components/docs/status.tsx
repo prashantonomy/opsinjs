@@ -41,10 +41,12 @@ import { cn } from "@/lib/utils"
    could do to somebody who then ships a product with it.
 
    SERVER-ONLY BY DESIGN. Everything here reads registry/catalogue.ts through
-   lib/catalogue.ts, which is a real, populated array — the matrix and the card
-   index are fully real on day one even though not one component is. Do not add
-   "use client" to this file, and do not import it from a client component: it
-   would drag the whole catalogue into a browser bundle for the sake of a badge.
+   lib/catalogue.ts, which is a real, populated array: 24 rows resolve to a file
+   under registry/bases/base/ and 36 are reserved ids with no code, and the
+   matrix and the card index tell those two apart from the row rather than from
+   a sentence somebody maintained. Do not add "use client" to this file, and do
+   not import it from a client component: it would drag the whole catalogue into
+   a browser bundle for the sake of a badge.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -85,8 +87,9 @@ export function StatusBadge({
 }: StatusBadgeProps) {
   /**
    * MDX props are not typechecked. An unrecognised release phase must not take
-   * the prerender down; it renders as `planned` (the honest default for a
-   * system where nothing is built) and logs. assert-ia is the real gate.
+   * the prerender down; it renders as `planned` (the conservative default — it
+   * claims less than the truth for anything already built, and exactly the
+   * truth for anything not) and logs. assert-ia is the real gate.
    */
   const status: Status = isStatus(requested) ? requested : "planned"
   if (!isStatus(requested) && typeof window === "undefined") {
