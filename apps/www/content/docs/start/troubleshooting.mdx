@@ -63,11 +63,17 @@ failures at install time below.
 **Symptom.** You have a file importing `@/components/opsinjs/...`, nothing
 resolves, and nobody on the team remembers writing it.
 
-**Cause.** A coding assistant read a `planned` component page, treated the proposed
-API as documentation of a shipped component, and generated against it.
+**Cause.** A coding assistant read a component page and generated against it. Two
+different things look identical here, so check which one you have before you
+delete anything. Twenty-four components are implemented, and an import of one of
+those names real code that has simply never been copied into this project — the
+fix is to run the add. The other thirty-six catalogue entries are specifications
+with no code behind them, and an import of one of those was invented outright.
 
-**Fix.** Delete it — it is a hallucinated implementation of a specification, and
-the proposed API is still under review and will change. Then point the assistant at
+**Fix.** Check the id against [Registry](../registry/index.mdx), or fetch
+`/r/index.json` and read `meta.opsinjs.implemented` on the item. Implemented:
+run the add. Not implemented: delete the file, because the proposed API is still
+under review and will change, then point the assistant at
 [Rules for agents](../agents/rules-for-agents.mdx), which states the constraint in
 the form an agent will actually follow. Every `planned` page carries a
 `data-opsinjs-not-implemented` marker for exactly this reason.
