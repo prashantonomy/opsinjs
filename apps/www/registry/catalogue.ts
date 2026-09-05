@@ -948,8 +948,8 @@ export const CONSIDERED: CatalogueEntry[] = [
     aliases: ["toggle"],
     owner: "engineering",
     a11yDate: null,
-    why: "Delegated to Base UI. A switch must never be used for consent — consent is a decision with a record, not a setting.",
-    useInstead: ["consent-sheet", "checkbox"],
+    why: "Delegated to Base UI. A switch must never be used for consent — consent is a decision with a record, not a setting — so ConsentSheet is the opsinjs answer for that case, and the setting itself stays Base UI's.",
+    useInstead: ["consent-sheet"],
   },
   {
     name: "checkbox",
@@ -987,8 +987,8 @@ export const CONSIDERED: CatalogueEntry[] = [
     aliases: ["range input", "drag to set"],
     owner: "engineering",
     a11yDate: null,
-    why: "Delegated to Base UI, and discouraged for entering a measurement: a slider cannot express precision, and a reading typed in is a reading the person meant.",
-    useInstead: ["reading-input", "number-field"],
+    why: "Delegated to Base UI, and discouraged for entering a measurement: a slider cannot express precision, and a reading typed in is a reading the person meant. A number with no clinical semantics behind it is Base UI's number field, unwrapped.",
+    useInstead: ["reading-input"],
   },
   {
     name: "number-field",
