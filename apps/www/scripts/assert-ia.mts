@@ -2125,6 +2125,14 @@ function checkCatalogue(
         `the catalogue gives \`${id}\` the synonyms ${missing.map((alias) => `"${alias}"`).join(", ")}, which this page does not carry. Search reads the page; /r and llms.txt read the catalogue - a reader and an agent should not get different answers.`,
       )
     }
+    const extra = fromPage.filter((alias) => !fromCatalogue.includes(alias))
+    if (extra.length > 0) {
+      warn(
+        "CAT011",
+        rel(page.file),
+        `this page claims the synonyms ${extra.map((alias) => `"${alias}"`).join(", ")}, which the catalogue row \`${id}\` does not. Search would find the page by a word that /r and llms.txt have never heard of. Add them to the row in registry/catalogue.ts, or drop them here.`,
+      )
+    }
   }
 }
 
@@ -2252,7 +2260,7 @@ async function main(): Promise<void> {
   checkCanonicality(pages)
 
   const { rows, source } = await loadCatalogue()
-  checkCatalogue(pages, rows, source)
+  checkCatalogue(pages, rows, source, await importAuthoredCatalogue())
 
   /* ---------------- report ---------------- */
   const errors = findings.filter((finding) => finding.level === "error")
