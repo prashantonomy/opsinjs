@@ -577,12 +577,16 @@ export function ReadingInput({
     reported: (number | null)[]
     effect: { kind: "converted" | "cleared"; from: string; to: string; was: string } | null
   }>(() => ({
-    text: parts.map((part) => toText(part.value)),
-    reported: parts.map((part) => part.value),
+    text: incoming.map(toText),
+    reported: incoming,
     effect: null,
   }))
 
-  const incoming = parts.map((part) => part.value)
+  /* `Object.is` rather than `===`, and it is not a stylistic swap. The values
+     reaching here are already narrowed, so the two agree on every one of them
+     today; the point is that the comparison stays correct if a non-finite value
+     ever reaches this line again, because that is the comparison whose failure
+     is an infinite render loop rather than a wrong string. */
   const inSync =
     entry.reported.length === incoming.length &&
     entry.reported.every((reported, index) => reported === incoming[index])
