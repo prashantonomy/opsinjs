@@ -4,13 +4,17 @@
  * This is the file `npx shadcn@latest mcp` fetches when a project has
  * `"@opsinjs": "https://opsinjs.dev/r/{name}.json"` in its components.json. If
  * it is absent or malformed the MCP server does not report an error; the
- * assistant simply learns nothing and answers from memory. So the catalog is
- * served even though there is no code behind it, and every row says so.
+ * assistant simply learns nothing and answers from memory. So every id opsinjs
+ * has claimed is published here, whether or not there is code behind it, and
+ * each row says which it is.
  *
- * Both rosters are published: the twenty-four ids that carry a written
- * specification, and the considered ids whose names are reserved. An agent
- * asking "does opsinjs have a symptom picker?" gets `status: "considered"`
- * rather than silence it will fill in.
+ * Both rosters are published: the ids that carry a written specification page —
+ * some of which now install real source — and the `considered` ids whose names
+ * are merely reserved. An agent asking "does opsinjs have a symptom picker?"
+ * gets `status: "considered"` rather than a silence it will fill in. The
+ * per-row answers are `meta.opsinjs.status`, `meta.opsinjs.implemented` and the
+ * presence of `files`; no count is asserted in this comment, because a count
+ * written in a comment is a count nobody updates.
  *
  * The registry specification requires a flat catalog served next to its items
  * (`/r/registry.json` alongside `/r/<name>.json`) and forbids a `content`
