@@ -144,9 +144,12 @@ output; constraints the model is improvising around produce variety.
 **The assistant follows the rules at first and drifts.** Attention decays over a
 long session. Re-anchor before each generation step, or split the work.
 
-**It refuses too much.** Given that nothing is built, near-total refusal to emit
-component code is the correct behaviour, not over-caution. If it also refuses to
-*describe* the specification, the prompt has been read as a request for code.
+**It refuses too much.** Read the status before calling it over-caution: for one
+of the thirty-six `considered` ids, refusing to emit component code is the
+correct behaviour. Refusing for an `alpha` id means the rules have been applied
+without the catalogue in context — supply the inventory step's output. If it
+also refuses to *describe* the specification, the prompt has been read as a
+request for code.
 
 **Output is right but cites no pages.** Add "cite the documentation page for
 each claim" to the prompt. A citation is what turns a checkable answer into a
