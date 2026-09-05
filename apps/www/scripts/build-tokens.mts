@@ -1719,6 +1719,169 @@ function emitCss(tokens: TokenLeaf[], hash: string): string {
 }
 
 /* ------------------------------------------------------------------ *
+ * Who consumes a token                                                *
+ * ------------------------------------------------------------------ */
+
+/**
+ * The `usedBy` column is derived here, from the shipped component sources, and
+ * it is the one column in the token tables that answers "is changing this a
+ * local adjustment or a system event".
+ *
+ * TWO WAYS A COMPONENT REACHES A TOKEN, and a scan that reads only the first
+ * one is worse than no scan at all, because it looks measured while reporting
+ * nothing for the colour tokens:
+ *
+ *   1. Literally, as `var(--opsin-…)` in a style object or a CSS file. Eight
+ *      properties across the base layer are written this way.
+ *   2. Through a Tailwind utility, which app/product.css bridges back to the
+ *      token in its `@theme inline` block: `bg-status-urgent-surface` resolves
+ *      `--color-status-urgent-surface`, which is `var(--opsin-status-urgent-surface)`.
+ *      This is how almost every status, category, type, space and radius token
+ *      is actually consumed, and none of those files contains the string
+ *      `--opsin-` for them.
+ *
+ * So the bridge is parsed first and inverted: each `@theme inline` declaration
+ * whose value references a token yields the utility fragment a class name ends
+ * with (`--color-status-urgent-surface` -> `status-urgent-surface`), and the
+ * type ramp's four sub-keys (`--text-opsin-body--line-height` and friends)
+ * collapse onto the one fragment `opsin-body`, because `text-opsin-body` sets
+ * all four at once.
+ *
+ * WHAT IT DELIBERATELY DOES NOT DO. It does not read comments, so a file that
+ * discusses a utility without using it is not credited. It does not invent a
+ * consumer for a class name assembled at runtime - but it does not have to,
+ * because Tailwind cannot see one either, which is why every component here
+ * keeps a static map of whole class names. A `var()` interrupted by a template
+ * hole (`var(--opsin-material-${rung}-tint)`) is matched as a wildcard, since
+ * every rung the prop admits is genuinely read. Examples and screens are out of
+ * scope: this column names the components that read a token, not the demos.
+ *
+ * An empty result is therefore a real statement - no shipped component reads
+ * this token directly - and for a primitive that is the expected state, because
+ * components consume roles and roles reference primitives.
+ */
+function themeBridge(): Map<string, Set<string>> {
+  const fragments = new Map<string, Set<string>>()
+  const source = exists(PRODUCT_CSS) ? readFileSync(PRODUCT_CSS, "utf8") : ""
+  const lines = source.split("\n")
+  const start = lines.findIndex((line) => line.trim().startsWith("@theme"))
+  if (start === -1) return fragments
+
+  for (let index = start + 1; index < lines.length; index += 1) {
+    const line = lines[index] ?? ""
+    if (line.trim() === "}") break
+    const declaration = /^\s*(--[a-z0-9-]+)\s*:\s*([^;]+);/.exec(line)
+    if (!declaration) continue
+    const referenced = [...(declaration[2] ?? "").matchAll(/var\(\s*(--opsin-[a-z0-9-]+)/g)].map(
+      (match) => match[1] as string,
+    )
+    if (referenced.length === 0) continue
+    /* `--text-opsin-body--line-height` is the line-height sub-key of the one
+       utility `text-opsin-body`; split at the double dash before dropping the
+       namespace, or the sub-keys become fragments no class name can match. */
+    const key = (declaration[1] ?? "").slice(2).split("--")[0] ?? ""
+    const fragment = key.split("-").slice(1).join("-")
+    if (fragment === "") continue
+    const set = fragments.get(fragment) ?? new Set<string>()
+    for (const cssVar of referenced) set.add(cssVar)
+    fragments.set(fragment, set)
+  }
+  return fragments
+}
+
+/** Blanks comments so a mention is never mistaken for a use. */
+function withoutComments(code: string): string {
+  let out = ""
+  let index = 0
+  while (index < code.length) {
+    if (code.startsWith("/*", index)) {
+      const end = code.indexOf("*/", index + 2)
+      index = end === -1 ? code.length : end + 2
+      out += " "
+      continue
+    }
+    if (code.startsWith("//", index)) {
+      const end = code.indexOf("\n", index)
+      index = end === -1 ? code.length : end
+      out += " "
+      continue
+    }
+    out += code[index]
+    index += 1
+  }
+  return out
+}
+
+function sourceFilesUnder(dir: string): string[] {
+  if (!exists(dir)) return []
+  const found: string[] = []
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name)
+    if (entry.isDirectory()) {
+      found.push(...sourceFilesUnder(full))
+      continue
+    }
+    if (/\.(tsx|ts|css)$/.test(entry.name)) found.push(full)
+  }
+  return found
+}
+
+function scanUsedBy(tokens: TokenLeaf[]): Map<string, string[]> {
+  const consumers = new Map<string, Set<string>>()
+  const fragments = themeBridge()
+  const known = new Set(tokens.map((token) => token.cssVar))
+
+  for (const file of sourceFilesUnder(BASES_DIR)) {
+    const id = file.split("/").pop()?.replace(/\.(tsx|ts|css)$/, "") ?? ""
+    if (id === "") continue
+    /* A template hole becomes `*`, so `var(--opsin-material-${rung}-tint)`
+       survives as a matchable pattern instead of truncating at the brace. */
+    const code = withoutComments(readFileSync(file, "utf8")).replace(/\$\{[^{}]*\}/g, "*")
+
+    const credit = (cssVar: string): void => {
+      const set = consumers.get(cssVar) ?? new Set<string>()
+      set.add(id)
+      consumers.set(cssVar, set)
+    }
+
+    for (const match of code.matchAll(/--opsin-[a-z0-9*-]+/g)) {
+      const pattern = match[0]
+      if (!pattern.includes("*")) {
+        if (known.has(pattern)) credit(pattern)
+        continue
+      }
+      const expanded = new RegExp(
+        `^${pattern.split("*").map(escapeRegExp).join("[a-z0-9-]+")}$`,
+      )
+      for (const cssVar of known) if (expanded.test(cssVar)) credit(cssVar)
+    }
+
+    const words = new Set(
+      code.split(/[^a-z0-9-]+/).filter((word) => /^[a-z][a-z0-9]*(?:-[a-z0-9]+)+$/.test(word)),
+    )
+    for (const [fragment, cssVars] of fragments) {
+      let hit = false
+      for (const word of words) {
+        if (word === fragment || word.endsWith(`-${fragment}`)) {
+          hit = true
+          break
+        }
+      }
+      if (!hit) continue
+      for (const cssVar of cssVars) if (known.has(cssVar)) credit(cssVar)
+    }
+  }
+
+  const usedBy = new Map<string, string[]>()
+  for (const [cssVar, ids] of consumers) usedBy.set(cssVar, [...ids].sort())
+  return usedBy
+}
+
+function escapeRegExp(literal: string): string {
+  return literal.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&")
+}
+
+/* ------------------------------------------------------------------ *
  * TypeScript                                                          *
  * ------------------------------------------------------------------ */
 
@@ -1734,6 +1897,8 @@ function emitTs(
      FILE (color, motion, space...) and `group` is the family within it (status,
      category, ladder), which is the order the token tables read in. */
   const namespaces = [...new Set(tokens.map((token) => token.group))]
+
+  const usedBy = scanUsedBy(tokens)
 
   /* The severity union comes from policy.severity's own keys rather than from
      a list in this script, so adding a severity is one edit in one file. An
