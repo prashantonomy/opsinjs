@@ -60,7 +60,19 @@ export interface StatusMeta {
    * other four all have something real to render.
    */
   canDemonstrate: boolean
-  /** The clinical status level the docs chrome tints this badge with. */
+  /**
+   * UNREAD, AND IT HAS TO STAY THAT WAY.
+   *
+   * Nothing in this repository or in a consuming project reads this field.
+   * `components/docs/status.tsx` tints the release-phase badge from a neutral
+   * greyscale map and distinguishes the phases by border style and by the word,
+   * deliberately: a release phase is not a clinical status, and painting
+   * "Alpha" in the colour that means "a person should act" teaches a reader to
+   * misread the one palette where misreading costs something. Do not wire this
+   * into a badge, a pill, a token or a chart series. It is still declared only
+   * because dropping a member from an interface that ships into consumer
+   * projects through `shadcn add` is a versioning decision rather than a tidy-up.
+   */
   tone: ClinicalStatus | "unknown"
 }
 
@@ -109,7 +121,7 @@ export const STATUS_META: Record<Status, StatusMeta> = {
     label: "Deprecated",
     summary: "Still works. Being removed. A replacement is named.",
     promise:
-      "It keeps working until the removal version stated on its page. Every deprecated entry names its replacement and its removal version; see /docs/project/deprecations.",
+      "It keeps working until the removal version stated on its page. Every deprecated entry names its replacement and its removal version, and the Deprecations page under Project lists them together.",
     order: 4,
     canDemonstrate: true,
     tone: "watch",
@@ -119,7 +131,7 @@ export const STATUS_META: Record<Status, StatusMeta> = {
     summary:
       "Looked at, decided against for now, with the reason written down.",
     promise:
-      "There is no page, no code and no plan. There IS a catalogue row saying why it is not here and what to reach for instead. A considered entry is a decision, not a backlog item.",
+      "There is no specification, no code and no plan. There IS a catalogue row and a short generated page at the component's own address, saying why the name was declined and what to reach for instead — the address answers rather than 404s, which is the whole point of keeping the row. A considered entry is a decision, not a backlog item.",
     order: 5,
     canDemonstrate: false,
     tone: "unknown",
