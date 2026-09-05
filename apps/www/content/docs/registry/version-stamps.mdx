@@ -1,6 +1,6 @@
 ---
 title: Version stamps
-description: Every emitted file carries the item and version it came from, so a copied component can always answer "what has changed since mine?"
+description: One comment naming the item and version a copied file came from, so it can answer "what has changed since mine?" — specified here, and not emitted yet.
 status: stable
 kind: guide
 aliases: [fork problem, file provenance, stamp]
@@ -24,6 +24,21 @@ The smallest thing that helps is a comment.
 One line at the top of every emitted file, naming the registry, the item and the
 version it came from. It costs nothing, survives copy and paste, is visible in a
 code review, and turns three otherwise unanswerable questions into lookups.
+
+Nothing emits it yet. `/r/<name>.json` serves each file exactly as it appears in
+`registry/bases/base/` and `lib/`, so every file installed from opsinjs today
+arrives unstamped, and the rest of this page is the specification rather than a
+description of what you will find in your repository.
+
+<Todo>
+Emit the stamp from the registry build. Two things block it, and both are
+decisions rather than patches: every catalogue row is `since: unreleased`, so a
+stamp written today would name a version nobody can fetch and diff against, and
+[0010 — shared code ships with every item](../project/decisions/0010-shared-code-ships-with-every-item.mdx)
+rejects rewriting file content at generation time — which is what prepending a
+line is, and it would also have to decide which item stamps the substrate that
+ships inside all of them.
+</Todo>
 
 ## The three questions it answers
 
@@ -57,7 +72,7 @@ import { cn } from "@/lib/utils"
 Three rules:
 
 - **Every emitted file**, not just the main one. A component that installs three
-  files stamps three files, because they are upgraded independently.
+  files would stamp three, because they are upgraded independently.
 - **Never rewritten by anything but an install.** A formatter that moves it, or
   a codemod that drops it, has destroyed the only provenance the file has.
 - **Kept even when you edit heavily.** A stamp on a heavily modified file is more
