@@ -25,9 +25,15 @@ aliases: [canonical domain, npm scope, impersonation, is this the real opsinjs]
 | Machine index | `https://opsinjs.dev/llms.txt` |
 
 <Todo>
-The repository is reserved but not yet public, so the link above does not resolve
-today. Remove this note when it does, and check that the issue templates, the
-"Edit this page" links and the security reporting instructions all point at it.
+None of the addresses above resolves today. `opsinjs.dev` is not registered, and
+the repository is reserved but not public — so every row is the address this
+project intends to own, not one you can fetch. That gap matters more here than it
+would anywhere else: this page exists so that an impersonation is detectable, and
+a canonical domain nobody has registered is a name anybody can take and then
+match against this table. Registering the domain and opening the repository are
+release blockers for that reason, not only for distribution. Remove this note
+when both resolve, and check that the issue templates, the "Edit this page" links
+and the security reporting instructions all point at them.
 </Todo>
 
 ## Why a page like this exists
@@ -51,9 +57,15 @@ rather than assuming, particularly in a repository you did not set up.
 ### Read what the command will write
 
 `npx shadcn add @opsinjs/<name> --dry-run` prints the files and the target paths
-without writing anything. Every file opsinjs emits carries a version stamp
-comment naming the component and the version — see
-[Version stamps](../registry/version-stamps.mdx).
+without writing anything. Read that list before you let it write: a presentation
+component has no business landing outside the directories your
+`components.json` names.
+
+What the files themselves will not tell you is where they came from.
+[Version stamps](../registry/version-stamps.mdx) — one comment naming the item
+and the version at the top of every emitted file — are specified on that page
+and are **not emitted**, so provenance today rests on the URL you fetched from,
+which is why the row above matters.
 
 ### Check the diff, not the download
 
