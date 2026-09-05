@@ -115,7 +115,12 @@ and the space scale. The neutral roles and the space scale exist today. The
 chart ramp does not: `tokens/color.json` declares no chart family, so
 `scripts/build-tokens.mts` emits none and there is nothing to tabulate.
 
-<NoDataYet script="scripts/build-tokens.mts" />
+<NoDataYet what="The chart ramp table" script="scripts/build-tokens.mts">
+The ramp is specified but not authored. Until a chart family is added to
+`tokens/color.json` the generator has nothing to emit, so running it changes
+nothing here; the ramp's discriminability requirements are prose on
+[Chart colour](chart-colour.mdx) rather than measured values.
+</NoDataYet>
 
 ## Accessibility impact
 
