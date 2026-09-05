@@ -157,8 +157,27 @@ export function SinceBadge({ since, className }: SinceBadgeProps) {
    -------------------------------------------------------------------------- */
 
 /**
+ * The release phases that mean there is code to install. `planned` and
+ * `considered` mean there is not; `deprecated` means there still is, which is
+ * the whole reason it is a separate phase from the two that are empty.
+ */
+const IMPLEMENTED_PHASES: readonly Status[] = [
+  "stable",
+  "beta",
+  "alpha",
+  "deprecated",
+]
+
+/**
  * Rendered in the docs sidebar footer. A reader meets status chips before they
  * meet the page that explains them, so the legend is permanently on screen.
+ *
+ * The first line COUNTS the catalogue rather than restating it. What was here
+ * before said "nothing is built yet" on all 400 pages, and went on saying it
+ * through the run that built twenty-four components — beside their own alpha
+ * badges and their own working install commands. A sentence about how much
+ * exists, maintained by hand, in chrome that renders everywhere, is a falsehood
+ * with a delay fuse. Do not put a number in this JSX.
  */
 export function StatusLegend({ className }: { className?: string }) {
   return (
