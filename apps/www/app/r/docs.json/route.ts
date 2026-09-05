@@ -174,12 +174,17 @@ export async function GET(): Promise<Response> {
       sections: [...shard.sections],
     })),
     counts,
+    corpusCounts,
     conventions: {
       markdownTwin:
         "Append `.md` to any documentation URL to get that page's processed markdown.",
       registryCatalog: absoluteUrl("/r/registry.json"),
       registryRoster: absoluteUrl("/r/index.json"),
       search: `${SITE_URL}/api/search?query=<term>&tag=<section>`,
+      implemented:
+        '`implemented` on a page record answers for the thing that page documents: a component id, or a screen specimen. It is ABSENT, not `false`, on a page that documents neither — a guide, a doctrine page or a token reference is not an unbuilt anything. Absent therefore means "the question does not apply here", and `false` means "this named thing has no code".',
+      counts:
+        "`counts` tallies the pages in this response and sums to `included`. `corpusCounts` tallies the whole corpus and sums to `total`. Read the second one for any question about opsinjs; read the first for any question about this file.",
     },
     pages: rendered,
   })
