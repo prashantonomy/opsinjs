@@ -115,10 +115,21 @@ under `prefers-reduced-transparency`.
 
 ### Tier 1 — motion
 
-Five durations and five easings, including two spring curves expressed as CSS
-`linear()`. Under `prefers-reduced-motion` every duration collapses to `1ms` and
-both springs collapse to `linear(0, 1)` — the state change still happens, it
-simply happens at once.
+Two families in one table. A plain scale — the `duration-*` steps and the
+`ease-standard`, `ease-enter` and `ease-exit` curves — and the springs, where a
+sampled CSS `linear()` easing and the settling time measured from that spring's
+own parameters are emitted as a pair and have to be used together, since a
+spring easing on somebody else's duration is not that spring any more. Reduced
+motion is answered per token rather than by one kill switch. In the generated
+block each spring easing resolves to the plain `linear` keyword, `ease-standard`
+flattens with them, and every spring duration drops to the fallback that
+spring's own entry in `tokens/motion.json` declares — to nothing at all for the
+springs a reader initiates or that carry a health value, to a short cross-fade
+for the ones announcing that something arrived, because collapsing those to a
+single instant would remove the cue that a value changed. The plain `duration-*`
+steps have no per-token answer and are flattened to `1ms` further down the
+cascade, in `app/product.css`; the enter and exit curves are never overridden,
+having no overshoot to take out.
 
 <TokenTable scope="motion" />
 
@@ -127,4 +138,4 @@ simply happens at once.
 Not a token table: the measured result of every pair the tables above imply, in
 both themes, against the published floor.
 
-<ContrastReport scope="theme" />
+<ContrastReport scope="all" />
