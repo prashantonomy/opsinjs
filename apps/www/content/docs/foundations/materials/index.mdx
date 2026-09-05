@@ -36,9 +36,11 @@ solid black. That calculation is the point of the whole section and it has its
 own page: [The contrast floor](./the-contrast-floor.mdx).
 
 **Every translucent rung has a documented opaque fallback.** Reduced
-transparency, forced colours, print and any browser without `backdrop-filter`
-all land on the same fallback, and the fallback changes paint only — never
-layout. See [Reduced transparency](./reduced-transparency.mdx).
+transparency, print and any browser without `backdrop-filter` all land on the
+same fallback, and the fallback changes paint only — never layout. Forced
+colours is specified to land there as well and does not yet; the preference
+table below says which of the three are real. See
+[Reduced transparency](./reduced-transparency.mdx).
 
 The thing this is most often confused with is **elevation**. Elevation is
 *order*: which thing is in front. Material is *appearance*: what the thing is
@@ -49,9 +51,9 @@ because of its z-index, not because of its blur.
 
 ## How it works
 
-### Four properties per rung
+### The properties of a rung
 
-Each rung is exactly four custom properties, and there is no fifth:
+Every rung resolves the same eight custom properties, and there is no ninth:
 
 ```text
 --opsin-material-<n>-bg       the backing colour, including its alpha
