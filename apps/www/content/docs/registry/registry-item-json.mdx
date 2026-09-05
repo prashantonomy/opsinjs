@@ -107,13 +107,13 @@ Each entry has a `path`, a `type`, a `target`, and — in a served item —
 }
 ```
 
-`target` is the fourth field and it is the one worth understanding. Without it,
-the CLI decides the destination from your `components.json` aliases, which is
-what you want for a component. With it, the item declares an explicit
-destination — necessary for a file that is not a component, such as a config
-file at the project root. An item whose every file declares a `target` is
-"universal": it can be installed into a project with no resolved configuration
-at all.
+`target` is the field worth understanding. Without it, the CLI decides the
+destination from your `components.json` aliases alone. With it, the item states
+where the file goes — and a target that begins with an alias placeholder, as
+every opsinjs target does, still resolves through your `components.json` rather
+than around it. `@ui/result-card.tsx` means "your components directory", not a
+path opsinjs chose. A literal path would be the other use: a file that is not a
+component, such as a config file at the project root.
 
 ### `registryDependencies`
 
@@ -121,11 +121,15 @@ Names resolve within the same registry; full URLs resolve anywhere. A
 cross-registry dependency must be a URL or a namespaced name the consumer has
 configured — a bare name will resolve against the wrong registry, silently.
 
-opsinjs composes rather than inlines. `result-card` depends on `status-pill` and
-`value` instead of containing its own copy of either. This means installing one
-component installs several files, which surprises people, and it is the correct
-trade: two copies of a status renderer will eventually disagree about what
-`urgent` looks like.
+opsinjs composes rather than inlines. `result-card` depends on
+`@opsinjs/status-pill`, `@opsinjs/value`, `@opsinjs/range-bar`,
+`@opsinjs/relative-time` and `@opsinjs/button` instead of containing its own copy
+of any of them. This means installing one component installs several files, which
+surprises people, and it is the correct trade: two copies of a status renderer
+will eventually disagree about what `urgent` looks like. The cost is the
+namespace: because these names are namespaced, the CLI needs an `@opsinjs` entry
+in your `components.json` to follow them, even when you asked for `result-card`
+by its full URL.
 
 ### `cssVars` and `css`
 
@@ -147,9 +151,11 @@ has no room for. It is duplicated in `/r/index.json` in a flatter shape, because
 a consumer that only wants status should not have to know where in `meta` it
 lives.
 
-`docs` is a string the CLI prints after install. opsinjs uses it to say, in the
-terminal, that the component is specified and not implemented — so that the fact
-reaches somebody who never opens the documentation.
+`docs` is a string the CLI prints after install. On an implemented item opsinjs
+uses it for the component's name and its documentation URL. On a reserved name it
+carries the whole explanation — that the id resolves, that nothing sits behind
+it, and where to propose it — so that the fact reaches somebody who never opens
+the documentation.
 
 ## Generated, not hand-written
 
