@@ -104,9 +104,9 @@ it is worth checking before you conclude anything from an empty result.
 
 | The server can | The server cannot |
 | --- | --- |
-| List every item and its status | Install component source — there is none |
-| Read titles, descriptions, categories, aliases | Tell you what a component's props are; the API is proposed, not generated |
-| Install the theme preset, which is real CSS | Give you a working example |
+| List every item with its status and `implemented` flag | Install a `considered` id — the item resolves and carries no files |
+| Install the source of the twenty-four implemented items, exported prop interfaces included | Promise that an `alpha` API survives the next release |
+| Install the theme preset, which is real CSS | Fetch a documentation example on its own — the examples are not published as registry items |
 | Search across opsinjs and your other registries | Enforce the clinical rules — that is the [skill](./agent-skill.mdx) |
 
 The last row is the important division of labour. The MCP server answers *what
@@ -124,8 +124,8 @@ green dot in its MCP list; VS Code shows a Start control next to the entry in
 
 ### The registry resolves
 
-Ask the assistant to list opsinjs items. A non-empty list of names, each with
-`planned`, means the namespace resolved. An empty list means `components.json`
+Ask the assistant to list opsinjs items. A non-empty list of names, each with a
+`status`, means the namespace resolved. An empty list means `components.json`
 was not read or the namespace is misspelled.
 
 ### The negative answer is a real answer
