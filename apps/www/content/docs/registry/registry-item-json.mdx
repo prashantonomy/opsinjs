@@ -20,9 +20,13 @@ opsinjs serves one at `/r/<name>.json`, and one per style at
 `https://ui.shadcn.com/schema/registry-item.json`.
 
 <Callout>
-Every opsinjs item today has an empty `files` array, because nothing is built.
-The metadata is real; the code is not. An item that resolves is not evidence
-that a component exists — check `status` in `/r/index.json`.
+Twenty-four of the sixty items carry real `files`, each with `content`: the
+component source plus the shared substrate, `lib/opsinjs.ts` and `lib/status.ts`.
+The other thirty-six omit `files` entirely rather than carrying an empty array —
+they are reserved names on the considered roster. An item that resolves is
+therefore not evidence that a component exists. The field to read is
+`meta.opsinjs.implemented`, on the item itself or flattened into
+`/r/index.json`.
 </Callout>
 
 ## The file
@@ -31,12 +35,12 @@ that a component exists — check `status` in `/r/index.json`.
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "result-card",
-  "type": "registry:component",
-  "title": "Result card",
-  "description": "A single test result shown with what it means and how confident you should be.",
-  "dependencies": [],
-  "registryDependencies": ["utils", "status-pill", "value"],
-  "files": [],
+  "type": "registry:ui",
+  "title": "ResultCard",
+  "description": "One test result, showing the number, what it is compared against, and what it means.",
+  "author": "opsinjs",
+  "categories": ["health-data-display"],
+  "docs": "ResultCard — https://opsinjs.dev/docs/components/result-card",
   "meta": {
     "opsinjs": {
       "status": "planned",
