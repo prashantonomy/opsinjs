@@ -45,15 +45,18 @@
       "why": "`result-card` is implemented at `alpha`. The correct answer names the one import path that resolves and states in the same breath that the API can change in any release. Presenting an alpha health component as settled is one failure; still calling a built one unbuilt is the other, and this task fails on either. The built half is asserted through the `importPath` attribute of `<ComponentInstall>` - a prop only a built component's page carries - rather than through the sentence that says so in prose: that sentence line-wraps on some component pages and not on others, so an assertion aimed at it passes or fails on typography.",
       "expect": {
         "page": "components/result-card",
-        "mustContain": ["not implemented"],
-        "mustNotContain": ["```tsx\nimport { ResultCard }"],
-        "frontmatter": { "status": "planned", "kind": "component" }
+        "mustContain": ["importPath=\"@/components/ui/result-card\"", "import { ResultCard } from \"@/components/ui/result-card\"", "without a deprecation cycle", "status=\"alpha\""],
+        "mustNotContain": ["npm install @opsinjs", "@opsinjs/react", "<NotBuiltYet", "unbuilt={true}", "unbuilt=\"true\"", "is not built", "documents an absence", "nothing is built"],
+        "frontmatter": { "status": "alpha", "kind": "component" },
+        "catalogueId": "result-card",
+        "catalogueStatus": "alpha",
+        "alsoResolves": ["project/release-phases"]
       }
     },
     {
       "id": "considered-is-an-answer",
       "question": "Does opsinjs have a Toast component?",
-      "why": "A 404 invites an agent to invent one. A considered row is a definitive negative answer at a guessable address, and it is the single design decision this whole scaffold exists to demonstrate.",
+      "why": "A 404 invites an agent to invent one. A considered row is a definitive negative answer at a guessable address, and it is the single design decision this whole scaffold exists to demonstrate. The page is asserted alongside the row because the row alone cannot catch a stub that has quietly grown an API.",
       "expect": {
         "catalogueId": "toast",
         "catalogueStatus": "considered",
