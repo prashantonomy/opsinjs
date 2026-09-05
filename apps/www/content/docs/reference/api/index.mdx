@@ -28,8 +28,16 @@ error message all arrive at the same page without a lookup table.
 
 ## How this is generated
 
-**Source:** the declaration files published by the `@opsinjs` packages.
-**Script:** `scripts/build-reference.mts`, using `fumadocs-typescript`.
+**Source:** the `export` declarations under `apps/www/lib/` — this documentation
+site's own TypeScript, not a published package. No `@opsinjs` package has ever
+been released and, under
+[decision 0002](../../project/decisions/0002-shadcn-registry-distribution.mdx),
+none is going to be: opsinjs is distributed by copying source into your
+repository. So read these pages as the definitions behind the site and the
+copied components, never as the API of a module you can install.
+**Script:** `scripts/build-reference.mts`, which reads declaration lines
+textually rather than through `fumadocs-typescript`, because a reference
+generator has to run before anything in the repository compiles.
 **Command:** `pnpm run generate`. This index page is hand-written; every page
 beneath it is generated, and `assert-ia.mts` fails the build if an `<ApiLink>`
 anywhere in the corpus names a symbol with no page.
@@ -43,6 +51,11 @@ point where a browser's find-in-page is useful. And a program that fetches it
 gets forty thousand tokens of unrelated types in order to answer one question
 about one union. A page per symbol costs one file each and fixes all three, and
 the `.md` twin of a symbol page is small enough to paste into a prompt whole.
+
+Only types and interfaces earn one. Exported functions and constants are listed
+in [Types](../generated/types.mdx) with the file they are declared in, which is
+what you actually want for a function; a page apiece for every `STATUS_META`
+would bury the symbols an `<ApiLink>` has to resolve to.
 
 ### What a symbol page contains
 
