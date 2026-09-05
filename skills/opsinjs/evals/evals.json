@@ -159,17 +159,17 @@
     {
       "id": "touch-target-floor",
       "question": "How small can a tap target be?",
-      "why": "A health app is used one-handed, in a hurry, sometimes by people with tremor. The floor is published and is not negotiable per screen.",
+      "why": "A health app is used one-handed, in a hurry, sometimes by people with tremor. The floor is published and is not negotiable per screen, and it is stated in CSS pixels rather than as a bare number so that nobody reads it as points on one platform and device pixels on another.",
       "expect": {
         "page": "accessibility/target-size-and-motor",
-        "mustContain": ["44"],
+        "mustContain": ["44", "44 css pixels"],
         "alsoResolves": ["foundations/space/density-and-touch"]
       }
     },
     {
       "id": "machine-surface",
       "question": "Where is the machine-readable version of these docs?",
-      "why": "The agent surface is only useful if it is discoverable from the human surface.",
+      "why": "The agent surface is only useful if it is discoverable from the human surface, and only trustworthy if the page names the address that answers what is built. `/r/index.json` is that address, so the page that introduces the machine surface has to point at it.",
       "expect": {
         "page": "agents/llms-txt",
         "mustContain": ["llms.txt"],
