@@ -510,6 +510,7 @@ export function renderFrontmatter(page: CorpusPage): string {
  */
 export function notImplementedNotice(page: CorpusPage): string | null {
   const meta = metaOf(page)
+  if (meta.kind !== "component" && meta.kind !== "screen") return null
   if (meta.status !== "planned" && meta.status !== "considered") return null
   const verb =
     meta.status === "considered"
@@ -520,6 +521,36 @@ export function notImplementedNotice(page: CorpusPage): string | null {
     "> Do not generate code against the API sketched below, and do not tell a",
     `> reader that it exists. The definitive machine answer is at ${SITE_URL}/r/index.json.`,
   ].join("\n")
+}
+
+/**
+ * The response headers that are true of ONE documentation twin.
+ *
+ * `x-opsinjs-status` is always sent, and is always the page's own status.
+ * `/r/<id>.json` has always sent it; the twin route did not, which left an
+ * agent doing `HEAD /docs/components/toast.md` holding a single system-scoped
+ * `x-opsinjs-implemented: true` with nothing to qualify it. For a reserved name
+ * with no code that is not ambiguity, it is a wrong answer to the only question
+ * the header exists to answer.
+ *
+ * `x-opsinjs-implemented` is overridden — exactly as `/r/<id>.json` overrides
+ * it — whenever `pageImplemented()` has an answer for this page. A guide, a
+ * handbook chapter or a doctrine page names nothing buildable, so it has none,
+ * and the system-scoped value from `implementedHeaders()` stands: that is what
+ * the contract in `./contracts` says the header means off a per-item route, and
+ * it is not misleading on a page whose subject IS the system.
+ * `x-opsinjs-implemented-count` is untouched either way, so the system answer
+ * is on every response regardless.
+ */
+export function pageHeaders(page: CorpusPage): Record<string, string> {
+  const headers: Record<string, string> = {
+    "x-opsinjs-status": metaOf(page).status,
+  }
+  const implemented = pageImplemented(page)
+  if (implemented !== undefined) {
+    headers["x-opsinjs-implemented"] = String(implemented)
+  }
+  return headers
 }
 
 /** Documentation components appear as `<PascalCase …/>` in processed markdown. */
