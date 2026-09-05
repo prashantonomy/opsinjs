@@ -43,6 +43,18 @@ pair's intended use, not against a single global threshold — body text, large
 text and non-text boundaries have different floors, and a pair that passes for one
 fails for another.
 
+**Three verdicts, and `advisory` is the one to read carefully.** `pass` means the
+pair clears both floors for its role. `FAIL` means a gated pair does not.
+`advisory` means the pair is *not gated* — an accent used as an identity fill, a
+chart mark, or a hairline boundary — and it is a statement about how the pair is
+used, not about whether it clears anything. Some advisory pairs clear their floor
+and some do not, and this table renders both the same way. The ones that do not
+are recorded in `lib/generated/contrast.json` with `"passes": false` and the
+floors they miss named in `failing`, and `pnpm run contrast` lists the first few
+of them separately on stdout. So do not read `advisory` as a quieter `pass`, and
+do not quote the headline `n fail` count as a conformance result: it counts gated
+failures only.
+
 **What this page does and does not cover.** It covers the presets opsinjs ships.
 It says nothing about a theme you derived from your own brand colour: those
 numbers depend on your input, which is why the derivation tooling refuses to emit
@@ -54,7 +66,7 @@ they describe.
 {/* opsinjs:generated:begin — everything below is replaced by scripts/check-contrast.mts */}
 
 ## Measured contrast
-Measured on 2026-09-02. 126 pairs: 80 pass, 0 fail, 46 advisory.
+Measured on 2026-09-02. 126 pairs: 80 pass, 0 fail, 46 advisory, and 11 of the advisory pairs measure below the floor for their role. Advisory pairs are not gated, so none of those is a build failure; each is an accent that has to be bounded by `line` or labelled in `ink` rather than read as text.
 ### category
 
 #### Light theme
