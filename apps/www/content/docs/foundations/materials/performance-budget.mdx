@@ -82,7 +82,7 @@ near the limit it is the number to check.
 
 **1. A repeating element never gets a translucent rung.** Ten translucent cards
 in a list is ten readbacks and ten blur passes, every frame, while the list is
-moving. Cards are `panel` or `raised`.
+moving. Cards are `card` or `raised`.
 
 **2. Never nest translucent rungs.** Two blurs stacked is two readbacks where the
 second reads the output of the first, which also serialises them.
@@ -168,7 +168,7 @@ In order of how much they help and how little they cost:
 3. Make the surface opaque while it is moving and translucent when it settles,
    if the design can absorb it. This is a real technique and it is honest —
    nobody is reading the backdrop through a bar during a fling.
-4. Drop the rung. A `bar` that becomes a `panel` costs nothing and loses one
+4. Drop the rung. An `overlay` that becomes a `card` costs nothing and loses one
    visual affordance.
 
 Do not reach for lowering the alpha. That is the one dimension of a material
