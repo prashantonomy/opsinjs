@@ -477,10 +477,12 @@ export default function HomePage() {
               </li>
               <li>
                 <strong className="font-medium text-foreground">
-                  Around thirty more.
+                  {getConsidered().length} more components.
                 </strong>{" "}
-                Considered, recorded in the catalogue, deliberately without a
-                page — because a page here has to carry a real specification.
+                Considered and left off the roster. Each id answers at its own
+                address with the reason it was refused and what to use instead,
+                because a 404 is the response that invites an assistant to
+                invent one.
               </li>
               <li>
                 <strong className="font-medium text-foreground">
@@ -542,8 +544,10 @@ export default function HomePage() {
             meta="processed"
           >
             Append <Mono>.md</Mono> to any documentation URL for the processed
-            markdown — JSX resolved into text, not raw MDX an assistant has to
-            guess at.
+            markdown — imports stripped, headings given ids, tables and code
+            intact. Documentation components stay as{" "}
+            <Mono>{"<PascalCase … />"}</Mono>, and each page says where the
+            values they render are published.
           </LinkCard>
           <LinkCard
             href={registryRoutes.catalog()}
