@@ -522,11 +522,14 @@ export interface StatusAxisDemoProps {
 /**
  * Pick a category. Pick a status. Pick both, and it will not render.
  *
- * The refusal is the feature, and it is deliberately the SAME refusal product
- * code gets: this component calls `axisConflict()` from lib/status.ts, which is
- * the function behind dev warning OPSIN-0001. The demo and the runtime warning
- * cannot drift, and the error text a developer reads here is the error text
- * they will see in their console.
+ * The refusal is the feature, and it is deliberately the SAME refusal a
+ * component would get: this component calls `axisConflict()` from lib/status.ts,
+ * the function reserved to report OPSIN-0001. It is the only caller in the
+ * repo — no shipped component resolves both axes on one element, so none of
+ * them raises this at runtime, and what catches the mistake in a source file
+ * today is A11Y008 in scripts/check-a11y.mts. The demo cannot drift from the
+ * rule, because the sentence a developer reads here is the one the function
+ * itself returns.
  *
  * Both legal alternatives are shown rendered, because "use a glyph instead" is
  * only convincing when you can see that it works.
