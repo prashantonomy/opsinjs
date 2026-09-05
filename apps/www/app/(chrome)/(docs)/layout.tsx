@@ -1,10 +1,28 @@
 import type { ReactNode } from "react"
+import type { Metadata } from "next"
 import { DocsLayout } from "fumadocs-ui/layouts/docs"
 
 import { StatusLegend } from "@/components/docs/status"
 import { SectionsRail } from "@/components/docs/sections-rail"
 import { baseOptions } from "@/lib/layout.shared"
+import { site } from "@/lib/routes"
 import { source } from "@/lib/source"
+
+/**
+ * The title template for every documentation page.
+ *
+ * `generateMetadata` in `docs/[[...slug]]/page.tsx` returns the frontmatter
+ * title unchanged — "Range bar", "Colour roles" — which is right for the OG card
+ * and wrong for a browser tab. This appends the system name once, in one place,
+ * rather than in the four spots that page builds a title for. See the note on
+ * `app/(chrome)/(home)/layout.tsx` for why it is not on the root layout.
+ */
+export const metadata: Metadata = {
+  title: {
+    template: `%s — ${site.name}`,
+    default: `Documentation — ${site.name}`,
+  },
+}
 
 /**
  * The documentation shell.
