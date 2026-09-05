@@ -154,11 +154,24 @@ working. An inventory that is empty across the board is not: check that
 `components.json` carries the `@opsinjs` entry in the `{name}` template form and
 that the fetch is not being blocked.
 
-**An agent invented a prop that is not in the proposed API.** Report it as an
-eval failure rather than as a documentation bug — that is exactly the signal the
-suite exists to collect. See [Evals](./evals.mdx).
+**An agent invented a prop.** Report it as an eval failure rather than as a
+documentation bug. An implemented component's API reference is generated from
+the source the registry serves, so an invented prop is a generation failure and
+not a gap in the page. See [Evals](./evals.mdx).
 
-**`/llms-full.txt` is truncated.** It is size-capped on purpose. Use the shards.
+**`/llms-full.txt` is truncated.** It is size-capped on purpose, and "use the
+shards" is only half an answer, because the three shards cover eight of the
+sixteen sections and no more: Components, Screens, Health, Accessibility,
+Content & language, Foundations, Theming & tokens and Reference. Start here,
+Recipes, Patterns, Handbook, Agents, Registry & distribution and Project have no
+shard, nor do the package pages, which sit outside the sixteen groups — roughly
+a third of the corpus for which a shard is not the recovery route and never was.
+Two things are. Any capped file that drops a page ends in a `## Truncated` block
+naming every page it dropped, with the `.md` URL to fetch each one, so what is
+missing is enumerated rather than implied. And `/llms.txt` — which is not capped
+— lists every page in the corpus, names the sections that have no shard, and
+every URL in it answers to a `.md` suffix. Fetching one twin is a single request
+and is usually cheaper than a shard you then have to search.
 
 ## Next
 
