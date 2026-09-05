@@ -125,8 +125,13 @@ rather than printing figures a person typed.
 - **Simulation is not experience.** A dichromacy matrix approximates one form of
   colour vision deficiency; it says nothing about low vision, cataract, or the
   reader looking at a phone in direct sunlight.
-- **No component enforces the rule yet,** because no component exists. Today the
-  rule is enforced only by the component-page contract.
+- **Enforcement stops at the source, not at the rendered surface.**
+  `pnpm run check:a11y` reads every file under `registry/bases` as text and fails
+  a component that stamps a status colour without also reading
+  `CLINICAL_STATUS_META` and importing a glyph. It cannot see the DOM, so it
+  cannot prove the word and the icon land on the same surface as the colour, and
+  a status word inside an `sr-only` span satisfies it while breaking this rule.
+  The rendered check is still a person's.
 
 ## Updates to this page
 
