@@ -11,7 +11,7 @@ publishes them verbatim.
 
 | `kind` | Template | Used by |
 | --- | --- | --- |
-| `component` | `component.mdx` | the 24 component specifications |
+| `component` | `component.mdx` | every component page under `content/docs/components/` |
 | `foundation` | `foundation.mdx` | Foundations, every page and sub-page |
 | `health` | `health.mdx` | the Health doctrine layer |
 | `accessibility` | `accessibility.mdx` | the Accessibility pillar |
@@ -30,10 +30,19 @@ the build enforces.
 
 ## Three rules that apply to every template
 
-1. **Nothing is built.** No page may claim a component exists, show a working
-   example, or state a measured number that is not generated. `<NotBuiltYet>`,
-   `<StubNotice>`, `<NoDataYet>` and `<Todo>` are the only honest ways to say
-   "not yet", and `<Todo>` is counted in the build's coverage report.
+1. **Say only what is true, in either direction.** A page may not claim a
+   component exists when it does not, and may not claim nothing is built when
+   the catalogue says otherwise. `registry/catalogue.ts` is the authority: a row
+   at `alpha` has source under `registry/bases/base/` and installs through the
+   shadcn CLI, so a working example is the correct thing to show; a row at
+   `considered` has no code, and a page about it says so. A measured number is
+   never written by hand either way — it is generated or it is `<NoDataYet>`.
+   `<NotBuiltYet>`, `<StubNotice>`, `<NoDataYet>` and `<Todo>` are the honest
+   ways to say "not yet", and `<Todo>` is counted in the build's coverage report.
+   Promotion sheds exactly two of them: `<NotBuiltYet>` and `<Todo>` go in the
+   same commit that moves the page to `alpha`; `<StubNotice>` stays and gains a
+   real `status`; `<NoDataYet>` stays wherever a generator genuinely has no
+   source data.
 2. **Links are relative.** Use relative file paths resolved by fumadocs'
    `createRelativeLink` — `[Two colour axes](../health/two-colour-axes.mdx)`.
    Absolute `/docs/...` links are banned everywhere except the Sections rail in
