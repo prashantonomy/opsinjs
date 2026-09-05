@@ -62,14 +62,35 @@ dependency, three consequences follow that a package would not have.
 
 ## Which items carry files
 
-Nothing is built. Every registry item at `/r/<name>.json` currently carries an
-empty `files` array and a `meta.notImplemented: true` marker. `npx shadcn add`
-against one succeeds in resolving and installs nothing, which is the honest
-outcome.
+An item for an implemented component carries `meta.opsinjs.implemented: true`
+and a populated `files` array whose entries have real `content` - the component
+itself plus the shared substrate it needs, `lib/opsinjs.ts` and `lib/status.ts`.
+`npx shadcn add` writes those files into the project, resolving composite
+dependencies by name rather than inlining them.
 
-So today the practical answer to "add ResultCard to my project" is: the component
-is specified and not implemented, here is the specification, and here is an
-implementation written against it. See `rules/never-invent.md`.
+An item for a `considered` id carries no `files` key at all, plus
+`meta.opsinjs.implemented: false`, a `meta.opsinjs.why` that states the decision
+and a `meta.opsinjs.useInstead` list. Resolving with nothing to install is the
+honest outcome rather than a failure: "considered, not implemented" is a
+complete answer, and `useInstead` is the better half of it. See
+`rules/never-invent.md`.
+
+The marker to read is `meta.opsinjs.implemented` on an item, `implemented` on a
+roster row in `/r/index.json`, or the `x-opsinjs-implemented` response header on
+either. There is no `meta.notImplemented` field anywhere in opsinjs; do not look
+for one, and never read a missing key as a negative answer.
+
+The two payload shapes differ, and the difference matters when you are after
+source. `/r/<name>.json` carries each file's `content`. The aggregate
+`/r/registry.json` lists each file's `path`, `type` and `target` and omits the
+content, because it is the catalogue rather than the delivery. Fetch the item.
+
+So the practical answer to "add ResultCard to my project" is the install
+command, with the namespace check above done first, followed by the caveat said
+out loud: `result-card` is `alpha`, so it works and its API may change in any
+release without a deprecation cycle. For a `considered` id the practical answer
+is that there is nothing to install, and here is what the page suggests
+instead.
 
 ## The MCP server
 
