@@ -355,7 +355,9 @@ export function StubNotice({
             <Link href={routes.roadmap()}>Roadmap</Link>
           )}
           <Link href={docsPath("project", "proposals")}>
-            Propose a change to this specification
+            {status === "considered"
+              ? "Propose that this one gets specified"
+              : "Propose a change to this specification"}
           </Link>
         </p>
       </div>
@@ -445,7 +447,7 @@ export function NoDataYet({
         className
       )}
     >
-      <p className="m-0">
+      <div className="[&>p]:m-0 [&>p+p]:mt-2">
         <strong className="font-medium text-foreground">
           {what} has not been generated.
         </strong>{" "}
