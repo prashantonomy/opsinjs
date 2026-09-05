@@ -122,15 +122,21 @@ sits a step lighter than the ramp's end, so a card is one step away from it.
 
 Anything not on that list is **unmeasured**. Unmeasured is not the same as
 failing — it may well be fine — but it is not something this system is promising
-you, and a health product should not be built on a promise nobody made.
+you, and a health product should not be built on a promise nobody made. The
+focus ring is the gap worth knowing about: `--ring` against `--background` is
+precisely what a keyboard reader depends on, and nothing measures it today.
 
 ## Using it
 
-**Use a whole pair or neither half.** If you find yourself writing
-`text-status-urgent-ink` on a card whose background is `--card`, stop: that is
-case 3 above only if it is the *line* role, and `ink` on a neutral card is not
-in the declared set. Use `--opsin-status-urgent-line` for a coloured mark on a
-neutral surface, and reserve `ink` for text on its own tint.
+**Use a whole pair or neither half.** A status or category *word* on a neutral
+card is `ink`, not `line`: `ink` against the page is clause 4, measured and
+gated in both themes, while `line` is tuned to the non-text floor, so moving a
+word onto it lowers the contrast the reader actually gets. Two cautions come
+with that. The measured ground is the page rather than `--card`, which is the
+same colour in light and one step lighter in dark, so in dark a word on a card
+inherits a guarantee made a step away from it. And `line` on a neutral
+ground is not measured at all — `line` is the role for a stroke, a boundary or a
+chart mark, and its floor is guaranteed only against its own surface.
 
 **Never take `ink` from one axis onto a `surface` from the other.** Cardio ink
 on an urgent surface is both an unmeasured pair *and* a violation of the
