@@ -172,9 +172,11 @@ worth running against a design before anything is built.
 
 ## Troubleshooting
 
-**The command fails.** Expected. There is no published registry yet, and
-`@opsinjs` does not resolve. See
-[Troubleshooting](./troubleshooting.mdx#nothing-is-published-yet).
+**The command fails to resolve.** `opsinjs.dev` is not serving yet, so a
+`components.json` pointing `@opsinjs` there fails before the CLI reaches a
+registry at all. See
+[Troubleshooting](./troubleshooting.mdx#nothing-is-published-yet), which
+separates that from the different failure of having no `registries` entry.
 
 **You want the component to pick the status for you.** It will not, and this is
 the single hardest constraint for teams arriving from a general-purpose library.
@@ -185,7 +187,7 @@ inside a rendering layer, where it cannot be reviewed, versioned or audited.
 An invented range is worse than no range: it looks authoritative and is not.
 
 **Your category and your status want the same colour.** They are not allowed to
-share one. If your brand's cardio colour is a red, the status axis still owns red,
+share one. If your brand's heart colour is a red, the status axis still owns red,
 and [Category palettes](../theming/category-palettes.mdx) explains how to add a
 category without contaminating the status axis.
 
