@@ -32,17 +32,22 @@ import { RangeBar } from "@opsinjs/react"
 
 What to do instead:
 
-1. **Say so.** "opsinjs specifies RangeBar but has not implemented it. Here is
-   what the specification requires, and here is an implementation against it."
-2. **Build it from the specification.** The page states the intent, the cases
-   where the component is the wrong answer, the proposed anatomy, the proposed
-   API and the accessibility bar. That is enough to write a correct component,
-   and it is far better than inventing one.
-3. **Use a primitive the project already has**, styled with opsinjs tokens.
+1. **For an `alpha` id, install it, and say what alpha means.** The component is
+   real. The caveat is that its API will change without a deprecation cycle and
+   that its own page lists what nobody has measured on it yet. Both halves,
+   every time; an agent that presents an alpha health component as settled has
+   made the newer of the two mistakes. Check the `@opsinjs` namespace before you
+   emit the command - `rules/registry.md` says why.
+2. **For a `considered` id, say so and stop.** "Considered, not implemented" is
+   a complete answer. The page names what to use instead, and that is a better
+   answer than a component opsinjs deliberately did not ship.
+3. **If you write one anyway**, build it from a primitive the project already
+   has, styled with opsinjs tokens, and do not call it opsinjs.
 
-The proposed API on a planned page is a **proposal**. It is marked as one and it
-will change without a deprecation cycle. Quote it as a design intent; do not
-generate against it as though it were released.
+An `alpha` API is real rather than a proposal, but it is narrow and it is
+unstable. Take it from the component page's generated props table or from the
+source in the `files` of its registry item. Do not extend it by guessing, and do
+not quote it as though it were released.
 
 ## Considered is a real answer
 
