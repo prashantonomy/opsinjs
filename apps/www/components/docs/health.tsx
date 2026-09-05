@@ -35,10 +35,15 @@ import { NoDataYet } from "./stub"
        result; showing it as one is the commonest harm in this category.
 
    So the demo lets a reader move the value, clear the range and drop the
-   verdict, and shows what the system does in each case. It renders a
-   SPECIMEN, not the component: RangeBar does not exist, and this is a teaching
-   device on a doctrine page, which is why it carries no not-implemented marker
-   — it is not pretending to be an API.
+   verdict, and shows what the system does in each case. It renders a SPECIMEN,
+   not the component, and that is still true now that `range-bar` is built: the
+   real one lives under registry/bases/base/ and renders in the PRODUCT theme,
+   which only exists inside a /view iframe, so a doctrine page cannot host it
+   without <ComponentPreview> — and <ComponentPreview> has no sliders. A reader
+   who wants the shipped component wants that; a reader on a doctrine page wants
+   to move one input at a time and watch the rule hold. This carries no
+   not-implemented marker either way: it is not pretending to be an API, in
+   either direction.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
