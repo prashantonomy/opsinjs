@@ -606,6 +606,10 @@ export interface WhenToUseAvoid {
    * The component or pattern to use instead. REQUIRED — a prohibition with no
    * alternative is a trap, and it is the single most common defect in design
    * system documentation.
+   *
+   * Normally a bare catalogue id, which is resolved against the catalogue and
+   * the registry before it is rendered. Prose belongs here only alongside an
+   * `href`.
    */
   instead: string
   /** Where the alternative lives, when it is not a component id. */
@@ -619,6 +623,98 @@ export interface WhenToUseProps {
   avoid: WhenToUseAvoid[]
   /** What the alternatives are: component ids, or arbitrary pages. */
   className?: string
+}
+
+interface ResolvedInstead {
+  /** The catalogue row the `instead` id names, if it names one at all. */
+  target: CatalogueEntry | undefined
+  /** True only when a real renderable exists behind it. */
+  built: boolean
+}
+
+function resolveInstead(entry: WhenToUseAvoid): ResolvedInstead {
+  const target = entry.instead ? getEntry(entry.instead) : undefined
+  return { target, built: target ? isBuilt(target.name) : false }
+}
+
+/**
+ * The one line under a prohibition that says what to reach for.
+ *
+ * It resolves the id rather than printing it. An `instead` that names a row
+ * with no code behind it is not a mistake — some of the most useful
+ * redirections on this site point at a name that was considered and declined,
+ * and saying so is more useful than pretending the name is a component — but
+ * rendering it as a
+ * bare "Use `tooltip` instead" IS: the reader installs nothing, finds nothing,
+ * and concludes the documentation is wrong about its own system. So the status
+ * is named, the destination is still linked, and the reader is told what the
+ * page at the other end will give them.
+ */
+function InsteadPointer({
+  entry,
+  resolved,
+}: {
+  entry: WhenToUseAvoid
+  resolved: ResolvedInstead
+}) {
+  const { target, built } = resolved
+
+  if (!target) {
+    if (entry.href) {
+      return (
+        <>
+          Use <a href={entry.href}>{entry.instead}</a> instead.
+        </>
+      )
+    }
+    return (
+      <strong className="font-semibold text-foreground">
+        Names <code className="text-xs">{entry.instead}</code>, which is not a
+        catalogue id. Correct the id, or give this entry an{" "}
+        <code className="text-xs">href</code> to the page it means; as written
+        the reader is sent nowhere.
+      </strong>
+    )
+  }
+
+  const destination = (
+    <Link href={entry.href ?? componentPath(target.name)}>
+      <code className="text-xs">{target.name}</code>
+    </Link>
+  )
+
+  if (built) {
+    return <>Use {destination} instead.</>
+  }
+
+  if (target.status === "considered") {
+    return (
+      <>
+        The nearest name is {destination}, and it was considered and declined:
+        there is no code behind it and none planned. Its page carries the reason
+        and names what to reach for in turn — read that before you design around
+        the gap.
+      </>
+    )
+  }
+
+  if (target.status === "planned") {
+    return (
+      <>
+        The nearest name is {destination}, and it is planned: specified in full,
+        not built. Read the specification and design against it, but do not
+        generate code from it.
+      </>
+    )
+  }
+
+  return (
+    <>
+      The nearest name is {destination}. The catalogue has it at{" "}
+      {STATUS_META[target.status].label.toLowerCase()} and nothing is built
+      behind it in this registry, so there is nothing to install today.
+    </>
+  )
 }
 
 /**
