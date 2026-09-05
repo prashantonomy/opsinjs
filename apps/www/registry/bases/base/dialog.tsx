@@ -516,9 +516,20 @@ export function Dialog({
           browser with no `backdrop-filter` all degrade it the way the token
           source says to and not the way this file guesses.
 
-          It is decorative and it is not the mechanism that blocks the page —
-          Base UI makes everything behind genuinely inert, and dimming is what
-          the reader sees rather than what stops them. */}
+          It is decorative and it is not the mechanism that blocks the page.
+          What blocks it is Base UI's focus manager, and it is worth being exact
+          about how, because the word "inert" does less work here than it looks:
+          `FloatingFocusManager` calls `markOthers` with `ariaHidden` and leaves
+          `inert` at its default of false, so everything outside the portal gets
+          `aria-hidden="true"` and NOT the HTML `inert` attribute. A screen
+          reader cannot reach the background and the tab ring cannot leave the
+          popup, which is the whole of the safety contract this component needs.
+          What the platform attribute would add on top — unselectable text
+          behind the scrim, and containment held by the browser rather than by
+          focus guards — is not applied; overriding the primitive to add it
+          means owning behaviour Base UI owns, and that decision has not been
+          taken. Dimming, meanwhile, is what the reader sees rather than what
+          stops them. */}
       <DialogPrimitive.Backdrop
         data-slot="dialog-scrim"
         className={cn(
@@ -565,7 +576,7 @@ export function Dialog({
           initialFocus={resolveInitialFocus}
           className={cn(
             "flex max-h-full w-full flex-col overflow-hidden",
-            "sm:max-w-(--opsin-measure-tight)",
+            "sm:max-w-(--opsin-measure-tight,45ch)",
             SHAPE,
             MOTION,
             className,
