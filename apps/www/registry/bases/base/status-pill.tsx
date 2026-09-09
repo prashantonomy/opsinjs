@@ -178,8 +178,11 @@ export interface StatusPillProps {
    * rather than stripping the surface.
    *
    * THE INK IS THE ONE EXCEPTION, and the comment above `TONE` says why: it is
-   * written as `[color:var(--opsin-status-<level>-ink)]`, an arbitrary
-   * property, so `tailwind-merge` does not file it against a `text-*` class and
+   * written as an arbitrary property — `color:var(--opsin-status-<level>-ink)`
+   * in square brackets, spelled out that way here because Tailwind's scanner
+   * reads comments too and a bracketed candidate with a `<level>` placeholder
+   * in it compiles to CSS that does not parse — so `tailwind-merge` does not
+   * file it against a `text-*` class and
    * a `text-*` class you pass does not replace it. Both declarations are
    * emitted and source order decides. Recolour it with a rule of your own on
    * `[data-slot="status-pill"]` instead — and read `tokens/color.json` first,
