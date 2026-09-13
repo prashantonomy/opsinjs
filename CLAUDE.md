@@ -1,7 +1,7 @@
 # CLAUDE.md
 
 Conventions for Claude Code working in this repository. `AGENTS.md` carries the
-technical rules and is the longer document — **read it first**; this file is the
+technical rules and is the longer document, so **read it first**. This file is the
 working protocol on top of it.
 
 ## The one-line summary
@@ -9,8 +9,8 @@ working protocol on top of it.
 This repo is the documentation site for a design system whose component layer is being
 built, against specifications that were written first and are binding. So there are two
 jobs here and you have to know which one you are on. Writing a *specification* precise
-enough that the component could be built from it, and honest enough that nobody — human
-or agent — mistakes it for something shipped, is still most of the work. Building a
+enough that the component could be built from it, and honest enough that no human and
+no agent mistakes it for something shipped, is still most of the work. Building a
 component means building the one its specification already describes: you implement it,
 you do not redesign it, and you do not promote its page past what the code actually
 does.
@@ -22,10 +22,10 @@ does.
 2. Check whether the file you are about to touch is **generated**. If it is under
    `lib/generated/`, `registry/generated/`, `content/docs/reference/generated/`,
    `content/docs/reference/api/`, `public/r/`, or is `registry/__index__.ts` or
-   `app/tokens.generated.css`, edit its *source* instead — `tokens/*.json`,
-   `registry/catalogue.ts`, a file under `registry/bases/`, or the emitting script.
-   Those seven paths are exactly what `check:generated` diffs; the authority is
-   `apps/www/package.json`, not this list.
+   `app/tokens.generated.css`, edit its *source* instead. The source is
+   `tokens/*.json`, `registry/catalogue.ts`, a file under `registry/bases/`, or the
+   emitting script. Those seven paths are exactly what `check:generated` diffs; the
+   authority is `apps/www/package.json`, not this list.
 3. Check the page's `kind` frontmatter. It determines the headings exactly. Do not add
    a heading the outline for that `kind` does not have, and do not drop one it does.
 
@@ -37,23 +37,38 @@ to have read. No filler, no "this section describes…", no lorem ipsum, no `TOD
 this` (use `<Todo>`, which is counted). When a rule has an exception, name the exception.
 When you say "don't", name what to do instead.
 
+## No em dash, no en dash
+
+U+2014 and U+2013 appear nowhere: not in prose, not in frontmatter, not in a table cell,
+not in a heading, not in a code comment or a JSDoc line, not in a string literal, not in
+a JSON description, and not in anything a reader sees on screen. `pnpm check:dashes`
+fails the build on every occurrence and has no allowlist.
+
+Take a dash out by rewriting the sentence. Moving a comma, a colon, a semicolon, a
+bracket pair, a hyphen or three dots into its seat is the same sentence still reaching
+for a dash, and it comes back in review. Write two sentences, spell the connective out
+as a word, or make the inserted clause the main one, and keep every hedge, negation,
+modal and disclaimer the dash was holding. A span between two values takes the word
+"to". Name the characters as U+2014 and U+2013 when you have to write about them.
+`AGENTS.md` §12 is the rule and `DASH-DOCTRINE.md` is the playbook.
+
 ## The four honesty components
 
-`<NotBuiltYet>` (nothing renders here yet), `<StubNotice>` (this page is a spec — do not
-generate code against it), `<NoDataYet>` (this generated table has no source data yet,
+`<NotBuiltYet>` (nothing renders here yet), `<StubNotice>` (this page is a spec, so do
+not generate code against it), `<NoDataYet>` (this generated table has no source data yet,
 here is the script that will fill it), `<Todo>` (a measured gap). Use them instead of
 softening the truth in prose. They are still required for everything that is not built,
 which is most of the corpus.
 
 Promotion sheds exactly two of them. `<NotBuiltYet>` and `<Todo>` go in the same commit
-that moves a page to `alpha`, and a promoted page carries neither. The other two stay,
-for different reasons. `<StubNotice>` stays and gains its real `status` — at `alpha` it
-stops saying "nothing is implemented" and starts saying "this is not stable yet", which
-is the truth a reader needs, and its open safety questions are still open. `<NoDataYet>`
-stays wherever a generator genuinely has no source data: an `alpha` page whose contrast
-pairs have not been measured must say so rather than print a table nobody produced. The MDX vocabulary is **closed**: only the
-tags listed in the anatomy contract exist, `assert-ia` fails the build on any other JSX
-tag, and content work never defines a new one.
+that moves a page to `alpha`, and a promoted page carries neither. The other two stay, for
+different reasons. `<StubNotice>` stays and gains its real `status`. At `alpha` it stops
+saying "nothing is implemented" and starts saying "this is not stable yet", which is the
+truth a reader needs, and its open safety questions are still open. `<NoDataYet>` stays
+wherever a generator genuinely has no source data: an `alpha` page whose contrast pairs
+have not been measured must say so rather than print a table nobody produced. The MDX
+vocabulary is **closed**: only the tags listed in the anatomy contract exist, `assert-ia`
+fails the build on any other JSX tag, and content work never defines a new one.
 
 ## Health writing
 
@@ -64,7 +79,7 @@ tag, and content work never defines a new one.
 - opsinjs is a presentation layer. No page may state a clinical threshold as though
   opsinjs owns it, or imply the system triages, diagnoses or advises.
 
-## Two colour axes — the invariant
+## The two colour axes never mix
 
 Category colour (what kind of measurement this is) and status colour (how urgent it is)
 are separate axes and **never mix on one element**. A red that means "cardiac" and a red
@@ -82,8 +97,8 @@ pnpm check          # generated-file drift + IA assertions + llms.txt
 pnpm --filter @opsinjs/www run generate
 ```
 
-Do not run `git`, `pnpm install`, `turbo` or a build during a parallel authoring phase —
-the sequential phases own those.
+Do not run `git`, `pnpm install`, `turbo` or a build during a parallel authoring phase.
+The sequential phases own those.
 
 Do not commit, and do not discuss or propose committing, unless the human explicitly asks
 for it in that turn.
