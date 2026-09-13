@@ -1,6 +1,6 @@
 /**
- * Surface — the material a layer is made of, and the promise that whatever sits
- * on it stays readable.
+ * Surface is the material a layer is made of, and the promise that whatever
+ * sits on it stays readable.
  *
  * THE RUNG NAMES ARE THE TOKEN NAMES (ADR 0014). `canvas`, `card`, `raised`,
  * `sheet`, `overlay`, `scrim`. Three documents named these six rungs three
@@ -12,11 +12,12 @@
  *
  * The trap in that renaming is worth stating before anybody translates an older
  * design file: `raised`, `sheet` and `overlay` appear in the retired vocabulary
- * AND in this one, and two of them mean a different depth. What the retired set
- * called `overlay` — covering the page while leaving it recognisable — is this
- * ladder's `sheet`; this ladder's `overlay` is chrome that content scrolls
- * beneath, a pinned toolbar or a tab bar. Mapping by ordinal lands a dismissible
- * sheet on the chrome rung and a tab bar on the sheet rung, and both compile.
+ * AND in this one, and two of them mean a different depth. The retired set's
+ * `overlay` covered the page while leaving it recognisable, and that job is
+ * this ladder's `sheet`. This ladder's `overlay` is chrome that content scrolls
+ * beneath, a pinned toolbar or a tab bar. Mapping by ordinal lands a
+ * dismissible sheet on the chrome rung and a tab bar on the sheet rung, and
+ * both compile.
  *
  * WHAT THIS COMPONENT ACTUALLY OWNS, given that the token layer already does
  * most of the work. `app/tokens.generated.css` emits a
@@ -35,12 +36,12 @@
  * increased contrast, and where `backdrop-filter` is unavailable.
  *
  * IT IS A SERVER COMPONENT, and that is a requirement rather than an
- * optimisation. Every state it has — reduced transparency, increased contrast,
- * no `backdrop-filter` — is a user preference or an engine capability, and each
- * one is answered by a media or support query in CSS. Reading any of them in
- * JavaScript would mean rendering the wrong material on the server and
- * correcting it after hydration, which is a visible flash of the wrong depth on
- * the surface a health value is sitting on.
+ * optimisation. Every state it has is a user preference or an engine
+ * capability, and each one is answered by a media or support query in CSS.
+ * Those states are reduced transparency, increased contrast and the absence of
+ * `backdrop-filter`. Reading any of them in JavaScript would mean rendering the
+ * wrong material on the server and correcting it after hydration, which is a
+ * visible flash of the wrong depth on the surface a health value is sitting on.
  */
 
 import type { CSSProperties, ReactNode } from "react"
@@ -53,14 +54,15 @@ import { cn } from "@/lib/utils"
  *
  * This is the one structural fact about the ladder that lives in this file
  * rather than in the tokens, and it is here because it decides whether an
- * ELEMENT exists — a decision CSS cannot express from a custom property's
- * value. Everything else about a rung (its tint, alpha, blur, saturation,
- * border and shadow) is read through `var()` and is never copied here.
+ * ELEMENT exists. That is a decision CSS cannot express from a custom
+ * property's value. Everything else about a rung (its tint, alpha, blur,
+ * saturation, border and shadow) is read through `var()` and is never copied
+ * here.
  *
  * `Record<MaterialRung, boolean>` on purpose: adding a rung to the union
  * without answering this question is a compile error rather than a surface that
  * silently renders with no backdrop. The drift this cannot catch is a rung that
- * changes its mind — if `tokens/material.json` flipped `raised` to
+ * changes its mind. If `tokens/material.json` flipped `raised` to
  * `translucent: true`, this file would keep it opaque and the rung would render
  * its tint with no blur behind it. That shows up as a flat panel where a
  * frosted one was expected, and the fix is one line here.
@@ -84,14 +86,14 @@ const TRANSLUCENT: Record<MaterialRung, boolean> = {
  * `panel` was a layer lifted above the page without covering it, which is
  * `raised`; retired `chrome` was a pinned toolbar or tab bar, which is
  * `overlay`. It must stay in step with the translation table on
- * `content/docs/components/surface.mdx`, and the row to check first is `panel`
- * — the retired vocabulary also had a `raised`, meaning a bounded block of
+ * `content/docs/components/surface.mdx`, and the row to check first is `panel`.
+ * The retired vocabulary also had a `raised`, meaning a bounded block of
  * content, and taking that row's answer lands a lifted panel one rung too low
  * on the flat `card` material.
  *
  * Only three of the six can be caught here. `raised`, `sheet` and `overlay` are
  * spelled the same in both vocabularies, so a component cannot tell a caller
- * who meant this ladder from one who meant the other — which is exactly why the
+ * who meant this ladder from one who meant the other. That is exactly why the
  * page says a search-and-replace is not a safe translation.
  */
 const RENAMED_RUNGS: Record<string, MaterialRung> = {
@@ -115,15 +117,15 @@ function isMaterialRung(value: unknown): value is MaterialRung {
  * Not `warnOnce`, and the reason is the same one the rung warning gives below:
  * `tokens/errors.json` has no code for either of these mistakes, a component
  * may not mint one, and `warnOnce` is keyed on a code. What can be borrowed
- * from it is the policy — `tokens/errors.json` says a warning fires once per
+ * from it is the policy. `tokens/errors.json` says a warning fires once per
  * offending call site, because a repeated identical complaint teaches nothing
  * and drowns the next one, and an unrecognised rung inside a mapped list
  * otherwise prints once per row per render pass.
  *
- * Module scope in a server component is shared between requests, which is a
- * disqualifying property for anything that touches a reader's screen — the
- * reason this file refuses to count composited surfaces — and a harmless one
- * here. The only thing this set ever holds is a rung or weight string a
+ * Module scope in a server component is shared between requests. For anything
+ * that touches a reader's screen that is a disqualifying property, and it is
+ * the reason this file refuses to count composited surfaces. Here it is
+ * harmless. The only thing this set ever holds is a rung or weight string a
  * developer typed into a prop, nothing is written to it outside a development
  * build, and one request silencing a repeat of the same complaint in the next
  * is the behaviour `warnOnce` already has.
@@ -165,10 +167,11 @@ function warnOncePerSession(key: string, message: string): void {
  * never redeclares `-scrim`. So the floor is theme-agnostic while the tint alpha
  * is not, and in dark theme it currently binds on `sheet` and on `overlay`,
  * whose dark `tintAlpha` values sit below the single published floor and are
- * raised to it here. The direction is safe — more opaque is more readable — but
- * a maintainer must not read this expression as removable, and whether
- * `minScrimOpacity` should be published per theme the way `tintAlpha` is, is a
- * question for the token owner rather than for this file.
+ * raised to it here. The direction is safe, because more opaque is more
+ * readable. A maintainer must nevertheless not read this expression as
+ * removable, and whether `minScrimOpacity` should be published per theme the
+ * way `tintAlpha` is, is a question for the token owner rather than for this
+ * file.
  */
 function publishedScrimFloor(rung: MaterialRung): string {
   return `max(var(--opsin-material-${rung}-tint-alpha), var(--opsin-material-${rung}-scrim))`
@@ -191,14 +194,15 @@ type ContentWeight = "body" | "large"
  * BOTH ENTRIES ARE THE SAME EXPRESSION, and that is the finding rather than an
  * oversight. `tokens/material.json` publishes one `minScrimOpacity` per rung,
  * and the figures published beside it are measured against that rung's OPAQUE
- * FALLBACK — the material as it renders once translucency is gone, which is the
- * degraded path rather than the translucent one. There is no second, thinner
- * floor for large text anywhere in the token source, and a component is not
- * allowed to invent one: a number that decides whether somebody can read their
- * own result is measured or it does not exist. So `contentWeight="large"` is
- * accepted, is honoured as a promise about the content, and takes the body
- * floor until a large-text floor is published. A surface that is more readable
- * than it needs to be is not a defect; the other direction is.
+ * FALLBACK. That fallback is the material as it renders once translucency is
+ * gone, which is the degraded path rather than the translucent one. There is
+ * no second, thinner floor for large text anywhere in the token source, and a
+ * component is not allowed to invent one: a number that decides whether
+ * somebody can read their own result is measured or it does not exist. So
+ * `contentWeight="large"` is accepted, is honoured as a promise about the
+ * content, and takes the body floor until a large-text floor is published. A
+ * surface that is more readable than it needs to be is not a defect; the other
+ * direction is.
  */
 const SCRIM_FLOOR: Record<ContentWeight, (rung: MaterialRung) => string> = {
   body: publishedScrimFloor,
@@ -211,8 +215,8 @@ const SCRIM_FLOOR: Record<ContentWeight, (rung: MaterialRung) => string> = {
  *
  * `SCRIM_FLOOR[contentWeight](rung)` on an unchecked value is a TypeError, not a
  * styling mistake: `undefined(rung)` throws during render and takes the nearest
- * error boundary's whole subtree with it — a Surface's subtree being, by
- * design, somebody's readings. That is a strictly worse outcome than the one
+ * error boundary's whole subtree with it. A Surface's subtree is, by design,
+ * somebody's readings. That is a strictly worse outcome than the one
  * the `rung` guard exists to prevent, and the default parameter does not cover
  * it, because a default fires on `undefined` alone and not on `null`, `"Body"`
  * or a weight that was renamed upstream.
@@ -230,8 +234,8 @@ function resolveContentWeight(value: unknown): ContentWeight {
     `contentWeight:${String(value)}`,
     `<Surface> received contentWeight="${String(value)}", which is not "body" ` +
       'or "large". The body floor was used, which is the stricter of the two, ' +
-      "so nothing on this surface is less readable than it should be — but the " +
-      "prop is not recording what you meant.",
+      "so nothing on this surface is less readable than it should be. The " +
+      "prop is nevertheless not recording what you meant.",
   )
   return "body"
 }
@@ -242,7 +246,7 @@ function resolveContentWeight(value: unknown): ContentWeight {
  * They exist so that every conditional state is a CSS declaration on the layer
  * that needs it rather than a branch in JavaScript. The layers set their
  * regular properties through `style`, and the variants below override these
- * custom properties with a class — a declaration on the element always beats an
+ * custom properties with a class. A declaration on the element always beats an
  * inherited value, so the two never fight, and an inline `style` never has to
  * lose to a class it cannot see.
  *
@@ -263,9 +267,9 @@ interface SurfaceStyle extends CSSProperties {
 /**
  * The filter, written once and used twice. Safari carried `backdrop-filter`
  * behind the `-webkit-` prefix until version 18, and the tested floor for this
- * system is Safari 16.4 — so the prefixed spelling is not legacy politeness,
- * it is the difference between a blurred sheet and an opaque one for readers on
- * a phone they have not replaced.
+ * system is Safari 16.4. So the prefixed spelling is not legacy politeness but
+ * the difference between a blurred sheet and an opaque one for readers on a
+ * phone they have not replaced.
  */
 const BACKDROP_FILTER =
   "blur(var(--opsinjs-surface-blur)) saturate(var(--opsinjs-surface-saturation))"
@@ -274,8 +278,8 @@ export interface SurfaceProps {
   /**
    * Which rung of the material ladder. Required: there is no sensible default
    * depth, and a component that guessed would put a surface at the wrong height
-   * silently. The names are the token names — `canvas`, `card`, `raised`,
-   * `sheet`, `overlay`, `scrim`.
+   * silently. The names are the token names: `canvas`, `card`, `raised`,
+   * `sheet`, `overlay` and `scrim`.
    */
   rung: MaterialRung
   /**
@@ -286,9 +290,9 @@ export interface SurfaceProps {
    */
   contentWeight?: "body" | "large"
   /**
-   * Renders the rung's opaque fallback regardless of engine or preference — the
-   * path for print and export, where there is no backdrop to see through and a
-   * translucent tint composites against paper.
+   * Renders the rung's opaque fallback regardless of engine or preference. This
+   * is the path for print and export, where there is no backdrop to see through
+   * and a translucent tint composites against paper.
    */
   opaque?: boolean
   /**
@@ -300,7 +304,7 @@ export interface SurfaceProps {
    * a Surface may take a category tint or sit under a status, never both. A
    * category-tinted Surface renders its status as a StatusPill inside it rather
    * than as a tint on the root. Both axes on one element is OPSIN-0001, and this
-   * component cannot detect it — `cn` merges whatever it is handed.
+   * component cannot detect it. `cn` merges whatever it is handed.
    */
   className?: string
   /** Everything the surface holds. */
@@ -316,13 +320,13 @@ export function Surface({
 }: SurfaceProps) {
   if (!isMaterialRung(rung)) {
     /* Not an OPSIN code. `tokens/errors.json` has no entry for a material rung
-       outside the six, and a component may not mint one — the table is
-       generated from that file and the codes are a versioned contract. A plain
+       outside the six, and a component may not mint one. The table is generated
+       from that file and the codes are a versioned contract. A plain
        development warning is the honest channel until OPSIN-0022 exists.
 
        The content still renders. StatusPill returns null for a status outside
        its four because a pill with no level asserts nothing; a Surface with no
-       material is a different case entirely — it is a presentational wrapper,
+       material is a different case entirely. It is a presentational wrapper,
        and dropping it would take a reader's own readings off the screen to
        report a styling mistake. So the material is omitted, visibly, and the
        content is left where it was. */
@@ -379,7 +383,7 @@ export function Surface({
        `backdrop-filter` is allowed to see behind. Isolate the root and the
        backdrop blurs the inside of the surface instead of the page underneath
        it, which looks like nothing happening at all. Painting order does the
-       job on its own — all four layers are positioned with `z-index: auto`, so
+       job on its own. All four layers are positioned with `z-index: auto`, so
        they paint in document order and the content is last. */
     <div data-slot="surface" style={style} className={cn("relative", className)}>
       {opaque || !TRANSLUCENT[rung] ? null : (
@@ -445,8 +449,9 @@ export function Surface({
           `currentColor`, which draws a hairline in the text colour around the
           page background. Substituted into `box-shadow` it is invalid in the
           same way, and `box-shadow` falls back to its initial value, which is
-          `none` — the right answer, arrived at by the CSS engine, with no table
-          of which rungs have an edge for anybody to keep up to date. */}
+          `none`. That is the right answer, arrived at by the CSS engine,
+          with no table of which rungs have an edge for anybody to keep up to
+          date. */}
       <div
         data-slot="surface-edge"
         aria-hidden="true"
@@ -463,10 +468,10 @@ export function Surface({
 
              It stops at the width on purpose. Substituting a solid colour here
              would be this component choosing a border colour the ladder did not
-             publish, and it would give `canvas` and `scrim` — whose border token
-             is the keyword `none` — an edge they are specified not to have. The
-             colour half belongs to `tokens/material.json`, and the page says so
-             rather than claiming this line answers it. */
+             publish, and it would give `canvas` and `scrim` an edge they are
+             specified not to have, because their border token is the keyword
+             `none`. The colour half belongs to `tokens/material.json`, and the
+             page says so rather than claiming this line answers it. */
           "contrast-more:[--opsinjs-surface-edge-width:var(--opsin-border-emphasis)]",
         )}
         style={{
@@ -570,7 +575,7 @@ export default function SurfaceDemo() {
 
         {/* The scrim doing its actual job. Its use is to take the page out of
             consideration, so the honest way to show it is with something on a
-            rung above it — never with text on the scrim itself. */}
+            rung above it. Never show it with text on the scrim itself. */}
         <Surface rung="scrim" className="rounded-opsin-md">
           <div className="p-opsin-3">
             <Surface rung="card" className="rounded-opsin-sm">

@@ -1,5 +1,5 @@
 ---
-title: "0006 — Generated, never authored"
+title: "ADR 0006. Generated, never authored"
 description: Source code, tables and every measured number are produced by scripts, committed as MDX, and checked for drift in CI.
 status: stable
 kind: project
@@ -37,20 +37,20 @@ is left standing rather than rewritten: "Nothing is built" was true on the day
 this record was accepted and is not true now. Twenty-four components are
 implemented at `alpha`, and the first consequence is that the generators finally
 have something to read. `lib/generated/props.ts` carries thirty prop tables
-extracted from the exported interfaces under `registry/bases/` — one per
-component and one per exported part — and the pages that show them still carry
-no prop row of their own, because they render `<PropsTable>` and nothing else.
-The argument does not weaken with the fact; it moves. The sharper version of the
+extracted from the exported interfaces under `registry/bases/`. There is one per
+component and one per exported part, and the pages that show them still carry no
+prop row of their own, because they render `<PropsTable>` and nothing else. The
+argument does not weaken with the fact; it moves. The sharper version of the
 problem is no longer "every number would have to be invented", it is that **an
 empty table on a system that visibly has components is far more tempting to fill
 in by hand than an empty table on a system that has none**. Two tables are in
 exactly that position today:
 [Keyboard](../../reference/generated/keyboard.mdx) and
 [Data attributes](../../reference/generated/data-attributes.mdx) both still
-render an honest empty state naming `scripts/build-reference.mts`, because the
-extraction is unwritten — not because the components emit nothing. Rule 3 below
-is what holds that line, and it is load-bearing now in a way it could not have
-been while nothing existed.
+render an honest empty state naming `scripts/build-reference.mts`. The reason is
+that the extraction is unwritten, not that the components emit nothing. Rule 3
+below is what holds that line, and it is load-bearing now in a way it could not
+have been while nothing existed.
 
 ## Decision
 
@@ -80,10 +80,10 @@ Three rules make it work:
   typechecks and builds before anything has been generated. Whoever owns a
   directory writes that placeholder.
 - **A hand-written header survives on every generated page.** Above the marker
-  comment sits a short block naming the source and the script — because
-  "generated from `tokens/color.json` by `build-tokens.mts`" is itself a fact a
-  reader needs, and no generator can be trusted to explain its own provenance
-  well.
+  comment sits a short block naming the source and the script. It is there
+  because "generated from `tokens/color.json` by `build-tokens.mts`" is itself a
+  fact a reader needs, and no generator can be trusted to explain its own
+  provenance well.
 - **Several tables are empty today**, and say so. That is the decision working
   correctly, not a gap in the documentation.
 - **Generated directories are excluded from the formatter**, so that a formatting
@@ -104,14 +104,14 @@ months after somebody has already generated code from it.
 
 **Generate but do not commit.** Rejected: a clean clone would not typecheck, CI
 could not diff for drift, and there would be no way to review a change to a
-generated artefact in a pull request — which is often exactly where a token
+generated artefact in a pull request. That review is often exactly where a token
 mistake becomes visible.
 
 ## Revisiting this
 
-Revisit only if committed generated output becomes unmanageable in review — a
-plausible future once there are hundreds of components. The mitigation would be
-narrower generated files, not hand-authored tables.
+Revisit only if committed generated output becomes unmanageable in review. That
+is a plausible future once there are hundreds of components. The mitigation would
+be narrower generated files, not hand-authored tables.
 
 <LastUpdated />
 

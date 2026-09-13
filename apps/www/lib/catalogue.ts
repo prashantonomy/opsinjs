@@ -36,7 +36,7 @@ export function getCatalogue(): CatalogueEntry[] {
 
 /**
  * The 24 rows on the roster: the ids opsinjs has committed to, each with a
- * hand-written page. Not a claim about code — read `implemented` in
+ * hand-written page. Not a claim about code. Read `implemented` in
  * `/r/index.json`, or `toIndexRow`'s `isBuilt` argument, for that.
  */
 export function getShipped(): CatalogueEntry[] {
@@ -56,14 +56,14 @@ export function getEntry(id: string): CatalogueEntry | undefined {
  * True when `/docs/components/<id>` resolves to a page.
  *
  * EVERY catalogue id does, considered ones included. This used to exclude
- * `considered`, on the assumption that a row decided against had no address —
- * which was true before ADR 0008 and has not been true since: `pnpm generate`
- * writes a stub for each of the 36, precisely "so that this address answers
- * instead of returning a 404". The stale answer was visible, because
- * `<StatusMatrix>` and `<ComponentsList>` ask this question to decide whether to
- * link a row: all 36 rendered as inert grey text, or linked to the index, while
- * the page that says why the name was declined sat one click away and unreachable
- * from the table that named it.
+ * `considered`, on the assumption that a row decided against had no address.
+ * That assumption was true before ADR 0008 and has not been true since:
+ * `pnpm generate` writes a stub for each of the 36, precisely "so that this
+ * address answers instead of returning a 404". The stale answer was visible,
+ * because `<StatusMatrix>` and `<ComponentsList>` ask this question to decide
+ * whether to link a row: all 36 rendered as inert grey text, or linked to the
+ * index, while the page that says why the name was declined sat one click away
+ * and unreachable from the table that named it.
  *
  * It is therefore the same predicate as `isKnownId` today, and deliberately kept
  * separate: they answer different questions and will diverge the moment an id
@@ -228,16 +228,16 @@ export function searchCatalogue(
    and imported by nothing, because a doctrine page lists what it governs from
    its own `implements:` frontmatter instead, and has since the templates were
    written. Deleted rather than left as a plausible-looking helper somebody
-   reaches for and then wonders why the two lists disagree — the catalogue's
+   reaches for and then wonders why the two lists disagree. The catalogue's
    `governedBy` and a page's `implements` are maintained separately and nothing
    compares them. If the reverse index is ever wanted, write it back with a
    consumer and a check that the two directions agree, in one commit. */
 
 /**
  * Validate a doctrine page's `implements` list. Every entry must be a real
- * catalogue id, shipped or considered — the check that would have caught
- * `implements: [alert-banner, care-card, toast]` before `toast` was on the
- * roster.
+ * catalogue id, shipped or considered. This is the check that would have
+ * caught `implements: [alert-banner, care-card, toast]` before `toast` was on
+ * the roster.
  */
 export function unknownImplementsIds(ids: string[]): string[] {
   return ids.filter((id) => !isKnownId(id))
@@ -256,8 +256,8 @@ export interface CatalogueIndexRow {
   aliases: string[]
   /**
    * True when a real source file exists under `registry/bases/<base>/` for this
-   * id. Answered by the caller — see `toIndexRow` — because the only honest
-   * answer is a directory listing, and this module cannot see one.
+   * id. Answered by the caller, because the only honest answer is a directory
+   * listing and this module cannot see one. See `toIndexRow`.
    */
   implemented: boolean
   docs: string | null
@@ -284,7 +284,7 @@ export interface CatalogueIndexRow {
  * exactly the lie this change removes. Defaulting to a read of `REGISTRY_INDEX`
  * from `../registry/__index__.ts` looks better and is worse: this projection's
  * one caller is `scripts/build-registry.mts`, which is the program that *writes*
- * that index, so during a generate run it would read the previous run's output —
+ * that index, so during a generate run it would read the previous run's output.
  * `lib/generated/catalogue.json` would lag a run behind `registry/__index__.ts`,
  * two successive generates would differ, and `pnpm check:generated` would fail on
  * a file nobody edited. A required parameter makes every call site answer the

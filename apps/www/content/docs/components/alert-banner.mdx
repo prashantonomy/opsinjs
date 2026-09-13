@@ -17,11 +17,11 @@ usedIn: [staged-alert, results-screen]
   status="alpha"
   questions={[
     "The escalation budget is not enforced at runtime, and the component argues below that it cannot be from inside one banner. A lint rule over a screen file could see what a component cannot; nobody has written one.",
-    "`steady` is legal, and the implementation keeps it for de-escalation — the sentence that withdraws an earlier alert. That is one honest use against a standing risk: a banner that can be steady is a banner a product will reach for whenever it wants to be noticed.",
+    "`steady` is legal, and the implementation keeps it for de-escalation, which is the sentence that withdraws an earlier alert. That is one honest use against a standing risk: a banner that can be steady is a banner a product will reach for whenever it wants to be noticed.",
     "Nobody has listened to this component in a screen reader. The role-per-level mapping below is argued from the ARIA specification rather than tested. Two cases need it most: whether a real heading survives heading navigation inside `role=\"alert\"`, and what a banner that escalates in place actually announces, where the role is patched onto a node the screen reader has already registered and the likeliest outcome is silence.",
-    "The pairs on the banner's own fill — ink on surface, line on surface — are measured for all four levels in both themes and pass. The pairs where a NEUTRAL control sits on a status fill are not measured at all, and `scripts/check-contrast.mts` does not currently emit that scope combination. This component paints more cross-scope pairs than anything else in the system.",
+    "The pairs on the banner's own fill are measured for all four levels in both themes and pass. They are ink on surface and line on surface. The pairs where a NEUTRAL control sits on a status fill are not measured at all, and `scripts/check-contrast.mts` does not currently emit that scope combination. This component paints more cross-scope pairs than anything else in the system.",
     "`detectedAt` renders through RelativeTime, whose five event words contain no `detected`. `recorded` is the nearest and it is not exact. A sixth member of that union belongs to relative-time rather than here, and it is reported upward rather than worked around.",
-    "The root carries no accessible name, so it is not a landmark. Naming it needs a generated id, which would make every banner in every product a client component — and on a live region a name can displace the content in the announcement.",
+    "The root carries no accessible name, so it is not a landmark. Naming it needs a generated id, which would make every banner in every product a client component. On a live region a name can also displace the content in the announcement.",
   ]}
 >
   <code className="text-sm">alert-banner</code> is implemented and installable.
@@ -36,15 +36,15 @@ reader's attention, and attention spent on a false alarm is not available for th
 
 ## Preview
 
-One banner, at `attention`, rather than a specimen sheet of all four levels — because the
-demo is distributed code and a row of four banners is the escalation budget being broken by
-the first thing anybody sees. The four levels are told apart on the
+The preview is one banner, at `attention`, rather than a specimen sheet of all four levels.
+The demo is distributed code and a row of four banners is the escalation budget being broken
+by the first thing anybody sees. The four levels are told apart on the
 [StatusPill](./status-pill.mdx) page, where the same four words and glyphs are the whole
 component and nothing is interrupted to show them.
 
 Two things here are worth checking rather than believing. Turn the text size up: the banner
 is a stacked column at every width, so it grows and the actions wrap onto their own lines
-instead of shrinking under the target floor. Then look at it in greyscale — the fill goes,
+instead of shrinking under the target floor. Then look at it in greyscale. The fill goes,
 and the word *Needs attention* is still the first thing in the heading, which is the whole
 reason the pill sits inside the heading rather than beside it.
 
@@ -87,7 +87,7 @@ import { AlertBanner } from "@/components/ui/alert-banner"
   use={[
     "Something has changed since the reader last looked, and they need to know before they carry on with what they came to do.",
     "A reading or a result has crossed a threshold the product defined, and there is a specific action attached to it.",
-    "A condition affects the whole screen rather than one item on it — data is out of date, a device has disconnected, a sync has not completed.",
+    "A condition affects the whole screen rather than one item on it, such as data that is out of date, a device that has disconnected, or a sync that has not completed.",
   ]}
   avoid={[
     { case: "The message is information the reader can take or leave, and nothing changes if they do not read it.", instead: "callout" },
@@ -108,8 +108,8 @@ with readers who scroll past both.
 ## Clinical meaning
 
 **What it asserts.** That the product has determined this screen needs the reader's
-attention at one of the four levels, and — for `attention` and `urgent` — that there is
-something specific to do about it. Nothing else. The component compares nothing, holds no
+attention at one of the four levels. At `attention` and `urgent` it also asserts that there
+is something specific to do about it. Nothing else. The component compares nothing, holds no
 threshold and has no rule that raises or lowers a level: `status` is assigned by the
 consuming product from a reference range or a clinically reviewed threshold that the product
 owns.
@@ -142,21 +142,21 @@ not at all, and nothing may mount a live region on a caller's behalf.
 | --- | --- | --- | --- |
 | **steady** | No role and no live region. Ordinary content in the reading order. | Optional | With `onAcknowledge` |
 | **watch** | The same. | Optional | With `onAcknowledge` |
-| **attention** | `aria-live="polite"` and `aria-atomic`. It waits for a gap. | Required — reported if missing | With `onAcknowledge` |
-| **urgent** | `role="alert"`, which carries assertive and atomic with it. It interrupts. | Required — reported if missing | With `onAcknowledge`, which is also the record |
+| **attention** | `aria-live="polite"` and `aria-atomic`. It waits for a gap. | Required, and reported if missing | With `onAcknowledge` |
+| **urgent** | `role="alert"`, which carries assertive and atomic with it. It interrupts. | Required, and reported if missing | With `onAcknowledge`, which is also the record |
 
 **Where an `urgent` banner stops, and the emergency path begins.** `urgent` means *this may
 need help today*, which is the same trigger
 [Emergency and escalation](../health/emergency-and-escalation.mdx) uses to enter a path with
-eight requirements — so a page that lists that doctrine has to say which of the two a given
-banner is. A banner may carry an `urgent` finding whose route is *contact a person today*.
-At that level it takes **one** action and not two: a second button is a decision, and this
-is the moment a person is least able to make one. The dismiss control stays, because on this
-path the acknowledgement is the record.
+eight requirements. A page that lists that doctrine therefore has to say which of the two a
+given banner is. A banner may carry an `urgent` finding whose route is *contact a person
+today*. At that level it takes **one** action and not two: a second button is a decision,
+and this is the moment a person is least able to make one. The dismiss control stays,
+because on this path the acknowledgement is the record.
 
 A finding whose route is *stop and call for help now* leaves the banner. That path suppresses
 every other thing on the screen, persists across a background and a relaunch, is redundant
-across channels, and records the acknowledgement with a timestamp — and this component does
+across channels, and records the acknowledgement with a timestamp. This component does
 none of those four. It cannot see the screen; it never removes itself but records nothing;
 and `onAcknowledge` takes no argument, so what it reports is that a press happened and not
 when. A banner used there is an emergency surface's job done badly, and opsinjs ships no
@@ -168,16 +168,16 @@ announcement at `steady` and `watch`; the table above gives those two levels no 
 at all, and the implementation follows the table. The rule is describing a status that
 changes on a surface the reader is already looking at; a banner is a surface that arrives,
 and a `steady` banner announcing itself is an interruption whose entire content is that
-nothing needs attention — the shape [Alarm fatigue](../health/alarm-fatigue.mdx) spends its
-length arguing against. The cost is real and lands on the use this page argues hardest for:
-a screen-reader user already on the page when a de-escalation banner appears is never told
-that the earlier alert has been withdrawn. If your product needs that sentence heard rather
-than seen, put it where the reader is going next.
+nothing needs attention. That is the shape [Alarm fatigue](../health/alarm-fatigue.mdx)
+spends its length arguing against. The cost is real and lands on the use this page argues
+hardest for: a screen-reader user already on the page when a de-escalation banner appears
+is never told that the earlier alert has been withdrawn. If your product needs that
+sentence heard rather than seen, put it where the reader is going next.
 
 **`steady` is legal, and it is the level to be careful with.** Its one honest use is
 de-escalation: saying that a condition the product raised earlier has stopped being true.
 A reader told on Tuesday that their device had stopped sending is owed the sentence that
-says it started again, and no other component delivers it — a Callout carries no level, so
+says it started again, and no other component delivers it. A Callout carries no level, so
 it cannot close one. What it is not is a place for a message that needs nothing. It still
 spends one of the two banners the screen is allowed, and a banner that can say *nothing
 needs attention* is a banner a product will reach for whenever it wants to be noticed.
@@ -186,33 +186,34 @@ needs attention* is a banner a product will reach for whenever it wants to be no
 banners in total. If the product's rules generate more, the product must merge them into one
 banner that names the most serious first. This is the central rule of
 [Alarm fatigue](../health/alarm-fatigue.mdx), which specifies that a screen mounting a
-second `urgent` banner "should fail loudly in development instead of rendering two" — and
-**the component does not do that**, which is a decision rather than an omission and a place
-where this page and its doctrine page disagree. A banner can only ever see itself. A counter in
-module scope counts renders rather than banners — it accumulates across requests in a warm
-server process and across route changes on the client — so it would report a screen that is
-correct, and a check that fires on correct code is a check somebody switches off within a
-day. The budget is a property of a screen, and the places it can honestly be enforced are a
-screen-level lint and a review. What the component does instead is report the mistakes one
-render can see: a missing action at `attention` or `urgent`, more than two actions, a
-`recommended` flag on an action that is not first, and a dismiss control with nothing to
-report to.
+second `urgent` banner "should fail loudly in development instead of rendering two".
+**The component does not do that**, which is a decision rather than an omission and a place
+where this page and its doctrine page disagree. A banner can only ever see itself. A counter
+in module scope counts renders rather than banners, because it accumulates across requests
+in a warm server process and across route changes on the client. It would therefore report a
+screen that is correct, and a check that fires on correct code is a check somebody switches
+off within a day. The budget is a property of a screen, and the places it can honestly be
+enforced are a screen-level lint and a review. What the component does instead is report the
+mistakes one render can see: a missing action at `attention` or `urgent`, more than two
+actions, a `recommended` flag on an action that is not first, and a dismiss control with
+nothing to report to.
 
 **Two notes on counting**, because this is the page a reader will come to for it. First, an
-`urgent` banner emits *two* elements carrying `data-status="urgent"` — the root, and the
-StatusPill inside its heading. OPSIN-0005's message is phrased as a count of surfaces, so a
-check written to that description has to count
+`urgent` banner emits *two* elements carrying `data-status="urgent"`. They are the root
+and the StatusPill inside its heading. OPSIN-0005's message is phrased as a count of
+surfaces, so a check written to that description has to count
 `[data-slot="alert-banner"][data-status="urgent"]` and the equivalent per-component slots
 rather than the bare attribute, or it reports two for one correct banner. Second, this page
 itself puts an `urgent` safety note above an `urgent` banner in the example further down.
 Every preview mounts in an iframe, so those are two documents rather than one screen and the
-budget does not formally apply across them — but they are visible together on one scroll,
-and saying so is better than quietly lowering one of them on the page that teaches the rule.
+budget does not formally apply across them. They are nevertheless visible together on one
+scroll, and saying so is better than quietly lowering one of them on the page that teaches
+the rule.
 
-**Urgency is never carried by motion.** No pulsing, no flashing, no shaking, no colour
-cycling — at any level, under any circumstances. The component ships no entrance transition
-at all, so there is nothing to remove under `prefers-reduced-motion` and nothing that has to
-be switched off to be safe. See [Motion in health UI](../health/motion-in-health-ui.mdx).
+**Urgency is never carried by motion, at any level, under any circumstances.** No pulsing,
+no flashing, no shaking, no colour cycling. The component ships no entrance transition at
+all, so there is nothing to remove under `prefers-reduced-motion` and nothing that has to be
+switched off to be safe. See [Motion in health UI](../health/motion-in-health-ui.mdx).
 
 <SafetyCallout severity="urgent" evidence="opinion">
 An `urgent` banner must never be the only place a serious message appears, and must never be
@@ -231,13 +232,13 @@ other half, which is whether the message still exists somewhere after the banner
     {
       name: "AlertBanner",
       describes:
-        "The root, and the only surface in opsinjs that takes a status fill. Carries data-status and the level's surface, ink and line roles, and the role that follows the level: role=\"alert\" with aria-atomic written out at urgent, aria-live=\"polite\" with aria-atomic at attention, nothing at steady and watch. Not focusable, and never focused — a banner does not move focus on appearance at any level.",
+        "The root, and the only surface in opsinjs that takes a status fill. Carries data-status and the level's surface, ink and line roles, and the role that follows the level: role=\"alert\" with aria-atomic written out at urgent, aria-live=\"polite\" with aria-atomic at attention, nothing at steady and watch. Not focusable, and never focused. A banner does not move focus on appearance at any level.",
       prop: "status",
     },
     {
       name: "AlertBanner.Heading",
       describes:
-        "A real h2 to h6, chosen by the caller because a component cannot know where it sits, and refused back to h2 with a warning when it is not one of the five. It opens with the level, then a comma that exists in the accessibility tree and not on the screen, then the caller's sentence in a span slotted alert-banner-heading-text — so heading navigation lands on all of it at once, as one punctuated phrase rather than two words run together.",
+        "A real h2 to h6, chosen by the caller because a component cannot know where it sits, and refused back to h2 with a warning when it is not one of the five. It opens with the level, then a comma that exists in the accessibility tree and not on the screen, then the caller's sentence in a span slotted alert-banner-heading-text. Heading navigation therefore lands on all of it at once, as one punctuated phrase rather than two words run together.",
       prop: "headingLevel",
     },
     {
@@ -267,7 +268,7 @@ other half, which is whether the message still exists somewhere after the banner
     {
       name: "AlertBanner.Dismiss",
       describes:
-        "The way out, last in the DOM and last on the screen rather than floated into a corner ahead of the message. Rendered only when dismissible and onAcknowledge are both supplied — at every level, not only at urgent, because this component never removes itself and a control with nowhere to report to changes nothing.",
+        "The way out, last in the DOM and last on the screen rather than floated into a corner ahead of the message. Rendered only when dismissible and onAcknowledge are both supplied. That requirement holds at every level and not only at urgent, because this component never removes itself and a control with nowhere to report to changes nothing.",
       prop: "dismissible",
     },
   ]}
@@ -289,7 +290,7 @@ other half, which is whether the message still exists somewhere after the banner
             {
               part: "StatusPill",
               cardinality: "1",
-              note: 'data-slot="status-pill", data-status="<level>" — the word and the glyph, from the composed component',
+              note: 'data-slot="status-pill", data-status="<level>". The word and the glyph come from the composed component',
             },
             {
               part: "AlertBanner.HeadingText",
@@ -311,7 +312,7 @@ other half, which is whether the message still exists somewhere after the banner
         {
           part: "AlertBanner.Actions",
           cardinality: "0..1",
-          note: 'data-slot="alert-banner-actions". Absent when no action survived — an action with no label, or with neither href nor onSelect, is refused and reported. At attention and urgent an absent Actions is the composition error, and it is reported too.',
+          note: 'data-slot="alert-banner-actions". Absent when no action survived. An action with no label, or with neither href nor onSelect, is refused and reported. At attention and urgent an absent Actions is the composition error, and it is reported too.',
           children: [
             {
               part: "AlertBanner.Action",
@@ -337,7 +338,7 @@ it, because there is no way to hand it one.
 
 Two departures from the proposed tree are worth naming. **`AlertBanner.Icon` does not
 exist**, and what stands in its place is a composed `StatusPill` carrying the word, the
-glyph, the colour and `data-status` together — the four carriers as one unit, from the
+glyph, the colour and `data-status` together. The four carriers arrive as one unit, from the
 component that owns them. **`AlertBanner.Dismiss` is last rather than first**: a dismiss
 floated into the top corner puts the way out ahead of the message in the reading order, for
 the reader least able to skip back. Nothing here is re-arranged by CSS against the DOM, so
@@ -346,7 +347,7 @@ the order announced is the order seen.
 **A part whose control is a composed `Button` carries its slot on the element around it**,
 and that is worth knowing before you write a selector. `Button` writes its own
 `data-slot="button"` after the props it was passed, so one handed down from here is
-replaced — which is correct of Button and inconvenient here. The wrapper is where
+replaced. That is correct of Button and inconvenient here. The wrapper is where
 `alert-banner-action` and `alert-banner-dismiss` live, so the DOM contract says the same
 thing whether the action was given an `href` or an `onSelect`. This is checked against
 rendered markup rather than reasoned from the source; the first version of this page
@@ -354,9 +355,9 @@ documented the slot on the control, and the control did not have it.
 
 The slots are for restyling, and one of them is not for hiding. `display: none` on
 `[data-slot="alert-banner-heading"]` takes the level's word out of the accessibility tree
-and leaves a coloured box — which is the status carried by colour alone, and the failure
-every rule on this page is arranged to prevent. No prop can do it; only a stylesheet can,
-and this is the page asking you not to.
+and leaves a coloured box. A coloured box on its own is the status carried by colour alone,
+and the failure every rule on this page is arranged to prevent. No prop can do it; only a
+stylesheet can, and this is the page asking you not to.
 
 ## Examples
 
@@ -364,7 +365,7 @@ and this is the page asking you not to.
 
 The budget drawn at the line rather than described: two banners on one surface, the more
 serious first, because a reader meets them in DOM order whether they are looking or
-listening. A third here would not be a busier screen — it would be a screen that has taught
+listening. A third here would not be a busier screen. It would be a screen that has taught
 its reader to scroll past the second one.
 
 <ComponentPreview name="alert-banner-two-is-the-ceiling" kind="example" align="start" />
@@ -372,14 +373,14 @@ its reader to scroll past the second one.
 ### An urgent banner is acknowledged, not dismissed
 
 `dismissible` on its own renders nothing at any level. The control needs an `onAcknowledge`
-to report to, and at `urgent` that callback is also the record — the thing that lets a
+to report to, and at `urgent` that callback is also the record. The record is what lets a
 product tell dismissal apart from understanding. What replaces the banner is the second half
 of the rule: the message is still on the screen after the interruption has gone.
 
 It carries **one** action, because its body says the clinic wants to hear from the reader
 today and that is the same-day case above. It also shows what the component cannot do
 anything about: acknowledging destroys the control the reader pressed, so focus falls to
-`<body>` — a keyboard user is returned to the top of the document and a listening reader's
+`<body>`. A keyboard user is returned to the top of the document and a listening reader's
 cursor is reset with nothing spoken, which is the worst possible moment to be sent away from
 the sentence that outlived the banner. The example leaves that unhandled on purpose so it is
 visible. A product that removes an acknowledged banner owns the recovery.
@@ -393,7 +394,7 @@ visible. A product that removes an acknowledged banner owns the recovery.
 ### `steady` is for de-escalation
 
 The one honest use of the quietest level: withdrawing an alert the product raised earlier.
-It carries no actions, and that is the level rather than an omission — actions are required
+It carries no actions, and that is the level rather than an omission. Actions are required
 where the banner asserts there is something to do, and this one asserts the opposite.
 
 <ComponentPreview
@@ -412,7 +413,7 @@ imperative and concrete.
 **The body's ordering is per level, and it is not one rule for all four.** At `steady` and
 `watch` it says what happened and then what it means for this reader: there is nothing
 specific to do at those levels, and an instruction first would invent one. At `attention`
-and `urgent` it opens with the instruction and then gives the finding —
+and `urgent` it opens with the instruction and then gives the finding.
 [Clinical status semantics](../health/clinical-status-semantics.mdx) asks for "direct and
 calm, action first" at `attention` and "action in the first line" at `urgent`, and
 [Emergency and escalation](../health/emergency-and-escalation.mdx) makes it the first of its
@@ -430,12 +431,12 @@ the reader to trust a rule they cannot look at. So one of the two actions reache
 where the reading and the range are both visible. The exception is the same-day `urgent`
 case, which is allowed one action and spends it on the route to a person; there the reading
 and its range are reachable from the screen the banner sits on rather than from the banner.
-Whose range it is is named in every case — an unowned band is the other half of the same
+Whose range it is is named in every case. An unowned band is the other half of the same
 rule.
 
 No exclamation marks, at any level. No capitals for emphasis. No *immediately*, *critical*,
 *danger*, *emergency* unless the product genuinely means the reader should stop and call for
-help, in which case say exactly that and give them the number for their country — opsinjs
+help, in which case say exactly that and give them the number for their country. opsinjs
 ships no emergency number, because it does not know where the reader is.
 
 <DoDont>
@@ -499,11 +500,10 @@ the glyph are the first things inside the heading.
 **Argued, and true of the implementation, but not yet measured:**
 
 - **The role follows the level**, exactly as the table under
-  [Clinical meaning](#clinical-meaning) sets out — with the `steady`/`watch` departure from
-  doctrine named there rather than here. Nobody has listened to it in a screen reader, and
-  the case that most needs testing is whether a real heading survives heading navigation
-  inside `role="alert"` — several screen readers flatten the semantics of an alert's
-  subtree.
+  [Clinical meaning](#clinical-meaning) sets out. The `steady`/`watch` departure from
+  doctrine is named there rather than here. Nobody has listened to it in a screen reader,
+  and the case that most needs testing is whether a real heading survives heading navigation
+  inside `role="alert"`. Several screen readers flatten the semantics of an alert's subtree.
 - **A banner that escalates in place is the untested half of that contract.** Everything
   above is about a banner arriving. A caller who re-renders the same `<AlertBanner>` with a
   higher `status` gets `role` and `aria-live` patched onto a DOM node the screen reader has
@@ -511,14 +511,14 @@ the glyph are the first things inside the heading.
   role afterwards commonly announces nothing. The
   [staged alert recipe](../recipes/staged-alert.mdx) escalates exactly this way, and
   [Screen readers](../accessibility/screen-readers.mdx) requires the escalation to
-  interrupt. Until somebody has listened to it, escalate by remounting — give the element a
-  `key` that contains the level — and the `status` prop doc says so where a caller will
-  read it.
+  interrupt. Until somebody has listened to it, escalate by remounting the element with a
+  `key` that contains the level, and the `status` prop doc says so where a caller will read
+  it.
 - **`role="alert"` at `urgent` wraps three interactive controls, and nobody has decided
   whether that is right.** A live region is announced as flattened text, so *Call your
   clinic* is spoken as prose with no role information and no way to act on it from the
   announcement; ARIA points at `alertdialog` where a message needs a response through
-  controls, and this component is deliberately not one — it traps no focus and moves none.
+  controls, and this component is deliberately not one. It traps no focus and moves none.
   What a reader is expected to do after the announcement is find the `h2`, and the root has
   no accessible name to help them get there. That is the honest answer today and it is
   written down rather than left to be discovered.
@@ -526,14 +526,14 @@ the glyph are the first things inside the heading.
   changes**, because the region is atomic. The likeliest thing to change is the timestamp,
   whose phrase is a function of `now`, and RelativeTime positively instructs a product to
   re-render with a fresh one. A screen that ticks `now` on a minute boundary therefore
-  interrupts a listening reader in full, once a minute, assertively at `urgent` — which is
-  a re-raise on a timer, and [Alarm fatigue](../health/alarm-fatigue.mdx) forbids exactly
+  interrupts a listening reader in full, once a minute, assertively at `urgent`. That is a
+  re-raise on a timer, and [Alarm fatigue](../health/alarm-fatigue.mdx) forbids exactly
   that. The constraint is stated on the `now` prop rather than enforced: hold `now` still
   while an `attention` or `urgent` banner is mounted. Excluding the timestamp from the
   region is the other repair and it has not been done, because it would be a claim about
   assistive-technology behaviour that nobody here has verified.
 - **The dismiss control's accessible name repeats the heading, so inside an atomic region
-  the heading is spoken twice** — once opening the announcement and once closing it, after
+  the heading is spoken twice**. The heading opens the announcement and closes it, after
   the actions. It is the right call for a control met out of context in a list of buttons
   and the wrong one inside a single announcement, and the component cannot have it both
   ways: hiding the suffix from the region while keeping it on the control needs a generated
@@ -542,8 +542,8 @@ the glyph are the first things inside the heading.
 - **A banner present on load is not announced as a change**, and this component implements
   none of that. Screen readers do not announce live regions that were in the document at
   load; they announce what arrives afterwards. The behaviour is inherited rather than
-  written, and the alternative — mounting the role after a frame — moves an announcement
-  decision into a timer.
+  written, and the alternative is to mount the role after a frame, which moves an
+  announcement decision into a timer.
 - **The level's word is in the heading**, structurally, because the pill is the heading's
   first child rather than a string the caller was asked to include.
 - **The heading is a real heading**, at whichever of `h2` to `h6` the caller says. There is
@@ -564,8 +564,8 @@ the glyph are the first things inside the heading.
   rather than pinning at 44 CSS pixels while the label doubles, and the actions sit
   `--opsin-target-separation` apart. Reasoned from the CSS; measuring it in a browser is the
   nightly layout job's, and that job has not run against this component.
-- **Reading order is the DOM order** — heading, body, timestamp, actions, dismiss — and
-  nothing is re-arranged by CSS against it.
+- **Reading order is the DOM order**, and nothing is re-arranged by CSS against it. That
+  order is heading, body, timestamp, actions, dismiss.
 - **At 200% text the banner grows.** It is a stacked column at every width with no fixed
   height and no overflow container, the actions wrap onto their own lines rather than
   shrinking, and a long unbreakable token in the body breaks instead of widening the page.
@@ -580,9 +580,9 @@ the glyph are the first things inside the heading.
 - The pairs on the banner's own fill **are** measured, in both themes, for all four levels:
   `<level> ink on <level> surface` at the body floor, which is the heading and the body, and
   `<level> line on <level> surface` at the non-text floor, which is the boundary. All of
-  them pass. The pill's own fill against the banner's is the same pair — both take the same
-  level's `-surface` role, so what separates them is the pill's `-line` — and it is measured
-  too. The figures are published and dated at
+  them pass. The pill's own fill against the banner's is the same pair. Both take the same
+  level's `-surface` role, so what separates them is the pill's `-line`, and that pair is
+  measured too. The figures are published and dated at
   [Contrast](../reference/generated/contrast.mdx); this page does not restate them, because
   a contrast number that a person typed is a number that drifts from the one the gate
   computes. An earlier version of this page said none of them had been measured. That was a
@@ -607,8 +607,8 @@ the glyph are the first things inside the heading.
   banner renders no Surface, so nothing drawn here moves under the mode. The
   increased-contrast half of the requirement therefore cannot currently be met by anyone.
 - The root has no accessible name and is therefore not a landmark. A screen-reader user gets
-  the heading and no boundary — no start, no end, and no announcement of where the banner
-  stops.
+  the heading and no boundary. There is no start, no end, and no announcement of where the
+  banner stops.
 
 The `<ContrastReport>` below is empty, and **not for any of those reasons**. It is a client
 component whose `pairs` prop is never supplied from MDX, so it renders `<NoDataYet>` on
@@ -661,8 +661,8 @@ wired to it yet, never as evidence of a gap.
 absence of an assertion rather than a fifth level, and an interruption with no level is an
 interruption with no meaning. A JavaScript caller passing something outside the four gets
 OPSIN-0021, `unknown` gets OPSIN-0011, and in both cases **nothing is rendered**. That
-refusal costs more here than it does on a pill — the product's message does not reach the
-reader — and it is still the right way round. Rendering the message on a neutral surface
+refusal costs more here than it does on a pill, because the product's message does not reach
+the reader. It is still the right way round. Rendering the message on a neutral surface
 would move a clinical statement onto a component with no level, no budget and no reviewer;
 rendering a plausible level would be this component inventing a verdict about somebody's
 health.
@@ -670,18 +670,18 @@ health.
 Five props are additions to the original specification, and they are named here rather than
 slipped in. **`headingLevel`** exists because "a real heading at the right level for its
 position" is not something a component can know; it defaults to `h2` and the caller is the
-only one who can be right. A value outside `2` to `6` — the `null` a CMS-driven caller
-passes to mean "no override", or the `1` somebody reaches for after reading that there is no
-`h1` — falls back to `h2` and is reported. The type does not save you here: this file ships
-as source into JavaScript projects, the tag map returns `undefined` for anything else, and
-`undefined` in element position is a render error that takes the whole screen down rather
+only one who can be right. A value outside `2` to `6` falls back to `h2` and is reported. Such
+a value is the `null` a CMS-driven caller passes to mean "no override", or the `1` somebody
+reaches for after reading that there is no `h1`. The type does not save you here: this file
+ships as source into JavaScript projects, the tag map returns `undefined` for anything else,
+and `undefined` in element position is a render error that takes the whole screen down rather
 than a heading at the wrong depth. A wrong outline is recoverable; a throw is not. **`now`** exists because
 [RelativeTime](./relative-time.mdx) requires it: a component that read the clock itself
 would be impure and would give two timestamps on one screen different answers across a
 minute boundary. **`dismissLabel`** is the override for the one word this component owns.
 **`locale`** reaches the timestamp, which is the only formatted thing on the surface.
 **`className`** is the merge point every component in the system carries, and it is the one
-way a caller can still hide what this one insists on — see the accessibility section.
+way a caller can still hide what this one insists on. See the accessibility section.
 
 `heading` changed meaning. The specification required it to contain the level's word; the
 implementation renders that word itself, so the heading names the subject and nothing else.
@@ -691,18 +691,19 @@ subject is more useful than nothing at all.
 `actions` is capped at two by the specification and by nothing in the type. Passing three
 renders three and reports it: which one to drop is the product's decision, and silently
 dropping the third would hide an action somebody wrote. A value that is not an array at all
-is treated as none and reported, for the same reason `headingLevel` is guarded — `.map` on
-it throws, and a throw on this surface removes the screen the message was on. `recommended` is honoured only on
-the first action — emphasis follows position, because a screen-reader user meets the actions
-in DOM order and the recommended one has to be the one they meet first.
+is treated as none and reported, for the same reason `headingLevel` is guarded. Calling
+`.map` on it throws, and a throw on this surface removes the screen the message was on.
+`recommended` is honoured only on the first action. Emphasis follows position, because a
+screen-reader user meets the actions in DOM order and the recommended one has to be the one
+they meet first.
 
 `dismissible` needs `onAcknowledge` at **every** level, not only at `urgent`. The
-specification made acknowledgement a condition of urgency, and the reason it gave — the
-product cannot tell dismissal apart from understanding — is not a property of urgency. It is
-a property of this component never removing itself: the caller decides what is on screen, so
-a dismiss control with no callback would acknowledge a press and change nothing. What is
-different at `urgent` is what the callback is for: a record, rather than a remembered
-preference.
+specification made acknowledgement a condition of urgency, and the reason it gave was that
+the product cannot tell dismissal apart from understanding. That reason is not a property of
+urgency. It is a property of this component never removing itself: the caller decides what is
+on screen, so a dismiss control with no callback would acknowledge a press and change
+nothing. What is different at `urgent` is what the callback is for: a record, rather than a
+remembered preference.
 
 `AlertAction` is exported alongside the props interface. The generator only emits a table for
 interfaces named `<Pascal>Props`, so there is no generated one for it; this is the shipped
@@ -732,15 +733,17 @@ the distinction between the two is a record the product keeps rather than two co
 
 **Easily confused with**
 
-- [Callout](./callout.mdx) — information that carries no clinical level and interrupts
+- [Callout](./callout.mdx) covers information that carries no clinical level and interrupts
   nothing. The most commonly mistaken pair in the system.
-- [CareCard](./care-card.mdx) — the instruction itself, with steps and timing. A banner
+- [CareCard](./care-card.mdx) is the instruction itself, with steps and timing. A banner
   announces; a card instructs.
-- [StatusPill](./status-pill.mdx) — the same vocabulary attached to one item rather than to
+- [StatusPill](./status-pill.mdx) is the same vocabulary attached to one item rather than to
   the screen. A banner composes one; the two are not alternatives.
-- `toast` (considered, no page yet — see the [roster](./index.mdx)) — transient
-  confirmation. Nothing clinical belongs in something that disappears on a timer.
-- [Dialog](./dialog.mdx) — when the reader genuinely cannot continue until they respond.
+- `toast` is transient confirmation. It is considered and has no page yet, so the
+  [roster](./index.mdx) is where it is listed. Nothing clinical belongs in something that
+  disappears on a timer.
+- [Dialog](./dialog.mdx) is what to use when the reader genuinely cannot continue until they
+  respond.
 
 **Used by**
 
@@ -756,6 +759,6 @@ the distinction between the two is a record the product keeps rather than two co
 - [Motion in health UI](../health/motion-in-health-ui.mdx)
 - [Emergency and escalation](../health/emergency-and-escalation.mdx)
 - [Notifications and off-screen alerts](../health/notifications-and-off-screen-alerts.mdx)
-- [Crisis and self-harm](../health/crisis-and-self-harm.mdx) — which names this component in
-  its own `implements` and forbids its visual language for a disclosure
+- [Crisis and self-harm](../health/crisis-and-self-harm.mdx) names this component in its own
+  `implements` and forbids its visual language for a disclosure.
 - [Delivering difficult results](../health/delivering-difficult-results.mdx)

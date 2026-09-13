@@ -1,6 +1,6 @@
 /**
- * RelativeTime — when something happened, in the words a person would use, with
- * the exact instant never more than one element away.
+ * RelativeTime shows when something happened, in the words a person would use,
+ * with the exact instant never more than one element away.
  *
  * IT SHIPS NO STALENESS DEFAULT. That is not an omission, it is the component.
  * What counts as old is a property of the measurement and of the person it
@@ -21,14 +21,15 @@
  *
  * IT IS A SERVER COMPONENT, IT DOES NOT TICK, AND IT NEVER READS THE CLOCK.
  * All three follow from one decision. A relative phrase recomputed in the
- * browser produces a hydration mismatch by construction — the server's
+ * browser produces a hydration mismatch by construction. The server's
  * "3 minutes ago" and the client's are two different sentences about one
- * instant — and the usual repairs are worse than the defect:
+ * instant, and the usual repairs are worse than the defect:
  * `suppressHydrationWarning` keeps the SERVER's text and discards the client's
  * more correct one, and a `setInterval` per timestamp rewrites a health surface
  * silently, in a component the specification forbids from being a live region.
  * So there is no `"use client"` here, no hook, no timer and no `typeof window`
- * branch — and no `Date.now()` either, which is why `now` is a required prop.
+ * branch. There is no `Date.now()` either, which is why `now` is a required
+ * prop.
  *
  * That last part is not fastidiousness. `Date.now()` in a render body is an
  * impure call, this repository's lint says so on every commit, and the impurity
@@ -36,9 +37,9 @@
  * twenty times and can straddle a minute boundary halfway down, and a component
  * whose output depends on when React happened to call it cannot be compared
  * with itself between two renders. Taking `now` from the caller puts the one
- * impure read where it belongs — once per screen, in the page that is already
- * rendering at a known instant — and makes every timestamp on that screen agree
- * with every other.
+ * impure read where it belongs, which is once per screen, in the page that is
+ * already rendering at a known instant. That makes every timestamp on that
+ * screen agree with every other.
  *
  * The honest consequence, stated here because it is stated on the page: a
  * surface left open for an hour still shows the phrase it was rendered with.
@@ -53,8 +54,8 @@
  *
  * IT DERIVES NOTHING ABOUT THE READING ITSELF. It does not know what was
  * measured, it never colours from either axis, and the stale treatment is a
- * muted typographic change plus explicit words — never an amber tint, which
- * would put a clinical status onto a fact about the clock.
+ * muted typographic change plus explicit words. It is never an amber tint,
+ * which would put a clinical status onto a fact about the clock.
  */
 
 import { isDevelopment } from "@/lib/opsinjs"
@@ -64,8 +65,8 @@ import { cn } from "@/lib/utils"
  * Which event the time refers to.
  *
  * Required on every render, because "3 days ago" on its own is a fragment the
- * reader completes with whichever assumption is most convenient — and the
- * assumption they reach for is the most reassuring one. The distinction between
+ * reader completes with whichever assumption is most convenient. The assumption
+ * they reach for is the most reassuring one. The distinction between
  * `measured` and `synced` is the most consequential error in health dashboards:
  * *Synced 2 minutes ago* over a reading taken four months ago is two true
  * statements that together mislead completely.
@@ -77,7 +78,7 @@ export type TimeEvent = "measured" | "recorded" | "received" | "synced" | "issue
  *
  * `Record<TimeEvent, string>` on purpose: adding a member to the union without
  * writing its word is a compile error rather than a timestamp that renders with
- * no prefix. The five words are English and are not translated by `locale` —
+ * no prefix. The five words are English and are not translated by `locale`.
  * `locale` governs numbers and dates, which are the parts Intl owns. That gap
  * is named on the page rather than papered over with a prop that would also let
  * a caller relabel `synced` as *updated*, which is the error above with a
@@ -113,8 +114,8 @@ const DAY_MS = 86_400_000
  * component is equally certain about either way; it says nothing about whether
  * the reading can still be relied on, it never adds or removes the staleness
  * note, and moving it cannot change a verdict. A fortnight is where the
- * specification puts the boundary — past it, "437 days ago" is arithmetic
- * nobody should be asked to do — and `absoluteAfterDays` moves it.
+ * specification puts the boundary, because past it "437 days ago" is arithmetic
+ * nobody should be asked to do. `absoluteAfterDays` moves it.
  */
 const DEFAULT_ABSOLUTE_AFTER_DAYS = 14
 
@@ -152,10 +153,10 @@ interface Instant {
  * is keyed to `tokens/errors.json`, which has no code for a malformed
  * timestamp: the twenty-one codes are about colour axes, ranges, thresholds and
  * status levels. The nearest of them, OPSIN-0016, is about a reading rendered
- * with NO staleness treatment — which is the one outcome the branches below are
- * written to avoid — so it is the wrong complaint rather than an approximate
+ * with NO staleness treatment, which is the one outcome the branches below are
+ * written to avoid. So it is the wrong complaint rather than an approximate
  * one. Adding OPSIN-0022 is a `tokens/errors.json` change and belongs in the
- * same commit as a generator run, which this file may not do — so this is the
+ * same commit as a generator run, which this file may not do. So this is the
  * same discipline in the same shape, bounded and development-only, and it
  * collapses back into `warnOnce()` the day the code exists.
  */
@@ -303,10 +304,10 @@ function usableLocale(locale: string | undefined): string | undefined {
  * Stated unconditionally, which is a deliberate departure from
  * content/numbers-dates-and-time, whose rule is to name the zone only when it
  * can differ from the reader's. Whether it differs is a fact about the reader's
- * browser, and this component does not run there. Of the two forms that are
- * available to it — always say it, or never say it — only one is never wrong,
- * and a reading taken abroad rendered as if it were local is exactly the case
- * the specification's own accessibility bullet is about.
+ * browser, and this component does not run there. The two forms available to it
+ * are to always say it, or to never say it. Only one is never wrong, and a
+ * reading taken abroad rendered as if it were local is exactly the case the
+ * specification's own accessibility bullet is about.
  */
 function offsetLabel(offsetMinutes: number): string {
   if (offsetMinutes === 0) return "UTC"
@@ -354,7 +355,7 @@ function absoluteForm(instant: Instant, locale: string | undefined): string {
  * minute floor rounds UP to 1, so a reading thirty seconds old reads "1 minute
  * ago". Rounding down means the phrase can understate an age by up to one unit,
  * which is why the staleness verdict is computed from the exact elapsed time
- * rather than from the phrase — a reading can read "13 days ago" and still carry
+ * rather than from the phrase. A reading can read "13 days ago" and still carry
  * the note, and no rung can make a stale reading look fresh. The floor is the
  * one place the phrase overstates, which is the harmless direction, and it
  * exists for the reason it is a floor: the specification forbids *just now* for
@@ -391,9 +392,9 @@ function relativePhrase(
 
 export interface RelativeTimeProps {
   /**
-   * ISO 8601 with an offset — `2026-03-14T08:12:00+01:00`. A timestamp with no
-   * offset is not a timestamp: it is parsed in whichever zone the code happens
-   * to be running in, and it is refused rather than guessed at.
+   * ISO 8601 with an offset, as in `2026-03-14T08:12:00+01:00`. A timestamp
+   * with no offset is not a timestamp: it is parsed in whichever zone the code
+   * happens to be running in, and it is refused rather than guessed at.
    */
   at: string
   /**
@@ -407,7 +408,7 @@ export interface RelativeTimeProps {
    * Required, because a component that read the clock itself would be impure,
    * would read it once per timestamp rather than once per screen, and would
    * make a page of readings disagree with itself across a minute boundary. Read
-   * it once where the screen is rendered — `new Date().toISOString()` — and
+   * it once where the screen is rendered. Use `new Date().toISOString()` and
    * pass the same value to every timestamp on it.
    */
   now: string
@@ -416,8 +417,8 @@ export interface RelativeTimeProps {
    * Supplied by the product, because what counts as old is clinical and differs
    * completely by measurement. There is no default: omit it and there is no
    * stale treatment at all, which is the honest output when nobody has said
-   * what stale means here. Supply it and the timestamp always says something —
-   * past the boundary it carries the words, and where the age could not be
+   * what stale means here. Supply it and the timestamp always says something.
+   * Past the boundary it carries the words, and where the age could not be
    * checked at all it carries the same words rather than falling silent.
    */
   staleAfterHours?: number
@@ -425,21 +426,21 @@ export interface RelativeTimeProps {
    * Days after which the absolute date replaces the relative phrase. Defaults
    * to a fortnight, which is a legibility boundary and not a clinical one: past
    * it, "437 days ago" is arithmetic nobody should be asked to do. It never
-   * adds, removes or moves the staleness note. `0` is a first-class value and
-   * means the phrase is never used — the date is rendered on its own at every
-   * age — rather than an error to be replaced by the default.
+   * adds, removes or moves the staleness note. `0` is a first-class value. It
+   * means the phrase is never used and the date is rendered on its own at every
+   * age, rather than an error to be replaced by the default.
    */
   absoluteAfterDays?: number
   /**
    * Puts the absolute date and time on screen beside the phrase. It is in the
-   * accessibility tree and in print either way — this prop decides whether a
+   * accessibility tree and in print either way. This prop decides whether a
    * sighted reader sees it without asking, which on anything durable or
    * consequential they should.
    */
   showAbsolute?: boolean
   /**
    * BCP 47 language tag for the date and the phrase. It does not translate the
-   * event word — those five are English, and the gap is documented rather than
+   * event word. Those five are English, and the gap is documented rather than
    * hidden behind a prop that would also let a caller relabel `synced`.
    */
   locale?: string
@@ -448,7 +449,7 @@ export interface RelativeTimeProps {
    * here wins: a type size or a colour set on the caller's side displaces the
    * component's own. The one thing it cannot displace is the muted stale
    * treatment, which is addressed at the parts rather than at the root for
-   * exactly that reason — see the class list on the root below.
+   * exactly that reason. See the class list on the root below.
    */
   className?: string
 }
@@ -469,7 +470,7 @@ export function RelativeTime({
      draw: an instant it cannot locate, or an event it cannot name. Rendering a
      plausible-looking timestamp from either would attach a time to a reading
      that the product never asserted, which is the whole failure this component
-     exists to prevent — so it renders nothing and says why. */
+     exists to prevent. So it renders nothing and says why. */
   const instant = parseInstant(at)
   if (instant === null) {
     report(
@@ -499,7 +500,7 @@ export function RelativeTime({
      TypeScript caller cannot reach this branch; a JavaScript one can, and the
      degradation is the safest output available rather than an approximation.
      The exact date and time are still rendered, in view rather than only in the
-     accessibility tree — a dated timestamp is never wrong, where "3 days ago"
+     accessibility tree. A dated timestamp is never wrong, where "3 days ago"
      measured against a clock nobody named would be a guess wearing a fact's
      clothes. */
   const reference = parseInstant(now)
@@ -509,8 +510,8 @@ export function RelativeTime({
         "there was nothing to measure the age against: the exact date was " +
         "rendered with no relative phrase, and a threshold supplied alongside it " +
         "renders its hedge rather than a verdict. Read the clock once where the " +
-        "screen is rendered — " +
-        "`new Date().toISOString()` — and pass the same value to every timestamp " +
+        "screen is rendered. Use " +
+        "`new Date().toISOString()` and pass the same value to every timestamp " +
         "on it.",
     )
   }
@@ -532,7 +533,7 @@ export function RelativeTime({
 
   /* A TIMESTAMP IN THE FUTURE IS A CLOCK DISAGREEMENT, AND IT IS THE ONE
      REFUSAL HERE THAT USED TO BE SILENT. The phrase is dropped and the date is
-     rendered on its own — see relativePhrase() — because every one of the five
+     rendered on its own by relativePhrase(), because every one of the five
      events is something that has already happened. Device and server clock skew
      is the commonest real cause of a wrong health timestamp, so it earns the
      same paragraph as a malformed string rather than none at all. */
@@ -540,9 +541,9 @@ export function RelativeTime({
     report(
       `\`at="${at}"\` is later than \`now="${String(now)}"\`, so this reading is ` +
         "timestamped in the future. No relative phrase was rendered and the exact " +
-        "date was rendered on its own. Two clocks disagreeing — a device set " +
-        "wrong, or a timestamp written with the wrong offset — is the usual " +
-        "cause, and it is worth finding before the reading is filed under the " +
+        "date was rendered on its own. The usual cause is two clocks " +
+        "disagreeing: a device set wrong, or a timestamp written with the wrong " +
+        "offset. It is worth finding before the reading is filed under the " +
         "wrong day.",
     )
   }
@@ -555,7 +556,7 @@ export function RelativeTime({
 
      AND A SUPPLIED THRESHOLD ALWAYS PRODUCES WORDS. There are three answers,
      not two: the reading is inside the boundary, it is past it, or the question
-     could not be answered at all — and the third renders the same hedged words
+     could not be answered at all. The third renders the same hedged words
      as the second rather than rendering nothing. *may be out of date* is
      already the sentence for a component that cannot vouch for a reading's age,
      so it is the honest output when the age could not be checked. Silence is
@@ -572,7 +573,7 @@ export function RelativeTime({
       report(
         `\`staleAfterHours={${String(staleAfterHours)}}\` is not a number of hours, ` +
           "so the age could not be checked against it and the timestamp carries " +
-          "the same words it would carry past a threshold. Pass a number — a " +
+          "the same words it would carry past a threshold. Pass a number. A " +
           "threshold arriving as a string from a settings row or a JSON column is " +
           "the usual cause. A threshold that silently does nothing is worse than " +
           "no threshold: the product believes it asked for one.",
@@ -603,7 +604,7 @@ export function RelativeTime({
            timestamp sits inside somebody else's sentence or under somebody
            else's value, and it inherits both. `tabular-nums` is the one
            typographic opinion, so a column of times lines up on its digits.
-           `data-opsinjs-value` is deliberately NOT used — that attribute marks
+           `data-opsinjs-value` is deliberately NOT used. That attribute marks
            a measurement a person reads as their own, and an instant is not
            one. */
         "tabular-nums",
@@ -640,8 +641,8 @@ export function RelativeTime({
           anyone who cannot see the surrounding context; and on paper always,
           because a printed page saying "3 days ago" has no date on it at all.
           The connective is a word rather than the separator character, so the
-          announcement is one phrase — "Measured 3 days ago, on 14 March 2026 at
-          08:12 UTC" — and not a list of fragments. */}
+          announcement is one phrase and not a list of fragments. It reads
+          "Measured 3 days ago, on 14 March 2026 at 08:12 UTC". */}
       <span
         data-slot="relative-time-absolute"
         className={cn(phrase !== null && !showAbsolute && "sr-only print:not-sr-only")}
@@ -685,16 +686,16 @@ const DEMO_NOW = "2026-03-14T11:12:00+00:00"
  *
  * `/view` renders this with no props and `shadcn add` ships it, so it is public,
  * reviewed code rather than a scratch demo. It walks the four rungs of the
- * ladder in one column — minutes, hours, days, and the date that replaces the
- * phrase — because the thing worth seeing about this component is that the
- * phrase gets vaguer as the event gets older, on purpose.
+ * ladder in one column: minutes, hours, days, and the date that replaces the
+ * phrase. It does this because the thing worth seeing about this component is
+ * that the phrase gets vaguer as the event gets older, on purpose.
  *
  * NO ROW CARRIES A STALENESS THRESHOLD, so no row says anything about
  * staleness. A number here would be a staleness default shipped verbatim into
  * every repository that runs `shadcn add`, which ADR 0012 forbids outright and
  * which no disclaimer in a comment undoes: the number is the part that gets
  * copied, and a reader who never opens the comment has still read the number.
- * The cost is real and is stated rather than hidden — the one visual state this
+ * The cost is real and is stated rather than hidden. The one visual state this
  * component has is demonstrated by no preview opsinjs ships, and the
  * specification page says so in the same words.
  *

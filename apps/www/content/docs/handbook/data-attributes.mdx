@@ -1,6 +1,6 @@
 ---
 title: Data attributes
-description: The shared state-attribute vocabulary — where it comes from, which attributes are Base UI's and which are opsinjs's, and why it is a versioned contract rather than an implementation detail.
+description: The shared state-attribute vocabulary. This page says where it comes from, which attributes are Base UI's and which are opsinjs's, and why it is a versioned contract rather than an implementation detail.
 status: planned
 kind: handbook
 aliases: [data-open, data-status, data-starting-style, state attributes, styling state]
@@ -24,8 +24,8 @@ so styling a state needs no JavaScript:
 ```
 
 Two families of attributes exist and they come from different places. **Base UI
-publishes the interaction state** — open, closed, disabled, the animation
-lifecycle. **opsinjs publishes the semantic state** — clinical status, category,
+publishes the interaction state**: open, closed, disabled, and the animation
+lifecycle. **opsinjs publishes the semantic state**: clinical status, category,
 and data state. The complete generated list is in
 [Reference → Data attributes](../reference/generated/data-attributes.mdx).
 
@@ -49,7 +49,7 @@ The ones you will use constantly:
 | `data-ending-style` | While the part is leaving, before it unmounts |
 
 `data-starting-style` and `data-ending-style` are what make enter and exit
-transitions work without an animation library — you style the from-state and the
+transitions work without an animation library. You style the from-state and the
 to-state, and the element stays mounted long enough for the exit to run. See
 [Motion in practice](./motion-in-practice.mdx).
 
@@ -102,7 +102,7 @@ rule](../health/two-colour-axes.mdx) expressed in the DOM, and it is what the
   renders these as empty attributes.
 - **`data-starting-style` lasts one frame.** You cannot inspect it comfortably
   in devtools, which is why enter transitions look "broken" when they are
-  actually working — see [Motion in practice](./motion-in-practice.mdx).
+  actually working. See [Motion in practice](./motion-in-practice.mdx).
 - **`data-ending-style` requires the element to still be mounted.** If you
   unmount on close yourself, the exit transition never runs and no error is
   reported.
@@ -110,16 +110,16 @@ rule](../health/two-colour-axes.mdx) expressed in the DOM, and it is what the
   escaping.** `data-[status=urgent]:bg-…` works; quoting inside the arbitrary
   variant frequently does not.
 - **Server-rendered markup carries these attributes too**, which is what makes
-  them safe to style with pure CSS — but it also means an incorrect status is
-  visible in view-source. Do not put anything in an attribute you would not put
-  on screen.
+  them safe to style with pure CSS. It also means, though, that an incorrect
+  status is visible in view-source. Do not put anything in an attribute you
+  would not put on screen.
 
 ## Related
 
-- [Styling](./styling.mdx) — the four hooks, of which this is the second.
-- [Reference → Data attributes](../reference/generated/data-attributes.mdx) —
+- [Styling](./styling.mdx) has the four hooks, of which this is the second.
+- [Reference → Data attributes](../reference/generated/data-attributes.mdx) is
   the generated, complete list.
-- [Clinical status semantics](../health/clinical-status-semantics.mdx) — what
+- [Clinical status semantics](../health/clinical-status-semantics.mdx) says what
   each `data-status` value is allowed to mean.
-- [Data states](../foundations/data-states.mdx) — the five values `data-state`
+- [Data states](../foundations/data-states.mdx) has the five values `data-state`
   can take and what each obliges the surface to show.

@@ -10,7 +10,7 @@ import { docs } from "@/.source/server"
  *
  * THE ICON HANDLER IS NOT OPTIONAL. Without it, a page or a meta.json with an
  * `icon` in its frontmatter renders the literal string "Sparkles" in the
- * sidebar instead of an icon — fumadocs passes the frontmatter value through
+ * sidebar instead of an icon. Fumadocs passes the frontmatter value through
  * untouched unless a handler turns it into a node. It fails silently and it
  * fails everywhere at once.
  *
@@ -21,7 +21,7 @@ import { docs } from "@/.source/server"
  * this file imports DOCS_BASE rather than repeating it.
  *
  * NO i18n. `loader()` accepts an `i18n` config and opsinjs deliberately does
- * not pass one — see /docs/project/decisions/0005-no-lang-segment-yet. The
+ * not pass one. See /docs/project/decisions/0005-no-lang-segment-yet. The
  * retrofit is a config object here plus a locale segment in `docsPath()`, and
  * nothing else, which is the whole reason path construction is centralised.
  */

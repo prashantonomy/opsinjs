@@ -3,12 +3,13 @@
  *
  * READ THIS BEFORE ADDING ANYTHING: this file contains NO colour mathematics.
  *
- * Every measured number on this site — APCA Lc, WCAG 2.2 ratios, gamut
- * boundaries, the derived role assignments — comes from the hand-written
- * implementations in `lib/color/**`, reached from the browser through
- * `POST /api/contrast` and from the build through `scripts/check-contrast.mts`.
- * That is deliberate: two implementations of APCA would eventually disagree,
- * and the one on the marketing page would be the one nobody regression-tests.
+ * The measured numbers on this site are APCA Lc, WCAG 2.2 ratios, gamut
+ * boundaries and the derived role assignments. Every one of them comes from the
+ * hand-written implementations in `lib/color/**`, reached from the browser
+ * through `POST /api/contrast` and from the build through
+ * `scripts/check-contrast.mts`. That is deliberate: two implementations of APCA
+ * would eventually disagree, and the one on the marketing page would be the one
+ * nobody regression-tests.
  *
  * What lives here instead is delegation to the browser's own colour engine for
  * things the browser is authoritative about: resolving a custom property to the
@@ -31,7 +32,7 @@ export function readCustomProperty(
  *
  * This uses the 2D canvas colour parser, which clamps to sRGB. For a wide-gamut
  * OKLCH token that is a lossy answer and the UI says so rather than presenting
- * the hex as equivalent — the whole point of the colour engine is that P3 exists
+ * the hex as equivalent. The whole point of the colour engine is that P3 exists
  * and sRGB is the fallback, so a page that quietly hands you the clamp is
  * teaching the wrong lesson.
  *
@@ -118,9 +119,10 @@ export const colorFormatLabels: Record<ColorFormat, string> = {
 /**
  * The copyable string for one token in one format.
  *
- * `authored` is whatever the token layer actually declares — today an `oklch()`
- * triple, tomorrow whatever `build-tokens.mts` emits. It is read live rather
- * than mirrored here so this file can never be the thing that goes stale.
+ * `authored` is whatever the token layer actually declares. Today that is an
+ * `oklch()` triple, and tomorrow it is whatever `build-tokens.mts` emits. It is
+ * read live rather than mirrored here so this file can never be the thing that
+ * goes stale.
  */
 export function formatColor(
   format: ColorFormat,

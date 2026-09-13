@@ -15,7 +15,7 @@ this repository *consumes* them; it is not how they are *defined*. That means a
 project using vanilla CSS, CSS Modules, Sass, Lightning CSS or a
 CSS-in-JS runtime can use the token system without adopting Tailwind at all, and
 without giving up dark mode, the Display-P3 escalation or the reduced-motion
-degradation — because all three are expressed as plain CSS.
+degradation. All three are expressed as plain CSS.
 
 What you give up is the utility classes. That is the whole difference.
 
@@ -45,22 +45,22 @@ Two conventions coexist, on purpose, and knowing which is which tells you
 whether you are allowed to set a value.
 
 ```
---<role>                          tier 2 — set these
---<role>-foreground               tier 2 — the text that sits on that role
+--<role>                          tier 2 roles you set
+--<role>-foreground               tier 2 text that sits on that role
 
---opsin-<axis>-<name>-<slot>      tier 1 — read these
---opsin-<system>-<step>-<slot>    tier 1 — read these
+--opsin-<axis>-<name>-<slot>      tier 1 values you read
+--opsin-<system>-<step>-<slot>    tier 1 values you read
 ```
 
 Concretely:
 
 | Pattern | Example | Meaning |
 | --- | --- | --- |
-| `--background` / `--foreground` | — | The page surface and its default text |
-| `--card` / `--card-foreground` | — | An elevated surface and its text |
-| `--muted` / `--muted-foreground` | — | A quiet surface and lower-emphasis text |
-| `--border`, `--input`, `--ring` | — | Separators, control edges, focus rings |
-| `--radius`, `--spacing` | — | The one value each derived scale is built from |
+| `--background` / `--foreground` | No single example | The page surface and its default text |
+| `--card` / `--card-foreground` | No single example | An elevated surface and its text |
+| `--muted` / `--muted-foreground` | No single example | A quiet surface and lower-emphasis text |
+| `--border`, `--input`, `--ring` | No single example | Separators, control edges, focus rings |
+| `--radius`, `--spacing` | No single example | The one value each derived scale is built from |
 | `--opsin-status-<level>-<slot>` | `--opsin-status-watch-ink` | Status ramp; slots are `surface`, `line`, `ink` |
 | `--opsin-category-<name>-<slot>` | `--opsin-category-sleep-accent` | Category ramp; slots are `accent`, `surface`, `ink` |
 | `--opsin-material-<rung>-<slot>` | `--opsin-material-3-blur` | Material ladder; slots are `bg`, `blur`, `border`, `shadow` |
@@ -120,7 +120,7 @@ behaviours live entirely in CSS and are lost if you copy only the `:root` block:
 
 @supports (color-gamut: p3) {
   :root { /* higher chroma, identical lightness */ }
-  .dark { /* repeat every class selector — see below */ }
+  .dark { /* repeat every class selector. See below */ }
 }
 ```
 
@@ -184,8 +184,8 @@ tuned against the page background. See
 
 ## Next
 
-- [Token reference](./token-reference.mdx) — the settable set, grouped by tier.
-- [Adding your own tokens](./adding-your-own-tokens.mdx) — extending it without
-  being overwritten.
-- [Design handoff](./design-handoff.mdx) — the same values in a form a design
+- [Token reference](./token-reference.mdx) is the settable set, grouped by tier.
+- [Adding your own tokens](./adding-your-own-tokens.mdx) covers extending it
+  without being overwritten.
+- [Design handoff](./design-handoff.mdx) has the same values in a form a design
   tool can import.

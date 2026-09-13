@@ -16,9 +16,9 @@ Configuration is CSS.
 
 That is a genuine simplification and it moves an entire class of problem into a
 place developers are not used to looking. In v3, a misconfiguration threw. In
-v4, the three most common mistakes — the wrong `@theme` keyword, a missing
-`@source`, and an import in the wrong position — all produce valid CSS that
-silently does not do what you meant. This page is about those three.
+v4, the three most common mistakes all produce valid CSS that silently does not
+do what you meant. They are the wrong `@theme` keyword, a missing `@source`,
+and an import in the wrong position. This page is about those three.
 
 ## `@theme` against `@theme inline`
 
@@ -78,31 +78,32 @@ yet.
 
 If a class works in development and disappears in production, or works in one
 file and not another, an `@source` line is missing. In a monorepo this bites
-hardest: a package outside the app's directory is invisible until you add it —
-see [Installation → Monorepo](../start/installation/monorepo.mdx).
+hardest: a package outside the app's directory is invisible until you add it.
+See [Installation → Monorepo](../start/installation/monorepo.mdx).
 
 Two things that do **not** need a `@source` line, and adding them causes
 problems:
 
-- `fumadocs-ui/dist/**/*.js` — obsolete in fumadocs v16, whose preset ships its
+- `fumadocs-ui/dist/**/*.js` is obsolete in fumadocs v16, whose preset ships its
   own `@source inline(...)`. Adding it inflates the scan for no gain.
-- `@tailwindcss/typography` — not a source, but worth stating here: it collides
-  with fumadocs' forked `prose` styles and must not be installed.
+- `@tailwindcss/typography` is not a source, but is worth stating here: it
+  collides with fumadocs' forked `prose` styles and must not be installed.
 
 ## The import order
 
 `app/globals.css` declares its own required order in a comment at the top of the
 file, and the order is load-bearing rather than tidy. The short version:
 
-1. `tailwindcss` — the engine
-2. `tw-animate-css` — shadcn's animation utilities
-3. `shadcn/tailwind.css` — shadcn's own theme bridge
-4. `fumadocs-ui/css/shadcn.css` — maps the docs chrome onto the shadcn tokens
-5. `fumadocs-ui/css/preset.css` — the docs chrome itself
+1. `tailwindcss` is the engine
+2. `tw-animate-css` provides shadcn's animation utilities
+3. `shadcn/tailwind.css` is shadcn's own theme bridge
+4. `fumadocs-ui/css/shadcn.css` maps the docs chrome onto the shadcn tokens
+5. `fumadocs-ui/css/preset.css` is the docs chrome itself
 6. the `@source` lines
 7. the lyra theme block, exactly as the CLI wrote it
-8. `./tokens.generated.css` — the generated ramps
-9. the opsinjs token layer — authored fallbacks, the two axes, the ladder
+8. `./tokens.generated.css` supplies the generated ramps
+9. the opsinjs token layer, which holds authored fallbacks, the two axes and
+   the ladder
 10. `@layer base` and the `@media print` block
 11. `@custom-variant dark`, pinned last
 
@@ -129,9 +130,9 @@ order-independent. The `:where` form also has zero specificity, which is why a
 
 ## Specificity, and the `:root` trap
 
-`:root` and `.dark` have identical specificity — `(0, 1, 0)`. This is the single
-most surprising fact in the whole stylesheet, and it is why the Display-P3 block
-looks repetitive:
+`:root` and `.dark` have identical specificity, which is `(0, 1, 0)`. This is
+the single most surprising fact in the whole stylesheet, and it is why the
+Display-P3 block looks repetitive:
 
 ```css
 @supports (color-gamut: p3) {
@@ -196,9 +197,9 @@ the shadcn CLI wrote, which destroys the ability to diff against a fresh
 
 ## Next
 
-- [CSS variables](./css-variables.mdx) — using the tokens with no Tailwind at
-  all.
-- [Adding your own tokens](./adding-your-own-tokens.mdx) — the extension recipe
+- [CSS variables](./css-variables.mdx) covers using the tokens with no Tailwind
+  at all.
+- [Adding your own tokens](./adding-your-own-tokens.mdx) is the extension recipe
   that survives an upgrade.
-- [Styling](../handbook/styling.mdx) — how components are expected to consume
-  all of this in product code.
+- [Styling](../handbook/styling.mdx) shows how components are expected to
+  consume all of this in product code.

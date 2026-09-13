@@ -1,8 +1,8 @@
 "use client"
 
 /**
- * Term — a clinical word with its everyday meaning attached, so a sentence can
- * be read without leaving it.
+ * Term shows a clinical word with its everyday meaning attached, so a sentence
+ * can be read without leaving it.
  *
  * A DEFINITION SAYS WHAT A THING IS. It does not say what the reader should do
  * about theirs, and this file has no way to make it. There is no `status`, no
@@ -32,10 +32,10 @@
  * So the disclosure here is hand-built, and it is built the other way round: the
  * definition is ALWAYS in the accessibility tree, and the control changes only
  * whether it is on the screen. Collapsed, it is `display: none` and reaches the
- * reader as the trigger's accessible DESCRIPTION — a node referenced by
+ * reader as the trigger's accessible DESCRIPTION. A node referenced by
  * `aria-describedby` is included in the name-and-description computation whether
- * or not it is displayed, which is the one hiding mechanism that keeps a
- * promise instead of breaking it.
+ * or not it is displayed, which is the one hiding mechanism that keeps a promise
+ * instead of breaking it.
  *
  * IT IS A CLIENT COMPONENT, ALL OF IT, AND THAT IS A COST RATHER THAN A CHOICE.
  * Only the disclosure needs state; the inline presentation is a span and two
@@ -61,7 +61,7 @@
  * the clinical word, and the plain wording is either attached in parentheses or
  * put behind a control. The argument for the implemented direction is the one
  * in `GlossaryEntry.word` below, and the same policy block makes it itself when
- * it explains why `showBoth: "always"` exists — a reader holding a printout has
+ * it explains why `showBoth: "always"` exists. A reader holding a printout has
  * to be able to match it to the screen. Both statements are in the same file and
  * they contradict each other, and neither this component nor the glossary may
  * settle it alone. It is stated on `term.mdx` and it is open. Nothing here is a
@@ -96,8 +96,8 @@ export interface GlossaryEntry {
   id: string
   /**
    * The clinical word, spelt the way it appears on the reader's own paperwork.
-   * That spelling is the point of showing it at all — a reader holding a
-   * printed result and looking at a screen has to be able to match the two.
+   * That spelling is the point of showing it at all. A reader holding a printed
+   * result and looking at a screen has to be able to match the two.
    */
   word: string
   /**
@@ -108,8 +108,8 @@ export interface GlossaryEntry {
   plain: string
   /**
    * The full form, when `word` is an abbreviation. An expansion is a different
-   * thing from a definition and most readers need both: *eGFR — estimated
-   * glomerular filtration rate* still explains nothing on its own.
+   * thing from a definition and most readers need both: expanding *eGFR* to
+   * *estimated glomerular filtration rate* still explains nothing on its own.
    */
   expansion?: string
   /**
@@ -129,7 +129,7 @@ export interface GlossaryEntry {
    * and the entry exists so an author can look up what to write instead. Term
    * honours it by rendering the plain wording as ordinary text and marking
    * nothing, because there is no clinical word on the screen to explain.
-   * `children` is discarded on that path — see `TermProps.children`.
+   * `children` is discarded on that path. See `TermProps.children`.
    *
    * `always` IS NOT IMPLEMENTED HERE, and the type accepts it so that a glossary
    * can be handed over unaltered rather than so that this component obeys it.
@@ -170,9 +170,9 @@ export interface TermGlossaryProviderProps {
    * rebuilt into a lookup whenever its identity changes, and an array literal
    * written inline in JSX is a new identity on every render.
    *
-   * It may be handed straight across the server/client boundary — a plain array
-   * of plain objects is serialisable — so the definitions can be read from a
-   * file on the server and never reach the browser as code.
+   * It may be handed straight across the server/client boundary. A plain array
+   * of plain objects is serialisable, so the definitions can be read from a file
+   * on the server and never reach the browser as code.
    */
   glossary: readonly GlossaryEntry[]
   children: ReactNode
@@ -241,7 +241,7 @@ const warnedKeys = new Set<string>()
  * is raised during render, so an unkeyed channel reports a screen's four
  * unresolved terms on every render and twice again under Strict Mode, and a
  * warning channel that degrades into noise is one somebody switches off.
- * `tokens/errors.json`'s policy block — quoted in `lib/opsinjs.ts` — asks for
+ * `tokens/errors.json`'s policy block, which `lib/opsinjs.ts` quotes, asks for
  * "once per offending call site". `warnOnce` itself still cannot be reused here,
  * because it is keyed on an `OpsinErrorCode` and there is no code for any of
  * this; but the de-duplication is independent of the code table, so the shape is
@@ -284,7 +284,7 @@ function report(message: string): void {
  * as a value somebody wrote. That is not a hypothetical shape: a spreadsheet
  * export and a half-finished translation pass both produce it, and a
  * product-owned glossary is authored in exactly those two ways. Left alone it
- * renders a bare em dash after nothing, or " ()" after a word, or a hole in the
+ * renders a bare comma after nothing, or " ()" after a word, or a hole in the
  * middle of a clinical sentence. Trimmed as well as compared, because a cell
  * holding one space is the same defect wearing a different coat.
  */
@@ -300,7 +300,7 @@ function filled(field: string | undefined): string | undefined {
  * 45ch, so a whole line of this system's narrowest column is about 45
  * characters; a parenthetical has to share that line with the sentence it
  * interrupts, and past roughly 40 characters it stops interrupting and starts
- * replacing. Counted rather than measured on purpose — see `resolvePresentation`
+ * replacing. Counted rather than measured on purpose. See `resolvePresentation`
  * below.
  */
 const INLINE_BUDGET = 40
@@ -316,12 +316,11 @@ const INLINE_BUDGET = 40
  *
  * The offset is in `em` and not in pixels, which is the one length in this file
  * that could have opted out of the reader's own text size. A fixed 4px offset
- * against glyphs a low-vision reader has doubled in order to read them puts
- * the rule into the
- * descenders of the word it is marking — the sole affordance, and the sole
- * non-colour carrier, degrading precisely for the reader it matters most to.
- * There is no token for an underline offset, so this is a judgement rather than
- * a token lookup.
+ * against glyphs a low-vision reader has doubled in order to read them puts the
+ * rule into the descenders of the word it is marking. The sole affordance, and
+ * the sole non-colour carrier, would then degrade precisely for the reader it
+ * matters most to. There is no token for an underline offset, so this is a
+ * judgement rather than a token lookup.
  *
  * It is dropped in print, where the definition is expanded beside the word and a
  * mark promising something further would be promising nothing.
@@ -380,18 +379,19 @@ export interface TermProps {
    */
   id: string
   /**
-   * The word as it should read in this sentence, when it differs from the
-   * glossary's headword — plural, tense, or capitalisation. It changes what is
-   * printed and nothing else: the definition and the expansion still come from
-   * the entry, and so does the spoken form of an abbreviation, which is appended
-   * to the control's name rather than replacing what is written there.
+   * The word as it should read in this sentence, where a plural, a tense or a
+   * capitalisation makes it differ from the glossary's headword. It changes
+   * what is printed and nothing else: the definition and the expansion still
+   * come from the entry, and so does the spoken form of an abbreviation, which
+   * is appended to the control's name rather than replacing what is written
+   * there.
    *
    * Two paths do not print it, and both are cases where printing it would be
    * worse. A `plain-only` entry discards it, because `children` is where a call
    * site writes the clinical word inflected for its sentence and that entry's
    * whole content is that the clinical word is never shown; the discard warns in
    * development. An `id` that is not in the glossary prints it and prints it
-   * gratefully — there it is the only real word available, and without it the raw
+   * gratefully. There it is the only real word available, and without it the raw
    * key appears in the sentence instead.
    */
   children?: ReactNode
@@ -410,7 +410,7 @@ export interface TermProps {
   /**
    * Suppress the repeat. Set it on the second and later appearances of a term on
    * one surface: the word is still marked, the definition is still one press
-   * away and still in the accessibility tree, and it is not printed again — on
+   * away and still in the accessibility tree, and it is not printed again on
    * screen or on paper.
    *
    * opsinjs does not count the appearances for you. It cannot see where one
@@ -476,21 +476,21 @@ export function Term({
      WHAT RENDERS WITHOUT `children` IS THE KEY, AND THE KEY IS NOT A WORD.
      `<Term id="blood-pressure" />` in an application that has forgotten the
      provider prints "blood-pressure" mid-sentence, and `<Term id="egfr" />`
-     prints "egfr" — the wrong spelling for matching a reader's own paperwork,
-     which is the entire reason the clinical word is on the screen at all. The
-     alternative is a hole where a word belongs, which breaks the sentence for
-     everybody rather than only for the reviewer, so the key stays and the
-     behaviour is stated here, in `TermProps.children` and on `term.mdx` instead
-     of being discovered. The warning below is development-only by policy, so in
-     a build a reader uses there is no signal: the real gate is a lint rule over
-     the product's own source, and it does not exist yet. */
+     prints "egfr". That is the wrong spelling for matching a reader's own
+     paperwork, which is the entire reason the clinical word is on the screen at
+     all. The alternative is a hole where a word belongs, which breaks the
+     sentence for everybody rather than only for the reviewer, so the key stays
+     and the behaviour is stated here, in `TermProps.children` and on `term.mdx`
+     instead of being discovered. The warning below is development-only by
+     policy, so in a build a reader uses there is no signal: the real gate is a
+     lint rule over the product's own source, and it does not exist yet. */
   if (entry === undefined) {
     warn(
       `missing:${id}`,
       `id="${id}" is not in the glossary this subtree was given. The word is ` +
-        "rendered unmarked, and with no `children` to print, what appears in " +
-        `the sentence is the raw key — "${id}". Add the entry, or drop the ` +
-        "<Term> and write the word plainly — there is no third option that is " +
+        "rendered unmarked, and with no `children` to print, the sentence " +
+        `shows the raw key "${id}" instead. Add the entry, or drop the ` +
+        "<Term> and write the word plainly. There is no third option that is " +
         "honest.",
     )
     return (
@@ -543,9 +543,9 @@ export function Term({
       warn(
         `plain-only-empty:${id}`,
         `id="${id}" is marked showBoth: "plain-only" and has no plain wording. ` +
-          "There is nothing this component may render — the clinical word is " +
-          "refused by the entry and its replacement does not exist — so " +
-          "nothing is printed. Fill the definition in.",
+          "There is nothing this component may render. The clinical word is " +
+          "refused by the entry and its replacement does not exist, so nothing " +
+          "is printed. Fill the definition in.",
       )
     }
     return (
@@ -587,7 +587,7 @@ export function Term({
   /* `showBoth: "always"` IS RECORDED AND NOT IMPLEMENTED, and saying so out
      loud is the whole of what this component can honestly do about it. See
      `GlossaryEntry.showBoth` for why obeying it would mean overruling the call
-     site. The warning fires only where the value actually cost something — an
+     site. The warning fires only where the value actually cost something. An
      `always` entry that resolved to inline already shows both. */
   if (entry.showBoth === "always" && presentation === "disclosure") {
     warn(
@@ -601,15 +601,17 @@ export function Term({
     )
   }
 
-  /* Expansion first, then definition, then stop — `term.mdx:166-168`. The
-     em dash is a separator between two different kinds of statement, and it is
-     the only punctuation this component owns. */
+  /* Expansion first, then definition, then stop. See `term.mdx:279` and `:296`
+     onwards. The expansion and the gloss are one apposition and are joined as
+     one, because a separator glyph here is punctuation a screen reader either
+     skips or reads out, on a component whose entire job is to be heard
+     correctly. The comma is the only punctuation this component owns. */
   const definition = (
     <>
       {expansion === undefined ? null : (
         <>
           <span data-slot="term-expansion">{expansion}</span>
-          {" — "}
+          {", "}
         </>
       )}
       {plain}
@@ -628,13 +630,14 @@ export function Term({
      construction, whatever `children` holds.
 
      `speech` IS ADDITIVE NOW, NOT SUBSTITUTIVE. It used to be swapped in for the
-     written word behind `aria-hidden`, which took the paperwork spelling — the
-     stated reason `word` exists — away from precisely the readers who cannot see
-     the screen: a braille reader got "S P O 2" and never "SpO2". Both forms are
-     exposed, written first and letters second. The cost is that a speech reader
-     hears the synthesiser's attempt at the word before the letters, and that is
-     the smaller of the two costs rather than no cost at all. It is on
-     `term.mdx`, and no screen reader has been run against either shape. */
+     written word behind `aria-hidden`, which took the paperwork spelling away
+     from precisely the readers who cannot see the screen: a braille reader got
+     "S P O 2" and never "SpO2". That spelling is the stated reason `word`
+     exists. Both forms are exposed, written first and letters second. The cost
+     is that a speech reader hears the synthesiser's attempt at the word before
+     the letters, and that is the smaller of the two costs rather than no cost
+     at all. It is on `term.mdx`, and no screen reader has been run against
+     either shape. */
   const trigger =
     speech === undefined ? (
       visible
@@ -698,7 +701,7 @@ export function Term({
              which is enough inside this system's own Sheet and Dialog, whose
              listeners are React listeners. It does nothing to a native
              <dialog>'s own cancel behaviour, which the user agent performs
-             independently — so without preventDefault one Escape closed the
+             independently. So without preventDefault one Escape closed the
              definition and the dialog around it together. The guard on `open`
              is what keeps the key available to that dialog the rest of the
              time. */
@@ -714,9 +717,9 @@ export function Term({
       </button>
       {/* The space that separates the word from its definition lives INSIDE the
           definition, so it disappears with it. Left outside, a closed term would
-          leave a double space in the middle of the sentence — invisible in
-          review, and exactly the kind of thing that makes generated prose look
-          machine-made. */}
+          leave a double space in the middle of the sentence. That is invisible
+          in review, and exactly the kind of thing that makes generated prose
+          look machine-made. */}
       <span
         id={definitionId}
         data-slot="term-definition"
@@ -765,8 +768,8 @@ export function Term({
  * demo has to have something to define and the preview is what proves the
  * component renders. `DEMO_GLOSSARY` is not exported and no `<Term>` outside
  * this function can reach it, so what ships is a demonstration rather than a
- * dictionary — but "opsinjs ships no definitions" is true of the API and not of
- * the bytes, and `term.mdx` says it that way.
+ * dictionary. Even so, "opsinjs ships no definitions" is true of the API and
+ * not of the bytes, and `term.mdx` says it that way.
  */
 const DEMO_GLOSSARY: readonly GlossaryEntry[] = [
   {

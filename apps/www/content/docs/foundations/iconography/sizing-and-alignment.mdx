@@ -26,22 +26,23 @@ correct. A 44-point glyph is a large picture, not a large button.
 **In text, size in `em`.** An icon beside a label, inside a sentence, or in a
 list row takes its size from the text it accompanies. It then grows with the
 reader's text-size multiplier automatically, which is the whole reason for the
-rule — a glyph fixed at 16 pixels beside text that has grown to 21 looks
+rule. A glyph fixed at 16 pixels beside text that has grown to 21 looks
 progressively detached and eventually stops reading as part of the same element.
 See [Dynamic Type](../typography/dynamic-type.mdx).
 
-**Standalone, size in fixed steps.** An icon that is not in a text context — the
-glyph inside an icon-only control, a category mark on a tile — takes one of a
-small number of fixed sizes from the space scale. There are three: small for
-inline marks and dense rows, medium for controls and list affordances, large for
-a category or status mark that is the visual anchor of a tile.
+**Standalone, size in fixed steps.** An icon that is not in a text context takes
+one of a small number of fixed sizes from the space scale. There are three:
+small for inline marks and dense rows, medium for controls and list affordances,
+large for a category or status mark that is the visual anchor of a tile. The
+glyph inside an icon-only control and a category mark on a tile are both
+standalone icons.
 
 **Align optically, not to the box.** An icon's bounding box and its visual centre
-are rarely the same, particularly for glyphs with asymmetric ink — an arrow, a
-play triangle, anything with a tail. Aligning boxes puts the glyph visibly off
-centre. The correction is small, per glyph, and it is why the system uses one
-library: a mixed set means a different correction for every icon and no way to
-generalise.
+are rarely the same, particularly for glyphs with asymmetric ink. An arrow, a
+play triangle and anything with a tail are all glyphs of that sort. Aligning
+boxes puts the glyph visibly off centre. The correction is small, per glyph, and
+it is why the system uses one library: a mixed set means a different correction
+for every icon and no way to generalise.
 
 **Align to the text's optical centre, not to its baseline.** A glyph set on the
 baseline sits low, because the eye centres a symbol against the body of the
@@ -78,7 +79,7 @@ than a free parameter.
 
 **Give an icon a gap, and take it from the space scale.** The distance between a
 glyph and its label is a spacing decision, and `hairline` or `tight` is almost
-always the answer — see [Spacing scale](../space/spacing-scale.mdx). Too much and
+always the answer. See [Spacing scale](../space/spacing-scale.mdx). Too much and
 they stop reading as one element; too little and the glyph looks stuck to the
 first letter.
 
@@ -91,8 +92,8 @@ category glyph and some do not should keep the column, or every label shifts. A
 shifting left edge is harder to scan than a slightly empty one.
 
 **Check it at 1.3×.** The `em` sizing means glyphs grow; the fixed sizes mean the
-controls containing them may not. Where those two meet — an icon-only control in a
-row of text — is where the layout first breaks.
+controls containing them may not. An icon-only control in a row of text is where
+those two meet, and it is where the layout first breaks.
 
 ## Tokens
 
@@ -125,8 +126,8 @@ type and space scales is an icon size that does not scale with them.
 
 ## Related
 
-- [Density and touch](../space/density-and-touch.mdx) — the target floor an icon
-  sits inside, and why the two measurements are separate.
-- [Dynamic Type](../typography/dynamic-type.mdx) — what happens to all of this at
-  the reader's own text size.
-- [Icon inventory](icon-inventory.mdx) — the roles these sizes apply to.
+- [Density and touch](../space/density-and-touch.mdx) covers the target floor an
+  icon sits inside, and why the two measurements are separate.
+- [Dynamic Type](../typography/dynamic-type.mdx) says what happens to all of this
+  at the reader's own text size.
+- [Icon inventory](icon-inventory.mdx) has the roles these sizes apply to.

@@ -1,6 +1,6 @@
 ---
 title: Tooling
-description: Two lint plugins that turn the system's most important rules from advice into build failures — because a rule enforced only by review is a rule enforced only sometimes.
+description: Two lint plugins that turn the system's most important rules from advice into build failures. A rule enforced only by review is a rule enforced only sometimes.
 status: planned
 kind: handbook
 icon: ShieldCheck
@@ -17,12 +17,12 @@ owner: design-system
 
 Two packages are specified:
 
-- [`eslint-plugin-opsinjs`](./eslint-plugin.mdx) — JSX and TypeScript. Catches a
-  raw colour, a mixed axis, a banned word, and a component used against its
-  documented contract.
-- [`stylelint-plugin-opsinjs`](./stylelint-plugin.mdx) — CSS. Catches a hardcoded
-  colour, a token used outside its tier, and a status token applied to a
-  category surface.
+- [`eslint-plugin-opsinjs`](./eslint-plugin.mdx) covers JSX and TypeScript.
+  Catches a raw colour, a mixed axis, a banned word, and a component used
+  against its documented contract.
+- [`stylelint-plugin-opsinjs`](./stylelint-plugin.mdx) covers CSS. Catches a
+  hardcoded colour, a token used outside its tier, and a status token applied to
+  a category surface.
 
 The reasoning is simple arithmetic. The never-mix-the-axes rule has one page of
 doctrine, one section on every component page, a paragraph in the agent skill
@@ -57,8 +57,8 @@ one search finds both.
 - **Start with the recommended config.** It contains the rules that are almost
   never a false positive; add the stricter ones once the codebase is clean.
 - **Fix rather than disable.** If you must disable, disable the specific rule on
-  the specific line with a comment saying why — a bare file-level disable
-  removes protection nobody will notice is gone.
+  the specific line with a comment saying why. A bare file-level disable removes
+  protection nobody will notice is gone.
 - **Report a false positive.** A noisy rule gets disabled wholesale, and then
   the real violations get through too.
 
@@ -78,7 +78,7 @@ one search finds both.
   proposed rule names so that the error codes, the documentation and the future
   implementation can be written against one vocabulary rather than three.
 - **A lint rule cannot follow a variable.** A colour assembled at runtime, or a
-  status read from a variable, is invisible to static analysis — which is what
+  status read from a variable, is invisible to static analysis. That is what
   the runtime warnings are for.
 - **Tailwind arbitrary values are the escape hatch that defeats most rules.**
   `bg-[--my-var]` and `bg-[#e11d48]` look similar and only one is a violation;
@@ -86,9 +86,10 @@ one search finds both.
 
 ## Related
 
-- [ESLint plugin](./eslint-plugin.mdx) — the proposed JavaScript and JSX rules.
-- [Stylelint plugin](./stylelint-plugin.mdx) — the proposed CSS rules.
-- [Error codes](../error-codes.mdx) — the runtime layer, and how the codes align
-  with the rule names.
-- [The two colour axes](../../health/two-colour-axes.mdx) — the invariant all of
-  this exists to protect.
+- [ESLint plugin](./eslint-plugin.mdx) has the proposed JavaScript and JSX
+  rules.
+- [Stylelint plugin](./stylelint-plugin.mdx) has the proposed CSS rules.
+- [Error codes](../error-codes.mdx) covers the runtime layer, and how the codes
+  align with the rule names.
+- [The two colour axes](../../health/two-colour-axes.mdx) is the invariant all
+  of this exists to protect.

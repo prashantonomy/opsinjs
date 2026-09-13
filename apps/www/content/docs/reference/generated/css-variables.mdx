@@ -30,7 +30,7 @@ not ours and it is not covered by the
 **Five columns.** *Variable* is the property name. *Light* and *Dark* are the
 resolved defaults in each theme, printed as the value actually computed rather
 than as the expression that produced it. *Controls* is the one thing it decides.
-*Read by* names the selectors that consume it — this is what tells you whether
+*Read by* names the selectors that consume it. That is what tells you whether
 overriding it in one place is safe.
 
 **This page lists variables, not overrides.** Setting a variable is described in
@@ -45,7 +45,7 @@ the same cascade on this site and none of them are opsinjs tokens. Also excluded
 are internal variables used to pass a computed value between two rules inside one
 component; those are unprefixed, undocumented, and may change in a patch.
 
-{/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
+{/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 ## CSS variables
 
@@ -263,7 +263,7 @@ component; those are unprefixed, undocumented, and may change in a patch.
 | `--opsin-material-sheet-shadow` | `0 -1px 2px oklch(0 0 0 / 0.05)` | Rung 3 (sheet): the shadow that separates it from what is behind. |
 | `--opsin-material-sheet-scrim` | `0.82` | Rung 3 (sheet): the minimum scrim opacity needed for text on this rung to clear the contrast floor. |
 | `--opsin-material-sheet-opaque` | `var(--opsin-neutral-0)` | Rung 3 (sheet): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
-| `--opsin-material-overlay-tint` | `var(--opsin-neutral-0)` | Rung 4 (overlay): the tint over what is behind it. A pinned toolbar, a tab bar, a floating action bar — chrome that content scrolls beneath. |
+| `--opsin-material-overlay-tint` | `var(--opsin-neutral-0)` | Rung 4 (overlay): the tint over what is behind it. A pinned toolbar, a tab bar and a floating action bar are all chrome that content scrolls beneath. |
 | `--opsin-material-overlay-tint-alpha` | `0.74` | Rung 4 (overlay): how opaque that tint is. |
 | `--opsin-material-overlay-blur` | `28px` | Rung 4 (overlay): backdrop blur radius. |
 | `--opsin-material-overlay-saturation` | `1.8` | Rung 4 (overlay): backdrop saturation multiplier. |
@@ -279,11 +279,11 @@ component; those are unprefixed, undocumented, and may change in a patch.
 | `--opsin-material-scrim-shadow` | `none` | Rung 5 (scrim): the shadow that separates it from what is behind. |
 | `--opsin-material-scrim-scrim` | `0.44` | Rung 5 (scrim): the minimum scrim opacity needed for text on this rung to clear the contrast floor. |
 | `--opsin-material-scrim-opaque` | `oklch(0.205 0.006 250 / 0.72)` | Rung 5 (scrim): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
-| `--opsin-ease-spring-snap` | `linear(0, 0.0715, 0.2271, 0.4053, 0.5722, 0.7119, 0.8198, 0.8978, 0.9505, 0.9836, 1.0025, 1.0118, 1.015, 1.0147, 1.0126, 1.01, 1.0073, 1.0051, 1.0033, 1.0019, 1)` | Direct manipulation only: a switch the reader just flipped, a segmented control, a pressed button settling. It overshoots by 1.5% — enough to feel physical, not enough to look playful — which is the largest overshoot in the system but not the only one: `spring-settle` overshoots by 0.88%. Only `spring-calm` and `spring-sheet` reach their target without passing it. |
+| `--opsin-ease-spring-snap` | `linear(0, 0.0715, 0.2271, 0.4053, 0.5722, 0.7119, 0.8198, 0.8978, 0.9505, 0.9836, 1.0025, 1.0118, 1.015, 1.0147, 1.0126, 1.01, 1.0073, 1.0051, 1.0033, 1.0019, 1)` | Direct manipulation only: a switch the reader just flipped, a segmented control, a pressed button settling. It overshoots by 1.5%. That is enough to feel physical but not enough to look playful. The 1.5% is the largest overshoot in the system but not the only one: `spring-settle` overshoots by 0.88%. Only `spring-calm` and `spring-sheet` reach their target without passing it. |
 | `--opsin-duration-spring-snap` | `283ms` | Settle time for the spring-snap spring, measured from its own parameters. |
 | `--opsin-ease-spring-settle` | `linear(0, 0.0742, 0.2328, 0.4113, 0.5758, 0.7116, 0.8157, 0.8905, 0.9412, 0.9736, 0.9928, 1.003, 1.0076, 1.0088, 1.0082, 1.0068, 1.0053, 1.0038, 1.0026, 1.0017, 1)` | The workhorse for chrome: popovers, tooltips, menus, chips appearing and disappearing. |
 | `--opsin-duration-spring-settle` | `382ms` | Settle time for the spring-settle spring, measured from its own parameters. |
-| `--opsin-ease-spring-calm` | `linear(0, 0.0829, 0.2457, 0.4157, 0.5642, 0.6832, 0.774, 0.841, 0.8893, 0.9236, 0.9476, 0.9643, 0.9757, 0.9836, 0.9889, 0.9926, 0.995, 0.9967, 0.9978, 0.9985, 1)` | A health value that changes while it is already on screen: a bar re-filling from one reading to the next, a dial travelling between two values the reader has already been shown. Never a first paint and never a first reveal — a value arrives at its final figure, with no count-up, no dial sweep and no line drawing itself in (health/motion-in-health-ui rule 2). Slightly overdamped (zeta just over 1) so it never overshoots and never bounces. |
+| `--opsin-ease-spring-calm` | `linear(0, 0.0829, 0.2457, 0.4157, 0.5642, 0.6832, 0.774, 0.841, 0.8893, 0.9236, 0.9476, 0.9643, 0.9757, 0.9836, 0.9889, 0.9926, 0.995, 0.9967, 0.9978, 0.9985, 1)` | A health value that changes while it is already on screen: a bar re-filling from one reading to the next, a dial travelling between two values the reader has already been shown. Never a first paint and never a first reveal. A value arrives at its final figure, with no count-up, no dial sweep and no line drawing itself in (health/motion-in-health-ui rule 2). Slightly overdamped (zeta just over 1) so it never overshoots and never bounces. |
 | `--opsin-duration-spring-calm` | `550ms` | Settle time for the spring-calm spring, measured from its own parameters. |
 | `--opsin-ease-spring-sheet` | `linear(0, 0.0881, 0.2576, 0.431, 0.5798, 0.6971, 0.7854, 0.8497, 0.8958, 0.9282, 0.9508, 0.9664, 0.9771, 0.9845, 0.9895, 0.9929, 0.9952, 0.9967, 0.9978, 0.9985, 1)` | Large surfaces travelling a long distance: sheets, dialogs, full-screen pushes. Overdamped, because a sheet that bounces at the top of its travel reads as a dropped object. |
 | `--opsin-duration-spring-sheet` | `483ms` | Settle time for the spring-sheet spring, measured from its own parameters. |
@@ -314,7 +314,7 @@ component; those are unprefixed, undocumented, and may change in a patch.
 | `--opsin-text-title3-leading` | `1.25` | Line height for title3, unitless so it scales with the size. |
 | `--opsin-text-title3-tracking` | `-0.004em` | Letter spacing for title3. |
 | `--opsin-text-title3-weight` | `600` | Font weight for title3. |
-| `--opsin-text-headline-size` | `1.0625rem` | An emphasised line of body text — a status sentence, a question in a form. |
+| `--opsin-text-headline-size` | `1.0625rem` | An emphasised line of body text, such as a status sentence or a question in a form. |
 | `--opsin-text-headline-leading` | `1.294` | Line height for headline, unitless so it scales with the size. |
 | `--opsin-text-headline-tracking` | `-0.003em` | Letter spacing for headline. |
 | `--opsin-text-headline-weight` | `600` | Font weight for headline. |
@@ -382,7 +382,7 @@ component; those are unprefixed, undocumented, and may change in a patch.
 | `--opsin-corner-shape` | `superellipse(4)` | The squircle curvature. Degrades to `round` where corner-shape is unsupported. |
 | `--opsin-border-hairline` | `1px` | Every boundary in the system by default. |
 | `--opsin-border-emphasis` | `2px` | The boundary of a surface carrying `attention` or `urgent`, where the boundary is one of the three non-colour carriers of the status. |
-| `--opsin-border-focus` | `2px` | The focus ring. Always 2px with a 2px offset, always in a colour measured against both the surface and the page behind it, and never removed — see /docs/accessibility/keyboard-and-focus. |
+| `--opsin-border-focus` | `2px` | The focus ring. Always 2px with a 2px offset, always in a colour measured against both the surface and the page behind it, and never removed. See /docs/accessibility/keyboard-and-focus. |
 | `--opsin-border-focus-offset` | `2px` | Offset for the focus boundary. |
 
 ### `.dark, .opsin-product.dark`
@@ -445,7 +445,7 @@ component; those are unprefixed, undocumented, and may change in a patch.
 | `--opsin-material-sheet-tint-alpha` | `0.78` | Rung 3 (sheet): how opaque that tint is. |
 | `--opsin-material-sheet-border` | `oklch(1 0 0 / 0.10)` | Rung 3 (sheet): the boundary. |
 | `--opsin-material-sheet-opaque` | `var(--opsin-neutral-900)` | Rung 3 (sheet): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |
-| `--opsin-material-overlay-tint` | `var(--opsin-neutral-900)` | Rung 4 (overlay): the tint over what is behind it. A pinned toolbar, a tab bar, a floating action bar — chrome that content scrolls beneath. |
+| `--opsin-material-overlay-tint` | `var(--opsin-neutral-900)` | Rung 4 (overlay): the tint over what is behind it. A pinned toolbar, a tab bar and a floating action bar are all chrome that content scrolls beneath. |
 | `--opsin-material-overlay-tint-alpha` | `0.7` | Rung 4 (overlay): how opaque that tint is. |
 | `--opsin-material-overlay-border` | `oklch(1 0 0 / 0.12)` | Rung 4 (overlay): the boundary. |
 | `--opsin-material-overlay-opaque` | `var(--opsin-neutral-900)` | Rung 4 (overlay): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. |

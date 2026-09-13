@@ -25,12 +25,12 @@ project that later drops opsinjs keeps the CSS.
 
 Every opsinjs preset name begins with `opsinjs-`.
 
-This is not decoration. shadcn ships its own style presets — `lyra`, `nova`,
-`vega` and the rest — and this documentation site is itself built on one of
-them. If opsinjs published a preset called `calm` and shadcn later published a
-different `calm`, a project with both registries configured would resolve one of
-them and the reader would have no way to tell which. Namespacing the value, not
-just the registry, makes the collision impossible rather than unlikely.
+This is not decoration. shadcn ships style presets of its own: `lyra`, `nova`,
+`vega` and the rest. This documentation site is itself built on one of them. If
+opsinjs published a preset called `calm` and shadcn later published a different
+`calm`, a project with both registries configured would resolve one of them and
+the reader would have no way to tell which. Namespacing the value, not just the
+registry, makes the collision impossible rather than unlikely.
 
 The same reasoning produces the registry namespace `@opsinjs`, described in
 [Namespaces](../registry/namespaces.mdx). A preset is addressed as
@@ -60,9 +60,9 @@ install.
 
 <Todo>
 Exactly one theme is published: the default that `tokens/*.json` generates. The
-named alternatives below the fold on the roadmap — a higher-contrast variant and
-a large-type variant — are specified but not built, and are deliberately absent
-from the registry rather than present and empty.
+named alternatives below the fold on the roadmap are a higher-contrast variant
+and a large-type variant. Both are specified but not built, and are
+deliberately absent from the registry rather than present and empty.
 </Todo>
 
 The default theme needs no preset to use; it is what you get from a plain
@@ -88,8 +88,8 @@ npx shadcn@latest add https://opsinjs.dev/r/themes/opsinjs-default.json
 The CLI writes the CSS variables into the stylesheet named by
 `tailwind.css` in your `components.json`. It appends; it does not merge, and it
 does not remove a previous preset's declarations. Applying a second preset over
-a first leaves you with both, and the later one wins by cascade order — which is
-usually what you want and is occasionally a very confusing bug. Delete the old
+a first leaves you with both, and the later one wins by cascade order. That is
+usually what you want, and is occasionally a very confusing bug. Delete the old
 block.
 
 ## Publishing a preset of your own
@@ -144,8 +144,8 @@ stylesheet your app does not actually import.
 Remove the block you do not want.
 
 **`@opsinjs/…` is not found.** The registry is not configured. Either add it to
-`components.json` — see [Namespaces](../registry/namespaces.mdx) — or use the
-full URL form, which never needs configuration.
+`components.json` as [Namespaces](../registry/namespaces.mdx) describes, or use
+the full URL form, which never needs configuration.
 
 **A preset from another project applies but looks wrong under opsinjs.** It was
 probably built for shadcn's default role set, which is larger than the product
@@ -154,8 +154,8 @@ and is harder to debug than an error.
 
 ## Next
 
-- [Validating your theme](./validating-your-theme.mdx) — before you publish.
-- [Preset codes](../registry/preset-codes.mdx) — the short-code form, and how
-  encode, decode and apply work.
-- [Design handoff](./design-handoff.mdx) — getting the same theme into a design
-  tool without retyping it.
+- [Validating your theme](./validating-your-theme.mdx) comes before you publish.
+- [Preset codes](../registry/preset-codes.mdx) is the short-code form, and
+  shows how encode, decode and apply work.
+- [Design handoff](./design-handoff.mdx) covers getting the same theme into a
+  design tool without retyping it.

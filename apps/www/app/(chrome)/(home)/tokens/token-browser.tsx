@@ -18,7 +18,7 @@ import { useMediaQuery } from "@/app/_shared/use-client-value"
  * Why that is worth the awkwardness of a client component. The token layer is
  * generated: `scripts/build-tokens.mts` rewrites `app/tokens.generated.css` from
  * `tokens/*.json`, and namespaces keep being added to it. The type and space
- * scales are the worked example — they were authored long before they were
+ * scales are the worked example. They were authored long before they were
  * emitted as custom properties, they are emitted now, and this page picked them
  * up on the run that emitted them without a line changing here. A browser built
  * from a hand-kept list would have omitted them silently and nobody would have
@@ -45,7 +45,7 @@ type Token = {
 
 /**
  * Human labels for the namespaces that exist today. An unknown namespace is not
- * an error — it means the token layer grew — so it is rendered with its raw name
+ * an error. It means the token layer grew, so it is rendered with its raw name
  * and a neutral description rather than being dropped.
  */
 const NAMESPACE_LABELS: Record<string, { title: string; description: string }> =
@@ -63,7 +63,7 @@ const NAMESPACE_LABELS: Record<string, { title: string; description: string }> =
     material: {
       title: "Material",
       description:
-        "The six-rung ladder. Each rung is a background, a blur radius, a border and a shadow — collapsing to an opaque fallback under reduced transparency.",
+        "The six-rung ladder. Each rung is a background, a blur radius, a border and a shadow. Under reduced transparency the rung collapses to an opaque fallback.",
     },
     ease: {
       title: "Easing",
@@ -73,7 +73,7 @@ const NAMESPACE_LABELS: Record<string, { title: string; description: string }> =
     duration: {
       title: "Duration",
       description:
-        "Named durations rather than numbers at call sites. Every one collapses to 1ms under reduced motion — the state change still happens, it just arrives immediately.",
+        "Named durations rather than numbers at call sites. Every one collapses to 1ms under reduced motion. The state change still happens, and it just arrives immediately.",
     },
     radius: {
       title: "Radius",
@@ -97,7 +97,7 @@ const NAMESPACE_LABELS: Record<string, { title: string; description: string }> =
     font: {
       title: "Font families",
       description:
-        "Three stacks — sans, mono and the numeric face — each starting at the platform's own UI or monospace font rather than at a webfont. A health value should look like it belongs to the device the reader is holding.",
+        "The three stacks are sans, mono and the numeric face, and each starts at the platform's own UI or monospace font rather than at a webfont. A health value should look like it belongs to the device the reader is holding.",
     },
     numerals: {
       title: "Numerals",
@@ -112,7 +112,7 @@ const NAMESPACE_LABELS: Record<string, { title: string; description: string }> =
     gutter: {
       title: "Gutters",
       description:
-        "The page margin at each of the three breakpoints — 16px on a phone, 24px from 640px, 32px from 1024px.",
+        "The page margin at each of the three breakpoints. It is 16px on a phone, 24px from 640px, 32px from 1024px.",
     },
     measure: {
       title: "Measure",
@@ -122,7 +122,7 @@ const NAMESPACE_LABELS: Record<string, { title: string; description: string }> =
     border: {
       title: "Borders",
       description:
-        "Hairline by default, 2px where a boundary is carrying `attention` or `urgent` as one of the non-colour signals, and the focus ring — always 2px with a 2px offset, and never removed.",
+        "Hairline by default, 2px where a boundary is carrying `attention` or `urgent` as one of the non-colour signals. The focus ring is always 2px with a 2px offset, and it is never removed.",
     },
     safe: {
       title: "Safe area",
@@ -132,7 +132,7 @@ const NAMESPACE_LABELS: Record<string, { title: string; description: string }> =
     neutral: {
       title: "Neutral ramp",
       description:
-        "A very slightly cool grey ramp — chroma 0.002 to 0.009 at hue 250 — because a perfectly achromatic grey beside any of the chromatic ramps reads as a rendering fault rather than as a colour choice. 0 and 1000 are exact white and black.",
+        "A very slightly cool grey ramp with chroma 0.002 to 0.009 at hue 250. The slight cool cast is there because a perfectly achromatic grey beside any of the chromatic ramps reads as a rendering fault rather than as a colour choice. 0 and 1000 are exact white and black.",
     },
   }
 
@@ -178,12 +178,12 @@ function namespaceOf(property: string): string {
 /**
  * Collect every `--opsin-*` declaration the document knows about.
  *
- * Same-origin stylesheets only — reading `cssRules` across origins throws, and a
- * third-party sheet would not be declaring our tokens anyway. Nested rules
- * (media queries, `@supports`) are walked too, which is how the Display-P3 and
- * reduced-motion overrides get picked up; the VALUE, though, always comes from
- * `getComputedStyle`, so a token declared four times is reported once with the
- * value that actually won.
+ * Only same-origin stylesheets are walked, because reading `cssRules` across
+ * origins throws and a third-party sheet would not be declaring our tokens
+ * anyway. Nested rules (media queries, `@supports`) are walked too, which is
+ * how the Display-P3 and reduced-motion overrides get picked up; the VALUE,
+ * though, always comes from `getComputedStyle`, so a token declared four times
+ * is reported once with the value that actually won.
  */
 function collectTokenNames(): string[] {
   const names = new Set<string>()
@@ -299,7 +299,7 @@ export function TokenBrowser() {
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Filter — spring, urgent, blur, radius…"
+          placeholder="Filter by spring, urgent, blur, radius…"
           className="h-9 min-w-56 flex-1 rounded-md border border-border bg-background px-3 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         />
         <p className="font-mono text-xs text-muted-foreground">
@@ -324,7 +324,7 @@ export function TokenBrowser() {
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
               {label?.description ??
-                "This namespace is not described here yet — it was added to the token layer after this page was written, which is exactly why the page reads the stylesheet instead of a list."}
+                "This namespace is not described here yet. It was added to the token layer after this page was written, which is exactly why the page reads the stylesheet instead of a list."}
             </p>
 
             <ul className="mt-4 divide-y divide-border overflow-hidden rounded-lg border border-border">
@@ -339,7 +339,7 @@ export function TokenBrowser() {
                       {token.property}
                     </code>
                     <code className="mt-0.5 block truncate font-mono text-xs text-muted-foreground">
-                      {token.value || "—"}
+                      {token.value || "not resolved"}
                     </code>
                   </span>
                   <CopyButton
@@ -361,9 +361,9 @@ export function TokenBrowser() {
  *
  * `--opsin-tokens-generated` is written by `build-tokens.mts` and carries the
  * hash of the token sources. A clean clone that has never run `pnpm generate`
- * still renders — the authored fallbacks in `globals.css` see to that — but the
- * values it shows are defaults rather than the compiled system, and a page that
- * did not say so would be quietly wrong.
+ * still renders, because the authored fallbacks in `globals.css` see to that.
+ * The values it shows are nevertheless defaults rather than the compiled
+ * system, and a page that did not say so would be quietly wrong.
  */
 function TokenLayerStatus({
   stamp,
@@ -388,7 +388,7 @@ function TokenLayerStatus({
           {total === 0
             ? "reading…"
             : isPlaceholder
-              ? "Authored defaults — pnpm generate has not run"
+              ? "Authored defaults. pnpm generate has not run."
               : `Generated · ${stamp}`}
         </dd>
       </div>
@@ -400,8 +400,8 @@ function TokenLayerStatus({
           {wideGamut === null
             ? "reading…"
             : wideGamut
-              ? "Display-P3 — the escalated chroma is in effect"
-              : "sRGB — the fallback ramp is in effect"}
+              ? "Display-P3. The escalated chroma is in effect."
+              : "sRGB. The fallback ramp is in effect."}
         </dd>
       </div>
       <div className="rounded-lg border border-border bg-card p-4">
@@ -412,8 +412,8 @@ function TokenLayerStatus({
           {reducedMotion === null
             ? "reading…"
             : reducedMotion
-              ? "Reduced — durations are 1ms and springs are flat"
-              : "No preference — the full curves are in effect"}
+              ? "Reduced. Durations are 1ms and springs are flat."
+              : "No preference. The full curves are in effect."}
         </dd>
       </div>
     </dl>

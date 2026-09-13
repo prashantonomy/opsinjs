@@ -15,8 +15,8 @@
  * dichromats; the LMS matrices below are the ones that paper's method is
  * usually implemented with.
  *
- * WHAT IT IS NOT. It is a model of dichromacy — the complete absence of one
- * cone type — and anomalous trichromacy (the far more common condition) is
+ * WHAT IT IS NOT. It is a model of dichromacy, which is the complete absence
+ * of one cone type. Anomalous trichromacy (the far more common condition) is
  * approximated by interpolating towards the dichromatic result. That
  * interpolation is a convenience, not a model of anyone's vision. Nothing here
  * tells you what a particular person sees, and a design that only passes at
@@ -47,10 +47,10 @@ export const CVD_TYPES: CvdType[] = [
 ]
 
 export const CVD_LABELS: Record<CvdType, string> = {
-  protanopia: "Protanopia — no long-wavelength (red) cone",
-  deuteranopia: "Deuteranopia — no medium-wavelength (green) cone",
-  tritanopia: "Tritanopia — no short-wavelength (blue) cone",
-  grayscale: "Grayscale — the printed, photocopied and screenshotted case",
+  protanopia: "Protanopia has no long-wavelength (red) cone",
+  deuteranopia: "Deuteranopia has no medium-wavelength (green) cone",
+  tritanopia: "Tritanopia has no short-wavelength (blue) cone",
+  grayscale: "Grayscale is the printed, photocopied and screenshotted case",
 }
 
 const RGB_TO_LMS = [
@@ -80,8 +80,8 @@ function matmul(
  * Grayscale by relative luminance rather than by an average of the channels.
  *
  * The naive average is what makes a red and a green of equal lightness collapse
- * into the same grey while a correct conversion keeps them apart — which would
- * make this audit report a pass it has not earned.
+ * into the same grey while a correct conversion keeps them apart. That
+ * collapse would make this audit report a pass it has not earned.
  */
 export function toGrayscale(rgb: Rgb): Rgb {
   const linear = srgbToLinear(rgb)

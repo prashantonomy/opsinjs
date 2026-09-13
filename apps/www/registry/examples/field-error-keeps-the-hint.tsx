@@ -3,8 +3,8 @@
  * appears IN ADDITION to the hint, never instead of it.
  *
  * The same field twice, before and after. Almost every hand-rolled form swaps
- * one for the other — the markup is simpler and the column is shorter — and the
- * result is that at the exact moment a reader has got something wrong, the
+ * one for the other, because the markup is simpler and the column is shorter.
+ * The result is that at the exact moment a reader has got something wrong, the
  * sentence that would have told them the right shape disappears. They are then
  * expected to work out the format from a message about the format being wrong.
  *

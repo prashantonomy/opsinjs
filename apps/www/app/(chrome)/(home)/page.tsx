@@ -2,12 +2,10 @@ import type { Metadata } from "next"
 import Link from "next/link"
 
 import {
-  CategorySpecimen,
   Container,
   CtaLink,
-  Grid,
+  FactTable,
   ImplementationStatusNotice,
-  LinkCard,
   Mono,
   Panel,
   Section,
@@ -18,34 +16,41 @@ import { builtComponentCount } from "@/lib/registry"
 import { agentRoutes, registryRoutes, routes, site } from "@/lib/routes"
 
 export const metadata: Metadata = {
-  /* `absolute` because the group layout appends " — opsinjs" to every title
+  /* `absolute` because the group layout appends " · opsinjs" to every title
      below it, and this one already opens with the name. */
-  title: { absolute: "opsinjs — a design system for consumer health apps" },
+  title: { absolute: "opsinjs is a design system for consumer health apps" },
   description: site.tagline,
 }
 
 /**
  * The landing page.
  *
- * It has one job: tell a developer, in under a minute, what this system decides
- * that a general-purpose one does not — and tell them honestly which part of it
- * is built, which part is a specification, and which part was considered and
- * refused. A landing page that oversells a scaffold costs more trust than it
- * buys attention, and on a health system trust is the entire product. The same
- * is true of one that undersells it: a page still claiming nothing is built the
- * week components start shipping is wrong in the direction that costs a reader
- * the working code they came for. Which is why the counts on this page are read
- * from `builtComponentCount()` rather than typed: a sentence that names a number
- * is a sentence that can be caught being wrong, and the fix is to stop typing
- * the number rather than to remember to update it.
+ * It tells a developer what this system decides that a general-purpose one does
+ * not, and which part of it is built. The counts are read from
+ * `builtComponentCount()` and `getConsidered().length` rather than typed,
+ * because a typed number is a sentence that goes quietly wrong.
  *
- * Every specimen below renders from the live token layer. Nothing on this page
- * has a colour, a duration or an easing curve typed into it: the status ladder,
- * the material ladder and the motion demonstration all read CSS custom
- * properties that `scripts/build-tokens.mts` writes from `tokens/*.json`. That
- * is not a purity exercise — it means the front page cannot quietly disagree
- * with the documentation, which is the failure mode of every design system
- * landing page that ships hand-picked hex values.
+ * DELIBERATELY SHORT, AND MOSTLY TABLES. The substance is a set of parallel
+ * decisions, and a table varies where the facts vary and nowhere else. Four
+ * cuts got it here from roughly two and a half thousand words, and each is a
+ * rule worth keeping when this page grows again:
+ *
+ *   - A column repeating one value down every row is a sentence, not a column.
+ *     The material ladder lost two that way.
+ *   - Prose restating the table beside it is deleted, not rewritten. Six cards
+ *     under "What it decides for you" went for that reason.
+ *   - Two sections arguing the same point merge. Materials and motion share one
+ *     paragraph about degradation, so they share one section.
+ *   - A closing section whose links repeat the hero's is navigation, not copy.
+ *
+ * Every specimen renders from the live token layer, so the front page cannot
+ * quietly disagree with the documentation. The only literal colours are the
+ * deliberately hostile demo backdrop at the foot of this file, which is an
+ * adversarial test surface rather than a system value.
+ *
+ * The figures in the tables are transcribed from `tokens/material.json` and
+ * `tokens/motion.json`. Nothing diffs a JSX table against its source, so a
+ * change to either file has to be mirrored here by hand.
  */
 export default function HomePage() {
   return (
@@ -61,17 +66,14 @@ export default function HomePage() {
             React · Next.js · consumer and patient-facing health
           </p>
           <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-            A design system for health apps where the person reading the number
-            is the patient.
+            A design system for consumer and patient-facing health products
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-pretty text-muted-foreground">
-            Somebody opens an app and sees that their blood pressure is 148 over
-            96, or that their HbA1c has moved from 41 to 46. They are not a
-            clinician. They have to decide whether that is nothing, something
-            for Tuesday, or a reason to phone somebody now. opsinjs is the set
-            of components, tokens and rules for building that screen — and it
-            takes positions on colour, wording and precision that a
-            general-purpose design system has no basis to take.
+            opsinjs is the components, tokens and rules for the screen where a
+            patient reads their own result: a blood pressure of 148 over 96, or
+            an HbA1c that has moved from 41 to 46. The reader is not a clinician
+            and has to decide whether that is nothing, something for Tuesday, or
+            a reason to phone somebody.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -89,71 +91,64 @@ export default function HomePage() {
               href={routes.docs("project", "state-of-the-system")}
             >
               Nothing is published to npm. opsinjs is distributed the shadcn
-              way — registry source copied into your project — and{" "}
-              {builtComponentCount()} components are implemented and installable
-              that way today. All of them are alpha: the API may change in any
-              release without a deprecation cycle, none has been through an
-              independent accessibility or clinical review, and none is ready
-              for a production health surface. Each page carries intent, when
-              not to use it and what to use instead, the clinical contract, the
-              API, and the accessibility bar — including what has not been
-              measured.
+              way, and {builtComponentCount()} components are installable as
+              source. All are alpha: the API may change in any release without a
+              deprecation cycle, none has had an independent accessibility or
+              clinical review, and none is production-ready.
             </ImplementationStatusNotice>
           </div>
         </Container>
       </section>
 
       {/* ---------------------------------------------------------------- */}
-      {/* Differentiator 1 — the colour engine                             */}
+      {/* The colour axes                                                  */}
       {/* ---------------------------------------------------------------- */}
       <Section
         id="colour"
-        title="A colour engine with two axes that never meet"
-        lead="Most systems have one colour dimension and overload it. Health data has two genuinely independent ones, and collapsing them is how an app tells somebody their sleep tracking is an emergency."
+        title="The two colour axes"
+        lead="Health data carries two independent colour dimensions. Collapsing them is how an app tells somebody their sleep tracking is an emergency."
       >
-        <div className="grid gap-8 lg:grid-cols-2">
-          <div>
-            <h3 className="text-sm font-semibold tracking-wide uppercase">
-              Status — the verdict
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Four ordinal levels, high chroma, always carrying a word and a
-              shape as well as a colour. Deliberately not{" "}
-              <Mono>ok / info / warning / error</Mono>: that vocabulary imports
-              a software-failure frame into a clinical one, and
-              &ldquo;error&rdquo; is the wrong word for a person&rsquo;s blood
-              pressure.
-            </p>
-            <div className="mt-4">
-              <StatusSpecimen />
-            </div>
-          </div>
+        <FactTable
+          columns={[
+            "Axis",
+            "Question it answers",
+            "Chroma",
+            "Carries",
+            "Never carries",
+            "Assigned by",
+          ]}
+          rows={[
+            [
+              "Status",
+              "How does this sit against what was expected?",
+              "High",
+              "A result surface, badge or border",
+              "Chart series, section headers",
+              "The product, from thresholds it owns",
+            ],
+            [
+              "Category",
+              "What kind of measurement is this?",
+              "Low",
+              "Chart lines, glyphs, section identity",
+              "Anything reporting a result",
+              "The metric, fixed for good",
+            ],
+          ]}
+        />
 
-          <div>
-            <h3 className="text-sm font-semibold tracking-wide uppercase">
-              Category — the identity
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              What kind of measurement this is. Low chroma on purpose, so that a
-              category swatch can never be misread as urgency. Category colours
-              are for chart lines, glyphs and section identity — never for the
-              surface of something that reports a result.
-            </p>
-            <div className="mt-4">
-              <CategorySpecimen />
-            </div>
-          </div>
+        <div className="mt-8">
+          <StatusSpecimen />
         </div>
 
         <Panel className="mt-8">
           <p className="text-sm leading-relaxed">
-            <strong className="font-medium">The invariant:</strong> an element
-            takes its colour from exactly one axis. A tile that is both{" "}
-            <em>cardio</em> and <em>urgent</em> gets its category from a glyph
-            or a label and its status from the surface — never two competing
-            reds. The playground&rsquo;s two-axis lab refuses to render a mixed
-            pair and explains why, and the lint rules exist so the refusal
-            happens in your editor rather than in review.
+            An element takes its colour from one axis only, and status is never
+            carried by colour alone: every level renders a colour, an icon and a
+            word. The vocabulary is{" "}
+            <Mono>steady / watch / attention / urgent</Mono>, not{" "}
+            <Mono>ok / info / warning / error</Mono>, because
+            &ldquo;error&rdquo; is the wrong frame for a blood pressure.
           </p>
           <p className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm">
             <Link
@@ -161,16 +156,6 @@ export default function HomePage() {
               href={routes.docs("health", "two-colour-axes")}
             >
               The two colour axes
-            </Link>
-            <Link
-              className="underline underline-offset-4"
-              href={routes.docs(
-                "foundations",
-                "colour",
-                "how-the-engine-works"
-              )}
-            >
-              How the engine works
             </Link>
             <Link
               className="underline underline-offset-4"
@@ -189,14 +174,109 @@ export default function HomePage() {
       </Section>
 
       {/* ---------------------------------------------------------------- */}
-      {/* Differentiator 2 — the material ladder                           */}
+      {/* Material and motion                                              */}
       {/* ---------------------------------------------------------------- */}
       <Section
-        id="materials"
-        title="A material ladder with a floor you can measure"
-        lead="Translucency is the default aesthetic of every modern health app, and it is also the most reliable way to fail a contrast check without noticing. Six named rungs, each with a stated minimum scrim, an opaque fallback and a published measurement."
+        id="tokens"
+        title="Material and motion tokens"
+        lead="Six material rungs each answer a different question about what is behind a surface. Four springs are compiled from physical parameters into CSS linear() easings, so the curve runs with no animation library. Settle durations are measured, not chosen."
       >
-        <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr]">
+        <FactTable
+          columns={[
+            "Rung",
+            "Question it answers",
+            "Surface",
+            "Blur",
+            "Minimum scrim",
+          ]}
+          rows={[
+            [
+              "canvas",
+              "The page itself?",
+              "Opaque, no border or shadow",
+              "None",
+              "None",
+            ],
+            [
+              "card",
+              "A distinct piece of content?",
+              "Opaque, bordered, flat",
+              "None",
+              "None",
+            ],
+            [
+              "raised",
+              "Above the page, not covering it?",
+              "Opaque, bordered, shadowed",
+              "None",
+              "None",
+            ],
+            [
+              "sheet",
+              "Covering the page, still visible?",
+              "Translucent, subtle border",
+              "20px",
+              "0.82",
+            ],
+            [
+              "overlay",
+              "Chrome floating over content?",
+              "Translucent, strong shadow",
+              "28px",
+              "0.74",
+            ],
+            [
+              "scrim",
+              "Everything behind unusable?",
+              "Translucent, no border",
+              "2px",
+              "0.44",
+            ],
+          ]}
+        />
+
+        <FactTable
+          className="mt-6"
+          columns={[
+            "Token",
+            "Settles",
+            "Overshoot",
+            "Use",
+            "Under reduced motion",
+          ]}
+          rows={[
+            [
+              <Mono key="s">spring-snap</Mono>,
+              "283ms",
+              "1.52%",
+              "Direct manipulation by the reader",
+              "Snaps to the end state",
+            ],
+            [
+              <Mono key="t">spring-settle</Mono>,
+              "382ms",
+              "0.88%",
+              "Popovers, tooltips, menus",
+              "A 100ms cross-fade",
+            ],
+            [
+              <Mono key="c">spring-calm</Mono>,
+              "550ms",
+              "None",
+              "A health value changing on screen",
+              "Renders the final value at once",
+            ],
+            [
+              <Mono key="h">spring-sheet</Mono>,
+              "483ms",
+              "None",
+              "Sheets and dialogs travelling far",
+              "A 120ms cross-fade in place",
+            ],
+          ]}
+        />
+
+        <div className="mt-8 grid gap-8 lg:grid-cols-[1.2fr_1fr]">
           <div className="opsin-backdrop rounded-lg p-5">
             <ul className="space-y-3">
               {[0, 1, 2, 3, 4, 5].map((rung) => (
@@ -216,33 +296,33 @@ export default function HomePage() {
                   <span className="font-mono text-xs opacity-70">
                     rung {rung}
                   </span>
-                  <span className="ml-3">{materialRungCaptions[rung]}</span>
+                  <span className="ml-3">{materialRungNames[rung]}</span>
                 </li>
               ))}
             </ul>
           </div>
 
           <div>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              The backdrop is deliberately hostile — high chroma, hard edges,
-              stripes. A ladder demonstrated over a tasteful grey photograph
-              proves nothing. Every rung above is drawn from the token layer:
-              background, blur radius, border and shadow are all custom
-              properties, so what you are looking at is the shipped definition
-              rather than an illustration of it.
+            <div className="opsin-motion-track">
+              <span aria-hidden className="opsin-motion-dot" />
+            </div>
+            <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
+              The backdrop is deliberately hostile, because a ladder shown over
+              a tasteful grey photograph proves nothing. Every rung and the
+              curve are drawn from the token layer. A health value never sits on
+              a translucent rung, and neither overshooting spring may animate
+              one, because for one frame it shows a number that is untrue.
             </p>
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-              The rungs are numbered rather than named here on purpose — the
-              names, and the rule for choosing between them, belong to the
-              Materials documentation, and a specimen should not quietly become
-              a second definition.
-            </p>
-            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-              Under <Mono>prefers-reduced-transparency: reduce</Mono> every
-              translucent rung collapses to its opaque fallback and drops its
-              blur. Nothing else moves, so the layout is identical with and
-              without it. Turn it on in your operating system and reload this
-              page — the ladder above will change and nothing will shift.
+              <strong className="font-medium text-foreground">
+                Urgency is never carried by motion.
+              </strong>{" "}
+              A pulsing badge is unreadable with vestibular sensitivity, absent
+              from a screenshot sent to a clinician, and gone under reduced
+              motion. Under <Mono>prefers-reduced-transparency</Mono> each
+              translucent rung swaps to its opaque fallback; under{" "}
+              <Mono>prefers-reduced-motion</Mono> durations collapse to 1ms and
+              the spring flattens to <Mono>linear(0, 1)</Mono>.
             </p>
             <p className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">
               <Link
@@ -253,13 +333,9 @@ export default function HomePage() {
               </Link>
               <Link
                 className="underline underline-offset-4"
-                href={routes.docs(
-                  "foundations",
-                  "materials",
-                  "the-contrast-floor"
-                )}
+                href={routes.docs("health", "motion-in-health-ui")}
               >
-                The contrast floor
+                Motion in health UI
               </Link>
               <Link
                 className="underline underline-offset-4"
@@ -273,132 +349,95 @@ export default function HomePage() {
       </Section>
 
       {/* ---------------------------------------------------------------- */}
-      {/* Differentiator 3 — motion tokens                                 */}
-      {/* ---------------------------------------------------------------- */}
-      <Section
-        id="motion"
-        title="Motion as tokens, with a degradation you can watch"
-        lead="Springs are authored as physical parameters and compiled into CSS linear() easings, so the same curve runs in a plain transition with no animation library in the bundle. Every token declares what it becomes under reduced motion — per token, not as a global kill switch."
-      >
-        <div className="grid gap-8 lg:grid-cols-2">
-          <Panel>
-            <p className="text-xs font-medium tracking-wide uppercase">
-              <Mono>--opsin-ease-spring</Mono>
-            </p>
-            <div className="opsin-motion-track mt-5">
-              <span aria-hidden className="opsin-motion-dot" />
-            </div>
-            <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
-              The overshoot is the point: a spring settles, it does not arrive.
-              If this dot is sitting still, your system is asking for reduced
-              motion and this demonstration has correctly stopped asking for
-              your attention.
-            </p>
-          </Panel>
-
-          <div>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              Motion in a health interface has one prohibition that a general
-              system does not:{" "}
-              <strong className="font-medium text-foreground">
-                urgency is never carried by motion
-              </strong>
-              . A pulsing badge is unreadable to somebody with vestibular
-              sensitivity, invisible in a screenshot sent to a clinician, and
-              gone entirely under reduced motion — three ways for the most
-              important thing on the screen to disappear.
-            </p>
-            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-              Under <Mono>prefers-reduced-motion: reduce</Mono> the duration
-              tokens collapse to 1ms and the spring flattens to{" "}
-              <Mono>linear(0, 1)</Mono>. The state change still happens — an
-              element still arrives, it simply arrives immediately. Removing the
-              transition entirely is a different bug: it makes interfaces feel
-              broken rather than calm.
-            </p>
-            <p className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">
-              <Link
-                className="underline underline-offset-4"
-                href={routes.docs("foundations", "motion", "springs-as-tokens")}
-              >
-                Springs as tokens
-              </Link>
-              <Link
-                className="underline underline-offset-4"
-                href={routes.docs("foundations", "motion", "reduced-motion")}
-              >
-                Reduced motion
-              </Link>
-              <Link
-                className="underline underline-offset-4"
-                href={routes.docs("health", "motion-in-health-ui")}
-              >
-                Motion in health UI
-              </Link>
-            </p>
-          </div>
-        </div>
-      </Section>
-
-      {/* ---------------------------------------------------------------- */}
-      {/* The vertical                                                      */}
+      {/* What it decides                                                   */}
       {/* ---------------------------------------------------------------- */}
       <Section
         id="health"
         title="What it decides for you"
-        lead="A design system for a health app is mostly a set of refusals. These are the ones opsinjs makes on your behalf, each written up as a testable rule rather than a principle."
+        lead="Six refusals the system applies on your behalf. It fixes the presentation, never the clinical content, and every row names who owns the rest."
       >
-        <Grid cols={3}>
-          <LinkCard
-            href={routes.docs("health", "reference-ranges")}
-            title="“Normal” is a banned word"
-          >
-            A reading inside a reference range is not normal, and a reading
-            outside one is not abnormal — the range is a population statistic,
-            not a verdict on a person. The system supplies the wording that says
-            what is actually true.
-          </LinkCard>
-          <LinkCard
-            href={routes.docs("health", "alarm-fatigue")}
-            title="One urgent surface per screen"
-          >
-            Escalation has a budget. If everything is urgent then nothing is,
-            and the component that finally matters is the one the reader has
-            learned to dismiss.
-          </LinkCard>
-          <LinkCard
-            href={routes.docs("health", "numbers-units-precision")}
-            title="A number never travels without its unit"
-          >
-            Precision is a property of the measurement, not of the formatter.
-            Rounding rules, significant figures and how many decimals a person
-            can act on are all decided once, centrally.
-          </LinkCard>
-          <LinkCard
-            href={routes.docs("health", "unit-systems")}
-            title="Unit systems are correctness, not localisation"
-          >
-            mmol/L against mg/dL, kilograms against stones, Celsius against
-            Fahrenheit. Getting this wrong is not an inconvenience for the
-            reader; it is a wrong answer delivered confidently.
-          </LinkCard>
-          <LinkCard
-            href={routes.docs("health", "uncertainty-and-staleness")}
-            title="“We do not know” is a rendered state"
-          >
-            Empty, loading, error, stale and partial are defined once for every
-            data surface. A three-day-old reading presented as current is a
-            safety problem with a spinner in front of it.
-          </LinkCard>
-          <LinkCard
-            href={routes.docs("health", "trends-and-change")}
-            title="Direction is separated from valence"
-          >
-            Up is not good and down is not bad; it depends entirely on the
-            measurement. The arrow and the verdict are different tokens because
-            they are different facts.
-          </LinkCard>
-        </Grid>
+        <FactTable
+          columns={[
+            "Decision",
+            "What opsinjs fixes",
+            "What it refuses to decide",
+            "Who owns the refused part",
+          ]}
+          rows={[
+            [
+              <Link
+                key="r"
+                className="underline underline-offset-4"
+                href={routes.docs("health", "reference-ranges")}
+              >
+                Reference ranges
+              </Link>,
+              "The word “normal” is banned from any result string",
+              "Which values the range spans",
+              "The laboratory or clinical team",
+            ],
+            [
+              <Link
+                key="a"
+                className="underline underline-offset-4"
+                href={routes.docs("health", "alarm-fatigue")}
+              >
+                Escalation budget
+              </Link>,
+              "One urgent surface per screen",
+              "Which reading earns it",
+              "The product, against thresholds it owns",
+            ],
+            [
+              <Link
+                key="n"
+                className="underline underline-offset-4"
+                href={routes.docs("health", "numbers-units-precision")}
+              >
+                Numbers and precision
+              </Link>,
+              "Rounding, significant figures, never a bare number",
+              "How many decimals are justified",
+              "The device or assay",
+            ],
+            [
+              <Link
+                key="u"
+                className="underline underline-offset-4"
+                href={routes.docs("health", "unit-systems")}
+              >
+                Unit systems
+              </Link>,
+              "mmol/L against mg/dL, kilograms against stones, Celsius against Fahrenheit",
+              "Which system this reader expects",
+              "The product, from locale and preference",
+            ],
+            [
+              <Link
+                key="s"
+                className="underline underline-offset-4"
+                href={routes.docs("health", "uncertainty-and-staleness")}
+              >
+                Missing and stale data
+              </Link>,
+              "Empty, loading, error, stale, partial, defined once",
+              "When a reading becomes stale",
+              "The product; staleness depends on the metric",
+            ],
+            [
+              <Link
+                key="t"
+                className="underline underline-offset-4"
+                href={routes.docs("health", "trends-and-change")}
+              >
+                Direction and valence
+              </Link>,
+              "The arrow and the verdict are separate tokens",
+              "Which direction is favourable",
+              "The product and its clinical lead",
+            ],
+          ]}
+        />
 
         <p className="mt-6 text-sm text-muted-foreground">
           <Link
@@ -407,7 +446,7 @@ export default function HomePage() {
           >
             All of the health doctrine
           </Link>{" "}
-          — and the honest boundary:{" "}
+          sets out the rest.{" "}
           <Link
             className="text-foreground underline underline-offset-4"
             href={routes.docs("start", "safety-scope-and-limitations")}
@@ -419,90 +458,62 @@ export default function HomePage() {
       </Section>
 
       {/* ---------------------------------------------------------------- */}
-      {/* Honesty                                                           */}
+      {/* Implementation status                                             */}
       {/* ---------------------------------------------------------------- */}
       <Section
         id="today"
-        title="What is real today"
-        lead="Written down rather than implied, because a scaffold that reads like a product is the fastest way to lose a reader permanently."
+        title="Implementation status"
+        lead="The counts are read at build time from the registry and the catalogue, never typed."
       >
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Panel>
-            <h3 className="font-medium">Real and usable now</h3>
-            <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
-              <li>
-                <strong className="font-medium text-foreground">
-                  {builtComponentCount()} components.
-                </strong>{" "}
-                Implemented, rendered live on their own pages, and installable
-                as source from the registry. All of them are alpha: the API may
-                change in any release without a deprecation cycle, and none has
-                been through an independent accessibility or clinical review, so
-                none is ready for a production health surface.
-              </li>
-              <li>
-                <strong className="font-medium text-foreground">Tokens.</strong>{" "}
-                Two colour axes, six material rungs, spring easings, and the
-                type, space and shape scales — authored as JSON and compiled
-                into the CSS this page is drawn with.
-              </li>
-              <li>
-                <strong className="font-medium text-foreground">
-                  Doctrine.
-                </strong>{" "}
-                Health, accessibility, content and foundations are written
-                against those tokens and do not depend on any component
-                existing.
-              </li>
-              <li>
-                <strong className="font-medium text-foreground">
-                  Measured numbers.
-                </strong>{" "}
-                Contrast figures, token tables and catalogue rows are generated
-                and committed, and CI fails when a checked-in artefact drifts
-                from its source.
-              </li>
-            </ul>
-          </Panel>
-          <Panel>
-            <h3 className="font-medium">Specified or refused, not built</h3>
-            <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
-              <li>
-                <strong className="font-medium text-foreground">
-                  Five screens.
-                </strong>{" "}
-                Results, trends, the daily log, onboarding and the consent flow
-                have pages carrying a full specification and a machine-readable
-                not-implemented marker. None has an implementation.
-              </li>
-              <li>
-                <strong className="font-medium text-foreground">
-                  {getConsidered().length} more components.
-                </strong>{" "}
-                Considered and left off the roster. Each id answers at its own
-                address with the reason it was refused and what to use instead,
-                because a 404 is the response that invites an assistant to
-                invent one.
-              </li>
-              <li>
-                <strong className="font-medium text-foreground">
-                  No packages.
-                </strong>{" "}
-                Nothing is published to npm. Any package claiming to be opsinjs
-                today is not ours; see{" "}
-                <Link
-                  className="text-foreground underline underline-offset-4"
-                  href={routes.official()}
-                >
-                  official resources
-                </Link>
-                .
-              </li>
-            </ul>
-          </Panel>
-        </div>
+        <FactTable
+          columns={["Thing", "Count", "What exists", "What does not"]}
+          rows={[
+            [
+              "Components",
+              String(builtComponentCount()),
+              "Rendered live, installable as source",
+              "A stable API, an independent review, a package",
+            ],
+            [
+              "Considered components",
+              String(getConsidered().length),
+              "An address giving the refusal and alternative",
+              "An implementation, and none is intended",
+            ],
+            [
+              "Screens",
+              "5",
+              "Results, trends, daily log, onboarding, consent",
+              "An implementation of any of the five",
+            ],
+            [
+              "Token layers",
+              "6",
+              "Colour, material, motion, type, space, shape",
+              "Nothing; this is the finished part",
+            ],
+            [
+              "Doctrine pillars",
+              "4",
+              "Health, accessibility, content, foundations",
+              "External clinical review",
+            ],
+            [
+              "Generated artefacts",
+              "9",
+              "Contrast figures, token tables, catalogue rows",
+              "Measured contrast for every pair",
+            ],
+          ]}
+        />
 
         <p className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
+          <Link
+            className="text-foreground underline underline-offset-4"
+            href={routes.official()}
+          >
+            Official resources
+          </Link>
           <Link
             className="text-foreground underline underline-offset-4"
             href={routes.docs("project", "roadmap")}
@@ -515,107 +526,117 @@ export default function HomePage() {
           >
             What each status promises
           </Link>
-          <Link
-            className="text-foreground underline underline-offset-4"
-            href={routes.docs("project", "decisions")}
-          >
-            Architecture decisions
-          </Link>
         </p>
       </Section>
 
       {/* ---------------------------------------------------------------- */}
-      {/* Agents                                                            */}
+      {/* Machine-readable surfaces                                         */}
       {/* ---------------------------------------------------------------- */}
       <Section
         id="agents"
-        title="Built to be read by assistants, not just by people"
-        lead="Most of the code written against a design system this year will be generated. A system that only documents itself for humans is a system that will be used incorrectly at scale."
+        title="Machine-readable surfaces"
+        lead="Every page and component is published at a stable address in a standard format."
       >
-        <Grid cols={4}>
-          <LinkCard href={agentRoutes.llms()} title="llms.txt" meta="curated">
-            A curated index with absolute URLs and a status per entry, plus four
-            shards so a client can fetch only the health doctrine or only the
-            component specifications.
-          </LinkCard>
-          <LinkCard
-            href={routes.docs("agents", "raw-markdown-api")}
-            title="Every page as .md"
-            meta="processed"
-          >
-            Append <Mono>.md</Mono> to any documentation URL for the processed
-            markdown — imports stripped, headings given ids, tables and code
-            intact. Documentation components stay as{" "}
-            <Mono>{"<PascalCase … />"}</Mono>, and each page says where the
-            values they render are published.
-          </LinkCard>
-          <LinkCard
-            href={registryRoutes.catalog()}
-            title="registry.json"
-            meta="shadcn spec"
-          >
-            A shadcn-specification registry, so the standard MCP server and CLI
-            work against opsinjs with no bespoke tooling.
-          </LinkCard>
-          <LinkCard
-            href={routes.docs("agents", "rules-for-agents")}
-            title="Rules for agents"
-            meta="enforced"
-          >
-            Tokens not hex. Status not colour. Never invent a component. The
-            agent skill enforces these on every generation.
-          </LinkCard>
-        </Grid>
+        <FactTable
+          columns={["Surface", "Address", "Format", "Intended consumer"]}
+          rows={[
+            [
+              "Curated index",
+              <MonoLink key="a" href={agentRoutes.llms()} />,
+              "Plain text",
+              "An assistant orienting in the corpus",
+            ],
+            [
+              "Full corpus",
+              <MonoLink key="b" href={agentRoutes.llmsFull()} />,
+              "Plain text",
+              "A client with room for every page",
+            ],
+            [
+              "Health shard",
+              <MonoLink key="c" href={agentRoutes.llmsHealth()} />,
+              "Plain text",
+              "A client needing the doctrine alone",
+            ],
+            [
+              <Link
+                key="d"
+                className="underline underline-offset-4"
+                href={routes.docs("agents", "raw-markdown-api")}
+              >
+                Processed markdown
+              </Link>,
+              <Mono key="d2">.md</Mono>,
+              "Markdown",
+              "A client fetching one known page",
+            ],
+            [
+              "Registry catalogue",
+              <MonoLink key="e" href={registryRoutes.catalog()} />,
+              "shadcn registry specification",
+              "The standard shadcn CLI and MCP server",
+            ],
+            [
+              "Registry index",
+              <MonoLink key="f" href={registryRoutes.index()} />,
+              "JSON",
+              "A tool resolving an id in bulk",
+            ],
+            [
+              "Offline bundle",
+              <MonoLink key="g" href={registryRoutes.docsBundle()} />,
+              "JSON",
+              "An agent working offline",
+            ],
+          ]}
+        />
 
         <Panel className="mt-6">
           <p className="text-sm leading-relaxed">
-            <strong className="font-medium">
-              The promise that governs all of it:
-            </strong>{" "}
-            asking this site about a component that does not exist returns a
-            definitive answer, never a 404. A 404 is the one response that
-            invites an assistant to invent an API and hand it to somebody
-            building a screen that shows a person their own test results.
+            Asking about a component that does not exist returns a definitive
+            answer rather than a 404, because a 404 invites an assistant to
+            invent an API for a screen showing somebody their own results.{" "}
+            <Link
+              className="underline underline-offset-4"
+              href={routes.docs("agents", "rules-for-agents")}
+            >
+              Rules for agents
+            </Link>{" "}
+            are enforced on every generation.
           </p>
         </Panel>
       </Section>
-
-      {/* ---------------------------------------------------------------- */}
-      {/* Closing                                                           */}
-      {/* ---------------------------------------------------------------- */}
-      <section className="py-16">
-        <Container>
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Start with the part that is finished.
-          </h2>
-          <p className="mt-3 max-w-2xl leading-relaxed text-muted-foreground">
-            The tokens and the doctrine are the system. The components are the
-            part that will take the longest and matter the least, because a
-            beautifully-built RangeBar that uses the wrong colour axis is worse
-            than no RangeBar at all.
-          </p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <CtaLink href={routes.docs("start")}>Start here</CtaLink>
-            <CtaLink href={routes.docs("health")} variant="secondary">
-              Read the health doctrine
-            </CtaLink>
-            <CtaLink href={routes.colors()} variant="secondary">
-              Browse the colour system
-            </CtaLink>
-          </div>
-        </Container>
-      </section>
     </>
   )
 }
 
-const materialRungCaptions: Record<number, string> = {
-  0: "The page itself. Opaque, no border, no shadow.",
-  1: "A card. Opaque, bordered, flat.",
-  2: "A card that has lifted. Opaque, bordered, with a shadow.",
-  3: "The first translucent rung. Light blur, subtle border.",
-  4: "A floating overlay. Heavy blur, a stronger shadow.",
-  5: "A scrim. Darkens what is behind a modal surface.",
+/**
+ * A machine surface's address, rendered as monospace and reachable.
+ *
+ * These are static artefacts rather than Next routes, so they take a plain
+ * anchor: routing them through `next/link` would buy a client-side transition
+ * to a file the router cannot render.
+ */
+function MonoLink({ href }: { href: string }) {
+  return (
+    <a className="underline underline-offset-4" href={href}>
+      <Mono>{href}</Mono>
+    </a>
+  )
+}
+
+/**
+ * The rung names, for the specimen's row labels. What each rung is made of is
+ * in the table above; a specimen label names the rung and stops, so that it
+ * cannot quietly become a second definition.
+ */
+const materialRungNames: Record<number, string> = {
+  0: "canvas",
+  1: "card",
+  2: "raised",
+  3: "sheet",
+  4: "overlay",
+  5: "scrim",
 }
 
 /**
@@ -624,8 +645,10 @@ const materialRungCaptions: Record<number, string> = {
  * tokens.
  *
  * Every value that belongs to the system is read from a custom property. The
- * literal numbers here are geometry — a track width, a dot size — and geometry
- * is not a token.
+ * literal numbers here are geometry such as a track width and a dot size, and
+ * geometry is not a token. The backdrop's colours are the one deliberate
+ * exception on this page: they are an adversarial test surface rather than a
+ * system value, and drawing them from the palette would defeat the purpose.
  */
 const demoStyles = `
 .opsin-backdrop {

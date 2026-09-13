@@ -1,6 +1,6 @@
 ---
 title: Colour independence
-description: Clinical status must survive greyscale, colour vision deficiency and a photocopier — and the word is what makes that true.
+description: Clinical status must survive greyscale, colour vision deficiency and a photocopier. The word is what makes that true.
 status: stable
 kind: accessibility
 a11yDate: 2026-09-02
@@ -22,22 +22,23 @@ and cannot leave `planned`.
 
 Concretely, every status surface carries:
 
-- a **word** from the fixed vocabulary — "Steady", "Watch", "Needs attention",
-  "Urgent", and "Not known" where there is no reading — rendered as visible text,
-  not as a tooltip;
-- a **`data-status` attribute** carrying the level id — `steady`, `watch`,
-  `attention`, `urgent`, `unknown` — so the state is available to tests, to
-  styling and to anything reading the DOM. The id and the word are deliberately
-  not the same string; `attention` is the id, "Needs attention" is the word;
+- a **word** from the fixed vocabulary, rendered as visible text, not as a
+  tooltip. The words are "Steady", "Watch", "Needs attention", "Urgent", and
+  "Not known" where there is no reading;
+- a **`data-status` attribute** carrying the level id. The ids are `steady`,
+  `watch`, `attention`, `urgent` and `unknown`, and the state is therefore
+  available to tests, to styling and to anything reading the DOM. The id and
+  the word are deliberately not the same string; `attention` is the id,
+  "Needs attention" is the word;
 - an **icon whose shape differs between levels**, so the levels are
   distinguishable at a glance without relying on hue;
 - a **token pair** whose measured contrast is published on
   [Contrast conformance](./contrast-conformance.mdx).
 
-The canonical definition of the four levels — what each one asserts, who is
-allowed to assign it, and what it must never be read as — lives on
-[Clinical status semantics](../health/clinical-status-semantics.mdx). This page
-is only about whether the level survives the loss of colour.
+[Clinical status semantics](../health/clinical-status-semantics.mdx) is where
+the four levels are defined. It says what each one asserts, who is allowed to
+assign it, and what it must never be read as. This page is only about whether
+the level survives the loss of colour.
 
 The category axis is treated differently on purpose. Category colour is
 *identity*, not information: it helps a returning reader find the heart section
@@ -52,12 +53,12 @@ calendar with coloured day cells, a coloured left border on a list row: all
 common, all failures of SC 1.4.1 the moment the colour is the only carrier.
 
 **Icon choice.** If you replace the shipped status icons with a set that differs
-only in colour — six identically shaped dots — you have removed the redundancy
-while keeping the appearance of it. Icons must differ in *shape*.
+only in colour, you have removed the redundancy while keeping the appearance of
+it. Six identically shaped dots are one such set. Icons must differ in *shape*.
 
 **Charts.** Category colours are explicitly not chart colours, and a chart
-distinguished by colour alone needs a second encoding — direct labels, distinct
-markers, or a table twin. See
+distinguished by colour alone needs a second encoding. Direct labels, distinct
+markers and a table twin each do that job. See
 [Accessible charts](../foundations/data-visualisation/accessible-charts.mdx).
 
 **Copy that leans on colour.** "Your reading is in the green" is a sentence that
@@ -70,8 +71,8 @@ fails for a reader who cannot see the green. Say what it means:
 
 ### Desaturate the whole screen
 
-Apply a full greyscale filter — browser developer tools, an operating-system
-colour filter, or a print preview in black and white — and complete the task.
+Apply a full greyscale filter using browser developer tools, an operating-system
+colour filter, or a print preview in black and white. Then complete the task.
 **Expected result:** every status is still identifiable, because the word is
 still there. **Failure looks like** two pills becoming the same mid-grey, or a
 range bar whose marker is invisible against its track.
@@ -83,7 +84,7 @@ simulator at [`/playground/status`](/playground/status), which applies the same
 transforms the docs use. **Expected result:** the status levels remain
 distinguishable from one another, and no category colour becomes confusable with
 a status colour. **Failure looks like** `steady` and `attention` collapsing into
-one tone under deuteranopia — which is not hypothetical: they are the pair the
+one tone under deuteranopia. That is not hypothetical: they are the pair the
 generated audit in `lib/generated/contrast.json` records as indistinguishable
 there, and it is exactly why they also differ in word and icon.
 

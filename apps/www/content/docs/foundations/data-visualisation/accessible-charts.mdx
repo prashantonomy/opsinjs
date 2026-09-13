@@ -18,9 +18,9 @@ cannot be answered by "a line trending upward".
 
 opsinjs therefore requires a **table twin**: the same data, in a real table,
 available to everyone, on the same screen. Not hidden behind a hover, not in a
-modal, not visually hidden and reachable only by a screen reader — available.
-Sighted readers use it too, because the exact value on Tuesday is a question
-everybody has.
+modal, not visually hidden and reachable only by a screen reader. The twin is
+available. Sighted readers use it too, because the exact value on Tuesday is a
+question everybody has.
 
 <NotBuiltYet what="A chart with a table twin">
 `trend-sparkline` is the only chart in the registry and it ships at `alpha`
@@ -45,17 +45,17 @@ unlabelled shapes a screen reader walks through one path element at a time.
 *The summary.* One sentence, generated from the data rather than written per
 chart, stating what the chart shows, over what window, in which direction, by how
 much, and with what caveat. Generated because a hand-written summary is correct
-until the data changes and is then silently wrong — the same reasoning as every
-other generated artefact on this site. The pattern is roughly: *metric*, *window*,
-*direction and magnitude*, *coverage*, *caveat*. For example: "Systolic blood
-pressure, last 14 days: 11 readings, ranging from 118 to 134, with no clear
-direction. Three days have no reading."
+until the data changes and is then silently wrong. The same reasoning produces
+every other generated artefact on this site. The pattern is roughly: *metric*,
+*window*, *direction and magnitude*, *coverage*, *caveat*. For example:
+"Systolic blood pressure, last 14 days: 11 readings, ranging from 118 to 134,
+with no clear direction. Three days have no reading."
 
 *The table.* Real table markup with a header row, one row per data point, values
 in the same units and precision the chart uses, and missing readings shown as an
 empty cell with a stated reason rather than a blank or a zero. It is toggleable
-where space is short, and the toggle is a real control that is reachable and
-labelled — never a hover.
+where space is short, and the toggle is never a hover. It is a real control
+that is reachable and labelled.
 
 **The order matters.** Summary first, then chart, then table. Somebody who reads
 only the first thing gets the answer; somebody who wants the shape gets it next;
@@ -88,8 +88,8 @@ of the picture rather than the source, and it goes out of step.
 
 **Do not describe the shape in the summary.** "Trending upward" is an
 interpretation; "rose from 118 to 134 over 14 days" is the data. Where a
-direction genuinely matters, it is separated from its valence — see
-[Trends and change](../../health/trends-and-change.mdx) — and a rise is never
+direction genuinely matters, it is separated from its valence. See
+[Trends and change](../../health/trends-and-change.mdx). A rise is never
 described as good or bad by the chart.
 
 **State the coverage.** How many readings, out of how many expected. A chart
@@ -106,9 +106,10 @@ wrong.
 
 ## Tokens
 
-Accessible charts consume the neutral colour roles for the table, the type scale's
-value roles for the figures — so the table's numbers are tabular and align — and
-the space scale. There are no tokens specific to this page.
+Accessible charts consume the neutral colour roles for the table, the space
+scale, and the type scale's value roles for the figures. Those value roles are
+what make the table's numbers tabular and aligned. There are no tokens specific
+to this page.
 
 <NoDataYet script="scripts/build-tokens.mts" />
 
@@ -126,8 +127,8 @@ the space scale. There are no tokens specific to this page.
   a value, focusing must reveal the same value.
 - **The table is a real table.** Header cells associated with data cells, a
   caption naming the metric and the window, and units in the header rather than
-  repeated in every cell — which is also what makes it readable when somebody
-  copies it out.
+  repeated in every cell. Putting the units in the header is also what makes
+  the table readable when somebody copies it out.
 - **Missing values are announced as missing.** An empty cell that reads as
   nothing is the [data states](../data-states.mdx) failure again: absence
   mistaken for a reading in the usual range.
@@ -139,9 +140,9 @@ guidance is on
 
 ## Related
 
-- [Chart anatomy](chart-anatomy.mdx) — the axis and window facts the summary
-  sentence has to carry.
-- [Alt text and descriptions](../../content/alt-text-and-descriptions.mdx) — how
-  to describe dials, ranges and body diagrams non-visually.
-- [Data states](../data-states.mdx) — how a missing reading is rendered, in the
-  chart and in the table.
+- [Chart anatomy](chart-anatomy.mdx) covers the axis and window facts the
+  summary sentence has to carry.
+- [Alt text and descriptions](../../content/alt-text-and-descriptions.mdx) shows
+  how to describe dials, ranges and body diagrams non-visually.
+- [Data states](../data-states.mdx) shows how a missing reading is rendered, in
+  the chart and in the table.

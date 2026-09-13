@@ -1,6 +1,6 @@
 ---
 title: "@opsinjs/color"
-description: The colour engine as a callable API — OKLCH, gamut mapping, APCA and WCAG 2.2, and deriveTheme() — so the check that gates this site can gate your CI too.
+description: The colour engine as a callable API, covering OKLCH, gamut mapping, APCA and WCAG 2.2, and deriveTheme(). The check that gates this site can gate your CI too.
 status: planned
 kind: guide
 since: unreleased
@@ -13,16 +13,16 @@ aliases: [deriveTheme, apca function, oklch library]
 
 The colour engine is the first differentiator of this design system, and doctrine
 plus a playground is not enough to make it one. A theme you have changed needs
-its own measurements, in your CI, on every pull request — and that requires a
+its own measurements, in your CI, on every pull request. That requires a
 function you can call, not a page you can read.
 
 `@opsinjs/color` is that function. It is the same hand-written implementation
 that generates every contrast figure published on this site: OKLCH conversion,
 gamut mapping, Display-P3 escalation, APCA and WCAG 2.2, and the theme
 derivation the [theme generator](../theming/theme-generator.mdx) runs. No
-`culori`, no `apca-w3`, no dependencies at all — roughly 250 lines of maths,
-which is small enough to audit and small enough to be worth auditing when its
-output supports an accessibility claim.
+`culori`, no `apca-w3`, no dependencies at all. It is roughly 250 lines of
+maths, which is small enough to audit and small enough to be worth auditing when
+its output supports an accessibility claim.
 
 <StubNotice
   name="opsinjs-color"
@@ -71,17 +71,18 @@ usable on its own with no opsinjs concepts in scope at all.
 ## The design decisions worth arguing with
 
 **Chroma clamping never moves hue.** When a colour is outside the sRGB gamut,
-`clampChroma` reduces chroma at fixed lightness and hue. The alternative — a
-perceptual gamut mapping that trades a little hue for a little chroma — produces
-prettier colours and breaks the invariant that the P3 escalation and the sRGB
-baseline are the *same colour* at different saturations. That invariant is what
-lets opsinjs claim that measured contrast does not change with display gamut.
+`clampChroma` reduces chroma at fixed lightness and hue. The alternative is a
+perceptual gamut mapping that trades a little hue for a little chroma. It
+produces prettier colours and breaks the invariant that the P3 escalation and
+the sRGB baseline are the *same colour* at different saturations. That invariant
+is what lets opsinjs claim that measured contrast does not change with display
+gamut.
 
 **Both numbers, always.** `apca()` and `wcag()` are separate functions and
 `checkTheme()` reports both. APCA is more accurate for text and is not a
 standard; WCAG 2.2 is a standard and is coarse. A library that returned one
 number would be choosing for you, and the choice has legal and clinical
-consequences —
+consequences.
 [Contrast conformance](../accessibility/contrast-conformance.mdx) is where the
 project states which it relies on and why.
 
@@ -133,8 +134,8 @@ answers "is this legible", never "is this right".
 </SafetyCallout>
 
 It also will not simulate colour-vision deficiency in a way that produces a
-pass/fail. Simulation is a design aid — `<CvdSimulator>` on this site — and a
-green tick from a simulator is not evidence of colour independence. See
+pass/fail. Simulation is a design aid. `<CvdSimulator>` on this site is one,
+and a green tick from a simulator is not evidence of colour independence. See
 [Colour independence](../accessibility/colour-independence.mdx).
 
 ## Verify it worked
@@ -171,8 +172,8 @@ that has never failed has never been tested.
 
 **`npm install @opsinjs/color` fails.** Nothing is published yet.
 
-**My APCA number does not match another tool.** Check the sign convention and the
-polarity — APCA is signed, and dark-on-light and light-on-dark are different
+**My APCA number does not match another tool.** Check the sign convention and
+the polarity. APCA is signed, and dark-on-light and light-on-dark are different
 measurements of the same pair. Check also that both tools are measuring the same
 gamut.
 
@@ -187,9 +188,9 @@ rather than inherit somebody else's resolution of it.
 
 ## Next
 
-- [How the engine works](../foundations/colour/how-the-engine-works.mdx) — the
+- [How the engine works](../foundations/colour/how-the-engine-works.mdx) is the
   algorithm, explained.
-- [Validating your theme](../theming/validating-your-theme.mdx) — the job this
+- [Validating your theme](../theming/validating-your-theme.mdx) is the job this
   package exists to make possible.
-- [Contrast and APCA](../foundations/colour/contrast-and-apca.mdx) — what the
+- [Contrast and APCA](../foundations/colour/contrast-and-apca.mdx) says what the
   two numbers mean.

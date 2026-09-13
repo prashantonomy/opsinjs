@@ -1,5 +1,5 @@
 /**
- * GET /r/styles/<style>/<name>.json — one registry item at an explicit style.
+ * GET /r/styles/<style>/<name>.json serves one registry item at a named style.
  *
  * The docs page for a component has exactly one canonical URL and never a
  * style segment; the full base × style matrix is addressable here and on the
@@ -8,7 +8,7 @@
  *
  * `base` is behaviour, authored once per primitive library. `style` is only a
  * stylesheet. Adding a second base later is a folder under `registry/bases/`,
- * not a URL migration — which is the property this split exists to protect.
+ * not a URL migration. That property is what this split exists to protect.
  *
  * Today the matrix has one cell: base `base`, style `base-lyra`. An unknown
  * style returns 404 naming the styles that do exist, so an agent probing the

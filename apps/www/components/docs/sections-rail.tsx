@@ -7,8 +7,8 @@ import { routes, SECTIONS_RAIL } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
 /* ==========================================================================
-   sections-rail.tsx — <SectionsRail>, the persistent pillar jump rail rendered
-   as the docs sidebar banner.
+   sections-rail.tsx defines <SectionsRail>, the persistent pillar jump rail
+   rendered as the docs sidebar banner.
 
    WHY THIS EXISTS INSTEAD OF LAYOUT TABS.
 
@@ -34,9 +34,9 @@ import { cn } from "@/lib/utils"
  * One line per pillar, saying what is behind the link.
  *
  * The URLs themselves come from `SECTIONS_RAIL` in lib/routes.ts, which is also
- * what the root meta.json duplicates as Link entries — so the rail and the tree
- * can never point at different places. Only the hints live here, because they
- * are prose about navigation rather than route data.
+ * what the root meta.json duplicates as Link entries. The rail and the tree can
+ * therefore never point at different places. Only the hints live here, because
+ * they are prose about navigation rather than route data.
  */
 const HINTS: Record<string, string> = {
   Introduction: "What opsinjs is, who it is for, and what it refuses to do.",

@@ -1,6 +1,6 @@
 ---
 title: Body diagrams
-description: The highest-stakes image in a health product — how to draw a body somebody can locate themselves on, resolve the left-and-right problem, and never imply a diagnosis.
+description: The highest-stakes image in a health product. How to draw a body somebody can locate themselves on, resolve the left-and-right problem, and never imply a diagnosis.
 status: planned
 kind: foundation
 aliases: [pain location diagram, body outline]
@@ -13,9 +13,9 @@ a11yDate: 2026-09-02
 
 A body diagram is the image a reader uses to answer a question about their own
 body: where does it hurt, where is the rash, where do I attach this. That makes
-it the highest-stakes image in the system — it is not illustrating a point, it is
-collecting or presenting data — and the one where representation and clinical
-caution meet most directly.
+it the highest-stakes image in the system, because it is not illustrating a
+point but collecting or presenting data. That also makes it the one where
+representation and clinical caution meet most directly.
 
 It is also the image most likely to be mistaken for a diagnosis. A body outline
 with a region highlighted and a label reads as a finding, whoever wrote the label.
@@ -23,9 +23,9 @@ The rules below exist mostly to keep that from happening by accident.
 
 <NotBuiltYet />
 
-`BodyMap` is on the [considered roster](../../components/index.mdx) — a
-recognised concept with no specification yet, and nothing built. This page is what
-a specification for it would have to satisfy.
+`BodyMap` is on the [considered roster](../../components/index.mdx). The concept
+is recognised, there is no specification yet, and nothing is built. This page is
+what a specification for it would have to satisfy.
 
 ## How it works
 
@@ -35,15 +35,16 @@ recorded, are different surfaces with different rules, and conflating them
 produces a picture that appears editable and is not, or vice versa.
 
 **Regions are named in plain English, with the clinical term secondary.** "Upper
-arm", not "brachium"; "lower back", not "lumbar region". Where the clinical term
-matters — because the reader will meet it later — it appears alongside, as a
+arm", not "brachium"; "lower back", not "lumbar region". The clinical term
+matters when the reader will meet it later, and it then appears alongside, as a
 [Term](../../components/term.mdx) with a plain-English expansion, not instead.
 
 **Solve left and right explicitly, and say which you solved.** A diagram of a
 front-facing body has the reader's left on the viewer's right. Somebody pointing
 at their own sore shoulder will point at the wrong side of an unmirrored diagram
-about half the time. Whichever convention the product picks, the label says it —
-"your left shoulder" — and the label is in text, not implied by the picture.
+about half the time. Whichever convention the product picks, the label says it.
+"Your left shoulder" is what that looks like, and the label is in text, not
+implied by the picture.
 
 **Front and back are separate views with an explicit control**, never one image
 the reader is expected to interpret. A reader who cannot find the region they want
@@ -54,13 +55,14 @@ decision about sex characteristics, body size and skin tone that the reader has
 not been asked about. The default is the most neutral outline that still lets
 somebody locate themselves; where anatomy genuinely matters, the reader chooses,
 explicitly and revocably, and it is never inferred from a name, a title or an
-avatar — see
+avatar. See
 [Ask users for: sex and gender](../../patterns/ask-users-for/sex-and-gender.mdx).
 
 **A region never carries a status colour.** A body outline shaded in the urgent
 colour asserts that a part of somebody's body is urgent, which is a diagnosis. A
-diagram showing recorded data uses the chart ramp with a legend and a table twin —
-[Chart colour](../data-visualisation/chart-colour.mdx) applies here in full.
+diagram showing recorded data uses the chart ramp with a legend and a table
+twin. [Chart colour](../data-visualisation/chart-colour.mdx) applies here in
+full.
 
 **Never label a region with a condition.** "Where does it hurt" is a question.
 "Sciatica" written on a diagram is an answer, and opsinjs does not give those.
@@ -85,9 +87,9 @@ diagram usable at all with a keyboard, a screen reader or an imprecise tap.
 </DoDont>
 
 **Make the regions big, or make them a list.** Anatomical regions do not divide
-into 44-point squares. Where a region is genuinely small — a finger joint — the
-diagram zooms to a sub-view rather than shrinking the target below the floor on
-[Density and touch](../space/density-and-touch.mdx).
+into 44-point squares. A finger joint is genuinely small, and where a region is
+that small the diagram zooms to a sub-view rather than shrinking the target
+below the floor on [Density and touch](../space/density-and-touch.mdx).
 
 **Confirm in words.** After any selection, the chosen region is stated as text.
 This handles the mirroring problem, the mis-tap problem and the screen-reader
@@ -124,17 +126,17 @@ container. They may not consume the status or category palettes.
   confirmation is the only reliable fix.
 - **Region names must work as spoken labels.** They are read aloud in isolation,
   so "left knee, front" is a usable name and "region 7" is not.
-- **Selection state must not be colour alone**, which is principle 2 again — an
-  outline, a fill pattern and the text confirmation together.
+- **Selection state must not be colour alone**, which is principle 2 again. An
+  outline, a fill pattern and the text confirmation carry it together.
 - **Representation is correctness here**, for the reasons on
   [Skin-tone representation](skin-tone-representation.mdx): a diagram somebody
   cannot map onto their own body is a diagram they will use wrongly.
 
 ## Related
 
-- [Skin-tone representation](skin-tone-representation.mdx) — the coverage
+- [Skin-tone representation](skin-tone-representation.mdx) has the coverage
   requirement, and why it is a correctness rule.
-- [Accessible charts](../data-visualisation/accessible-charts.mdx) — the same picture-plus-equivalent
-  contract, for data graphics.
-- [Asking sensitive questions](../../content/asking-sensitive-questions.mdx) —
-  the wording around a surface that asks somebody about their own body.
+- [Accessible charts](../data-visualisation/accessible-charts.mdx) has the same
+  picture-plus-equivalent contract, for data graphics.
+- [Asking sensitive questions](../../content/asking-sensitive-questions.mdx)
+  covers the wording around a surface that asks somebody about their own body.

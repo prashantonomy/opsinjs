@@ -2,24 +2,24 @@
  * Six tiles in a grid, which is the arrangement this component exists for and
  * the arrangement that shows what it refuses to do.
  *
- * WHAT THE COLOUR IS ANSWERING. Every tint here is category — what the reading
- * is about — so a reader scanning six can find the sleep one without reading
- * six labels. Not one tile is filled from the status axis, and that is the rule
- * the grid makes visible: six tiles tinted by urgency would be a heat map of
- * somebody's body, unreadable at exactly the moment it matters most. In
- * greyscale every tint here collapses and not one fact goes with it, which is
- * the test a category tint has to pass.
+ * WHAT THE COLOUR IS ANSWERING. Every tint here is category. That is what the
+ * reading is about, so a reader scanning six can find the sleep one
+ * without reading six labels. Not one tile is filled from the status axis, and
+ * that is the rule the grid makes visible: six tiles tinted by urgency would
+ * be a heat map of somebody's body, unreadable at exactly the moment it
+ * matters most. In greyscale every tint here collapses and not one fact goes
+ * with it, which is the test a category tint has to pass.
  *
  * ONE VERDICT, IN A PILL. Exactly one tile carries a status, and it carries it
- * as a StatusPill with the word in it — not as a fill, not as a coloured edge,
- * not as a dot. The other five are silent about urgency because the product
+ * as a StatusPill with the word in it. It is not a fill, not a coloured edge,
+ * not a dot. The other five are silent about urgency because the product
  * that owns these readings has said nothing about them, and a tile that filled
  * that silence with a reassuring level would be inventing one.
  *
  * EVERY TILE LEADS SOMEWHERE. A tile has no room to explain itself, so a reader
  * who glances at a number and wonders what it means has to be able to open it.
  * All six are links, the whole tile is the target, and nothing is nested inside
- * one — the pill is a span and there is no second control.
+ * one. The pill is a span, and there is no second control.
  *
  * NO TILE CARRIES A STALENESS NUMBER. `staleAfterHours` is absent from all six,
  * so none of them shows a stale treatment: these tiles have been told nothing
@@ -89,7 +89,7 @@ export default function MetricTileASummaryGrid() {
   return (
     /* The gap is the tiles' separation, and it belongs to the grid rather than
        to the component: a tile cannot see what is beside it. The column count
-       follows the viewport and not the reader's text size — Tailwind's
+       follows the viewport and not the reader's text size. Tailwind's
        breakpoints are `rem` inside a media query, and `rem` there resolves
        against the document's initial font size rather than the root's computed
        one, so the docs harness's own 200% control leaves this at three columns

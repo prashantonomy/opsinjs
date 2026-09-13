@@ -1,6 +1,6 @@
 ---
 title: "@opsinjs/tailwind.css"
-description: The opsinjs stylesheet as a versioned import — token values, the preference degradations, the base layer and the dark variant, in the one order that works.
+description: The opsinjs stylesheet as a versioned import. It carries the token values, the preference degradations, the base layer and the dark variant, in the one order that works.
 status: planned
 kind: guide
 since: unreleased
@@ -22,7 +22,8 @@ reorganise, and the resulting failure is silent: dark mode stops swapping, or a
 reduced-motion preference stops applying, and nothing errors.
 
 The name mirrors `shadcn/tailwind.css`, which is the same idea from the same
-ecosystem — a runtime stylesheet import rather than a CLI-only artefact.
+ecosystem. That idea is a runtime stylesheet import rather than a CLI-only
+artefact.
 
 <StubNotice
   name="opsinjs-tailwind-css"
@@ -43,8 +44,9 @@ be read and copied today.
 In order, because the order is the content:
 
 1. **Token values.** Every `--opsin-*` custom property under `:root` and `.dark`
-   — the four status ramps, the six category ramps, the six-rung material
-   ladder, the motion springs and durations, the radius and space scales.
+   is here: the four status ramps, the six category ramps, the six-rung
+   material ladder, the motion springs and durations, the radius and space
+   scales.
 2. **The Display-P3 escalation.** Higher chroma at identical lightness and hue,
    inside `@supports (color-gamut: p3)`, with every class selector restated in
    cascade order.
@@ -57,10 +59,11 @@ In order, because the order is the content:
 5. **`@custom-variant dark`**, pinned last.
 
 The last one is the subtlest. Different upstreams declare the `dark` variant
-differently — `(&:is(.dark *))` and `(&:where(.dark, .dark *))` — and last one
-wins, silently, depending on an import order nobody chose. Pinning the `:where`
-superset at the end makes the result order-independent, and its zero specificity
-stops a `dark` override out-ranking a component's own rule.
+differently, and the last one wins silently, depending on an import order
+nobody chose. The two forms are `(&:is(.dark *))` and
+`(&:where(.dark, .dark *))`. Pinning the `:where` superset at the end makes the
+result order-independent, and its zero specificity stops a `dark` override
+out-ranking a component's own rule.
 
 ## Why it is not copied source
 
@@ -84,8 +87,8 @@ guarantee; fifty copies is a survey.
 The second question in the stub block matters because this repository already
 needs two.
 
-The documentation chrome is a shadcn style — dense, square, small-typed — and
-the product theme is squircle, system-font and generous, with a 44-pixel touch
+The documentation chrome is a dense, square, small-typed shadcn style, and the
+product theme is squircle, system-font and generous, with a 44-pixel touch
 floor. They are separate stylesheets loaded by separate root layouts, and every
 preview on this site renders in the product theme rather than in the chrome.
 Why that split exists is
@@ -137,7 +140,8 @@ the narrower `:is` form, and import order decided which won.
 
 **A translucent surface is illegible over a photograph.** The material rung is
 doing what it was told; the contrast floor over a busy backdrop is a composition
-question — [The contrast floor](../foundations/materials/the-contrast-floor.mdx).
+question. See
+[The contrast floor](../foundations/materials/the-contrast-floor.mdx).
 
 **Everything is correct but nothing is styled.** Check
 `--opsin-tokens-generated`. If it reads `placeholder`, the generated layer was
@@ -145,9 +149,9 @@ never produced and you are seeing authored fallbacks.
 
 ## Next
 
-- [`@opsinjs/preset`](./opsinjs-preset.mdx) — the mappings that turn these
+- [`@opsinjs/preset`](./opsinjs-preset.mdx) has the mappings that turn these
   values into utilities.
-- [CSS variables](../theming/css-variables.mdx) — using the values with no
+- [CSS variables](../theming/css-variables.mdx) covers using the values with no
   Tailwind at all.
-- [Tailwind v4](../theming/tailwind-v4.mdx) — the ordering rules this package
+- [Tailwind v4](../theming/tailwind-v4.mdx) has the ordering rules this package
   encapsulates.

@@ -1,6 +1,6 @@
 ---
 title: Ask users for height and weight
-description: Compound units, a reader who may find the question difficult, and a derived number — BMI — that a design system should be extremely careful about showing.
+description: Compound units, a reader who may find the question difficult, and a derived number that a design system should be extremely careful about showing. That number is BMI.
 status: stable
 kind: pattern
 aliases: [height field, weight field, stones and pounds, feet and inches, BMI input]
@@ -15,7 +15,7 @@ owner: design-system
 ## When to use
 
 Ask for height and weight when a named calculation or a named piece of guidance
-depends on them — a dose, a body-surface-area calculation, an eligibility
+depends on them, such as a dose, a body-surface-area calculation, an eligibility
 threshold, a chart the reader has asked to see.
 
 Two things make this field harder than it looks. First, **the units are
@@ -64,8 +64,8 @@ a design constraint, not a footnote.
 - **Both unit systems, always, with the switch adjacent to the field.** Not
   buried in settings. A reader who has to leave the form to change units will
   guess instead.
-- **Compound entry is separate fields under one legend** — "Height: Feet,
-  Inches" — never one field expecting `5'11"`. See
+- **Compound entry is separate fields under one legend**, such as
+  "Height: Feet, Inches". Never use one field expecting `5'11"`. See
   [Units and numeric entry](../forms/units-and-numeric-entry.mdx).
 - **Switching units converts what was entered**, visibly. 12 st becomes 76.2 kg,
   not 12 kg.
@@ -113,11 +113,11 @@ If your product cannot follow all three, do not derive BMI.
 <DoDont>
   <DoDont.Do>
     "Your BMI is 27.4. BMI is a rough screening measure based only on height and
-    weight — it can't tell muscle from fat, and it isn't equally accurate for
+    weight. It can't tell muscle from fat, and it isn't equally accurate for
     everyone. Your clinician can tell you what it means for you."
   </DoDont.Do>
   <DoDont.Dont>
-    A large "27.4 — OVERWEIGHT" in the status palette, on the home screen, with
+    A large "27.4 OVERWEIGHT" in the status palette, on the home screen, with
     no context and no way to hide it.
   </DoDont.Dont>
 </DoDont>
@@ -128,7 +128,7 @@ If your product cannot follow all three, do not derive BMI.
   prefill from the reader's own previous entry instead. See
   [Autocomplete and input types](../forms/autocomplete-and-input-types.mdx).
 - **`type="text"` with `inputmode="decimal"`**, never `type="number"` with a
-  spinner — the scroll wheel silently altering a weight is a real failure.
+  spinner. The scroll wheel silently altering a weight is a real failure.
 - **Compound fields are a `fieldset` with a `legend`**, so each part is
   announced as "Height, feet".
 - **Units are spelled out in the accessible name**: "Weight in kilograms".
@@ -145,18 +145,18 @@ If your product cannot follow all three, do not derive BMI.
   design policy rather than as clinical guidance. What is not in dispute is the
   mechanics: BMI is computed from height and weight alone, so it cannot
   distinguish tissue types, and its conventional cut-offs derive from
-  particular reference populations. What is our opinion is the conclusion —
-  that a design system should refuse to render a BMI category in the clinical
-  status palette, and that a product unable to show the limits should not show
-  the number.
+  particular reference populations. What is our opinion is the conclusion that
+  a design system should refuse to render a BMI category in the clinical status
+  palette, and that a product unable to show the limits should not show the
+  number.
 
   Unit handling is not opinion. A product that accepts only metric or only
   imperial will collect wrong numbers from readers who convert badly, and the
   failure is silent.
 
   What would change our mind on BMI: clinical review concluding that a specific
-  product's population and purpose make categorical display appropriate — in
-  which case a named clinician owns it, as with any threshold. See
+  product's population and purpose make categorical display appropriate. In
+  that case a named clinician owns it, as with any threshold. See
   [Reference ranges](../../health/reference-ranges.mdx).
 </ResearchNote>
 

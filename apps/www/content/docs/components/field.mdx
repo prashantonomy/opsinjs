@@ -1,6 +1,6 @@
 ---
 title: Field
-description: The wrapper that gives every input a visible label, a hint, an error message and the wiring that connects them — so no control in the system can ship without a name.
+description: The wrapper that gives every input a visible label, a hint, an error message and the wiring that connects them is why no control in the system can ship without a name.
 status: alpha
 kind: component
 since: "unreleased"
@@ -16,10 +16,10 @@ usedIn: [daily-log-entry, consent-before-collection, daily-log-screen]
   status="alpha"
   issue="opsinjs/opsinjs#0"
   questions={[
-    "Field ships two English words — “required” and “optional” — and no prop translates them. Every other string in the component comes from the product. Does the marker become a `ReactNode` prop, does it move to a locale object, or does a product override it through the `data-slot`?",
-    "An error is added to the control's description and marks it invalid; it is not announced while focus is elsewhere, because Field mounts no live region. A form of ten fields that fails on submit therefore says nothing until the reader arrives at each field. The pattern that closes this is an error summary at the top of the form — who owns it, and does Field need to expose the ids it generated so a summary can link to them?",
+    "The two English words Field ships are “required” and “optional”, and no prop translates them. Every other string in the component comes from the product. Does the marker become a `ReactNode` prop, does it move to a locale object, or does a product override it through the `data-slot`?",
+    "An error is added to the control's description and marks it invalid; it is not announced while focus is elsewhere, because Field mounts no live region. A form of ten fields that fails on submit therefore says nothing until the reader arrives at each field. The pattern that closes this is an error summary at the top of the form. Who owns it, and does Field need to expose the ids it generated so a summary can link to them?",
     "The spec's part tree puts the error after the control. GOV.UK and the NHS put it before, so a software keyboard or an autocomplete list cannot cover it. This implementation follows the spec. Which is right for a phone held one-handed?",
-    "`validateOn` has three values and Base UI has two that fit them, so “submit” and “submit-then-change” resolve to the same mode. Worse, both of those need Base UI's `<Form>` around the fields — its submit mode is gated on a flag only that primitive sets — so inside a plain `<form>` the default value does nothing but the Enter key, and no example here mounts a `<Form>` to show otherwise. Should the union shrink to what the runtime can actually distinguish, and should Field refuse a submit mode it cannot honour?",
+    "`validateOn` has three values and Base UI has two that fit them, so “submit” and “submit-then-change” resolve to the same mode. Worse, both of those need Base UI's `<Form>` around the fields, because its submit mode is gated on a flag only that primitive sets. So inside a plain `<form>` the default value does nothing but the Enter key, and no example here mounts a `<Form>` to show otherwise. Should the union shrink to what the runtime can actually distinguish, and should Field refuse a submit mode it cannot honour?",
   ]}
 >
   <code className="text-sm">field</code> is implemented and installable. It is{" "}
@@ -36,7 +36,7 @@ input by accident; if it does not, one will appear within a month.
 
 Three fields, showing the three states that decide whether this component is worth having: a
 field with guidance, a field whose exception is marked in words, and a field with an error.
-The last one is the one to look at, and what matters is what has *not* happened — the hint is
+The last one is the one to look at, and what matters is what has *not* happened. The hint is
 still underneath the error, because a reader who has just got something wrong still needs the
 sentence that would have prevented it.
 
@@ -90,7 +90,7 @@ import { Field } from "@/components/ui/field"
 The last exclusion points at a pattern rather than a component, and it is the one that matters
 most for this component's real limits. A long form that fails validation needs an error summary
 at the top, with each entry linking to its field; per-field errors alone leave a keyboard user
-hunting, and — because Field mounts no live region — leave a screen-reader user with nothing
+hunting. Field mounts no live region, so they also leave a screen-reader user with nothing
 said at all until they reach each field in turn. See
 [Error summaries](../patterns/forms/error-summaries.mdx).
 
@@ -172,7 +172,7 @@ said at all until they reach each field in turn. See
   ]}
 />
 
-**Label** is visible and persistent — always, with no prop to hide it. **Hint** is guidance
+**Label** is always visible and always persistent, with no prop to hide it. **Hint** is guidance
 shown before anything goes wrong. **Control** is the input. **Error** replaces nothing: it
 appears in addition to the hint, because a reader who has made a mistake still needs the
 guidance that would have prevented it. **Optionality** marks whichever of required or optional
@@ -180,30 +180,30 @@ is the exception in this form.
 
 Field's own spacing is fixed, and the density control above the preview does not move it. Every
 gap inside a Field is an `--opsin-space-*` step, which is a rem that stays put; density moves
-Tailwind's `--spacing` and nothing else. So the switch is not broken on this page — it has
+Tailwind's `--spacing` and nothing else. So the switch is not broken on this page. It has
 nothing here to act on. The space density is meant to change is the space *between* fields,
 which the form owns, and neither the target floor nor the type steps shrink when somebody asks
 for compact.
 
 The relationships are the component. `Field.Control` is associated with `Field.Label` through a
 real label relationship, and with `Field.Hint` and `Field.Error` through a description
-relationship, generated rather than typed — hand-wired ids are where accessible forms rot.
+relationship, generated rather than typed. Hand-wired ids are where accessible forms rot.
 
 **`Field.Control` is a real export, and it is one of only three in the system.** Everywhere
 else in opsinjs a part is internal structure named by `data-slot`, because the content arrives
 as a prop. A control cannot: it has a type, a name, an `autocomplete` token, an `inputmode`, a
 value and a change handler, and no single prop carries that. So the slot is a component, and
 `render` puts the same generated id, the same `aria-describedby` and the same invalid state
-onto an element opsinjs does not ship — a `textarea`, a `select`, or a control from somewhere
-else entirely.
+onto an element opsinjs does not ship, such as a `textarea`, a `select`, or a control from
+somewhere else entirely.
 
 **`Field.Optionality` is nested inside the label, and the specification's tree drew it as a
 sibling.** This is the one place the implementation departs from the part tree, and it is a
 deliberate departure rather than a slip. As a sibling the marker is a phrase near the label; as
 a child it is part of the accessible name, so a screen-reader user hears *Example note,
 optional* at the moment a sighted reader sees it, rather than meeting a stray word and having
-to work out which field it belongs to. The requirement the tree exists to serve — mark it in
-text — is only met by the nested version.
+to work out which field it belongs to. Only the nested version meets the requirement the
+tree exists to serve, which is to mark it in text.
 
 There is no `Field.Legend`, and no symbol to explain. The marker is a word, so the sentence a
 form usually needs above its fields is about the form rather than about the marker: *we need
@@ -214,18 +214,18 @@ single Field knows how many others there are.
 
 ### The error keeps the hint
 
-The same field before and after. Almost every hand-rolled form swaps one for the other — the
-markup is simpler and the column is shorter — and the result is that at the exact moment a
-reader has got something wrong, the sentence that would have told them the right shape
-disappears.
+The same field before and after. Almost every hand-rolled form swaps one for the other,
+because the markup is simpler and the column is shorter. The result is that at the exact
+moment a reader has got something wrong, the sentence that would have told them the right
+shape disappears.
 
 <ComponentPreview name="field-error-keeps-the-hint" kind="example" align="start" />
 
 ### Marking the exception
 
 Four fields, three of them needed and one not, so the optional one is the one that carries a
-marker. The reverse form — a marker on every field except one — says the same thing four times
-and leaves the reader counting asterisks to work out which field is the odd one. See
+marker. The reverse form puts a marker on every field except one. It says the same thing four
+times and leaves the reader counting asterisks to work out which field is the odd one. See
 [Required and optional](../patterns/forms/required-and-optional.mdx).
 
 <ComponentPreview name="field-marking-the-exception" kind="example" align="start" />
@@ -247,7 +247,7 @@ field is already doing, and leaves the reader to work the shape out from it.
 
 A hint on a health input must not carry a threshold, a plausibility bound, or a number that
 could be read as somebody's result. A figure written into a hint is copied into a screenshot,
-and a plausible-looking one is then indistinguishable from a reading — opsinjs owns nobody's
+and a plausible-looking one is then indistinguishable from a reading. opsinjs owns nobody's
 ranges, and an example is exactly where a range that owns nothing gets in. Where a hint has to
 show a number at all, use one nobody would act on, the way the demo above uses *14*. See
 [Synthetic example data](../project/decisions/0012-synthetic-example-data.mdx).
@@ -256,8 +256,8 @@ Errors say what went wrong and how to fix it, in the second person, without blam
 *invalid*, never *error*, never *you must*. Field supplies no default error text and never
 will: a message that says what to do about a particular field is a message only the product can
 write. What it does supply, when you omit `error` and the control fails a constraint of its
-own, is the browser's message — which is not opsinjs copy, is not held to any of this, and is
-the reason to pass `error` rather than rely on it.
+own, is the browser's message. That message is not opsinjs copy, is not held to any of this,
+and is the reason to pass `error` rather than rely on it.
 
 Field ships exactly two words of its own, *(required)* and *(optional)*, and no others. That is
 worth knowing before a translation project starts, because there is currently no prop that
@@ -308,7 +308,7 @@ checked.
 - **No banned word** in a string literal, in JSX text, or in an identifier segment. That is the
   gate's real scope and it is narrower than the sentence usually written here: it does not read
   comments, by a deliberate decision the script argues for, and this component's prop doc
-  comments are comments — which the generator then publishes into the props table below. A
+  comments are comments. The generator then publishes them into the props table below. A
   banned word introduced there would reach a reader unchecked.
 
 **Delegated to Base UI's `field` primitive, and verifiable in its source rather than by us:**
@@ -323,8 +323,8 @@ checked.
   `aria-describedby` is absent from the server-rendered markup and appears on hydration. The
   label relationship and `aria-invalid` are both in the first paint; the description is not.
 - **`aria-invalid` lands on the control**, not on the wrapper, whenever the field's computed
-  validity is false — which the `error` prop forces and a failed native constraint also
-  produces.
+  validity is false. The `error` prop forces that state, and a failed native constraint also
+  produces it.
 
 **Argued, and true of the implementation, but not yet measured:**
 
@@ -332,10 +332,10 @@ checked.
   not a clinical status: the red that means *this reading needs a decision* is not available to
   say *check that number*, and lending it out would cost the status axis the meaning the whole
   system is built on. See [The two colour axes](../health/two-colour-axes.mdx). What is left is
-  a glyph, the emphasis weight, an emphasis border on the control and the words — which is what
+  a glyph, the emphasis weight, an emphasis border on the control and the words. That is what
   the requirement asked for anyway, reached from the other direction. Count three rather than
   four on paper: the emphasis border is a `box-shadow`, which forced-colors mode drops, and
-  which the docs site's own print rules in `app/globals.css` set to `none` — and a consumer
+  which the docs site's own print rules in `app/globals.css` set to `none`. A consumer
   gets no better, because that stylesheet does not travel with `shadcn add` and `field.tsx`
   sets no `print:` variant, so on paper the shadow is at the mercy of the consuming app. Either
   way it is the one carrier that cannot be counted on. The glyph and the words can, and they
@@ -348,17 +348,18 @@ checked.
   accessible name. No asterisk, and therefore no legend to miss.
 - **The control clears the 44px target floor, on both axes.** The product stylesheet's backstop
   covers buttons, checkboxes and radios and not a text input, so Field applies
-  `--opsin-target-minimum` to the control itself — a rem value, which grows with the reader's
-  text size rather than staying at 44 physical pixels. It reads the token rather than declaring
-  it, and the token lives in a stylesheet that `shadcn add` does not ship, so the declaration
-  carries the same `2.75rem` fallback the product stylesheet writes; without it the floor would
-  quietly become `auto` in an app that had not wired the token sheet. The inline axis is set as
-  well as the block one, because a caller who narrows the control — `className="w-8"` for a
-  two-digit entry — would otherwise get a target below the floor on that axis and no warning.
-  Argued from the CSS, not measured, and deliberately without a figure: the width that
-  utility resolves to depends on `--spacing`, which the product theme sets differently from
-  the documentation chrome, so any number written here would be right in one document and
-  wrong in the other. The hit-area check runs in nightly, against a browser.
+  `--opsin-target-minimum` to the control itself. That token is a rem value, which grows
+  with the reader's text size rather than staying at 44 physical pixels. It reads the token
+  rather than declaring it, and the token lives in a stylesheet that `shadcn add` does not
+  ship, so the declaration carries the same `2.75rem` fallback the product stylesheet writes;
+  without it the floor would quietly become `auto` in an app that had not wired the token
+  sheet. The inline axis is set as well as the block one, because a caller who narrows the
+  control would otherwise get a target below the floor on that axis and no warning.
+  `className="w-8"` for a two-digit entry is one such narrowing. Argued from the CSS, not
+  measured, and deliberately without a figure: the width that utility resolves to depends on
+  `--spacing`, which the product theme sets differently from the documentation chrome, so
+  any number written here would be right in one document and wrong in the other. The
+  hit-area check runs in nightly, against a browser.
   See [Target size and motor](../accessibility/target-size-and-motor.mdx).
 - **Nothing truncates at 200% text.** The label wraps, the hint wraps, the error wraps and the
   field grows; there is no fixed height anywhere in the component and no `text-overflow`. The
@@ -371,7 +372,7 @@ checked.
 **Not yet checked at all, and listed rather than omitted:**
 
 - **An error is not announced while focus is elsewhere.** It is in the control's description, so
-  it is read when the control receives focus — and a reader who blurs a field and moves on hears
+  it is read when the control receives focus. A reader who blurs a field and moves on hears
   nothing. Field mounts no live region on the caller's behalf, deliberately: ten fields would be
   ten polite regions all speaking at once when a submit fails, which is the flooding the rule
   exists to prevent. The pattern that closes the gap is an error summary at the top of the form,
@@ -385,14 +386,14 @@ checked.
 - **`autocomplete` and `inputmode` are required by the contract and set by nobody.** Field
   cannot supply them: the right token depends on what is being asked for, and a guess would fill
   somebody's postcode into a field asking for something else. Nothing enforces it either, and
-  the examples on this page are not the demonstration — every text input in them sets
+  the examples on this page are not the demonstration. Every text input in them sets
   `autocomplete="off"`, which is the opt-out of the win the requirement names, and the one
   `select` sets nothing at all because a select has no autofill token to opt out of. That is
   the right call for these fields and the wrong thing to copy: they collect nothing real, and a
   token like `bday` on a field called *Example measurement* would be a made-up answer to a
-  made-up question. `inputmode` is set where it means something — the numeric and decimal inputs — and
-  omitted on the free-text note and the `select`, where it changes nothing. So what a real token
-  looks like is not shown here; it is at
+  made-up question. `inputmode` is set on the numeric and decimal inputs, where it means
+  something, and omitted on the free-text note and the `select`, where it changes nothing. So
+  what a real token looks like is not shown here; it is at
   [Autocomplete and input types](../patterns/forms/autocomplete-and-input-types.mdx).
 - **Field cannot tell whether a control is inside it.** If a caller puts something in `children`
   that does not participate in the field context, the label points at nothing and the component
@@ -425,7 +426,7 @@ checked.
     {
       keys: "Escape",
       action: "Nothing",
-      notes: "Listed rather than omitted. An error message is not a popup, so there is nothing here for Escape to close — and Field does not swallow the key, so a sheet or dialog around the form still closes on it.",
+      notes: "Listed rather than omitted. An error message is not a popup, so there is nothing here for Escape to close. Field does not swallow the key either, so a sheet or dialog around the form still closes on it.",
     },
   ]}
 />
@@ -439,31 +440,32 @@ checked.
 `label` is required and there is no `hideLabel`. That is the whole component in one prop: every
 other guarantee on this page follows from a name existing, being visible, and being attached by
 a mechanism nobody has to remember. An empty string is refused with a development warning and
-no substitute is invented — a made-up name would silence the audit that would otherwise catch
+no substitute is invented. A made-up name would silence the audit that would otherwise catch
 it.
 
 `error` is the product's own sentence, and its presence is what marks the control invalid. It
-never removes the hint, and an empty string is ignored with a warning — once, not once per
-render — rather than producing a control announced as invalid with nothing to say about why.
-Omit the prop entirely and the field falls back to the browser's message if and when the control
-fails a constraint of its own; read the next paragraph before relying on that, because *if and
-when* is narrower than it sounds. The fallback exists because `aria-invalid` with no description
-is worse than a message in the wrong tone, not because the message is good.
+never removes the hint, and an empty string is ignored with a warning rather than producing a
+control announced as invalid with nothing to say about why. The warning fires once, not once
+per render. Omit the prop entirely and the field falls back to the browser's message if and
+when the control fails a constraint of its own; read the next paragraph before relying on
+that, because *if and when* is narrower than it sounds. The fallback exists because
+`aria-invalid` with no description is worse than a message in the wrong tone, not because the
+message is good.
 
-`validateOn` governs when the control's *own* constraints are checked — it does not gate the
+`validateOn` governs when the control's *own* constraints are checked. It does not gate the
 `error` prop, because a message the product passed in is a message the product has already
 decided to show. Two of its three values resolve to the same underlying mode: Base UI's submit
 mode is documented as validating on submit and then re-validating on change, which is exactly
 `"submit-then-change"`, and there is no mode that checks on submit and then refuses to look
-again. So `"submit"` is more forgiving than its name suggests, which is the harmless direction
-— the mode that cannot be expressed is the one that leaves a corrected field still marked
+again. So `"submit"` is more forgiving than its name suggests, which is the harmless direction.
+The mode that cannot be expressed is the one that leaves a corrected field still marked
 invalid until the next submit. See [Validation timing](../patterns/forms/validation-timing.mdx).
 
 **Both submit values need Base UI's `<Form>` around the fields, and neither the examples on this
 page nor the demo mounts one.** Base UI's submit mode is not "the browser submitted the form":
 it is gated on a flag that only Base UI's own form primitive sets, and the default value of that
 flag is permanently false. So in a plain `<form onSubmit={…}>` the control's own constraints are
-checked on Enter in a text input and at no other moment — the default `validateOn` does nothing
+checked on Enter in a text input and at no other moment. The default `validateOn` does nothing
 else, and the un-styled fallback error above almost never appears. This is the strongest reason
 to pass `error`: it applies the invalid state directly and goes through no validation mode at
 all. Nothing here has been demonstrated with a `<Form>` on this page, and it should be.
@@ -482,9 +484,8 @@ matched to the label, and passing one by hand is how the two start to disagree.
 Field is a **server component**. Every Base UI part it composes carries its own `"use client"`,
 so the state, the effects and the id generation happen inside the boundary the primitive
 already declares; this file adds no hook, no state and no handler, so a directive here would
-only pull the wrapper into a bundle it does not need to be in. A product's own form — which
-does have state and handlers — is a client component, and importing Field into it works
-unchanged.
+only pull the wrapper into a bundle it does not need to be in. A product's own form does have
+state and handlers, so it is a client component, and importing Field into it works unchanged.
 
 ## Related
 
@@ -492,14 +493,15 @@ unchanged.
 
 **Easily confused with**
 
-- [ReadingInput](./reading-input.mdx) — a Field with a unit and a plausibility contract.
-- [LogSheet](./log-sheet.mdx) — where several Fields are captured together, with a ceiling on
-  how many.
-- [Callout](./callout.mdx) — for guidance about a whole form rather than about one control.
-- [AlertBanner](./alert-banner.mdx) — for the summary at the top of a form that has failed, which
-  is the pattern per-field errors cannot replace.
-- `checkbox`, `radio-group`, `select`, `combobox`, `switch`, `textarea` (all considered, no
-  pages yet — see the [roster](./index.mdx)) — the controls that will sit inside a Field.
+- [ReadingInput](./reading-input.mdx) is a Field with a unit and a plausibility contract.
+- [LogSheet](./log-sheet.mdx) is where several Fields are captured together, with a ceiling
+  on how many.
+- [Callout](./callout.mdx) is for guidance about a whole form rather than about one control.
+- [AlertBanner](./alert-banner.mdx) is for the summary at the top of a form that has failed,
+  which is the pattern per-field errors cannot replace.
+- `checkbox`, `radio-group`, `select`, `combobox`, `switch`, `textarea` are the controls that
+  will sit inside a Field. All are considered and none has a page yet. See the
+  [roster](./index.mdx).
 
 **Used by**
 

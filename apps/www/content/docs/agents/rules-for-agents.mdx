@@ -32,26 +32,28 @@ Everything below is the reasoning, the failure each rule prevents, and how to
 check whether an agent is following it.
 
 Copy-paste form: these six rules are distributed as the four files in
-`skills/opsinjs/rules/` — appearance rules 1 to 3 across `tokens-not-values.md`
-and `status-and-colour.md`, invention rules 4 and 6 in `never-invent.md`, and
-rule 5 in `registry.md` — and are what the [agent skill](./agent-skill.mdx)
-installs. Prefer installing the skill over pasting prose, because the skill
-also reads the project's own configuration.
+`skills/opsinjs/rules/` and are what the [agent skill](./agent-skill.mdx)
+installs. Appearance rules 1 to 3 are split across `tokens-not-values.md` and
+`status-and-colour.md`, invention rules 4 and 6 are in `never-invent.md`, and
+rule 5 is in `registry.md`. Prefer installing the skill over pasting prose,
+because the skill also reads the project's own configuration.
 
 ## How it works
 
 An agent generating UI makes three kinds of decision, and only one of them is
 safe to make from general knowledge.
 
-**Composition** — which elements go where. General knowledge is fine.
+**Composition** is the decision about which elements go where. General
+knowledge is fine.
 
-**Appearance** — what colour, what spacing, what radius. General knowledge is
-actively harmful here, because the model's prior is "a warning is amber" and
-opsinjs' answer is "a warning is a status level whose amber is measured, tuned
-per theme, escalated on wide-gamut displays, and always accompanied by a word".
-The model's answer looks identical and is wrong in every way that matters.
+**Appearance** is the decision about what colour, what spacing, what radius.
+General knowledge is actively harmful here, because the model's prior is "a
+warning is amber" and opsinjs' answer is "a warning is a status level whose
+amber is measured, tuned per theme, escalated on wide-gamut displays, and
+always accompanied by a word". The model's answer looks identical and is wrong
+in every way that matters.
 
-**Clinical meaning** — what this screen asserts about a person. General
+**Clinical meaning** is what this screen asserts about a person. General
 knowledge is dangerous. A model that infers a threshold is practising medicine
 without a licence and without a chart.
 
@@ -67,7 +69,7 @@ answer from its prior.
 
 ### Resolve a component before using it
 
-Before emitting `import { RangeBar } from …`, check the catalogue — and check
+Before emitting `import { RangeBar } from …`, check the catalogue. Also check
 `/r/index.json`, which answers the same question in a field rather than in
 prose. Every id resolves, and there are two kinds of answer behind them.
 Twenty-four ids carry `"implemented": true` at `"status": "alpha"`: the registry
@@ -92,7 +94,7 @@ put it on a production health surface yet.
 ### Use the status vocabulary
 
 Four ordinal levels, token ids `steady`, `watch`, `attention`, `urgent`. Set the
-level; never pick the colour. And never render a status without a word — colour
+level; never pick the colour. And never render a status without a word. Colour
 is a second channel, not the only one. `StatusPill` takes no children: it draws
 the word for the level itself, `describes` names what the level is about so a
 screen-reader user hears a subject, and `label` only re-words the level for
@@ -129,11 +131,11 @@ npx shadcn@latest add https://opsinjs.dev/r/status-pill.json
 ```
 
 One exception, and it is worth stating in the same breath: a component that
-composes others names them namespaced. Fourteen items — among them `result-card`,
-`range-bar`, `metric-tile` and `consent-sheet` — carry `@opsinjs/…` entries in
-`registryDependencies`, so installing one of those needs the `@opsinjs` block in
-`components.json` even when you gave the full URL. Say so up front rather than
-letting the install fail halfway through.
+composes others names them namespaced. Fourteen items carry `@opsinjs/…`
+entries in `registryDependencies`, and `result-card`, `range-bar`,
+`metric-tile` and `consent-sheet` are among them. Installing one of those needs
+the `@opsinjs` block in `components.json` even when you gave the full URL, so
+say so up front rather than letting the install fail halfway through.
 
 ## Not this
 
@@ -163,9 +165,9 @@ theme on exactly one display.
 ```
 
 The rule and its rationale are in
-[The two colour axes](../health/two-colour-axes.mdx), and the interactive
-demonstration — which refuses to render the mixed pair — is at
-[`/playground/status`](/playground/status).
+[The two colour axes](../health/two-colour-axes.mdx). The interactive
+demonstration at [`/playground/status`](/playground/status) refuses to render
+the mixed pair.
 
 ### Do not invent a component, a prop or a variant
 
@@ -201,9 +203,9 @@ component page carries its prop interface under **API reference**, generated
 from the same source the registry serves, so it is accurate on the day you read
 it and carries no promise past that: `alpha` changes without a deprecation
 cycle. Read the source you installed rather than a cached interface, and record
-the version you took in the commit that installed it — nothing writes a version
-stamp into the file yet, so that commit is the only record a later upgrade can be
-measured against.
+the version you took in the commit that installed it. Nothing writes a version
+stamp into the file yet, so that commit is the only record a later upgrade can
+be measured against.
 
 **A `considered` component resolves.** Getting an answer is not evidence that
 something exists. Read the `status` field; `considered` means "we have thought
@@ -224,16 +226,16 @@ is not an importable identifier.
 renders as "Needs attention", and the fifth stem `unknown` renders as "Not known";
 the other three happen to coincide, which is what makes the two easy to conflate.
 The words are fixed in `lib/status.ts` as `CLINICAL_STATUS_META[level].word`
-and are read from there rather than typed, so substituting a synonym is not a copy
-tweak — it changes what the interface asserts.
+and are read from there rather than typed, so substituting a synonym is not a
+copy tweak. It changes what the interface asserts.
 
 ## Related
 
-- [Prompt recipes](./prompt-recipes.mdx) — prompts that produce correct output,
-  with the reasoning for each constraint.
-- [Evals](./evals.mdx) — how adherence to these rules is measured.
-- [Agent skill](./agent-skill.mdx) — the installable form of this page.
-- [Machine-readable schemas](./machine-readable-schemas.mdx) — the JSON an agent
-  should resolve against instead of guessing.
+- [Prompt recipes](./prompt-recipes.mdx) covers prompts that produce correct
+  output, with the reasoning for each constraint.
+- [Evals](./evals.mdx) shows how adherence to these rules is measured.
+- [Agent skill](./agent-skill.mdx) is the installable form of this page.
+- [Machine-readable schemas](./machine-readable-schemas.mdx) has the JSON an
+  agent should resolve against instead of guessing.
 - [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx)
-  — the human-facing version of the same prohibitions.
+  is the human-facing version of the same prohibitions.

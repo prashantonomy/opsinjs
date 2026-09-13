@@ -6,7 +6,7 @@
  * and `lib/source.ts`, with a short allowlist for the four places a literal is
  * unavoidable: `next.config.mjs` (the rewrite source), `app/robots.ts`,
  * `app/sitemap.ts` and `lib/layout.shared.tsx`. In MDX, absolute `/docs/` links
- * are banned outright — content uses relative file links resolved by fumadocs'
+ * are banned outright. Content uses relative file links resolved by fumadocs'
  * `createRelativeLink`.
  *
  * WHY THIS IS WORTH A FILE. ADR 0005 records that opsinjs ships without a
@@ -17,7 +17,7 @@
  * cannot be translated is a documentation site with a ceiling on who it is for.
  *
  * CONVENTIONS. Everything returns a root-relative path except `absoluteUrl`
- * and the handful of helpers that must produce a full URL — `llms.txt`
+ * and the handful of helpers that must produce a full URL. `llms.txt`
  * requires absolute URLs, sitemaps require absolute URLs, and Open Graph
  * requires absolute URLs. Nothing here has a trailing slash except `/`.
  */
@@ -89,7 +89,10 @@ export function componentPath(id: string): string {
   return docsPath("components", id)
 }
 
-/** A health doctrine page, by page id — the form `governedBy` and `implements` use. */
+/**
+ * A health doctrine page, by the page id that `governedBy` and `implements`
+ * use.
+ */
 export function healthPath(id: string): string {
   return docsPath("health", id)
 }
@@ -112,8 +115,9 @@ export function apiSymbolPath(symbol: string): string {
 }
 
 /**
- * A doctrine page reference as written in frontmatter — `two-colour-axes`, or
- * `foundations/colour/contrast-and-apca` when it is not in Health.
+ * A doctrine page reference as written in frontmatter, such as
+ * `two-colour-axes`, or `foundations/colour/contrast-and-apca` when it is not
+ * in Health.
  *
  * Bare ids resolve under Health because that is where the overwhelming majority
  * of `governedBy` entries point; anything with a slash is treated as a full
@@ -250,7 +254,10 @@ export const apiRoutes = {
   feedback: () => "/api/feedback",
 }
 
-/** The OG image service. One endpoint for the whole site — there is no per-route opengraph-image. */
+/**
+ * The OG image service. One endpoint for the whole site. There is no per-route
+ * opengraph-image.
+ */
 export function ogUrl(params: {
   title: string
   description?: string
@@ -304,7 +311,7 @@ export const routes = {
 }
 
 /**
- * THE SECTIONS RAIL — the persistent jump rail rendered as the sidebar banner
+ * THE SECTIONS RAIL is the persistent jump rail rendered as the sidebar banner
  * by `<SectionsRail>`, and duplicated as Link entries at the top of the root
  * `content/docs/meta.json`.
  *
@@ -330,8 +337,8 @@ export const SECTIONS_RAIL: { title: string; url: string }[] = [
  * are allowed not to be.
  *
  * `assert-ia.mts` walks every `page.tsx` under `app/` and requires it to be
- * reachable from the frozen top nav, from the docs tree, or from this list —
- * the check that stops the site reproducing the orphaned-live-page problem it
+ * reachable from the frozen top nav, from the docs tree, or from this list.
+ * That check stops the site reproducing the orphaned-live-page problem it
  * criticises elsewhere. Each entry names who reaches it, because "nothing links
  * to this" is only acceptable when something else does.
  */

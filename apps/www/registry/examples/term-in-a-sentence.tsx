@@ -58,7 +58,7 @@ export default function TermInASentence() {
         </p>
         <p className="m-0">
           A second <Term id="egfr" once /> on the same page is marked, and its
-          definition is still there for anyone reading with speech — it is not
+          definition is still there for anyone reading with speech. It is not
           repeated in front of everybody else.
         </p>
       </div>

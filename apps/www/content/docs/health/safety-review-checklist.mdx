@@ -1,6 +1,6 @@
 ---
 title: Safety review checklist
-description: A printable pre-ship checklist for any screen that displays, interprets or collects health information, with each item traceable to the rule it enforces.
+description: A printable pre-ship checklist for any screen that displays, interprets or collects health information. Each item names the rule it enforces.
 status: stable
 kind: health
 evidence: opinion
@@ -16,17 +16,25 @@ aliases: [pre-ship checklist, safety review, sign off, clinical review, launch c
 
 ## What this means
 
-Everything else in this section is an argument. This page is the operational form
-of those arguments: a list you run against a screen before it ships, in about
-fifteen minutes, with a yes or a no against each line and a named person who
+This page is the operational form of the arguments made across the rest of this
+section: a list of binary questions run against one screen before it ships. Each
+line takes a yes or a no, and the record carries the name of the person who
 answered.
+Ten lettered sections cover values, ranges, status colour, trends, provenance,
+escalation, motion and privacy, consent and language, accessibility and
+governance. Twenty-two of the forty-seven items carry a `→` link to the page
+that states the rule they enforce.
 
-It is deliberately not a maturity model or a scoring rubric. Scores get averaged
-and averages hide the one item that mattered. Every line below is a binary, and a
-"no" is either fixed or recorded as an accepted exception with a name against it.
+The form is a binary per line rather than a score, because a score reports an
+aggregate and the identity of the failing item is what a reviewer needs. A "no"
+is either fixed before the screen ships or recorded as an accepted exception with
+a name and a reason against it, which is what section J requires at the close of
+the run.
 
-Print it. It is formatted to survive printing, and reviewers read on paper — see
-[Print and export](../accessibility/print-and-export.mdx).
+The page is formatted to survive printing, so a review can be run on paper away
+from the build.
+[Print and export](../accessibility/print-and-export.mdx) states what a printed
+health surface still has to carry.
 
 ## The rule
 
@@ -53,8 +61,8 @@ without this checklist completed, dated and attributable to a person.**
       → [Reference ranges](./reference-ranges.mdx)
 - [ ] The words *normal*, *abnormal*, *healthy*, *good*, *bad*, *poor* and
       *optimal* appear nowhere in a string about the reader's own result.
-- [ ] The range applies to this reader — age, sex and other qualifiers checked —
-      or no range is shown.
+- [ ] Age, sex and other qualifiers are checked, and the range applies to this
+      reader or no range is shown.
 - [ ] No surface asserts a cause, a diagnosis or a prognosis.
 - [ ] Any risk figure is absolute, with a population, a time window and a
       baseline. → [Risk and statistics](./risk-and-statistics.mdx)
@@ -63,8 +71,8 @@ without this checklist completed, dated and attributable to a person.**
 
 - [ ] Status is one of the four levels, and its meaning matches the definition.
       → [Clinical status semantics](./clinical-status-semantics.mdx)
-- [ ] Status is carried by colour **and** icon **and** word — verified in
-      greyscale.
+- [ ] Status is carried by colour **and** icon **and** word, and this is
+      verified in greyscale.
 - [ ] No element resolves a colour from both the category and the status
       namespace. → [The two colour axes](./two-colour-axes.mdx)
 - [ ] Category colour does not change with the value.
@@ -149,37 +157,46 @@ without this checklist completed, dated and attributable to a person.**
 ## Why (evidence)
 
 <ResearchNote evidence="opinion" date="2026-09-02">
-  Opinion. The checklist form is borrowed rather than invented — checklists are
-  standard practice in aviation and in surgery for the same reason they work
-  here, which is that expertise does not prevent omission under time pressure.
+  **Opinion.** The checklist form is borrowed rather than invented, because
+  checklists are standard practice in aviation and in surgery for the reason
+  that applies here: expertise does not prevent omission under time pressure.
   We do not cite the surgical checklist literature because we are not claiming a
   comparable effect; we are claiming that a list of binaries is harder to skip
   than a page of principles.
 
-  Two design decisions are worth defending. First, binaries rather than scores:
-  a score of 88% hides which item failed, and in this domain the identity of the
-  failing item is the whole of the information. Second, every item links to the
-  page that argues for it, so a reviewer who disagrees can read the argument
-  rather than the rule — a checklist whose items cannot be interrogated becomes
-  ritual within two quarters.
+  Two decisions about the list's form are worth defending. The first is binaries
+  rather than scores, because a score of 88% hides which item failed and in this
+  domain the identity of the failing item is the whole of the information. The
+  second is that every item resting on a documented rule links to the page
+  arguing for it, so a reviewer who disagrees can read the argument rather than
+  only the rule, because a checklist whose items cannot be interrogated becomes
+  ritual within two quarters. Twenty-two of the forty-seven items carry that
+  link.
 
-  The list is deliberately long enough to be uncomfortable and short enough to
-  run in one sitting. We have not measured how long it takes in practice.
+  The list runs to forty-seven items across ten sections and is meant to be
+  completed in one sitting rather than spread across a sprint. We have not
+  measured how long it takes in practice.
 
-  What would change our mind: evidence that a shorter list is completed more
-  honestly. That is plausible and we would take it seriously.
+  What would change our mind: a review record showing that a shorter list is
+  completed more honestly, in which the shortened list produces fewer items
+  answered without a reason and no rise in defects found after ship. The first
+  items to go would be the four this page already names as future lint rules, in
+  sections A, B and C, once a tool checks them and the human question is
+  redundant.
 </ResearchNote>
 
 ## Applying it
 
 <DoDont>
   <DoDont.Do>
-    Run it before the design review, not after the build. Most failures are
-    layout and copy decisions, and both are cheap to change before implementation.
+    Run it before the design review rather than after the build. The items in
+    sections A through D resolve into layout, wording and precision decisions,
+    and each of those is cheaper to change while the screen is still a design.
   </DoDont.Do>
   <DoDont.Dont>
-    Run it as a release gate only. A gate at the end produces exceptions, not
-    fixes, because by then nobody can afford the fix.
+    Run it as a release gate only. A review held at the point of release meets a
+    team that can no longer absorb a layout or copy change, so the items that
+    fail are signed off as exceptions rather than repaired.
   </DoDont.Dont>
 </DoDont>
 
@@ -189,19 +206,24 @@ without this checklist completed, dated and attributable to a person.**
     as your hazard log.
   </DoDont.Do>
   <DoDont.Dont>
-    Let an item be "not applicable" without saying why. Most of the "not
-    applicable" answers we have seen were "we did not check".
+    Let an item be "not applicable" without saying why. An unexplained "not
+    applicable" is indistinguishable in the record from an item nobody checked,
+    which is why section J requires a name and a reason against every exception.
   </DoDont.Dont>
 </DoDont>
 
 <DoDont>
   <DoDont.Do>
     Have someone who did not build the screen run section H's read-aloud check.
-    The author cannot hear their own copy.
+    An author reads their own copy with the intended meaning already supplied,
+    so a sentence that only parses for someone who knows the intent survives the
+    author's reading and fails a first-time reader's.
   </DoDont.Do>
   <DoDont.Dont>
-    Self-certify the whole list. The value is in a second pair of eyes; the list
-    is only the prompt.
+    Self-certify the whole list. An author answers each item against the screen
+    they intended to build rather than against the one that renders. The items
+    that depend on a reader who does not already know what the screen is meant
+    to say are the ones an author cannot answer for.
   </DoDont.Dont>
 </DoDont>
 
@@ -211,22 +233,24 @@ without this checklist completed, dated and attributable to a person.**
 
 Some of these items will eventually be machine-checkable: the banned-word list,
 the two-axis rule, the presence of a unit, and the alert budget are all lint
-rules waiting to be written. Until they exist, every item here is a human
-question, which is the honest state of the system today.
+rules waiting to be written. Until those rules exist, every item here is a
+human question, answered by the reviewer whose name section J requires on the
+record.
 
 ## What this does not cover
 
-- **Clinical review.** This is an interface checklist. It does not assess whether
-  your thresholds, ranges or clinical content are correct, and passing it is not
-  clinical sign-off.
-- **Clinical risk management process** — hazard logs, safety cases, clinical
-  safety officers — which is
-  [Regulatory context](./regulatory-context.mdx) and your organisation's
-  responsibility.
-- **Security review, privacy impact assessment or data protection assessment**,
-  each of which is a separate exercise.
-- **Usability testing with real users**, which this cannot replace and which
-  finds a different class of problem entirely.
+- **Clinical review.** This list checks the interface, and it does not assess
+  whether your organisation's thresholds, ranges or clinical content are
+  correct. Passing it is not clinical sign-off.
+- **Clinical risk management process.** Hazard logs, safety cases and the
+  clinical safety officer role belong to your organisation and are covered by
+  [Regulatory context](./regulatory-context.mdx).
+- **Security review, privacy impact assessment and data protection assessment.**
+  Each of the three is a separate exercise with its own record, and a completed
+  copy of this list stands in for none of them.
+- **Usability testing with real users.** This list checks whether a screen meets
+  the rules, and testing checks whether a reader understood what the screen
+  said, so neither result substitutes for the other.
 - **Component-level accessibility conformance**, which is published on each
   component's own page and does not exist yet for any of them: `a11yDate` is
   `null` on all sixty catalogue rows, the twenty-four implemented ones included.

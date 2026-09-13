@@ -1,6 +1,6 @@
 ---
 title: Print and export
-description: Compliance reviewers read on paper and patients print results for appointments — what the print stylesheet does, and what a printed health value must still carry.
+description: Compliance reviewers read on paper and patients print results for appointments. What the print stylesheet does, and what a printed health value must still carry.
 status: stable
 kind: accessibility
 a11yDate: 2026-09-02
@@ -24,9 +24,9 @@ explained it.
 `app/globals.css` carries a real `@media print` block. It does the following, and
 each item is there because of a specific failure:
 
-- **Removes chrome that carries no information on paper** — the banner, the main
-  navigation, the sidebar, the sub-navigation and the table of contents, each
-  named individually — so the printed page starts with the content. It never
+- **Removes chrome that carries no information on paper,** so the printed page
+  starts with the content. The banner, the main navigation, the sidebar, the
+  sub-navigation and the table of contents are each named individually. It never
   removes `aside` as an element, and it says so in a comment: `<StubNotice>`,
   `<SafetyCallout>` and `<ResearchNote>` are all asides, and the same block
   restores those three positively so that a later chrome selector cannot quietly
@@ -39,8 +39,8 @@ each item is there because of a specific failure:
   text.
 - **Puts a `1pt` solid black border around every `[data-status]` element** and
   sets `print-color-adjust: exact`. The status word is always present, so the
-  colour is not load-bearing — but the border means the pill is still visibly a
-  discrete object after a black-and-white photocopy.
+  colour is not load-bearing. Even so, the border means the pill is still
+  visibly a discrete object after a black-and-white photocopy.
 - **Resolves external link targets into the text,** appending the URL after any
   `http` link inside `main`. A printed page with a bare "see here" is useless in
   a review file.
@@ -56,8 +56,8 @@ each item is there because of a specific failure:
 A health value on paper has lost its context and gained an unknown reader. It
 must still carry:
 
-1. **The value, its unit and its precision** — never truncated, never abbreviated
-   past recognition.
+1. **The value, its unit and its precision.** They are never truncated and never
+   abbreviated past recognition.
 2. **When it was measured,** as an absolute date and time. `RelativeTime` renders
    "2 hours ago" on screen, which is meaningless on a sheet of paper found next
    week. Anything printed resolves to an absolute stamp.
@@ -86,9 +86,9 @@ on this page.
 
 ### Print to PDF, then read the PDF
 
-Not the print preview — the file. **Expected result:** no navigation, no
-translucency, no split tables, every external link resolved, and a date on every
-value. **Failure looks like** the sidebar occupying the first two pages.
+Read the file rather than the print preview. **Expected result:** no navigation,
+no translucency, no split tables, every external link resolved, and a date on
+every value. **Failure looks like** the sidebar occupying the first two pages.
 
 ### Photocopy it in black and white
 

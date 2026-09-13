@@ -1,6 +1,6 @@
 ---
 title: Materials
-description: What a surface is made of and what is behind it — six ordered rungs, each with a stated job, an opaque fallback and a contrast floor it has to clear.
+description: Six ordered rungs answer what a surface is made of and what is behind it. Each rung has a stated job, an opaque fallback and a contrast floor it has to clear.
 status: stable
 kind: foundation
 aliases: [surfaces, backdrop-filter, frosted]
@@ -31,21 +31,21 @@ Two things make this a foundation rather than a styling convention.
 **Every translucent rung has a fixed minimum backing tint.** The opacity of a
 translucent material is not a design parameter you tune until it looks right. It
 is the smallest value at which text on that material clears the contrast floor
-*against the worst possible backdrop* — including a photograph, a video, or a
-solid black. That calculation is the point of the whole section and it has its
-own page: [The contrast floor](./the-contrast-floor.mdx).
+*against the worst possible backdrop*. The worst case includes a photograph, a
+video, or a solid black. That calculation is the point of the whole section and
+it has its own page: [The contrast floor](./the-contrast-floor.mdx).
 
 **Every translucent rung has a documented opaque fallback.** Reduced
 transparency, print and any browser without `backdrop-filter` all land on the
-same fallback, and the fallback changes paint only — never layout. Forced
-colours is specified to land there as well and does not yet; the preference
-table below says which of the three are real. See
+same fallback, and the fallback changes paint only. It never changes layout.
+Forced colours is specified to land there as well and does not yet; the
+preference table below says which of the three are real. See
 [Reduced transparency](./reduced-transparency.mdx).
 
 The thing this is most often confused with is **elevation**. Elevation is
 *order*: which thing is in front. Material is *appearance*: what the thing is
-made of. They correlate — higher things tend to be more translucent — but they
-are separate contracts, and the stacking rules live in
+made of. They correlate, because higher things tend to be more translucent. The
+two are nonetheless separate contracts, and the stacking rules live in
 [Layering and elevation](../layering-and-elevation.mdx). A modal is above a card
 because of its z-index, not because of its blur.
 
@@ -66,18 +66,18 @@ Every rung resolves the same eight custom properties, and there is no ninth:
 --opsin-material-<rung>-opaque       the substitute used when translucency is off
 ```
 
-`<rung>` is a name — `canvas`, `card`, `raised`, `sheet`, `overlay`, `scrim` —
-and never an index. A number invites arithmetic, "one more than a card", and the
-ladder is not arithmetic: each rung answers a different question about what is
-behind it. [The ladder](./the-ladder.mdx) is the six questions and the job
-description for each, and
+`<rung>` is a name and never an index. The names are `canvas`, `card`, `raised`,
+`sheet`, `overlay` and `scrim`. A number invites arithmetic, "one more than a
+card", and the ladder is not arithmetic: each rung answers a different question
+about what is behind it. [The ladder](./the-ladder.mdx) is the six questions and
+the job description for each, and
 [ADR 0014](../../project/decisions/0014-material-rung-names.mdx) is why these are
 the names.
 
 Constraining a material to one closed set is deliberate, and so is fixing all
 eight per rung rather than exposing them for tuning. A system where a surface
 may vary its tint, blur, saturation, border, shadow, inset highlight and noise
-screen by screen has no ladder at all — it has a parameter space, and every
+screen by screen has no ladder at all. It has a parameter space, and every
 screen ends up somewhere different in it.
 
 ### The `Surface` primitive
@@ -88,10 +88,10 @@ and applies its properties together, so that a surface cannot be assembled
 half-way. It is built and at `alpha`, which means the API may still move; the
 ladder it resolves will not.
 
-If you are applying a rung without `Surface` — in a stylesheet, or in a
-component of your own — apply the properties together and treat "together" as
-the rule. A rung's blur without its backing tint is precisely the failure mode
-the contrast floor exists to prevent.
+A stylesheet or a component of your own can apply a rung without `Surface`.
+Where that happens, apply the properties together and treat "together" as the
+rule. A rung's blur without its backing tint is precisely the failure mode the
+contrast floor exists to prevent.
 
 ### The three preference queries
 
@@ -102,8 +102,8 @@ implemented:
 | Preference | What changes | Implemented? |
 | --- | --- | --- |
 | `prefers-reduced-transparency: reduce` | translucent rungs collapse to their opaque fallback, drop their blur and reset their saturation | yes, in the token layer, for all six rungs |
-| `prefers-contrast: more` | borders strengthen and tints deepen; blur is unaffected | no. `Surface` alone answers it, in its own utilities: it collapses the tint to the opaque fallback and widens the edge, and it does not deepen a tint or change a border colour — see [Increased contrast](../../accessibility/increased-contrast.mdx) |
-| `forced-colors: active` | the palette is replaced by the operating system's; the ladder survives as borders alone | no. Nothing in opsinjs answers it — see [Increased contrast](../../accessibility/increased-contrast.mdx) |
+| `prefers-contrast: more` | borders strengthen and tints deepen; blur is unaffected | no. `Surface` alone answers it, in its own utilities: it collapses the tint to the opaque fallback and widens the edge, and it does not deepen a tint or change a border colour. See [Increased contrast](../../accessibility/increased-contrast.mdx) |
+| `forced-colors: active` | the palette is replaced by the operating system's; the ladder survives as borders alone | no. Nothing in opsinjs answers it. See [Increased contrast](../../accessibility/increased-contrast.mdx) |
 
 The two unimplemented rows stay on the page because the specification is worth
 publishing; the third column is there so that nobody plans a translucent sheet
@@ -126,8 +126,8 @@ compositing cost and an unpredictable composite, and the contrast maths no
 longer has a bounded worst case. A card inside a sheet is an opaque rung.
 
 **Do not use more than three composited surfaces at once.** This is a
-performance budget with a real reason behind it and a real way to measure it —
-[Performance budget](./performance-budget.mdx).
+performance budget with a real reason behind it and a real way to measure it.
+[Performance budget](./performance-budget.mdx) has both.
 
 **Health values go on opaque rungs.** A number somebody may act on does not sit
 on glass. The one narrow exception, and its condition, is on
@@ -166,9 +166,9 @@ that looks like a feature. Four specific obligations:
 
 ## Related
 
-- [The contrast floor](./the-contrast-floor.mdx) — the calculation that fixes
+- [The contrast floor](./the-contrast-floor.mdx) has the calculation that fixes
   every translucent rung's minimum tint, and the CI job that enforces it.
-- [Layering and elevation](../layering-and-elevation.mdx) — the stacking
+- [Layering and elevation](../layering-and-elevation.mdx) is the stacking
   contract, which is a different question from what a surface is made of.
-- [Colour](../colour/index.mdx) — the tokens a material's content is coloured
+- [Colour](../colour/index.mdx) has the tokens a material's content is coloured
   from, and the pair rule those tokens obey.

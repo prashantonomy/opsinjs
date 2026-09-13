@@ -1,6 +1,6 @@
 ---
 title: ESLint plugin
-description: The proposed rule set for JSX and TypeScript — raw colours, mixed axes, banned words, and the component contracts a reviewer should not have to remember.
+description: The proposed rule set for JSX and TypeScript covers raw colours, mixed axes, banned words, and the component contracts a reviewer should not have to remember.
 status: planned
 kind: handbook
 aliases: [eslint-plugin-opsinjs, lint rules jsx, no-raw-color, no-mixed-axes]
@@ -19,7 +19,7 @@ owner: design-system
 the source.
 
 ```js
-// eslint.config.mjs — proposed, not yet publishable
+// eslint.config.mjs is proposed and not yet publishable
 import opsinjs from "eslint-plugin-opsinjs"
 
 export default [opsinjs.configs.recommended]
@@ -30,39 +30,39 @@ export default [opsinjs.configs.recommended]
 
 ### Proposed rules
 
-**`opsinjs/no-raw-color`** — error.
+**`opsinjs/no-raw-color`** runs at error level.
 Flags a colour literal in a `className`, a `style` prop or a styled call: hex,
 `rgb()`, `hsl()`, a named CSS colour, and a Tailwind arbitrary value containing
 any of them. Suggests the nearest token where one is unambiguous.
 *Why:* a raw colour opts out of the theme, both modes, the contrast floor and
 the two axes in one keystroke.
 
-**`opsinjs/no-mixed-axes`** — error.
+**`opsinjs/no-mixed-axes`** runs at error level.
 Flags a component receiving both a `status` and a `category` where the
 component's documented contract says only one may change the surface, and flags
 a status token used in a category role or the reverse.
 *Why:* [the two colour axes](../../health/two-colour-axes.mdx). This is the rule
 the plugin exists for.
 
-**`opsinjs/no-status-without-source`** — warn.
+**`opsinjs/no-status-without-source`** runs at warn level.
 Flags a literal `status` value written directly into JSX. A status should be
 derived from a value and a range, not typed by a developer choosing a colour.
 *Why:* a hardcoded `status="urgent"` is a clinical claim with nothing behind it.
 
-**`opsinjs/no-banned-word`** — error.
+**`opsinjs/no-banned-word`** runs at error level.
 Flags "normal", "abnormal", "good"/"bad" applied to a reading, and the other
 terms listed in [Reference ranges](../../health/reference-ranges.mdx) and
 [Writing status and alerts](../../content/writing-status-and-alerts.mdx), when
 they appear in JSX text or in a prop that renders as user-visible copy.
 *Why:* these words make claims about a person that the product cannot support.
 
-**`opsinjs/require-unit`** — warn.
-Flags a numeric health value rendered without a unit — a `Value` with no `unit`
-prop, or a bare number interpolated next to a metric label.
+**`opsinjs/require-unit`** runs at warn level.
+Flags a numeric health value rendered without a unit, such as a `Value` with no
+`unit` prop or a bare number interpolated next to a metric label.
 *Why:* a number without a unit is an incomplete fact; see
 [Numbers, units and precision](../../health/numbers-units-precision.mdx).
 
-**`opsinjs/no-motion-for-urgency`** — warn.
+**`opsinjs/no-motion-for-urgency`** runs at warn level.
 Flags an animation or transition class applied to an element that also carries a
 status, where the animation is one of the attention-seeking families (pulse,
 bounce, shake, ping).
@@ -70,14 +70,14 @@ bounce, shake, ping).
 carried by motion is invisible to a large group of readers and harmful to
 another.
 
-**`opsinjs/valid-composition`** — error.
+**`opsinjs/valid-composition`** runs at error level.
 Flags wrong nesting of a compound component's parts, checked against the
 generated composition trees.
 *Why:* wrong nesting is the most common generation failure, by humans and by
 agents alike.
 
-**`opsinjs/no-inline-threshold`** — warn.
-Flags a numeric comparison against a health value in JSX — a ternary on
+**`opsinjs/no-inline-threshold`** runs at warn level.
+Flags a numeric comparison against a health value in JSX, such as a ternary on
 `value > 140` deciding a colour.
 *Why:* thresholds have a named owner and belong in one place, not scattered
 through render functions.
@@ -117,8 +117,9 @@ through render functions.
 
 ## Related
 
-- [Tooling](./index.mdx) — why lint rules and not documentation.
-- [Stylelint plugin](./stylelint-plugin.mdx) — the same invariants in CSS.
-- [Error codes](../error-codes.mdx) — the runtime layer, with aligned names.
-- [Rules for agents](../../agents/rules-for-agents.mdx) — the same constraints
+- [Tooling](./index.mdx) explains why lint rules and not documentation.
+- [Stylelint plugin](./stylelint-plugin.mdx) has the same invariants in CSS.
+- [Error codes](../error-codes.mdx) covers the runtime layer, with aligned
+  names.
+- [Rules for agents](../../agents/rules-for-agents.mdx) has the same constraints
   expressed for a generator rather than a linter.

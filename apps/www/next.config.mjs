@@ -1,7 +1,7 @@
 import { createMDX } from "fumadocs-mdx/next"
 
 /**
- * Turbopack is the bundler. Do NOT add a `webpack` key here — Next 16 treats it
+ * Turbopack is the bundler. Do NOT add a `webpack` key here. Next 16 treats it
  * as a hard failure, not a warning.
  *
  * The `/docs/:path*.md` rewrite is the `.md` twin of every documentation page:

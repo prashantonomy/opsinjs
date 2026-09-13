@@ -13,9 +13,9 @@
  *      derived ramp in every theme has the same lightness at the same step, so
  *      swapping a brand can never change a component's contrast behaviour.
  *   3. CLAMP, THEN ESCALATE. Fit the chroma into sRGB. Where Display-P3 has
- *      headroom at that lightness, record the wider value too — it is emitted
- *      inside `@media (color-gamut: p3)` and it is an enhancement, never a
- *      requirement. sRGB is what the theme IS.
+ *      headroom at that lightness, record the wider value too. It is
+ *      emitted inside `@media (color-gamut: p3)` and it is an enhancement,
+ *      never a requirement. sRGB is what the theme IS.
  *   4. VALIDATE.   Assign roles by MEASUREMENT. `primary` is not "step 600", it
  *      is the first step at or below the brand's lightness whose foreground
  *      clears the body floor in both contrast models. If no step does, the
@@ -151,13 +151,13 @@ export interface ContrastCheck {
   /**
    * Measured and published, but not required.
    *
-   * The only advisory pair is `line` on `canvas` — a decorative separator
-   * between two rows of the same thing. WCAG 2.2 SC 1.4.11 governs boundaries
-   * that are REQUIRED to identify a component, and a rule between list items is
-   * not one; forcing it to Lc 45 would produce a page of heavy black lines and
-   * would teach a reader that a line means something when it does not. The
-   * boundary that DOES identify a control is `control-line`, and that one is
-   * required.
+   * The only advisory pair is `line` on `canvas`, which is a decorative
+   * separator between two rows of the same thing. WCAG 2.2 SC 1.4.11 governs
+   * boundaries that are REQUIRED to identify a component, and a rule between
+   * list items is not one; forcing it to Lc 45 would produce a page of heavy
+   * black lines and would teach a reader that a line means something when it
+   * does not. The boundary that DOES identify a control is `control-line`, and
+   * that one is required.
    */
   advisory?: boolean
 }
@@ -240,9 +240,9 @@ function check(
  * candidates rather than assuming white.
  *
  * "White text on the brand colour" is the assumption that produces most of the
- * failing buttons on the web. Here the two realistic candidates — near-white
- * and near-black — are both measured and the one with more headroom wins, so a
- * pale brand gets dark text instead of an unreadable button.
+ * failing buttons on the web. Here the two realistic candidates are near-white
+ * and near-black. Both are measured, and the one with more headroom wins, so
+ * a pale brand gets dark text instead of an unreadable button.
  */
 function pickForeground(
   background: Oklch,
@@ -262,7 +262,7 @@ function pickForeground(
  * available foreground clears the body floor in BOTH contrast models.
  *
  * This is the heart of stage 4. `primary` is not "step 600 because that usually
- * works" — it is the first step that measurably works, searched from the step
+ * works". It is the first step that measurably works, searched from the step
  * closest to the brand's own lightness so the result still looks like the
  * brand. In light mode the search runs towards the dark end; in dark mode it
  * runs towards the light end, because a filled control on a dark page has to be
@@ -358,7 +358,7 @@ export function deriveTheme(
     warnings.push({
       level: "note",
       code: "DERIVE-CHROMA-CAPPED",
-      message: `Seed chroma reduced from ${brand.c.toFixed(3)} to ${maxSeedChroma} — a whole interface at this saturation is tiring to read, and the mid steps would be out of sRGB anyway.`,
+      message: `Seed chroma reduced from ${brand.c.toFixed(3)} to ${maxSeedChroma}. A whole interface at this saturation is tiring to read, and the mid steps would be out of sRGB anyway.`,
     })
     seedChroma = maxSeedChroma
   }
@@ -579,7 +579,7 @@ export function deriveTheme(
 
   /* `shortfall`, not `failed`: "failed" is on the banned list
      (tokens/glossary.json) for copy and identifiers alike, and an identifier is
-     the copy of tomorrow — this one is one rename away from a prop table. The
+     the copy of tomorrow. This one is one rename away from a prop table. The
      name is also the more accurate of the two, because the warning it builds
      reports a distance below a floor rather than a pass/fail verdict. */
   for (const shortfall of checks.filter((c) => !c.passes && !c.advisory)) {

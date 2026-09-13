@@ -1,6 +1,6 @@
 ---
 title: Sharing with a clinician
-description: Export, summary and hand-off surfaces — producing something a clinician can read in ninety seconds without the product implying it has done any interpreting.
+description: Export, summary and hand-off surfaces produce something a clinician can read in ninety seconds without the product implying it has done any interpreting.
 status: planned
 kind: pattern
 aliases: [export my data, share with doctor, appointment summary, printable report, hand-off]
@@ -41,8 +41,8 @@ Signals:
   vocabulary is different, and the consent decision is different. Design it
   separately.
 - **Raw data portability.** A machine-readable export for the reader's own use
-  is a different artefact from a clinical summary — offer both, do not conflate
-  them.
+  is a different artefact from a clinical summary. Offer both, and do not
+  conflate them.
 - **You want the consent mechanics.** Granting, scoping and revoking access is
   [Consent and permissions](./consent-and-permissions.mdx).
 
@@ -102,12 +102,12 @@ the reader. Do not let either voice bleed into the other.
 
 <DoDont>
   <DoDont.Do>
-    Export header: "Home blood pressure, 3 May – 2 June 2026. 42 morning
+    Export header: "Home blood pressure, 3 May to 2 June 2026. 42 morning
     readings of a possible 60. Self-measured, upper-arm cuff, model recorded per
     reading."
   </DoDont.Do>
   <DoDont.Dont>
-    Export header: "Ellie's health journey 🌱 — a summary of your amazing
+    Export header: "Ellie's health journey 🌱. A summary of your amazing
     progress!" Written for the wrong reader, and it will be discarded.
   </DoDont.Dont>
 </DoDont>
@@ -123,7 +123,7 @@ the reader. Do not let either voice bleed into the other.
 </DoDont>
 
 Every export carries the scope statement from
-[Safety, scope and limitations](../start/safety-scope-and-limitations.mdx) — the
+[Safety, scope and limitations](../start/safety-scope-and-limitations.mdx). The
 document will outlive the app it came from, and it must say what it is.
 
 ## Accessibility
@@ -135,8 +135,8 @@ document will outlive the app it came from, and it must say what it is.
 - **No colour dependence anywhere in the artefact.** It will be printed in
   monochrome and photocopied. Verify with
   [Colour independence](../accessibility/colour-independence.mdx).
-- **The preview is navigable**, not a modal image — headings, landmarks and a
-  reading order that matches the visual order.
+- **The preview is navigable**, not a modal image. It has headings, landmarks
+  and a reading order that matches the visual order.
 - **The share control names the recipient in its accessible name**: "Send
   summary to Dr Ellis's clinic", not "Send".
 - **Print styles are tested, not assumed.** Page breaks fall between sections,
@@ -145,21 +145,21 @@ document will outlive the app it came from, and it must say what it is.
 ## Research
 
 <ResearchNote evidence="opinion" date="2026-09-02">
-  The separation of voices — clinician-facing export, reader-facing screen — and
-  the rule that the product's status vocabulary must not travel into a clinical
-  document are design opinions, and the second is the load-bearing one. Our
-  status levels are defined for a layperson reading about themselves; the same
-  words in a clinical summary will be read as an assessment the product is not
-  qualified to make and did not intend to offer.
+  The separation of the clinician-facing export from the reader-facing screen
+  and the rule that the product's status vocabulary must not travel into a
+  clinical document are design opinions, and the second is the load-bearing one.
+  Our status levels are defined for a layperson reading about themselves; the
+  same words in a clinical summary will be read as an assessment the product is
+  not qualified to make and did not intend to offer.
 
   The completeness-declaration rule is likewise opinion, argued from how
   self-reported data is treated when its density is unknown rather than from a
   measurement we can cite.
 
   What would change our mind: clinician feedback that a structured status
-  summary is more useful than raw values with ranges — plausible, but it would
-  require a vocabulary designed for that audience rather than a reuse of this
-  one.
+  summary is more useful than raw values with ranges. That is plausible, but it
+  would require a vocabulary designed for that audience rather than a reuse of
+  this one.
 </ResearchNote>
 
 ## Updates to this page

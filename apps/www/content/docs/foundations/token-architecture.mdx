@@ -19,8 +19,8 @@ opsinjs has three: **primitives**, which are raw values with no opinion;
 **semantic roles**, which name a job; and **component tokens**, which are the
 handful of decisions a single component needs and nobody else should share. The
 one rule that makes the structure hold is that references point in exactly one
-direction — component to semantic, semantic to primitive — and never skip a tier
-or turn around.
+direction and never skip a tier or turn around. The direction runs from
+component to semantic, and from semantic to primitive.
 
 This is often confused with the Tailwind `@theme` layer, which is a different
 concern: `@theme` decides which tokens become utility classes. Some of ours do,
@@ -29,13 +29,13 @@ most do not, and the mapping is documented in
 
 ## How it works
 
-**Tier 1 — primitives.** A ramp step, a duration in milliseconds, a radius in
+**Tier 1 primitives.** A ramp step, a duration in milliseconds, a radius in
 rem. Named for what it *is*: a lightness step on a hue ramp, not a purpose. A
 primitive never appears in a component and never appears in an example on this
 site. It exists so that the semantic layer has something to point at, and so that
 regenerating a ramp changes one file rather than forty.
 
-**Tier 2 — semantic roles.** Named for the *job*, and this is the tier you
+**Tier 2 semantic roles.** Named for the *job*, and this is the tier you
 actually work with. `--opsin-status-urgent-line` is a semantic role: it says
 "this is the line weight of the highest status level" and it says nothing about
 which hue currently satisfies that. Roles are the stable public surface. They are
@@ -43,8 +43,8 @@ covered by the [versioning policy](../project/versioning-policy.mdx) in the same
 way as the JavaScript API, because a product that styles against a custom
 property has taken a dependency on its name.
 
-**Tier 3 — component tokens.** Scoped to one component, and only created when a
-decision is genuinely local — the inset of a range bar's marker, say, which no
+**Tier 3 component tokens.** Scoped to one component, and only created when a
+decision is genuinely local, such as the inset of a range bar's marker, which no
 other component has an opinion about. A component token always resolves to a
 semantic role by default, so overriding one is a local adjustment and never a
 fork. These are listed per selector by `<CssVariablesTable>` on each component
@@ -65,8 +65,8 @@ The reference direction is the whole architecture:
 
 The dotted edge is the failure this page exists to prevent. A component that
 reaches straight to a primitive still renders, still looks right, and quietly
-opts itself out of every theme, every preset and every contrast measurement — and
-nothing tells you until somebody derives a theme from their brand colour and one
+opts itself out of every theme, every preset and every contrast measurement.
+Nothing tells you until somebody derives a theme from their brand colour and one
 component stays the old hue.
 
 ## Using it
@@ -77,7 +77,7 @@ this one, and only because of its geometry", it is a component token. If your
 answer is "nobody, it is just the value I need", you have found a primitive and
 you should not be using it directly.
 
-**Adding a role.** New semantic roles are a permanent commitment — see
+**Adding a role.** New semantic roles are a permanent commitment. See
 [Adding your own tokens](../theming/adding-your-own-tokens.mdx) for the extension
 recipe that survives an upgrade, and
 [Contributing tokens](../handbook/contributing/contributing-tokens.mdx) for the
@@ -87,11 +87,11 @@ migration obligation a change to an existing role creates.
 
 <DoDont>
   <DoDont.Do>
-    `background: var(--opsin-status-watch-surface)` — a role, so a preset can
+    `background: var(--opsin-status-watch-surface)` is a role, so a preset can
     move it, `pnpm contrast` can measure it, and the CVD audit can see it.
   </DoDont.Do>
   <DoDont.Dont>
-    `background: oklch(0.966 0.042 85)` — the same colour today, invisible to
+    `background: oklch(0.966 0.042 85)` is the same colour today, invisible to
     every tool that keeps the system honest, and wrong the moment anyone themes
     the product. Use the role.
   </DoDont.Dont>
@@ -99,9 +99,10 @@ migration obligation a change to an existing role creates.
 
 The second mistake is an alias chain: a role that points at another role that
 points at a third. Two hops is a smell and three is a bug, because nobody can
-predict what an override does. The third is a role named after its appearance —
-`--opsin-amber-surface` rather than `--opsin-status-watch-surface`. Appearance
-names are how a system ends up with a green "amber" token after a redesign.
+predict what an override does. The third is a role named after its appearance.
+That means `--opsin-amber-surface` rather than `--opsin-status-watch-surface`.
+Appearance names are how a system ends up with a green "amber" token after a
+redesign.
 
 ## Tokens
 
@@ -117,10 +118,10 @@ than a slice of somebody else's.
 
 Tiering is what makes accessibility measurable rather than asserted. Every
 contrast figure this site publishes is a measurement of a *pair of semantic
-roles* — a foreground role against a background role — which is only possible
-because those pairs have stable names. A component that inlines a value is
-excluded from `pnpm contrast` silently: no error, no failure, just a surface
-nobody has checked.
+roles*. The pair is a foreground role against a background role, and the
+measurement is only possible because those pairs have stable names. A component
+that inlines a value is excluded from `pnpm contrast` silently: no error, no
+failure, just a surface nobody has checked.
 
 The same applies to the user preferences, and the current state of them is worth
 knowing precisely. `prefers-reduced-transparency` is answered in the token layer
@@ -130,7 +131,7 @@ six material rungs, so every surface responds and no component has to know.
 `prefers-reduced-motion` is answered the same way but only for the spring
 easings and durations; the plain duration steps are not redefined, so a
 transition timed with one of those still runs at full length. `prefers-contrast`
-has no block in the token layer at all — the one place it is answered today is
+has no block in the token layer at all. The one place it is answered today is
 `Surface`, in that component's own utilities, which is precisely the pattern
 this section argues against. The gap is tracked on
 [Increased contrast](../accessibility/increased-contrast.mdx). A component
@@ -139,9 +140,9 @@ these, and the person who set the preference gets no signal that it was ignored.
 
 ## Related
 
-- [Theming → Adding your own tokens](../theming/adding-your-own-tokens.mdx) — the
-  other half of the signpost: how to extend the tiers in your own build.
-- [Handbook → Styling](../handbook/styling.mdx) — the four hooks a component
-  exposes, and which tier each of them addresses.
-- [Colour → Colour roles](colour/colour-roles.mdx) — the largest set of semantic
-  roles in the system, and the best worked example of tier 2.
+- [Theming → Adding your own tokens](../theming/adding-your-own-tokens.mdx) is
+  the other half of the signpost: how to extend the tiers in your own build.
+- [Handbook → Styling](../handbook/styling.mdx) covers the four hooks a
+  component exposes, and which tier each of them addresses.
+- [Colour → Colour roles](colour/colour-roles.mdx) has the largest set of
+  semantic roles in the system, and the best worked example of tier 2.

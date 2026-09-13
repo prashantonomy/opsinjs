@@ -1,6 +1,6 @@
 ---
 title: Glossary
-description: The A–Z as data — the record shape, how Term resolves an entry, how to propose one, and where the machine-readable copy lives.
+description: The A to Z as data. The record shape, how Term resolves an entry, how to propose one, and where the machine-readable copy lives.
 status: stable
 kind: content
 reviewer: content
@@ -14,15 +14,15 @@ aliases: [term definitions, word list, glossary data]
 
 **One vocabulary, one file, many surfaces.** The plain-English vocabulary is
 authored once in `tokens/glossary.json` and consumed everywhere: by `Term` in a
-running product, by the filterable A–Z on
-[Plain-English A–Z](./plain-english-a-z.mdx), by the generated
+running product, by the filterable A to Z on
+[Plain-English A to Z](./plain-english-a-z.mdx), by the generated
 [glossary reference](../reference/generated/glossary.mdx), by search, and by the
 machine-readable output at `/r` that an agent reads.
 
 This page is about the vocabulary as *data*.
-[Plain-English A–Z](./plain-english-a-z.mdx) is canonical for the *rule* — how a
-replacement word is chosen and why. The two do not restate each other, and
-`assert-ia.mts` checks that they do not.
+[Plain-English A to Z](./plain-english-a-z.mdx) is canonical for the *rule*.
+That page says how a replacement word is chosen and why. The two do not restate
+each other, and `assert-ia.mts` checks that they do not.
 
 ### Why it is data and not prose
 
@@ -46,20 +46,20 @@ Each entry is one clinical term. The fields:
 | `term` | yes | The clinical term, as the reader will meet it on a document. Its natural case, so "HbA1c", not "hba1c". |
 | `plain` | yes | The replacement phrase. Two or three words. Used verbatim in copy. |
 | `definition` | yes | One original sentence, written for a lay reader. Never copied from a clinical source. |
-| `seenOn` | no | Where the reader is likely to meet the clinical term — a prescription, a results letter, a monitor. |
+| `seenOn` | no | Where the reader is likely to meet the clinical term, such as a prescription, a results letter, a monitor. |
 | `aliases` | no | Search synonyms and common misspellings. |
 | `category` | no | The health category the term belongs to, from the category axis. |
 
 Two rules about the fields. `plain` is a phrase the product will actually print,
-so it must read correctly mid-sentence — lower case unless it is a proper noun,
-no trailing full stop. `definition` is one sentence, not a paragraph, because it
-is rendered inside a popover next to a word.
+so it must read correctly mid-sentence. That means lower case unless it is a
+proper noun, and no trailing full stop. `definition` is one sentence, not a
+paragraph, because it is rendered inside a popover next to a word.
 
 ## Approved / Rejected
 
 <DoDont>
-  <DoDont.Do>plain: "high blood pressure" — definition: "Blood pressure that stays higher than the usual range over time, rather than on a single reading."</DoDont.Do>
-  <DoDont.Dont>plain: "hypertension" — definition: "A chronic medical condition characterised by persistently elevated arterial blood pressure."</DoDont.Dont>
+  <DoDont.Do>plain: "high blood pressure" with definition: "Blood pressure that stays higher than the usual range over time, rather than on a single reading."</DoDont.Do>
+  <DoDont.Dont>plain: "hypertension" with definition: "A chronic medical condition characterised by persistently elevated arterial blood pressure."</DoDont.Dont>
 </DoDont>
 
 The rejected record does both of the things this file exists to prevent: the
@@ -68,8 +68,8 @@ register the vocabulary is supposed to translate out of. It also uses "chronic"
 in the definition of a term whose own entry would replace "chronic".
 
 <DoDont>
-  <DoDont.Do>plain: "average blood sugar" — seenOn: "your results letter and your GP's records"</DoDont.Do>
-  <DoDont.Dont>plain: "sugar level" — no seenOn, and the term written in lower case</DoDont.Dont>
+  <DoDont.Do>plain: "average blood sugar" with seenOn: "your results letter and your GP's records"</DoDont.Do>
+  <DoDont.Dont>plain: "sugar level" with no seenOn, and the term written in lower case</DoDont.Dont>
 </DoDont>
 
 The second rejection is subtler. "Sugar level" is plainer and it is wrong: it
@@ -122,11 +122,11 @@ confidently. See [Proposals](../project/proposals.mdx).
 change to `plain` is a change to strings a product is printing. Treat it as a
 breaking change to copy and record it in the changelog.
 
-### The rendered A–Z
+### The rendered list
 
 The full filterable list is rendered on
-[Plain-English A–Z](./plain-english-a-z.mdx), which is the page to send a writer
-to. The generated, machine-readable form is at
+[Plain-English A to Z](./plain-english-a-z.mdx), which is the page to send a
+writer to. The generated, machine-readable form is at
 [the glossary reference](../reference/generated/glossary.mdx).
 
 <NoDataYet script="scripts/build-tokens.mts" />
@@ -148,10 +148,10 @@ clinical register back into the file that exists to remove it.
 
 ## Related components
 
-- **`Term`** — the only consumer that resolves a record at runtime. It renders
+- **`Term`** is the only consumer that resolves a record at runtime. It renders
   the clinical word with `plain` and `definition` available; a term with no
   record renders as plain text rather than inventing an explanation.
-- **`Glossary`** — the filterable list component.
-- **`CareCard`** and **`ConsentSheet`** — the two surfaces most likely to
+- **`Glossary`** is the filterable list component.
+- **`CareCard`** and **`ConsentSheet`** are the two surfaces most likely to
   introduce a term the reader has never met, and therefore the two most dependent
   on this file being complete.

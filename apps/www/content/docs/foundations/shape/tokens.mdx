@@ -29,7 +29,7 @@ so a product that wants a different character changes exactly this.
 
 **The multipliers.** One per rung, ascending. The generator emits the resolved
 value alongside the multiplier, so the table shows both what a rung *is* and what
-it is *derived from* — which is what makes it possible to tell at a glance
+it is *derived from*. That is what makes it possible to tell at a glance
 whether somebody has broken the ladder by authoring a rung directly.
 
 `full` is emitted as a fixed capsule value rather than a multiple, because it is
@@ -39,9 +39,9 @@ not a point on the ladder. It is a statement that the element is a capsule.
 `corner-shape` under a support query. See [Squircle](squircle.mdx).
 
 The specimens on this page render each rung at the product theme's root value,
-with the superellipse applied where the browser supports it — so on a browser
-without `corner-shape` this page shows you exactly what your readers on that
-browser will see, rather than an idealised picture of it.
+with the superellipse applied where the browser supports it. On a browser
+without `corner-shape`, this page therefore shows you exactly what your readers
+on that browser will see, rather than an idealised picture of it.
 
 ## Using it
 
@@ -54,8 +54,8 @@ both numbers, and this table plus the
 
 **Do not copy a resolved value into a component.** It is correct for one root
 radius, which means it is correct for the product theme and wrong for any theme
-derived from it — including the docs chrome, where it would round something that
-is meant to be square.
+derived from it. The docs chrome is one such theme, and there it would round
+something that is meant to be square.
 
 **If a rung is missing, the object is probably misclassified.** Six rungs cover
 inline marks through full-screen surfaces. A request for a seventh is almost
@@ -83,7 +83,8 @@ always a control that has been categorised as a card, or the reverse.
 
 ## Related
 
-- [Radius scale](radius-scale.mdx) — what each rung is for and the nesting rule.
-- [Squircle](squircle.mdx) — the corner shape and its degradation.
-- [Reference → Tokens](../../reference/generated/tokens.mdx) — the same rows
+- [Radius scale](radius-scale.mdx) says what each rung is for and the nesting
+  rule.
+- [Squircle](squircle.mdx) covers the corner shape and its degradation.
+- [Reference → Tokens](../../reference/generated/tokens.mdx) has the same rows
   alongside every other family.

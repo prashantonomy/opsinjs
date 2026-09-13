@@ -2,9 +2,9 @@
  * The primary use: a column of entries where the age of each one is part of
  * reading it.
  *
- * The rule on show is that every row names its event, so "3 days ago" is never
- * left as a fragment the reader completes for themselves — and that an age is
- * read far faster down a column than four dates side by side are.
+ * The rule on show is that every row names its event, so "3 days ago" is
+ * never left as a fragment the reader completes for themselves. An age is
+ * also read far faster down a column than four dates side by side are.
  *
  * NO ROW PASSES A STALENESS THRESHOLD, and the example is poorer for it. The
  * version that showed one row past a boundary was better teaching and shipped a

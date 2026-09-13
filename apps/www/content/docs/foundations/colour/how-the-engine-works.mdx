@@ -21,30 +21,30 @@ colour. This page is the mechanism: eight stages, each with a stated failure
 mode, so that when a derived theme comes out wrong you can say which stage did
 it rather than reaching for the eyedropper.
 
-The thing this is most often confused with is a *tint generator* — the class of
-tool that takes a hex value and mixes it toward white and black in ten steps.
-Those tools produce ramps whose steps are unevenly spaced perceptually, whose
-mid-tones drift in hue, and whose contrast against a fixed foreground is
+The thing this is most often confused with is a *tint generator*, which is the
+class of tool that takes a hex value and mixes it toward white and black in ten
+steps. Those tools produce ramps whose steps are unevenly spaced perceptually,
+whose mid-tones drift in hue, and whose contrast against a fixed foreground is
 unpredictable. Every one of the eight stages below exists because a mixing
 generator gets that stage wrong.
 
 ## How it works
 
-### 1 — Parse and normalise to OKLCH
+### Step 1. Parse and normalise to OKLCH
 
 The input may be a hex value, an `rgb()`, an `oklch()` or a `color(display-p3
 …)`. It is converted to OKLCH and never converted back until emission. OKLCH is
 used rather than HSL for one specific reason: in OKLCH, `L` is *perceptual*
 lightness, so two colours with the same `L` look equally light regardless of
-hue. In HSL they do not — HSL yellow at 50% lightness is dramatically brighter
+hue. In HSL they do not. HSL yellow at 50% lightness is dramatically brighter
 than HSL blue at 50% lightness, which is why every HSL-derived palette has a
 weak yellow and a heavy blue.
 
-*Failure mode:* an input already outside sRGB. Accepted, but see stage 4 — the
+*Failure mode:* an input already outside sRGB. Accepted, but see stage 4. The
 sRGB fallback is chroma-clamped, so the theme will be less saturated than the
 designer's swatch on a wide-gamut display.
 
-### 2 — Fix the lightness ladder
+### Step 2. Fix the lightness ladder
 
 Lightness is not derived from the brand colour. It is fixed in advance, the same
 for every hue, so that step *n* of the heart ramp and step *n* of the nutrition
@@ -60,7 +60,7 @@ step   L      typical use
 400    0.840
 500    0.740  a line that must stay light
 600    0.660
-700    0.570  category accent — the default line colour
+700    0.570  category accent is the default line colour
 800    0.490
 900    0.360  category ink
 950    0.280
@@ -73,7 +73,7 @@ The dark theme uses the same ladder read from the other end; the mapping is on
 component". The ladder is a shared coordinate system; a private step makes two
 ramps incomparable and is rejected in review.
 
-### 3 — Hold hue constant
+### Step 3. Hold hue constant
 
 The hue angle from stage 1 is carried unchanged through every step of the ramp.
 No warm-shadow or cool-highlight drift. A drifting ramp looks more crafted and
@@ -81,7 +81,7 @@ is much harder to reason about, because the colour at step 900 is then not the
 same colour as the one at step 100 and the "identity" claim the category axis
 makes stops being true.
 
-### 4 — Clamp chroma into the gamut, per step
+### Step 4. Clamp chroma into the gamut, per step
 
 For each `(L, H)` pair the engine finds the largest `C` that still resolves
 inside sRGB, by binary search on the gamut boundary, and then backs off by a
@@ -100,7 +100,7 @@ and the yellow ramp will look less saturated than the red one at the same step.
 That is correct. Forcing them to match would mean either desaturating the red or
 lightening the yellow, and the second breaks stage 2.
 
-### 5 — Escalate chroma for Display-P3
+### Step 5. Escalate chroma for Display-P3
 
 The clamped sRGB value is emitted as the base declaration. A second declaration,
 behind a `color-gamut` media query, re-runs stage 4 against the Display-P3
@@ -109,7 +109,7 @@ only chroma moves, luminance barely moves, and the contrast measurements taken
 in stage 7 hold in both gamuts. The pattern, and why it has to be a media query
 rather than a feature query, is on [Gamut and Display-P3](./gamut-and-p3.mdx).
 
-### 6 — Assign roles
+### Step 6. Assign roles
 
 The ramp is not the API. Roles are. The engine picks a step for each role and
 emits `--opsin-<axis>-<name>-<role>`:
@@ -118,21 +118,23 @@ emits `--opsin-<axis>-<name>-<role>`:
 - `line` from the middle, chosen *per hue* rather than at a fixed step,
 - `ink` from the dark end, subject to stage 7.
 
-The `line` role is the deliberate exception to the fixed ladder. A line is
-where saturation is the point — it is the stroke of a chart, the ring of a dial,
-the rule under a status pill — so the engine picks the step that maximises
-chroma while still clearing the non-text contrast floor against its own surface.
-For yellow that lands lighter than for red. If you compare the four status line
-tokens and find their lightnesses are not monotonic, this stage is why, and it
-is intentional. See [Colour blindness](./colour-blindness.mdx) for what it costs
-and how that cost is paid.
+The `line` role is the deliberate exception to the fixed ladder. A line is the
+stroke of a chart, the ring of a dial, the rule under a status pill, and
+saturation is the point in every one of them. The engine therefore picks the
+step that maximises chroma while still clearing the non-text contrast floor
+against its own surface. For yellow that lands lighter than for red. If you
+compare the four status line tokens and find their lightnesses are not
+monotonic, this stage is why, and it is intentional. See
+[Colour blindness](./colour-blindness.mdx) for what it costs and how that cost
+is paid.
 
-### 7 — The APCA validation loop
+### Step 7. The APCA validation loop
 
-Every emitted pair — each `ink` against its own `surface`, each `line` against
-its own `surface` — is measured. If a pair is below the published floor, the
-engine adjusts the `L` of the *foreground* member by one small step and
-re-measures, up to a bounded number of iterations. Two rules make this safe:
+Every emitted pair is measured. An emitted pair is an `ink` against its own
+`surface` or a `line` against its own `surface`. If a pair is below the
+published floor, the engine adjusts the `L` of the *foreground* member by one
+small step and re-measures, up to a bounded number of iterations. Two rules
+make this safe:
 
 - Only the foreground moves. Surfaces are structural; a theme where the card
   background shifted to rescue a label is a theme that no longer matches its
@@ -143,12 +145,12 @@ re-measures, up to a bounded number of iterations. Two rules make this safe:
   that ships an unreadable result card.
 
 APCA is used as the optimisation target because it is the better-behaved
-function to hill-climb — it is monotonic in the right direction across the whole
+function to hill-climb. It is monotonic in the right direction across the whole
 range and it accounts for polarity. WCAG 2.2 is then checked as a hard gate on
 the result. Both numbers are published; the reasoning is on
 [Contrast and APCA](./contrast-and-apca.mdx).
 
-### 8 — Emit
+### Step 8. Emit
 
 `scripts/build-tokens.mts` writes `app/tokens.generated.css`: a `:root` block, a
 `.dark` block, the `color-gamut` escalation blocks, and the
@@ -196,7 +198,7 @@ produce a below-floor pair. Its guarantee is bounded and worth stating exactly:
 
 - It guarantees **declared pairs**. An `ink` on its own `surface`, a `line` on
   its own `surface`. Any other combination you assemble yourself is unmeasured
-  and therefore unguaranteed — see [Colour roles](./colour-roles.mdx).
+  and therefore unguaranteed. See [Colour roles](./colour-roles.mdx).
 - It guarantees **both themes**. Light and dark are measured separately and a
   dark-theme regression fails the build exactly as a light-theme one does.
 - It guarantees **both gamuts**, because stage 5 moves chroma only.
@@ -206,9 +208,9 @@ produce a below-floor pair. Its guarantee is bounded and worth stating exactly:
 
 ## Related
 
-- [Deriving a theme](./deriving-a-theme.mdx) — the same eight stages seen from
+- [Deriving a theme](./deriving-a-theme.mdx) has the same eight stages seen from
   the outside, with the brand colours that break them.
-- [Gamut and Display-P3](./gamut-and-p3.mdx) — stage 5 in full, including why a
-  feature query is the wrong guard.
-- [Contrast and APCA](./contrast-and-apca.mdx) — the floor stage 7 optimises
+- [Gamut and Display-P3](./gamut-and-p3.mdx) covers stage 5 in full, including
+  why a feature query is the wrong guard.
+- [Contrast and APCA](./contrast-and-apca.mdx) has the floor stage 7 optimises
   against, and why two contrast models are published rather than one.

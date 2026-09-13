@@ -1,5 +1,5 @@
 /**
- * CareCard — one instruction, from a named author, with the timing in words.
+ * CareCard is one instruction, from a named author, with the timing in words.
  *
  * THE COMPONENT CARRIES TWO VOCABULARIES AND MAPS NEITHER ONTO THE OTHER.
  * `urgency` says WHEN the reader should do the thing this card is asking of
@@ -10,32 +10,32 @@
  * about a reading nobody has assessed at all. So this file contains no table
  * from one to the other, no derivation in either direction, and no combination
  * it refuses. All fifteen pairs render, and each of them is the product's to
- * justify — which is the only answer available to a component that does not
+ * justify. That is the only answer available to a component that does not
  * know the reader.
  *
- * The open question the specification page asks — "is a steady CareCard a
- * contradiction?" — is answered no, for the same reason. `steady` describes a
- * reading that is where it was expected to be; it does not describe an empty
- * diary. "Book your next check when you next get a chance, because everything
- * we have seen is where we expected it" is the commonest care instruction there
- * is, and a component that refused it would push products into inventing a
- * fifth level for it.
+ * The open question the specification page asks is whether a steady CareCard
+ * is a contradiction. It is answered no, for the same reason. `steady`
+ * describes a reading that is where it was expected to be; it does not
+ * describe an empty diary. "Book your next check when you next get a chance,
+ * because everything we have seen is where we expected it" is the commonest
+ * care instruction there is, and a component that refused it would push
+ * products into inventing a fifth level for it.
  *
  * IT READS NO CLOCK. `urgency` is a phrase the product asserted at render time,
  * and "Do this today" means the day it was rendered. A card left on a screen
  * overnight still says "today" and now means a different day; nothing here
  * detects that, because nothing here polls, ticks or re-renders on its own. The
- * deadline is the part built to survive it — a written date does not drift past
- * midnight — which is why `dueBy` renders as a date rather than as a relative
- * phrase, and why `overdue` is an input the product supplies rather than a
- * comparison this file performs. Keeping a screen alive across a day boundary
- * is the product's problem, and re-rendering is the product's answer.
+ * deadline is the part built to survive it, because a written date does not
+ * drift past midnight. That is why `dueBy` renders as a date rather than as a
+ * relative phrase, and why `overdue` is an input the product supplies rather
+ * than a comparison this file performs. Keeping a screen alive across a day
+ * boundary is the product's problem, and re-rendering is the product's answer.
  *
  * IT DRAWS NO STATUS OF ITS OWN. The whole status axis on this card is a
  * StatusPill, which owns the word, the glyph, the colour and `data-status`
  * together. Nothing else on the card takes a status colour: not the surface,
  * not the boundary, not the heading. See the specification deviation recorded
- * on the page — the tree asks for a status-tinted heading rule, and a tinted
+ * on the page. The tree asks for a status-tinted heading rule, and a tinted
  * rule beside a timing phrase gives the reader a colour to read the timing
  * from, when the two vocabularies do not map.
  *
@@ -117,13 +117,14 @@ const DEADLINE_PASSED = "This date has passed."
  * file having to work out which one that is.
  *
  * THIS STRING IS A SECOND COPY. `card.tsx` declares the identical one, and
- * applies it through `Card.Header`, `Card.Body` and `Card.Footer` — which this
- * component bypasses, because every one of its parts is optional and arrives as
- * a prop rather than as caller-supplied children, and Card's own prop
- * documentation sanctions raw children for exactly that case. The constant is
- * private there, so the copy cannot be removed from inside this file; removing
- * the reason for the copy means exporting it from Card, which is an edit to
- * another component and is recorded in this component's review instead.
+ * applies it through `Card.Header`, `Card.Body` and `Card.Footer`. This
+ * component bypasses those, because every one of its parts is optional and
+ * arrives as a prop rather than as caller-supplied children, and Card's own
+ * prop documentation sanctions raw children for exactly that case. The
+ * constant is private there, so the copy cannot be removed from inside this
+ * file; removing the reason for the copy means exporting it from Card, which
+ * is an edit to another component and is recorded in this component's review
+ * instead.
  */
 const PART_RHYTHM = "[&:not(:first-child)]:mt-4"
 
@@ -142,13 +143,13 @@ const TARGET_FLOOR =
  * A navigating action, dressed to match the acting one.
  *
  * Button is a native `<button>` and pins its own `render`, so an action with an
- * `href` cannot be one — and it must not be, because a destination survives a
- * new tab, a copied address and a screen reader's list of links where a click
- * handler does not. That leaves an anchor styled to read as the same control,
- * and these two class lists are that styling. They deliberately mirror Button's
- * `primary` and `secondary` tones rather than inventing a third look: two
- * actions on one card that differ because one of them navigates would be a
- * distinction the reader has no way to interpret.
+ * `href` cannot be one. It must not be one either, because a destination
+ * survives a new tab, a copied address and a screen reader's list of links
+ * where a click handler does not. That leaves an anchor styled to read as the
+ * same control, and these two class lists are that styling. They deliberately
+ * mirror Button's `primary` and `secondary` tones rather than inventing a
+ * third look: two actions on one card that differ because one of them
+ * navigates would be a distinction the reader has no way to interpret.
  */
 const LINK_BASE =
   `inline-flex ${TARGET_FLOOR} max-w-full items-center justify-center ` +
@@ -161,8 +162,8 @@ const LINK_BASE =
      unspeakable. */
   "text-center text-opsin-headline no-underline " +
   /* The press acknowledgement, and the only state signal on this control that
-     does not depend on colour. It is instantaneous rather than animated —
-     `transition-colors` deliberately excludes transform — so it is what
+     does not depend on colour. It is instantaneous rather than animated,
+     because `transition-colors` deliberately excludes transform. So it is what
      `prefers-reduced-motion` asks a press cue to be and needs no branch. Both
      of these were on Button and not here, which meant an `href` action
      acknowledged a press and an `onSelect` action did not. */
@@ -175,14 +176,15 @@ const LINK_BASE =
  * TONES, character for character, and that is a defect this file cannot close
  * on its own.
  *
- * Button is always a real `<button>` — it pins `render` and `nativeButton` and
- * refuses to become an anchor — so an action with a destination cannot be one,
- * and the two controls have to be made to look alike by two class lists rather
- * than by one. Button's `TONE` is private, so there is nothing to import. Until
- * it is exported, a change to Button's fills reaches the acting control and not
- * the navigating one, and the two drift apart in the one place the page says
- * they must not. Recorded in this component's review rather than fixed here,
- * because button.tsx belongs to another component.
+ * Button is always a real `<button>`, because it pins `render` and
+ * `nativeButton` and refuses to become an anchor. So an action with a
+ * destination cannot be one, and the two controls have to be made to look
+ * alike by two class lists rather than by one. Button's `TONE` is private, so
+ * there is nothing to import. Until it is exported, a change to Button's fills
+ * reaches the acting control and not the navigating one, and the two drift
+ * apart in the one place the page says they must not. Recorded in this
+ * component's review rather than fixed here, because button.tsx belongs to
+ * another component.
  */
 const LINK_TONE: Record<"recommended" | "alternative", string> = {
   recommended:
@@ -196,7 +198,7 @@ const LINK_TONE: Record<"recommended" | "alternative", string> = {
  *
  * The same discipline as `MISSING_AUTHOR`, applied to the other input whose
  * absence the reader can act on. An action with no label, or with neither a
- * destination nor a handler, is dropped — and dropping it in silence leaves a
+ * destination nor a handler, is dropped. Dropping it in silence leaves a
  * demand on the screen with nothing to press, which is the harm this component
  * is least able to afford. The warning beside it is development-only; this
  * sentence is what a reader gets in production.
@@ -207,7 +209,7 @@ const ACTION_UNAVAILABLE = "This card was given a next step it cannot show."
  * The spoken half of "recommended", for a reader who cannot see a fill.
  *
  * Emphasis on the leading action is carried by the fill and by nothing else,
- * and the flag deliberately does not reorder the controls — so with the flag on
+ * and the flag deliberately does not reorder the controls. So with the flag on
  * the second action even the position signal points at the wrong one. Colour is
  * the third carrier everywhere else in this system and it may not be the only
  * one here either. Appended to the visible label rather than replacing it, so
@@ -226,7 +228,7 @@ const RECOMMENDED_QUALIFIER = "the step this card is asking for"
  * `warnOnce` in the substrate is keyed to an `OpsinErrorCode`, and the codes in
  * tokens/errors.json describe mistakes a consumer makes with the clinical API.
  * Nothing this file complains about has a code, and a component may not mint
- * one — the codes are a versioned contract and the table on the errors page is
+ * one. The codes are a versioned contract and the table on the errors page is
  * generated from that file. What the substrate is right about is the
  * discipline: a warning printed on every render, and twice per render under
  * Strict Mode, degrades into noise, and a noisy channel is one somebody
@@ -282,8 +284,8 @@ function usableLocale(locale: string | undefined): string | undefined {
  * A DEADLINE IS A CALENDAR DATE AND NOT AN INSTANT, which is the whole reason
  * this does not route through RelativeTime. That component takes an RFC 3339
  * timestamp, requires an event from a fixed list of five things that have
- * already happened, and treats a future timestamp as two clocks disagreeing —
- * all three of which are correct for a reading and wrong for a due date. "Due
+ * already happened, and treats a future timestamp as two clocks disagreeing.
+ * All three behaviours are correct for a reading and wrong for a due date. "Due
  * by 12 October" is a day in the reader's own calendar, and it means the same
  * day whether it is read from a server in another time zone or from a phone at
  * one minute past midnight.
@@ -292,7 +294,7 @@ function usableLocale(locale: string | undefined): string | undefined {
  * built at UTC midnight and formatted in UTC produces the same day everywhere,
  * where handing `Intl` the runtime's own zone would render 12 October as
  * 11 October for any reader west of it. The round trip is what rejects
- * 31 February — `Date.UTC` rolls an impossible date forward without complaint,
+ * 31 February. `Date.UTC` rolls an impossible date forward without complaint,
  * and a deadline silently moved to 3 March is worse than one that did not
  * render.
  */
@@ -359,7 +361,7 @@ export interface CareCardProps {
    * When the reader should do it, rendered as one of three fixed phrases inside
    * the heading. Required, and never derived from `status`: a card with no
    * timing is a demand with no deadline, and the reader supplies the missing
-   * urgency themselves — usually the wrong one.
+   * urgency themselves. It is usually the wrong one.
    */
   urgency: CareUrgency
   /**
@@ -367,16 +369,17 @@ export interface CareCardProps {
    * GP surgery" and "an automatic reminder from this app" are both true answers
    * and the difference matters more than any category we could invent. Left
    * empty, the card says in words that it does not know, and warns in
-   * development — it never quietly drops the line.
+   * development. It never quietly drops the line.
    */
   attribution: string
   /** One sentence: what prompted this instruction. */
   reason?: string
   /**
-   * The deadline, as a calendar date — `2026-10-12`. Written out in full rather
-   * than as a relative phrase, because a date does not change meaning while the
-   * card sits on a screen. Anything that is not a calendar date is refused
-   * rather than guessed at, and no deadline line is rendered for it.
+   * The deadline, as a calendar date in the form `2026-10-12`. The card writes
+   * it out in full rather than as a relative phrase, because a date does not
+   * change meaning while the card sits on a screen. Anything that is not a
+   * calendar date is refused rather than guessed at, and no deadline line is
+   * rendered for it.
    */
   dueBy?: string
   /**
@@ -384,7 +387,7 @@ export interface CareCardProps {
    * with a time in it here: the card reads no clock, and comparing a calendar
    * date to "now" needs the reader's own time zone, which a component rendered
    * on a server does not have. When it is true the card says so in words, and
-   * the product owns saying what to do about it — usually by changing
+   * the product owns saying what to do about it. Usually that means changing
    * `heading`.
    */
   overdue?: boolean
@@ -411,7 +414,7 @@ export interface CareCardProps {
    * What that status is about, for the pill's accessible name: "your last blood
    * test". Without it a screen-reader user hears a level with no subject inside
    * a card full of other nouns, and the likeliest thing they attach it to is the
-   * instruction — which is not what it describes.
+   * instruction. That is not what it describes.
    */
   statusOf?: string
   /**
@@ -424,7 +427,7 @@ export interface CareCardProps {
    */
   headingLevel?: 2 | 3 | 4 | 5 | 6
   /**
-   * Merged onto the root. Layout belongs here — the card sets no width and no
+   * Merged onto the root. Layout belongs here. The card sets no width and no
    * place in a grid, because both are decisions of the screen it is on. It is
    * also the one hole in this component's refusal to take a status colour: a
    * colour utility passed through here reaches the root, and a card tinted from
@@ -458,10 +461,10 @@ function acts(action: CareAction): boolean {
  * Whether an action will become a control at all.
  *
  * Declared once and used twice: `actionControl` decides what to render, and the
- * card counts the survivors — to work out whether anything is left to press,
- * and whether there are two controls to tell apart. Two copies of this
- * condition would eventually disagree, and the disagreement would be a card
- * that says a next step is missing while the next step is on screen.
+ * card counts the survivors. It counts them to work out whether anything is
+ * left to press, and whether there are two controls to tell apart. Two copies
+ * of this condition would eventually disagree, and the disagreement would be a
+ * card that says a next step is missing while the next step is on screen.
  */
 function actionRenders(action: CareAction): boolean {
   return hasLabel(action) && (navigates(action) || acts(action))
@@ -512,11 +515,11 @@ function actionControl(
     return (
       /* NO `data-slot` OF ITS OWN, and the asymmetry below is why. The acting
          form is a Button, and Button pins `data-slot="button"` after its own
-         prop spread — so a slot set here would survive on the link and vanish
-         on the button, and a selector written against it would style one of two
-         controls that are meant to read alike. The anatomy names the group
-         rather than the control for the same reason: address a card's actions
-         through `[data-slot="care-card-actions"]`. */
+         prop spread. A slot set here would therefore survive on the link and
+         vanish on the button, and a selector written against it would style
+         one of two controls that are meant to read alike. The anatomy names
+         the group rather than the control for the same reason: address a card's
+         actions through `[data-slot="care-card-actions"]`. */
       <a
         key={key}
         href={action.href}
@@ -535,12 +538,13 @@ function actionControl(
            `text-opsin-headline` is a step on the type scale rather than a
            colour: it sorts it into the same conflict group as
            `text-primary-foreground` and keeps whichever comes last. Merged, this
-           control silently lost its type step and its weight — the token carries
-           a `--font-weight` sub-key — and rendered at body size beside a Button
-           rendering at headline, which is exactly the difference the page says
-           these two must not have. There is nothing here to merge: both lists
-           are declared in this file and they set different CSS properties, so
-           they are joined rather than reconciled. */
+           control silently lost both its type step and its weight, because the
+           token carries a `--font-weight` sub-key. It rendered at body size
+           beside a Button rendering at headline, which is exactly the
+           difference the page says these two must not have. There is nothing
+           here to merge: both lists are declared in this file and they set
+           different CSS properties, so they are joined rather than
+           reconciled. */
         className={`${LINK_BASE} ${LINK_TONE[emphasis]}`}
       >
         {label}
@@ -593,17 +597,17 @@ export function CareCard({
   /* THE AUTHOR IS THE SPECIFICATION, so this is the loudest complaint in the
      file. Everything else on a CareCard is optional; the person asking is not,
      and a card without one is read as advice from a clinician who has assessed
-     this reader — a claim the product then has no way to withdraw, because it
-     never explicitly made it. */
+     this reader. That is a claim the product then has no way to withdraw,
+     because it never explicitly made it. */
   if (!named) {
     warnDev(
       `no-attribution:${owner}`,
       `[opsinjs] <CareCard> headed "${owner}" has no \`attribution\`. Every ` +
         "instruction has an author, and a card that does not name one is read as " +
         "advice from a clinician who has assessed this reader. The card rendered " +
-        `and says so in words: "${MISSING_AUTHOR}" Name the author instead — ` +
-        '"your GP surgery asks", "your clinic\'s automatic reminder", "this app, ' +
-        'based on the range you set".'
+        `and says so in words: "${MISSING_AUTHOR}" Name the author instead. ` +
+        'Concrete answers are "your GP surgery asks", "your clinic\'s automatic ' +
+        'reminder", and "this app, based on the range you set".'
     )
   }
 
@@ -620,7 +624,7 @@ export function CareCard({
   /* THE TIMING IS NEVER SUBSTITUTED. `urgency` is typed to the three, and this
      file ships as source into JavaScript projects where a type is advice. A
      value outside the vocabulary has no phrase, and picking one would be
-     opsinjs deciding when somebody should act on their own health — so the card
+     opsinjs deciding when somebody should act on their own health. So the card
      renders without a timing line and says so, which is visible on the screen
      rather than only in a console. */
   const timing = isCareUrgency(urgency) ? TIMING_PHRASE[urgency] : null
@@ -644,7 +648,7 @@ export function CareCard({
       `[opsinjs] <CareCard> headed "${owner}" has a \`status\` and no \`statusOf\`. ` +
         "The pill then announces a level with no subject, inside a card full of " +
         "other nouns, and the likeliest thing a listener attaches it to is the " +
-        "instruction — which is not what it describes. Say what the status is " +
+        "instruction. That is not what it describes. Say what the status is " +
         'about: statusOf="your last blood test".'
     )
   }
@@ -656,9 +660,9 @@ export function CareCard({
     warnDev(
       `due-by:${dueBy}`,
       `[opsinjs] <CareCard> was given dueBy="${dueBy}", which is not a calendar ` +
-        'date. The form is "2026-10-12" — four digits, two, two — because a ' +
-        "deadline is a day in the reader's own calendar rather than an instant in " +
-        "somebody's time zone. No deadline was rendered."
+        'date. The form is "2026-10-12": four digits, then two, then two. That ' +
+        "is because a deadline is a day in the reader's own calendar rather than " +
+        "an instant in somebody's time zone. No deadline was rendered."
     )
   }
 
@@ -705,7 +709,7 @@ export function CareCard({
 
   /* The flag decides the emphasis; the array decides the order. The anatomy
      says the first action is the recommended one, so with nothing flagged the
-     first is treated as recommended — but a flag on the second is honoured
+     first is treated as recommended. But a flag on the second is honoured
      where it sits rather than reordering the card, because a reader who has
      learnt where a control is should not find it moved by a prop they cannot
      see. */
@@ -753,14 +757,14 @@ export function CareCard({
 
   /* THE LEVEL IS CHECKED, FOR THE REASON EVERY OTHER PROP HERE IS CHECKED. A
      type is advice in the JavaScript project this file ships into, and a level
-     is exactly the prop a caller computes rather than types — `headingLevel={
-     section.depth + 1}`, or a number off a CMS row. `headingLevel={7}` builds
-     `<h7>`, an unknown element with no heading role at all, so this card's
-     instruction — which is the whole component — drops out of the document
-     outline and out of a screen reader's heading list while the `aria-label` on
-     the section below still advertises a named region with nothing navigable in
-     it. `headingLevel={1}` puts a second `h1` on the page. Both fall back to the
-     documented default rather than being rendered. */
+     is exactly the prop a caller computes rather than types. It might be
+     `headingLevel={section.depth + 1}`, or a number off a CMS row.
+     `headingLevel={7}` builds `<h7>`, an unknown element with no heading role
+     at all. This card's instruction is the whole component, so it drops out of
+     the document outline and out of a screen reader's heading list while the
+     `aria-label` on the section below still advertises a named region with
+     nothing navigable in it. `headingLevel={1}` puts a second `h1` on the page.
+     Both fall back to the documented default rather than being rendered. */
   const LEVELS = [2, 3, 4, 5, 6]
   let level = headingLevel
   if (!LEVELS.includes(level)) {
@@ -782,7 +786,7 @@ export function CareCard({
 
        The name is `aria-label` rather than `aria-labelledby` because pointing at
        the heading needs an id, generating one needs `useId`, and `useId` is a
-       hook — which would make this a client component for the sake of an
+       hook. That would make this a client component for the sake of an
        attribute. The cost is real and is not hidden: a screen reader announces
        the region's name and then the heading, so the instruction is heard twice
        on entry. That is the trade recorded on the page. */
@@ -793,8 +797,8 @@ export function CareCard({
     >
       <Card>
         {/* NO INSTRUCTION, NO HEADING ELEMENT. A card whose `heading` is empty
-            used to render the timing phrase on its own — "Do this today" as a
-            level-3 heading, a demand with no verb — and with the urgency out of
+            used to render the timing phrase on its own. "Do this today" was a
+            level-3 heading, a demand with no verb. With the urgency out of
             vocabulary as well it rendered an empty heading, which fails on its
             own. Neither is a CareCard. The heading and the timing go together,
             so with nothing to time the card falls back to the parts that are
@@ -809,7 +813,7 @@ export function CareCard({
             {title}
             {/* An explicit space rather than the whitespace JSX strips. The timing
               span is `block`, so a browser breaks the line for both the reading
-              order and the accessible-name computation — but that is a property
+              order and the accessible-name computation. But that is a property
               of one class, and without a text node between them one class edit
               turns the name into "…asked forDo this today". */}{" "}
             {/* THE TIMING LIVES INSIDE THE HEADING, which is what the anatomy asks
@@ -818,7 +822,7 @@ export function CareCard({
               timing, and a reader with no colour perception loses nothing
               because there was never any colour to lose. It sits after the
               instruction rather than before it so that the reading order is
-              still heading first — and so that the region's name, which is the
+              still heading first and so that the region's name, which is the
               instruction, is the first thing said rather than the second. */}
             {timing === null ? null : (
               <span
@@ -832,9 +836,9 @@ export function CareCard({
         )}
 
         {/* The only status-coloured element on the card, and the only element
-            here carrying `data-status` — it carries it, the word and the glyph
-            together, because the pill owns all four carriers and this file owns
-            none of them. */}
+            here carrying `data-status`, is the pill. It carries that
+            attribute, the word and the glyph together, because the pill owns
+            all four carriers and this file owns none of them. */}
         {status === undefined ? null : (
           <StatusPill
             status={status}
@@ -882,7 +886,7 @@ export function CareCard({
                 phrases, "Due by" and the admissions are English whatever
                 `locale` says, so a localised card is a mixed-language sentence
                 and only the date can declare which language it is in (SC 3.1.2).
-                Omitted rather than guessed when no locale was given — the
+                Omitted rather than guessed when no locale was given. The
                 document's own language is the right answer then, and asserting
                 the runtime's default over it would be worse than saying
                 nothing. */}
@@ -891,9 +895,9 @@ export function CareCard({
               {written}
             </time>
             {/* Terminated, and the two sentences kept apart. Concatenated, the
-                paragraph read "Due by 5 January 2026 This date has passed." —
-                one string with no boundary for a screen reader to pause on, on
-                the sentence the whole overdue design turns on. */}
+                paragraph read "Due by 5 January 2026 This date has passed."
+                That was one string with no boundary for a screen reader to
+                pause on, on the sentence the whole overdue design turns on. */}
             .{overdue === true ? ` ${DEADLINE_PASSED}` : null}
           </p>
         )}
@@ -922,10 +926,10 @@ export function CareCard({
              THE FALLBACK IS THERE FOR THE SAME REASON THE FLOOR'S IS. Without a
              second argument the declaration is invalid at computed-value time in
              any project that installed this file and not the token sheet, and
-             `gap` falls back to zero — two 44pt hit areas touching, which is the
-             adjacent-target case the separation exists to prevent, and worse
-             here because Button's hit area is deliberately unclamped and can
-             overhang its own border box. */
+             `gap` falls back to zero. That is two 44pt hit areas touching,
+             which is the adjacent-target case the separation exists to
+             prevent, and worse here because Button's hit area is deliberately
+             unclamped and can overhang its own border box. */
           <div
             data-slot="care-card-actions"
             className={cn(
@@ -947,16 +951,16 @@ export function CareCard({
  * `/view` renders this with no props and `shadcn add` ships it, so it is public,
  * reviewed code rather than a scratch demo. It is a controlled comparison and
  * not a feature tour: the three cards are stacked one under the other and are
- * identical in every part — heading, author, reason, action — except for
- * `urgency`, so the only thing that differs on screen is one sentence. That is
- * the one claim on this component worth checking rather than believing, and it
- * is checkable here because nothing else is allowed to vary. Open it in
- * greyscale and nothing is lost.
+ * identical in every part except for `urgency`, so the only thing that differs
+ * on screen is one sentence. The parts are the heading, the author, the reason
+ * and the action. That is the one claim on this component worth checking
+ * rather than believing, and it is checkable here because nothing else is
+ * allowed to vary. Open it in greyscale and nothing is lost.
  *
  * NO DEADLINE HERE, DELIBERATELY. `dueBy` and `urgency` are independent inputs
  * and this file derives neither from the other, so a fixed calendar date beside
  * a relative phrase will disagree with it as soon as the date is far enough
- * away — and a demo that ships into other repositories is the worst place to
+ * away. A demo that ships into other repositories is the worst place to
  * teach that pairing. The deadline has its own example, where it is the
  * subject and the disagreement cannot arise.
  *

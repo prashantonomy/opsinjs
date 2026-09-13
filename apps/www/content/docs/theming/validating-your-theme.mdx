@@ -21,8 +21,8 @@ accessibility claim that leans on them stops being true.
 That is the whole reason this page exists. Most design systems publish a
 contrast table, invite you to retheme, and never reconcile the two. opsinjs
 treats a theme as something that has to be re-measured, and gives you three
-places to do it: a browser tool, an HTTP endpoint, and — once it ships — a
-command you can put in CI.
+places to do it: a browser tool, an HTTP endpoint, and a command you can put in
+CI once it ships.
 
 This page assumes you have a theme. If you do not,
 [the theme generator](./theme-generator.mdx) validates as it derives and you may
@@ -40,7 +40,7 @@ accessible nor inaccessible; `--primary-foreground` on `--primary` is one or the
 other.
 
 **Both themes.** A dark ramp is derived, not mirrored, and it is where failures
-concentrate — a mid-chroma hue that had room to darken in light often has none
+concentrate. A mid-chroma hue that had room to darken in light often has none
 to lighten in dark.
 
 **At the size it is used at.** APCA's answer depends on font size and weight,
@@ -57,8 +57,9 @@ The fastest loop, and the one to use while you are still choosing colours.
 
 Open [`/playground/contrast`](/playground/contrast), paste a foreground and a
 background in any CSS colour syntax, and set the text size. You get the APCA
-`Lc`, the WCAG 2.2 ratio, and a verdict against the opsinjs floor — plus, where
-they disagree, a sentence saying which is the stricter answer for that pair.
+`Lc`, the WCAG 2.2 ratio, and a verdict against the opsinjs floor. Where they
+disagree, you also get a sentence saying which is the stricter answer for that
+pair.
 
 The same checker is embedded inline as `<ContrastOracle>` throughout
 Foundations, so you can test a pair without leaving the page that explains it.
@@ -74,8 +75,8 @@ curl -s https://opsinjs.dev/api/contrast \
   -d '{"fg":"oklch(0.99 0 0)","bg":"oklch(0.52 0.14 262)","size":16}'
 ```
 
-The response shape — the numbers come from the measurement, never from this
-page:
+Here is the response shape. The numbers come from the measurement, never from
+this page:
 
 ```ts
 {
@@ -86,9 +87,9 @@ page:
 ```
 
 This is enough to write a check today, in any language, with no dependency on
-opsinjs at all — a short script that reads your theme's role tokens and posts
-each pair. It is a network call per pair, so it belongs in a scheduled job
-rather than on every commit.
+opsinjs at all. The check is a short script that reads your theme's role tokens
+and posts each pair. It is a network call per pair, so it belongs in a scheduled
+job rather than on every commit.
 
 ## Check a whole theme in CI
 
@@ -116,7 +117,7 @@ guess:
 npx @opsinjs/color check-theme ./app/globals.css --floor opsinjs --format github
 ```
 
-And the workflow it is meant to sit in — also a specification:
+And the workflow it is meant to sit in, which is also a specification:
 
 ```yaml title=".github/workflows/theme.yml"
 # PROPOSED. @opsinjs/color has not shipped.
@@ -133,8 +134,8 @@ jobs:
       - run: npx @opsinjs/color check-theme ./app/globals.css --format github
 ```
 
-Until it exists, the honest CI story is the endpoint above, or — if you have
-forked opsinjs — `pnpm run contrast`, which runs
+Until it exists, the honest CI story is the endpoint above. If you have forked
+opsinjs, it can instead be `pnpm run contrast`, which runs
 `scripts/check-contrast.mts` against the repository's own tokens and fails on a
 regression. That script validates **this repository's** theme. It is not a
 general-purpose tool and pointing it at your project will measure the wrong
@@ -151,7 +152,7 @@ A theme can pass every pair and still be wrong. Three checks that need eyes:
 Run a representative screen through `<CvdSimulator>` in protanopia, deuteranopia,
 tritanopia and grayscale. Nothing that carries meaning may be distinguishable by
 hue alone. In practice this is a check on your *composition* rather than your
-palette, because opsinjs always pairs a status colour with a word — the question
+palette, because opsinjs always pairs a status colour with a word. The question
 is whether your product kept the word.
 
 ### Status ordering
@@ -163,7 +164,7 @@ inverted the meaning while satisfying every number.
 ### Axis separation
 
 Put your category ramps beside your status ramps. If any category could be
-mistaken for a status, fix the category — see
+mistaken for a status, fix the category. See
 [Category palettes](./category-palettes.mdx).
 
 </Steps>
@@ -188,7 +189,7 @@ APCA's verdict is size-dependent by design; send the size you actually render.
 
 **Everything passes and a real user says the app is hard to read.** Contrast is
 one variable. Check text size, line length, and whether you have translucent
-material under text — [The contrast
+material under text. [The contrast
 floor](../foundations/materials/the-contrast-floor.mdx) covers the case where a
 pair passes over the fallback and fails over the blur.
 
@@ -203,9 +204,9 @@ changes chroma only; measure like against like.
 
 ## Next
 
-- [Contrast and APCA](../foundations/colour/contrast-and-apca.mdx) — what the
+- [Contrast and APCA](../foundations/colour/contrast-and-apca.mdx) says what the
   two numbers are and why they disagree.
-- [Contrast conformance](../accessibility/contrast-conformance.mdx) — the
+- [Contrast conformance](../accessibility/contrast-conformance.mdx) has the
   project's own claim, and its limits.
-- [`@opsinjs/color`](../packages/opsinjs-color.mdx) — the callable form of all
+- [`@opsinjs/color`](../packages/opsinjs-color.mdx) is the callable form of all
   of this.

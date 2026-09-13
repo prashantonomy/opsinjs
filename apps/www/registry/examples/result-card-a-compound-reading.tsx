@@ -6,9 +6,9 @@
  * could be passed as "128/78", while the part tree routed every reading through
  * `Value`, whose value is a number or nothing. A string cannot be rounded to
  * the measurement's precision, cannot be shaped for a locale, cannot have its
- * unit spoken and cannot be published as a machine-readable datum — so the pair
- * is a list of numbers instead, each of which is a real `Value` and gets all
- * four.
+ * unit spoken and cannot be published as a machine-readable datum. The pair
+ * is therefore a list of numbers instead, each of which is a real `Value`
+ * and gets all four.
  *
  * WHAT THE READER SEES AND WHAT A LISTENER HEARS ARE DIFFERENT, ON PURPOSE. On
  * screen the two numbers are separated by a solidus and the unit is printed
@@ -42,7 +42,7 @@ export default function ResultCardACompoundReading() {
         now={EXAMPLE_NOW}
         category="heart"
         meaning="A pair is one measurement and is shown as one. There is no bar underneath it: two numbers have no single position on one line, and drawing one would mean choosing which half of the reading the picture is about."
-        provenance="Example provenance — the two parts came from one measurement, taken by one device."
+        provenance="Example provenance for a reading whose two parts came from one measurement, taken by one device."
       />
     </div>
   )

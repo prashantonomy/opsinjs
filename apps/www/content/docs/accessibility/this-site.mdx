@@ -1,6 +1,6 @@
 ---
 title: This site's accessibility
-description: The documentation site held to the standard it publishes — including the places where it currently fails.
+description: The documentation site held to the standard it publishes. It records the places where it currently fails.
 status: beta
 kind: accessibility
 a11yDate: 2026-09-02
@@ -40,10 +40,10 @@ What the site does well by construction:
 
 ## What you own
 
-Nothing on this page — it is about our site, not yours. What you can take from it
-is the practice: publish your own version of this page for your own product,
-including the failures, and update it when they change rather than when somebody
-asks.
+You own nothing on this page, because it is about our site, not yours. What you
+can take from it is the practice: publish your own version of this page for your
+own product, including the failures, and update it when they change rather than
+when somebody asks.
 
 ## How to check
 
@@ -53,16 +53,16 @@ Everything below is reproducible in a clone of the repository.
 
 ### Run the docs site and unplug the mouse
 
-Navigate to a component page, open search, filter the status matrix, change the
-theme and return to the sidebar — keyboard only. This is the check that
-established the 404 finding below.
+Using the keyboard only, navigate to a component page, open search, filter the
+status matrix, change the theme and return to the sidebar. This is the check
+that established the 404 finding below.
 
 ### Inspect the 404 route
 
-Visit any unmatched URL. Because the site deliberately has no top-level
-`app/layout.tsx` — two sibling root layouts are what keep the chrome-less
-`(view)` preview surface isolated — `app/not-found.tsx` renders inside a
-framework-generated document rather than inside our root layout.
+Visit any unmatched URL. The site deliberately has no top-level
+`app/layout.tsx`, because two sibling root layouts are what keep the chrome-less
+`(view)` preview surface isolated. `app/not-found.tsx` therefore renders inside
+a framework-generated document rather than inside our root layout.
 
 ### Check the language attribute
 
@@ -82,8 +82,8 @@ outline does not, that is a build-gate failure and should be reported as one.
 
 <NoDataYet script="scripts/check-contrast.mts" />
 
-The docs chrome uses the shadcn `lyra` style with a neutral base — deliberately a
-different theme from the opsinjs product theme, for the reasons on
+The docs chrome uses the shadcn `lyra` style with a neutral base. Using a
+different theme from the opsinjs product theme is deliberate, for the reasons on
 [Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx). The chrome's
 own token pairs have not been measured; the contrast generator currently covers
 the opsinjs axes rather than the shadcn chrome tokens. That is a real gap, and it
@@ -100,10 +100,11 @@ is the reason this page's status is `beta` rather than `stable`.
   element. This is a direct consequence of the two-root-layout structure, which
   is a deliberate trade recorded in the repository's own notes. It is a real
   SC 3.1.1 weakness and it is not yet fixed.
-- **The lyra docs chrome is dense by design** — small type, tight controls,
-  square corners — which is a legitimate choice for a developer reading at a desk
-  and is the opposite of the product theme's guidance. The 44 px target floor is a
-  *product* rule and the chrome does not meet it.
+- **The lyra docs chrome is dense by design.** Its type is small, its controls
+  are tight and its corners are square. That density is a legitimate choice for
+  a developer reading at a desk and is the opposite of the product theme's
+  guidance. The 44 px target floor is a *product* rule and the chrome does not
+  meet it.
 - **No skip link is shipped** on the documentation site.
 - **The site has never been tested with a screen reader.**
 - **No automated accessibility check runs against the site in CI.**

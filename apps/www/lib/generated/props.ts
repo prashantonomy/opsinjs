@@ -43,7 +43,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
   "AlertBannerProps": {
     "status": {
       type: "ClinicalStatus",
-      description: "The level, assigned by the product. Required, and it drives the role, the announcement and the affordances rather than only the colour. `steady` is legal, and it is the level worth being careful with. Its one honest use is de-escalation — saying that a condition the product raised earlier has resolved, which is news the reader is owed and which no other component in the system delivers. It is not a place to put a message that needs nothing: a banner that can say \"nothing needs attention\" is a banner a product will reach for whenever it wants to be noticed, and it still spends one of the two the screen is allowed. If nothing has changed, the component is a Callout. There is no `unknown`. It is the absence of an assertion rather than a fifth level, and an interruption with no level is an interruption with no meaning. ESCALATE BY REMOUNTING, NOT BY RE-RENDERING. Raising the level on a banner that is already on the screen patches `role` and `aria-live` onto a DOM node assistive technology has already registered, and a live region is registered when its node is inserted: adding the role afterwards commonly announces nothing at all, which on the way up to `urgent` is the one failure this component exists to prevent. Give the element a key that contains the level — `key={status}` — so React replaces the node instead of patching it. Nobody has confirmed this with a screen reader; it is the conservative reading of the live-region model and it is written here rather than left implicit, because the recipe this component appears in escalates exactly this way.",
+      description: "The level, assigned by the product. Required, and it drives the role, the announcement and the affordances rather than only the colour. `steady` is legal, and it is the level worth being careful with. Its one honest use is de-escalation. That means saying that a condition the product raised earlier has resolved, which is news the reader is owed and which no other component in the system delivers. It is not a place to put a message that needs nothing: a banner that can say \"nothing needs attention\" is a banner a product will reach for whenever it wants to be noticed, and it still spends one of the two the screen is allowed. If nothing has changed, the component is a Callout. There is no `unknown`. It is the absence of an assertion rather than a fifth level, and an interruption with no level is an interruption with no meaning. ESCALATE BY REMOUNTING, NOT BY RE-RENDERING. Raising the level on a banner that is already on the screen patches `role` and `aria-live` onto a DOM node assistive technology has already registered, and a live region is registered when its node is inserted: adding the role afterwards commonly announces nothing at all, which on the way up to `urgent` is the one failure this component exists to prevent. Give the element a key that contains the level, so React replaces the node instead of patching it. That key is `key={status}`. Nobody has confirmed this with a screen reader; it is the conservative reading of the live-region model and it is written here rather than left implicit, because the recipe this component appears in escalates exactly this way.",
       required: true,
     },
     "heading": {
@@ -58,22 +58,22 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "headingLevel": {
       type: "AlertHeadingLevel",
-      description: "Which heading element the banner's heading renders as. Defaults to `h2`. The component cannot know where it sits, and a heading at the wrong level makes an outline that skips a level on one screen and repeats one on the next. Pass the level below the heading of the surface the banner is on — `h3` inside a section that already has an `h2`.",
+      description: "Which heading element the banner's heading renders as. Defaults to `h2`. The component cannot know where it sits, and a heading at the wrong level makes an outline that skips a level on one screen and repeats one on the next. Pass the level below the heading of the surface the banner is on. Inside a section that already has an `h2`, pass `h3`.",
       required: false,
     },
     "detectedAt": {
       type: "string",
-      description: "When the condition was detected, ISO 8601 with an offset. The instant the product's rules found the condition, not the instant this rendered — a banner stamped with its own render time tells the reader something that is true of the page and false of their data. It renders through RelativeTime, which needs `now` as well; without one the timestamp is omitted and a warning says why. IT IS LABELLED *Recorded*, AND THAT WORD IS NEAR RATHER THAN EXACT. RelativeTime's five event words contain no `detected`, a sixth member of that union is that component's decision rather than this one's, and drawing a second timestamp here would be a copy of formatting, rounding and absolute-date behaviour that would drift from the original. So read the phrase precisely: it is the age of the DETECTION, never the age of the reading. A rule that ran an hour ago may have found a reading taken days before it, and \"Recorded 1 hour ago\" over a sentence about a reading is exactly the pair of separately-true statements RelativeTime's own file calls the most consequential error in health dashboards. If the reader needs to know how old the reading is, show that where the reading is.",
+      description: "When the condition was detected, ISO 8601 with an offset. The instant the product's rules found the condition, not the instant this rendered. A banner stamped with its own render time tells the reader something that is true of the page and false of their data. It renders through RelativeTime, which needs `now` as well; without one the timestamp is omitted and a warning says why. IT IS LABELLED *Recorded*, AND THAT WORD IS NEAR RATHER THAN EXACT. RelativeTime's five event words contain no `detected`, a sixth member of that union is that component's decision rather than this one's, and drawing a second timestamp here would be a copy of formatting, rounding and absolute-date behaviour that would drift from the original. So read the phrase precisely: it is the age of the DETECTION, never the age of the reading. A rule that ran an hour ago may have found a reading taken days before it, and \"Recorded 1 hour ago\" over a sentence about a reading is exactly the pair of separately-true statements RelativeTime's own file calls the most consequential error in health dashboards. If the reader needs to know how old the reading is, show that where the reading is.",
       required: false,
     },
     "now": {
       type: "string",
-      description: "The instant `detectedAt` is measured against, in the same form. Required alongside it, because a component that read the clock itself would be impure and would make two timestamps on one screen disagree across a minute boundary. Read it once where the screen is rendered — `new Date().toISOString()` — and pass the same value to every timestamp on it. DO NOT REFRESH IT UNDER A MOUNTED `attention` OR `urgent` BANNER. Those two levels carry an atomic live region, so any change inside the banner re-announces the whole of it — heading, body, timestamp and every action label — and at `urgent` it does so assertively. The timestamp's visible phrase is a function of this prop, so a screen that ticks `now` on a minute boundary interrupts a listening reader in full, once a minute, for as long as the banner is up. `alarm-fatigue` is explicit that repetition is not escalation and that a re-raise belongs to a change of state rather than to a timer. Hold `now` still while the banner is mounted, and refresh it when something about the alert actually changes.",
+      description: "The instant `detectedAt` is measured against, in the same form. Required alongside it, because a component that read the clock itself would be impure and would make two timestamps on one screen disagree across a minute boundary. Read it once where the screen is rendered, and pass the same value to every timestamp on it. The single read is `new Date().toISOString()`. DO NOT REFRESH IT UNDER A MOUNTED `attention` OR `urgent` BANNER. Those two levels carry an atomic live region, so any change inside the banner re-announces the whole of it, and at `urgent` it does so assertively. The whole of it is the heading, the body, the timestamp and every action label. The timestamp's visible phrase is a function of this prop, so a screen that ticks `now` on a minute boundary interrupts a listening reader in full, once a minute, for as long as the banner is up. `alarm-fatigue` is explicit that repetition is not escalation and that a re-raise belongs to a change of state rather than to a timer. Hold `now` still while the banner is mounted, and refresh it when something about the alert actually changes.",
       required: false,
     },
     "actions": {
       type: "AlertAction[]",
-      description: "At most two. Required at `attention` and `urgent`, where a banner with nothing to do about it is the most common way a health product creates anxiety it cannot resolve — and where this component reports the omission rather than quietly rendering it.",
+      description: "At most two. Required at `attention` and `urgent`. At those two levels a banner with nothing to do about it is the most common way a health product creates anxiety it cannot resolve, and this component reports the omission rather than quietly rendering it.",
       required: false,
     },
     "dismissible": {
@@ -88,7 +88,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "dismissLabel": {
       type: "string",
-      description: "The dismiss control's visible word. Defaults to *Dismiss*, and the heading is appended to the accessible name so it says what it dismisses rather than standing alone. Override it to translate, or to say what acknowledgement means in this product — *I have read this*.",
+      description: "The dismiss control's visible word. Defaults to *Dismiss*, and the heading is appended to the accessible name so it says what it dismisses rather than standing alone. Override it to translate, or to say what acknowledgement means in this product. One product might say *I have read this*.",
       required: false,
     },
     "locale": {
@@ -105,7 +105,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
   "ButtonProps": {
     "variant": {
       type: "ButtonVariant",
-      description: "Emphasis. Four values, in descending order: `primary`, `secondary`, `quiet`, `destructive`. One primary per surface — the hierarchy is the answer to \"what should I do here?\", and three primaries answer it with a shrug. Defaults to `secondary`, because the safe default is the one that does not claim to be the most important thing on the screen.",
+      description: "Emphasis. Four values, in descending order: `primary`, `secondary`, `quiet`, `destructive`. One primary per surface. The hierarchy is the answer to \"what should I do here?\", and three primaries answer it with a shrug. Defaults to `secondary`, because the safe default is the one that does not claim to be the most important thing on the screen.",
       required: false,
     },
     "size": {
@@ -120,12 +120,12 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "type": {
       type: "\"button\" | \"submit\" | \"reset\"",
-      description: "Inherited from `button`, redeclared here because its default is the surprising one. **Defaults to `button`, not to `submit`.** Base UI's `useButton` merges `type: \"button\"` into every native button, so this component does not inherit the platform's implicit submit behaviour: a control at the foot of a form needs `type=\"submit\"` written on it. The value you pass wins, so submitting is one word away — but it is a word you have to write.",
+      description: "Inherited from `button`, redeclared here because its default is the surprising one. **Defaults to `button`, not to `submit`.** Base UI's `useButton` merges `type: \"button\"` into every native button, so this component does not inherit the platform's implicit submit behaviour: a control at the foot of a form needs `type=\"submit\"` written on it. The value you pass wins, so submitting is one word away. It is a word you have to write, though.",
       required: false,
     },
     "icon": {
       type: "ReactNode",
-      description: "An optional glyph beside the label. Always decorative and always hidden from assistive technology — the label carries the meaning, and an announced icon makes a screen reader say the action twice.",
+      description: "An optional glyph beside the label. Always decorative and always hidden from assistive technology. The label carries the meaning, and an announced icon makes a screen reader say the action twice.",
       required: false,
     },
     "iconPosition": {
@@ -140,7 +140,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "fullWidth": {
       type: "boolean",
-      description: "Fills its container. For the bottom of a sheet or a form, where the primary action should be as wide as the thumb's reach. Not for a row of buttons — two full-width buttons stacked read as two primary actions.",
+      description: "Fills its container. For the bottom of a sheet or a form, where the primary action should be as wide as the thumb's reach. Not for a row of buttons, because two full-width buttons stacked read as two primary actions.",
       required: false,
     },
   },
@@ -153,7 +153,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "title": {
       type: "string",
-      description: "An optional short heading. It renders as styled text and not as an `h1`-`h6` element, so it never appears in the page's outline: a component cannot know which level it is nested at, and one that guessed would produce an outline that skips a level on some screens and repeats one on others. If the callout is a section a reader needs to navigate to, it needs a real heading outside it — and at that point it is probably a section rather than a callout. An empty or whitespace-only string is treated exactly like no title at all: the element leaves the DOM rather than rendering an empty line of heading-weight space.",
+      description: "An optional short heading. It renders as styled text and not as an `h1`-`h6` element, so it never appears in the page's outline: a component cannot know which level it is nested at, and one that guessed would produce an outline that skips a level on some screens and repeats one on others. If the callout is a section a reader needs to navigate to, it needs a real heading outside it. At that point it is probably a section rather than a callout. An empty or whitespace-only string is treated exactly like no title at all: the element leaves the DOM rather than rendering an empty line of heading-weight space.",
       required: false,
     },
     "children": {
@@ -163,7 +163,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "className": {
       type: "string",
-      description: "Merged onto the root. Layout belongs here — a callout sets no width and no margin, because both are decisions of the content it sits in. It is also the one hole in this component's refusal to carry a status, and the component says so rather than pretending otherwise: a colour utility from either axis passed through here reaches the root, and in development it raises a warning that names what to use instead.",
+      description: "Merged onto the root. Layout belongs here. A callout sets no width and no margin, because both are decisions of the content it sits in. It is also the one hole in this component's refusal to carry a status, and the component says so rather than pretending otherwise: a colour utility from either axis passed through here reaches the root, and in development it raises a warning that names what to use instead.",
       required: false,
     },
   },
@@ -194,7 +194,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
   "CardHeaderProps": {
     "title": {
       type: "ReactNode",
-      description: "The card's title. Pass the heading element the page's outline needs — `<h3>Recent readings</h3>` — and the slot takes care of how it looks. Pass a string instead and the title is styled text with no place in the outline, which is a legitimate choice for a card nobody needs to navigate to and a mistake for one they do.",
+      description: "The card's title. Pass the heading element the page's outline needs, and the slot takes care of how it looks. `<h3>Recent readings</h3>` is the shape it takes. Pass a string instead and the title is styled text with no place in the outline, which is a legitimate choice for a card nobody needs to navigate to and a mistake for one they do.",
       required: true,
     },
     "description": {
@@ -216,19 +216,19 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
   "CardProps": {
     "rung": {
       type: "MaterialRung",
-      description: "Which rung of the material ladder. Defaults to `\"card\"` — the rung named for this component, opaque and deliberately shadowless. Products may move a card down the ladder to `\"canvas\"`, or up to `\"raised\"` while it is being lifted, and never above that: a value a reader is trying to read must not sit over a moving backdrop.",
+      description: "Which rung of the material ladder. Defaults to `\"card\"`. That rung is named for this component, opaque and deliberately shadowless. Products may move a card down the ladder to `\"canvas\"`, or up to `\"raised\"` while it is being lifted, and never above that: a value a reader is trying to read must not sit over a moving backdrop.",
       default: "\"card\"",
       required: false,
     },
     "density": {
       type: "\"comfortable\" | \"compact\"",
-      description: "Padding scale. Affects space only, never type size. `\"compact\"` drops the padding one multiplier on the density-scaled spacing scale — four times `--spacing` rather than five — and it does not shrink the type, the separation between two controls in the footer, or the card's touch target.",
+      description: "Padding scale. Affects space only, never type size. `\"compact\"` drops the padding to four times `--spacing` rather than five, one multiplier down the density-scaled spacing scale. It does not shrink the type, the separation between two controls in the footer, or the card's touch target.",
       default: "\"comfortable\"",
       required: false,
     },
     "href": {
       type: "string",
-      description: "Makes the whole card a single link. A card that is a link may hold no other interactive element: a reader cannot tell what tapping the gap between two buttons will do, and a keyboard user reaches controls that are nested inside a control. TypeScript cannot express that exclusion — `children` is a `ReactNode` and an element's interactivity is not in its type — so it is a rule this component states and does not enforce.",
+      description: "Makes the whole card a single link. A card that is a link may hold no other interactive element: a reader cannot tell what tapping the gap between two buttons will do, and a keyboard user reaches controls that are nested inside a control. TypeScript cannot express that exclusion, because `children` is a `ReactNode` and an element's interactivity is not in its type. So it is a rule this component states and does not enforce.",
       required: false,
     },
     "className": {
@@ -238,7 +238,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "children": {
       type: "ReactNode",
-      description: "Everything the card holds — usually `Card.Header`, `Card.Body` and `Card.Footer`, and — equally correctly — a single paragraph.",
+      description: "Everything the card holds. Usually that is `Card.Header`, `Card.Body` and `Card.Footer`, and equally correctly it is a single paragraph.",
       required: true,
     },
   },
@@ -250,12 +250,12 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "urgency": {
       type: "CareUrgency",
-      description: "When the reader should do it, rendered as one of three fixed phrases inside the heading. Required, and never derived from `status`: a card with no timing is a demand with no deadline, and the reader supplies the missing urgency themselves — usually the wrong one.",
+      description: "When the reader should do it, rendered as one of three fixed phrases inside the heading. Required, and never derived from `status`: a card with no timing is a demand with no deadline, and the reader supplies the missing urgency themselves. It is usually the wrong one.",
       required: true,
     },
     "attribution": {
       type: "string",
-      description: "Who is asking. Required, and free text rather than an enum, because \"your GP surgery\" and \"an automatic reminder from this app\" are both true answers and the difference matters more than any category we could invent. Left empty, the card says in words that it does not know, and warns in development — it never quietly drops the line.",
+      description: "Who is asking. Required, and free text rather than an enum, because \"your GP surgery\" and \"an automatic reminder from this app\" are both true answers and the difference matters more than any category we could invent. Left empty, the card says in words that it does not know, and warns in development. It never quietly drops the line.",
       required: true,
     },
     "reason": {
@@ -265,12 +265,12 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "dueBy": {
       type: "string",
-      description: "The deadline, as a calendar date — `2026-10-12`. Written out in full rather than as a relative phrase, because a date does not change meaning while the card sits on a screen. Anything that is not a calendar date is refused rather than guessed at, and no deadline line is rendered for it.",
+      description: "The deadline, as a calendar date in the form `2026-10-12`. The card writes it out in full rather than as a relative phrase, because a date does not change meaning while the card sits on a screen. Anything that is not a calendar date is refused rather than guessed at, and no deadline line is rendered for it.",
       required: false,
     },
     "overdue": {
       type: "boolean",
-      description: "Whether that date is behind the reader now. An input, like everything else with a time in it here: the card reads no clock, and comparing a calendar date to \"now\" needs the reader's own time zone, which a component rendered on a server does not have. When it is true the card says so in words, and the product owns saying what to do about it — usually by changing `heading`.",
+      description: "Whether that date is behind the reader now. An input, like everything else with a time in it here: the card reads no clock, and comparing a calendar date to \"now\" needs the reader's own time zone, which a component rendered on a server does not have. When it is true the card says so in words, and the product owns saying what to do about it. Usually that means changing `heading`.",
       required: false,
     },
     "locale": {
@@ -290,7 +290,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "statusOf": {
       type: "string",
-      description: "What that status is about, for the pill's accessible name: \"your last blood test\". Without it a screen-reader user hears a level with no subject inside a card full of other nouns, and the likeliest thing they attach it to is the instruction — which is not what it describes.",
+      description: "What that status is about, for the pill's accessible name: \"your last blood test\". Without it a screen-reader user hears a level with no subject inside a card full of other nouns, and the likeliest thing they attach it to is the instruction. That is not what it describes.",
       required: false,
     },
     "headingLevel": {
@@ -301,7 +301,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "className": {
       type: "string",
-      description: "Merged onto the root. Layout belongs here — the card sets no width and no place in a grid, because both are decisions of the screen it is on. It is also the one hole in this component's refusal to take a status colour: a colour utility passed through here reaches the root, and a card tinted from the status axis is the thing the pill exists to make unnecessary.",
+      description: "Merged onto the root. Layout belongs here. The card sets no width and no place in a grid, because both are decisions of the screen it is on. It is also the one hole in this component's refusal to take a status colour: a colour utility passed through here reaches the root, and a card tinted from the status axis is the thing the pill exists to make unnecessary.",
       required: false,
     },
   },
@@ -318,7 +318,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "heading": {
       type: "string",
-      description: "What is being asked, phrased as a question the reader can answer yes or no to. It is the sheet's accessible name and its visible heading — the two are the same element, which is why there is no separate `title`.",
+      description: "What is being asked, phrased as a question the reader can answer yes or no to. It is the sheet's accessible name and its visible heading. The two are the same element, which is why there is no separate `title`.",
       required: true,
     },
     "purpose": {
@@ -333,7 +333,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "withdrawalPath": {
       type: "string",
-      description: "Where the reader can change this decision later, as a sentence in their own language. Required, and the sheet will not ask without it: a consent with no exit is not revocable whatever the copy says. It renders as text and is deliberately not turned into a link. A string is not a destination, and the doctrine's answer is that revocation lives where the data lives rather than inside the sheet that asked for it — so what belongs here is the sentence that tells the reader where to go, and the control belongs on the screen showing the data.",
+      description: "Where the reader can change this decision later, as a sentence in their own language. Required, and the sheet will not ask without it: a consent with no exit is not revocable whatever the copy says. It renders as text and is deliberately not turned into a link. A string is not a destination, and the doctrine's answer is that revocation lives where the data lives rather than inside the sheet that asked for it. So what belongs here is the sentence that tells the reader where to go, and the control belongs on the screen showing the data.",
       required: true,
     },
     "details": {
@@ -343,12 +343,12 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "consequenceOfDeclining": {
       type: "string",
-      description: "What the reader loses by declining, stated before they choose. Optional, because opsinjs cannot know whether a product still works after a refusal — and required by the doctrine whenever it does not. If refusing breaks something the reader came for, this is where they are told, and they are told before the controls rather than in a confirmation afterwards.",
+      description: "What the reader loses by declining, stated before they choose. Optional, because opsinjs cannot know whether a product still works after a refusal. It is required by the doctrine whenever it does not. If refusing breaks something the reader came for, this is where they are told, and they are told before the controls rather than in a confirmation afterwards.",
       required: false,
     },
     "acceptLabel": {
       type: "string",
-      description: "The word on the accept control. Required, with no default anywhere in this file, and there is no fallback if it is blank. Name the outcome rather than the press: a label that begins with the reader's own word for yes and then says what will happen is an answer, and one that only describes pressing the button is not. A generic label raises a development warning and is rendered exactly as written — only the product knows what it is agreeing to, and a component that rewrote the word would be writing consent copy.",
+      description: "The word on the accept control. Required, with no default anywhere in this file, and there is no fallback if it is blank. Name the outcome rather than the press: a label that begins with the reader's own word for yes and then says what will happen is an answer, and one that only describes pressing the button is not. A generic label raises a development warning and is rendered exactly as written. Only the product knows what it is agreeing to, and a component that rewrote the word would be writing consent copy.",
       required: true,
     },
     "declineLabel": {
@@ -380,7 +380,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "description": {
       type: "string",
-      description: "What happens if the reader says yes, and what happens if they say no, in one or two sentences. Optional on an ordinary dialog and effectively required on an alert one — it is the only place the reader is told why Escape will not let them out, and its absence raises a development warning.",
+      description: "What happens if the reader says yes, and what happens if they say no, in one or two sentences. Optional on an ordinary dialog and effectively required on an alert one. It is the only place the reader is told why Escape will not let them out, and its absence raises a development warning.",
       required: false,
     },
     "severity": {
@@ -391,24 +391,24 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "closeLabel": {
       type: "string",
-      description: "The accessible name of the close control, which is the only reader-facing word this component owns. It exists so that the word can be translated: a component that ships an untranslatable English string into a product whose readers do not read English has removed their way out of the dialog as surely as deleting the control would. The default is English, and that is the residual gap — the same one `StatusPill.label` has, and it is listed on the page rather than described as solved. Ignored when `severity` is `alert`, which renders no close control at all.",
+      description: "The accessible name of the close control, which is the only reader-facing word this component owns. It exists so that the word can be translated: a component that ships an untranslatable English string into a product whose readers do not read English has removed their way out of the dialog as surely as deleting the control would. The default is English, and that is the residual gap. It is the same one `StatusPill.label` has, and it is listed on the page rather than described as solved. Ignored when `severity` is `alert`, which renders no close control at all.",
       default: "\"Close\"",
       required: false,
     },
     "initialFocus": {
       type: "\"safest\" | \"content\"",
-      description: "Where focus lands when the dialog opens. `safest` puts it on the LAST control in `actions`, which is where the specification's own example puts the answer that changes nothing; `content` puts it on the first control inside `children`, for a dialog whose job is a short task rather than a question. Neither ever lands on the scrim or on the container while a control is available. `content` falls back to the safest action when `children` holds nothing focusable, and only then to the primitive's own behaviour. That order is the point rather than a tidy-up: the primitive's default is the first tabbable element in the popup, an alert dialog has no close control, and so the first tabbable element in an alert dialog is the FIRST action — which the ordering rule reserves for the answer that changes something. The cost of `safest` is that it is the LAST tab stop in the dialog, so the first Tab wraps round to the close control and the other answer is reached with Shift+Tab. That is the trade: a stray Return is harmless, and the other answer is one key further away than it looks.",
+      description: "Where focus lands when the dialog opens. `safest` puts it on the LAST control in `actions`, which is where the specification's own example puts the answer that changes nothing; `content` puts it on the first control inside `children`, for a dialog whose job is a short task rather than a question. Neither ever lands on the scrim or on the container while a control is available. `content` falls back to the safest action when `children` holds nothing focusable, and only then to the primitive's own behaviour. That order is the point rather than a tidy-up: the primitive's default is the first tabbable element in the popup, an alert dialog has no close control, and so the first tabbable element in an alert dialog is the FIRST action. The ordering rule reserves that for the answer that changes something. The cost of `safest` is that it is the LAST tab stop in the dialog, so the first Tab wraps round to the close control and the other answer is reached with Shift+Tab. That is the trade: a stray Return is harmless, and the other answer is one key further away than it looks.",
       default: "\"safest\"",
       required: false,
     },
     "actions": {
       type: "ReactNode",
-      description: "The actions, in order, least destructive LAST. At most two — a dialog with three answers is a menu that has not admitted it — and that limit is a rule this component states rather than enforces, because `ReactNode` does not say how many controls are inside it and `React.Children.count` cannot see through a fragment. They are pinned to the foot of the dialog and never scroll away.",
+      description: "The actions, in order, least destructive LAST. At most two. A dialog with three answers is a menu that has not admitted it, and that limit is a rule this component states rather than enforces, because `ReactNode` does not say how many controls are inside it and `React.Children.count` cannot see through a fragment. They are pinned to the foot of the dialog and never scroll away.",
       required: false,
     },
     "children": {
       type: "ReactNode",
-      description: "Anything the dialog holds beyond its title and its description: a short form, a list of what will be affected. Optional, and most confirmations need none of it. Nothing translucent goes in here. The dialog is itself a translucent rung and a translucent rung may never contain another one — a card inside a dialog is a `card`, which is opaque and is where a health value has to sit.",
+      description: "Anything the dialog holds beyond its title and its description: a short form, a list of what will be affected. Optional, and most confirmations need none of it. Nothing translucent goes in here. The dialog is itself a translucent rung and a translucent rung may never contain another one. A card inside a dialog is a `card`, which is opaque and is where a health value has to sit.",
       required: false,
     },
     "className": {
@@ -420,7 +420,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
   "DisclaimerNoteProps": {
     "children": {
       type: "ReactNode",
-      description: "The product's own words. One or two sentences: what this product does, then what it does not do. It renders a paragraph, so it takes text or inline content rather than a block element. There is no default text and there will not be one. Legal copy shipped from a design system puts words into products whose authors never read them, and it arrives looking reviewed because it came from a library. Supply none and the note says on screen that none was supplied, rather than inventing a sentence — `false` from a `&&` branch, `0` from the same branch on an empty collection, an empty array and a whitespace-only string all count as supplying none. The boundary is words: a caller who wraps the copy in an element is taken at their word, so an empty string inside a `<strong>` is the one route to a silently empty note that stays open. TYPED OPTIONAL AND REQUIRED BY THE CONTRACT, which is the same shape `EmptyState.children` has. Marking it required buys nothing — `{copy.text}` with an undefined `copy.text` type-checks either way — and it costs the ability to render the state at all, which is the state that most needs seeing.",
+      description: "The product's own words. One or two sentences: what this product does, then what it does not do. It renders a paragraph, so it takes text or inline content rather than a block element. There is no default text and there will not be one. Legal copy shipped from a design system puts words into products whose authors never read them, and it arrives looking reviewed because it came from a library. Supply none and the note says on screen that none was supplied, rather than inventing a sentence. `false` from a `&&` branch, `0` from the same branch on an empty collection, an empty array and a whitespace-only string all count as supplying none. The boundary is words: a caller who wraps the copy in an element is taken at their word, so an empty string inside a `<strong>` is the one route to a silently empty note that stays open. TYPED OPTIONAL AND REQUIRED BY THE CONTRACT, which is the same shape `EmptyState.children` has. Marking it required buys nothing, because `{copy.text}` with an undefined `copy.text` type-checks either way. It costs the ability to render the state at all, which is the state that most needs seeing.",
       required: false,
     },
     "placement": {
@@ -454,23 +454,23 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
   "EmptyStateProps": {
     "reason": {
       type: "\"nothing-yet\" | \"no-matches\" | \"nothing-left\" | \"not-enough\"",
-      description: "Why the surface is empty. Required, and it deliberately changes nothing you can see. `nothing-yet` — the reader has not added anything yet. `no-matches` — a filter or a search matched nothing. The data exists. `nothing-left` — there was content and there is none now; everything was completed or removed. `not-enough` — there is data, but not enough for this view to be honest. It is required because each one needs different words, and because one of them is a safety statement rather than an inconvenience. It renders nothing of its own: a component that turned a reason into a sentence would be writing a sentence about the reader's data, which is the one thing this system will not do.",
+      description: "Why the surface is empty. Required, and it deliberately changes nothing you can see. `nothing-yet` means the reader has not added anything yet. `no-matches` means a filter or a search matched nothing. The data exists. `nothing-left` means there was content and there is none now; everything was completed or removed. `not-enough` means there is data, but not enough for this view to be honest. It is required because each one needs different words, and because one of them is a safety statement rather than an inconvenience. It renders nothing of its own: a component that turned a reason into a sentence would be writing a sentence about the reader's data, which is the one thing this system will not do.",
       required: true,
     },
     "title": {
       type: "string",
-      description: "What is not here, in one short line. Rendered as a real heading so the empty state can be navigated to rather than stumbled into. Required, and checked as well as typed. A blank or whitespace-only string renders a visible line saying none was supplied, and warns — because the alternative is a heading with no name, which is silent to everything except a screen reader and an audit.",
+      description: "What is not here, in one short line. Rendered as a real heading so the empty state can be navigated to rather than stumbled into. Required, and checked as well as typed. A blank or whitespace-only string renders a visible line saying none was supplied, and warns. It warns because the alternative is a heading with no name, which is silent to everything except a screen reader and an audit.",
       required: true,
     },
     "titleLevel": {
       type: "2 | 3 | 4 | 5 | 6",
-      description: "The heading level the surrounding page needs. There is no way for this component to know it — an empty state replacing a page's main content wants a different level from one inside a card — so `2` is a starting point and not an answer. Check it against the outline of the screen it lands on.",
+      description: "The heading level the surrounding page needs. There is no way for this component to know it, because an empty state replacing a page's main content wants a different level from one inside a card. So `2` is a starting point and not an answer. Check it against the outline of the screen it lands on.",
       default: "2",
       required: false,
     },
     "children": {
       type: "ReactNode",
-      description: "Why it is empty, in one or two sentences. Say what is not here, then why, then what to do; for `not-enough`, state the rule and the gap. It renders a paragraph, so it takes text or inline content rather than a block element. Omitting it does not produce a tidier empty state. It produces a visible line saying that no explanation was supplied, because the alternative — a default sentence about an absence of health data — is a sentence nobody reviewed. `false` from a `&&` branch, an empty array and a whitespace-only string all count as omitting it. A body that is only a number is refused outright and replaced with the same line, because `{items.length && \"…\"}` at a length of zero renders the digit `0` — and an absence rendered as a number reads as a measurement of nothing.",
+      description: "Why it is empty, in one or two sentences. Say what is not here, then why, then what to do; for `not-enough`, state the rule and the gap. It renders a paragraph, so it takes text or inline content rather than a block element. Omitting it does not produce a tidier empty state. It produces a visible line saying that no explanation was supplied, because the alternative is a default sentence about an absence of health data, which is a sentence nobody reviewed. `false` from a `&&` branch, an empty array and a whitespace-only string all count as omitting it. A body that is only a number is refused outright and replaced with the same line, because `{items.length && \"…\"}` at a length of zero renders the digit `0`. An absence rendered as a number reads as a measurement of nothing.",
       required: false,
     },
     "action": {
@@ -485,7 +485,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "illustration": {
       type: "ReactNode",
-      description: "Decorative only, and never the carrier of the message. It is hidden from assistive technology and made `inert`, dropped in print, and dropped again when the surface is narrow — if a picture is carrying meaning, the meaning is missing from the words. `inert` is why nothing focusable belongs here: a control inside a decorative wrapper would be hidden from the accessibility tree and unreachable by keyboard, which is a worse outcome than not passing it.",
+      description: "Decorative only, and never the carrier of the message. It is hidden from assistive technology and made `inert`, dropped in print, and dropped again when the surface is narrow. If a picture is carrying meaning, the meaning is missing from the words. `inert` is why nothing focusable belongs here: a control inside a decorative wrapper would be hidden from the accessibility tree and unreachable by keyboard, which is a worse outcome than not passing it.",
       required: false,
     },
     "className": {
@@ -502,7 +502,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "children": {
       type: "ReactNode",
-      description: "Only meaningful alongside `render`, for an element that has children of its own — the `<option>` list of a `<select>`. An `<input>` is void and takes none.",
+      description: "Only meaningful alongside `render`, for an element that has children of its own, such as the `<option>` list of a `<select>`. An `<input>` is void and takes none.",
       required: false,
     },
     "className": {
@@ -529,7 +529,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "children": {
       type: "ReactNode",
-      description: "The control. Put a `Field.Control` here — Field supplies its id, its `aria-describedby` and its invalid state through context, so a product never wires them by hand. Anything else that participates in Base UI's field context works too; anything that does not gets a label pointing at nothing, which is the one failure this component cannot detect for you.",
+      description: "The control. Put a `Field.Control` here. Field supplies its id, its `aria-describedby` and its invalid state through context, so a product never wires them by hand. Anything else that participates in Base UI's field context works too; anything that does not gets a label pointing at nothing, which is the one failure this component cannot detect for you.",
       required: true,
     },
     "hint": {
@@ -549,7 +549,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "validateOn": {
       type: "\"blur\" | \"submit\" | \"submit-then-change\"",
-      description: "When the control's own constraints are checked. Governs the invalid state, not the `error` prop — a message the product passed in is a message the product has already decided to show. Defaults to `\"submit-then-change\"`: never tell somebody their answer is wrong while they are still typing it. Both submit values need Base UI's `<Form>` around the fields. Base UI gates them on a flag that only its own form primitive ever sets, so inside a plain `<form>` the constraints are checked on Enter in a text input and at no other moment. `\"blur\"` needs no `<Form>`. Passing `error` is unaffected either way, and is the path to be on.",
+      description: "When the control's own constraints are checked. Governs the invalid state, not the `error` prop. A message the product passed in is a message the product has already decided to show. Defaults to `\"submit-then-change\"`: never tell somebody their answer is wrong while they are still typing it. Both submit values need Base UI's `<Form>` around the fields. Base UI gates them on a flag that only its own form primitive ever sets, so inside a plain `<form>` the constraints are checked on Enter in a text input and at no other moment. `\"blur\"` needs no `<Form>`. Passing `error` is unaffected either way, and is the path to be on.",
       required: false,
     },
     "className": {
@@ -561,22 +561,22 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
   "LogSheetProps": {
     "values": {
       type: "Record<string, number | string | null>",
-      description: "What the product's own controls currently hold, keyed the way the product wants them back. Handed to `onSave` verbatim. This is the channel that makes `onSave` possible at all: `children` is an opaque element tree and no component can read structured data out of one. The product already holds this state to render its own controlled inputs, so nothing here is duplicated — the key is simply written down beside the control instead of being inferred from it. `{}` is legitimate, for an entry that is a note and a time and nothing else. It is also how the sheet knows there is unsaved input. What is here when the sheet opens is the baseline; what is here when the reader tries to leave is compared against it, and a save resets the baseline so that a sheet the product keeps open afterwards does not claim to hold input nobody has saved.",
+      description: "What the product's own controls currently hold, keyed the way the product wants them back. Handed to `onSave` verbatim. This is the channel that makes `onSave` possible at all: `children` is an opaque element tree and no component can read structured data out of one. The product already holds this state to render its own controlled inputs, so nothing here is duplicated. The key is simply written down beside the control instead of being inferred from it. `{}` is legitimate, for an entry that is a note and a time and nothing else. It is also how the sheet knows there is unsaved input. What is here when the sheet opens is the baseline; what is here when the reader tries to leave is compared against it, and a save resets the baseline so that a sheet the product keeps open afterwards does not claim to hold input nobody has saved.",
       required: true,
     },
     "children": {
       type: "ReactNode",
-      description: "The entry controls, rendered in order at the top of the sheet. They stay opaque. This component never walks them, never counts them and never reads a value out of them — `values` is the channel for that. There is no enforced ceiling, and the \"about five\" in the specification is deliberately not implemented as a check. `React.Children` sees only direct children, so a product that wraps its own two fields in one component of its own would be counted as having one, and a count that is wrong in the common case teaches the wrong lesson twice: it clears a sheet that is too long and complains about one that is not. The ceiling is a design rule, and this is the file saying so rather than pretending to enforce it.",
+      description: "The entry controls, rendered in order at the top of the sheet. They stay opaque. This component never walks them, never counts them and never reads a value out of them. `values` is the channel for that. There is no enforced ceiling, and the \"about five\" in the specification is deliberately not implemented as a check. `React.Children` sees only direct children, so a product that wraps its own two fields in one component of its own would be counted as having one, and a count that is wrong in the common case teaches the wrong lesson twice: it clears a sheet that is too long and complains about one that is not. The ceiling is a design rule, and this is the file saying so rather than pretending to enforce it.",
       required: true,
     },
     "category": {
       type: "HealthCategory",
-      description: "What the entry is about, tinting one band and nothing else. Omit it and the band is not rendered — there is no default category, because a capture sheet with the wrong identity colour is worse than one with none. The status axis is not available here at any price. Colouring a field while somebody is typing their own measurement into it is a verdict delivered mid-keystroke, and it is the fastest way to teach a person to stop logging honestly.",
+      description: "What the entry is about, tinting one band and nothing else. Omit it and the band is not rendered. There is no default category, because a capture sheet with the wrong identity colour is worse than one with none. The status axis is not available here at any price. Colouring a field while somebody is typing their own measurement into it is a verdict delivered mid-keystroke, and it is the fastest way to teach a person to stop logging honestly.",
       required: false,
     },
     "saveLabel": {
       type: "string",
-      description: "The primary action's label, and it is required because there is no honest default. The content rule is that the action says what it saves — *Save reading*, *Save this dose* — and a component that shipped *Save* would let every product skip the rule without noticing it had one.",
+      description: "The primary action's label, and it is required because there is no honest default. The content rule is that the action says what it saves, as in *Save reading* or *Save this dose*. A component that shipped *Save* would let every product skip the rule without noticing it had one.",
       required: true,
     },
     "timeLabel": {
@@ -596,7 +596,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "onSave": {
       type: "(entry: LogEntry) => void",
-      description: "Called on an explicit save and at no other moment. There is no autosave, no commit on close, and no debounce. It does not close the sheet. `open` belongs to the product, which is the only party that knows whether the save reached anywhere — a queued entry, a rejected one and a stored one all arrive here identically, and a sheet that closed itself would have decided the reader was finished on the strength of a function call returning.",
+      description: "Called on an explicit save and at no other moment. There is no autosave, no commit on close, and no debounce. It does not close the sheet. `open` belongs to the product, which is the only party that knows whether the save reached anywhere. A queued entry, a rejected one and a stored one all arrive here identically, and a sheet that closed itself would have decided the reader was finished on the strength of a function call returning.",
       required: true,
     },
     "onDiscard": {
@@ -608,42 +608,42 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
   "MetricTileProps": {
     "label": {
       type: "string",
-      description: "What was measured, in the reader's words — two or three of them. Not an acronym and not an internal code: a dashboard that has to be learnt before it can be read is a dashboard that is read wrong.",
+      description: "What was measured, in the reader's words. Use two or three of them, not an acronym and not an internal code: a dashboard that has to be learnt before it can be read is a dashboard that is read wrong.",
       required: true,
     },
     "value": {
       type: "number | null",
-      description: "The reading. `null` renders the no-reading state, which is not zero — zero is a real measurement for several metrics and a missing one is not a measurement at all. A number and not a string. A pre-formatted reading has already been rounded by somebody, carries no spoken unit and leaves nothing machine-readable behind it; a compound reading such as a pair is two measurements and takes two tiles.",
+      description: "The reading. `null` renders the no-reading state, which is not zero. Zero is a real measurement for several metrics and a missing one is not a measurement at all. A number and not a string. A pre-formatted reading has already been rounded by somebody, carries no spoken unit and leaves nothing machine-readable behind it; a compound reading such as a pair is two measurements and takes two tiles.",
       required: true,
     },
     "unit": {
       type: "string",
-      description: "Display symbol, exactly as `tokens/units.json` spells it — \"kg\", \"mmol/L\", \"steps\". The spoken form is resolved from that table by Value, so this is the only place the unit is named. Optional by type and all but mandatory in practice: a bare number is ambiguous between unit systems, and Value raises OPSIN-0003 when one arrives without a unit rather than this file raising a second copy of the same complaint.",
+      description: "Display symbol, exactly as `tokens/units.json` spells it, as in \"kg\", \"mmol/L\" or \"steps\". The spoken form is resolved from that table by Value, so this is the only place the unit is named. Optional by type and all but mandatory in practice: a bare number is ambiguous between unit systems, and Value raises OPSIN-0003 when one arrives without a unit rather than this file raising a second copy of the same complaint.",
       required: false,
     },
     "precision": {
       type: "number",
-      description: "Decimal places, from the precision of the measurement — the resolution of the device, or the number of places the laboratory reported. Forwarded to Value untouched. Omitted, nothing is rounded and nothing is padded, which for a value that arrived from arithmetic can be seventeen digits: on a tile that is also a layout problem, and it is the prompt to go and find out what the measurement's resolution actually is.",
+      description: "Decimal places, from the precision of the measurement. That is the resolution of the device, or the number of places the laboratory reported. Forwarded to Value untouched. Omitted, nothing is rounded and nothing is padded, which for a value that arrived from arithmetic can be seventeen digits: on a tile that is also a layout problem, and it is the prompt to go and find out what the measurement's resolution actually is.",
       required: false,
     },
     "measuredAt": {
       type: "string",
-      description: "When the reading was taken, ISO 8601 with an offset. The time of MEASUREMENT, never of retrieval, sync or render — a tile that timestamps itself with the moment the screen was drawn tells every reader that every reading is current. Required, and refused rather than approximated: a value with no locatable time is undated, and for health data undated is the same as wrong.",
+      description: "When the reading was taken, ISO 8601 with an offset. The time of MEASUREMENT, never of retrieval, sync or render. A tile that timestamps itself with the moment the screen was drawn tells every reader that every reading is current. Required, and refused rather than approximated: a value with no locatable time is undated, and for health data undated is the same as wrong.",
       required: true,
     },
     "now": {
       type: "string",
-      description: "The instant the age is measured against, in the same form as `measuredAt`. Required for the same reason RelativeTime requires it: a component that read the clock itself would be impure, would read it once per tile rather than once per screen, and would let a grid of eight disagree with itself across a minute boundary. Read it once where the screen is rendered — `new Date().toISOString()` — and pass the same value to every tile on it.",
+      description: "The instant the age is measured against, in the same form as `measuredAt`. Required for the same reason RelativeTime requires it: a component that read the clock itself would be impure, would read it once per tile rather than once per screen, and would let a grid of eight disagree with itself across a minute boundary. Read it once where the screen is rendered. Use `new Date().toISOString()` and pass the same value to every tile on it.",
       required: true,
     },
     "staleAfterHours": {
       type: "number",
-      description: "Hours after which the tile shows its stale treatment. Supplied by the product, and by nobody else: what counts as an old reading is clinical, it differs completely from one measurement to the next, and opsinjs holds no such number for any measurement in any population. Writing one here — or in an example, or in a comment as an illustration — would publish a boundary this system has no standing to publish. There is no default and there will not be one. Omitted, there is no stale treatment at all — the honest output when nobody has said what stale means here, and never a substituted number.",
+      description: "Hours after which the tile shows its stale treatment. Supplied by the product, and by nobody else: what counts as an old reading is clinical, it differs completely from one measurement to the next, and opsinjs holds no such number for any measurement in any population. Writing one here would publish a boundary this system has no standing to publish. The same is true of writing one in an example, or in a comment as an illustration. There is no default and there will not be one. Omitted, there is no stale treatment at all. That is the honest output when nobody has said what stale means here, and never a substituted number.",
       required: false,
     },
     "status": {
       type: "ClinicalStatus",
-      description: "The level the product assigned to this reading. Rendered as an embedded StatusPill and never as the tile's fill. Omitted, no pill is rendered at all: there is no neutral level to fall back on, and a pill invented to fill a gap would be a verdict nobody gave. PAIR `attention` AND `urgent` WITH AN `href`. Clinical status semantics says of `attention` that there is always a named action, and a tile has no room for a sentence — so on a tile the action is the tile itself, and a level on a tile that leads nowhere leaves a reader a verdict and no way to act on it. Nothing here enforces the pairing: the check belongs in the shared warning channel, which this file cannot add a code to, and it is recorded as an open gap on the component's page rather than left silent.",
+      description: "The level the product assigned to this reading. Rendered as an embedded StatusPill and never as the tile's fill. Omitted, no pill is rendered at all: there is no neutral level to fall back on, and a pill invented to fill a gap would be a verdict nobody gave. PAIR `attention` AND `urgent` WITH AN `href`. Clinical status semantics says of `attention` that there is always a named action, and a tile has no room for a sentence. So on a tile the action is the tile itself, and a level on a tile that leads nowhere leaves a reader a verdict and no way to act on it. Nothing here enforces the pairing: the check belongs in the shared warning channel, which this file cannot add a code to, and it is recorded as an open gap on the component's page rather than left silent.",
       required: false,
     },
     "category": {
@@ -653,12 +653,12 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "icon": {
       type: "ReactNode",
-      description: "The category glyph, supplied by the product. opsinjs ships no category icon set — [category identity](https://opsinjs.dev/docs/health/category-identity) says an icon is governed separately — so this is a slot rather than a lookup, and a tile with no icon is a complete tile. Rendered decorative: the label beside it says the same thing in words, and a glyph announced as well would make a screen reader say the subject twice. It must not be interactive; the tile is one target and nothing nests inside it — and because the wrapper is `aria-hidden`, a control passed here would be reachable by Tab and absent from the accessibility tree at the same time. Nothing here checks that, so this sentence is the whole guard, and the page's claim that nothing inside a tile is focusable is scoped to what this component controls.",
+      description: "The category glyph, supplied by the product. opsinjs ships no category icon set. [category identity](https://opsinjs.dev/docs/health/category-identity) says an icon is governed separately. So this is a slot rather than a lookup, and a tile with no icon is a complete tile. Rendered decorative: the label beside it says the same thing in words, and a glyph announced as well would make a screen reader say the subject twice. It must not be interactive; the tile is one target and nothing nests inside it. Because the wrapper is `aria-hidden`, a control passed here would be reachable by Tab and absent from the accessibility tree at the same time. Nothing here checks that, so this sentence is the whole guard, and the page's claim that nothing inside a tile is focusable is scoped to what this component controls.",
       required: false,
     },
     "href": {
       type: "string",
-      description: "Where the tile leads. With it the whole tile is one link, meeting the target floor on both axes; without it the tile is a static readout. A clinical tile with nowhere to go raises a question the product refuses to answer, so most tiles should have one. ONE CONSTRAINT COMES WITH THE LINK, and it is named here because a product choosing a unit is the one who meets it. A link takes its accessible name from its content, and Value hides the unit SYMBOL from assistive technology and substitutes the spoken form — so a tile whose visible text reads \"kg\" is announced \"kilograms\", and the link's visible label shares no substring with its name. That is WCAG 2.2 SC 2.5.3, and this component cannot repair it: an `aria-label` would replace the whole sentence rather than mend one clause of it, so none is offered. It does not arise for a unit whose symbol and spoken form are the same word. It is recorded on the component's page rather than left to be discovered.",
+      description: "Where the tile leads. With it the whole tile is one link, meeting the target floor on both axes; without it the tile is a static readout. A clinical tile with nowhere to go raises a question the product refuses to answer, so most tiles should have one. ONE CONSTRAINT COMES WITH THE LINK, and it is named here because a product choosing a unit is the one who meets it. A link takes its accessible name from its content, and Value hides the unit SYMBOL from assistive technology and substitutes the spoken form. So a tile whose visible text reads \"kg\" is announced \"kilograms\", and the link's visible label shares no substring with its name. That is WCAG 2.2 SC 2.5.3, and this component cannot repair it: an `aria-label` would replace the whole sentence rather than mend one clause of it, so none is offered. It does not arise for a unit whose symbol and spoken form are the same word. It is recorded on the component's page rather than left to be discovered.",
       required: false,
     },
     "locale": {
@@ -668,7 +668,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "className": {
       type: "string",
-      description: "Merged onto the root with `tailwind-merge`, and a class passed here wins where the two conflict. That includes `truncate` and a fixed height, either of which can take digits off the end of a reading at 200% text — this component sets neither and never shortens a number on its own.",
+      description: "Merged onto the root with `tailwind-merge`, and a class passed here wins where the two conflict. That includes `truncate` and a fixed height, either of which can take digits off the end of a reading at 200% text. This component sets neither and never shortens a number on its own.",
       required: false,
     },
   },
@@ -680,17 +680,17 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "value": {
       type: "number | null",
-      description: "The measurement. `null` is a first-class state meaning there is no reading, distinct from `0`, and renders the words rather than a tick at zero — a mark at the bottom of a range is a reading, and a missing one is not.",
+      description: "The measurement. `null` is a first-class state meaning there is no reading, distinct from `0`, and renders the words rather than a tick at zero. A mark at the bottom of a range is a reading, and a missing one is not.",
       required: true,
     },
     "unit": {
       type: "string",
-      description: "Display symbol exactly as `tokens/units.json` spells it — \"kg\", \"mmol/L\", \"mg/dL\". Every number this component renders goes through `Value`, which resolves the spoken form from that table, so a listener hears \"milligrams per decilitre\" rather than an improvised pronunciation.",
+      description: "Display symbol exactly as `tokens/units.json` spells it, as in \"kg\", \"mmol/L\" or \"mg/dL\". Every number this component renders goes through `Value`, which resolves the spoken form from that table, so a listener hears \"milligrams per decilitre\" rather than an improvised pronunciation.",
       required: true,
     },
     "range": {
       type: "ReferenceRange",
-      description: "The range this reading is being compared with, and whose it is. Omit it entirely when none is available: the component then draws no band, says so in the summary, and substitutes nothing. `source` is required — a range with an empty one is reported as OPSIN-0004 and not drawn.",
+      description: "The range this reading is being compared with, and whose it is. Omit it entirely when none is available: the component then draws no band, says so in the summary, and substitutes nothing. `source` is required. A range with an empty one is reported as OPSIN-0004 and not drawn.",
       required: false,
     },
     "status": {
@@ -705,17 +705,17 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "precision": {
       type: "number",
-      description: "DECIMAL PLACES, from the precision of the measurement — the resolution of the device, or the number of places the laboratory reported. Not significant figures: the same metric shown to a different number of decimal places at different magnitudes cannot be compared at a glance, which is what `health/numbers-units-precision` rule 2 forbids. It applies to the reading and to the two boundary labels alike, because a value and the bound it is being compared with are the same metric. Omitted, nothing is rounded and nothing is padded.",
+      description: "DECIMAL PLACES, from the precision of the measurement. That is the resolution of the device, or the number of places the laboratory reported. Not significant figures: the same metric shown to a different number of decimal places at different magnitudes cannot be compared at a glance, which is what `health/numbers-units-precision` rule 2 forbids. It applies to the reading and to the two boundary labels alike, because a value and the bound it is being compared with are the same metric. Omitted, nothing is rounded and nothing is padded.",
       required: false,
     },
     "measuredAt": {
       type: "string",
-      description: "When the measurement was taken, ISO 8601. Rendered as a date in the footnote so that a number on a screen is not read as \"now\". Omitted, the footnote says that nobody knows when the reading was taken rather than saying nothing — the same answer this component gives for a range nobody has dated, and for the same reason: silence about a time is read as now. That is a recency signal, and it is not a staleness treatment. There is no `staleAfterHours` here and there will not be one: how old is too old is clinical, differs by metric, and opsinjs does not own it. A surface that needs a boundary wraps the reading in `RelativeTime`, which takes the boundary from you.",
+      description: "When the measurement was taken, ISO 8601. Rendered as a date in the footnote so that a number on a screen is not read as \"now\". Omitted, the footnote says that nobody knows when the reading was taken rather than saying nothing. That is the same answer this component gives for a range nobody has dated, and for the same reason: silence about a time is read as now. That is a recency signal, and it is not a staleness treatment. There is no `staleAfterHours` here and there will not be one: how old is too old is clinical, differs by metric, and opsinjs does not own it. A surface that needs a boundary wraps the reading in `RelativeTime`, which takes the boundary from you.",
       required: false,
     },
     "summary": {
       type: "string",
-      description: "Replaces the generated sentence — for a unit whose phrasing does not fit the template, or for a reader whose language is not English. It cannot remove the sentence: there is no value of this prop that renders the component without one, because the sentence is the component.",
+      description: "Replaces the generated sentence. Use it for a unit whose phrasing does not fit the template, or for a reader whose language is not English. It cannot remove the sentence: there is no value of this prop that renders the component without one, because the sentence is the component.",
       required: false,
     },
     "locale": {
@@ -732,32 +732,32 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
   "ReadingInputProps": {
     "label": {
       type: "string",
-      description: "The measurement, in the reader's words. Required, visible and persistent — a placeholder is not a label and disappears the moment somebody types. Put the unit in `unit`, not in here. The label names WHAT is being measured; a label reading \"Weight (kg)\" leaves readers who think in pounds typing pounds, with nothing on screen to stop them or to record what they meant.",
+      description: "The measurement, in the reader's words. Required, visible and persistent. A placeholder is not a label and disappears the moment somebody types. Put the unit in `unit`, not in here. The label names WHAT is being measured; a label reading \"Weight (kg)\" leaves readers who think in pounds typing pounds, with nothing on screen to stop them or to record what they meant.",
       required: true,
     },
     "unit": {
       type: "string",
-      description: "The unit shown beside the number, and the unit `value` and every segment's value are in. Required: a bare number in a health context is ambiguous between unit systems, and the same digits are one reading in mmol/L and a very different one in mg/dL. Use the display symbol exactly as `tokens/units.json` spells it — \"kg\", \"°C\", \"mmHg\". The spoken form comes from that table, so a listener hears \"in kilograms\" rather than the letters. A symbol the table does not hold is spoken as written rather than pronounced by guesswork.",
+      description: "The unit shown beside the number, and the unit `value` and every segment's value are in. Required: a bare number in a health context is ambiguous between unit systems, and the same digits are one reading in mmol/L and a very different one in mg/dL. Use the display symbol exactly as `tokens/units.json` spells it, as in \"kg\", \"°C\" or \"mmHg\". The spoken form comes from that table, so a listener hears \"in kilograms\" rather than the letters. A symbol the table does not hold is spoken as written rather than pronounced by guesswork.",
       required: true,
     },
     "value": {
       type: "number | null",
-      description: "The reading, in `unit`. Controlled: what you pass is what is shown, and a change reaches the screen only when you apply it. Omitted, or `null`, is an empty field — never a zero. Ignored when `segments` is supplied, because a compound reading has no single number.",
+      description: "The reading, in `unit`. Controlled: what you pass is what is shown, and a change reaches the screen only when you apply it. Omitted, or `null`, is an empty field. It is never a zero. Ignored when `segments` is supplied, because a compound reading has no single number.",
       required: false,
     },
     "segments": {
       type: "ReadingSegment[]",
-      description: "A compound reading — two or more numbers that are one measurement, such as a blood pressure. Each becomes its own labelled box inside one named group, which is what makes them separately typable and separately announced. `numbers-units-precision` rule 11 says a compound value is DISPLAYED in its conventional form — 118/76, one string, not two fields — and that rule is about display. This is entry, where `patterns/forms/units-and-numeric-entry` requires the opposite: separate fields under one legend, because asking somebody to type a solidus is asking them to format their own record. Both are right about their own half; the page says so.",
+      description: "A compound reading is two or more numbers that are one measurement, such as a blood pressure. Each becomes its own labelled box inside one named group, which is what makes them separately typable and separately announced. `numbers-units-precision` rule 11 says a compound value is DISPLAYED in its conventional form. That is 118/76 as one string, not two fields, and that rule is about display. This is entry, where `patterns/forms/units-and-numeric-entry` requires the opposite: separate fields under one legend, because asking somebody to type a solidus is asking them to format their own record. Both are right about their own half; the page says so.",
       required: false,
     },
     "onChange": {
       type: "(next: ReadingInputChange) => void",
-      description: "Every change: a typed digit, a cleared box, a unit switch. There is no uncontrolled mode and no internal value — a caller that does not apply the change gets a field that will not accept typing, which is the ordinary behaviour of a controlled input rather than a fault.",
+      description: "Every change: a typed digit, a cleared box, a unit switch. There is no uncontrolled mode and no internal value. A caller that does not apply the change gets a field that will not accept typing, which is the ordinary behaviour of a controlled input rather than a fault.",
       required: true,
     },
     "units": {
       type: "string[]",
-      description: "Units the reader may switch between. Two or more makes the unit a real control with its own name and a 44px target; fewer leaves it as text beside the number, which is where it has to be either way. Every pair the reader can reach should be one this system can convert: kg/lb/st and °C/°F are exact definitions and are converted for you. mmol/L and mg/dL are refused by name — the factor is the molar mass of the substance being measured, which is a property of the substance and not of either unit — so a switch between them clears the entry and says so, and a product that needs it supplies its own arithmetic on `cause: \"unit\"`.",
+      description: "Units the reader may switch between. Two or more makes the unit a real control with its own name and a 44px target; fewer leaves it as text beside the number, which is where it has to be either way. Every pair the reader can reach should be one this system can convert: kg/lb/st and °C/°F are exact definitions and are converted for you. mmol/L and mg/dL are refused by name, because the factor is the molar mass of the substance being measured, which is a property of the substance and not of either unit. So a switch between them clears the entry and says so, and a product that needs it supplies its own arithmetic on `cause: \"unit\"`.",
       required: false,
     },
     "hint": {
@@ -772,7 +772,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "precision": {
       type: "number",
-      description: "Decimal places, from the precision of the MEASUREMENT — the resolution of the instrument, or the places the laboratory reports. It is used for one thing only: rounding a number this component converted when the reader switched units. It never reformats, rounds or pads what the caller passed or what the reader typed, because rewriting digits underneath somebody's cursor is how a field loses a keystroke. Omitted, a conversion is not rounded at all and 5 kg becomes 11.023113109243878 lb.",
+      description: "Decimal places, from the precision of the MEASUREMENT. That is the resolution of the instrument, or the places the laboratory reports. It is used for one thing only: rounding a number this component converted when the reader switched units. It never reformats, rounds or pads what the caller passed or what the reader typed, because rewriting digits underneath somebody's cursor is how a field loses a keystroke. Omitted, a conversion is not rounded at all and 5 kg becomes 11.023113109243878 lb.",
       required: false,
     },
     "name": {
@@ -809,7 +809,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
   "RelativeTimeProps": {
     "at": {
       type: "string",
-      description: "ISO 8601 with an offset — `2026-03-14T08:12:00+01:00`. A timestamp with no offset is not a timestamp: it is parsed in whichever zone the code happens to be running in, and it is refused rather than guessed at.",
+      description: "ISO 8601 with an offset, as in `2026-03-14T08:12:00+01:00`. A timestamp with no offset is not a timestamp: it is parsed in whichever zone the code happens to be running in, and it is refused rather than guessed at.",
       required: true,
     },
     "event": {
@@ -819,32 +819,32 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "now": {
       type: "string",
-      description: "The instant the phrase is measured against, in the same form as `at`. Required, because a component that read the clock itself would be impure, would read it once per timestamp rather than once per screen, and would make a page of readings disagree with itself across a minute boundary. Read it once where the screen is rendered — `new Date().toISOString()` — and pass the same value to every timestamp on it.",
+      description: "The instant the phrase is measured against, in the same form as `at`. Required, because a component that read the clock itself would be impure, would read it once per timestamp rather than once per screen, and would make a page of readings disagree with itself across a minute boundary. Read it once where the screen is rendered. Use `new Date().toISOString()` and pass the same value to every timestamp on it.",
       required: true,
     },
     "staleAfterHours": {
       type: "number",
-      description: "Hours after which the staleness words and their muted treatment appear. Supplied by the product, because what counts as old is clinical and differs completely by measurement. There is no default: omit it and there is no stale treatment at all, which is the honest output when nobody has said what stale means here. Supply it and the timestamp always says something — past the boundary it carries the words, and where the age could not be checked at all it carries the same words rather than falling silent.",
+      description: "Hours after which the staleness words and their muted treatment appear. Supplied by the product, because what counts as old is clinical and differs completely by measurement. There is no default: omit it and there is no stale treatment at all, which is the honest output when nobody has said what stale means here. Supply it and the timestamp always says something. Past the boundary it carries the words, and where the age could not be checked at all it carries the same words rather than falling silent.",
       required: false,
     },
     "absoluteAfterDays": {
       type: "number",
-      description: "Days after which the absolute date replaces the relative phrase. Defaults to a fortnight, which is a legibility boundary and not a clinical one: past it, \"437 days ago\" is arithmetic nobody should be asked to do. It never adds, removes or moves the staleness note. `0` is a first-class value and means the phrase is never used — the date is rendered on its own at every age — rather than an error to be replaced by the default.",
+      description: "Days after which the absolute date replaces the relative phrase. Defaults to a fortnight, which is a legibility boundary and not a clinical one: past it, \"437 days ago\" is arithmetic nobody should be asked to do. It never adds, removes or moves the staleness note. `0` is a first-class value. It means the phrase is never used and the date is rendered on its own at every age, rather than an error to be replaced by the default.",
       required: false,
     },
     "showAbsolute": {
       type: "boolean",
-      description: "Puts the absolute date and time on screen beside the phrase. It is in the accessibility tree and in print either way — this prop decides whether a sighted reader sees it without asking, which on anything durable or consequential they should.",
+      description: "Puts the absolute date and time on screen beside the phrase. It is in the accessibility tree and in print either way. This prop decides whether a sighted reader sees it without asking, which on anything durable or consequential they should.",
       required: false,
     },
     "locale": {
       type: "string",
-      description: "BCP 47 language tag for the date and the phrase. It does not translate the event word — those five are English, and the gap is documented rather than hidden behind a prop that would also let a caller relabel `synced`.",
+      description: "BCP 47 language tag for the date and the phrase. It does not translate the event word. Those five are English, and the gap is documented rather than hidden behind a prop that would also let a caller relabel `synced`.",
       required: false,
     },
     "className": {
       type: "string",
-      description: "Merged onto the root. The merge puts it last, so a conflicting class passed here wins: a type size or a colour set on the caller's side displaces the component's own. The one thing it cannot displace is the muted stale treatment, which is addressed at the parts rather than at the root for exactly that reason — see the class list on the root below.",
+      description: "Merged onto the root. The merge puts it last, so a conflicting class passed here wins: a type size or a colour set on the caller's side displaces the component's own. The one thing it cannot displace is the muted stale treatment, which is addressed at the parts rather than at the root for exactly that reason. See the class list on the root below.",
       required: false,
     },
   },
@@ -862,7 +862,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "value": {
       type: "number | null",
-      description: "The reading. `null` renders the absence form — in words, never as `0` and never as a bare dash — because zero is a real measurement for several metrics and a missing one is not a measurement at all. Omit it only when the reading is compound and arrives through `segments`.",
+      description: "The reading. `null` renders the absence form. That form is in words, never as `0` and never as a bare dash, because zero is a real measurement for several metrics and a missing one is not a measurement at all. Omit it only when the reading is compound and arrives through `segments`.",
       required: false,
     },
     "segments": {
@@ -872,12 +872,12 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "unit": {
       type: "string",
-      description: "Display symbol exactly as `tokens/units.json` spells it — \"kg\", \"mmol/L\", \"mmHg\". It reaches every number on the card, so one card cannot show two units. `Value` resolves the spoken form from that table, which is why a listener hears \"millimoles per mole\" rather than the symbol read out letter by letter, and why a unit the table does not hold is rendered as written rather than pronounced by guesswork.",
+      description: "Display symbol exactly as `tokens/units.json` spells it, as in \"kg\", \"mmol/L\" or \"mmHg\". It reaches every number on the card, so one card cannot show two units. `Value` resolves the spoken form from that table, which is why a listener hears \"millimoles per mole\" rather than the symbol read out letter by letter, and why a unit the table does not hold is rendered as written rather than pronounced by guesswork.",
       required: false,
     },
     "precision": {
       type: "number",
-      description: "DECIMAL PLACES, from the precision of the measurement — the resolution of the device, or the number of places the laboratory reported. Not significant figures: the same metric shown to a different number of decimal places at different magnitudes cannot be compared at a glance. It reaches the reading, every segment of a compound one, and both boundary labels on the bar, because a reading and the bound it is compared with are the same metric. Omitted, nothing is rounded and nothing is padded, and the digits the caller was handed are the digits that show.",
+      description: "DECIMAL PLACES, from the precision of the measurement. That is the resolution of the device, or the number of places the laboratory reported. Not significant figures: the same metric shown to a different number of decimal places at different magnitudes cannot be compared at a glance. It reaches the reading, every segment of a compound one, and both boundary labels on the bar, because a reading and the bound it is compared with are the same metric. Omitted, nothing is rounded and nothing is padded, and the digits the caller was handed are the digits that show.",
       required: false,
     },
     "locale": {
@@ -887,12 +887,12 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "measuredAt": {
       type: "string",
-      description: "When the measurement was taken, ISO 8601 with an offset. The time of MEASUREMENT, never of retrieval, of sync or of render: a fetch timestamp here tells a reader their four-month-old reading was taken this morning. REQUIRED, AND WITH NO ABSENCE FORM — which is a known gap rather than a decision. Every other claim on this card degrades to a stated absence, and this one cannot: a card given `value={null}` still renders an instant at which that missing reading was measured. Do not invent one to satisfy the type. `RelativeTime`, which owns every instant in this system, has no absence form either, and inventing a sentence here would be a second copy of a rule that belongs there. Until it has one, a card whose reading is absent should not be given a measurement time the product does not have.",
+      description: "When the measurement was taken, ISO 8601 with an offset. The time of MEASUREMENT, never of retrieval, of sync or of render: a fetch timestamp here tells a reader their four-month-old reading was taken this morning. REQUIRED, AND WITH NO ABSENCE FORM. That is a known gap rather than a decision. Every other claim on this card degrades to a stated absence, and this one cannot: a card given `value={null}` still renders an instant at which that missing reading was measured. Do not invent one to satisfy the type. `RelativeTime`, which owns every instant in this system, has no absence form either, and inventing a sentence here would be a second copy of a rule that belongs there. Until it has one, a card whose reading is absent should not be given a measurement time the product does not have.",
       required: true,
     },
     "now": {
       type: "string",
-      description: "The instant the card is being read against, in the same form as `measuredAt`. Required, because a component that read the clock itself would read it once per card rather than once per screen and make a page of results disagree with itself across a minute boundary. Read it once where the screen is rendered — `new Date().toISOString()` — and pass the same value to every card on it.",
+      description: "The instant the card is being read against, in the same form as `measuredAt`. Required, because a component that read the clock itself would read it once per card rather than once per screen and make a page of results disagree with itself across a minute boundary. Read it once where the screen is rendered. Use `new Date().toISOString()` and pass the same value to every card on it.",
       required: true,
     },
     "staleAfterHours": {
@@ -902,12 +902,12 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "range": {
       type: "ReferenceRange",
-      description: "The interval this reading is being compared with, and whose it is. Omit it when there is none: the bar is then not drawn at all and nothing is substituted. Never defaulted, in any population, for any metric. It is drawn only where there is also a `unit` and a single `value` — a bar needs a scale, a scale needs a unit to be read in, and a compound reading has no single position on one line.",
+      description: "The interval this reading is being compared with, and whose it is. Omit it when there is none: the bar is then not drawn at all and nothing is substituted. Never defaulted, in any population, for any metric. It is drawn only where there is also a `unit` and a single `value`. A bar needs a scale, a scale needs a unit to be read in, and a compound reading has no single position on one line.",
       required: false,
     },
     "status": {
       type: "ClinicalStatus",
-      description: "The level of attention the PRODUCT has assigned to this result. Never derived here from `value` and `range`, and the derivation is not missing — it is refused. Omitted, no pill is rendered and no level is stated, which is what \"nobody has made a judgement about this\" looks like rather than a quiet reassurance.",
+      description: "The level of attention the PRODUCT has assigned to this result. Never derived here from `value` and `range`, and the derivation is not missing. It is refused. Omitted, no pill is rendered and no level is stated, which is what \"nobody has made a judgement about this\" looks like rather than a quiet reassurance.",
       required: false,
     },
     "category": {
@@ -917,7 +917,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "meaning": {
       type: "ReactNode",
-      description: "The plain-English paragraph: what the test looks at, what this result means in context, what usually happens next. Absent, the card says in words that there is no explanation rather than rendering nothing — silence reads as reassurance, and it is the default nobody chose.",
+      description: "The plain-English paragraph: what the test looks at, what this result means in context, what usually happens next. Absent, the card says in words that there is no explanation rather than rendering nothing. Silence reads as reassurance, and it is the default nobody chose.",
       required: false,
     },
     "actions": {
@@ -927,12 +927,12 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "provenance": {
       type: "string",
-      description: "Who measured it, with what device or assay, and — where it is not already on the bar — where the range came from. Rendered as the footnote. Omitted, there is no footnote: this component ships no default provenance and no default disclaimer. FREE TEXT, WITH NO PROVENANCE CLASS, AND THAT LIMITS WHAT A `status` HERE MAY MEAN. Data provenance and device accuracy sorts every value into four classes — clinically measured, device measured, device estimated, self-reported — and bounds what an interface may assert by the class: a device-estimated or self-reported value may not carry a clinical status on its own. This card cannot tell those apart, because nothing in the system carries the class yet. So the rule is the caller's to keep: do not pass a `status` derived from an estimated or self-reported value.",
+      description: "Who measured it, with what device or assay, and where the range came from when that is not already on the bar. Rendered as the footnote. Omitted, there is no footnote: this component ships no default provenance and no default disclaimer. FREE TEXT, WITH NO PROVENANCE CLASS, AND THAT LIMITS WHAT A `status` HERE MAY MEAN. Data provenance and device accuracy sorts every value into four classes, which are clinically measured, device measured, device estimated and self-reported. It bounds what an interface may assert by the class: a device-estimated or self-reported value may not carry a clinical status on its own. This card cannot tell those apart, because nothing in the system carries the class yet. So the rule is the caller's to keep: do not pass a `status` derived from an estimated or self-reported value.",
       required: false,
     },
     "className": {
       type: "string",
-      description: "Merged onto the root. Layout belongs here — a card sets no width and no place in a grid, because those are decisions of the screen it is on. A class passed here wins where the two conflict, `truncate` included, which is the one way to make a reading come back to somebody with digits missing.",
+      description: "Merged onto the root. Layout belongs here. A card sets no width and no place in a grid, because those are decisions of the screen it is on. A class passed here wins where the two conflict, `truncate` included, which is the one way to make a reading come back to somebody with digits missing.",
       required: false,
     },
   },
@@ -944,7 +944,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "value": {
       type: "number | null",
-      description: "The score. `null` renders the no-score state, which is not a score of zero: zero is a real result on many scales and an absent one is not a result. A value that is not a finite number is a third state again — a calculation that ran and failed — and it is announced as one.",
+      description: "The score. `null` renders the no-score state, which is not a score of zero: zero is a real result on many scales and an absent one is not a result. A value that is not a finite number is a third state again. It is a calculation that ran and failed, and it is announced as one.",
       required: true,
     },
     "min": {
@@ -964,7 +964,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "status": {
       type: "DialStatus",
-      description: "The level of attention this reading needs, assigned by the product from a reference range or a threshold the product owns. An INPUT, never a derivation: this component does not compare the score with anything and decide what it means, because it does not know the reader. Only `steady` and `watch` are accepted. `attention` and `urgent` are refused and reported, because both are defined as carrying a named action and a dial has nowhere to put one — use CareCard or AlertBanner, which do.",
+      description: "The level of attention this reading needs, assigned by the product from a reference range or a threshold the product owns. An INPUT, never a derivation: this component does not compare the score with anything and decide what it means, because it does not know the reader. Only `steady` and `watch` are accepted. `attention` and `urgent` are refused and reported, because both are defined as carrying a named action and a dial has nowhere to put one. Use CareCard or AlertBanner, which do.",
       required: false,
     },
     "derivation": {
@@ -974,12 +974,12 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "coverage": {
       type: "{ available: number; expected: number }",
-      description: "How much of the expected input the score was actually calculated from — `{ available: 4, expected: 6 }`. When it is short the dial says so on its face, because a reader has no other way to know that today's number rests on a third of the usual evidence. What was counted is the derivation sentence's job to name: this component does not know whether they were nights, readings or days.",
+      description: "How much of the expected input the score was actually calculated from, as in `{ available: 4, expected: 6 }`. When it is short the dial says so on its face, because a reader has no other way to know that today's number rests on a third of the usual evidence. What was counted is the derivation sentence's job to name: this component does not know whether they were nights, readings or days.",
       required: false,
     },
     "category": {
       type: "HealthCategory",
-      description: "Tints the label, and nothing else. Never the track, the bands or the indicator — those belong to the status axis, and one surface carries one axis.",
+      description: "Tints the label, and nothing else. Never the track, the bands or the indicator. Those belong to the status axis, and one surface carries one axis.",
       required: false,
     },
     "calculatedAt": {
@@ -989,7 +989,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "precision": {
       type: "number",
-      description: "Decimal places for the score, from the product. Omitted, the number is shown with exactly the digits it arrived with — nothing is rounded and nothing is padded, because precision belongs to the metric and there is no honest default for a composite score. It is load-bearing for layout as well as for honesty: an unstated precision can print nineteen digits of a double as one unbreakable token.",
+      description: "Decimal places for the score, from the product. Omitted, the number is shown with exactly the digits it arrived with. Nothing is rounded and nothing is padded, because precision belongs to the metric and there is no honest default for a composite score. It is load-bearing for layout as well as for honesty: an unstated precision can print nineteen digits of a double as one unbreakable token.",
       required: false,
     },
     "locale": {
@@ -1023,7 +1023,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "onOpenChange": {
       type: "(open: boolean, route: SheetDismissRoute) => void",
-      description: "Called when the sheet asks to open or close. The second argument says which route was taken — `close-control` for the header's close button, `scrim` for a tap on the background, `escape` for the escape key or the platform's back gesture, `drag` for a swipe down, and `other` for anything else, including a close the product asked for itself. The sheet does not close itself: `open` is the only thing that closes it. That is what makes \"ask before discarding unsaved input\" possible — leave `open` alone, show the confirmation, and close when the reader answers.",
+      description: "Called when the sheet asks to open or close. The second argument says which route was taken: `close-control` for the header's close button, `scrim` for a tap on the background, `escape` for the escape key or the platform's back gesture, `drag` for a swipe down, and `other` for anything else, including a close the product asked for itself. The sheet does not close itself: `open` is the only thing that closes it. That is what makes \"ask before discarding unsaved input\" possible. Leave `open` alone, show the confirmation, and close when the reader answers.",
       required: true,
     },
     "title": {
@@ -1039,7 +1039,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "modal": {
       type: "boolean",
-      description: "Traps focus and makes the page behind genuinely inert — not dimmed, but unreachable, by a pointer and by assistive technology alike. It is also the only state in which the sheet takes focus on appearance: `modal={false}` does none of the three, so it opens where the reader can see it and leaves the caret exactly where they left it. A non-modal sheet has no accessibility story on this page beyond that sentence. It is pinned to the bottom edge while the page behind stays focusable, which is the obscured-focus shape WCAG 2.4.11 is about, and nothing here has been checked against it.",
+      description: "Traps focus and makes the page behind genuinely inert. Inert here means unreachable rather than dimmed, by a pointer and by assistive technology alike. It is also the only state in which the sheet takes focus on appearance: `modal={false}` does none of the three, so it opens where the reader can see it and leaves the caret exactly where they left it. A non-modal sheet has no accessibility story on this page beyond that sentence. It is pinned to the bottom edge while the page behind stays focusable, which is the obscured-focus shape WCAG 2.4.11 is about, and nothing here has been checked against it.",
       default: "true",
       required: false,
     },
@@ -1073,7 +1073,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "lines": {
       type: "number",
-      description: "Number of lines for the text shape, ignored by the other three. The last is rendered shorter, the way a paragraph's last line is. Defaults to 3. The count is repaired at both ends rather than trusted: a value below 1 is raised to 1 rather than rendering a group that reserves no space at all, and a value above 24 is lowered to 24 — no paragraph a skeleton stands in for has more lines than that, and an unbounded count allocates an unbounded array during a server render.",
+      description: "Number of lines for the text shape, ignored by the other three. The last is rendered shorter, the way a paragraph's last line is. Defaults to 3. The count is repaired at both ends rather than trusted: a value below 1 is raised to 1 rather than rendering a group that reserves no space at all, and a value above 24 is lowered to 24. No paragraph a skeleton stands in for has more lines than that, and an unbounded count allocates an unbounded array during a server render.",
       required: false,
     },
     "appearAfterMs": {
@@ -1083,7 +1083,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "shimmer": {
       type: "boolean",
-      description: "Movement is a preference, never a signal. It does not encode progress, it does not speed up, and it is suppressed under `prefers-reduced-motion`, which leaves the static tint behind. On by default: a motionless grey rectangle reads as content that did not arrive at least as readily as it reads as content that is arriving. It loops for as long as the skeleton is mounted, and there is no pause, stop or hide control — `prefers-reduced-motion` is an operating-system preference, not the page-level mechanism WCAG 2.2 SC 2.2.2 asks for past five seconds. Pass `false`, or replace the skeleton with words, on a wait long enough for that to matter.",
+      description: "Movement is a preference, never a signal. It does not encode progress, it does not speed up, and it is suppressed under `prefers-reduced-motion`, which leaves the static tint behind. On by default: a motionless grey rectangle reads as content that did not arrive at least as readily as it reads as content that is arriving. It loops for as long as the skeleton is mounted, and there is no pause, stop or hide control. `prefers-reduced-motion` is an operating-system preference, not the page-level mechanism WCAG 2.2 SC 2.2.2 asks for past five seconds. Pass `false`, or replace the skeleton with words, on a wait long enough for that to matter.",
       required: false,
     },
     "className": {
@@ -1100,7 +1100,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "label": {
       type: "string",
-      description: "Overrides the default word for this level — for translation, or for a product whose readers use different language. It may not change the meaning, and it may not be an empty string.",
+      description: "Overrides the default word for this level. Use it for translation, or for a product whose readers use different language. It may not change the meaning, and it may not be an empty string.",
       required: false,
     },
     "size": {
@@ -1115,14 +1115,14 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "className": {
       type: "string",
-      description: "Merged onto the root with `tailwind-merge`, and a class you pass WINS over the pill's own where the two conflict: `cn(…, TONE[status], SIZE[size], className)` puts yours last and `twMerge` keeps the later of a conflicting pair. That includes the level's fill and its boundary. A class that removes either of them leaves the word and the glyph carrying the status on their own, so if you need the pill to sit quietly in a dense row, change `size` rather than stripping the surface. THE INK IS THE ONE EXCEPTION, and the comment above `TONE` says why: it is written as an arbitrary property — `color:var(--opsin-status-<level>-ink)` in square brackets, spelled out that way here because Tailwind's scanner reads comments too and a bracketed candidate with a `<level>` placeholder in it compiles to CSS that does not parse — so `tailwind-merge` does not file it against a `text-*` class and a `text-*` class you pass does not replace it. Both declarations are emitted and source order decides. Recolour it with a rule of your own on `[data-slot=\"status-pill\"]` instead — and read `tokens/color.json` first, because the ink you would be replacing is the half of the pairing that was tuned to stay legible on the surface underneath it.",
+      description: "Merged onto the root with `tailwind-merge`, and a class you pass WINS over the pill's own where the two conflict: `cn(…, TONE[status], SIZE[size], className)` puts yours last and `twMerge` keeps the later of a conflicting pair. That includes the level's fill and its boundary. A class that removes either of them leaves the word and the glyph carrying the status on their own, so if you need the pill to sit quietly in a dense row, change `size` rather than stripping the surface. THE INK IS THE ONE EXCEPTION, and the comment above `TONE` says why: it is written as the arbitrary property `color:var(--opsin-status-<level>-ink)` in square brackets, so `tailwind-merge` does not file it against a `text-*` class, and a `text-*` class you pass does not replace it. It is spelled out that way here because Tailwind's scanner reads comments too, and a bracketed candidate with a `<level>` placeholder in it compiles to CSS that does not parse. Both declarations are emitted and source order decides. Recolour it with a rule of your own on `[data-slot=\"status-pill\"]` instead. Read `tokens/color.json` first, because the ink you would be replacing is the half of the pairing that was tuned to stay legible on the surface underneath it.",
       required: false,
     },
   },
   "SurfaceProps": {
     "rung": {
       type: "MaterialRung",
-      description: "Which rung of the material ladder. Required: there is no sensible default depth, and a component that guessed would put a surface at the wrong height silently. The names are the token names — `canvas`, `card`, `raised`, `sheet`, `overlay`, `scrim`.",
+      description: "Which rung of the material ladder. Required: there is no sensible default depth, and a component that guessed would put a surface at the wrong height silently. The names are the token names: `canvas`, `card`, `raised`, `sheet`, `overlay` and `scrim`.",
       required: true,
     },
     "contentWeight": {
@@ -1132,12 +1132,12 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "opaque": {
       type: "boolean",
-      description: "Renders the rung's opaque fallback regardless of engine or preference — the path for print and export, where there is no backdrop to see through and a translucent tint composites against paper.",
+      description: "Renders the rung's opaque fallback regardless of engine or preference. This is the path for print and export, where there is no backdrop to see through and a translucent tint composites against paper.",
       required: false,
     },
     "className": {
       type: "string",
-      description: "Merged onto the root. Shape belongs here: Surface sets no corner of its own, and every layer inside it inherits whatever radius the caller applies. It is also unrestricted, so it is the one prop through which a caller can put colour on a Surface, and the two-colour-axes rule applies to it in full: a Surface may take a category tint or sit under a status, never both. A category-tinted Surface renders its status as a StatusPill inside it rather than as a tint on the root. Both axes on one element is OPSIN-0001, and this component cannot detect it — `cn` merges whatever it is handed.",
+      description: "Merged onto the root. Shape belongs here: Surface sets no corner of its own, and every layer inside it inherits whatever radius the caller applies. It is also unrestricted, so it is the one prop through which a caller can put colour on a Surface, and the two-colour-axes rule applies to it in full: a Surface may take a category tint or sit under a status, never both. A category-tinted Surface renders its status as a StatusPill inside it rather than as a tint on the root. Both axes on one element is OPSIN-0001, and this component cannot detect it. `cn` merges whatever it is handed.",
       required: false,
     },
     "children": {
@@ -1149,7 +1149,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
   "TermGlossaryProviderProps": {
     "glossary": {
       type: "readonly GlossaryEntry[]",
-      description: "Every term this subtree can name. Hoist it to a module constant: it is rebuilt into a lookup whenever its identity changes, and an array literal written inline in JSX is a new identity on every render. It may be handed straight across the server/client boundary — a plain array of plain objects is serialisable — so the definitions can be read from a file on the server and never reach the browser as code.",
+      description: "Every term this subtree can name. Hoist it to a module constant: it is rebuilt into a lookup whenever its identity changes, and an array literal written inline in JSX is a new identity on every render. It may be handed straight across the server/client boundary. A plain array of plain objects is serialisable, so the definitions can be read from a file on the server and never reach the browser as code.",
       required: true,
     },
     "children": {
@@ -1165,7 +1165,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "children": {
       type: "ReactNode",
-      description: "The word as it should read in this sentence, when it differs from the glossary's headword — plural, tense, or capitalisation. It changes what is printed and nothing else: the definition and the expansion still come from the entry, and so does the spoken form of an abbreviation, which is appended to the control's name rather than replacing what is written there. Two paths do not print it, and both are cases where printing it would be worse. A `plain-only` entry discards it, because `children` is where a call site writes the clinical word inflected for its sentence and that entry's whole content is that the clinical word is never shown; the discard warns in development. An `id` that is not in the glossary prints it and prints it gratefully — there it is the only real word available, and without it the raw key appears in the sentence instead.",
+      description: "The word as it should read in this sentence, where a plural, a tense or a capitalisation makes it differ from the glossary's headword. It changes what is printed and nothing else: the definition and the expansion still come from the entry, and so does the spoken form of an abbreviation, which is appended to the control's name rather than replacing what is written there. Two paths do not print it, and both are cases where printing it would be worse. A `plain-only` entry discards it, because `children` is where a call site writes the clinical word inflected for its sentence and that entry's whole content is that the clinical word is never shown; the discard warns in development. An `id` that is not in the glossary prints it and prints it gratefully. There it is the only real word available, and without it the raw key appears in the sentence instead.",
       required: false,
     },
     "present": {
@@ -1176,7 +1176,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "once": {
       type: "boolean",
-      description: "Suppress the repeat. Set it on the second and later appearances of a term on one surface: the word is still marked, the definition is still one press away and still in the accessibility tree, and it is not printed again — on screen or on paper. opsinjs does not count the appearances for you. It cannot see where one surface ends and the next begins, and a component that guessed would either repeat itself down a page or silently drop a definition the reader had not yet met. Repetition is noise and absence is a barrier; this is the compromise, and the caller is the only party that can make it.",
+      description: "Suppress the repeat. Set it on the second and later appearances of a term on one surface: the word is still marked, the definition is still one press away and still in the accessibility tree, and it is not printed again on screen or on paper. opsinjs does not count the appearances for you. It cannot see where one surface ends and the next begins, and a component that guessed would either repeat itself down a page or silently drop a definition the reader had not yet met. Repetition is noise and absence is a barrier; this is the compromise, and the caller is the only party that can make it.",
       required: false,
     },
     "className": {
@@ -1193,7 +1193,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "unit": {
       type: "string",
-      description: "Unit symbol as `tokens/units.json` spells it — \"bpm\", \"mmol/L\", \"steps\". Every reading in the caption is rendered through `Value`, which resolves the spoken form from that table so a screen reader says \"millimoles per litre\" rather than improvising.",
+      description: "Unit symbol as `tokens/units.json` spells it, such as \"bpm\", \"mmol/L\" or \"steps\". Every reading in the caption is rendered through `Value`, which resolves the spoken form from that table so a screen reader says \"millimoles per litre\" rather than improvising.",
       required: true,
     },
     "series": {
@@ -1203,22 +1203,22 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "minimumPoints": {
       type: "number",
-      description: "How many real readings there must be before a line may be drawn at all. Required, with no default, and the omission is the point. How many readings make a trend depends on what was measured, how often it is measured and who is reading it — a number opsinjs cannot know and must never guess. Below it this component draws nothing and says so, naming your number and the count it actually has.",
+      description: "How many real readings there must be before a line may be drawn at all. Required, with no default, and the omission is the point. How many readings make a trend depends on what was measured, how often it is measured and who is reading it. That is a number opsinjs cannot know and must never guess. Below it this component draws nothing and says so, naming your number and the count it actually has.",
       required: true,
     },
     "window": {
       type: "string",
-      description: "The period the series covers, as the reader should see it — \"the last 14 days\". A display string rather than a duration, which has a consequence worth knowing: the x-axis is the extent of the series you passed, not the extent of this period, so two sparklines are only comparable side by side when their series cover the same span.",
+      description: "The period the series covers, as the reader should see it, such as \"the last 14 days\". A display string rather than a duration, which has a consequence worth knowing: the x-axis is the extent of the series you passed, not the extent of this period, so two sparklines are only comparable side by side when their series cover the same span.",
       required: true,
     },
     "changeThreshold": {
       type: "number",
-      description: "The smallest difference this metric counts as a change, in the reading's own unit. There is no default, and without it the caption names no direction. A metric declares the difference below which a series is presented as unchanged; below that noise floor \"about the same\" is the true sentence. Supplied, the caption reads \"Up, from … to …\"; omitted, it prints both endpoints and stops, and the accessible name says \"with no clear direction\". Zero is a legitimate value and means your metric counts any difference at all — but it has to be your product saying so, not this file.",
+      description: "The smallest difference this metric counts as a change, in the reading's own unit. There is no default, and without it the caption names no direction. A metric declares the difference below which a series is presented as unchanged; below that noise floor \"about the same\" is the true sentence. Supplied, the caption reads \"Up, from … to …\"; omitted, it prints both endpoints and stops, and the accessible name says \"with no clear direction\". Zero is a legitimate value and means your metric counts any difference at all. It still has to be your product saying so, not this file.",
       required: false,
     },
     "range": {
       type: "ReferenceRange",
-      description: "An interval to shade behind the line, in neutral tones. Never status-coloured, and never invented: omit it and no band is drawn. Its `source` is required and is named in the caption, because a shaded band with no owner is an assertion with no author. A band is drawn only when BOTH bounds are present and the lower is below the upper. A one-sided range is stated in the caption as words — \"10 steps and above\" — and drawn as nothing, because the missing edge would have to come from the data or from zero and would then be attributed to your source.",
+      description: "An interval to shade behind the line, in neutral tones. Never status-coloured, and never invented: omit it and no band is drawn. Its `source` is required and is named in the caption, because a shaded band with no owner is an assertion with no author. A band is drawn only when BOTH bounds are present and the lower is below the upper. A one-sided range is stated in the caption as words such as \"10 steps and above\", and it is drawn as nothing, because the missing edge would have to come from the data or from zero and would then be attributed to your source.",
       required: false,
     },
     "category": {
@@ -1228,7 +1228,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "caption": {
       type: "string",
-      description: "Your own sentence, in place of the composed one. Use it when you have a cadence, a phrasing or a comparison this component cannot know about. It replaces the direction-and-magnitude sentence. It does not replace the coverage clause (how many readings there are and what is missing), the clause naming a marked reading, or the clause naming a range's source — those are appended either way, because a count of absent measurements, a status and an attribution are not decoration. Where there are too few readings to draw, your sentence is appended to the refusal rather than replacing it: the refusal is the one sentence that explains why there is no picture.",
+      description: "Your own sentence, in place of the composed one. Use it when you have a cadence, a phrasing or a comparison this component cannot know about. It replaces the direction-and-magnitude sentence. It does not replace the coverage clause (how many readings there are and what is missing), the clause naming a marked reading, or the clause naming a range's source. Those are appended either way, because a count of absent measurements, a status and an attribution are not decoration. Where there are too few readings to draw, your sentence is appended to the refusal rather than replacing it: the refusal is the one sentence that explains why there is no picture.",
       required: false,
     },
     "locale": {
@@ -1250,12 +1250,12 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "unit": {
       type: "string",
-      description: "Display symbol, exactly as `tokens/units.json` spells it — \"kg\", \"mmol/L\", \"°C\". The spoken form is resolved from that table, so this is the only place a unit is named. A symbol the table does not hold is rendered as written rather than pronounced by guesswork.",
+      description: "Display symbol, exactly as `tokens/units.json` spells it, such as \"kg\", \"mmol/L\" or \"°C\". The spoken form is resolved from that table, so this is the only place a unit is named. A symbol the table does not hold is rendered as written rather than pronounced by guesswork.",
       required: false,
     },
     "precision": {
       type: "number",
-      description: "Decimal places, from the precision of the MEASUREMENT — the resolution of the device, or the number of places the laboratory reported. Never chosen at render time to make a column line up. Omitted, the component rounds nothing and pads nothing. There is no per-unit default to fall back on, deliberately: precision is a property of the metric and not of the unit, and two metrics reported in the same unit do not share one.",
+      description: "Decimal places, from the precision of the MEASUREMENT, which is the resolution of the device, or the number of places the laboratory reported. Never chosen at render time to make a column line up. Omitted, the component rounds nothing and pads nothing. There is no per-unit default to fall back on, deliberately: precision is a property of the metric and not of the unit, and two metrics reported in the same unit do not share one.",
       required: false,
     },
     "locale": {
@@ -1265,7 +1265,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "absenceLabel": {
       type: "string",
-      description: "What the absence form says when there is no reading — \"no reading yet\" by default. It replaces the words, never the em dash, and it is not used for a number that arrived broken, which is a different thing and says so. An empty string falls back to the default and reports itself: an em dash with no words beside it is banned outright, because speech synthesis either skips it or reads it out as \"dash\".",
+      description: "What the absence form says when there is no reading. The default is \"no reading yet\". It is not used for a number that arrived broken, which is a different thing and says so in different words. An empty string falls back to the default and reports itself. The absence form is words and nothing else, so an empty label would leave an empty element where a reader expects to be told something.",
       required: false,
     },
     "size": {
@@ -1275,7 +1275,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "className": {
       type: "string",
-      description: "Merged onto the root with `tailwind-merge`, and a class you pass WINS over the component's own where the two conflict. `cn(\"inline tabular-nums\", …, className)` puts yours last and `twMerge` keeps the later of a conflicting pair — verified: `twMerge(\"inline tabular-nums\", \"block truncate\")` returns `\"tabular-nums block truncate\"`. That includes `truncate` and any fixed height. This component never shortens a number on its own and sets no ellipsis and no height; passing a class that does is the one way to make a reading come back to somebody with digits missing off the end.",
+      description: "Merged onto the root with `tailwind-merge`, and a class you pass WINS over the component's own where the two conflict. `cn(\"inline tabular-nums\", …, className)` puts yours last and `twMerge` keeps the later of a conflicting pair. That was verified: `twMerge(\"inline tabular-nums\", \"block truncate\")` returns `\"tabular-nums block truncate\"`. That includes `truncate` and any fixed height. This component never shortens a number on its own and sets no ellipsis and no height; passing a class that does is the one way to make a reading come back to somebody with digits missing off the end.",
       required: false,
     },
   },

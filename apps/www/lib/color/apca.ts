@@ -10,9 +10,9 @@
  * the difference.
  *
  * The constants below are the published APCA-W3 0.1.9 exponents and clamps.
- * They are magic numbers in the literal sense — they are fitted, not derived —
- * so they are named and grouped rather than inlined, and the implementation is
- * a direct transcription rather than an optimisation of one.
+ * They are magic numbers in the literal sense. Because they are fitted, not
+ * derived, they are named and grouped rather than inlined, and the
+ * implementation is a direct transcription rather than an optimisation of one.
  *
  * IMPORTANT PROPERTIES OF Lc, because they trip everyone up:
  *   - It is SIGNED and it is DIRECTIONAL. Lc is positive for dark text on a
@@ -31,7 +31,7 @@
 import type { Oklch } from "./oklch.ts"
 import { oklchToRgb255, parseColor } from "./oklch.ts"
 
-/** A colour as 0–255 sRGB integers, which is what APCA is defined over. */
+/** A colour as 0 to 255 sRGB integers, which is what APCA is defined over. */
 export type Rgb255 = [number, number, number]
 
 /**
@@ -208,8 +208,8 @@ export function apcaVerdict(
 
 /**
  * The smallest font size, in px, at which this Lc is usable at the given
- * weight — a coarse reading of the APCA font-size guidance, not the full
- * lookup table.
+ * weight, from a coarse reading of the APCA font-size guidance rather than
+ * from the full lookup table.
  *
  * It is coarse ON PURPOSE. The full table has entries the guidance itself marks
  * as placeholders and interpolating it would publish a precision this system

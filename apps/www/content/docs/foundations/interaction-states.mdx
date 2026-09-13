@@ -32,19 +32,19 @@ existence.
 There are six, and every interactive component implements all six or explains in
 its `Anatomy` section why one does not apply.
 
-**Hover** — pointer only, and never the only signal for anything. Derived as a
+**Hover** is pointer only, and never the only signal for anything. Derived as a
 small lightness shift towards the surface's contrast direction: darker in the
 light theme, lighter in the dark theme, so the same rule works in both without a
 second token. Hover must never be the only way to discover an affordance, because
 touch has no hover and a good proportion of health app use is one-handed on a
 phone.
 
-**Press** — the acknowledgement, and the state with the tightest timing budget.
+**Press** is the acknowledgement, and the state with the tightest timing budget.
 It applies on pointer-down rather than on click, so a slow network never makes
 the interface feel broken, and it uses the `instant` duration from
 [Motion](motion/index.mdx). A press that animates in over 200 ms reads as lag.
 
-**Focus** — always `:focus-visible`, never bare `:focus`, so a mouse click on a
+**Focus** is always `:focus-visible`, never bare `:focus`, so a mouse click on a
 button does not leave a ring behind it while a keyboard tab does. The ring is
 drawn *outside* the control's box using an outline with an offset, so it never
 changes layout and never gets clipped by an ancestor's overflow. Focus is the one
@@ -52,22 +52,23 @@ state whose appearance is not derived from the component's own role: it uses a
 single system-wide focus role, so that the ring is equally visible on every
 surface including the ones a person did not expect to be focusable.
 
-**Disabled** — a reduction in contrast plus the removal of the pointer affordance.
-The hard rule is that a disabled control must still be *readable*: it is common
-to fade a disabled control to the point where nobody can tell what it says, which
-turns "you cannot do this yet" into "you cannot find out what this is". Disabled
-controls are also removed from the tab order, which means the reason they are
-disabled must be stated somewhere a keyboard user will reach.
+**Disabled** is a reduction in contrast plus the removal of the pointer
+affordance. The hard rule is that a disabled control must still be *readable*: it
+is common to fade a disabled control to the point where nobody can tell what it
+says, which turns "you cannot do this yet" into "you cannot find out what this
+is". Disabled controls are also removed from the tab order, which means the
+reason they are disabled must be stated somewhere a keyboard user will reach.
 
-**Selected** — persistent, chosen, and distinct from focus. Selection is carried
+**Selected** is persistent, chosen, and distinct from focus. Selection is carried
 by a fill and a mark, not by a fill alone, for the same reason status is:
 selection that is only a background colour disappears in greyscale and is
 announced by nothing.
 
-**Loading** — the control is busy. The label is preserved rather than replaced by
-a spinner, the control keeps its size so the layout does not jump, and it becomes
-unavailable to activation without becoming `disabled` in the accessibility sense,
-so its accessible name and its busy state can both be announced.
+**Loading** means the control is busy. The label is preserved rather than
+replaced by a spinner, the control keeps its size so the layout does not jump,
+and it becomes unavailable to activation without becoming `disabled` in the
+accessibility sense, so its accessible name and its busy state can both be
+announced.
 
 The derivation itself lives in `lib/color/derive.ts`, and it is the same code the
 theme generator uses. That is the point: a derived state cannot be out of step
@@ -77,7 +78,7 @@ state with it.
 ## Using it
 
 **Do not author a state colour.** If you find yourself choosing a hover colour,
-the component is reaching past the semantic tier — see
+the component is reaching past the semantic tier. See
 [Token architecture](token-architecture.mdx). Choose the role; the state follows.
 
 **States compose, and the order is fixed.** A control can be focused *and*
@@ -124,8 +125,8 @@ except contrast, because four separate success criteria land on it.
   keeps the ring from being clipped, which is the most common way a technically
   present focus indicator becomes invisible in practice.
 - **Focus must not be lost.** When a control becomes disabled or is removed,
-  focus moves to a documented, predictable place — never to the document body,
-  which silently sends a keyboard user back to the top of the page.
+  focus moves to a documented, predictable place. It never moves to the document
+  body, which silently sends a keyboard user back to the top of the page.
 - **Hover is never load-bearing.** Any information available only on hover is
   also available on focus and on tap, because touch devices have no hover and
   hover-only content is unreachable to a large group of readers.
@@ -140,9 +141,9 @@ contract itself is on
 
 ## Related
 
-- [Data states](data-states.mdx) — the other half of "what state is this in", and
-  the one that matters more on a health screen.
-- [Motion → Using motion](motion/using-motion.mdx) — which duration and easing
+- [Data states](data-states.mdx) is the other half of "what state is this in",
+  and the one that matters more on a health screen.
+- [Motion → Using motion](motion/using-motion.mdx) says which duration and easing
   each of these six states is allowed to use, and why press is the tightest.
-- [Handbook → Data attributes](../handbook/data-attributes.mdx) — the `data-*`
+- [Handbook → Data attributes](../handbook/data-attributes.mdx) has the `data-*`
   vocabulary these states are exposed through, so you can style them yourself.

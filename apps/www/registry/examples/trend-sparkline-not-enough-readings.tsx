@@ -1,24 +1,25 @@
 /**
  * The refusal, which is the state this component exists for.
  *
- * Both sparklines below are given the same rule — four real readings before a
- * line may be drawn — and the same shape of data. The first has enough and draws
- * a line. The second has three, and draws nothing at all: no line, no dots, no
- * axis, no faint placeholder shaped like a trend. A line through three points
- * looks exactly like a line through thirty, and nothing on the screen tells the
- * reader which one they are looking at, so the only honest picture is no
- * picture.
+ * Both sparklines below are given the same rule and the same shape of data. The
+ * rule is that a line may be drawn only after four real readings. The first has
+ * enough and draws a line. The second has three, and draws nothing at all: no
+ * line, no dots, no axis, no faint placeholder shaped like a trend. A line
+ * through three points looks exactly like a line through thirty, and nothing on
+ * the screen tells the reader which one they are looking at, so the only honest
+ * picture is no picture.
  *
  * THE NUMBER IN THE SENTENCE IS THE PRODUCT'S, NOT OURS. The refusal names the
- * count the caller set and the count they actually have — "there are 3, and this
- * needs 4" — because a reader who is told there is not enough data is entitled
- * to know how much would be enough. opsinjs has no view about what that number
- * should be, which is why `minimumPoints` is required and has no default.
+ * count the caller set and the count they actually have, because a reader who
+ * is told there is not enough data is entitled to know how much would be
+ * enough. In this example it reads "there are 3, and this needs 4". opsinjs
+ * has no view about what that number should be, which is why `minimumPoints`
+ * is required and has no default.
  *
  * NEITHER CAPTION NAMES A DIRECTION, and that is not an omission. A direction
- * word needs a change threshold — the difference below which a series is
- * presented as unchanged — and that belongs to the metric. Neither sparkline
- * here passes one, so both print their endpoints and stop.
+ * word needs a change threshold. The threshold is the difference below which a
+ * series is presented as unchanged, and it belongs to the metric. Neither
+ * sparkline here passes one, so both print their endpoints and stop.
  *
  * The second sparkline also passes its own `caption`. That is how a product says
  * what a reader should do next, and it is APPENDED to the refusal rather than

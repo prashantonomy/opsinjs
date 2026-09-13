@@ -1,5 +1,5 @@
 /**
- * Callout — a short piece of set-apart information that carries no clinical
+ * Callout is a short piece of set-apart information that carries no clinical
  * level at all.
  *
  * WHAT IT REFUSES IS THE COMPONENT. There is no `status` prop, no `severity`
@@ -13,24 +13,24 @@
  * documentation.
  *
  * WHICH IS WHY THE THREE VARIANTS SHARE ONE TREATMENT AND DIFFER ONLY BY GLYPH.
- * The temptation with an admonition component is a tint per variant — blue for
- * a note, green for a tip, yellow for a caveat — and yellow-for-a-caveat is the
+ * The temptation with an admonition component is a tint per variant: blue for
+ * a note, green for a tip, yellow for a caveat. Yellow-for-a-caveat is the
  * exact colour a reader has been taught means *watch* by every status surface
  * on the screen. The product theme has no non-axis accent to reach for anyway:
  * `app/product.css` bridges eleven neutral surface roles plus the two axes, and
  * nothing else exists. One neutral fill for all three is therefore both the
- * available answer and the correct one — a variant buys a distinct glyph, and
+ * available answer and the correct one. A variant buys a distinct glyph, and
  * that is the whole of what it buys.
  *
  * IT STAMPS NO `data-variant`, DELIBERATELY. The data-attribute vocabulary is
- * closed at four — `data-slot`, `data-status`, `data-opsinjs-value`,
- * `data-category` — and spending a fifth on a distinction the specification
+ * closed at four: `data-slot`, `data-status`, `data-opsinjs-value` and
+ * `data-category`. Spending a fifth on a distinction the specification
  * itself describes as one whose loss "loses nothing" would be the wrong trade.
  * A product that needs to style the note case differently from the tip case has
  * `className`, and the reason it should not is the paragraph above.
  *
  * IT IS A SERVER COMPONENT. No state, no timers, no event handlers, no Base UI
- * primitive. There is no dismiss control — a dismissible callout needs a name,
+ * primitive. There is no dismiss control. A dismissible callout needs a name,
  * a target floor and a memory that outlives the render, and none of those three
  * has been designed. Its absence is why this file has no client boundary.
  */
@@ -50,13 +50,13 @@ import { cn } from "@/lib/utils"
  * third member is for.
  *
  * DECLARED, NOT EXPORTED, and the specification page writes `export type` here.
- * A registry file ships exactly three public symbols — the props interface, the
- * component and its zero-prop demo (ADR 0009) — so a fourth would be a fourth
- * thing a consumer's `shadcn add` puts in their project and a fourth thing this
- * system has to keep stable. A wrapper that needs to name the three values
- * writes `CalloutProps["variant"]`, which is the same union and cannot drift
- * from it. `button.tsx` declares its own variant union the same way for the
- * same reason.
+ * A registry file ships exactly three public symbols, so a fourth would be a
+ * fourth thing a consumer's `shadcn add` puts in their project and a fourth
+ * thing this system has to keep stable. The three are the props interface, the
+ * component and its zero-prop demo (ADR 0009). A wrapper that needs to name
+ * the three values writes `CalloutProps["variant"]`, which is the same union
+ * and cannot drift from it. `button.tsx` declares its own variant union the
+ * same way for the same reason.
  */
 type CalloutVariant = "note" | "tip" | "caveat"
 
@@ -69,7 +69,7 @@ type CalloutVariant = "note" | "tip" | "caveat"
  *
  * None of the three is a status glyph. `Check`, `Eye`, `TriangleAlert` and
  * `OctagonAlert` belong to the status axis and appear on this component under
- * no circumstances — a triangle in a Callout is the axis leaking back in
+ * no circumstances. A triangle in a Callout is the axis leaking back in
  * through the icon set after it has been kept out of the palette. `Asterisk` is
  * the printer's mark for a footnote, which is exactly what a caveat is, and it
  * carries no alarm.
@@ -95,9 +95,9 @@ const VARIANT_ICONS: Record<CalloutVariant, typeof Info> = {
  * NO CONTRAST FIGURE IS QUOTED HERE, AND THAT IS DELIBERATE. `tokens/color.json`
  * says the measured numbers "are never written by hand and never quoted in
  * prose", and a figure typed into a comment drifts silently the next time the
- * ramps are re-tuned. None of the pairs this component actually paints — body
- * ink on the fill, the fill against the page, the hairline against the fill —
- * is in `lib/generated/contrast.json` at all.
+ * ramps are re-tuned. None of the pairs this component actually paints is in
+ * `lib/generated/contrast.json` at all. Those pairs are body ink on the fill,
+ * the fill against the page, and the hairline against the fill.
  * The nearest measured neighbour is `neutral.hairline-on-page`, which is
  * advisory-failing in both themes; it measures the neutral ramp against the
  * neutral page rather than `--border` against `--muted`, so it is a different
@@ -107,7 +107,7 @@ const VARIANT_ICONS: Record<CalloutVariant, typeof Info> = {
  *
  * `rounded-opsin-md` is what `tokens/shape.json` publishes as the default for a
  * box of this size, and `corner-shape` rides on it as a progressive
- * enhancement — an engine without it drops the declaration and draws an
+ * enhancement. An engine without it drops the declaration and draws an
  * ordinary rounded corner, which is the fallback that file specifies. It is
  * written as a property rather than through the product theme's
  * `data-opsin-shape` attribute, because that attribute is a fifth member of a
@@ -131,15 +131,16 @@ const SURFACE =
  *
  * THIS WORKS IN THE LIGHT THEME AND NOT IN THE DARK ONE, AND NOTHING IN THIS
  * FILE CAN CLOSE THE GAP. `--foreground` is near-black in the light theme and
- * near-white in the dark one, and `app/product.css` — the only stylesheet a
- * component renders under at `/view` — carries no `@media print` block, so
- * nothing forces ink to black on paper. A reader printing from the dark theme
- * therefore gets a near-white boundary, near-white body text and a near-white
- * glyph on white paper. The repair is a print block in the theme layer, which
- * belongs to every component rather than to this one; a component could only
- * do it here by writing a raw colour literal, which this system forbids in
- * `registry/**`. Recorded on the specification page among the things nobody
- * has checked, rather than left for a reader to discover at the printer.
+ * near-white in the dark one. `app/product.css` is the only stylesheet a
+ * component renders under at `/view`, and it carries no `@media print` block,
+ * so nothing forces ink to black on paper. A reader printing from the dark
+ * theme therefore gets a near-white boundary, near-white body text and a
+ * near-white glyph on white paper. The repair is a print block in the theme
+ * layer, which belongs to every component rather than to this one; a component
+ * could only do it here by writing a raw colour literal, which this system
+ * forbids in `registry/**`. Recorded on the specification page among the
+ * things nobody has checked, rather than left for a reader to discover at the
+ * printer.
  */
 const PRINT = "print:bg-transparent print:border-foreground"
 
@@ -158,8 +159,7 @@ export interface CalloutProps {
    * which level it is nested at, and one that guessed would produce an outline
    * that skips a level on some screens and repeats one on others. If the
    * callout is a section a reader needs to navigate to, it needs a real heading
-   * outside it — and at that point it is probably a section rather than a
-   * callout.
+   * outside it. At that point it is probably a section rather than a callout.
    *
    * An empty or whitespace-only string is treated exactly like no title at
    * all: the element leaves the DOM rather than rendering an empty line of
@@ -173,7 +173,7 @@ export interface CalloutProps {
    */
   children: ReactNode
   /**
-   * Merged onto the root. Layout belongs here — a callout sets no width and no
+   * Merged onto the root. Layout belongs here. A callout sets no width and no
    * margin, because both are decisions of the content it sits in.
    *
    * It is also the one hole in this component's refusal to carry a status, and
@@ -193,7 +193,7 @@ export interface CalloutProps {
  * obvious way would report itself and there would be no repair short of
  * deleting the check. Split like this, the file contains the axis names and the
  * axis prefixes and never the two joined, which is the thing the gate looks
- * for — and the pattern still matches every joined form at runtime.
+ * for. The pattern still matches every joined form at runtime.
  */
 const AXIS_NAMES =
   "steady|watch|attention|urgent|unknown|sleep|heart|activity|nutrition|mind|labs"
@@ -207,7 +207,7 @@ const AXIS_TINT = new RegExp(
  *
  * Not an OPSIN code: `tokens/errors.json` has no entry for a component outside
  * both axes being handed a colour from one of them, and a component may not
- * mint one — the codes are a versioned contract and the table on the errors
+ * mint one. The codes are a versioned contract and the table on the errors
  * page is generated from that file. A development warning is the honest channel
  * until an entry exists.
  *
@@ -215,7 +215,7 @@ const AXIS_TINT = new RegExp(
  * It does not cost deduplication: this warning lives in a render body, so a
  * bare `console.warn` would print on every render and twice again under Strict
  * Mode, and a Callout inside a list that re-renders on scroll would fill the
- * console until an author filters it — at which point the channel no longer
+ * console until an author filters it. At that point the channel no longer
  * carries its one real finding. A module-local set keyed on the offending class
  * list says it once per distinct offence, which is as close to the policy's
  * "once per offending call site" as a function that cannot see its own call
@@ -264,7 +264,7 @@ export function Callout({
   /* An empty or whitespace-only title is the ABSENCE of a title, not a title
      with nothing in it. `""` is what a caller gets from an empty field or a
      lookup that missed, and testing `!== undefined` rendered it as a
-     headline-sized empty paragraph with a row of gap above the body — an
+     headline-sized empty paragraph with a row of gap above the body. That is an
      absence drawn as a blank space, which is the one shape this system's
      absences may never take. The element leaves the DOM instead, which is the
      `0..1` cardinality the anatomy publishes. */
@@ -281,19 +281,19 @@ export function Callout({
 
        `p-4` is the density-scaled step and not `p-opsin-4`. app/product.css
        names the inside of a box as the canonical use of the scaled scale, so a
-       reader who has asked for a denser interface gets one here — and padding
+       reader who has asked for a denser interface gets one here. Padding
        is the measurement that may tighten, unlike the gutter below.
 
        No role, and the cost of that is real rather than nil. "Ordinary content
        in the reading order" is a plain element, so nothing is announced over
-       what the reader is doing and nothing is announced twice — `role="alert"`
+       what the reader is doing and nothing is announced twice. `role="alert"`
        is the thing this component exists not to be. What a plain element also
        means is that a screen-reader user gets no boundary: no start, no end,
        no accessible name, and no programmatic link between the title and the
        body it belongs to. The fill, the hairline, the gutter glyph and the
        heavier title are presentation with no equivalent anywhere in the tree.
        `role="note"`, or `role="group"` with `aria-labelledby` pointing at the
-       title, would supply that boundary — and neither says anything about the
+       title, would supply that boundary. Neither says anything about the
        variant either way, so "the variant loses nothing when it is lost" is
        not an argument against them. Neither is adopted here because nobody has
        listened to this component in a screen reader, and picking one on a
@@ -318,14 +318,14 @@ export function Callout({
           it is unimportant. The glyph is a scanning aid: a sighted reader picks
           a caveat out of a page of prose without reading it first. Hiding it
           costs nothing only where the words already carry the sense of the
-          variant, which is a rule for the copy — the demo below and both
+          variant, which is a rule for the copy. The demo below and both
           examples are written to it, and a caller who is not writing to it has
           a callout whose variant reaches sighted readers alone. Announcing the
           glyph instead would not fix that: an icon name is not the sense of a
           caveat either. Sized in `em` so it grows with the text at 200% instead of
           staying put beside a word that has doubled, and nudged down by a
           fraction of an em so it sits on the first line's cap height rather
-          than on its ascender — an em nudge stays proportionate when the text
+          than on its ascender. An em nudge stays proportionate when the text
           scales, where a pixel one would drift. */}
       <Icon
         data-slot="callout-icon"
@@ -352,14 +352,14 @@ export function Callout({
           `min-w-0 wrap-break-word` is the reflow repair, and it is here
           because "no fixed height and no overflow container" is not the whole
           story. `1fr` is `minmax(auto, 1fr)`, so the text track's floor is its
-          own min-content width — the longest unbreakable token in `children`.
-          At 200% text on a phone one long word or a bare URL would exceed the
-          column and widen the grid past the viewport, which is horizontal
-          scroll on the document and an SC 1.4.10 failure. `min-w-0` lets the
-          track shrink below that floor and `wrap-break-word` breaks the token
-          instead of the layout. The title cell carries `min-w-0` for the same
-          reason. Reasoned from the CSS and not yet measured in a browser; the
-          measurement is the nightly layout job's. */}
+          own min-content width. That is the longest unbreakable token in
+          `children`. At 200% text on a phone one long word or a bare URL would
+          exceed the column and widen the grid past the viewport, which is
+          horizontal scroll on the document and an SC 1.4.10 failure. `min-w-0`
+          lets the track shrink below that floor and `wrap-break-word` breaks
+          the token instead of the layout. The title cell carries `min-w-0` for
+          the same reason. Reasoned from the CSS and not yet measured in a
+          browser; the measurement is the nightly layout job's. */}
       <div
         data-slot="callout-body"
         className="col-start-2 min-w-0 wrap-break-word text-opsin-body *:first:mt-0 *:last:mb-0"
@@ -397,7 +397,7 @@ export default function CalloutDemo() {
     <div className="flex w-full max-w-md flex-col gap-opsin-4">
       <Callout title="How this example is put together">
         A note explains the content around it. It is set apart by its box, and
-        by nothing else — no tint, no level, no claim about anybody.
+        by nothing else. There is no tint, no level, no claim about anybody.
       </Callout>
 
       <Callout variant="tip">
@@ -406,8 +406,8 @@ export default function CalloutDemo() {
       </Callout>
 
       <Callout variant="caveat" title="What this example leaves out">
-        A caveat names a specific, checkable limitation of what is on screen —
-        how a figure was worked out, or what it does not include.
+        A caveat names a specific, checkable limitation of what is on screen. It
+        says how a figure was worked out, or what it does not include.
       </Callout>
     </div>
   )

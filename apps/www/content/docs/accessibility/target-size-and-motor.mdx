@@ -15,10 +15,10 @@ aliases: [44pt, 2.5.8, 2.5.5, tremor, mis-tap]
 ## What we guarantee
 
 **Every interactive target in the product theme has a minimum hit area of 44 CSS
-pixels on both axes.** The value is a token — `--opsin-target-minimum`, generated
-from `tokens/space.json` and applied as a backstop in `app/product.css` — so it
-is one edit away from being audited, and the density setting deliberately cannot
-change it.
+pixels on both axes.** The value lives in the token `--opsin-target-minimum`,
+which is generated from `tokens/space.json` and applied as a backstop in
+`app/product.css`. Holding the value in a token puts it one edit away from being
+audited, and the density setting deliberately cannot change it.
 
 The token is `2.75rem`, not `44px`, and the unit is doing work. A reader who
 enlarges text changes the root font size, so a rem floor grows with the type it
@@ -43,7 +43,7 @@ floor, for three reasons specific to this domain:
    long-term condition are, as a group, more likely to be older and more likely
    to have tremor, arthritis, neuropathy or reduced grip strength than the
    general population of a consumer app. Designing to the minimum designs for the
-   least affected reader. *(This is our reasoning, not a cited finding — see
+   least affected reader. *(This is our reasoning, not a cited finding. See
    below.)*
 3. **The cost of a mis-tap is asymmetric.** Mis-tapping a navigation item costs a
    second. Mis-tapping "log this reading" next to "delete this reading", or
@@ -56,7 +56,7 @@ floor, for three reasons specific to this domain:
   figure as a floor is **our opinion**. We have not run a study on it and we do
   not cite one. What would change our mind: task-level error-rate data from a
   consumer health product comparing 24 px and 44 px targets in the states that
-  matter — one-handed, in motion, under time pressure.
+  matter. Those states are one-handed, in motion and under time pressure.
 </ResearchNote>
 
 Two further guarantees:
@@ -79,9 +79,9 @@ real separation, and never place "delete" adjacent to "save".
 phone is not reachable one-handed. Primary actions in a patient-facing app belong
 in the lower half of the screen. See [Layout](../foundations/layout.mdx).
 
-**Timing.** A target that disappears — a toast with an action, an auto-advancing
-carousel, a confirmation that dismisses itself — is a target with an effective
-size of zero for a slow reader. SC 2.2.1 is yours.
+**Timing.** A toast with an action, an auto-advancing carousel and a confirmation
+that dismisses itself all take themselves away before a slow reader arrives,
+which gives each of them an effective target size of zero. SC 2.2.1 is yours.
 
 **Sliders and scrubbers.** A slider is the most common motor-accessibility
 failure in health UI, because a value picked by dragging is a value that a shaking
@@ -116,8 +116,8 @@ measurement finds.
 
 ### Remove every gesture
 
-Turn off the ability to swipe and drag — mentally, or by testing with a
-switch-access or keyboard-only setup — and confirm every action is still
+Turn off the ability to swipe and drag. You can do that mentally, or by testing
+with a switch-access or keyboard-only setup. Then confirm every action is still
 available. Failure looks like a log entry that can only be deleted by swiping a
 row.
 

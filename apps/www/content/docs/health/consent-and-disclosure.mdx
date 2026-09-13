@@ -1,6 +1,6 @@
 ---
 title: Consent and disclosure
-description: Consent that is granular, revocable, recorded and re-asked — and the difference between a legal basis and a person actually understanding what they agreed to.
+description: Consent that is granular, revocable, recorded and re-asked. The page separates a lawful basis for processing from a person's actual understanding of what they agreed to.
 status: stable
 kind: health
 evidence: mixed
@@ -16,19 +16,23 @@ aliases: [withdraw consent, privacy notice]
 
 ## What this means
 
-Health data is the most sensitive category of personal data there is, and consent
-interfaces for it are usually the least designed screens in the product: a wall
-of text, a single checkbox, and a button that is the only way forward.
+Health data is a special category of personal data under the UK GDPR and the EU
+GDPR, and this page governs the interface through which a product asks for
+permission to process it, records the answer, and lets the reader take the
+permission back. The screen this page is written against is the one carrying a
+wall of text, a single checkbox, and a button that is the only way forward.
 
-That pattern is a legal artefact rather than a design. It exists to produce a
-record that someone agreed, and it is optimised for the record rather than for
-the agreement. It reliably produces users who have consented to things they
-cannot name, which is bad ethics, weak compliance, and — the part product teams
-feel first — a fragile relationship. The moment someone discovers a use they did
-not expect, every other permission becomes suspect.
+That screen is built to produce a record that someone agreed. The record it
+produces does not evidence informed agreement, because a reader who has scrolled
+past a wall of text to reach the only button cannot afterwards name the
+processing they accepted. Once that reader discovers a use they did not expect,
+every other permission the product holds is open to the same doubt.
 
-The alternative is not more text. It is asking less, later, in context, and one
-purpose at a time.
+The twelve requirements below carry two different kinds of authority. Five of
+them restate, in interface terms, conditions that the UK GDPR and the EU GDPR
+place on consent as a lawful basis; four are design judgement that opsinjs holds
+and argues for under "Why (evidence)". The *Basis* column records which of the
+two applies, row by row, and is empty where neither has been assigned.
 
 ## The rule
 
@@ -36,67 +40,70 @@ purpose at a time.
 revocable where the data appears, recorded with its version, and re-asked when
 the purpose changes.**
 
-1. **Granular, never bundled.** One decision per purpose. "Store my readings",
-   "share with my GP", "use my data to improve the app" and "send me health tips"
-   are four different questions with four different answers.
-2. **Asked in context, not in onboarding.** Ask for location when the feature
-   that needs it is used, not on the second screen of setup. Consent given before
-   the reader knows what the app does is not informed.
-3. **Ask for the minimum, and say so.** Every field collected is a field
-   justified. Collecting "for future use" is not a purpose.
-4. **Plain language, with the specifics.** Not "to improve your experience" but
-   "so your GP can see your blood pressure readings in your record". Name who,
-   what and why. See [Plain English A–Z](../content/plain-english-a-z.mdx).
-5. **Refusal is a real option and is not punished.** Declining a secondary
-   purpose must not block a primary function, and must not be harder than
-   accepting. No pre-ticked boxes, no consent bundled into a Continue button, no
-   dark patterns in the layout of the two choices.
-6. **Revocation lives where the data lives.** A control on the screen showing the
-   data, not only in a settings sub-page. Withdrawing is as easy as granting.
-7. **Say what happens on withdrawal**, before the reader withdraws: what stops,
-   what is deleted, what is kept and why, and what cannot be undone.
-8. **Record the version.** Store what was agreed, when, and against which version
-   of the wording. A consent record with no version is not evidence of anything.
-9. **Re-ask on material change.** A new purpose is a new consent. Silently
-   extending an existing one is the failure that destroys trust permanently.
-10. **Disclosure is continuous, not a one-time event.** Where data is shared, say
-    so at the point it is visible — "your GP can see this" belongs on the screen,
-    not in a policy.
-11. **Sensitive categories deserve extra care.** Sexual health, mental health,
-    reproductive health, substance use, HIV status and genetic data carry
-    real-world consequences if disclosed. Ask separately, store separately,
-    display with [On-screen privacy](./on-screen-privacy.mdx) in mind.
-12. **Consent is not capacity.** An interface cannot assess whether someone
-    understands. Design so that understanding is likely, not so that agreement is
-    likely.
+| # | Requirement | Where it appears in the interface | What is recorded | Basis |
+| --- | --- | --- | --- | --- |
+| 1 | One decision covers one purpose, and purposes are never bundled into a single question. "Store my readings", "share with my GP", "use my data to improve the app" and "send me health tips" are four different questions with four different answers. | At the point the purpose first arises | One record per purpose | Statutory (UK GDPR, EU GDPR) |
+| 2 | Consent is asked at the point the feature that uses the data is used, rather than during onboarding. Location is requested when the feature needing it runs, not on the second screen of setup. Consent given before the reader knows what the app does is not informed. | At first use of the feature | | Design judgement |
+| 3 | Every field collected is asked for against a stated purpose, no field is collected without one, and that purpose is shown where the field is asked for. Collection "for future use" names no purpose and does not meet this requirement. | Beside the field, or on the permission request | | Design judgement |
+| 4 | The wording names the recipient, the data and the reason, in plain language: "so your GP can see your blood pressure readings in your record" rather than "to improve your experience". See [Plain-English A to Z](../content/plain-english-a-z.mdx). | The body of the consent request | The wording shown, under the version identifier in row 8 | Statutory (UK GDPR, EU GDPR) |
+| 5 | Declining a secondary purpose leaves every primary function available and takes no more effort than accepting. No box is pre-ticked, consent is never carried by a Continue button, and the accept and decline controls have equal visual weight. | Both controls on the consent request | | Statutory (UK GDPR, EU GDPR) |
+| 6 | A control that withdraws consent sits on the screen showing the data, rather than only in a settings sub-page. | The data screen, next to the disclosure in row 10 | | Statutory (UK GDPR, EU GDPR): withdrawal is as easy as giving |
+| 7 | The consequences of withdrawal are stated before the reader withdraws, in the four parts set out below. | The withdrawal control, before the reader confirms | | |
+| 8 | The record stores what was agreed, when it was agreed, and against which version of the wording. | Not on screen; the record is a data-layer obligation | Purpose, decision, timestamp and wording version | Statutory (UK GDPR, EU GDPR) |
+| 9 | A purpose that changes materially is asked again as a new consent, and the request names what has changed. | A new request, at the point the new purpose first applies | A second record, under the new wording version | |
+| 10 | Sharing is disclosed wherever the shared data is visible, rather than once at the moment of consent. The words "your GP can see this" belong on the data screen rather than in a policy document. | | | Design judgement |
+| 11 | Sexual health, mental health, reproductive health, substance use, HIV status and genetic data are asked for separately, stored separately, and displayed under [On-screen privacy](./on-screen-privacy.mdx), because disclosure of any of them carries consequences outside the app. | A separate request; the display rules apply on every screen showing the data | | |
+| 12 | The interface does not assess whether the reader understands what they are agreeing to. The wording is written so that misunderstanding is unlikely, rather than so that agreement is likely. | | | Design judgement |
+
+Four of the twelve rows produce a stored artefact, and the other eight are
+requirements on what is on screen at the moment of asking. Rows 7, 9 and 11 carry
+no entry under *Basis*, because "Why (evidence)" classifies nine of the twelve
+rules and does not classify those three.
+
+### What the reader is told before withdrawing
+
+Row 7 covers four separate facts, and a withdrawal statement that omits any one
+of them leaves the reader deciding without it. The third column below works those
+four parts through a consent to share blood pressure readings with a GP surgery,
+which is the third pair under "Applying it".
+
+| Part of the statement | What the reader learns from it | In the GP-sharing example |
+| --- | --- | --- |
+| What stops | The processing that ends at the moment of withdrawal. | No new readings are sent to the surgery. |
+| What is deleted | The data removed as a consequence, and where it is removed from. | Nothing is deleted; withdrawal ends the sharing rather than reversing it. |
+| What is kept | The data that remains after withdrawal, and the reason it remains. | The reader's own history in the app is unchanged, because that history was never the subject of this consent. |
+| What cannot be undone | The part of the decision that withdrawal does not reach. | The GP keeps the readings they have already seen. |
 
 ## Why (evidence)
 
 <ResearchNote evidence="mixed" date="2026-09-02">
-  **The legal frame is real and checkable.** In the UK and the EU, data about
-  health is a special category under the UK GDPR and the EU GDPR, with additional
-  conditions on processing, and consent as a lawful basis has statutory
-  requirements: freely given, specific, informed, unambiguous, and as easy to
-  withdraw as to give. Those are legislative requirements, not our preferences,
-  and rules 1, 4, 5, 6 and 8 restate them in interface terms. Read the
-  legislation and your regulator's current guidance rather than this page; we
-  cite the frame and deliberately do not summarise the law.
+  **Statutory requirements.** In the UK and the EU, data about health is a
+  special category under the UK GDPR and the EU GDPR, with additional conditions
+  on processing, and consent as a lawful basis has statutory requirements: freely
+  given, specific, informed, unambiguous, and as easy to withdraw as to give.
+  Rules 1, 4, 5, 6 and 8 restate those requirements in interface terms. The
+  binding sources are the legislation itself and the current guidance of the
+  implementing organisation's regulator; this page names the frame and does not
+  summarise the law.
 
-  Consent is also frequently not the right lawful basis for direct care, which is
-  a point product teams miss: an interface may need to explain a use without
-  asking for consent to it, and asking for consent you will process anyway is
-  worse than not asking. This is a question for your data protection lead.
+  Consent is also frequently not the right lawful basis for direct care. An
+  interface may need to explain a use without asking for consent to it, and a
+  consent request for processing that will proceed regardless misrepresents the
+  decision as optional. Which lawful basis applies is a question for the
+  implementing organisation's data protection lead.
 
-  **Opinion.** Rules 2, 3, 10 and 12 are design judgement. Rule 2 — ask in
-  context — trades a tidy onboarding for comprehension, and it costs measurable
-  conversion; we think the trade is right and we accept it is a trade. Rule 12 is
-  the one we would underline: no consent interface can establish understanding,
-  so the goal is to make the wording so ordinary that misunderstanding is
-  unlikely, rather than to make the record so thorough that liability shifts.
+  **Opinion.** Rules 2, 3, 10 and 12 are design judgement. Rule 2 trades a tidy
+  onboarding for comprehension, at a cost in conversion that is real and that we
+  have not measured; we think the trade is right and we accept that it is a
+  trade. Rule 12 holds that no consent interface can establish understanding, so
+  the wording is written to make misunderstanding unlikely rather than to make
+  the record thorough enough to shift liability.
 
-  What would change our mind: nothing on the legal rules. On rule 2, evidence
-  that contextual permission prompts confuse users more than a single upfront
-  explanation would make us reconsider the balance.
+  What would change our mind: the statutory rules are not contingent on any
+  evidence this page could gather, so nothing we could observe would revise rules
+  1, 4, 5, 6 and 8. On rule 2, evidence that contextual permission prompts
+  confuse users more than a single upfront explanation would make us reconsider
+  the balance.
 </ResearchNote>
 
 ## Applying it
@@ -105,36 +112,41 @@ the purpose changes.**
   <DoDont.Do>
     "Share your blood pressure readings with your GP surgery? They will see the
     readings and when you took them. You can stop this at any time from the blood
-    pressure screen." Then two equally weighted choices.
+    pressure screen." The sheet then presents accepting and declining as two
+    controls of equal visual weight.
   </DoDont.Do>
   <DoDont.Dont>
     "I agree to the Terms of Service and Privacy Policy" as a single checkbox
-    covering storage, sharing, analytics and marketing. Four decisions collapsed
-    into one, none of them informed.
+    covering storage, sharing, analytics and marketing. A reader who ticks it
+    makes four decisions in one action, and the record cannot show which of the
+    four they considered.
   </DoDont.Dont>
 </DoDont>
 
 <DoDont>
   <DoDont.Do>
     Put a "Shared with your GP" indicator and a control directly on the data
-    screen, so a reader who has forgotten what they agreed to finds out where it
-    matters.
+    screen, so that the disclosure and the means of ending it are both present on
+    the screen where the shared data is displayed.
   </DoDont.Do>
   <DoDont.Dont>
-    Bury withdrawal three levels into settings under a different name. A
-    revocation that is hard to find is not a revocation that is as easy to
-    withdraw as to give.
+    Place the withdrawal control three levels into settings under a different
+    name. A reader who looks for it on the data screen does not find it, and
+    withdrawing then takes more steps than granting did.
   </DoDont.Dont>
 </DoDont>
 
 <DoDont>
   <DoDont.Do>
-    "If you stop sharing: your GP keeps the readings they have already seen, and
-    no new readings are sent. Your own history in the app is unchanged."
+    "If you stop sharing: no new readings are sent, and nothing already sent is
+    deleted. Your GP keeps the readings they have already seen. Your own history
+    in the app is unchanged." The statement names what stops, what is deleted,
+    what is kept and what cannot be undone, before the reader confirms.
   </DoDont.Do>
   <DoDont.Dont>
-    "Are you sure? Your care may be affected." A vaguely threatening confirmation
-    that trades on fear to reverse a decision the reader is entitled to make.
+    "Are you sure? Your care may be affected." The confirmation names no specific
+    consequence, so the reader has nothing to check the warning against, and it
+    discourages a withdrawal the reader is entitled to make.
   </DoDont.Dont>
 </DoDont>
 
@@ -145,8 +157,9 @@ the purpose changes.**
     optional."
   </DoDont.Do>
   <DoDont.Dont>
-    Update the privacy policy and rely on continued use as agreement. Nobody read
-    it, everybody knows nobody read it, and the record is worthless.
+    Update the privacy policy and rely on continued use as agreement. Continued
+    use records no decision about the new purpose, so the resulting record cannot
+    show that the reader ever saw it.
   </DoDont.Dont>
 </DoDont>
 
@@ -157,21 +170,27 @@ the purpose changes.**
 `ConsentSheet` is specified to require a named purpose, a plain-language
 explanation, a stated withdrawal consequence and a version identifier, so a
 generic all-purpose consent cannot be constructed from it by leaving fields out.
-It presents accept and decline with equal visual weight by construction.
+The specification also requires accept and decline to be presented with equal
+visual weight.
 
 ## What this does not cover
 
-- **Legal compliance.** This page is written by designers and engineers. It is
-  not legal advice, it is not a compliance checklist, and it does not substitute
-  for your data protection lead or your regulator's guidance.
-- **Lawful bases other than consent**, and the frequent case where consent is the
-  wrong basis for direct care.
-- **Records management** — retention, deletion, subject access, portability —
-  which are your data layer's obligations.
-- **Consent on behalf of another person**: children, people lacking capacity, and
-  carers. Substantially different, and not yet specified here.
-- **Research consent**, which is a distinct regime with its own governance.
-- **The wording of sensitive questions**, which is
+- **Legal compliance.** This page is written by designers and engineers, and it
+  is not legal advice, not a compliance checklist, and no substitute for the
+  implementing organisation's data protection lead or its regulator's guidance.
+- **Lawful bases other than consent.** The choice of lawful basis, including the
+  frequent case where consent is the wrong basis for direct care, is made outside
+  this page.
+- **Records management.** Retention, deletion, subject access and portability are
+  obligations on the implementing organisation's data layer rather than on the
+  consent interface.
+- **Consent on behalf of another person.** Children, people lacking capacity and
+  carers raise a substantially different set of questions, which are not yet
+  specified here.
+- **Research consent.** Consent for research is a distinct regime with its own
+  governance, and this page does not describe it.
+- **The wording of sensitive questions.** How the questions themselves are
+  phrased is covered by
   [Asking sensitive questions](../content/asking-sensitive-questions.mdx).
 
 <Todo>Specify proxy and carer consent: what changes when the person using the app

@@ -1,5 +1,5 @@
 ---
-title: "0009 — The default export is a demo, not the component"
+title: "ADR 0009. The default export is a demo, not the component"
 description: Every registry file exports a named component with its real required props and a separate zero-argument demo as its default export.
 status: stable
 kind: project
@@ -25,9 +25,10 @@ One file has to satisfy three readers who want incompatible things from it.
 
 **The preview route wants something it can render with no arguments.** The
 isolated `/view` page resolves a registry entry, awaits the dynamic import and
-renders `(await entry.component()).default` as `<Preview />` — with no props at
-all. There is nowhere for a prop to come from: the URL carries a base, a style, a
-kind and a name, and nothing else. Screenshot tooling drives the same URL.
+renders `(await entry.component()).default` as `<Preview />`. No props are passed
+at all. There is nowhere for a prop to come from: the URL carries a base, a
+style, a kind and a name, and nothing else. Screenshot tooling drives the same
+URL.
 
 **The specifications want required props with no defaults.** `StatusPillProps`
 documents `status` as "Required. There is no neutral default and no 'unknown'
@@ -89,11 +90,11 @@ export default function StatusPillDemo() {
   that works and one whose generator has to be loosened to accommodate it.
 - **One preview per component, and it is not configurable.** The `/view` route
   can only ever show the demo, because it has no channel through which to send
-  anything else. A second state — the empty value, the `urgent` level, the long
-  label — is a file under `registry/examples/`, addressable at
-  `/view/base/base-lyra/example/<name>` and named by `<ComponentPreview>`. This
-  is the constraint that makes the examples directory necessary rather than
-  decorative.
+  anything else. Where a component has a second state, such as the empty value,
+  the `urgent` level or the long label, that state is a file under
+  `registry/examples/`, addressable at `/view/base/base-lyra/example/<name>` and
+  named by `<ComponentPreview>`. This is the constraint that makes the examples
+  directory necessary rather than decorative.
 - **The demo is a second thing to keep true.** When the props change, the demo
   changes, and nothing checks that it still demonstrates the component's
   interesting case. It is reviewed as part of the file; there is no gate.
@@ -136,7 +137,7 @@ of thing that survives until somebody renames a file.
 
 ## Revisiting this
 
-Revisit when a screenshot requirement cannot be expressed as a demo — capturing
+Revisit when a screenshot requirement cannot be expressed as a demo. Capturing
 one component at all four status levels in a single frame is the obvious
 candidate. The answer there is probably a screen under `registry/screens/`, which
 already exists for exactly that job, rather than teaching `/view` to accept

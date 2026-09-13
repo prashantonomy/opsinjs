@@ -1,6 +1,6 @@
 ---
 title: Dialog
-description: A window that opens over the page and waits for an answer — it takes your keyboard and your attention until you deal with it, and gives them back where it found them.
+description: A window that opens over the page and waits for an answer. It takes your keyboard and your attention until you deal with it, and gives them back where it found them.
 status: alpha
 kind: component
 since: "unreleased"
@@ -15,10 +15,10 @@ usedIn: [consent-flow]
   name="dialog"
   status="alpha"
   questions={[
-    "`sheetBelow` is gone. The specification asked for the dialog to become a Sheet below a width, and a Sheet is draggable and dismissible by design — so an alert dialog nobody may dismiss on a laptop would have become dismissible with a thumb on a phone. The shape moved and the behaviour did not. Is a bottom-docked, non-draggable dialog the right answer on a phone, or is the honest answer that some of these questions should never have been dialogs at all?",
-    "Escape on an alert dialog does not close it, and the response to the key is incomplete. Focus returns to the safest action, which is an answer for a reader whose focus had moved and is nothing at all in the default configuration, where focus is already on that control. `patterns/alert-escalation.mdx` requires the reason to be announced instead. Every repair considered was worse — the first action is the destructive one, a live region is banned outright, and re-announcing the container is an effect nobody here has verified with a screen reader. What does an alert dialog owe somebody who presses Escape and is not looking at the screen?",
+    "`sheetBelow` is gone. The specification asked for the dialog to become a Sheet below a width, and a Sheet is draggable and dismissible by design. An alert dialog nobody may dismiss on a laptop would therefore have become dismissible with a thumb on a phone. The shape moved and the behaviour did not. Is a bottom-docked, non-draggable dialog the right answer on a phone, or is the honest answer that some of these questions should never have been dialogs at all?",
+    "Escape on an alert dialog does not close it, and the response to the key is incomplete. Focus returns to the safest action, which is an answer for a reader whose focus had moved and is nothing at all in the default configuration, where focus is already on that control. `patterns/alert-escalation.mdx` requires the reason to be announced instead. Every repair considered was worse, because the first action is the destructive one, a live region is banned outright, and re-announcing the container is an effect nobody here has verified with a screen reader. What does an alert dialog owe somebody who presses Escape and is not looking at the screen?",
     "`actions` is a prop this component added. The specification's part tree requires a `Dialog.Actions` region with an ordering rule and a cap of two, and its proposed API had no way to fill one. The cap is stated and not enforced, because `ReactNode` does not say how many controls are inside it.",
-    "Depth in this system is carried by scale rather than by shadow, and the rung a dialog sits on is the same rung a Sheet sits on. Nothing yet says what a dialog over a sheet should look like — and the page below says it should not happen at all.",
+    "Depth in this system is carried by scale rather than by shadow, and the rung a dialog sits on is the same rung a Sheet sits on. Nothing yet says what a dialog over a sheet should look like. The page below says it should not happen at all.",
   ]}
 >
   <code className="text-sm">dialog</code> is implemented and installable. It is{" "}
@@ -36,7 +36,7 @@ answer is no.
 
 An ordinary dialog: a question, the consequence of each answer, and two actions with
 initial focus on the one that changes nothing. Open it and press Escape, then open it
-and press Return without moving focus — both should leave the reading where it was.
+and press Return without moving focus. Both should leave the reading where it was.
 
 Narrow the preview below the `sm` breakpoint and the dialog meets the bottom edge of
 the screen, takes the full width and rounds only its top corners. It is still a dialog
@@ -86,7 +86,7 @@ import { Dialog } from "@/components/ui/dialog"
     "A short focused task that genuinely blocks the rest of the interface, such as re-authenticating before revealing sensitive values.",
   ]}
   avoid={[
-    { case: "The reader could reasonably carry on without answering — the interruption is for the product's convenience, not theirs.", instead: "alert-banner" },
+    { case: "The reader could reasonably carry on without answering. The interruption is for the product's convenience, not theirs.", instead: "alert-banner" },
     { case: "The task is one the reader chose to start and can abandon at any point.", instead: "sheet" },
     { case: "You are asking permission to collect or share health data.", instead: "consent-sheet" },
     { case: "You are announcing something rather than asking something.", instead: "alert-banner" },
@@ -100,15 +100,15 @@ dialogues. They are interruptions with a modal costume, and in a health product 
 are interruptions to somebody trying to find out about their own body.
 
 **This component is rung 4 of the escalation ladder, and rung 4 is rationed.** The
-ladder runs ambient pill, in-place card, screen-level banner, then this — see
-[Alert escalation](../patterns/alert-escalation.mdx) for the rungs and
-[Alarm fatigue](../health/alarm-fatigue.mdx) for the budget that meters them. The
+ladder runs ambient pill, in-place card, screen-level banner, then this.
+[Alert escalation](../patterns/alert-escalation.mdx) sets out the rungs and
+[Alarm fatigue](../health/alarm-fatigue.mdx) holds the budget that meters them. The
 budget is one line long and this component cannot enforce it: **at most one
 interruptive modal per session that the reader did not start themselves.** A dialog
 the reader opened by pressing *Delete this reading* does not spend it; a dialog the
 product opened at them does, and it is the most expensive thing in the system to
 spend. Nothing in this file counts, because the budget is held at the screen and at
-the session and a component sees neither — so the count is the product's to keep, and
+the session and a component sees neither. That leaves the count to the product, and
 the second unrequested modal in a session is a defect that will not show up in any
 gate here.
 
@@ -176,7 +176,7 @@ wrong on every device rather than one that quietly repairs itself on a phone.
     },
     {
       name: "Dialog.Content",
-      describes: "Optional; anything more than a question and its consequence. Nothing translucent goes in here — a card inside a dialog is a card, which is opaque.",
+      describes: "Optional; anything more than a question and its consequence. Nothing translucent goes in here, because a card inside a dialog is a card, which is opaque.",
       prop: "children",
     },
     {
@@ -268,16 +268,16 @@ measurement and asserts no clinical level.
 
 **The tree is the parts, not every element.** Two groups sit in the rendered DOM and
 in no row above, and a selector written from the tree alone will miss both. Base UI's
-portal renders its own pointer-blocking `div` — `role="presentation"`, no `data-slot`,
-fixed to the viewport — as the first child of the portal, a sibling of the scrim and
-the viewport, and it is what actually stops a press reaching the page; the scrim only
-shows that. And `Dialog.Container` holds a Surface, so the header, the body and the
-actions are its **grandchildren**: the chain is `dialog-container` → `surface` →
-`surface-content` → the three regions, with `surface-backdrop`, `surface-scrim` and
-`surface-edge` beside them and `aria-hidden` on all three. So
-`[data-slot=dialog-container] > [data-slot=dialog-header]` matches nothing; the
-descendant form matches. Neither group is announced, so nothing here changes what a
-reader hears.
+portal renders its own pointer-blocking `div` as the first child of the portal, a
+sibling of the scrim and the viewport. It carries `role="presentation"`, has no
+`data-slot`, and is fixed to the viewport. It is also what actually stops a press
+reaching the page; the scrim only shows that. And `Dialog.Container` holds a Surface,
+so the header, the body and the actions are its **grandchildren**: the chain is
+`dialog-container` → `surface` → `surface-content` → the three regions, with
+`surface-backdrop`, `surface-scrim` and `surface-edge` beside them and `aria-hidden`
+on all three. So `[data-slot=dialog-container] > [data-slot=dialog-header]` matches
+nothing; the descendant form matches. Neither group is announced, so nothing here
+changes what a reader hears.
 
 Two parts are not in the specification's tree and are here on purpose. **Viewport** is
 the fixed box the container is positioned inside; having a real element to place
@@ -292,22 +292,23 @@ specification names. The six rung names became the token names in
 [ADR 0014](../project/decisions/0014-material-rung-names.mdx), and the vocabulary the
 specification was written in used `overlay` for the rung that covers the page while
 leaving it recognisable. That rung is now `sheet`. This ladder's `overlay` is chrome
-that content scrolls beneath — a pinned toolbar, a tab bar — so translating the old
-name by spelling rather than by job would put a modal dialog on the rung built for a
-tab bar, and it would compile. See [The material ladder](../foundations/materials/the-ladder.mdx).
+that content scrolls beneath, such as a pinned toolbar or a tab bar. Translating the
+old name by spelling rather than by job would therefore put a modal dialog on the rung
+built for a tab bar, and it would compile. See
+[The material ladder](../foundations/materials/the-ladder.mdx).
 
 A dialog opening from within a sheet is a composition error. If the sheet needs a
-confirmation, the confirmation belongs inside the sheet — which is also nesting rule
-N3 in [Choosing a layer](../foundations/materials/choosing-a-layer.mdx): at most one
-covering surface at a time.
+confirmation, the confirmation belongs inside the sheet. Nesting rule N3 in
+[Choosing a layer](../foundations/materials/choosing-a-layer.mdx) says the same thing:
+at most one covering surface at a time.
 
 ## Examples
 
 ### Confirming something that cannot be undone
 
 The title asks the question, the description says what each answer does, and the
-action that changes something comes **first** so that the safest one is last — which
-is where `initialFocus="safest"` lands. A stray Return keeps the reading.
+action that changes something comes **first** so that the safest one is last. The
+last position is where `initialFocus="safest"` lands. A stray Return keeps the reading.
 
 <ComponentPreview name="dialog-confirming-a-deletion" kind="example" align="start" />
 
@@ -315,7 +316,7 @@ is where `initialFocus="safest"` lands. A stray Return keeps the reading.
 
 `severity="alert"` closes four exits at once: the role becomes `alertdialog`, the
 close control is absent, the scrim does not dismiss, and Escape does not close.
-Pressing Escape returns focus to the last action — which is a response if focus had
+Pressing Escape returns focus to the last action. The move is a response if focus had
 moved off it, and is nothing at all if it had not, because this example takes the
 default `initialFocus="safest"` and focus starts there. Try it from the button and
 then try it after a Tab: the second one moves a ring, the first is silent. That
@@ -330,7 +331,7 @@ and what happens if they say no. Action labels are verbs that name the outcome, 
 *OK* and *Cancel*, which force the reader back up to the title to work out what they
 are agreeing to.
 
-Never phrase the dismissing action as a judgement about the reader — *No thanks, I do
+Never phrase the dismissing action as a judgement about the reader. *No thanks, I do
 not care about my health* is a real pattern in real products and it is contemptuous.
 
 On an alert dialog the description has one extra job, and this component will not do
@@ -338,7 +339,7 @@ it for you: it is where the reader is told that an answer is needed and what eac
 answer costs. Escape will not let them out, there is no close control, and opsinjs
 does not know what your two answers mean, so it ships no sentence about them. An alert
 dialog with no `description` raises a development warning for exactly this reason, and
-a blank one counts as none — a reader cannot tell an empty string from an absent prop,
+a blank one counts as none. A reader cannot tell an empty string from an absent prop,
 so neither can the warning.
 
 The warning about `actions` works the same way and looks at the rendered DOM rather than
@@ -359,8 +360,8 @@ that is a surface with no close control, a refused Escape key and nothing to pre
 
 <DoDont>
   <DoDont.Do>
-    **Initial focus on "Keep it"**, the action that changes nothing — which means writing
-    it last, because `initialFocus="safest"` takes the last control in the row.
+    **Initial focus on "Keep it"**, the action that changes nothing. Write it last,
+    because `initialFocus="safest"` takes the last control in the row.
   </DoDont.Do>
   <DoDont.Dont>
     **Initial focus on "Delete reading"**, so a stray Return key destroys data. Focus is a
@@ -371,7 +372,7 @@ that is a surface with no close control, a refused Escape key and nothing to pre
 ## Accessibility
 
 Some of this is checked by a gate in continuous integration. Most of it is argued, and
-the things nobody has measured are listed rather than left out — that separation is
+the things nobody has measured are listed rather than left out. That separation is
 what `alpha` promises.
 
 **Checked, by `pnpm run check:a11y` on every pull request and every push to `main`:**
@@ -381,9 +382,10 @@ what `alpha` promises.
   literal, an `oklch()` call, a Tailwind palette colour or a numbered ramp step
   anywhere under `registry/`, so the scrim, the surface and the close control all
   follow dark mode and increased contrast rather than pinning a value.
-- **No class that resolves only in the docs chrome.** The roles a shadcn dialog reaches
-  for — `bg-popover`, `bg-accent`, `rounded-2xl` — are declared in `app/globals.css`
-  and produce no CSS at all under the product theme. The gate fails on them by name.
+- **No class that resolves only in the docs chrome.** `bg-popover`, `bg-accent` and
+  `rounded-2xl` are the roles a shadcn dialog reaches for. They are declared in
+  `app/globals.css` and produce no CSS at all under the product theme. The gate fails
+  on them by name.
 - **No type size in `px`.** The title and the description take steps from the
   eleven-step ramp, so they scale with the reader's own text size. See
   [Dynamic type](../foundations/typography/dynamic-type.mdx).
@@ -402,10 +404,10 @@ what `alpha` promises.
   `aria-describedby` and announced as empty, and on an alert dialog the missing-
   description warning fires for a blank string exactly as it does for an absent one.
 - **Focus moves in on open, is trapped while open, and returns on close** to whatever
-  had it when the dialog opened — including when the dialog closes because the product
-  set `open` to false rather than because the reader acted. The component renders no
-  trigger part, so the return target is the previously focused element rather than a
-  control this component had to be told about.
+  had it when the dialog opened. The return also happens when the dialog closes
+  because the product set `open` to false rather than because the reader acted. The
+  component renders no trigger part, so the return target is the previously focused
+  element rather than a control this component had to be told about.
 - **Initial focus is never on the scrim or the container while a control exists.**
   `initialFocus="safest"` resolves to the *last* control in `actions`, which is where
   the ordering rule puts the answer that changes nothing; `content` resolves to the
@@ -430,18 +432,18 @@ what `alpha` promises.
   is open the primitive marks everything outside the popup `aria-hidden`, the scrim covers
   the viewport so a pointer never reaches the page, and Tab is held inside by the focus
   trap; the scrim only shows what those three do. None of them sets the `inert` attribute,
-  and the difference is observable: focus moved programmatically from behind the dialog —
-  an autofocus in a background component, a late `ref.focus()` — takes and keeps focus on a
-  control the accessibility tree has just been told is not there. Closing that hole is a
-  change to the component rather than to this page; until it is made, build on this
-  sentence rather than on the word *inert*.
+  and the difference is observable: focus moved programmatically from behind the dialog
+  takes and keeps focus on a control the accessibility tree has just been told is not
+  there. An autofocus in a background component and a late `ref.focus()` are two ways
+  that happens. Closing that hole is a change to the component rather than to this
+  page; until it is made, build on this sentence rather than on the word *inert*.
 
   The scrim's own behaviour is separate. Under `prefers-reduced-transparency` it **loses
   its blur and becomes more opaque**: the token layer swaps the tint for the rung's opaque
   fallback and forces its alpha to 1, and that fallback is itself still slightly translucent
   (`--opsin-material-scrim-opaque` in `app/tokens.generated.css`), so the page behind
   stays recognisable rather than being replaced by a flat panel. The dimming is never
-  reduced by the preference — being able to see through it less is the point of it.
+  reduced by the preference. Being able to see through it less is the point of it.
 - **At 200% text the dialog scrolls internally.** The container stops at the height of
   the viewport, the body scrolls, and the header and the actions are pinned outside it,
   so the buttons never end up below the fold. Scroll chaining is contained. The title
@@ -452,7 +454,7 @@ what `alpha` promises.
   `--opsin-duration-base`, which the product theme collapses to 1ms under
   `prefers-reduced-motion`, and the component also declares `transition-none` under the
   same query so a consumer without that stylesheet gets the same answer. The dialog then
-  appears in place, and depth is carried by the scrim and the surface's edge — which is
+  appears in place, and depth is carried by the scrim and the surface's edge. That is
   why no prop removes either.
 
 **Not checked at all, and listed rather than omitted:**
@@ -463,8 +465,8 @@ what `alpha` promises.
   and nothing below has been measured for this component yet.
 - **The 44 by 44 target and the 8pt separation.** The close control asserts the floor
   in rem, and is the only thing here that does. The actions row asserts the
-  **separation** — its gap is `--opsin-space-2`, which is the published
-  `--opsin-target-separation` — and asserts no floor at all: it has no minimum height
+  **separation**, because its gap is `--opsin-space-2` and that is the published
+  `--opsin-target-separation`. It asserts no floor at all: it has no minimum height
   and no child selector, so the target size of an answer is whatever the control the
   caller passed in `actions` carries. A caller who passes a plain 24px button gets a row
   that meets no floor and no warning from this component. Neither the floor nor the
@@ -473,16 +475,17 @@ what `alpha` promises.
   [Target size and motor](../accessibility/target-size-and-motor.mdx).
 - **Escape on an alert dialog is unanswered in the default configuration**, and this is
   a known limitation rather than an open question. The key is refused, which is the part
-  that works. The response — focus to the safest action — produces nothing when focus is
-  already there, which is where `initialFocus="safest"` puts it, so a reader who presses
-  Escape before moving anywhere gets no ring, no announcement and no sentence.
-  [Alert escalation](../patterns/alert-escalation.mdx) states the requirement this
-  misses: *"if the answer is genuinely required, Escape is disabled and the reason is
-  announced rather than the key silently doing nothing."* opsinjs does not meet that
-  today. Every repair on the table was worse than the gap — the first action is the one
-  that changes something, a component may never mount a live region on the caller's
-  behalf, and moving focus to the container relies on an announcement nobody in this
-  repository has put a screen reader on. It stays written down until somebody does.
+  that works. The response is to move focus to the safest action, and that produces
+  nothing when focus is already there, which is where `initialFocus="safest"` puts it,
+  so a reader who presses Escape before moving anywhere gets no ring, no announcement
+  and no sentence. [Alert escalation](../patterns/alert-escalation.mdx) states the
+  requirement this misses: *"if the answer is genuinely required, Escape is disabled
+  and the reason is announced rather than the key silently doing nothing."* opsinjs
+  does not meet that today. Every repair on the table was worse than the gap. The first
+  action is the one that changes something, a component may never mount a live region
+  on the caller's behalf, and moving focus to the container relies on an announcement
+  nobody in this repository has put a screen reader on. It stays written down until
+  somebody does.
 - **The close control's accessible name defaults to English.** `closeLabel` exists so a
   product can translate it, in the same way `StatusPill.label` exists, and the default
   it ships is the word *Close*. A product whose readers do not read English and which
@@ -497,19 +500,19 @@ what `alpha` promises.
   room is left, not about characters going missing.
 - **Whether a value inside `children` may ride the entrance.** The container animates
   opacity and offset, and `children` is where the props documentation says a card
-  holding a health value belongs — so a number can arrive on an animating surface.
-  [Motion in health UI](../health/motion-in-health-ui.mdx) bans count-ups, dial sweeps
-  and the progressive reveal of a result: a number that is at its final value on every
-  frame, inside a container that fades in, is not any of those, and under reduced motion
-  it does not move at all. That is the reading this page takes, and it is a reading
-  rather than a ruling from the page that owns the rule.
+  holding a health value belongs. Those two facts together mean a number can arrive on
+  an animating surface. [Motion in health UI](../health/motion-in-health-ui.mdx) bans
+  count-ups, dial sweeps and the progressive reveal of a result: a number that is at
+  its final value on every frame, inside a container that fades in, is not any of
+  those, and under reduced motion it does not move at all. That is the reading this
+  page takes, and it is a reading rather than a ruling from the page that owns the rule.
 - **`prefers-contrast: more` and `forced-colors`.** `forced-colors` is implemented nowhere
   in opsinjs. `prefers-contrast: more` is implemented in
   [Surface](./surface.mdx#accessibility) alone rather than in the token layer, and both the
-  scrim and the popup material here are Surfaces — so under the mode the material drops to
-  its opaque fallback and its edge widens to the emphasis width. The dialog adds nothing to
-  that, and none of it has been measured, so no increased-contrast claim can currently be
-  made by anybody.
+  scrim and the popup material here are Surfaces. Under the mode the material therefore
+  drops to its opaque fallback and its edge widens to the emphasis width. The dialog
+  adds nothing to that, and none of it has been measured, so no increased-contrast claim
+  can currently be made by anybody.
 
 <KeyboardTable
   name="dialog"
@@ -517,7 +520,7 @@ what `alpha` promises.
     {
       keys: "Tab",
       action: "Moves focus to the next control inside the dialog",
-      notes: "Focus is trapped for as long as the dialog is open, and everything outside the popup is aria-hidden rather than merely dimmed, so Tab cannot wander out and get lost behind the scrim. The dialog is not one tab stop: it is a surface containing them. With the default initialFocus=\"safest\" focus starts on the LAST of them, so the first Tab wraps round to the top of the dialog — the close control on an ordinary dialog, the first action on an alert one.",
+      notes: "Focus is trapped for as long as the dialog is open, and everything outside the popup is aria-hidden rather than merely dimmed, so Tab cannot wander out and get lost behind the scrim. The dialog is not one tab stop: it is a surface containing them. With the default initialFocus=\"safest\" focus starts on the LAST of them, so the first Tab wraps round to the top of the dialog. The top is the close control on an ordinary dialog and the first action on an alert one.",
     },
     {
       keys: "Shift + Tab",
@@ -542,7 +545,7 @@ what `alpha` promises.
     {
       keys: "Escape",
       action: "Does not close an alert dialog; returns focus to the safest action",
-      notes: "Base UI's alert dialog closes on Escape out of the box, so this component cancels the close — that refusal holds in every configuration. The response does not: focus returns to the safest action, which moves a ring when focus had wandered and does nothing when it had not, and with the default initialFocus it has not. The key is then silent. That gap is listed under Accessibility. The words that say an answer is needed belong in the description, and the component warns in development when there are none.",
+      notes: "Base UI's alert dialog closes on Escape out of the box, so this component cancels the close. That refusal holds in every configuration. The response does not: focus returns to the safest action, which moves a ring when focus had wandered and does nothing when it had not, and with the default initialFocus it has not. The key is then silent. That gap is listed under Accessibility. The words that say an answer is needed belong in the description, and the component warns in development when there are none.",
     },
   ]}
 />
@@ -557,12 +560,12 @@ what `alpha` promises.
 dialog to render as a Sheet below a given width, and in the same API asked
 `severity="alert"` to remove every way of leaving without answering. A Sheet is
 draggable and dismissible by design, so the two together would have made an alert
-dialog dismissible with a thumb on a phone and not on a laptop — silently, at whichever
-width the caller happened to pass. What the sentence under that prop was complaining
-about is a complaint about shape, and the shape is here: below the `sm` breakpoint the
-dialog meets the bottom edge, takes the full width and rounds only its top corners,
-in CSS, with no prop and no change of component. The role, the trap, the hidden background
-and the dismissal rules are identical at every width.
+dialog dismissible with a thumb on a phone and not on a laptop. It would have done that
+silently, at whichever width the caller happened to pass. What the sentence under that
+prop was complaining about is a complaint about shape, and the shape is here: below the
+`sm` breakpoint the dialog meets the bottom edge, takes the full width and rounds only
+its top corners, in CSS, with no prop and no change of component. The role, the trap,
+the hidden background and the dismissal rules are identical at every width.
 
 **`actions` is a prop this component added.** The specification's part tree requires a
 `Dialog.Actions` region, caps it at two and fixes their order, and its proposed API had
@@ -582,8 +585,8 @@ the prop is where they started. It is ignored on an alert dialog, which renders 
 control.
 
 The `actions` cap of two is not the only rule stated rather than enforced. The row
-asserts the target **separation** and nothing about target **size** — that belongs to
-the controls a caller puts in it — and `actions` is a `ReactNode`, so `null`, `false`,
+asserts the target **separation** and nothing about target **size**, which belongs to
+the controls a caller puts in it. `actions` is also a `ReactNode`, so `null`, `false`,
 `""` and an empty fragment are all legal values that render a row with nothing in it.
 On an alert dialog that is a surface with no exit whatever, which is why the development
 warning for it looks at the rendered DOM through the same ref `initialFocus` uses rather
@@ -594,9 +597,9 @@ calls `Dialog.Content` optional in the same document, and most confirmations are
 question, a consequence and two verbs with nothing in between.
 
 `onOpenChange` takes one argument. Base UI reports a reason alongside it; every reason
-that matters here is handled inside the component — the Escape refusal is the whole of
-it — and a second parameter that only sometimes matters is a second parameter people
-copy without reading.
+that matters here is handled inside the component, and the Escape refusal is the whole
+of it. A second parameter that only sometimes matters is a second parameter people copy
+without reading.
 
 ## Related
 
@@ -604,15 +607,15 @@ copy without reading.
 
 **Easily confused with**
 
-- [Sheet](./sheet.mdx) — a place the reader chose to go, rather than a question they must
-  answer. The most common misuse in this family, and this component will not become one
-  at any width.
-- [AlertBanner](./alert-banner.mdx) — announces without blocking. If the reader can carry on,
-  a banner is the honest surface.
-- [ConsentSheet](./consent-sheet.mdx) — a request with a consent contract and a recorded
-  decision.
-- `popover` (considered, no page yet — see the [roster](./index.mdx)) — anchored, non-modal,
-  attached to a control.
+- [Sheet](./sheet.mdx) is a place the reader chose to go, rather than a question they
+  must answer. The most common misuse in this family, and this component will not
+  become one at any width.
+- [AlertBanner](./alert-banner.mdx) announces without blocking. If the reader can carry
+  on, a banner is the honest surface.
+- [ConsentSheet](./consent-sheet.mdx) is a request with a consent contract and a
+  recorded decision.
+- `popover` is anchored, non-modal and attached to a control. It is considered and has
+  no page yet, and the [roster](./index.mdx) is where it is listed.
 
 **Used by**
 
@@ -626,20 +629,21 @@ copy without reading.
 - [Keyboard and focus](../accessibility/keyboard-and-focus.mdx)
 
 Four more pages declare in their own frontmatter that they are implemented by this
-component, and until this list was written none of them was named here — a reader could
+component, and until this list was written none of them was named here. A reader could
 finish the page without learning that the surface is rationed. A fifth, *Alarm fatigue*,
 does not declare it and holds the budget anyway:
 
-- [Alert escalation](../patterns/alert-escalation.mdx) — this component is rung 4, and
-  the page states the Escape requirement it does not yet meet.
-- [Emergency and escalation](../health/emergency-and-escalation.mdx) — which lists
-  `dialog` in its `implements`, and whose requirements this component does not meet.
+- [Alert escalation](../patterns/alert-escalation.mdx) has the rungs. This component is
+  rung 4, and the page states the Escape requirement it does not yet meet.
+- [Emergency and escalation](../health/emergency-and-escalation.mdx) lists `dialog` in
+  its `implements`, and this component does not meet its requirements.
   See *When to use it*.
-- [Motion in health UI](../health/motion-in-health-ui.mdx) — what a container entrance
-  may and may not do around a value.
-- [On-screen privacy](../health/on-screen-privacy.mdx) — a dialog covers the screen and
-  is therefore a surface somebody else can read over a shoulder.
-- [Alarm fatigue](../health/alarm-fatigue.mdx) — the per-session budget for an
+- [Motion in health UI](../health/motion-in-health-ui.mdx) says what a container
+  entrance may and may not do around a value.
+- [On-screen privacy](../health/on-screen-privacy.mdx) applies to this component. A
+  dialog covers the screen and is therefore a surface somebody else can read over a
+  shoulder.
+- [Alarm fatigue](../health/alarm-fatigue.mdx) has the per-session budget for an
   interruption the reader did not ask for. See *When to use it*.
 
 These are links rather than frontmatter. `governedBy` lives on the catalogue row, and

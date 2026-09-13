@@ -278,7 +278,7 @@ function isMetaKey(key: string): boolean {
  * A full stop becomes a hyphen. space.json has half-steps keyed `0.5`, `1.5`
  * and `2.5`, and `--opsin-space-0.5` is NOT a valid custom property: after
  * `--opsin-space-0` the `.5` is a fresh token, so a CSS parser reports
- * "Unexpected token Number" and the declaration is dropped — silently, which
+ * "Unexpected token Number" and silently drops the declaration. A silent drop
  * is the worst outcome for a spacing token. Tailwind solves the same problem
  * by escaping the stop (`--spacing-0\.5`), but an escaped name has to be
  * escaped again at every `var()` call site, which is a trap in a token nobody
@@ -449,11 +449,12 @@ function emitColor(source: JsonObject, out: TokenLeaf[]): void {
  * the number `1` on the three opaque rungs and a `{ light, dark }` object on the
  * three translucent ones. This function used to read those two with a bare
  * `str()`, which returns undefined for an object, and `push()` drops an
- * undefined value — so seven custom properties were never emitted at all, in
- * silence. The four rungs that actually have a boundary were exactly the four
- * with no border token, and the three rungs whose whole point is an alpha were
- * exactly the three with no tint-alpha token. Do not narrow any of these back to
- * a bare `str()` or `obj()`: the source is right and the reader was wrong.
+ * undefined value. Seven custom properties were therefore never emitted at
+ * all, in silence. The four rungs that actually have a boundary were exactly
+ * the four with no border token, and the three rungs whose whole point is an
+ * alpha were exactly the three with no tint-alpha token. Do not narrow any of
+ * these back to a bare `str()` or `obj()`: the source is right and the reader
+ * was wrong.
  */
 function emitMaterial(source: JsonObject, out: TokenLeaf[]): void {
   /* Whether the ladder's own reduced-transparency policy is declared beside it.
@@ -496,12 +497,13 @@ function emitMaterial(source: JsonObject, out: TokenLeaf[]): void {
     }
 
     /**
-     * Reads a property in either of the two shapes material.json uses — a bare
-     * scalar meaning "the same in both themes", or `{ light, dark }` meaning
-     * "these differ" — and returns the pair. A `{ light, dark }` value emits
-     * into the light block and the dark block exactly as `tint` always did;
-     * a scalar emits into the light block only, which is what makes the dark
-     * block "redeclares only what actually differs" true.
+     * Reads a property in either of the two shapes material.json uses and
+     * returns the pair. One shape is a bare scalar, meaning "the same in both
+     * themes". The other is `{ light, dark }`, meaning "these differ". A
+     * `{ light, dark }` value emits into the light block and the dark block
+     * exactly as `tint` always did; a scalar emits into the light block only,
+     * which is what makes the dark block "redeclares only what actually
+     * differs" true.
      */
     const themed = (
       node: Json | undefined,
@@ -538,9 +540,9 @@ function emitMaterial(source: JsonObject, out: TokenLeaf[]): void {
     })
     push("saturation", str(rung.saturation), `${label}: backdrop saturation multiplier.`, {
       /* 1, not 0. This is a multiplier applied to the backdrop, so 0 would drain
-         the colour out of whatever is behind the surface — a different effect,
-         not a removed one. 1 is the identity, which is what "no treatment"
-         means here. */
+         the colour out of whatever is behind the surface. That is a different
+         effect, not a removed one. 1 is the identity, which is what "no
+         treatment" means here. */
       reducedTransparency: degrades ? "1" : undefined,
     })
     const border = themed(rung.border, asVar)
@@ -2290,7 +2292,7 @@ function installUnitsRegion(file: string, current: string): string {
 
   return (
     current.slice(0, open) +
-    `${UNITS_REGION_BEGIN} — replaced by scripts/build-tokens.mts from tokens/units.json */\n\n${UNITS_REGION_END}` +
+    `${UNITS_REGION_BEGIN}. Replaced by scripts/build-tokens.mts from tokens/units.json */\n\n${UNITS_REGION_END}` +
     current.slice(close + 2)
   )
 }
@@ -2590,7 +2592,7 @@ function emitErrorCodesRegion(errors: ErrorTable): string {
   const codeRows = errors.codes.map((entry) => {
     const params =
       entry.params.length === 0 ? "none" : entry.params.map((name) => `\`${name}\``).join(", ")
-    const docs = entry.docs === "" ? "—" : `[${entry.docs}](../${entry.docs}.mdx)`
+    const docs = entry.docs === "" ? "None" : `[${entry.docs}](../${entry.docs}.mdx)`
     return `| \`${entry.code}\` | ${entry.severity} | ${mdxCell(entry.title)} | ${params} | ${docs} |`
   })
 

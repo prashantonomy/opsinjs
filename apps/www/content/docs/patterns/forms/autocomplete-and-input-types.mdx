@@ -1,6 +1,6 @@
 ---
 title: Autocomplete and input types
-description: The attributes that decide which keyboard appears and whether the browser can fill a field for the reader — including the health fields for which no autofill token exists.
+description: The attributes that decide which keyboard appears and whether the browser can fill a field for the reader. That includes the health fields for which no autofill token exists.
 status: stable
 kind: pattern
 aliases: [autocomplete attribute, inputmode, input type number, keyboard type, autofill]
@@ -29,7 +29,7 @@ list of autofill field names.
   symptom description: no autofill token applies, and inventing one is worse
   than omitting it. `autocomplete="off"` is the honest answer.
 - **The field is a one-time code.** Use `autocomplete="one-time-code"`, not a
-  numeric-only trick, and make sure paste works — WCAG 2.2 SC 3.3.8 (Accessible
+  numeric-only trick, and make sure paste works. WCAG 2.2 SC 3.3.8 (Accessible
   Authentication) exists partly because segmented code inputs commonly break it.
 - **You want the wiring.** Controlled inputs, masks and parsing are
   [Handbook → Forms](../../handbook/forms.mdx).
@@ -55,9 +55,9 @@ Four attributes, in the order they matter.
 
 ### `autocomplete`
 
-Use the tokens from the HTML specification's autofill field names — the same
-list WCAG 2.2 SC 1.3.5 points at. The ones a consumer health product actually
-needs:
+Use the tokens from the HTML specification's autofill field names. That is the
+same list WCAG 2.2 SC 1.3.5 points at. The ones a consumer health product
+actually needs:
 
 | Field | Token |
 | --- | --- |
@@ -77,7 +77,7 @@ no `blood-pressure`, no `medication`. This is correct and you should not
 approximate it: setting `autocomplete="on"` on a weight field invites the
 browser to offer an unrelated stored value, and setting a made-up token does
 nothing at all. Use `autocomplete="off"` and rely on your own prefill from the
-reader's previous entry — see [Daily logging](../daily-logging.mdx).
+reader's previous entry. See [Daily logging](../daily-logging.mdx).
 
 ### `inputmode` and `type`
 
@@ -88,7 +88,7 @@ several problems that are specifically bad for health values:
 - The scroll wheel and arrow keys change the value when the field has focus, so
   a reader scrolling the page can silently alter a reading.
 - Leading zeros and trailing decimal points are handled inconsistently.
-- Locale decimal separators — a comma in much of Europe — are handled
+- Locale decimal separators, such as a comma in much of Europe, are handled
   inconsistently, and the field may report an empty value for something the
   reader can see they typed.
 - Spinner buttons are small targets that do not meet the 44pt floor and invite
@@ -166,7 +166,7 @@ telephone numbers (never for other digits), and `type="email"` for email.
   The preference for `type="text"` with `inputmode="decimal"` over
   `type="number"` is a widely shared engineering recommendation based on the
   behaviours listed above, each of which is reproducible in a browser today. We
-  cite no study for it because none is needed — the failure modes are
+  cite no study for it because none is needed. The failure modes are
   observable.
 </ResearchNote>
 

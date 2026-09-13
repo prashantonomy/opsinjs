@@ -1,6 +1,6 @@
 ---
 title: Troubleshooting
-description: The failures that actually happen, each with its symptom, its cause and its fix — and an honest note about the ones whose exact error text we have not seen yet.
+description: The failures that actually happen, each with its symptom, its cause and its fix. There is also an honest note about the ones whose exact error text we have not seen yet.
 status: planned
 kind: guide
 icon: Wrench
@@ -27,7 +27,7 @@ match, the cause, and the fix.
   implemented components emit their development warnings under `OPSIN-` codes
   declared in `tokens/errors.json`, and
   [Error codes](../handbook/error-codes.mdx) is generated from that file, so a
-  reader pasting a code into a search box should be landing there — this page
+  reader pasting a code into a search box should be landing there. This page
   should quote and link the runtime entries rather than describing them. The
   install-time and build-time failures still have no captured text, because
   nothing has been published and so nobody has produced one; inventing
@@ -46,8 +46,8 @@ error rather than a registry one, and `npm install` finds no `@opsinjs` package.
 **Cause.** Two separate absences, and only the first is permanent. There is no
 npm package and there is not going to be one: opsinjs is distributed as source
 copied in through the shadcn CLI, so `npm install` is not a step that is missing.
-Separately, `opsinjs.dev` — the canonical host every command on this site names,
-and the URL the `registries` entry is written with — is not serving yet, so a
+Separately, `opsinjs.dev` is the canonical host every command on this site names,
+and the URL the `registries` entry is written with. It is not serving yet, so a
 `components.json` pointing there fails before the CLI reaches a registry at all.
 
 **Fix.** Point `@opsinjs` at a host that is actually serving the registry items
@@ -66,7 +66,7 @@ resolves, and nobody on the team remembers writing it.
 **Cause.** A coding assistant read a component page and generated against it. Two
 different things look identical here, so check which one you have before you
 delete anything. Twenty-four components are implemented, and an import of one of
-those names real code that has simply never been copied into this project — the
+those names real code that has simply never been copied into this project. The
 fix is to run the add. The other thirty-six catalogue entries are specifications
 with no code behind them, and an import of one of those was invented outright.
 
@@ -99,14 +99,14 @@ else is wrong.
 
 **Cause.** `shadcn init` was never run in this project. Every opsinjs component
 imports `cn` from `@/lib/utils`, and the registry does not ship that file on
-purpose — a third copy would collide with the one a project already has and may
+purpose. A third copy would collide with the one a project already has and may
 have extended, which is
 [ADR 0010](../project/decisions/0010-shared-code-ships-with-every-item.mdx).
 `init` is what creates it, so a project that went straight to `add` gets every
 component failing on the same missing module.
 
 **Fix.** Run `npx shadcn@latest init`. Where that is not possible, add the `cn`
-helper by hand at whatever path `aliases.utils` names — it is shadcn's own
+helper by hand at whatever path `aliases.utils` names. It is shadcn's own
 `utils` item, not an opsinjs one. The tell is that the error is identical on
 every copied file at once: a wrong alias breaks one path, an absent file breaks
 all of them.
@@ -149,7 +149,7 @@ components are copied into *your* repository, so the directory you copied them i
 must be scanned. If it is not, the classes are never generated.
 
 **Fix.** Add an `@source` line for the directory. This is the single most common
-opsinjs setup failure by a wide margin, and no opsinjs setting can fix it — it is a
+opsinjs setup failure by a wide margin, and no opsinjs setting can fix it. It is a
 Tailwind configuration fact. [Monorepo](./installation/monorepo.mdx) and
 [Tailwind v4](../theming/tailwind-v4.mdx).
 
@@ -172,9 +172,9 @@ the same rule everywhere.
 complaining that a hook or context is being used on the server.
 
 **Cause.** You imported the interactive half of a component into a server tree.
-Most opsinjs components are server-renderable; a minority — the ones that manage
-focus, hold open state or observe the viewport — are not, and are shipped as
-separate files precisely so this is avoidable.
+Most opsinjs components are server-renderable; a minority are not, and are
+shipped as separate files precisely so this is avoidable. Those are the ones
+that manage focus, hold open state or observe the viewport.
 
 **Fix.** Import the display half, or mark the *leaf* as a client component. Marking
 the whole page is the reflex fix and it silently moves your entire tree to the
@@ -224,10 +224,10 @@ capability question: [Browser support](./browser-support.mdx).
 Before reporting anything, confirm the environment is what you think it is. Most
 reports that turn out not to be bugs fail one of these four:
 
-1. **Node version** — current LTS or later.
-2. **React version** — 19 or later, and only one copy of React in the tree.
-3. **Tailwind version** — v4, with your component directory covered by `@source`.
-4. **Stylesheet order** — the token layer after Tailwind, before your overrides.
+1. **Node version** is current LTS or later.
+2. **React version** is 19 or later, with only one copy of React in the tree.
+3. **Tailwind version** is v4, with your component directory covered by `@source`.
+4. **Stylesheet order** is the token layer after Tailwind, before your overrides.
 
 If all four are right and the symptom persists, you have something worth
 reporting.
@@ -238,7 +238,7 @@ reporting.
 fails is worth more than a long description of a large application that fails, and
 producing one usually finds the cause before you finish.
 
-**The symptom is intermittent.** Suspect caching first — a stale build cache, a
+**The symptom is intermittent.** Suspect caching first: a stale build cache, a
 stale Tailwind scan, a service worker. Clear each in turn rather than all at once,
 so the answer is still informative.
 
@@ -251,7 +251,7 @@ a minimal reproduction. [Community](../project/community.mdx) has where.
 
 ## Next
 
-- [FAQ](./faq.mdx) — for questions that are not failures.
-- [Installation](./installation/index.mdx) — the setup this page assumes.
-- [Community](../project/community.mdx) — where to report something this page does
-  not cover.
+- [FAQ](./faq.mdx) is for questions that are not failures.
+- [Installation](./installation/index.mdx) covers the setup this page assumes.
+- [Community](../project/community.mdx) is where to report something this page
+  does not cover.

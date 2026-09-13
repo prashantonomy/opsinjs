@@ -4,11 +4,12 @@
  * The one behaviour this component exists for: nothing typed is thrown away by
  * a gesture.
  *
- * Type something into the field, then try to leave by every route there is —
- * the escape key, a tap on the dimmed background, a downward drag, and the
- * close control in the header. All four ask, and they ask the same question, in
- * the same place, because a reader who brushed the scrim by accident and one
- * who reached for Close on purpose lose exactly the same typing.
+ * Type something into the field, then try to leave by every route there is.
+ * Those routes are the escape key, a tap on the dimmed background, a downward
+ * drag, and the close control in the header. All four ask, and they ask the
+ * same question, in the same place, because a reader who brushed the scrim by
+ * accident and one who reached for Close on purpose lose exactly the same
+ * typing.
  *
  * THE QUESTION IS ASKED IN PLACE, in the sheet's own footer. A confirmation
  * dialogue would be a second modal surface stacked on the first, which Sheet's
@@ -18,8 +19,8 @@
  * the entry is still there behind it.
  *
  * WHILE THE QUESTION IS UP, escape and a background tap answer it with "keep
- * editing" — the safe one. The way out is the Discard control, which is a real
- * button two tab stops away, so the sheet is never a trap.
+ * editing". That is the safe one. The way out is the Discard control, which is
+ * a real button two tab stops away, so the sheet is never a trap.
  *
  * `onDiscard` RECEIVES THE ENTRY that was about to be lost, which is what makes
  * "the product decides whether to keep a draft" possible rather than merely

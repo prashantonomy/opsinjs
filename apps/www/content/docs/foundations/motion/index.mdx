@@ -1,6 +1,6 @@
 ---
 title: Motion
-description: Motion for a product somebody opens when they are worried — what it is allowed to do, the four health rules it must never break, and when the right amount of animation is none.
+description: Motion for a product somebody opens when they are worried. What it is allowed to do, the four health rules it must never break, and when the right amount of animation is none.
 status: stable
 kind: foundation
 icon: Spline
@@ -26,7 +26,7 @@ emphasises, never carries urgency, and never delays an answer.
 
 This is the third of the three things opsinjs does that other systems do not, and
 the reason is mechanical rather than aesthetic: opsinjs ships **springs as
-tokens**. A spring is a physical description — stiffness, damping, mass — and CSS
+tokens**. A spring is a physical description of stiffness, damping and mass. CSS
 has no spring function, so most systems either approximate one with a cubic
 Bézier and lose the character, or animate in JavaScript and lose the ability to
 express it as a token at all. The `linear()` easing function makes the third
@@ -34,7 +34,7 @@ option possible, and that is what [Springs as tokens](springs-as-tokens.mdx) is
 about.
 
 The thing motion is most often confused with is feedback. Feedback is the
-[interaction state](../interaction-states.mdx) — the press, the focus ring. Motion
+[interaction state](../interaction-states.mdx): the press, the focus ring. Motion
 is how the interface gets from one arrangement to another. A component can have
 excellent feedback and no motion at all, and on many health surfaces it should.
 
@@ -42,27 +42,27 @@ excellent feedback and no motion at all, and on many health surfaces it should.
 
 Four pages sit under this one and they answer four different questions:
 
-- [Springs as tokens](springs-as-tokens.mdx) — *what a curve is made of*. Spring
-  parameters in `tokens/motion.json`, sampled into a `linear()` easing at build
-  time, so the token in the stylesheet is a real spring rather than an
+- [Springs as tokens](springs-as-tokens.mdx) says *what a curve is made of*.
+  Spring parameters in `tokens/motion.json`, sampled into a `linear()` easing at
+  build time, so the token in the stylesheet is a real spring rather than an
   impression of one.
-- [Using motion](using-motion.mdx) — *which curve, and how long*. Motion chosen by
-  job: enter, exit, feedback, navigation, loading. Duration is a property of the
-  job and the distance, not of the designer's mood.
-- [Choreography](choreography.mdx) — *what moves together*. Sequencing, stagger,
-  continuity, and the rule that a thing which persists should morph rather than
-  be swapped.
-- [Reduced motion](reduced-motion.mdx) — *what happens when someone has said no*.
-  Stated per token, not as a blanket kill switch, because "no animation at all"
-  is a worse experience than a considered reduced variant.
+- [Using motion](using-motion.mdx) says *which curve, and how long*. Motion
+  chosen by job: enter, exit, feedback, navigation, loading. Duration is a
+  property of the job and the distance, not of the designer's mood.
+- [Choreography](choreography.mdx) says *what moves together*. Sequencing,
+  stagger, continuity, and the rule that a thing which persists should morph
+  rather than be swapped.
+- [Reduced motion](reduced-motion.mdx) says *what happens when someone has said
+  no*. Stated per token, not as a blanket kill switch, because "no animation at
+  all" is a worse experience than a considered reduced variant.
 
 Underneath all four sit four rules that are specific to health and are not
 negotiable at the component level.
 
 **1. Urgency is never carried by motion.** Nothing pulses, flashes, throbs or
 shakes to indicate that a value needs attention. Attention is carried by colour,
-by an icon and by a word — the three channels from
-[Principles](../principles.mdx) — because those survive a still screenshot, a
+by an icon and by a word, which are the three channels from
+[Principles](../principles.mdx), because those survive a still screenshot, a
 printout, a screen reader and a reader who has switched motion off. A pulsing red
 tile tells nobody anything they were not already told, and it tells a person with
 a vestibular disorder to close the app. The doctrine is on
@@ -75,26 +75,26 @@ measurement, a range position or a status uses a critically damped curve with no
 overshoot. The bouncy tokens exist, and they are for chrome.
 
 **3. A count-up happens once, and lasts no more than 600 ms.** Animating a number
-from zero to its value is legitimate on first reveal — it draws the eye to the
+from zero to its value is legitimate on first reveal. It draws the eye to the
 thing the screen is about. It is not legitimate on a refresh, on a return to the
 screen, or on any subsequent render, because an unchanged number that animates
 implies a change that did not happen. And it is bounded: past about 600 ms a
 reader who wants the number is being made to wait for a decoration.
 
 **4. Depth on overlay, not translation across.** When a surface arrives over
-another, the one underneath recedes — a small scale reduction and a dim — rather
-than the whole screen sliding sideways. Sliding implies you have gone somewhere;
-depth implies something is on top of where you already are, which is what
-actually happened, and it makes the back gesture obvious. This is the mechanism
-behind the [layering](../layering-and-elevation.mdx) contract.
+another, the one underneath recedes with a small scale reduction and a dim,
+rather than the whole screen sliding sideways. Sliding implies you have gone
+somewhere; depth implies something is on top of where you already are, which is
+what actually happened, and it makes the back gesture obvious. This is the
+mechanism behind the [layering](../layering-and-elevation.mdx) contract.
 
 ## Using it
 
 **Start from none.** The default state of any new surface is no animation. Add
-motion when you can name the thing it explains — "this sheet came from that row"
-— and remove it when you cannot. A transition that exists because the surface
-looked bare without one is a transition the reader pays for and gets nothing
-from.
+motion when you can name the thing it explains, such as "this sheet came from
+that row", and remove it when you cannot. A transition that exists because the
+surface looked bare without one is a transition the reader pays for and gets
+nothing from.
 
 <DoDont>
   <DoDont.Do>
@@ -112,11 +112,11 @@ from.
 
 **Never animate to slow a reader down.** If a piece of information matters enough
 that you want to make sure it is seen, the answer is placement, wording and
-[status](../../health/clinical-status-semantics.mdx) — not a 900 ms entrance that
-holds the reader hostage until it finishes.
+[status](../../health/clinical-status-semantics.mdx), rather than a 900 ms
+entrance that holds the reader hostage until it finishes.
 
-**Interruptible means transitions, not keyframes.** Anywhere a reader can act
-mid-animation — which is anywhere they can scroll, tap or go back — use CSS
+**Interruptible means transitions, not keyframes.** A reader can act
+mid-animation anywhere they can scroll, tap or go back. There, use CSS
 transitions between two states rather than a keyframe sequence. A transition
 reverses cleanly from wherever it currently is; a keyframe animation restarts,
 jumps, or plays to the end while the reader waits. The one place keyframes are
@@ -124,8 +124,8 @@ correct is a genuinely continuous loop with no end state, such as a loading
 shimmer.
 
 **Budget it.** A screen should have at most one thing moving at a time. Two
-things moving are a choreography problem — see
-[Choreography](choreography.mdx) — and three are a bug.
+things moving are a choreography problem, and three are a bug. See
+[Choreography](choreography.mdx).
 
 ## Tokens
 
@@ -152,7 +152,7 @@ missing information entirely.
   [Reduced motion](reduced-motion.mdx) and the conformance position is on
   [Accessibility → Reduced motion](../../accessibility/reduced-motion.mdx).
 - **Nothing flashes.** No opsinjs surface animates at a rate that could approach
-  the flash thresholds in WCAG 2.2 SC 2.3.1, and nothing flashes at all — the
+  the flash thresholds in WCAG 2.2 SC 2.3.1, and nothing flashes at all. The
   prohibition on motion as an urgency channel removes the only reason anybody
   would want it.
 - **Nothing that moves is also the only way to read something.** Any content
@@ -164,11 +164,11 @@ missing information entirely.
 
 ## Related
 
-- [Springs as tokens](springs-as-tokens.mdx) — the mechanism that makes a
+- [Springs as tokens](springs-as-tokens.mdx) is the mechanism that makes a
   physical curve survive as a CSS custom property.
-- [Motion in health UI](../../health/motion-in-health-ui.mdx) — the clinical
+- [Motion in health UI](../../health/motion-in-health-ui.mdx) is the clinical
   doctrine behind rules 1 to 3, with the reasoning stated as opinion where it is
   opinion.
-- [Handbook → Motion in practice](../../handbook/motion-in-practice.mdx) — how to
-  write these transitions yourself against `data-starting-style` and
+- [Handbook → Motion in practice](../../handbook/motion-in-practice.mdx) shows
+  how to write these transitions yourself against `data-starting-style` and
   `data-ending-style`.

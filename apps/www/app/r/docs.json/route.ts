@@ -1,5 +1,5 @@
 /**
- * GET /r/docs.json — the offline bundle.
+ * GET /r/docs.json returns the offline bundle.
  *
  * Every page of the corpus as processed markdown, in one JSON document, with a
  * version stamp. It exists for the agent that has a registry configured and no
@@ -7,22 +7,22 @@
  * same corpus as data, addressable by URL, section and status without parsing.
  *
  * The markdown is `getText("processed")`: remark-processed, imports stripped,
- * headings given explicit ids. Documentation components remain as JSX elements
- * with their attributes — see `app/_machine/corpus.ts` for what that does and
- * does not include — which is why every record carries `status` as a field, and
- * every record for a page that documents a component or a screen carries
- * `implemented` too, rather than leaving either to be read out of the prose.
- * That field used to be described here and not emitted, so an offline reader
- * had to join against `/r/index.json` to answer the one question this whole
- * surface exists to answer.
+ * headings given explicit ids. See `app/_machine/corpus.ts` for what that
+ * processing does and does not include. Documentation components remain as JSX
+ * elements with their attributes. Every record therefore carries `status` as a
+ * field, and every record for a page that documents a component or a screen
+ * carries `implemented` too, rather than leaving either to be read out of the
+ * prose. That field used to be described here and not emitted, so an offline
+ * reader had to join against `/r/index.json` to answer the one question this
+ * whole surface exists to answer.
  *
  * THE BUNDLE IS CAPPED, AND EVERYTHING BELOW FOLLOWS FROM THAT.
  *
- * It drops a suffix of its own ordering, in `truncationOrder` — the same order
- * the concatenated corpus files use, so a component with real source outranks a
- * reserved name inside its section and the half that survives is the useful
- * half. It names every page it dropped in `omittedPages`, because a reader who
- * cannot name the gap cannot go and fetch it.
+ * It drops a suffix of its own ordering, which `truncationOrder` defines. That
+ * is the same order the concatenated corpus files use, so a component with real
+ * source outranks a reserved name inside its section and the half that survives
+ * is the useful half. It names every page it dropped in `omittedPages`, because
+ * a reader who cannot name the gap cannot go and fetch it.
  *
  * And it publishes TWO status tallies. `counts` sums to `included` and
  * `corpusCounts` sums to `total`. A single tally taken over the pages that fit,
@@ -62,10 +62,10 @@ interface BundlePage {
   description?: string
   status: string
   /**
-   * Whether the thing this page documents is built. Absent — not `false` — on
-   * a page that documents nothing buildable, which is most of the corpus; see
-   * `pageImplemented()`. It is the same answer as the twin's frontmatter and
-   * the roster's `implemented` field, because it is the same function.
+   * Whether the thing this page documents is built. Absent rather than `false`
+   * on a page that documents nothing buildable, which is most of the corpus;
+   * see `pageImplemented()`. It is the same answer as the twin's frontmatter
+   * and the roster's `implemented` field, because it is the same function.
    */
   implemented?: boolean
   kind?: string
@@ -90,10 +90,11 @@ export async function GET(): Promise<Response> {
 
     /* `break`, not `continue`. Skipping one oversized page and then admitting
        the smaller pages behind it keeps `omitted` correct and makes the omitted
-       SET arbitrary — scattered through the corpus, in no order a reader can
-       reconstruct. A prefix of the ordering is what `assemble()` keeps for the
-       concatenated files, and this is the same corpus truncated for the same
-       reason; the tail is then exactly what `omittedPages` lists. */
+       SET arbitrary. The pages in it are scattered through the corpus, in no
+       order a reader can reconstruct. A prefix of the ordering is what
+       `assemble()` keeps for the concatenated files, and this is the same
+       corpus truncated for the same reason; the tail is then exactly what
+       `omittedPages` lists. */
     if (size + markdown.length > BUDGETS.bundle && rendered.length > 0) break
     size += markdown.length
 
@@ -182,7 +183,7 @@ export async function GET(): Promise<Response> {
       registryRoster: absoluteUrl("/r/index.json"),
       search: `${SITE_URL}/api/search?query=<term>&tag=<section>`,
       implemented:
-        '`implemented` on a page record answers for the thing that page documents: a component id, or a screen specimen. It is ABSENT, not `false`, on a page that documents neither — a guide, a doctrine page or a token reference is not an unbuilt anything. Absent therefore means "the question does not apply here", and `false` means "this named thing has no code".',
+        '`implemented` on a page record answers for the thing that page documents: a component id, or a screen specimen. It is ABSENT, not `false`, on a page that documents neither. A guide, a doctrine page or a token reference is not an unbuilt anything. Absent therefore means "the question does not apply here", and `false` means "this named thing has no code".',
       counts:
         "`counts` tallies the pages in this response and sums to `included`. `corpusCounts` tallies the whole corpus and sums to `total`. Read the second one for any question about opsinjs; read the first for any question about this file.",
     },

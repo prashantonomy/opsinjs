@@ -1,6 +1,6 @@
 ---
 title: Button
-description: A control you press to make something happen — the least clinical component in the system, and the one whose page sets the pattern every other component page follows.
+description: A control you press to make something happen. It is the least clinical component in the system, and its page sets the pattern every other component page follows.
 status: alpha
 kind: component
 since: "unreleased"
@@ -15,8 +15,8 @@ usedIn: [health-metric-card, daily-log-entry, consent-flow, onboarding-screen]
   name="button"
   status="alpha"
   questions={[
-    "opsinjs has no destructive colour role, and Button refuses to borrow one from the clinical status axis. So `destructive` is separated from `secondary` by boundary weight and by its label alone — and that boundary has never been measured against the surfaces it sits on. Is a boundary enough, or is a destructive action a confirmation pattern rather than a variant?",
-    "Interaction states are specified as OKLCH derivations of the role a component already uses, and no state token is generated yet. Hover and press are therefore hand-picked approximations, and on three of the four variants they currently resolve to the same fill — a fill that has not been measured against the surfaces underneath it either.",
+    "opsinjs has no destructive colour role, and Button refuses to borrow one from the clinical status axis. So `destructive` is separated from `secondary` by boundary weight and by its label alone. That boundary has never been measured against the surfaces it sits on. Is a boundary enough, or is a destructive action a confirmation pattern rather than a variant?",
+    "Interaction states are specified as OKLCH derivations of the role a component already uses, and no state token is generated yet. Hover and press are therefore hand-picked approximations, and on three of the four variants they currently resolve to the same fill. That fill has not been measured against the surfaces underneath it either.",
     "Neither the target floor nor the 8pt separation between adjacent targets has been measured for this component. The floor is asserted in two places and checked by nobody until the nightly layout job runs.",
     "The busy indicator takes the icon's seat, so a button with no icon changes width when it becomes busy. Is a permanently reserved slot better than a shifting one, or is the shift the honest signal?",
     "The busy indicator keeps spinning under `prefers-reduced-motion`, which is an exception to a stable doctrine page rather than a reading of it. Freezing it would communicate nothing; what is missing is a still busy treatment a sighted reader can see, and that is a design decision nobody has taken.",
@@ -34,11 +34,11 @@ it was written first: it establishes the anatomy, the tone and the level of deta
 every other component page follows, without the clinical material doing the work.
 
 This documentation site also ships a Button of its own, at `components/ui/button.tsx`,
-written by the shadcn CLI in the lyra style. It is docs chrome — square corners, dense,
-extra-small type, and eight sizes of which four are icon-only — and it is **not** this
-component and not a preview of it. Every `/view` route and every component preview on
-this site renders under the product theme instead, which is squircle, system-ui and
-generous. See [Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx).
+written by the shadcn CLI in the lyra style. It is docs chrome, and it is **not** this
+component and not a preview of it. The chrome has square corners, dense, extra-small
+type, and eight sizes of which four are icon-only. Every `/view` route and every component
+preview on this site renders under the product theme instead, which is squircle, system-ui
+and generous. See [Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx).
 
 ## Preview
 
@@ -46,7 +46,7 @@ Four variants, both sizes, and the busy state, on the product theme. The thing w
 checking is the emphasis ladder in greyscale: three of the four rungs have only fill and
 boundary to be told apart by, because opsinjs has no destructive colour and this
 component does not invent one. Whether they *can* be told apart that way is an open
-question rather than a claim — those pairs have not been measured, and the labels are
+question rather than a claim. Those pairs have not been measured, and the labels are
 carrying more of the distinction than the styling is.
 
 <ComponentPreview name="button" />
@@ -81,7 +81,7 @@ import { Button } from "@/components/ui/button"
     "Any control the reader operates that is not navigation.",
   ]}
   avoid={[
-    { case: "The control takes the reader somewhere rather than doing something — it should be a link, so it can be opened in a new tab, copied and used by a screen reader's link list.", instead: "link" },
+    { case: "The control takes the reader somewhere rather than doing something. It should be a link, so it can be opened in a new tab, copied and used by a screen reader's link list.", instead: "link" },
     { case: "The control turns something on or off immediately, with no confirmation step.", instead: "switch" },
     { case: "The control chooses one of a few options rather than performing an action.", instead: "segmented-control" },
     { case: "The control is icon-only, in a toolbar or a header.", instead: "icon-button" },
@@ -92,8 +92,8 @@ import { Button } from "@/components/ui/button"
 The first exclusion is the one that gets ignored and the one that costs most. A button
 that navigates cannot be opened in a new tab, cannot be copied, does not appear in a
 screen reader's list of links, and does not work when JavaScript has not loaded. If the
-result is a new URL, it is a link, however it is styled — and this component gives you
-no way to pretend otherwise. There is no `href` and no `as`; `render` and `nativeButton`
+result is a new URL, it is a link, however it is styled. This component gives you no
+way to pretend otherwise. There is no `href` and no `as`; `render` and `nativeButton`
 are Base UI props that `ButtonProps` does not declare, and the component pins both after
 it spreads the caller's props, so they cannot be smuggled through by a JavaScript caller
 or by anything forwarding a props object wholesale. It renders a `button` element and
@@ -171,7 +171,7 @@ you need to; take them apart and you cannot.
 
 `Button.Label` cannot be removed. There is no `iconOnly` prop, because every system that
 shipped one ended up with unlabelled controls in production, and an icon-only control
-needs a name supplied some other way and a different target treatment — which makes it a
+needs a name supplied some other way and a different target treatment. That makes it a
 different component.
 
 `Button.Target` looks redundant inside this repository and is not. The product theme
@@ -184,10 +184,10 @@ rem floor doubles with the label.
 **`type` defaults to `button`, not to `submit`, and that is the opposite of a bare
 `button` element.** Base UI's `useButton` merges `type: "button"` into every native
 button it renders, so a Button inside a `form` does not submit it. A submit control has
-to say `type="submit"`, and the value you pass wins — but it is a word you have to write,
-and a form whose submit control is missing it does nothing at all when pressed. Implicit
-submission from a text field still works, so the failure is partial and quiet, which is
-the worst shape for one.
+to say `type="submit"`, and the value you pass wins. It is nevertheless a word you have
+to write, and a form whose submit control is missing it does nothing at all when pressed.
+Implicit submission from a text field still works, so the failure is partial and quiet,
+which is the worst shape for one.
 
 This is a reversal of the platform default and the component does not undo it. Undoing
 it would mean every `<Button onClick={…}>` inside a form also submitted that form, which
@@ -211,8 +211,8 @@ enforce its neighbours' spacing and the caller has to.
 ### Busy, at the foot of a form
 
 The label does not change, the control does not disappear, and the busy glyph takes the
-icon's seat rather than the label's — which is why the primary control here has an icon
-in the first place, so its width does not move when it starts saving.
+icon's seat rather than the label's. That is why the primary control here has an icon in
+the first place, so its width does not move when it starts saving.
 
 The example is a real `form` with a real field, because the `type` reversal above is
 invisible in a preview and the only way to show it is to put the submit control where it
@@ -234,8 +234,8 @@ screen reader's list of controls.
 
 The destructive variant needs its label more than any other button in the system does.
 opsinjs has no destructive colour, so *Delete* on its own is carried by a boundary weight
-and nothing else — and that boundary is unmeasured against both surfaces this button sits
-on, so "carried by a boundary weight" may turn out to mean carried by nothing.
+and nothing else. That boundary is unmeasured against both surfaces this button sits on,
+so "carried by a boundary weight" may turn out to mean carried by nothing.
 *Delete this reading* is carried by the words, which every reader gets.
 
 <DoDont>
@@ -262,8 +262,8 @@ on, so "carried by a boundary weight" may turn out to mean carried by nothing.
 ## Accessibility
 
 Some of this is checked by a gate on every commit. Most of it is argued. The two are
-separated below, and the things nobody has measured are listed rather than left out —
-that separation is what `alpha` promises.
+separated below, and the things nobody has measured are listed rather than left out. That
+separation is what `alpha` promises.
 
 **Checked, by `pnpm run check:a11y` on every commit:**
 
@@ -285,44 +285,45 @@ that separation is what `alpha` promises.
 
 - **It is a real `button` element.** Base UI renders one natively, so Return and Space
   activation and the control's role come from the platform rather than from handlers
-  somebody had to remember to write. There is no prop that changes the tag, and the two
-  Base UI props that could — `render` and `nativeButton` — are pinned after the caller's
-  spread rather than merely left undeclared. Form behaviour is the exception and does
-  *not* come from the platform: `type` defaults to `button`, as described in Anatomy.
+  somebody had to remember to write. There is no prop that changes the tag. `render` and
+  `nativeButton` are the two Base UI props that could, and both are pinned after the
+  caller's spread rather than merely left undeclared. Form behaviour is the exception and
+  does *not* come from the platform: `type` defaults to `button`, as described in Anatomy.
 - **The visible label is the accessible name**, and the icon is `aria-hidden`. A longer
-  name must start with the visible text so voice-control users can say what they see, and
-  nothing in the API removes the label. A label that renders no text raises a development
-  warning — including the cases that are easy to miss, a whitespace-only string and a
-  falsy `&&` branch. A child of `0` is treated as a real label, because it renders one.
+  name must start with the visible text so voice-control users can say what they see,
+  and nothing in the API removes the label. A label that renders no text raises a
+  development warning. The warning covers the cases that are easy to miss, a
+  whitespace-only string and a falsy `&&` branch. A child of `0` is treated as a real
+  label, because it renders one.
 - **Busy keeps the button in the accessibility tree.** It sets `aria-busy` and
-  `aria-disabled` and blocks activation, but never the native `disabled` attribute — so
-  the control keeps its tab stop and its name, and the reader keeps their place. Passing
-  `busy` and `disabled` together raises a development warning, because the native
+  `aria-disabled` and blocks activation, but never the native `disabled` attribute. The
+  control therefore keeps its tab stop and its name, and the reader keeps their place.
+  Passing `busy` and `disabled` together raises a development warning, because the native
   attribute takes the control out of the tab order and the busy state then reaches nobody.
   What that state is *exposed* as is settled; what it is announced as is not, and is
   listed below.
 - **The focus ring is drawn outside the box** with an outline and an offset, so it never
-  changes layout. It *is* clipped by an ancestor that clips — an outline is painted by the
+  changes layout. It *is* clipped by an ancestor that clips. An outline is painted by the
   element, and an `overflow: hidden` or scrolling ancestor eats it, which is true of every
   outline and not a defect peculiar to this one. Sheet, Dialog and Surface all establish
   such an ancestor, and so does the preview frame on this page, so a surface that clips
   owes an interactive child at least `--opsin-border-focus` plus
   `--opsin-border-focus-offset` of room. The ring is declared on the component as well as
-  in the product theme so that it survives installation elsewhere — as a literal `2px` and
-  `2px`, which is the cost of that: it does not follow `--opsin-border-focus` when a
-  consumer retunes the token for a low-vision theme. It is never removed.
+  in the product theme so that it survives installation elsewhere, and the cost of that is
+  a literal `2px` and `2px`: it does not follow `--opsin-border-focus` when a consumer
+  retunes the token for a low-vision theme. It is never removed.
 - **At 200% text the label wraps and the button grows.** There is no fixed height and no
   `truncate`; the height floor is a rem, so it grows too. That is a fact about the source
   you can check by reading it. No attributed check at 200% has been recorded against this
-  page — see the frontmatter, which carries no `reviewer` and no `a11yDate`.
+  page. The frontmatter carries no `reviewer` and no `a11yDate`.
 - **Motion is two things, and only one of them needs an argument.** The colour transition
   on every variant takes `--opsin-duration-fast`, which the product stylesheet collapses
   to 1ms under `prefers-reduced-motion`, so its reduced behaviour arrives from the token
   layer with no code here. The press acknowledgement is an immediate 1px shift with no
   transition at all. Nothing scales, and nothing fades. The busy spinner is the exception:
   it is a rotation, it loops, and it is deliberately not stopped, which is a carve-out
-  from [Reduced motion](../accessibility/reduced-motion.mdx) — where rotation is named as
-  one of the things that collapse — rather than a reading of it. The argument for the
+  from [Reduced motion](../accessibility/reduced-motion.mdx) rather than a reading of it.
+  Rotation is named there as one of the things that collapse. The argument for the
   carve-out is that a frozen spinner communicates nothing and the label and `aria-busy`
   remain; the hole in the argument is that neither of those is *visible*, and
   [Motion in health UI](../health/motion-in-health-ui.mdx) rule 5 asks for a reduced
@@ -333,7 +334,7 @@ that separation is what `alpha` promises.
 **Not checked at all, and listed rather than omitted:**
 
 - **Contrast, for every variant.** Label against fill, boundary against surface, and the
-  focus ring against both the button and the page behind it, in both themes — including
+  focus ring against both the button and the page behind it, in both themes. That includes
   the destructive variant, which is the one most often tuned for drama rather than
   legibility. Nothing here is measured, and `<ContrastReport>` below says so rather than
   guessing. Two pairs are named suspicions rather than a generic gap, because a review by
@@ -341,21 +342,21 @@ that separation is what `alpha` promises.
   the whole of their non-label signal and which sits close to both `--background` and
   `--card`; and **the `primary` label in dark mode**, which is the one pairing where the
   APCA and WCAG answers diverge and the numbers this system publishes require both. The
-  figures belong in the generated report, not in this prose — teaching
+  figures belong in the generated report, not in this prose. Teaching
   `scripts/check-contrast.mts` the component scope `<ContrastReport component="button" />`
   already expects is what closes this, and it has not been done.
-- **The 44 by 44 target, and the 8pt separation between adjacent targets.** The floor is
-  asserted twice — by `Button.Target` and by the product theme's own backstop — and
-  verified by neither until the nightly layout job runs, which needs a browser this
-  repository deliberately does not install. Separation is the caller's, because a
-  component cannot see its neighbours — and this component makes that job harder rather
-  than neutral: `Button.Target`'s expansion is not clamped, so in a project without the
-  product stylesheet a button smaller than the floor grows a hit area past its own border
-  box, and two such controls set close together will overlap. The fix for SC 2.5.5 can
-  create an SC 2.5.8 problem, and neither has been measured. See
+- **The 44 by 44 target, and the 8pt separation between adjacent targets.** Both
+  `Button.Target` and the product theme's own backstop assert the floor, and neither
+  verifies it until the nightly layout job runs, which needs a browser this repository
+  deliberately does not install. Separation is the caller's, because a component cannot
+  see its neighbours. This component makes that job harder rather than neutral:
+  `Button.Target`'s expansion is not clamped, so in a project without the product
+  stylesheet a button smaller than the floor grows a hit area past its own border box,
+  and two such controls set close together will overlap. The fix for SC 2.5.5 can create
+  an SC 2.5.8 problem, and neither has been measured. See
   [Target size and motor](../accessibility/target-size-and-motor.mdx).
 - **Whether `destructive` is distinguishable from `secondary` by anybody.** The difference
-  is the boundary weight — 1px against 2px of the same role. It is not also a fill
+  is a boundary weight of 1px against 2px of the same role. It is not also a fill
   difference wherever the button sits on a card, because `secondary`'s fill *is* the card
   and `destructive` has none. Nobody has tested this with a single reader.
 - **Hover and press as specified.** [Interaction states](../foundations/interaction-states.mdx)
@@ -368,16 +369,16 @@ that separation is what `alpha` promises.
   shift, which is not a hover cue. Measuring it is the same task as the contrast bullet
   above.
 - **Whether any of this is spoken.** `aria-busy` on a control that is not a live region is
-  a hint rather than an undertaking, so "busy" may reach no reader at all — a busy button
+  a hint rather than an undertaking, so "busy" may reach no reader at all. A busy button
   and a permanently unavailable one may read identically. Nothing here has been run
   against a screen reader, and the system-wide matrix in
   [Screen readers](../accessibility/screen-readers.mdx) is "Not tested" in every cell. If
   the busy state genuinely has to be spoken it needs a live region the caller owns, which
   rule 1 of that page forbids this component from mounting on anybody's behalf.
 - **`forced-colors` and `prefers-contrast`.** Neither is implemented anywhere in the
-  system — [Increased contrast](../accessibility/increased-contrast.mdx) lists both as
-  known gaps — and this component is unusually exposed to the first. The four variants
-  differ only in fill and boundary, and a forced-colors mode replaces author fills and ink
+  system, and [Increased contrast](../accessibility/increased-contrast.mdx) lists both as
+  known gaps. This component is unusually exposed to the first. The four variants differ
+  only in fill and boundary, and a forced-colors mode replaces author fills and ink
   on a native button with the system's own, so `primary`, `secondary` and `quiet` would
   render alike and only `destructive`'s heavier border would survive. The emphasis ladder
   this component is built around flattens to two rungs, and nobody has opened it under a
@@ -386,7 +387,7 @@ that separation is what `alpha` promises.
   which can exceed five seconds, and the success criterion covering that has not been
   assessed for this component.
 
-Disabled buttons are avoided, and the native attribute is the only way to get one — there
+Disabled buttons are avoided, and the native attribute is the only way to get one. There
 is no convenience prop, on purpose. Where one is unavoidable, the reason belongs in text
 beside the control and not in a tooltip that requires hover; a disabled control also
 leaves the tab order, so a keyboard reader never reaches the explanation attached to it.
@@ -403,7 +404,7 @@ See [Cognitive accessibility](../accessibility/cognitive-accessibility.mdx).
     {
       keys: "Shift + Tab",
       action: "Moves focus back out, to whatever precedes it",
-      notes: "Reverse order matches the visual order. Base UI stamps tabindex=\"0\" on every button, so the attribute is present rather than absent — but 0 is the value a button already has, so the natural DOM order is what carries the tab sequence, and this component never moves focus. A tabindex above zero would break that; it is banned, it is not stripped, and passing one raises a development warning.",
+      notes: "Reverse order matches the visual order. Base UI stamps tabindex=\"0\" on every button, so the attribute is present rather than absent. Even so, 0 is the value a button already has, so the natural DOM order is what carries the tab sequence, and this component never moves focus. A tabindex above zero would break that; it is banned, it is not stripped, and passing one raises a development warning.",
     },
     {
       keys: "Enter",
@@ -430,11 +431,12 @@ See [Cognitive accessibility](../accessibility/cognitive-accessibility.mdx).
 <PropsTable name="ButtonProps" />
 
 The variant union is declared in the component file but is not exported. A registry file
-ships exactly three public symbols — the props interface, the component and its zero-prop
-demo — so a wrapper that needs to name the four values writes `ButtonProps["variant"]`
-rather than importing a fourth. There is no `disabled` convenience prop either: the native
-attribute is the whole of it. `type` is inherited from `button` but is redeclared in the
-interface so that the props table states its default, which is `button` and not `submit`.
+ships exactly three public symbols. They are the props interface, the component and its
+zero-prop demo, so a wrapper that needs to name the four values writes
+`ButtonProps["variant"]` rather than importing a fourth. There is no `disabled`
+convenience prop either: the native attribute is the whole of it. `type` is inherited from
+`button` but is redeclared in the interface so that the props table states its default,
+which is `button` and not `submit`.
 
 `ButtonProps` extends `ButtonHTMLAttributes`, so anything a `button` element accepts
 reaches the DOM, and two of those routes are worth naming because nothing stops them.
@@ -447,7 +449,7 @@ caller last, so both can repaint the control.
 **A Button takes neither a category nor a status, and its `className` and `style` must not
 resolve either axis.** It carries no clinical meaning, so a fill or a boundary drawn from
 `--opsin-status-*` or `--opsin-category-*` would put a clinical vocabulary on a control
-that is not making a clinical statement — which is the contamination
+that is not making a clinical statement. That is the contamination
 [Migrating from shadcn](../handbook/migrating-from-shadcn.mdx) refuses when it declines to
 map `destructive` onto the status axis. The static gate catches this inside this
 repository only; in a consumer project it is a rule and not an enforcement. For the same
@@ -460,13 +462,13 @@ its signal apart from the label.
 
 **Easily confused with**
 
-- `link` (considered, no page yet — see the [roster](./index.mdx)) — for navigation. The
-  most consequential confusion in the whole set, and the reason this component cannot be
-  made to render an anchor.
-- `icon-button` (considered) — icon-only, with its own naming and target rules.
-- `switch` (considered) — immediate state change, no confirmation.
-- `segmented-control` (considered) — choosing among options rather than acting.
-- [CareCard](./care-card.mdx) — where a clinical action lives, with its author and its
+- `link` (considered) is for navigation. The most consequential confusion in the whole
+  set, and the reason this component cannot be made to render an anchor. `link` has no
+  page of its own yet, and the [roster](./index.mdx) is where it is listed.
+- `icon-button` (considered) is icon-only, with its own naming and target rules.
+- `switch` (considered) covers immediate state change, no confirmation.
+- `segmented-control` (considered) covers choosing among options rather than acting.
+- [CareCard](./care-card.mdx) is where a clinical action lives, with its author and its
   timing attached. A bare button is not an instruction.
 
 **Used by**
@@ -482,7 +484,7 @@ its signal apart from the label.
 - [Density and touch targets](../foundations/space/density-and-touch.mdx)
 - [Radius scale](../foundations/shape/radius-scale.mdx)
 - [Keyboard and focus](../accessibility/keyboard-and-focus.mdx)
-- [Migrating from shadcn](../handbook/migrating-from-shadcn.mdx) — which is where the
-  refusal to map `destructive` onto the clinical status axis is written down: a delete
-  button is not a clinical status, and mapping one onto the other is the fastest way to
-  contaminate the axis.
+- [Migrating from shadcn](../handbook/migrating-from-shadcn.mdx) is where the refusal to
+  map `destructive` onto the clinical status axis is written down: a delete button is not
+  a clinical status, and mapping one onto the other is the fastest way to contaminate the
+  axis.

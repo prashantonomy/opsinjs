@@ -18,10 +18,10 @@ which means it is decoration.
 These five are written as prohibitions, because a prohibition is checkable. Each
 one names a specific thing you may not do, the harm it does to somebody reading
 their own health data, and the alternative you reach for instead. Each is also
-enforced somewhere — by a check that fails the build, by a generated report, or
-by a section that `<PageTemplate>` refuses to let you omit. Each enforcer named
-below is one that runs today; where a principle is enforced only by review, or
-by tooling that is specified and not built, this page says which.
+enforced somewhere, whether by a check that fails the build, by a generated
+report, or by a section that `<PageTemplate>` refuses to let you omit. Each
+enforcer named below is one that runs today; where a principle is enforced only
+by review, or by tooling that is specified and not built, this page says which.
 
 The thing these are most often confused with is a style guide. A style guide
 tells you what opsinjs looks like. These tell you what opsinjs will not do even
@@ -29,12 +29,12 @@ when it would look better.
 
 ## How it works
 
-**1. One element, one axis.** Colour in opsinjs carries two independent meanings —
-*which part of your health this is about* (category) and *how much attention it
-needs* (clinical status) — and a single element may draw from exactly one of
-them. A tile that is both a heart tile and an urgent tile takes its status from
-the surface and its category from a glyph or a label, never from two competing
-reds.
+**1. One element, one axis.** Colour in opsinjs carries two independent
+meanings, and a single element may draw from exactly one of them. Those
+meanings are *which part of your health this is about* (category) and *how much
+attention it needs* (clinical status). A tile that is both a heart tile and an
+urgent tile takes its status from the surface and its category from a glyph or
+a label, never from two competing reds.
 
 <DoDont>
   <DoDont.Do>
@@ -44,8 +44,8 @@ reds.
   </DoDont.Do>
   <DoDont.Dont>
     A heart-red border around an urgent-red fill. The reader has no way to know
-    which red is telling them something, so both stop meaning anything — and the
-    next genuinely urgent screen has nothing left to escalate with.
+    which red is telling them something, so both stop meaning anything. The
+    next genuinely urgent screen then has nothing left to escalate with.
   </DoDont.Dont>
 </DoDont>
 
@@ -54,7 +54,7 @@ any element under `registry/` that carries both `data-status` and
 `data-category`, resolves both axes on one CSS property, or takes colour from
 both axes at all; and `<StatusAxisDemo>`, which refuses to render a mixed pair.
 The ESLint and Stylelint rules that would catch the same thing inside a
-consumer's own project are specified and not built —
+consumer's own project are specified and not built. See
 [Handbook → Tooling](../handbook/tooling/index.mdx). Doctrine lives at
 [The two colour axes](../health/two-colour-axes.mdx).
 
@@ -135,8 +135,8 @@ Two practical habits follow from them:
   the wrong action, you are probably arguing about taste, and taste is settled in
   [Theming](../theming/index.mdx), not here.
 
-Where a principle genuinely has to bend — and occasionally one does — the
-obligation is to record it as an
+Occasionally a principle genuinely has to bend. When one does, the obligation
+is to record it as an
 [architecture decision](../project/decisions/index.mdx), not to bend it quietly.
 
 ## Tokens
@@ -165,9 +165,9 @@ by the person doing the audit and not by the person building the component.
 
 ## Related
 
-- [The two colour axes](../health/two-colour-axes.mdx) — principle 1 in full,
-  with the clinical reasoning behind it.
-- [Data states](data-states.mdx) — principle 3 turned into a concrete set of
-  states every component must render.
-- [Token architecture](token-architecture.mdx) — principle 4 turned into a
-  three-tier structure with rules about which tier may reference which.
+- [The two colour axes](../health/two-colour-axes.mdx) covers principle 1 in
+  full, with the clinical reasoning behind it.
+- [Data states](data-states.mdx) covers principle 3 turned into a concrete set
+  of states every component must render.
+- [Token architecture](token-architecture.mdx) covers principle 4 turned into
+  a three-tier structure with rules about which tier may reference which.

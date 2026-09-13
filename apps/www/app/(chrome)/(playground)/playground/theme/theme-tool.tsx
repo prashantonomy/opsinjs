@@ -22,14 +22,14 @@ import { useClientValue } from "@/app/_shared/use-client-value"
 /**
  * The theme generator.
  *
- * WHAT IT DOES AND DOES NOT DO — read this before trusting the output.
+ * WHAT IT DOES AND DOES NOT DO. Read this before trusting the output.
  *
  * The ramp is derived by the BROWSER, using CSS relative colour syntax:
  * `oklch(from var(--brand) <lightness> calc(c * <factor>) h)`. Each step keeps
- * your hue, scales your chroma, and pins a lightness. That is enough to show the
- * shape of a ramp and — because every step is then measured by the same contrast
- * service CI uses — enough to show you where it stops being readable, which is
- * the question people actually come here with.
+ * your hue, scales your chroma, and pins a lightness. That is enough to show
+ * the shape of a ramp. Because every step is then measured by the same contrast
+ * service CI uses, it is also enough to show you where it stops being readable,
+ * which is the question people actually come here with.
  *
  * It is NOT the shipped derivation. The colour engine does three further things
  * this tool cannot: it clamps chroma per hue so that steps stay inside the gamut
@@ -99,8 +99,8 @@ export function ThemeTool() {
   /**
    * Feature detection, read through the browser rather than assumed. A browser
    * without relative colour syntax cannot derive the ramp, and the honest
-   * response is to say so — not to fall back to an approximation the reader
-   * would have no way of recognising as one.
+   * response is to say so. It is not to fall back to an approximation the
+   * reader would have no way of recognising as one.
    */
   const supported = useClientValue(supportsRelativeColor)
 
@@ -172,8 +172,8 @@ export function ThemeTool() {
               Your brand colour
             </label>
             <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-              The one from the brand guidelines — including the one somebody has
-              already told you is non-negotiable.
+              The one from the brand guidelines. That includes the one somebody
+              has already told you is non-negotiable.
             </p>
             <div className="mt-2 flex items-center gap-2">
               <input
@@ -210,9 +210,9 @@ export function ThemeTool() {
               <strong className="font-medium">
                 The measurements are real.
               </strong>{" "}
-              Every Lc figure beside a step comes from the contrast service —
-              the same implementation the build runs. Where it cannot answer,
-              the cell stays empty.
+              Every Lc figure beside a step comes from the contrast service.
+              That service is the same implementation the build runs. Where it
+              cannot answer, the cell stays empty.
             </p>
           </div>
         </div>
@@ -254,7 +254,7 @@ export function ThemeTool() {
                     </span>
                     <span className="flex min-w-0 flex-1 flex-wrap items-center gap-x-6 gap-y-1 bg-card px-4 py-3">
                       <code className="font-mono text-xs text-muted-foreground">
-                        {result?.hex ?? "—"}
+                        {result?.hex ?? "not resolved"}
                       </code>
                       <span
                         className={cn(

@@ -1,6 +1,6 @@
 ---
 title: The ladder
-description: Six named rungs — canvas, card, raised, sheet, overlay and scrim — with the job, the eight properties and the opaque fallback of each.
+description: The six named rungs are canvas, card, raised, sheet, overlay and scrim, each with its job, its eight properties and its opaque fallback.
 status: stable
 kind: foundation
 aliases: [material rungs, surface ladder, canvas card raised sheet overlay scrim, elevation levels]
@@ -17,7 +17,7 @@ a11yDate: 2026-09-02
 
 Six rungs, ordered by how much separation the surface claims from what is behind
 it. The first three are opaque and the last three are translucent, and that
-boundary — between rung 2 and rung 3 — is the most important line in the system,
+boundary between rung 2 and rung 3 is the most important line in the system,
 because everything above it is subject to
 [the contrast floor](./the-contrast-floor.mdx) and everything below it is not.
 
@@ -33,9 +33,9 @@ floor is something you can see rather than something this page asserts.
 
 | # | Name | Opaque? | Blur | Its job |
 | --- | --- | --- | --- | --- |
-| 0 | `canvas` | yes | — | the page itself; nothing is behind it, so nothing shows through it |
-| 1 | `card` | yes | — | a distinct piece of content on the page, bounded by a line rather than a shadow; the default home for a health value |
-| 2 | `raised` | yes | — | temporarily above the page but not covering it: a menu, a popover, a tooltip, a dragged card; the highest opaque rung |
+| 0 | `canvas` | yes | None | the page itself; nothing is behind it, so nothing shows through it |
+| 1 | `card` | yes | None | a distinct piece of content on the page, bounded by a line rather than a shadow; the default home for a health value |
+| 2 | `raised` | yes | None | temporarily above the page but not covering it: a menu, a popover, a tooltip, a dragged card; the highest opaque rung |
 | 3 | `sheet` | no | large | something covering the page while leaving it recognisable underneath: a bottom sheet, a side panel, a modal |
 | 4 | `overlay` | no | largest | chrome floating over scrolling content: a pinned toolbar, a tab bar, a floating action bar |
 | 5 | `scrim` | no | minimal | the dimming layer behind a `sheet`, whose job is to remove the page from consideration |
@@ -50,17 +50,17 @@ set wins and why: translate by job, never by ordinal.
 
 The names are the vocabulary. Use them in design review, in commit messages, and
 in the `rung` prop on [Surface](../../components/surface.mdx). The custom
-properties carry the same names — `--opsin-material-sheet-blur`, never
-`--opsin-material-3-blur` — because a number invites arithmetic and the ladder is
-not arithmetic. The ordinals in the first column are the ordering and nothing
-addresses a rung by one.
+properties carry the same names, so a sheet's blur is
+`--opsin-material-sheet-blur` and never `--opsin-material-3-blur`. A number
+invites arithmetic and the ladder is not arithmetic. The ordinals in the first
+column are the ordering and nothing addresses a rung by one.
 
 ### The properties, rung by rung
 
-Each rung resolves the same eight custom properties —
+Each rung resolves the same eight custom properties:
 `--opsin-material-<rung>-tint`, `-tint-alpha`, `-blur`, `-saturation`,
-`-border`, `-shadow`, `-scrim` and `-opaque` — and
-[Materials](./index.mdx) is where each of them is defined. The shape of the
+`-border`, `-shadow`, `-scrim` and `-opaque`. [Materials](./index.mdx) is where
+each of them is defined. The shape of the
 ladder is easier to see as a set of movements than as a table of values:
 
 - **canvas → card** adds a boundary. No shadow, and in dark the backing lifts one
@@ -88,24 +88,24 @@ that will be wrong after the next regeneration.
 Four things are commonly bundled into "frosted glass". opsinjs uses three of
 them, each for a stated reason, and deliberately declines the fourth.
 
-**Tint — used.** The backing colour and its alpha. This is the safety parameter:
+**Tint is used.** The backing colour and its alpha. This is the safety parameter:
 it is what bounds the composite and therefore what makes contrast measurable.
 See [The contrast floor](./the-contrast-floor.mdx).
 
-**Blur — used, for a narrow reason.** `backdrop-filter: blur()` removes high
+**Blur is used, for a narrow reason.** `backdrop-filter: blur()` removes high
 spatial frequency from what is behind the surface. It takes the *texture* out of
 a photograph so that glyph edges are not competing with edges behind them. It
 does **not** meaningfully change the local mean luminance, so it does not fix
 contrast, and it is never traded against tint.
 
-**Saturation boost — used, on two rungs only.** Boosting the saturation of the
+**Saturation boost is used, on two rungs only.** Boosting the saturation of the
 backdrop is what gives platform materials their characteristic liveliness, and
 here it does a narrower job: a large blur desaturates whatever is behind it, so
 without a boost `sheet` and `overlay` look grey rather than translucent. It is a
 per-rung token and the other four rungs sit at 1, the identity, so a boost is
 something a rung declares rather than something the ladder does everywhere.
 
-**Vibrancy — not used.** Platform vibrancy blends the *foreground* text with the
+**Vibrancy is not used.** Platform vibrancy blends the *foreground* text with the
 backdrop as well, which is a beautiful effect and an unbounded contrast
 liability. Text on an opsinjs material is opaque, always.
 
@@ -124,15 +124,15 @@ liability. Text on an opsinjs material is opaque, always.
 has been for years. Two caveats that are still real:
 
 - Older Safari needs the `-webkit-` prefix, which costs one line and is emitted.
-- `backdrop-filter` with an **SVG filter reference** — `backdrop-filter:
-  url(#something)` — is a Chromium-only capability. Nothing in this ladder uses
-  it, and nothing in this ladder ever will, because a rung that only exists in
-  one engine is not a rung.
+- `backdrop-filter` with an **SVG filter reference** is a Chromium-only
+  capability, with the syntax `backdrop-filter: url(#something)`. Nothing in this
+  ladder uses it, and nothing in this ladder ever will, because a rung that only
+  exists in one engine is not a rung.
 
 Where `backdrop-filter` is unavailable entirely, rungs 3, 4 and 5 land on their
-opaque fallbacks — the same fallbacks that reduced transparency and print use.
-That path is exercised by real readers, not just by a feature query, so it is
-designed rather than tolerated.
+opaque fallbacks, which are the same fallbacks that reduced transparency and
+print use. That path is exercised by real readers, not just by a feature query,
+so it is designed rather than tolerated.
 
 <BrowserSupport feature="backdrop-filter" />
 
@@ -172,7 +172,7 @@ screen with nothing on top of it is a loading state pretending to be a modal.
 </DoDont>
 
 **Do not add a rung.** If a surface does not fit one of the six, the usual cause
-is that it is trying to be two things — a card that is also chrome, a sheet that
+is that it is trying to be two things: a card that is also chrome, a sheet that
 is also a page. Splitting it is almost always the right fix; the intake process
 for a genuine seventh rung is in
 [Contributing tokens](../../handbook/contributing/contributing-tokens.mdx).
@@ -184,8 +184,8 @@ for a genuine seventh rung is in
 ## Accessibility impact
 
 **The opaque rungs (0, 1, 2) carry the ordinary obligation.** Their backgrounds
-are known colours, so text on them is measured exactly as any other pair is —
-see [Contrast and APCA](../colour/contrast-and-apca.mdx).
+are known colours, so text on them is measured exactly as any other pair is. See
+[Contrast and APCA](../colour/contrast-and-apca.mdx).
 
 **The translucent rungs (3, 4, 5) carry a stronger one.** Their rendered colour
 depends on the backdrop, so they are measured against the worst-case composite
@@ -199,7 +199,7 @@ the most commonly missed non-text contrast failure (SC 1.4.11), because it looks
 correct on the one backdrop the designer tested.
 
 **The fallback path is a first-class path.** Reduced transparency is not a
-degraded experience — the rung keeps its border, its shadow and its position, and
+degraded experience. The rung keeps its border, its shadow and its position, and
 only its translucency changes, so nothing moves and nothing is lost.
 [Reduced transparency](./reduced-transparency.mdx) states it rung by rung.
 
@@ -207,9 +207,9 @@ only its translucency changes, so nothing moves and nothing is lost.
 
 ## Related
 
-- [Choosing a layer](./choosing-a-layer.mdx) — the decision table from surface
+- [Choosing a layer](./choosing-a-layer.mdx) has the decision table from surface
   kind to rung, plus the nesting rules.
-- [The contrast floor](./the-contrast-floor.mdx) — why rungs 3, 4 and 5 have the
-  alphas they have.
-- [Layering and elevation](../layering-and-elevation.mdx) — the z-index
+- [The contrast floor](./the-contrast-floor.mdx) explains why rungs 3, 4 and 5
+  have the alphas they have.
+- [Layering and elevation](../layering-and-elevation.mdx) has the z-index
   contract, which the ladder correlates with but does not define.

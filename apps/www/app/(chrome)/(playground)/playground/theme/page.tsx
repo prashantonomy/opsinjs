@@ -8,7 +8,7 @@ import { routes } from "@/lib/routes"
 export const metadata: Metadata = {
   title: "Theme generator",
   description:
-    "Take a brand colour through a lightness ramp and see, step by step, where it stops being readable — measured with the same contrast implementation the build runs.",
+    "Take a brand colour through a lightness ramp and see, step by step, where it stops being readable. The measurement uses the same contrast implementation the build runs.",
 }
 
 export default function ThemePlaygroundPage() {
@@ -40,7 +40,7 @@ export default function ThemePlaygroundPage() {
                 <strong>Chroma clamping per hue.</strong> The sRGB gamut is not
                 a cylinder. At a given lightness, yellow can carry far more
                 chroma than blue, and asking for more than the gamut holds does
-                not produce a vivid colour — it produces a silently compressed
+                not produce a vivid colour. It produces a silently compressed
                 one whose lightness has moved. The engine finds the boundary for
                 each hue and lightness rather than guessing.
               </p>
@@ -54,7 +54,7 @@ export default function ThemePlaygroundPage() {
               <p>
                 <strong>Roles by measurement, not by position.</strong> A
                 &ldquo;600&rdquo; is not a text colour because it is a 600. The
-                engine assigns roles — surface, line, ink — by validating
+                engine assigns the surface, line and ink roles by validating
                 candidate pairs against the floor, which is why the shipped
                 ramps have different role boundaries for different hues.
               </p>
@@ -73,12 +73,12 @@ export default function ThemePlaygroundPage() {
                 rather than by a brand.
               </p>
               <p>
-                A brand ramp gets the chrome — buttons, links, selection,
-                navigation, the focus ring if it clears the floor. It does not
-                get a status level, and it does not get to tint a surface that
-                reports a result. A brand blue reused as &ldquo;the good
-                colour&rdquo; is how a system ends up with two vocabularies for
-                the same idea, and the reader learns neither.
+                A brand ramp gets the chrome. The chrome covers buttons, links,
+                selection, navigation and the focus ring if it clears the floor.
+                The ramp does not get a status level, and it does not get to
+                tint a surface that reports a result. A brand blue reused as
+                &ldquo;the good colour&rdquo; is how a system ends up with two
+                vocabularies for the same idea, and the reader learns neither.
               </p>
               <p>
                 <Link href={routes.docs("theming", "category-palettes")}>
@@ -103,7 +103,7 @@ export default function ThemePlaygroundPage() {
           <Prose className="mt-3">
             <p>
               A finished theme is distributable as an <Mono>opsinjs-*</Mono>{" "}
-              preset code — a short, copyable string that encodes the whole
+              preset code. It is a short, copyable string that encodes the whole
               configuration and can be applied with the CLI. The encoder is part
               of the theming tools and is not published yet, so this page hands
               you CSS rather than a code it cannot generate honestly.{" "}

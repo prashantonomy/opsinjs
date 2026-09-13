@@ -1,6 +1,6 @@
 ---
 title: Styling
-description: Four override hooks — className, data attributes, CSS variables and the style prop — in a fixed order of preference, and the rule for choosing between them.
+description: className, data attributes, CSS variables and the style prop are the four override hooks, listed in their fixed order of preference. This carries the rule for choosing between them.
 status: planned
 kind: handbook
 aliases: [className override, how to style a component, cn function, css variable override]
@@ -22,13 +22,13 @@ this order, and stop at the first one that works:
 2. **`className`.** Per instance, per part, merged with `cn()` so your utilities
    win over the defaults.
 3. **A CSS variable on a selector you own.** For values a component reads at
-   runtime — a track height, an accent — scoped to a container rather than
-   dumped on `:root`.
+   runtime, such as a track height or an accent, scoped to a container rather
+   than dumped on `:root`.
 4. **The `style` prop.** Last. It wins over everything, which is why it is last:
    it also wins over the theme, over dark mode, and over the reader's
    preferences.
 
-You own the source, so a fifth option always exists — edit the file. That is a
+You own the source, so editing the file is always a fifth option. That is a
 feature of registry distribution, not a failure of the first four, but it does
 mean you own the upgrade.
 
@@ -44,7 +44,7 @@ using `cn()` from `lib/utils`, which is `clsx` for conditional logic and
 import { cn } from "@/lib/utils"
 
 cn("px-4 py-2", isWide && "px-8")
-// → "py-2 px-8"   — tailwind-merge resolves the px conflict in your favour
+// → "py-2 px-8". tailwind-merge resolves the px conflict in your favour
 ```
 
 Without `tailwind-merge` the two `px-*` utilities would both be present and the
@@ -77,8 +77,8 @@ generated into [Reference](../reference/index.mdx) rather than listed by hand.
 
 ### CSS variables
 
-Where a component needs a value at runtime — a computed track width, an accent
-that has to interpolate — it reads a CSS custom property. Override it on a
+Where a component needs a value at runtime, such as a computed track width or an
+accent that has to interpolate, it reads a CSS custom property. Override it on a
 selector you own:
 
 ```css
@@ -150,11 +150,11 @@ also survives changes you wanted it not to survive.
 
 ## Related
 
-- [Data attributes](./data-attributes.mdx) — the state vocabulary you style
+- [Data attributes](./data-attributes.mdx) is the state vocabulary you style
   against, and the one to read next.
-- [Token architecture](../foundations/token-architecture.mdx) — why the first
-  hook is a token, and which tier you are allowed to touch.
-- [Adding your own tokens](../theming/adding-your-own-tokens.mdx) — extending the
-  system in a way that survives an upgrade.
-- [ESLint plugin](./tooling/eslint-plugin.mdx) — the rules that catch a raw
+- [Token architecture](../foundations/token-architecture.mdx) explains why the
+  first hook is a token, and which tier you are allowed to touch.
+- [Adding your own tokens](../theming/adding-your-own-tokens.mdx) covers
+  extending the system in a way that survives an upgrade.
+- [ESLint plugin](./tooling/eslint-plugin.mdx) has the rules that catch a raw
   colour and a mixed axis before review does.

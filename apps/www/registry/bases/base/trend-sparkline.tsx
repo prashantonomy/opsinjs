@@ -1,5 +1,5 @@
 /**
- * TrendSparkline — a line through readings somebody else took, and a sentence
+ * TrendSparkline is a line through readings somebody else took, and a sentence
  * that says what the line shows without saying whether it is welcome news.
  *
  * A sparkline is a claim that a pattern exists, and four points with a slope
@@ -9,13 +9,13 @@
  *
  * THE CAPTION IS THE COMPONENT. There is no prop that turns it off, no
  * `sr-only` variant of it and no `showCaption={false}`, because a graphic has no
- * word in it at all — worse off than a status pill, whose measured problem is
- * only that four hues cannot be told apart. A reader who cannot see the plot
- * must lose the picture and keep the information. What that promise does NOT
- * survive is `className`: it is merged onto the root with `tailwind-merge`, so a
- * caller who passes `hidden`, `sr-only` or a `[&_[data-slot=…]]:hidden` variant
- * removes the sentence, and nothing here can stop them. That is stated on the
- * page rather than claimed away.
+ * word in it at all. That is worse off than a status pill, whose measured
+ * problem is only that four hues cannot be told apart. A reader who cannot see
+ * the plot must lose the picture and keep the information. What that promise
+ * does NOT survive is `className`: it is merged onto the root with
+ * `tailwind-merge`, so a caller who passes `hidden`, `sr-only` or a
+ * `[&_[data-slot=…]]:hidden` variant removes the sentence, and nothing here can
+ * stop them. That is stated on the page rather than claimed away.
  *
  * NOTHING HERE IS DERIVED FROM A NUMBER THIS FILE CHOSE. There is no reference
  * range, no smoothing, no minimum point count and no rule about how much
@@ -28,15 +28,15 @@
  *
  * A BAND NEEDS BOTH OF ITS ENDS. A one-sided range is a real range and it is
  * drawn as words, never as a rectangle with an edge this file supplied: taking
- * the missing bound from the data extent — or from zero — and then telling the
+ * the missing bound from the data extent or from zero and then telling the
  * reader in the caption that the whole band came from their laboratory credits
  * that laboratory with a number it never gave.
  *
  * THE STATUS AXIS IS NOT DRAWN. `TrendPoint.status` decides which reading is
  * emphasised and what the caption says about it; it never tints the marker. The
- * rule that forces this is the four-carrier rule — a status is colour AND a
- * glyph AND the word AND `data-status`, never fewer — and a six-pixel dot can
- * hold exactly one of the four. So the verdict is rendered where all four fit,
+ * rule that forces this is the four-carrier rule. A status is colour AND a
+ * glyph AND the word AND `data-status`, never fewer. A six-pixel dot can hold
+ * exactly one of the four. So the verdict is rendered where all four fit,
  * as a StatusPill inside the caption, and the plot stays a picture of numbers.
  * See the comment on `flagged` below, which is where that decision lives.
  *
@@ -67,7 +67,7 @@ import { Value } from "@/registry/base-lyra/ui/value"
  *
  * All four members are the vocabulary a product may use in a caption of its own.
  * This component produces `up`, `down` and `level`, and only when the caller has
- * said how much movement counts as movement — see `directionOf`. `unsettled` is
+ * said how much movement counts as movement. See `directionOf`. `unsettled` is
  * unreachable from here, because deciding a series is unsettled needs a noise
  * measure that no prop carries.
  */
@@ -78,7 +78,7 @@ export type TrendDirection = "up" | "down" | "level" | "unsettled"
  *
  * Unitless on purpose: the plot is stretched to whatever width it is given, so
  * these are proportions rather than sizes. The inset keeps the stroke off the
- * edge — strokes here are drawn in screen pixels rather than user units (see
+ * edge. Strokes here are drawn in screen pixels rather than user units (see
  * `vectorEffect` below), so without it the topmost reading's line would be
  * sliced in half by the viewBox boundary at every rendered size.
  */
@@ -124,8 +124,8 @@ const DIRECTION_WORD: Record<TrendDirection, string> = {
 /**
  * Which development warnings this session has already printed.
  *
- * `tokens/errors.json` states the policy — development only, once per offending
- * call site — and the six complaints below all live in a render body. Without a
+ * `tokens/errors.json` states the policy: development only, once per offending
+ * call site. The six complaints below all live in a render body. Without a
  * keyed set they print on every render and twice again under Strict Mode, and a
  * row of sparkline tiles fed from one bad series is the largest concentration
  * of them in the registry: an author would have the console full before they
@@ -133,18 +133,18 @@ const DIRECTION_WORD: Record<TrendDirection, string> = {
  * no longer carries its one real finding.
  *
  * It is a module-local set rather than the substrate's `warnOnce` because
- * `warnOnce` is keyed to an `OpsinErrorCode` and none of the six has one. The
- * four complaints that do — OPSIN-0004, OPSIN-0010, OPSIN-0012 and the
- * OPSIN-0011/0021 pair — go through `warnOnce` and not through here. Allocating
- * codes in `tokens/errors.json` for the rest and deleting this is a strict
- * improvement.
+ * `warnOnce` is keyed to an `OpsinErrorCode` and none of the six has one.
+ * OPSIN-0004, OPSIN-0010, OPSIN-0012 and the OPSIN-0011/0021 pair are the four
+ * that do have one, and they go through `warnOnce` and not through here.
+ * Allocating codes in `tokens/errors.json` for the rest and deleting this is a
+ * strict improvement.
  *
  * EVERY KEY NAMES THE MISTAKE, NEVER THE SERIES. Keying on a reading or a
  * timestamp would turn "warn once" into "warn every render", because the next
  * tile along carries different data and the same defect. So the keys are the
- * rejected prop value where there is one — which ranges over the handful of
- * values a caller gets wrong — and a constant where the message interpolates
- * nothing.
+ * rejected prop value where there is one, and a constant where the message
+ * interpolates nothing. The rejected prop value ranges over the handful of
+ * values a caller gets wrong.
  *
  * Declared rather than created, the way `warnOnce` does it in the substrate: in
  * a production bundle `isDevelopment()` is statically false, every body that
@@ -177,8 +177,9 @@ const MAX_FRACTION_DIGITS = 20
  * comma, and prints an arithmetic result as seventeen digits, which asserts an
  * accuracy no instrument has. Separators and grouping are never hand-rolled.
  *
- * Rounding is `halfExpand` — round-half-away-from-zero, `numbers-units-precision`
- * rule 3 — and it is INHERITED rather than named. `roundingMode` is an ES2023
+ * Rounding is `halfExpand`, the round-half-away-from-zero that
+ * `numbers-units-precision` rule 3 specifies, and it is INHERITED rather than
+ * named. `roundingMode` is an ES2023
  * addition to `Intl.NumberFormatOptions`, so spelling it out here makes this
  * file fail to typecheck in a consumer whose `lib` stops at ES2022, and this
  * file ships as source into those projects. `halfExpand` is the formatter's own
@@ -234,8 +235,8 @@ function isGap(point: TrendPoint): boolean {
  * A FAILURE IS NOT AN ABSENCE. A parse that produced nothing, or a division with
  * no divisor, arrives here as a non-finite number, and folding it into the gap
  * count would tell a reader they recorded nothing on a day they did record
- * something. `uncertainty-and-staleness` rule 6 keeps the two sentences apart —
- * "we could not load this" is not "you have not recorded any readings yet" — and
+ * something. `uncertainty-and-staleness` rule 6 keeps the two sentences apart:
+ * "we could not load this" is not "you have not recorded any readings yet".
  * `Value` keeps the same three states apart for a single number, so the series
  * has to keep them apart too. Counted separately and said separately.
  */
@@ -272,9 +273,9 @@ function pathFor(run: PlottedReading[]): string {
  *
  * `smallestChange` IS THE CALLER'S, ALWAYS. This function is called only when
  * the caller supplied one. Doctrine gives the metric the job of declaring the
- * difference below which a series is presented as unchanged — below the noise
- * floor, "about the same as last week" is the true statement — and a component
- * that answered it would be applying a change threshold of zero to a weight
+ * difference below which a series is presented as unchanged. Below that noise
+ * floor, "about the same as last week" is the true statement. A component that
+ * answered it would be applying a change threshold of zero to a weight
  * series where a hundred grams is the scale's own resolution. With none
  * supplied there is no direction word at all: the caption prints both endpoints
  * and the accessible name says "with no clear direction", which is the wording
@@ -296,10 +297,10 @@ export interface TrendSparklineProps {
    */
   label: string
   /**
-   * Unit symbol as `tokens/units.json` spells it — "bpm", "mmol/L", "steps".
-   * Every reading in the caption is rendered through `Value`, which resolves the
-   * spoken form from that table so a screen reader says "millimoles per litre"
-   * rather than improvising.
+   * Unit symbol as `tokens/units.json` spells it, such as "bpm", "mmol/L" or
+   * "steps". Every reading in the caption is rendered through `Value`, which
+   * resolves the spoken form from that table so a screen reader says
+   * "millimoles per litre" rather than improvising.
    */
   unit: string
   /**
@@ -317,17 +318,17 @@ export interface TrendSparklineProps {
    *
    * Required, with no default, and the omission is the point. How many readings
    * make a trend depends on what was measured, how often it is measured and who
-   * is reading it — a number opsinjs cannot know and must never guess. Below it
-   * this component draws nothing and says so, naming your number and the count
-   * it actually has.
+   * is reading it. That is a number opsinjs cannot know and must never guess.
+   * Below it this component draws nothing and says so, naming your number and
+   * the count it actually has.
    */
   minimumPoints: number
   /**
-   * The period the series covers, as the reader should see it — "the last 14
-   * days". A display string rather than a duration, which has a consequence
-   * worth knowing: the x-axis is the extent of the series you passed, not the
-   * extent of this period, so two sparklines are only comparable side by side
-   * when their series cover the same span.
+   * The period the series covers, as the reader should see it, such as "the
+   * last 14 days". A display string rather than a duration, which has a
+   * consequence worth knowing: the x-axis is the extent of the series you
+   * passed, not the extent of this period, so two sparklines are only
+   * comparable side by side when their series cover the same span.
    */
   window: string
   /**
@@ -339,7 +340,7 @@ export interface TrendSparklineProps {
    * Supplied, the caption reads "Up, from … to …"; omitted, it prints both
    * endpoints and stops, and the accessible name says "with no clear direction".
    * Zero is a legitimate value and means your metric counts any difference at
-   * all — but it has to be your product saying so, not this file.
+   * all. It still has to be your product saying so, not this file.
    */
   changeThreshold?: number
   /**
@@ -349,9 +350,10 @@ export interface TrendSparklineProps {
    * no owner is an assertion with no author.
    *
    * A band is drawn only when BOTH bounds are present and the lower is below the
-   * upper. A one-sided range is stated in the caption as words — "10 steps and
-   * above" — and drawn as nothing, because the missing edge would have to come
-   * from the data or from zero and would then be attributed to your source.
+   * upper. A one-sided range is stated in the caption as words such as "10
+   * steps and above", and it is drawn as nothing, because the missing edge
+   * would have to come from the data or from zero and would then be attributed
+   * to your source.
    */
   range?: ReferenceRange
   /**
@@ -365,8 +367,8 @@ export interface TrendSparklineProps {
    *
    * It replaces the direction-and-magnitude sentence. It does not replace the
    * coverage clause (how many readings there are and what is missing), the
-   * clause naming a marked reading, or the clause naming a range's source —
-   * those are appended either way, because a count of absent measurements, a
+   * clause naming a marked reading, or the clause naming a range's source.
+   * Those are appended either way, because a count of absent measurements, a
    * status and an attribution are not decoration. Where there are too few
    * readings to draw, your sentence is appended to the refusal rather than
    * replacing it: the refusal is the one sentence that explains why there is no
@@ -405,7 +407,7 @@ export function TrendSparkline({
 }: TrendSparklineProps) {
   /* `window` is bound to a differently named local on purpose. The prop is
      called `window` because that is the right word in the API, and a parameter
-     of that name shadows the global for the whole function body — so a future
+     of that name shadows the global for the whole function body. So a future
      SSR guard written here as `typeof window === "undefined"` would read the
      prop, get "string", and take the client branch on the server without ever
      reporting. This file is copied into consumer projects and edited there. */
@@ -422,7 +424,7 @@ export function TrendSparkline({
         `[opsinjs] <TrendSparkline> received ${String(point.value)} as a reading ` +
           `at ${String(point.at)}, which is not a finite number. It has not been ` +
           "drawn, and it is counted and described to the reader as a reading that " +
-          "could not be read rather than as a gap — a gap means nobody took a " +
+          "could not be read rather than as a gap. A gap means nobody took a " +
           "reading, and this one says a reading was taken and did not survive the " +
           "trip. Pass `value: null` for a gap and fix the pipeline for the rest.",
       )
@@ -431,7 +433,7 @@ export function TrendSparkline({
 
   /* An unknown category is refused rather than approximated. This file ships as
      source into JavaScript projects where the union is advice, and a category
-     nobody has a ramp for renders an untinted line — which is honest, and is
+     nobody has a ramp for renders an untinted line. That is honest, and is
      better than a `stroke-category-cycle-line` class that generates no CSS and
      leaves the reader wondering why one tile in the grid came out grey. */
   const tinted: HealthCategory | undefined = isHealthCategory(category) ? category : undefined
@@ -444,7 +446,7 @@ export function TrendSparkline({
   const tint = tinted === undefined ? undefined : LINE_TINT[tinted]
 
   /* OPSIN-0004, at its enforcement point. The type makes `source` required, and
-     the type is advice in a JavaScript project — so the check is for the caller
+     the type is advice in a JavaScript project. So the check is for the caller
      who has none, and the repair is to draw NO BAND rather than an unowned one.
      A shaded interval with no attribution is the consuming product asking this
      system to vouch for a comparison it has never seen. */
@@ -503,10 +505,10 @@ export function TrendSparkline({
   /* OPSIN-0012 fires here even though nothing was drawn, and the code's own
      title says "a trend was drawn from too few points". The wording is aimed at
      the defect this component makes structurally impossible; the situation the
-     code describes — a caller with fewer readings than their own rule allows —
-     is exactly this one, and it is the only code in the table allocated to this
-     component. A developer whose sparkline has silently become a sentence is
-     entitled to know why. */
+     code describes is a caller with fewer readings than their own rule allows,
+     which is exactly this one. OPSIN-0012 is the only code in the table
+     allocated to this component. A developer whose sparkline has silently
+     become a sentence is entitled to know why. */
   if (ruleIsUsable && !enoughReadings) {
     warnOnce("OPSIN-0012", { count: readings.length, minimum: minimumPoints })
   }
@@ -542,9 +544,9 @@ export function TrendSparkline({
      a fraction below zero, and with `overflow-visible` on the plot that segment is
      drawn outside this component, over whatever sits beside it. Where the check
      fails, position falls back to the index, which is at least stable. The
-     consequence — two sparklines side by side are only comparable when their
-     series cover the same span — is stated on the page, because the repair is a
-     duration prop that the specification does not have. */
+     consequence is that two sparklines side by side are only comparable when
+     their series cover the same span, and it is stated on the page, because the
+     repair is a duration prop that the specification does not have. */
   const times = points.map((point) => Date.parse(String(point.at)))
   const firstTime = times.at(0)
   const lastTime = times.at(-1)
@@ -585,7 +587,7 @@ export function TrendSparkline({
      forbids: it converts ordinary variation into a full-height event, and a
      reader has no way to tell a two-per-cent wobble from something that
      happened. Anchoring at zero means many real series draw as a nearly flat
-     line — which is the honest picture, and why the caption carries the
+     line. That is the honest picture, and why the caption carries the
      magnitude in words. There is no `yAxisMin` prop for a caller to reach for
      either; OPSIN-0013 is the code for the mistake this API cannot express.
 
@@ -616,7 +618,7 @@ export function TrendSparkline({
      each run of consecutive readings and closed by the first gap after it, so a
      fortnight of absent data leaves a fortnight of absent line. A reading that
      arrived broken breaks the line the same way, because it cannot be given a
-     position — the difference between the two is carried by the words.
+     position. The difference between the two is carried by the words.
 
      A run of exactly one reading becomes a zero-length subpath, which with a
      round line cap renders as a dot. That is deliberate: an isolated reading
@@ -650,10 +652,10 @@ export function TrendSparkline({
 
      A LEVEL OUTSIDE THE FOUR MARKS NOTHING. `unknown` is the likeliest wrong
      answer and it is the absence of an assertion rather than a fifth level, so a
-     reading carrying it would otherwise keep the emphasis — the halo and the
-     heavier marker — while StatusPill declined to render the word. Emphasis with
-     no word beside it is this file's own argument turned inside out, so the
-     selection is gated on the same predicate the pill uses.
+     reading carrying it would otherwise keep the emphasis, which is the halo
+     and the heavier marker, while StatusPill declined to render the word.
+     Emphasis with no word beside it is this file's own argument turned inside
+     out, so the selection is gated on the same predicate the pill uses.
 
      AT MOST ONE, and the last one wins. The specification is explicit that the
      status axis appears on a single emphasised point, and the reason is the same
@@ -705,7 +707,7 @@ export function TrendSparkline({
      last reading was taken three months ago renders identically to one taken
      this morning. Every point already carries its own `at`, so the last real
      reading's date is printed rather than inferred. No staleness boundary is
-     invented here and none is available to be — how old is too old belongs to
+     invented here and none is available to be. How old is too old belongs to
      the metric, and a product that wants a verdict about age puts a
      RelativeTime beside the plot. */
   const lastReadingAt = last === undefined ? undefined : points.at(last.index)?.at
@@ -721,8 +723,8 @@ export function TrendSparkline({
   /* The plot's accessible name, which is the picture described as a picture:
      what was measured, over what period, how many readings there are, what they
      range between, which way they went, and what is missing. The pattern is the
-     one in content/alt-text-and-descriptions — measure, period, coverage,
-     extent, direction — including its own wording for a series whose direction
+     one in content/alt-text-and-descriptions: measure, period, coverage,
+     extent, direction. It includes its own wording for a series whose direction
      nobody has told us how to judge. Its final element, a pointer to the table
      twin, is absent because there is no table twin to point at; that gap is
      recorded on the page rather than papered over here. It never says "chart
@@ -740,9 +742,9 @@ export function TrendSparkline({
       : `${DIRECTION_WORD[direction].toLowerCase()} from the first reading to the last`
 
   /* Said as whole entries rather than as a bare count, because "1 with no
-     reading" leaves a listener asking one what — and said as two separate
-     sentences, because an entry nobody recorded and a reading that arrived
-     broken are two different things to be told about your own record. */
+     reading" leaves a listener asking one what. Said as two separate sentences,
+     because an entry nobody recorded and a reading that arrived broken are two
+     different things to be told about your own record. */
   const missingSentence =
     (gaps === 0
       ? ""
@@ -838,9 +840,9 @@ export function TrendSparkline({
           /* role="img" with a name, and never `meter`, `slider` or
              `progressbar`. All three announce a value the reader can inspect or
              change; this is a picture of readings somebody else took. It is not
-             focusable and not in the tab order — `focusable="false"` is
-             belt-and-braces for the engines that made SVG focusable by default —
-             and it is not announced point by point, because a fourteen-point
+             focusable and not in the tab order. `focusable="false"` is
+             belt-and-braces for the engines that made SVG focusable by default.
+             It is not announced point by point, because a fourteen-point
              series read aloud one point at a time is worse than silence. */
           role="img"
           aria-label={plotName}
@@ -867,7 +869,7 @@ export function TrendSparkline({
                  verdict about the readings sitting inside it, which is a
                  comparison this component was never given. The dashed edge is
                  what distinguishes the band from the line without colour, in
-                 greyscale and in print — and whether either neutral clears the
+                 greyscale and in print. Whether either neutral clears the
                  non-text contrast floor has not been measured for this
                  component, which the page says rather than assumes. */
               x={PLOT_INSET}
@@ -890,8 +892,8 @@ export function TrendSparkline({
                Written without naming the other attribute here, because
                scripts/check-a11y.mts reads a JSX element as raw text and a
                comment inside the tag that mentions it counts as the tag carrying
-               it — a false OPSIN-0001 raised by the sentence explaining why
-               there is no OPSIN-0001. */
+               it. That would be a false OPSIN-0001 raised by the sentence
+               explaining why there is no OPSIN-0001. */
             data-category={tinted}
             d={subpaths.join(" ")}
             fill="none"
@@ -931,8 +933,9 @@ export function TrendSparkline({
         </svg>
       ) : null}
 
-      {/* THE TEXT TWIN. Visible, in the DOM, and read by everybody — not
-          `sr-only`, not a `title`, not an `aria-label` hung on something else.
+      {/* THE TEXT TWIN. Visible, in the DOM, and read by everybody. It is not
+          `sr-only`, not a `title`, and not an `aria-label` hung on something
+          else.
           The caller's own sentence stands in for the direction-and-magnitude
           clause and for nothing else: what is missing, which reading was marked,
           when the last one was taken and whose the range is are appended either
@@ -1000,7 +1003,7 @@ export function TrendSparkline({
  *
  * A GAP WORTH KNOWING ABOUT: A11Y014 fails the build on a threshold-shaped NAME
  * given a numeric literal, and it cannot see this one, so no gate is holding
- * this line. What holds it is the API — `minimumPoints` is required with no
+ * this line. What holds it is the API. `minimumPoints` is required with no
  * default, so a caller cannot inherit this number by forgetting to pass one, and
  * the demo cannot be written without passing something. That tension is recorded
  * on the page instead of being hidden here.
@@ -1030,14 +1033,14 @@ const DEMO_SERIES: TrendPoint[] = [
  * gap in it and one reading marked; and a series that is not long enough, which
  * draws nothing at all and says why.
  *
- * Neither passes a `changeThreshold`, so neither caption names a direction —
- * which is the state opsinjs can render honestly without being told anything
+ * Neither passes a `changeThreshold`, so neither caption names a direction.
+ * That is the state opsinjs can render honestly without being told anything
  * about the metric, and is what a reader should see here.
  *
- * The readings are obviously unreal (ADR 0012) — round numbers of steps nobody
- * would take for their own — and there is no reference range anywhere in sight.
- * A screenshot of an opsinjs demo must never be mistakable for somebody's own
- * record.
+ * The readings are obviously unreal (ADR 0012), because they are round numbers
+ * of steps nobody would take for their own. There is no reference range
+ * anywhere in sight. A screenshot of an opsinjs demo must never be mistakable
+ * for somebody's own record.
  */
 export default function TrendSparklineDemo() {
   return (

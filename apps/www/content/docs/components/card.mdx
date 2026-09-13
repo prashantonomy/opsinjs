@@ -1,6 +1,6 @@
 ---
 title: Card
-description: A bounded group of related content with a border and consistent padding — the ordinary box that most of a screen is made of.
+description: A bounded group of related content with a border and consistent padding is the ordinary box that most of a screen is made of.
 status: alpha
 kind: component
 since: "unreleased"
@@ -16,7 +16,7 @@ usedIn: [health-metric-card, results-screen, trends-screen]
   status="alpha"
   issue="opsinjs/opsinjs#0"
   questions={[
-    "A card that is a link may hold no other interactive element, and that exclusion is stated rather than enforced. TypeScript cannot see interactivity in a `ReactNode`, and a runtime walk of the children cannot see inside another component — it would catch a raw `<button>` and miss every wrapped one, which is worse than catching nothing. Does this become an error code with a gate that reads examples and screens, or does it stay a rule the documentation keeps?",
+    "A card that is a link may hold no other interactive element, and that exclusion is stated rather than enforced. TypeScript cannot see interactivity in a `ReactNode`, and a runtime walk of the children cannot see inside another component. Such a walk would catch a raw `<button>` and miss every wrapped one, which is worse than catching nothing. Does this become an error code with a gate that reads examples and screens, or does it stay a rule the documentation keeps?",
     "Nested cards are announced no differently from unnested ones, and this component neither counts the nesting nor adds a role. A server component has no context to count with, and counting in a client component would put a boundary on the most-used component in the system to answer a question about taste. How deep is acceptable is still unanswered.",
     "The accessible name of a link card is its whole text content, because Card cannot know which part of a card is its name. Where the content is long that name is long. Should the component offer a way to name the link, or is the honest answer that a card with that much in it is not a link?",
   ]}
@@ -39,7 +39,7 @@ longer use. It is set out under [Anatomy](#anatomy) rather than buried in a chan
 
 Two cards: the full anatomy with the page supplying its own heading level, and the same card
 at the compact density beside it, so the density prop reads as a difference rather than as a
-percentage. There is no number in it, no status pill and no category tint — a Card holding a
+percentage. There is no number in it, no status pill and no category tint. A Card holding a
 value, a coloured pill and a paragraph is a [ResultCard](./result-card.mdx) drawn without any
 of a ResultCard's guarantees, and a preview that showed one would teach the mistake this
 component's boundary exists to prevent.
@@ -92,14 +92,14 @@ import { Card } from "@/components/ui/card"
 
 The first three exclusions are the ones that decide whether a health product's clinical
 contracts hold. A `Card` containing a number, a coloured pill and a paragraph looks exactly
-like a `ResultCard` and carries none of its guarantees — no staleness treatment, no
-attribution, no axis discipline — and nothing in review will catch it. This is why Card has
-no `status` prop, no `variant` and no `color`: the prop surface offers no way to express a
+like a `ResultCard` and carries none of its guarantees. That card has no staleness treatment,
+no attribution and no axis discipline, and nothing in review will catch it. This is why Card
+has no `status` prop, no `variant` and no `color`: the prop surface offers no way to express a
 clinical meaning. It is not a wall. `className` is merged onto the root, and the static
 accessibility rig reads `registry/**` and never a consumer's project, so a card tinted from
 the status axis by a class name is a thing somebody can write and nothing in this system will
-see — which is also the honest answer to why ResultCard exists rather than being a Card with
-conventions.
+see. That gap is also the honest answer to why ResultCard exists rather than being a Card
+with conventions.
 
 ### Choosing the rung
 
@@ -117,7 +117,7 @@ Never above `raised`. `sheet`, `overlay` and `scrim` composite what is behind th
 `tokens/material.json` is explicit that a health value may not sit on one: a number a reader
 is trying to read must not sit over a moving backdrop. A card on a translucent rung is also
 the second blur in a stack of two, which the same file caps at three for the whole screen. The
-component warns in development and renders anyway — a composition mistake is not a reason to
+component warns in development and renders anyway. A composition mistake is not a reason to
 take somebody's content off the screen.
 
 ## Anatomy
@@ -127,7 +127,7 @@ take somebody's content off the screen.
   parts={[
     {
       name: "Card",
-      describes: "The root. A div, or an a element when href is set. Carries the corner, the print boundary and — when it is a link — the 44px floor on both axes and the focus ring. Sets no minimum width beyond that floor and no position: where a card sits is the screen's decision.",
+      describes: "The root. A div, or an a element when href is set. Carries the corner and the print boundary. When it is a link it also carries the 44px floor on both axes and the focus ring. Sets no minimum width beyond that floor and no position: where a card sits is the screen's decision.",
       prop: "href",
     },
     {
@@ -146,7 +146,7 @@ take somebody's content off the screen.
     },
     {
       name: "Card.Body",
-      describes: "Optional. The content, with no contract of its own — a card that knew what was inside it would be a different component.",
+      describes: "Optional. The content, with no contract of its own. A card that knew what was inside it would be a different component.",
     },
     {
       name: "Card.Footer",
@@ -191,7 +191,7 @@ take somebody's content off the screen.
                     {
                       part: "children",
                       cardinality: "0..n",
-                      note: "the header's own children prop, rendered after the description. No data-slot, no constraint on what it holds — which makes it the one place a link card can quietly acquire a nested control",
+                      note: "the header's own children prop, rendered after the description. No data-slot, no constraint on what it holds. That makes it the one place a link card can quietly acquire a nested control",
                     },
                   ],
                 },
@@ -216,7 +216,7 @@ take somebody's content off the screen.
 
 **Header** holds a title and optional supporting elements. **Body** is the content.
 **Footer** holds actions or metadata. All three are optional; a Card with only a body is the
-common case and should not require ceremony — `<Card>` around a paragraph is a complete,
+common case and should not require ceremony. `<Card>` around a paragraph is a complete,
 correct card.
 
 Card is one of exactly three components in the system that export real compound parts, and
@@ -230,11 +230,11 @@ the same reason in reverse: a prop can carry them, so a compound export would be
 `Card.Title` renders whichever heading level the surrounding page needs, because the page
 passes the element: `title={<h3>Recent readings</h3>}`. A card that hard-codes its own level
 produces a document outline that jumps from h1 to h3, or a screen of eleven h2s, depending on
-which mistake the library made — and a card that takes the level as a number is the same
-mistake with an extra prop. The slot resets the passed element's font and margins to its own,
-so the same title looks identical under an h2 and under an h4: the level is in the outline,
-never in the type size. Pass a plain string instead and the title is styled text with no place
-in the outline, which is a legitimate choice for a card nobody needs to navigate to.
+which mistake the library made. A card that takes the level as a number is the same mistake
+with an extra prop. The slot resets the passed element's font and margins to its own, so the
+same title looks identical under an h2 and under an h4: the level is in the outline, never in
+the type size. Pass a plain string instead and the title is styled text with no place in the
+outline, which is a legitimate choice for a card nobody needs to navigate to.
 
 ### The default rung is `card`, and the specification said `raised`
 
@@ -244,8 +244,8 @@ in [ADR 0014](../project/decisions/0014-material-rung-names.mdx), where `raised`
 for the rung a resting block of content sits on. On the ladder the tokens publish, `raised` is
 one rung higher: `tokens/material.json` gives it a drop shadow and describes it as "menus,
 popovers, tooltips, a dragged card", while the rung named `card` is "the default home for a
-health value", opaque and *deliberately shadowless* — "a grid of shadowed cards on a phone
-reads as clutter, and the shadow is doing work a 1px boundary does better and cheaper".
+health value", opaque and *deliberately shadowless*, because "a grid of shadowed cards on a
+phone reads as clutter, and the shadow is doing work a 1px boundary does better and cheaper".
 
 Taking the old word literally would have put a shadow under every resting card in the system.
 Translate the rung names by job, never by position, and read
@@ -261,7 +261,7 @@ means what it says.
 
 The only interactive shape a Card has. Tab through it: each card is one stop, not one per
 line. Hover it: the title underlines, because a whole-card link with no affordance on its
-text leaves a reader guessing which part of it is the link. Note what is not in it — a card
+text leaves a reader guessing which part of it is the link. Note what is not in it. A card
 that is a link holds no buttons, because a reader cannot tell what tapping the gap between
 two of them will do, and a keyboard user reaches a control nested inside a control.
 
@@ -272,7 +272,7 @@ two of them will do, and a keyboard user reaches a control nested inside a contr
 A translucent rung may never contain another translucent rung. The sheet is the layer; the
 cards on it stay opaque on the `card` rung, bounded by a line. Two stacked blurs cost twice
 as much, composite against each other rather than against the page, and produce a surface
-whose contrast floor nobody has measured — the floor is published per rung, not per stack.
+whose contrast floor nobody has measured. The floor is published per rung, not per stack.
 
 <ComponentPreview name="card-on-a-sheet" kind="example" align="start" />
 
@@ -284,11 +284,11 @@ phrases in sentence case, not sentences and not questions.
 Do not use a card as a decorative frame for a single line of text: a boundary with nothing
 to bound reads as a control the reader is meant to do something with.
 
-Card ships no copy of its own — no default title, no empty-state text, no label anywhere. Every
-word inside one is the product's, which means every word inside one is the product's to check
-against [Plain English A–Z](../content/plain-english-a-z.mdx). The component cannot help here,
-and a component that supplied a friendly default would be putting words a clinician never saw
-onto a health surface.
+Card ships no copy of its own. It has no default title, no empty-state text and no label
+anywhere. Every word inside one is the product's, which means every word inside one is the
+product's to check against [Plain-English A to Z](../content/plain-english-a-z.mdx). The
+component cannot help here, and a component that supplied a friendly default would be putting
+words a clinician never saw onto a health surface.
 
 <DoDont>
   <DoDont.Do>
@@ -335,15 +335,15 @@ checked, with the gaps listed rather than left out.
   variables that exist in `app/globals.css` and not in `app/product.css`. That list is a
   denylist of the names already known to be chrome-only, which is not the same thing as
   proving that every token a component reaches for resolves under the product theme: a name
-  outside the list that resolved in one stylesheet and not the other would pass silently. Card
-  paints three colours of its own — the muted foreground on the description, the border it
-  grows for print, and the focus ring on a link card — and everything else is Surface's
+  outside the list that resolved in one stylesheet and not the other would pass silently. The
+  muted foreground on the description, the border it grows for print, and the focus ring on
+  a link card are the three colours Card paints of its own. Everything else is Surface's
   material.
 - **No `px` font size, and no banned word** in copy or in an identifier. Card ships no default
-  product copy — no title, no empty-state text, no label — but it is not wordless, and the
-  rule reads what is there: the development warning about a translucent rung, and the demo
-  strings in the file `shadcn add` hands to a consumer. So the clean result is a result about
-  text that exists rather than a pass over an empty file.
+  product copy, and that means no title, no empty-state text and no label. It is not wordless
+  even so, and the rule reads what is there: the development warning about a translucent rung,
+  and the demo strings in the file `shadcn add` hands to a consumer. So the clean result is a
+  result about text that exists rather than a pass over an empty file.
 
 **Argued, and true of the implementation, but not yet measured:**
 
@@ -354,19 +354,19 @@ checked, with the gaps listed rather than left out.
   component.
 - **The title's heading level is set by the page**, so the document outline stays continuous.
   The slot resets the element's own font and margins, so choosing `h4` over `h3` changes the
-  outline and nothing visual — which is what makes it safe to choose correctly.
+  outline and nothing visual. That is what makes it safe to choose correctly.
 - **A card that is a link is one control.** One tab stop, a floor of
   `--opsin-target-minimum` on both axes carried by the component rather than by the product
   stylesheet's attribute backstop, and a focus ring declared in the component for the same
   reason: a card whose ring depends on a file it was not installed with is a card that loses
-  it silently. Both axes because the backstop sets both — a card is usually far wider than
+  it silently. Both axes because the backstop sets both. A card is usually far wider than
   its floor, and a link card dropped into a narrow column is not. The floor is a rem, so it
   grows when a reader raises their text size instead of pinning at 44 device pixels.
 - **The boundary is not conveyed by colour alone.** The rung draws a hairline edge as well as
   a fill, and the edge is a lightness difference that survives greyscale. Under
   `prefers-contrast: more` Surface thickens it from the hairline width to the emphasis width.
 - **Padding does not collapse at 200% text.** Every step is a rem, so the padding scales with
-  the root font size rather than holding its pixel value while the type grows — the most
+  the root font size rather than holding its pixel value while the type grows. The most
   common Dynamic Type failure in any system is a card that keeps its height and clips its
   content.
 - **Print renders the boundary as a rule.** The rung paints its fill with a background and its
@@ -380,21 +380,21 @@ checked, with the gaps listed rather than left out.
 
 - The 44px floor on a link card, and the separation between two targets in a footer. Both are
   declared in the component and neither has a published measurement on this page. The layout
-  half of the rig is not blind to this component — it enumerates every built registry entry,
+  half of the rig is not blind to this component. It enumerates every built registry entry,
   so `card`, `card-as-a-link` and `card-on-a-sheet` are all in its nightly target list, and it
   measures the hit area against the floor and checks for overflow at 1×, 1.3× and 200%. What
   is missing is a recorded result, so treat the floor as declared rather than demonstrated.
 - Contrast for the description's muted foreground against the card's fill, and for the focus
-  ring against the `card`, `canvas` and `raised` fills a link card may sit on — in both themes
-  and under increased contrast. `<ContrastReport>` below takes its rows as a prop and nothing
-  wires the measured file into it yet; run `pnpm run contrast` and read the results rather
-  than trusting a number retyped into a page.
+  ring against the `card`, `canvas` and `raised` fills a link card may sit on. Neither of
+  those has been measured in either theme or under increased contrast. `<ContrastReport>`
+  below takes its rows as a prop and nothing wires the measured file into it yet; run
+  `pnpm run contrast` and read the results rather than trusting a number retyped into a page.
 - Whether a link card is recognisable as a link before anybody points at it. The title
   underlines on hover and on focus and both are transient; at rest a link card is drawn
-  exactly like a card that is not one. The `raised` rung is not the answer — any card may take
-  it, and a printout drops the shadow — so a product whose list mixes link cards and static
-  ones supplies its own resting cue until this component has one.
-- The exclusion between `href` and interactive children. It is a rule, not a gate — see the
+  exactly like a card that is not one. The `raised` rung is not the answer, because any card
+  may take it and a printout drops the shadow. A product whose list mixes link cards and
+  static ones therefore supplies its own resting cue until this component has one.
+- The exclusion between `href` and interactive children. It is a rule, not a gate. See the
   [Status](#status) section for why a runtime check would be worse than none.
 - Behaviour when a reader's own stylesheet strips backgrounds and shadows. The print border
   answers the printed case; the reader-stylesheet case has not been looked at.
@@ -406,7 +406,7 @@ checked, with the gaps listed rather than left out.
     {
       keys: "Tab",
       action: "Moves to the card, when the card is a link",
-      notes: "One stop per card, never one per line inside it. A card that is not a link is not focusable and does not appear in the tab order at all — a card is a boundary, and a tab stop that does nothing is a stop a keyboard user pays for on every row of a list.",
+      notes: "One stop per card, never one per line inside it. A card that is not a link is not focusable and does not appear in the tab order at all. A card is a boundary, and a tab stop that does nothing is a stop a keyboard user pays for on every row of a list.",
     },
     {
       keys: "Shift + Tab",
@@ -435,13 +435,13 @@ checked, with the gaps listed rather than left out.
 <PropsTable name="CardProps" />
 
 `rung` defaults to `"card"`, for the reasons under [Anatomy](#anatomy). Its six members are documented at [MaterialRung](../reference/api/MaterialRung.mdx), and they are the token names: a rung is only a rung because a `--opsin-material-<rung>-*` property resolves for it. `density` chooses between two
-multipliers on Tailwind's density-scaled spacing scale — five times `--spacing` and four —
-and not between two steps of the fixed `--opsin-space-*` scale. The 5 and the 4 are borrowed
-from what `tokens/space.json` publishes for a card's inner padding and for the step below it,
-but the values that render are not those steps and are not on the 4px grid: `--spacing` is the
-product theme's own, and the document's density attribute moves it again. That second movement
-is the point of using the scaled scale here — a reader who asks their whole interface for a
-denser layout gets one inside a card too, and the two controls multiply.
+multipliers on Tailwind's density-scaled spacing scale, and not between two steps of the fixed
+`--opsin-space-*` scale. The two multipliers are five times `--spacing` and four. The 5 and
+the 4 are borrowed from what `tokens/space.json` publishes for a card's inner padding and for
+the step below it, but the values that render are not those steps and are not on the 4px grid:
+`--spacing` is the product theme's own, and the document's density attribute moves it again.
+That second movement is the point of using the scaled scale here. A reader who asks their
+whole interface for a denser layout gets one inside a card too, and the two controls multiply.
 
 There is no `status`, no `variant` and no `color`. A Card that could be tinted by clinical
 status would be a `ResultCard` with none of its obligations, which is the exact failure the
@@ -455,7 +455,7 @@ a `div`, or an `a` when `href` is set, and a card that needs to be something els
 that thing rather than becoming it.
 
 `href` is a rule the type cannot state. A card that is a link may hold no other interactive
-element, and `children` is a `ReactNode` — interactivity is not in its type, and a runtime
+element, and `children` is a `ReactNode`. Interactivity is not in its type, and a runtime
 walk would catch a raw `<button>` and miss every wrapped one. It is documented, it is in the
 examples by omission, and it is an open question on this page.
 
@@ -485,13 +485,14 @@ no gate has to notice.
 
 **Easily confused with**
 
-- [ResultCard](./result-card.mdx) — a Card with a clinical contract. If it contains a health
+- [ResultCard](./result-card.mdx) is a Card with a clinical contract. If it contains a health
   value, it is not a plain Card.
-- [CareCard](./care-card.mdx) — a Card whose subject is an instruction with an author.
-- [MetricTile](./metric-tile.mdx) — a fixed internal contract for a grid, not a small Card.
-- [Surface](./surface.mdx) — the layer beneath. Card is a Surface with padding and a boundary.
-- [Callout](./callout.mdx) — bounded advisory prose, which is a different thing from a group
-  of content.
+- [CareCard](./care-card.mdx) is a Card whose subject is an instruction with an author.
+- [MetricTile](./metric-tile.mdx) has a fixed internal contract for a grid, and it is not a
+  small Card.
+- [Surface](./surface.mdx) is the layer beneath. Card is a Surface with padding and a boundary.
+- [Callout](./callout.mdx) covers bounded advisory prose, which is a different thing from a
+  group of content.
 
 **Used by**
 
@@ -506,4 +507,4 @@ no gate has to notice.
 - [Layering, elevation and z-index](../foundations/layering-and-elevation.mdx)
 - [Spacing scale](../foundations/space/spacing-scale.mdx)
 - [Radius scale](../foundations/shape/radius-scale.mdx)
-- [0014 — The material rung names are the token names](../project/decisions/0014-material-rung-names.mdx)
+- [ADR 0014. The material rung names are the token names](../project/decisions/0014-material-rung-names.mdx)

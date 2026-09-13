@@ -1,5 +1,5 @@
 /**
- * /api/feedback — the sink that does not exist yet, said out loud.
+ * /api/feedback is the sink that does not exist yet, said out loud.
  *
  * `<Feedback>` on every page and the zero-result branch of search both post
  * here. There is no database behind this site and no analytics endpoint, so
@@ -14,10 +14,10 @@
  * status code makes the same statement to a monitor.
  *
  * NO PERSONAL DATA. The request body is validated, echoed into a URL, and
- * discarded — never written to disk and never logged. Anything a reader types
- * travels only to the GitHub issue they choose to open. A patient-facing
- * design system that leaked free text from its own feedback box would have
- * failed at the first thing it asks of everyone else.
+ * discarded. It is never written to disk and it is never logged. Anything a
+ * reader types travels only to the GitHub issue they choose to open. A
+ * patient-facing design system that leaked free text from its own feedback box
+ * would have failed at the first thing it asks of everyone else.
  */
 
 import {
@@ -140,7 +140,7 @@ export async function POST(request: Request): Promise<Response> {
     ...(comment ? ["### What happened", "", comment, ""] : []),
     "### Context",
     "",
-    `- Page: ${page ? absoluteUrl(page) : "—"}`,
+    `- Page: ${page ? absoluteUrl(page) : "not given"}`,
     `- Docs version: ${readerVersion}`,
     ...(query ? [`- Search term: \`${query}\``] : []),
     "",
@@ -149,13 +149,13 @@ export async function POST(request: Request): Promise<Response> {
 
   // The issue FORM in .github/ISSUE_TEMPLATE/docs-issue.yml tells the reader
   // its Page and Docs version fields arrive pre-filled from this link, so they
-  // have to be set here. A form prefills only from `?<field-id>=value` — the
-  // ids, not the labels — and it ignores `body` entirely, which is why the
-  // plain URL below exists alongside it rather than instead of it. `page` is
-  // required on the form and is absent on a zero-result search, so it is only
-  // sent when there is one. `kind` is deliberately left empty: it is a dropdown
-  // and prefills only from an exact option string, which this route cannot
-  // infer from a thumbs-down.
+  // have to be set here. A form prefills only from `?<field-id>=value`. Those
+  // keys are the field ids, not the labels. The form ignores `body` entirely,
+  // which is why the plain URL below exists alongside it rather than instead of
+  // it. `page` is required on the form and is absent on a zero-result search,
+  // so it is only sent when there is one. `kind` is deliberately left empty: it
+  // is a dropdown and prefills only from an exact option string, which this
+  // route cannot infer from a thumbs-down.
   const templated = new URL(GITHUB_NEW_ISSUE_URL)
   templated.searchParams.set("template", "docs-issue.yml")
   templated.searchParams.set("title", title)
@@ -174,7 +174,7 @@ export async function POST(request: Request): Promise<Response> {
       stored: false,
       reason: "no-sink-configured",
       message:
-        "Feedback is not collected by this site. Your report has not been saved anywhere. Open it as an issue instead — the link below is already filled in.",
+        "Feedback is not collected by this site. Your report has not been saved anywhere. Open it as an issue instead. The link below is already filled in.",
       fallback: {
         kind: "github-issue",
         /**

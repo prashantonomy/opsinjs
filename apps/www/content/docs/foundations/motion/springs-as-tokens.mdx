@@ -12,16 +12,16 @@ a11yDate: 2026-09-02
 ## Overview
 
 Every design system has an easing token. Almost all of them are cubic Béziers,
-because until recently that was the only easing CSS could express — and a cubic
+because until recently that was the only easing CSS could express. A cubic
 Bézier cannot describe a spring. It has no overshoot, no settle, no notion of
 mass. So systems that want spring physics animate in JavaScript, which means the
 curve stops being a token: it lives in a component, it cannot be themed, it
 cannot be inspected, and two components that both claim to use "the standard
 spring" can quietly disagree.
 
-opsinjs takes the third path. Springs are authored as physics — stiffness,
-damping, mass — in `tokens/motion.json`, and `scripts/build-tokens.mts` solves
-the spring numerically and emits the result as a CSS `linear()` easing. The
+opsinjs takes the third path. Springs are authored in `tokens/motion.json` as
+physics: stiffness, damping and mass. `scripts/build-tokens.mts` solves the
+spring numerically and emits the result as a CSS `linear()` easing. The
 stylesheet ends up holding a real spring, as a custom property, usable by any
 CSS transition, with no JavaScript animation library anywhere in the tree.
 
@@ -35,8 +35,8 @@ and change, rather than from a Bézier somebody eyeballed until it felt right.
 `c`, and mass `m`. From those come the two values that actually determine the
 shape of the curve:
 
-- the undamped angular frequency, `ω₀ = √(k/m)` — how fast it wants to move;
-- the damping ratio, `ζ = c / (2√(km))` — how much it resists.
+- the undamped angular frequency, `ω₀ = √(k/m)`, is how fast it wants to move;
+- the damping ratio, `ζ = c / (2√(km))`, is how much it resists.
 
 `ζ < 1` is underdamped and overshoots. `ζ = 1` is critically damped: the fastest
 approach to the target with no overshoot at all. `ζ > 1` is overdamped and
@@ -145,7 +145,7 @@ spring token ships with a duration derived from its own physics rather than one
 somebody picked to match.
 
 **The damping ratio is returned alongside the curve**, because it is the value
-that decides whether a token may animate a clinical value at all — see *Using
+that decides whether a token may animate a clinical value at all. See *Using
 it* below. Publishing it in the generated table is what makes that rule
 reviewable rather than a matter of looking at the curve and guessing.
 
@@ -165,7 +165,8 @@ the boundary between them is a safety rule, not a taste one.
   anything whose content is a measurement, a range position, a status or a
   count. A value that overshoots has drawn a number the person never had. This
   is health rule 2 from [Motion](index.mdx) and it is enforced by review, not by
-  the compiler — the tokens themselves cannot know what they are animating.
+  the compiler, because the tokens themselves cannot know what they are
+  animating.
 - **Overshooting springs** (`ζ < 1`) are for chrome: a sheet arriving, a toggle
   flipping, a control acknowledging a press. They give the interface its
   character and they never touch a clinical number.
@@ -178,18 +179,18 @@ the boundary between them is a safety rule, not a taste one.
   <DoDont.Dont>
     The same marker on a bouncy spring, overshooting into the high band before
     settling back. For a fraction of a second the interface asserted a value that
-    was never measured — on a screen whose entire purpose is to report measured
-    values.
+    was never measured, and it did so on a screen whose entire purpose is to
+    report measured values.
   </DoDont.Dont>
 </DoDont>
 
 **Do not hand-write a `linear()` value.** They are unreadable, unreviewable and
-impossible to adjust — that is the whole reason for generating them. Change the
+impossible to adjust. That is the whole reason for generating them. Change the
 three numbers in `tokens/motion.json`, resample, and regenerate.
 
 **Do not tune a spring inside a component.** If a component needs a curve the
 scale does not have, that is a proposal for a new token, with a name and a
-rationale — see
+rationale. See
 [Contributing tokens](../../handbook/contributing/contributing-tokens.mdx).
 
 **Sample count is a trade.** More stops means a closer fit and a longer custom
@@ -209,14 +210,14 @@ curve plots is on [Motion tokens](tokens.mdx).
 
 ## Accessibility impact
 
-- **`linear()` degrades to the engine's default curve, not to nothing — and not
+- **`linear()` degrades to the engine's default curve, not to nothing and not
   to a fallback of ours.** A spring token is one custom property holding one
   `linear()` value, and there is no second declaration behind it. There could not
   usefully be: a custom property accepts `linear(…)` as an arbitrary token
   sequence even on an engine that cannot compute it, so the value is stored, the
   cascade never reaches an earlier declaration, and an author-written fallback
   above it would be dead code. The failure happens one step later, at
-  substitution — `transition-timing-function: var(--opsin-ease-spring-snap)` is
+  substitution. `transition-timing-function: var(--opsin-ease-spring-snap)` is
   invalid at computed-value time, so the property takes its initial value and the
   move runs on the browser's default easing. Say what that costs and what it does
   not: the paired duration is a separate token and is untouched, so nothing in a
@@ -231,10 +232,11 @@ curve plots is on [Motion tokens](tokens.mdx).
 - **Reduced motion replaces the curve, not just the duration.** Under
   `prefers-reduced-motion: reduce` each spring easing resolves to the plain
   `linear` keyword and its paired duration drops to the fallback that spring's
-  own entry declares — `0ms` for the spring a reader initiates and for the one
-  that carries a health value, and a cross-fade of about a tenth of a second for
-  the two that announce something arriving. Nothing is switched off wholesale;
-  the per-token contract is on [Reduced motion](reduced-motion.mdx).
+  own entry declares. That fallback is `0ms` for the spring a reader initiates
+  and for the one that carries a health value, and a cross-fade of about a tenth
+  of a second for the two that announce something arriving. Nothing is switched
+  off wholesale; the per-token contract is on
+  [Reduced motion](reduced-motion.mdx).
 - **A spring's settling time is part of its accessibility budget.** A long settle
   means a control is still moving when a reader tries to hit it. Every token's
   computed duration is published, and the ones used for anything interactive sit
@@ -242,9 +244,9 @@ curve plots is on [Motion tokens](tokens.mdx).
 
 ## Related
 
-- [Using motion](using-motion.mdx) — which of these curves each job gets, and how
-  duration relates to distance.
-- [Reduced motion](reduced-motion.mdx) — what every spring token becomes when a
-  reader has asked for less movement.
-- [Motion tokens](tokens.mdx) — the generated table, with each curve plotted from
-  its own parameters.
+- [Using motion](using-motion.mdx) says which of these curves each job gets, and
+  how duration relates to distance.
+- [Reduced motion](reduced-motion.mdx) says what every spring token becomes when
+  a reader has asked for less movement.
+- [Motion tokens](tokens.mdx) is the generated table, with each curve plotted
+  from its own parameters.

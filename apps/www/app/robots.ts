@@ -24,7 +24,7 @@ import { site } from "@/lib/routes"
  * `/official` in particular has to be indexable: an anti-impersonation page
  * nobody can find is decoration.
  *
- * The `.md` twins of documentation pages are likewise not disallowed — an agent
+ * The `.md` twins of documentation pages are likewise not disallowed. An agent
  * fetching `/docs/health/alarm-fatigue.md` should get it. They are kept out of
  * the sitemap instead, so they are reachable without being advertised as a
  * second copy of the corpus.
@@ -43,8 +43,8 @@ import { site } from "@/lib/routes"
  * Finally, nothing here points at `/llms.txt`: there is no standard robots.txt
  * directive for it and inventing one would be noise in a file whose entire value
  * is that every parser reads it the same way. The curated index is discoverable
- * the way it was designed to be — at a well-known path, linked from the site
- * footer, from `/official` and from the Agents section of the documentation.
+ * the way it was designed to be. It sits at a well-known path, and the site
+ * footer, `/official` and the Agents section of the documentation link to it.
  */
 export default function robots(): MetadataRoute.Robots {
   const disallow = ["/view"]

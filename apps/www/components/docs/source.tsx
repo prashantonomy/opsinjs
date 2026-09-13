@@ -10,24 +10,24 @@ import { CopyButton } from "./copy"
 import { NoDataYet, NotBuiltYet } from "./stub"
 
 /* ==========================================================================
-   source.tsx — <ComponentSource>, <ComponentInstall>, <CodeBlockCommand>,
-   <CodeTabs>, <CodeCollapsible>.
+   source.tsx holds <ComponentSource>, <ComponentInstall>, <CodeBlockCommand>,
+   <CodeTabs> and <CodeCollapsible>.
 
    THE RULE THIS FILE ENFORCES: MDX NEVER CONTAINS COMPONENT CODE.
 
    A component page names a component; it does not paste it. Pasted source goes
    stale the first time the component changes, and a stale snippet on a health
-   documentation page is not a cosmetic problem — somebody copies it, and the
+   documentation page is not a cosmetic problem. Somebody copies it, and the
    copy no longer matches the props, the data attributes or the accessibility
    behaviour the rest of the page promises.
 
    So <ComponentSource name="range-bar" /> resolves a NAME against the generated
-   registry index and renders whatever is really there — the file's own bytes,
-   inlined by scripts/build-registry.mts, which are the same bytes `shadcn add`
-   writes into a consumer's project. When the name resolves to nothing the
-   honest render is <NotBuiltYet> naming the folder the file will live in, not
-   an illustrative snippet, which an agent would happily consume as the real
-   implementation.
+   registry index and renders whatever is really there. What it renders is the
+   file's own bytes, inlined by scripts/build-registry.mts, which are the same
+   bytes `shadcn add` writes into a consumer's project. When the name resolves
+   to nothing the honest render is <NotBuiltYet> naming the folder the file will
+   live in, not an illustrative snippet, which an agent would happily consume as
+   the real implementation.
 
    The install block is generated the same way, from the registry item: the
    dependency list, the file paths and the import path all come from data. The
@@ -185,7 +185,7 @@ export interface CodeCollapsibleProps {
  *
  * Built on `<details>` rather than on state, so it works before hydration, is
  * findable by in-page browser search in every current browser, and prints
- * expanded — which matters because a reviewer reading on paper cannot click.
+ * expanded. That matters because a reviewer reading on paper cannot click.
  */
 export function CodeCollapsible({
   title = "Show the full file",
@@ -214,7 +214,7 @@ export function CodeCollapsible({
    -------------------------------------------------------------------------- */
 
 export interface ComponentSourceProps {
-  /** Catalogue id. Never a path — the path is the registry's business. */
+  /** Catalogue id, never a path. The path is the registry's business. */
   name: string
   /** Behaviour axis. */
   base?: string
@@ -235,7 +235,7 @@ export interface ComponentSourceProps {
  * `scripts/build-registry.mts` reads the file off disk and inlines its text as
  * `entry.source`, so what a reader copies from here is the same bytes
  * `shadcn add` writes into their project. Nothing is re-read, re-formatted or
- * excerpted on the way — an excerpt is how a snippet starts drifting from the
+ * excerpted on the way. An excerpt is how a snippet starts drifting from the
  * thing it claims to be.
  */
 export function ComponentSource({
@@ -295,8 +295,8 @@ export function ComponentSource({
         script="scripts/build-registry.mts"
         className={cn("my-0", className)}
       >
-        The generated registry index carries one source text per item — the
-        component&rsquo;s own file,{" "}
+        The generated registry index carries one source text per item. That text
+        is the component&rsquo;s own file,{" "}
         <code className="text-xs">{registryPath}</code>. Everything else an item
         distributes is in its <code className="text-xs">/r/{name}.json</code>{" "}
         payload, which is where a second file has to be read from.
@@ -310,7 +310,7 @@ export function ComponentSource({
     )
 
   if (!collapsible) return body
-  return <CodeCollapsible title={`Source — ${path}`}>{body}</CodeCollapsible>
+  return <CodeCollapsible title={`Source of ${path}`}>{body}</CodeCollapsible>
 }
 
 /* --------------------------------------------------------------------------
@@ -337,8 +337,8 @@ export interface ComponentInstallProps {
  * It sits at section 4 of the component anatomy on purpose: the ordinary
  * install path stays two scrolls from the top, above the clinical prose. A
  * developer who came for one command should not have to read a page of doctrine
- * to find it — and the doctrine is more likely to be read by somebody who was
- * not made to wade through it first.
+ * to find it. The doctrine is more likely to be read by somebody who was not
+ * made to wade through it first.
  */
 export function ComponentInstall({
   name,
@@ -391,7 +391,7 @@ export function ComponentInstall({
             The <code className="text-xs">{site.registryNamespace}</code>{" "}
             namespace is declared in your{" "}
             <code className="text-xs">components.json</code>. Everything it
-            installs is code you then own — there is no runtime package to keep
+            installs is code you then own. There is no runtime package to keep
             in step.
           </p>
         </Tab>

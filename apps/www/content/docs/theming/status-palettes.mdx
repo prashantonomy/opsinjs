@@ -11,9 +11,9 @@ aliases: [status colour, redefine status, four levels, urgent colour]
 ## Overview
 
 Every other tier-1 ramp in opsinjs is a starting point. The status ramp is not.
-It has four ordinal levels — token ids `steady`, `watch`, `attention` and
-`urgent` — plus a fifth stem, `unknown`, which is the absence of a verdict rather
-than a fifth degree of one. This page argues that you should leave all of them
+It has four ordinal levels, whose token ids are `steady`, `watch`, `attention`
+and `urgent`. A fifth stem, `unknown`, is the absence of a verdict rather than a
+fifth degree of one. This page argues that you should leave all of them
 alone, then tells you how to change them safely if that argument does not survive
 contact with your organisation.
 
@@ -52,7 +52,7 @@ shape of mistake this system exists to make harder.
 <SafetyCallout severity="urgent" evidence="opinion">
 Colour is never the only carrier of a status in opsinjs. A status always ships
 with a word, and with an icon where the layout allows one. If you retune the
-ramp so that two levels look similar, the word still distinguishes them — which
+ramp so that two levels look similar, the word still distinguishes them. That
 is the safety net, not the design. Do not spend it.
 </SafetyCallout>
 
@@ -60,14 +60,15 @@ is the safety net, not the design. Do not spend it.
 
 Three things are yours, and none of them are the ramp.
 
-**The sentence around the word** — not the word. The four status words are fixed
-in `lib/status.ts`, and a component reads them from `CLINICAL_STATUS_META` rather
-than taking them as a prop, for the same reason the ramp is closed: four consumers
-that never talk to each other must not end up saying four different things. What
-is yours is everything else in the sentence — the measurement, the comparison, the
-single action. That is a content decision governed by
-[Writing status and alerts](../content/writing-status-and-alerts.mdx), not a token
-decision, and changing it costs nothing structurally.
+**The sentence around the word rather than the word itself.** The four status
+words are fixed in `lib/status.ts`, and a component reads them from
+`CLINICAL_STATUS_META` rather than taking them as a prop, for the same reason
+the ramp is closed: four consumers that never talk to each other must not end
+up saying four different things. What is yours is everything else in the
+sentence: the measurement, the comparison, the single action. That is a content
+decision governed by
+[Writing status and alerts](../content/writing-status-and-alerts.mdx), not a
+token decision, and changing it costs nothing structurally.
 
 **The thresholds.** Which value maps to which level is your product's business
 logic, and opsinjs deliberately owns none of it. See
@@ -119,7 +120,7 @@ inverted the meaning, which is worse than having no status colour at all.
 
 Adjacent levels must be distinguishable from each other, and every level must be
 distinguishable from all six category ramps. Check it under
-`<CvdSimulator>` in grayscale as well as in the three dichromacies — grayscale
+`<CvdSimulator>` in grayscale as well as in the three dichromacies. Grayscale
 is the honest proxy for a printed page and a bright screen outdoors.
 
 ### Re-measure everything
@@ -152,14 +153,14 @@ does not survive a retuned status ramp.
   <DoDont.Dont>
     Add `--opsin-status-critical-*`. Four ordinal levels is a decision, not an
     accident: five levels is more than a person can reliably rank by colour, and
-    the fifth exists only in your codebase — the registry, the docs and every
+    the fifth exists only in your codebase. The registry, the docs and every
     agent will map it to something else or drop it.
   </DoDont.Dont>
 </DoDont>
 
 If four genuinely cannot express what your product needs, the problem is
-probably that you are using status to carry something that is not urgency — a
-data quality, a staleness, a device error. Those have their own homes:
+probably that you are using status to carry something that is not urgency, such
+as a data quality, a staleness or a device error. Those have their own homes:
 [Uncertainty and staleness](../health/uncertainty-and-staleness.mdx) and
 [Data states](../foundations/data-states.mdx).
 
@@ -198,7 +199,7 @@ chrome](./lyra-and-the-docs-chrome.mdx), not a bug.
 
 **Contrast passes but the surface looks muddy against a card.** Status surfaces
 are tuned against the page background, not against every material rung. Check
-which rung you have put it on — [Choosing a
+which rung you have put it on. See [Choosing a
 layer](../foundations/materials/choosing-a-layer.mdx).
 
 **An agent generated a hex colour instead of a status.** Expected, if the agent
@@ -207,9 +208,9 @@ did not have the rules. Point it at
 
 ## Next
 
-- [Clinical status semantics](../health/clinical-status-semantics.mdx) — what
-  the four levels mean. Canonical.
-- [Validating your theme](./validating-your-theme.mdx) — proving a retuned ramp
-  is still legible.
-- [Alarm fatigue](../health/alarm-fatigue.mdx) — why the loudest level being
-  rare is a design property and not a happy accident.
+- [Clinical status semantics](../health/clinical-status-semantics.mdx) says
+  what the four levels mean. Canonical.
+- [Validating your theme](./validating-your-theme.mdx) covers proving a retuned
+  ramp is still legible.
+- [Alarm fatigue](../health/alarm-fatigue.mdx) explains why the loudest level
+  being rare is a design property and not a happy accident.

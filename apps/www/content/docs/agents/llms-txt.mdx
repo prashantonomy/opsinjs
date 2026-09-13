@@ -33,7 +33,7 @@ Shards let a caller spend context where it changes the answer.
 
 Every URL in every one of these files is absolute. A relative URL in an index is
 useless to a client that fetched the file from somewhere else and no longer
-knows where it came from — which is the normal case for a model.
+knows where it came from. That is the normal case for a model.
 
 The three topic shards do not cover the whole tree, so "use the shards" misleads
 for the half they miss. Between them they carry eight of the sixteen sections:
@@ -53,17 +53,17 @@ aliases, because an alias is what a model was actually thinking of. Sections
 match the sidebar's sixteen groups.
 
 The status of each page is included too, and it is the most load-bearing field
-in the file. Twenty-four component ids are `alpha` — there is source in the
-registry item and an API that may move without a deprecation cycle — and
-thirty-six are `considered`, a reserved name with nothing behind it. An index
-that did not separate the two would be an invitation to import the wrong ones.
-Each entry is one line, and the tail in brackets carries the status, the kind
-and the aliases:
+in the file. Twenty-four component ids are `alpha` and thirty-six are
+`considered`. An `alpha` id has source in the registry item and an API that may
+move without a deprecation cycle, and a `considered` id is a reserved name with
+nothing behind it. An index that did not separate the two would be an invitation
+to import the wrong ones. Each entry is one line, and the tail in brackets
+carries the status, the kind and the aliases:
 
 ```txt
 ## Components
 
-- [Card](https://opsinjs.dev/docs/components/card): A bounded group of related content with a border and consistent padding — the ordinary box that most of a screen is made of. (status: alpha · kind: component · also known as: panel, container, box, tile group, content box)
+- [Card](https://opsinjs.dev/docs/components/card): A bounded group of related content with a border and consistent padding is the ordinary box that most of a screen is made of. (status: alpha · kind: component · also known as: panel, container, box, tile group, content box)
 - [Select](https://opsinjs.dev/docs/components/select): Choosing one option from a list. (status: considered · kind: component · also known as: dropdown, picker)
 ```
 
@@ -74,20 +74,21 @@ Two limits, both applied by the generator, and both now reported by
 
 **`/llms-full.txt` is capped.** When the corpus outgrows the cap the generator
 keeps whole pages, in the order the sidebar presents them, and stops when the
-next one would not fit — it never truncates mid-page. A markdown document
-ending in the middle of a table is worse than a shorter complete one, because a
-model will happily finish the table from imagination. The header counts what
-survived (`Pages: N of M.`) and a `## Truncated` block at the foot of the file
-counts what was dropped, names the shards to fetch instead, and then lists every
-dropped page by title with its `.md` URL and its status. Nothing is hidden: the
-manifest is budgeted for before any page is, and measured over the whole corpus
-so the reservation can never be an underestimate. That costs a few per cent of
-the cap, in exchange for a file that never drops a page without naming it.
+next one would not fit. The generator never truncates mid-page. A markdown
+document ending in the middle of a table is worse than a shorter complete one,
+because a model will happily finish the table from imagination. The header
+counts what survived (`Pages: N of M.`) and a `## Truncated` block at the foot
+of the file counts what was dropped, names the shards to fetch instead, and then
+lists every dropped page by title with its `.md` URL and its status. Nothing is
+hidden: the manifest is budgeted for before any page is, and measured over the
+whole corpus so the reservation can never be an underestimate. That costs a few
+per cent of the cap, in exchange for a file that never drops a page without
+naming it.
 
 **Every shard is capped independently, and the cap trims rather than fails.** A
 shard at its budget is a signal that it needs splitting, and all three are at
-their cap today, dropping their overflow the way `/llms-full.txt` does — each
-with its own header count and its own `## Truncated` block. The drop is no
+their cap today, dropping their overflow the way `/llms-full.txt` does. Each
+shard has its own header count and its own `## Truncated` block. The drop is no
 longer silent: run against a server, `check:llms` reads the `Pages: N of M.`
 line out of every corpus file and warns with the number dropped and the coverage
 percentage, and warns separately when an implemented component is missing from
@@ -98,8 +99,9 @@ sample.
 
 Those are warnings and not failures, deliberately. Splitting the shards is a
 design change nobody has made, and every corpus file drops pages today, so
-failing the build would leave two exits — raise the budgets, or delete the check
-— and both are the silent degradation the warning exists to prevent.
+failing the build would leave two exits. One is to raise the budgets and the
+other is to delete the check, and both are the silent degradation the warning
+exists to prevent.
 
 <Todo owner="agents">Split the three shards so that each fits its budget whole,
 then raise the coverage warning in `scripts/check-llms.mts` to a failure. Until
@@ -107,7 +109,7 @@ that happens the warnings tell you how much is missing but nothing stops it
 growing, so treat a shard as a sample of its sections rather than all of
 them.</Todo>
 
-If you need a specific page rather than a shard, fetch its markdown twin — see
+If you need a specific page rather than a shard, fetch its markdown twin. See
 [Raw markdown API](./raw-markdown-api.mdx). Fetching one page is almost always
 cheaper than fetching a shard and hoping the page is in it.
 
@@ -140,28 +142,29 @@ shard is usually a page in a group nobody assigned.
 
 **`/llms-full.txt` is missing pages I can see on the site.** The cap. The header
 counts how many pages survived and the `## Truncated` block at the foot lists
-every page that was dropped, with the `.md` URL to fetch it from — read that
+every page that was dropped, with the `.md` URL to fetch it from. Read that
 block first rather than diffing the file against `/llms.txt`. Then fetch the
 twin, or take the shard that covers its section, remembering that eight of the
 sixteen sections have no shard at all.
 
 **A page's aliases are missing from the index.** Aliases come from frontmatter.
-A page with none contributes none — that is a documentation gap, reportable
+A page with none contributes none. That is a documentation gap, reportable
 through the feedback control at the foot of the page.
 
 **The index is stale after I added a page.** It is generated at build time.
-Rebuild, or in development restart — `pnpm run generate` does not rebuild the
+Rebuild, or in development restart. `pnpm run generate` does not rebuild the
 index on its own.
 
 **I want an index of only the built components.** Filter the Components section
 on `status: alpha`; there are twenty-four. `/r/index.json` answers the same
-question in a field — `implemented` — and is cheaper to parse than a text index.
+question in a field named `implemented` and is cheaper to parse than a text
+index.
 
 ## Next
 
-- [Raw markdown API](./raw-markdown-api.mdx) — fetching one page instead of a
-  shard.
-- [Offline docs bundle](./offline-docs-bundle.mdx) — the same corpus as one
+- [Raw markdown API](./raw-markdown-api.mdx) covers fetching one page instead of
+  a shard.
+- [Offline docs bundle](./offline-docs-bundle.mdx) is the same corpus as one
   versioned JSON file.
-- [Writing docs for agents](./writing-docs-for-agents.mdx) — what makes a page
-  survive the trip into an index entry.
+- [Writing docs for agents](./writing-docs-for-agents.mdx) says what makes a
+  page survive the trip into an index entry.

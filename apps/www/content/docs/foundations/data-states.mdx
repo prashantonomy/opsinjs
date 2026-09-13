@@ -1,6 +1,6 @@
 ---
 title: Data states
-description: The five states every data-bearing surface must render — empty, loading, error, stale and partial — defined once so that "we do not know" is never drawn as an ordinary reading.
+description: Empty, loading, error, stale and partial are the five states every data-bearing surface must render. They are defined once so that "we do not know" is never drawn as an ordinary reading.
 status: stable
 kind: foundation
 aliases: [five data states, partial data, unknown value, missing value]
@@ -17,15 +17,15 @@ returned four of six readings. The number on screen is nine days old.
 
 The failure this page exists to prevent is specific and it is common: a surface
 that does not know a value renders the space where the value would be as blank,
-or as a dash, or as zero — and a worried reader interprets an absence as
+or as a dash, or as zero. A worried reader therefore interprets an absence as
 reassurance. Nothing there means nothing wrong. That inference is wrong often
 enough to matter, and it is entirely the interface's fault.
 
 So opsinjs defines five data states, once, for every surface that displays data.
 A component either renders all five or documents in its `When not to use` section
-why one is impossible. This is the third
-[principle](principles.mdx) — *say what you do not know* — turned into something
-a reviewer can check.
+why one is impossible. The third [principle](principles.mdx) is *say what you do
+not know*, and these five states are that principle turned into something a
+reviewer can check.
 
 ## How it works
 
@@ -41,8 +41,8 @@ value.
 **2. Loading.** The system is trying. Rendered as a
 [skeleton](../components/skeleton.mdx) that preserves the final layout, so the
 page does not reflow under a reader's thumb when the data lands. A skeleton never
-shows a shape that could be mistaken for a value — no placeholder digits, no
-example number, no plausible-looking chart.
+shows a shape that could be mistaken for a value. It has no placeholder digits,
+no example number and no plausible-looking chart.
 
 **3. Empty.** There is genuinely nothing, and that is a legitimate answer. First
 run, a log with no entries, a metric never recorded. An empty state names what
@@ -52,9 +52,9 @@ not be styled like one.
 **4. Partial.** Some of the data exists and some does not, and this is the state
 most systems collapse into one of the others. A weekly average computed from
 three days is not an average of the week; a trend line with a two-week gap is not
-a trend across that gap. Partial data is shown *with its own coverage stated* —
-how much of the intended window is actually present — and any derived figure
-either says what it was derived from or is not shown at all.
+a trend across that gap. Partial data is shown *with its own coverage stated*.
+The coverage says how much of the intended window is actually present, and any
+derived figure either says what it was derived from or is not shown at all.
 
 **5. Stale.** The value is real but old enough that it may no longer describe the
 person. Staleness is not a boolean and it is not universal: a resting heart rate
@@ -78,8 +78,8 @@ and the rendering, never the number.
 </FlowDiagram>
 
 Every state is exposed as a `data-state` attribute so it can be styled and
-tested from outside the component — see
-[Handbook → Data attributes](../handbook/data-attributes.mdx) — and every state
+tested from outside the component. See
+[Handbook → Data attributes](../handbook/data-attributes.mdx). Every state also
 has a machine-readable form in the registry so an agent generating a screen
 cannot forget one.
 
@@ -106,9 +106,9 @@ and four arrived, the surface says four of seven. If that makes the figure not
 worth showing, the honest render is `Partial`, not a smaller number.
 
 **Stale is a status question and a data question at once.** A stale value keeps
-its own status colour — a reading that was urgent yesterday is still an urgent
-reading — but the surface must carry the age. What the *product* does about a
-stale urgent reading is an escalation decision and belongs to
+its own status colour, because a reading that was urgent yesterday is still an
+urgent reading. The surface must nevertheless carry the age. What the *product*
+does about a stale urgent reading is an escalation decision and belongs to
 [Uncertainty and staleness](../health/uncertainty-and-staleness.mdx).
 
 **Empty is not a blank.** An empty state that shows nothing is indistinguishable
@@ -147,8 +147,8 @@ fail their first screen-reader test.
   owns the value is correct; announcing eight decorative bars is not.
 - **`Stale` and `Partial` are part of the accessible name, not a visual garnish.**
   A reader using a screen reader must hear that a value is nine days old at the
-  same moment a sighted reader sees it, in the same sentence — not in a separate
-  element they may never reach.
+  same moment a sighted reader sees it, in the same sentence rather than in a
+  separate element they may never reach.
 - **Error states move focus deliberately or not at all.** An error that appears
   in place does not steal focus; an error that replaces the whole surface must
   put focus somewhere predictable and say what happened.
@@ -162,9 +162,9 @@ The full announcement contract per component is aggregated on
 ## Related
 
 - [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx)
-  — the clinical doctrine these five states implement, and where the thresholds
-  come from.
-- [Interaction states](interaction-states.mdx) — the other state machine, and the
-  one people confuse this with.
-- [Content → Error and empty messages](../content/error-and-empty-messages.mdx) —
-  the words to put inside each of these five.
+  is the clinical doctrine these five states implement, and it is where the
+  thresholds come from.
+- [Interaction states](interaction-states.mdx) is the other state machine, and
+  the one people confuse this with.
+- [Content → Error and empty messages](../content/error-and-empty-messages.mdx)
+  has the words to put inside each of these five.

@@ -34,16 +34,16 @@ export default function ContrastPlaygroundPage() {
                 procurement questionnaires, accessibility statements and
                 regulation. You will be asked for it, and the answer has to be
                 available. It is also a model of luminance contrast that
-                predicts readability imperfectly — most visibly for light text
-                on mid-tone backgrounds, where it is generous, and for very dark
-                palettes, where it is harsh.
+                predicts readability imperfectly. The imperfection shows most
+                visibly for light text on mid-tone backgrounds, where the model
+                is generous, and for very dark palettes, where it is harsh.
               </p>
               <p>
                 APCA is the perceptual model developed for WCAG 3. It accounts
-                for polarity — dark-on-light and light-on-dark are genuinely
-                different problems — and for text size and weight, which is why
-                its answer is a signed lightness contrast rather than a
-                symmetric ratio. It has no legal standing.
+                for polarity, because dark-on-light and light-on-dark are
+                genuinely different problems, and it accounts for text size and
+                weight. That is why its answer is a signed lightness contrast
+                rather than a symmetric ratio. It has no legal standing.
               </p>
               <p>
                 opsinjs treats APCA as the design floor and WCAG 2.2 as the
@@ -69,7 +69,7 @@ export default function ContrastPlaygroundPage() {
                 It also says nothing about the surface underneath. Translucent
                 material rungs are measured against a worst-case backdrop with a
                 minimum scrim, and that measurement is generated rather than
-                checked by eye — see{" "}
+                checked by eye. See{" "}
                 <Link
                   href={routes.docs(
                     "foundations",
@@ -103,10 +103,10 @@ export default function ContrastPlaygroundPage() {
               This tool posts to <Mono>/api/contrast</Mono>. So does{" "}
               <Mono>pnpm contrast</Mono>, which regenerates the committed
               conformance table, and so does the CI gate that fails a build when
-              a measured pair regresses. One implementation, hand-written in{" "}
-              <Mono>lib/color/</Mono>, with no colour library in the dependency
-              tree — which means an answer you get here is the answer the build
-              gets, and not an approximation of it.
+              a measured pair regresses. There is one implementation,
+              hand-written in <Mono>lib/color/</Mono>, with no colour library in
+              the dependency tree. An answer you get here is therefore the
+              answer the build gets, and not an approximation of it.
             </p>
             <p>
               <Link

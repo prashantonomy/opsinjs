@@ -1,6 +1,6 @@
 ---
 title: ResultCard
-description: One test result, shown in full — what was measured, the number, where it sits against its range, what that means in plain English, and what to do next.
+description: One test result, shown in full. What was measured, the number, where it sits against its range, what that means in plain English, and what to do next.
 status: alpha
 kind: component
 since: "unreleased"
@@ -16,10 +16,10 @@ usedIn: [value-against-a-range, health-metric-card, results-screen]
   name="result-card"
   status="alpha"
   questions={[
-    "The card's accessible name is its title alone, not the title plus the reading the specification asked for. Assembling that sentence means either formatting the number here — which is the one thing this component refuses to do — or pointing `aria-labelledby` at two elements, which needs ids no server component can mint. The reading is the next thing announced after the name, and nobody has listened to it.",
+    "The card's accessible name is its title alone, not the title plus the reading the specification asked for. Assembling that sentence means either formatting the number here or pointing `aria-labelledby` at two elements. Formatting the number is the one thing this component refuses to do, and pointing at two elements needs ids no server component can mint. The reading is the next thing announced after the name, and nobody has listened to it.",
     "Nothing on this page has been measured. No contrast pair has been checked by a machine, no card has been listened to, no card has been printed, and no hit area has been measured at 1.3× or at 200% text.",
     "A compound reading is drawn without a bar, because two numbers have no single position on one line. A product that wants one bar per part can build it from RangeBar directly; whether that is the right shape for a paired result has not been tested with anybody.",
-    "The not-medical-advice note is not on this card and will not be. Where it lives — once per screen, once per session, or beside every result — is a product decision this component deliberately does not make, and the open question is whether products will make it at all.",
+    "The not-medical-advice note is not on this card and will not be. Where it lives is a product decision this component deliberately does not make, and that might be once per screen, once per session, or beside every result. The open question is whether products will make it at all.",
   ]}
 >
   <code className="text-sm">result-card</code> is implemented and installable.
@@ -33,15 +33,15 @@ one result, complete: the measurement, its context, its meaning and its conseque
 order a reader needs them rather than the order a database returns them.
 
 It is also the component that proves the system composes. It formats no number, draws no
-level, positions no tick and decides nothing about when a reading is old — every one of
+level, positions no tick and decides nothing about when a reading is old. Every one of
 those is delegated to a component that owns it, and what is left here is the arrangement.
 If this card needed a rule of its own, the rule would be missing from somewhere else.
 
 ## Preview
 
 One card, whole: title, time, level, reading, the comparison, the paragraph and two next
-steps. The interval is fictional and cites *Example data — not a reference range*, which is
-the only source an opsinjs example may name.
+steps. The interval is fictional and cites *Example data rather than a reference range*,
+which is the only source an opsinjs example may name.
 
 Open it under the product theme and turn the text size up. Two claims are meant to be
 checked rather than believed: that the header wraps and the pill drops beneath the title
@@ -85,13 +85,13 @@ import { EXAMPLE_SOURCE } from "@/lib/opsinjs"
 
 <WhenToUse
   use={[
-    "A single result presented on its own terms, with room for its range, its meaning and its next step — a results page, a result detail view, or the in-app screen a result notification opens onto. Never the notification body itself.",
+    "A single result presented on its own terms, with room for its range, its meaning and its next step, whether that is a results page, a result detail view, or the in-app screen a result notification opens onto. Never the notification body itself.",
     "Any result a reader may be seeing for the first time, where the explanation matters as much as the number.",
     "A result that needs a next step attached to it, such as booking a follow-up or repeating a test.",
   ]}
   avoid={[
     { case: "You are showing several readings side by side in a dashboard grid, where a full card per reading would fill the screen.", instead: "metric-tile" },
-    { case: "The number has no range, no status and nothing to explain — you only need it formatted correctly.", instead: "value" },
+    { case: "The number has no range, no status and nothing to explain. You only need it formatted correctly.", instead: "value" },
     { case: "You are only showing where a value sits within its range, inside a larger layout you already own.", instead: "range-bar" },
     { case: "The main message is an instruction rather than a measurement.", instead: "care-card" },
     { case: "You need to interrupt the reader because something has changed and needs attention now.", instead: "alert-banner" },
@@ -116,31 +116,31 @@ plain English, it is a tile.
 The line between ResultCard and [Card](./card.mdx) is the contract. A Card is a box with a
 material and some padding, and what goes in it is yours. A ResultCard has a fixed internal
 order, refuses to derive a level, refuses to tint its own surface and says out loud when
-the explanation is missing — none of which a Card can do for you, and all of which is the
-reason to reach for it.
+the explanation is missing. A Card can do none of that for you, and all of it is the reason
+to reach for a ResultCard.
 
 ## Clinical meaning
 
 **What it asserts.** That a specific measurement was taken, at a specific time, in a
-specific unit, and — where the product has supplied them — where it sits against a stated
-reference range and which clinical status the product has assigned to it. Every one of
-those is a separate claim and each may be absent independently. An absent one renders as an
-absence: no interval means no bar, no level means no pill, no explanation means a sentence
-saying there is none.
+specific unit. Where the product has supplied them, it also asserts where that measurement
+sits against a stated reference range and which clinical status the product has assigned to
+it. Every one of those is a separate claim and each may be absent independently. An absent
+one renders as an absence: no interval means no bar, no level means no pill, no explanation
+means a sentence saying there is none.
 
 **What it must never be read as.** A diagnosis, a summary of the reader's health, or advice
 from a clinician. The card may carry a next step, but the next step is the product's, and
-the card must make its origin obvious — *your clinic asks you to repeat this test in three
-months* is a different sentence from *repeat this test in three months*, and the difference
-is who is speaking. That attribution lives in the words the product writes, in `meaning`
-and in an action's label; the component has no `attribution` prop and cannot supply one for
-you.
+the card must make its origin obvious. A next step that says *your clinic asks you to repeat
+this test in three months* is a different sentence from *repeat this test in three months*,
+and the difference is who is speaking. That attribution lives in the words the product
+writes, in `meaning` and in an action's label; the component has no `attribution` prop and
+cannot supply one for you.
 
 **Which colour axis it may use.** Both, on different elements, and that is what makes this
 card the worked example of [the two colour axes](../health/two-colour-axes.mdx). The
 **status** axis reaches exactly one element: the [StatusPill](./status-pill.mdx) in the
 header. The **category** axis reaches exactly one element: the title. The card's own surface
-stays neutral at every level, and there is no prop that tints it — a card whose entire
+stays neutral at every level, and there is no prop that tints it. A card whose entire
 background turns amber converts a single measurement into an emotional event, and a screen
 with four of them is unreadable. See [Alarm fatigue](../health/alarm-fatigue.mdx).
 
@@ -157,18 +157,19 @@ range. Most people sit outside at least one reference interval at any moment.
 
 **What the card cannot tell you about its own number.** `provenance` is free text. There is
 no provenance class on it and none anywhere in opsinjs yet, so this card cannot tell a
-laboratory result from a wrist estimate or from something the reader typed — and
+laboratory result from a wrist estimate or from something the reader typed.
 [Data provenance and device accuracy](../health/data-provenance-and-device-accuracy.mdx)
 bounds what an interface may assert by exactly that class: a device-estimated or
 self-reported value may not carry a clinical status on its own. The card renders whatever
 `status` you pass, so that rule is yours to keep rather than one the component can enforce.
-Say the class in the words you put in `provenance` — *from your cuff*, *estimated by your
-watch*, *you entered this* — because that string is currently the only place it can live.
+Say the class in the words you put in `provenance`, because that string is currently the
+only place it can live. Wording like *from your cuff*, *estimated by your watch* and *you
+entered this* is what carries it.
 
 **A result that may distress, and the `urgent` level.** `status` accepts `urgent` and this
 card does nothing special with it: it renders a pill and it stays a card the reader chose to
 open. [Delivering difficult results](../health/delivering-difficult-results.mdx) asks for
-more than the card can supply on its own — the reader is told something is coming before it
+more than the card can supply on its own. The reader is told something is coming before it
 is shown, they choose the moment to open it, the plain summary comes before the numbers, and
 the surface ends in a route to a person rather than on the figure. The last thing this
 component renders is the provenance footnote, so if the result may distress, the route to a
@@ -186,18 +187,18 @@ listed as one below rather than left to be discovered.
 
 **Staleness is part of the meaning, and the boundary is yours.** `staleAfterHours` is passed
 straight through to [RelativeTime](./relative-time.mdx), which applies it. Omit it and there
-is no staleness treatment at all — the honest output when nobody has said what *old* means
-for this measurement. Supply it and the timestamp past the boundary carries the words *may
-be out of date* as text, muted as a scanning aid rather than as the message. The words are
-hedged deliberately: the component knows the reading is older than a boundary somebody else
-set, and it does not know that the reading is wrong. See
+is no staleness treatment at all. That is the honest output when nobody has said what *old*
+means for this measurement. Supply it and the timestamp past the boundary carries the words
+*may be out of date* as text, muted as a scanning aid rather than as the message. The words
+are hedged deliberately: the component knows the reading is older than a boundary somebody
+else set, and it does not know that the reading is wrong. See
 [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx).
 
 No preview on this page shows that state, and none can. A number reaching `staleAfterHours`
 in a shipped example is a staleness default, and those are forbidden for any metric in any
-population — including in example data, and including behind a constant whose name says it
-belongs to the example. So the treatment is described here and demonstrated nowhere, which
-is a real cost stated rather than hidden.
+population. The prohibition holds in example data, and it holds behind a constant whose name
+says it belongs to the example. So the treatment is described here and demonstrated nowhere,
+which is a real cost stated rather than hidden.
 
 Age lowers what a reading is worth; it does not raise the alarm. A value the app cannot
 vouch for must not drive an `attention` or an `urgent` level: if you are not sure the number
@@ -206,10 +207,10 @@ is an action that gets a fresh one.
 
 <SafetyCallout severity="attention" evidence="opinion">
 A result the reader has never seen before should not arrive with no way to understand it.
-When `meaning` is absent this card says so — *we do not have an explanation for this result
-yet* — rather than rendering nothing, and the product should attach an action that leads
-somewhere that does explain it. Silence reads as *this is fine*, and silence is the default
-no one chose.
+When `meaning` is absent this card says so rather than rendering nothing, and the words it
+renders are *we do not have an explanation for this result yet*. The product should attach
+an action that leads somewhere that does explain it. Silence reads as *this is fine*, and
+silence is the default no one chose.
 </SafetyCallout>
 
 ## Anatomy
@@ -219,7 +220,7 @@ no one chose.
   parts={[
     {
       name: "ResultCard",
-      describes: "The root, an <article> named by its title so it is reachable by region. Takes colour from neither axis: bg-card, a real border, and no status or category class anywhere on it. No fixed height and no fixed width — layout is the caller's, through className.",
+      describes: "The root, an <article> named by its title so it is reachable by region. Takes colour from neither axis: bg-card, a real border, and no status or category class anywhere on it. No fixed height and no fixed width. Layout is the caller's, through className.",
     },
     {
       name: "ResultCard.Header",
@@ -242,7 +243,7 @@ no one chose.
     },
     {
       name: "ResultCard.Reading",
-      describes: "The number at display size, through Value — the largest thing on the card, because it is what the reader came for. One Value for a single reading; one per part for a compound one, with the unit printed after the last and spoken after every one.",
+      describes: "The number at display size, through Value. The reading is the largest thing on the card, because it is what the reader came for. One Value for a single reading; one per part for a compound one, with the unit printed after the last and spoken after every one.",
       prop: "value",
     },
     {
@@ -252,12 +253,12 @@ no one chose.
     },
     {
       name: "ResultCard.Meaning",
-      describes: "The plain-English paragraph, held to a comfortable measure. When the product supplies none, this part carries the sentence saying so rather than collapsing — the part that most result UIs omit, and the one that decides whether the card is useful.",
+      describes: "The plain-English paragraph, held to a comfortable measure. When the product supplies none, this part carries the sentence saying so rather than collapsing. This is the part that most result UIs omit, and the one that decides whether the card is useful.",
       prop: "meaning",
     },
     {
       name: "ResultCard.Actions",
-      describes: "At most two next steps, separated by the target-separation token so the gap does not shrink with density. An action with an href renders as a link carrying data-slot=\"result-card-action\"; one with onSelect renders as a Button, which stamps its own. The recommended one is expected first and is rendered bordered, on a larger target — not by a fill, which on this card's own ground would be no difference at all.",
+      describes: "At most two next steps, separated by the target-separation token so the gap does not shrink with density. An action with an href renders as a link carrying data-slot=\"result-card-action\"; one with onSelect renders as a Button, which stamps its own. The recommended one is expected first and is rendered bordered and on a larger target rather than by a fill, which on this card's own ground would be no difference at all.",
       prop: "actions",
     },
     {
@@ -348,8 +349,8 @@ compound export would let you place that a prop does not.
 Nesting a second `StatusPill` anywhere inside the card, or placing a `RangeBar` above
 `ResultCard.Reading`, is a composition error: the reading is the subject and the bar is its
 context, and reversing them changes what the card is about. The embedded bar is given no
-`status` for the same reason — a bar with a level draws its own word and glyph, and the
-card would then show two objects for one assertion.
+`status` for the same reason. A bar with a level draws its own word and glyph, and the card
+would then show two objects for one assertion.
 
 ## Examples
 
@@ -365,10 +366,11 @@ the pair; read aloud, every part is named and every number keeps its own spoken 
 
 ### The smallest card, and the sentence it will not leave out
 
-A number, a unit and a time, and nothing else — no interval, no level, no explanation, no
-next step. That is still a ResultCard, on one condition: a card with no explanation says
-so. Notice what is *not* drawn. No bar, because no interval was supplied. No pill, because
-no level was assigned. No footnote, because nobody said where the reading came from.
+The card carries a number, a unit and a time, and nothing else. It has no interval, no
+level, no explanation and no next step. That is still a ResultCard, on one condition: a card
+with no explanation says so. Notice what is *not* drawn. No bar, because no interval was
+supplied. No pill, because no level was assigned. No footnote, because nobody said where the
+reading came from.
 
 <ComponentPreview name="result-card-no-explanation-supplied" kind="example" align="start" />
 
@@ -383,10 +385,11 @@ accessibility tree and on paper.
 
 Neither card shows the staleness treatment, and no example here can. Supplying
 `staleAfterHours` in a shipped example means shipping a staleness boundary, which is
-forbidden for any metric in any population — so the state is described in *Clinical meaning*
-above and demonstrated nowhere. Pass your own boundary and the timestamp past it carries the
-words *may be out of date*, muted as a scanning aid rather than as the message, because an
-opacity-only treatment disappears under increased contrast, in greyscale and on paper.
+forbidden for any metric in any population. The state is therefore described in *Clinical
+meaning* above and demonstrated nowhere. Pass your own boundary and the timestamp past it
+carries the words *may be out of date*, muted as a scanning aid rather than as the message,
+because an opacity-only treatment disappears under increased contrast, in greyscale and on
+paper.
 
 <ComponentPreview name="result-card-an-old-reading" kind="example" align="start" />
 
@@ -398,7 +401,7 @@ looks at, what this result means in context, and what usually happens next. Writ
 second person, in the present tense, and without hedging so heavily that it says nothing.
 
 Actions are imperative and specific. *Book a repeat test* is an action; *learn more* is a
-link pretending to be one. Attribute the instruction inside the label or the paragraph — the
+link pretending to be one. Attribute the instruction inside the label or the paragraph. The
 component cannot tell whether a clinician or a rule produced the next step, and the reader
 cannot either unless you say.
 
@@ -441,8 +444,8 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
 
 - **No element takes colour from both axes.** The gate reads every JSX element in the file
   and fails on one carrying both `data-category` and `data-status`, or writing a category
-  colour and a status colour into the same opening tag. On this card the two are on sibling
-  elements — the title and the pill — which is the arrangement the rule exists to produce
+  colour and a status colour into the same opening tag. On this card the title and the pill
+  are siblings and take one axis each, which is the arrangement the rule exists to produce
   rather than an exception to it.
 - **This file paints no status colour and stamps no `data-status`.** The level reaches the
   screen only through the embedded [StatusPill](./status-pill.mdx), which reads its word from
@@ -463,36 +466,36 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
 
 **Argued, and true of the implementation, but not yet measured:**
 
-- **The card is one region with a name.** The root is an `<article>` — exposed to a screen
-  reader's rotor whether or not it is named, which a `<div>` is not — with `aria-label` set
-  from the title. The name is the title alone and not the title plus the reading; see the
-  gap listed below.
+- **The card is one region with a name.** The root is an `<article>` with `aria-label` set
+  from the title. An `<article>` is exposed to a screen reader's rotor whether or not it is
+  named, and a `<div>` is not. The name is the title alone and not the title plus the
+  reading; see the gap listed below.
 - **Reading order matches visual order**: title, time, level, reading, comparison, meaning,
   actions, footnote. Nothing is re-ordered by CSS against the DOM, and the header's wrap at
   large text sizes moves the pill down the page rather than moving it in the tree.
 - **The level is announced with its word.** The pill renders the word from
   `CLINICAL_STATUS_META`, a glyph that is one of four distinct shapes, and the colour, in
-  that order of reliance — which is what the measured CVD audit in `tokens/color.json`
+  that order of reliance. That order is what the measured CVD audit in `tokens/color.json`
   requires. It is given the title as its subject, so a listener hears *Needs attention,
   Example measurement* rather than a level floating free. See
   [Health glyphs](../foundations/iconography/health-glyphs.mdx).
 - **Units are spoken, not spelled.** Every number goes through [Value](./value.mdx), which
   substitutes the unit's spoken form from `tokens/units.json`. On a compound reading the
   visible symbol is printed once, after the last part, and the unit is left in the
-  accessibility tree on every part — so a listener hears it after each number and a reader
-  sees it once. The suppression is `sr-only` and not `display: none`, which is the whole of
-  the guarantee: `Value` marks the visible symbol `aria-hidden` only when it found a spoken
-  form for it, and leaves it announced when the table has no entry, so hiding it outright
-  would turn every part but the last into a bare number for exactly the units nobody has
-  taught the system to pronounce. It is also suppressed only when the last part will
-  actually print a symbol — a compound reading whose final part is `null` renders each part's
-  own unit instead, because `Value`'s absence form carries none.
+  accessibility tree on every part. A listener therefore hears it after each number, and a
+  reader sees it once. The suppression is `sr-only` and not `display: none`, which is the
+  whole of the guarantee: `Value` marks the visible symbol `aria-hidden` only when it found
+  a spoken form for it, and leaves it announced when the table has no entry, so hiding it
+  outright would turn every part but the last into a bare number for exactly the units
+  nobody has taught the system to pronounce. It is also suppressed only when the last part
+  will actually print a symbol. A compound reading whose final part is `null` renders each
+  part's own unit instead, because `Value`'s absence form carries none.
 - **Actions are real links and real buttons**, each carrying the 44pt floor on both axes
   from `--opsin-target-minimum`, with `--opsin-target-separation` between them. The floor is
   set in the component rather than inherited from the product stylesheet, because that
   stylesheet does not travel with the file. The recommended one is bordered and on a larger
   target and the alternative is neither, so the difference survives greyscale and a
-  black-and-white printout — it is not carried by hue. It is not carried by a fill either,
+  black-and-white printout. It is not carried by hue. It is not carried by a fill either,
   which the page used to claim: the recommended link's surface is `bg-card`, the card's own
   ground, so on this card it paints nothing. The boundary and the size are the difference.
 - **The card reflows at 200% text.** The header wraps, the reading wraps, the meaning is
@@ -513,7 +516,7 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
   for a name shaped as the measurement's title followed by its reading and unit. Building
   that string means formatting the number here, which this component refuses to do, or
   pointing `aria-labelledby` at the title and the reading, which needs ids a server component
-  cannot mint — `useId` is a hook and would put every card in the system into the client
+  cannot mint. `useId` is a hook and would put every card in the system into the client
   bundle. The reading is the next thing announced after the name; nobody has listened to
   whether that is enough.
 - **Every contrast pair.** `scripts/check-contrast.mts` has not been run for this component,
@@ -522,9 +525,9 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
   `-surface`, and here it is painted on `bg-card` instead, which is a different pairing from
   the one the token contract guarantees.
 - **Print.** The card grows a real border rather than relying on a material's inset shadow,
-  which is the boundary a printer keeps — but opsinjs has no print stylesheet, nothing here
-  has been put on paper, and the specification's requirement that a printed card carry the
-  range as an outline is inherited from [RangeBar](./range-bar.mdx) rather than tested.
+  which is the boundary a printer keeps. Even so, opsinjs has no print stylesheet, nothing
+  here has been put on paper, and the specification's requirement that a printed card carry
+  the range as an outline is inherited from [RangeBar](./range-bar.mdx) rather than tested.
 - **How often the composite says the same thing.** This was previously described as one
   repetition and it is larger than that. On the card in the preview above, the measurement's
   name is announced six times: as the `<article>`'s label, as the heading, as the pill's
@@ -563,7 +566,7 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
     {
       keys: "Tab",
       action: "Moves to the first action, where the card has one",
-      notes: "The card itself is not focusable and is not a tab stop: it is a region, not a control. A card with no actions is skipped entirely, and a card with two costs two stops rather than one — they are two separate destinations and a roving-focus group would hide the second from anybody scanning by Tab.",
+      notes: "The card itself is not focusable and is not a tab stop: it is a region, not a control. A card with no actions is skipped entirely, and a card with two costs two stops rather than one. They are two separate destinations and a roving-focus group would hide the second from anybody scanning by Tab.",
     },
     {
       keys: "Shift + Tab",
@@ -588,7 +591,7 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
     {
       keys: "Arrow keys",
       action: "Nothing",
-      notes: "Deliberately. The card is not a composite widget with a single stop, and the embedded bar is role=\"img\" rather than a slider — a component that answered arrow keys would be telling the reader they can move their own measurement.",
+      notes: "Deliberately. The card is not a composite widget with a single stop, and the embedded bar is role=\"img\" rather than a slider. A component that answered arrow keys would be telling the reader they can move their own measurement.",
     },
   ]}
 />
@@ -623,7 +626,7 @@ this implementation contradicts its own specification. The proposed type allowed
 a pair could be passed as `"128/78"`, while the part tree routed every reading through
 `Value`, whose value is a number or nothing. A string cannot be rounded to the measurement's
 precision, cannot be shaped for a locale, cannot have its unit spoken and cannot be
-published as a machine-readable datum — every one of which is something the rest of this
+published as a machine-readable datum. Every one of those is something the rest of this
 system has already promised about numbers. The compound reading is `segments` instead. An
 ADR records the change.
 
@@ -654,16 +657,17 @@ export interface ResultAction {
 Several constraints are stated in prose and enforced at runtime rather than in the type,
 because this file ships as source into JavaScript projects where a type is advice: at most
 two actions, at most one of them recommended, one reading rather than both a `value` and a
-`segments` array, a `titleLevel` inside 2–6, and a non-blank `label` on every segment. Each
-is reported once per distinct offender in development and each renders the honest fallback —
-the third action is dropped, the first recommendation is the one that is drawn, the compound
-reading wins, the heading falls back to `h3` rather than emitting an `h7` that is not a
-heading at all, and an unlabelled segment is dropped rather than announced as a bare number.
+`segments` array, a `titleLevel` of 2, 3, 4, 5 or 6, and a non-blank `label` on every
+segment. Each is reported once per distinct offender in development and each renders the
+honest fallback. The third action is dropped, the first recommendation is the one that is
+drawn, the compound reading wins, the heading falls back to `h3` rather than emitting an
+`h7` that is not a heading at all, and an unlabelled segment is dropped rather than
+announced as a bare number.
 A blank `title` is the one case with no fallback: it warns, and the card renders no heading
 element rather than an empty one. None of them is an `OPSIN-` code: those
 describe mistakes a consumer makes with the clinical API, they are a versioned contract
 generated from `tokens/errors.json`, and a component may not mint one. The two mistakes that
-do have codes are reported through them — an unknown `category` is OPSIN-0010, and a range
+do have codes are reported through them. An unknown `category` is OPSIN-0010, and a range
 with no `source` is OPSIN-0004, raised by the bar rather than by the card.
 
 There is no `attribution` prop, no `disclaimer` prop and no `density` prop. The first two
@@ -676,7 +680,7 @@ belongs in `className`.
     {
       attribute: "data-slot",
       condition: "On every part, always",
-      value: "result-card, result-card-header, result-card-title, result-card-time, result-card-reading, result-card-meaning, result-card-actions, result-card-footnote, result-card-action on the link form of an action — plus the slots the embedded components stamp: status-pill, relative-time, range-bar, value, button. The handler form of an action is a Button and carries button rather than result-card-action.",
+      value: "result-card, result-card-header, result-card-title, result-card-time, result-card-reading, result-card-meaning, result-card-actions, result-card-footnote, result-card-action on the link form of an action. The embedded components stamp their own slots too: status-pill, relative-time, range-bar, value, button. The handler form of an action is a Button and carries button rather than result-card-action.",
     },
     {
       attribute: "data-status",
@@ -690,7 +694,7 @@ belongs in `className`.
     },
     {
       attribute: "data-opsinjs-value",
-      condition: "On every Value: one for the reading, or one per segment of a compound one, plus the ones a drawn RangeBar renders for the reading and both bounds. De-duplicate before scraping — the reading's own number appears more than once on a card with a bar.",
+      condition: "On every Value: one for the reading, or one per segment of a compound one, plus the ones a drawn RangeBar renders for the reading and both bounds. De-duplicate before scraping, because the reading's own number appears more than once on a card with a bar.",
       value: "The unrounded number, or an empty string when there is no reading",
     },
   ]}
@@ -702,25 +706,25 @@ belongs in `className`.
 
 **Easily confused with**
 
-- [MetricTile](./metric-tile.mdx) — the same data with no room to explain itself. Use a tile
-  in a grid, a card on a page.
-- [Card](./card.mdx) — the neutral container. ResultCard is a Card with a clinical contract;
-  a Card is a box.
-- [CareCard](./care-card.mdx) — a card whose subject is an instruction rather than a
+- [MetricTile](./metric-tile.mdx) is the same data with no room to explain itself. Use a
+  tile in a grid, a card on a page.
+- [Card](./card.mdx) is the neutral container. ResultCard is a Card with a clinical
+  contract; a Card is a box.
+- [CareCard](./care-card.mdx) is a card whose subject is an instruction rather than a
   measurement. If the reader's takeaway is a verb, use CareCard.
-- [AlertBanner](./alert-banner.mdx) — for something that must interrupt. A result the reader
-  chose to open is not an interruption.
-- [DisclaimerNote](./disclaimer-note.mdx) — where the not-medical-advice note lives. It is
+- [AlertBanner](./alert-banner.mdx) is for something that must interrupt. A result the
+  reader chose to open is not an interruption.
+- [DisclaimerNote](./disclaimer-note.mdx) is where the not-medical-advice note lives. It is
   not on this card, and no default text for it exists anywhere in opsinjs.
 
 **Composed of**
 
-- [StatusPill](./status-pill.mdx) — the level, as a word, a glyph and a colour.
-- [Value](./value.mdx) — every number on the card, formatted once and spoken once.
-- [RangeBar](./range-bar.mdx) — the comparison, drawn and said in words.
-- [RelativeTime](./relative-time.mdx) — when it was measured, and whether that is still
+- [StatusPill](./status-pill.mdx) is the level, as a word, a glyph and a colour.
+- [Value](./value.mdx) covers every number on the card, formatted once and spoken once.
+- [RangeBar](./range-bar.mdx) is the comparison, drawn and said in words.
+- [RelativeTime](./relative-time.mdx) says when it was measured, and whether that is still
   recent enough to act on.
-- [Button](./button.mdx) — an action that acts rather than navigates.
+- [Button](./button.mdx) is an action that acts rather than navigates.
 
 **Used by**
 

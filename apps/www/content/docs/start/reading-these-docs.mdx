@@ -29,19 +29,20 @@ the site predictable.
 The block under the title is generated from frontmatter, and it carries more
 information than it looks like it does:
 
-- **The status chip** — the release phase. Everything below depends on it.
-- **`since`** — the version that introduced the thing being documented.
+- **The status chip** is the release phase. Everything below depends on it.
+- **`since`** is the version that introduced the thing being documented.
   `unreleased` means exactly that.
-- **`category`** — where it sits in the catalogue. A category beginning `health-`
-  triggers extra mandatory sections on the page and extra review requirements.
-- **The accessibility review date** — when the accessibility claims on the page
-  were last checked. An old date is a warning, and
+- **`category`** is where it sits in the catalogue. A category beginning
+  `health-` triggers extra mandatory sections on the page and extra review
+  requirements.
+- **The accessibility review date** says when the accessibility claims on the
+  page were last checked. An old date is a warning, and
   [Docs freshness](../project/docs-freshness.mdx) explains what happens when one
   expires.
-- **`governedBy`** — the doctrine pages that constrain this component. Follow them
-  before you use it in anything clinical.
-- **Copy page** — the split button that hands you this page as markdown, or a link
-  to an AI tool with the page loaded.
+- **`governedBy`** has the doctrine pages that constrain this component. Follow
+  them before you use it in anything clinical.
+- **Copy page** is the split button that hands you this page as markdown, or a
+  link to an AI tool with the page loaded.
 
 ## Understand the status vocabulary
 
@@ -61,9 +62,9 @@ catalogue JSON and `llms.txt` all share.
 | `considered` | Evaluated and not built. It exists as a catalogue row so the question has an answer. |
 
 No component page is `planned` today: twenty-four are `alpha` and the remaining
-thirty-six catalogue ids are `considered`. `planned` is still a live value and
-pages elsewhere on the site carry it — the recipes, the patterns and the five
-screen specimens are all `planned` — so read the chip rather than assuming which
+thirty-six catalogue ids are `considered`. `planned` is still a live value, and
+pages elsewhere on the site carry it. The recipes, the patterns and the five
+screen specimens are all `planned`. So read the chip rather than assuming which
 side of the line a page is on. The count in the legend above is derived from
 `registry/catalogue.ts`; this paragraph is not, so trust the legend.
 
@@ -74,7 +75,7 @@ being dangerous.
 
 1. **Read the page's `status`; it is the whole answer.** At `planned` or
    `considered` there is no implementation, and the page exists so that you do
-   not have to guess: the API on it is a specification under review — do not emit
+   not have to guess: the API on it is a specification under review. Do not emit
    an implementation of it, do not import from it, and do not tell a user it is
    available. Those pages carry a `data-opsinjs-not-implemented` marker and a
    visually-hidden sentence saying so, in both the HTML and the `.md` twin, and
@@ -82,8 +83,8 @@ being dangerous.
    a real install command, and the honest caveat to pass on is that the API may
    change in any release without a deprecation cycle.
 2. **Every page has a markdown twin.** Append `.md` to any documentation URL and
-   you get the processed markdown — JSX resolved into text, not raw MDX. The
-   corpus is also published as `llms.txt` with per-pillar shards. See
+   you get the processed markdown. That is JSX resolved into text, not raw MDX.
+   The corpus is also published as `llms.txt` with per-pillar shards. See
    [Raw markdown API](../agents/raw-markdown-api.mdx).
 3. **Never invent a number.** Thresholds, reference ranges, contrast ratios and
    token values are supplied or generated, never remembered. If a value is not on
@@ -96,30 +97,31 @@ The full contract, including the machine-readable schemas, is in
 
 A page's `kind` fixes its headings. The five you will meet most often:
 
-- **`component`** — a twenty-two section anatomy, status-gated. Below `alpha`
+- **`component`** is a twenty-two section anatomy, status-gated. Below `alpha`
   you get intent, when *not* to use it, the clinical contract, the proposed
   anatomy and API, the content rules and the accessibility requirements; the
-  sections that need a build to be truthful — examples, states, props table,
-  bundle size — are *omitted*, not left empty. From `alpha` those sections
-  appear, generated from the code, and any whose source has still not been
-  measured renders `<NoDataYet>` rather than a number.
+  sections that need a build to be truthful are *omitted*, not left empty. Those
+  are examples, states, the props table and bundle size. From `alpha` those
+  sections appear, generated from the code, and any whose source has still not
+  been measured renders `<NoDataYet>` rather than a number.
   [Anatomy of a component page](../components/anatomy-of-a-component-page.mdx)
   teaches the whole contract once.
-- **`health`** — what this means, the rule, why (with evidence), applying it, the
-  components that implement it, what it does not cover, and when it was last
-  reviewed.
-- **`foundation`** — overview, how it works, using it, tokens, accessibility
-  impact, related.
-- **`recipe`** — a task, the parts, the build, the copy, the checks, variations.
-- **`guide`** — overview, the tasks, verify it worked, troubleshooting, next. The
-  page you are reading now.
+- **`health`** covers what this means, the rule, why (with evidence), applying
+  it, the components that implement it, what it does not cover, and when it was
+  last reviewed.
+- **`foundation`** covers overview, how it works, using it, tokens,
+  accessibility impact and related.
+- **`recipe`** covers a task, the parts, the build, the copy, the checks and
+  variations.
+- **`guide`** covers overview, the tasks, verify it worked, troubleshooting and
+  next. The page you are reading now.
 
 ## Read a token table correctly
 
 Token tables have three columns for a reason. **Token** is the name you use.
 **What it controls** is the property it is expected to drive. **Used by** is the
-list of components that consume it — which is the column that turns a list into a
-decision aid, because it tells you the blast radius of changing one.
+list of components that consume it. That column turns a list into a decision
+aid, because it tells you the blast radius of changing one.
 
 Two habits will keep you out of trouble:
 
@@ -138,11 +140,11 @@ Two habits will keep you out of trouble:
 Contrast tables on this site print two numbers per pair, and they are not
 interchangeable.
 
-- **WCAG 2.2 contrast ratio** — the legally-referenced figure, ranging from 1:1 to
-  21:1. It is what conformance is measured against today.
-- **APCA `Lc`** — a perceptual lightness contrast value from the draft WCAG 3 work.
-  It models polarity, so light-on-dark and dark-on-light are not treated as the
-  same problem, and it correlates better with legibility at small sizes.
+- **WCAG 2.2 contrast ratio** is the legally-referenced figure, ranging from 1:1
+  to 21:1. It is what conformance is measured against today.
+- **APCA `Lc`** is a perceptual lightness contrast value from the draft WCAG 3
+  work. It models polarity, so light-on-dark and dark-on-light are not treated
+  as the same problem, and it correlates better with legibility at small sizes.
 
 opsinjs publishes both because they disagree, and where they disagree the honest
 thing is to show it rather than pick the flattering one. The published floor and
@@ -180,9 +182,9 @@ table is how documentation starts lying.
 say which. Numeric formatting is canonical in
 [Numbers, units and precision](../health/numbers-units-precision.mdx); plain
 language is canonical in
-[Plain English A–Z](../content/plain-english-a-z.mdx). If you find a genuine
-contradiction that is not covered by a canonicality declaration, that is a bug —
-report it from the feedback control at the foot of the page.
+[Plain-English A to Z](../content/plain-english-a-z.mdx). If you find a genuine
+contradiction that is not covered by a canonicality declaration, that is a bug.
+Report it from the feedback control at the foot of the page.
 
 **A page you found through search has an old review date.** Review dates are
 published rather than hidden precisely so you can weigh them. See
@@ -190,9 +192,9 @@ published rather than hidden precisely so you can weigh them. See
 
 ## Next
 
-- [Anatomy of a component page](../components/anatomy-of-a-component-page.mdx) —
+- [Anatomy of a component page](../components/anatomy-of-a-component-page.mdx) is
   the twenty-two section contract, taught once and never repeated.
-- [Rules for agents](../agents/rules-for-agents.mdx) — the machine-facing version
-  of this page.
-- [Release phases](../project/release-phases.mdx) — what each status promises, in
-  the project's own words.
+- [Rules for agents](../agents/rules-for-agents.mdx) is the machine-facing
+  version of this page.
+- [Release phases](../project/release-phases.mdx) says what each status
+  promises, in the project's own words.

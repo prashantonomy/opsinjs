@@ -17,11 +17,11 @@ usedIn: [health-metric-card, results-screen]
   status="alpha"
   questions={[
     "A composite score has no unit, and Value has no way to be told that. Every dial therefore prints one OPSIN-0003 warning per development session about a unit it is right not to have. The fix belongs in ValueProps or in the error's own condition, not here, and it is reported upward rather than worked around.",
-    "There is no provenance field. A composite score is by construction built from inputs of mixed provenance — a device estimate here, something the reader typed there — and nothing on this surface records or shows which. The derivation sentence is the only place it can be said, and nothing checks that it was.",
+    "There is no provenance field. A composite score is by construction built from inputs of mixed provenance, and nothing on this surface records or shows which of them is a device estimate and which is something the reader typed. The derivation sentence is the only place it can be said, and nothing checks that it was.",
     "What is announced when a score changes while the dial is on screen? The component mounts no live region, deliberately, and the caller has no guidance here yet.",
-    "Every sentence the component supplies is British English — \"On a scale of 10 to 20.\", \"We do not have a band for this score.\", \"up to\" — while `locale` reaches only the numbers and the date. A product shipping in another language cannot translate the component's own copy without forking the file.",
+    "Every sentence the component supplies is British English, while `locale` reaches only the numbers and the date. Its own strings include \"On a scale of 10 to 20.\", \"We do not have a band for this score.\" and \"up to\". A product shipping in another language cannot translate the component's own copy without forking the file.",
     "The contrast pairs this component composes have not been measured. Two of the four roles it paints with are measured and fail the non-text floor; the numbers are in the accessibility section rather than left in a generated file.",
-    "Two doctrine pages bear on this component and are not in `governedBy`: clinical-status-semantics, because the dial renders a status word, and uncertainty-and-staleness, because it renders a calculation date with no staleness treatment. The relationship is enforced in both directions — neither doctrine page's `implements` names `score-dial` — so it cannot be declared from this page alone.",
+    "Two doctrine pages bear on this component and are not in `governedBy`: clinical-status-semantics, because the dial renders a status word, and uncertainty-and-staleness, because it renders a calculation date with no staleness treatment. The relationship is enforced in both directions, and neither doctrine page's `implements` names `score-dial`. It therefore cannot be declared from this page alone.",
   ]}
 >
   <code className="text-sm">score-dial</code> is implemented and installable. It
@@ -42,9 +42,10 @@ The default demo has no bands, and that is deliberate rather than unfinished. `s
 copies this function verbatim into a consumer's project and `/r/score-dial.json` serves it as
 text, so anything it shows is shipped: a band set here would be a score interpretation with no
 clinical owner, installed into every product that ran the command. It shows the refusal
-instead — the scale drawn, the number placed on it, and the words saying there is no band —
-which is the most important thing this component does. The scale runs from ten to twenty and
-the score is fourteen, because those are numbers nobody could mistake for their own result.
+instead, drawing the scale, placing the number on it and saying in words that there is no
+band. That is the most important thing this component does. The scale runs from ten to
+twenty and the score is fourteen, because those are numbers nobody could mistake for their
+own result.
 
 Two things are worth checking rather than believing. Turn the text size up: the arc, the score,
 the band name and the derivation sentence all grow together, because the layout is stacked at
@@ -79,7 +80,7 @@ import { ScoreDial } from "@/components/ui/score-dial"
   max={20}
   precision={0}
   bands={[]}
-  derivation="Example data — not a reference range. The score and the scale here are invented."
+  derivation="Example data rather than a reference range. The score and the scale here are invented."
 />
 ```
 
@@ -87,14 +88,14 @@ import { ScoreDial } from "@/components/ui/score-dial"
 
 <WhenToUse
   use={[
-    "A composite score your product calculated from several inputs — a readiness index, a validated questionnaire total — where the number has meaning only against its own bands.",
+    "A readiness index, a validated questionnaire total, or any other composite score your product calculated from several inputs, where the number has meaning only against its own bands.",
     "A bounded score whose scale the reader has no intuition for, so the position within the scale carries more information than the digits.",
     "A score whose derivation you can state in one sentence and are willing to state on the same screen.",
   ]}
   avoid={[
     { case: "The number is a measurement rather than a calculation, and it has a published reference range.", instead: "range-bar" },
     { case: "You cannot say what went into the score, or the inputs change without the reader knowing.", instead: "value" },
-    { case: "The score is only meaningful as a trajectory — yesterday's number tells the reader nothing on its own.", instead: "trend-sparkline" },
+    { case: "The score is only meaningful as a trajectory. Yesterday's number tells the reader nothing on its own.", instead: "trend-sparkline" },
     { case: "You are showing completion of something the person is doing, such as steps against a goal they set.", instead: "progress" },
     { case: "The whole message is which status level applies, and the number is incidental.", instead: "status-pill" },
     { case: "The score has crossed a threshold that requires the reader to act now. The dial refuses attention and urgent for this reason, and reports it in development.", instead: "care-card" },
@@ -104,13 +105,13 @@ import { ScoreDial } from "@/components/ui/score-dial"
 
 The test for whether a dial is honest is simple: can you write the derivation sentence? Name
 the inputs your product actually used and the window they cover, in the second person, in one
-sentence a reader would recognise — and be willing to put it on the same screen as the number.
+sentence a reader would recognise. Then be willing to put it on the same screen as the number.
 If the derivation is proprietary, unstable, or nobody in the room can describe it, the dial is
 a decorative authority claim and [Value](./value.mdx) is the honest component.
 
 The implementation makes that test hard to dodge. `derivation` is required, it is always
 rendered, and an empty one produces a development warning and a visible sentence saying that
-this dial cannot explain itself — which is true, and is not something anybody wants on screen.
+this dial cannot explain itself. That is true, and it is not something anybody wants on screen.
 
 ## Clinical meaning
 
@@ -129,8 +130,8 @@ score fell in, and only when the product has assigned a level to the reading. On
 band is tinted, never the whole set: a three-band dial coloured green, amber and red is a
 traffic light, and a traffic light is a verdict. Every other band is drawn in the same neutral
 tone and is told apart by its position, by a boundary mark, and by its name in the list
-beneath the arc. The **category** axis tints the label and nothing else — never the track,
-the bands or the indicator.
+beneath the arc. The **category** axis tints the label and nothing else. It never touches the
+track, the bands or the indicator.
 
 **Status is never carried by colour alone, here or anywhere.** When the product assigns a
 level, the dial renders it as a word from `CLINICAL_STATUS_META` and one of the four distinct
@@ -140,11 +141,11 @@ for how much attention it wants. Both are shown, because they answer different q
 reader is entitled to both answers.
 
 **Who owns the bands and the thresholds.** The consuming product, always. ScoreDial ships no
-scales, no bands and no cut-offs, and there is no default anywhere in the file — including in
+scales, no bands and no cut-offs, and there is no default anywhere in the file. That includes
 the zero-prop demo, which `shadcn add` copies into a consumer's project and which therefore
 passes an empty `bands`. A component library that shipped a BMI banding would be shipping a
 contested clinical judgement into every product that installed it. Hand it no bands and it
-draws the scale, places the number on it, and says in words that it has no band for it — see
+draws the scale, places the number on it, and says in words that it has no band for it. See
 [the first example](#opsinjs-ships-no-bands) below.
 
 **Every band names its own source.** `ScoreBand.source` is required and is rendered under the
@@ -160,19 +161,19 @@ number with no denominator and no method invites the reader to fill in both, and
 fill them in with something worse than the truth.
 
 **Nothing here derives a status.** `status` is a top-level prop and it is the product's
-verdict on this reading, assigned from a reference range or a threshold the product owns —
-which is exactly what `CLINICAL_STATUS_META.watch.assignedBy` says it must be. Band membership
+verdict on this reading, assigned from a reference range or a threshold the product owns.
+That is exactly what `CLINICAL_STATUS_META.watch.assignedBy` says it must be. Band membership
 is still arithmetic, and it selects a **name**: the product's own word for a stretch of the
 product's own scale. It cannot reach a level. An earlier version of this component hung
 `status` off each band and let the comparison pick one, which meant a rendering component was
 deciding what somebody's number meant; the fix was to take the decision away from it rather
 than to document it.
 
-**Two of the four levels are refused.** `attention` and `urgent` are both defined as carrying
-a named action — who to contact, what to do, in the first line — and a dial has nowhere to put
-one. Passing either renders no status at all and reports why; `steady` and `watch` are the two
-this surface can discharge honestly. A score that needs somebody to act belongs in a
-[CareCard](./care-card.mdx), which carries the action.
+**Two of the four levels are refused.** A named action says who to contact and what to do, in
+the first line. `attention` and `urgent` are both defined as carrying one, and a dial has
+nowhere to put it. Passing either renders no status at all and reports why; `steady` and
+`watch` are the two this surface can discharge honestly. A score that needs somebody to act
+belongs in a [CareCard](./care-card.mdx), which carries the action.
 
 **A score outside its scale gets no mark.** Not a mark at the end of the arc: a clamped
 indicator draws a hundred and forty in the same place as exactly a hundred, so the picture
@@ -182,12 +183,12 @@ reports it in development. It does not widen a scale the product declared, becau
 tell whether the scale is wrong or the score is.
 
 <SafetyCallout severity="attention" evidence="opinion">
-When only part of the input data was available, the dial must say so on its face — *based on
-4 of 6* — rather than presenting a weaker score as if it were a full one. Products that
-quietly compute a score from partial data teach readers to trust a number that sometimes means
-much less than it appears to. `coverage` is how you say it; what was counted — nights,
-readings, days — belongs in your derivation sentence, because this component does not know and
-will not guess a noun.
+When only part of the input data was available, the dial must say so on its face rather than
+presenting a weaker score as if it were a full one. The words it uses are *based on 4 of 6*.
+Products that quietly compute a score from partial data teach readers to trust a number that
+sometimes means much less than it appears to. `coverage` is how you say it; what was counted
+belongs in your derivation sentence, because this component does not know whether the count
+was nights, readings or days, and it will not guess a noun.
 </SafetyCallout>
 
 ## Anatomy
@@ -212,7 +213,7 @@ will not guess a noun.
     },
     {
       name: "ScoreDial.Band",
-      describes: "One arc segment per band, drawn as a dash over the shared track path. Neutral, except the single band the score fell in when the product assigned a level to the reading — that one takes the status accent and data-status.",
+      describes: "One arc segment per band, drawn as a dash over the shared track path. Neutral, except the single band the score fell in when the product assigned a level to the reading. That one takes the status accent and data-status.",
       prop: "bands",
     },
     {
@@ -221,7 +222,7 @@ will not guess a noun.
     },
     {
       name: "ScoreDial.Indicator",
-      describes: "The score's position, as a mark crossing the track. Status-inked when the product assigned a level, otherwise the foreground colour. Absent when there is no score, when the scale has no width, and when the score lies outside the scale — an off-scale mark is refused rather than clamped to the end of the arc.",
+      describes: "The score's position, as a mark crossing the track. Status-inked when the product assigned a level, otherwise the foreground colour. Absent when there is no score, when the scale has no width, and when the score lies outside the scale. An off-scale mark is refused rather than clamped to the end of the arc.",
       prop: "value",
     },
     {
@@ -264,7 +265,7 @@ will not guess a noun.
     },
     {
       name: "ScoreDial.CalculatedAt",
-      describes: "When the score was calculated, as a time element carrying the ISO instant. Not measuredAt: nothing here was measured, and a time element stamped measured beside a composite score tells a reader an instrument produced it. No staleness treatment and no relative phrasing — a relative phrase needs an instant to measure against, and a staleness window is a number opsinjs does not own.",
+      describes: "When the score was calculated, as a time element carrying the ISO instant. Not measuredAt: nothing here was measured, and a time element stamped measured beside a composite score tells a reader an instrument produced it. No staleness treatment and no relative phrasing. A relative phrase needs an instant to measure against, and a staleness window is a number opsinjs does not own.",
       prop: "calculatedAt",
     },
   ]}
@@ -371,7 +372,7 @@ by something the page had already promised. `ScoreDial.Boundary` exists because 
 be distinguishable "by position, boundary marks and their names", and nothing was drawing the
 marks. `ScoreDial.Status` exists because a status carried by a tint on an arc is a status
 carried by colour alone, which
-[the two colour axes](../health/two-colour-axes.mdx) forbids outright — the band's name is the
+[the two colour axes](../health/two-colour-axes.mdx) forbids outright. The band's name is the
 product's word for a range, and it is not a substitute for the system's word for a level.
 `ScoreDial.BandSource` exists because the band list is a comparison shown without an owner
 until somebody is named beneath it, which is what
@@ -384,7 +385,7 @@ reader rather than switching between layouts at a breakpoint.
 
 ### opsinjs ships no bands
 
-The common case is a product with a number and no agreed bands for it — the arithmetic
+The common case is a product with a number and no agreed bands for it. The arithmetic
 usually lands long before anybody has decided what the answer means. Handed an empty `bands`,
 the dial draws the scale, places the number on it, and says in words that it has no band. It
 does not reach for thirds of the scale, a population average, or a band set from somewhere
@@ -398,7 +399,7 @@ else. This is also what the zero-prop demo shows, for the reason given under
 `coverage` puts the gap on the dial's face. This example also shows the two axes staying
 apart: the label carries the category tint, the indicator and the one band the score fell in
 carry the status, and they never meet on a single element. Every bound here carries
-`EXAMPLE_SOURCE`, as it does in the example below — examples are not distributed, which is why
+`EXAMPLE_SOURCE`, as it does in the example below. Examples are not distributed, which is why
 one may show band geometry at all while the demo may not. Note where the status comes from:
 `status="watch"` is a prop on the dial, not a field on a band. The product looked at this
 reading and said what it means; nothing in the component compared fourteen with anything.
@@ -411,11 +412,11 @@ Two dials that look almost the same and mean entirely different things. On the l
 calculation that ran and came to the bottom of its scale; on the right nothing calculated at
 all, so there is no position to draw and no band to name.
 
-There is a third state neither dial shows. A `value` that is not a finite number — a division
-with no divisor somewhere upstream — is a calculation that ran and *failed*, and it is neither
-of these two. The printed reading says *not available*, and so does the arc's accessible
-sentence: the ear and the eye get the same answer, because the alternative is telling a reader
-that a number which did exist was never taken.
+There is a third state neither dial shows. A `value` that is not a finite number is a
+calculation that ran and *failed*, and it is neither of these two. A division with no divisor
+somewhere upstream is one way to arrive at one. The printed reading says *not available*, and
+so does the arc's accessible sentence: the ear and the eye get the same answer, because the
+alternative is telling a reader that a number which did exist was never taken.
 
 <ComponentPreview name="score-dial-zero-is-not-absence" kind="example" align="start" />
 
@@ -423,14 +424,14 @@ that a number which did exist was never taken.
 
 Band names are the product's vocabulary. Keep them plain and non-judgemental: a band name
 describes a range of a scale, and it does not describe the person whose score landed in it.
-Every word banned across the system is banned here —
+Every word banned across the system is banned here.
 [Reference ranges](../health/reference-ranges.mdx) carries the list and the reason for each,
 and the union is sixteen rather than the handful an author usually remembers: **normal**,
 **abnormal**, **healthy**, **unhealthy**, **good**, **bad**, **poor**, **optimal**,
 **perfect**, **elevated**, **positive**, **negative**, **failed**, **just**, **diagnosis**,
 **don't worry**. *Optimal* and *Healthy* are the two most likely names for the top of a
-wellness scale and both are on it. So is anything on the poor–fair–good ladder, which grades
-the reader rather than the range.
+wellness scale and both are on it. So is any ladder that runs from poor through fair to good,
+which grades the reader rather than the range.
 
 The derivation sentence is one sentence in the second person, naming the inputs a reader would
 recognise and the window they cover. Band provenance is no longer its job: `ScoreBand.source`
@@ -473,8 +474,8 @@ translatable without forking the file, and that is a known gap rather than a dec
 
 Some of this is checked by a gate and the rest is argued. The split is labelled, because
 `alpha` promises that accessibility is claimed only where it has been checked, with the gaps
-listed rather than left out — including the two measured contrast failures at the bottom of
-this section.
+listed rather than left out. The two measured contrast failures at the bottom of this section
+are among them.
 
 **Checked, by `pnpm run check:a11y` on every pull request and on every push to `main`**
 (`.github/workflows/ci.yml`; a commit on a branch with no open pull request is not gated):
@@ -483,7 +484,7 @@ this section.
   that paints a status colour without also reading `CLINICAL_STATUS_META` and a lucide glyph,
   and on any status surface with no `data-status`. This component reads the word and the glyph
   from that table and stamps the attribute on the band, the indicator and the status line. The
-  four glyphs are four distinct *shapes* — check, eye, triangle, octagon — which is what the
+  four glyphs are four distinct *shapes*: check, eye, triangle and octagon. That is what the
   measured CVD audit in `tokens/color.json` requires: `steady` and `attention` are identical
   under deuteranopia and in greyscale, and `steady` and `urgent` are identical under
   tritanopia. See [Colour independence](../accessibility/colour-independence.mdx).
@@ -493,58 +494,58 @@ this section.
   `cn()` body and fails on any that takes colour from both. The category reaches the label and
   the status reaches the arc, and they are separate elements by construction.
 - **No thresholds and no intervals ship.** Two rules, and it is worth knowing what each can
-  see. A11Y014 fails the build on a *name* that reads like a threshold — `stale`, `threshold`,
-  a cut-off, a `limit`, a `minimum` or `maximum`, an expiry, a `band`, a plausibility bound —
-  given a numeric literal; `scripts/check-a11y.mts` holds the exact pattern, and it is longer
-  than any summary of it. A11Y015 fails the build on a *shape*: any object literal setting two
-  numeric bounds —
-  `low`/`high`, `from`/`to`, `lower`/`upper`, `start`/`end` — with no `source` in the same
-  literal. The second rule exists because the first could not see this component's own defect:
-  an earlier version shipped a three-band set with a level mapped to the middle band, in the
-  demo that `shadcn add` copies into consumer projects, and the bounds sat under property
-  names the first rule does not look at, so the gate reported the file clean. Both rules now
-  pass over this component, its three examples and the snippet above, and the shipped demo
-  passes an empty `bands`.
+  see. A11Y014 fails the build on a *name* that reads like a threshold given a numeric
+  literal. Those names include `stale`, `threshold`, a cut-off, a `limit`, a `minimum` or
+  `maximum`, an expiry, a `band` and a plausibility bound; `scripts/check-a11y.mts` holds the
+  exact pattern, and it is longer than any summary of it. A11Y015 fails the build on a
+  *shape*: any object literal setting two numeric bounds with no `source` in the same literal.
+  The pairs it counts as bounds are `low`/`high`, `from`/`to`, `lower`/`upper` and
+  `start`/`end`. The second rule exists because the first could not see this component's own
+  defect: an earlier version shipped a three-band set with a level mapped to the middle band,
+  in the demo that `shadcn add` copies into consumer projects, and the bounds sat under
+  property names the first rule does not look at, so the gate reported the file clean. Both
+  rules now pass over this component, its three examples and the snippet above, and the
+  shipped demo passes an empty `bands`.
 - **No type size in `px`, no raw colour, no numbered ramp step, no class that resolves to
   nothing under the product theme.** All four are gate-enforced across `registry/**`.
 
 **Argued, and true of the implementation, but not yet measured:**
 
 - **The graphic is a labelled image and nothing else.** `role="img"` with the whole component
-  as its accessible sentence — *Example composite score: 14, on a scale of 10 to 20. Second
-  example band. Watch. Based on 4 of 6. …* It is not a `meter`, not a `progressbar` and not a
-  `slider`: all three announce a value within a range, which is the assertion this component
-  is not entitled to make, and `progressbar` additionally implies a task advancing towards
-  completion. It carries `focusable="false"` and is not in the tab order.
+  as its accessible sentence, which reads *Example composite score: 14, on a scale of 10 to
+  20. Second example band. Watch. Based on 4 of 6. …* It is not a `meter`, not a `progressbar`
+  and not a `slider`: all three announce a value within a range, which is the assertion this
+  component is not entitled to make, and `progressbar` additionally implies a task advancing
+  towards completion. It carries `focusable="false"` and is not in the tab order.
 - **The text twin is visible, not hidden.** The band name, the status word, the scale, the band
   list, the band source and the derivation are ordinary text in the document. Nothing is
   `sr-only`, nothing is behind a hover, and no prop of this component turns any of it off.
   One caveat, because it is true: `className` is merged last and a class you pass wins, so
   `truncate`, `sr-only`, a fixed height or a zeroed type size will clip or hide the words while
   leaving the arc's accessible sentence intact. The prop's own doc comment says so. The
-  accessible sentence repeats the twin deliberately — the graphic is not a tab stop and cannot
-  be landed on, so the reader who hears it is one reading linearly, and they hear a summary
-  before the detail rather than a tree of unlabelled shapes.
+  accessible sentence repeats the twin deliberately, because the graphic is not a tab stop and
+  cannot be landed on. The reader who hears it is therefore one reading linearly, and they hear
+  a summary before the detail rather than a tree of unlabelled shapes.
 - **Bands survive greyscale.** Only one band is ever tinted, every band is named with its range
   in the list beneath the arc, and the internal edges are drawn as radial marks derived from
-  the band bounds by value — so a band set written out of order, or one with a gap in it, marks
-  the edges it actually has. That last part was a real defect: the marks used to be taken by
-  array position, which dropped a real edge for any band set not declared in ascending order.
+  the band bounds by value. A band set written out of order, or one with a gap in it, therefore
+  marks the edges it actually has. That last part was a real defect: the marks used to be taken
+  by array position, which dropped a real edge for any band set not declared in ascending order.
 - **At 200% text nothing truncates.** The layout is a stacked column at every size, so there is
   no overlaid arrangement to reflow away from and no case where the score sits inside a ring
   that stops fitting it. The arc's width is set in `em`, so it grows with the text rather than
   staying put beside it. Checked by eye in both themes; not yet checked by a machine. The
   hazard at 200% is not truncation but overflow: with `precision` omitted, a fractional score
-  prints every digit the double holds — nineteen tabular figures with no break opportunity —
-  and that token is wider than the column. `precision` is load-bearing for reflow as well as
-  for honesty, which is why all three examples and the snippet above pass it.
+  prints every digit the double holds. Nineteen tabular figures with no break opportunity are
+  wider than the column. `precision` is load-bearing for reflow as well as for honesty, which
+  is why all three examples and the snippet above pass it.
 - **The indicator is drawn whole.** Its outer tip reaches a radius the `viewBox` is sized from
   rather than one typed in beside it. The two used to be independent, and for any score in the
-  middle third of a scale the tip was clipped at the top of the box — about a fifth of the only
-  mark that shows position, missing at the place a reader looks first.
+  middle third of a scale the tip was clipped at the top of the box. About a fifth of the only
+  mark that shows position was missing, at the place a reader looks first.
 - **Nothing animates.** There is no transition, no sweep and no count-up anywhere in the
   source, on first paint or on a change. Under `prefers-reduced-motion` there is nothing to
-  degrade because there was never anything there —
+  degrade because there was never anything there.
   [Motion in health UI](../health/motion-in-health-ui.mdx) names the dial sweep specifically,
   and a sweep displays, for every frame of its travel, a score that is not true.
 
@@ -556,16 +557,17 @@ this section.
   **Lc -8.21 / 1.90:1** in dark, against floors of Lc 45 and 3:1. Both themes fail.
 - **The `watch` accent is below the non-text floor in light.** `status.watch.accent-on-page`,
   which is what the one meaning-bearing band segment is painted with, measures **Lc 39.29 /
-  2.03:1** in light — a fail — and **Lc -51.67 / 7.71:1** in dark, which passes. This is a
-  light-first consumer-health system, so the failing half is the common half.
+  2.03:1** in light, which is a fail, and **Lc -51.67 / 7.71:1** in dark, which passes. This is
+  a light-first consumer-health system, so the failing half is the common half.
 - **What follows from that.** The component's position is that the arc is redundant to the
   words: the band name, the status word, the scale, the band list and the derivation carry
   everything, the glyph carries the level a second time, and covering the arc with your hand
   loses nothing. That argument is what makes the failing strokes tolerable at `alpha`; it is
-  not a substitute for fixing them. The repair belongs in the token layer — a hairline and a
-  `watch` accent that clear Lc 45 — and not in this component, which cannot paint its way out
-  with a colour the system does not own. The two roles it uses for text and for the indicator,
-  `status.<level>.ink-on-page` and `category.<name>.ink-on-page`, pass in both themes.
+  not a substitute for fixing them. The repair belongs in the token layer, and it is a hairline
+  and a `watch` accent that clear Lc 45. It does not belong in this component, which cannot
+  paint its way out with a colour the system does not own. The two roles it uses for text and
+  for the indicator, `status.<level>.ink-on-page` and `category.<name>.ink-on-page`, pass in
+  both themes.
 
 **Not yet checked at all, and listed rather than omitted:**
 
@@ -574,21 +576,21 @@ this section.
   Nor is the whole component under `prefers-contrast` or `forced-colors`, which are not
   implemented anywhere in opsinjs yet.
 - Print. The `@media print` block in `app/globals.css` is this documentation site's own
-  chrome — it is why a compliance reviewer's paper copy of *this page* collapses translucency,
-  prints at 11pt on white and resolves link hrefs — and `shadcn add` does not ship it.
+  chrome, and `shadcn add` does not ship it. That block is why a compliance reviewer's paper
+  copy of *this page* collapses translucency, prints at 11pt on white and resolves link hrefs.
   `score-dial.tsx` carries no `print:` variant of its own either, so a consumer who copies the
   dial in gets no print treatment from opsinjs at all and the dial prints as whatever that
   app's own stylesheet leaves standing. Nothing here has been on paper in either setting. One
   thing is known rather than untested, and it holds wherever such a rule is written: a
   `[data-status] { border: 1pt solid #000 }` rule of the kind the docs chrome uses cannot
   outline an SVG `<path>` or `<line>`, because CSS `border` does not apply to SVG shapes, so
-  that route will not give the tinted band an outline. The argument — not the measurement — is
-  that the words are what survive a printer dropping backgrounds: the reading, the band name,
-  the scale, the band list and the derivation are text, and the word beside the number carries
-  the level a second time.
+  that route will not give the tinted band an outline. This is an argument rather than a
+  measurement. The words are what survive a printer dropping backgrounds: the reading, the band
+  name, the scale, the band list and the derivation are text, and the word beside the number
+  carries the level a second time.
 - What a screen reader does when the score changes while the dial is on screen. The component
-  mounts no live region, deliberately — it is not entitled to speak on the caller's behalf —
-  and what a caller should do instead is an open question on this page.
+  mounts no live region, and that is deliberate, because it is not entitled to speak on the
+  caller's behalf. What a caller should do instead is an open question on this page.
 
 <KeyboardTable
   name="score-dial"
@@ -612,15 +614,15 @@ this section.
 
 <PropsTable name="ScoreDialProps" />
 
-`bands` is required and opsinjs supplies no default for it — that is the single most important
+`bands` is required and opsinjs supplies no default for it. That is the single most important
 line in the interface. An empty array is a legitimate value and renders the explicit no-band
 state; it is not an error to be repaired with a guess.
 
 `derivation` is required too, and it is the only prop whose absence changes what the component
 says about itself rather than what it draws. `min` and `max` are both required because an
 unbounded dial is unreadable, and `value` is `number | null` because a score of zero and a
-score that was never calculated are different facts about somebody's record — with a value
-that is not a finite number as a third state again, printed and spoken as *not available*.
+score that was never calculated are different facts about somebody's record. A value that is
+not a finite number is a third state again, printed and spoken as *not available*.
 
 `status` is the product's verdict on this reading and it is an input, never a derivation.
 Its type is `"steady" | "watch"` rather than `ClinicalStatus`, which is a deliberate
@@ -633,13 +635,13 @@ because it is the absence of an assertion rather than a fifth level.
 Three props are additions to the original specification, and they are named here rather than
 slipped in. `precision` and `locale` exist because
 [Numbers, units and precision](../health/numbers-units-precision.mdx) governs this page and
-requires every number to render through [Value](./value.mdx), which takes both — without them
+requires every number to render through [Value](./value.mdx), which takes both. Without them
 a fractional score would print whatever digits the double happened to hold. `locale` reaches
 every number on the surface, not only the score: the bounds, the band edges and the coverage
 counts go through the same formatter, because a reader does not change number systems between
 two lines of one card. `className` is the merge point every component in the system carries,
-and it is the one way a caller can still hide the mandatory words — see the accessibility
-section.
+and it is the one way a caller can still hide the mandatory words. The accessibility section
+says how.
 
 `calculatedAt` is named for what happened. Nothing on this dial was measured, so a `<time>`
 element stamped `measured` beside it would tell a reader, and any consumer reading the DOM
@@ -670,7 +672,7 @@ reading meant.
 Bands are half-open, so contiguous bands can be written without a gap and without an overlap.
 The one exception is the top of the scale: a score exactly equal to `max` falls in the band
 whose `to` is `max`, because otherwise the highest score a scale allows would belong to no band
-at all. Overlapping bands resolve to the first match in declaration order — the component does
+at all. Overlapping bands resolve to the first match in declaration order. The component does
 not reorder, merge or repair them, and it has no rule of its own about which should win. The
 boundary marks on the arc are the one thing that does not depend on that order: they are
 derived from the bounds by value, so an unordered or gapped set still marks the edges it has.
@@ -685,13 +687,13 @@ failure this component's own doctrine page names first.
 
 **Easily confused with**
 
-- [RangeBar](./range-bar.mdx) — measured value against a published range, rather than a
+- [RangeBar](./range-bar.mdx) is a measured value against a published range, rather than a
   calculated score against bands you defined. If you did the arithmetic, it is a dial.
-- `progress` (considered, no page yet — see the [roster](./index.mdx)) — a task advancing
-  towards a goal, not a score describing a state.
-- [MetricTile](./metric-tile.mdx) — the compact readout. A tile can hold a miniature dial,
+- `progress` is a task advancing towards a goal, not a score describing a state. It is
+  considered and has no page yet, and the [roster](./index.mdx) lists it.
+- [MetricTile](./metric-tile.mdx) is the compact readout. A tile can hold a miniature dial,
   but not the derivation sentence, which is why a dial rarely belongs in a grid.
-- `goal-ring` (considered) — the ring the reader fills by doing something. A dial is
+- `goal-ring` (considered) is the ring the reader fills by doing something. A dial is
   something that happened to them; a goal ring is something they did.
 
 **Used by**

@@ -14,15 +14,16 @@ owner: design-system
 
 <NotBuiltYet />
 
-Presentational opsinjs components — a `ResultCard`, a `Value`, a `StatusPill`,
-a `RangeBar` with a fixed value — are intended to be server-renderable. Anything
-with state, a listener or a portal — `Dialog`, `Sheet`, `LogSheet`,
-`ReadingInput` — is a client component and will carry its own `"use client"`.
+Presentational opsinjs components are intended to be server-renderable, as a
+`ResultCard`, a `Value`, a `StatusPill` and a `RangeBar` with a fixed value all
+are. Anything with state, a listener or a portal is a client component and will
+carry its own `"use client"`, as `Dialog`, `Sheet`, `LogSheet` and
+`ReadingInput` all do.
 
 The rule that matters: **`"use client"` marks a boundary, not a file.** Every
 module imported from a client component becomes part of the client bundle, and
 a page that imports one interactive component has not made that component
-client-only — it has made everything below it client code.
+client-only. It has made everything below it client code.
 
 ## How it works
 
@@ -41,7 +42,7 @@ Two consequences that account for most of the confusion:
   a client component wraps it:
 
   ```tsx
-  // page.tsx — server
+  // page.tsx, running on the server
   <ClientSheet>
     <ExpensiveServerRenderedSummary />
   </ClientSheet>
@@ -49,7 +50,7 @@ Two consequences that account for most of the confusion:
 
 ### Providers
 
-A provider is a client component by definition — it holds context. Put it as
+A provider is a client component by definition. It holds context. Put it as
 high as it needs to be and no higher. In this documentation site there is
 exactly one, fumadocs' `RootProvider`, mounted in the root layout; see
 [Dark mode](./dark-mode.mdx).
@@ -100,8 +101,8 @@ that never use it.
   not match" usually means a date, a random value, or a `localStorage` read
   during render.
 - **`suppressHydrationWarning` is not a fix.** It is correct for exactly one
-  thing — the theme class set by the pre-paint script — and it silences real
-  bugs everywhere else.
+  thing, and that thing is the theme class set by the pre-paint script.
+  Everywhere else it silences real bugs.
 - **Portals render outside your layout but inside your client boundary.** A
   dialog's content is still client code even though it appears at the end of the
   body.
@@ -114,9 +115,10 @@ that never use it.
 
 ## Related
 
-- [Performance and bundle size](./performance-and-bundle-size.mdx) — measuring
-  what crossed the boundary.
-- [Dark mode](./dark-mode.mdx) — the one provider, and why the theme is a class.
-- [Next.js installation](../start/installation/next.mdx) — provider placement
+- [Performance and bundle size](./performance-and-bundle-size.mdx) covers
+  measuring what crossed the boundary.
+- [Dark mode](./dark-mode.mdx) covers the one provider, and why the theme is a
+  class.
+- [Next.js installation](../start/installation/next.mdx) has provider placement
   and CSS import order in an App Router application.
-- [TypeScript](./typescript.mdx) — typing props that cross the boundary.
+- [TypeScript](./typescript.mdx) covers typing props that cross the boundary.

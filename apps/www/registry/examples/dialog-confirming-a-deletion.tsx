@@ -14,7 +14,7 @@
  * THE ACTION THAT CHANGES SOMETHING COMES FIRST and the one that changes
  * nothing comes last, because `initialFocus="safest"` lands on the last control
  * in the row. A stray Return key therefore keeps the reading. Reverse the order
- * and the same key destroys it — which is why the order is a rule and not a
+ * and the same key destroys it. That is why the order is a rule and not a
  * preference.
  *
  * THE DESTRUCTIVE ACTION IS NOT CARRIED BY COLOUR. opsinjs has no destructive

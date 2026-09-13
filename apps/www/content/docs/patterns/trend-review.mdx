@@ -1,6 +1,6 @@
 ---
 title: Trend review
-description: Reading change over time without over-interpreting noise — minimum windows, honest axes, and separating direction from valence.
+description: Reading change over time without over-interpreting noise. Minimum windows, honest axes, and separating direction from valence.
 status: planned
 kind: pattern
 aliases: [trends over time, change over time, chart review, is it going up, noise vs signal]
@@ -21,7 +21,7 @@ Trend surfaces are where consumer health products do their most confident lying.
 Three points and a line will produce a trend for any dataset; a y-axis truncated
 to the data range will make a two per cent drift look like a cliff; a
 seven-day average recomputed nightly will change direction on Tuesday and back
-again on Thursday. None of this requires bad intent — it is what happens by
+again on Thursday. None of this requires bad intent. It is what happens by
 default.
 
 Signals you are in this pattern:
@@ -35,7 +35,7 @@ Signals you are in this pattern:
 - **One value, one range.** If the question is "is this reading where it should
   be", that is [Result disclosure](./result-disclosure.mdx) and a `RangeBar`.
 - **Fewer points than your minimum window.** Below the window, do not draw a
-  trend at all — draw the points and say so. This is an
+  trend at all. Draw the points and say so. This is an
   [Empty and first-use](./empty-and-first-use.mdx) surface, not a sparse chart.
 - **The change itself is the alert.** If a sustained direction crosses a
   threshold that requires action, that is
@@ -79,10 +79,10 @@ The load-bearing rules:
   noise, and it is the default in most charting libraries.
 - **Direction and valence are separate.** "Down" is not "worse". Weight down,
   resting heart rate down and haemoglobin down are three different stories, and
-  only the third has an obvious valence. The arrow describes the data; the status
-  colour — if any — comes from the status axis and is owned by
-  [Clinical status semantics](../health/clinical-status-semantics.mdx). Never let
-  the sparkline's own colour carry the verdict.
+  only the third has an obvious valence. The arrow describes the data; the
+  status colour, where there is one, comes from the status axis and is owned
+  by [Clinical status semantics](../health/clinical-status-semantics.mdx).
+  Never let the sparkline's own colour carry the verdict.
 - **The words say what the picture says.** Every trend surface carries a
   sentence stating the direction, the size and the window in plain English. A
   reader who cannot see the chart, or cannot read a chart, gets the same answer.
@@ -114,8 +114,8 @@ The caption is the deliverable. The chart is illustration.
     with no clear direction."
   </DoDont.Do>
   <DoDont.Dont>
-    "Your resting heart rate is trending up ↑" — from four points spanning a
-    range narrower than the sensor's own error.
+    "Your resting heart rate is trending up ↑" It comes from four points
+    spanning a range narrower than the sensor's own error.
   </DoDont.Dont>
 </DoDont>
 
@@ -125,7 +125,7 @@ The caption is the deliverable. The chart is illustration.
     window, and a verb that describes the number.
   </DoDont.Do>
   <DoDont.Dont>
-    "Great progress — keep it up!" Praise attached to a body measurement, which
+    "Great progress. Keep it up!" Praise attached to a body measurement, which
     becomes a rebuke the week it reverses.
   </DoDont.Dont>
 </DoDont>
@@ -137,8 +137,8 @@ dates ("since June", "14 days ago") follow
 
 ## Accessibility
 
-- **Every chart ships a table twin.** Not a download — an equivalent, reachable
-  in the same place, with the same numbers. See
+- **Every chart ships a table twin.** It is an equivalent rather than a
+  download, reachable in the same place, with the same numbers. See
   [Accessible charts](../foundations/data-visualisation/accessible-charts.mdx).
 - **The summary sentence is the alt text.** The chart's accessible description
   is the same sentence a sighted reader gets, not "line chart showing resting
@@ -147,8 +147,8 @@ dates ("since June", "14 days ago") follow
   word carries it. Verify with
   [Colour independence](../accessibility/colour-independence.mdx).
 - **Interactive points are keyboard reachable** with a defined order, and the
-  focused point announces its value, its unit and its date — not its pixel
-  position.
+  focused point announces its value, its unit and its date rather than its
+  pixel position.
 - **Zoom and pinch are additive.** The default view must already be readable at
   200% text; see [Text resizing and
   zoom](../accessibility/text-resizing-and-zoom.mdx).
@@ -171,7 +171,7 @@ dates ("since June", "14 days ago") follow
   objects to. The window belongs to whoever owns the thresholds.
 
   What would change our mind: evidence that full-range axes reduce engagement
-  enough to cost adherence in a population that benefits from tracking — which
+  enough to cost adherence in a population that benefits from tracking. That
   would be a genuine trade-off rather than a reason to truncate quietly.
 </ResearchNote>
 

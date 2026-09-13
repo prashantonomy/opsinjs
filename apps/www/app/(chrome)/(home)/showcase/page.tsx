@@ -7,11 +7,11 @@ import { routes, site } from "@/lib/routes"
 export const metadata: Metadata = {
   title: "Showcase",
   description:
-    "Products built with opsinjs. Empty, because nothing has been built with it yet — and this page says what an entry will have to prove before it appears here.",
+    "Products built with opsinjs. Empty, because nothing has been built with it yet. This page says what an entry will have to prove before it appears here.",
 }
 
 /**
- * `/showcase` — reserved, and empty on purpose.
+ * `/showcase` is reserved, and empty on purpose.
  *
  * The route exists now so that the criteria can be published now. A showcase is
  * the one page on a design-system site that is pure social proof, which makes it
@@ -33,10 +33,10 @@ export default function ShowcasePage() {
           <p className="text-lg font-medium">No entries yet.</p>
           <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
             opsinjs has no published packages, and every component that is
-            implemented is at alpha: the API may change in any release without
-            a deprecation cycle, and none of it is ready for a production
-            health surface. Nothing can have shipped to real readers on that,
-            so an entry on this page today would be a fiction — and a fiction
+            implemented is at alpha: the API may change in any release without a
+            deprecation cycle, and none of it is ready for a production health
+            surface. Nothing can have shipped to real readers on that, so an
+            entry on this page today would be a fiction. It would be a fiction
             on the page whose entire purpose is evidence.
           </p>
           <p className="mt-5 text-sm">
@@ -64,7 +64,7 @@ export default function ShowcasePage() {
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 Shipped and reachable by somebody who is not on the team.
                 Concept work, portfolio pieces and internal demos are
-                interesting and belong somewhere else — the value of a showcase
+                interesting and belong somewhere else. The value of a showcase
                 is that it is evidence the system survives contact with
                 production.
               </p>
@@ -82,9 +82,9 @@ export default function ShowcasePage() {
               <h3 className="font-medium">Screens with the axes intact</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 A product that has themed opsinjs into a single-axis colour
-                system is welcome to do so — it is your product — but it is not
-                an example of this system working. The showcase is a claim about
-                the system, so the entry has to be one.
+                system is welcome to do so, because it is your product. It is
+                still not an example of this system working. The showcase is a
+                claim about the system, so the entry has to be one.
               </p>
             </Panel>
             <Panel>
@@ -106,17 +106,17 @@ export default function ShowcasePage() {
           <Prose className="mt-3">
             <p>
               The nearest thing to a showcase today is{" "}
-              <Link href={routes.docs("screens")}>the screen specimens</Link> —
-              whole-screen specifications that show the two colour axes, the
-              material ladder and the motion tokens working together rather than
-              one component at a time. They are specifications too, and they say
-              so, but they are the best available answer to “what does a system
-              built this way actually look like”.
+              <Link href={routes.docs("screens")}>the screen specimens</Link>.
+              Each one is a whole-screen specification that shows the two colour
+              axes, the material ladder and the motion tokens working together
+              rather than one component at a time. They are specifications too,
+              and they say so, but they are the best available answer to “what
+              does a system built this way actually look like”.
             </p>
             <p>
-              If you are building something with these ideas before the
-              components exist — which is entirely possible, since the tokens
-              and the doctrine are the substantial part —{" "}
+              Building something with these ideas before the components exist is
+              entirely possible, since the tokens and the doctrine are the
+              substantial part. If you are doing that,{" "}
               <a href={site.github} rel="noreferrer noopener" target="_blank">
                 say so on GitHub
               </a>

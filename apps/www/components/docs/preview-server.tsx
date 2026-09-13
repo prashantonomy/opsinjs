@@ -10,7 +10,7 @@ import {
 } from "./preview"
 
 /* ==========================================================================
-   preview-server.tsx — the registry lookup that <ComponentPreview> and
+   preview-server.tsx does the registry lookup that <ComponentPreview> and
    <IframePreview> cannot do for themselves.
 
    THIS FILE EXISTS FOR EXACTLY ONE REASON: A BOOLEAN IS SMALL AND THE REGISTRY
@@ -19,11 +19,11 @@ import {
    `preview.tsx` is `"use client"`, and it has to be: the theme, density, text
    and status switches are the mechanism behind a promise two pages make about
    a 200% Dynamic Type demonstration, and a switch that does not switch is
-   worse than no switch. But `registry/__index__.ts` carries `source` — the
-   FULL TEXT of every built component file — on every entry, and importing
-   `@/lib/registry` from a client module would ship all of it to the browser on
-   every one of the ~380 documentation pages, whether or not that page has a
-   preview on it.
+   worse than no switch. But the FULL TEXT of every built component file sits
+   in the `source` field that `registry/__index__.ts` puts on every entry, and
+   importing `@/lib/registry` from a client module would ship all of it to the
+   browser on every one of the ~380 documentation pages, whether or not that
+   page has a preview on it.
 
    So the lookup happens here, in a server component, and the only things that
    cross the boundary are `built: boolean` and `phase`, one release-phase word
@@ -42,9 +42,9 @@ import {
 /**
  * True when this name really does render something at `/view`.
  *
- * `component !== null` rather than `entry !== null` is the whole check.
- * `getRegistryEntry` can return an entry whose `component` is null — the type
- * admits it — and framing a route for one of those would put an iframe around
+ * `component !== null` rather than `entry !== null` is the whole check. The
+ * type admits an entry whose `component` is null, and `getRegistryEntry` can
+ * return one. Framing a route for such an entry would put an iframe around
  * the `/view` route's own not-built state, which teaches a reader that
  * previews are broken rather than that a component is unwritten.
  */
@@ -65,10 +65,10 @@ function resolvesToARender(
  * Resolved here for the same reason `built` is: the phase is a fact about
  * registry/catalogue.ts, and `lib/catalogue` must not cross into a client
  * module. Only the resolved word crosses, and it matters because <NotBuiltYet>
- * says something different at `considered` — where there is no specification —
- * from what it says at `planned`, where there is one. An id that is not a
- * catalogue row (an example, a screen) resolves to nothing and the surface
- * falls back to its own default.
+ * says something different at `considered` from what it says at `planned`.
+ * There is no specification at `considered`, and at `planned` there is one. An
+ * id that is not a catalogue row (an example, a screen) resolves to nothing
+ * and the surface falls back to its own default.
  */
 function phaseOf(name: string | undefined): Status | undefined {
   return name ? getEntry(name)?.status : undefined
@@ -110,7 +110,7 @@ export function ComponentPreview(props: ComponentPreviewServerProps) {
   )
 }
 
-/** See `ComponentPreviewServerProps` — `built` is resolved, never passed. */
+/** `built` is resolved, never passed. See `ComponentPreviewServerProps`. */
 export type IframePreviewServerProps = Omit<
   IframePreviewProps,
   "built" | "phase"

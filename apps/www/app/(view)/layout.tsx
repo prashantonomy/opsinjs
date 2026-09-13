@@ -3,13 +3,13 @@ import type { ReactNode } from "react"
 import "../product.css"
 
 /**
- * ROOT LAYOUT #2 of 2 — the chrome-less preview surface.
+ * ROOT LAYOUT #2 of 2 is the chrome-less preview surface.
  *
  * This layout owns its own <html> and <body> and imports ONLY product.css. No
  * fumadocs RootProvider, no docs stylesheet, no navigation. Everything rendered
  * beneath `/view/...` is the opsinjs PRODUCT theme: squircle corners, the
- * platform UI font, generous spacing, large touch targets — the opposite of the
- * lyra docs chrome, on purpose.
+ * platform UI font, generous spacing, large touch targets. The product theme is
+ * deliberately the opposite of the lyra docs chrome.
  *
  * <ComponentPreview> and <IframePreview> embed these routes in an iframe, which
  * is what makes a preview on a documentation page look like the product instead
@@ -23,7 +23,7 @@ import "../product.css"
  */
 
 /**
- * Theme, colour mode, density and text size arrive as query parameters — a
+ * Theme, colour mode, density and text size arrive as query parameters. A
  * layout cannot read searchParams, and doing this in a client component would
  * mean a flash of the wrong theme inside a small iframe, which is exactly where
  * it is most visible. So it is applied before first paint by a blocking inline

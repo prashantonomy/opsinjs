@@ -1,6 +1,6 @@
 ---
 title: Documentation templates
-description: The page outlines, published verbatim — twelve page kinds, each with a fixed set of headings that the build enforces, so a contributor fills a template rather than facing a blank file.
+description: Twelve page kinds, each with a fixed set of headings that the build enforces. The outlines are published here verbatim, so a contributor fills a template rather than facing a blank file.
 status: stable
 kind: handbook
 aliases: [page templates, section outlines, page kinds, what headings does this page need]
@@ -22,9 +22,9 @@ A reader who has read one health page knows where the boundary statement is on
 every other one; an agent that has parsed one component page knows where the
 prohibition list lives on all twenty-four.
 
-The templates themselves live in `apps/www/content/_templates/` — one `.mdx`
-per kind, outside `content/docs/` so they are never routed. Copy one; do not
-start from a blank file.
+The templates themselves live in `apps/www/content/_templates/`. There is one
+`.mdx` per kind, kept outside `content/docs/` so they are never routed. Copy
+one; do not start from a blank file.
 
 ## How it works
 
@@ -119,8 +119,21 @@ between are yours.
   are the only ones that exist; `assert-ia` fails the build on an unknown JSX
   tag, and content authors never define one.
 - **Write relative links with the `.mdx` extension.**
-  `[Two colour axes](../../health/two-colour-axes.mdx)` — fumadocs'
+  `[Two colour axes](../../health/two-colour-axes.mdx)`. fumadocs'
   `createRelativeLink` resolves them.
+- **Write a related-links bullet as a sentence.** The linked page or the bold
+  term is the subject, and the verb comes from a closed table. A page that is
+  the thing its gloss names takes `is`, a page that holds the thing takes
+  `has`, and where neither reads true the verb is `covers`. A gloss opening
+  with `what`, `which`, `whether` or `when` takes `says`. One opening with
+  `where` takes `is where`, which absorbs the `where` out of the gloss. `why`
+  takes `explains`, `how` takes `shows`, and any other bare noun phrase takes
+  `covers`. A gloss that already opens with a finite verb or a modal takes no
+  added verb at all. Where the gloss is not a predicate of the link, give the
+  link a short predicate of its own and put the gloss into a second sentence.
+  The link text stays the page title, the gloss keeps its wording and its
+  lower-case first letter, the item ends in a full stop, and no colon stands
+  between the link and its gloss.
 
 ## Not this
 
@@ -131,11 +144,11 @@ between are yours.
   section is a worse answer than `<Todo>`, because `<Todo>` is counted.
 - **Do not use an absolute `/docs/...` link in MDX.** Banned everywhere except
   the Sections rail in the root `meta.json`.
-- **Do not restate a canonical page.** [Plain-English
-  A–Z](../../content/plain-english-a-z.mdx) is canonical for plain language;
-  [Numbers, units and
+- **Do not restate a canonical page.**
+  [Plain-English A to Z](../../content/plain-english-a-z.mdx) is canonical for
+  plain language; [Numbers, units and
   precision](../../health/numbers-units-precision.mdx) is canonical for numeric
-  formatting. Link, do not repeat — `assert-ia` checks.
+  formatting. Link, do not repeat. `assert-ia` checks for restatement.
 - **Do not hand-write a generated section.** Tokens, contrast numbers, keyboard
   tables, prop tables and the catalogue are produced by `pnpm run generate`.
 
@@ -156,10 +169,10 @@ between are yours.
 
 ## Related
 
-- [Contributing](./index.mdx) — the routes in and what each has to clear.
+- [Contributing](./index.mdx) has the routes in and what each has to clear.
 - [Anatomy of a component page](../../components/anatomy-of-a-component-page.mdx)
-  — the 22-section contract in full.
-- [Code style](./code-style.mdx) — the conventions that apply inside the
+  is the 22-section contract in full.
+- [Code style](./code-style.mdx) has the conventions that apply inside the
   templates.
-- [Reading these docs](../../start/reading-these-docs.mdx) — the same contracts,
-  explained for a reader rather than a contributor.
+- [Reading these docs](../../start/reading-these-docs.mdx) covers the same
+  contracts, explained for a reader rather than a contributor.

@@ -8,8 +8,8 @@
  * real people rather than only by an old browser nobody tests on.
  *
  * `opaque` is the fourth way in, and it is the one a designer can look at. It
- * takes the same rung to the same opaque fallback for print and export paths —
- * which makes it the cheapest possible review of a claim that would otherwise
+ * takes the same rung to the same opaque fallback for print and export paths.
+ * That makes it the cheapest possible review of a claim that would otherwise
  * need a device with the preference set. The two panels below are the same
  * rung, the same content and the same floor; the only thing that differs is
  * whether the backdrop exists.

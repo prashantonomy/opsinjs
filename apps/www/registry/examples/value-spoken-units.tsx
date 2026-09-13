@@ -2,15 +2,15 @@
  * What a screen reader is actually given, printed where you can see it.
  *
  * This is the one thing Value does that nothing else in the system does, and it
- * is invisible in a screenshot — so this example makes it visible. Every row
- * renders the same number with a different unit; the left column is what a
+ * is invisible in a screenshot. This example therefore makes it visible. Every
+ * row renders the same number with a different unit; the left column is what a
  * sighted reader sees and the right column is the phrase a screen reader is
  * handed, read out of the same `tokens/units.json` the component reads.
  *
  * Look at `mmHg`. Left to itself a screen reader spells it, and "em em aitch
  * gee" is not a blood pressure. `%` is the same problem in miniature and `bpm`
  * is the same problem again, and none of the three has a pronunciation anybody
- * could derive — they have to be written down somewhere, once, and that
+ * could derive. All three have to be written down somewhere, once, and that
  * somewhere is a token file rather than twenty component files.
  *
  * The number is the same on every row, and it is 8888 because 8888 is out of
@@ -19,7 +19,7 @@
  * could take for their own. That is the whole reason it is not a smaller,
  * tidier number. A magnitude that is plausible in even one of the six units is
  * a reading, and this file ships as registry source under `shadcn add` and is
- * captured as a preview image that outlives the page it came from — which is
+ * captured as a preview image that outlives the page it came from. That is
  * exactly the case ADR 0012 is written about. It is also below a thousand on
  * purpose, so the left column and the right column show the same digits with no
  * grouping separator between them to explain.
@@ -31,8 +31,9 @@ import { spokenUnit } from "@/lib/opsinjs"
 import { Value } from "@/registry/base-lyra/ui/value"
 
 /* Every symbol here is in the unit table. A symbol that is NOT in it renders as
-   written and is left in the accessibility tree unchanged — awkward to listen
-   to, and true — rather than being handed a pronunciation somebody guessed. */
+   written and is left in the accessibility tree unchanged rather than handed a
+   pronunciation somebody guessed. The result is awkward to listen to, and it is
+   true. */
 const SYMBOLS = ["kg", "mmol/L", "mmHg", "bpm", "°C", "%"]
 
 const SAMPLE = 8888
@@ -41,7 +42,7 @@ export default function ValueSpokenUnits() {
   return (
     /* The scroll container is the table's own rather than the page's. A table
        cannot be laid out narrower than its min-content width, and every cell in
-       the left column is an unbreakable run by construction — the no-break space
+       the left column is an unbreakable run by construction. The no-break space
        inside Value is what holds a number to its unit. At 200% text those runs
        roughly double and the table outgrows `max-w-lg`; without this wrapper the
        document scrolls sideways, which is the failure

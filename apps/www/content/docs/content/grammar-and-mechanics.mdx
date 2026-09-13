@@ -1,6 +1,6 @@
 ---
 title: Grammar and mechanics
-description: Capitalisation, punctuation, lists, abbreviations and the typography of a number and its unit — the mechanical rules that Value and RelativeTime are built on.
+description: Capitalisation, punctuation, lists, abbreviations and the typography of a number and its unit are the mechanical rules that Value and RelativeTime are built on.
 status: stable
 kind: content
 reviewer: content
@@ -13,7 +13,7 @@ aliases: [capitalisation, sentence case, punctuation, abbreviations, unit format
 ## The rule
 
 **Sentence case everywhere, no full stop on a label, and a space between a number
-and its unit — with a short list of exceptions that is closed.**
+and its unit. The exceptions are a short, closed list.**
 
 This page exists because two components in the roster do nothing but emit
 formatted strings. `Value` renders a number with a unit; `RelativeTime` renders a
@@ -44,13 +44,12 @@ wins.
 - **Preserve the case of clinical terms and units.** "HbA1c", "mmHg", "mmol/L",
   "SpO2". These are not sentence-cased and are not upper-cased for emphasis.
 - **Two spellings, and they are not interchangeable.** The four level ids are
-  lower case wherever you write about them — `steady`, `watch`, `attention`,
-  `urgent` — and the component renders its own sentence-case word beside the
-  colour and the icon: "Steady", "Watch", "Needs attention", "Urgent", plus
-  "Not known" where there is no reading. Never re-case, abbreviate or
-  translate the rendered word; it comes from `CLINICAL_STATUS_META` in
-  `lib/status.ts` and it is the thing the colour is not allowed to carry
-  alone.
+  `steady`, `watch`, `attention` and `urgent`, and they are lower case wherever
+  you write about them. The component renders its own sentence-case word beside
+  the colour and the icon: "Steady", "Watch", "Needs attention", "Urgent", plus
+  "Not known" where there is no reading. Never re-case, abbreviate or translate
+  the rendered word; it comes from `CLINICAL_STATUS_META` in `lib/status.ts` and
+  it is the thing the colour is not allowed to carry alone.
 
 ### Punctuation
 
@@ -61,9 +60,14 @@ wins.
   by one.
 - **Ampersand only where it is part of a name.** "Diet and exercise", not "Diet
   &amp; exercise".
-- **Use a real en dash for ranges** and a real minus sign for negative numbers.
-  A hyphen in "90-120" is a typographic error; a hyphen in "-2 kg" is worse,
-  because it can be misread.
+- **Never an em dash and never an en dash.** Not in interface copy, not in a
+  heading, not in a code comment, not in a data file. A sentence that seems to
+  want one is carrying two statements, so write the two. Dropping a comma, a
+  colon, a semicolon, a bracket, a hyphen or three dots into the gap is the same
+  sentence still reaching for a dash.
+- **Use a real minus sign for a negative number.** A hyphen in "-2 kg" can be
+  misread. The minus sign is arithmetic notation rather than punctuation, and
+  this rule does not touch it.
 - **Use a non-breaking space between a number and its unit** so a value never
   wraps across two lines. A reading split as "148" at the end of one line and
   "mmHg" at the start of the next is a value the reader has to reassemble.
@@ -85,8 +89,8 @@ wins.
 
 - **Expand on first use, in the reader's word order**: "blood pressure (BP)",
   not "BP (blood pressure)". After that the short form is fine within the same
-  screen — but not across screens, because a reader may not have seen the first
-  one.
+  screen. It is not fine across screens, because a reader may not have seen the
+  first one.
 - **Never abbreviate in a notification, an alert or an empty state.** These are
   the surfaces most likely to be somebody's first encounter with the product.
 - **No full stops in acronyms.** "GP", not "G.P."
@@ -98,9 +102,9 @@ wins.
 - **Numerals for all measurements and quantities**, including one through nine.
   "3 readings", not "three readings". Health content is scanned, and numerals
   scan.
-- **A space between the number and the unit** — `148 mmHg`, `72 bpm`, `5.4 mmol/L`,
-  `82 kg`. Closed exceptions, which take no space: the degree symbol in `36.8°C`,
-  the percent sign in `98%`, and the prime marks in angles.
+- **A space between the number and the unit.** Write `148 mmHg`, `72 bpm`,
+  `5.4 mmol/L` and `82 kg`. Closed exceptions, which take no space: the degree
+  symbol in `36.8°C`, the percent sign in `98%`, and the prime marks in angles.
 - **Unit symbols are never pluralised and never take a full stop.** `5 kg`, not
   `5 kgs`.
 - **Digit grouping with a thin space or a comma, consistently, above four
@@ -111,8 +115,11 @@ wins.
 - **Write a blood-pressure pair with the word "over" in prose** and with a slash
   only in a compact numeric display: "148 over 92" in a sentence, `148/92` in a
   table cell.
-- **Ranges use an en dash with no spaces** for pure numbers (`90–120`) and the
-  word "to" when a unit or a direction is involved ("90 to 120 mmHg").
+- **Ranges use the word "to", never a dash and never a hyphen.** "90 to 120",
+  "90 to 120 mmHg", "3.9 to 5.6 mmol/L". The unit is written once, after the
+  second number. This holds in a table cell and an axis label as well as in a
+  sentence, because a range is two numbers and a relation, and the relation has
+  a word.
 
 ## Approved / Rejected
 
@@ -129,6 +136,11 @@ wins.
 <DoDont>
   <DoDont.Do>Your usual range is 90 to 120 mmHg.</DoDont.Do>
   <DoDont.Dont>Your usual range is 90-120mmHg.</DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>No reading yet</DoDont.Do>
+  <DoDont.Dont>A dash standing where the reading would be</DoDont.Dont>
 </DoDont>
 
 <DoDont>
@@ -152,7 +164,7 @@ remember it.
 
 **A value with its comparison**
 
-> `value` `unit` — `your usual range is` `low` to `high` `unit`
+> `value` `unit` + a full stop + `Your usual range is` `low` to `high` `unit`
 
 The unit appears twice on purpose. A range printed without its unit next to a
 value that has one is the sort of asymmetry that makes readers doubt both.
@@ -175,7 +187,7 @@ value that has one is the sort of asymmetry that makes readers doubt both.
 > `n`%
 
 Only where the reader is not being asked to act on it. In an actionable sentence,
-use a natural frequency instead — see
+use a natural frequency instead. See
 [Health literacy](./health-literacy.mdx).
 
 ## Banned words
@@ -190,23 +202,25 @@ Constructions rather than words, because that is what mechanics are made of.
 | 72bpm, 5kg, 98 % | Missing or misplaced space between number and unit. | 72 bpm, 5 kg, 98% |
 | .5 mmol/L | Missing leading zero; a real misreading risk. | 0.5 mmol/L |
 | kgs, mmHgs, bpms | Unit symbols are never pluralised. | kg, mmHg, bpm |
-| 90-120 | Hyphen where an en dash or "to" belongs. | 90–120, or 90 to 120 |
+| 90-120 | A hyphen joins words. It does not span numbers, and it is read as a minus sign as often as not. | 90 to 120 |
+| An em dash or an en dash, anywhere | Two statements wedged into one sentence, and a character a reader cannot say out loud. | Two sentences, or two elements |
+| A dashed range of any kind | A glyph standing where the relation between two numbers should be. | 3.9 to 5.6 mmol/L |
 | A full stop after a label | Signals a sentence where there is none. | delete |
 | ALL CAPS for emphasis | Slower to read and reads as shouting. | bold, or a stronger sentence |
 | 1st, 2nd, 3rd in a date | Ordinal suffixes are noise in a date. | 1 March |
 
 ## Related components
 
-- **`Value`** — owns number-and-unit typography: the non-breaking space, the unit
+- **`Value`** owns number-and-unit typography: the non-breaking space, the unit
   symbol casing, the leading zero and the digit grouping. Every rule in the
   Numbers section above is a requirement on it.
-- **`RelativeTime`** — owns the choice between a relative phrase and an absolute
+- **`RelativeTime`** owns the choice between a relative phrase and an absolute
   stamp, and the capitalisation of both. See
   [Numbers, dates and time](./numbers-dates-and-time.mdx).
-- **`StatusPill`** — renders one of the four status words, whose casing is fixed
+- **`StatusPill`** renders one of the four status words, whose casing is fixed
   here.
-- **`Field`** — labels, hints and error text all follow the capitalisation and
-  punctuation rules above; a field whose label ends in a colon on one screen and
-  not the next is the most visible mechanics failure in any product.
-- **`Term`** — preserves the case of a clinical term exactly as the reader will
+- **`Field`** follows the capitalisation and punctuation rules above in its
+  labels, hints and error text; a field whose label ends in a colon on one
+  screen and not the next is the most visible mechanics failure in any product.
+- **`Term`** preserves the case of a clinical term exactly as the reader will
   meet it.

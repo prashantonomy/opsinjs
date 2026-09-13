@@ -25,9 +25,9 @@ rule, and the accessibility floor.
 <Callout title="Alpha components, and no published host yet">
   All three components below are implemented, and their registry items carry the
   full source that `shadcn add` copies. Two things are still absent. There is no
-  npm package and there will not be one — distribution is registry copy-in, and
-  [ADR 0002](../project/decisions/0002-shadcn-registry-distribution.mdx) is why —
-  and `opsinjs.dev`, the canonical host every command on this site names, is not
+  npm package and there will not be one. Distribution is registry copy-in, and
+  [ADR 0002](../project/decisions/0002-shadcn-registry-distribution.mdx) is why.
+  `opsinjs.dev`, the canonical host every command on this site names, is also not
   serving yet, so `@opsinjs` resolves only against a registry you point it at
   yourself. Everything implemented is `alpha`: the API will change without a
   deprecation, so this belongs in a prototype rather than in front of a patient.
@@ -42,7 +42,7 @@ have one, [Installation](./installation/index.mdx) covers each framework.
 
 Three registry items: the card itself, the range bar it composes, and the status
 pill that carries the clinical level. The command is a plain `shadcn` add against
-the `@opsinjs` namespace — opsinjs does not ship its own CLI, because the shadcn
+the `@opsinjs` namespace. opsinjs does not ship its own CLI, because the shadcn
 CLI already does this job. `result-card` names the other two as registry
 dependencies, so adding it alone brings them, along with the two `lib` modules
 every opsinjs component imports.
@@ -56,7 +56,7 @@ You own the result. See [Registry](../registry/index.mdx) for what the namespace
 resolves to and [Upgrading](./installation/upgrading.mdx) for how you take changes
 to code you own.
 
-## Decide what the number means — before you render it
+## Decide what the number means before you render it
 
 This is the step that a general-purpose UI library does not have, and it is the
 one that determines whether your screen is honest.
@@ -80,27 +80,27 @@ level, who may assign it, and what it must never be read as.
 
 ### Choose the category, independently
 
-The category says which part of a person's health this is — it never says how
+The category says which part of a person's health this is. It never says how
 concerning the reading is. Both attributes travel on the component and are
 rendered on different visual channels, which is what keeps them apart in the
 markup. There is no build-time rule refusing a category colour used to signal
-severity — the [lint plugins](../handbook/tooling/index.mdx) that would do it are
-specified and not built — so this is a review check today. See
+severity. The [lint plugins](../handbook/tooling/index.mdx) that would do it are
+specified and not built, so this is a review check today. See
 [The two colour axes](../health/two-colour-axes.mdx).
 
 ### Write the sentence
 
 A number without a sentence makes the reader guess, and anxious readers guess
 badly. [Writing status and alerts](../content/writing-status-and-alerts.mdx) gives
-the sentence pattern for each status level and the words banned at each — starting
-with *normal*, which is banned everywhere.
+the sentence pattern for each status level and the words banned at each. That
+list starts with *normal*, which is banned everywhere.
 
 </Steps>
 
 ## Render it
 
 The shape of the screen. Read the props off
-[ResultCard](../components/result-card.mdx) before you copy this block — it was
+[ResultCard](../components/result-card.mdx) before you copy this block. It was
 written against the proposal and has not been brought back into line with the
 component that now exists:
 
@@ -119,7 +119,7 @@ export default function Page() {
       measuredAt="2026-09-01T08:12:00Z"
     >
       Slightly higher than your usual morning reading. One reading on its own
-      does not mean much — take another tomorrow at the same time.
+      does not mean much. Take another tomorrow at the same time.
     </ResultCard>
   )
 }
@@ -137,7 +137,7 @@ export default function Page() {
 </Todo>
 
 Three things in that block are load-bearing, and all three survive the rename
-described above — the shipped component requires them under its own prop names,
+described above. The shipped component requires them under its own prop names,
 so they are enforced by the type checker rather than suggested by this page:
 
 - **`status` and `category` are separate props.** They cannot be collapsed into
@@ -193,9 +193,9 @@ category without contaminating the status axis.
 
 ## Next
 
-- [Add your first component](./add-your-first-component.mdx) — the same thing in
+- [Add your first component](./add-your-first-component.mdx) is the same thing in
   sixty seconds, with nothing else to read.
-- [Choose a component](../recipes/choose-a-component.mdx) — the decision table from
-  the shape of your data to the component that displays it.
-- [ResultCard](../components/result-card.mdx) — the full specification, including
-  the parts this page skipped.
+- [Choose a component](../recipes/choose-a-component.mdx) has the decision table
+  from the shape of your data to the component that displays it.
+- [ResultCard](../components/result-card.mdx) is the full specification,
+  including the parts this page skipped.

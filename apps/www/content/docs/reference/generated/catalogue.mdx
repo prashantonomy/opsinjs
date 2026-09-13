@@ -1,6 +1,6 @@
 ---
 title: Catalogue
-description: Every component id the system has declared — shipped and considered — with its category, status, aliases and page.
+description: Every component id the system has declared, with its category, status, aliases and page. Shipped and considered ids both appear.
 status: stable
 kind: reference
 full: true
@@ -15,7 +15,8 @@ aliases: [component list, considered components, does opsinjs have]
 
 ## How this is generated
 
-**Source:** `registry/catalogue.ts` — the single declaration of the id namespace.
+**Source:** `registry/catalogue.ts`, which is the single declaration of the id
+namespace.
 **Script:** `scripts/build-registry.mts` writes `lib/generated/catalogue.json`;
 `scripts/build-reference.mts` renders this page. **Command:** `pnpm run generate`.
 
@@ -26,7 +27,7 @@ page, and nothing appears here that is not declared in the catalogue file.
 
 **Six columns.** *Id* is the kebab-case name used in a URL, a registry item and a
 CLI command. *Name* is the PascalCase name used in prose and in code. *Category*
-groups it, and a category beginning `health-` carries extra obligations — a
+groups it, and a category beginning `health-` carries extra obligations, namely a
 clinical contract section and at least one governing doctrine page. *Status* is
 one of the six [release phases](../../project/release-phases.mdx). *Aliases* are
 the search synonyms, which is how "lab result" and "blood pressure" find their
@@ -40,11 +41,11 @@ rather than a 404 that invites a program to invent an API.
 records exactly how those ids resolve and why the answer is not a catch-all route.
 
 **What is deliberately excluded.** Parts of compound components are not catalogue
-entries — a dialog's panel is documented on the dialog page, not as its own id.
+entries, so a dialog's panel is documented on the dialog page, not as its own id.
 Examples and screens have their own registry types and are listed with the
 registry, not here.
 
-{/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
+{/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 ## Specified
 
@@ -83,7 +84,7 @@ registry, not here.
 | `symptom-picker` | health-input | A symptom picker is one step from a symptom checker, and a symptom checker is a regulated device in most of the markets this system targets. The controlled vocabulary is also product-specific and cannot be shipped in a design system. | field, log-sheet |
 | `dose-tracker` | health-input | Dose data drives dosing decisions. A component that displays a missed dose is one product decision away from implying what to do about it, which is prescribing. | log-sheet, care-card |
 | `body-map` | health-input | A body diagram must represent a range of bodies, ages, skin tones and disabilities, or it tells some readers they are not the intended user. Doing that properly is an illustration commission, not a component. | field |
-| `goal-ring` | health-data-display | Goal rings are strongly associated with one platform's fitness product, and the pattern rewards streaks — which is the wrong incentive for a reader managing a condition rather than training for one. | score-dial, metric-tile |
+| `goal-ring` | health-data-display | Goal rings are strongly associated with one platform's fitness product, and the pattern rewards streaks. That is the wrong incentive for a reader managing a condition rather than training for one. | score-dial, metric-tile |
 | `timeline-entry` | health-data-display | A timeline is a layout, and every product's timeline holds different things. Shipping one would ship a data model with it. | card, relative-time |
 | `scale-input` | health-input | The anchors and the number of points on a rating scale are what make it comparable over time, and they belong to whichever instrument the product is using. A fixed set of labelled options is a radio group, and opsinjs delegates that to Base UI rather than wrapping it. | field |
 | `source-citation` | health-communication | Strongly wanted and likely to be promoted. Held back only because provenance is currently doctrine rather than a component, and shipping the box before the rules would encourage products to cite whatever is to hand. | disclaimer-note, callout |
@@ -93,9 +94,9 @@ registry, not here.
 | `popover` | overlay | Base UI's popover is complete and unopinionated, and opsinjs has nothing to add to it beyond tokens. | sheet, dialog |
 | `tabs` | navigation | Delegated to Base UI unchanged: Base UI's own Tabs is the component, and opsinjs documents it in the handbook rather than re-wrapping it. Nothing on the shipped roster switches between views, so there is no opsinjs component to reach for instead of it. | - |
 | `accordion` | navigation | Delegated to Base UI unchanged. Note that hiding a safety message inside a collapsed section is a defect regardless of the component used. | card |
-| `select` | actions-and-forms | Delegated to Base UI. opsinjs adds guidance — for short lists a radio group is easier for the reader, and Base UI has one — rather than a component. | field |
+| `select` | actions-and-forms | Delegated to Base UI. opsinjs adds guidance rather than a component. The guidance is that for short lists a radio group is easier for the reader, and Base UI has one. | field |
 | `combobox` | actions-and-forms | Delegated to Base UI. The hard part in a health product is the vocabulary being searched, not the widget. | field |
-| `switch` | actions-and-forms | Delegated to Base UI. A switch must never be used for consent — consent is a decision with a record, not a setting — so ConsentSheet is the opsinjs answer for that case, and the setting itself stays Base UI's. | consent-sheet |
+| `switch` | actions-and-forms | Delegated to Base UI. A switch must never be used for consent, because consent is a decision with a record, not a setting. ConsentSheet is therefore the opsinjs answer for that case, and the setting itself stays Base UI's. | consent-sheet |
 | `checkbox` | actions-and-forms | Delegated to Base UI. | field |
 | `radio-group` | actions-and-forms | Delegated to Base UI. Preferred over Select for anything under about seven options. | field |
 | `slider` | actions-and-forms | Delegated to Base UI, and discouraged for entering a measurement: a slider cannot express precision, and a reading typed in is a reading the person meant. A number with no clinical semantics behind it is Base UI's number field, unwrapped. | reading-input |
@@ -107,13 +108,13 @@ registry, not here.
 | `divider` | layout | A border and a spacing token. Documented in Foundations rather than shipped. | card |
 | `scroll-area` | layout | Delegated to Base UI. Custom scrollbars are also a frequent cause of unreachable content at 200% text. | card |
 | `tab-bar` | navigation | Application navigation is a product decision, not a design-system one. The material rung, the safe-area handling and the touch-target floor it needs are all documented. | surface |
-| `segmented-control` | navigation | Likely to be promoted — it is the right control for switching a chart between day, week and month. It was held back until TrendSparkline existed to use it; TrendSparkline is implemented now and this is not, so the only thing keeping it here is that nobody has built it. | button |
+| `segmented-control` | navigation | Likely to be promoted. It is the right control for switching a chart between day, week and month. It was held back until TrendSparkline existed to use it; TrendSparkline is implemented now and this is not, so the only thing keeping it here is that nobody has built it. | button |
 | `stepper` | navigation | The pattern that matters is one question per page, and that is documented in Patterns. A stepper component tends to encourage the opposite. | field |
 | `menu` | overlay | Delegated to Base UI. Hiding a destructive or a safety-relevant action in an overflow menu is a defect whatever renders it. | sheet, button |
 | `icon-button` | actions-and-forms | A variant of Button rather than a component, and one that needs a visible label far more often than products assume. | button |
 | `link` | actions-and-forms | An element with tokens and a routing decision the product owns. What opsinjs adds is guidance about link text, and that belongs in Content and language. | button |
-| `avatar` | utility | Straightforward to build and full of representation decisions — default imagery, initials for names that do not have them, and what a clinician's avatar implies about who wrote a message. | card |
-| `table` | data-display | Every chart in this system ships a table twin, so a table is a requirement rather than an option — but a responsive, accessible table is a project of its own and would be the largest component here by an order of magnitude. | card, metric-tile |
+| `avatar` | utility | Straightforward to build and full of representation decisions. Those decisions are default imagery, initials for names that do not have them, and what a clinician's avatar implies about who wrote a message. | card |
+| `table` | data-display | Every chart in this system ships a table twin, so a table is a requirement rather than an option. A responsive, accessible table is nevertheless a project of its own and would be the largest component here by an order of magnitude. | card, metric-tile |
 | `visually-hidden` | utility | Four lines of CSS that every component here uses internally, shipped as a utility class rather than as a component so that it works outside React too. | field |
 
 {/* opsinjs:generated:end */}

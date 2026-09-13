@@ -5,11 +5,11 @@
  * It is not, and this is why. `status` describes the reading that prompted the
  * card; `urgency` describes when the reader should do the thing the card is
  * asking of them. A reading can be exactly where it was expected to be and
- * still have a routine next step attached to it — a repeat in six months, a
- * check before a prescription runs out, a photograph of a device screen. That
- * is the commonest care instruction there is and the one products most often
- * forget to build, because they reach for a card only when something has gone
- * wrong.
+ * still have a routine next step attached to it, such as a repeat in six
+ * months, a check before a prescription runs out, or a photograph of a
+ * device screen. That is the commonest care instruction there is and the one
+ * products most often forget to build, because they reach for a card only when
+ * something has gone wrong.
  *
  * The pair below would be illegal under any mapping between the two
  * vocabularies, which is the argument for there not being one. Nothing here
@@ -19,8 +19,9 @@
  * The measurement is deliberately fictional and carries no number at all, and
  * the reason sentence names no range. A CareCard shows neither the reading nor
  * the range it was compared against, so a reason that says a measurement was
- * outside one asks the reader to take an invisible rule on trust — the range
- * belongs on the ResultCard or RangeBar beside the card, not in a sentence here.
+ * outside one asks the reader to take an invisible rule on trust. The range
+ * belongs on the ResultCard or RangeBar beside the card, not in a sentence
+ * here.
  */
 
 import { CareCard } from "@/registry/base-lyra/ui/care-card"

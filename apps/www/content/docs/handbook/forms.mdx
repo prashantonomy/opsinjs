@@ -1,6 +1,6 @@
 ---
 title: Forms
-description: Wiring a Field to React Hook Form, TanStack Form or a native form — the validation boundary, server errors, and the accessibility the wiring must not lose.
+description: Wiring a Field to React Hook Form, TanStack Form or a native form. This page covers the validation boundary, server errors, and the accessibility the wiring must not lose.
 status: planned
 kind: handbook
 aliases: [react hook form, tanstack form, form wiring, form validation setup, controlled input]
@@ -14,17 +14,17 @@ owner: design-system
 
 <NotBuiltYet />
 
-`Field` will own the accessible plumbing — the label association, the
-description, the error message, `aria-invalid`, `aria-describedby` — and your
-form library will own the state and the validation. The split is deliberate: the
-parts that are easy to get subtly wrong are in the component, and the parts that
-are a matter of preference are yours.
+`Field` will own the accessible plumbing, and your form library will own the
+state and the validation. The plumbing is the label association, the
+description, the error message, `aria-invalid` and `aria-describedby`. The split
+is deliberate: the parts that are easy to get subtly wrong are in the component,
+and the parts that are a matter of preference are yours.
 
 Whichever library you use, three things must remain true when you are finished:
 
 1. The error message is **associated with its control**, not merely near it.
 2. `aria-invalid` **appears and disappears** with the error.
-3. A failed submit produces a **focused error summary** — see
+3. A failed submit produces a **focused error summary**. See
    [Error summaries](../patterns/forms/error-summaries.mdx).
 
 This page is the mechanics. When validation should *run*, and what the form
@@ -44,7 +44,7 @@ message yourself.
 
 ### React Hook Form
 
-The uncontrolled model — register the input, read values at submit — is the
+The uncontrolled model registers the input and reads values at submit. It is the
 cheapest option for a large form because it does not re-render on every
 keystroke. The integration points are the `ref` (which is why a wrapper that
 drops it breaks everything, see
@@ -62,8 +62,8 @@ the ARIA.
 
 Errors returned from a submit are not a different kind of error to the reader
 and must not look like one. Map them back onto the same fields, into the same
-error slots, and into the same summary. A form with two error presentations —
-one for client validation and one for the server — teaches the reader that the
+error slots, and into the same summary. When a form shows one error presentation
+for client validation and another for the server, it teaches the reader that the
 second kind is a system failure rather than something they can fix.
 
 ## Do this
@@ -118,7 +118,7 @@ second kind is a system failure rather than something they can fix.
   [Required and optional](../patterns/forms/required-and-optional.mdx).
 - **`type="number"` and controlled state disagree about intermediate values.** A
   field containing `1.` reports an empty value, so a controlled component clears
-  it as the reader types. Use `type="text"` with `inputmode="decimal"` — see
+  it as the reader types. Use `type="text"` with `inputmode="decimal"`. See
   [Autocomplete and input
   types](../patterns/forms/autocomplete-and-input-types.mdx).
 - **Async validation races.** A slow check that resolves after the reader has
@@ -127,11 +127,11 @@ second kind is a system failure rather than something they can fix.
 
 ## Related
 
-- [Form design](../patterns/forms/index.mdx) — the behavioural decisions this
+- [Form design](../patterns/forms/index.mdx) has the behavioural decisions this
   page implements.
-- [Field](../components/field.mdx) — the component contract: parts, states and
+- [Field](../components/field.mdx) is the component contract: parts, states and
   accessible naming.
-- [Error summaries](../patterns/forms/error-summaries.mdx) — what a failed
+- [Error summaries](../patterns/forms/error-summaries.mdx) says what a failed
   submit must do.
-- [Ask users for…](../patterns/ask-users-for/index.mdx) — per-field guidance for
-  the data a health product actually collects.
+- [Ask users for…](../patterns/ask-users-for/index.mdx) covers per-field
+  guidance for the data a health product actually collects.

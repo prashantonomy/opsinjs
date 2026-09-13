@@ -3,8 +3,8 @@
  *
  * This is the model a procurement reviewer, a VPAT and every accessibility
  * audit tool still uses, and it is why opsinjs publishes it beside APCA rather
- * than instead of it. Where the two disagree — and they do, particularly for
- * light text on mid-tone backgrounds — opsinjs takes the stricter of the two.
+ * than instead of it. The two do disagree, particularly for light text on
+ * mid-tone backgrounds. Where they do, opsinjs takes the stricter of the two.
  *
  * The 0.03928 threshold below is the value written in the WCAG 2.x normative
  * text. The sRGB specification itself uses 0.04045, and the two differ only in
@@ -42,7 +42,7 @@ export function relativeLuminance(input: ColorInput): number {
  * The contrast ratio, from 1 (identical) to 21 (black on white).
  *
  * Unlike APCA this is symmetric: the order of the arguments does not matter,
- * which is both its convenience and its central limitation — it cannot tell you
+ * which is both its convenience and its central limitation. It cannot tell you
  * that light text on a dark background reads differently from the reverse.
  */
 export function contrastRatio(a: ColorInput, b: ColorInput): number {
@@ -63,9 +63,11 @@ export function contrastRatioOklch(a: Oklch, b: Oklch): number {
 
 /** The three WCAG 2.2 thresholds this system checks against. */
 export const WCAG_FLOOR = {
-  /** SC 1.4.3 Contrast (Minimum), body text — anything not large-scale. */
+  /**
+   * SC 1.4.3 Contrast (Minimum), body text, which is anything not large-scale.
+   */
   bodyAA: 4.5,
-  /** SC 1.4.3, large text — 24px, or 18.66px bold. */
+  /** SC 1.4.3, large text, which is 24px, or 18.66px bold. */
   largeAA: 3,
   /** SC 1.4.11 Non-text Contrast: UI components and meaningful graphics. */
   nonTextAA: 3,

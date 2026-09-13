@@ -1,6 +1,6 @@
 ---
 title: Result disclosure
-description: Showing someone a result they may not want to see, without ambush — the sequence from notification to number to next step.
+description: Showing someone a result they may not want to see, without ambush. The sequence from notification to number to next step.
 status: planned
 kind: pattern
 aliases: [showing a result, lab result flow, disclosing a test result, result ambush]
@@ -21,8 +21,8 @@ a derived risk score, a clinician's note attached to a number.
 The defining property is **asymmetry of preparation**. The reader knows a result
 is coming but not what it says, and the moment they find out is chosen by your
 notification schedule rather than by them. That is the moment this pattern
-exists to design. Everything else — the layout of the card, the colour of the
-pill — is downstream of getting that moment right.
+exists to design. Everything else follows from getting that moment right,
+including the layout of the card and the colour of the pill.
 
 Signals that you are in this situation:
 
@@ -39,7 +39,7 @@ Signals that you are in this situation:
   rather than for careful disclosure.
 - **The value implies emergency action.** If a reading crosses a threshold where
   the correct next step is to call emergency services, disclosure is the wrong
-  frame — the design goal stops being comprehension and becomes speed. Use
+  frame. The design goal stops being comprehension and becomes speed. Use
   [Emergency and escalation](../health/emergency-and-escalation.mdx).
 - **The result is a mental-health screening score with a self-harm item.** That
   has its own duty of care and its own sequence. Use
@@ -73,25 +73,25 @@ rather than in any one screen.
 
 <NotBuiltYet />
 
-**Moment 1 — the notification.** A push notification is read on a lock screen,
+**Moment 1. The notification.** A push notification is read on a lock screen,
 possibly by someone else. It says that a result is ready and what it is about.
 It never carries the value, the status word, or a colour that encodes one. This
 is the single most common breach of this pattern and the most consequential; see
 [Notifications and off-screen
 alerts](../health/notifications-and-off-screen-alerts.mdx).
 
-**Moment 2 — the landing surface.** Before the number, one sentence saying what
+**Moment 2. The landing surface.** Before the number, one sentence saying what
 this test measures in plain English. A reader who does not know what
 ferritin is cannot be told anything by a ferritin value, and the sentence costs
 nothing to the reader who does know.
 
-**Moment 3 — the value.** The number, its unit and the range it is being judged
+**Moment 3. The value.** The number, its unit and the range it is being judged
 against appear together, in one visual unit, on first paint. Never animate the
 number into place from zero; never reveal the status after the value with a
 transition. A CareCard's worth of interpretation may load afterwards, but the
 value and its range are a single atomic disclosure.
 
-**Moment 4 — the next step.** Every result ends with something the reader can
+**Moment 4. The next step.** Every result ends with something the reader can
 do, including "nothing, and here is why nothing is the right answer". A result
 outside the expected range without a named route to a human is an anxiety
 generator.
@@ -114,12 +114,12 @@ that matters most is the one nearest the top of its section.
 
 <DoDont>
   <DoDont.Do>
-    "Your ferritin result is ready." — a notification that tells the reader
+    "Your ferritin result is ready." This notification tells the reader
     something has happened and lets them choose where they are when they learn
     what.
   </DoDont.Do>
   <DoDont.Dont>
-    "Your ferritin is 8 µg/L — low." — the value and the verdict on a lock
+    "Your ferritin is 8 µg/L low." This is the value and the verdict on a lock
     screen, read in a queue, possibly by a colleague.
   </DoDont.Dont>
 </DoDont>
@@ -131,13 +131,13 @@ that matters most is the one nearest the top of its section.
     days."
   </DoDont.Do>
   <DoDont.Dont>
-    "Abnormal result. Please contact your doctor." — two words of clinical
+    "Abnormal result. Please contact your doctor." That is two words of clinical
     jargon, an instruction with no timeframe, and no indication of urgency in
     either direction.
   </DoDont.Dont>
 </DoDont>
 
-Word rules that apply here and are owned elsewhere: "normal" is banned — see
+Word rules that apply here and are owned elsewhere: "normal" is banned by
 [Reference ranges](../health/reference-ranges.mdx); numeric formatting and
 rounding follow [Numbers, units and
 precision](../health/numbers-units-precision.mdx); the status sentence patterns
@@ -160,12 +160,12 @@ plain-English definition is one tap away.
   in grayscale before shipping.
 - **Arrival is announced, not animated.** If the result loads after paint, it is
   announced via a status message (WCAG 2.2 SC 4.1.3). Motion must not be the
-  signal — see [Motion in health UI](../health/motion-in-health-ui.mdx).
+  signal. See [Motion in health UI](../health/motion-in-health-ui.mdx).
 - **The next-step control is reachable first by keyboard.** After the heading,
   the first focusable element should be the action, not a share button or a
   chart legend.
 - **No timed disclosure.** Nothing on this surface may auto-dismiss or advance.
-  WCAG 2.2 SC 2.2.1 is the floor; the design rule is stricter — a result screen
+  WCAG 2.2 SC 2.2.1 is the floor; the design rule is stricter. A result screen
   has no timers at all.
 
 ## Research
@@ -183,10 +183,10 @@ plain-English definition is one tap away.
   What is opinion rather than evidence: the four-moment split above, the rule
   that a notification never carries the value, and the claim that the value and
   its range must arrive as one atomic disclosure. Those come from the failure
-  mode we consider worst — a reader who learns a number before they have any
-  frame for it — and not from a controlled comparison. What would change our
-  mind: a study showing that withholding the value from the notification
-  increases the time to a needed action without reducing distress.
+  mode we consider worst, and not from a controlled comparison. That worst case
+  is a reader who learns a number before they have any frame for it. What would
+  change our mind: a study showing that withholding the value from the
+  notification increases the time to a needed action without reducing distress.
 </ResearchNote>
 
 ## Updates to this page

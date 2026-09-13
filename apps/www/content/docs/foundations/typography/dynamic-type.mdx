@@ -19,13 +19,13 @@ For a consumer health product this is not a minor accommodation. The people most
 likely to be checking a blood-pressure reading are disproportionately likely to
 have set a larger text size, and they set it once, years ago, and then expect
 every app to work. An interface that clips, truncates or overlaps at their
-setting is not "slightly off" for them — it is the version of the product they
+setting is not "slightly off" for them. It is the version of the product they
 have, permanently.
 
 The requirement in opsinjs is stated as a bar rather than an aspiration:
 **every component must survive a 1.3× multiplier with no clipping, no truncation,
 no overlap and no horizontal scroll**, and the whole system must remain usable at
-200%. 1.3× is chosen because it is unremarkable — it is well within the range
+200%. 1.3× is chosen because it is unremarkable. It is well within the range
 people actually use, unlike 200%, which tends to be treated as a stunt and
 therefore excused.
 
@@ -45,7 +45,7 @@ resolves through Tailwind's `--spacing`, and radii resolve to `rem`. A single
 **Roles scale non-linearly.** Small roles grow proportionally more than large
 ones, so that at a high multiplier a caption becomes genuinely readable while a
 display heading does not become preposterous. This is only expressible because
-the scale is semantic — the argument is on [Type scale](type-scale.mdx).
+the scale is semantic. The argument is on [Type scale](type-scale.mdx).
 
 **Touch targets do not shrink and do not stretch.** The 44pt floor from
 [Density and touch](../space/density-and-touch.mdx) is a floor at every text
@@ -73,12 +73,12 @@ wraps, and if it cannot wrap it either overflows or disappears.
 **Horizontal pairs that must stay horizontal.** A row of label and value works at
 1×, needs to become a stack at 1.3×, and cannot decide that from the viewport
 width because the container may be a narrow tile on a wide screen. This is
-container-query territory — see
+container-query territory. See
 [Responsive modes](../space/responsive-modes.mdx).
 
 **Icons sized in pixels beside text.** An icon that does not grow with its label
 looks progressively more wrong and eventually stops reading as part of the same
-element. Icons in text contexts size in `em` — the rule is on
+element. Icons in text contexts size in `em`. The rule is on
 [Sizing and alignment](../iconography/sizing-and-alignment.mdx).
 
 **Sticky chrome that eats the viewport.** A sticky header and a pinned action bar
@@ -94,7 +94,7 @@ collapse rather than persist at full height.
   <DoDont.Dont>
     The same tile with a fixed height and a truncated label. At 1.3× the reader
     sees `Resting heart ra…` above a number with no unit, which is not a degraded
-    experience — it is a health value with its meaning removed.
+    experience. It is a health value with its meaning removed.
   </DoDont.Dont>
 </DoDont>
 
@@ -136,9 +136,9 @@ and the minimum sizes are generated from `tokens/type.json` by
 
 ## Related
 
-- [Type scale](type-scale.mdx) — why a semantic scale is what makes non-linear
-  scaling possible.
-- [Responsive modes](../space/responsive-modes.mdx) — container queries, and why
-  a component cannot decide its layout from the viewport.
-- [Text resizing and zoom](../../accessibility/text-resizing-and-zoom.mdx) — the
-  conformance position, the test steps and the measured results.
+- [Type scale](type-scale.mdx) explains why a semantic scale is what makes
+  non-linear scaling possible.
+- [Responsive modes](../space/responsive-modes.mdx) covers container queries,
+  and why a component cannot decide its layout from the viewport.
+- [Text resizing and zoom](../../accessibility/text-resizing-and-zoom.mdx) has
+  the conformance position, the test steps and the measured results.

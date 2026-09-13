@@ -2,12 +2,13 @@
  * Three readings down a page, which is where the two colour axes have to be
  * told apart or not at all.
  *
- * WHAT TO LOOK AT. The labels are tinted from the CATEGORY axis — what each
- * reading is about — and the ticks are coloured from the STATUS axis, and no
- * element takes colour from both. That separation is the whole reason a reader
- * can learn that one family of colours answers "which reading is this" and the
- * other answers "how much attention does it want". Put a category colour inside
- * the bar and both meanings are gone at once.
+ * WHAT TO LOOK AT. The labels are tinted from the CATEGORY axis, which is
+ * what each reading is about. The ticks are coloured from the STATUS axis,
+ * and no element takes colour from both. That separation is the whole
+ * reason a reader can learn that one family of colours answers "which
+ * reading is this" and the other answers "how much attention does it
+ * want". Put a category colour inside the bar and both meanings are gone
+ * at once.
  *
  * NO ROW TAKES ITS LEVEL FROM ITS POSITION, and the first two rows are written
  * so that the data says so rather than only the prose. Both sit inside the same

@@ -1,6 +1,6 @@
 ---
 title: Contrast and APCA
-description: Both contrast models published side by side — WCAG 2.2 as the conformance obligation, APCA as the design tool — and the floor this system refuses to ship below.
+description: Both contrast models are published side by side. WCAG 2.2 is the conformance obligation, APCA is the design tool, and this page states the floor this system refuses to ship below.
 status: stable
 kind: foundation
 aliases: [APCA, Lc, WCAG, contrast ratio, "4.5:1", readability, luminance]
@@ -49,8 +49,8 @@ enthusiasm:
 - It is **symmetric**. Black text on white and white text on black score
   identically, although they do not read identically, particularly at small
   sizes where light-on-dark halates.
-- It is **size-blind except for one carve-out** — the 3:1 allowance for large
-  text — so 14px and 40px text are held to the same figure.
+- It is **size-blind except for one carve-out**, so 14px and 40px text are held
+  to the same figure. The carve-out is the 3:1 allowance for large text.
 - The `+ 0.05` constant compresses the dark end, which is why two dark greys
   that are visibly different can score almost identically, and why dark themes
   are the ones that most often look fine and measure badly.
@@ -60,9 +60,9 @@ every conformance claim built on them are written in terms of it.
 
 ### APCA lightness contrast (Lc)
 
-APCA — the Accessible Perceptual Contrast Algorithm, developed as part of the
-work toward WCAG 3 — produces a value called `Lc` on a roughly 0–106 scale. It
-differs from the ratio in three ways that matter:
+APCA is the Accessible Perceptual Contrast Algorithm, developed as part of the
+work toward WCAG 3, and it produces a value called `Lc` on a roughly 0 to 106
+scale. It differs from the ratio in three ways that matter:
 
 - It is **polarity-signed**. Dark text on a light background gives a positive
   `Lc`; light text on a dark background gives a negative one. The two are not
@@ -78,8 +78,8 @@ The important caveat, and it is the reason APCA is not our gate: **APCA is a
 draft.** It is not a normative part of WCAG 2.2, its lookup tables have changed
 across revisions, and a conformance claim cannot be built on it today. We
 therefore pin our own `Lc` thresholds in `tokens/color.json`, record the date we
-pinned them, and re-examine when the upstream draft moves — rather than
-importing a moving target into a health product's safety argument.
+pinned them, and re-examine when the upstream draft moves. We do not import a
+moving target into a health product's safety argument.
 
 ### The published floor
 
@@ -91,7 +91,7 @@ dark. Where the two models disagree, both have to pass.
 | --- | --- | --- |
 | A health value a person may act on | ≥ 4.5:1 | ≥ 90 |
 | Body text, labels, ordinary UI copy | ≥ 4.5:1 | ≥ 75 |
-| Large text — 24px+ regular, or 19px+ bold | ≥ 3:1 | ≥ 60 |
+| Large text at 24px+ regular or 19px+ bold | ≥ 3:1 | ≥ 60 |
 | A meaningful line: status rule, chart stroke, dial ring, focus ring | ≥ 3:1 | ≥ 45 |
 | Disabled or purely decorative, carrying no information | none | none |
 
@@ -105,16 +105,17 @@ Two of those rows are opinions rather than requirements and are marked as such:
 
   The reasoning: the reader we design for is frequently not in a reading
   posture. They are outdoors, one-handed, at low screen brightness, possibly
-  distressed, and they are looking at a number rather than reading a paragraph —
-  so they get a single glance rather than a second attempt. Buying headroom on
-  the one element that carries the meaning is cheap; the cost is a slightly
-  darker number.
+  distressed, and they are looking at a number rather than reading a paragraph.
+  They therefore get a single glance rather than a second attempt. Buying
+  headroom on the one element that carries the meaning is cheap; the cost is a
+  slightly darker number.
 
   What would change our mind: evidence that the extra headroom measurably costs
-  something — visual fatigue from over-dark text on bright surfaces, say — or a
-  stable APCA release whose own tables already encode the glance case. We are
-  not aware of such evidence either way, and we are not going to invent a
-  citation to make a design preference look like a finding.
+  something, or a stable APCA release whose own tables already encode the
+  glance case. Visual fatigue from over-dark text on bright surfaces is the
+  kind of cost we mean. We are not aware of such evidence either way, and we
+  are not going to invent a citation to make a design preference look like a
+  finding.
 </ResearchNote>
 
 ### Where the numbers on this site come from
@@ -135,7 +136,7 @@ request rather than the nightly. The current results for the two clinical axes:
 <ContrastOracle />
 
 The oracle takes any two colours, prints both models, and states the verdict
-against the floor above. It is the same code path the build uses — if it and the
+against the floor above. It is the same code path the build uses. If it and the
 build disagree, that is a bug in this repository, not a rounding difference.
 
 ### How to read a disagreement
@@ -189,7 +190,7 @@ measured results are published, dated, on
 - Any pair you assemble that is not in the declared set.
 - Text over imagery, video, gradients or any translucent surface.
 - Text you have made semi-transparent.
-- Text rendered at a weight or size other than the one the row above assumes —
+- Text rendered at a weight or size other than the one the row above assumes.
   `Lc` is size-aware and a thin 12px label is not the same problem as a 15px
   regular one.
 - `forced-colors: active`, where the operating system replaces the palette
@@ -198,15 +199,15 @@ measured results are published, dated, on
 **What contrast does not fix.** Meeting the floor does not make a colour-coded
 status accessible; it makes it visible. A reader who cannot distinguish the four
 hues gets no benefit from any of these numbers, which is why the four levels
-always ship with a word — see
+always ship with a word. See
 [Colour independence](../../accessibility/colour-independence.mdx).
 
 ## Related
 
-- [Colour blindness](./colour-blindness.mdx) — the redundancy requirement that
-  contrast alone cannot satisfy.
-- [The contrast floor](../materials/the-contrast-floor.mdx) — the same problem
-  when the background is not a known colour, and the worst-case composite that
-  replaces it.
-- [Contrast conformance](../../accessibility/contrast-conformance.mdx) — the
+- [Colour blindness](./colour-blindness.mdx) has the redundancy requirement
+  that contrast alone cannot satisfy.
+- [The contrast floor](../materials/the-contrast-floor.mdx) covers the same
+  problem when the background is not a known colour, and the worst-case
+  composite that replaces it.
+- [Contrast conformance](../../accessibility/contrast-conformance.mdx) is the
   dated, generated conformance record for the whole token set.

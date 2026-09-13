@@ -1,5 +1,5 @@
 ---
-title: "0021 — A modal surface owns its own open state"
+title: "ADR 0021. A modal surface owns its own open state"
 description: Sheet and Dialog declare open and onOpenChange, anything extending them inherits both, and a dialog never quietly becomes a sheet.
 status: stable
 kind: project
@@ -26,7 +26,7 @@ changes its own contract at a breakpoint.
 [ConsentSheet](../../components/consent-sheet.mdx) and
 [LogSheet](../../components/log-sheet.mdx) both say they "extend Sheet". Neither interface
 declares `open` or `onOpenChange`. A component whose entire purpose is to appear over the
-page, with no way for a caller to make it appear, is not an incomplete API — it is an API
+page, with no way for a caller to make it appear, is not an incomplete API. It is an API
 that cannot be used at all, and the omission is identical in two documents written
 separately, which usually means both authors assumed the base would carry it.
 
@@ -35,8 +35,8 @@ promises a surface with no close control and a scrim that does not dismiss, and 
 interface declares `sheetBelow`, which promises the dialog "renders as a Sheet instead"
 below a width. A Sheet is draggable and dismissible by its own specification. Together
 those two props make one component non-dismissible on a laptop and dismissible with a thumb
-on a phone, silently, at whatever width the caller happened to pass — and the reader who
-loses the alert is the one holding the smaller screen.
+on a phone, silently, at whatever width the caller happened to pass. The reader who loses
+the alert is the one holding the smaller screen.
 
 There is a third thing, which nobody wrote down because it is not in any of our documents.
 Base UI's dialog root passes `escapeKey: isTopmost` to its dismissal hook in **every** mode,
@@ -51,7 +51,7 @@ lost on the keyboard.
 **A modal surface declares `open` and `onOpenChange`, and anything that extends it inherits
 both unchanged.** Sheet and Dialog each own the pair. `ConsentSheet` and `LogSheet` do not
 redeclare them, do not rename them, and do not wrap them in a differently-shaped
-controller — they extend an interface that has them.
+controller. They extend an interface that has them.
 
 **`sheetBelow` is not implemented and is not a prop.** A component may not change which
 dismissal contract it honours based on the width of the screen. `severity` decides whether
@@ -66,10 +66,10 @@ primitive will otherwise close. The reason value is the kebab-case string `escap
 why it is written down here.
 
 **Sheet's `onOpenChange` carries the dismissal route as a second argument.** Sheet's own
-specification requires that a sheet holding unsaved input "asks first — by the same route as
-a background tap", and a product cannot do that unless it is told the route. The signature is
-widened rather than replaced: a one-argument handler is still assignable, so
-`onOpenChange={setOpen}` typechecks unchanged.
+specification requires that a sheet holding unsaved input "asks first", and that it asks by
+the same route as a background tap. A product cannot do that unless it is told the route.
+The signature is widened rather than replaced: a one-argument handler is still assignable,
+so `onOpenChange={setOpen}` typechecks unchanged.
 
 ## Consequences
 
@@ -106,7 +106,7 @@ again. A prop that is only ever correct under a condition is better not offered.
 
 **Pass Escape through and document that Base UI wins.** Rejected outright. The specification
 says an alert dialog does not close on Escape, and "the primitive does it anyway" is not a
-reason to publish a component that behaves differently from its own page — it is a reason to
+reason to publish a component that behaves differently from its own page. It is a reason to
 intercept, which costs nine lines.
 
 ## Revisiting this

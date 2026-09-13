@@ -4,9 +4,9 @@
  * Everywhere else in opsinjs a part is internal structure named by `data-slot`,
  * because the content arrives as a prop. A control cannot: it has a type, a
  * name, an `autocomplete` token, an `inputmode`, a value and a change handler,
- * and no single prop carries that. So the slot is a component — and `render`
- * puts the same generated id, the same `aria-describedby` and the same invalid
- * state onto an element opsinjs does not ship.
+ * and no single prop carries that. So the slot is a component. Its `render`
+ * prop puts the same generated id, the same `aria-describedby` and the same
+ * invalid state onto an element opsinjs does not ship.
  *
  * A textarea and a select below. Both get the label relationship, both get the
  * hint in their description, and neither needed an id written by hand. The

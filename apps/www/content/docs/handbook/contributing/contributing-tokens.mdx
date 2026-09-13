@@ -1,6 +1,6 @@
 ---
 title: Contributing tokens
-description: Adding or changing a token, and the migration obligation it creates — because a CSS custom property is a public API covered by semver.
+description: Adding or changing a token, and the migration obligation it creates. That obligation exists because a CSS custom property is a public API covered by semver.
 status: stable
 kind: handbook
 aliases: [adding a token, changing a token, token migration, deprecating a token]
@@ -14,7 +14,7 @@ owner: design-system
 
 A token is a public API. Somebody has written
 `var(--opsin-status-urgent-surface)` in a stylesheet you will never see, and
-renaming it breaks their build with no error message — CSS custom properties
+renaming it breaks their build with no error message. CSS custom properties
 fail by resolving to nothing.
 
 So: **adding a token is cheap, changing one is a minor version, and removing one
@@ -30,11 +30,11 @@ the generated CSS.
 
 ### The three tiers
 
-1. **Primitive** — a raw ramp step. `--opsin-red-60`. Components never reference
+1. **Primitive** is a raw ramp step. `--opsin-red-60`. Components never reference
    these.
-2. **Semantic** — a role. `--opsin-status-urgent-surface`. This is the tier
+2. **Semantic** is a role. `--opsin-status-urgent-surface`. This is the tier
    components use and the tier a theme redefines.
-3. **Component** — a part-specific hook. `--opsin-range-bar-track-height`.
+3. **Component** is a part-specific hook. `--opsin-range-bar-track-height`.
 
 A new token almost always belongs at tier 2 or 3. Adding a primitive means
 adding a ramp, which is a colour-engine change rather than a token change. See
@@ -46,14 +46,14 @@ The status axis has exactly four levels and the category axis has a fixed
 membership. Adding a status level is not a token change; it is a change to
 [Clinical status semantics](../../health/clinical-status-semantics.mdx)
 and needs a clinical reviewer. Adding a **category** is a supported extension and
-has its own page — [Category palettes](../../theming/category-palettes.mdx).
+has its own page at [Category palettes](../../theming/category-palettes.mdx).
 
 ### What happens when you change one
 
 - **Add:** a minor version. Document it on the relevant Foundations page, and
   the generated token tables pick it up automatically.
 - **Change a value:** a minor version if it stays within the contrast floor, and
-  a change that must be regenerated and committed — `check-contrast.mts` will
+  a change that must be regenerated and committed. `check-contrast.mts` will
   fail CI otherwise. If it moves a pair below the floor, it is not a token
   change, it is a bug.
 - **Rename:** a major version. Ship the old name as an alias resolving to the
@@ -67,14 +67,14 @@ has its own page — [Category palettes](../../theming/category-palettes.mdx).
 
 - **Edit the JSON, run `pnpm run generate`, commit both.** CI regenerates and
   fails on any diff, so an uncommitted regeneration is caught immediately.
-- **Name from general to specific** — axis, member, role. See [Naming
+- **Name from general to specific:** axis, member, role. See [Naming
   conventions](../naming-conventions.mdx).
 - **Define both themes.** A token defined only in light is a bug that ships.
 - **Run `pnpm run contrast` and read the output**, not just its exit code. A pair
   that passes at Lc 62 today is one design tweak away from failing.
-- **Say what the token controls, in the JSON.** The third column of the generated
-  token table — "used by" — is what turns a list into a decision aid, and it
-  comes from what you write.
+- **Say what the token controls, in the JSON.** The generated token table has a
+  third column headed "used by". That column is what turns a list into a
+  decision aid, and it comes from what you write.
 
 ## Not this
 
@@ -100,18 +100,20 @@ has its own page — [Category palettes](../../theming/category-palettes.mdx).
 - **`build-tokens.mts` runs on Node 24** and uses native `.mts` type stripping;
   on an older Node it fails with a syntax error that does not mention the
   version. Each script carries a version guard for that reason.
-- **The generated CSS has a fixed position in `globals.css`** — between the lyra
-  blocks and `@layer base`. Moving the `@import` changes which declarations win.
+- **The generated CSS has a fixed position in `globals.css`.** It sits between
+  the lyra blocks and `@layer base`. Moving the `@import` changes which
+  declarations win.
 - **The published contrast numbers describe the shipped presets only.** A
   consumer's custom theme is their responsibility; see [Validating your
   theme](../../theming/validating-your-theme.mdx).
 
 ## Related
 
-- [Token architecture](../../foundations/token-architecture.mdx) — the three
-  tiers and which one you may touch.
-- [Adding your own tokens](../../theming/adding-your-own-tokens.mdx) — extending
-  the system as a consumer rather than a contributor.
-- [Category palettes](../../theming/category-palettes.mdx) — adding a category
-  without contaminating the status axis.
-- [Versioning policy](../../project/versioning-policy.mdx) — what semver covers.
+- [Token architecture](../../foundations/token-architecture.mdx) covers the
+  three tiers and which one you may touch.
+- [Adding your own tokens](../../theming/adding-your-own-tokens.mdx) covers
+  extending the system as a consumer rather than a contributor.
+- [Category palettes](../../theming/category-palettes.mdx) covers adding a
+  category without contaminating the status axis.
+- [Versioning policy](../../project/versioning-policy.mdx) says what semver
+  covers.

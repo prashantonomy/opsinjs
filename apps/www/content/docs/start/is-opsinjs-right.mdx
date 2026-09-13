@@ -1,6 +1,6 @@
 ---
 title: Is opsinjs right for this project?
-description: An honest fit checklist that will tell you no — including the three kinds of product opsinjs actively refuses to serve.
+description: An honest fit checklist that will tell you no. It names the three kinds of product opsinjs actively refuses to serve.
 status: stable
 kind: guide
 icon: ListChecks
@@ -30,8 +30,8 @@ fixes that.
 - **Your reader is the person the data is about.** They are not a clinician, not
   an analyst, and not looking at somebody else's numbers.
 - **Your product shows measurements over time.** Readings, results, scores,
-  streaks, ranges — anything where the interface has to say what a number means as
-  well as what it is.
+  streaks and ranges are all cases where the interface has to say what a number
+  means as well as what it is.
 - **Getting it wrong has a human cost.** Someone might be frightened by a colour,
   reassured by a number that should have worried them, or take an action based on
   a rounding decision. If none of that is possible in your product, you probably
@@ -43,9 +43,9 @@ fixes that.
   preferences. See [Framework support](./framework-support.mdx).
 - **You are willing to be told no by your own design system.** The doctrine bans
   the word *normal* from result copy and forbids a category colour used as a
-  severity signal. Several components warn in the console in development when you
-  cross that line — they warn and still render, because taking a message off the
-  screen over a styling mistake would be the larger error — and the rest is
+  severity signal. Several components warn in the console in development when
+  you cross that line. They warn and still render, because taking a message off
+  the screen over a styling mistake would be the larger error. The rest is
   enforced by review, since the lint plugins are specified and not built. Those
   are features. If your stakeholders will experience them as obstruction, budget
   for that conversation now.
@@ -56,9 +56,9 @@ Each of these names what to use instead, because a checklist that only says no i
 not useful.
 
 - **Your reader is a clinician.** EHR and clinical-workstation interfaces need
-  density, abbreviation, keyboard-first workflows and raw values — the opposite of
-  every default here. Use a density-first system, or a vendor toolkit built for
-  the record system you are working against.
+  density, abbreviation, keyboard-first workflows and raw values. That is the
+  opposite of every default here. Use a density-first system, or a vendor
+  toolkit built for the record system you are working against.
 - **You are building regulated device software.** opsinjs is not a medical device
   and confers no regulatory status; adopting it does not reduce your obligations
   by one line. If your product is a Software as a Medical Device, your design
@@ -92,15 +92,15 @@ look like each other. They should not.
 **A product where health is one feature among many.** Also workable. The tokens
 are namespaced and the components are copied in, so opsinjs can occupy one route
 group without theming your whole product. What you cannot do is take the
-components and drop the doctrine — a `StatusPill` used as a generic badge is a
+components and drop the doctrine. A `StatusPill` used as a generic badge is a
 misuse, and the rule against it is currently enforced by review rather than by a
 tool: the [lint plugins](../handbook/tooling/index.mdx) are specified and not
 built.
 
-**Wellness rather than medicine — sleep, mood, activity, nutrition.** A very good
-fit, and it is where the alarm-fatigue rules earn the most. The temptation in
-wellness products is to make every metric emotive; the doctrine exists to stop
-that.
+**Wellness rather than medicine, such as sleep, mood, activity and nutrition.**
+A very good fit, and it is where the alarm-fatigue rules earn the most. The
+temptation in wellness products is to make every metric emotive; the doctrine
+exists to stop that.
 
 **Clinical trials and research apps.** Fit depends entirely on the reader. If the
 participant sees their own data, opsinjs fits. If the interface is for a
@@ -111,7 +111,8 @@ coordinator or investigator, it does not.
 You have finished this page correctly if you can state, in one sentence each:
 
 1. **Who your reader is**, and whether the data is about them.
-2. **Who owns your thresholds** — a named person or team, not "the design system".
+2. **Who owns your thresholds.** The answer is a named person or team, not "the
+   design system".
 3. **What your product does when a value is alarming.** If the answer is "the
    component turns red", you have not yet made the decision opsinjs requires you
    to make.
@@ -122,7 +123,7 @@ before you choose any design system.
 ## Troubleshooting
 
 **"We are a consumer app but we display clinician-authored results."** Still a
-good fit — that is the mainstream case. What changes is provenance: the interface
+good fit. That is the mainstream case. What changes is provenance: the interface
 must be able to say who measured a value and with what. See
 [Data provenance and device accuracy](../health/data-provenance-and-device-accuracy.mdx).
 
@@ -134,12 +135,13 @@ to be readable by someone who is not an engineer.
 **"We want the doctrine but not the components."** Take it. The
 [Health](../health/index.mdx), [Accessibility](../accessibility/index.mdx) and
 [Content and language](../content/index.mdx) pillars are useful against any
-technology stack, and the documentation is separately licensed — see
-[Licence and attribution](../project/licence-and-attribution.mdx).
+technology stack, and the documentation is separately licensed.
+[Licence and attribution](../project/licence-and-attribution.mdx) sets out the
+terms.
 
 ## Next
 
-- [Safety, scope and limitations](./safety-scope-and-limitations.mdx) — the page to
-  send to whoever asks what this commits you to.
-- [Health](../health/index.mdx) — the doctrine you would be adopting.
-- [Quick start](./quick-start.mdx) — if you have decided it fits.
+- [Safety, scope and limitations](./safety-scope-and-limitations.mdx) is the
+  page to send to whoever asks what this commits you to.
+- [Health](../health/index.mdx) is the doctrine you would be adopting.
+- [Quick start](./quick-start.mdx) is the next step if you have decided it fits.

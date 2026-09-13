@@ -1,6 +1,6 @@
 ---
 title: Version stamps
-description: One comment naming the item and version a copied file came from, so it can answer "what has changed since mine?" — specified here, and not emitted yet.
+description: One comment naming the item and version a copied file came from, so it can answer "what has changed since mine?". It is specified here and is not emitted yet.
 status: stable
 kind: guide
 aliases: [fork problem, file provenance, stamp]
@@ -34,9 +34,9 @@ description of what you will find in your repository.
 Emit the stamp from the registry build. Two things block it, and both are
 decisions rather than patches: every catalogue row is `since: unreleased`, so a
 stamp written today would name a version nobody can fetch and diff against, and
-[0010 — shared code ships with every item](../project/decisions/0010-shared-code-ships-with-every-item.mdx)
-rejects rewriting file content at generation time — which is what prepending a
-line is, and it would also have to decide which item stamps the substrate that
+[ADR 0010. Shared code ships inside every registry item](../project/decisions/0010-shared-code-ships-with-every-item.mdx)
+rejects rewriting file content at generation time, and prepending a line is
+exactly that. It would also have to decide which item stamps the substrate that
 ships inside all of them.
 </Todo>
 
@@ -47,8 +47,8 @@ health app and can find out where it came from in five seconds, without a
 package manifest, a lockfile or an internal wiki page.
 
 **What have I changed?** Fetch that exact version from the registry and diff. Any
-difference is a local change — deliberate or accidental, and both are worth
-knowing about.
+difference is a local change. It is either deliberate or accidental, and both
+are worth knowing about.
 
 **What has changed upstream?** Compare the stamped version against the current
 one. This is the "what changed since your version" report, and it is only
@@ -60,7 +60,7 @@ At the very top, before imports, in a comment appropriate to the file type.
 
 ```tsx title="components/ui/result-card.tsx"
 // @opsinjs result-card 0.4.2
-// Copied source. Edit freely — but read the upgrade notes before taking an update.
+// Copied source. Edit freely, but read the upgrade notes before taking an update.
 
 import { cn } from "@/lib/utils"
 ```
@@ -117,8 +117,8 @@ note of what you installed and when, read the
 
 ## Why not a lockfile
 
-A lockfile is the obvious alternative — one manifest listing every installed
-item and its version — and it is worse here for two reasons.
+A lockfile is the obvious alternative. It is one manifest listing every installed
+item and its version, and it is worse here for two reasons.
 
 It **drifts from reality.** The file is the artefact; the manifest is a claim
 about it. Somebody copies a component into a second directory, or hand-edits
@@ -149,7 +149,7 @@ that stripped the stamp, or was copied by hand.
 
 Fetch the stamped version from the registry and diff. Differences should be
 changes you recognise. Unrecognised differences mean the stamp is wrong, which
-is worse than no stamp at all — it is a provenance claim that is false.
+is worse than no stamp at all. It is a provenance claim that is false.
 
 ### Your tooling preserves it
 
@@ -162,7 +162,7 @@ the comment survives. Some header-comment rules will remove it.
 
 **A file has no stamp.** Expected for everything installed so far: the registry
 emits none. Diff against the current upstream, record what you took and when,
-and add the stamp by hand once versions exist — an approximate stamp with a note
+and add the stamp by hand once versions exist. An approximate stamp with a note
 is better than none.
 
 **Two files claim different versions of the same item.** Two installs at
@@ -179,8 +179,8 @@ reporting, not a reason to stop stamping.
 
 ## Next
 
-- [Upgrades and diffs](./upgrades-and-diffs.mdx) — using the stamp.
-- [Versioning policy](../project/versioning-policy.mdx) — what a version number
-  means here.
-- [Self-hosting a fork](./self-hosting-a-fork.mdx) — keeping stamps meaningful
-  in a fork.
+- [Upgrades and diffs](./upgrades-and-diffs.mdx) covers using the stamp.
+- [Versioning policy](../project/versioning-policy.mdx) says what a version
+  number means here.
+- [Self-hosting a fork](./self-hosting-a-fork.mdx) covers keeping stamps
+  meaningful in a fork.

@@ -5,7 +5,7 @@
  * WHY THIS LEVEL EXISTS HERE AT ALL. An interruption that says "nothing needs
  * attention" is a strange object, and a banner that can be `steady` is a banner
  * a product will reach for whenever it wants to be noticed. What makes this one
- * legitimate is that it is not an announcement about a reading — it is the
+ * legitimate is that it is not an announcement about a reading. It is the
  * withdrawal of an earlier announcement about one. A reader who was told on
  * Tuesday that their device had stopped sending is owed the sentence that says
  * it started again, and no other component in the system delivers it: a Callout
@@ -13,7 +13,7 @@
  *
  * IT STILL SPENDS ONE OF THE TWO the screen is allowed, and it should be gone by
  * the reader's next visit. The component never removes itself, so the product is
- * what stops rendering it — here that would be a rule saying the resolution
+ * what stops rendering it. Here that would be a rule saying the resolution
  * notice is shown once, not a dismiss control the reader has to find.
  *
  * NO ACTIONS, AND THAT IS THE LEVEL RATHER THAN AN OMISSION. Actions are
@@ -28,7 +28,7 @@
  *
  * The level's word is rendered by the component, inside the heading, with a
  * comma between the word and the subject that exists in the accessibility tree
- * and not on the screen — so this banner announces as "Steady, your device is
+ * and not on the screen. So this banner announces as "Steady, your device is
  * sending readings again" whatever the caller writes, and the sentence never
  * has to say the word twice.
  *

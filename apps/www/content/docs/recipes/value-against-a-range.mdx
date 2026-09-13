@@ -24,10 +24,10 @@ This is the highest-stakes display in the system, and it fails in a specific way
 It is trivially easy to build something that looks like a verdict: a bar that goes
 green in the middle and red at the ends, a value that "passes", a range labelled
 *normal*. None of those are what a reference range is. A reference range is a
-statistical statement about a population — usually the central band of results
-from a reference group — measured on a particular instrument by a particular
-laboratory. It is not a statement about whether you are well, and a value outside
-it is not a diagnosis.
+statistical statement about a population. It is usually the central band of
+results from a reference group, measured on a particular instrument by a
+particular laboratory. It is not a statement about whether you are well, and a
+value outside it is not a diagnosis.
 
 <SafetyCallout severity="attention" evidence="opinion">
 A reference range does not partition the world into healthy and ill. Plenty of
@@ -41,7 +41,7 @@ it is the single most common defect in consumer health interfaces.
 The eight components this recipe composes are all at `alpha`: the code exists
 and installs, the API may change in any release without a deprecation cycle, and
 none of it has been through an accessibility or a clinical review. The two rows
-marked `considered` are reserved names with no code behind them — the steps that
+marked `considered` are reserved names with no code behind them. The steps that
 would use them say so where they arise.
 
 | Part | Component | Status | What it does here |
@@ -62,7 +62,7 @@ Tokens, by family:
 | Family | Where it applies | Reference |
 | --- | --- | --- |
 | `--opsin-status-*` | The status pill and, if used at all, the band edge treatment | [Clinical status semantics](../health/clinical-status-semantics.mdx) |
-| `--opsin-category-*` | The result's identity in a list of results — never the band | [Category identity](../health/category-identity.mdx) |
+| `--opsin-category-*` | The result's identity in a list of results. It never colours the band | [Category identity](../health/category-identity.mdx) |
 | Contrast floor | The marker against the band, in both themes | [The contrast floor](../foundations/materials/the-contrast-floor.mdx) |
 | Type scale | The value, which is the largest thing on the card | [Type scale](../foundations/typography/type-scale.mdx) |
 
@@ -74,8 +74,8 @@ Tokens, by family:
 
 Before you draw anything, write down four facts: the source of the range, the
 population it describes, the units it is expressed in, and the date or version of
-the source. If you cannot fill in all four, you do not have a reference range —
-you have a pair of numbers, and drawing them as a range asserts an authority
+the source. If you cannot fill in all four, you do not have a reference range.
+You have a pair of numbers, and drawing them as a range asserts an authority
 nobody granted.
 
 This is a product responsibility, not a component one. opsinjs never supplies
@@ -100,8 +100,8 @@ nothing else. Concretely:
 
 - The band is one continuous shape with visible endpoints. It is not divided into
   coloured zones, because zones read as grades.
-- The marker is a distinct shape — not just a colour change — placed at the
-  value. It must be findable in greyscale.
+- The marker is a distinct shape placed at the value, and a colour change alone
+  is not one. It must be findable in greyscale.
 - The axis is not truncated to make a small difference look large.
 - If the value is far outside the band, the axis extends or the marker pins to
   the edge with an explicit "beyond the scale" treatment. It never silently
@@ -141,7 +141,7 @@ reader and a reader at 200% text are all missing it.
 [Alt text and descriptions](../content/alt-text-and-descriptions.mdx) covers
 describing dials, ranges and body maps non-visually.
 
-### Say what happens next — including when nothing does
+### Say what happens next even when nothing does
 
 Every result surface answers "so what do I do?". For most results the honest
 answer is *nothing, and here is when this will next be measured*. Say it. A
@@ -170,7 +170,7 @@ The result sentence has a fixed shape. Fill it in; do not improvise it.
     not on its own mean you have a condition. Your clinic will repeat this test."
   </DoDont.Do>
   <DoDont.Dont>
-    "Glucose: 6.1 — HIGH ⚠️ (Normal: 3.9–5.6). Your result is abnormal." Four
+    "Glucose: 6.1 HIGH ⚠️ (Normal: 3.9 to 5.6). Your result is abnormal." Four
     faults: a banned word, a verdict the data does not support, shouting, and no
     statement of what happens next.
   </DoDont.Dont>
@@ -196,7 +196,7 @@ Severity is carried by the status vocabulary and the surface it appears on. See
 - No component computed the status. If a status is displayed, you can name the
   rule and the owner of that rule.
 - Nothing on the screen implies a trend from a single measurement. One point is
-  not a direction — see [Trends and change](../health/trends-and-change.mdx).
+  not a direction. See [Trends and change](../health/trends-and-change.mdx).
 - The disclaimer is placed by the rule in
   [DisclaimerNote](../components/disclaimer-note.mdx), not wherever it fits.
 - If this result could be distressing, the way it is revealed matters as much as
@@ -208,17 +208,18 @@ Severity is carried by the status vocabulary and the surface it appears on. See
 - The text alternative carries the whole meaning: value, unit, range, position,
   and what happens next.
 - The marker is distinguishable from the band by shape and by contrast, verified
-  in both themes against the published floor —
+  in both themes against the floor published in
   [Contrast conformance](../accessibility/contrast-conformance.mdx).
 - The result survives greyscale and all three simulated colour-vision
-  deficiencies —
-  [Colour independence](../accessibility/colour-independence.mdx).
+  deficiencies. [Colour independence](../accessibility/colour-independence.mdx)
+  sets that bar.
 - At 200% text the bar reflows or gives way to the sentence; it never truncates
-  the value —
-  [Text resizing and zoom](../accessibility/text-resizing-and-zoom.mdx).
+  the value. [Text resizing and zoom](../accessibility/text-resizing-and-zoom.mdx)
+  covers the reflow behaviour.
 - The value never animates into place. A number that counts up is a number the
   reader cannot read, and under `prefers-reduced-motion` it must simply be
-  present — [Motion in health UI](../health/motion-in-health-ui.mdx).
+  present. [Motion in health UI](../health/motion-in-health-ui.mdx) is the
+  governing rule.
 - Any [Term](../components/term.mdx) expansion is reachable by keyboard and does
   not depend on hover.
 
@@ -232,8 +233,8 @@ before changing any of them. Two open anchors: a 2024 JMIR systematic review of
 lab-result presentation formats for patients (doi:10.2196/53993), and a 2018 study
 of patient-portal result presentation in BMC Medical Informatics and Decision
 Making (doi:10.1186/s12911-018-0589-7). This page deliberately does not summarise
-their findings — read them rather than trusting a paraphrase — and no claim on
-this page should be attributed to either.
+their findings, and no claim on this page should be attributed to either. Read
+them rather than trusting a paraphrase.
 </ResearchNote>
 
 ## Variations
@@ -244,9 +245,9 @@ of the label: "the usual range for adults over 18". If you cannot state the
 condition, you cannot state the range.
 
 **There is no range.** Common, and a legitimate state. Show the value, say plainly
-that this test has no range to compare against here, and do not draw an empty bar
-— an empty bar reads as a missing result rather than as a missing range. This is
-the **partial** data state from
+that this test has no range to compare against here, and do not draw an empty
+bar. An empty bar reads as a missing result rather than as a missing range. This
+is the **partial** data state from
 [Data states](../foundations/data-states.mdx).
 
 **There are two bands.** A reference range and a personal target are different
@@ -263,16 +264,16 @@ twenty bars is unreadable. Show the value and the position in words, and let the
 reader open the one they care about.
 
 <Todo>
-No recipe covers a full results panel — the list-of-many case — end to end. The
-screen specimen closest to it is
+No recipe covers a full results panel end to end. That is the list-of-many case.
+The screen specimen closest to it is
 [Results screen](../screens/results-screen.mdx).
 </Todo>
 
 ## Related
 
-- **[Reference ranges](../health/reference-ranges.mdx)** — the doctrine this
+- **[Reference ranges](../health/reference-ranges.mdx)** is the doctrine this
   recipe implements, including why *normal* is banned outright.
-- **[RangeBar](../components/range-bar.mdx)** — the component specification, its
+- **[RangeBar](../components/range-bar.mdx)** has the component specification, its
   proposed API and the accessibility bar it must clear.
-- **[Result disclosure](../patterns/result-disclosure.mdx)** — the flow around
-  this screen, for results somebody may not want to see.
+- **[Result disclosure](../patterns/result-disclosure.mdx)** covers the flow
+  around this screen, for results somebody may not want to see.

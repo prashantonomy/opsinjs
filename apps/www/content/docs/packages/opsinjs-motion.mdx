@@ -12,9 +12,9 @@ aliases: [spring solver, linear() generator, motion library, easing maths]
 ## Overview
 
 opsinjs expresses springs as CSS. A spring is defined by its physical parameters
-— stiffness, damping, mass — and then sampled into a `linear()` easing with
-enough stops that the browser can run it on the compositor with no JavaScript,
-no animation library, and no main-thread work.
+and then sampled into a `linear()` easing with enough stops that the browser can
+run it on the compositor with no JavaScript, no animation library, and no
+main-thread work. Those parameters are stiffness, damping and mass.
 
 That sampling is arithmetic, and it is the arithmetic this package exposes. The
 reasoning behind the approach is
@@ -25,7 +25,7 @@ the callable form.
   name="opsinjs-motion"
   issue="opsinjs/opsinjs#0"
   questions={[
-    "How many stops is the right default — enough to be smooth, few enough to be readable in a stylesheet?",
+    "How many stops is the right default, one that is enough to be smooth and few enough to be readable in a stylesheet?",
     "Should the solver accept duration-and-bounce as well as stiffness-damping-mass?",
     "Does the reduced-motion collapse belong in this package, or is it purely a CSS concern?",
   ]}
@@ -68,8 +68,9 @@ A cubic Bézier is defined by how it looks. A spring is defined by how it behave
 For interface motion the difference shows up when something is interrupted. A
 Bézier being replayed from a new position restarts its shape and produces a
 visible jolt; a spring has velocity and continues from wherever it was. In a
-health app the interruptible cases are the ones that matter — a value updating
-while a sheet is still opening, a status changing while its pill is animating.
+health app the interruptible cases are the ones that matter. Examples are a
+value updating while a sheet is still opening, and a status changing while its
+pill is animating.
 
 The trade is that a spring cannot be typed into a stylesheet by hand. `linear()`
 is the bridge: the browser gets a plain easing function it can run cheaply, and
@@ -180,9 +181,9 @@ formatter's path.
 
 ## Next
 
-- [Springs as tokens](../foundations/motion/springs-as-tokens.mdx) — the
+- [Springs as tokens](../foundations/motion/springs-as-tokens.mdx) is the
   reasoning.
-- [Reduced motion](../foundations/motion/reduced-motion.mdx) — the contract,
+- [Reduced motion](../foundations/motion/reduced-motion.mdx) is the contract,
   observable.
-- [Motion in health UI](../health/motion-in-health-ui.mdx) — when not to animate
-  at all.
+- [Motion in health UI](../health/motion-in-health-ui.mdx) says when not to
+  animate at all.

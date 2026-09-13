@@ -1,6 +1,6 @@
 ---
 title: Dark mode
-description: One class on the root element, one provider, and the two-line inline script that prevents the flash — plus why dark mode is a contrast problem before it is a colour problem.
+description: One class on the root element, one provider, and the two-line inline script that prevents the flash. Dark mode is a contrast problem before it is a colour problem, and this page explains why.
 status: stable
 kind: handbook
 aliases: [dark theme, next-themes, ssr flash, theme class strategy, theme toggle]
@@ -22,7 +22,7 @@ CSS custom properties redefined under that class:
 
 There is exactly **one** theme provider in an opsinjs application. In this
 documentation site it is fumadocs' `RootProvider`, which mounts `next-themes`
-internally — adding a second `ThemeProvider` produces two sources of truth for
+internally. Adding a second `ThemeProvider` produces two sources of truth for
 the same class and a toggle that works only sometimes.
 
 ## How it works
@@ -30,9 +30,9 @@ the same class and a toggle that works only sometimes.
 ### The class strategy
 
 A class on the root beats a media query for one decisive reason: a media query
-cannot be overridden by the reader. With a class, three states exist — light,
-dark, and follow the system — and the reader chooses between them instead of
-being handed whichever one their operating system decided on. Which of the three
+cannot be overridden by the reader. With a class, three states exist: light,
+dark, and follow the system. The reader chooses between them instead of being
+handed whichever one their operating system decided on. Which of the three
 a reader starts on is a separate decision, taken below; this site starts on
 light.
 
@@ -53,10 +53,10 @@ order-independent for that one rule. See
 ### Preventing the flash
 
 Theme preference lives in `localStorage`, which the server cannot read, so the
-first paint would be light and then correct itself — a visible flash on every
-navigation for readers who chose dark. `next-themes` solves it with a small
-blocking script injected before paint that reads the stored value and sets the
-class. Two consequences:
+first paint would be light and then correct itself. That self-correction is a
+visible flash on every navigation for readers who chose dark. `next-themes`
+solves it with a small blocking script injected before paint that reads the
+stored value and sets the class. Two consequences:
 
 - `suppressHydrationWarning` is required on the `<html>` element, because the
   server rendered no class and the client added one before React hydrated. This
@@ -68,7 +68,7 @@ class. Two consequences:
 The colour engine derives dark values in OKLCH rather than flipping lightness.
 Two reasons that matter in a health product: pure black backgrounds cause
 noticeable smearing on OLED during scroll, and chroma behaves differently
-against a dark ground — a status colour that is clearly distinguishable on white
+against a dark ground. A status colour that is clearly distinguishable on white
 can collapse toward its neighbours on near-black. Every token pair is measured
 in both themes and the numbers are generated, not asserted; see
 [Contrast conformance](../accessibility/contrast-conformance.mdx).
@@ -84,7 +84,7 @@ in both themes and the numbers are generated, not asserted; see
   This site ships `defaultTheme: "light"` with `enableSystem: true`, because a
   health surface is read outdoors and printed for review, and a reader who has
   expressed no preference is better served by the theme the contrast floor was
-  authored against — the reasoning is in
+  authored against. The reasoning is in
   [Dark mode](../foundations/colour/dark-mode.mdx). Offering "system" still
   matters: it is how a reader delegates the choice, and it is the option a
   reader who has already set an OS preference expects to find.
@@ -119,9 +119,9 @@ in both themes and the numbers are generated, not asserted; see
 - **Two `@custom-variant dark` declarations: last one wins, silently.** If dark
   utilities stop applying after adding a dependency, look for a second
   declaration.
-- **`localStorage` throws in some contexts** — private windows with site data
-  blocked, some embedded webviews. Wrap reads and writes, and render correctly
-  with no stored value.
+- **`localStorage` throws in some contexts**, such as private windows with
+  site data blocked and some embedded webviews. Wrap reads and writes, and
+  render correctly with no stored value.
 - **An iframe does not inherit the parent's class.** Component previews
   rendering in a `(view)` route need the theme passed through explicitly;
   see [Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx).
@@ -133,11 +133,11 @@ in both themes and the numbers are generated, not asserted; see
 
 ## Related
 
-- [Dark mode (Foundations)](../foundations/colour/dark-mode.mdx) — why the dark
-  palette is derived rather than inverted.
-- [Tailwind v4](../theming/tailwind-v4.mdx) — the import order and the variant
-  declaration.
-- [Contrast and APCA](../foundations/colour/contrast-and-apca.mdx) — how the
+- [Dark mode (Foundations)](../foundations/colour/dark-mode.mdx) explains why
+  the dark palette is derived rather than inverted.
+- [Tailwind v4](../theming/tailwind-v4.mdx) covers the import order and the
+  variant declaration.
+- [Contrast and APCA](../foundations/colour/contrast-and-apca.mdx) shows how the
   floor is measured in both themes.
-- [Increased contrast](../accessibility/increased-contrast.mdx) — the third
+- [Increased contrast](../accessibility/increased-contrast.mdx) covers the third
   media query, and what it changes that dark mode does not.

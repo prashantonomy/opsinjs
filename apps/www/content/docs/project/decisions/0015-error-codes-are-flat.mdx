@@ -1,5 +1,5 @@
 ---
-title: "0015 — Error codes are flat, not banded"
+title: "ADR 0015. Error codes are flat, not banded"
 description: OPSIN-0001 upwards, allocated in sequence with no meaningful ranges. tokens/errors.json is the only place a code is authored, and the runtime, the shipped substrate and the published table are all generated from it.
 status: stable
 kind: project
@@ -26,8 +26,8 @@ at once, and each was written as though the other did not exist.
 `tokens/errors.json` declared a **flat** scheme: `OPSIN-0001` through
 `OPSIN-0020`, each row carrying a severity, a title, a finished message and the
 id of the one page that prevents the mistake. It was the file the build already
-knew about — `build-tokens.mts` folded it into the token source hash — and it
-was the only one of the two with real content in it.
+knew about, because `build-tokens.mts` folded it into the token source hash, and
+it was the only one of the two with real content in it.
 
 [Error codes](../../handbook/error-codes.mdx) documented a **banded** scheme:
 seven ranges from `OPSIN-01xx` for the colour axes to `OPSIN-07xx` for registry
@@ -57,8 +57,9 @@ authored, and one script emits it everywhere it is needed.**
 - Codes are `OPSIN-NNNN`, allocated in sequence from `OPSIN-0001`. **The digits
   carry no classification.** `OPSIN-0007` sits next to `OPSIN-0008` because it
   was written first, and for no other reason.
-- **Severity is the classification axis** — `safety`, `correctness`, `hygiene` —
-  and it is a column, which means it can be corrected. A number cannot.
+- **Severity is the classification axis.** Its values are `safety`,
+  `correctness` and `hygiene`, and it is a column, which means it can be
+  corrected. A number cannot.
 - Each code names exactly one documentation page, which is its permanent home.
 - `scripts/build-tokens.mts` emits the file three ways, in one run, from one
   parse: `OPSIN_ERROR_CODES` and `OPSIN_ERROR_POLICY` in
@@ -70,9 +71,9 @@ authored, and one script emits it everywhere it is needed.**
 
 Banded numbering was rejected on its own merits as well as on the evidence. A
 band is a promise about a code's meaning that the number is not able to keep.
-The first code that belongs to two bands — a touch target below the floor on a
-status pill is an accessibility defect and a clinical one — is either filed
-arbitrarily, which makes the band a lie, or renumbered, which is the single
+A touch target below the floor on a status pill is an accessibility defect and a
+clinical one, and the first code that belongs to two bands like that is either
+filed arbitrarily, which makes the band a lie, or renumbered, which is the single
 thing the stability rule forbids. And the benefit the page claimed for bands,
 that an unfamiliar code is "approximately interpretable before you look it up",
 is worth very little: a reader holding a code is also holding the message it
@@ -101,10 +102,10 @@ came with, and that message already names the page.
   precise about why, because the first version of this record claimed they were:
   CI runs `pnpm run generate` before every `--check`, so by the time a `--check`
   runs its inputs are always fresh and it cannot fail. The gate that can fail is
-  `check:generated`, which regenerates and then diffs against the commit — so
-  the two paths are named there, beside `lib/generated` and the rest. Separately,
-  losing a region marker fails the generator with a message naming the file,
-  rather than silently appending a second copy of the table.
+  `check:generated`, which regenerates and then diffs against the commit. The two
+  paths are therefore named there, beside `lib/generated` and the rest.
+  Separately, losing a region marker fails the generator with a message naming
+  the file, rather than silently appending a second copy of the table.
 - **Editing a message rewrites the whole generated token layer.**
   `tokens/errors.json` is one of the inputs to the token source hash, so a typo
   fix in a warning changes `--opsin-tokens-generated` and every file carrying
@@ -123,33 +124,34 @@ came with, and that message already names the page.
 **Renumber `tokens/errors.json` into the seven bands.** The page was written
 first, so this was the obvious move. Rejected: it requires assigning twenty
 existing codes to bands that were designed before the codes existed, at least
-three of them sit in two bands at once, and it spends the one thing the scheme
-promises never to spend — a renumbering — to buy a mnemonic.
+three of them sit in two bands at once, and it buys a mnemonic by spending a
+renumbering, which is the one thing the scheme promises never to spend.
 
 **Keep both: flat codes, with the ranges as a documented grouping.** Rejected.
 Two identifiers for one fact, joined by a mapping table that nobody would keep
 current, and a reader who found the mapping stale would have no way to tell
 which half was wrong.
 
-**Namespaced codes — `OPSIN-AXIS-01`, `OPSIN-A11Y-03`.** Genuinely tempting,
-because it puts the classification in the identifier where a human can see it.
-Rejected for the same reason as bands, one step worse: the word is now part of a
-permanent identifier, so renaming a category of mistake either breaks every
-logged code or leaves the old word in place for ever.
+**Namespaced codes such as `OPSIN-AXIS-01` and `OPSIN-A11Y-03`.** Genuinely
+tempting, because it puts the classification in the identifier where a human can
+see it. Rejected for the same reason as bands, one step worse: the word is now
+part of a permanent identifier, so renaming a category of mistake either breaks
+every logged code or leaves the old word in place for ever.
 
 **Emit the table to `lib/generated/errors.ts` and import it from
-`lib/opsinjs.ts`.** Architecturally the cleanest — one artefact, inside the
-directory the drift gate already watches. Rejected because `shadcn add` copies
-`lib/opsinjs.ts` and `lib/status.ts` and nothing else, so the import would
-resolve here and nowhere else. Adding a third shared file would have been a
-change to the distribution contract made in passing, to save a marker comment.
+`lib/opsinjs.ts`.** Architecturally the cleanest. It would be one artefact,
+inside the directory the drift gate already watches. Rejected because
+`shadcn add` copies `lib/opsinjs.ts` and `lib/status.ts` and nothing else, so the
+import would resolve here and nowhere else. Adding a third shared file would have
+been a change to the distribution contract made in passing, to save a marker
+comment.
 
 ## Revisiting this
 
-Revisit when a reader cannot find a code — not when the roster reaches some
-number. The count is not the problem a banded scheme solves; searchability is,
-and searchability is a property of the published table and the message text
-rather than of the numbering.
+Revisit when a reader cannot find a code. The roster reaching some number is not
+the trigger, because the count is not the problem a banded scheme solves;
+searchability is, and searchability is a property of the published table and the
+message text rather than of the numbering.
 
 Renumbering stays off the table whatever is decided. A future scheme, if there
 is one, begins above the highest code already allocated, and every code below it

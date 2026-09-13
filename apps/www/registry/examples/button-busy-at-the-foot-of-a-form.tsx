@@ -14,24 +14,24 @@
  * a form is inert as a submitter until somebody types the attribute. That is a
  * reversal of the platform default, it is invisible in a preview, and the way
  * you find out is a form that silently does nothing. So the primary control
- * below carries `type="submit"` and the escape hatch carries `type="button"` —
- * the second is already the default, and writing it anyway is the habit that
+ * below carries `type="submit"` and the escape hatch carries `type="button"`.
+ * The second is already the default, and writing it anyway is the habit that
  * survives somebody swapping this for a plain <button> later.
  *
  * Three more things are worth watching, and all three are the same decision
  * seen from different angles.
  *
  * THE LABEL DOES NOT CHANGE. It still says "Save note" while it saves. The
- * common alternative — swapping the label for a spinner, or rewriting it to
- * "Saving…" — changes the control's width, jumps the layout under the reader's
- * thumb, and makes its accessible name disappear and reappear. The reader's
+ * common alternative changes the control's width, jumps the layout under the
+ * reader's thumb, and makes its accessible name disappear and reappear. It
+ * swaps the label for a spinner, or rewrites it to "Saving…". The reader's
  * record of what they pressed is the label; it stays put.
  *
  * THE BUTTON DOES NOT DISAPPEAR. It is not `disabled`: it keeps its tab stop
  * and its place in the accessibility tree, and it is exposed as busy and
  * unavailable rather than removed. A control that vanishes mid-save takes the
  * reader's place in the form with it. What that state SOUNDS like is a separate
- * question and an open one — `aria-busy` on a control is a hint rather than an
+ * question and an open one. `aria-busy` on a control is a hint rather than an
  * announcement, and no screen reader has been run against this.
  *
  * THE BUSY GLYPH TAKES THE ICON'S SEAT. Which is why the primary control here
@@ -49,13 +49,13 @@
  *
  * IT STILL CARRIES THE TARGET FLOOR, and depending on nothing is exactly why it
  * has to. `app/product.css` backstops `button`, `[role="button"]`,
- * `a[data-opsin-target]`, checkboxes and radios — not text inputs — so a
- * hand-rolled input has nothing holding it open, and this one measured 40px
- * beside a 44px Button. `shadcn add` copies this file into somebody else's
- * project as the worked answer to "what does an opsinjs form look like", so a
- * short box here is a short box in a patient-facing app. The class is the same
- * one every control in the registry carries, fallback included; it adds a
- * utility, not a dependency.
+ * `a[data-opsin-target]`, checkboxes and radios. It does not backstop text
+ * inputs, so a hand-rolled input has nothing holding it open, and this one
+ * measured 40px beside a 44px Button. `shadcn add` copies this file into
+ * somebody else's project as the worked answer to "what does an opsinjs form
+ * look like", so a short box here is a short box in a patient-facing app. The
+ * class is the same one every control in the registry carries, fallback
+ * included; it adds a utility, not a dependency.
  */
 
 import { ArrowRight } from "lucide-react"

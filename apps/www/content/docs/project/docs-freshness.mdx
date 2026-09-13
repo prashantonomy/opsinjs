@@ -1,6 +1,6 @@
 ---
 title: Docs freshness
-description: Every page has a review cadence, a reviewer discipline and an owner — and an expired page is reported by CI, not discovered by a reader.
+description: Every page has a review cadence, a reviewer discipline and an owner. An expired page is reported by CI, not discovered by a reader.
 status: stable
 kind: project
 owner: core
@@ -60,36 +60,38 @@ them. `pnpm run check:generated` regenerates every one of them and fails on a
 single changed byte, which is a stronger guarantee than a human re-reading a
 table of two hundred rows twice a year. The hand-written half above each
 generated marker is not covered by that, and a reference page whose prose needs
-a cadence sets `reviewEvery` explicitly — as
+a cadence sets `reviewEvery` explicitly. Both
 [contrast](../reference/generated/contrast.mdx) and
-[catalogue](../reference/generated/catalogue.mdx) both do.
+[catalogue](../reference/generated/catalogue.mdx) do this.
 
 **Pages that override the default downwards to 3 months** are the ones where
 being wrong is most expensive. They include the emergency and crisis health
 pages, the accessibility statement and the two contrast pages, the six `start/`
-guides a newcomer follows literally — quick start, installation, the Next guide,
-`components.json`, the first component and troubleshooting — the measured
+guides a newcomer follows literally, the measured
 [contrast](../reference/generated/contrast.mdx) table, the
 [catalogue](../reference/generated/catalogue.mdx), the [roadmap](roadmap.mdx)
-and [state of the system](state-of-the-system.mdx).
+and [state of the system](state-of-the-system.mdx). The six guides are quick
+start, installation, the Next guide, `components.json`, the first component and
+troubleshooting.
 
-`reviewEvery: never` exists for pages whose content is fixed by history — a dated
-changelog entry, a decision record that has been superseded. Use it rarely; it is
-the one setting that cannot be reported as stale.
+`reviewEvery: never` exists for pages whose content is fixed by history, such as
+a dated changelog entry or a decision record that has been superseded. Use it
+rarely; it is the one setting that cannot be reported as stale.
 
 ## What the check actually does
 
-`scripts/check-freshness.mts` reads every page, adds the page's `reviewEvery` —
-or its kind's default — to its `reviewed` date, and sorts the corpus into three
-states. It prints one summary line and then up to three tables, headed
-`OVERDUE`, `DUE WITHIN 30 DAYS` and `NO REVIEW DATE`; a table is omitted when it
-would be empty. Each row is one page: its slug, its `kind`, its `reviewer`, its
-`reviewed` date and its due date, with the overdue rows ordered by how far past
-due they are so the worst is at the top. `--json` prints the same three sets plus
-the totals, and `--strict` exits non-zero when anything is overdue.
+`scripts/check-freshness.mts` reads every page, adds either the page's
+`reviewEvery` or its kind's default to its `reviewed` date, and sorts the corpus
+into three states. It prints one summary line and then up to three tables,
+headed `OVERDUE`, `DUE WITHIN 30 DAYS` and `NO REVIEW DATE`; a table is omitted
+when it would be empty. Each row is one page: its slug, its `kind`, its
+`reviewer`, its `reviewed` date and its due date, with the overdue rows ordered
+by how far past due they are so the worst is at the top. `--json` prints the
+same three sets plus the totals, and `--strict` exits non-zero when anything is
+overdue.
 
 `owner` is read into every row but is not what the tables group by, so do not
-expect a per-team digest from this script — the grouping is by state, which is
+expect a per-team digest from this script. The grouping is by state, which is
 what somebody clearing a backlog needs. Grouping the JSON by owner is a `jq`
 away if you want the digest.
 
@@ -106,7 +108,7 @@ not a stale page, it is an unsourced claim.
 
 **A review is re-reading the page against the system as it is today** and
 changing what has stopped being true. If a page needed no change, the reviewer
-still updates `reviewed` — that is a real signal, and it is the whole point of
+still updates `reviewed`. That is a real signal, and it is the whole point of
 separating "when it was written" from "when it was last checked".
 
 **Bumping the date without re-reading the page is the one prohibited operation
@@ -117,12 +119,12 @@ date and claims to have been checked last week.
 ## Owners
 
 `owner` is a team slug, not a person: people leave and pages do not. The
-disciplines are the four in the schema — `design`, `engineering`, `clinical`,
-`content` — plus `core` for the project pages, which the maintainers own
+disciplines are the four in the schema: `design`, `engineering`, `clinical` and
+`content`. `core` is added for the project pages, which the maintainers own
 collectively.
 
 <Todo>
-The corpus currently contains several owner slugs that predate this rule —
+The corpus currently contains several owner slugs that predate this rule.
 `design-system`, `opsinjs-docs` and `core` are all in use for overlapping things.
 Normalise them to the five above, then have `check-freshness.mts` fail on an
 unrecognised owner rather than silently grouping under it.
@@ -133,11 +135,11 @@ unrecognised owner rather than silently grouping under it.
 The review date at the foot of the page is the truth. Cross-check against the
 [changelog](changelog/index.mdx): if a release landed after the review date and
 touched what you are reading, believe the changelog. Right now the changelog is
-itself behind — the component layer landed without an entry — so
-[State of the system](state-of-the-system.mdx) is the more current of the two and
-is the one to check first. Then tell us — the
-report-a-problem control at the foot of every page is prefilled with the page
-path and the docs version, and a stale page is exactly what it is for.
+itself behind, because the component layer landed without an entry.
+[State of the system](state-of-the-system.mdx) is therefore the more current of
+the two and is the one to check first. Then tell us. The report-a-problem
+control at the foot of every page is prefilled with the page path and the docs
+version, and a stale page is exactly what it is for.
 
 <LastUpdated />
 

@@ -23,18 +23,18 @@ rather than a web dashboard. None of them is allowed to be load-bearing.
 
 This page states two separate things, and they are separate on purpose:
 
-- **The floor** — the oldest engine opsinjs is tested against, which is a policy
+- **The floor** is the oldest engine opsinjs is tested against, which is a policy
   decision the project makes and can be held to.
-- **The enhancement contract** — for each optional feature, what it does, and
-  precisely what a browser that lacks it gets instead. This is the part that
+- **The enhancement contract** covers, for each optional feature, what it does,
+  and precisely what a browser that lacks it gets instead. This is the part that
   matters, because it is the part a reader experiences.
 
 <Callout title="The support matrix is not published yet">
   Twenty-four components are implemented and none of them has been tested against
   a browser matrix, so a per-feature version table on this page would be
   remembered rather than measured. The matrix below renders from generated data
-  and stays empty until a test run produces some. The *contract* — what degrades
-  to what — is a design decision and is stated in full.
+  and stays empty until a test run produces some. The *contract* is a design
+  decision, and it is stated in full. It sets out what degrades to what.
 </Callout>
 
 ## The tested floor
@@ -48,24 +48,25 @@ not test and will not treat a defect there as a release blocker.
 
 The floor is set by the reader, not by the developer. Consumer health apps are
 read overwhelmingly on phones, and a meaningful share of those phones belong to
-people who do not update them — often the older and less well readers whom a
-health product least wants to exclude. That argues for a conservative floor. It
-also argues against making the floor so old that the system has to abandon the
-visual language that makes it feel trustworthy, which is why everything below the
-floor is handled by enhancement rather than by exclusion.
+people who do not update them. Those are often the older and less well readers
+whom a health product least wants to exclude. That argues for a conservative
+floor. It also argues against making the floor so old that the system has to
+abandon the visual language that makes it feel trustworthy, which is why
+everything below the floor is handled by enhancement rather than by exclusion.
 
 <BrowserSupport />
 
 ## The enhancement contract
 
 Read this as a promise about degradation. Every row is implemented with an
-`@supports` query, a media query, or — for `linear()` easing, where a guard is not
-available — CSS's own rule for a value an engine cannot compute; never with
-user-agent detection. Each fallback is a designed state rather than an accident,
-and the one that is a bare browser default says so below rather than dressing
-itself up as a curve we chose.
+`@supports` query or a media query, never with user-agent detection. `linear()`
+easing is the one exception: no `@supports` guard is available for it, so it
+relies instead on CSS's own rule for a value an engine cannot compute. Each
+fallback is a designed state rather than an accident, and the one that is a bare
+browser default says so below rather than dressing itself up as a curve we
+chose.
 
-### Backdrop blur — the material ladder
+### Backdrop blur and the material ladder
 
 Six of the system's surface rungs are defined partly by a backdrop filter. Without
 it, each rung falls back to an opaque surface whose colour is derived to hit the
@@ -77,7 +78,7 @@ so the opaque route is exercised by real users on every engine rather than being
 an untested branch. See
 [Reduced transparency](../foundations/materials/reduced-transparency.mdx).
 
-### Squircle geometry — `corner-shape`
+### Squircle geometry with `corner-shape`
 
 The product theme uses continuous corner curvature rather than a circular radius,
 because it is what the platforms these readers use every day look like. Where
@@ -85,7 +86,7 @@ because it is what the platforms these readers use every day look like. Where
 the same token value. Nothing reflows, nothing changes size, and no information
 depends on the difference. See [Shape](../foundations/shape/index.mdx).
 
-### Wide-gamut colour — Display P3
+### Wide-gamut colour in Display P3
 
 Colours are authored in OKLCH and emitted with an sRGB fallback first and a
 `color-gamut: p3` enhancement second. A display or engine without wide gamut gets
@@ -95,23 +96,25 @@ The P3 version is a saturation improvement on hardware that can show it, and the
 category and status hues stay distinguishable in both. See
 [Colour and gamut](../foundations/colour/index.mdx).
 
-### Spring easing — `linear()`
+### Spring easing as `linear()`
 
 Motion tokens are springs, exported as `linear()` easing functions with many
 stops. Each spring is a single custom property, and there is no `cubic-bezier`
-approximation behind it: a custom property holds `linear(…)` even where the engine
-cannot compute it, so the cascade has nothing to fall back to. What happens instead
-is that the declaration using it — `transition-timing-function:
-var(--opsin-ease-spring-…)` — is invalid at computed-value time, the property takes
-its initial value, and the move runs on the browser's default easing. Durations are
-separate tokens and are identical either way, so nothing in a sequence gets out of
-step and no transition is lost; what is lost is the shape of the curve. The matrix
-above tests the feature in the browser you are reading this in, which is the only
-honest answer here — the version table is not published yet.
+approximation behind it: a custom property holds `linear(…)` even where the
+engine cannot compute it, so the cascade has nothing to fall back to. What
+happens instead is that the declaration using it is `transition-timing-function:
+var(--opsin-ease-spring-…)`, and it is invalid at computed-value time. The
+property takes its initial value, and the move runs on the browser's default
+easing. Durations are separate tokens and are identical either way, so nothing
+in a sequence gets out of step and no transition is lost; what is lost is the
+shape of the curve. The matrix above tests the feature in the browser you are
+reading this in, which is the only honest answer here. The version table is not
+published yet.
 
 Under `prefers-reduced-motion: reduce`, both paths are replaced by the reduced
-variant — which is not "no animation", but the specific degradation documented per
-component. See [Reduced motion](../accessibility/reduced-motion.mdx).
+variant. That variant is not "no animation", but the specific degradation
+documented per component. See
+[Reduced motion](../accessibility/reduced-motion.mdx).
 
 ### Everything else
 
@@ -149,9 +152,9 @@ page is being rendered in an sRGB context. The sRGB values are the conformant
 ones; the documentation is showing you the wide-gamut enhancement.
 
 **Motion runs, but the springs feel generic.** `linear()` was not understood, so
-the timing function was dropped at substitution and the browser's default easing is
-running — there is no `cubic-bezier` approximation waiting behind it. Durations and
-end states are preserved; only the shape of the curve differs.
+the timing function was dropped at substitution and the browser's default easing
+is running. There is no `cubic-bezier` approximation waiting behind it. Durations
+and end states are preserved; only the shape of the curve differs.
 
 **Something genuinely breaks below the floor.** Report it. We will not necessarily
 fix it, and we will tell you which of those two it is rather than leaving the issue
@@ -159,9 +162,9 @@ open.
 
 ## Next
 
-- [Framework support](./framework-support.mdx) — the other half of the support
+- [Framework support](./framework-support.mdx) is the other half of the support
   question: React version, server components and bundlers.
-- [Materials](../foundations/materials/index.mdx) — what the ladder is and why the
-  opaque fallback is a designed state rather than a compromise.
-- [Springs as tokens](../foundations/motion/springs-as-tokens.mdx) — where the
+- [Materials](../foundations/materials/index.mdx) says what the ladder is and why
+  the opaque fallback is a designed state rather than a compromise.
+- [Springs as tokens](../foundations/motion/springs-as-tokens.mdx) is where the
   `linear()` values come from.

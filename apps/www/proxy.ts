@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server"
 import { routes } from "@/lib/routes"
 
 /**
- * proxy.ts — Next 16's replacement for `middleware.ts`.
+ * proxy.ts is Next 16's replacement for `middleware.ts`.
  *
  * FILE LOCATION. This must sit beside `app/`, not inside it. Next resolves the
  * proxy convention at the project root (or `src/`) only: `app/proxy.ts` is not a
@@ -37,7 +37,7 @@ import { routes } from "@/lib/routes"
 const DOCS_PREFIX = routes.docs()
 
 /**
- * The generated per-symbol API pages. Case-sensitive by construction — see the
+ * The generated per-symbol API pages. Case-sensitive by construction. See the
  * guard in the case-folding branch below.
  */
 const API_PREFIX = `${DOCS_PREFIX}/reference/api/`
@@ -82,9 +82,9 @@ const PREFIX_REDIRECTS: { from: string; to: string; permanent: boolean }[] = [
     permanent: true,
   },
   // The per-base URL shape (`/docs/components/base/button`). opsinjs has
-  // exactly one canonical, un-namespaced URL per component — locked decision 6
-  // — and the base × style matrix lives on /view instead. A reader who has
-  // internalised the namespaced shape lands on the real page.
+  // exactly one canonical, un-namespaced URL per component. That is locked
+  // decision 6, and the base × style matrix lives on /view instead. A reader
+  // who has internalised the namespaced shape lands on the real page.
   {
     from: `${DOCS_PREFIX}/components/base/`,
     to: `${DOCS_PREFIX}/components/`,
@@ -157,7 +157,7 @@ export default function proxy(request: NextRequest) {
 /**
  * Keep the proxy off everything it has no opinion about: static assets, the
  * image optimiser, the metadata routes, the registry and the chrome-less
- * preview shell. `/view` is excluded deliberately — it is fetched once per
+ * preview shell. `/view` is excluded deliberately. It is fetched once per
  * iframe on pages that embed several, and a redirect check there is pure cost.
  */
 export const config = {

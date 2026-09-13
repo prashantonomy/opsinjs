@@ -1,5 +1,5 @@
 /**
- * lib/opsinjs.ts — the shared substrate every opsinjs component imports.
+ * lib/opsinjs.ts is the shared substrate every opsinjs component imports.
  *
  * WHY THIS FILE EXISTS
  * A component under `registry/bases/<base>/` is distributed by `shadcn add`,
@@ -10,7 +10,7 @@
  * `cn`, which `shadcn init` writes into every consumer, and this one, which
  * `scripts/build-registry.mts` appends to every component's `files[]` as a
  * `registry:lib` entry carrying real `content`. There is no third. Not
- * `@/components/*`, not `@/registry/*`, not `@/app/*`, not `@/tokens/*` — those
+ * `@/components/*`, not `@/registry/*`, not `@/app/*`, not `@/tokens/*`. Those
  * paths exist in this repository and nowhere else.
  *
  * `type: "registry:lib"` resolves through the consumer's `components.json`
@@ -33,8 +33,8 @@
  * consumes is not substrate, it is that component's API.
  *
  * CONSTRAINTS THIS FILE IS UNDER
- * No JSX and no non-erasable TypeScript — no `enum`, no parameter properties, no
- * `namespace` — and every relative import carries an explicit `.ts` extension,
+ * No JSX and no non-erasable TypeScript, so no `enum`, no parameter properties
+ * and no `namespace`. Every relative import carries an explicit `.ts` extension,
  * because `scripts/*.mts` run under plain Node 24 with native type stripping and
  * some of them import `lib/` modules directly, with no resolver hook. The same
  * rule holds for `lib/status.ts`, `lib/catalogue.ts`, `lib/routes.ts` and
@@ -69,7 +69,7 @@ import type { ClinicalStatus } from "./status.ts"
  *                                                                     *
  * A component imports these from `@/lib/opsinjs` and never from       *
  * `@/lib/status` directly. Both files ship, so either specifier would  *
- * resolve in a consumer — but one import surface is what makes the     *
+ * resolve in a consumer, but one import surface is what makes the      *
  * substrate reviewable, and it is the specifier every specification    *
  * page's `## Usage` block prints.                                      *
  * ------------------------------------------------------------------ */
@@ -103,12 +103,12 @@ export type {
  * Every component ships a zero-prop default export that renders in the docs and
  * in a consumer's editor, and every one of those renders a measurement. A
  * plausible reference range in a demo is a reference range somebody will read as
- * theirs, so the demos cite this string instead — one literal, shared by all of
+ * theirs, so the demos cite this string instead: one literal, shared by all of
  * them, saying in the reader's own language that the numbers beside it mean
  * nothing. `ReferenceRange.source` in an example is always this and never a
  * laboratory, a guideline body, a device manufacturer or a study.
  */
-export const EXAMPLE_SOURCE = "Example data — not a reference range"
+export const EXAMPLE_SOURCE = "Example data. Not a reference range"
 
 /* ------------------------------------------------------------------ *
  * Shapes more than one component agrees on                            *
@@ -137,7 +137,7 @@ export interface ReferenceRange {
   source: string
   /**
    * When the range was published or last reviewed, ISO 8601. Omitted when the
-   * product does not know — which is rendered as "we do not know", never as
+   * product does not know, which is rendered as "we do not know", never as
    * today's date.
    */
   asOf?: string
@@ -177,7 +177,8 @@ export interface TrendPoint {
 export type Detent = "content" | "half" | "full"
 
 /**
- * A rung of the material ladder — how a surface sits above what is behind it.
+ * A rung of the material ladder, meaning how a surface sits above what is
+ * behind it.
  *
  * These six names are the token names: every rung resolves a matching set of
  * `--opsin-material-<rung>-*` custom properties for blur, tint, shadow and
@@ -192,7 +193,7 @@ export type MaterialRung =
   | "overlay"
   | "scrim"
 
-/* opsinjs:units:begin — replaced by scripts/build-tokens.mts from tokens/units.json */
+/* opsinjs:units:begin - replaced by scripts/build-tokens.mts from tokens/units.json */
 
 /**
  * One unit: what it is called, what a reader sees, and how it is SPOKEN.
@@ -423,7 +424,7 @@ export const UNIT_CONVERSIONS: UnitConversion[] = [
     denominator: 5,
     offsetNumerator: 32,
     offsetDenominator: 1,
-    basis: ["The Fahrenheit scale is defined against Celsius: a Fahrenheit degree is exactly five ninths of a Celsius degree and the scales meet where 32 °F is 0 °C, so °C = °F × 5/9 − 160/9. This conversion is affine rather than a ratio, which is why a temperature and a temperature DIFFERENCE do not convert the same way — 2 °C of change is 3.6 °F of change, not 35.6 °F."],
+    basis: ["The Fahrenheit scale is defined against Celsius: a Fahrenheit degree is exactly five ninths of a Celsius degree and the scales meet where 32 °F is 0 °C, so °C = °F × 5/9 − 160/9. This conversion is affine rather than a ratio, which is why a temperature and a temperature DIFFERENCE do not convert the same way. 2 °C of change is 3.6 °F of change, not 35.6 °F."],
   },
   {
     from: "°F",
@@ -432,7 +433,7 @@ export const UNIT_CONVERSIONS: UnitConversion[] = [
     denominator: 9,
     offsetNumerator: -160,
     offsetDenominator: 9,
-    basis: ["The Fahrenheit scale is defined against Celsius: a Fahrenheit degree is exactly five ninths of a Celsius degree and the scales meet where 32 °F is 0 °C, so °C = °F × 5/9 − 160/9. This conversion is affine rather than a ratio, which is why a temperature and a temperature DIFFERENCE do not convert the same way — 2 °C of change is 3.6 °F of change, not 35.6 °F."],
+    basis: ["The Fahrenheit scale is defined against Celsius: a Fahrenheit degree is exactly five ninths of a Celsius degree and the scales meet where 32 °F is 0 °C, so °C = °F × 5/9 − 160/9. This conversion is affine rather than a ratio, which is why a temperature and a temperature DIFFERENCE do not convert the same way. 2 °C of change is 3.6 °F of change, not 35.6 °F."],
   },
   {
     from: "g",
@@ -638,7 +639,7 @@ export function convertUnit(value: number, from: string, to: string): number | u
 /* opsinjs:units:end */
 
 /* ------------------------------------------------------------------ *
- * Error codes — GENERATED from tokens/errors.json                     *
+ * Error codes, GENERATED from tokens/errors.json                      *
  *                                                                     *
  * Everything between the two markers below is written by              *
  * `scripts/build-tokens.mts`. An edit here survives until the next     *
@@ -646,7 +647,7 @@ export function convertUnit(value: number, from: string, to: string): number | u
  * and the drift gate is `node scripts/build-tokens.mts --check`.       *
  * ------------------------------------------------------------------ */
 
-/* opsinjs:errors:begin — replaced by scripts/build-tokens.mts from tokens/errors.json */
+/* opsinjs:errors:begin - replaced by scripts/build-tokens.mts from tokens/errors.json */
 
 /**
  * How severe a warning is.
@@ -735,7 +736,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     code: "OPSIN-0004",
     severity: "safety",
     title: "A reference range was rendered without a source",
-    message: "<{component}> was given a `range` with no `range.source`. Name whose range it is — a laboratory, a device maker, or a clinician — because a range is a comparison somebody chose and not a fact about the reader.",
+    message: "<{component}> was given a `range` with no `range.source`. Name whose range it is: a laboratory, a device maker, or a clinician. A range is a comparison somebody chose and not a fact about the reader.",
     docs: "health/reference-ranges",
     params: ["component"],
   },
@@ -880,7 +881,7 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
 /* opsinjs:errors:end */
 
 /* ------------------------------------------------------------------ *
- * warnOnce — the development-mode warning channel                     *
+ * warnOnce, the development-mode warning channel                      *
  * ------------------------------------------------------------------ */
 
 /**
@@ -906,7 +907,7 @@ const OPSIN_DOCS_ORIGIN = "https://opsinjs.dev/docs/"
  *
  * Declared but not created. In a production bundle the guard at the top of
  * `warnOnce` is statically false, the body is dead code, and this stays
- * `undefined` — so the set is not merely unused in production, it is never
+ * `undefined`, so the set is not merely unused in production. It is never
  * allocated and can never retain a string. In development it is created on the
  * first warning and lives for the session, which is what "once" means.
  */
@@ -938,7 +939,7 @@ const IDENTITY_PARAMS = [
  * This file ships into consumer projects, and a browser-only or Deno project
  * has no Node types. Referencing the global directly made
  * `Cannot find name 'process'` the first thing a consumer saw after installing
- * a component — a typecheck failure caused entirely by opsinjs, in a file they
+ * a component. That is a typecheck failure caused entirely by opsinjs, in a file they
  * did not write. A module-scoped `declare const` shadows the global where one
  * exists, emits nothing, and asks for exactly the two properties actually read.
  *
@@ -962,7 +963,7 @@ declare const process: { env?: { NODE_ENV?: string } } | undefined
  * "not production" and turns every development reproach into console output an
  * end user sees. That is not hypothetical: it is what this line did until it was
  * written this way. The two `typeof` guards ahead of it are for the environment
- * a bundler never touched — a plain ESM import with no build step, where
+ * a bundler never touched, meaning a plain ESM import with no build step, where
  * `process` really is absent and the bare member expression would throw.
  */
 export function isDevelopment(): boolean {
@@ -995,15 +996,15 @@ const CAP_KEY = "\u0000cap"
  * every case, including the cases where it has itself been called wrongly.
  *
  * WHAT "ONCE PER CALL SITE" MEANS AT RUNTIME. A call site is not observable
- * from inside a function — the only handle on one is a stack trace, and a stack
+ * from inside a function. The only handle on one is a stack trace, and a stack
  * trace is minified in one build, source-mapped in another and absent on the
  * server, which would make the de-duplication key differ between environments
  * that are meant to behave the same. The key used instead is the code plus the
  * IDENTIFYING parameters listed in `IDENTITY_PARAMS` below.
  *
  * It is deliberately NOT the filled message. A third of the codes in the table
- * carry a parameter that changes on every render — `{count}` in OPSIN-0005,
- * `{value}` in OPSIN-0003, `{age}` in OPSIN-0016 — so keying on the message
+ * carry a parameter that changes on every render, such as `{count}` in
+ * OPSIN-0005, `{value}` in OPSIN-0003 and `{age}` in OPSIN-0016, so keying on the message
  * would make a `safety` warning fire on every frame of a screen that is already
  * misbehaving, and would grow the key set without bound in a long session. The
  * identifying parameters are the ones that name WHO is at fault rather than what
@@ -1011,7 +1012,7 @@ const CAP_KEY = "\u0000cap"
  *
  * Two consequences worth stating rather than leaving to be discovered. A caller
  * may pass `component` even for a code whose message never interpolates it, and
- * doing so buys per-component granularity for free — components should. And for
+ * doing so buys per-component granularity for free, so components should. And for
  * the three codes that take no parameters, and for any caller that supplies
  * none, the key collapses to the code alone: one warning per session for the
  * whole application. That is coarser than "per call site". It is the most this
@@ -1066,7 +1067,7 @@ export function warnOnce(code: OpsinErrorCode, params: OpsinErrorParams = {}): v
 
   /* Bounded, because this set is never cleared and a development session can run
      for days. At the cap the channel says so once and then goes quiet, rather
-     than either leaking or reverting to warning on every render — a warning
+     than either leaking or reverting to warning on every render. A warning
      channel that degrades into noise is one somebody switches off. */
   if (warnedKeys.size >= MAX_WARNED_KEYS) {
     if (!warnedKeys.has(CAP_KEY)) {

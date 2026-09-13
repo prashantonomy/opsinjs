@@ -1,6 +1,6 @@
 ---
 title: Evidence and references
-description: Every source this pillar rests on, what each one is used for, and an honest register of which pages are evidence and which are argument.
+description: Every source this pillar rests on, what each one supports, and a register recording which pages carry evidence and which carry argument.
 status: stable
 kind: health
 evidence: mixed
@@ -16,21 +16,27 @@ aliases: [references, bibliography, citations, sources, evidence discipline]
 
 ## What this means
 
-A health design system is unusually easy to make look authoritative. Add a
-citation to each page, cite a study for each rule, and the whole thing acquires
-the register of clinical guidance. Almost nobody checks references, and in a
-domain where readers are inclined to trust, an unchecked reference is worse than
-none — it converts an opinion into an apparent finding.
+This page is the evidence register for the health pillar: every source the
+pillar rests on, the pages that rely on it, and the boundary of what each source
+supports. A health design system acquires the tone of clinical guidance
+cheaply, because a citation on each page and a study behind each rule read as
+authority whether or not the references say what the pages claim. An unchecked
+reference converts an opinion into an apparent finding, and the conversion is
+invisible to any reader who does not open the source.
 
-So this pillar operates a rule that is stricter than it looks: **`evidence:
-cited` means a source we can hand you, that we have opened, that says what we say
-it says.** Everything else is `opinion`, and marked as such in the page's own
-frontmatter where a machine can read it.
+The rule this pillar operates turns on a narrow definition of `cited`.
+**`evidence: cited` means a source we can hand you, that we have opened, that
+says what we say it says.** A claim that fails any one of those three conditions
+is `opinion`, and it is declared as `opinion` in the page's own frontmatter
+where a machine can read it.
 
-The consequence is uncomfortable and we publish it rather than hide it: most of
-this pillar is `opinion`. It is careful, argued, falsifiable opinion, and every
-page says what would change our mind. It is not evidence, and we will not dress
-it as evidence to look more serious.
+Applying that rule across the pillar produces a countable result. Of the 24
+pages here, 14 declare `evidence: opinion`, 10 declare `mixed`, and none
+declares `cited`. The opinion is argued and falsifiable, and every page names
+the observation that would revise it. The tiers are readable straight from
+frontmatter with `grep -h '^evidence:' content/docs/health/*.mdx`, which is the
+check behind those counts and the reason the register below is a candidate for
+generation rather than hand maintenance.
 
 ## The rule
 
@@ -38,83 +44,63 @@ it as evidence to look more serious.
 opinion to a plausible reference. Every `cited` claim names a source you can
 open.**
 
-Four rules, applied to every page in this section:
+Four rules apply to every page in this section.
 
-1. **`evidence` is declared in frontmatter** on every `kind: health` page. It is
-   machine-readable and is emitted into the corpus a machine reads.
-2. **`cited` requires an openable source.** A DOI, a URL, or a named published
-   standard. Not "research shows", not "studies have found", not a reference
-   reconstructed from memory.
-3. **`mixed` is honest and common.** Most pages have one or two grounded claims
-   and several judgements. The page says which are which, in the body.
-4. **Never copy.** Sources are cited and linked, never pasted. The NHS Digital
-   Service Manual and NHS content are Crown copyright and are not reusable; where
-   this documentation covers similar ground it does so in original prose and
-   points you at the original. Where we name a guideline we do not paraphrase its
-   substance, because a decayed paraphrase is a liability.
+1. **`evidence` is declared in frontmatter** on every `kind: health` page. The
+   field is machine-readable and is emitted into the corpus that agents read, so
+   a downstream consumer can filter on the tier without opening the page body.
+2. **`cited` requires an openable source**, which means a DOI, a URL, or a named
+   published standard. The constructions it excludes are "research shows",
+   "studies have found", and a reference reconstructed from memory.
+3. **`mixed` covers a page that carries both tiers.** Such a page holds one or
+   two grounded claims alongside several judgements, and its body states which
+   sentence belongs to which tier.
+4. **Sources are cited and linked rather than pasted.** The NHS Digital Service
+   Manual and other NHS content are Crown copyright and are not reusable, so
+   where this documentation covers the same ground it does so in original prose
+   and points you at the original. Where we name a guideline we do not
+   paraphrase its substance either: a paraphrase fixes the wording at the date
+   it was written, the guideline moves on when it is revised, and the team
+   working from the paraphrase ends up treating a superseded sentence as the
+   requirement.
 
 ### Sources this pillar rests on
 
-**Patient-facing presentation of results**
+The register below lists every source this pillar cites, the pages that rely on
+each one, and the proposition it is cited for. A source cited beyond the
+proposition it actually supports is the failure this register exists to prevent,
+so the boundary is stated in the last column here rather than left to the page
+doing the citing.
 
-- Systematic review of laboratory-result presentation formats, JMIR, 2024 —
-  [10.2196/53993](https://doi.org/10.2196/53993). Used on
-  [Reference ranges](./reference-ranges.mdx),
-  [Numbers, units and precision](./numbers-units-precision.mdx) and
-  [Clinical interaction guidelines](./clinical-interaction-guidelines.mdx) for
-  the claim that presentation format materially changes lay comprehension of a
-  result.
-- Presentation of results in patient portals, BMC Medical Informatics and
-  Decision Making, 2018 —
-  [10.1186/s12911-018-0589-7](https://doi.org/10.1186/s12911-018-0589-7). Used on
-  [Reference ranges](./reference-ranges.mdx) for the same claim in the portal
-  context.
-
-**Accessibility, as normative requirements rather than research**
-
-- WCAG 2.2 — in particular SC 1.4.1 Use of Colour, SC 2.2.2 Pause Stop Hide,
-  SC 2.3.1 Three Flashes, SC 2.3.3 Animation from Interactions, and SC 2.5.8
-  Target Size. Used across
-  [The two colour axes](./two-colour-axes.mdx),
-  [Clinical status semantics](./clinical-status-semantics.mdx) and
-  [Motion in health UI](./motion-in-health-ui.mdx). How we test against them is
-  [Accessibility](../accessibility/index.mdx).
-- APCA and the WCAG 3 draft contrast work, used as the second contrast measure
-  published alongside WCAG 2.2 ratios in
-  [Contrast and APCA](../foundations/colour/contrast-and-apca.mdx).
-
-**Named standards and guidance, cited without paraphrase**
-
-- NHS England information standards DCB0129 and DCB0160 on clinical risk
-  management in the manufacture and the deployment of health IT.
-- Regulation (EU) 2017/745 on medical devices, and the UK medical devices
-  regime; the FDA's clinical decision support guidance and the software
-  provisions of the 21st Century Cures Act. All on
-  [Regulatory context](./regulatory-context.mdx).
-- UK GDPR and EU GDPR special-category provisions, on
-  [Consent and disclosure](./consent-and-disclosure.mdx).
-- World Health Organization guidance on responsible communication about suicide,
-  and the Samaritans media guidelines, on
-  [Crisis and self-harm](./crisis-and-self-harm.mdx).
-- The Joint Commission's Sentinel Event Alert on medical device alarm safety in
-  hospitals (Issue 50), and ECRI's health technology hazards lists, on
-  [Alarm fatigue](./alarm-fatigue.mdx).
-- The NHS Digital Service Manual and Apple's Human Interface Guidelines, cited
-  throughout as points of comparison. Neither is copied.
+| Source | Kind | Used on | Cited for | What it does not support |
+| --- | --- | --- | --- | --- |
+| Systematic review of laboratory-result presentation formats, JMIR, 2024, DOI [10.2196/53993](https://doi.org/10.2196/53993) | Peer-reviewed systematic review | [Reference ranges](./reference-ranges.mdx), [Numbers, units and precision](./numbers-units-precision.mdx), [Clinical interaction guidelines](./clinical-interaction-guidelines.mdx) | That presentation format materially changes what a lay reader takes away from a result | No effect size and no specific visual treatment are extracted from it |
+| Presentation of results in patient portals, BMC Medical Informatics and Decision Making, 2018, DOI [10.1186/s12911-018-0589-7](https://doi.org/10.1186/s12911-018-0589-7) | Peer-reviewed study | [Reference ranges](./reference-ranges.mdx), [Clinical interaction guidelines](./clinical-interaction-guidelines.mdx) | The same claim in the patient-portal context specifically | No effect size and no specific visual treatment are extracted from it |
+| WCAG 2.2, in particular SC 1.4.1 Use of Colour, SC 2.2.2 Pause Stop Hide, SC 2.3.1 Three Flashes, SC 2.3.3 Animation from Interactions and SC 2.5.8 Target Size | Normative standard | [The two colour axes](./two-colour-axes.mdx), [Clinical status semantics](./clinical-status-semantics.mdx), [Motion in health UI](./motion-in-health-ui.mdx) | Requirements that are checkable against a published standard rather than research findings about readers | The criteria set a floor and do not choose between conforming designs. How this system tests against them is [Accessibility](../accessibility/index.mdx) |
+| APCA and the WCAG 3 draft contrast work | Draft standard | [Contrast and APCA](../foundations/colour/contrast-and-apca.mdx) | A second contrast measure, published alongside the WCAG 2.2 ratio | Conformance, which remains the WCAG 2.2 ratio |
+| NHS England information standards DCB0129 and DCB0160, on clinical risk management in the manufacture and in the deployment of health IT | Information standard | [Regulatory context](./regulatory-context.mdx) | That the obligations exist, are published, and are findable by name | Their requirements, which are named here and never paraphrased |
+| Regulation (EU) 2017/745 on medical devices, and the UK medical devices regime | Regulation | [Regulatory context](./regulatory-context.mdx) | That software can be a medical device in its own right | The classification of any particular product, which opsinjs never assigns |
+| The FDA's clinical decision support guidance, and the software provisions of the 21st Century Cures Act | Regulator guidance and statute | [Regulatory context](./regulatory-context.mdx) | Where consumer health products in the United States usually sit, or try to sit | Legal, regulatory or clinical advice of any kind |
+| UK GDPR and EU GDPR special-category provisions | Legislation | [Consent and disclosure](./consent-and-disclosure.mdx) | That health data is a special category with additional conditions on processing, and that consent as a lawful basis carries statutory requirements | A summary of the law, and the choice of lawful basis, which for direct care is frequently not consent |
+| World Health Organization guidance on responsible communication about suicide, and the Samaritans media guidelines | Named guidance | [Crisis and self-harm](./crisis-and-self-harm.mdx) | That a current, freely available body of safe-messaging practice exists and is more authoritative on it than a design system | Their content, which this register cites and never paraphrases. The interface rules on that page are opinion |
+| The Joint Commission's Sentinel Event Alert on medical device alarm safety in hospitals (Issue 50), and ECRI's health technology hazards lists | Safety alert and hazard register | [Alarm fatigue](./alarm-fatigue.mdx) | That alarm fatigue in clinical settings is a documented patient-safety problem rather than a designer's intuition | Transfer of those findings to a consumer phone app, which that page marks as opinion |
+| The NHS Digital Service Manual | Comparison point | Named across this documentation, in the patterns section and in this pillar | How another public-service organisation handles the same ground | Any claim in opsinjs. The text is Crown copyright and is never copied |
+| Apple's Human Interface Guidelines | Comparison point | [Notifications and off-screen alerts](./notifications-and-off-screen-alerts.mdx), [Target size and motor accessibility](../accessibility/target-size-and-motor.mdx) | Current platform behaviour, which is checked against the guidelines rather than restated from them | A safety argument, because a platform convention is a convention rather than a finding, and the guidelines are cited rather than copied |
 
 ### Where we know the evidence is thin
 
-Stated plainly, because a reader deserves to know which pages are load-bearing
-argument rather than findings:
+Six topics in this pillar rest on argument where a finding would serve better;
+five carry `evidence: opinion` today and one has no page at all. Each row names
+the topic and the specific item that would move it.
 
-| Topic | Status | What is missing |
-| --- | --- | --- |
-| Numeracy and health literacy in the general population | opinion | A read, dated, citable review; the qualitative claim on [Who this is for](./who-this-is-for.mdx) stands in for it |
-| Natural frequencies over percentages | opinion | The primary risk-communication sources named but not yet read and cited on [Risk and statistics](./risk-and-statistics.mdx) |
-| Alert frequency and response in consumer apps | opinion | Any field data at all; the budgets on [Alarm fatigue](./alarm-fatigue.mdx) are chosen, not derived |
-| Receiving results without a clinician present | opinion | Patient-preference research, for [Delivering difficult results](./delivering-difficult-results.mdx) |
-| Screening statistics and predictive value | missing | The page does not exist yet |
-| Device accuracy across skin tones | opinion | Named as a real issue, deliberately unquantified, on [Data provenance and device accuracy](./data-provenance-and-device-accuracy.mdx) |
+| Topic | What is missing |
+| --- | --- |
+| Numeracy and health literacy in the general population | A read, dated, citable review; the qualitative claim on [Who this is for](./who-this-is-for.mdx) stands in for it |
+| Natural frequencies over percentages | The primary risk-communication sources named but not yet read and cited on [Risk and statistics](./risk-and-statistics.mdx) |
+| Alert frequency and response in consumer apps | Any field data at all; the budgets on [Alarm fatigue](./alarm-fatigue.mdx) are chosen, not derived |
+| Receiving results without a clinician present | Patient-preference research, for [Delivering difficult results](./delivering-difficult-results.mdx) |
+| Screening statistics and predictive value | The page does not exist yet |
+| Device accuracy across skin tones | Named as a real issue, deliberately unquantified, on [Data provenance and device accuracy](./data-provenance-and-device-accuracy.mdx) |
 
 <Todo>Generate the evidence register from page frontmatter rather than
 maintaining the table above by hand, and have `check-freshness` report any
@@ -126,19 +112,23 @@ maintaining the table above by hand, and have `check-freshness` report any
   The rule itself is our policy, so this page's `mixed` marking refers to the
   sources listed above rather than to the discipline.
 
-  The reasoning for the discipline is about failure modes. A design system is
-  copied. A rule stated here appears, unattributed, in a product's internal
-  guidelines within a year, and from there in a clinical safety case. If the
-  original was an opinion presented as a finding, the error is now three levels
-  deep and unrecoverable. Marking opinion as opinion is the only version of this
-  that degrades safely: a downstream reader can weigh it.
+  The discipline is built around a propagation failure. A design system is
+  copied, so a rule stated here appears unattributed in a product's internal
+  guidelines, and from there in a clinical safety case. By the third level the
+  original wording is gone and the claim is carrying weight it was never given.
+  An opinion marked as an opinion can be weighed by a downstream reader at any
+  of those levels, and an opinion presented as a finding cannot.
 
-  There is a cost and it is worth stating. Pages that say "this is our judgement"
-  are less persuasive than pages that say "research shows", and some readers will
-  discount them. We accept that. The alternative is to be more persuasive than we
-  are entitled to be, in a domain where the people relying on us cannot check.
+  The discipline costs this pillar some of its persuasive force. A page that
+  says "this is our judgement" is less persuasive than a page that says
+  "research shows", and some readers will discount it on that basis. We accept
+  the discount, because the alternative is to be more persuasive than we are
+  entitled to be, in a domain where the people relying on us cannot check.
 
-  What would change our mind: nothing.
+  What would change our mind: the discipline is a policy rather than an
+  empirical claim, so no observation about readers would revise it. What changes
+  is the register above, as the sources named in the thin-evidence table are
+  read and the pages that depend on them move tier.
 </ResearchNote>
 
 ## Applying it
@@ -146,11 +136,13 @@ maintaining the table above by hand, and have `check-freshness` report any
 <DoDont>
   <DoDont.Do>
     "This is our design judgement. Here is the reasoning, and here is what would
-    change our mind." Falsifiable, weighable, honest.
+    change our mind." The claim states its basis and the condition under which
+    it would be revised.
   </DoDont.Do>
   <DoDont.Dont>
-    "Research shows that users prefer…" with no reference. The construction
-    borrows authority it has not earned, and it is unfalsifiable.
+    "Research shows that users prefer…" with no reference. The sentence names no
+    study, no population and no measure, so there is nothing a reviewer can open
+    and nothing a reader can check it against.
   </DoDont.Dont>
 </DoDont>
 
@@ -161,19 +153,23 @@ maintaining the table above by hand, and have `check-freshness` report any
   </DoDont.Do>
   <DoDont.Dont>
     Paraphrase the standard's requirement into your own sentence and present the
-    sentence as the requirement. Paraphrases decay; requirements do not.
+    sentence as the requirement. The paraphrase stays fixed while the standard is
+    revised, and a team relying on it is then conforming to a version that no
+    longer exists.
   </DoDont.Dont>
 </DoDont>
 
 <DoDont>
   <DoDont.Do>
     Set `evidence: opinion` and say so in the body when you are stating a design
-    position. It is machine-readable, so an agent reading this corpus can weigh
-    the claim.
+    position. The field is machine-readable, so an agent reading this corpus can
+    weigh the claim without parsing the prose around it.
   </DoDont.Do>
   <DoDont.Dont>
     Set `evidence: cited` and link a search results page, a blog summary, or a
-    reference you have not opened.
+    reference you have not opened. The link resolves, so the citation survives
+    review, and the claim it appears to support is never checked against a
+    source.
   </DoDont.Dont>
 </DoDont>
 
@@ -181,21 +177,22 @@ maintaining the table above by hand, and have `check-freshness` report any
 
 {/* Generated from `implements`. Do not restate the list by hand. */}
 
-`source-citation` sits in the considered roster as the component form of this
-page's rule: an attributed, dated, linkable claim that can appear next to a value
-or inside an explanation, so that a product inherits the discipline rather than
-having to invent it.
+`source-citation` sits in the considered roster rather than the built one, and it
+is the component form of this page's rule: an attributed, dated, linkable claim
+that can appear next to a value or inside an explanation, so that a product
+inherits the discipline instead of reimplementing it. Until it exists, the
+discipline is carried by frontmatter and prose on the pages themselves.
 
 ## What this does not cover
 
 - **A literature review.** This is a register of what this documentation relies
   on, not a survey of the field.
 - **Clinical evidence for any threshold, range or intervention.** None appears
-  anywhere in opsinjs.
+  anywhere in opsinjs, and this register cites none.
 - **The freshness mechanism.** Review cadence, owners and expiry reporting are
   [Docs freshness](../project/docs-freshness.mdx).
 - **Licensing of the guidance itself**, which is
-  [Licence and attribution](../project/licence-and-attribution.mdx) — the prose
+  [Licence and attribution](../project/licence-and-attribution.mdx). The prose
   in this documentation is separately licensed from the code.
 
 ## Updates to this page

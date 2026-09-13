@@ -1,5 +1,5 @@
 /**
- * /api/contrast — one contrast answer, used by the playground and by CI.
+ * /api/contrast returns one contrast answer, used by the playground and by CI.
  *
  * GET  returns the policy: the thresholds, what each is for, and the request
  *      shape. A self-describing endpoint costs a few lines and removes the
@@ -7,14 +7,14 @@
  * POST { foreground, background, size } returns the measured numbers.
  *
  * WHY BOTH NUMBERS. APCA is the better predictor of readability across the
- * mid-tone and light-on-dark pairs a health interface actually uses — the
- * exact region where WCAG 2.2's ratio is known to be optimistic for light text
- * and pessimistic for dark. WCAG 2.2 is what a procurement checklist, an
+ * mid-tone and light-on-dark pairs a health interface actually uses. Those
+ * pairs are exactly where WCAG 2.2's ratio is known to be optimistic for light
+ * text and pessimistic for dark. WCAG 2.2 is what a procurement checklist, an
  * accessibility statement and most audit tools measure against. Publishing one
  * and hiding the other would be choosing which conversation to lose. So both
  * are returned, side by side, and a pair that passes one and fails the other
- * is reported as `conditional` — a decision for a human, not a verdict this
- * endpoint is entitled to make.
+ * is reported as `conditional`. That word marks a decision for a human, and it
+ * is not a verdict this endpoint is entitled to make.
  *
  * The thresholds below are POLICY, not measurements: the APCA readability
  * levels published with APCA-W3 and the WCAG 2.2 ratios from SC 1.4.3 and

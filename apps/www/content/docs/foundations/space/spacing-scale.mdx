@@ -14,15 +14,15 @@ a11yDate: 2026-09-02
 The spacing scale is a 4-point rhythm scaled by a single root value. Four points
 is the interval the platforms opsinjs targets are built on, it divides cleanly at
 every common display density, and it is coarse enough that adjacent steps are
-visibly different — which is what makes a scale a decision aid rather than a list
+visibly different. That is what makes a scale a decision aid rather than a list
 of numbers.
 
 What opsinjs adds on top is a set of **named roles**. The numeric steps exist and
-are usable, but most spacing decisions should be made by naming the relationship —
-this is the gap between a label and its value; this is the gutter at the edge of
-the screen — rather than by picking a size. A named role is reviewable: somebody
-can disagree with "the gap between a label and its value is too tight" in a way
-they cannot disagree with "step 3".
+are usable, but most spacing decisions should be made by naming the relationship
+rather than by picking a size. The relationship might be the gap between a label
+and its value, or the gutter at the edge of the screen. A named role is
+reviewable: somebody can disagree with "the gap between a label and its value
+is too tight" in a way they cannot disagree with "step 3".
 
 ## How it works
 
@@ -36,7 +36,7 @@ default, which is why this site is tighter than the product it documents.
 
 | Role | Separates |
 | --- | --- |
-| `hairline` | Elements that are one thing — a value and its unit |
+| `hairline` | Elements that are one thing, such as a value and its unit |
 | `tight` | A label from the value it labels |
 | `close` | Rows within a group |
 | `default` | Groups within a section; the inside padding of most containers |
@@ -105,8 +105,8 @@ render from the generated values.
 - **Separation between touch targets is a spacing decision with a conformance
   consequence.** The minimum gap is specified on
   [Density and touch](density-and-touch.mdx), and it is a floor rather than a
-  suggestion because the failure — an adjacent mis-tap — is silent and, on a
-  logging or dismissal control, destructive.
+  suggestion because an adjacent mis-tap is silent and, on a logging or
+  dismissal control, destructive.
 - **Proximity is the only grouping channel that survives colour-vision
   differences and greyscale**, so it does real accessibility work. It does not
   survive a screen reader, which is why grouping is always also expressed in the
@@ -123,7 +123,8 @@ render from the generated values.
 
 ## Related
 
-- [Density and touch](density-and-touch.mdx) — where the scale meets a hard floor.
-- [Radius scale](../shape/radius-scale.mdx) — the nesting arithmetic that uses
+- [Density and touch](density-and-touch.mdx) is where the scale meets a hard
+  floor.
+- [Radius scale](../shape/radius-scale.mdx) has the nesting arithmetic that uses
   these values.
-- [Space tokens](tokens.mdx) — the generated steps, roles and resolved values.
+- [Space tokens](tokens.mdx) has the generated steps, roles and resolved values.

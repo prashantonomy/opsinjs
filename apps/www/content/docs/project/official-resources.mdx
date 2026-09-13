@@ -1,6 +1,6 @@
 ---
 title: Official resources
-description: The canonical domain, npm scope, registry URL and repository — and how to tell this project from something impersonating it.
+description: The canonical domain, npm scope, registry URL and repository, with the way to tell this project from something impersonating it.
 status: stable
 kind: project
 owner: core
@@ -20,27 +20,28 @@ aliases: [canonical domain, npm scope, impersonation, is this the real opsinjs]
 | Registry catalogue | `https://opsinjs.dev/r/registry.json` |
 | A registry item | `https://opsinjs.dev/r/<name>.json` |
 | Namespace to register in `components.json` | `@opsinjs` |
-| npm scope | `@opsinjs` — **nothing is published yet** |
+| npm scope | `@opsinjs`, though **nothing is published yet** |
 | Repository | `github.com/opsinjs/opsinjs` |
 | Machine index | `https://opsinjs.dev/llms.txt` |
 
 <Todo>
 None of the addresses above resolves today. `opsinjs.dev` is not registered, and
-the repository is reserved but not public — so every row is the address this
-project intends to own, not one you can fetch. That gap matters more here than it
-would anywhere else: this page exists so that an impersonation is detectable, and
-a canonical domain nobody has registered is a name anybody can take and then
-match against this table. Registering the domain and opening the repository are
-release blockers for that reason, not only for distribution. Remove this note
-when both resolve, and check that the issue templates, the "Edit this page" links
-and the security reporting instructions all point at them.
+the repository is reserved but not public. Every row is therefore the address
+this project intends to own, not one you can fetch. That gap matters more here
+than it would anywhere else: this page exists so that an impersonation is
+detectable, and a canonical domain nobody has registered is a name anybody can
+take and then match against this table. Registering the domain and opening the
+repository are release blockers for that reason, not only for distribution.
+Remove this note when both resolve, and check that the issue templates, the
+"Edit this page" links and the security reporting instructions all point at
+them.
 </Todo>
 
 ## Why a page like this exists
 
 A design system that is copied into other people's repositories is an unusually
 attractive thing to impersonate. The install step is a command that fetches JSON
-from a URL and writes files into a project — which is exactly what a supply-chain
+from a URL and writes files into a project. That is exactly what a supply-chain
 attack would like to be. A page naming the real addresses, linked from the
 footer and from the installation guide, is cheap and makes the check possible.
 
@@ -62,10 +63,10 @@ component has no business landing outside the directories your
 `components.json` names.
 
 What the files themselves will not tell you is where they came from.
-[Version stamps](../registry/version-stamps.mdx) — one comment naming the item
-and the version at the top of every emitted file — are specified on that page
-and are **not emitted**, so provenance today rests on the URL you fetched from,
-which is why the row above matters.
+[Version stamps](../registry/version-stamps.mdx) are one comment naming the item
+and the version at the top of every emitted file. They are specified on that
+page and are **not emitted**, so provenance today rests on the URL you fetched
+from, which is why the row above matters.
 
 ### Check the diff, not the download
 
@@ -88,7 +89,7 @@ presentation component is a reason to stop.
 
 ## If you find an impersonation
 
-Report it through the channels on [Security](security.mdx) — privately, with the
+Report it privately through the channels on [Security](security.mdx), with the
 URL or the package name. Do not install it to find out what it does.
 
 <LastUpdated />

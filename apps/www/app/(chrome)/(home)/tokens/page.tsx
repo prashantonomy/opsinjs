@@ -12,16 +12,17 @@ export const metadata: Metadata = {
 }
 
 /**
- * `/tokens` — the token browser.
+ * `/tokens` is the token browser.
  *
  * The manifest asks for grouping by tier and namespace. It groups by NAMESPACE
- * only, and the omission is deliberate rather than lazy: tier — primitive,
- * semantic, component — is a property of the token SOURCE, and the source is
- * `tokens/*.json`, not the stylesheet. A CSS custom property carries no tier.
- * Inventing one from a naming convention would produce a classification that is
- * usually right and occasionally, invisibly wrong, on the one page whose job is
- * to be exhaustive and literal. The tier is published where it is known: in the
- * generated token reference, which is emitted from the JSON.
+ * only, and the omission is deliberate rather than lazy: tier is a property of
+ * the token SOURCE, and the source is `tokens/*.json`, not the stylesheet. The
+ * three tiers are primitive, semantic and component. A CSS custom property
+ * carries no tier. Inventing one from a naming convention would produce a
+ * classification that is usually right and occasionally, invisibly wrong, on
+ * the one page whose job is to be exhaustive and literal. The tier is published
+ * where it is known: in the generated token reference, which is emitted from
+ * the JSON.
  */
 export default function TokensPage() {
   return (
@@ -29,7 +30,7 @@ export default function TokensPage() {
       <PageHeader
         eyebrow="Tokens"
         title="Every token, as your browser resolves it"
-        lead="Read from the running stylesheet rather than from a list, so this page reports what is actually in effect — after dark mode, after the Display-P3 escalation, after your accessibility preferences."
+        lead="Read from the running stylesheet rather than from a list, so this page reports what is actually in effect once dark mode, the Display-P3 escalation and your accessibility preferences have all been applied."
       />
 
       <Container className="py-10">
@@ -79,8 +80,8 @@ export default function TokensPage() {
                 >
                   Token architecture
                 </Link>{" "}
-                — the three tiers, and why a component may never reference a
-                primitive.
+                covers the three tiers, and why a component may never reference
+                a primitive.
               </li>
               <li>
                 <Link
@@ -89,7 +90,7 @@ export default function TokensPage() {
                 >
                   Adding your own tokens
                 </Link>{" "}
-                — the extension recipe that survives an upgrade.
+                is the extension recipe that survives an upgrade.
               </li>
               <li>
                 <Link
@@ -98,7 +99,7 @@ export default function TokensPage() {
                 >
                   Generated token reference
                 </Link>{" "}
-                — the full table with tier, source file and what each token
+                has the full table with tier, source file and what each token
                 controls.
               </li>
               <li>
@@ -108,7 +109,7 @@ export default function TokensPage() {
                 >
                   Colour browser
                 </Link>{" "}
-                — the two axes on their own, with format switching.
+                has the two axes on their own, with format switching.
               </li>
             </ul>
           </Panel>
@@ -131,9 +132,9 @@ export default function TokensPage() {
               Tailwind&rsquo;s own theme rather than through an{" "}
               <Mono>--opsin-</Mono> property, so they appear in the generated
               reference before they appear here. When the build script emits
-              them, this page will pick them up with no change to this file —
-              which is the entire argument for reading the stylesheet instead of
-              keeping a list.
+              them, this page will pick them up with no change to this file.
+              That behaviour is the entire argument for reading the stylesheet
+              instead of keeping a list.
             </p>
           </Prose>
         </section>

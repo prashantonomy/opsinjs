@@ -1,8 +1,8 @@
 "use client"
 
 /**
- * An urgent banner is acknowledged, not dismissed — and the difference is a
- * record the product keeps.
+ * An urgent banner is acknowledged, not dismissed. The difference is a record
+ * the product keeps.
  *
  * THE RULE THIS DEMONSTRATES is the one that costs a product the most to hold.
  * `dismissible` on its own renders nothing at any level: the component never
@@ -37,8 +37,8 @@
  * `<body>`: a keyboard user is returned to the top of the document, and a
  * screen-reader user's cursor is reset with nothing spoken, because the
  * paragraph that replaces the banner is ordinary content. The consequence lands
- * squarely on this example's own point — the message that outlives the banner
- * is the thing the reader has been sent away from. A product that removes
+ * squarely on this example's own point. The message that outlives the banner is
+ * the thing the reader has been sent away from. A product that removes
  * an acknowledged banner owns the recovery: move focus to the element that
  * replaces it, or to the heading of the region it was in. This example does not,
  * on purpose, so that what happens when nobody does is visible rather than
@@ -74,8 +74,8 @@ export default function AlertBannerAcknowledgingAnUrgentBanner() {
       {acknowledged ? (
         <p className="m-0 text-opsin-body text-muted-foreground">
           Acknowledged. In a product this is the moment something is written
-          down — who saw it, and when — and the message stays reachable on the
-          screen it came from.
+          down: who saw it, and when. The message stays reachable on the screen
+          it came from.
         </p>
       ) : (
         <AlertBanner

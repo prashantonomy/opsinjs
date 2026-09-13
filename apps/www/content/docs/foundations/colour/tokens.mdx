@@ -1,6 +1,6 @@
 ---
 title: Colour tokens
-description: The generated reference for every colour token — the naming grammar, both themes, both gamuts, and the measured pair each one belongs to.
+description: The generated reference for every colour token. It carries the naming grammar, both themes, both gamuts, and the measured pair each one belongs to.
 status: stable
 kind: foundation
 aliases: [colour tokens, color tokens, css variables colour, opsin-status, opsin-category]
@@ -22,7 +22,7 @@ regeneration disagree.
 
 Use it to answer three questions: *what is this token called*, *what does it
 control*, and *who else uses it*. The third column is what makes a token table a
-decision aid instead of an inventory — a token nothing consumes is a token that
+decision aid instead of an inventory. A token nothing consumes is a token that
 should not exist, and a token six components consume is one you cannot change
 casually.
 
@@ -50,12 +50,12 @@ by renaming it. [Colour roles](./colour-roles.mdx) explains the split.
 
 `app/tokens.generated.css` contains, in this order:
 
-1. a `:root` block — the light theme,
-2. a `.dark` block — the dark theme,
+1. a `:root` block holding the light theme,
+2. a `.dark` block holding the dark theme,
 3. `@media (color-gamut: p3)` blocks for each of the above, escalating chroma
    only ([Gamut and Display-P3](./gamut-and-p3.mdx)),
-4. the preference-query overrides that belong to other foundations —
-   `prefers-reduced-transparency` and `prefers-reduced-motion`.
+4. the preference-query overrides for `prefers-reduced-transparency` and
+   `prefers-reduced-motion`, which belong to other foundations.
 
 `app/globals.css` imports that file at a fixed position between the vendor theme
 blocks and `@layer base`, and the product theme in `app/product.css` imports the
@@ -67,7 +67,7 @@ same file. One source of truth, two shells.
 
 A swatch shows the token's resolved value in both themes and the pair it was
 measured in. A single contrast number attached to one colour would be
-meaningless — contrast is a property of a pair, which is why every figure on this
+meaningless. Contrast is a property of a pair, which is why every figure on this
 site names both halves.
 
 ## Using it
@@ -81,9 +81,9 @@ and none of that would work; the trap is documented in
 [Tailwind v4](../../theming/tailwind-v4.mdx).
 
 **Outside Tailwind**, use `var(--opsin-status-attention-surface)` directly. Nothing in
-the token layer depends on Tailwind — it is plain custom properties in a plain
-stylesheet, which is the reason a non-Tailwind consumer is a supported case
-rather than a workaround. See
+the token layer depends on Tailwind. The layer is plain custom properties in a
+plain stylesheet, which is the reason a non-Tailwind consumer is a supported
+case rather than a workaround. See
 [CSS variables](../../theming/css-variables.mdx).
 
 **Never inline a resolved value.** A token exists so that a theme change reaches
@@ -135,8 +135,8 @@ be wrong:
 
 ## Related
 
-- [Colour roles](./colour-roles.mdx) — what `surface`, `line` and `ink` mean,
-  and why a guarantee attaches to a pair.
-- [Generated token reference](../../reference/generated/tokens.mdx) — the same
-  data for the whole system, not just colour.
-- [Theming](../../theming/index.mdx) — the pillar where you change any of this.
+- [Colour roles](./colour-roles.mdx) says what `surface`, `line` and `ink`
+  mean, and why a guarantee attaches to a pair.
+- [Generated token reference](../../reference/generated/tokens.mdx) has the
+  same data for the whole system, not just colour.
+- [Theming](../../theming/index.mdx) is the pillar where you change any of this.

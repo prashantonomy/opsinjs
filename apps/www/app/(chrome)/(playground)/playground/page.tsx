@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 }
 
 /**
- * `/playground` — the index of the three tools.
+ * `/playground` is the index of the three tools.
  */
 export default function PlaygroundPage() {
   return (
@@ -53,9 +53,9 @@ export default function PlaygroundPage() {
               An earlier plan had six: these three plus a motion editor, a
               material composer and a type-scale explorer. Three shipped and
               three were cut, because a navigation item pointing at a tool that
-              half works costs more than a missing tool does — a reader who
-              opens an empty instrument concludes something about the rest of
-              the site, and they are usually right to.
+              half works costs more than a missing tool does. A reader who opens
+              an empty instrument concludes something about the rest of the
+              site, and they are usually right to.
             </p>
             <p>
               The three that survived share a property: each answers a question
@@ -98,8 +98,8 @@ export default function PlaygroundPage() {
                   Publish numbers for your theme.
                 </strong>{" "}
                 The conformance figures on this site describe the shipped
-                presets. Change a token and they no longer describe you — which
-                is what{" "}
+                presets. Change a token and they no longer describe you. That is
+                what{" "}
                 <Link
                   className="text-foreground underline underline-offset-4"
                   href={routes.docs("theming", "validating-your-theme")}

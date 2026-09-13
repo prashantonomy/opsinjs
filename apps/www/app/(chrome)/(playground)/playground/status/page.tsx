@@ -8,7 +8,7 @@ import { routes } from "@/lib/routes"
 export const metadata: Metadata = {
   title: "Two-axis lab",
   description:
-    "Combine a measurement category with a clinical status and watch the lab refuse to render the pair that would be unsafe — then strip the colour out and see what survives.",
+    "Combine a measurement category with a clinical status and watch the lab refuse to render the pair that would be unsafe. Then strip the colour out and see what survives.",
 }
 
 export default function StatusPlaygroundPage() {
@@ -17,7 +17,7 @@ export default function StatusPlaygroundPage() {
       <PageHeader
         eyebrow="Playground"
         title="Two-axis lab"
-        lead="Category says what a measurement is. Status says how urgent it is. They may not share a surface — and the fastest way to believe that is to try it."
+        lead="Category says what a measurement is. Status says how urgent it is. They may not share a surface. The fastest way to believe that is to try it."
       />
 
       <Container className="py-10">
@@ -31,10 +31,10 @@ export default function StatusPlaygroundPage() {
             <Prose className="mt-3">
               <p>
                 The never-mix rule is easy to state and easy to agree with, and
-                it is broken constantly — not by people who disagree with it,
-                but by people building a &ldquo;heart&rdquo; card who reach for
-                red because heart cards are red, and then need to show that this
-                particular reading is fine.
+                it is broken constantly. It is broken not by people who disagree
+                with it, but by people building a &ldquo;heart&rdquo; card who
+                reach for red because heart cards are red, and then need to show
+                that this particular reading is fine.
               </p>
               <p>
                 The failure is invisible in the moment. It looks like a design
@@ -43,10 +43,10 @@ export default function StatusPlaygroundPage() {
                 which red is the one that means something.
               </p>
               <p>
-                So the lab refuses. Not a warning over a rendered example — the
-                combination is not drawn at all, because the picture is what
-                gets screenshotted and pasted into a ticket as evidence that it
-                looked fine.
+                So the lab refuses. Rather than putting a warning over a
+                rendered example, it does not draw the combination at all,
+                because the picture is what gets screenshotted and pasted into a
+                ticket as evidence that it looked fine.
               </p>
             </Prose>
           </div>
@@ -65,11 +65,11 @@ export default function StatusPlaygroundPage() {
                 sun.
               </p>
               <p>
-                A status that survives greyscale has three carriers — the word,
-                the shape and the colour — and loses only one of them. A status
-                carried by colour alone loses everything, and it fails silently:
-                nothing errors, nothing looks broken, the reader simply does not
-                know.
+                A status that survives greyscale has three carriers and loses
+                only one of them. The three are the word, the shape and the
+                colour. A status carried by colour alone loses everything, and
+                it fails silently: nothing errors, nothing looks broken, the
+                reader simply does not know.
               </p>
               <p>
                 The generated colour-independence audit runs this check across

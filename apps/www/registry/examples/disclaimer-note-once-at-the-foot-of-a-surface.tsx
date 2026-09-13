@@ -1,13 +1,13 @@
 /**
  * The placement rule, which is the component.
  *
- * ONE NOTE, AT THE FOOT, BELOW EVERYTHING IT QUALIFIES. Three rows on the
- * surface and one note under all three — not one note per row. A screen that
- * seems to need four notes is a screen showing four things that each need
- * explaining, and four identical notes explain none of them: the reader learns
- * by the second one that this block of text is the same block of text, and
- * stops seeing it. This is the failure mode the component exists to prevent,
- * and it is a failure of placement rather than of wording.
+ * ONE NOTE, AT THE FOOT, BELOW EVERYTHING IT QUALIFIES. Three rows sit on the
+ * surface, with one note under all three. That is not one note per row. A
+ * screen that seems to need four notes is a screen showing four things that
+ * each need explaining, and four identical notes explain none of them: the
+ * reader learns by the second one that this block of text is the same block of
+ * text, and stops seeing it. This is the failure mode the component exists to
+ * prevent, and it is a failure of placement rather than of wording.
  *
  * IT IS BELOW THE CONTENT AND NEVER ABOVE IT. A reader who opened this surface
  * came to see what is on it. A standing statement about the product occupying

@@ -19,7 +19,7 @@ import {
 import { cn } from "@/lib/utils"
 
 /* ==========================================================================
-   guidance.tsx — <DoDont>, <Callout>, <SafetyCallout>, <ClinicalNote>,
+   guidance.tsx holds <DoDont>, <Callout>, <SafetyCallout>, <ClinicalNote>,
    <ResearchNote>, <Reviewed>, <PlainLanguage>, <ReadingLevel>, <WhenToUse>.
 
    These are the components that carry opinion, evidence and prohibition, and
@@ -27,12 +27,12 @@ import { cn } from "@/lib/utils"
    breaking.
 
    ONE STATUS VOCABULARY, DOCS AND PRODUCT. <Callout> accepts the four clinical
-   levels — steady, watch, attention, urgent — as well as fumadocs' own info/
-   warn/error types, and maps the clinical ones onto the same tokens the product
-   uses. A documentation site that admonishes in one colour language while
-   teaching another is teaching two. `expected` and `act` are dead vocabulary:
-   they are not accepted here, and reintroducing either — in a comment, a
-   default or an identifier — puts the two vocabularies back.
+   levels as well as fumadocs' own info/warn/error types, and maps the clinical
+   ones onto the same tokens the product uses. The four levels are steady,
+   watch, attention and urgent. A documentation site that admonishes in one
+   colour language while teaching another is teaching two. `expected` and `act`
+   are dead vocabulary: they are not accepted here, and reintroducing either of
+   them in a comment, a default or an identifier puts the two vocabularies back.
 
    EVIDENCE IS DECLARED, NEVER IMPLIED. <ResearchNote> and <ClinicalNote> take
    an `evidence` value and a date, and `cited` means a source a reader can open.
@@ -121,7 +121,7 @@ export interface SafetyCalloutProps {
  *
  * It refuses to be silent about its own provenance. A safety claim with no
  * citation and no opinion marker renders a visible defect notice rather than
- * quietly looking authoritative — that is the failure mode that matters, since
+ * quietly looking authoritative. That is the failure mode that matters, since
  * an unmarked assertion in a red box is exactly what a reader will trust most.
  */
 export function SafetyCallout({
@@ -138,7 +138,7 @@ export function SafetyCallout({
   /**
    * MDX prop values are not typechecked, so `severity` arrives as an arbitrary
    * string at runtime. An unrecognised level used to read `undefined.word` and
-   * take the whole prerender down — one mistyped attribute in one page killing
+   * take the whole prerender down. One mistyped attribute in one page killed
    * the entire corpus. Fall back to the highest level (a safety note is never
    * quietly downgraded), render a visible defect notice, and log it. The
    * authoritative gate is assert-ia, which fails on the source.
@@ -173,7 +173,7 @@ export function SafetyCallout({
     >
       <p className="m-0 flex items-center gap-2 text-sm font-semibold">
         <ShieldAlert aria-hidden="true" className="size-4 shrink-0" />
-        {title ?? `Safety — ${meta.word}`}
+        {title ?? `Safety note for ${meta.word}`}
       </p>
       <div className="mt-1 text-sm [&>p]:m-0 [&>p+p]:mt-2">{children}</div>
 
@@ -208,8 +208,9 @@ export interface ClinicalNoteProps {
 }
 
 /**
- * A short inline note in a clinician's voice — the sentence that explains why a
- * design rule exists in terms of what a clinician would actually say.
+ * A short inline note in a clinician's voice, which is the sentence that
+ * explains why a design rule exists in terms of what a clinician would
+ * actually say.
  */
 export function ClinicalNote({
   children,
@@ -324,8 +325,8 @@ export interface ReviewedProps {
  *
  * A health page with no review date is a page nobody has to maintain. The
  * `every` value is a promise with an expiry, and `scripts/check-freshness.mts`
- * reports the ones that have passed it — which is the difference between a
- * review policy and a review.
+ * reports the ones that have passed it. That report is the difference between
+ * a review policy and a review.
  */
 export function Reviewed({ date, by, every, path, className }: ReviewedProps) {
   return (
@@ -417,7 +418,7 @@ function DontCard({
 }
 
 /**
- * Paired approved and rejected cards — the primary vehicle for content and
+ * Paired approved and rejected cards are the primary vehicle for content and
  * clinical guidance on this site.
  *
  * They are laid out side by side on a wide screen and stacked on a narrow one,
@@ -459,8 +460,9 @@ export interface PlainLanguageProps {
  *
  * Both halves are shown because replacing is not always right. A reader who
  * will take a printout to an appointment needs the clinical term too, or they
- * cannot ask about it — so the rule this component teaches is "lead with plain
- * English and keep the clinical word available", not "delete the clinical word".
+ * cannot ask about it. The rule this component teaches is therefore "lead with
+ * plain English and keep the clinical word available", not "delete the
+ * clinical word".
  */
 export function PlainLanguage({
   clinical,
@@ -532,11 +534,11 @@ export interface ReadingLevelProps {
 /**
  * A readability readout for one block of copy, used through Content & language.
  *
- * Flesch–Kincaid grade level, computed here from the text. It is reported as a
- * range and with its limitations stated, because a single decimal implies a
- * precision the formula does not have — and because a health interface that
- * optimises a score rather than a sentence ends up with short words in an
- * incomprehensible order.
+ * Flesch-Kincaid grade level, computed here from the text. It is reported as a
+ * range and with its limitations stated. One reason is that a single decimal
+ * implies a precision the formula does not have. The other is that a health
+ * interface that optimises a score rather than a sentence ends up with short
+ * words in an incomprehensible order.
  */
 export function ReadingLevel({
   children,
@@ -572,13 +574,13 @@ export function ReadingLevel({
         <div>
           <dt className="text-xs text-muted-foreground">Grade level</dt>
           <dd className="m-0 font-mono">
-            {grade === null ? "—" : Math.max(0, Math.round(grade))}
+            {grade === null ? "not scored" : Math.max(0, Math.round(grade))}
           </dd>
         </div>
         <div>
           <dt className="text-xs text-muted-foreground">Words per sentence</dt>
           <dd className="m-0 font-mono">
-            {valid ? (words.length / sentences).toFixed(1) : "—"}
+            {valid ? (words.length / sentences).toFixed(1) : "not scored"}
           </dd>
         </div>
         <div>
@@ -587,8 +589,8 @@ export function ReadingLevel({
         </div>
       </dl>
       <p className="m-0 border-t border-border/60 px-3 py-2 text-[0.6875rem] text-muted-foreground">
-        Flesch–Kincaid grade level, computed from this text with a syllable
-        heuristic. Treat it as a smoke alarm, not a measurement — it cannot tell
+        Flesch-Kincaid grade level, computed from this text with a syllable
+        heuristic. Treat it as a smoke alarm, not a measurement. It cannot tell
         you whether a sentence is understandable, only that it has got longer.
       </p>
     </div>
@@ -603,9 +605,9 @@ export interface WhenToUseAvoid {
   /** The situation somebody is in when they reach for the wrong thing. */
   case: string
   /**
-   * The component or pattern to use instead. REQUIRED — a prohibition with no
-   * alternative is a trap, and it is the single most common defect in design
-   * system documentation.
+   * The component or pattern to use instead. This is REQUIRED, because a
+   * prohibition with no alternative is a trap, and it is the single most common
+   * defect in design system documentation.
    *
    * Normally a bare catalogue id, which is resolved against the catalogue and
    * the registry before it is rendered. Prose belongs here only alongside an
@@ -641,14 +643,13 @@ function resolveInstead(entry: WhenToUseAvoid): ResolvedInstead {
  * The one line under a prohibition that says what to reach for.
  *
  * It resolves the id rather than printing it. An `instead` that names a row
- * with no code behind it is not a mistake — some of the most useful
- * redirections on this site point at a name that was considered and declined,
- * and saying so is more useful than pretending the name is a component — but
- * rendering it as a
- * bare "Use `tooltip` instead" IS: the reader installs nothing, finds nothing,
- * and concludes the documentation is wrong about its own system. So the status
- * is named, the destination is still linked, and the reader is told what the
- * page at the other end will give them.
+ * with no code behind it is not a mistake. Some of the most useful redirections
+ * on this site point at a name that was considered and declined, and saying so
+ * is more useful than pretending the name is a component. Rendering it as a
+ * bare "Use `tooltip` instead" IS a mistake: the reader installs nothing, finds
+ * nothing, and concludes the documentation is wrong about its own system. So
+ * the status is named, the destination is still linked, and the reader is told
+ * what the page at the other end will give them.
  */
 function InsteadPointer({
   entry,
@@ -692,7 +693,7 @@ function InsteadPointer({
       <>
         The nearest name is {destination}, and it was considered and declined:
         there is no code behind it and none planned. Its page carries the reason
-        and names what to reach for in turn — read that before you design around
+        and names what to reach for in turn. Read that before you design around
         the gap.
       </>
     )
@@ -724,7 +725,7 @@ function InsteadPointer({
  * one that stops an agent choosing AlertBanner when it needs Callout. The
  * asymmetry is on purpose: the "use" side may be a plain list, but every entry
  * on the "avoid" side must NAME THE ALTERNATIVE. That is enforced by the type,
- * and — because MDX props are not typechecked — visibly at render time too.
+ * and visibly at render time too, because MDX props are not typechecked.
  *
  * The reason is worth stating. A reader who is told "do not use this for X"
  * and not told what to use instead does one of two things: uses it anyway, or
@@ -737,10 +738,10 @@ function InsteadPointer({
  * should not be, because the most honest answer to "do not use a status pill
  * for a category label" is sometimes a name this system decided against. What
  * a renderer must not do is present that name as though it were available.
- * Every entry is therefore resolved through `getEntry` and `isBuilt` — see
- * `<InsteadPointer>` — and the `data-instead-built` attribute records the
- * answer on the row, so the distinction is legible to a checker as well as to a
- * reader.
+ * Every entry is therefore resolved through `getEntry` and `isBuilt`, and
+ * `<InsteadPointer>` renders the result. The `data-instead-built` attribute
+ * records the answer on the row, so the distinction is legible to a checker as
+ * well as to a reader.
  */
 export function WhenToUse({ use, avoid, className }: WhenToUseProps) {
   const rows = avoid.map((entry) => ({

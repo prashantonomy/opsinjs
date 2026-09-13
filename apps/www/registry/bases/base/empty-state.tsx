@@ -1,6 +1,6 @@
 /**
- * EmptyState — what a surface says when there is nothing on it, and what to do
- * about that.
+ * EmptyState is what a surface says when there is nothing on it, and what
+ * to do about that.
  *
  * THIS COMPONENT WRITES NO SENTENCE ABOUT THE READER. No default body, no
  * default disclaimer, no emergency number, no threshold, and above all no
@@ -11,15 +11,15 @@
  * reader, so it does not get to say what an absence means to them.
  *
  * THE REFUSAL THAT MATTERS MOST. An empty health surface is the easiest place
- * in a product to be accidentally cheerful — "Nothing to see here!", "All
- * clear", "You're all caught up" — and every one of those is a clinical claim
- * the product cannot make. A reader with no results has an empty list, not a
- * verdict. So when no body copy arrives, this component says in words that no
- * explanation was supplied rather than inventing a friendly one. There are
- * exactly two strings in this file, the missing body and the missing title, and
- * both of them are admissions. Both are deliberately unlovely: an author who
- * sees one on a screen fixes it, and a reader who sees one has at least not
- * been told something untrue.
+ * in a product to be accidentally cheerful. "Nothing to see here!", "All
+ * clear" and "You're all caught up" are each a clinical claim the product
+ * cannot make. A reader with no results has an empty list, not a verdict. So
+ * when no body copy arrives, this component says in words that no explanation
+ * was supplied rather than inventing a friendly one. There are exactly two
+ * strings in this file, the missing body and the missing title, and both of
+ * them are admissions. Both are deliberately unlovely: an author who sees one
+ * on a screen fixes it, and a reader who sees one has at least not been told
+ * something untrue.
  *
  * `not-enough` IS THE SAFETY CASE and the reason `reason` exists at all. "There
  * is data, but not enough for this view to be honest" is the empty state a
@@ -28,11 +28,11 @@
  * gap, and it is missing more often than any of the other three.
  *
  * IT MOUNTS NO LIVE REGION. A view that becomes empty after a filter change
- * should be announced once, politely — and that announcement belongs to the
- * region that changed, not to the component that happens to be inside it. A
- * component that mounted its own `role="status"` would speak on every keystroke
- * of a search field and would speak twice wherever the caller had already done
- * the right thing.
+ * should be announced once, politely. That announcement belongs to the region
+ * that changed, not to the component that happens to be inside it. A component
+ * that mounted its own `role="status"` would speak on every keystroke of a
+ * search field and would speak twice wherever the caller had already done the
+ * right thing.
  *
  * IT IS A SERVER COMPONENT. It holds no state and calls no hook. `onSelect`
  * does not change that: a function cannot cross the server/client boundary, so
@@ -53,12 +53,13 @@ import { Button } from "@/registry/base-lyra/ui/button"
  * `warnOnce` in the substrate is keyed to an `OpsinErrorCode`, and the codes in
  * tokens/errors.json describe mistakes a consumer makes with the CLINICAL API.
  * Nothing this file complains about has a code, and a component may not mint
- * one — the codes are a versioned contract and the table on the errors page is
+ * one. The codes are a versioned contract and the table on the errors page is
  * generated from that file. What the substrate is right about is the discipline
  * rather than the registry: a warning printed on every render, and twice per
  * render under Strict Mode, degrades into noise, and a noisy channel is one
  * somebody switches off. So this file keeps its own small set, keyed the way
- * `warnOnce` keys its own — on the complaint plus whatever names the offender.
+ * `warnOnce` keys its own. The key combines the complaint with whatever names
+ * the offender.
  *
  * The key is coarser than "once per call site", because a call site is not
  * observable from inside a function. Two empty states with the same title and
@@ -77,8 +78,8 @@ function warnDev(key: string, message: string): void {
 /**
  * The rendered text of `children`, or `null` when there will not be any.
  *
- * TypeScript cannot see this. Testing three sentinels — `""`, `null`,
- * `undefined` — misses the way a body actually goes missing, which is
+ * TypeScript cannot see this. Testing the three sentinels `""`, `null` and
+ * `undefined` misses the way a body actually goes missing. It goes missing as
  * `{rows.length > 0 && "…"}` evaluating to `false`, a whitespace-only string
  * arriving from a translation table, or an empty array from a `.map()` that
  * matched nothing. `Children.toArray` drops `null`, `undefined`, booleans and
@@ -86,10 +87,10 @@ function warnDev(key: string, message: string): void {
  * must still reject.
  *
  * Elements are not text and are not resolvable here, so a body containing one
- * is taken at its word and returned as `""` — present, unreadable from here.
- * That is the right way round: this function decides when to say *nothing was
- * supplied*, and saying it over somebody's `<strong>` would be a false
- * accusation printed on their screen.
+ * is taken at its word and returned as `""`. It is present but unreadable
+ * from here. That is the right way round: this function decides when to say
+ * *nothing was supplied*, and saying it over somebody's `<strong>` would be a
+ * false accusation printed on their screen.
  */
 function bodyText(children: ReactNode): string | null {
   const parts = Children.toArray(children)
@@ -106,7 +107,7 @@ function bodyText(children: ReactNode): string | null {
  *
  * `{items.length && "…"}` with a length of zero passes `0`, and React renders
  * the digit. On an empty health surface that is the failure
- * [numbers-units-precision] rule 13 names outright — zero, none and unknown are
+ * [numbers-units-precision] rule 13 names outright. Zero, none and unknown are
  * three different things, and an absence is never rendered as `0`. It is also
  * checklist A4: the states have to stay distinguishable, and a `0` where a
  * sentence belongs makes an absence look like a measurement of nothing.
@@ -124,11 +125,12 @@ export interface EmptyStateProps {
    * Why the surface is empty. Required, and it deliberately changes nothing you
    * can see.
    *
-   * `nothing-yet` — the reader has not added anything yet.
-   * `no-matches` — a filter or a search matched nothing. The data exists.
-   * `nothing-left` — there was content and there is none now; everything was
-   * completed or removed.
-   * `not-enough` — there is data, but not enough for this view to be honest.
+   * `nothing-yet` means the reader has not added anything yet.
+   * `no-matches` means a filter or a search matched nothing. The data exists.
+   * `nothing-left` means there was content and there is none now; everything
+   * was completed or removed.
+   * `not-enough` means there is data, but not enough for this view to be
+   * honest.
    *
    * It is required because each one needs different words, and because one of
    * them is a safety statement rather than an inconvenience. It renders nothing
@@ -142,16 +144,17 @@ export interface EmptyStateProps {
    * empty state can be navigated to rather than stumbled into.
    *
    * Required, and checked as well as typed. A blank or whitespace-only string
-   * renders a visible line saying none was supplied, and warns — because the
-   * alternative is a heading with no name, which is silent to everything
-   * except a screen reader and an audit.
+   * renders a visible line saying none was supplied, and warns. It warns
+   * because the alternative is a heading with no name, which is silent to
+   * everything except a screen reader and an audit.
    */
   title: string
   /**
    * The heading level the surrounding page needs. There is no way for this
-   * component to know it — an empty state replacing a page's main content wants
-   * a different level from one inside a card — so `2` is a starting point and
-   * not an answer. Check it against the outline of the screen it lands on.
+   * component to know it, because an empty state replacing a page's main
+   * content wants a different level from one inside a card. So `2` is a
+   * starting point and not an answer. Check it against the outline of the
+   * screen it lands on.
    *
    * @default 2
    */
@@ -162,14 +165,14 @@ export interface EmptyStateProps {
    * paragraph, so it takes text or inline content rather than a block element.
    *
    * Omitting it does not produce a tidier empty state. It produces a visible
-   * line saying that no explanation was supplied, because the alternative — a
-   * default sentence about an absence of health data — is a sentence nobody
-   * reviewed. `false` from a `&&` branch, an empty array and a whitespace-only
-   * string all count as omitting it.
+   * line saying that no explanation was supplied, because the alternative is a
+   * default sentence about an absence of health data, which is a sentence
+   * nobody reviewed. `false` from a `&&` branch, an empty array and a
+   * whitespace-only string all count as omitting it.
    *
    * A body that is only a number is refused outright and replaced with the
    * same line, because `{items.length && "…"}` at a length of zero renders the
-   * digit `0` — and an absence rendered as a number reads as a measurement of
+   * digit `0`. An absence rendered as a number reads as a measurement of
    * nothing.
    */
   children?: ReactNode
@@ -191,7 +194,7 @@ export interface EmptyStateProps {
   /**
    * Decorative only, and never the carrier of the message. It is hidden from
    * assistive technology and made `inert`, dropped in print, and dropped again
-   * when the surface is narrow — if a picture is carrying meaning, the meaning
+   * when the surface is narrow. If a picture is carrying meaning, the meaning
    * is missing from the words.
    *
    * `inert` is why nothing focusable belongs here: a control inside a decorative
@@ -210,7 +213,7 @@ export interface EmptyStateProps {
  * One action, as this file passes it around internally.
  *
  * Derived from the props interface rather than declared beside it, so the shape
- * cannot drift from the one a caller reads in the table — and so the interface
+ * cannot drift from the one a caller reads in the table. The interface also
  * keeps the inline object type the specification writes, which is what makes
  * `<PropsTable>` print the three fields instead of an opaque type name.
  */
@@ -220,8 +223,8 @@ type EmptyStateAction = NonNullable<EmptyStateProps["action"]>
  * The navigating primary action.
  *
  * IT IS NOT A BUTTON AND IT DOES NOT PRETEND TO BE ONE. `Button` is always a
- * real `<button>` — it has no `href` and refuses to grow one — and `link` is on
- * the considered roster with no page yet, so there is nothing to compose here.
+ * real `<button>` that has no `href` and refuses to grow one. `link` is on the
+ * considered roster with no page yet, so there is nothing to compose here.
  * Rather than copy Button's emphasis ladder into a second file where the two
  * can drift, the anchor keeps its underline and takes its prominence from a
  * boundary and a target: it reads as a link, it is announced as a link, and it
@@ -243,8 +246,8 @@ type EmptyStateAction = NonNullable<EmptyStateProps["action"]>
  *
  * BOTH AXES, because SC 2.5.8 is a 44×44 region and not a 44-tall strip. The
  * product stylesheet floors `button`, `[role=button]` and `a[data-opsin-target]`
- * in both axes, and an anchor without that attribute is reached by none of it —
- * so the quieter alternative, whose padding is a third of the primary's, could
+ * in both axes, and an anchor without that attribute is reached by none of it.
+ * So the quieter alternative, whose padding is a third of the primary's, could
  * sit under the floor on the inline axis with a short label.
  */
 const TARGET_FLOOR =
@@ -287,7 +290,7 @@ const SECONDARY_BUTTON = "underline underline-offset-4"
  *
  * None of these is an OPSIN code. `tokens/errors.json` allocates codes for
  * mistakes a consumer makes with the clinical API, and a component may not mint
- * one — the codes are a versioned contract and the table on the errors page is
+ * one. The codes are a versioned contract and the table on the errors page is
  * generated from that file. A development warning through `warnDev` is the
  * honest channel, and `owner` is what gives it per-empty-state granularity.
  */
@@ -369,10 +372,11 @@ export function EmptyState({
   /* THE ONE PLACE THIS COMPONENT REFUSES TO BE HELPFUL.
      A missing body is the common case and the dangerous one: the title alone
      says what is absent and never why, and the reader fills the gap with
-     whichever assumption is nearest to hand — usually that the absence is
-     reassuring. `not-enough` is called out separately because its body is not
-     an explanation, it is the statement of the rule and the gap, and a view
-     that declined to draw something has to say what it is waiting for. */
+     whichever assumption is nearest to hand. That assumption is usually that
+     the absence is reassuring. `not-enough` is called out separately because
+     its body is not an explanation, it is the statement of the rule and the
+     gap, and a view that declined to draw something has to say what it is
+     waiting for. */
   const body = bodyText(children)
   const numericBody = bodyIsBareNumber(body)
   const bodyMissing = body === null || numericBody
@@ -381,7 +385,7 @@ export function EmptyState({
   const titleMissing = heading === ""
 
   /* The title is required and the type says so, and this file still ships as
-     source into JavaScript projects where a type is advice — and `title=""`
+     source into JavaScript projects where a type is advice. `title=""`
      type-checks even here. An empty heading is a heading with no name: axe
      reports it, a screen-reader user hears "heading level 3" and nothing, and
      the empty state loses the handle the whole page argues it can be navigated
@@ -393,7 +397,7 @@ export function EmptyState({
       `[opsinjs] <EmptyState reason="${reason}"> was rendered with no title, ` +
         "so it says on screen that none was supplied. `title` is what is not " +
         "here, in one short line, and it is the heading the empty state is " +
-        "navigated by — an empty one is announced as a heading with no name. " +
+        "navigated by. An empty one is announced as a heading with no name. " +
         "Write it.",
     )
   }
@@ -419,7 +423,7 @@ export function EmptyState({
         "count as no body. Write one or two sentences: what is not here, why, " +
         "and what to do about it." +
         (reason === "not-enough"
-          ? " For `not-enough` the body is the safety statement — state the " +
+          ? " For `not-enough` the body is the safety statement. State the " +
             "rule this view is waiting for and how far off it is."
           : ""),
     )
@@ -446,20 +450,20 @@ export function EmptyState({
      that hard-coded its level produces an outline which jumps from h1 to h3 on
      one screen and a wall of h2s on another; `titleLevel` keeps the two
      separable. The explicit type step and the zeroed margin below are what
-     stop the level carrying visual weight it is not entitled to — left to the
+     stop the level carrying visual weight it is not entitled to. Left to the
      browser, the same title would be a different size in an h2 and an h4.
 
      AND THE LEVEL IS CHECKED, not merely typed, for the reason every other prop
      here is checked: a type is advice in the JavaScript project this file ships
-     into, and a level is exactly the prop a caller computes rather than types —
-     `titleLevel={section.depth + 1}`, or a number off a CMS row. `titleLevel={7}`
-     builds `<h7>`, an unknown element with no heading role at all, so the one
-     line saying what is not here drops out of the document outline and out of a
-     screen reader's heading list, which is the whole point of rendering it as a
-     heading. `titleLevel={1}` puts a second `h1` on the page. Both fall back to
-     the documented default rather than being rendered. `care-card.tsx` guards
-     its own `headingLevel` the same way and falls back to its own default of 3;
-     the shape travels, the number does not. */
+     into, and a level is exactly the prop a caller computes rather than types.
+     Examples are `titleLevel={section.depth + 1}` and a number off a CMS row.
+     `titleLevel={7}` builds `<h7>`, an unknown element with no heading role at
+     all, so the one line saying what is not here drops out of the document
+     outline and out of a screen reader's heading list, which is the whole point
+     of rendering it as a heading. `titleLevel={1}` puts a second `h1` on the
+     page. Both fall back to the documented default rather than being rendered.
+     `care-card.tsx` guards its own `headingLevel` the same way and falls back
+     to its own default of 3; the shape travels, the number does not. */
   const LEVELS = [2, 3, 4, 5, 6]
   let level = titleLevel
   if (!LEVELS.includes(level)) {
@@ -530,7 +534,7 @@ export function EmptyState({
       >
         {/* The same refusal the body makes, for the same reason. A blank title
             is a caller bug, and the two ways out of it are an empty heading or
-            a visible admission. The empty heading is silent — it passes review,
+            a visible admission. The empty heading is silent. It passes review,
             it passes every gate here, and it reaches a screen-reader user as a
             heading with no name. This line is unlovely on purpose: an author
             who sees it fixes it, and it keeps the outline entry the empty state

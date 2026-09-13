@@ -1,6 +1,6 @@
 ---
 title: Offline and stale data
-description: What a health screen shows when it cannot vouch for its numbers — degrading assertions rather than hiding them, and never letting a cached value pass as current.
+description: What a health screen shows when it cannot vouch for its numbers. It degrades assertions rather than hiding them, and never lets a cached value pass as current.
 status: planned
 kind: pattern
 aliases: [offline mode, stale readings screen, last synced, cached readings, no connection]
@@ -19,7 +19,7 @@ behind: the network is gone, a device has not synced, a result was fetched an
 hour ago, or a background refresh silently failed.
 
 The core rule is that **staleness degrades assertions, not values**. The number
-stays on screen — hiding it helps nobody, and a reader who wanted to see their
+stays on screen. Hiding it helps nobody, and a reader who wanted to see their
 last reading is entitled to it. What changes is everything the product says
 *about* the number: the status, the trend direction, the comparison to a range,
 the alert. Those are claims about now, and the product no longer knows about
@@ -76,8 +76,8 @@ Signals:
   based on a value you cannot vouch for is the worst combination of confident
   and wrong. See [Alert escalation](./alert-escalation.mdx).
 - **Writes queue and stay visible.** An entry made offline appears immediately,
-  marked as not yet synced, with the time it was actually made — never the time
-  it eventually uploaded.
+  marked as not yet synced, with the time it was actually made. It is never the
+  time it eventually uploaded.
 - **Conflicts are shown, not merged.** Two devices writing the same slot produce
   two entries the reader can see and resolve. Silent last-write-wins destroys
   data the reader believes is stored.
@@ -108,8 +108,8 @@ makes the reader distrust the whole screen rather than the one number.
 
 <DoDont>
   <DoDont.Do>
-    "Last synced 4 hours ago. Your monitor may have taken readings since then —
-    we can't show a current status until it reconnects."
+    "Last synced 4 hours ago. Your monitor may have taken readings since then.
+    We can't show a current status until it reconnects."
   </DoDont.Do>
   <DoDont.Dont>
     "Some data may be out of date." Which data, how out of date, and what should
@@ -128,9 +128,9 @@ makes the reader distrust the whole screen rather than the one number.
   </DoDont.Dont>
 </DoDont>
 
-Relative-time wording — "4 hours ago" versus "at 06:12" and when each is
-appropriate — follows
-[Numbers, dates and time](../content/numbers-dates-and-time.mdx).
+Relative-time wording follows
+[Numbers, dates and time](../content/numbers-dates-and-time.mdx). That page
+covers "4 hours ago" versus "at 06:12" and when each is appropriate.
 
 ## Accessibility
 
@@ -138,8 +138,8 @@ appropriate — follows
   visually and exposes the absolute time to assistive technology; "4h" is not a
   word.
 - **Entering the stale state is a status message** (WCAG 2.2 SC 4.1.3), polite,
-  once per transition — not once per tile. A dashboard with nine tiles going
-  stale simultaneously must announce once.
+  once per transition rather than once per tile. A dashboard with nine tiles
+  going stale simultaneously must announce once.
 - **The offline notice does not steal focus.** It is announced, not modal, and
   the reader is not interrupted mid-entry.
 - **Do not signal staleness by reducing contrast.** Greying a value out is the
@@ -162,7 +162,7 @@ appropriate — follows
   Also opinion: withdrawing the status axis entirely rather than adding a
   "possibly stale" fifth status. We consider a fifth level a contamination of a
   four-level ordinal vocabulary, and greying out a failure of the contrast floor
-  rather than a design choice — that second half is not opinion.
+  rather than a design choice. That second half is not opinion.
 
   What would change our mind: evidence that readers interpret a value with no
   status as "fine" rather than as "unknown", which would argue for an explicit

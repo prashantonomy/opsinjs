@@ -30,10 +30,10 @@ import { categories, statusLevels } from "@/app/_shared/axes"
  * argument is about gamut and contrast those are not the same thing.
  *
  * The cost is that values appear after hydration rather than in the HTML. That
- * is acceptable here — the swatches themselves are painted by CSS and are
- * correct in the first frame; it is only the printed text of each value that
- * waits — and it is why the table renders a neutral placeholder rather than a
- * guess.
+ * is acceptable here, because the swatches themselves are painted by CSS and
+ * are correct in the first frame; it is only the printed text of each value
+ * that waits. The wait is why the table renders a neutral placeholder rather
+ * than a guess.
  */
 
 type TokenRow = {
@@ -117,7 +117,7 @@ const CHROME_ROLES: TokenRow[] = [
 const GROUPS: TokenGroup[] = [
   {
     id: "status",
-    title: "Status — the verdict axis",
+    title: "Status is the verdict axis",
     description:
       "Four ordinal levels. High chroma, because a verdict has to survive a bright corridor and a cheap screen. Never the only carrier of the verdict: every status ships with a word, and with a shape wherever the layout allows one.",
     keywords: "urgency severity triage alert warning verdict clinical",
@@ -131,7 +131,7 @@ const GROUPS: TokenGroup[] = [
   },
   {
     id: "category",
-    title: "Category — the identity axis",
+    title: "Category is the identity axis",
     description:
       "What kind of measurement this is. Low chroma on purpose: a category swatch that reads as urgency has collapsed the two axes into one, which is the failure the whole colour system exists to prevent.",
     keywords: "identity kind measurement heart glucose sleep steps weight",
@@ -145,7 +145,7 @@ const GROUPS: TokenGroup[] = [
   },
   {
     id: "chrome",
-    title: "Surface roles — this documentation site",
+    title: "Surface roles for this documentation site",
     description:
       "The neutral roles the docs chrome is drawn with. They belong to the lyra style, not to opsinjs: the product theme redefines every one of them in product.css, which is why a preview embedded in a documentation page looks nothing like the page around it.",
     keywords: "neutral grey gray surface shadcn lyra chrome background",
@@ -162,8 +162,8 @@ export function RampBrowser() {
    * Read every token, and read it again whenever the theme class changes. The
    * theme toggle in the header rewrites `class` on `<html>`; without the
    * observer the printed values would silently describe the previous theme
-   * while the swatches beside them showed the new one — a small lie, on a page
-   * whose entire job is to be trustworthy about colour.
+   * while the swatches beside them showed the new one. That would be a small
+   * lie, on a page whose entire job is to be trustworthy about colour.
    */
   useEffect(() => {
     const read = () => {
@@ -213,7 +213,7 @@ export function RampBrowser() {
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Filter — urgent, cardio, ink, border…"
+          placeholder="Filter by urgent, cardio, ink, border…"
           className="h-9 min-w-56 flex-1 rounded-md border border-border bg-background px-3 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         />
 
@@ -250,8 +250,8 @@ export function RampBrowser() {
 
       {groups.length === 0 ? (
         <p className="mt-10 text-sm text-muted-foreground">
-          No token matches “{query}”. Token names are lower-case and hyphenated
-          — try <code className="font-mono">urgent</code>,{" "}
+          No token matches “{query}”. Token names are lower-case and hyphenated.
+          Try <code className="font-mono">urgent</code>,{" "}
           <code className="font-mono">ink</code> or{" "}
           <code className="font-mono">cardio</code>.
         </p>
@@ -284,9 +284,9 @@ export function RampBrowser() {
                   ? `var(${row.property})`
                   : format === "hex"
                     ? authored
-                      ? (toSrgbHex(authored) ?? "—")
-                      : "—"
-                    : authored || "—"
+                      ? (toSrgbHex(authored) ?? "not resolved")
+                      : "not resolved"
+                    : authored || "not resolved"
 
               return (
                 <li

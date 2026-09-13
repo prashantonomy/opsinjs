@@ -24,10 +24,10 @@ shows `58 bpm` with no timestamp is making a claim about right now using a
 measurement from Tuesday. That is the defect this recipe exists to prevent.
 
 The card you finish with is deliberately modest: it identifies and it reports. It
-does not interpret. Interpretation — is this good, should you do something — is a
-[ResultCard](../components/result-card.mdx) or a
-[CareCard](../components/care-card.mdx), and it belongs on the detail screen the
-tile opens.
+does not interpret. Interpretation asks whether the number is good and whether
+you should do something. That is a [ResultCard](../components/result-card.mdx)
+or a [CareCard](../components/care-card.mdx), and it belongs on the detail
+screen the tile opens.
 
 ## What you need
 
@@ -36,12 +36,12 @@ tile opens.
 | The tile | [MetricTile](../components/metric-tile.mdx) | <StatusBadge status="alpha" /> | The whole target: label, value, unit, time, optional status. |
 | The number | [Value](../components/value.mdx) | <StatusBadge status="alpha" /> | Precision, unit adjacency, locale, false-precision guard. |
 | The age | [RelativeTime](../components/relative-time.mdx) | <StatusBadge status="alpha" /> | "2 hours ago" with an absolute fallback and a staleness threshold. |
-| The status, if any | [StatusPill](../components/status-pill.mdx) | <StatusBadge status="alpha" /> | Word, icon and colour together — never colour alone. |
+| The status, if any | [StatusPill](../components/status-pill.mdx) | <StatusBadge status="alpha" /> | Word, icon and colour together. Colour never carries it alone. |
 | The surface underneath | [Surface](../components/surface.mdx) · [Card](../components/card.mdx) | <StatusBadge status="alpha" /> | The material rung and the bounded content group. |
 | Loading | [Skeleton](../components/skeleton.mdx) | <StatusBadge status="alpha" /> | Preserves layout without implying a value. |
 | Nothing yet | [EmptyState](../components/empty-state.mdx) | <StatusBadge status="alpha" /> | An absence, with one next action. Not a zero. |
 
-Tokens you will touch, by family — the leaf names and their measured contrast are
+Tokens you will touch, by family. The leaf names and their measured contrast are
 in the generated reference, never copied into prose:
 
 | Family | Where it applies | Reference |
@@ -63,7 +63,7 @@ Rules: name what was measured, not what it means; use the reader's words; do not
 abbreviate a unit into the label to save space.
 
 "Resting heart rate" is a label. "Heart health" is an interpretation. "RHR" is
-neither — it is a note to yourself. If the honest label needs a clinical word,
+neither. It is a note to yourself. If the honest label needs a clinical word,
 wrap that word in a [Term](../components/term.mdx) rather than dropping the word.
 
 ### Assign the category, and only the category
@@ -81,13 +81,14 @@ tile is where it is most often broken, because a coloured tile that looks
 
 Delegate to [Value](../components/value.mdx). Three decisions it needs from you:
 
-- **Precision.** How many digits are meaningful for this measurement — not how
-  many the sensor emits. Rendering `58.4213 bpm` is a false claim about accuracy.
+- **Precision.** How many digits are meaningful for this measurement. That is
+  not how many the sensor emits. Rendering `58.4213 bpm` is a false claim about
+  accuracy.
 - **The unit, adjacent to the number.** Not in the label, not in a legend, not in
   a tooltip. The rules are canonical in
   [Numbers, units & precision](../health/numbers-units-precision.mdx).
 - **Which unit system.** mmol/L or mg/dL, kg or st, °C or °F. Convert once, at the
-  edge of your system, and store the canonical form — see
+  edge of your system, and store the canonical form. See
   [Unit systems](../health/unit-systems.mdx). Converting in the view layer is how
   two tiles end up disagreeing.
 
@@ -99,7 +100,7 @@ not the sync time. Those differ, and only one of them is a fact about the person
 Set a staleness threshold per metric, because staleness is not a constant: a
 resting heart rate from this morning is current, a blood glucose reading from this
 morning is history, and a weight from last month may be perfectly fine. Past the
-threshold the tile is in the **stale** data state and has to say so — it does not
+threshold the tile is in the **stale** data state and has to say so. It does not
 quietly keep displaying the number as though it were now.
 
 ### Decide whether a status belongs on this tile at all
@@ -117,8 +118,8 @@ detail screen, where the sentence explaining it can also live.
 ### Give the tile somewhere to go
 
 A tile that cannot be opened is a dead end with a number in it. The whole tile is
-one target with one accessible name — not a card containing three separate small
-targets — and it opens the detail surface where the range, the history and the
+one target with one accessible name, not a card containing three separate small
+targets. It opens the detail surface where the range, the history and the
 meaning live.
 
 ### Decide all five data states before you ship one
@@ -137,22 +138,23 @@ worse one.
 Three strings and a caption. The sentence pattern is fixed so a grid of tiles
 reads as one system rather than as eight authors.
 
-- **Label** — what was measured, sentence case, no colon.
-- **Value + unit** — adjacent, from [Value](../components/value.mdx).
-- **Time** — "Measured 2 hours ago", not "Updated 2 hours ago". Updated is about
-  your database; measured is about the person.
-- **Status word, if present** — the word from the status vocabulary, never a
+- **Label** says what was measured, sentence case, no colon.
+- **Value + unit** sit adjacent, rendered by [Value](../components/value.mdx).
+- **Time** is "Measured 2 hours ago", not "Updated 2 hours ago". Updated is
+  about your database; measured is about the person.
+- **Status word, if present** is the word from the status vocabulary, never a
   synonym you invented. Wording per level is in
   [Writing status and alerts](../content/writing-status-and-alerts.mdx).
 
 <DoDont>
   <DoDont.Do>
-    "Resting heart rate · 58 bpm · measured 2 hours ago" — and, if stale, "last
-    measured 6 days ago" with the value visibly de-emphasised.
+    "Resting heart rate · 58 bpm · measured 2 hours ago". If stale, it reads
+    "last measured 6 days ago" with the value visibly de-emphasised.
   </DoDont.Do>
   <DoDont.Dont>
-    "Heart: 58 · Normal · Updated just now" — an interpretation as a label, no
-    unit, a banned word, and a sync time standing in for a measurement time.
+    "Heart: 58 · Normal · Updated just now". The problems are an interpretation
+    as a label, no unit, a banned word, and a sync time standing in for a
+    measurement time.
   </DoDont.Dont>
 </DoDont>
 
@@ -177,20 +179,21 @@ reason, which is that a tile has no room to say what the word is relative to.
 **Accessibility**
 
 - The whole tile is one target, at least 44pt in both dimensions, with real
-  separation from its neighbours —
+  separation from its neighbours. See
   [Target size and motor accessibility](../accessibility/target-size-and-motor.mdx).
 - Its accessible name reads in the order label, value with unit, time, status
   word. A screen-reader user must not have to reconstruct the tile from four
   unrelated fragments.
 - Status survives greyscale and every simulated colour-vision deficiency, because
-  the word and the icon carry it —
+  the word and the icon carry it. See
   [Colour independence](../accessibility/colour-independence.mdx).
 - At 200% text the tile reflows and nothing truncates the number or its unit; the
   unit never wraps away from the number.
   [Dynamic type](../foundations/typography/dynamic-type.mdx) is the contract.
 - Under `prefers-reduced-transparency` the card falls back to its opaque rung and
-  the contrast floor still holds —
-  [Reduced transparency](../foundations/materials/reduced-transparency.mdx).
+  the contrast floor still holds.
+  [Reduced transparency](../foundations/materials/reduced-transparency.mdx)
+  specifies that fallback.
 - Nothing about the tile animates to convey meaning. A value that counts up is
   decoration; under `prefers-reduced-motion` it is simply the final value.
 
@@ -200,7 +203,7 @@ reason, which is that a tile has no room to say what the word is relative to.
 becomes the noun ("8,412 steps") and the label must not repeat it.
 
 **The metric is a duration.** Sleep, exercise. Format as hours and minutes, never
-as a decimal — "7h 20m", not "7.33 hours". Decimal hours are precise and
+as a decimal. Write "7h 20m", not "7.33 hours". Decimal hours are precise and
 unreadable.
 
 **The metric has a personal goal.** A goal is not a reference range and must not
@@ -219,14 +222,16 @@ product.
 
 **Several metrics in one tile.** Systolic and diastolic blood pressure are one
 measurement with two numbers, not two tiles. Keep them in one tile, with one
-label, one time and the conventional `120/80` form — splitting them invites the
+label, one time and the conventional `120/80` form. Splitting them invites the
 reader to read one without the other.
 
 ## Related
 
-- **[Show a value against a reference range](./value-against-a-range.mdx)** — the
-  detail surface this tile opens, and where interpretation is allowed to live.
-- **[MetricTile](../components/metric-tile.mdx)** — the component specification,
-  including the parts, the proposed API and the accessibility bar it must clear.
-- **[Data states](../foundations/data-states.mdx)** — the five states, defined
+- **[Show a value against a reference range](./value-against-a-range.mdx)** is
+  the detail surface this tile opens, and where interpretation is allowed to
+  live.
+- **[MetricTile](../components/metric-tile.mdx)** is the component
+  specification, including the parts, the proposed API and the accessibility
+  bar it must clear.
+- **[Data states](../foundations/data-states.mdx)** has the five states, defined
   once, that every data surface in the system shares.

@@ -33,8 +33,8 @@ about to record something they have recorded eighty-nine times, and the only
 question that matters is how fast they can be finished.
 
 It answers two things: **have I logged today**, and **how do I log now**. The
-first is answered before the reader has focused their eyes — the state of today is
-the most prominent thing on the screen. The second is one target in the lower
+first is answered before the reader has focused their eyes. The state of today
+is the most prominent thing on the screen. The second is one target in the lower
 third, reachable with the thumb of the hand already holding the phone.
 
 Everything else is history, and history is secondary. A log screen that leads with
@@ -45,7 +45,7 @@ the person doing the work is the one whose effort produces the chart.
 grades a reading, congratulates a streak, or warns about a gap: interpretation
 belongs on the [results](./results-screen.mdx) and
 [trends](./trends-screen.mdx) screens, and a judgement attached to the act of
-logging is a tax on logging. It does not gamify — a streak counter converts a
+logging is a tax on logging. It does not gamify. A streak counter converts a
 missed day into a loss and gives people a reason to stop rather than to resume. And
 it does not pre-fill a measurement.
 
@@ -66,7 +66,7 @@ DailyLogScreen                         page ground
 │   ├── RelativeTime                   when it was measured
 │   └── EditControl                    correcting is as easy as adding
 ├── HistoryList                        page ground
-│   └── HistoryRow …                   date, value, unit — a list, not a chart
+│   └── HistoryRow …                   date, value and unit in a list, not a chart
 │       ├── Value
 │       └── RelativeTime
 ├── LogAction                          fixed, lower third, thumb reach
@@ -102,21 +102,23 @@ leaves it visible, which is what makes dismissing it obviously safe. See
 - **The recorded time is the measurement time**, with its time zone, and the reader
   can change it. A reading logged on a flight must not move a day.
 - **The unit travels with the value.** Stored canonically, converted once at the
-  edge — [Unit systems](../health/unit-systems.mdx). A stored number with an
-  implicit unit is a future incident.
+  edge. [Unit systems](../health/unit-systems.mdx) covers both. A stored number
+  with an implicit unit is a future incident.
 - **A plausibility warning describes; it never blocks or corrects.** The one person
   whose genuine reading falls outside your expected span is the person whose
   reading matters most.
 - **A gap in the history is drawn as a gap.** Missing days are not skipped over to
-  make the list look continuous — [Data states](../foundations/data-states.mdx).
+  make the list look continuous. See
+  [Data states](../foundations/data-states.mdx).
 - **Logging on somebody else's behalf is visibly attributed**, or readings will
   end up on the wrong person's record.
 - **No status colour appears on this screen.** Logging is not a clinical state, and
   a reading that turns amber as it is entered is a judgement delivered at the worst
-  possible moment — [The two colour axes](../health/two-colour-axes.mdx).
+  possible moment. [The two colour axes](../health/two-colour-axes.mdx) keeps
+  status off this screen.
 - **Nothing here is a reminder mechanism.** Notifications that chase a missed entry
-  are governed by the alarm budget, not by this screen —
-  [Alarm fatigue](../health/alarm-fatigue.mdx).
+  are governed by the alarm budget, not by this screen.
+  [Alarm fatigue](../health/alarm-fatigue.mdx) governs them.
 
 ## Accessibility
 
@@ -124,30 +126,32 @@ leaves it visible, which is what makes dismissing it obviously safe. See
 and History are H2s. The heading outline alone tells a reader what the screen holds.
 
 **Focus on entry.** Focus lands on the main content, and the today status is the
-first thing announced — including, when there is no reading, the fact that there is
-none. The most common defect is a screen where a screen-reader user must traverse
-the whole history list to discover whether they have logged today.
+first thing announced. When there is no reading, that announcement includes the
+fact that there is none. The most common defect is a screen where a
+screen-reader user must traverse the whole history list to discover whether they
+have logged today.
 
 **Focus through the sheet.** Opening moves focus into the sheet; it is trapped
 while modal; <Kbd>Escape</Kbd> dismisses it; and focus returns to the control that
-opened it, not to the top of the page —
-[Keyboard and focus](../accessibility/keyboard-and-focus.mdx).
+opened it, not to the top of the page.
+[Keyboard and focus](../accessibility/keyboard-and-focus.mdx) specifies this.
 
 **The keyboard never covers the save.** The sheet respects the keyboard-safe inset
 at every detent and at every text size. This is the failure that makes a logging
 flow unusable one-handed while looking fine in a screenshot.
 
 **Announcements are proportionate.** The save is announced politely and does not
-interrupt. Undo remains reachable by keyboard for as long as it is offered — an
+interrupt. Undo remains reachable by keyboard for as long as it is offered. An
 undo only a pointer can reach is not an undo.
 
 **Validation is heard, not only seen.** Messages are associated with their field
-and announced when they appear —
+and announced when they appear. See
 [Screen readers](../accessibility/screen-readers.mdx).
 
 **Targets.** Every control clears 44pt with real separation, and the primary
-action sits in the one-handed reach zone —
-[Density and touch](../foundations/space/density-and-touch.mdx).
+action sits in the one-handed reach zone.
+[Density and touch](../foundations/space/density-and-touch.mdx) defines that
+zone.
 
 **Text at 200%.** The sheet scrolls internally, the save control stays visible, and
 the history list reflows to stacked rows rather than truncating values.
@@ -162,7 +166,7 @@ logging habit.
   name="daily-log-screen"
   issue="opsinjs/opsinjs#0"
   questions={[
-    "When a value already exists for today, does a second entry replace it, sit beside it, or is it refused — and is that decision per metric?",
+    "When a value already exists for today, does a second entry replace it, sit beside it, or is it refused? And is that decision per metric?",
     "What does the screen show for a metric measured several times a day, where 'today's reading' is not a single value?",
     "How is a backfilled entry distinguished from one logged at the time, in the list and in anything downstream?",
     "Does the screen ever show a reminder, or is every prompt to log delivered off-screen and governed by the alarm budget?",

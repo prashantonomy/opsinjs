@@ -8,7 +8,8 @@ import { cn } from "@/lib/utils"
 import { NoDataYet } from "./stub"
 
 /* ==========================================================================
-   a11y.tsx — <A11yReport>, <ContrastReport>, <ContrastOracle>, <CvdSimulator>.
+   a11y.tsx holds <A11yReport>, <ContrastReport>, <ContrastOracle> and
+   <CvdSimulator>.
 
    Three of these four report numbers, and the rule for all three is the same:
    opsinjs does not print a contrast figure a human typed. `pnpm contrast` runs
@@ -19,10 +20,10 @@ import { NoDataYet } from "./stub"
    <ContrastReport> READS THAT FILE. It used to render only what an MDX author
    passed as a `pairs` prop, which no page has ever done, so every call site
    printed "has not been generated" over a file that was generated, committed
-   and full. The `pairs` prop is still honoured first — it is how a page shows a
-   subset the generator does not group — but the default is the measurement.
-   The file groups pairs by TOKEN SCOPE, not by component, so a component-scoped
-   report still has nothing to show and still says so.
+   and full. The `pairs` prop is still honoured first, because that is how a
+   page shows a subset the generator does not group. The default is nevertheless
+   the measurement. The file groups pairs by TOKEN SCOPE, not by component, so a
+   component-scoped report still has nothing to show and still says so.
 
    <ContrastOracle> is the exception and it is not really one. It is a tool, not
    a report: the reader types two colours and gets an answer about THOSE, which
@@ -32,7 +33,7 @@ import { NoDataYet } from "./stub"
    implementation the CI gate does, so the tool and the published tables can
    never quietly disagree.
 
-   <CvdSimulator> uses SVG colour matrices. They are approximations — a real
+   <CvdSimulator> uses SVG colour matrices. They are approximations. A real
    simulation of dichromacy is a research instrument and this is a design check.
    What it proves is the only thing worth proving here: whether a status can
    still be read when its hue is gone. If it can only be read in full colour,
@@ -58,10 +59,11 @@ export interface ContrastPair {
 
 export interface ContrastReportProps {
   /**
-   * A token namespace the generator measures — `category`, `materials`,
-   * `neutral` or `status` — or `all` for every measured pair. The authoritative
-   * list is the `scopes` array in lib/generated/contrast.json; a name that is
-   * not in it renders the empty state naming the ones that are.
+   * A token namespace the generator measures, or `all` for every measured
+   * pair. The namespaces are `category`, `materials`, `neutral` and `status`.
+   * The authoritative list is the `scopes` array in
+   * lib/generated/contrast.json; a name that is not in it renders the empty
+   * state naming the ones that are.
    */
   scope?: string
   /** Or a component id, for the pairs that component actually uses. */
@@ -116,7 +118,7 @@ function measuredPairs(
  * Both numbers are shown because they answer different questions and disagree
  * in useful ways. WCAG 2.2 is what a conformance report has to cite. APCA
  * models perceived lightness contrast far better at the extremes, which is
- * exactly where a health status colour lives — a bright amber that passes 4.5:1
+ * exactly where a health status colour lives. A bright amber that passes 4.5:1
  * on paper can still be unreadable, and Lc is what tells you so.
  */
 export function ContrastReport({
@@ -163,7 +165,7 @@ export function ContrastReport({
           <>
             <code className="text-xs">lib/generated/contrast.json</code> holds{" "}
             {MEASURED.length} measured pairs, under{" "}
-            {MEASURED_SCOPES.join(", ")} — none under{" "}
+            {MEASURED_SCOPES.join(", ")}. None of them sits under{" "}
             <code className="text-xs">{scope}</code>. Either that group is not
             one the generator measures, or the name on this page has drifted
             from the one it emits. Nothing here types a number to close the gap.
@@ -173,8 +175,9 @@ export function ContrastReport({
             This call names neither a scope nor a component, so there is nothing
             to select from the {MEASURED.length} measured pairs in{" "}
             <code className="text-xs">lib/generated/contrast.json</code>. Pass{" "}
-            <code className="text-xs">scope</code> — {MEASURED_SCOPES.join(", ")}{" "}
-            or <code className="text-xs">all</code>.
+            <code className="text-xs">scope</code> with one of{" "}
+            {MEASURED_SCOPES.join(", ")} or{" "}
+            <code className="text-xs">all</code>.
           </>
         )}
       </NoDataYet>
@@ -212,10 +215,10 @@ export function ContrastReport({
               <td className="py-2 pr-4">{row.pair}</td>
               <td className="py-2 pr-4">{row.theme}</td>
               <td className="py-2 pr-4 font-mono text-xs">
-                {row.apcaLc?.toFixed(1) ?? "—"}
+                {row.apcaLc?.toFixed(1) ?? "not measured"}
               </td>
               <td className="py-2 pr-4 font-mono text-xs">
-                {row.wcag ? `${row.wcag.toFixed(2)}:1` : "—"}
+                {row.wcag ? `${row.wcag.toFixed(2)}:1` : "not measured"}
               </td>
               <td className="py-2">{row.passes ? "Pass" : "Below floor"}</td>
             </tr>
@@ -253,7 +256,7 @@ export interface A11yReportProps {
  * The `conditional` count is the honest one and the one most conformance tables
  * hide. A component can be accessible only if the consuming team supplies an
  * accessible name, or only if the surrounding heading structure is sane. Those
- * are not passes and they are not failures — collapsing them into either is how
+ * are not passes and they are not failures. Collapsing them into either is how
  * a conformance report becomes a marketing document.
  */
 export function A11yReport({
@@ -319,7 +322,9 @@ export function A11yReport({
    <ContrastOracle>
    -------------------------------------------------------------------------- */
 
-/** sRGB hex or `rgb()` → 0–255 triple. Returns null for anything else. */
+/**
+ * sRGB hex or `rgb()` → a 0 to 255 triple. Returns null for anything else.
+ */
 function parseColor(input: string): [number, number, number] | null {
   const value = input.trim()
   const hex = value.match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i)
@@ -400,7 +405,7 @@ export function ContrastOracle({
   /**
    * The Lc answer is stored WITH the pair it belongs to, so a slow response for
    * an old pair can never be shown beside a new one. Everything else is derived
-   * during render rather than pushed into state from the effect — the effect's
+   * during render rather than pushed into state from the effect. The effect's
    * only job is the request.
    */
   const [answer, setAnswer] = useState<{
@@ -509,7 +514,7 @@ export function ContrastOracle({
         <div>
           <dt className="text-xs text-muted-foreground">WCAG 2.2 ratio</dt>
           <dd className="m-0 font-mono text-lg">
-            {ratio ? `${ratio.toFixed(2)}:1` : "—"}
+            {ratio ? `${ratio.toFixed(2)}:1` : "not measured"}
           </dd>
           <dd className="m-0 text-xs text-muted-foreground">
             {ratio
@@ -527,10 +532,10 @@ export function ContrastOracle({
             {lcState === "loading"
               ? "…"
               : lcState === "unavailable"
-                ? "—"
+                ? "not measured"
                 : lc !== null
                   ? lc.toFixed(1)
-                  : "—"}
+                  : "not measured"}
           </dd>
           <dd className="m-0 text-xs text-muted-foreground">
             {lcState === "unavailable" ? (
@@ -586,7 +591,7 @@ export interface CvdSimulatorProps {
  * The greyscale panel is the one that matters most and the one people skip.
  * Roughly the same test is applied by a photocopier, a phone in bright sun and
  * a printed review pack. If the four clinical status levels are only
- * distinguishable in full colour, the design has failed — which is why every
+ * distinguishable in full colour, the design has failed. That is why every
  * opsinjs status ships with a word and, where the layout allows, an icon.
  */
 export function CvdSimulator({ children, grid, className }: CvdSimulatorProps) {
@@ -677,9 +682,9 @@ export function CvdSimulator({ children, grid, className }: CvdSimulatorProps) {
       )}
 
       <p className="m-0 border-t border-border/60 px-3 py-2 text-[0.6875rem] text-muted-foreground">
-        Simulated with SVG colour matrices. Close enough to answer the design
-        question — can this still be read without hue — and not a clinical
-        instrument. The audited version is{" "}
+        Simulated with SVG colour matrices. The design question is whether this
+        can still be read without hue, and the simulation is close enough to
+        answer that. It is not a clinical instrument. The audited version is{" "}
         <code className="text-[0.6875rem]">lib/color/cvd.ts</code>.
       </p>
     </div>

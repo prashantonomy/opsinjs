@@ -18,8 +18,9 @@ document. It is making one of them generated from the other.
 
 opsinjs generates its tokens from JSON, which means the design tool can be
 downstream of the same source rather than parallel to it. This page describes
-the export format, the mapping into Figma Variables, and — importantly — the
-three things that do not survive the trip and therefore have to stay in code.
+the export format and the mapping into Figma Variables. Most important of all,
+it describes the three things that do not survive the trip and therefore have to
+stay in code.
 
 Designers arriving here for the first time should start at
 [For designers](../start/for-designers.mdx); this page is the mechanics.
@@ -28,11 +29,11 @@ Designers arriving here for the first time should start at
 
 Two real artifacts, both already in the repository or served by the site:
 
-**`tokens/*.json`** — the authored source. Six files: `color`, `material`,
+**`tokens/*.json`** is the authored source. Six files: `color`, `material`,
 `motion`, `type`, `space`, `shape`. This is the truth, and it is small enough to
 read.
 
-**`/r/themes/opsinjs-default.json`** — a served registry item whose `cssVars`
+**`/r/themes/opsinjs-default.json`** is a served registry item whose `cssVars`
 object contains the resolved role tokens for light and dark. Convenient if your
 import script speaks HTTP rather than filesystem.
 
@@ -58,7 +59,7 @@ somebody had open.
 
 The proposed shape, so that it can be reviewed before it is built:
 
-```json title="PROPOSED — tokens.dtcg.json"
+```json title="Proposed tokens.dtcg.json"
 {
   "opsin": {
     "status": {
@@ -79,7 +80,7 @@ The proposed shape, so that it can be reviewed before it is built:
 Two decisions in that sketch are deliberate and worth arguing with now rather
 than later. The status group carries a `$description` stating that ordering is
 meaning, because a designer importing four colours has no other way to learn it.
-And colours are exported in OKLCH, which most tools cannot yet read — the
+And colours are exported in OKLCH, which most tools cannot yet read. The
 alternative is exporting the sRGB clamp and silently losing the wide-gamut
 values.
 
@@ -99,7 +100,7 @@ expect, with three exceptions.
 **Roles alias ramps.** This is the single most valuable part of the mapping. A
 role variable in the `light` mode should be an alias to a ramp variable, not a
 copy of its value. Then a ramp change propagates, and a designer who wants to
-retheme changes an alias rather than a colour — which is exactly the tier
+retheme changes an alias rather than a colour. That is exactly the tier
 discipline the CSS enforces.
 
 **Modes are light and dark, and nothing else.** Density and text size are not
@@ -163,9 +164,9 @@ Design tools measure WCAG 2.1 ratios in sRGB. opsinjs publishes APCA and WCAG
 
 ## Verify it worked
 
-Pick three tokens at random — one role, one status, one radius — and compare the
-value in the design library against `app/tokens.generated.css`. If any differ,
-the import is stale or somebody edited the library by hand. Then confirm the
+Pick one role, one status and one radius at random, and compare each value in
+the design library against `app/tokens.generated.css`. If any differ, the
+import is stale or somebody edited the library by hand. Then confirm the
 negative: a status colour in the design file should be an *alias*, and editing
 it directly should be either impossible or obviously wrong.
 
@@ -180,13 +181,13 @@ than as aliases, so the dark mode is pointing at light-mode ramp entries.
 
 **A designer changed a token and nothing happened in the app.** Correct, and
 intended. The design library is downstream. The change belongs in
-`tokens/*.json` — see
+`tokens/*.json`. See
 [Contributing tokens](../handbook/contributing/contributing-tokens.mdx).
 
 ## Next
 
-- [Token reference](./token-reference.mdx) — what you are importing.
-- [For designers](../start/for-designers.mdx) — the shorter, less mechanical
+- [Token reference](./token-reference.mdx) says what you are importing.
+- [For designers](../start/for-designers.mdx) is the shorter, less mechanical
   entry point.
-- [Validating your theme](./validating-your-theme.mdx) — before a themed comp
+- [Validating your theme](./validating-your-theme.mdx) comes before a themed comp
   becomes a shipped product.

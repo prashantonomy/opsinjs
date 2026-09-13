@@ -23,8 +23,8 @@ It has no model of the human body. It does not know what a blood pressure of
 that has risen over a fortnight is worth telling someone about. It has no access
 to a person's history, medication, pregnancy status, age or diagnosis, and it
 cannot acquire any. Every judgement of that kind is made by the product using
-opsinjs, by that product's clinical owner, and — for anything that matters — by a
-clinician.
+opsinjs and by that product's clinical owner. For anything that matters, it is
+made by a clinician.
 
 This is worth stating in blunt terms because design systems in this space are
 routinely misread in one specific way. A component that renders a value in amber
@@ -47,8 +47,8 @@ statement of why.
 A worked example of what goes wrong. A remote-monitoring app shows a weight trend.
 The design system ships a `TrendSparkline` whose default is to colour a rising
 line red, because rising numbers look bad. A user in heart failure gains three
-kilograms of fluid in four days — genuinely urgent — and sees the same red they
-saw last month when they gained a kilogram over Christmas. Nothing in the
+kilograms of fluid in four days, which is genuinely urgent, and sees the same red
+they saw last month when they gained a kilogram over Christmas. Nothing in the
 interface distinguished the two, because the colour came from a rendering default
 rather than a clinical rule. The design system had made a clinical decision by
 accident, and the product could not tell that it had.
@@ -87,23 +87,23 @@ And the reciprocal obligation, which is yours:
   read them yourself. Deliberately, this page does not paraphrase their
   requirements: summarising a regulation in a design system's documentation is how
   teams end up relying on a second-hand reading of a text they were legally
-  required to read directly. Confirm the current version of each — they are
+  required to read directly. Confirm the current version of each. They are
   amended.
 
-  - **Regulation (EU) 2017/745 (the Medical Device Regulation, "MDR")** —
+  - **Regulation (EU) 2017/745 (the Medical Device Regulation, "MDR")** is
     the EU framework under which software may itself qualify as a medical device.
-  - **MDCG 2019-11** — the Medical Device Coordination Group guidance on
+  - **MDCG 2019-11** is the Medical Device Coordination Group guidance on
     qualification and classification of software under MDR and IVDR.
-  - **IMDRF, "Software as a Medical Device (SaMD): Key Definitions"** — the
+  - **IMDRF, "Software as a Medical Device (SaMD): Key Definitions"** is the
     international definition the term SaMD comes from, and the vocabulary most
     regulators build on.
   - **DCB0129, "Clinical Risk Management: its Application in the Manufacture of
-    Health IT Systems"** — the NHS England information standard placing clinical
+    Health IT Systems"** is the NHS England information standard placing clinical
     risk-management obligations on the *manufacturer* of health IT.
   - **DCB0160, "Clinical Risk Management: its Application in the Deployment and
-    Use of Health IT Systems"** — the companion standard, placing obligations on
+    Use of Health IT Systems"** is the companion standard, placing obligations on
     the *deploying organisation*.
-  - **WCAG 2.2 (W3C Recommendation)** — the accessibility standard opsinjs
+  - **WCAG 2.2 (W3C Recommendation)** is the accessibility standard opsinjs
     measures itself against; see [Accessibility](../accessibility/index.mdx) for
     what is guaranteed and what remains yours.
 
@@ -113,9 +113,10 @@ And the reciprocal obligation, which is yours:
 </ResearchNote>
 
 <ResearchNote evidence="opinion" date="2026-09-02">
-  The design position — that a component must never derive severity from a value —
-  is an opinion, not a regulatory requirement, and it is the most consequential
-  opinion in this system. The reasoning: a threshold placed in a rendering layer
+  The design position is that a component must never derive severity from a
+  value. That is an opinion, not a regulatory requirement, and it is the most
+  consequential opinion in this system. The reasoning: a threshold placed in a
+  rendering layer
   is invisible to clinical review, is duplicated across every surface that renders
   the same measurement, and drifts silently when one of those surfaces is updated
   and the others are not. Keeping the mapping in one auditable place outside the
@@ -136,8 +137,8 @@ And the reciprocal obligation, which is yours:
   </DoDont.Do>
   <DoDont.Dont>
     Compute the status inside the component, in a render function, or in a helper
-    that lives next to the component — where no clinical reviewer will ever find
-    it and no test names the boundary.
+    that lives next to the component. No clinical reviewer will ever find it
+    there, and no test names the boundary.
   </DoDont.Dont>
 </DoDont>
 
@@ -155,8 +156,8 @@ And the reciprocal obligation, which is yours:
 
 <DoDont>
   <DoDont.Do>
-    Write "This is higher than your usual reading" — an observation about the data
-    your product holds.
+    Write "This is higher than your usual reading". That is an observation about
+    the data your product holds.
   </DoDont.Do>
   <DoDont.Dont>
     Write "This is normal" or "Nothing to worry about". Both are clinical
@@ -184,8 +185,8 @@ are true at once, and only one of them is about legal text.
 
 A disclaimer at the foot of a screen changes what a reader can be told they were
 warned about. It does not change what the interface communicated, because almost
-nobody reads it — and a reader who has just seen their own number in red is the
-least likely reader in the world to read small print underneath it. Treat
+nobody reads it. A reader who has just seen their own number in red is the least
+likely reader in the world to read small print underneath it. Treat
 disclaimers as necessary and insufficient. The work that actually protects the
 reader is upstream: the status came from an approved mapping, the range carries
 its source, the wording avoids clinical assertion, and the route to a human is
@@ -206,29 +207,31 @@ standard.
 The components most often mistaken for compliance controls are worth naming
 explicitly, because each of them carries the misunderstanding on its own page:
 
-- [DisclaimerNote](../components/disclaimer-note.mdx) — a consistent home for
-  necessary text. Not a control, and not a substitute for the four rules above.
-- [ConsentSheet](../components/consent-sheet.mdx) — records that a person agreed
+- [DisclaimerNote](../components/disclaimer-note.mdx) is a consistent home for
+  necessary text. It is not a control, and not a substitute for the four rules
+  above.
+- [ConsentSheet](../components/consent-sheet.mdx) records that a person agreed
   to something. It does not establish a lawful basis for processing, and it is not
   a consent-management platform.
-- [AlertBanner](../components/alert-banner.mdx) — displays urgency your product
+- [AlertBanner](../components/alert-banner.mdx) displays urgency your product
   determined. It never determines urgency.
-- [CareCard](../components/care-card.mdx) — presents guidance your product
+- [CareCard](../components/care-card.mdx) presents guidance your product
   authored. The guidance is yours; only its shape is ours.
 
 ## What this does not cover
 
 - **Whether your product is a medical device.** That is a regulatory question
   about your product's intended purpose and claims, and it is decided by
-  regulation and by qualified advice — not by your technology choices. Start with
-  [Regulatory context](../health/regulatory-context.mdx), then get advice.
+  regulation and by qualified advice rather than by your technology choices.
+  Start with [Regulatory context](../health/regulatory-context.mdx), then get
+  advice.
 - **Clinical risk management.** If DCB0129 or DCB0160 apply to you, they apply
   whole. opsinjs produces no hazard log, no clinical safety case report and no
   clinical safety officer sign-off, and it cannot contribute to yours except as
   one documented input among many.
 - **Data protection.** Health data is special-category data in most jurisdictions.
-  opsinjs holds, transmits and stores nothing — it has no network layer — but
-  every screen you build with it is a processing decision. See
+  opsinjs holds, transmits and stores nothing, because it has no network layer.
+  But every screen you build with it is a processing decision. See
   [On-screen privacy](../health/on-screen-privacy.mdx) for the interface-level
   concerns only.
 - **Clinical content.** Every word a reader is shown about what their result means

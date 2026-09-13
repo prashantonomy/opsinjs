@@ -38,7 +38,7 @@ same colour against the Display-P3 boundary at the **same `L` and the same
 
 ```css
 :root {
-  /* sRGB baseline — the value every display gets. */
+  /* The sRGB baseline is the value every display gets. */
   --opsin-status-urgent-line: oklch(0.58 0.196 25);
 }
 
@@ -64,13 +64,14 @@ This is the part that is easy to get wrong, and it fails silently in both
 directions.
 
 ```css
-/* Correct — asks the DISPLAY what it can show. */
+/* Correct. The media query asks the DISPLAY what it can show. */
 @media (color-gamut: p3) { /* … */ }
 
-/* Correct — asks the BROWSER whether it can parse this syntax. */
+/* Correct. The feature query asks the BROWSER whether it can parse this
+   syntax. */
 @supports (color: color(display-p3 1 0 0)) { /* … */ }
 
-/* Wrong — `color-gamut` is a media feature, not a CSS property, so this
+/* Wrong. `color-gamut` is a media feature, not a CSS property, so this
    condition is not a supported declaration and evaluates to false everywhere.
    The block never applies and nothing warns you. */
 @supports (color-gamut: p3) { /* … */ }
@@ -79,10 +80,10 @@ directions.
 `color-gamut` is a **media feature**: it describes the output device. `@supports`
 takes a *declaration* and asks whether the browser understands it. Writing
 `@supports (color-gamut: p3)` asks whether the browser supports a CSS property
-called `color-gamut` — it does not, so the condition is false, so the escalation
-silently never happens. The page still looks fine, which is why this survives
-review: the failure mode of a missing escalation is *slightly less saturated*,
-not *broken*.
+called `color-gamut`. The browser supports no such property, so the condition
+is false, so the escalation silently never happens. The page still looks fine,
+which is why this survives review: the failure mode of a missing escalation is
+*slightly less saturated*, not *broken*.
 
 The two queries answer different questions and you may legitimately need both:
 the media query for "is this panel wide", the feature query for "can this engine
@@ -92,7 +93,7 @@ concern for `oklch()`, and the media query is the one that matters.
 ### What the browser does when you ask for something out of gamut
 
 If you author a colour that falls outside what the display can show, the browser
-does not error — it gamut-maps. Two things are worth knowing about that:
+does not error. It gamut-maps instead. Two things are worth knowing about that:
 
 - **Implementations differ.** CSS Color 4 specifies a gamut-mapping algorithm
   that reduces chroma while holding lightness, which is the same thing our stage
@@ -129,10 +130,10 @@ lightness from its sRGB base, you have shipped two designs and one of them is
 untested.
 
 **Do not escalate surfaces.** Large fields of high-chroma colour are unpleasant
-at any gamut and worse at a wide one. The escalation is for `line` — chart
-strokes, dial rings, status rules — where saturation is doing work.
-`--opsin-status-*-line` and `--opsin-category-*-accent` are the tokens that
-escalate; surfaces and inks do not.
+at any gamut and worse at a wide one. The escalation is for `line`, where
+saturation is doing work. That role covers chart strokes, dial rings and status
+rules. `--opsin-status-*-line` and `--opsin-category-*-accent` are the tokens
+that escalate; surfaces and inks do not.
 
 ### How to verify it
 
@@ -176,7 +177,7 @@ consequences and one non-consequence.
 - **It slightly helps colour discrimination at the margins.** More chroma
   separation between two hues is more separation for a reader whose
   discrimination is reduced. It is a marginal gain and it is never the mechanism
-  a status is allowed to depend on — see
+  a status is allowed to depend on. See
   [Colour blindness](./colour-blindness.mdx).
 
 <NoDataYet what="A measurement of the escalated P3 values" script="scripts/check-contrast.mts">
@@ -191,10 +192,10 @@ Measuring the P3 branch is still the outstanding work.
 
 ## Related
 
-- [How the engine works](./how-the-engine-works.mdx) — stage 4 clamps and stage
-  5 escalates; this page is stage 5 in full.
-- [Contrast and APCA](./contrast-and-apca.mdx) — why moving chroma alone leaves
-  a contrast measurement essentially intact.
-- [Tailwind v4](../../theming/tailwind-v4.mdx) — `@theme` versus `@theme
-  inline`, and why the escalation only works if the utilities resolve the custom
-  property at use time.
+- [How the engine works](./how-the-engine-works.mdx) has the stages. Stage 4
+  clamps and stage 5 escalates; this page is stage 5 in full.
+- [Contrast and APCA](./contrast-and-apca.mdx) explains why moving chroma
+  alone leaves a contrast measurement essentially intact.
+- [Tailwind v4](../../theming/tailwind-v4.mdx) covers `@theme` versus `@theme
+  inline`, and why the escalation only works if the utilities resolve the
+  custom property at use time.

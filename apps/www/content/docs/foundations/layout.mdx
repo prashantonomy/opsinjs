@@ -13,11 +13,11 @@ a11yDate: 2026-09-02
 
 Layout in opsinjs is deliberately small. There is no grid system, no twelve
 columns, no layout component zoo. A consumer health app is, structurally, a
-scrolling column with a persistent action, on a device held in one hand — and
-almost everything that goes wrong with its layout goes wrong at the edges: under
-the notch, behind the home indicator, beneath the on-screen keyboard, or above
-the fold on a small phone where the one thing the reader came for is the one
-thing they cannot see.
+scrolling column with a persistent action, on a device held in one hand. Almost
+everything that goes wrong with its layout goes wrong at the edges: under the
+notch, behind the home indicator, beneath the on-screen keyboard, or above the
+fold on a small phone where the one thing the reader came for is the one thing
+they cannot see.
 
 So this page specifies the shell, the edges, and two screen shapes. Everything
 about how the shell *changes* with available width belongs to
@@ -26,23 +26,24 @@ room things get belongs to [Space](space/index.mdx).
 
 The thing this is most often confused with is a page template. A template
 prescribes content. A shell prescribes the frame, the insets and the ordering
-rules — what content goes in it is a
-[pattern](../patterns/index.mdx) or a [screen](../screens/index.mdx).
+rules. What content goes in it is a [pattern](../patterns/index.mdx) or a
+[screen](../screens/index.mdx).
 
 ## How it works
 
 **The shell has four regions**, and their order in the DOM is the order a screen
 reader meets them, which is not always the order they appear on screen:
 
-1. **Header** — the screen's name and at most one secondary action. It is a
+1. **Header** has the screen's name and at most one secondary action. It is a
    heading, not a picture of one.
-2. **Content** — a single scrolling column. Multiple scroll containers on one
+2. **Content** is a single scrolling column. Multiple scroll containers on one
    screen is the most reliable way to lose somebody using a keyboard or a
    switch.
-3. **Action** — the persistent primary action, if the screen has one. It is the
-   last thing in the DOM and it is pinned visually, so tab order reaches it after
-   the content rather than before it.
-4. **Chrome** — tab bar or equivalent, outside the screen's landmark entirely.
+3. **Action** is the persistent primary action, if the screen has one. It is
+   the last thing in the DOM and it is pinned visually, so tab order reaches it
+   after the content rather than before it.
+4. **Chrome** is the tab bar or equivalent, outside the screen's landmark
+   entirely.
 
 **The edges are a contract, not a per-screen decision.** Every one of the four
 regions resolves its outer padding from a token that already includes the
@@ -64,7 +65,7 @@ measured result, and it is stated as such.
 per category or per metric, then a persistent action. Its rules: every tile
 carries its own status and its own freshness; there is no sort order that mixes
 the two axes; and the screen has a stated escalation budget, because an overview
-is where alarm fatigue is manufactured — see
+is where alarm fatigue is manufactured. See
 [Alarm fatigue](../health/alarm-fatigue.mdx).
 
 *The **reading** shell.* One value at the top with its unit, its status and its
@@ -102,7 +103,7 @@ described wrongly by every tool that summarises it, including the ones your
 readers use.
 
 **Content has a maximum measure, even on a large screen.** Wide screens get more
-of the story visible at once, not wider paragraphs — the rule and its mechanism
+of the story visible at once, not wider paragraphs. The rule and its mechanism
 are on [Responsive modes](space/responsive-modes.mdx).
 
 ## Tokens
@@ -131,7 +132,7 @@ and every item below is a real failure that passes a visual review.
   limited dexterity it is unreachable, and for somebody using a screen reader it
   is reachable but described in the wrong place.
 - **Reflow.** The shell must survive 400% zoom without a second scroll axis, and
-  must survive a 1.3× text-size multiplier with no clipping at all — the checks
+  must survive a 1.3× text-size multiplier with no clipping at all. The checks
   are on [Text resizing and zoom](../accessibility/text-resizing-and-zoom.mdx)
   and [Dynamic Type](typography/dynamic-type.mdx).
 - **Sticky regions must not eat the viewport.** A sticky header plus a sticky
@@ -141,9 +142,9 @@ and every item below is a real failure that passes a visual review.
 
 ## Related
 
-- [Responsive modes](space/responsive-modes.mdx) — how this shell behaves as the
-  container grows, and why the rule is "more of the story", not "bigger".
-- [Layering and elevation](layering-and-elevation.mdx) — what may sit over the
-  shell, and the rule that nothing may cover the value.
-- [Screens](../screens/index.mdx) — whole-screen specimens built from these two
-  shapes.
+- [Responsive modes](space/responsive-modes.mdx) shows how this shell behaves as
+  the container grows, and why the rule is "more of the story", not "bigger".
+- [Layering and elevation](layering-and-elevation.mdx) says what may sit over
+  the shell, and the rule that nothing may cover the value.
+- [Screens](../screens/index.mdx) covers whole-screen specimens built from these
+  two shapes.

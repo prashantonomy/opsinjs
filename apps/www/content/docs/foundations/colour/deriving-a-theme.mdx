@@ -16,9 +16,9 @@ a11yDate: 2026-09-02
 ## Overview
 
 The supported way to make opsinjs look like your product is to give it one
-colour. Not a palette, not a set of overrides — one colour, from which the
+colour. Not a palette, not a set of overrides. From that one colour the
 neutral system, the interactive system and the shape of the ramps are derived,
-and against which the two clinical axes are then checked for interference.
+and against it the two clinical axes are then checked for interference.
 
 This page is about what happens at the boundary: which brand colours the engine
 takes cleanly, which ones it takes with a warning, and which ones it refuses.
@@ -31,7 +31,7 @@ fixed and the brand as adjustable.
 
 The thing this is most often confused with is *restyling*. Deriving a theme
 changes the palette. It does not change the density, the shape language or the
-type — those are separate foundations, and
+type. Those are separate foundations, and
 [Lyra and the docs chrome](../../theming/lyra-and-the-docs-chrome.mdx) explains
 why this documentation site deliberately looks unlike the product it documents.
 
@@ -44,9 +44,9 @@ why this documentation site deliberately looks unlike the product it documents.
 ### Pick the colour
 
 One value, in any CSS colour syntax. Use the colour your brand actually uses for
-a primary action, not the one at the top of the brand guidelines — the engine
-derives an interactive system from it, and the accent that reads well on a poster
-is often too light to be a button.
+a primary action, not the one at the top of the brand guidelines. The engine
+derives an interactive system from the colour you pick, and the accent that
+reads well on a poster is often too light to be a button.
 
 ### Run the generator
 
@@ -65,8 +65,8 @@ with failed pairs is not shippable and the generator will say so.
 ### Check the interference report
 
 Separately from contrast, the generator reports how close your brand hue sits to
-the four status hues. This is not a pass/fail — it is a judgement you have to
-make about your own product, and the failure it prevents is described under
+the four status hues. This is not a pass or a fail. It is a judgement you have
+to make about your own product, and the failure it prevents is described under
 *Brand colour sits in the status family* below.
 
 ### Copy the preset code, not the CSS
@@ -109,10 +109,10 @@ reluctantly, on [Status palettes](../../theming/status-palettes.mdx).
 These are the recurring cases, in rough order of how often they come up. None
 of them is a bug; each is the engine surfacing a real conflict early.
 
-**1. A yellow, lime or chartreuse brand (roughly hue 75–130).** Available chroma
-at those hues collapses at low lightness — the gamut boundary sits high and
-narrow — so the dark end of the ramp desaturates hard and your `ink` step will
-look grey rather than branded. There is no fix inside the engine, because
+**1. A yellow, lime or chartreuse brand (roughly hue 75 to 130).** Available
+chroma at those hues collapses at low lightness. The gamut boundary sits high
+and narrow, so the dark end of the ramp desaturates hard and your `ink` step
+will look grey rather than branded. There is no fix inside the engine, because
 lightening the ink to keep the chroma would break the contrast floor. The
 workable answer is to let the brand own `--primary` and the `line` role and let
 `ink` be neutral. Most brands in this family already do this in print without
@@ -122,15 +122,15 @@ having noticed.
 engine will still derive a perfectly good theme, and the generator will still
 warn you, because the failure is semantic rather than numeric: a primary button
 in the same red as `urgent` teaches the reader that red means "press me" on one
-screen and "act now" on the next. If the brand cannot move, move the *usage* —
-keep the brand out of any surface that reports a result, and rely on the fact
+screen and "act now" on the next. If the brand cannot move, move the *usage*.
+Keep the brand out of any surface that reports a result, and rely on the fact
 that a status surface always carries a word and an icon.
 
-**3. A very low-chroma brand — greys, near-blacks, warm off-whites.** Nothing
-breaks. The observation people make is that the status colours now dominate the
-screen. That is correct and it is the right outcome: in a health product the
-verdict should out-shout the identity. If it looks wrong, the problem is
-usually that too many things on the screen have a status at all.
+**3. A very low-chroma brand, such as greys, near-blacks and warm off-whites.**
+Nothing breaks. The observation people make is that the status colours now
+dominate the screen. That is correct and it is the right outcome: in a health
+product the verdict should out-shout the identity. If it looks wrong, the
+problem is usually that too many things on the screen have a status at all.
 
 **4. Two brands, or a white-label product.** Only one colour may own
 `--primary`. A second brand becomes a category-axis-style identity token, a
@@ -197,9 +197,10 @@ belongs to [The contrast floor](../materials/the-contrast-floor.mdx).
 
 ## Related
 
-- [How the engine works](./how-the-engine-works.mdx) — the eight stages, with
+- [How the engine works](./how-the-engine-works.mdx) has the eight stages, with
   the failure mode of each stated separately.
-- [Status palettes](../../theming/status-palettes.mdx) — why the four clinical
-  ramps are excluded from derivation, and what to do if your regulator disagrees.
-- [Category palettes](../../theming/category-palettes.mdx) — the supported way
+- [Status palettes](../../theming/status-palettes.mdx) explains why the four
+  clinical ramps are excluded from derivation, and what to do if your regulator
+  disagrees.
+- [Category palettes](../../theming/category-palettes.mdx) is the supported way
   to add an identity colour for a measurement we did not anticipate.

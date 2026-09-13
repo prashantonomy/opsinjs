@@ -1,5 +1,5 @@
 {
-  "$comment": "AUTHORED SOURCE — not generated. scripts/build-tokens.mts reads this file and emits app/tokens.generated.css and lib/generated/tokens.ts.",
+  "$comment": "This file is the authored source and is not generated. scripts/build-tokens.mts reads this file and emits app/tokens.generated.css and lib/generated/tokens.ts.",
   "version": 1,
   "namespace": "space",
   "cssPrefix": "--opsin",
@@ -11,7 +11,7 @@
   },
   "rules": [
     "The scale is a 4px grid. Every gap, pad and inset in the system is one of the steps below; there is no `13px`.",
-    "Generosity is the default. This is a consumer health system read one-handed, often by someone who is anxious, often by someone over 60. Dense is a mode, not the baseline — the docs chrome is dense because it is a reference tool for developers, and the product is not.",
+    "Generosity is the default. This is a consumer health system read one-handed, often by someone who is anxious, often by someone over 60. Dense is a mode, not the baseline. The docs chrome is dense because it is a reference tool for developers, and the product is not.",
     "44px is a floor, not a target size. A control may be visually smaller than 44px only if its hit area is padded to 44px and it is separated from its neighbours by at least `space-2`.",
     "Never remove padding to make something fit. Reduce the content or change the layout."
   ],
@@ -99,7 +99,7 @@
     "compact": {
       "scale": 0.875,
       "targetToken": "minimum",
-      "use": "Dense lists — a log of forty readings, a table on a wide screen. Never applied to a screen's primary value.",
+      "use": "Dense lists, such as a log of forty readings or a table on a wide screen. Never applied to a screen's primary value.",
       "note": "The scale multiplies padding and gaps only. It never multiplies type sizes and never reduces a touch target below the 44px floor."
     }
   },
@@ -109,7 +109,7 @@
     "wide": { "px": 32, "appliesFrom": 1024 }
   },
   "breakpoints": {
-    "$comment": "Three modes, not five. Each is a genuinely different layout rather than the same layout stretched — see /docs/foundations/space/responsive-modes. A four-column grid of health cards on a desktop is not 'responsive', it is a phone screen someone forgot to redesign.",
+    "$comment": "Three modes, not five. Each is a genuinely different layout rather than the same layout stretched. See /docs/foundations/space/responsive-modes. A four-column grid of health cards on a desktop is not 'responsive', it is a phone screen someone forgot to redesign.",
     "phone": {
       "min": 0,
       "columns": 1,

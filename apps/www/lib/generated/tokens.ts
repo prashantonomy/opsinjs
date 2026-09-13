@@ -311,7 +311,7 @@ export const TOKENS: GeneratedToken[] = [
   { name: "material-sheet-shadow", cssVar: "--opsin-material-sheet-shadow", namespace: "material", tier: "semantic", group: "material", value: "0 -1px 2px oklch(0 0 0 / 0.05)", description: "Rung 3 (sheet): the shadow that separates it from what is behind.", usedBy: ["surface"], sourcePath: "material.json#ladder.sheet.shadow" },
   { name: "material-sheet-scrim", cssVar: "--opsin-material-sheet-scrim", namespace: "material", tier: "semantic", group: "material", value: "0.82", description: "Rung 3 (sheet): the minimum scrim opacity needed for text on this rung to clear the contrast floor.", usedBy: ["surface"], sourcePath: "material.json#ladder.sheet.scrim" },
   { name: "material-sheet-opaque", cssVar: "--opsin-material-sheet-opaque", namespace: "material", tier: "semantic", group: "material", value: "var(--opsin-neutral-0)", darkValue: "var(--opsin-neutral-900)", description: "Rung 3 (sheet): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported.", usedBy: ["surface"], resolvedValue: "oklch(1 0 0)", darkResolvedValue: "oklch(0.205 0.006 250)", sourcePath: "material.json#ladder.sheet.opaque" },
-  { name: "material-overlay-tint", cssVar: "--opsin-material-overlay-tint", namespace: "material", tier: "semantic", group: "material", value: "var(--opsin-neutral-0)", darkValue: "var(--opsin-neutral-900)", description: "Rung 4 (overlay): the tint over what is behind it. A pinned toolbar, a tab bar, a floating action bar — chrome that content scrolls beneath.", usedBy: ["surface"], resolvedValue: "oklch(1 0 0)", darkResolvedValue: "oklch(0.205 0.006 250)", reducedTransparencyValue: "var(--opsin-material-overlay-opaque)", sourcePath: "material.json#ladder.overlay.tint" },
+  { name: "material-overlay-tint", cssVar: "--opsin-material-overlay-tint", namespace: "material", tier: "semantic", group: "material", value: "var(--opsin-neutral-0)", darkValue: "var(--opsin-neutral-900)", description: "Rung 4 (overlay): the tint over what is behind it. A pinned toolbar, a tab bar and a floating action bar are all chrome that content scrolls beneath.", usedBy: ["surface"], resolvedValue: "oklch(1 0 0)", darkResolvedValue: "oklch(0.205 0.006 250)", reducedTransparencyValue: "var(--opsin-material-overlay-opaque)", sourcePath: "material.json#ladder.overlay.tint" },
   { name: "material-overlay-tint-alpha", cssVar: "--opsin-material-overlay-tint-alpha", namespace: "material", tier: "semantic", group: "material", value: "0.74", darkValue: "0.7", description: "Rung 4 (overlay): how opaque that tint is.", usedBy: ["surface"], reducedTransparencyValue: "1", sourcePath: "material.json#ladder.overlay.tint-alpha" },
   { name: "material-overlay-blur", cssVar: "--opsin-material-overlay-blur", namespace: "material", tier: "semantic", group: "material", value: "28px", description: "Rung 4 (overlay): backdrop blur radius.", usedBy: ["surface"], reducedTransparencyValue: "0px", sourcePath: "material.json#ladder.overlay.blur" },
   { name: "material-overlay-saturation", cssVar: "--opsin-material-overlay-saturation", namespace: "material", tier: "semantic", group: "material", value: "1.8", description: "Rung 4 (overlay): backdrop saturation multiplier.", usedBy: ["surface"], reducedTransparencyValue: "1", sourcePath: "material.json#ladder.overlay.saturation" },
@@ -327,11 +327,11 @@ export const TOKENS: GeneratedToken[] = [
   { name: "material-scrim-shadow", cssVar: "--opsin-material-scrim-shadow", namespace: "material", tier: "semantic", group: "material", value: "none", description: "Rung 5 (scrim): the shadow that separates it from what is behind.", usedBy: ["surface"], sourcePath: "material.json#ladder.scrim.shadow" },
   { name: "material-scrim-scrim", cssVar: "--opsin-material-scrim-scrim", namespace: "material", tier: "semantic", group: "material", value: "0.44", description: "Rung 5 (scrim): the minimum scrim opacity needed for text on this rung to clear the contrast floor.", usedBy: ["surface"], sourcePath: "material.json#ladder.scrim.scrim" },
   { name: "material-scrim-opaque", cssVar: "--opsin-material-scrim-opaque", namespace: "material", tier: "semantic", group: "material", value: "oklch(0.205 0.006 250 / 0.72)", darkValue: "oklch(0 0 0 / 0.8)", description: "Rung 5 (scrim): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported.", usedBy: ["surface"], sourcePath: "material.json#ladder.scrim.opaque" },
-  { name: "ease-spring-snap", cssVar: "--opsin-ease-spring-snap", namespace: "motion", tier: "semantic", group: "ease", value: "linear(0, 0.0715, 0.2271, 0.4053, 0.5722, 0.7119, 0.8198, 0.8978, 0.9505, 0.9836, 1.0025, 1.0118, 1.015, 1.0147, 1.0126, 1.01, 1.0073, 1.0051, 1.0033, 1.0019, 1)", description: "Direct manipulation only: a switch the reader just flipped, a segmented control, a pressed button settling. It overshoots by 1.5% — enough to feel physical, not enough to look playful — which is the largest overshoot in the system but not the only one: `spring-settle` overshoots by 0.88%. Only `spring-calm` and `spring-sheet` reach their target without passing it.", usedBy: [], reducedMotionValue: "linear", sourcePath: "motion.json#springs.spring-snap.easing" },
+  { name: "ease-spring-snap", cssVar: "--opsin-ease-spring-snap", namespace: "motion", tier: "semantic", group: "ease", value: "linear(0, 0.0715, 0.2271, 0.4053, 0.5722, 0.7119, 0.8198, 0.8978, 0.9505, 0.9836, 1.0025, 1.0118, 1.015, 1.0147, 1.0126, 1.01, 1.0073, 1.0051, 1.0033, 1.0019, 1)", description: "Direct manipulation only: a switch the reader just flipped, a segmented control, a pressed button settling. It overshoots by 1.5%. That is enough to feel physical but not enough to look playful. The 1.5% is the largest overshoot in the system but not the only one: `spring-settle` overshoots by 0.88%. Only `spring-calm` and `spring-sheet` reach their target without passing it.", usedBy: [], reducedMotionValue: "linear", sourcePath: "motion.json#springs.spring-snap.easing" },
   { name: "duration-spring-snap", cssVar: "--opsin-duration-spring-snap", namespace: "motion", tier: "semantic", group: "duration", value: "283ms", description: "Settle time for the spring-snap spring, measured from its own parameters.", usedBy: [], reducedMotionValue: "0ms", sourcePath: "motion.json#springs.spring-snap.durationMs" },
   { name: "ease-spring-settle", cssVar: "--opsin-ease-spring-settle", namespace: "motion", tier: "semantic", group: "ease", value: "linear(0, 0.0742, 0.2328, 0.4113, 0.5758, 0.7116, 0.8157, 0.8905, 0.9412, 0.9736, 0.9928, 1.003, 1.0076, 1.0088, 1.0082, 1.0068, 1.0053, 1.0038, 1.0026, 1.0017, 1)", description: "The workhorse for chrome: popovers, tooltips, menus, chips appearing and disappearing.", usedBy: [], reducedMotionValue: "linear", sourcePath: "motion.json#springs.spring-settle.easing" },
   { name: "duration-spring-settle", cssVar: "--opsin-duration-spring-settle", namespace: "motion", tier: "semantic", group: "duration", value: "382ms", description: "Settle time for the spring-settle spring, measured from its own parameters.", usedBy: [], reducedMotionValue: "100ms", sourcePath: "motion.json#springs.spring-settle.durationMs" },
-  { name: "ease-spring-calm", cssVar: "--opsin-ease-spring-calm", namespace: "motion", tier: "semantic", group: "ease", value: "linear(0, 0.0829, 0.2457, 0.4157, 0.5642, 0.6832, 0.774, 0.841, 0.8893, 0.9236, 0.9476, 0.9643, 0.9757, 0.9836, 0.9889, 0.9926, 0.995, 0.9967, 0.9978, 0.9985, 1)", description: "A health value that changes while it is already on screen: a bar re-filling from one reading to the next, a dial travelling between two values the reader has already been shown. Never a first paint and never a first reveal — a value arrives at its final figure, with no count-up, no dial sweep and no line drawing itself in (health/motion-in-health-ui rule 2). Slightly overdamped (zeta just over 1) so it never overshoots and never bounces.", usedBy: [], reducedMotionValue: "linear", sourcePath: "motion.json#springs.spring-calm.easing" },
+  { name: "ease-spring-calm", cssVar: "--opsin-ease-spring-calm", namespace: "motion", tier: "semantic", group: "ease", value: "linear(0, 0.0829, 0.2457, 0.4157, 0.5642, 0.6832, 0.774, 0.841, 0.8893, 0.9236, 0.9476, 0.9643, 0.9757, 0.9836, 0.9889, 0.9926, 0.995, 0.9967, 0.9978, 0.9985, 1)", description: "A health value that changes while it is already on screen: a bar re-filling from one reading to the next, a dial travelling between two values the reader has already been shown. Never a first paint and never a first reveal. A value arrives at its final figure, with no count-up, no dial sweep and no line drawing itself in (health/motion-in-health-ui rule 2). Slightly overdamped (zeta just over 1) so it never overshoots and never bounces.", usedBy: [], reducedMotionValue: "linear", sourcePath: "motion.json#springs.spring-calm.easing" },
   { name: "duration-spring-calm", cssVar: "--opsin-duration-spring-calm", namespace: "motion", tier: "semantic", group: "duration", value: "550ms", description: "Settle time for the spring-calm spring, measured from its own parameters.", usedBy: [], reducedMotionValue: "0ms", sourcePath: "motion.json#springs.spring-calm.durationMs" },
   { name: "ease-spring-sheet", cssVar: "--opsin-ease-spring-sheet", namespace: "motion", tier: "semantic", group: "ease", value: "linear(0, 0.0881, 0.2576, 0.431, 0.5798, 0.6971, 0.7854, 0.8497, 0.8958, 0.9282, 0.9508, 0.9664, 0.9771, 0.9845, 0.9895, 0.9929, 0.9952, 0.9967, 0.9978, 0.9985, 1)", description: "Large surfaces travelling a long distance: sheets, dialogs, full-screen pushes. Overdamped, because a sheet that bounces at the top of its travel reads as a dropped object.", usedBy: ["sheet"], reducedMotionValue: "linear", sourcePath: "motion.json#springs.spring-sheet.easing" },
   { name: "duration-spring-sheet", cssVar: "--opsin-duration-spring-sheet", namespace: "motion", tier: "semantic", group: "duration", value: "483ms", description: "Settle time for the spring-sheet spring, measured from its own parameters.", usedBy: ["sheet"], reducedMotionValue: "120ms", sourcePath: "motion.json#springs.spring-sheet.durationMs" },
@@ -362,7 +362,7 @@ export const TOKENS: GeneratedToken[] = [
   { name: "text-title3-leading", cssVar: "--opsin-text-title3-leading", namespace: "type", tier: "semantic", group: "text", value: "1.25", description: "Line height for title3, unitless so it scales with the size.", usedBy: ["dialog", "empty-state", "result-card", "sheet", "value"], sourcePath: "type.json#scale.title3.leading" },
   { name: "text-title3-tracking", cssVar: "--opsin-text-title3-tracking", namespace: "type", tier: "semantic", group: "text", value: "-0.004em", description: "Letter spacing for title3.", usedBy: ["dialog", "empty-state", "result-card", "sheet", "value"], sourcePath: "type.json#scale.title3.tracking" },
   { name: "text-title3-weight", cssVar: "--opsin-text-title3-weight", namespace: "type", tier: "semantic", group: "text", value: "600", description: "Font weight for title3.", usedBy: ["dialog", "empty-state", "result-card", "sheet", "value"], sourcePath: "type.json#scale.title3.weight" },
-  { name: "text-headline-size", cssVar: "--opsin-text-headline-size", namespace: "type", tier: "semantic", group: "text", value: "1.0625rem", description: "An emphasised line of body text — a status sentence, a question in a form.", usedBy: ["alert-banner", "button", "callout", "card", "care-card", "empty-state", "field", "range-bar", "reading-input", "result-card", "score-dial", "surface", "trend-sparkline"], sourcePath: "type.json#scale.headline.size" },
+  { name: "text-headline-size", cssVar: "--opsin-text-headline-size", namespace: "type", tier: "semantic", group: "text", value: "1.0625rem", description: "An emphasised line of body text, such as a status sentence or a question in a form.", usedBy: ["alert-banner", "button", "callout", "card", "care-card", "empty-state", "field", "range-bar", "reading-input", "result-card", "score-dial", "surface", "trend-sparkline"], sourcePath: "type.json#scale.headline.size" },
   { name: "text-headline-leading", cssVar: "--opsin-text-headline-leading", namespace: "type", tier: "semantic", group: "text", value: "1.294", description: "Line height for headline, unitless so it scales with the size.", usedBy: ["alert-banner", "button", "callout", "card", "care-card", "empty-state", "field", "range-bar", "reading-input", "result-card", "score-dial", "surface", "trend-sparkline"], sourcePath: "type.json#scale.headline.leading" },
   { name: "text-headline-tracking", cssVar: "--opsin-text-headline-tracking", namespace: "type", tier: "semantic", group: "text", value: "-0.003em", description: "Letter spacing for headline.", usedBy: ["alert-banner", "button", "callout", "card", "care-card", "empty-state", "field", "range-bar", "reading-input", "result-card", "score-dial", "surface", "trend-sparkline"], sourcePath: "type.json#scale.headline.tracking" },
   { name: "text-headline-weight", cssVar: "--opsin-text-headline-weight", namespace: "type", tier: "semantic", group: "text", value: "600", description: "Font weight for headline.", usedBy: ["alert-banner", "button", "callout", "card", "care-card", "empty-state", "field", "range-bar", "reading-input", "result-card", "score-dial", "surface", "trend-sparkline"], sourcePath: "type.json#scale.headline.weight" },
@@ -430,7 +430,7 @@ export const TOKENS: GeneratedToken[] = [
   { name: "corner-shape", cssVar: "--opsin-corner-shape", namespace: "shape", tier: "semantic", group: "corner-shape", value: "superellipse(4)", description: "The squircle curvature. Degrades to `round` where corner-shape is unsupported.", usedBy: ["alert-banner", "callout", "card", "dialog", "metric-tile", "result-card", "sheet"], sourcePath: "shape.json#cornerShape.value" },
   { name: "border-hairline", cssVar: "--opsin-border-hairline", namespace: "shape", tier: "semantic", group: "border", value: "1px", description: "Every boundary in the system by default.", usedBy: ["button", "care-card", "surface"], sourcePath: "shape.json#borders.hairline.px" },
   { name: "border-emphasis", cssVar: "--opsin-border-emphasis", namespace: "shape", tier: "semantic", group: "border", value: "2px", description: "The boundary of a surface carrying `attention` or `urgent`, where the boundary is one of the three non-colour carriers of the status.", usedBy: ["button", "field", "surface"], sourcePath: "shape.json#borders.emphasis.px" },
-  { name: "border-focus", cssVar: "--opsin-border-focus", namespace: "shape", tier: "semantic", group: "border", value: "2px", description: "The focus ring. Always 2px with a 2px offset, always in a colour measured against both the surface and the page behind it, and never removed — see /docs/accessibility/keyboard-and-focus.", usedBy: [], sourcePath: "shape.json#borders.focus.px" },
+  { name: "border-focus", cssVar: "--opsin-border-focus", namespace: "shape", tier: "semantic", group: "border", value: "2px", description: "The focus ring. Always 2px with a 2px offset, always in a colour measured against both the surface and the page behind it, and never removed. See /docs/accessibility/keyboard-and-focus.", usedBy: [], sourcePath: "shape.json#borders.focus.px" },
   { name: "border-focus-offset", cssVar: "--opsin-border-focus-offset", namespace: "shape", tier: "semantic", group: "border", value: "2px", description: "Offset for the focus boundary.", usedBy: [], sourcePath: "shape.json#borders.focus.offsetPx" },
 ]
 
@@ -440,8 +440,8 @@ export const TOKEN_META: {
   count: number
   namespaces: TokenNamespace[]
 } = {
-  generatedAt: "20d89e51921d",
-  sourceHash: "20d89e51921d",
+  generatedAt: "f27bc3825416",
+  sourceHash: "f27bc3825416",
   count: 331,
   namespaces: ["color", "material", "motion", "type", "space", "shape"] as TokenNamespace[],
 }
@@ -522,7 +522,7 @@ export const GLOSSARY: GeneratedGlossaryEntry[] = [
     "term": "cholesterol",
     "plain": "a fatty substance carried in your blood",
     "showBoth": "first-use",
-    "reason": "Widely known as a word, widely misunderstood as a single number — most reports give several.",
+    "reason": "Widely known as a word, widely misunderstood as a single number. Most reports give several.",
     "category": "labs",
     "related": [
       "LDL",
@@ -549,7 +549,7 @@ export const GLOSSARY: GeneratedGlossaryEntry[] = [
   },
   {
     "term": "diastolic",
-    "plain": "the pressure between heartbeats — the lower of the two blood pressure numbers",
+    "plain": "the pressure between heartbeats, which is the lower of the two blood pressure numbers",
     "showBoth": "always",
     "reason": "The reader's own record shows the clinical word, so both are needed to match them up.",
     "category": "cardio",
@@ -654,7 +654,7 @@ export const GLOSSARY: GeneratedGlossaryEntry[] = [
   },
   {
     "term": "mg/dL",
-    "plain": "milligrams per decilitre — a unit used for blood test results",
+    "plain": "milligrams per decilitre, which is a unit used for blood test results",
     "showBoth": "always",
     "reason": "See mmol/L. Converting between the two is a correctness surface, not a display preference.",
     "category": "units",
@@ -664,7 +664,7 @@ export const GLOSSARY: GeneratedGlossaryEntry[] = [
   },
   {
     "term": "mmol/L",
-    "plain": "millimoles per litre — a unit used for blood test results",
+    "plain": "millimoles per litre, which is a unit used for blood test results",
     "showBoth": "always",
     "reason": "The same measurement is reported in mmol/L in some countries and mg/dL in others, and the numbers are not close. Never show a value without its unit.",
     "category": "units",
@@ -745,7 +745,7 @@ export const GLOSSARY: GeneratedGlossaryEntry[] = [
   },
   {
     "term": "systolic",
-    "plain": "the pressure while your heart beats — the higher of the two blood pressure numbers",
+    "plain": "the pressure while your heart beats, which is the higher of the two blood pressure numbers",
     "showBoth": "always",
     "reason": "See diastolic.",
     "category": "cardio",
@@ -936,7 +936,7 @@ export const OPSIN_ERROR_CODES: GeneratedErrorCode[] = [
     "code": "OPSIN-0004",
     "severity": "safety",
     "title": "A reference range was rendered without a source",
-    "message": "<{component}> was given a `range` with no `range.source`. Name whose range it is — a laboratory, a device maker, or a clinician — because a range is a comparison somebody chose and not a fact about the reader.",
+    "message": "<{component}> was given a `range` with no `range.source`. Name whose range it is: a laboratory, a device maker, or a clinician. A range is a comparison somebody chose and not a fact about the reader.",
     "docs": "health/reference-ranges",
     "params": [
       "component"
@@ -1132,7 +1132,7 @@ export const OPSIN_ERROR_POLICY: {
   severity: { name: GeneratedErrorSeverity; description: string }[]
 } = {
   "format": "OPSIN-NNNN",
-  "stability": "A code is permanent. It is never reused, never renumbered and never removed — a retired code is marked `retired: true` and keeps its row, because the code will outlive this release in somebody's log aggregator.",
+  "stability": "A code is permanent. It is never reused, never renumbered and never removed. A retired code is marked `retired: true` and keeps its row, because the code will outlive this release in somebody's log aggregator.",
   "environment": "Warnings are emitted in development only, once per offending call site, through console.warn. Nothing in this list throws, and nothing in this list is emitted in production: a health product must not be made to crash by a documentation-quality complaint.",
   "message": "Every message states what was passed, why it is wrong, and the one thing to do instead. A message that only says what is wrong makes the reader search this table, which is a worse version of putting the answer in the message.",
   "severity": [

@@ -31,9 +31,9 @@ in this section is one of them worked out in detail.
    not browsing; they want to know, and every sentence between them and the
    answer is a sentence spent while they are frightened.
 2. **Use the reader's words, not the clinic's.** The canonical mapping is the
-   [plain-English A–Z](./plain-english-a-z.mdx). Where a clinical term must
-   appear — because it is on their letter, their prescription or their portal —
-   give it and then translate it, in that order.
+   [plain-English A to Z](./plain-english-a-z.mdx). A clinical term must
+   sometimes appear, because it is on their letter, their prescription or their
+   portal. Where one does, give it and then translate it, in that order.
 3. **Never assert more certainty than the data supports.** A single reading is a
    single reading. A device measurement is a device measurement. The words must
    carry the uncertainty that the number does not. See
@@ -50,21 +50,21 @@ in this section is one of them worked out in detail.
 
 <DoDont>
   <DoDont.Do>Your blood pressure reading is higher than your usual range. One high reading is common and often not a problem. If you get three high readings in a row, contact your GP.</DoDont.Do>
-  <DoDont.Dont>Uh oh! Your BP is elevated. Don't worry though — just keep an eye on it!</DoDont.Dont>
+  <DoDont.Dont>Uh oh! Your BP is elevated. Don't worry though. Just keep an eye on it!</DoDont.Dont>
 </DoDont>
 
 The rejected version fails four of the five rules at once. It buries the answer
 behind an interjection, uses an abbreviation and a clinical register word
-("elevated") in the same sentence, tells the reader not to worry — which no
-sentence has ever achieved — and gives no action, so "keep an eye on it" leaves
-them to invent their own threshold.
+("elevated") in the same sentence, and tells the reader not to worry. No
+sentence has ever achieved that. And it gives no action, so "keep an eye on it"
+leaves them to invent their own threshold.
 
 <DoDont>
   <DoDont.Do>We could not get your latest readings. The ones below were last updated on 14 March at 08:12.</DoDont.Do>
   <DoDont.Dont>Something went wrong. Please try again later.</DoDont.Dont>
 </DoDont>
 
-In a health app, a generic failure message is not merely unhelpful — it leaves
+In a health app, a generic failure message is not merely unhelpful. It leaves
 stale numbers on screen with no indication that they are stale, which is the
 single most dangerous state a health screen can be in.
 
@@ -76,7 +76,7 @@ The sections in this pillar, and the question each answers.
 | --- | --- |
 | [Voice and tone](./voice-and-tone.mdx) | How do we sound, and how does that change with the news? |
 | [Health literacy](./health-literacy.mdx) | How do we write for a reader who struggles with numbers? |
-| [Plain-English A–Z](./plain-english-a-z.mdx) | Which word do we use for this clinical term? |
+| [Plain-English A to Z](./plain-english-a-z.mdx) | Which word do we use for this clinical term? |
 | [Glossary](./glossary.mdx) | Where does that vocabulary live, and how do I add to it? |
 | [Grammar and mechanics](./grammar-and-mechanics.mdx) | Capital letter or not? Space before the unit or not? |
 | [Numbers, dates and time](./numbers-dates-and-time.mdx) | How do I write a date, a time and a range in prose? |
@@ -120,19 +120,19 @@ without one is a trap.
 ## Related components
 
 Every component in the roster consumes at least one rule from this pillar. These
-four consume it structurally — their output *is* a string, so a copy rule change
-is an API change for them:
+four consume it structurally, because their output *is* a string and a copy rule
+change is therefore an API change for them:
 
-- **`Value`** — formats a number and its unit. Governed by
+- **`Value`** formats a number and its unit. Governed by
   [Grammar and mechanics](./grammar-and-mechanics.mdx) for the typography and by
   [Numbers, units and precision](../health/numbers-units-precision.mdx) for the
   precision.
-- **`RelativeTime`** — decides when "2 hours ago" is more useful than a
+- **`RelativeTime`** decides when "2 hours ago" is more useful than a
   timestamp, and when it is dangerously less useful. See
   [Numbers, dates and time](./numbers-dates-and-time.mdx).
-- **`StatusPill`** and **`AlertBanner`** — carry the status word, which is the
+- **`StatusPill`** and **`AlertBanner`** carry the status word, which is the
   redundancy that makes the colour non-load-bearing. See
   [Writing status and alerts](./writing-status-and-alerts.mdx).
-- **`Term`** — renders a clinical word with its plain-English replacement,
+- **`Term`** renders a clinical word with its plain-English replacement,
   resolved from the glossary data. See
-  [Plain-English A–Z](./plain-english-a-z.mdx).
+  [Plain-English A to Z](./plain-english-a-z.mdx).

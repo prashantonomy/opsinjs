@@ -6,18 +6,17 @@
  * There is no `purposes` array on this component and no per-item switch, so
  * this is what asking for two things looks like: two `ConsentSheet`s, two ids,
  * two versions, two records. The reader below can grant the first and refuse
- * the second, which is the whole of what "granular" means — and it is the thing
- * a single sheet with two paragraphs and one control makes impossible, because
- * the person who would have said yes to one of them has been given no way to
- * say so.
+ * the second, which is the whole of what "granular" means. A single sheet with
+ * two paragraphs and one control makes it impossible, because the person who
+ * would have said yes to one of them has been given no way to say so.
  *
  * The second sheet opens after the first closes rather than on top of it. A
  * Sheet inside a Sheet is a composition error with its own development warning:
  * two stacked modal surfaces produce a focus order nobody can predict and an
  * escape key with two plausible meanings. In a real product the two would be
- * further apart than this — each asked at the moment it becomes relevant, which
- * is what makes the question answerable at all — and this example puts them on
- * one surface only because a documentation page has one surface.
+ * further apart than this. Each would be asked at the moment it becomes
+ * relevant, which is what makes the question answerable at all. This example
+ * puts them on one surface only because a documentation page has one surface.
  *
  * The second question also shows `consequenceOfDeclining`, which is stated
  * before the reader chooses rather than raised as a confirmation after they
@@ -40,9 +39,9 @@ const FIRST_SCOPE = {
 }
 
 const SECOND_SCOPE = {
-  collected: "Placeholder for what the second question collects — a different thing.",
-  sharedWith: "Placeholder for who can see it — a different recipient.",
-  retention: "Placeholder for how long it is kept — a different period.",
+  collected: "Placeholder for what the second question collects. This is a different thing.",
+  sharedWith: "Placeholder for who can see it. This is a different recipient.",
+  retention: "Placeholder for how long it is kept. This is a different period.",
 }
 
 export default function ConsentSheetTwoQuestionsTwoSheets() {
@@ -53,7 +52,7 @@ export default function ConsentSheetTwoQuestionsTwoSheets() {
     <div className="flex w-full flex-col items-center gap-opsin-4 p-opsin-4">
       <p className="m-0 max-w-sm text-center text-opsin-footnote text-muted-foreground">
         Two separate questions, asked one after the other. Answer them
-        differently — the point of asking twice is that the two answers do not
+        differently. The point of asking twice is that the two answers do not
         have to match.
       </p>
 
@@ -75,14 +74,14 @@ export default function ConsentSheetTwoQuestionsTwoSheets() {
         open={asking === "first"}
         onOpenChange={(nextOpen) => {
           /* A close without an answer is not an answer, so nothing is recorded
-             for it — and the second question is still asked, because refusing
+             for it. The second question is still asked, because refusing
              or ignoring the first has no bearing on whether the reader wants to
              be asked the second. */
           if (!nextOpen) setAsking("second")
         }}
         consentId="example-consent-first"
         textVersion="example-wording-0"
-        heading="Placeholder question one — is this the first example thing?"
+        heading="Placeholder question one. Is this the first example thing?"
         purpose="Placeholder for the first purpose. In a product this sentence says what the reader gets."
         scope={FIRST_SCOPE}
         withdrawalPath="Placeholder for where a reader changes this first decision later."
@@ -104,7 +103,7 @@ export default function ConsentSheetTwoQuestionsTwoSheets() {
         }}
         consentId="example-consent-second"
         textVersion="example-wording-0"
-        heading="Placeholder question two — is this the second example thing?"
+        heading="Placeholder question two. Is this the second example thing?"
         purpose="Placeholder for the second purpose, which is a different purpose and therefore a different question."
         scope={SECOND_SCOPE}
         withdrawalPath="Placeholder for where a reader changes this second decision later."

@@ -1,17 +1,17 @@
 "use client"
 
 /**
- * LogSheet — a Sheet with a capture contract: one entry, a time, an optional
+ * LogSheet is a Sheet with a capture contract: one entry, a time, an optional
  * note, one explicit save, and no way to leave typed input behind by accident.
  *
  * IT EXTENDS SHEET, AND THAT NOW MEANS SOMETHING (ADR 0021). `LogSheetProps`
  * extends `SheetProps`, so `open`, `onOpenChange`, `title`, `detents` and
  * `className` arrive from the base unchanged and are documented on the base's
  * page. They are not redeclared here and not renamed. Three of Sheet's props
- * are omitted rather than inherited — `footer`, because this component owns the
- * action area; `modal` and `dismissible`, because both of this component's
- * promises depend on their defaults and neither is a knob a capture surface
- * should offer. See the omission note above the interface.
+ * are omitted rather than inherited. They are `footer`, because this component
+ * owns the action area; `modal` and `dismissible`, because both of this
+ * component's promises depend on their defaults and neither is a knob a capture
+ * surface should offer. See the omission note above the interface.
  *
  * THE HOLE THIS FILE HAD TO FILL, and the decision it records.
  *
@@ -22,10 +22,11 @@
  *
  *   1. A registration context. Each control inside registers its key and its
  *      current value on a context this component provides. REJECTED: it needs
- *      every control to opt in, which means editing `Field` — a component this
- *      file does not own — and it silently collects nothing from any control a
- *      product wrote itself, which is most of them. A collector that returns an
- *      incomplete record and cannot tell it is incomplete is worse than none.
+ *      every control to opt in, which means editing `Field`, and this file
+ *      does not own `Field`. It also silently collects nothing from any
+ *      control a product wrote itself, which is most of them. A collector that
+ *      returns an incomplete record and cannot tell it is incomplete is worse
+ *      than none.
  *
  *   2. A `<form>` and `FormData`, keyed off each control's `name`. REJECTED,
  *      and the reason is the one rule in this batch that is not negotiable:
@@ -37,21 +38,21 @@
  *      record.
  *
  *   3. A controlled `values` prop. CHOSEN. The product already holds this state
- *      — every controlled input in `children` is reading and writing it — so
- *      asking for it is asking for something that already exists rather than
+ *      because every controlled input in `children` is reading and writing it.
+ *      So asking for it is asking for something that already exists rather than
  *      duplicating it. `children` stays genuinely opaque: this file never walks
  *      it, never inspects it, and never needs to. What it costs is honest and
  *      visible at the call site: the product writes the key beside each control.
  *
  * SO THE DIVISION IS: the product owns every field it rendered, and this
- * component owns exactly the two it renders itself — the time and the note —
- * plus the four facts about the record that only it is in a position to state.
- * It adds nothing to `values`, removes nothing from it, and coerces nothing in
- * it.
+ * component owns exactly the two it renders itself. Those two are the time and
+ * the note. It also owns the four facts about the record that only it is in a
+ * position to state. It adds nothing to `values`, removes nothing from it, and
+ * coerces nothing in it.
  *
  * WHAT IT REFUSES TO DO. It does not evaluate what is entered: no status
  * colour, no verdict, no comparison against anything. It does not block a save
- * for any reason. It does not close itself, on save or ever — `open` belongs to
+ * for any reason. It does not close itself, on save or ever. `open` belongs to
  * the product, and a sheet that closed itself on save would be deciding the
  * reader is finished. It mounts no live region. And it does not count the
  * fields: see the note on `children`.
@@ -77,7 +78,7 @@ import { Sheet, type SheetProps } from "@/registry/base-lyra/ui/sheet"
  * `Sheet`'s dismissal-route type is module-local to `sheet.tsx` on purpose: a
  * registry file's public surface is its props, its component and its demo. The
  * documented way to name it is through the signature it appears in, which is
- * what this does — and it means a route added to Sheet arrives here without an
+ * what this does. It also means a route added to Sheet arrives here without an
  * edit, instead of drifting out of step with a second copy.
  */
 type DismissRoute = Parameters<SheetProps["onOpenChange"]>[1]
@@ -102,13 +103,13 @@ function warnDevelopmentOnce(cause: string, message: string): void {
 
 /**
  * The category tint, written out because Tailwind reads class names as literal
- * strings — `bg-category-${category}` generates no CSS and the band renders
+ * strings. `bg-category-${category}` generates no CSS and the band renders
  * invisible, which is the failure that looks like nothing happening.
  *
  * The BARE category name is the ACCENT role, and the asymmetry between the axes
  * is worth restating because it catches people: the bare status name is the
  * LINE role. Accent is the identity fill, chosen for recognition rather than
- * for contrast, so it is never text and never the only boundary — and a band
+ * for contrast, so it is never text and never the only boundary. A band
  * that holds neither is exactly what it is for.
  *
  * No word accompanies it, deliberately. Category colour says what a reading is
@@ -147,7 +148,7 @@ function toDateTimeLocal(date: Date): string {
  *
  * `Object.is` per key rather than `===`, so `null` and `0` stay different
  * things and a stray `NaN` compares equal to itself. Shallow, because the shape
- * the interface declares is flat — a nested object under a key would compare by
+ * the interface declares is flat. A nested object under a key would compare by
  * identity, and this returns false where it cannot be sure, which is the safe
  * direction: the cost of a wrong `false` is one confirmation the reader did not
  * need, and the cost of a wrong `true` is their typing thrown away.
@@ -167,9 +168,9 @@ function sameEntries(
  * IT LIVES HERE AND NOT IN `lib/opsinjs.ts`, which is where the substrate's
  * shared vocabulary lives. `ReferenceRange` and `TrendPoint` are there because
  * several components speak them; `LogEntry` is produced by exactly one, so the
- * component file is its home — the same place `ResultSegment`, `CareAction` and
- * `ScoreBand` live. It is a named export: a product stores this, so it needs
- * the type.
+ * component file is its home. That is the same place `ResultSegment`,
+ * `CareAction` and `ScoreBand` live. It is a named export: a product stores
+ * this, so it needs the type.
  */
 export interface LogEntry {
   /**
@@ -201,7 +202,7 @@ export interface LogEntry {
    * which was the obvious implementation and is wrong: those two always differ
    * by however long the reader spent typing, so every entry would come back
    * marked. There is no tolerance window here because there does not need to be
-   * one — the reader either touched the control or did not.
+   * one. The reader either touched the control or did not.
    */
   backdated: boolean
   /**
@@ -223,17 +224,19 @@ export interface LogEntry {
  * `footer`, `modal` and `dismissible` are omitted from the base rather than
  * inherited, and each omission is a promise this component makes.
  *
- *   `footer` — the save action is this component's, not the caller's. It is
- *   what makes "there is no autosave and no implicit commit" checkable.
+ *   `footer` is omitted because the save action is this component's, not the
+ *   caller's. It is what makes "there is no autosave and no implicit commit"
+ *   checkable.
  *
- *   `modal` — the accessibility contract says the sheet IS a modal dialogue.
- *   `modal={false}` would leave the page behind focusable while a half-typed
- *   record sits on top of it, and neither this page nor Sheet's has an
- *   accessibility story for that.
+ *   `modal` is omitted because the accessibility contract says the sheet IS a
+ *   modal dialogue. `modal={false}` would leave the page behind focusable while
+ *   a half-typed record sits on top of it, and neither this page nor Sheet's
+ *   has an accessibility story for that.
  *
- *   `dismissible` — the confirmation below depends on the ambient close routes
- *   reaching this component. `dismissible={false}` makes Sheet cancel all three
- *   before they arrive, so the sheet would refuse to close and never say why.
+ *   `dismissible` is omitted because the confirmation below depends on the
+ *   ambient close routes reaching this component. `dismissible={false}` makes
+ *   Sheet cancel all three before they arrive, so the sheet would refuse to
+ *   close and never say why.
  */
 export interface LogSheetProps
   extends Omit<SheetProps, "children" | "footer" | "modal" | "dismissible"> {
@@ -244,7 +247,7 @@ export interface LogSheetProps
    * This is the channel that makes `onSave` possible at all: `children` is an
    * opaque element tree and no component can read structured data out of one.
    * The product already holds this state to render its own controlled inputs,
-   * so nothing here is duplicated — the key is simply written down beside the
+   * so nothing here is duplicated. The key is simply written down beside the
    * control instead of being inferred from it. `{}` is legitimate, for an entry
    * that is a note and a time and nothing else.
    *
@@ -259,7 +262,7 @@ export interface LogSheetProps
    * The entry controls, rendered in order at the top of the sheet.
    *
    * They stay opaque. This component never walks them, never counts them and
-   * never reads a value out of them — `values` is the channel for that.
+   * never reads a value out of them. `values` is the channel for that.
    *
    * There is no enforced ceiling, and the "about five" in the specification is
    * deliberately not implemented as a check. `React.Children` sees only direct
@@ -272,7 +275,7 @@ export interface LogSheetProps
   children: ReactNode
   /**
    * What the entry is about, tinting one band and nothing else. Omit it and the
-   * band is not rendered — there is no default category, because a capture
+   * band is not rendered. There is no default category, because a capture
    * sheet with the wrong identity colour is worse than one with none.
    *
    * The status axis is not available here at any price. Colouring a field while
@@ -283,9 +286,9 @@ export interface LogSheetProps
   category?: HealthCategory
   /**
    * The primary action's label, and it is required because there is no honest
-   * default. The content rule is that the action says what it saves — *Save
-   * reading*, *Save this dose* — and a component that shipped *Save* would let
-   * every product skip the rule without noticing it had one.
+   * default. The content rule is that the action says what it saves, as in
+   * *Save reading* or *Save this dose*. A component that shipped *Save* would
+   * let every product skip the rule without noticing it had one.
    */
   saveLabel: string
   /**
@@ -320,7 +323,7 @@ export interface LogSheetProps
    * commit on close, and no debounce.
    *
    * It does not close the sheet. `open` belongs to the product, which is the
-   * only party that knows whether the save reached anywhere — a queued entry, a
+   * only party that knows whether the save reached anywhere. A queued entry, a
    * rejected one and a stored one all arrive here identically, and a sheet that
    * closed itself would have decided the reader was finished on the strength of
    * a function call returning.
@@ -360,7 +363,7 @@ export function LogSheet({
   /* WHEN "NOW" IS READ, AND WHY THERE IS NO EFFECT DOING IT.
      The clock is read in two places, and both of them are places the server
      never reaches. The lazy initialiser below runs on the server too, but
-     everything derived from it is inside `Drawer.Portal` — floating-ui's portal
+     everything derived from it is inside `Drawer.Portal`. Floating-ui's portal
      holds its container in state and sets it in an effect, so its children
      render as nothing in the server's HTML and as nothing on the first client
      render. And the capture in the transition branch below runs only when
@@ -369,13 +372,13 @@ export function LogSheet({
      That matters because a `datetime-local` value is local wall-clock: a server
      in UTC and a reader in Lisbon disagree by an hour, and a value read during
      a render that reaches HTML is a hydration mismatch on every reader outside
-     the server's zone. It is also why this is not an effect — an effect that
+     the server's zone. It is also why this is not an effect. An effect that
      sets state is a cascading render the lint rule refuses, and the render-time
      adjustment is React's own answer for state derived from a prop. */
   const [openedAt, setOpenedAt] = useState<Date | null>(() =>
     open ? new Date() : null,
   )
-  /* `null` means the reader has not touched the time control — which is a
+  /* `null` means the reader has not touched the time control. That is a
      different fact from "the control holds the opening time", and it is the
      difference `backdated` is made of. */
   const [typedAt, setTypedAt] = useState<string | null>(null)
@@ -383,9 +386,10 @@ export function LogSheet({
   const [confirming, setConfirming] = useState(false)
   const [route, setRoute] = useState<DismissRoute>("other")
   /* WHAT "UNSAVED" IS MEASURED AGAINST. Set when the sheet opens, and set again
-     the moment `onSave` fires — because a sheet the product keeps open after a
-     save is one where the question "you have not saved this entry" would be a
-     false statement, and this component's copy is a claim like any other. */
+     the moment `onSave` fires. That matters because a sheet the product keeps
+     open after a save is one where the question "you have not saved this entry"
+     would be a false statement, and this component's copy is a claim like any
+     other. */
   const [baseline, setBaseline] = useState<{
     values: Record<string, number | string | null>
     typedAt: string | null
@@ -395,8 +399,8 @@ export function LogSheet({
 
   /* Reset on the render that notices the sheet has opened, rather than in an
      effect. An effect would commit the sheet holding the previous entry's note
-     and time, paint it, and then correct it — one frame of somebody else's
-     record on the way in.
+     and time, paint it, and then correct it. That is one frame of somebody
+     else's record on the way in.
 
      Every reopen is a fresh entry. A log sheet that remembered what was typed
      last time is how a log fills with numbers nobody measured. */
@@ -418,7 +422,7 @@ export function LogSheet({
      from `occurredAt !== recordedAt` was the obvious implementation and is
      wrong: those two always differ by however long the entry took to type, so
      every record would come back marked and the flag would mean nothing. There
-     is no tolerance window here because none is needed — either the reader
+     is no tolerance window here because none is needed. The reader either
      moved the control away from the time it opened at, or they did not. */
   const timeEdited = typedAt !== null && typedAt !== openedValue
 
@@ -434,7 +438,7 @@ export function LogSheet({
 
   /* The category, checked rather than trusted. This file ships as source into
      JavaScript projects where a type is advice, and a seventh category is a
-     seventh colour ramp that does not exist — so an unrecognised one is
+     seventh colour ramp that does not exist. So an unrecognised one is
      reported and the band is left out rather than tinted from a ramp picked at
      random. */
   let tint: HealthCategory | undefined
@@ -492,11 +496,12 @@ export function LogSheet({
 
   /* DISMISSAL, AND THE ONE THING THIS COMPONENT WILL NOT LET HAPPEN.
      Sheet reports which route a close arrived by precisely so that a surface
-     holding unsaved input can ask first — by the same route as a background
-     tap, which is the wording its page uses. Every route asks, including the
-     close control in the header: the specification says Cancel "never discards
-     without asking", and a reader who taps the scrim by accident and one who
-     reaches for Close deliberately both lose the same typing.
+     holding unsaved input can ask first. It asks by the same route as a
+     background tap, which is the wording its page uses. Every route asks,
+     including the close control in the header: the specification says Cancel
+     "never discards without asking", and a reader who taps the scrim by
+     accident and one who reaches for Close deliberately both lose the same
+     typing.
 
      The question is asked IN PLACE, in the footer, rather than in a second
      modal surface. A Dialog opening from a Sheet is a composition error by
@@ -528,7 +533,7 @@ export function LogSheet({
 
   /* EVERY CONTROL BELOW SITS IN A WRAPPER THAT CARRIES THE SLOT, and that is
      not decoration. `Button` stamps `data-slot="button"` AFTER spreading the
-     props it was given, so a slot passed to it is silently dropped — and the
+     props it was given, so a slot passed to it is silently dropped. The
      parts named in this component's anatomy have to exist in the DOM or the
      anatomy is a description of something else. The alternative was hand-rolled
      controls, which teaches, in shipped source, that the primary action at the
@@ -553,7 +558,7 @@ export function LogSheet({
             Not measured in a browser. `autoFocus` inside a portal that is
             itself taking focus is the kind of thing that works until it does
             not, and the claim is argued from React's own behaviour rather than
-            observed — the page says so. */}
+            observed. The page says so. */}
         <div data-slot="log-sheet-keep">
           <Button variant="primary" autoFocus onClick={() => setConfirming(false)}>
             Keep editing
@@ -583,9 +588,9 @@ export function LogSheet({
           onSave(buildEntry())
           /* The record is now the product's, so nothing on this sheet is
              unsaved any more. A product that closes the sheet here never sees
-             the difference; one that keeps it open — to retry, or to log a
-             second entry — would otherwise be told, untruthfully, that it holds
-             input nobody has saved. */
+             the difference. One that keeps it open would otherwise be told,
+             untruthfully, that it holds input nobody has saved. It might keep
+             the sheet open to retry, or to log a second entry. */
           setBaseline({ values, typedAt, note })
         }}
       >
@@ -631,7 +636,7 @@ export function LogSheet({
 
           {/* THE WRAPPER CARRIES THE SLOT, not the Field. `Field` maps props
               to markup and forwards nothing it was not asked for, so a slot
-              handed to it never reaches the DOM — and a part named in the
+              handed to it never reaches the DOM. A part named in the
               anatomy that does not exist in the DOM is a description of a
               different component. */}
           <div data-slot="log-sheet-time">
@@ -640,7 +645,7 @@ export function LogSheet({
               /* Through `Field`'s own hint rather than beside it. Base UI's
                  field context registers the description's id on the control and
                  removes it again when the field unmounts, which is the wiring
-                 this component exists not to hand-roll — an `aria-describedby`
+                 this component exists not to hand-roll. An `aria-describedby`
                  written here would be merged with, or replaced by, the one that
                  context maintains. */
               hint={
@@ -692,10 +697,10 @@ export function LogSheet({
  *
  * `/view` renders this with no props and `shadcn add` ships it, so it is public,
  * reviewed code rather than a scratch demo. It shows the shape a product reaches
- * for first — one field, a time, a note, one save — and it shows the two things
- * that are easiest to get wrong: the field's key is written beside the control
- * rather than inferred from it, and an emptied control goes back to `null`
- * instead of to an empty string.
+ * for first, which is one field, a time, a note and one save. It also shows the
+ * two things that are easiest to get wrong: the field's key is written beside
+ * the control rather than inferred from it, and an emptied control goes back to
+ * `null` instead of to an empty string.
  *
  * The measurement is deliberately fictional (ADR 0012) and carries no unit and
  * no range. A screenshot of an opsinjs demo must never be mistakable for
@@ -742,9 +747,9 @@ export default function LogSheetDemo() {
         onSave={(entry) => {
           setSaved(entry)
           /* Closing the sheet and clearing the fields are both the product's
-             to do. LogSheet resets the two things it renders — the time and the
-             note — on every open, and it has no way to reach into state it does
-             not own. */
+             to do. LogSheet resets the two things it renders on every open.
+             Those two are the time and the note, and it has no way to reach
+             into state it does not own. */
           setValues({ "example-measurement": null })
           setOpen(false)
         }}

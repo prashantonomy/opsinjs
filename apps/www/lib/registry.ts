@@ -7,7 +7,7 @@
  * other lookup fails with an explanation that names the component, its
  * catalogue status and where to read about it, so `<ComponentPreview>` can
  * render an honest empty state instead of a blank frame or a thrown error. The
- * count is not hardcoded here — `REGISTRY_INDEX` and `registryMeta()` are the
+ * count is not hardcoded here. `REGISTRY_INDEX` and `registryMeta()` are the
  * only places that know it, so this comment cannot go stale as the number moves.
  *
  * Relative `.ts` imports and erasable syntax only: the scripts import this.
@@ -65,7 +65,7 @@ function canonicalise(query: RegistryQuery): Required<RegistryQuery> {
  * Falls back to the default style before giving up, because a style is a
  * stylesheet: a component that exists at `base-lyra` exists at every style, and
  * a missing style variant should degrade to the default rather than to nothing.
- * It does NOT fall back across bases — a base is a different implementation,
+ * It does NOT fall back across bases. A base is a different implementation,
  * and silently rendering a different one would be a lie about what was asked
  * for.
  */
@@ -90,7 +90,9 @@ export function getRegistryEntry(
 /** Why a lookup came back empty. The input to `<NotBuiltYet>`. */
 export interface UnresolvedReason {
   name: string
-  /** `unknown` means the id is not in the catalogue at all — a real 404. */
+  /**
+   * `unknown` means the id is not in the catalogue at all. It is a real 404.
+   */
   reason: "not-built" | "considered" | "unknown"
   status: Status | null
   message: string
@@ -102,8 +104,8 @@ export interface UnresolvedReason {
  * Three distinct answers, and the distinction is the point. "Planned, not
  * built" is a specification an agent may read and must not generate against.
  * "Considered" is a decision with an alternative named. "Unknown" is the only
- * one that is genuinely a mistake — and separating the three is what stops an
- * agent treating a deliberate absence as a gap it should fill.
+ * one that is genuinely a mistake. Separating the three is what stops an agent
+ * treating a deliberate absence as a gap it should fill.
  */
 export function explainUnresolved(name: string): UnresolvedReason {
   const entry = getEntry(name)
@@ -133,9 +135,9 @@ export function explainUnresolved(name: string): UnresolvedReason {
 }
 
 /**
- * True only when there is a real renderable behind this name — a base component
- * on disk, not a catalogue row. A `considered` id and a specified-but-unbuilt id
- * both answer false, and so does a built id asked for at a base that does not
+ * True only when a base component for this name is on disk, which a catalogue
+ * row alone is not. A `considered` id and a specified-but-unbuilt id both
+ * answer false, and so does a built id asked for at a base that does not
  * carry it.
  */
 export function isBuilt(
@@ -168,10 +170,10 @@ export function listByKind(kind: RegistryKind): RegistryEntry[] {
 /**
  * How many distinct components have a real renderable behind them.
  *
- * For prose that states the number — the landing page and the 404 both do, and
- * a page that names a count is a page that can be caught being wrong. Deriving
- * it means the sentence cannot outlive the fact: delete a base file and the
- * claim moves with it, in the same build.
+ * This is for prose that states the number. The landing page and the 404 both
+ * do, and a page that names a count is a page that can be caught being wrong.
+ * Deriving it means the sentence cannot outlive the fact: delete a base file
+ * and the claim moves with it, in the same build.
  *
  * DISTINCT NAMES, not `registryMeta().count`. That field counts index ENTRIES,
  * which is files × bases × styles, so it would report a doubled roster the day a
@@ -185,7 +187,7 @@ export function builtComponentCount(): number {
 /**
  * Provenance for the registry surfaces: when it was generated and from what.
  * `generatedAt: null` means the placeholder is still in place and `pnpm run
- * generate` has not run — which the registry pages say out loud rather than
+ * generate` has not run. The registry pages say that out loud rather than
  * rendering an empty table.
  */
 export function registryMeta(): {

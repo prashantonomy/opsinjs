@@ -2,7 +2,7 @@
  * The refusal, which is the most important thing this component does.
  *
  * A product that has a number but no agreed bands for it is the common case,
- * not the edge one — the arithmetic usually lands long before anybody has
+ * not the edge one. The arithmetic usually lands long before anybody has
  * decided what the answer means. The dial handed no bands draws the scale,
  * places the number on it, and says in words that it has no band for it. It
  * does not reach for a nearby band set, a population average, or thirds of the

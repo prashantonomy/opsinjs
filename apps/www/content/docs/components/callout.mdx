@@ -1,6 +1,6 @@
 ---
 title: Callout
-description: A short piece of set-apart information — a note, a tip, a caveat — that helps you understand what you are reading without claiming anything about your health.
+description: A short piece of set-apart information that helps you understand what you are reading without claiming anything about your health. It is a note, a tip or a caveat.
 status: alpha
 kind: component
 since: "unreleased"
@@ -16,7 +16,7 @@ usedIn: [choose-a-component, onboarding-screen]
   status="alpha"
   issue="opsinjs/opsinjs#0"
   questions={[
-    "The boundary is enforced inside this repository and argued outside it. `check:a11y` fails the build if this component's own source paints a colour from either axis — that is verified — but `className` reaches the root, and a product that passes an axis utility through it gets a development warning and a correctly-rendered callout in the wrong clothes. What does real enforcement look like on the consumer's side?",
+    "The boundary is enforced inside this repository and argued outside it. `check:a11y` fails the build if this component's own source paints a colour from either axis, and that is verified. The hole is `className`, which reaches the root, and a product that passes an axis utility through it gets a development warning and a correctly-rendered callout in the wrong clothes. What does real enforcement look like on the consumer's side?",
     "All three variants share one treatment and differ only by glyph, because the product theme has no non-axis accent to tint with. Is a glyph enough to justify a `variant` prop at all, and does a fourth member start the slide back towards a status vocabulary?",
     "Nothing here is dismissible, so the 44pt dismiss-control requirement in the specification is unmet by absence rather than satisfied. If a callout ever is dismissible, the control needs a name, a target floor and a memory that outlives the render, and none of the three is designed.",
     "How many callouts may a surface carry before the set-apart treatment stops setting anything apart? The rule is one, nothing counts them, and a component cannot see its neighbours.",
@@ -38,7 +38,7 @@ well-specified quiet option is most of the defence.
 Three variants, one treatment. The glyph is the only thing `variant` changes: all three
 resolve the same fill, the same ink and the same boundary, so greyscale, a photocopier and
 a colour vision deficiency each take away nothing, because colour was never what told them
-apart. That is read off the source rather than demonstrated here — the preview's switches
+apart. That is read off the source rather than demonstrated here. The preview's switches
 are Theme, Density, Text and Status, and there is no greyscale or colour-vision filter
 among them. [Colour blindness](../foundations/colour/colour-blindness.mdx) has the
 simulator; this component is the case where it has nothing to show.
@@ -72,7 +72,7 @@ import { Callout } from "@/components/ui/callout"
   use={[
     "Setting apart a note, a tip or a caveat that helps the reader understand the content around it.",
     "General health information that is true for everybody and is not about this reader's data.",
-    "Explaining a limitation of what is on screen — how a figure was worked out, what it does not include, where the data came from.",
+    "Explaining a limitation of what is on screen, such as how a figure was worked out, what it does not include, where the data came from.",
   ]}
   avoid={[
     { case: "The message is about this reader's data and carries a level of attention.", instead: "status-pill" },
@@ -154,11 +154,11 @@ The parts are `data-slot` attributes, not exports. There is no `Callout.Body` to
 way to render one without the root, which is what makes "there is no actions slot" a fact about
 the DOM rather than a request in prose. Style them from outside; you cannot take them apart.
 
-**There is no `data-variant`.** The data-attribute vocabulary is closed at four — `data-slot`,
-`data-status`, `data-opsinjs-value`, `data-category` — and spending a fifth on a distinction
-whose loss this page describes as losing nothing would be the wrong trade. The three variants
-have one treatment between them, so there is nothing a variant selector would let you style
-that a class on the callout does not.
+**There is no `data-variant`.** The data-attribute vocabulary is closed at four, and the four
+are `data-slot`, `data-status`, `data-opsinjs-value` and `data-category`. Spending a fifth on
+a distinction whose loss this page describes as losing nothing would be the wrong trade. The
+three variants have one treatment between them, so there is nothing a variant selector would
+let you style that a class on the callout does not.
 
 **There is no actions slot.** A callout that needs a button is asking the reader to do
 something, and an instruction with somebody behind it and a time attached is a
@@ -187,7 +187,7 @@ measured yet, which is why this is something to look at rather than a claim to r
 ## Content guidelines
 
 Keep it to a short paragraph. A callout longer than the content it annotates has become the
-content. Write in the same voice as the surrounding text — the box is the emphasis, so the
+content. Write in the same voice as the surrounding text. The box is the emphasis, so the
 words do not need to be.
 
 Do not use a callout to hedge. *This may not be accurate* attached to a number the product
@@ -203,7 +203,7 @@ read: for a screen-reader user, a caveat and a note are the same two paragraphs.
 does not include days when you did not wear the device* is a caveat in its own words and needs
 no lightbulb or asterisk to say so. If a callout only becomes a tip because of the icon in its
 gutter, it is a tip for sighted readers alone. The component cannot check this and does not
-try — it is a rule for the copy, which is why it is here rather than in the API.
+try. It is a rule for the copy, which is why it is here rather than in the API.
 
 <DoDont>
   <DoDont.Do>
@@ -212,7 +212,8 @@ try — it is a rule for the copy, which is why it is here rather than in the AP
   </DoDont.Do>
   <DoDont.Dont>
     **"⚠️ Important: your data may be incomplete."** Warning styling for a non-clinical fact,
-    no specifics, and nothing the reader can do — the exact ingredients of alarm fatigue.
+    no specifics, and nothing the reader can do. Those are the exact ingredients of alarm
+    fatigue.
   </DoDont.Dont>
 </DoDont>
 
@@ -231,14 +232,14 @@ words, because a documentation page has no patient and the vocabulary is worth r
 front of the people who will implement it. The product component deliberately does not. If that
 reads as inconsistent, it is: it is the one place the docs chrome and the product theme are
 allowed to disagree, and [Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx)
-explains why. It is also a naming collision worth knowing about — the `<Callout>` tag in these
+explains why. It is also a naming collision worth knowing about. The `<Callout>` tag in these
 pages and the `Callout` component you install are different things that share a word.
 
 ## Accessibility
 
 Some of this is checked by a gate, including one gate that is doing more for this component
 than it does for most. The rest is argued, and the things nobody has measured are listed rather
-than left out — that separation is what `alpha` promises.
+than left out. That separation is what `alpha` promises.
 
 **Checked, by `pnpm run check:a11y` on every pull request and on every push to `main`:**
 `check:a11y` runs inside `pnpm check` and as its own step in `.github/workflows/ci.yml`. There
@@ -247,21 +248,22 @@ is no commit hook in this repository, so nothing checks a commit that is never p
 - **This component's source cannot paint a colour from either axis.** A status utility or a
   status custom property anywhere in `callout.tsx` makes the file a status surface owing a
   status word, a status glyph and a `data-status`, and it has none of those three carriers, so
-  the run fails with two A11Y001 errors. (It does render three glyphs — `Info`, `Lightbulb`,
-  `Asterisk` — and none of them belongs to the status axis, which is the distinction one of
-  those two error messages currently blurs.) That is the closest thing to mechanical
-  enforcement the refusal at the top of this page has, and it was verified by putting a status
-  fill into the file and watching the build stop. It does not reach `className`; see the last
-  section below.
+  the run fails with two A11Y001 errors. (It does render three glyphs. They are `Info`,
+  `Lightbulb` and `Asterisk`, and none of them belongs to the status axis, which is the
+  distinction one of those two error messages currently blurs.) That is the closest thing to
+  mechanical enforcement the refusal at the top of this page has, and it was verified by
+  putting a status fill into the file and watching the build stop. It does not reach
+  `className`; see the last section below.
 - **Restating a status word here costs something.** A11Y002 fails the build on any registry
-  file that contains one of the four status words — or *Not known*, which is the absence word
-  and not a fifth level — as a whole string literal, or as the first text run inside a JSX
-  element, in the exact casing `CLINICAL_STATUS_META` publishes. The rule is not airtight and
-  `check-a11y.mts` says so in its own header: a shouted `URGENT` is not the published casing, a
-  word mid-sentence is not whole text, and a word placed after a sibling element — which is
-  exactly how an icon-then-word pill is written — is invisible to the JSX scan. Its own
-  conclusion is that the rule "raises the cost of restating a status word without making it
-  impossible", and this page will not claim more for it than it claims for itself.
+  file that contains one of the four status words as a whole string literal, or as the first
+  text run inside a JSX element, in the exact casing `CLINICAL_STATUS_META` publishes. A11Y002
+  covers the absence word *Not known* as well, and that word is not a fifth level. The rule is
+  not airtight and `check-a11y.mts` says so in its own header: a shouted `URGENT` is not the
+  published casing, a word mid-sentence is not whole text, and a word placed after a sibling
+  element is invisible to the JSX scan. That last one is exactly how an icon-then-word pill is
+  written. Its own conclusion is that the rule "raises the cost of restating a status word
+  without making it impossible", and this page will not claim more for it than it claims for
+  itself.
 - **Every colour is a role token.** No hex literal, no `oklch()` call, no Tailwind palette
   colour and no numbered ramp step, so nothing here holds a value that dark mode will not
   follow.
@@ -280,10 +282,10 @@ is no commit hook in this repository, so nothing checks a commit that is never p
   the cost is the first item in the next section rather than left off the page.
 - **The variant survives greyscale, because it never depended on colour.** All three variants
   resolve the same fill, ink and boundary, so there is no hue for greyscale or a colour vision
-  deficiency to remove. What is left is the glyph — and the glyph is `aria-hidden`, so it
-  reaches nobody who is not looking at it. Every callout this component ships names its variant
-  in its own words for that reason, and [Content guidelines](#content-guidelines) makes it a
-  rule for callers; but it is a rule about copy, and the component neither checks it nor can.
+  deficiency to remove. What is left is the glyph. The glyph is `aria-hidden`, so it reaches
+  nobody who is not looking at it. Every callout this component ships names its variant in its
+  own words for that reason, and [Content guidelines](#content-guidelines) makes it a rule for
+  callers; but it is a rule about copy, and the component neither checks it nor can.
   A caller who writes a caveat whose words never say what is being qualified has a caveat that
   reads as a note to a screen-reader user, and nothing in this repository will catch it.
 - **The title is not a heading.** It renders as styled text rather than as an `h1`-`h6`, so it
@@ -292,23 +294,23 @@ is no commit hook in this repository, so nothing checks a commit that is never p
 - **At 200% text the callout should grow with its content.** No fixed height, no `truncate`, no
   overflow container; the glyph is sized in `em`, the type steps are `rem`, and the padding is a
   multiple of `--spacing`. One thing that argument used to miss: `grid-cols-[auto_1fr]` gives
-  the text track a floor of its own min-content width, so a single unbreakable token — a long
-  word, a bare URL — could widen the grid past a phone viewport and put horizontal scroll on
-  the document, which is the [reflow](../accessibility/text-resizing-and-zoom.mdx) failure and
-  not a truncation one. The source now sets `min-w-0` on both cells in that column and
+  the text track a floor of its own min-content width, so a single unbreakable token such as a
+  long word or a bare URL could widen the grid past a phone viewport and put horizontal scroll
+  on the document, which is the [reflow](../accessibility/text-resizing-and-zoom.mdx) failure
+  and not a truncation one. The source now sets `min-w-0` on both cells in that column and
   `wrap-break-word` on the body. All of this is still read off the source: the preview above
   does render this component and its **Text** switch does go to 200%, so the measurement can
-  now be taken on this page — it has not been, in either theme, and the phone-width half of it
-  belongs to the nightly layout job rather than to a person scrolling this page.
+  now be taken on this page. It has not been taken, in either theme, and the phone-width half
+  of it belongs to the nightly layout job rather than to a person scrolling this page.
 - **It is not focusable and adds no tab stop.** There is nothing to operate, so there is
-  nothing in the tab order — which also means the dismiss-control requirement in the
+  nothing in the tab order. That also means the dismiss-control requirement in the
   specification is unmet by absence rather than satisfied.
-- **Print drops the fill and keeps an outline — in the light theme.** A browser drops
+- **In the light theme, print drops the fill and keeps an outline.** A browser drops
   background colours when it prints, so the boundary is the whole of the treatment on paper,
   and it steps up from the hairline to the ink role for exactly that reason. The rules are
   declared and readable in the source; no printed page has been looked at. In the dark theme
   the same rules produce a near-white border, near-white body text and a near-white glyph on
-  white paper — see the last section below, because that one is not an argument in this
+  white paper. The last section below covers that case, because it is not an argument in this
   component's favour.
 
 **Not checked at all, and listed rather than omitted:**
@@ -317,7 +319,7 @@ is no commit hook in this repository, so nothing checks a commit that is never p
   `div` with no role, no `aria-label` and no `aria-labelledby`; the glyph is hidden; the title
   is a `p` that nothing points at. Read continuously, a callout is two paragraphs of prose with
   no start, no end, no name, and no indication that the styled line is a title for the sentence
-  after it — the fill, the hairline, the corner and the gutter glyph are presentation with no
+  after it. The fill, the hairline, the corner and the gutter glyph are presentation with no
   equivalent anywhere in the tree. That is the cost of "ordinary content in the reading order",
   and it is listed as a cost rather than folded into the benefit. `role="note"`, or
   `role="group"` with `aria-labelledby`, would supply the boundary; neither has been listened to
@@ -334,13 +336,13 @@ is no commit hook in this repository, so nothing checks a commit that is never p
   `lib/generated/contrast.json`, so `<ContrastReport>` below is empty and no number on this page
   or in the component's source is a measurement of this component. The nearest thing that is
   measured is the neutral hairline against the neutral page, which is advisory-failing in both
-  themes — a different pair from the one this component paints, and in the dark theme
+  themes. That is a different pair from the one this component paints, and in the dark theme
   `--border` is a translucent white over whatever is behind it, which "nearest measured
   neighbour" does not stretch to cover. It is the reason the boundary is never the only thing
   setting a callout apart on screen, and it is not a figure.
 - **Print in the dark theme.** `print:border-foreground` is near-black in the light theme and
-  near-white in the dark one, and `app/product.css` — the stylesheet a component renders under
-  at `/view`, and the layer nearest a consumer — has no `@media print` block to force ink to
+  near-white in the dark one. `app/product.css` is the stylesheet a component renders under at
+  `/view` and the layer nearest a consumer, and it has no `@media print` block to force ink to
   black. So a dark-theme reader who prints gets a near-white boundary, near-white body text and
   a near-white glyph on white paper. The repair is a print block in the theme layer and belongs
   to every component rather than to this one; a component could only do it here with a raw
@@ -366,7 +368,7 @@ is no commit hook in this repository, so nothing checks a commit that is never p
     {
       keys: "Escape",
       action: "Does nothing",
-      notes: "There is no dismiss control, so there is nothing for Escape to close. If one is ever added it owes Escape a behaviour, an accessible name that says what it dismisses, and a 44pt target — see Target size and motor.",
+      notes: "There is no dismiss control, so there is nothing for Escape to close. If one is ever added it owes Escape a behaviour, an accessible name that says what it dismisses, and a 44pt target. See Target size and motor.",
     },
   ]}
 />
@@ -378,9 +380,9 @@ is no commit hook in this repository, so nothing checks a commit that is never p
 <PropsTable name="CalloutProps" />
 
 The variant union is declared in the component file and is not exported. A registry file ships
-exactly three public symbols — the props interface, the component and its zero-prop demo — so a
-wrapper that needs to name the three values writes `CalloutProps["variant"]` rather than
-importing a fourth.
+exactly three public symbols, and they are the props interface, the component and its zero-prop
+demo. A wrapper that needs to name the three values therefore writes `CalloutProps["variant"]`
+rather than importing a fourth.
 
 What is not in the table is the more useful half of the API: no `status`, no `severity`, no
 `color`, no `variant: "warning"`, no `action`, no `dismissible`, and no way to supply a fill.
@@ -388,14 +390,15 @@ Each of those is a request this component exists to refuse, and the reasoning fo
 them is on this page rather than in a changelog.
 
 `className` is the exception, and it is documented as an exception. It is merged onto the root
-last, so a caller's classes win wherever they collide with the callout's own — which is exactly
-how an axis fill would get in, and is why a colour from either axis passed through it raises a
-development warning naming the component to use instead. That is a report, not a gate: it prints
-in development only, and it renders the callout anyway, because taking a paragraph off the screen
-over a styling mistake would be the larger error. It does not go through `warnOnce`, so it prints
-on every render that carries the offending class — `warnOnce` is keyed on an `OPSIN-` code and
-`tokens/errors.json` has no entry for a component outside both axes being handed a colour from
-one of them. A component may not mint a code, so the noise stands until an entry does.
+last, so a caller's classes win wherever they collide with the callout's own. That collision is
+exactly how an axis fill would get in, and it is why a colour from either axis passed through
+it raises a development warning naming the component to use instead. That is a report, not a
+gate: it prints in development only, and it renders the callout anyway, because taking a
+paragraph off the screen over a styling mistake would be the larger error. It does not go
+through `warnOnce`, so it prints on every render that carries the offending class. `warnOnce`
+is keyed on an `OPSIN-` code and `tokens/errors.json` has no entry for a component outside both
+axes being handed a colour from one of them. A component may not mint a code, so the noise
+stands until an entry does.
 
 ## Related
 
@@ -403,13 +406,14 @@ one of them. A component may not mint a code, so the noise stands until an entry
 
 **Easily confused with**
 
-- [AlertBanner](./alert-banner.mdx) — the clinical, interruptive counterpart. Choosing
+- [AlertBanner](./alert-banner.mdx) is the clinical, interruptive counterpart. Choosing
   correctly between these two is the single most valuable decision on a health screen.
-- [StatusPill](./status-pill.mdx) — where a clinical level is stated directly, as a word, a
+- [StatusPill](./status-pill.mdx) is where a clinical level is stated directly, as a word, a
   glyph and a colour together. A Callout is the same shape on screen and the opposite claim.
-- [CareCard](./care-card.mdx) — when there is something to do and somebody asking.
-- [DisclaimerNote](./disclaimer-note.mdx) — the standing statement about the product itself.
-- [Term](./term.mdx) — for a single word rather than a passage.
+- [CareCard](./care-card.mdx) is the component to use when there is something to do and
+  somebody asking.
+- [DisclaimerNote](./disclaimer-note.mdx) is the standing statement about the product itself.
+- [Term](./term.mdx) is for a single word rather than a passage.
 
 **Used by**
 
@@ -418,7 +422,7 @@ one of them. A component may not mint a code, so the noise stands until an entry
 
 **Governed by**
 
-- [The two colour axes](../health/two-colour-axes.mdx) — the argument for why this component
+- [The two colour axes](../health/two-colour-axes.mdx) has the argument for why this component
   stays outside the status axis.
 - [Alarm fatigue](../health/alarm-fatigue.mdx)
 - [Voice and tone](../content/voice-and-tone.mdx)

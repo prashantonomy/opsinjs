@@ -13,8 +13,8 @@ a11yDate: 2026-09-02
 
 Almost every design system sizes type with a t-shirt scale: `xs`, `sm`, `base`,
 `lg`, `xl`, and upwards. It is easy to learn and it has one fatal property for a
-health product — it names the *size*, so a component that wants "the size a
-footnote should be" has to hard-code the answer.
+health product. The scale names the *size*, so a component that wants "the size
+a footnote should be" has to hard-code the answer.
 
 The moment the reader changes their text size, that answer stops being right.
 Real text scaling is not a uniform multiplication: small text needs to grow
@@ -105,14 +105,14 @@ decided what it is about.
 </DoDont>
 
 **Do not add a step.** If a size is missing, the usual cause is that a role is
-being used for the wrong job. A genuine gap is a token proposal — see
-[Contributing tokens](../../handbook/contributing/contributing-tokens.mdx) — not
-a local override, because a local size does not participate in Dynamic Type.
+being used for the wrong job. A genuine gap is a token proposal rather than a
+local override, because a local size does not participate in Dynamic Type. See
+[Contributing tokens](../../handbook/contributing/contributing-tokens.mdx).
 
 **Two weights, three at the outside.** Regular for reading, a medium or semibold
 for emphasis, and a heavier weight reserved for value roles. Systems with five
 weights use them to imply importance, and implied importance on a health screen
-competes with [clinical status](../../health/clinical-status-semantics.mdx) — see
+competes with [clinical status](../../health/clinical-status-semantics.mdx). See
 rule 3 on [Typography](index.mdx).
 
 **Do not set the same content in two roles at two breakpoints.** The role is
@@ -138,7 +138,7 @@ it.
   turns their text size up.
 - **`caption` is the floor and it is a real floor.** Nothing in the system is
   smaller, and `caption` is still measured for contrast at its own size and
-  weight, because APCA — unlike a plain WCAG ratio — is sensitive to both.
+  weight, because APCA is sensitive to both and a plain WCAG ratio is not.
 - **Tabular figures materially help low-numeracy and dyslexic readers**, who are
   a large proportion of any consumer health audience. Alignment is not
   decoration; it is what lets somebody compare two numbers without counting
@@ -152,8 +152,8 @@ it.
 
 ## Related
 
-- [Dynamic Type](dynamic-type.mdx) — what these roles do as the reader's
-  multiplier changes, and the 1.3× bar every component must clear.
-- [Numbers, units and precision](../../health/numbers-units-precision.mdx) — the
-  canonical rules for what a number should say; this page only sets it.
-- [Typography tokens](tokens.mdx) — the generated values behind every role.
+- [Dynamic Type](dynamic-type.mdx) says what these roles do as the reader's
+  multiplier changes, and covers the 1.3× bar every component must clear.
+- [Numbers, units and precision](../../health/numbers-units-precision.mdx) has
+  the canonical rules for what a number should say; this page only sets it.
+- [Typography tokens](tokens.mdx) has the generated values behind every role.

@@ -1,8 +1,8 @@
 # opsinjs
 
-A React design system for consumer- and patient-facing health apps — the kind of
-screen where somebody who is not a clinician reads their own blood pressure, HbA1c
-or symptom log and has to decide what, if anything, to do next.
+opsinjs is a React design system for consumer- and patient-facing health apps. It is
+for the kind of screen where somebody who is not a clinician reads their own blood
+pressure, HbA1c or symptom log and has to decide what, if anything, to do next.
 
 This repository contains **the documentation site and the component layer**.
 Twenty-four components are implemented under `apps/www/registry/bases/base/` and are
@@ -12,11 +12,11 @@ raw URL.
 
 The other thirty-six ids in `apps/www/registry/catalogue.ts` are `considered`: reserved
 names with no code and no specification behind them. Each still answers at a page in
-`apps/www/content/docs/components`, generated from the catalogue row — what the name
-refers to, why it is not on the roster, and which built component to use instead. The
-page says all of that out loud, in machine-readable form, so that an agent asking "does
-opsinjs have a Toast?" gets a definitive *considered, not implemented, use this
-instead* rather than a 404 it will answer by inventing an API.
+`apps/www/content/docs/components` that is generated from the catalogue row and gives
+what the name refers to, why it is not on the roster, and which built component to use
+instead. The page says all of that out loud, in machine-readable form, so that an agent
+asking "does opsinjs have a Toast?" gets a definitive *considered, not implemented, use
+this instead* rather than a 404 it will answer by inventing an API.
 
 ## What is actually real today
 
@@ -45,7 +45,7 @@ Node 24 or newer is required: the build scripts are `.mts` files executed direct
 
 ```
 apps/www          the documentation site (Next.js 16 App Router + fumadocs)
-packages/*        reserved and empty — nothing is published to npm today, and
+packages/*        reserved and empty. Nothing is published to npm today, and
                   components never will be (ADR 0002: distribution is copy-in)
 skills/opsinjs    the Agent Skill: rules an assistant must follow to use opsinjs
 .rawres           the research that produced the architecture decisions
@@ -63,10 +63,10 @@ skills/opsinjs    the Agent Skill: rules an assistant must follow to use opsinjs
 
 ## Licences
 
-Code is MIT (`LICENSE`). The documentation prose — including the health, accessibility
-and content guidance — is CC BY 4.0 (`LICENSE-DOCS`), deliberately separated so that a
-team can quote it inside a clinical-safety case or a regulatory file with a clear
-attribution path.
+Code is MIT (`LICENSE`). The documentation prose is CC BY 4.0 (`LICENSE-DOCS`), and the
+health, accessibility and content guidance are part of that prose. The separation is
+deliberate, so that a team can quote the documentation inside a clinical-safety case or
+a regulatory file with a clear attribution path.
 
 ## Safety
 

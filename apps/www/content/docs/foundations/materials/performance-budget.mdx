@@ -53,8 +53,8 @@ otherwise not do:
 
 And then the important part: **all three repeat on any frame in which the
 backdrop changes.** For a sticky bar with content scrolling under it, that is
-every frame of every scroll — the single most common interaction in a list-based
-health app, and the one where a dropped frame is most visible.
+every frame of every scroll. Scrolling is the single most common interaction in
+a list-based health app, and the one where a dropped frame is most visible.
 
 ### Why the number is three
 
@@ -69,7 +69,7 @@ health app, and the one where a dropped frame is most visible.
 The step from 3 to 4 is almost always caused by one of two mistakes: giving a
 *repeating* element a translucent rung, or nesting one translucent rung inside
 another. Both are already banned by
-[Choosing a layer](./choosing-a-layer.mdx) rule N1 — the budget is what happens
+[Choosing a layer](./choosing-a-layer.mdx) rule N1. The budget is what happens
 when the rule is broken, not a second rule.
 
 Note that a full-screen `sheet` counts as one surface but is the size of the
@@ -93,8 +93,8 @@ layer and holds its memory for the whole lifetime of the element, including the
 about to start, and a bar is never about to start.
 
 **4. Never animate the blur radius.** Every frame is a full re-filter at a new
-radius, and there is no cheap path. Animate `opacity` on the surface instead —
-it is compositor-only and the visual result is close enough that nobody has ever
+radius, and there is no cheap path. Animate `opacity` on the surface instead. It
+is compositor-only and the visual result is close enough that nobody has ever
 noticed the difference in a usability session.
 
 **5. Keep radii modest.** Beyond roughly the low twenties of CSS pixels the
@@ -127,8 +127,8 @@ are looking for.
 ### Record a fling scroll with the surfaces present
 
 Chrome DevTools → remote debugging → Performance panel. Record five seconds of a
-hard fling scroll on the screen with the most composited surfaces — usually a
-long list with the sticky bar pinned.
+hard fling scroll on the screen with the most composited surfaces. That is
+usually a long list with the sticky bar pinned.
 
 ### Read frames, not totals
 
@@ -166,13 +166,13 @@ In order of how much they help and how little they cost:
 2. Reduce the *area* of the translucent surface before reducing its radius. A bar
    that is 56px tall costs a fraction of one that is 160px tall.
 3. Make the surface opaque while it is moving and translucent when it settles,
-   if the design can absorb it. This is a real technique and it is honest —
-   nobody is reading the backdrop through a bar during a fling.
+   if the design can absorb it. This is a real technique and it is honest.
+   Nobody is reading the backdrop through a bar during a fling.
 4. Drop the rung. An `overlay` that becomes a `card` costs nothing and loses one
    visual affordance.
 
 Do not reach for lowering the alpha. That is the one dimension of a material
-that is not available for tuning — see
+that is not available for tuning. See
 [The contrast floor](./the-contrast-floor.mdx).
 
 ## Tokens
@@ -201,14 +201,15 @@ property too.
   Stand up a device-lab measurement and publish real frame-time figures per rung
   and per surface count, with the device, the browser build and the date next to
   each. Until that exists, the budget of three is an engineering judgement drawn
-  from the cost model above, and this page does not pretend otherwise — there is
+  from the cost model above, and this page does not pretend otherwise. There is
   no measured millisecond figure anywhere on it.
 </Todo>
 
 ## Related
 
-- [Choosing a layer](./choosing-a-layer.mdx) — rule N1, which is what keeps the
-  surface count inside the budget in the first place.
-- [The ladder](./the-ladder.mdx) — the radii, and why they stop where they stop.
+- [Choosing a layer](./choosing-a-layer.mdx) covers rule N1, which is what keeps
+  the surface count inside the budget in the first place.
+- [The ladder](./the-ladder.mdx) has the radii, and why they stop where they
+  stop.
 - [Performance and bundle size](../../handbook/performance-and-bundle-size.mdx)
-  — the other performance budget, which is about JavaScript rather than pixels.
+  is the other performance budget, which is about JavaScript rather than pixels.

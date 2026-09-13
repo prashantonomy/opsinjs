@@ -1,5 +1,5 @@
 /**
- * GET /llms-foundations.txt — the token shard.
+ * GET /llms-foundations.txt serves the token shard.
  *
  * Foundations (what a token means), Theming (how to change it) and Reference
  * (the generated list of every one). Those three are deliberately separate
@@ -26,7 +26,7 @@ export async function GET(): Promise<Response> {
     blurb: SHARDS.foundations.blurb,
     sections: SHARDS.foundations.sections,
     budget: BUDGETS.shard,
-    overflowHint: `Fetch the remaining pages individually — every documentation URL answers to a \`.md\` suffix. The full list is at ${absoluteUrl("/llms.txt")}.`,
+    overflowHint: `Fetch the remaining pages individually. Every documentation URL answers to a \`.md\` suffix. The full list is at ${absoluteUrl("/llms.txt")}.`,
     notes: [
       "Foundations says what a token means. Theming says how to change it. Reference is the generated list of every one. Quote the right home for the question.",
       `Themes as installable registry items: \`GET /r/themes/<preset>.json\``,

@@ -1,4 +1,4 @@
-# Page templates — the frozen contract
+# Page templates as the frozen contract
 
 One skeleton per `kind`. A page's `kind` fully determines its headings; authors
 fill a template and never start from a blank file, and never invent a section.
@@ -36,7 +36,7 @@ the build enforces.
    at `alpha` has source under `registry/bases/base/` and installs through the
    shadcn CLI, so a working example is the correct thing to show; a row at
    `considered` has no code, and a page about it says so. A measured number is
-   never written by hand either way — it is generated or it is `<NoDataYet>`.
+   never written by hand either way. It is generated or it is `<NoDataYet>`.
    `<NotBuiltYet>`, `<StubNotice>`, `<NoDataYet>` and `<Todo>` are the honest
    ways to say "not yet", and `<Todo>` is counted in the build's coverage report.
    Promotion sheds exactly two of them: `<NotBuiltYet>` and `<Todo>` go in the
@@ -44,8 +44,8 @@ the build enforces.
    real `status`; `<NoDataYet>` stays wherever a generator genuinely has no
    source data.
 2. **Links are relative.** Use relative file paths resolved by fumadocs'
-   `createRelativeLink` — `[Two colour axes](../health/two-colour-axes.mdx)`.
-   Absolute `/docs/...` links are banned everywhere except the Sections rail in
-   the root `meta.json`.
+   `createRelativeLink`. One such link reads
+   `[Two colour axes](../health/two-colour-axes.mdx)`. Absolute `/docs/...`
+   links are banned everywhere except the Sections rail in the root `meta.json`.
 3. **The MDX vocabulary is closed.** Only the tags in the anatomy contract exist.
    Content authors use them; they never define one.

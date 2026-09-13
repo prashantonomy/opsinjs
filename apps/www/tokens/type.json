@@ -1,5 +1,5 @@
 {
-  "$comment": "AUTHORED SOURCE — not generated. scripts/build-tokens.mts reads this file and emits app/tokens.generated.css and lib/generated/tokens.ts.",
+  "$comment": "This file is the authored source and is not generated. scripts/build-tokens.mts reads this file and emits app/tokens.generated.css and lib/generated/tokens.ts.",
   "version": 1,
   "namespace": "type",
   "cssPrefix": "--opsin",
@@ -28,13 +28,13 @@
       "ReadingInput",
       "TrendSparkline"
     ],
-    "$comment": "Every component that renders a number sets tabular-nums. Proportional digits make a value that updates in place appear to twitch, and make a column of readings impossible to scan. This is a correctness requirement, not a preference — see /docs/health/numbers-units-precision."
+    "$comment": "Every component that renders a number sets tabular-nums. Proportional digits make a value that updates in place appear to twitch, and make a column of readings impossible to scan. This is a correctness requirement, not a preference. See /docs/health/numbers-units-precision."
   },
   "rules": [
     "The scale is semantic, not t-shirt-sized. `body`, `headline`, `caption2` say what a step is for; `lg` and `xl` do not, and the moment a scale is named by size somebody picks the size they like rather than the role they mean.",
     "A health value is rendered at `title2` or larger and never below `body`. If it does not fit, the layout is wrong, not the type.",
     "Never set a size in px in a component. Every text style is one of the steps below.",
-    "Every layout must remain usable at 200% text without horizontal scrolling — see /docs/accessibility/text-resizing-and-zoom."
+    "Every layout must remain usable at 200% text without horizontal scrolling. See /docs/accessibility/text-resizing-and-zoom."
   ],
   "baseRem": 16,
   "anchor": {
@@ -91,7 +91,7 @@
       "leading": 1.294,
       "trackingEm": -0.003,
       "weight": 600,
-      "use": "An emphasised line of body text — a status sentence, a question in a form."
+      "use": "An emphasised line of body text, such as a status sentence or a question in a form."
     },
     {
       "name": "body",

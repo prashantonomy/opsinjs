@@ -1,5 +1,5 @@
 /**
- * GET /llms-health.txt — the doctrine shard.
+ * GET /llms-health.txt serves the doctrine shard.
  *
  * Health, accessibility, and content and language: the three pillars that
  * decide what a health interface is allowed to assert, how it must be
@@ -31,7 +31,7 @@ export async function GET(): Promise<Response> {
     blurb: SHARDS.health.blurb,
     sections: SHARDS.health.sections,
     budget: BUDGETS.shard,
-    overflowHint: `Fetch the remaining pages individually — every documentation URL answers to a \`.md\` suffix. The full list is at ${absoluteUrl("/llms.txt")}.`,
+    overflowHint: `Fetch the remaining pages individually. Every documentation URL answers to a \`.md\` suffix. The full list is at ${absoluteUrl("/llms.txt")}.`,
     notes: [
       "Every page here declares `evidence: cited`, `opinion` or `mixed`. Do not report an opinion as a finding, and do not attribute a citation this corpus does not contain.",
       `The components these rules govern: ${absoluteUrl(SHARDS.components.file)}`,

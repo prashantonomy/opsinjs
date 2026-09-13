@@ -2,7 +2,7 @@
  * The exclusion the whole component is built around, shown as a pair.
  *
  * On the left, a row is loading. The label has a placeholder because a label is
- * certain to arrive — every row has one. The value column has NOTHING in it,
+ * certain to arrive. Every row has one. The value column has NOTHING in it,
  * only reserved height, because whether a reading exists is the question the
  * request is being made to answer.
  *
@@ -14,7 +14,7 @@
  *
  * The height of the value column is reserved with `min-h`, in `em`, so it holds
  * the same space at 200% text that the resolved row will take at 200% text. A
- * skeleton would have reserved it too — the point is that reserving space and
+ * skeleton would have reserved it too. The point is that reserving space and
  * asserting content are two different jobs, and only one of them needs a shape.
  *
  * WHAT THIS EXAMPLE LEAVES OUT, DELIBERATELY. It is a side-by-side of two
@@ -66,7 +66,7 @@ export default function SkeletonARowThatMayBeEmpty() {
             zero are different facts about a person. `data-opsinjs-value=""` is
             the empty-string form the attribute takes when the value is null, so
             an absence is as greppable as a number. In a product this seat is the
-            Value component, and the attribute comes from it — it is written by
+            Value component, and the attribute comes from it. It is written by
             hand here only because this example is about the SHAPE of the seat
             and imports nothing but Skeleton. */}
         <p

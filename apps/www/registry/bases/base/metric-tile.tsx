@@ -1,11 +1,11 @@
 /**
- * MetricTile — one measurement, its unit and its age, at the size that fits in
+ * MetricTile is one measurement, its unit and its age, at the size that fits in
  * a grid with seven others.
  *
  * WHAT IT ASSERTS, and the list is three items long: that this measurement had
  * this value, in this unit, at this time. Nothing else. It does not say whether
  * the number is where it should be, whether it has moved, or what to do about
- * it — every one of those needs a sentence, and a tile has no room for one.
+ * it. Every one of those needs a sentence, and a tile has no room for one.
  * `label`, `value`, `measuredAt` and `now` are therefore all required: an
  * undated reading is unusable, and a reading with no instant to measure its age
  * against cannot be shown to be current or shown to be old.
@@ -16,12 +16,12 @@
  * threshold and no reader.
  *
  * THE TWO AXES, AND WHICH ELEMENT TAKES WHICH. The category tints the icon and
- * the label — identity, so the sleep tiles are findable among the heart tiles
- * without reading eight labels. The status appears as an embedded StatusPill
- * and never as the tile's fill: a grid of status-coloured tiles is a picture of
- * somebody's body rendered as a heat map, and it is least readable at the
- * moment it matters most. No element here carries both, so there is no
- * OPSIN-0001 to raise — `axisConflict()` is a per-ELEMENT check, and calling it
+ * the label. That is identity, so the sleep tiles are findable among the heart
+ * tiles without reading eight labels. The status appears as an embedded
+ * StatusPill and never as the tile's fill: a grid of status-coloured tiles is a
+ * picture of somebody's body rendered as a heat map, and it is least readable
+ * at the moment it matters most. No element here carries both, so there is no
+ * OPSIN-0001 to raise. `axisConflict()` is a per-ELEMENT check, and calling it
  * on this component's props would report every correct tile.
  *
  * TWO PLACES WHERE THE SPECIFICATION COULD NOT BE BUILT AS WRITTEN, both
@@ -34,20 +34,22 @@
  *    through somebody's readings is a claim that a pattern exists and the
  *    sentence beside it is the only part that says which pattern. A picture of
  *    a person's health with nothing saying what it is cannot be built, so the
- *    honest options were a tile big enough for a real caption — which is a
- *    card — or no trend at all. This is no trend at all: the tile leads
- *    somewhere that can carry one. A product that wants a line in a grid cell
- *    composes TrendSparkline in its own layout, at a size where the caption
- *    fits; that arrangement is demonstrated by the sparkline's own example.
+ *    honest options were two. One is a tile big enough for a real caption,
+ *    which by then is a card. The other is no trend at all. This is no trend at
+ *    all: the tile leads somewhere that can carry one. A product that wants a
+ *    line in a grid cell composes TrendSparkline in its own layout, at a size
+ *    where the caption fits; that arrangement is demonstrated by the
+ *    sparkline's own example.
  *
  * 2. `value` IS `number | null`, NOT `number | string | null`. Every number a
  *    reader sees goes through Value, which formats it, resolves the spoken form
- *    of the unit and keeps absence apart from zero — and Value takes a number.
+ *    of the unit and keeps absence apart from zero. Value takes a number.
  *    A pre-formatted string is a number somebody else has already rounded, with
  *    no spoken unit and no machine-readable datum behind it, and accepting one
  *    would put a second formatter in the system. The case the string was for is
- *    a compound reading — a pair, not a number — and a pair is two measurements:
- *    it belongs in two tiles, or on a surface that can show both. A value that
+ *    a compound reading. A compound reading is a pair rather than a number, and
+ *    a pair is two measurements: it belongs in two tiles, or on a surface that
+ *    can show both. A value that
  *    is not a finite number reaches Value anyway in a JavaScript project, and
  *    Value says "not available" and reports it, which is the right words in the
  *    right place.
@@ -56,7 +58,7 @@
  * default and never will: what counts as an old reading is clinical and differs
  * by measurement. Omitted, the tile has no stale treatment at all, which is the
  * honest output when nobody has said what stale means here. Supplied, the tile
- * mutes itself AND RelativeTime says the words — the muting is the scanning
+ * mutes itself AND RelativeTime says the words. The muting is the scanning
  * aid, the words are the carrier, and a treatment that survives greyscale is
  * the only kind worth having. No number is written down anywhere in this file,
  * in its demo, or in either of its examples, and none may be added: opsinjs
@@ -95,16 +97,16 @@ import { Value } from "@/registry/base-lyra/ui/value"
 /**
  * The undated-reading warning, said once per distinct offending value.
  *
- * `tokens/errors.json` states the policy — development only, once per offending
- * call site — and this warning lives in a render body. Without a keyed set it
- * repeats on every render and twice again under Strict Mode, and a grid of
- * tiles fed from one undated feed would print the same ten sentences per tile
- * per scroll until an author filters the console, at which point the channel no
- * longer carries its one real finding.
+ * `tokens/errors.json` states the policy, and that policy is development only,
+ * once per offending call site. This warning lives in a render body. Without a
+ * keyed set it repeats on every render and twice again under Strict Mode, and a
+ * grid of tiles fed from one undated feed would print the same ten sentences
+ * per tile per scroll until an author filters the console, at which point the
+ * channel no longer carries its one real finding.
  *
  * It is a module-local set rather than the substrate's `warnOnce` because
  * `warnOnce` is keyed to an `OpsinErrorCode` and no code is allocated for an
- * instant that cannot be located — OPSIN-0010 below has one and uses it.
+ * instant that cannot be located. OPSIN-0010 below has one and uses it.
  * Allocating a code in `tokens/errors.json` and deleting this is a strict
  * improvement.
  *
@@ -159,8 +161,8 @@ const PRINT_BOUNDARY = "print:border print:border-border"
  * related lines, which is what a label, a reading and a date are. It is a
  * margin on each part rather than a `gap` on a flex parent because the parent
  * is Surface's root, and that root lays out the material's four layers rather
- * than this component's content — the same reason Card carries its rhythm on
- * its parts. The header is always first, so nothing here needs a
+ * than this component's content. That is the same reason Card carries its
+ * rhythm on its parts. The header is always first, so nothing here needs a
  * `:not(:first-child)` guard.
  */
 const RHYTHM = "mt-opsin-2"
@@ -173,20 +175,20 @@ const RHYTHM = "mt-opsin-2"
  * and wrong twice over.
  *
  * A caller's `className` lands in the same `tailwind-merge` conflict group as a
- * colour — the merge cannot tell an opsin type step from an opsin colour, since
- * both are `text-*` with a key it does not know — so a class passed from outside
- * would delete the muting and leave a stale reading looking fresh. That is the
- * same defence relative-time.tsx arrived at, for the same reason.
+ * colour. The merge cannot tell an opsin type step from an opsin colour,
+ * because both are `text-*` with a key it does not know, so a class passed
+ * from outside would delete the muting and leave a stale reading looking fresh.
+ * That is the same defence relative-time.tsx arrived at, for the same reason.
  *
  * And inheritance does not stop where this component means it to. StatusPill's
- * `-ink` colour is dropped by that same merge inside StatusPill — verified
- * against the pinned tailwind-merge, at both sizes and all four levels — so the
- * pill's word takes its colour from whichever ancestor supplies one. A muted
- * root therefore muted the verdict as well, which is this component withdrawing
- * a claim it did not assign and the example page saying the opposite. With the
- * muting on the parts, the pill inherits nothing this file put there. The
- * dropped `-ink` is a defect in StatusPill and is reported there; this is not a
- * repair for it, only a way of not depending on it.
+ * `-ink` colour is dropped by that same merge inside StatusPill, which was
+ * verified against the pinned tailwind-merge at both sizes and all four levels.
+ * So the pill's word takes its colour from whichever ancestor supplies one. A
+ * muted root therefore muted the verdict as well, which is this component
+ * withdrawing a claim it did not assign and the example page saying the
+ * opposite. With the muting on the parts, the pill inherits nothing this file
+ * put there. The dropped `-ink` is a defect in StatusPill and is reported
+ * there; this is not a repair for it, only a way of not depending on it.
  *
  * The timestamp is not in the list. RelativeTime mutes its own spans past the
  * same boundary, and the two verdicts are now computed from the same parser and
@@ -206,9 +208,9 @@ const HOUR_MS = 60 * MINUTE_MS
  * of that divergence produced the two defects this file now exists not to have.
  * Too strict, and a timestamp RelativeTime renders happily made the whole tile
  * disappear from a grid with only a development warning to say why. Too
- * forgiving — `Date.parse` rolls 31 February forward to 3 March without a
- * complaint — and the tile drew somebody's reading while RelativeTime refused
- * the same string and drew no time at all.
+ * forgiving is the opposite failure. `Date.parse` rolls 31 February forward
+ * to 3 March without a complaint, so the tile drew somebody's reading while
+ * RelativeTime refused the same string and drew no time at all.
  *
  * So this accepts and refuses exactly what `parseInstant` in relative-time.tsx
  * accepts and refuses: the same pattern, the same field range checks, the same
@@ -236,7 +238,7 @@ const RFC_3339 =
  *
  * ONE GATE, USED TWICE, and that is the point of extracting it. The same answer
  * decides whether the tile renders at all and whether its age can be measured,
- * so the two can never disagree — a tile that refused the timestamp and then
+ * so the two can never disagree. A tile that refused the timestamp and then
  * muted itself against it would be reasoning from a date it had already
  * rejected.
  *
@@ -294,13 +296,13 @@ function instantOf(text: string): number | null {
 
 export interface MetricTileProps {
   /**
-   * What was measured, in the reader's words — two or three of them. Not an
+   * What was measured, in the reader's words. Use two or three of them, not an
    * acronym and not an internal code: a dashboard that has to be learnt before
    * it can be read is a dashboard that is read wrong.
    */
   label: string
   /**
-   * The reading. `null` renders the no-reading state, which is not zero — zero
+   * The reading. `null` renders the no-reading state, which is not zero. Zero
    * is a real measurement for several metrics and a missing one is not a
    * measurement at all.
    *
@@ -311,26 +313,26 @@ export interface MetricTileProps {
    */
   value: number | null
   /**
-   * Display symbol, exactly as `tokens/units.json` spells it — "kg", "mmol/L",
-   * "steps". The spoken form is resolved from that table by Value, so this is
-   * the only place the unit is named. Optional by type and all but mandatory in
-   * practice: a bare number is ambiguous between unit systems, and Value raises
-   * OPSIN-0003 when one arrives without a unit rather than this file raising a
-   * second copy of the same complaint.
+   * Display symbol, exactly as `tokens/units.json` spells it, as in "kg",
+   * "mmol/L" or "steps". The spoken form is resolved from that table by Value,
+   * so this is the only place the unit is named. Optional by type and all but
+   * mandatory in practice: a bare number is ambiguous between unit systems, and
+   * Value raises OPSIN-0003 when one arrives without a unit rather than this
+   * file raising a second copy of the same complaint.
    */
   unit?: string
   /**
-   * Decimal places, from the precision of the measurement — the resolution of
-   * the device, or the number of places the laboratory reported. Forwarded to
-   * Value untouched. Omitted, nothing is rounded and nothing is padded, which
-   * for a value that arrived from arithmetic can be seventeen digits: on a tile
-   * that is also a layout problem, and it is the prompt to go and find out what
-   * the measurement's resolution actually is.
+   * Decimal places, from the precision of the measurement. That is the
+   * resolution of the device, or the number of places the laboratory reported.
+   * Forwarded to Value untouched. Omitted, nothing is rounded and nothing is
+   * padded, which for a value that arrived from arithmetic can be seventeen
+   * digits: on a tile that is also a layout problem, and it is the prompt to go
+   * and find out what the measurement's resolution actually is.
    */
   precision?: number
   /**
    * When the reading was taken, ISO 8601 with an offset. The time of
-   * MEASUREMENT, never of retrieval, sync or render — a tile that timestamps
+   * MEASUREMENT, never of retrieval, sync or render. A tile that timestamps
    * itself with the moment the screen was drawn tells every reader that every
    * reading is current.
    *
@@ -343,21 +345,21 @@ export interface MetricTileProps {
    * Required for the same reason RelativeTime requires it: a component that
    * read the clock itself would be impure, would read it once per tile rather
    * than once per screen, and would let a grid of eight disagree with itself
-   * across a minute boundary. Read it once where the screen is rendered —
-   * `new Date().toISOString()` — and pass the same value to every tile on it.
+   * across a minute boundary. Read it once where the screen is rendered. Use
+   * `new Date().toISOString()` and pass the same value to every tile on it.
    */
   now: string
   /**
    * Hours after which the tile shows its stale treatment. Supplied by the
    * product, and by nobody else: what counts as an old reading is clinical, it
    * differs completely from one measurement to the next, and opsinjs holds no
-   * such number for any measurement in any population. Writing one here — or in
-   * an example, or in a comment as an illustration — would publish a boundary
-   * this system has no standing to publish.
+   * such number for any measurement in any population. Writing one here would
+   * publish a boundary this system has no standing to publish. The same is true
+   * of writing one in an example, or in a comment as an illustration.
    *
    * There is no default and there will not be one. Omitted, there is no stale
-   * treatment at all — the honest output when nobody has said what stale means
-   * here, and never a substituted number.
+   * treatment at all. That is the honest output when nobody has said what stale
+   * means here, and never a substituted number.
    */
   staleAfterHours?: number
   /**
@@ -368,7 +370,7 @@ export interface MetricTileProps {
    *
    * PAIR `attention` AND `urgent` WITH AN `href`. Clinical status semantics
    * says of `attention` that there is always a named action, and a tile has no
-   * room for a sentence — so on a tile the action is the tile itself, and a
+   * room for a sentence. So on a tile the action is the tile itself, and a
    * level on a tile that leads nowhere leaves a reader a verdict and no way to
    * act on it. Nothing here enforces the pairing: the check belongs in the
    * shared warning channel, which this file cannot add a code to, and it is
@@ -382,14 +384,14 @@ export interface MetricTileProps {
   category?: HealthCategory
   /**
    * The category glyph, supplied by the product. opsinjs ships no category icon
-   * set — [category identity](https://opsinjs.dev/docs/health/category-identity)
-   * says an icon is governed separately — so this is a slot rather than a
+   * set. [category identity](https://opsinjs.dev/docs/health/category-identity)
+   * says an icon is governed separately. So this is a slot rather than a
    * lookup, and a tile with no icon is a complete tile.
    *
    * Rendered decorative: the label beside it says the same thing in words, and
    * a glyph announced as well would make a screen reader say the subject twice.
    * It must not be interactive; the tile is one target and nothing nests inside
-   * it — and because the wrapper is `aria-hidden`, a control passed here would
+   * it. Because the wrapper is `aria-hidden`, a control passed here would
    * be reachable by Tab and absent from the accessibility tree at the same
    * time. Nothing here checks that, so this sentence is the whole guard, and
    * the page's claim that nothing inside a tile is focusable is scoped to what
@@ -405,7 +407,7 @@ export interface MetricTileProps {
    * ONE CONSTRAINT COMES WITH THE LINK, and it is named here because a product
    * choosing a unit is the one who meets it. A link takes its accessible name
    * from its content, and Value hides the unit SYMBOL from assistive technology
-   * and substitutes the spoken form — so a tile whose visible text reads "kg" is
+   * and substitutes the spoken form. So a tile whose visible text reads "kg" is
    * announced "kilograms", and the link's visible label shares no substring with
    * its name. That is WCAG 2.2 SC 2.5.3, and this component cannot repair it: an
    * `aria-label` would replace the whole sentence rather than mend one clause of
@@ -424,7 +426,7 @@ export interface MetricTileProps {
   /**
    * Merged onto the root with `tailwind-merge`, and a class passed here wins
    * where the two conflict. That includes `truncate` and a fixed height, either
-   * of which can take digits off the end of a reading at 200% text — this
+   * of which can take digits off the end of a reading at 200% text. This
    * component sets neither and never shortens a number on its own.
    */
   className?: string
@@ -447,23 +449,23 @@ export function MetricTile({
 }: MetricTileProps) {
   /* THE UNDATED READING IS REFUSED, NOT DRAWN.
      This file ships as source into JavaScript projects where a type is advice,
-     and RelativeTime renders nothing at all for an instant it cannot locate —
-     so drawing the rest would put somebody's number on screen with no time
-     beside it. The page's own words are that a number without a time is
-     undated, "which for health data is the same as being wrong", and a tile has
-     no room to explain the omission. Nothing is rendered and the console says
-     what the form is. */
+     and RelativeTime renders nothing at all for an instant it cannot locate.
+     Drawing the rest would put somebody's number on screen with no time beside
+     it. The page's own words are that a number without a time is undated,
+     "which for health data is the same as being wrong", and a tile has no room
+     to explain the omission. Nothing is rendered and the console says what the
+     form is. */
   const taken = instantOf(measuredAt)
   if (taken === null) {
     warnUndatedOnce(
       String(measuredAt),
       `[opsinjs] <MetricTile> received measuredAt="${String(measuredAt)}", which ` +
-        "is not an instant this component can locate — either it carries no " +
+        "is not an instant this component can locate. Either it carries no " +
         "offset, or it names a date that does not exist. The age of the " +
         "reading could not be established and nothing was rendered. The forms " +
         'accepted are the ones RelativeTime accepts: "2026-03-14T08:12:00+01:00", ' +
         '"2026-03-14 08:12:00+0100" and "2026-03-14T07:12:00Z". A tile carries ' +
-        "three claims — the value, the unit and the time — and it has no room to " +
+        "three claims: the value, the unit and the time. It has no room to " +
         "explain a missing one, so it renders none of them rather than a number " +
         "a reader would take for today's.",
     )
@@ -472,7 +474,7 @@ export function MetricTile({
 
   /* An unknown category is reported and dropped rather than approximated. A
      `text-category-cycle-ink` class generates no CSS, so the tile would come out
-     untinted with nothing saying why — and there is no seventh ramp to fall
+     untinted with nothing saying why. There is no seventh ramp to fall
      back on. Untinted is honest; a borrowed tint is not. */
   const tinted: HealthCategory | undefined = isHealthCategory(category)
     ? category
@@ -488,7 +490,7 @@ export function MetricTile({
      The muted treatment belongs to the whole tile and RelativeTime cannot reach
      the whole tile, so the tile has to know. The three branches are the same
      three RelativeTime uses, in the same order, on purpose: inside the
-     boundary, past it, or the question could not be answered — and the third
+     boundary, past it, or the question could not be answered. The third
      hedges rather than falls silent, because a product that asked for a
      threshold and was told nothing never finds out it was told nothing.
 
@@ -496,17 +498,18 @@ export function MetricTile({
      a stylistic choice. Dividing the elapsed milliseconds into hours and
      comparing those is not the same expression in floating point as comparing
      milliseconds against hours multiplied out, and the two disagree on
-     boundary-adjacent readings with a fractional-hour threshold — always in the
-     direction where the words say the reading may be out of date and the tile
-     is not muted, which is the one combination uncertainty-and-staleness
-     forbids. So the elapsed count stays in milliseconds and the threshold is
-     multiplied out, exactly as relative-time.tsx does it.
+     boundary-adjacent readings with a fractional-hour threshold. They always
+     disagree in the direction where the words say the reading may be out of
+     date and the tile is not muted, which is the one combination
+     uncertainty-and-staleness forbids. So the elapsed count stays in
+     milliseconds and the threshold is multiplied out, exactly as
+     relative-time.tsx does it.
 
      The duplication is still real: RelativeTime does not publish its verdict,
      and a component cannot read another component's internals. Reported upward
-     rather than worked around, because the alternative — muting from a
-     descendant's `data-slot` with `:has()` — makes a safety treatment depend on
-     a selector no gate checks and no test would catch losing. */
+     rather than worked around. The alternative would mute from a descendant's
+     `data-slot` with `:has()`, which makes a safety treatment depend on a
+     selector no gate checks and no test would catch losing. */
   const reference = instantOf(now)
   const elapsedMs = reference === null ? null : reference - taken
   const stale =
@@ -526,7 +529,7 @@ export function MetricTile({
          not a layout box for this component's content: it holds four layers,
          three of them absolutely positioned, and the content lives inside
          `surface-content`. A flex column here would lay out the BACKDROP and
-         the SCRIM, not the label and the reading — so the gaps between the
+         the SCRIM, not the label and the reading. So the gaps between the
          parts are margins the parts carry, which is the same answer Card
          arrived at. `h-full` is what makes the material reach the bottom of a
          root the target floor is holding open.
@@ -566,7 +569,7 @@ export function MetricTile({
             colour): both are `text-*` with a key it does not know, so it files
             them under one property and silently drops the earlier one, and the
             label loses its type size. The two declarations set different CSS
-            properties and do not conflict, so joining them is correct — the
+            properties and do not conflict, so joining them is correct. The
             merge is what would be wrong. Verified in range-bar, which hit the
             same edge first. */}
         <span
@@ -588,7 +591,7 @@ export function MetricTile({
       <div data-slot="metric-tile-reading" className={cn(RHYTHM, stale && MUTED)}>
         {/* The comma is the whole reason this span exists. A link takes its
             accessible name from its content, and the parts concatenate with
-            spaces — so without punctuation a tile announces as a run of
+            spaces. So without punctuation a tile announces as a run of
             fragments rather than as the sentence the specification asks for.
             With it, and with a status and a locale that spells dates this way:
             "Example measurement, 14 steps, Watch, Measured 3 hours ago, on
@@ -642,8 +645,8 @@ export function MetricTile({
         <RelativeTime
           at={measuredAt}
           /* Named, never inferred. `measuredAt` is when the reading was taken,
-             which is `measured` and not `recorded`, `received` or `synced` —
-             and the difference between those is the difference between a fact
+             which is `measured` and not `recorded`, `received` or `synced`.
+             The difference between those is the difference between a fact
              about a person and a fact about a network.
 
              WHAT THIS TILE CANNOT TELL YOU, stated here because it is asserted
@@ -722,8 +725,8 @@ export function MetricTile({
  * The instant the demo is measured against.
  *
  * A literal rather than a clock read. `now` is required of every caller, so a
- * demo that quietly read the clock would be documenting a different component —
- * and a fixed instant is what makes this deterministic, so one screenshot is
+ * demo that quietly read the clock would be documenting a different component.
+ * A fixed instant is what makes this deterministic, so one screenshot is
  * comparable with the last.
  */
 const DEMO_NOW = "2026-04-06T09:00:00+00:00"
@@ -734,14 +737,14 @@ const DEMO_NOW = "2026-04-06T09:00:00+00:00"
  * `/view` renders this with no props and `shadcn add` ships it, so it is public,
  * reviewed code rather than a scratch demo. It shows two tiles because the pair
  * is the thing worth seeing: one with a reading and one with none at all. The
- * second is the state most often got wrong — an absent reading is not a reading
+ * second is the state most often got wrong. An absent reading is not a reading
  * of zero, so it says so in words rather than printing a 0 a reader would take
  * for a measurement somebody took.
  *
  * NEITHER TILE CARRIES A STALENESS NUMBER OF ITS OWN. `staleAfterHours` is
  * absent here on purpose: a number in the file `shadcn add` copies is a
  * staleness default shipped verbatim into every repository that installs this
- * component, and no comment beside it undoes that — the number is the part that
+ * component, and no comment beside it undoes that. The number is the part that
  * gets copied. The cost is stated rather than hidden: the tile's one visual
  * state is demonstrated by the example beside this component's page and not by
  * the demo, and the page says so in the same words.

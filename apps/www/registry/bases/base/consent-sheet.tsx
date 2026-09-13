@@ -1,7 +1,7 @@
 "use client"
 
 /**
- * ConsentSheet — one permission, asked once, with refusing exactly as easy as
+ * ConsentSheet is one permission, asked once, with refusing exactly as easy as
  * agreeing.
  *
  * THERE IS NO CONSENT WORDING IN THIS FILE AND THERE NEVER WILL BE. Not a
@@ -11,7 +11,7 @@
  * A consent sentence is a legal statement with somebody's name behind it, and a
  * design system has neither a legal owner nor a reader; a sentence shipped from
  * here would arrive in a product whose author never read it, describing a use
- * that product may not have and omitting one it does — and it would arrive
+ * that product may not have and omitting one it does. It would arrive
  * looking reviewed, because it came from a library. `disclaimer-note.tsx` makes
  * the same refusal about the same class of text and for the same reason.
  *
@@ -30,8 +30,8 @@
  * same size, the same width and the same height, adjacent in the tab order,
  * separated by `--opsin-target-separation`, and neither is focused on open.
  * There is no `variant` prop on either, no `acceptClassName`, no `emphasis`, no
- * `primaryAction`, and no way to reach one of them from outside — because every
- * one of those, offered anywhere, has been used to shrink the refusal. The one
+ * `primaryAction`, and no way to reach one of them from outside. Every one of
+ * those, offered anywhere, has been used to shrink the refusal. The one
  * remaining route is a descendant selector smuggled through `className`, and a
  * development-only measurement below reports it rather than pretending the hole
  * is closed.
@@ -39,7 +39,7 @@
  * IT ASKS ONE QUESTION. There is no `purposes` array and no per-item switch,
  * because a sheet that can carry three purposes will carry three purposes under
  * one control the first time a deadline is close. Three permissions are three
- * sheets, each shown when it becomes relevant — which is what
+ * sheets, each shown when it becomes relevant. That is what
  * `health/consent-and-disclosure` rule 1 asks for and what makes a partial yes
  * expressible at all.
  *
@@ -47,9 +47,9 @@
  * The specification says "extends Sheet" and declares neither prop, so as
  * written this component could not be opened. It is not repaired by declaring a
  * second copy here: `ConsentSheetProps` extends `SheetProps` with the three
- * members this component supplies itself removed, and everything else — the
- * open pair, `detents`, `modal`, `dismissible`, `className` — passes through
- * with the meaning Sheet's own page gives it.
+ * members this component supplies itself removed, and everything else passes
+ * through with the meaning Sheet's own page gives it. That is the open pair,
+ * `detents`, `modal`, `dismissible` and `className`.
  *
  * CLOSING IS NOT DECIDING, AND IT IS NOT REFUSING EITHER. `onDecision` fires
  * only when a reader presses one of the two controls. A close by the escape
@@ -115,8 +115,8 @@ function warnDev(key: string, message: string): void {
  * `app/product.css` gives every `:focus-visible` an outline and that file does
  * not travel with this one into a consumer's project. The disclosure control
  * below is the only element in this file that is not a `Button`, so it is the
- * only one that would lose its ring silently — on a surface where a keyboard
- * reader most needs to know where they are.
+ * only one that would lose its ring silently. It sits on a surface where a
+ * keyboard reader most needs to know where they are.
  */
 const FOCUS_RING =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
@@ -135,9 +135,9 @@ const SAME_SIZE_SLACK = 1
 /**
  * Decline labels that name no outcome.
  *
- * The page is explicit — "never label the decline control *not now* when it
- * means *no*, or *maybe later* when there is no later" — and the reason is that
- * a screen reader can list every control on a surface with no sentence around
+ * The page is explicit: "never label the decline control *not now* when it
+ * means *no*, or *maybe later* when there is no later". The reason is that a
+ * screen reader can list every control on a surface with no sentence around
  * them. In that list a postponement and a refusal are not the same choice, and
  * only one of them is an answer to the question that was asked. This is a
  * warning and never a refusal: only the product knows whether there genuinely
@@ -163,8 +163,8 @@ const POSTPONING_DECLINE_LABELS = [
  * *Continue* is the one that matters: an accept control that is also the way
  * forward is the *agree that is also continue* the specification names as a way
  * of collecting a decision nobody made. The others are the family it travels
- * in — words that describe pressing the button rather than what pressing it
- * does.
+ * in. They are words that describe pressing the button rather than what
+ * pressing it does.
  */
 const UNNAMED_ACCEPT_LABELS = [
   "ok",
@@ -188,9 +188,9 @@ const UNNAMED_ACCEPT_LABELS = [
  * `typeof` first because this file ships as source into JavaScript projects,
  * where a required `string` is advice and `.trim()` on whatever turned up is a
  * crash rather than a warning. A whitespace-only string is how consent copy
- * actually goes missing — a translation table with a row nobody filled in, or a
- * content service returning an empty field for a locale — and it must count as
- * missing rather than as supplied.
+ * actually goes missing, and it must count as missing rather than as supplied.
+ * That happens with a translation table with a row nobody filled in, or a
+ * content service returning an empty field for a locale.
  */
 function isSupplied(value: unknown): value is string {
   return typeof value === "string" && value.trim() !== ""
@@ -206,9 +206,9 @@ function plainLabel(value: string): string {
  *
  * Three sentences the product writes, not three values this component labels.
  * There is no `collectedLabel`, no heading above the list and no visually
- * hidden term in front of each row, because every one of those would be a word
- * opsinjs had chosen — in English — for a sheet whose entire content is
- * somebody else's legal statement. Each field is a whole statement in the
+ * hidden term in front of each row, because every one of those would be an
+ * English word opsinjs had chosen for a sheet whose entire content is somebody
+ * else's legal statement. Each field is a whole statement in the
  * reader's own language, and the field name says what belongs in it.
  */
 export interface ConsentScope {
@@ -219,7 +219,7 @@ export interface ConsentScope {
    */
   collected: string
   /**
-   * Who can see it, as a complete sentence. Name them — "our partners" is not
+   * Who can see it, as a complete sentence. Name them. "our partners" is not
    * an answer, and a reader cannot decide about a recipient they cannot name.
    */
   sharedWith: string
@@ -269,8 +269,8 @@ export interface ConsentDecision {
  *
  * BOTH HALVES TOGETHER, which is the shape `DisclaimerNote.more` uses and for
  * the same reason. A panel with no label needs one invented here, and the label
- * a design system would invent is *terms*, *details* or *learn more* — the
- * exact class of name the specification refuses, in the one list a screen
+ * a design system would invent is *terms*, *details* or *learn more*. That is
+ * the exact class of name the specification refuses, in the one list a screen
  * reader can read with no sentence around it.
  */
 export interface ConsentDetails {
@@ -302,7 +302,7 @@ export interface ConsentSheetProps
   textVersion: string
   /**
    * What is being asked, phrased as a question the reader can answer yes or no
-   * to. It is the sheet's accessible name and its visible heading — the two are
+   * to. It is the sheet's accessible name and its visible heading. The two are
    * the same element, which is why there is no separate `title`.
    */
   heading: string
@@ -322,7 +322,7 @@ export interface ConsentSheetProps
    *
    * It renders as text and is deliberately not turned into a link. A string is
    * not a destination, and the doctrine's answer is that revocation lives where
-   * the data lives rather than inside the sheet that asked for it — so what
+   * the data lives rather than inside the sheet that asked for it. So what
    * belongs here is the sentence that tells the reader where to go, and the
    * control belongs on the screen showing the data.
    */
@@ -335,8 +335,8 @@ export interface ConsentSheetProps
   details?: ConsentDetails
   /**
    * What the reader loses by declining, stated before they choose. Optional,
-   * because opsinjs cannot know whether a product still works after a refusal —
-   * and required by the doctrine whenever it does not. If refusing breaks
+   * because opsinjs cannot know whether a product still works after a refusal.
+   * It is required by the doctrine whenever it does not. If refusing breaks
    * something the reader came for, this is where they are told, and they are
    * told before the controls rather than in a confirmation afterwards.
    */
@@ -348,7 +348,7 @@ export interface ConsentSheetProps
    * Name the outcome rather than the press: a label that begins with the
    * reader's own word for yes and then says what will happen is an answer, and
    * one that only describes pressing the button is not. A generic label raises
-   * a development warning and is rendered exactly as written — only the product
+   * a development warning and is rendered exactly as written. Only the product
    * knows what it is agreeing to, and a component that rewrote the word would be
    * writing consent copy.
    */
@@ -441,9 +441,10 @@ export function ConsentSheet({
       `unaskable:${String(consentId)}:${missing.join(",")}`,
       `[opsinjs] <ConsentSheet> was rendered without ${missing.join(", ")}, so it ` +
         "did not ask and drew no decision controls. opsinjs ships no consent " +
-        "wording — no heading, no purpose, no scope, no retention period and no " +
-        "words for the two controls — because every one of them is a legal " +
-        "statement with an owner, and a design system is not it. Every item on " +
+        "wording. It ships no heading, no purpose, no scope, no retention " +
+        "period and no words for the two controls, because every one of them " +
+        "is a legal statement with an owner, and a design system is not it. " +
+        "Every item on " +
         "that list is something a stored consent record has to be able to name; " +
         "a whitespace-only string counts as missing, which is how a locale " +
         "nobody filled in reaches this check.",
@@ -456,9 +457,10 @@ export function ConsentSheet({
       `[opsinjs] <ConsentSheet> has a decline control labelled "${declineLabel}", ` +
         "which postpones rather than answers. A screen reader can list every " +
         "control on a surface with no sentence around them, and in that list a " +
-        "postponement is not a refusal. Name the outcome — \"no, do not share " +
-        "them\" — unless there genuinely is a later, in which case this word is " +
-        "the right one and this warning is noise. It was rendered as written.",
+        "postponement is not a refusal. Name the outcome. Say something like " +
+        "\"no, do not share them\", unless there genuinely is a later, in which " +
+        "case this word is the right one and this warning is noise. It was " +
+        "rendered as written.",
     )
   }
 
@@ -466,7 +468,7 @@ export function ConsentSheet({
     warnDev(
       `accept-unnamed:${plainLabel(acceptLabel)}`,
       `[opsinjs] <ConsentSheet> has an accept control labelled "${acceptLabel}", ` +
-        "which names the press rather than what it agrees to — and \"continue\" " +
+        "which names the press rather than what it agrees to. \"continue\" " +
         "in particular makes agreement the way forward, which is the shape this " +
         "component exists to refuse. Name the outcome, in the reader's own " +
         "language. It was rendered as written.",
@@ -490,8 +492,9 @@ export function ConsentSheet({
   /* THE EQUAL-WEIGHT PROMISE, MEASURED RATHER THAN ASSERTED.
      The pair is equal by construction: one grid, two tracks, one component, one
      variant, one size. The single route left open is a descendant selector
-     passed through `className` — `[&_[data-slot=consent-sheet-decline]_button]:…`
-     reaches the refusal and nothing in the type system can see it. Rather than
+     passed through `className`.
+     `[&_[data-slot=consent-sheet-decline]_button]:…` reaches the refusal and
+     nothing in the type system can see it. Rather than
      claim a hole is closed, this reads the two boxes back after layout and says
      so when they differ.
 
@@ -499,7 +502,7 @@ export function ConsentSheet({
      browser has laid the sheet out, which is the only moment either box has a
      size. It reads the controls out of the row by `data-slot` rather than
      holding a ref to each, because `Button` pins its own `data-slot` after the
-     spread and cannot carry one of ours — the slot lives on the cell around it,
+     spread and cannot carry one of ours. The slot lives on the cell around it,
      which is what the anatomy on the page says. */
   useEffect(() => {
     if (!isDevelopment() || !sheet.open || !askable) return
@@ -523,7 +526,7 @@ export function ConsentSheet({
         `sizes: ${Math.round(widthGap)}px apart in width and ` +
         `${Math.round(heightGap)}px in height. This component renders them as one ` +
         "component in one grid with one variant, so a difference means something " +
-        "reached them from outside — almost always a descendant selector in " +
+        "reached them from outside. That is almost always a descendant selector in " +
         "`className`. The visual hierarchy of the two controls is the real " +
         "question being asked, and it is not a neutral one.",
     )
@@ -548,13 +551,13 @@ export function ConsentSheet({
       /* THE HEADING IS THE SHEET'S TITLE, WHICH IS WHY THERE IS NO `title`.
          The specification renames Sheet's `title` to `heading` and keeps both
          in the same tree, which as a TypeScript `extends` would produce a modal
-         surface with two names — one announced and one read. Sheet's title is
-         an `<h2>` that Base UI points the popup's `aria-labelledby` at, so
-         handing it the heading makes the visible question and the accessible
-         name the same string, once. That is also what satisfies "focus moved to
-         the heading on open" without any focus handling here: Sheet moves focus
-         to the popup, the popup is named by this element, and the heading is
-         what a screen reader reads on arrival. */
+         surface with two names. One would be announced and one read. Sheet's
+         title is an `<h2>` that Base UI points the popup's `aria-labelledby`
+         at, so handing it the heading makes the visible question and the
+         accessible name the same string, once. That is also what satisfies
+         "focus moved to the heading on open" without any focus handling here:
+         Sheet moves focus to the popup, the popup is named by this element,
+         and the heading is what a screen reader reads on arrival. */
       title={heading}
       footer={
         askable ? (
@@ -564,7 +567,7 @@ export function ConsentSheet({
             /* A TWO-TRACK GRID, AND IT NEVER COLLAPSES TO ONE.
                Grid tracks are equal by default and grid rows stretch, so the
                two cells are the same width and the same height whatever length
-               the two labels are — which is the whole contract, held by the
+               the two labels are. That is the whole contract, held by the
                layout rather than by a rule somebody has to remember. A wrapping
                flex row would have given them different heights on the line they
                wrapped, and stacking them would have made one of them the one
@@ -644,7 +647,7 @@ export function ConsentSheet({
              letter of a requirement and none of its purpose, and it is the most
              common way this surface is got wrong. The colour is inherited
              rather than set, which also sidesteps the tailwind-merge collision
-             `disclaimer-note.tsx` documents — `text-opsin-body` and
+             `disclaimer-note.tsx` documents. `text-opsin-body` and
              `text-foreground` land in one conflict group and one of them is
              silently dropped. */
           className="flex flex-col gap-opsin-4 py-opsin-2 text-opsin-body"
@@ -661,7 +664,7 @@ export function ConsentSheet({
 
           {/* A REAL LIST, WITH REAL MARKERS. The scope facts are three separate
               answers and a screen reader announces them as "list, three items"
-              with a position in each — which is the difference between being
+              with a position in each. That is the difference between being
               able to go back to the retention line and having to re-read a
               paragraph to find it. `list-disc` keeps the browser's own markers
               rather than removing them and restoring the role by hand: Safari
@@ -692,7 +695,7 @@ export function ConsentSheet({
                   `data-slot`, and `Button` pins `data-slot="button"` after the
                   spread. And a third opsinjs Button on a surface whose entire
                   contract is that there are exactly two equally weighted
-                  controls would read as a third choice — which is why Sheet's
+                  controls would read as a third choice. That is why Sheet's
                   own close control and grabber are hand-rolled too. The target
                   floor and the focus ring are therefore declared here rather
                   than inherited. */}
@@ -738,7 +741,7 @@ export function ConsentSheet({
                   rules, and `@media not print` is one rule that cannot be
                   reordered by anything. It is also NOT the `hidden` attribute,
                   which Tailwind's own preflight declares `display: none
-                  !important` — an attribute here would print nothing at all.
+                  !important`. An attribute here would print nothing at all.
 
                   While it is collapsed the panel is out of layout and out of the
                   accessibility tree, which is what `aria-expanded` on the
@@ -760,7 +763,7 @@ export function ConsentSheet({
           ) : null}
 
           {/* MANDATORY, AND AT THE SAME SIZE AS EVERYTHING ELSE. "A consent
-              with no exit is not revocable, whatever the copy says" — so the
+              with no exit is not revocable, whatever the copy says". So the
               sentence saying where the exit is does not get to be the quiet
               one. It is text and not a link: a string is not a destination, and
               the doctrine's answer is that the control to withdraw belongs on
@@ -774,9 +777,9 @@ export function ConsentSheet({
               AFTER". A product that cannot function after a refusal says so
               here; opsinjs cannot know whether that is true, which is why the
               prop is optional and why nothing is invented when it is absent. A
-              confirmation raised after a refusal — "are you sure? your care may
-              be affected" — is the pattern this placement exists to make
-              unnecessary. */}
+              confirmation raised after a refusal is the pattern this placement
+              exists to make unnecessary. It asks "are you sure? your care may
+              be affected". */}
           {isSupplied(consequenceOfDeclining) ? (
             <p data-slot="consent-sheet-consequence" className="m-0">
               {consequenceOfDeclining}
@@ -833,7 +836,7 @@ export default function ConsentSheetDemo() {
         onOpenChange={(nextOpen) => setOpen(nextOpen)}
         consentId="example-consent"
         textVersion="example-wording-0"
-        heading="Placeholder question — is this the example thing?"
+        heading="Is this placeholder the example thing?"
         purpose="Placeholder for the purpose. A product writes this sentence itself; opsinjs ships no consent wording of any kind, including this one."
         scope={{
           collected: "Placeholder for what is collected. opsinjs does not supply this sentence.",

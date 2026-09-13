@@ -1,14 +1,14 @@
 "use client"
 
 /**
- * Dialog — the window that takes a reader's place, their focus and their ability
- * to do anything else, and hands all three back where it found them.
+ * Dialog is the window that takes a reader's place, their focus and their
+ * ability to do anything else, and hands all three back where it found them.
  *
  * THE PAGE ASKED FOR TWO THINGS THAT CANNOT BOTH BE TRUE, AND THIS FILE ANSWERS
  * ONE OF THEM. `dialog.mdx:114` says `severity="alert"` "removes the close
  * control and makes the scrim non-dismissing: an alert dialogue has no valid
  * 'went away' outcome". `dialog.mdx:124` says that below `sheetBelow` pixels
- * "the dialog renders as a Sheet instead" — and a Sheet is, by its own
+ * "the dialog renders as a Sheet instead". A Sheet is, by its own
  * specification, draggable and dismissible. Put together, an alert dialogue
  * that nobody may dismiss on a laptop becomes dismissible with a thumb on a
  * phone, silently, at whichever width the caller happened to pass. That is not
@@ -21,16 +21,16 @@
  * bottom edge of the screen, takes the full width and rounds only its top
  * corners, which is what `tokens/shape.json` publishes `radius-xl` for. It does
  * that in CSS, at every width, with no prop, no measurement and no change of
- * component — so the role, the focus trap, the treatment of the background and
+ * component. So the role, the focus trap, the treatment of the background and
  * the dismissal rules are identical on a phone and on a desktop. A dialog never
  * becomes something else.
  *
  * TWO ROOTS, NOT A FLAG. `severity` swaps `AlertDialog.Root` for `Dialog.Root`
  * rather than toggling props on one of them. Base UI's alert-dialog root is the
  * same store in a different mode: it forces `modal`, forces
- * `disablePointerDismissal`, and sets `role="alertdialog"` — three behaviours
- * the specification requires together, arriving together, with no way for a
- * caller or a later refactor to get two of the three. Faking it with
+ * `disablePointerDismissal`, and sets `role="alertdialog"`. Those are three
+ * behaviours the specification requires together, arriving together, with no
+ * way for a caller or a later refactor to get two of the three. Faking it with
  * `disablePointerDismissal` on the ordinary root would produce a
  * non-dismissing surface still announced as a plain dialog, which is the
  * failure that looks correct in review.
@@ -42,8 +42,8 @@
  * close through the change event's own `cancel()`, which is the half that
  * works: the dialog stays, in every configuration.
  *
- * The response is the half that does not. Focus returns to the safest action —
- * which answers the key for a reader whose focus had moved into the body or
+ * The response is the half that does not. Focus returns to the safest action.
+ * That answers the key for a reader whose focus had moved into the body or
  * onto the other control, and does nothing at all in the default one, because
  * `initialFocus="safest"` has already put focus on that same element and
  * calling `focus()` on `document.activeElement` is a specification no-op: no
@@ -62,11 +62,12 @@
  * they belong in `description`, and a development warning asks for them.
  *
  * IT IS A CLIENT COMPONENT, and the two refs are why. `initialFocus="safest"`
- * has to resolve to an ELEMENT — Base UI takes a ref or a function, never a
- * string — and the element it means is the last control in the actions slot,
- * which only a ref can find. The Escape handler needs the same ref. Nothing
- * else here is stateful: there is no width observation, no media query listener
- * and no measurement, because the responsive behaviour is a stylesheet's job.
+ * has to resolve to an ELEMENT, because Base UI takes a ref or a function,
+ * never a string. The element it means is the last control in the actions
+ * slot, which only a ref can find. The Escape handler needs the same ref.
+ * Nothing else here is stateful: there is no width observation, no media query
+ * listener and no measurement, because the responsive behaviour is a
+ * stylesheet's job.
  *
  * WHAT IT DOES NOT DO. It does not move focus on appearance beyond the one
  * placement Base UI performs on open, does not mount a live region, does not
@@ -91,8 +92,8 @@ import { Surface } from "@/registry/base-lyra/ui/surface"
  * What counts as somewhere focus can be put.
  *
  * Deliberately does NOT exclude `[aria-disabled="true"]`. That is how this
- * system spells a control which is busy rather than unavailable — a Button
- * saving a change keeps its tab stop and its name on purpose — and skipping it
+ * system spells a control which is busy rather than unavailable. A Button
+ * saving a change keeps its tab stop and its name on purpose, and skipping it
  * would send initial focus past the control the reader is waiting on.
  *
  * The popup itself carries `tabindex="-1"` from Base UI so that a touch screen
@@ -106,10 +107,10 @@ const FOCUSABLE =
 /**
  * Development warnings, said once per offending call site.
  *
- * `tokens/errors.json` states the policy — development only, once per offending
- * call site, through `console.warn` — and every warning in this file is in a
- * render body or in an effect keyed on a `ReactNode`, which is the shape that
- * repeats. A dialog wrapped around a short form re-renders on every keystroke
+ * `tokens/errors.json` states the policy: development only, once per offending
+ * call site, through `console.warn`. Every warning in this file is in a render
+ * body or in an effect keyed on a `ReactNode`, which is the shape that repeats.
+ * A dialog wrapped around a short form re-renders on every keystroke
  * and the same two paragraphs printed on every pass, twice more again under
  * Strict Mode; the effect below was worse still, because `actions` is a fresh
  * identity on every parent render. A channel somebody filters is a channel that
@@ -134,12 +135,12 @@ function warnDev(key: string, message: string): void {
  *
  * `last` is the one that matters and it is not an arbitrary end of the row. The
  * page's own worked example orders its actions **[Delete reading] [Keep it]**
- * and then puts initial focus on *Keep it* — the action that changes nothing,
- * at the end. So the rule this component states, and the page repeats, is that
- * the action which changes something comes first and the safest one comes last,
- * and the last is where focus lands. A reader who presses Return without
- * reading gets the answer that does nothing, which is what "defaults should be
- * safe" means in a component rather than in a sentence.
+ * and then puts initial focus on *Keep it*. That is the action that changes
+ * nothing, at the end. So the rule this component states, and the page repeats,
+ * is that the action which changes something comes first and the safest one
+ * comes last, and the last is where focus lands. A reader who presses Return
+ * without reading gets the answer that does nothing, which is what "defaults
+ * should be safe" means in a component rather than in a sentence.
  */
 function focusableIn(
   region: HTMLElement | null,
@@ -157,7 +158,7 @@ function focusableIn(
  *
  * `tokens/shape.json` publishes `radius-xl` as "sheets and dialogs", with the
  * qualifier that it is "applied to the leading edge only when the surface meets
- * a screen edge on the other side" — which is exactly the phone case below the
+ * a screen edge on the other side". That is exactly the phone case below the
  * `sm` breakpoint, where the dialog sits on the bottom edge. Above it the
  * dialog floats and takes the radius on all four corners.
  *
@@ -184,8 +185,8 @@ const SHAPE =
  *
  * The dialog rises from the bottom edge on a phone, where that is the direction
  * it comes from, and scales on a wider screen, where it does not. Under reduced
- * motion neither happens and the dialog appears in place — at which point depth
- * is carried by the scrim and by the surface's edge, which is why the
+ * motion neither happens and the dialog appears in place. Depth is then carried
+ * by the scrim and by the surface's edge, which is why the
  * specification says neither of those is optional and why no prop removes them.
  */
 const MOTION = cn(
@@ -223,7 +224,7 @@ export interface DialogProps {
   /**
    * What happens if the reader says yes, and what happens if they say no, in
    * one or two sentences. Optional on an ordinary dialog and effectively
-   * required on an alert one — it is the only place the reader is told why
+   * required on an alert one. It is the only place the reader is told why
    * Escape will not let them out, and its absence raises a development warning.
    */
   description?: string
@@ -244,7 +245,7 @@ export interface DialogProps {
    * whose readers do not read English has removed their way out of the dialog
    * as surely as deleting the control would.
    *
-   * The default is English, and that is the residual gap — the same one
+   * The default is English, and that is the residual gap. It is the same one
    * `StatusPill.label` has, and it is listed on the page rather than described
    * as solved. Ignored when `severity` is `alert`, which renders no close
    * control at all.
@@ -264,8 +265,8 @@ export interface DialogProps {
    * focusable, and only then to the primitive's own behaviour. That order is
    * the point rather than a tidy-up: the primitive's default is the first
    * tabbable element in the popup, an alert dialog has no close control, and so
-   * the first tabbable element in an alert dialog is the FIRST action — which
-   * the ordering rule reserves for the answer that changes something.
+   * the first tabbable element in an alert dialog is the FIRST action. The
+   * ordering rule reserves that for the answer that changes something.
    *
    * The cost of `safest` is that it is the LAST tab stop in the dialog, so the
    * first Tab wraps round to the close control and the other answer is reached
@@ -276,8 +277,8 @@ export interface DialogProps {
    */
   initialFocus?: "safest" | "content"
   /**
-   * The actions, in order, least destructive LAST. At most two — a dialog with
-   * three answers is a menu that has not admitted it — and that limit is a rule
+   * The actions, in order, least destructive LAST. At most two. A dialog with
+   * three answers is a menu that has not admitted it, and that limit is a rule
    * this component states rather than enforces, because `ReactNode` does not
    * say how many controls are inside it and `React.Children.count` cannot see
    * through a fragment.
@@ -291,7 +292,7 @@ export interface DialogProps {
    * need none of it.
    *
    * Nothing translucent goes in here. The dialog is itself a translucent rung
-   * and a translucent rung may never contain another one — a card inside a
+   * and a translucent rung may never contain another one. A card inside a
    * dialog is a `card`, which is opaque and is where a health value has to sit.
    */
   children?: ReactNode
@@ -323,18 +324,18 @@ export function Dialog({
   /* A blank string is an absence, not a description. `title` has had this
      treatment since the first version and `description` had only an
      `undefined` check, which meant `description=""` on an alert dialog raised
-     no warning and then wired an EMPTY `aria-describedby` onto the popup — a
-     surface with no close control, a refused Escape key and nothing announced
-     about why either of those is true. Absence and emptiness are the same
-     thing to a reader, so they are the same thing here. */
+     no warning and then wired an EMPTY `aria-describedby` onto the popup. That
+     is a surface with no close control, a refused Escape key and nothing
+     announced about why either of those is true. Absence and emptiness are the
+     same thing to a reader, so they are the same thing here. */
   const hasDescription = description !== undefined && description.trim() !== ""
 
   /* Development-only, and none of these is an OPSIN code. `tokens/errors.json`
-     allocates codes for mistakes a consumer makes with the CLINICAL API — a
-     status without a word, a range without a source — and a component may not
-     mint one, because that table is generated from that file and the codes are
-     a versioned contract. These, and the effect below them, are ordinary
-     interface defects, reported in the ordinary channel.
+     allocates codes for mistakes a consumer makes with the CLINICAL API, and a
+     component may not mint one, because that table is generated from that file
+     and the codes are a versioned contract. Those mistakes are a status
+     without a word, a range without a source. These, and the effect below them,
+     are ordinary interface defects, reported in the ordinary channel.
 
      They all render anyway. A dialog is already on screen and already holding
      the reader's focus by the time any of this is true; taking it away to
@@ -364,7 +365,7 @@ export function Dialog({
       `alert-no-description:${title}`,
       '[opsinjs] <Dialog severity="alert"> has no `description`. On an alert ' +
         "dialog the description is where the reader is told that an answer is " +
-        "needed and what each answer does — Escape will not let them out, and " +
+        "needed and what each answer does. Escape will not let them out, and " +
         "this component will not write that sentence on your behalf, because " +
         "the words belong to the product that knows what the answers mean.",
     )
@@ -379,7 +380,7 @@ export function Dialog({
      not `undefined`, and every one of them renders an actions row with nothing
      focusable in it. On an alert dialog that is a modal surface with no close
      control, a scrim that does not dismiss, an Escape key that is refused and
-     nothing at all to press — which is the outcome the warning above describes
+     nothing at all to press. That is the outcome the warning above describes
      in words and, until this effect existed, did not report.
 
      The ref is what makes the check possible: `React.Children.count` cannot see
@@ -393,7 +394,7 @@ export function Dialog({
      is still null: the popup lives in a portal Base UI has not mounted yet, so
      the check reported "nothing focusable" against a row that had not been
      built. The dependency array never changes again after that, so the verdict
-     stood for the life of the dialog — and it was wrong on this repository's own
+     stood for the life of the dialog. It was wrong on this repository's own
      alert-dialog example, where two buttons are present and Tab cycles between
      them. A developer who is told their reader is trapped, opens the dialog and
      finds two working answers learns that this warning lies, which costs more
@@ -413,7 +414,7 @@ export function Dialog({
           '[opsinjs] <Dialog severity="alert"> was given `actions` with nothing ' +
             "focusable inside it. An alert dialog has no close control, its scrim " +
             "does not dismiss and Escape does not close it, so its actions are the " +
-            "only way out — and an empty row, a `null`, a `false` or a fragment " +
+            "only way out. An empty row, a `null`, a `false` or a fragment " +
             "with no controls in it is a surface a reader cannot leave at all. " +
             'Give it the answers it is asking for, or use severity="default", ' +
             "where going away is a valid outcome.",
@@ -441,7 +442,7 @@ export function Dialog({
    * absent, in which case the content div is never rendered and the ref is
    * null; or it may hold nothing focusable. Either way the old fallback landed
    * on `true`, Base UI resolved that to the first tabbable element in the
-   * popup, and an alert dialog has no close control — so the first tabbable
+   * popup, and an alert dialog has no close control. So the first tabbable
    * element in one is the FIRST action, which this component's own ordering
    * rule reserves for the answer that changes something. A stray Return then
    * did the destructive thing, on the path the props documentation said could
@@ -471,7 +472,7 @@ export function Dialog({
    *
    * Cancelling on its own would make the key do nothing at all, and the
    * specification is explicit that the dialog "does not simply swallow the
-   * key". So focus moves to the safest action — and that move is only a
+   * key". So focus moves to the safest action. That move is only a
    * response when focus was somewhere else. In the default configuration it is
    * not: `initialFocus="safest"` has already put focus on the last action, so
    * this line focuses the element that already has focus, which the DOM
@@ -484,7 +485,7 @@ export function Dialog({
    * dialog as answered-in-part, names the case where it is silent, and cites
    * the pattern page whose requirement this does not yet meet.
    *
-   * It is not a sentence, and it was never meant to be one — the sentence
+   * It is not a sentence, and it was never meant to be one. The sentence
    * lives in `description`, in the product's own words.
    */
   function handleOpenChange(
@@ -524,12 +525,12 @@ export function Dialog({
           `aria-hidden="true"` and NOT the HTML `inert` attribute. A screen
           reader cannot reach the background and the tab ring cannot leave the
           popup, which is the whole of the safety contract this component needs.
-          What the platform attribute would add on top — unselectable text
-          behind the scrim, and containment held by the browser rather than by
-          focus guards — is not applied; overriding the primitive to add it
-          means owning behaviour Base UI owns, and that decision has not been
-          taken. Dimming, meanwhile, is what the reader sees rather than what
-          stops them. */}
+          What the platform attribute would add on top is not applied. It would
+          add unselectable text behind the scrim, and containment held by the
+          browser rather than by focus guards. Overriding the primitive to add
+          it means owning behaviour Base UI owns, and that decision has not
+          been taken. Dimming, meanwhile, is what the reader sees rather than
+          what stops them. */}
       <DialogPrimitive.Backdrop
         data-slot="dialog-scrim"
         className={cn(
@@ -590,9 +591,10 @@ export function Dialog({
                  the specification was written in put `overlay` on the rung that
                  covers the page while leaving it recognisable. That rung is now
                  called `sheet`. This ladder's `overlay` is chrome that content
-                 scrolls beneath — a pinned toolbar, a tab bar — so mapping the
-                 old name by spelling rather than by job would put a modal
-                 dialog on the rung built for a tab bar, and it would compile. */
+                 scrolls beneath, and it is the rung for a pinned toolbar or a
+                 tab bar. So mapping the old name by spelling rather than by
+                 job would put a modal dialog on the rung built for a tab bar,
+                 and it would compile. */
               "flex min-h-0 flex-col rounded-[inherit]",
               /* The safe-area inset goes on the Surface rather than on the
                  popup so the material covers it. Surface's three decorative
@@ -609,7 +611,7 @@ export function Dialog({
               "[&>[data-slot=surface-content]]:flex-col",
             )}
           >
-            {/* Dialog.Header — pinned, so the question stays on screen while
+            {/* Dialog.Header is pinned, so the question stays on screen while
                 the consequence scrolls. DOM order is visual order: the title
                 first, the close control after it, which is what makes reverse
                 tab order match what a reader sees. */}
@@ -618,21 +620,23 @@ export function Dialog({
               className={cn(
                 "flex shrink-0 items-start gap-opsin-3 px-opsin-5 pt-opsin-5",
                 /* Every region below this one pads its own foot, so the header
-                   only pads its own when it is the last thing in the dialog —
-                   a title with no consequence, no content and no answer, which
-                   is a degenerate dialog rather than an impossible one. */
+                   only pads its own when it is the last thing in the dialog.
+                   That is a title with no consequence, no content and no
+                   answer, which is a degenerate dialog rather than an
+                   impossible one. */
                 hasBody || actions !== undefined ? null : "pb-opsin-5",
               )}
             >
               {/* `wrap-break-word` is not decoration. The popup is
                   `overflow-hidden` on both axes, so a token with no break
-                  opportunity in it — a medication name, an account identifier,
-                  a URL — overflows its line box and is then CLIPPED, with no
-                  scrollbar to recover it. At 200% text the header has around a
-                  third of a phone's width left after the padding and the close
-                  control double with it, so the token does not have to be long.
-                  Losing the end of the dialog's accessible name is content
-                  loss rather than a layout blemish. */}
+                  opportunity in it overflows its line box and is then CLIPPED,
+                  with no scrollbar to recover it. That token might be a
+                  medication name, an account identifier or a URL. At 200% text
+                  the header has around a third of a phone's width left after
+                  the padding and the close control double with it, so the
+                  token does not have to be long. Losing the end of the
+                  dialog's accessible name is content loss rather than a layout
+                  blemish. */}
               <DialogPrimitive.Title
                 data-slot="dialog-title"
                 className="m-0 min-w-0 flex-1 wrap-break-word text-opsin-title3"
@@ -664,7 +668,7 @@ export function Dialog({
                        step further in: `--opsin-target-minimum` is declared only
                        in `app/tokens.generated.css`, which does not travel
                        either, and a bare reference to an undeclared property is
-                       invalid at computed-value time — `min-height` would revert
+                       invalid at computed-value time. `min-height` would revert
                        to `auto` and this control, the only exit from a modal
                        surface, would lose its floor with no error anywhere. */
                     "min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem)",
@@ -685,11 +689,11 @@ export function Dialog({
               )}
             </div>
 
-            {/* Dialog.Body — the scroll region, and the reason the actions stay
-                reachable at 200% text. `overscroll-contain` stops a flick at
-                the end of the description turning into a scroll of the page
-                behind, which is hidden from assistive technology and should not
-                move under the reader either. */}
+            {/* Dialog.Body is the scroll region, and the reason the actions
+                stay reachable at 200% text. `overscroll-contain` stops a flick
+                at the end of the description turning into a scroll of the page
+                behind, which is hidden from assistive technology and should
+                not move under the reader either. */}
             <div
               data-slot="dialog-body"
               className={cn(
@@ -701,7 +705,7 @@ export function Dialog({
                 /* Plain foreground, not the muted role. A muted caption on a
                    translucent surface is the thing this system's own material
                    guidance tells products not to do, and the description is
-                   where the consequence of each answer is written — which is
+                   where the consequence of each answer is written. That is
                    the last text on the screen that should be quiet.
 
                    `wrap-break-word` for the same reason the title carries it:
@@ -726,7 +730,7 @@ export function Dialog({
               )}
             </div>
 
-            {/* Dialog.Actions — pinned, in DOM order, least destructive last.
+            {/* Dialog.Actions is pinned, in DOM order, least destructive last.
                 The gap is `opsin-2`, which is 0.5rem, which is exactly
                 `--opsin-target-separation`: two adjacent targets need that much
                 between them and this is the one row in the component where it
@@ -789,9 +793,9 @@ export default function DialogDemo() {
         onClick={() => setOpen(true)}
         /* JOINED RATHER THAN MERGED. `cn` is `twMerge(clsx(…))` and
            tailwind-merge is unconfigured, so it files `text-opsin-body` and
-           `text-card-foreground` in one conflict group and keeps only the later
-           — which cost this button its type step every time it rendered. The
-           two utilities set different CSS properties and both should apply.
+           `text-card-foreground` in one conflict group and keeps only the
+           later. That cost this button its type step every time it rendered.
+           The two utilities set different CSS properties and both should apply.
            Nothing here needs merging: there is no caller `className` on a demo.
            `sheet.tsx` carries the same note at its close control. */
         className={

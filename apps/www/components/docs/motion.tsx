@@ -5,14 +5,14 @@ import { useId, useMemo, useState, useSyncExternalStore } from "react"
 import { cn } from "@/lib/utils"
 
 /* ==========================================================================
-   motion.tsx — <MotionCurve> and <MotionDemo>.
+   motion.tsx defines <MotionCurve> and <MotionDemo>.
 
    opsinjs expresses springs as `linear()` easing tokens rather than as
    per-component spring configuration. The reason is that a spring is a physical
-   description — stiffness, damping, mass — and a design system that ships
-   springs as configuration ends up with every component re-tuning them until
-   nothing on the screen agrees about how the product moves. `linear()` freezes
-   the physics into a token, so a spring is a decision taken once.
+   description built from stiffness, damping and mass, and a design system that
+   ships springs as configuration ends up with every component re-tuning them
+   until nothing on the screen agrees about how the product moves. `linear()`
+   freezes the physics into a token, so a spring is a decision taken once.
 
    The cost is that a linear() string is unreadable: fifty numbers. <MotionCurve>
    pays that cost back by plotting it, and <MotionDemo> plays it on a real
@@ -49,7 +49,7 @@ function subscribeNever(): () => void {
   return () => {}
 }
 
-/** One point on the curve: progress in, output out, both 0–1. */
+/** One point on the curve: progress in, output out, both 0 to 1. */
 interface CurvePoint {
   t: number
   v: number
@@ -60,8 +60,8 @@ interface CurvePoint {
  *
  * The grammar allows a bare number, a number with one stop position, or a
  * number with two (which duplicates the value across a flat span). Positions
- * that are omitted are distributed evenly between the neighbours that have one
- * — which is exactly what the CSS spec says the browser does, so the plot and
+ * that are omitted are distributed evenly between the neighbours that have one.
+ * That is exactly what the CSS spec says the browser does, so the plot and
  * the animation agree.
  */
 export function parseLinearEasing(value: string): CurvePoint[] {
@@ -160,8 +160,8 @@ export interface MotionCurveProps {
  * The dashed line at 1 is what makes the plot worth having: a spring that
  * overshoots crosses it and comes back, and a reader can see immediately
  * whether this token is one that will make a health value appear to move past
- * its target and settle — which is charming on a toggle and unacceptable on a
- * number somebody is about to act on.
+ * its target and settle. Overshoot like that is charming on a toggle and
+ * unacceptable on a number somebody is about to act on.
  */
 export function MotionCurve({
   token = "--opsin-ease-spring",
@@ -175,7 +175,7 @@ export function MotionCurve({
   /**
    * Read during render rather than pushed in from an effect. The token's value
    * is a property of the stylesheet, not of any state this component owns, so
-   * the only thing that has to wait is hydration — and `useIsClient` is what
+   * the only thing that has to wait is hydration. `useIsClient` is what
    * waits, keeping the server and the first client render identical.
    */
   const points = useMemo<CurvePoint[]>(() => {
@@ -346,9 +346,9 @@ export function MotionDemo({
         <code className="text-[0.6875rem]">{easing}</code> ·{" "}
         <code className="text-[0.6875rem]">{duration}</code>. Under{" "}
         <code className="text-[0.6875rem]">prefers-reduced-motion: reduce</code>{" "}
-        this becomes 1ms with a flat curve — the element still moves, it simply
-        arrives at once. The checkbox simulates the preference; if you have
-        actually set it, app/globals.css has already applied it and the two
+        this becomes 1ms with a flat curve. The element still moves, and it
+        simply arrives at once. The checkbox simulates the preference; if you
+        have actually set it, app/globals.css has already applied it and the two
         states will look the same.
       </p>
     </div>

@@ -83,7 +83,7 @@ its cost section. Seven of the twenty-four carry `"use client"` today: `Sheet`,
 `Dialog`, `ConsentSheet`, `LogSheet` and `ReadingInput`, which manage focus and
 open/closed state; `Term`, whose plain-English expansion is a disclosure the
 reader opens; and `RelativeTime`, for the reason below. `TrendSparkline` is not
-among them — it renders as static markup, so a series is safe in a server tree.
+among them. It renders as static markup, so a series is safe in a server tree.
 Where a component is split, the interactive part is a separate file, so importing
 the display half does not drag a client boundary into your server tree.
 
@@ -133,8 +133,8 @@ Four checks that between them catch almost every framework-level setup problem:
 
 **`useState` / `createContext` errors in a server component.** You imported an
 interactive component into a server tree. Split the import, or mark the leaf as a
-client component — not the whole page, which is the reflex fix and the expensive
-one.
+client component rather than the whole page. Marking the whole page is the
+reflex fix and the expensive one.
 
 **Styles work in development and vanish in production.** Almost always a Tailwind
 source-scanning difference between the two builds. Check your `@source` lines
@@ -154,9 +154,9 @@ the matrix once there is something to test.
 
 ## Next
 
-- [Installation](./installation/index.mdx) — pick the path that matches your
-  setup.
-- [Browser support](./browser-support.mdx) — the runtime half of the support
+- [Installation](./installation/index.mdx) is where you pick the path that
+  matches your setup.
+- [Browser support](./browser-support.mdx) is the runtime half of the support
   question.
-- [Tailwind v4](../theming/tailwind-v4.mdx) — `@theme` versus `@theme inline`, and
-  the CSS order that breaks silently.
+- [Tailwind v4](../theming/tailwind-v4.mdx) covers `@theme` versus
+  `@theme inline`, and the CSS order that breaks silently.

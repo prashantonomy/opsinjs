@@ -32,8 +32,8 @@ contrast floor was authored against light and that is the theme the guarantee
 was measured in. Choosing dark, once, is remembered.
 
 The thing this is most often confused with is the *implementation* of theme
-switching — the class strategy, the provider, the flash of the wrong theme on
-first paint. That is mechanics and it lives in
+switching. The class strategy, the provider and the flash of the wrong theme
+on first paint are mechanics, and they live in
 [Dark mode in the handbook](../../handbook/dark-mode.mdx). This page is about
 what the colours have to mean.
 
@@ -57,14 +57,15 @@ components render it in that order.
 requirement. Every pair is measured separately in dark and a dark-only
 regression fails the build exactly as a light-only one does. This is the
 invariant most often broken elsewhere, because dark themes flatter the WCAG 2.2
-ratio at the dark end — see [Contrast and APCA](./contrast-and-apca.mdx).
+ratio at the dark end. See [Contrast and APCA](./contrast-and-apca.mdx).
 
 **4. Surfaces gain chroma; inks lose it.** This is the counter-intuitive one and
 it is not a stylistic choice. At low lightness a tint needs more chroma to read
 as coloured at all, so the dark status and category surfaces are authored with
 *higher* `C` than their light counterparts. Light text, conversely, is
-uncomfortable when it is saturated — it glares — so dark-theme inks carry
-*less* `C` than light-theme inks. Both movements are at constant hue.
+uncomfortable when it is saturated, because saturated light text glares.
+Dark-theme inks therefore carry *less* `C` than light-theme inks. Both
+movements are at constant hue.
 
 **5. Pure black is not a background.** The dark background sits near `L 0.16`
 with a trace of chroma rather than at `L 0`. Three reasons: on OLED panels,
@@ -99,8 +100,8 @@ implemented with colours alone.
 
 ### Why not inversion
 
-Inverting lightness — `L' = 1 - L` — is the tempting one-line implementation and
-it fails on invariant 4 and invariant 6 simultaneously. It also fails on
+Inverting lightness with `L' = 1 - L` is the tempting one-line implementation
+and it fails on invariant 4 and invariant 6 simultaneously. It also fails on
 something subtler: perceptual lightness is not symmetric in its effect on
 apparent chroma, so an inverted palette's *relative* saturations are wrong even
 though every individual value is a defensible colour. The four status levels stop
@@ -113,7 +114,7 @@ photographs, body diagrams and any medical illustration along with the interface
 
 **Design light first, then check dark, then check dark on a real phone at low
 brightness.** The third step is not optional and it is where dark-theme problems
-actually surface — a pair that measures fine at 100% brightness in a bright room
+actually surface. A pair that measures fine at 100% brightness in a bright room
 can be unreadable at 20% in a dark one, which is precisely the situation a dark
 theme exists for.
 
@@ -157,7 +158,7 @@ between themes, so a reader switching does not lose their place.
 
 **What is yours.** Any colour you introduce, including imagery. A photograph or
 an illustration authored for a light background will usually need a dark-theme
-counterpart or a scrim — see
+counterpart or a scrim. See
 [The contrast floor](../materials/the-contrast-floor.mdx). Charts you draw
 yourself need their gridlines and axes re-derived too; a light-theme gridline is
 invisible on a dark ground.
@@ -165,9 +166,8 @@ invisible on a dark ground.
 **Related preferences that are not dark mode.** `prefers-contrast: more` and
 `forced-colors: active` are separate requests and dark mode does not satisfy
 either. A reader may want dark *and* increased contrast, and the system has to
-compose them —
-[Increased contrast](../../accessibility/increased-contrast.mdx) covers what
-changes.
+compose them. [Increased contrast](../../accessibility/increased-contrast.mdx)
+covers what changes.
 
 **A note on light sensitivity.** Dark mode is frequently described as the
 accessible choice. For some readers it is; for others, particularly those with
@@ -177,9 +177,9 @@ reason neither theme is allowed a lower floor than the other.
 
 ## Related
 
-- [How the engine works](./how-the-engine-works.mdx) — the ladder that both
+- [How the engine works](./how-the-engine-works.mdx) has the ladder that both
   themes are derived from, read from opposite ends.
-- [Dark mode in the handbook](../../handbook/dark-mode.mdx) — the class
+- [Dark mode in the handbook](../../handbook/dark-mode.mdx) covers the class
   strategy, the provider and preventing the first-paint flash.
-- [The ladder](../materials/the-ladder.mdx) — why elevation changes mechanism
-  between themes, rung by rung.
+- [The ladder](../materials/the-ladder.mdx) explains why elevation changes
+  mechanism between themes, rung by rung.

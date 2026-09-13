@@ -23,8 +23,8 @@ project, you already have this file and adding opsinjs is one entry.
   `opsinjs.dev` is the intended canonical host and does not resolve today, so an
   add against the entry below fails before the CLI reaches a registry. The
   twenty-four implemented components resolve from any host that is serving the
-  registry items — `/r/status-pill.json` and the rest — so point the entry at one
-  and everything on this page applies unchanged.
+  registry items, which are `/r/status-pill.json` and the rest. Point the entry
+  at one, and everything on this page applies unchanged.
   [Troubleshooting](../troubleshooting.mdx#nothing-is-published-yet).
 </Callout>
 
@@ -33,10 +33,10 @@ project, you already have this file and adding opsinjs is one entry.
 Run `npx shadcn@latest init` first if this project has never had it. That is
 what writes `components.json`, and it is also what writes `lib/utils.ts`, which
 exports the `cn` helper every opsinjs component imports. The registry does not
-ship that file on purpose — a third copy would collide with the one you already
+ship that file on purpose. A third copy would collide with the one you already
 have and may have extended, which is
-[ADR 0010](../../project/decisions/0010-shared-code-ships-with-every-item.mdx) —
-so a project that skips `init` gets components that land in the right place and
+[ADR 0010](../../project/decisions/0010-shared-code-ships-with-every-item.mdx).
+So a project that skips `init` gets components that land in the right place and
 then every one of them fails to typecheck on the same missing module.
 
 The registries entry is then the only change opsinjs strictly requires, and the
@@ -73,13 +73,13 @@ wrong quietly if they are wrong.
 | Field | What it does | What opsinjs needs from it |
 | --- | --- | --- |
 | `$schema` | Editor validation | Nothing, but keep it |
-| `style` | Selects a style variant within a registry | Required: the CLI validates against a schema that demands it, so a file without it is rejected whole. It reaches opsinjs only through the URL template — the CLI substitutes it wherever a registry URL contains `{style}` — so it matters if you point the entry at `/r/styles/{style}/{name}.json`, which [Registry](../../registry/index.mdx) documents, and not with the `/r/{name}.json` entry this page publishes |
+| `style` | Selects a style variant within a registry | Required: the CLI validates against a schema that demands it, so a file without it is rejected whole. It reaches opsinjs only through the URL template. The CLI substitutes it wherever a registry URL contains `{style}`. So it matters if you point the entry at `/r/styles/{style}/{name}.json`, which [Registry](../../registry/index.mdx) documents, and not with the `/r/{name}.json` entry this page publishes |
 | `rsc` | Whether the project uses server components | Controls whether a `"use client"` directive is written into files that need one. Wrong value, wrong build errors |
 | `tsx` | TypeScript or JavaScript output | opsinjs source is TypeScript; `false` is not supported |
 | `tailwind.css` | Path to your main stylesheet | Where the token layer import is written |
 | `tailwind.baseColor` | The neutral ramp | shadcn's, not opsinjs's. The opsinjs token layer defines its own neutrals |
 | `tailwind.cssVariables` | Variables versus utility classes | Must be `true`. The whole token system is CSS custom properties |
-| `tailwind.prefix` | Utility prefix | Supported, but set it before you copy anything in — changing it later means editing copied source |
+| `tailwind.prefix` | Utility prefix | Supported, but set it before you copy anything in. Changing it later means editing copied source |
 | `iconLibrary` | Which icon set | opsinjs targets lucide. A different set means substituting icons in copied source by hand |
 | `aliases.components` | Where components go | Must match your `tsconfig.json` paths |
 | `aliases.ui` | Where primitives go | Same |
@@ -166,8 +166,8 @@ substitution; you are editing copied source.
 
 ## Next
 
-- [Monorepo](./monorepo.mdx) — the same fields, one directory level harder.
-- [Registry](../../registry/index.mdx) — what the namespace resolves to and what a
-  registry item contains.
-- [Official resources](../../project/official-resources.mdx) — the canonical hosts,
-  so you can tell a real registry from a lookalike.
+- [Monorepo](./monorepo.mdx) covers the same fields, one directory level harder.
+- [Registry](../../registry/index.mdx) says what the namespace resolves to and
+  what a registry item contains.
+- [Official resources](../../project/official-resources.mdx) has the canonical
+  hosts, so you can tell a real registry from a lookalike.

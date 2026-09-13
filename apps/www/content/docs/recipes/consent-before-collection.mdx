@@ -23,9 +23,9 @@ understand and refuse.
 Consent in a health product is not a legal formality bolted on at first launch. It
 is a design surface with a specific failure mode: the wall of text with one
 inviting button, agreed to by everybody and understood by nobody. That surface is
-compliant-looking and worthless — worthless to the reader, who has not made a
-decision, and worthless to you, because a consent nobody understood is a consent
-that evaporates the moment it is examined.
+compliant-looking and worthless. It is worthless to the reader, who has not
+made a decision, and worthless to you, because a consent nobody understood is a
+consent that evaporates the moment it is examined.
 
 This recipe builds the honest version: one category, asked at the moment it
 becomes useful, in a sentence that says what you get and what they get, with
@@ -35,8 +35,8 @@ declining as easy as agreeing and revocation always one predictable place away.
 This recipe is about the interface. It is not legal advice and it does not make
 your product compliant with UK GDPR, the EU GDPR, HIPAA or any other regime. What
 you must ask, what you must record and how long you may keep it are questions for
-your data protection lead. opsinjs supplies the surface, never the obligation —
-see [Safety, scope and limitations](../start/safety-scope-and-limitations.mdx).
+your data protection lead. opsinjs supplies the surface, never the obligation.
+See [Safety, scope and limitations](../start/safety-scope-and-limitations.mdx).
 </SafetyCallout>
 
 ## What you need
@@ -44,8 +44,8 @@ see [Safety, scope and limitations](../start/safety-scope-and-limitations.mdx).
 The seven components this surface composes are at `alpha`: the code exists and
 installs, the API may change in any release without a deprecation cycle, and
 none of it has been through an accessibility or a clinical review. The last row
-is `considered` — reserved names with no code — so the per-item toggles inside
-the sheet are yours to supply.
+is `considered`, meaning reserved names with no code. The per-item toggles
+inside the sheet are therefore yours to supply.
 
 | Part | Component | Status | What it does here |
 | --- | --- | --- | --- |
@@ -78,7 +78,7 @@ is. Write the list of what you will actually read, at the granularity the person
 would recognise, and ask for that.
 
 If the list is long enough to need scrolling, you are asking for too much at once.
-Split it — the categories in
+Split it. The categories in
 [Category identity](../health/category-identity.mdx) are a reasonable seam,
 because they are the seams the reader already thinks in.
 
@@ -96,9 +96,9 @@ is genuinely informative to you rather than being noise.
 
 The operating system's health-data prompt and your consent are different things
 asked by different parties, and they must not be blurred into one. Ask yours
-first, in your own words, and only then trigger the platform prompt — so that a
-person who declines yours is never shown a system dialog they did not expect, and
-so that a platform grant is never mistaken for agreement with you.
+first, in your own words, and only then trigger the platform prompt. That way a
+person who declines yours is never shown a system dialog they did not expect,
+and a platform grant is never mistaken for agreement with you.
 
 Never present your own screen styled to look like the system's. That is
 impersonation, and it is the clearest possible signal of bad faith.
@@ -109,10 +109,10 @@ Nothing is pre-ticked. Every grantable item starts off, and the person turns on
 what they want. A pre-ticked box is not a decision, and in most regimes it is not
 a consent either.
 
-If there are several items, they are individually grantable. Bundling — "agree to
-all of this or none of it" — converts a considered choice into an ultimatum, and
-the person who wanted to share sleep but not location is forced into the wrong
-answer.
+If there are several items, they are individually grantable. Bundling is "agree
+to all of this or none of it". It converts a considered choice into an
+ultimatum, and the person who wanted to share sleep but not location is forced
+into the wrong answer.
 
 ### Make declining exactly as easy as agreeing
 
@@ -131,7 +131,7 @@ work at all, say that plainly and offer the way back.
 Four sentences, in the reader's words, before the buttons:
 
 - **What you collect**, precisely.
-- **What it is used for** — the benefit to them, stated concretely: "so we can show
+- **What it is used for.** State the benefit to them concretely: "so we can show
   your sleep next to your resting heart rate".
 - **Who else sees it.** If the answer is nobody, say nobody. If it is a named
   third party, name them.
@@ -146,7 +146,7 @@ Store what was granted, when, by whom, and **which version of the wording** they
 saw. Without the last one you cannot answer the only question that ever gets asked
 later: what exactly did this person agree to?
 
-That record is also what makes re-asking honest — you re-ask when the wording or
+That record is also what makes re-asking honest. You re-ask when the wording or
 the scope changes, because the previous agreement was to different terms, and not
 on a timer, because a timer just trains people to tap through.
 
@@ -173,20 +173,20 @@ Second person, present tense, short sentences, and the benefit before the ask.
   <DoDont.Do>
     "To show your sleep next to your resting heart rate, we need to read sleep and
     heart rate from your watch. We use them only to draw your trends. Nobody else
-    sees them. You can turn this off at any time in Settings." — with **Allow** and
-    **Not now** as two buttons of equal weight.
+    sees them. You can turn this off at any time in Settings." **Allow** and
+    **Not now** are two buttons of equal weight.
   </DoDont.Do>
   <DoDont.Dont>
     "We care about your privacy. By continuing you agree to our processing of your
-    health data as described in our Privacy Policy." — with **Continue** filled and
-    large, and **Skip** as small grey text. Nothing specific has been asked, and
+    health data as described in our Privacy Policy." **Continue** is filled and
+    large, and **Skip** is small grey text. Nothing specific has been asked, and
     one answer has been made to look like the mistake.
   </DoDont.Dont>
 </DoDont>
 
 **Button labels name the outcome**, not agreement: "Allow sleep data" and "Not
 now", rather than "I agree" and "Cancel". "Cancel" on a consent screen is
-ambiguous — cancel the sharing, or cancel the reading?
+ambiguous. Does it cancel the sharing, or cancel the reading?
 
 **Never make refusal sound reckless.** "No thanks, I don't want better results" is
 coercion in the shape of a button, and it is the clearest tell that a product's
@@ -225,13 +225,14 @@ Wider guidance on asking uncomfortable questions gently is in
 - The full explanation is reachable in reading order **before** the buttons. A
   screen-reader user must not meet "Allow" before they meet what they are
   allowing.
-- Both answers are the same size, contrast and prominence — check with the page in
-  greyscale, where a visual hierarchy built purely on colour becomes obvious.
-- Every target clears 44pt with real separation —
+- Both answers are the same size, contrast and prominence. Check with the page
+  in greyscale, where a visual hierarchy built purely on colour becomes obvious.
+- Every target clears 44pt with real separation. See
   [Target size and motor accessibility](../accessibility/target-size-and-motor.mdx).
 - Focus enters the sheet on open and returns on close;
   <Kbd>Escape</Kbd> dismisses it and dismissal means **no answer given**, never an
-  implied yes — [Keyboard and focus](../accessibility/keyboard-and-focus.mdx).
+  implied yes. The full focus contract is in
+  [Keyboard and focus](../accessibility/keyboard-and-focus.mdx).
 - At 200% text nothing is clipped and both buttons remain visible together; a
   layout where agreeing is on screen and declining is below the fold is a dark
   pattern created by reflow.
@@ -239,8 +240,9 @@ Wider guidance on asking uncomfortable questions gently is in
   [Health literacy](../content/health-literacy.mdx). Consent copy fails more
   readers than any other copy in a health product.
 - Nothing in the flow is timed. A person may take as long as they like, and a
-  sheet that dismisses itself has taken the decision for them —
-  [Cognitive accessibility](../accessibility/cognitive-accessibility.mdx).
+  sheet that dismisses itself has taken the decision for them.
+  [Cognitive accessibility](../accessibility/cognitive-accessibility.mdx) covers
+  time limits.
 
 ## Variations
 
@@ -249,9 +251,9 @@ since they last agreed, show the new wording, and let them re-decide only the pa
 that moved.
 
 **Consent inside a questionnaire.** A question that could disclose something
-serious — self-harm, abuse, a diagnosis — needs its own handling, and the
-disclosure that follows matters more than the consent that preceded it. Treat it
-as a distinct flow.
+serious needs its own handling, and the disclosure that follows matters more
+than the consent that preceded it. Self-harm, abuse and a diagnosis are
+examples. Treat it as a distinct flow.
 
 <Todo>
 Disclosure inside a questionnaire, and signposting to crisis support, are not
@@ -272,9 +274,9 @@ kept and why.
 
 ## Related
 
-- **[Consent and disclosure](../health/consent-and-disclosure.mdx)** — the
+- **[Consent and disclosure](../health/consent-and-disclosure.mdx)** is the
   doctrine: granular, revocable, recorded, re-askable.
-- **[Consent and permissions](../patterns/consent-and-permissions.mdx)** — the
-  same task at flow scale, including the platform prompt sequencing.
-- **[Consent flow](../screens/consent-flow.mdx)** — the whole-screen specimen this
-  recipe composes.
+- **[Consent and permissions](../patterns/consent-and-permissions.mdx)** covers
+  the same task at flow scale, including the platform prompt sequencing.
+- **[Consent flow](../screens/consent-flow.mdx)** is the whole-screen specimen
+  this recipe composes.

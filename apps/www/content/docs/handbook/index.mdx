@@ -1,6 +1,6 @@
 ---
 title: Handbook
-description: The mechanics layer — how you change things — kept deliberately separate from what a token means and from the generated list of every one.
+description: The mechanics layer is how you change things. It is kept deliberately separate from what a token means and from the generated list of every one.
 status: stable
 kind: handbook
 icon: Wrench
@@ -26,10 +26,11 @@ That sentence is printed at the top of all three sections and it is enforced:
 Foundations page starts explaining overrides.
 
 This is the middle layer Base UI deliberately leaves out. Base UI gives you
-unstyled primitives and a state-attribute contract, then stops — correctly,
-because it is a primitive library. What it does not tell you is where the
-`className` goes, which attribute your transition should key off, where the
-client boundary falls in an App Router application, or what to assert in a test.
+unstyled primitives and a state-attribute contract, then stops. Stopping there
+is correct, because it is a primitive library. What it does not tell you is
+where the `className` goes, which attribute your transition should key off,
+where the client boundary falls in an App Router application, or what to assert
+in a test.
 Those questions have real answers, they are the same answers for everyone, and
 they belong somewhere.
 
@@ -37,7 +38,7 @@ they belong somewhere.
 
 The Handbook is organised by the moment you have the question.
 
-**Working with components** — you have a component on screen and you want it to
+**Working with components.** You have a component on screen and you want it to
 look or behave differently. [Styling](./styling.mdx) is the entry point and
 names the four hooks; [Data attributes](./data-attributes.mdx) is the shared
 state vocabulary you style against;
@@ -46,20 +47,20 @@ parts into your own elements; [Forms](./forms.mdx) is the wiring;
 [Motion in practice](./motion-in-practice.mdx) is writing transitions that
 respect the reduced-motion contract; [Icons](./icons.mdx) is the icon slot.
 
-**Environment** — the application around the component.
+**Environment** is the application around the component.
 [Dark mode](./dark-mode.mdx), [Server and client
 components](./server-and-client-components.mdx),
 [Internationalisation](./internationalisation.mdx) and
 [TypeScript](./typescript.mdx).
 
-**Correctness and cost** — keeping it right as it grows.
+**Correctness and cost.** Keeping it right as it grows.
 [Naming conventions](./naming-conventions.mdx), [Error
 codes](./error-codes.mdx), [Performance and bundle
 size](./performance-and-bundle-size.mdx), [Testing](./testing.mdx), and
-[Tooling](./tooling/index.mdx) — the lint rules that enforce the invariants
-that documentation alone cannot.
+[Tooling](./tooling/index.mdx). Tooling covers the lint rules that enforce the
+invariants that documentation alone cannot.
 
-**Moving in and contributing** — [Migrating from
+**Moving in and contributing.** [Migrating from
 shadcn/ui](./migrating-from-shadcn.mdx) and
 [Contributing](./contributing/index.mdx).
 
@@ -67,10 +68,10 @@ shadcn/ui](./migrating-from-shadcn.mdx) and
 
 A Handbook page's `status` says whether the mechanism it documents exists today:
 
-- `stable` — real now. The dark-mode strategy, the naming conventions and the
-  contributing process all apply to this repository as it stands.
-- `planned` — a specification of a mechanism that has not been implemented as
-  described. Every page documenting how you will style, compose or test an
+- `stable` means real now. The dark-mode strategy, the naming conventions and
+  the contributing process all apply to this repository as it stands.
+- `planned` means a specification of a mechanism that has not been implemented
+  as described. Every page documenting how you will style, compose or test an
   opsinjs component is `planned`, and each stays there until somebody has
   checked the documented mechanism against the twenty-four components now at
   `alpha` and found it true of them. Code existing is not the same as the
@@ -91,12 +92,12 @@ of…", you are in [Reference](../reference/index.mdx).
 
 ## Not this
 
-Do not treat the Handbook as an API reference. The generated lists — every
-token, every data attribute, every CSS variable, every keyboard shortcut, every
-exported type — live in [Reference](../reference/index.mdx) and are produced
-from source by `pnpm run generate`. A Handbook page that starts enumerating is
-drifting, and any number typed into one by hand is wrong the moment the
-generator next runs.
+Do not treat the Handbook as an API reference. The generated lists live in
+[Reference](../reference/index.mdx) and are produced from source by
+`pnpm run generate`. Those lists are every token, every data attribute, every
+CSS variable, every keyboard shortcut and every exported type. A Handbook page
+that starts enumerating is drifting, and any number typed into one by hand is
+wrong the moment the generator next runs.
 
 Do not look for design rationale here either. Why the status axis has four
 levels is [Health](../health/index.mdx); why the material ladder has six rungs
@@ -115,16 +116,16 @@ is [Foundations → Materials](../foundations/materials/index.mdx).
   component into a server component can pull a provider with it. See
   [Server and client components](./server-and-client-components.mdx).
 - **Nothing here is generated except the counts.** If a Handbook page shows you
-  a table of token names, it is a Handbook page doing Reference's job — report
+  a table of token names, it is a Handbook page doing Reference's job. Report
   it.
 
 ## Related
 
-- [Foundations](../foundations/index.mdx) — what each token means, and the
+- [Foundations](../foundations/index.mdx) says what each token means, and the
   reasoning behind the scales.
-- [Theming and tokens](../theming/index.mdx) — the other half of "how you change
-  it": themes, presets, and adding your own tokens.
-- [Reference](../reference/index.mdx) — the generated lists, committed and
+- [Theming and tokens](../theming/index.mdx) is the other half of "how you
+  change it": themes, presets, and adding your own tokens.
+- [Reference](../reference/index.mdx) has the generated lists, committed and
   searchable.
-- [Contributing](./contributing/index.mdx) — how to change opsinjs itself rather
-  than your use of it.
+- [Contributing](./contributing/index.mdx) shows how to change opsinjs itself
+  rather than your use of it.

@@ -21,15 +21,15 @@ a person, and `pnpm run check:generated` fails the build if the committed
 generated output no longer matches its source.
 
 This page is the **theme author's** view: it is grouped by tier, and it says
-what you may set. The exhaustive machine-readable dump — including the internal
-tokens no one outside the generator should reference — is
-[Reference → Tokens](../reference/generated/tokens.mdx). Where the two disagree,
-the generated reference is right and this page has a stale grouping.
+what you may set. The exhaustive machine-readable dump is
+[Reference → Tokens](../reference/generated/tokens.mdx). It includes the
+internal tokens no one outside the generator should reference. Where the two
+disagree, the generated reference is right and this page has a stale grouping.
 
 To change a value, change the JSON and regenerate. Editing
 `app/tokens.generated.css` directly is caught by the check and reverted.
 
-### Tier 2 — role tokens
+### Tier 2 role tokens
 
 The tier you retheme, and the tier the versioning policy covers. An opsinjs role
 is named for the job it does on one of the two colour axes, and every ramp
@@ -40,12 +40,12 @@ shadcn convention the documentation chrome is built on, and those variables are
 not opsinjs tokens and carry no promise.
 
 `<TokenTable>` filters by source file rather than by tier, so the table below is
-`tokens/color.json` in full — the neutrals, plus the status and category ramps
-the two Tier 1 sections further down explain. Read the `-surface`, `-line`,
-`-ink` and `-accent` rows and ignore the numbered steps beside them; those are
-primitives, and a component that references one has skipped the tier this page
-is about. The generated reference carries the same rows with a tier column and
-separate light and dark values:
+`tokens/color.json` in full. It contains the neutrals, plus the status and
+category ramps the two Tier 1 sections further down explain. Read the
+`-surface`, `-line`, `-ink` and `-accent` rows and ignore the numbered steps
+beside them; those are primitives, and a component that references one has
+skipped the tier this page is about. The generated reference carries the same
+rows with a tier column and separate light and dark values:
 [Reference → Tokens](../reference/generated/tokens.mdx#color).
 
 <TokenTable scope="color" />
@@ -71,17 +71,17 @@ argument in full.
 
 <TokenTable scope="type" />
 
-### Tier 1 — the status ramp
+### Tier 1 status ramp
 
 Four ordinal levels, and a fifth stem for the absence of one. Each has a surface,
 a line, an ink and an accent slot, in light and in dark, with a Display-P3
 escalation that raises chroma at identical lightness.
 
-These are listed so you can read them, not so you can set them. The token ids are
-`steady`, `watch`, `attention` and `urgent`, plus `unknown` — which is not a fifth
-level but the state where there is no reading to make a claim about. What each
-level *means*, who is allowed to assign it, and what word a reader actually sees
-are decided in
+These are listed so you can read them, not so you can set them. The token ids
+are `steady`, `watch`, `attention` and `urgent`, plus `unknown`. `unknown` is
+not a fifth level but the state where there is no reading to make a claim about.
+What each level *means*, who is allowed to assign it, and what word a reader
+actually sees are decided in
 [Clinical status semantics](../health/clinical-status-semantics.mdx), which is
 canonical. A token id is a machine identifier and is never the label you put in
 front of a patient: `attention` names a ramp, "Needs attention" is the word.
@@ -92,7 +92,7 @@ by side, they are at
 [Reference → Tokens](../reference/generated/tokens.mdx#status); their measured
 contrast is in the report at the foot of this page.
 
-### Tier 1 — the category ramps
+### Tier 1 category ramps
 
 Six identity ramps: `sleep`, `heart`, `activity`, `nutrition`, `mind`, `labs`.
 Deliberately low-chroma, because a category colour carries no verdict and must not
@@ -105,7 +105,7 @@ The six ramps are inside the colour table above; grouped on their own, with
 light and dark side by side, they are at
 [Reference → Tokens](../reference/generated/tokens.mdx#category).
 
-### Tier 1 — the material ladder
+### Tier 1 material ladder
 
 Six rungs, from a flat page background to a scrim. Each rung is a background, a
 blur radius, a border and a shadow, and each collapses to an opaque fallback
@@ -113,23 +113,23 @@ under `prefers-reduced-transparency`.
 
 <TokenTable scope="material" />
 
-### Tier 1 — motion
+### Tier 1 motion
 
-Two families in one table. A plain scale — the `duration-*` steps and the
-`ease-standard`, `ease-enter` and `ease-exit` curves — and the springs, where a
-sampled CSS `linear()` easing and the settling time measured from that spring's
-own parameters are emitted as a pair and have to be used together, since a
-spring easing on somebody else's duration is not that spring any more. Reduced
-motion is answered per token rather than by one kill switch. In the generated
-block each spring easing resolves to the plain `linear` keyword, `ease-standard`
-flattens with them, and every spring duration drops to the fallback that
-spring's own entry in `tokens/motion.json` declares — to nothing at all for the
-springs a reader initiates or that carry a health value, to a short cross-fade
-for the ones announcing that something arrived, because collapsing those to a
-single instant would remove the cue that a value changed. The plain `duration-*`
-steps have no per-token answer and are flattened to `1ms` further down the
-cascade, in `app/product.css`; the enter and exit curves are never overridden,
-having no overshoot to take out.
+Two families in one table. The first is a plain scale: the `duration-*` steps
+and the `ease-standard`, `ease-enter` and `ease-exit` curves. The second is
+the springs, where a sampled CSS `linear()` easing and the settling time
+measured from that spring's own parameters are emitted as a pair and have to
+be used together, since a spring easing on somebody else's duration is not that
+spring any more. Reduced motion is answered per token rather than by one kill
+switch. In the generated block each spring easing resolves to the plain `linear`
+keyword, `ease-standard` flattens with them, and every spring duration drops to
+the fallback that spring's own entry in `tokens/motion.json` declares. That
+fallback is nothing at all for the springs a reader initiates or that carry a
+health value, and a short cross-fade for the ones announcing that something
+arrived, because collapsing those to a single instant would remove the cue that
+a value changed. The plain `duration-*` steps have no per-token answer and are
+flattened to `1ms` further down the cascade, in `app/product.css`; the enter
+and exit curves are never overridden, having no overshoot to take out.
 
 <TokenTable scope="motion" />
 

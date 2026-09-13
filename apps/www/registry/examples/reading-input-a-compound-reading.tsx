@@ -9,14 +9,14 @@
  * hears "Example measurement, First part, edit" rather than two unrelated
  * numbers on a row.
  *
- * WHY ENTRY LOOKS DIFFERENT FROM DISPLAY, which is the thing worth taking away.
- * `health/numbers-units-precision` rule 11 says a compound value is written in
- * its conventional form — one string with a solidus, not two fields — and that
- * rule is about DISPLAY, where ResultCard obeys it. This is entry, where
- * `patterns/forms/units-and-numeric-entry` requires the opposite: separate
- * fields under one legend. Asking somebody to type a solidus is asking them to
- * format their own record, and a single box cannot tell you which half is
- * missing when only one number arrives.
+ * WHY ENTRY LOOKS DIFFERENT FROM DISPLAY, which is the thing worth taking
+ * away. `health/numbers-units-precision` rule 11 says a compound value is
+ * written in its conventional form, which is one string with a solidus, not
+ * two fields. That rule is about DISPLAY, where ResultCard obeys it. This
+ * is entry, where `patterns/forms/units-and-numeric-entry` requires the
+ * opposite: separate fields under one legend. Asking somebody to type a
+ * solidus is asking them to format their own record, and a single box cannot
+ * tell you which half is missing when only one number arrives.
  *
  * The unit belongs to the whole group and is shown once, after the last box.
  * Both parts of a compound reading are in the same unit by definition; a pair in
@@ -25,7 +25,7 @@
  * WHAT COMES BACK IS A ResultCard's `segments`. `onChange` hands over the same
  * `{ label, value }[]` shape ResultCard and MetricTile already take, so what was
  * typed here goes straight to the surface that displays it with no mapping step
- * in between — which is the only reason the two components agree on a shape.
+ * in between. That is the only reason the two components agree on a shape.
  *
  * The measurement is fictional and the numbers are deliberately unreal. The
  * parts are "First part" and "Second part" rather than the names of a real

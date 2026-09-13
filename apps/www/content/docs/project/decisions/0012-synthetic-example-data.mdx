@@ -1,5 +1,5 @@
 ---
-title: "0012 — Example data is synthetic and explicitly unsourced"
+title: "ADR 0012. Example data is synthetic and explicitly unsourced"
 description: Every demo, example and preview uses obviously invented numbers and one shared literal in place of a source, because a plausible example range is a fabricated citation.
 status: stable
 kind: project
@@ -22,7 +22,7 @@ Four rules that are individually correct meet at one line of one file, and the
 obvious way to satisfy all four is a fabrication.
 
 The rules are these. A reference range must name its owner: `ReferenceRange.source`
-is required, and the interface says why — "a band with no provenance is an
+is required, and the interface explains that "a band with no provenance is an
 assertion with no author". A range without one is a safety error, `OPSIN-0004`,
 whose message asks the caller to name "a laboratory, a device maker, or a
 clinician". opsinjs ships no reference ranges for any metric, for any population,
@@ -47,7 +47,7 @@ result, and it will outlive the page it came from.
 **One literal, used by every example in the system.**
 
 ```ts
-export const EXAMPLE_SOURCE = "Example data — not a reference range"
+export const EXAMPLE_SOURCE = "Example data rather than a reference range"
 ```
 
 It is exported from the substrate module of
@@ -61,17 +61,17 @@ The rules that go with it, all of them hard:
   laboratory, a guideline body, a device manufacturer, a study, a country's
   health service, or an abbreviation that resembles one.
 - **Numbers are not plausible readings** wherever the specification permits it.
-  Round and obviously invented — a band of ten to twenty with a value of fourteen
-  — in preference to anything a reader could mistake for their own result. Where
-  the specification forces a realistic shape, such as a paired blood-pressure
-  reading or a temperature, keep the shape and the unit and choose a value nobody
-  would act on.
+  Use round and obviously invented numbers in preference to anything a reader
+  could mistake for their own result. A band of ten to twenty with a value of
+  fourteen is the shape. Where the specification forces a realistic shape, such
+  as a paired blood-pressure reading or a temperature, keep the shape and the
+  unit and choose a value nobody would act on.
 - **Labels name a fictional measurement.** "Example measurement", "Sample
   reading", "Test value". Never a real metric's name attached to a number.
 - **Never ship a threshold, a plausibility bound, a score band, a staleness
   default, an emergency number or default disclaimer wording**, for any metric,
-  in any population — not even as an example. An omitted one renders an explicit
-  absence, never a substituted default.
+  in any population. An example is not an exception. An omitted one renders an
+  explicit absence, never a substituted default.
 
 ## Consequences
 
@@ -86,10 +86,9 @@ The rules that go with it, all of them hard:
   This matters more than it looks: the fastest way to make a demo compile is to
   add an exemption, and an exemption is permanent.
 - **The string is user-visible text in a file that ships.** A consumer who
-  installs a component and forgets to replace the demo's data ships "Example
-  data — not a reference range" to a reader. That is a visible,
-  self-explaining failure rather than a plausible one, which is the whole design
-  of the literal.
+  installs a component and forgets to replace the demo's data ships "Example data
+  rather than a reference range" to a reader. That is a visible, self-explaining
+  failure rather than a plausible one, which is the whole design of the literal.
 - **One string means one search.** `EXAMPLE_SOURCE` finds every example range in
   the source; the rendered string finds every screenshot of one, including in
   somebody else's slide deck.
@@ -101,9 +100,9 @@ The rules that go with it, all of them hard:
 ## Alternatives considered
 
 **Realistic example data with a real citation.** Rejected twice over. It requires
-a real reference range, which opsinjs does not own and explicitly does not ship —
-see [Reference ranges](../../health/reference-ranges.mdx) — and a real citation,
-which nobody here is in a position to verify for twenty-four components. An
+a real reference range, which opsinjs does not own and explicitly does not ship,
+and a real citation, which nobody here is in a position to verify for twenty-four
+components. See [Reference ranges](../../health/reference-ranges.mdx). An
 honestly-declared opinion beats a plausible reference every time; see
 [Evidence and references](../../health/evidence-and-references.mdx).
 
@@ -120,7 +119,7 @@ something this project does; the check exists precisely because an unsourced
 range looks finished, and a demo file is exactly where the appearance of being
 finished is most convincing.
 
-**No example data at all — render every demo in its empty state.** Genuinely
+**Render every demo in its empty state, with no example data at all.** Genuinely
 tempting, since an absent value is a first-class state that every component must
 handle anyway, and it removes the whole problem. Rejected because the empty state
 is one state out of several, and a preview that can only ever show the absence of
@@ -131,7 +130,7 @@ example of its own instead.
 ## Revisiting this
 
 Revisit when a specification genuinely needs a realistic shape to be legible and
-the round-numbers rule makes the preview misleading rather than merely unreal — a
+the round-numbers rule makes the preview misleading rather than merely unreal. A
 paired blood-pressure reading is the obvious candidate. The answer there is a
 realistic *shape* with a value nobody would act on, which this record already
 permits; it is written down here because it is the boundary somebody will argue

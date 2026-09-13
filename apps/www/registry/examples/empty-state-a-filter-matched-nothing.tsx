@@ -1,13 +1,13 @@
 "use client"
 
 /**
- * `no-matches` — the empty state whose whole job is to say that the data is
+ * `no-matches` is the empty state whose whole job is to say that the data is
  * still there.
  *
  * This is the one reason a reader can be actively misled by. A list that goes
  * blank after a filter looks identical to a list that has nothing in it, and a
  * reader who concludes their readings have gone missing is not being
- * unreasonable — so the body names the filter as the cause and the primary
+ * unreasonable. So the body names the filter as the cause and the primary
  * action removes it. Nothing here says the absence is reassuring, because for
  * `no-matches` the absence is not even real.
  *
@@ -30,7 +30,7 @@
  * once per render.
  *
  * The second is focus. Clearing the filter unmounts the EmptyState, and the
- * EmptyState contains the very button the reader pressed — so without this,
+ * EmptyState contains the very button the reader pressed. Without this,
  * `document.activeElement` falls to `<body>`, a keyboard user loses their
  * place, and a screen-reader user's virtual cursor is thrown to the top of the
  * document. The list is given `tabIndex={-1}` and takes focus when the empty
@@ -39,9 +39,9 @@
  * change and a reader may be about to press the next one. Nothing here moves
  * focus on appearance, which is the rule EmptyState itself follows.
  *
- * opsinjs ships no announcement helper — `accessibility/screen-readers` lists
- * that as a known gap — so this is what the caller's half of the contract looks
- * like written out by hand.
+ * opsinjs ships no announcement helper, and `accessibility/screen-readers`
+ * lists that as a known gap. This is therefore what the caller's half of the
+ * contract looks like written out by hand.
  */
 
 import { useEffect, useRef, useState } from "react"
@@ -79,7 +79,7 @@ export default function EmptyStateAFilterMatchedNothing() {
 
      `fromEmptyState` is what keeps the focus move honest. Focus is moved only
      when the control that was holding it is about to be unmounted, which is
-     true of the empty state's action and false of the filter chips — a chip
+     true of the empty state's action and false of the filter chips. A chip
      that yanked focus into the list would take it away from a reader who was
      about to try a different filter. */
   function applyTag(next: string, fromEmptyState = false) {

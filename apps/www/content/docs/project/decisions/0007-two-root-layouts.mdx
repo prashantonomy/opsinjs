@@ -1,6 +1,6 @@
 ---
-title: "0007 — Two root layouts, and no app/layout.tsx"
-description: The isolated preview surface owns its own document, so the application has two sibling root layouts and no shared one — with an awkward consequence for the 404 page.
+title: "ADR 0007. Two root layouts, and no app/layout.tsx"
+description: The isolated preview surface owns its own document, so the application has two sibling root layouts and no shared one. That has an awkward consequence for the 404 page.
 status: stable
 kind: project
 owner: core
@@ -32,9 +32,10 @@ preview that lies.
 
 The original plan was one shared root layout with an isolated route group beneath
 it. That does not work. In the App Router, a route group nested under a root
-layout cannot own the `html` and `body` elements — the parent already rendered
-them — so the "isolated" group would either render a nested document or inherit
-the parent's stylesheet. Both are exactly the failure the group exists to prevent.
+layout cannot own the `html` and `body` elements, because the parent already
+rendered them. The "isolated" group would therefore either render a nested
+document or inherit the parent's stylesheet. Both are exactly the failure the
+group exists to prevent.
 
 ## Decision
 
@@ -59,13 +60,13 @@ and are unaffected, because none of them renders a document.
 - **The 404 page cannot live in a route group.** This was verified rather than
   assumed, and the result contradicted what we expected: with two sibling root
   layouts, a not-found file placed inside the chrome group is *not* used for the
-  global 404 — the framework silently falls back to its own built-in page. The
+  global 404. The framework silently falls back to its own built-in page. The
   file therefore stays at the top level of the application.
 - **The 404 page has no root layout**, and so no `lang` attribute on the document
   element, because the framework generates a bare document around it. A site this
   insistent about accessibility should not ship a 404 that fails the
   language-of-page criterion, so the page sets the language on a wrapper element
-  and imports the stylesheet itself — which was also verified to work.
+  and imports the stylesheet itself. That was also verified to work.
 - **A fully-chromed 404 remains possible** through a catch-all route inside the
   chrome group that calls `notFound()`, which was built and confirmed. It was not
   adopted, because such a catch-all also swallows unmatched paths under `/view`,
@@ -87,8 +88,8 @@ base and style as path segments, and could not be driven by screenshot tooling.
 
 ## Revisiting this
 
-Revisit if the framework changes how not-found handling resolves with sibling root
-layouts — that is the one part of this decision resting on observed behaviour
+Revisit if the framework changes how not-found handling resolves with sibling
+root layouts. That is the one part of this decision resting on observed behaviour
 rather than on documented guarantees, and it is the part most likely to move
 underneath us.
 

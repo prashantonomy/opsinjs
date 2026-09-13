@@ -233,14 +233,7 @@ function assemble(spec: PageSpec, file: string): string {
   const beginAt = current === undefined ? -1 : current.indexOf("{/* opsinjs:generated:begin")
   const endAt = current === undefined ? -1 : current.indexOf("{/* opsinjs:generated:end")
 
-  /* Reuse the page's own marker line when it has one. The two were written
-     independently and differ only in a dash; rewriting it would churn every
-     generated page on the first run for no reason. */
-  const beginLine =
-    current !== undefined && beginAt !== -1
-      ? (current.slice(beginAt, current.indexOf("\n", beginAt)) || BEGIN)
-      : BEGIN
-  const region = [beginLine, "", spec.body.trim(), "", END, ""].join("\n")
+  const region = [BEGIN, "", spec.body.trim(), "", END, ""].join("\n")
 
   if (current === undefined) return `${defaultHeader(spec)}\n${region}`
 
@@ -956,11 +949,10 @@ function apiPage(symbol: ExportedSymbol, file: string): string {
   ].join("\n")
 
   if (current !== undefined && beginAt !== -1 && endAt !== -1 && endAt > beginAt) {
-    const beginLine = current.slice(beginAt, current.indexOf("\n", beginAt)) || BEGIN
     const endMarkerEnd = current.indexOf("}", endAt) + 1
     const head = current.slice(0, beginAt).trimEnd()
     const tail = current.slice(endMarkerEnd).trimStart()
-    return `${head}\n\n${[beginLine, "", generated, "", END, ""].join("\n")}${
+    return `${head}\n\n${[BEGIN, "", generated, "", END, ""].join("\n")}${
       tail.length > 0 ? `\n${tail}` : ""
     }`
   }
@@ -1072,13 +1064,14 @@ function bracketDelta(line: string): number {
 /**
  * A member declaration that is obviously unfinished at the end of its line.
  *
- * A trailing comma is deliberately NOT in this set. It used to be, and it meant
- * that an interface written with comma separators — legal TypeScript, and what a
- * contributor coming from a semicolon-less house style might reach for — merged
- * every one of its members into a single chunk, which parsed as one row whose
- * type was the rest of the interface. The table came out with one prop in it and
- * nothing said a word. A comma inside a bracket is already covered by the
- * caller's `depth > 0` test, which is where that case belongs.
+ * A trailing comma is deliberately NOT in this set. It used to be. Comma
+ * separators are legal TypeScript, and a contributor coming from a
+ * semicolon-less house style might reach for them, so while a trailing comma
+ * was in the set an interface written that way merged every one of its members
+ * into a single chunk, which parsed as one row whose type was the rest of the
+ * interface. The table came out with one prop in it and nothing said a word. A
+ * comma inside a bracket is already covered by the caller's `depth > 0` test,
+ * which is where that case belongs.
  */
 function awaitsMore(line: string): boolean {
   return /(?:[:|&([<=?+-]|=>|\bextends)$/.test(line)
@@ -1303,8 +1296,8 @@ function readMembers(body: string): PropRow[] {
  * rows in it on a page that claims to document six, published under a heading
  * that says it was generated. So the count is taken twice, by two methods that
  * fail differently, and `extractPropsInterfaces` refuses to emit when they
- * disagree. This one is deliberately naive — a line that starts with a name and
- * a colon, at brace depth zero, outside a comment.
+ * disagree. This one is deliberately naive. It counts a member as a line that
+ * starts with a name and a colon, at brace depth zero, outside a comment.
  */
 function countObviousMembers(body: string): number {
   let count = 0

@@ -1,5 +1,5 @@
 ---
-title: "0001 — Base UI, not Radix"
+title: "ADR 0001. Base UI, not Radix"
 description: The primitive layer is Base UI everywhere, chosen for its animation contract and for keeping exactly one primitive library in the tree.
 status: stable
 kind: project
@@ -24,27 +24,28 @@ by hand is how design systems ship subtly broken dialogs.
 
 Two candidates were real. Radix is the mature default and what most of the shadcn
 ecosystem assumed for years. Base UI is the successor line from the same
-tradition, and — importantly for this project — the documentation engine we chose
-ships in two builds, one on each. `fumadocs-ui` depends on Radix;
+tradition, and what matters most for this project is that the documentation
+engine we chose ships in two builds, one on each. `fumadocs-ui` depends on Radix;
 `@fumadocs/base-ui` is the same library with the same API and byte-identical CSS,
 depending on Base UI instead.
 
 Three things made this more than a preference.
 
 **The animation contract.** opsinjs treats motion as tokens and documents, per
-component, exactly what each transition degrades to under `prefers-reduced-motion`
-— see [Reduced motion](../../foundations/motion/reduced-motion.mdx). That requires
-the primitive to expose its enter and exit states as attributes you can style and
+component, exactly what each transition degrades to under
+`prefers-reduced-motion`. See
+[Reduced motion](../../foundations/motion/reduced-motion.mdx). That requires the
+primitive to expose its enter and exit states as attributes you can style and
 observe. Base UI's `data-starting-style` and `data-ending-style`, alongside
 `data-open` and `data-closed`, are exactly that contract, and they are documented
 as a styling surface rather than as an implementation detail.
 
 **One library, not two.** The documentation site renders shadcn chrome
-components, fumadocs chrome, and — eventually — opsinjs components on the same
-page. With `fumadocs-ui` on Radix and our components on Base UI, that page would
-contain two primitive libraries, two portal implementations and two focus
-managers, and the resulting bugs would be interaction bugs, which are the
-expensive kind to reproduce.
+components and fumadocs chrome on the same page, and it will eventually render
+opsinjs components there too. With `fumadocs-ui` on Radix and our components on
+Base UI, that page would contain two primitive libraries, two portal
+implementations and two focus managers, and the resulting bugs would be
+interaction bugs, which are the expensive kind to reproduce.
 
 **`data-*` as public surface.** The [versioning policy](../versioning-policy.mdx)
 treats data attributes as a covered surface, and
@@ -71,8 +72,8 @@ dependency tree contains no Radix at all.
   we ship as source, so a breaking upstream change is a diff a consumer can see
   rather than a silent transitive upgrade.
 - **Radix-only third-party components cannot be dropped in.** Anything that
-  reaches into Radix's context — an add-on built for a Radix dialog, for instance
-  — is unusable here and would have to be rebuilt.
+  reaches into Radix's context is unusable here and would have to be rebuilt. An
+  add-on built for a Radix dialog is one such thing.
 - **shadcn components must be the Base UI variants.** Copying a Radix-era snippet
   from the internet into this repository will not work, and that is a papercut
   every contributor hits once.

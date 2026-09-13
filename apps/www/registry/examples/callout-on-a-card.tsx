@@ -7,10 +7,10 @@
  * `bg-muted` against whatever is behind it. On the page that is `bg-background`
  * and the difference is comfortable. On a card it is `bg-card`, which the
  * product theme sets to pure white in the light theme where the page is very
- * slightly off it — so the callout has less to work with, and the boundary is
- * carrying more of the job than it does anywhere else. Neither pair is measured
- * in `lib/generated/contrast.json`, which is why this is a thing to look at
- * rather than a claim to read.
+ * slightly off it. The callout therefore has less to work with, and the
+ * boundary is carrying more of the job than it does anywhere else. Neither
+ * pair is measured in `lib/generated/contrast.json`, which is why this is a
+ * thing to look at rather than a claim to read.
  *
  * The card holds no reading, no unit and no status pill. A card with a value, a
  * coloured pill and a paragraph is a ResultCard drawn without any of a

@@ -44,10 +44,9 @@ finishes, then unmounts it. Between the two, the element has neither attribute
 and sits at its resting style.
 
 The timing values are tokens, not literals. opsinjs motion tokens are `linear()`
-easings generated from spring parameters — the reasoning is in
-[Springs as tokens](../foundations/motion/springs-as-tokens.mdx) — so a
-transition reads as one custom property rather than as a duration and a curve
-you tuned by eye.
+easings generated from spring parameters, so a transition reads as one custom
+property rather than as a duration and a curve you tuned by eye. The reasoning
+is in [Springs as tokens](../foundations/motion/springs-as-tokens.mdx).
 
 ### Reduced motion
 
@@ -80,7 +79,7 @@ token pair is the one `Sheet` uses.
   or `translate`/`scale`, and `filter`. These composite on the GPU; `width`,
   `height`, `top` and `margin` do not.
 - **Use the same declaration block for starting and ending style** unless the
-  two directions genuinely differ — a sheet that slides up on entry and fades on
+  two directions genuinely differ. A sheet that slides up on entry and fades on
   exit is usually a mistake rather than a decision.
 - **Key off the token, not a number.** `var(--opsin-motion-enter)` carries the
   duration, the curve and the reduced-motion behaviour together.
@@ -94,8 +93,8 @@ token pair is the one `Sheet` uses.
 
 - **Never carry urgency in motion.** A pulsing or shaking alert conveys nothing
   to a reader with the preference set, nothing in a screenshot, and nothing to
-  anyone using assistive technology — while being actively harmful to people
-  with vestibular disorders. This is doctrine, not preference; see
+  anyone using assistive technology. At the same time, it is actively harmful to
+  people with vestibular disorders. This is doctrine, not preference; see
   [Motion in health UI](../health/motion-in-health-ui.mdx).
 - **Do not animate a number into place.** A value that counts up from zero is
   briefly displaying figures that are not the reader's. In a health context that
@@ -105,9 +104,9 @@ token pair is the one `Sheet` uses.
 - **Do not reach for a spring library.** The tokens already are springs,
   serialised to `linear()`, and they run on the compositor rather than in
   JavaScript.
-- **Do not transition `display`.** It does not interpolate, and the fix — a
-  discrete transition plus `@starting-style` — is not needed here because Base
-  UI's mount lifecycle already solves it.
+- **Do not transition `display`.** It does not interpolate. The fix is a
+  discrete transition plus `@starting-style`, and it is not needed here because
+  Base UI's mount lifecycle already solves it.
 
 ## Gotchas
 
@@ -133,10 +132,10 @@ token pair is the one `Sheet` uses.
 
 ## Related
 
-- [Springs as tokens](../foundations/motion/springs-as-tokens.mdx) — where the
+- [Springs as tokens](../foundations/motion/springs-as-tokens.mdx) is where the
   `linear()` values come from.
-- [Reduced motion](../foundations/motion/reduced-motion.mdx) — the per-token
+- [Reduced motion](../foundations/motion/reduced-motion.mdx) has the per-token
   degradation contract.
-- [Data attributes](./data-attributes.mdx) — the full lifecycle vocabulary.
-- [Motion in health UI](../health/motion-in-health-ui.mdx) — the doctrine that
+- [Data attributes](./data-attributes.mdx) has the full lifecycle vocabulary.
+- [Motion in health UI](../health/motion-in-health-ui.mdx) is the doctrine that
   constrains all of the above.

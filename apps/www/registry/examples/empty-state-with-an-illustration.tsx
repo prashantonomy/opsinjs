@@ -2,7 +2,7 @@
  * An illustration, and everything it is not allowed to do.
  *
  * The picture below is decoration and nothing else. Cover it and the empty
- * state still says what is absent, why, and what to do about it — which is the
+ * state still says what is absent, why, and what to do about it. That is the
  * test: if hiding the graphic loses information, the information was missing
  * from the words and the graphic was doing a job it cannot do for a reader
  * using speech, a reader who has turned images off, or a reader holding a

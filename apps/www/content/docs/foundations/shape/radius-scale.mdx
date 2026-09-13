@@ -11,10 +11,10 @@ a11yDate: 2026-09-02
 
 ## Overview
 
-The radius scale is one number and a set of multipliers. `--radius` is the root —
-the product theme sets it generously, the docs chrome sets it to nothing at all —
-and every rung is derived from it. Change the root and the whole product moves
-from square to soft without a single component being edited.
+The radius scale is one number and a set of multipliers. `--radius` is the root,
+and every rung is derived from it. The product theme sets it generously, and
+the docs chrome sets it to nothing at all. Change the root and the whole
+product moves from square to soft without a single component being edited.
 
 The alternative, and the thing this replaces, is a set of independently chosen
 radius values. Those drift: somebody rounds a new component to 12px because 8
@@ -36,7 +36,7 @@ named for the class of object it belongs to rather than for its size:
 | `md` | Buttons, list rows, tiles |
 | `lg` | Cards, panels, grouped sections |
 | `xl` | Sheets, dialogs, full-width surfaces |
-| `full` | Pills and circles — a different object, not a bigger rung |
+| `full` | Pills and circles, which are a different object rather than a bigger rung |
 
 `full` is deliberately outside the ladder. It is not "the largest radius"; it is a
 statement that the element is a capsule, and capsules do not participate in
@@ -60,7 +60,7 @@ towards the parent, which reads as a misaligned element. Neither is subtle once
 you have seen it.
 
 The rule composes: three levels of nesting subtract twice. It also constrains
-layout, and usefully so — if the padding is larger than the outer radius, the
+layout, and usefully so. If the padding is larger than the outer radius, the
 inner element is square, and if you wanted it rounded you needed less padding or
 a bigger container.
 
@@ -77,7 +77,7 @@ is actually visible.
 
 **Choose the rung from the object.** A button is `md` because it is a button, not
 because `md` looked right. When two rungs both seem plausible, the object is
-probably ambiguous — a "card" that is really a list row wants `md`.
+probably ambiguous. A "card" that is really a list row wants `md`.
 
 **Compute nested radii from the token, not by eye.**
 
@@ -95,11 +95,11 @@ probably ambiguous — a "card" that is really a list row wants `md`.
 </DoDont>
 
 **Do not mix `full` with anything.** A pill inside a card does not participate in
-the nesting arithmetic — it is a capsule and it stays a capsule. Trying to
+the nesting arithmetic. It is a capsule and it stays a capsule. Trying to
 subtract from `full` produces a value that means nothing.
 
 **Do not use radius to group.** Two elements sharing a radius are not thereby
-related. Grouping is a job for space and for a container — see
+related. Grouping is a job for space and for a container. See
 [Spacing scale](../space/spacing-scale.mdx).
 
 **Overriding the root is a theming decision, not a component one.** If a product
@@ -135,8 +135,8 @@ render from the generated values.
 
 ## Related
 
-- [Squircle](squircle.mdx) — what curve these radii are actually drawn with, and
-  what happens where `corner-shape` is unsupported.
-- [Spacing scale](../space/spacing-scale.mdx) — the other half of the nesting
+- [Squircle](squircle.mdx) says what curve these radii are actually drawn with,
+  and what happens where `corner-shape` is unsupported.
+- [Spacing scale](../space/spacing-scale.mdx) is the other half of the nesting
   arithmetic.
-- [Shape tokens](tokens.mdx) — the generated ladder with resolved values.
+- [Shape tokens](tokens.mdx) has the generated ladder with resolved values.

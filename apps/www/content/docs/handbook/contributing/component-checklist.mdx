@@ -1,6 +1,6 @@
 ---
 title: Component checklist
-description: The definition of done — design, code, tokens, tests, accessibility, documentation and safety — with the items that are actually enforced marked as such.
+description: The definition of done across design, code, tokens, tests, accessibility, documentation and safety. The items that are actually enforced are marked as such.
 status: stable
 kind: handbook
 aliases: [definition of done, component checklist, ship criteria, release checklist]
@@ -14,7 +14,7 @@ owner: design-system
 
 A component is done when it can be used by somebody who has not met the team.
 That decomposes into seven groups. Items marked **enforced** fail the build or
-the CI check; the rest are review items, and the distinction is deliberate — a
+the CI check; the rest are review items, and the distinction is deliberate. A
 checklist where everything is equally important is a checklist nobody reads.
 
 ## How it works
@@ -24,8 +24,8 @@ checklist where everything is equally important is a checklist nobody reads.
 - The plain-English definition is written for a patient, not an engineer.
 - Every state is designed: default, hover, press, focus-visible, disabled,
   loading, selected.
-- Every one of the five [data states](../../foundations/data-states.mdx) —
-  empty, loading, error, stale, partial — has a designed answer.
+- Every one of the five [data states](../../foundations/data-states.mdx) has a
+  designed answer. They are empty, loading, error, stale and partial.
 - The component works at the narrowest supported width and at the widest without
   a special case. See [Responsive
   modes](../../foundations/space/responsive-modes.mdx).
@@ -47,7 +47,7 @@ checklist where everything is equally important is a checklist nobody reads.
 - **Enforced:** every value comes from a token; no literals.
 - The component reads semantic tokens, never primitives. See [Token
   architecture](../../foundations/token-architecture.mdx).
-- **Enforced:** no token crosses the axes — a status token in a category role
+- **Enforced:** no token crosses the axes. A status token in a category role
   fails.
 - Any new component-level CSS variable is documented in the component's CSS
   variables table.
@@ -64,7 +64,7 @@ checklist where everything is equally important is a checklist nobody reads.
 
 - **Enforced:** every token pair used by the component passes the published
   contrast floor in both themes, measured by `check-contrast.mts`.
-- **Enforced:** status is distinguishable in grayscale — the CVD audit runs in
+- **Enforced:** status is distinguishable in grayscale. The CVD audit runs in
   CI.
 - Keyboard contract documented in the component's `KeyboardTable`.
 - Screen-reader announcement contract written down and tested on at least one
@@ -77,7 +77,7 @@ checklist where everything is equally important is a checklist nobody reads.
 
 ### Documentation
 
-- **Enforced:** every section required at the declared status is present —
+- **Enforced:** every section required at the declared status is present.
   `PageTemplate` fails the build otherwise.
 - **Enforced:** the "when not to use" list names an alternative for every entry.
 - **Enforced:** `governedBy` is present when the category starts with `health-`,
@@ -91,7 +91,7 @@ checklist where everything is equally important is a checklist nobody reads.
 - **Enforced for `health-*` categories:** the Clinical meaning section exists and
   states what the component asserts, what it must never be read as, which axis
   it may use, and who owns the thresholds.
-- The component cannot be made to state something it does not know — no
+- The component cannot be made to state something it does not know: no
   interpolation, no carried-forward values, no zero standing in for absence.
 - A clinical reviewer has signed the page, with a `reviewed` date.
 - Every claim is either cited or marked `evidence: opinion`.
@@ -109,7 +109,7 @@ checklist where everything is equally important is a checklist nobody reads.
 ## Not this
 
 - **Do not mark an item done because it is "handled upstream".**
-  Accessibility is mandatory on every page and is never delegated to Base UI —
+  Accessibility is mandatory on every page and is never delegated to Base UI.
   Base UI gives you a correct primitive, not a correct component.
 - **Do not ship a measured number you typed.** Every figure is generated; a
   hand-typed contrast ratio is wrong the moment a token moves.
@@ -129,16 +129,16 @@ checklist where everything is equally important is a checklist nobody reads.
   whose text sits on a translucent material needs the scrim rules too; see
   [The contrast floor](../../foundations/materials/the-contrast-floor.mdx).
 - **`a11yDate` expiring does not fail the build**, it appears in the freshness
-  report — which means it is easy to let slide. See [Docs
+  report. That means it is easy to let slide. See [Docs
   freshness](../../project/docs-freshness.mdx).
 
 ## Related
 
-- [Proposing a component](./proposing-a-component.mdx) — the stage before this
+- [Proposing a component](./proposing-a-component.mdx) is the stage before this
   one.
 - [Anatomy of a component page](../../components/anatomy-of-a-component-page.mdx)
-  — the 22 sections and what each status requires.
-- [Release phases](../../project/release-phases.mdx) — what each status
+  covers the 22 sections and what each status requires.
+- [Release phases](../../project/release-phases.mdx) says what each status
   promises.
-- [Safety review checklist](../../health/safety-review-checklist.mdx) — the
+- [Safety review checklist](../../health/safety-review-checklist.mdx) is the
   pre-ship check for any screen showing a health value.

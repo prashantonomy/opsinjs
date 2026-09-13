@@ -1,6 +1,6 @@
 ---
-title: Plain-English A–Z
-description: The canonical clinical-to-plain vocabulary — the rule for choosing a replacement word, and the machine-readable list every product and Term instance shares.
+title: Plain-English A to Z
+description: The canonical clinical-to-plain vocabulary. It carries the rule for choosing a replacement word, and the machine-readable list every product and Term instance shares.
 status: stable
 kind: content
 reviewer: content
@@ -39,7 +39,7 @@ must pass all four.
 ### Provenance
 
 Every definition in this list is **written from scratch for opsinjs**. We do not
-copy the NHS A–Z or any other Crown-copyright material, and we do not copy
+copy the NHS A to Z or any other Crown-copyright material, and we do not copy
 definitions from a dictionary or a manufacturer's leaflet. We cite sources; we
 never paste them. If a definition here looks like one you have seen elsewhere,
 that is a bug and we would like to know.
@@ -66,7 +66,7 @@ clinical word. The record shape and how to add to it are on
 </DoDont>
 
 <DoDont>
-  <DoDont.Do>Take this medicine on an empty stomach — at least an hour before food.</DoDont.Do>
+  <DoDont.Do>Take this medicine on an empty stomach. That means at least an hour before food.</DoDont.Do>
   <DoDont.Dont>Administer this medication in a fasted state.</DoDont.Dont>
 </DoDont>
 
@@ -93,7 +93,7 @@ reader's task, not the other way round.
 
 **Introducing a term the reader has already met**
 
-> `Clinical term` — `plain explanation in one clause`.
+> `Clinical term` means `plain explanation in one clause`.
 
 **A measurement with a named part**
 
@@ -109,7 +109,7 @@ reader's task, not the other way round.
 > `Plain name`. This means `what physically happens`, and it usually takes
 > `duration`.
 
-### The A–Z
+### The list
 
 <Glossary />
 
@@ -120,7 +120,7 @@ that is being built properly; see
 
 ## Banned words
 
-These are banned as *replacements* — they are the plausible-looking plain words
+These are banned as *replacements*. They are the plausible-looking plain words
 that make things worse.
 
 | Banned replacement | Why | Use instead |
@@ -136,11 +136,11 @@ that make things worse.
 
 ## Related components
 
-- **`Term`** — the inline component that renders a clinical word with its plain
+- **`Term`** is the inline component that renders a clinical word with its plain
   replacement. It resolves against this list; a term not in the list cannot be
   rendered, which is deliberate.
-- **`Glossary`** — the filterable A–Z above, and the same data.
-- **`ResultCard`**, **`AlertBanner`**, **`CareCard`** — every string they carry is
-  bound by this vocabulary.
-- **`DisclaimerNote`** — the one place where a legally-shaped sentence is
+- **`Glossary`** is the filterable A to Z above, and the same data.
+- **`ResultCard`**, **`AlertBanner`** and **`CareCard`** are bound by this
+  vocabulary in every string they carry.
+- **`DisclaimerNote`** is the one place where a legally-shaped sentence is
   permitted, and even there it is written in this register.

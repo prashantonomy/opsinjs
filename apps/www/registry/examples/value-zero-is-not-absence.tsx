@@ -6,15 +6,16 @@
  * difference is that one has a number and the other has `null`, and the
  * difference in what a reader is told is total: the first says a measurement
  * was taken and came to zero, the second says no measurement was taken at all.
- * A `null` coerced to `0` — which is what a nullish default gives you for free —
- * turns the second sentence into the first, silently, in a place nobody looks.
+ * A nullish default coerces `null` to `0` for free, and that turns the second
+ * sentence into the first, silently, in a place nobody looks.
  *
- * The absence is an em dash AND words. The em dash alone is what most systems
- * ship and it is not enough: speech synthesis either skips it or reads it out
- * as "dash", and a reader who is listening rather than looking is told nothing.
+ * The absence is words and nothing else. A punctuation mark on its own is what
+ * most systems ship and it is not enough: speech synthesis either skips it or
+ * reads it out as punctuation, and a reader who is listening rather than
+ * looking is told nothing. Nothing precedes the words here.
  *
  * THE NOTE IS A SECOND <dd>, NOT A <p> BESIDE ONE. A `dl` laid out with `div`
- * wrappers may hold only `dt` and `dd` inside each wrapper — a paragraph there
+ * wrappers may hold only `dt` and `dd` inside each wrapper. A paragraph there
  * is outside the content model, and what a screen reader then announces as the
  * item count and as the term/definition pairing depends on each engine's error
  * recovery rather than on the specification. The note is the sentence that

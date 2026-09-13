@@ -3,28 +3,31 @@
 /**
  * The unit switch, and the sentence that has to follow it.
  *
- * SWITCH IT AND WATCH THE LINE UNDERNEATH. Changing the unit here converts the
- * entered value and says so — *Converted from 10 kg.* The specification is
- * blunt about why: a switch must never silently change the stored value and must
- * never silently keep the typed digits, because both behaviours are right in
- * some real situation and the reader is the only person who knows which one this
- * is. Whichever happens, they are told.
+ * SWITCH IT AND WATCH THE LINE UNDERNEATH. Changing the unit here converts
+ * the entered value and says so. The line underneath reads *Converted from
+ * 10 kg.* The specification is blunt about why: a switch must never silently
+ * change the stored value and must never silently keep the typed digits,
+ * because both behaviours are right in some real situation and the reader is
+ * the only person who knows which one this is. Whichever happens, they are
+ * told.
  *
- * THE FACTORS ARE DEFINITIONS, NOT MEASUREMENTS. kg, lb and st convert through
- * `tokens/units.json`, which carries the 1959 international pound — one pound is
- * exactly 0.45359237 kg, one stone is exactly fourteen pounds — and nothing that
- * was arrived at by measuring something. That is the whole test for whether a
- * conversion may live in this system, and it is why mmol/L and mg/dL are not in
- * that list: their factor is the molar mass of the substance being measured,
- * which is a property of the substance rather than of either unit.
+ * THE FACTORS ARE DEFINITIONS, NOT MEASUREMENTS. kg, lb and st convert
+ * through `tokens/units.json`. It carries the 1959 international pound, which
+ * fixes one pound at exactly 0.45359237 kg and one stone at exactly fourteen
+ * pounds, and it carries nothing that was arrived at by measuring something.
+ * That is the whole test for whether a conversion may live in this system,
+ * and it is why mmol/L and mg/dL are not in that list: their factor is the
+ * molar mass of the substance being measured, which is a property of the
+ * substance rather than of either unit.
  *
  * `precision` IS WHY THE RESULT IS READABLE. It is the decimal places of the
- * MEASUREMENT — what the instrument resolves, or what the laboratory reports —
- * and `unit-systems` rule 6 says to round after conversion at the destination's
- * precision and to accept that the round trip is lossy. Take it away and 10 kg
- * becomes 22.046226218487757 lb, which is the honest arithmetic and is unusable.
- * There is no per-unit default anywhere in opsinjs to fall back on: decimal
- * places belong to the measurement, not to the unit.
+ * MEASUREMENT, which is what the instrument resolves, or what the laboratory
+ * reports. `unit-systems` rule 6 says to round after conversion at the
+ * destination's precision and to accept that the round trip is lossy. Take
+ * it away and 10 kg becomes 22.046226218487757 lb, which is the honest
+ * arithmetic and is unusable. There is no per-unit default anywhere in
+ * opsinjs to fall back on: decimal places belong to the measurement, not to
+ * the unit.
  *
  * NOTE WHAT THE UNIT IS NOT. It is not in the label, and it is not a
  * placeholder. A reader who thinks in pounds and meets a field labelled

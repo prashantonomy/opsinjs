@@ -2,7 +2,7 @@
  * Scoped stylesheet for the GLOBAL 404 only (app/not-found.tsx).
  *
  * WHY THIS FILE EXISTS. app/not-found.tsx is the global error boundary, so
- * anything it imports is pulled into every route's chunk graph — including
+ * anything it imports is pulled into every route's chunk graph. That includes
  * `(view)`, whose entire purpose is to render a preview under the product theme
  * with no documentation chrome. While this file imported `globals.css`, every
  * /view/* response shipped a 177 kB preload link for the docs stylesheet, which

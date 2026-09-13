@@ -17,10 +17,10 @@ generated from `tokens/motion.json` by `scripts/build-tokens.mts` and it is the
 only place motion values are published. Nothing on this page is typed by a
 person, and `pnpm check:generated` fails the build if anyone tries.
 
-Read it as a decision aid rather than a list. The third column — *Used by* — is
-what turns "here are eleven durations" into "here is the one you want", and it is
-the reason the table is generated: a hand-maintained list of consumers is wrong
-within a week.
+Read it as a decision aid rather than a list. The third column tells you what
+each token is *Used by*, and that is what turns "here are eleven durations"
+into "here is the one you want". It is also the reason the table is generated:
+a hand-maintained list of consumers is wrong within a week.
 
 ## How it works
 
@@ -34,7 +34,7 @@ number, so that changing a value does not require renaming a token.
 
 **Springs** are authored as stiffness, damping and mass, and the generator solves
 them numerically and emits a CSS `linear()` easing with a computed settling
-duration — the whole derivation, including the source of `springToLinear`, is on
+duration. The whole derivation, including the source of `springToLinear`, is on
 [Springs as tokens](springs-as-tokens.mdx). This is why a spring token has a
 duration attached to it that nobody chose: it falls out of the physics.
 
@@ -49,9 +49,10 @@ preview on this site is the same custom property a consuming product gets.
 
 ## Using it
 
-**Find the job, then the token.** [Using motion](using-motion.mdx) maps the five
-jobs — enter, exit, feedback, navigation, loading — onto steps of this scale.
-Come here to confirm the value and to see what else uses it; go there to decide.
+**Find the job, then the token.** The five jobs are enter, exit, feedback,
+navigation and loading, and [Using motion](using-motion.mdx) maps each of them
+onto a step of this scale. Come here to confirm the value and to see what else
+uses it; go there to decide.
 
 **Check the damping ratio before you animate a number.** Any easing whose damping
 ratio is below 1 overshoots, and an overshooting curve may not be applied to a
@@ -89,9 +90,9 @@ The generated table is itself an accessibility artefact, in three ways.
 
 ## Related
 
-- [Springs as tokens](springs-as-tokens.mdx) — how the spring rows in this table
-  are produced, and what the damping ratio means.
-- [Reduced motion](reduced-motion.mdx) — how to read the reduced column, and why
-  a reduced variant is never simply "off".
-- [Reference → Tokens](../../reference/generated/tokens.mdx) — the same rows
+- [Springs as tokens](springs-as-tokens.mdx) shows how the spring rows in this
+  table are produced, and what the damping ratio means.
+- [Reduced motion](reduced-motion.mdx) shows how to read the reduced column,
+  and why a reduced variant is never simply "off".
+- [Reference → Tokens](../../reference/generated/tokens.mdx) has the same rows
   alongside every other family, for when you are auditing rather than building.

@@ -1,6 +1,6 @@
 ---
 title: Self-hosting a fork
-description: Running your own registry from a fork of opsinjs — what to change, what to keep, and how to stay able to take updates.
+description: Running your own registry from a fork of opsinjs. What to change, what to keep, and how to stay able to take updates.
 status: stable
 kind: guide
 aliases: [fork, internal design system, self host, run your own registry]
@@ -16,10 +16,11 @@ opsinjs cannot encode, and the honest answer is to run your own registry with
 your own components and your own review process.
 
 This page is about doing that without ending up with a snapshot nobody can
-update. The distinction that matters is between forking the **registry** — your
-own items, your own namespace, your own governance — and forking the **system**
-— the tokens, the two axes, the doctrine. The first is cheap and expected. The
-second is expensive and should be a decision somebody signs.
+update. The distinction that matters is between forking the **registry** and
+forking the **system**. Forking the registry gives you your own items, your own
+namespace and your own governance. Forking the system takes on the tokens, the
+two axes and the doctrine. The first is cheap and expected. The second is
+expensive and should be a decision somebody signs.
 
 ## Decide what you are forking
 
@@ -38,7 +39,7 @@ Most people who think they need the last two rows need the third.
 Forking the status vocabulary breaks a contract that is not written in CSS. The
 four levels are shared by the components, this documentation, the registry
 metadata and every agent generating against it. A fork that renames or adds one
-will produce code, docs and tooling that quietly disagree — and the disagreement
+will produce code, docs and tooling that quietly disagree. The disagreement
 concerns how urgent somebody's health data is. If you must,
 [Status palettes](../theming/status-palettes.mdx) documents how, and the answer
 includes writing it down where your successors will find it.
@@ -88,23 +89,22 @@ the whole thing. Four things to do immediately, before anyone else clones it.
 
 **Change the identity.** Registry `name`, `homepage`, the namespace, the preset
 prefix and the site URL. A fork that still says `opsinjs.dev` will confuse your
-own developers and misattribute your decisions to this project. There is a page
-about this from the other direction —
-[Official resources](../project/official-resources.mdx) — and the same reasoning
-applies to you.
+own developers and misattribute your decisions to this project.
+[Official resources](../project/official-resources.mdx) covers this from the
+other direction, and the same reasoning applies to you.
 
 **Keep the generators.** `build-tokens`, `check-contrast` and `assert-ia` are
 the parts that make the system self-checking. A fork that keeps the tokens and
 drops the checks has kept the values and lost the guarantee, and it will drift
 within one release.
 
-**Emit a version stamp.** There is nothing upstream to keep — opsinjs specifies
-the stamp and does not yet write one, for the reasons on
-[Version stamps](./version-stamps.mdx) — but a fork is not blocked by either of
-them: your catalogue rows can carry real versions, and you own the generator that
-emits the files. One comment naming your registry, the item and the version is
-how your own developers will later work out which version a copied file came
-from.
+**Emit a version stamp.** There is nothing upstream to keep, because opsinjs
+specifies the stamp and does not yet write one, for the reasons on
+[Version stamps](./version-stamps.mdx). A fork is nevertheless not blocked by
+either of them: your catalogue rows can carry real versions, and you own the
+generator that emits the files. One comment naming your registry, the item and
+the version is how your own developers will later work out which version a
+copied file came from.
 
 **Record the divergence.** One page in your own docs listing everything you
 changed and why. This is the single highest-value artefact of a fork and it is
@@ -144,7 +144,7 @@ whole pipeline exists to catch.
 
 ## Licensing
 
-The code and the documentation are licensed separately — see
+The code and the documentation are licensed separately. See
 [Licence and attribution](../project/licence-and-attribution.mdx) before
 publishing a fork, particularly if you are republishing the prose. Third-party
 guidance this project cites, such as national health service manuals, is cited
@@ -160,9 +160,10 @@ adjacent to something that can.
 
 Test the full-URL form from a clean project, using an item that composes nothing.
 An item that names its siblings by namespace needs that namespace configured
-whichever form the consumer types — fourteen opsinjs items are in exactly that
-position — so either keep your leaf items self-contained, or make the namespace
-part of your published contract and say so on your own install page.
+whichever form the consumer types, and fourteen opsinjs items are in exactly
+that position. Because of that, either keep your leaf items self-contained, or
+make the namespace part of your published contract and say so on your own
+install page.
 
 ### Your catalog validates
 
@@ -193,9 +194,9 @@ only.
 
 ## Next
 
-- [Upgrades and diffs](./upgrades-and-diffs.mdx) — the consumer-side version of
+- [Upgrades and diffs](./upgrades-and-diffs.mdx) is the consumer-side version of
   the same problem.
-- [Version stamps](./version-stamps.mdx) — the specified mechanism that would
-  make both tractable, and why a fork can ship it before opsinjs does.
-- [Contributing](../handbook/contributing/index.mdx) — if the change belongs
-  upstream instead.
+- [Version stamps](./version-stamps.mdx) covers the specified mechanism that
+  would make both tractable, and why a fork can ship it before opsinjs does.
+- [Contributing](../handbook/contributing/index.mdx) is for a change that
+  belongs upstream instead.

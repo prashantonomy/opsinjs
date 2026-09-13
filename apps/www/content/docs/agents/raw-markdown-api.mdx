@@ -1,6 +1,6 @@
 ---
 title: Raw markdown API
-description: Every documentation page is available as markdown at the same URL with .md appended — processed markdown rather than the MDX source, with the documentation components left as self-describing tags.
+description: Every documentation page is available as markdown at the same URL with .md appended. What you get is processed markdown rather than the MDX source, with the documentation components left as self-describing tags.
 status: stable
 kind: guide
 aliases: [".md", markdown twin, copy page, page as markdown]
@@ -17,7 +17,7 @@ curl -s https://opsinjs.dev/docs/health/two-colour-axes.md
 ```
 
 That is the whole API. There is no key, no endpoint, no pagination and no
-separate documentation site for machines — the twin is the same page, and it
+separate documentation site for machines. The twin is the same page, and it
 cannot fall out of date with the human version because it is produced from the
 same source at the same time.
 
@@ -37,8 +37,8 @@ markdown, so imports are gone, headings carry explicit ids, and tables and code
 blocks arrive as markdown. What processing does **not** do is render the
 documentation components. `<StubNotice name="range-bar" status="alpha" …/>`
 comes out verbatim, attributes and all, and the sentence it renders in the
-browser is not in the string. That is measured rather than assumed — it is
-written down in `app/_machine/corpus.ts` — and this surface is built around it
+browser is not in the string. That is measured rather than assumed, because it
+is written down in `app/_machine/corpus.ts`. This surface is built around it
 instead of pretending otherwise.
 
 Three consequences worth knowing:
@@ -53,16 +53,16 @@ Three consequences worth knowing:
   it carries a block quote, between the frontmatter and the body, explaining
   what the elements are and where their data lives. A page that is not
   implemented carries a second quote above that one saying so. If you are
-  writing a parser, those quotes are the cue to go and fetch the data — not
-  errors to report.
+  writing a parser, those quotes are the cue to go and fetch the data rather
+  than errors to report.
 - **Frontmatter is rebuilt, not copied through.** The twin carries the authored
   fields plus `url`, `source` and `section`, so a page read in isolation still
   knows where it came from. `status` is the field to trust: `alpha` for an
   implemented component, `considered` for a reserved name. One field is not
-  authored at all: a twin whose page documents something buildable — a component
-  page, or a screen specimen — also carries `implemented`, read from the
-  generated index rather than from the MDX, so no edit to the page can contradict
-  it. A guide, a doctrine page or a generated token reference carries no
+  authored at all: a component page or a screen specimen documents something
+  buildable, and its twin also carries `implemented`, read from the generated
+  index rather than from the MDX, so no edit to the page can contradict it. A
+  guide, a doctrine page or a generated token reference carries no
   `implemented` key, because it documents nothing that could be built and a
   `false` there would assert something untrue about a page that is real today.
   For a per-id answer outside the docs tree, read `implemented` on
@@ -92,18 +92,18 @@ the scope is worth reading off a table rather than inferring:
 A component or screen twin overrides `x-opsinjs-implemented` with its own
 subject's answer, exactly as `/r/<id>.json` does, so `HEAD` on
 `/docs/components/toast.md` returns `false` for a reserved name even though the
-count beside it is not zero. Every other page — a guide, a handbook chapter, a
-doctrine page — names nothing buildable, so the header keeps its system value
-there, which answers "is anything implemented" rather than "is this
-implemented". `x-opsinjs-status` is sent on every twin and is always the page's
-own, which is how you tell which of the two scopes you were handed. If you need
-a per-id answer for something that has no documentation page, ask
+count beside it is not zero. Every other page names nothing buildable, whether
+it is a guide, a handbook chapter or a doctrine page, so the header keeps its
+system value there, which answers "is anything implemented" rather than "is
+this implemented". `x-opsinjs-status` is sent on every twin and is always the
+page's own, which is how you tell which of the two scopes you were handed. If
+you need a per-id answer for something that has no documentation page, ask
 `/r/<id>.json` or the roster at `/r/index.json` instead of inferring one from a
 header.
 
 There is no per-page last-modified date, in the frontmatter or anywhere else.
 Nothing in the build computes one, and a fabricated date would be worse than an
-absent one — the version is the only freshness signal this surface offers.
+absent one. The version is the only freshness signal this surface offers.
 
 If you cache twins, cache the version with them, and include it when you report
 a problem.
@@ -131,15 +131,15 @@ The first bytes should be a frontmatter delimiter, not `<!DOCTYPE`.
 Search the output for a `<` followed by an uppercase letter. On most pages you
 will find several, and that is the twin working: read their attributes, and take
 the block quote above them as the pointer to where the rendered values are
-published. What you should *not* find is an `import` statement or a `<!DOCTYPE`
-— either means you have raw source or the HTML page rather than the twin.
+published. What you should *not* find is an `import` statement or a `<!DOCTYPE`.
+Either one means you have raw source or the HTML page rather than the twin.
 
 ### The status is present
 
-Every component page's twin carries `status` in frontmatter — `alpha` for an
-implemented component, `considered` for a reserved name. If a twin omits
-`status` altogether, that is a bug worth reporting: it is the field that stops an
-agent generating against something that does not exist.
+Every component page's twin carries `status` in frontmatter. The value is
+`alpha` for an implemented component and `considered` for a reserved name. If a
+twin omits `status` altogether, that is a bug worth reporting: it is the field
+that stops an agent generating against something that does not exist.
 
 </Steps>
 
@@ -150,12 +150,12 @@ the docs tree and `/docs.md` only.
 
 **The twin shows a tag where the page shows a table.** Expected. The
 documentation components are not rendered into markdown; fetch the values from
-`/r/index.json` or the Reference section. If the *human* page shows the same gap
-— an empty table rather than a filled one — that is a different fault:
-`pnpm run generate` had not run when it was built.
+`/r/index.json` or the Reference section. If the *human* page shows the same
+gap, that is a different fault. An empty table there rather than a filled one
+means `pnpm run generate` had not run when the page was built.
 
 **The prose differs between the twin and the page.** The rendering differs by
-design; the words should not. Report a wording difference — that invariant is
+design; the words should not. Report a wording difference. That invariant is
 what the whole surface rests on.
 
 **I need many pages at once.** Do not crawl. Use
@@ -164,8 +164,8 @@ both of which are one request.
 
 ## Next
 
-- [llms.txt and the shards](./llms-txt.mdx) — how to find the pages worth
+- [llms.txt and the shards](./llms-txt.mdx) shows how to find the pages worth
   fetching.
-- [Offline docs bundle](./offline-docs-bundle.mdx) — every twin in one file.
-- [Machine-readable schemas](./machine-readable-schemas.mdx) — the structured
-  data behind the prose.
+- [Offline docs bundle](./offline-docs-bundle.mdx) has every twin in one file.
+- [Machine-readable schemas](./machine-readable-schemas.mdx) covers the
+  structured data behind the prose.

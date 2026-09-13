@@ -1,6 +1,6 @@
 ---
 title: Manual installation
-description: No CLI — the tokens, the utility, and one component placed by hand, so you can see exactly what lands.
+description: No CLI. You place the tokens, the utility, and one component by hand, so you can see exactly what lands.
 status: planned
 kind: guide
 since: unreleased
@@ -17,11 +17,11 @@ aliases: [manual install, install without the cli, no cli install]
 
 There is nothing magic in the CLI. It fetches a JSON registry item, writes the
 files it names into the directories your `components.json` aliases point at, and
-installs any real dependencies. Doing it by hand is entirely reasonable — and it is
-the right choice in three situations: your platform forbids fetching code at build
-time, you want to review every byte before it enters the repository, or your
-directory layout is unusual enough that fighting the aliases costs more than
-copying four files.
+installs any real dependencies. Doing it by hand is entirely reasonable. It is
+the right choice in three situations: your platform forbids fetching code at
+build time, you want to review every byte before it enters the repository, or
+your directory layout is unusual enough that fighting the aliases costs more
+than copying four files.
 
 <Callout title="Alpha, and no published host yet">
   The twenty-four implemented components are real code, and a registry item that
@@ -40,7 +40,7 @@ copying four files.
 
 One CSS file defining every opsinjs custom property: the two colour axes, the
 material ladder, the motion springs, and the type, space and shape scales. Save it
-as `app/opsinjs.css` — or wherever your stylesheet lives — and import it after
+as `app/opsinjs.css` or wherever else your stylesheet lives, and import it after
 Tailwind and before your own overrides.
 
 ```css title="app/globals.css"
@@ -65,7 +65,7 @@ your imports expect.
 
 Fetch the registry item for the component you want and write out each file it
 names. A registry item is a JSON document listing files, their target paths, their
-type, and any real dependencies — nothing is hidden in it, which is the point of
+type, and any real dependencies. Nothing is hidden in it, which is the point of
 publishing the format. [registry-item.json](../../registry/registry-item-json.mdx)
 annotates every field.
 
@@ -80,8 +80,9 @@ the component does not genuinely need at runtime.
 ## Fix the import paths
 
 This is the only part that is fiddly by hand. Copied source uses the alias
-conventions from `components.json` — `@/components/...`, `@/lib/utils` — and if you
-are not using those aliases, rewrite the imports as you paste.
+conventions from `components.json`, such as `@/components/...` and
+`@/lib/utils`. If you are not using those aliases, rewrite the imports as you
+paste.
 
 Rewriting imports is preferable to inventing a matching alias you will not use
 elsewhere, and if you are doing this more than twice it is a strong sign that
@@ -89,13 +90,13 @@ adopting the alias convention would be cheaper than the ongoing edit.
 
 ## Verify it worked
 
-1. **The component compiles and its imports resolve** — especially `cn`.
+1. **The component compiles and its imports resolve.** Check `cn` in particular.
 2. **It renders styled.** Unstyled means Tailwind is not scanning the directory you
    pasted into.
 3. **Its colours come from custom properties.** Literals mean the token layer is
    missing or in the wrong position.
 4. **Adding `dark` to the root element inverts the theme** with no JavaScript.
-5. **You have recorded the version you copied**, in your own commit message —
+5. **You have recorded the version you copied**, in your own commit message
    because the file will not record it for you. A
    [version stamp](../../registry/version-stamps.mdx) is specified and not
    emitted, so your note is the only thing that will tell you what has changed
@@ -119,8 +120,8 @@ a reasonable answer for one or two components and an expensive habit for twenty.
 
 ## Next
 
-- [registry-item.json](../../registry/registry-item-json.mdx) — the format you are
-  reading by hand.
-- [Adding your own tokens](../../theming/adding-your-own-tokens.mdx) — extending
-  the token layer without editing it.
-- [Upgrading](./upgrading.mdx) — how to take a change to code you own.
+- [registry-item.json](../../registry/registry-item-json.mdx) covers the format
+  you are reading by hand.
+- [Adding your own tokens](../../theming/adding-your-own-tokens.mdx) covers
+  extending the token layer without editing it.
+- [Upgrading](./upgrading.mdx) shows how to take a change to code you own.

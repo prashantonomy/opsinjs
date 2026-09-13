@@ -1,6 +1,6 @@
 ---
 title: Internationalisation
-description: RTL, locale formatting and the hard part — translating a status vocabulary without changing what it means clinically.
+description: RTL, locale formatting, and the hard part. That part is translating a status vocabulary without changing what it means clinically.
 status: planned
 kind: handbook
 aliases: [internationalisation mechanics, rtl, right to left, locale formatting, translating status]
@@ -17,9 +17,9 @@ owner: design-system
 Three separate problems travel under one word, and they have three different
 difficulties:
 
-1. **Direction.** Right-to-left is largely solved by CSS logical properties —
-   `margin-inline-start` rather than `margin-left` — and by not assuming that
-   "next" is to the right.
+1. **Direction.** Right-to-left is largely solved by CSS logical properties and
+   by not assuming that "next" is to the right. Logical properties mean
+   `margin-inline-start` rather than `margin-left`.
 2. **Formatting.** Numbers, dates, times and units differ by locale. `Intl` does
    this correctly; hand-rolled formatting does not.
 3. **Status language.** This is the hard one. The four clinical status levels
@@ -31,7 +31,7 @@ opsinjs does not ship a `[lang]` route segment, and that is a recorded decision
 rather than an oversight: see
 [ADR 0005](../project/decisions/0005-no-lang-segment-yet.mdx). Unit systems are
 treated as a **correctness** surface rather than a localisation one, and ship
-now — [Unit systems](../health/unit-systems.mdx).
+now. See [Unit systems](../health/unit-systems.mdx).
 
 ## How it works
 
@@ -53,11 +53,11 @@ grouping separators, decimal separators, ordinal forms and date order. They also
 handle units, which is where most hand-rolled code goes wrong: `72 kg` is not
 formatted the same way in every locale, and the space is not always a space.
 
-Formatting rules for health values — precision, rounding, when to show a decimal
-— are canonical in
+Formatting rules for health values are canonical in
 [Numbers, units and precision](../health/numbers-units-precision.mdx) and are
-locale-independent. Locale decides presentation; the health page decides how
-many digits are honest.
+locale-independent. Those rules cover precision, rounding and when to show a
+decimal. Locale decides presentation; the health page decides how many digits
+are honest.
 
 ### Status language
 
@@ -72,7 +72,7 @@ The four levels are ordinal. A translation must preserve:
   not survive a generic translation workflow.
 
 Status strings therefore need review by someone who speaks the language **and**
-understands the clinical intent — not a translation memory match.
+understands the clinical intent. A translation memory match is not enough.
 
 ## Do this
 
@@ -115,19 +115,19 @@ understands the clinical intent — not a translation memory match.
 - **Logical properties and `transform` do not interact.** A translated element
   still moves in physical space; a slide-in sheet needs its direction chosen
   from the writing direction.
-- **Screen readers announce direction changes.** Mixed-direction content —
-  a Latin-script medication name in an RTL sentence — needs explicit `dir` on
+- **Screen readers announce direction changes.** A Latin-script medication name
+  in an RTL sentence is mixed-direction content, and it needs explicit `dir` on
   the span to avoid the punctuation moving.
 - **Date order is not the only difference.** Some calendars are not Gregorian,
   and a date picker built on a fixed twelve-month year will be wrong.
 
 ## Related
 
-- [Unit systems](../health/unit-systems.mdx) — units as correctness, not
+- [Unit systems](../health/unit-systems.mdx) covers units as correctness, not
   localisation.
-- [Numbers, units and precision](../health/numbers-units-precision.mdx) — the
+- [Numbers, units and precision](../health/numbers-units-precision.mdx) has the
   canonical formatting rules.
 - [ADR 0005: no lang segment yet](../project/decisions/0005-no-lang-segment-yet.mdx)
-  — the decision and the recipe for retrofitting it.
-- [Clinical status semantics](../health/clinical-status-semantics.mdx) — the
+  has the decision and the recipe for retrofitting it.
+- [Clinical status semantics](../health/clinical-status-semantics.mdx) has the
   meanings a translation must preserve.

@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils"
 import { StatusBadge } from "./status"
 
 /* ==========================================================================
-   stub.tsx — THE NOT-BUILT-YET SURFACE.
+   stub.tsx IS THE NOT-BUILT-YET SURFACE.
 
    This is the most load-bearing file in the documentation site, and the reason
    is worth stating plainly.
@@ -24,16 +24,16 @@ import { StatusBadge } from "./status"
    that exists. If that page is vague, an agent will do what agents do with a
    plausible-looking but empty page: invent an API, generate code against it,
    and ship something that renders a clinical verdict with props nobody
-   designed. A 404 is barely better — it reads as "not found", which an agent
+   designed. A 404 is barely better. It reads as "not found", which an agent
    treats as "look elsewhere", and the elsewhere is a hallucination.
 
    So the page must return a DEFINITIVE NEGATIVE: this component does not
    exist, here is its specification, do not generate code against it. Every
    component in this file therefore emits two things:
 
-     1. `data-opsinjs-not-implemented` — a machine-readable marker carrying the
-        catalogue id. Scrapers, evals and the /r registry surface key off it.
-        It is the single attribute an agent harness needs to check.
+     1. `data-opsinjs-not-implemented` is a machine-readable marker carrying
+        the catalogue id. Scrapers, evals and the /r registry surface key off
+        it. It is the single attribute an agent harness needs to check.
 
      2. A visually-hidden sentence in the text layer. Screen readers announce
         it, text extraction keeps it, and a model reading the rendered DOM sees
@@ -50,14 +50,14 @@ import { StatusBadge } from "./status"
    ========================================================================== */
 
 /**
- * The canonical machine sentence. One wording, everywhere — with one branch,
- * because `considered` and `planned` are absences of different KINDS and an
- * agent has to be able to tell them apart from the sentence alone.
+ * The canonical machine sentence. There is one wording everywhere, and it has
+ * one branch, because `considered` and `planned` are absences of different
+ * KINDS and an agent has to be able to tell them apart from the sentence alone.
  *
  * A `planned` page carries a written specification, so the sentence warns that
- * the specification may change. A `considered` id has no specification at all —
- * release-phases.mdx calls it "a name in the catalogue and nothing else" — and
- * telling a code-generating agent that a specification exists there is exactly
+ * the specification may change. A `considered` id has no specification at all,
+ * and release-phases.mdx calls it "a name in the catalogue and nothing else".
+ * Telling a code-generating agent that a specification exists there is exactly
  * the invitation this file exists to withdraw. It also contradicted the prose
  * directly underneath it on all 36 of those pages.
  */
@@ -134,7 +134,7 @@ export function NotBuiltYet({
         {name ? <code className="text-sm">{name}</code> : what} is not built yet
       </p>
       {/* A div, not a p. MDX wraps prose children in their own <p>, and a <p>
-          inside a <p> is closed by the HTML parser at the inner tag — the
+          inside a <p> is closed by the HTML parser at the inner tag. The
           browser then builds a tree React never serialised and hydration
           throws. Same reason for the wrappers in <StubNotice>, <NoDataYet>
           and <Todo>. */}
@@ -157,10 +157,10 @@ export function NotBuiltYet({
       </div>
       <p className="m-0 flex flex-wrap items-center justify-center gap-2 text-xs">
         <StatusBadge status={status} plain />
-        {/* A `considered` id is on nobody's plan — the roadmap says so in one
-            sentence and lists none of them — so linking it "Roadmap" from a
-            reserved name would promise a schedule that does not exist. Send
-            that reader to the catalogue instead. */}
+        {/* A `considered` id is on nobody's plan, because the roadmap says so
+            in one sentence and lists none of them. Linking it "Roadmap" from a
+            reserved name would therefore promise a schedule that does not
+            exist. Send that reader to the catalogue instead. */}
         {status === "considered" ? (
           <Link href={routes.components()}>Every component and its status</Link>
         ) : (
@@ -205,10 +205,11 @@ export interface StubNoticeProps {
  *
  * The `null` matters. `content/_templates/component.mdx` seeds `opsinjs#0`, and
  * 31 pages still carry it, meaning "no issue has been filed". GitHub numbers
- * issues from 1, so resolving that produced a link that could only ever fail —
- * strictly worse than the "No tracking issue yet." <StubNotice> already renders
- * when `issue` is absent. Anything whose number is missing, zero or not a
- * positive integer is therefore treated as absent rather than linked.
+ * issues from 1, so resolving that produced a link that could only ever fail.
+ * Such a link is strictly worse than the "No tracking issue yet."
+ * <StubNotice> already renders when `issue` is absent. Anything whose number
+ * is missing, zero or not a positive integer is therefore treated as absent
+ * rather than linked.
  */
 function issueHref(issue: string): string | null {
   if (issue.startsWith("http")) return issue
@@ -249,8 +250,8 @@ export function StubNotice({
    * string `$undefined`, so `curl <page> | grep data-opsinjs-not-implemented`
    * matched on all 24 built component pages even though their DOM was clean.
    * Omitting the key entirely is the only form the wire agrees with. The two
-   * unconditional emitters below — <NotBuiltYet> and <PlannedApi> — are correct
-   * as they are, because they only ever render for something unbuilt.
+   * unconditional emitters below are <NotBuiltYet> and <PlannedApi>. Both are
+   * correct as they are, because they only ever render for something unbuilt.
    */
   const marker = isPlanned
     ? { "data-opsinjs-not-implemented": name ?? "true" }
@@ -279,12 +280,12 @@ export function StubNotice({
         >
           {/* Three headings, not two. "Specification only" is true of a
               `planned` page and false of a `considered` one, which has no
-              specification — and the MDX underneath a considered notice says
-              so in its first sentence, so the two used to disagree. */}
+              specification. The MDX underneath a considered notice says so in
+              its first sentence, so the two used to disagree. */}
           {status === "considered"
-            ? "A reserved name — no specification, nothing implemented"
+            ? "A reserved name. Nothing is specified and nothing is implemented"
             : isPlanned
-              ? "Specification only — nothing is implemented"
+              ? "Specification only. Nothing is implemented"
               : "This is not stable yet"}
         </h2>
         <StatusBadge status={status} plain className="ml-auto" />
@@ -428,8 +429,9 @@ export interface NoDataYetProps {
  * The rule this enforces is decision 8: every measured number on this site is
  * generated. Contrast ratios, bundle sizes, prop tables, token tables, eval
  * scores. When the generator has not run, the honest output is this component
- * naming the generator — never a sample row. A plausible fake row in a contrast
- * table is worse than no table at all, because a reviewer will believe it.
+ * naming the generator. It is never a sample row. A plausible fake row in a
+ * contrast table is worse than no table at all, because a reviewer will
+ * believe it.
  */
 export function NoDataYet({
   script = "scripts/build-tokens.mts",
@@ -499,7 +501,7 @@ export interface TodoProps {
  */
 export function Todo({ children, owner, issue, className }: TodoProps) {
   // Null when the id is the `#0` placeholder; see issueHref. The reference is
-  // still printed, because "issue not filed yet" is information — it just is
+  // still printed, because "issue not filed yet" is information. It just is
   // not a link to anywhere that resolves.
   const issueUrl = issue ? issueHref(issue) : null
 
@@ -538,7 +540,7 @@ export function Todo({ children, owner, issue, className }: TodoProps) {
             {issue}
           </a>
         ) : issue ? (
-          <span className="block text-xs">{issue} — not filed yet</span>
+          <span className="block text-xs">{issue} has not been filed yet.</span>
         ) : null}
       </span>
     </div>

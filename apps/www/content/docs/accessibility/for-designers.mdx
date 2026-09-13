@@ -22,9 +22,9 @@ free and you do not have to re-derive them per screen:
   token that has been measured against it. You do not choose a text colour to sit
   on a status surface; the pair is a token pair, and the measurement of that pair
   is published on [Contrast conformance](./contrast-conformance.mdx).
-- **Target size.** `--opsin-target-minimum` is `2.75rem` in the product theme —
-  44px at the default root font size, and it grows with the type when a reader
-  enlarges it. The density setting deliberately does not touch it either.
+- **Target size.** `--opsin-target-minimum` is `2.75rem` in the product theme.
+  That is 44px at the default root font size, and it grows with the type when a
+  reader enlarges it. The density setting deliberately does not touch it either.
   Compact density moves spacing only. A "compact" screen is never a harder
   screen to hit.
 - **Chroma is gamut-aware, lightness is not.** The `@supports (color-gamut: p3)`
@@ -68,9 +68,9 @@ the composition, not on a screenshot of it.
 ### Turn the colour off
 
 Desaturate the whole board. Every piece of information that was carried by colour
-must still be readable — the status word, the icon, the position of a marker on a
-range. If a screen becomes ambiguous in greyscale, the fix is never a darker
-colour; it is a word. Full method on
+must still be readable, and that includes the status word, the icon and the
+position of a marker on a range. If a screen becomes ambiguous in greyscale, the
+fix is never a darker colour; it is a word. Full method on
 [Colour independence](./colour-independence.mdx).
 
 ### Measure the pairs you invented
@@ -79,23 +79,24 @@ Any text or icon you placed on a background that is *not* a published token pair
 needs measuring. Use the checker at `/playground/contrast`, and record both
 numbers: APCA Lc for the perceptual answer and the WCAG 2.2 ratio for the
 conformance answer. They disagree in predictable places, which is exactly why we
-publish both — see
+publish both. See
 [Contrast and APCA](../foundations/colour/contrast-and-apca.mdx).
 
 ### Put a 44 px square on every tappable thing
 
-Not on the visible shape — on the hit area. A 24 px icon button with 10 px of
-padding on every side passes; the same icon in a dense list row with 4 px of
-padding does not. Adjacent targets also need separation, and the rule for that is
-on [Target size and motor accessibility](./target-size-and-motor.mdx).
+The square goes on the hit area rather than on the visible shape. A 24 px icon
+button with 10 px of padding on every side passes; the same icon in a dense list
+row with 4 px of padding does not. Adjacent targets also need separation, and
+the rule for that is on
+[Target size and motor accessibility](./target-size-and-motor.mdx).
 
 ### Set the text to 200%
 
-Not a zoom of the artboard — a text-size change, which is what a reader with
-Dynamic Type turned up actually gets. Every layout in the system must reflow
-rather than truncate, and a number that is truncated is a clinical failure, not a
-cosmetic one. The mechanism and the expected result are on
-[Text resizing and zoom](./text-resizing-and-zoom.mdx).
+Change the text size and not the zoom of the artboard, because a text-size change
+is what a reader with Dynamic Type turned up actually gets. Every layout in the
+system must reflow rather than truncate, and a number that is truncated is a
+clinical failure, not a cosmetic one. The mechanism and the expected result are
+on [Text resizing and zoom](./text-resizing-and-zoom.mdx).
 
 ### Draw the four data states
 
@@ -114,10 +115,10 @@ write in them.
 The design-time numbers you are entitled to rely on are the published token-pair
 measurements, and they exist. `scripts/check-contrast.mts` has run in this
 checkout, `lib/generated/contrast.json` is committed, and `contrast:verify`
-fails the build if a token edit moves a figure — so the numbers on
+fails the build if a token edit moves a figure. The numbers on
 [Contrast conformance](./contrast-conformance.mdx) and in the
-[generated contrast reference](../reference/generated/contrast.mdx) are the ones
-the shipped tokens actually produce, in both themes, dated by the run.
+[generated contrast reference](../reference/generated/contrast.mdx) are therefore
+the ones the shipped tokens actually produce, in both themes, dated by the run.
 
 What is not measured is anything you compose. A pair you invent, text over a
 photograph, two chart series against each other, and the effective background of
@@ -134,9 +135,9 @@ yourself rather than assuming the published figure covers them.
   record reading order, alternative text or announcement intent on a
   composition; those have to be written in prose alongside it.
 - **No component redlines exist.** Every implemented component now publishes its
-  parts as a labelled list under *Anatomy* on its own page, but a redline — the
-  measured spacing, size and offset a designer can copy off a drawing — is a
-  drawing, and none has been produced. Read the parts list and the token values
+  parts as a labelled list under *Anatomy* on its own page, but a redline is a
+  drawing that gives the measured spacing, size and offset a designer can copy
+  off it, and none has been produced. Read the parts list and the token values
   instead, and expect to derive the geometry yourself.
 
 ## Updates to this page

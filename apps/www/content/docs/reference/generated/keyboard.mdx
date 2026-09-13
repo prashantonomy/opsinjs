@@ -15,8 +15,8 @@ aliases: [key bindings, keyboard table, shortcuts]
 
 ## How this is generated
 
-**Source:** the `<KeyboardTable>` block on every component page — the same block
-the component page renders, not a separate list.
+**Source:** the `<KeyboardTable>` block on every component page, which is the same
+block the component page renders rather than a separate list.
 **Script:** `scripts/build-reference.mts`. **Command:** `pnpm run generate`.
 
 Aggregating rather than re-authoring is the whole point. A separate global
@@ -27,14 +27,15 @@ cannot appear on this page, and a component page without a keyboard table fails
 the build.
 
 **Four columns.** *Component* and *part* say where you must be focused. *Key* is
-written the way a keyboard prints it — <Kbd>Enter</Kbd>, <Kbd>Esc</Kbd>,
+written the way a keyboard prints it, so <Kbd>Enter</Kbd>, <Kbd>Esc</Kbd>,
 <Kbd>Shift</Kbd> <Kbd>Tab</Kbd>. *Action* describes the outcome, not the
 implementation. *Notes* carries the exceptions: what changes in a right-to-left
 layout, what a screen reader's browse mode intercepts, what differs on iOS where
 an external keyboard is attached.
 
 **What is deliberately excluded.** Browser and operating-system defaults are not
-listed — <Kbd>Tab</Kbd> moving focus forward is not a feature of a component.
+listed, because <Kbd>Tab</Kbd> moving focus forward is not a feature of a
+component.
 The global focus contract, focus-visible behaviour and the skip-link rules live
 in [Keyboard and focus](../../accessibility/keyboard-and-focus.mdx), which is
 doctrine and belongs there rather than in a table.
@@ -43,7 +44,7 @@ This site's own shortcuts are not part of the system either; the search dialog
 opens with <Kbd>Ctrl</Kbd> <Kbd>K</Kbd> and that is a property of the
 documentation, not of opsinjs.
 
-{/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
+{/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 <NoDataYet script="scripts/build-reference.mts" />
 

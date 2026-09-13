@@ -1,6 +1,6 @@
 ---
 title: Contributing
-description: How a change gets into opsinjs — the four routes in, what each one has to clear, and the one thing that will get a component proposal rejected fastest.
+description: How a change gets into opsinjs. The four routes in, what each one has to clear, and the one thing that will get a component proposal rejected fastest.
 status: stable
 kind: handbook
 icon: GitPullRequest
@@ -34,14 +34,14 @@ Nothing arrives as `stable`. Every component climbs:
 
 `considered` → `planned` → `alpha` → `beta` → `stable`
 
-- **`considered`** — a row in the catalogue with a name, a one-line definition
+- **`considered`** is a row in the catalogue with a name, a one-line definition
   and a reason. No page, no code. Anyone can propose one.
-- **`planned`** — a full specification page: intent, when not to use it naming
+- **`planned`** is a full specification page: intent, when not to use it naming
   the alternative, the clinical contract, the proposed anatomy, the proposed API
   and the accessibility bar. Still no code. All 24 shipped ids are here today.
-- **`alpha`** — code exists. The API will change.
-- **`beta`** — the API is settled; the measured numbers are being filled in.
-- **`stable`** — all 22 sections of the component anatomy render, and semver
+- **`alpha`** means code exists. The API will change.
+- **`beta`** means the API is settled; the measured numbers are being filled in.
+- **`stable`** means all 22 sections of the component anatomy render, and semver
   applies.
 
 What each phase promises is set out in [Release
@@ -53,12 +53,12 @@ is reviewed as seriously as code.
 
 Every change needs one review. Some need more:
 
-- **Anything under `health/`** — a clinical reviewer, and a `reviewed` date.
-- **Anything that changes a colour token or a contrast pair** — the generated
-  contrast report must be regenerated and committed.
-- **Anything user-visible in a component** — an accessibility review, recorded
-  as `a11yDate`.
-- **Any wording that appears on screen** — a content review.
+- **Anything under `health/`** needs a clinical reviewer, and a `reviewed` date.
+- **Anything that changes a colour token or a contrast pair** means the
+  generated contrast report must be regenerated and committed.
+- **Anything user-visible in a component** needs an accessibility review,
+  recorded as `a11yDate`.
+- **Any wording that appears on screen** needs a content review.
 
 The frontmatter carries all four, which is what makes
 [Docs freshness](../../project/docs-freshness.mdx) able to report expiry rather
@@ -68,7 +68,7 @@ than guess at it.
 
 A large share of this site is generated. If your change touches a token, a type,
 a keyboard table, a data attribute or the catalogue, the generated output must be
-regenerated and committed in the same change — CI runs the generators and fails
+regenerated and committed in the same change. CI runs the generators and fails
 on any diff. See [ADR
 0006](../../project/decisions/0006-generated-not-authored.mdx).
 
@@ -88,7 +88,7 @@ on any diff. See [ADR
   the frontmatter, the section outlines and both link directions, `check:a11y`
   reads the component sources for a status carried by colour alone and the rest
   of the static accessibility rig, and `check:llms` proves the machine-readable
-  surface. Freshness is not in it — `pnpm run check:freshness` is separate, and
+  surface. Freshness is not in it. `pnpm run check:freshness` is separate, and
   it reports rather than fails.
 - **Keep the change one thing.** A token rename and a new component in one pull
   request cannot be reviewed by the people who need to review each.
@@ -126,8 +126,8 @@ on any diff. See [ADR
 
 ## Related
 
-- [Proposing a component](./proposing-a-component.mdx) — the intake questions.
-- [Component checklist](./component-checklist.mdx) — the definition of done.
-- [Documentation templates](./documentation-templates.mdx) — the page outlines,
+- [Proposing a component](./proposing-a-component.mdx) has the intake questions.
+- [Component checklist](./component-checklist.mdx) is the definition of done.
+- [Documentation templates](./documentation-templates.mdx) has the page outlines,
   published verbatim.
-- [Community](../../project/community.mdx) — where to ask before you build.
+- [Community](../../project/community.mdx) is where to ask before you build.

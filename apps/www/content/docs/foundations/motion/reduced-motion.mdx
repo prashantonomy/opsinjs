@@ -1,6 +1,6 @@
 ---
 title: Reduced motion
-description: What each motion token becomes when a reader has asked for less movement — a stated reduced variant per token, not a blanket kill switch that leaves the interface teleporting.
+description: What each motion token becomes when a reader has asked for less movement. A stated reduced variant per token, not a blanket kill switch that leaves the interface teleporting.
 status: stable
 kind: foundation
 aliases: [prefers-reduced-motion, vestibular, motion sensitivity]
@@ -35,8 +35,8 @@ information the still version does not.
 ## How it works
 
 **The reduction is authored per token, in three parts:** what the duration
-becomes, what the easing becomes, and — the part almost everyone omits — what the
-*property being animated* becomes.
+becomes, what the easing becomes, and what the *property being animated* becomes.
+Almost everyone omits that last one.
 
 That third part is where the real work is. Reduced motion is a request to reduce
 movement, not to reduce change. An opacity fade involves no movement at all and
@@ -97,8 +97,8 @@ would get. A design system that animates its own documentation while telling you
 to respect the setting is not credible.
 
 **Do not use reduced motion as a proxy for anything else.** It is not a signal
-about data saving, about device capability, or about a preference for haptics —
-see [Sound and haptics](../sound-and-haptics.mdx). It says one thing and you may
+about data saving, about device capability, or about a preference for haptics.
+See [Sound and haptics](../sound-and-haptics.mdx). It says one thing and you may
 infer only that thing.
 
 **Offer an in-product setting as well.** The media query reflects an
@@ -110,12 +110,12 @@ preference upwards, is the correct shape.
 ## Tokens
 
 `tokens/motion.json` is where a reduced variant is declared, one token at a time.
-Five of the twelve motion tokens carry one: the four springs — `spring-snap`,
-`spring-settle`, `spring-calm` and `spring-sheet` — which each become a `linear`
-easing over a shortened duration of their own, and `ease-standard`, which becomes
-`linear`. Those five are what `scripts/build-tokens.mts` emits inside
-`@media (prefers-reduced-motion: reduce)` in `app/tokens.generated.css`: an easing
-and a duration for each spring, plus the easing for `ease-standard`.
+Five of the twelve motion tokens carry one. Four are the springs `spring-snap`,
+`spring-settle`, `spring-calm` and `spring-sheet`, which each become a `linear`
+easing over a shortened duration of their own. The fifth is `ease-standard`,
+which becomes `linear`. Those five are what `scripts/build-tokens.mts` emits
+inside `@media (prefers-reduced-motion: reduce)` in `app/tokens.generated.css`: an
+easing and a duration for each spring, plus the easing for `ease-standard`.
 
 The other seven declare nothing, so the media query leaves them alone and they
 keep their full values for a reader who has asked for less movement. They are
@@ -124,7 +124,7 @@ keep their full values for a reader who has asked for less movement. They are
 is a gap in the token layer rather than a position: a transition written with
 `--opsin-duration-base` and `--opsin-ease-enter` still runs for its full 220ms
 under the preference. Until those declarations exist, a component built on a
-plain duration has to reduce itself — put the transition inside the query in the
+plain duration has to reduce itself. Put the transition inside the query in the
 component's own stylesheet, or reach for a spring token, which carries its
 fallback with it.
 
@@ -150,8 +150,8 @@ been written that publishes it yet.
 - **This is a WCAG requirement and a health one.** SC 2.3.3 *Animation from
   Interactions* covers motion triggered by interaction; honouring the preference
   is how the system satisfies it. Independently of conformance, vestibular
-  symptoms — nausea, dizziness, migraine — are exactly the outcomes a health
-  product must not cause.
+  symptoms such as nausea, dizziness and migraine are exactly the outcomes a
+  health product must not cause.
 - **Reduced is not removed, and the distinction protects two different groups.**
   Removing motion entirely disadvantages readers who rely on it to track where
   things went, including many readers with cognitive disabilities. The reduced
@@ -171,9 +171,9 @@ on [Accessibility → Reduced motion](../../accessibility/reduced-motion.mdx).
 
 ## Related
 
-- [Springs as tokens](springs-as-tokens.mdx) — why an overshooting curve needs a
-  different reduction from a damped one.
-- [Choreography](choreography.mdx) — what a morph, a stagger and a depth change
-  each collapse to.
-- [Accessibility → Reduced motion](../../accessibility/reduced-motion.mdx) — the
-  conformance side of the same contract, with the test steps.
+- [Springs as tokens](springs-as-tokens.mdx) explains why an overshooting curve
+  needs a different reduction from a damped one.
+- [Choreography](choreography.mdx) says what a morph, a stagger and a depth
+  change each collapse to.
+- [Accessibility → Reduced motion](../../accessibility/reduced-motion.mdx) is
+  the conformance side of the same contract, with the test steps.

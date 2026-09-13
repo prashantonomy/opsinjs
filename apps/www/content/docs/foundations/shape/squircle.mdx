@@ -12,7 +12,7 @@ a11yDate: 2026-09-02
 ## Overview
 
 `border-radius` draws a quarter circle. Where that arc meets the straight edge,
-curvature changes instantly from zero to its full value — the surfaces are
+curvature changes instantly from zero to its full value. The surfaces are
 continuous but their curvature is not, and the eye is unexpectedly good at
 detecting it. The corner appears to pinch.
 
@@ -23,14 +23,14 @@ set of points satisfying
 |x/a|^n + |y/b|^n = 1
 ```
 
-where `n = 2` gives an ellipse — the circular corner you already have — and
-larger `n` progressively squares the shape off while keeping the transition into
-the straight edge smooth. opsinjs ships `superellipse(4)`, which is close to the
-corner shape Apple's platform UI has used for years and reads as "rounded" rather
-than "squared" at every rung of the ladder.
+where `n = 2` gives an ellipse and larger `n` progressively squares the shape
+off while keeping the transition into the straight edge smooth. The `n = 2`
+case is the circular corner you already have. opsinjs ships `superellipse(4)`,
+which is close to the corner shape Apple's platform UI has used for years and
+reads as "rounded" rather than "squared" at every rung of the ladder.
 
 The CSS property that makes this expressible is `corner-shape`. It sits alongside
-`border-radius` — the radius still says how big the corner is, and `corner-shape`
+`border-radius`. The radius still says how big the corner is, and `corner-shape`
 says what curve fills it.
 
 ## How it works
@@ -48,9 +48,10 @@ elements that opt in by attribute rather than to every rounded box:
 
 Three deliberate choices are in those four lines.
 
-**It is guarded by `@supports`.** Not because it needs to be — an unknown property
-is discarded — but because the guard is the documentation. Anyone reading the
-stylesheet can see immediately which part of the shape system is conditional.
+**It is guarded by `@supports`.** That guard is there not because it needs to
+be but because it is the documentation. An unknown property is discarded
+regardless. Anyone reading the stylesheet can see immediately which part of the
+shape system is conditional.
 
 **It is applied by attribute, not universally.** A blanket `* { corner-shape }`
 would also reshape third-party components, embedded content and anything with an
@@ -66,7 +67,7 @@ every rule.
 colour, in the same place, and it works identically. Nothing is conditional on
 this rendering: no layout depends on it, no interaction depends on it, no
 information is carried by it. That is what makes it the safest enhancement in the
-system — the worst case is a corner that is slightly less pleasing than it could
+system. The worst case is a corner that is slightly less pleasing than it could
 be.
 
 <BrowserSupport feature="corner-shape" />
@@ -80,9 +81,9 @@ the browser is drawing the border, exactly as it does for `border-radius`.
 
 ## Using it
 
-**Opt in on surfaces, not on everything.** Cards, sheets, tiles, buttons — things
-the system draws. Not on images, not on embeds, not on video, where a shaped
-corner clips content rather than shaping a container.
+**Opt in on surfaces, not on everything.** Cards, sheets, tiles and buttons are
+things the system draws. Not on images, not on embeds, not on video, where a
+shaped corner clips content rather than shaping a container.
 
 **Do not compensate for the shape.** A superellipse at a given radius reads
 slightly larger than a circular corner at the same radius, and the temptation is
@@ -109,7 +110,7 @@ carry information. It is character.
 
 **Check it against the material ladder.** A translucent surface with a shaped
 corner is where the corner geometry and the backdrop blur interact, and it is
-worth looking at once per surface — see
+worth looking at once per surface. See
 [Materials → The ladder](../materials/the-ladder.mdx).
 
 ## Tokens
@@ -132,8 +133,9 @@ product at once.
   clipped focus ring is a real conformance failure and it is the single most
   common cost of the older approaches.
 - **It does not affect text rendering.** Masking a container can force text
-  inside it onto a different rasterisation path and lose subpixel antialiasing —
-  a small legibility cost that lands hardest on readers who need it most.
+  inside it onto a different rasterisation path and lose subpixel antialiasing.
+  That is a small legibility cost, and it lands hardest on readers who need it
+  most.
 - **It changes the hit area very slightly at the corners**, in the same way and
   for the same reason as `border-radius`, and it is accounted for in the same
   target-size measurement on
@@ -141,9 +143,9 @@ product at once.
 
 ## Related
 
-- [Radius scale](radius-scale.mdx) — the rungs this shape is applied at, and the
-  nesting rule.
-- [Browser support](../../start/browser-support.mdx) — the tested floor and the
-  per-feature enhancement contract this is one instance of.
-- [Materials → Performance budget](../materials/performance-budget.mdx) — why the
-  masking alternatives are not affordable.
+- [Radius scale](radius-scale.mdx) has the rungs this shape is applied at, and
+  the nesting rule.
+- [Browser support](../../start/browser-support.mdx) has the tested floor and
+  the per-feature enhancement contract this is one instance of.
+- [Materials → Performance budget](../materials/performance-budget.mdx) explains
+  why the masking alternatives are not affordable.

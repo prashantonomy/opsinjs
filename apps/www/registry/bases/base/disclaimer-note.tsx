@@ -1,6 +1,6 @@
 /**
- * DisclaimerNote — the standing note about what a product is and is not, placed
- * by rule so it is always in the same place and never in the way.
+ * DisclaimerNote is the standing note about what a product is and is not,
+ * placed by rule so it is always in the same place and never in the way.
  *
  * THERE IS NO DISCLAIMER TEXT IN THIS FILE AND THERE NEVER WILL BE. Not a
  * default, not a placeholder, not a vetted variant, not an i18n key with a
@@ -8,8 +8,8 @@
  * A disclaimer is a legal and clinical statement with somebody's name behind
  * it, and a design system has neither a legal owner nor a reader. A sentence
  * shipped from here would arrive in a product whose author never read it,
- * describing limits that product may not have and omitting ones it does — and
- * it would arrive looking reviewed, because it came from a library.
+ * describing limits that product may not have and omitting ones it does. It
+ * would arrive looking reviewed, because it came from a library.
  *
  * SO THE MISSING CASE SAYS SO. A note with no words supplied renders one
  * unlovely line admitting that none were, which is the same refusal
@@ -24,7 +24,7 @@
  * role, no live region, and the glyph is the component's rather than the
  * caller's. A standing note tinted from the status axis is a permanent false
  * alarm: it says *watch* on every screen, from the first launch to the last,
- * about nothing in particular — and a reader learns within a week to see past
+ * about nothing in particular. A reader learns within a week to see past
  * it, taking the real alerts with it. The two `data-*` attributes that carry
  * colour meaning, `data-status` and `data-category`, appear nowhere below.
  *
@@ -41,7 +41,7 @@
  * third that looked louder still.
  *
  * IT IS A SERVER COMPONENT. No state, no hook, no timer, no event handler, no
- * Base UI primitive. There is no dismiss control — whether the note may be
+ * Base UI primitive. There is no dismiss control. Whether the note may be
  * dismissed, whether it returns, and whether the product records that it was
  * seen are open questions on the specification page, and each of them needs a
  * memory that outlives a render.
@@ -59,7 +59,7 @@ import { cn } from "@/lib/utils"
  * Nothing this file complains about has an `OpsinErrorCode`. The codes in
  * `tokens/errors.json` describe mistakes a consumer makes with the CLINICAL
  * API, they are a versioned contract, and the table on the errors page is
- * generated from that file — so a component may not mint one. What `warnOnce`
+ * generated from that file. So a component may not mint one. What `warnOnce`
  * is right about is the discipline rather than the registry: a warning printed
  * on every render, and twice per render under Strict Mode, becomes noise, and a
  * noisy channel is one somebody switches off. So this keeps its own small set,
@@ -81,8 +81,8 @@ function warnDev(key: string, message: string): void {
 /**
  * Whether any words actually arrived.
  *
- * TypeScript cannot answer this. Testing three sentinels — `""`, `null`,
- * `undefined` — misses how legal copy actually goes missing, which is
+ * TypeScript cannot answer this. Testing the three sentinels `""`, `null` and
+ * `undefined` misses how legal copy actually goes missing, which is
  * `{consent.text}` resolving to `undefined` from a content service, a
  * translation table returning a whitespace-only string for a locale nobody
  * filled in, or `{isReviewed && "…"}` evaluating to `false` on the day the
@@ -111,7 +111,7 @@ function hasSuppliedText(children: ReactNode): boolean {
  * Whether the whole body is a number rather than words.
  *
  * `{wording.sentences.length && wording.text}` on an empty collection passes
- * `0`, and React renders the digit — so a note's entire standing statement
+ * `0`, and React renders the digit. So a note's entire standing statement
  * about what the product is becomes the character `0`, no development warning
  * fires, and the absence this component exists to make visible is rendered as a
  * measurement of nothing. It is the numeric sibling of the `false` case the
@@ -123,7 +123,7 @@ function hasSuppliedText(children: ReactNode): boolean {
  * [numbers-units-precision] rule 13 and safety checklist A4 for it: zero, none
  * and unknown are three different things, and an absence never renders as a
  * digit. A body that is only a number is a caller mistake at every value and
- * not only at zero, because it states nothing about the product's limits — so
+ * not only at zero, because it states nothing about the product's limits. So
  * it is refused rather than printed, and the missing-words line takes its place
  * along with the development warning that names how to fix it.
  */
@@ -134,9 +134,9 @@ function isBareNumber(text: string): boolean {
 /**
  * Link labels that name no destination.
  *
- * Every one of these is a label a reader hears out of context — a screen
- * reader's list of links is exactly that context — and none of them says where
- * it goes. The specification asks for *read our full statement* rather than
+ * Every one of these is a label a reader hears out of context, and none of
+ * them says where it goes. A screen reader's list of links is exactly that
+ * context. The specification asks for *read our full statement* rather than
  * *learn more*, and this is that requirement made checkable. It warns and
  * renders: the destination is right even when the label is lazy, and removing
  * somebody's link over its wording would be the larger mistake.
@@ -165,7 +165,7 @@ const UNHELPFUL_LABELS = [
  * obvious way would report itself and there would be no repair short of
  * deleting the check. Split like this, the file contains the axis names and the
  * axis prefixes and never the two joined, which is the thing the gate looks
- * for — and the pattern still matches every joined form at runtime.
+ * for. The pattern still matches every joined form at runtime.
  *
  * `callout.tsx` carries the identical construction, and for the identical
  * reason: both components sit outside both axes, and `className` is the one
@@ -190,7 +190,7 @@ const AXIS_TINT = new RegExp(
  * What differs is the room above it: `inline` sits close under the content it
  * qualifies, because it is about that content's surface; `footer` ends a
  * surface and is given the air that says so. Both steps are from the FIXED
- * scale rather than the density-scaled one — the separation between the note
+ * scale rather than the density-scaled one. The separation between the note
  * and the reading above it is the placement rule made visible, and it should
  * not close up because somebody asked for a denser list.
  */
@@ -224,7 +224,7 @@ const CONTENT_COLUMN = {
  *
  * IT IS A REAL ANCHOR AND IT IS NOT A BUTTON. A control that produces a new URL
  * is a link however it is styled, and rebuilding it as a button loses the new
- * tab, the copied address and the screen reader's list of links — which is the
+ * tab, the copied address and the screen reader's list of links. That is the
  * one place a label naming its destination pays for itself.
  *
  * The floor is `--opsin-target-minimum` in rem rather than 44px, so it grows
@@ -232,7 +232,7 @@ const CONTENT_COLUMN = {
  * doubles. THE FALLBACK INSIDE THE `var()` IS LOAD-BEARING: written without
  * one, `min-h-(--opsin-target-minimum)` compiles to a bare reference, and in a
  * project that installed this file without `tokens.generated.css` that
- * declaration is invalid at computed-value time — `min-height` reverts to
+ * declaration is invalid at computed-value time. `min-height` reverts to
  * `auto` and the floor vanishes with no error anywhere. Both axes, because
  * SC 2.5.8 is a 44x44 region and not a 44-tall strip, and a short label in a
  * language with shorter words would otherwise sit under the floor on the
@@ -250,7 +250,7 @@ const CONTENT_COLUMN = {
  * `inline-flex` blockifies to `flex`, and the label inside becomes an anonymous
  * flex item. `min-w-0` sets the anchor's own minimum and never reaches that
  * anonymous item, and `overflow-wrap: break-word` deliberately does not reduce
- * a box's min-content size — so with either of those the anchor stays inside
+ * a box's min-content size. So with either of those the anchor stays inside
  * its track while the label paints past it and widens the document. `anywhere`
  * is the one value that does reduce min-content size, which is what makes the
  * link reflow with the paragraph instead of being the one part exempt from it.
@@ -278,17 +278,17 @@ export interface DisclaimerNoteProps {
    * a design system puts words into products whose authors never read them, and
    * it arrives looking reviewed because it came from a library. Supply none and
    * the note says on screen that none was supplied, rather than inventing a
-   * sentence — `false` from a `&&` branch, `0` from the same branch on an empty
+   * sentence. `false` from a `&&` branch, `0` from the same branch on an empty
    * collection, an empty array and a whitespace-only string all count as
    * supplying none. The boundary is words: a caller who wraps the copy in an
    * element is taken at their word, so an empty string inside a `<strong>` is
    * the one route to a silently empty note that stays open.
    *
    * TYPED OPTIONAL AND REQUIRED BY THE CONTRACT, which is the same shape
-   * `EmptyState.children` has. Marking it required buys nothing — `{copy.text}`
-   * with an undefined `copy.text` type-checks either way — and it costs the
-   * ability to render the state at all, which is the state that most needs
-   * seeing.
+   * `EmptyState.children` has. Marking it required buys nothing, because
+   * `{copy.text}` with an undefined `copy.text` type-checks either way. It
+   * costs the ability to render the state at all, which is the state that most
+   * needs seeing.
    */
   children?: ReactNode
   /**
@@ -357,7 +357,7 @@ export interface DisclaimerNoteProps {
 /**
  * The escape hatch, reported rather than closed.
  *
- * Not an OPSIN code, for the reason given on `warnDev` above — which is also
+ * Not an OPSIN code, for the reason given on `warnDev` above. That is also
  * why it goes THROUGH `warnDev` rather than round it. This runs in a render
  * body, so a bare `console.warn` here would print on every render and twice
  * again under Strict Mode, and a disclaimer sits at the foot of a surface that
@@ -423,9 +423,9 @@ function statementLink(
       `[opsinjs] <DisclaimerNote> has a link labelled "${label}", which names no ` +
         "destination. A screen reader can list every link on a page with no " +
         "sentence around them, and this is the one link on the surface that says " +
-        "where the product's full statement lives. Name it — \"read the full " +
-        "statement\", \"how this app uses your readings\" — in the reader's own " +
-        "language. It was rendered as written.",
+        "where the product's full statement lives. Name it in the reader's own " +
+        "language, with a label like \"read the full statement\" or \"how this " +
+        "app uses your readings\". It was rendered as written.",
     )
   }
 
@@ -462,9 +462,10 @@ export function DisclaimerNote({
       `text-missing:${placement}`,
       `[opsinjs] <DisclaimerNote placement="${placement}"> was rendered with no ` +
         "words, so it says on screen that none were supplied. opsinjs ships no " +
-        "disclaimer text — no default, no placeholder and no vetted variant — " +
-        "because the words are a legal and clinical statement with an owner, and " +
-        "a design system is not it. Write the product's own two sentences: what " +
+        "disclaimer text: no default, no placeholder and no vetted variant. " +
+        "That is because the words are a legal and clinical statement with an " +
+        "owner, and a design system is not it. Write the product's own two " +
+        "sentences: what " +
         "it does, then what it does not do. `false` or `0` from a `&&` branch, " +
         "an empty array and a whitespace-only string all count as writing none.",
     )
@@ -484,9 +485,9 @@ export function DisclaimerNote({
        `aria-live` in any form would make a standing sentence speak on every
        render that mounted it.
 
-       What a plain element also costs is a boundary — no start, no end and no
-       accessible name — so a screen-reader user meets the note as two loose
-       sentences rather than as a thing. `role="note"`, or `<aside>` with a
+       What a plain element also costs is a boundary, so a screen-reader user
+       meets the note as two loose sentences rather than as a thing. There is no
+       start, no end and no accessible name. `role="note"`, or `<aside>` with a
        name, would supply one, and both were left out on the same grounds
        `callout.tsx` gives: nobody has listened to this component in a screen
        reader, and `<aside>` in particular publishes a `complementary` landmark
@@ -507,12 +508,12 @@ export function DisclaimerNote({
 
            THE COLOUR IS AN ARBITRARY PROPERTY AND THAT IS NOT A STYLE CHOICE.
            `cn` is `twMerge(clsx(…))`, tailwind-merge is unconfigured, and it has
-           never been told that `--text-opsin-*` is a font-size namespace — so it
+           never been told that `--text-opsin-*` is a font-size namespace. So it
            files `text-opsin-body` and `text-foreground` in one conflict group
            and silently drops whichever comes first. Verified: `twMerge(
            "text-opsin-body text-foreground")` returns `"text-foreground"`, and
            reversing the order returns `"text-opsin-body"`. There is no ordering
-           that keeps both, and the failure is silent — the note renders in
+           that keeps both, and the failure is silent. The note renders in
            whatever size it inherits, which on a card footer is the size legal
            text is not allowed to be. `field.tsx` hit the same trap and answered
            it by dropping the colour and inheriting one; that is the wrong answer
@@ -525,7 +526,7 @@ export function DisclaimerNote({
            the wrong size and no gate in this repository would report it.
 
            No fill and no radius. The boundary is a hairline above, which is the
-           whole treatment — and it is also what makes print work with nothing
+           whole treatment. It is also what makes print work with nothing
            extra: a browser drops background colours on paper unless the reader
            has gone looking for the setting that keeps them, and a component
            with no fill has nothing to lose. Nothing here is `print:hidden`.
@@ -579,7 +580,7 @@ export function DisclaimerNote({
              only guarantee outside this repository: `--opsin-measure-comfortable`
              is declared in `app/tokens.generated.css`, which does not travel
              with this file, and a bare reference to an undeclared property is
-             invalid at computed-value time — `max-width` would revert to `none`
+             invalid at computed-value time. `max-width` would revert to `none`
              and the cap would be gone with no error anywhere. */
           "m-0 min-w-0 max-w-(--opsin-measure-comfortable,66ch) wrap-break-word",
         )}
@@ -610,7 +611,7 @@ export function DisclaimerNote({
  * `/view` renders this with no props and `shadcn add` ships it, so it is
  * public, reviewed code rather than a scratch demo. It shows the two things
  * worth seeing about this component: a note in place with everything it can
- * carry, and what happens when the words are missing — which is the state a
+ * carry, and what happens when the words are missing. That is the state a
  * product is most likely to ship by accident and the one this component exists
  * to make visible.
  *

@@ -18,9 +18,9 @@ page is about.
 
 There is exactly one rule and everything else follows from it: **write your
 tokens in a file opsinjs does not generate, using a prefix opsinjs will never
-emit.** The failure mode this avoids is not a merge conflict — a conflict would
-be fine, you would see it. It is a silent overwrite by a generator that assumes
-it owns every declaration in the file it writes.
+emit.** The failure mode this avoids is not a merge conflict. A conflict would
+be fine, and you would see it. It is a silent overwrite by a generator that
+assumes it owns every declaration in the file it writes.
 
 ## Choose a prefix
 
@@ -30,7 +30,7 @@ Prefix every custom property you add with your own namespace: `--acme-`, not
 `--opsin-*` is generated. Anything you declare with that prefix is at risk from
 the next `pnpm run generate` in a fork, and is guaranteed to confuse the next
 person who greps for where a token comes from. A bare, unprefixed name risks
-colliding with a role token that shadcn or opsinjs adds later — `--surface` and
+colliding with a role token that shadcn or opsinjs adds later. `--surface` and
 `--elevation` are exactly the kind of name a design system adds in a minor
 version.
 
@@ -82,9 +82,9 @@ you `bg-acme-partner-accent`. For that, map it in `@theme inline`:
 ```
 
 `inline` matters. Without it Tailwind resolves the value at build time and your
-runtime overrides — dark mode, the P3 escalation, a `data-density` attribute —
-stop reaching the utility. [Tailwind v4](./tailwind-v4.mdx) is the full
-explanation of why this one keyword causes so much trouble.
+runtime overrides stop reaching the utility. Those overrides are dark mode, the
+P3 escalation and a `data-density` attribute. [Tailwind v4](./tailwind-v4.mdx) is
+the full explanation of why this one keyword causes so much trouble.
 
 ## Respect the preference media queries
 
@@ -110,7 +110,7 @@ the measured contrast of your pair does not change between displays.
 <DoDont>
   <DoDont.Do>
     Add a category-shaped token for a category opsinjs does not ship, following
-    [Category palettes](./category-palettes.mdx) — six ramps is a starting set,
+    [Category palettes](./category-palettes.mdx). Six ramps is a starting set,
     not a claim of completeness.
   </DoDont.Do>
   <DoDont.Dont>
@@ -123,11 +123,11 @@ the measured contrast of your pair does not change between displays.
 </DoDont>
 
 <SafetyCallout severity="attention" evidence="opinion">
-Do not add a token whose name asserts a clinical judgement — `--acme-normal`,
-`--acme-danger`, `--acme-abnormal`. A colour token cannot know a reference
-range, and a name like that invites a component to decide something only a
-clinician or a validated rule may decide. Name the appearance, not the verdict,
-and get the verdict from the status axis.
+Do not add a token whose name asserts a clinical judgement, such as
+`--acme-normal`, `--acme-danger` and `--acme-abnormal`. A colour token cannot
+know a reference range, and a name like that invites a component to decide
+something only a clinician or a validated rule may decide. Name the appearance,
+not the verdict, and get the verdict from the status axis.
 </SafetyCallout>
 
 ## Verify it worked
@@ -144,7 +144,7 @@ invalid declaration, and the element simply looks slightly wrong.
 
 Apply the Tailwind class you mapped. If the class produces no rule, either the
 `@theme inline` block is missing or the file it lives in is not covered by a
-`@source` line — Tailwind only scans files it has been told about.
+`@source` line. Tailwind only scans files it has been told about.
 
 ### An upgrade does not touch it
 
@@ -173,9 +173,10 @@ formatted.
 
 ## Next
 
-- [Tailwind v4](./tailwind-v4.mdx) — `@theme` against `@theme inline`, and the
-  ordering that breaks silently.
-- [CSS variables](./css-variables.mdx) — consuming any of this without Tailwind
-  at all.
-- [Contributing tokens](../handbook/contributing/contributing-tokens.mdx) — if
-  the token you need probably belongs in opsinjs rather than in your app.
+- [Tailwind v4](./tailwind-v4.mdx) covers `@theme` against `@theme inline`, and
+  the ordering that breaks silently.
+- [CSS variables](./css-variables.mdx) covers consuming any of this without
+  Tailwind at all.
+- [Contributing tokens](../handbook/contributing/contributing-tokens.mdx) is
+  where to go if the token you need probably belongs in opsinjs rather than in
+  your app.

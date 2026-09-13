@@ -15,9 +15,9 @@ statement of what the output must and must not contain, so that a failure is
 visible instead of plausible.
 
 Every recipe here follows the same shape: the task, the constraints, and the
-tell — the specific thing to look for that distinguishes a correct answer from a
-confident wrong one. The tell is the part worth internalising. Health UI fails
-quietly, and "it looked right" is not a review.
+tell. The tell is the specific thing to look for that distinguishes a correct
+answer from a confident wrong one, and it is the part worth internalising.
+Health UI fails quietly, and "it looked right" is not a review.
 
 These are written to work alongside the [agent skill](./agent-skill.mdx). Without
 it, prepend the six rules from
@@ -147,7 +147,7 @@ long session. Re-anchor before each generation step, or split the work.
 **It refuses too much.** Read the status before calling it over-caution: for one
 of the thirty-six `considered` ids, refusing to emit component code is the
 correct behaviour. Refusing for an `alpha` id means the rules have been applied
-without the catalogue in context — supply the inventory step's output. If it
+without the catalogue in context. Supply the inventory step's output. If it
 also refuses to *describe* the specification, the prompt has been read as a
 request for code.
 
@@ -155,14 +155,14 @@ request for code.
 each claim" to the prompt. A citation is what turns a checkable answer into a
 verifiable one.
 
-**A recipe stops working after a docs change.** Report it as an eval failure —
-see [Evals](./evals.mdx). Recipes are supposed to be regression-tested rather
+**A recipe stops working after a docs change.** Report it as an eval failure.
+See [Evals](./evals.mdx). Recipes are supposed to be regression-tested rather
 than folklore.
 
 ## Next
 
-- [Evals](./evals.mdx) — the same prompts, scored.
-- [Rules for agents](./rules-for-agents.mdx) — the constraints these recipes
+- [Evals](./evals.mdx) has the same prompts, scored.
+- [Rules for agents](./rules-for-agents.mdx) has the constraints these recipes
   encode.
 - [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx)
-  — the ten prohibitions a reviewer will check the output against.
+  has the ten prohibitions a reviewer will check the output against.

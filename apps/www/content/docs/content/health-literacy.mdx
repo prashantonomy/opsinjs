@@ -1,6 +1,6 @@
 ---
 title: Health literacy
-description: Writing for the reader who can read the words but cannot use the numbers — which, for most health content, is most readers.
+description: Writing for the reader who can read the words but cannot use the numbers. For most health content, that is most readers.
 status: stable
 kind: content
 reviewer: content
@@ -14,14 +14,14 @@ aliases: [health numeracy, low literacy, comprehension, writing for patients]
 
 **Write for a reader who understands every word and still cannot answer the
 question.** Health literacy is not the same as literacy. It is the ability to
-find, understand and act on health information, and the numerical part of it —
-health numeracy — fails far more often than the vocabulary part.
+find, understand and act on health information, and its numerical part is
+health numeracy, which fails far more often than the vocabulary part.
 
 That reframes the job. Replacing "hypertension" with "high blood pressure" is
 necessary and it is the easy half. The hard half is that a reader who fully
 understands "your reading is 148 over 92, and the usual range is 90 to 120 over
-60 to 80" may still not be able to answer *should I do something about it?* —
-which is the only question they opened the app to ask.
+60 to 80" may still not be able to answer *should I do something about it?*
+That is the only question they opened the app to ask.
 
 Four rules follow.
 
@@ -56,7 +56,7 @@ evidence. The content-side summary is short:
 ## Approved / Rejected
 
 <DoDont>
-  <DoDont.Do>Your reading was 148/92. Your usual range is around 118/76. That is higher than usual for you. One reading on its own is often not a problem — take another in the morning.</DoDont.Do>
+  <DoDont.Do>Your reading was 148/92. Your usual range is around 118/76. That is higher than usual for you. One reading on its own is often not a problem. Take another in the morning.</DoDont.Do>
   <DoDont.Dont>Your reading was 148/92 mmHg (systolic/diastolic), which is 25% above your 30-day mean.</DoDont.Dont>
 </DoDont>
 
@@ -83,8 +83,8 @@ content in your product; a design system must never supply them.
 
 > `What it was`. `How that compares`. `What to do, or that nothing is needed`.
 
-Filled: "Your reading was 118 over 76. That is in your usual range. Nothing to do
-— your next check is on Friday."
+Filled: "Your reading was 118 over 76. That is in your usual range. Nothing to
+do. Your next check is on Friday."
 
 **The comparison, written out**
 
@@ -118,7 +118,7 @@ a sentence a reader has to convert into a plan.
 
 <ResearchNote evidence="mixed" date="2026-09-02">
   There is a genuine research literature on the presentation of laboratory
-  results to patients — a 2024 JMIR systematic review examines presentation
+  results to patients. A 2024 JMIR systematic review examines presentation
   formats (doi:10.2196/53993), and a 2018 study in BMC Medical Informatics and
   Decision Making examines patient-portal result presentation
   (doi:10.1186/s12911-018-0589-7). We cite them as the starting point for anyone
@@ -141,12 +141,14 @@ a sentence a reader has to convert into a plan.
 
 ## Related components
 
-- **`Value`** — the number and its unit; the frame that makes it interpretable is
-  the caller's responsibility and this page is what that responsibility means.
-- **`RangeBar`** — the comparison made visual. It must still ship the comparison
-  in words, because a picture of a comparison is not a comparison for everyone.
-- **`ResultCard`** — the three-part answer above is its content contract.
-- **`Term`** — introduces a clinical word once, in the reader's own sentence.
-- **`TrendSparkline`** — must not be shown before there are enough readings for a
+- **`Value`** is the number and its unit; the frame that makes it interpretable
+  is the caller's responsibility and this page is what that responsibility
+  means.
+- **`RangeBar`** is the comparison made visual. It must still ship the
+  comparison in words, because a picture of a comparison is not a comparison
+  for everyone.
+- **`ResultCard`** takes the three-part answer above as its content contract.
+- **`Term`** introduces a clinical word once, in the reader's own sentence.
+- **`TrendSparkline`** must not be shown before there are enough readings for a
   trend to mean anything; the "not enough yet" sentence is on this page for a
   reason.

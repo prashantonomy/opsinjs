@@ -9,8 +9,8 @@ import { z } from "zod"
 
 /**
  * NOTE: fumadocs-mdx only permits COLLECTION exports from this file. Exporting
- * anything else — a shared zod enum, a type, a helper — fails the build with
- * `Unknown export "…", you can only export collections from source
+ * anything else, such as a shared zod enum, a type or a helper, fails the build
+ * with `Unknown export "…", you can only export collections from source
  * configuration file.` The enums below are therefore module-local; anything
  * that needs the vocabulary at runtime gets it from lib/status.ts.
  */
@@ -62,7 +62,7 @@ export const docs = defineDocs({
       category: z.string().optional(),
       /**
        * Search synonyms. Indexed by fumadocs, emitted into llms.txt and
-       * /r/index.json. Globally unique across the corpus — the namespace is
+       * /r/index.json. Globally unique across the corpus. The namespace is
        * declared once in registry/catalogue.ts; pages reference it.
        */
       aliases: z.array(z.string()).optional(),

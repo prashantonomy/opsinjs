@@ -12,13 +12,13 @@ a11yDate: 2026-09-02
 ## Overview
 
 Most design systems cannot answer the question "which icons does this system rely
-on?" — the glyphs are imported one by one in whichever component happens to need
+on?" The glyphs are imported one by one in whichever component happens to need
 them, and the only way to find out is to grep.
 
 opsinjs answers it for the half of the set that is mapped, and this page is
-where the rest is specified. The design is that a component asks for a **role** —
-the icon for *status: urgent*, for *category: sleep*, for *action: dismiss* —
-and a single mapping resolves each role to a lucide name.
+where the rest is specified. The design is that a component asks for the icon
+for *status: urgent*, for *category: sleep*, for *action: dismiss*. Each of
+those is a **role**, and a single mapping resolves each role to a lucide name.
 
 <NoDataYet what="The generated role-to-glyph table" script="scripts/build-registry.mts">
 No generator emits icon data yet: `scripts/build-registry.mts` reads the
@@ -50,27 +50,27 @@ The browsable version, where you can search and copy, is at
 
 ## How it works
 
-**Roles are grouped by what they do**, and the grouping is not cosmetic — each
+**Roles are grouped by what they do**, and the grouping is not cosmetic. Each
 group has different rules.
 
 *Category roles.* One per health category. These are semantic: the glyph is
 carrying which part of someone's health a surface is about, because
 [colour cannot](../../health/two-colour-axes.mdx). They are the roles most likely
 to be customised by a product with its own categories, and the mapping is where
-that happens — see
+that happens. See
 [Theming → Category palettes](../../theming/category-palettes.mdx).
 
 *Status roles.* One per clinical status level. Always accompanied by colour and a
 word; never used alone. The set is deliberately closed, because an extra status
 glyph is an extra status level that the system does not have.
 
-*Data-state roles.* Empty, error and stale each have a glyph. Loading does not —
-a skeleton is not an icon.
+*Data-state roles.* Empty, error and stale each have a glyph. Loading does not,
+because a skeleton is not an icon.
 
 *Action roles.* Dismiss, expand, add, edit, back, more. The mundane majority.
 
 *Provenance roles.* Where a reading came from: entered by hand, from a device,
-imported. These matter more than they look — see
+imported. These matter more than they look. See
 [Data provenance and device accuracy](../../health/data-provenance-and-device-accuracy.mdx).
 
 **Each row carries four things**: the role, the lucide glyph it resolves to, what
@@ -108,7 +108,7 @@ notice.
 
 The role mapping is meant to be emitted as machine-readable JSON beside the
 catalogue, so an agent generating an interface can resolve a role without
-guessing at a glyph name — see
+guessing at a glyph name. See
 [Machine-readable schemas](../../agents/machine-readable-schemas.mdx). That step
 has not been added to `scripts/build-registry.mts`, so the only machine-readable
 half today is `CLINICAL_STATUS_META`, which travels with every implemented item.
@@ -135,12 +135,13 @@ ships with the component.
   [Contrast conformance](../../accessibility/contrast-conformance.mdx).
 - **Icons are checked under CVD simulation as shapes, not colours.** Two status
   glyphs that differ only by hue are two glyphs that are the same glyph for a
-  large group of readers — the audit is on
+  large group of readers. The audit is on
   [Colour independence](../../accessibility/colour-independence.mdx).
 
 ## Related
 
-- [Health glyphs](health-glyphs.mdx) — what may never enter this mapping and why.
-- [Sizing and alignment](sizing-and-alignment.mdx) — how these glyphs are sized
-  and set beside text.
-- [Iconography](index.mdx) — the four rules that govern the whole set.
+- [Health glyphs](health-glyphs.mdx) says what may never enter this mapping
+  and why.
+- [Sizing and alignment](sizing-and-alignment.mdx) shows how these glyphs are
+  sized and set beside text.
+- [Iconography](index.mdx) has the four rules that govern the whole set.

@@ -11,20 +11,20 @@ import {
  * Presentation copy for the two colour axes, for the hand-written routes.
  *
  * The vocabulary itself is NOT declared here. The four clinical status levels
- * and the six measurement categories — their words, their example sentences,
- * their icons and who is entitled to assign them — live in `lib/status.ts`,
- * which is the single runtime vocabulary for the whole system, and which
- * `tokens/color.json` mirrors so that `--opsin-status-<id>-*` and
- * `--opsin-category-<id>-*` use the same ids. This module adds only what a
- * marketing or tool surface needs on top of that.
+ * and the six measurement categories live in `lib/status.ts`, which is the
+ * single runtime vocabulary for the whole system, and which `tokens/color.json`
+ * mirrors so that `--opsin-status-<id>-*` and `--opsin-category-<id>-*` use the
+ * same ids. `lib/status.ts` is where their words, their example sentences,
+ * their icons and who is entitled to assign them are all declared. This module
+ * adds only what a marketing or tool surface needs on top of that.
  *
  * There used to be a `STATUS_TOKEN_ID` shim here, mapping `steady → expected`
  * and `attention → act`, because the authored CSS layer had guessed a
  * different set of names from the one the documentation was written against.
- * That disagreement was silent — `--opsin-status-steady-surface` simply did
- * not exist, resolved to nothing, and the surface rendered untinted. The CSS
- * has been renamed to the ids below, so ids and words now agree end to end and
- * the shim is gone. If a `tokenId` reference survives anywhere, it is dead.
+ * That disagreement was silent. `--opsin-status-steady-surface` simply did not
+ * exist, resolved to nothing, and the surface rendered untinted. The CSS has
+ * been renamed to the ids below, so ids and words now agree end to end and the
+ * shim is gone. If a `tokenId` reference survives anywhere, it is dead.
  */
 
 /**
@@ -32,8 +32,8 @@ import {
  *
  * `lib/status.ts` carries the canonical example sentence, which is written for
  * a patient. This is the same idea written for a developer choosing a level in
- * a component — a different audience, deliberately, and the only reason it is
- * not simply reused.
+ * a component. The audience is deliberately different, and that difference is
+ * the only reason the example sentence is not simply reused.
  */
 const STATUS_MEANING: Record<ClinicalStatus, string> = {
   steady: "Inside the range this person was given. No action.",
@@ -68,9 +68,9 @@ export const statusLevels: StatusLevel[] = CLINICAL_STATUSES.map((id) => ({
  *
  * The ids and the labels come from `lib/status.ts`; only the examples are new,
  * because a category is easier to understand from three readings that belong
- * to it than from its name. Category is identity — what kind of measurement
- * this is — and never a verdict. The chroma is deliberately low so a category
- * swatch cannot be mistaken for a status one.
+ * to it than from its name. Category is identity. It names what kind of
+ * measurement this is, and it is never a verdict. The chroma is deliberately
+ * low so a category swatch cannot be mistaken for a status one.
  */
 const CATEGORY_EXAMPLE: Record<HealthCategory, string> = {
   sleep: "Duration, timing, consistency",

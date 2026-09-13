@@ -14,8 +14,8 @@ a11yDate: 2026-09-02
 Most responsive design is a phone layout that has been allowed to stretch. Type
 gets larger, padding gets larger, a card that was 340 points wide becomes 900
 points wide with the same three lines of text in it, and the result is a tablet
-experience that is worse than the phone one it came from — the same information,
-further apart, with more work for the eye to travel.
+experience that is worse than the phone one it came from. It shows the same
+information, further apart, with more work for the eye to travel.
 
 opsinjs states the rule the other way round:
 
@@ -26,7 +26,7 @@ Body type stays at its reading size. Touch targets stay at their floor. Radii
 stay on their rung. What changes is how much is simultaneously visible: a reading
 and its history side by side instead of one behind the other; a list and the
 selected item's detail at the same time; a sheet that was a temporary overlay
-becoming a permanent pane. The reader is not given a magnified phone — they are
+becoming a permanent pane. The reader is not given a magnified phone. They are
 given the parts of the story that would not previously fit.
 
 The second half of the page is the mechanism, and it is the part that is easy to
@@ -52,7 +52,7 @@ table rather than restated here, so there is one copy of them.
 [shell](../layout.mdx) establishes a size container. A component asks its own
 container how much room it has, and gets an answer about the space it is actually
 in. A metric tile in a narrow sidebar on a large desktop is in `compact`, and it
-should be — the viewport is irrelevant to it.
+should be. The viewport is irrelevant to it.
 
 ```css
 /* The shell's regions establish the containers. */
@@ -70,10 +70,10 @@ should be — the viewport is irrelevant to it.
 ```
 
 **The one exception is the shell itself.** There is no container above the root
-element, so the shell's own mode comes from a viewport media query. Everything
-inside it — every component, without exception — uses container queries. That
-boundary is the whole rule: the shell is allowed to know about the screen;
-components are not.
+element, so the shell's own mode comes from a viewport media query. Every
+component inside it uses container queries, without exception. That boundary is
+the whole rule: the shell is allowed to know about the screen; components are
+not.
 
 **What is allowed to change with mode:**
 
@@ -105,8 +105,8 @@ where the important things were.
 <DoDont>
   <DoDont.Do>
     At `expanded`, the results list stays on the left at its compact width and
-    the selected reading opens in a pane on the right — the same reading
-    component, the same size, now permanently visible next to its list.
+    the selected reading opens in a pane on the right. It is the same reading
+    component at the same size, now permanently visible next to its list.
   </DoDont.Do>
   <DoDont.Dont>
     At `expanded`, the single results list stretches to fill the window, so each
@@ -116,13 +116,13 @@ where the important things were.
 </DoDont>
 
 **Never use the viewport inside a component.** A component that reads the viewport
-is a component that breaks the moment it is placed anywhere unexpected — in a
+is a component that breaks the moment it is placed anywhere unexpected: in a
 pane, in a sidebar, in a preview iframe on this very site, or in somebody else's
 grid.
 
 <DoDont>
   <DoDont.Do>
-    `@container opsin-region (min-width: 30rem)` — the tile stacks or unstacks
+    `@container opsin-region (min-width: 30rem)` stacks or unstacks the tile
     based on the room it actually has, and it is correct in every context it is
     ever dropped into.
   </DoDont.Do>
@@ -138,7 +138,7 @@ matter how much room there is. Beyond that point the gutter grows or another
 region appears; the paragraph does not get longer lines.
 
 **Test at the awkward widths.** The failures live in the gaps between modes and
-in containers that are narrow inside wide viewports — a 320-point pane, a split
+in containers that are narrow inside wide viewports: a 320-point pane, a split
 view, a preview frame. Every `<ComponentPreview>` on this site can be resized for
 exactly this reason.
 
@@ -162,26 +162,27 @@ measure cap are generated from `tokens/space.json` by
   happens to satisfy this; it is the mode a desktop browser enters at 400% zoom,
   which is precisely how that criterion is tested.
 - **Container queries make zoom behave.** At high zoom the viewport reports a
-  small width, but so does every container — so a component that queries its
-  container degrades coherently, while one that queries the viewport can end up
-  in a layout its actual box cannot hold.
+  small width, but so does every container. A component that queries its
+  container therefore degrades coherently, while one that queries the viewport
+  can end up in a layout its actual box cannot hold.
 - **Nothing may be reachable in only one mode.** Content that appears at
   `expanded` and has no route at `compact` is content a reader at 400% zoom
   cannot get to. Where a wider mode surfaces something inline, the compact mode
-  reaches the same thing through a sheet or a disclosure — never not at all.
+  reaches the same thing through a sheet or a disclosure, and never leaves it
+  unreachable.
 - **Reading order is identical across modes.** The DOM order does not change with
   the container; only the visual arrangement does. A layout that reorders content
   visually without reordering it in the DOM gives keyboard and screen-reader
   users a different sequence from everyone else.
 - **The floors hold in every mode.** Target size, contrast and the text-size
-  multiplier are not relaxed because a screen is large — a wide screen may still
+  multiplier are not relaxed because a screen is large. A wide screen may still
   be a wall-mounted display read from two metres away.
 
 ## Related
 
-- [Layout](../layout.mdx) — the shell whose regions establish these containers,
-  and the two canonical screen shapes.
-- [Dynamic Type](../typography/dynamic-type.mdx) — the other axis a component has
-  to survive, and the one that interacts with this most.
-- [Density and touch](density-and-touch.mdx) — the floors that do not move
+- [Layout](../layout.mdx) covers the shell whose regions establish these
+  containers, and the two canonical screen shapes.
+- [Dynamic Type](../typography/dynamic-type.mdx) is the other axis a component
+  has to survive, and the one that interacts with this most.
+- [Density and touch](density-and-touch.mdx) has the floors that do not move
   between modes.

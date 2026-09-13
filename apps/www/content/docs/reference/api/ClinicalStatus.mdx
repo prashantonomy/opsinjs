@@ -1,6 +1,6 @@
 ---
 title: ClinicalStatus
-description: The union of the four clinical status levels — the type that makes the never-mix rule a compile error rather than a review comment.
+description: The union of the four clinical status levels, and the type that makes the never-mix rule a compile error rather than a review comment.
 status: planned
 kind: reference
 since: unreleased
@@ -13,9 +13,9 @@ aliases: [status type, status union]
 
 <PageTemplate kind="reference" />
 
-`ClinicalStatus` is the type of the status axis. Anything that renders urgency —
-a pill, a banner, a range, a result card — takes a value of this type and nothing
-else. It is a closed union with four members, and it is closed on purpose: a
+`ClinicalStatus` is the type of the status axis. Anything that renders urgency
+takes a value of this type and nothing else, and that means a pill, a banner, a
+range or a result card. It is a closed union with four members, and it is closed on purpose: a
 system that lets a product add a fifth level has no ordinal scale, and an
 alarm-fatigue budget you can extend is not a budget.
 
@@ -32,7 +32,7 @@ resolve.
 
 ```ts
 /**
- * SPECIFICATION — not implemented, not published.
+ * SPECIFICATION. Not implemented, not published.
  * The four ordinal clinical status levels, defined in
  * health/clinical-status-semantics.
  */
@@ -47,7 +47,7 @@ things each level must never be read as are doctrine and live on
 reason this type may never be combined with a category on one element is
 [The two colour axes](../../health/two-colour-axes.mdx).
 
-{/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
+{/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 ## ClinicalStatus
 

@@ -13,12 +13,12 @@ import { docsMarkdownPath, docsPath } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 
 /* ==========================================================================
-   copy.tsx — <CopyButton>, <PageActions>, <OpenInSandbox>.
+   copy.tsx holds <CopyButton>, <PageActions> and <OpenInSandbox>.
 
    Every page on this site has a machine twin: `/docs/<slug>.md` serves the
    processed Markdown of the same page (next.config.mjs rewrites it onto the
-   llms.mdx route). <PageActions> is the human-visible handle on that twin —
-   copy it, open it, or hand it to a model with one click.
+   llms.mdx route). <PageActions> is the human-visible handle on that twin.
+   One click copies it, opens it, or hands it to a model.
 
    That matters more here than on an ordinary documentation site. opsinjs is
    read by agents at least as often as by people, and an agent that has the
@@ -112,8 +112,8 @@ export function CopyButton({
 
 export interface PageActionsProps {
   /**
-   * The page's docs slug, without a leading slash — "components/range-bar".
-   * Omit on the docs index.
+   * The page's docs slug, without a leading slash. The range-bar component
+   * page has the slug "components/range-bar". Omit on the docs index.
    */
   slug?: string
   /** The docs version stamp, carried into the model prompt. */
@@ -242,7 +242,7 @@ export interface OpenInSandboxProps {
 }
 
 /**
- * A forkable sandbox — the surveyed systems' most common omission, and the
+ * A forkable sandbox is the surveyed systems' most common omission, and the
  * thing a developer reaches for after reading two paragraphs.
  *
  * It is honest about the scaffold state. A sandbox that opens an empty project

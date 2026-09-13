@@ -1,5 +1,5 @@
 /**
- * GET /llms-full.txt — the whole corpus in one file.
+ * GET /llms-full.txt returns the whole corpus in one file.
  *
  * Every page, in sidebar order, as processed markdown, separated by rules and
  * each carrying its canonical URL, section and status. This is the file to
@@ -28,9 +28,9 @@ export async function GET(): Promise<Response> {
     overflowHint: [
       "Read the shard that covers the section you need instead:",
       ...Object.values(SHARDS).map(
-        (shard) => `- ${absoluteUrl(shard.file)} — ${shard.title}`
+        (shard) => `- [${shard.title}](${absoluteUrl(shard.file)})`
       ),
-      `- ${absoluteUrl("/llms.txt")} — the index of every page, with a URL each.`,
+      `- [The index of every page, with a URL each](${absoluteUrl("/llms.txt")})`,
     ].join("\n"),
     notes: [
       `Index: ${absoluteUrl("/llms.txt")}`,

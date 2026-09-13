@@ -1,6 +1,6 @@
 ---
 title: Reduced transparency
-description: What each rung of the material ladder becomes when the reader has asked for less translucency — and why the layout must not move.
+description: What each rung of the material ladder becomes when the reader has asked for less translucency. The layout must not move, and this page says why.
 status: stable
 kind: accessibility
 a11yDate: 2026-09-02
@@ -44,9 +44,9 @@ preference cannot introduce a reflow bug and cannot be a source of a truncated
 value.
 
 **The topmost rung gets more opaque, not less.** Rung 5 is the veil that
-separates a modal surface from what is behind it. Removing its translucency entirely would remove
-the separation, so instead it darkens — the reader asked for less see-through,
-not for less contrast.
+separates a modal surface from what is behind it. Removing its translucency
+entirely would remove the separation, so instead it darkens. The reader asked
+for less see-through, not for less contrast.
 
 The full ladder, the rungs' intended uses and the contrast floor that governs
 text on them are on
@@ -66,7 +66,7 @@ guaranteed contrast at all, and the fix is a scrim, not a heavier font weight. S
 
 **Your composited-surface budget.** Reduced transparency is also a performance
 lever: with blur removed, the compositing cost of a screen drops. That does not
-license three stacked blurred surfaces the rest of the time — the budget is at
+license three stacked blurred surfaces the rest of the time. The budget is at
 most three, and the reasoning is on
 [Performance budget](../foundations/materials/performance-budget.mdx).
 
@@ -88,10 +88,10 @@ tools for a quick pass.
 
 ### Screenshot before and after and difference them
 
-**Expected result:** the two images differ only in the fill and blur of rungs 3, 4
-and 5. **Failure looks like** anything moving — a shifted baseline, a changed card
-height, a repositioned close button — because that means something other than
-colour was tied to the translucent style.
+**Expected result:** the two images differ only in the fill and blur of
+rungs 3, 4 and 5. **Failure looks like** anything moving. A shifted baseline, a
+changed card height and a repositioned close button all mean that something
+other than colour was tied to the translucent style.
 
 ### Read the text on every translucent surface over your worst backdrop
 
@@ -114,9 +114,9 @@ problem as much as a visual one.
 
 Contrast on rungs 3 and 4 is measured against each rung's declared opaque
 fallback, which is the reduced-transparency value. That makes the published
-figure the *reduced-transparency* figure, and the normal case is measured against
-the same fallback rather than against a real backdrop — an optimistic
-simplification that is stated here rather than hidden.
+figure the *reduced-transparency* figure, and the normal case is measured
+against the same fallback rather than against a real backdrop. That is an
+optimistic simplification, and it is stated here rather than hidden.
 
 ## Known gaps
 

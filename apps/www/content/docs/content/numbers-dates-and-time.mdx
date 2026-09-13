@@ -1,6 +1,6 @@
 ---
 title: Numbers, dates and time
-description: The prose style guide for dates, times, durations and ranges — and the moment when "2 hours ago" becomes dangerous.
+description: The prose style guide for dates, times, durations and ranges. It also covers the moment when "2 hours ago" becomes dangerous.
 status: stable
 kind: content
 reviewer: content
@@ -29,16 +29,16 @@ How many significant figures a measurement may carry, when a rounded figure
 becomes misleading, and how unit conversions are handled are clinical questions
 owned by
 [Numbers, units and precision](../health/numbers-units-precision.mdx) and
-[Unit systems](../health/unit-systems.mdx). The typographic mechanics — spacing,
-dashes, leading zeros, digit grouping — are on
+[Unit systems](../health/unit-systems.mdx). The typographic mechanics are
+spacing, dashes, leading zeros and digit grouping, and they are on
 [Grammar and mechanics](./grammar-and-mechanics.mdx). This page is the third
 piece: how a moment in time is worded.
 
 ### Dates
 
-- **Day, month, year, with the month as a word**: 14 March 2026. Never 14/03/2026
-  and never 03/14/2026 — an all-numeric date is ambiguous between conventions and
-  a health record is exactly where that ambiguity is expensive.
+- **Day, month, year, with the month as a word**: 14 March 2026. Never
+  14/03/2026 and never 03/14/2026. An all-numeric date is ambiguous between
+  conventions, and a health record is exactly where that ambiguity is expensive.
 - **Drop the year for a date inside the current year**, in an interface where the
   reader can see the context. Keep it in anything exported, printed, shared or
   older than a few months.
@@ -67,10 +67,10 @@ Relative phrasing is easier to read and loses information. The rules:
   counting backwards, which happens quickly.
 - **Always pair relative with absolute where the value matters.** "2 hours ago
   (08:12)". This costs a few characters and removes the whole class of error.
-- **Never use relative alone in anything durable** — an export, a printout, a
-  share to a clinician, a notification that may be read hours later. A printed
-  page saying "2 hours ago" is a page with no time on it at all. See
-  [Print and export](../accessibility/print-and-export.mdx).
+- **Never use relative alone in anything durable.** An export, a printout, a
+  share to a clinician and a notification that may be read hours later are all
+  durable. A printed page saying "2 hours ago" is a page with no time on it at
+  all. See [Print and export](../accessibility/print-and-export.mdx).
 - **Relative time must update or be honest that it does not.** A string rendered
   server-side hours before the reader sees it is a lie with a timestamp's
   authority.
@@ -80,13 +80,13 @@ Relative phrasing is easier to read and loses information. The rules:
 - **Words for short durations, numerals with units for longer ones**: "a few
   minutes", "20 minutes", "3 days", "6 months".
 - **Say the window, not the count, for a trend**: "over the last 7 days", not
-  "in the last week" — the reader needs to know what was included.
+  "in the last week". The reader needs to know what was included.
 - **Frequency as "n times a day", not "n/day"** in prose.
 
 ### Ranges
 
-- **A range in prose uses "to"**: "90 to 120 mmHg". A range in a compact display
-  uses an en dash: `90–120`.
+- **A range always uses the word "to"**: "90 to 120 mmHg" in prose, "90 to 120"
+  in a compact display. The compact form loses the unit, never the relation.
 - **Name whose range it is.** "Your usual range", "the range your GP set", "the
   range on your results letter". An unattributed range implies a universal
   standard, which is exactly the implication
@@ -169,15 +169,14 @@ something about the fortnight in between. See
 
 ## Related components
 
-- **`RelativeTime`** — every rule in the Relative time section above is a
-  requirement on it, including the hardest one: knowing when to refuse to be
-  relative.
-- **`Value`** — the number and its unit; the typography is on
+- **`RelativeTime`** takes every rule in the Relative time section above as a
+  requirement, including the hardest one: knowing when to refuse to be relative.
+- **`Value`** covers the number and its unit; the typography is on
   [Grammar and mechanics](./grammar-and-mechanics.mdx).
-- **`TrendSparkline`** — the window wording and the gap wording are its content
-  contract, and the minimum number of readings before a trend may be drawn is a
-  clinical rule from
+- **`TrendSparkline`** takes the window wording and the gap wording as its
+  content contract, and the minimum number of readings before a trend may be
+  drawn is a clinical rule from
   [Trends and change](../health/trends-and-change.mdx).
-- **`LogSheet`** and **`ReadingInput`** — capture a moment; the date and time
+- **`LogSheet`** and **`ReadingInput`** capture a moment; the date and time
   format used at capture is the one that ends up in every export.
-- **`RangeBar`** — displays a range, and must name whose range it is.
+- **`RangeBar`** displays a range, and must name whose range it is.

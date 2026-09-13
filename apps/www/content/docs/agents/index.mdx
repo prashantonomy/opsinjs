@@ -26,9 +26,9 @@ failure impossible rather than unlikely. The strategy has three parts:
    machine can read. A 404 is what an agent fills with an invention; a definite
    negative is not.
 2. **Every page has a machine twin.** Add `.md` to any docs URL and you get the
-   processed markdown of that page — no chrome, no scraping, and the
-   documentation components left as self-describing tags whose attributes are
-   the content.
+   processed markdown of that page. There is no chrome and no scraping, and the
+   documentation components are left as self-describing tags whose attributes
+   are the content.
 3. **Everything measurable is generated.** Prop tables, token tables, contrast
    figures and the catalogue come from source, so what a machine reads is the
    same thing CI checks.
@@ -96,15 +96,16 @@ an agent's first job is to tell the two apart before it writes anything. The
 surface is arranged so that it can, without guessing: every id resolves, and the
 answer carries the distinction in a field.
 
-For an implemented id the correct behaviour is to install it from the registry —
-the source is copied into the project, because there is no published opsinjs
-package to import — and to say that `alpha` means the API may change in any
-release without a deprecation cycle. For a `considered` id the correct behaviour
-is to say that the name is reserved, that there is no code and no specification,
-and stop. Inventing the missing one, or refusing the one that ships, are the two
-failures this whole surface exists to prevent. Both are stated in full, as
-testable rules, in [Rules for agents](./rules-for-agents.mdx), and they are what
-the [evals](./evals.mdx) measure.
+For an implemented id the correct behaviour is to install it from the registry
+and to say that `alpha` means the API may change in any release without a
+deprecation cycle. Installing copies the source into the project, because there
+is no published opsinjs package to import. For a `considered` id the correct
+behaviour is to say that the name is reserved, that there is no code and no
+specification, and stop. Inventing the missing one, or refusing the one that
+ships, are the two failures this whole surface exists to prevent. Both are
+stated in full, as testable rules, in
+[Rules for agents](./rules-for-agents.mdx), and they are what the
+[evals](./evals.mdx) measure.
 
 <Callout>
 The discriminator is `implemented` on `/r/index.json`, `meta.opsinjs.implemented`
@@ -135,7 +136,7 @@ useless to a client that fetched it from somewhere else.
 ### The registry answers for something that does not exist
 
 Ask for a component from the considered roster. You should get a definite
-"considered, not implemented" answer rather than a 404 — that behaviour is the
+"considered, not implemented" answer rather than a 404. That behaviour is the
 point of the whole design.
 
 </Steps>
@@ -164,19 +165,19 @@ shards" is only half an answer, because the three shards cover eight of the
 sixteen sections and no more: Components, Screens, Health, Accessibility,
 Content & language, Foundations, Theming & tokens and Reference. Start here,
 Recipes, Patterns, Handbook, Agents, Registry & distribution and Project have no
-shard, nor do the package pages, which sit outside the sixteen groups — roughly
-a third of the corpus for which a shard is not the recovery route and never was.
-Two things are. Any capped file that drops a page ends in a `## Truncated` block
-naming every page it dropped, with the `.md` URL to fetch each one, so what is
-missing is enumerated rather than implied. And `/llms.txt` — which is not capped
-— lists every page in the corpus, names the sections that have no shard, and
-every URL in it answers to a `.md` suffix. Fetching one twin is a single request
-and is usually cheaper than a shard you then have to search.
+shard, nor do the package pages, which sit outside the sixteen groups. That is
+roughly a third of the corpus, and a shard is not its recovery route and never
+was. Two things are. Any capped file that drops a page ends in a `## Truncated`
+block naming every page it dropped, with the `.md` URL to fetch each one, so
+what is missing is enumerated rather than implied. And `/llms.txt` is not
+capped. It lists every page in the corpus, names the sections that have no
+shard, and every URL in it answers to a `.md` suffix. Fetching one twin is a
+single request and is usually cheaper than a shard you then have to search.
 
 ## Next
 
-- [Rules for agents](./rules-for-agents.mdx) — the hard rules, written to be
+- [Rules for agents](./rules-for-agents.mdx) has the hard rules, written to be
   pasted into a system prompt.
-- [MCP server](./mcp-server.mdx) — five minutes to a working setup.
-- [Writing docs for agents](./writing-docs-for-agents.mdx) — if you are
-  contributing pages rather than consuming them.
+- [MCP server](./mcp-server.mdx) is five minutes to a working setup.
+- [Writing docs for agents](./writing-docs-for-agents.mdx) is the page to read
+  if you are contributing pages rather than consuming them.

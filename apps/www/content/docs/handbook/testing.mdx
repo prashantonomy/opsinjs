@@ -1,6 +1,6 @@
 ---
 title: Testing your integration
-description: What to assert about a component you did not write — the stable contracts, the accessibility assertions worth copying, and the tests that will break on every refactor.
+description: What to assert about a component you did not write. This covers the stable contracts, the accessibility assertions worth copying, and the tests that will break on every refactor.
 status: planned
 kind: handbook
 aliases: [testing components, what to assert, integration tests, asserting accessibility, testing library]
@@ -14,14 +14,14 @@ owner: design-system
 
 <NotBuiltYet />
 
-**opsinjs has no test suite of its own** — none, automated or manual, for the
-design system itself; [Accessibility for
+**opsinjs has no test suite of its own.** There is none, automated or manual,
+for the design system itself; [Accessibility for
 testing](../accessibility/for-testing.mdx) records the same gap. What runs on
 every change is static: `check:generated`, `check:ia`, `check:a11y` over
 component source, `check:llms`, eslint and `tsc`. None of those mounts a
-component. The nightly adds a browser half — hit area, survival at 1.3x and at
-200% — against the built `/view` routes, which is a real measurement but arrives
-the morning after a merge rather than before it.
+component. The nightly adds a browser half against the built `/view` routes,
+checking hit area and survival at 1.3x and at 200%. That is a real measurement,
+but it arrives the morning after a merge rather than before it.
 
 So assume nothing underneath your composition is covered, and assert what
 matters to you. The list below is what you would want to assert about **your
@@ -31,9 +31,10 @@ and a reader.
 
 Assert against contracts that are covered by semver:
 
-- **Roles and accessible names** — `getByRole("button", { name: "Save reading" })`
-- **Data attributes** — `[data-status="urgent"]`, `[data-open]`
-- **Visible text** — what the reader actually reads
+- **Roles and accessible names**, queried with
+  `getByRole("button", { name: "Save reading" })`
+- **Data attributes**, matched with `[data-status="urgent"]` and `[data-open]`
+- **Visible text** is what the reader actually reads
 
 Do not assert against class names, DOM structure, or the internal nesting of a
 compound component. Those change without a major version and your test suite
@@ -61,13 +62,13 @@ cheap:
 - **Focus goes where you said it goes.** After opening a sheet, after a failed
   submit, after closing a dialog. Focus bugs are invisible until somebody
   without a mouse finds them.
-- **The error is associated with its control** — the control's
+- **The error is associated with its control.** The control's
   `aria-describedby` resolves to the message element, not merely a message
   somewhere on the page.
 - **`aria-invalid` clears when the error clears.**
 - **A status change is announced**, i.e. it lands in a live region, rather than
   only appearing.
-- **The status word is present as text**, not only as a colour — this is
+- **The status word is present as text**, not only as a colour. This is
   [colour independence](../accessibility/colour-independence.mdx) as a unit
   test.
 - **An automated accessibility scan on the rendered output.** It finds a
@@ -88,8 +89,8 @@ cheap:
   final state rather than on intermediate ones.
 - **Test with `prefers-reduced-motion` set.** If a test fails only when motion
   is off, motion was carrying meaning.
-- **Keep one end-to-end test per critical flow** — logging a reading, disclosing
-  a result — and let unit tests cover the rest.
+- **Keep one end-to-end test per critical flow**, such as logging a reading or
+  disclosing a result. Let unit tests cover the rest.
 
 ## Not this
 
@@ -113,7 +114,7 @@ cheap:
 - **Portals render outside the container** returned by your render helper.
   Queries scoped to it will not find a dialog's contents; query the document.
 - **`jsdom` does not do layout.** Anything about size, position, overflow,
-  visibility-by-clipping or target size cannot be tested there — those need a
+  visibility-by-clipping or target size cannot be tested there. Those need a
   real browser.
 - **`jsdom` does not implement `matchMedia` by default**, so a component reading
   `prefers-reduced-motion` needs it stubbed or it silently takes one branch.
@@ -127,11 +128,11 @@ cheap:
 
 ## Related
 
-- [Data attributes](./data-attributes.mdx) — the contracts that are safe to
+- [Data attributes](./data-attributes.mdx) has the contracts that are safe to
   assert on.
-- [For testing](../accessibility/for-testing.mdx) — the accessibility test plan
-  by role.
-- [Keyboard and focus](../accessibility/keyboard-and-focus.mdx) — the global
+- [For testing](../accessibility/for-testing.mdx) is the accessibility test
+  plan by role.
+- [Keyboard and focus](../accessibility/keyboard-and-focus.mdx) has the global
   contract your focus assertions are checking.
-- [Component checklist](./contributing/component-checklist.mdx) — what opsinjs
-  itself has to pass.
+- [Component checklist](./contributing/component-checklist.mdx) says what
+  opsinjs itself has to pass.

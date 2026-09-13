@@ -1,12 +1,12 @@
 /**
- * GET /r/<name>.json — one registry item at the default base and style.
+ * GET /r/<name>.json serves one registry item at the default base and style.
  *
  * This is the URL the `@opsinjs` namespace resolves to: a project with
  * `"@opsinjs": "https://opsinjs.dev/r/{name}.json"` in its components.json
  * reaches exactly here when somebody runs `shadcn add @opsinjs/range-bar`.
  *
  * Aliases resolve. `/r/gauge.json` returns the `range-bar` item, with its
- * canonical name in the body — the alias namespace is declared once in
+ * canonical name in the body. The alias namespace is declared once in
  * `registry/catalogue.ts`, so a synonym that works in the site's search works
  * on the wire too.
  *

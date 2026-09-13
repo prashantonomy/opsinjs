@@ -19,11 +19,10 @@ reachable.
 `/r/docs.json` is one request that returns as much of the corpus as fits inside
 a size budget: the processed markdown of each page it carries, that page's
 frontmatter, and the version stamp identifying the build it came from. It is
-capped, and today it is truncated — which the response says about itself.
-`total`, `included`, `omitted`, `truncated` and `truncationNote` are top-level
-fields, and reading them is the difference between vendoring a corpus and
-vendoring a portion of one. Fetch the [shards](./llms-txt.mdx) for the sections
-it dropped.
+capped, and today it is truncated. The response says so about itself. `total`,
+`included`, `omitted`, `truncated` and `truncationNote` are top-level fields,
+and reading them is the difference between vendoring a corpus and vendoring a
+portion of one. Fetch the [shards](./llms-txt.mdx) for the sections it dropped.
 
 ```bash
 curl -s https://opsinjs.dev/r/docs.json -o opsinjs-docs.json
@@ -48,8 +47,8 @@ in front of it.
   notice: string           // the one paragraph a machine must not skip
   homepage: string
   format: "processed-markdown"
-  characters: number       // the page text carried, in JS characters — the
-                           // unit the budget is applied in
+  characters: number       // the page text carried, in JS characters. The
+                           // budget is applied in that same unit
   total: number            // pages in the corpus
   included: number         // pages in this response
   omitted: number          // pages the budget dropped
@@ -83,7 +82,7 @@ in front of it.
 The page body is `markdown`, not `content`, and `markdown` is the same processed
 text the `.md` twins serve. "Processed" is narrower than it sounds: remark has
 run, so imports are gone and tables and code blocks are markdown, but the
-documentation components are not rendered — `<ComponentPreview name="range-bar" />`
+documentation components are not rendered. `<ComponentPreview name="range-bar" />`
 arrives as that tag and its attributes are the content. See
 [Raw markdown API](./raw-markdown-api.mdx) for what survives and what does not.
 A page inside the bundle also omits the per-page block quote that a standalone
@@ -95,8 +94,9 @@ paragraph is the explanation.
 next to each other.
 
 The bundle carries the documentation, not the code. Component source lives in
-the registry items — `/r/<name>.json` for one of the twenty-four implemented
-components — and the catalog is `/r/registry.json`. Fetch either separately.
+the registry items. `/r/<name>.json` is the item for one of the twenty-four
+implemented components, and the catalog is `/r/registry.json`. Fetch either
+separately.
 
 ## Size and freshness
 
@@ -110,7 +110,7 @@ retrieval problem you were trying to avoid. If your tool wants a subset, the
 **Pin the version, then check it.** The `version` field is the point of the
 whole file. A vendored bundle is a snapshot, and a snapshot that nobody ever
 compares to the live version quietly becomes wrong. A weekly job that fetches
-the current version string — a few bytes — and warns on a mismatch is enough.
+the few bytes of the current version string and warns on a mismatch is enough.
 Compare `included` and `total` at the same time: the set of pages a snapshot
 carries moves as the corpus grows, so two bundles at the same version are the
 same text and two at different versions may not even be the same pages.
@@ -119,7 +119,7 @@ same text and two at different versions may not even be the same pages.
 The most important field on every page in this bundle is `status`: `alpha` where
 there is source in the registry item, `considered` where there is a reserved
 name and nothing behind it. An agent working from a stale bundle a year from now
-must be able to discover that the world has moved — the version stamp is how it
+must be able to discover that the world has moved. The version stamp is how it
 finds out, and `status` is what will have changed.
 </Callout>
 
@@ -170,7 +170,7 @@ the rest.
 Look up a component page and confirm it carries a `status`: `alpha` for one of
 the twenty-four implemented components, `considered` for a reserved name. A page
 present with no `status` is a bug worth reporting. A page absent altogether is
-usually the cap — check `omitted` before reporting anything.
+usually the cap. Check `omitted` before reporting anything.
 
 ### The page bodies are under `markdown`
 
@@ -186,7 +186,7 @@ indexing an empty corpus.
 **The download is truncated.** Check `truncated` and `omitted` in the payload
 first: the server caps this response on purpose and reports the cap in
 `truncationNote`. A proxy body-size limit is only the likely cause if the JSON
-will not parse at all — in which case prefer a client that streams to disk.
+will not parse at all. In that case, prefer a client that streams to disk.
 
 **The bundle disagrees with the site.** Compare version strings. If they match
 and the content differs, that is a real bug and worth reporting.
@@ -200,7 +200,7 @@ generate step. The bundle is produced from the same source you would be cloning.
 
 ## Next
 
-- [llms.txt and the shards](./llms-txt.mdx) — smaller, cheaper subsets.
-- [Machine-readable schemas](./machine-readable-schemas.mdx) — the structured
-  data the bundle does not include.
-- [Raw markdown API](./raw-markdown-api.mdx) — one page at a time.
+- [llms.txt and the shards](./llms-txt.mdx) covers smaller, cheaper subsets.
+- [Machine-readable schemas](./machine-readable-schemas.mdx) covers the
+  structured data the bundle does not include.
+- [Raw markdown API](./raw-markdown-api.mdx) serves one page at a time.

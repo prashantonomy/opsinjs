@@ -2,8 +2,8 @@
  * Mark the exception, not the rule.
  *
  * Four fields, three of them needed and one not, so the one that is optional is
- * the one that carries a marker. The reverse form — a marker on every field
- * except one — says the same thing four times and leaves the reader counting
+ * the one that carries a marker. The reverse form puts a marker on every field
+ * except one. It says the same thing four times and leaves the reader counting
  * asterisks to work out which field is the odd one.
  *
  * The sentence above the fields is doing real work and is not decoration. A
@@ -17,11 +17,12 @@
  * would put somebody's postcode in a field asking for something else.
  *
  * Do not copy the VALUE. `autocomplete="off"` is the opt-out of the win the
- * accessibility contract names — the reader's own stored details filling the
- * field — and it is used here only because these fields collect nothing real,
- * so any genuine token would be a made-up answer to a made-up question. A real
- * form names a real token. `inputMode` is omitted on the note for a different
- * reason: it is free text, and the default keyboard is the right one.
+ * accessibility contract names, which is the reader's own stored details
+ * filling the field. It is used here only because these fields collect
+ * nothing real, so any genuine token would be a made-up answer to a made-up
+ * question. A real form names a real token. `inputMode` is omitted on the
+ * note for a different reason: it is free text, and the default keyboard is
+ * the right one.
  */
 
 import { Field } from "@/registry/base-lyra/ui/field"

@@ -93,12 +93,12 @@ import {
 import { RadiusSpecimen, SpaceSpecimen, TypeScaleSpecimen } from "./docs/type"
 
 /* ==========================================================================
-   mdx.tsx — THE CLOSED VOCABULARY.
+   mdx.tsx DEFINES THE CLOSED VOCABULARY.
 
    Every tag an MDX page in this repository is allowed to use is in the object
    below, and nothing else is. `scripts/assert-ia.mts` fails the build on an
-   unknown JSX tag, which makes this file the single definition of what content
-   authors — people and agents — can write.
+   unknown JSX tag, which makes this file the single definition of what a
+   content author can write, whether that author is a person or an agent.
 
    Why closed rather than open. 280 content files are written in parallel. An
    open vocabulary means a page invents <Warning> where <SafetyCallout> exists,
@@ -146,7 +146,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     Tab,
     Tabs,
     // Emitted by remarkAutoTypeTable when a page uses <auto-type-table>. It is
-    // not part of the authored vocabulary — pages use <PropsTable>.
+    // not part of the authored vocabulary. Pages use <PropsTable> instead.
     TypeTable,
 
     // ---- The page contract -------------------------------------------------
@@ -247,8 +247,8 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
 
     // Caller overrides last. This is where the docs route injects
     // `a: createRelativeLink(source, page)` so that relative .mdx links in
-    // content resolve to real URLs — which is why absolute /docs/ paths are
-    // banned in MDX (addendum A11).
+    // content resolve to real URLs. That resolution is why absolute /docs/
+    // paths are banned in MDX (addendum A11).
     ...components,
   }
 }

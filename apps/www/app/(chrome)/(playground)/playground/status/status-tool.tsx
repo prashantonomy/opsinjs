@@ -38,16 +38,17 @@ import {
  * you have read is a rule you will break later, in a hurry, in a component
  * somebody else reviews.
  *
- * The specimen below is a SKETCH drawn from tokens — a rectangle, a number and a
- * label. It is not MetricTile and it is not ResultCard; neither of those exists.
- * Nothing here should be read as documentation of a component's behaviour.
+ * The specimen below is a SKETCH drawn from tokens, and it consists of a
+ * rectangle, a number and a label. It is not MetricTile and it is not
+ * ResultCard; neither of those exists. Nothing here should be read as
+ * documentation of a component's behaviour.
  */
 
 /**
  * lucide component per icon NAME, so the specimen can render whatever
  * `lib/status.ts` declares for a level rather than keeping a second opinion
  * about which glyph means what. An unrecognised name falls back to the calmest
- * glyph rather than throwing — a missing icon must never take a page down.
+ * glyph rather than throwing. A missing icon must never take a page down.
  */
 const ICONS_BY_NAME: Record<string, ComponentType<SVGProps<SVGSVGElement>>> = {
   Check,
@@ -101,7 +102,7 @@ const APPLICATIONS: Array<{
     id: "category-surface",
     label: "Category on the surface, no status",
     description:
-      "Correct where there is no verdict to give — a section header, a chart legend, an empty state before any reading exists.",
+      "Correct where there is no verdict to give, whether that is a section header, a chart legend or an empty state before any reading exists.",
   },
   {
     id: "both",
@@ -140,7 +141,7 @@ export function StatusTool() {
           >
             {categories.map((item) => (
               <option key={item.id} value={item.id}>
-                {item.label} — {item.example}
+                {item.label} covers {item.example}
               </option>
             ))}
           </select>
@@ -154,7 +155,7 @@ export function StatusTool() {
           >
             {statusLevels.map((item) => (
               <option key={item.id} value={item.id}>
-                {item.label} — {item.meaning}
+                {item.label}. {item.meaning}
               </option>
             ))}
           </select>
@@ -248,9 +249,9 @@ export function StatusTool() {
                 {sample.value}
                 {/* A no-break space in the text, not a margin. A CSS gap is
                     invisible to copy, to speech and to anything that reads the
-                    text node, so `ml-2` alone rendered "148/96mmHg" —
-                    content/grammar-and-mechanics rule: a space between the
-                    number and the unit, and a non-breaking one so the pair
+                    text node, so `ml-2` alone rendered "148/96mmHg". The
+                    content/grammar-and-mechanics rule asks for a space between
+                    the number and the unit, and a non-breaking one so the pair
                     never wraps apart. The margin goes with it: one separator,
                     not two. */}
                 {"\u00A0"}
@@ -349,7 +350,7 @@ function Toggle({
 /**
  * The refusal.
  *
- * It is a real refusal — the specimen is not rendered dimmed, or with a warning
+ * It is a real refusal. The specimen is not rendered dimmed, or with a warning
  * over it. The combination does not get drawn, because a picture of the wrong
  * thing is what people screenshot.
  */
@@ -384,7 +385,7 @@ function Refusal({ category, status }: { category: string; status: string }) {
             The categories stop meaning anything.
           </strong>{" "}
           If every category surface also carries a status, the category colours
-          are no longer identity — they are just decoration on top of the
+          are no longer identity. They are just decoration on top of the
           verdict, and the six-way distinction you paid for disappears.
         </li>
         <li>
@@ -393,13 +394,13 @@ function Refusal({ category, status }: { category: string; status: string }) {
           </strong>{" "}
           Two competing chromatic fields are the arrangement that collapses
           fastest under colour-vision deficiency, greyscale printing and bright
-          sunlight — three conditions that are ordinary, not edge cases.
+          sunlight. Those three conditions are ordinary, not edge cases.
         </li>
       </ul>
       <p className="mt-4 text-sm leading-relaxed">
         <strong className="font-medium">What to do instead:</strong> put the
         status on the surface and the category in the glyph and the label.
-        Choose the first option on the left and the specimen comes back — it
+        Choose the first option on the left and the specimen comes back. It
         carries both pieces of information, and only one of them is a colour.
       </p>
     </div>
@@ -441,10 +442,10 @@ function Verdict({
       <p className="mt-5 rounded-md border border-status-urgent bg-status-urgent-surface p-4 text-sm leading-relaxed text-status-urgent-ink">
         The verdict has vanished. Colour was the only thing carrying{" "}
         <strong className="font-medium">{status}</strong>, and colour is the
-        thing that just went away — for the reader who printed this,
-        screenshotted it into a document, or cannot separate these hues. This is
-        the failure the never-colour-alone rule exists to prevent, and it is one
-        checkbox deep.
+        thing that just went away. That loss belongs to the reader who printed
+        this, screenshotted it into a document, or cannot separate these hues.
+        This is the failure the never-colour-alone rule exists to prevent, and
+        it is one checkbox deep.
       </p>
     )
   }
@@ -467,8 +468,8 @@ function Verdict({
         Colour is gone and the verdict survives intact: the word{" "}
         <strong className="font-medium text-foreground">{status}</strong>, the
         shape of the icon, and the sentence that says what to do. That is the
-        whole test. If a status specimen fails it, the specimen is wrong — not
-        the reader.
+        whole test. If a status specimen fails it, the specimen is wrong rather
+        than the reader.
       </p>
     )
   }

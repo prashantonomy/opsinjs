@@ -9,8 +9,9 @@
  * somebody weigh the number themselves, and this component puts them beside the
  * derivation rather than in a footnote nobody opens.
  *
- * What was counted — nights, readings, days — is the derivation sentence's job
- * to name. This component does not know, and it will not guess a noun.
+ * What was counted is the derivation sentence's job to name, whether that is
+ * nights, readings or days. This component does not know, and it will not
+ * guess a noun.
  *
  * The second thing shown here is the two axes staying apart. The label takes the
  * category tint; the indicator and the one band the score fell in take the
@@ -25,17 +26,17 @@
  * There is no `calculatedAt` here, and its absence is the point rather than an
  * oversight. This example used to pass an instant six months before the day it
  * was reviewed, and the dial rendered a full-size score beside an undecorated
- * date at footnote size — a stale number drawn exactly like a fresh one. The
- * component gives a date no staleness treatment by design, because a staleness
- * window is a number opsinjs does not own; the caller who needs an old score to
- * look old renders a RelativeTime beside the dial.
+ * date at footnote size. That was a stale number drawn exactly like a fresh
+ * one. The component gives a date no staleness treatment by design, because a
+ * staleness window is a number opsinjs does not own; the caller who needs an
+ * old score to look old renders a RelativeTime beside the dial.
  *
  * EVERY NUMBER HERE IS INVENTED. The bands carry `EXAMPLE_SOURCE` for the same
- * reason a `ReferenceRange` does — two numbers that define an interval somebody
- * is compared against are a comparison a person chose, and an example has to say
- * out loud that the person was nobody. This file is not distributed: examples
- * have no catalogue row and appear in no `/r` payload, which is why they may
- * show band geometry at all while the shipped demo may not.
+ * reason a `ReferenceRange` does. Two numbers that define an interval somebody
+ * is compared against are a comparison a person chose, and an example has to
+ * say out loud that the person was nobody. This file is not distributed:
+ * examples have no catalogue row and appear in no `/r` payload, which is why
+ * they may show band geometry at all while the shipped demo may not.
  */
 
 import { EXAMPLE_SOURCE } from "@/lib/opsinjs"

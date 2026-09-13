@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils"
 import { NotBuiltYet } from "./stub"
 
 /* ==========================================================================
-   preview.tsx — <ComponentPreview>, <IframePreview>, <DeviceFrame>,
+   preview.tsx defines <ComponentPreview>, <IframePreview>, <DeviceFrame> and
    <ViewportToolbar>.
 
    THE SWITCHES ARE NOT DECORATION. A20/B20 make theme, density, status and
@@ -37,7 +37,7 @@ import { NotBuiltYet } from "./stub"
    Text size is a real font-size change on the previewed document's root, never
    a `transform: scale()`. Scaling makes a screenshot; changing the font size
    makes the layout reflow, wrap and truncate exactly as it does for somebody
-   who has set 200% in their operating system — which is the only version of the
+   who has set 200% in their operating system. That is the only version of the
    demonstration that tells you anything. The switches reach the framed document
    as `?text=` and `?density=`, which app/(view)/layout.tsx's inline script
    stamps onto <html> before first paint; product.css turns them into
@@ -54,8 +54,9 @@ import { NotBuiltYet } from "./stub"
 
    Both mount a `/view/[base]/[style]/[kind]/[name]` iframe, which is a
    separate root layout with its own <html> and only product.css. That is the
-   only way to see the opsinjs PRODUCT theme — squircle, platform UI font,
-   generous — because the two stylesheets deliberately never meet.
+   only way to see the opsinjs PRODUCT theme, because the two stylesheets
+   deliberately never meet. The product theme is squircle, platform UI font,
+   generous.
 
    Rendering a component INLINE here instead would be a quiet lie, in two
    different ways. `--secondary`, `--accent`, `--destructive`, `--popover`,
@@ -63,7 +64,7 @@ import { NotBuiltYet } from "./stub"
    nothing under product.css, so anything painted with them disappears. The
    quieter failure is the one that still renders: `--background`, `--card`,
    `--radius`, `--spacing` and the `--radius-2xl/3xl/4xl` ladder resolve under
-   BOTH sheets and to DIFFERENT values — product.css sets `--radius: 1rem` and
+   BOTH sheets and to DIFFERENT values. product.css sets `--radius: 1rem` and
    inherits Tailwind's own radius defaults, where globals.css derives the same
    names from the lyra `--radius`. An inline preview therefore shows a component
    that is materially not the component the consumer installs, and shows it in
@@ -75,7 +76,7 @@ import { NotBuiltYet } from "./stub"
    it. The switches rebuild the iframe's URL through `viewPath`, so flipping to
    Dark or 200% reframes the document rather than restyling a picture of it.
    It renders <NotBuiltYet> instead of a frame when the name resolves to
-   nothing — an iframe around an empty route teaches a reader that previews are
+   nothing. An iframe around an empty route teaches a reader that previews are
    broken rather than that a component is unwritten. It also accepts `children`,
    which foundations pages use to put specimen content under the same switches;
    children win over everything, because a specimen is not a component and has
@@ -92,7 +93,7 @@ import { NotBuiltYet } from "./stub"
 
    NEITHER OF THESE IS WHAT MDX RESOLVES TO. `components/mdx.tsx` registers the
    wrappers in `./preview-server`, which do the registry lookup this module
-   cannot do — see that file for why the boolean, and not the index, crosses
+   cannot do. See that file for why the boolean, and not the index, crosses
    the client boundary.
    ========================================================================== */
 
@@ -157,10 +158,11 @@ function SwitchGroup<T extends string>({
   return (
     // `flex-wrap` is load-bearing, not tidiness. The Status group has five
     // options and measures 332px; the docs shell clips at `overflow-x: clip`,
-    // so at a 320px viewport the last option — Urgent, of all of them — was
-    // sliced by the edge with no scroll to reach it and no page-level overflow
-    // for a checker to catch. Wrapping to a second row is the fix; the labels
-    // carry their own borders, so a wrapped row still reads as a row.
+    // so at a 320px viewport the last option was sliced by the edge with no
+    // scroll to reach it and no page-level overflow for a checker to catch.
+    // The last option is Urgent, of all of them. Wrapping to a second row is
+    // the fix; the labels carry their own borders, so a wrapped row still
+    // reads as a row.
     <fieldset className="m-0 flex flex-wrap items-center gap-1 border-0 p-0">
       <legend className="sr-only">{label}</legend>
       <span
@@ -235,7 +237,7 @@ export function ViewportToolbar({
               />
               <label
                 htmlFor={id}
-                title={`${DEVICES[key].label} — ${DEVICES[key].width}px`}
+                title={`${DEVICES[key].label} at ${DEVICES[key].width}px`}
                 className={cn(
                   "cursor-pointer border border-border p-1",
                   active
@@ -411,7 +413,7 @@ export function ComponentPreview({
    * first paint, so a URL frozen at the server's values would leave every
    * switch changing the surround and nothing inside it.
    *
-   * `viewPath` owns the shape. Never write a "/view..." string here — that is
+   * `viewPath` owns the shape. Never write a "/view..." string here. That is
    * both the decision-6 contract and an assert-ia failure.
    */
   const viewSrc = name
@@ -501,7 +503,7 @@ export function ComponentPreview({
       <div
         // `dark` is applied to the surface rather than to the document so that
         // one preview can be inspected in the other theme without flipping the
-        // whole page — which is how you compare a contrast pair honestly.
+        // whole page. That is how you compare a contrast pair honestly.
         className={cn(
           "flex bg-background p-6",
           mode === "dark" && "dark",
@@ -526,7 +528,7 @@ export function ComponentPreview({
               className="w-full border-0"
               // The frame is a viewport, not a canvas. It does not grow with the
               // text-size switch, because a real reader at 200% does not get a
-              // taller screen either — they scroll, and seeing that happen is
+              // taller screen either. They scroll, and seeing that happen is
               // the point of the demonstration.
               style={{ height: minHeight }}
             />
@@ -606,7 +608,7 @@ export interface IframePreviewProps {
 }
 
 /**
- * A chrome-less `/view/...` route embedded at a device width — the only place
+ * A chrome-less `/view/...` route embedded at a device width is the only place
  * on this site where the opsinjs product theme is visible, because product.css
  * and globals.css are loaded by two different root layouts and never meet.
  */

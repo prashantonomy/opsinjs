@@ -1,5 +1,5 @@
 ---
-title: "0004 — lyra themes the documentation chrome only"
+title: "ADR 0004. lyra themes the documentation chrome only"
 description: This site looks deliberately unlike the system it documents, and every preview renders under the product theme in its own scope.
 status: stable
 kind: project
@@ -27,14 +27,14 @@ test results.
 Two surfaces with two different jobs, in one application. The question is whether
 to unify them.
 
-Unifying downward — theming the documentation like the product — makes a
+Unifying downward means theming the documentation like the product. It makes a
 documentation site that is enormous to navigate and, worse, makes every component
 preview indistinguishable from the page around it. A reader cannot tell where the
 example ends and the site begins, which is precisely the mistake a preview exists
 to prevent.
 
-Unifying upward — theming the product like the documentation — is not on the
-table: `lyra`'s density is wrong for the audience.
+Unifying upward means theming the product like the documentation, and it is not
+on the table: `lyra`'s density is wrong for the audience.
 
 ## Decision
 
@@ -56,8 +56,8 @@ generated token layer sits between them and is imported by both.
 - **Previews must be isolated, not merely scoped.** A component rendered inline
   inherits the documentation cascade, and inheritance in CSS does not respect good
   intentions. Previews render a chrome-less `/view` route inside a frame, at the
-  requested base and style — which is also why that route exists as a real URL
-  and not as a component prop.
+  requested base and style. That is also why the route exists as a real URL and
+  not as a component prop.
 - **Two root layouts follow from this**, because a route group nested inside a
   root layout cannot own its own `html` element. That is
   [ADR 0007](0007-two-root-layouts.mdx).
@@ -84,7 +84,7 @@ scroll-spy are weeks that belong to the components.
 
 **Render previews inline with a scoping class.** Rejected. It works until a
 component sets a property the documentation also sets, at which point the preview
-lies — and a lying preview in a health design system is worse than no preview.
+lies. A lying preview in a health design system is worse than no preview.
 
 ## Revisiting this
 

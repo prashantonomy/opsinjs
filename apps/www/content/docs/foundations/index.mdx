@@ -11,12 +11,12 @@ a11yDate: 2026-09-02
 
 ## Overview
 
-Foundations is the layer that exists before any component does. It is where a
-decision is made once — what a radius means, what "stale" looks like, which of
-two colour axes an element may draw from — so that twenty-four components do not
-each make it differently and a reader looking at a blood-pressure reading does
-not have to work out whether amber means *this is a warning* or *this is your
-heart category*.
+Foundations is the layer that exists before any component does. What a radius
+means, what "stale" looks like and which of two colour axes an element may draw
+from are all decided once here so that twenty-four components do not each make
+them differently and a reader looking at a blood-pressure reading does not have
+to work out whether amber means *this is a warning* or *this is your heart
+category*.
 
 Read the signpost first, because two of the three destinations are not here:
 
@@ -32,8 +32,8 @@ Foundations is the part of this site that is completely real today. Nothing here
 depends on a component existing: the token sources are authored, the colour and
 contrast maths is hand-written, and the generated tables read the same files the
 product theme reads. The thing most often confused with Foundations is the
-component library — but a foundation is not a smaller component. It is the
-argument a component is not allowed to re-litigate.
+component library. A foundation is nevertheless not a smaller component. It is
+the argument a component is not allowed to re-litigate.
 
 ## How it works
 
@@ -43,9 +43,9 @@ There are three shapes of page in this pillar and they are not interchangeable.
 [Colour](colour/index.mdx), [Materials](materials/index.mdx),
 [Motion](motion/index.mdx), [Typography](typography/index.mdx),
 [Shape](shape/index.mdx) and [Space](space/index.mdx). Each ends in a generated
-`Tokens` page, and each one is a scale rather than a palette — the steps are
-ordered, the ordering carries meaning, and skipping a step is a decision you have
-to be able to defend.
+`Tokens` page, and each one is a scale rather than a palette. The steps are
+ordered, the ordering carries meaning, and skipping a step is a decision you
+have to be able to defend.
 
 **Expression foundations** own a medium that has no numeric scale but still needs
 one ruling for the whole system. There are four:
@@ -75,11 +75,11 @@ Come here when you need to know what something *means*. Three questions map onto
 three pillars, and getting them the right way round saves a lot of reading:
 
 - *What does `--opsin-status-urgent-line` signify, and when am I allowed to use
-  it?* — Foundations.
+  it?* Foundations answers that.
 - *How do I add a seventh category to my own build without breaking the status
-  axis?* — [Theming](../theming/index.mdx).
-- *What is the complete list of every token that currently exists?* —
-  [Reference](../reference/index.mdx).
+  axis?* [Theming](../theming/index.mdx) is where that is done.
+- *What is the complete list of every token that currently exists?*
+  [Reference](../reference/index.mdx) has it.
 
 If you are new, read [Principles](principles.mdx) and
 [Token architecture](token-architecture.mdx) in that order. They are twenty
@@ -124,9 +124,9 @@ the published floor fails the build rather than appearing as a footnote.
 
 ## Related
 
-- [Principles](principles.mdx) — the five rules the rest of the pillar is derived
-  from; read this first.
-- [Theming and tokens](../theming/index.mdx) — the other side of the signpost:
+- [Principles](principles.mdx) has the five rules the rest of the pillar is
+  derived from. Read this first.
+- [Theming and tokens](../theming/index.mdx) is the other side of the signpost:
   how to change what you have just read the meaning of.
-- [The two colour axes](../health/two-colour-axes.mdx) — the single most
+- [The two colour axes](../health/two-colour-axes.mdx) is the single most
   load-bearing decision in opsinjs, and the one Foundations exists to protect.

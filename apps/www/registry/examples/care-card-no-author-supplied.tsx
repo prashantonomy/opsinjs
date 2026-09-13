@@ -18,13 +18,13 @@
  * "we do not have this", never a substituted default and never silence.
  *
  * THE TWO CARDS CARRY THE SAME INSTRUCTION AND THEREFORE THE SAME ACCESSIBLE
- * NAME. That is the subject of the example rather than an oversight — the
- * instruction is the control variable — but it has a cost worth naming: the
- * card's name is its heading, so a screen-reader user listing the regions on
- * this page hears the same name twice and cannot tell which is which until they
- * read into it. The captions below separate them for anybody reading in order.
- * They do not separate them in a list of landmarks, and nothing available to an
- * example file would.
+ * NAME. That is the subject of the example rather than an oversight, because
+ * the instruction is the control variable. But it has a cost worth naming: the
+ * card's name is its heading, so a screen-reader user listing the regions
+ * on this page hears the same name twice and cannot tell which is which until
+ * they read into it. The captions below separate them for anybody reading in
+ * order. They do not separate them in a list of landmarks, and nothing
+ * available to an example file would.
  */
 
 import { CareCard } from "@/registry/base-lyra/ui/care-card"

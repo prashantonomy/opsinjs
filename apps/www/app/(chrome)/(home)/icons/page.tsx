@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 }
 
 /**
- * `/icons` — the browsable inventory.
+ * `/icons` is the browsable inventory.
  *
  * The interesting half of this page is not the grid; it is the prohibition
  * underneath it. A consumer health app that decorates itself with caducei,
@@ -26,7 +26,7 @@ export default function IconsPage() {
       <PageHeader
         eyebrow="Foundations"
         title="Icons"
-        lead="One library, one weight, and a documented job for every glyph — plus the symbols this system will not use, and why."
+        lead="One library, one weight, and a documented job for every glyph. This page also names the symbols this system will not use, and says why."
       />
 
       <Container className="py-10">
@@ -68,7 +68,7 @@ export default function IconsPage() {
                 >
                   Iconography
                 </Link>{" "}
-                — sizing, alignment and the optical rules.
+                covers sizing, alignment and the optical rules.
               </li>
               <li>
                 <Link
@@ -77,7 +77,7 @@ export default function IconsPage() {
                 >
                   Icons in practice
                 </Link>{" "}
-                — importing, tree-shaking and the client-boundary question.
+                covers importing, tree-shaking and the client-boundary question.
               </li>
               <li>
                 <Link
@@ -86,8 +86,8 @@ export default function IconsPage() {
                 >
                   Colour independence
                 </Link>{" "}
-                — the greyscale and colour-vision audit these shapes exist to
-                pass.
+                covers the greyscale and colour-vision audit these shapes exist
+                to pass.
               </li>
               <li>
                 <Link
@@ -96,7 +96,7 @@ export default function IconsPage() {
                 >
                   Alt text and descriptions
                 </Link>{" "}
-                — when a glyph needs a label and when it must be hidden.
+                says when a glyph needs a label and when it must be hidden.
               </li>
             </ul>
           </Panel>
@@ -132,7 +132,7 @@ export default function IconsPage() {
             <ProhibitedSymbol
               symbol="Stethoscopes, white coats, clipboards with ticks"
               reason="Clinical-authority props. They shift a reading from “here is your number” to “this has been reviewed”, which is a claim about a workflow that did not happen."
-              instead="If a value genuinely has been reviewed by a clinician, say so in words with a date and a name — that is provenance, and provenance is text."
+              instead="If a value genuinely has been reviewed by a clinician, say so in words with a date and a name. That is provenance, and provenance is text."
             />
             <ProhibitedSymbol
               symbol="Prescription and pharmacy marks"
@@ -175,10 +175,10 @@ export default function IconsPage() {
             <p>
               Size icons in the same ladder as text rather than in pixels chosen
               per screen, and hide decorative glyphs from assistive technology
-              with <Mono>aria-hidden</Mono> — an icon that duplicates an
-              adjacent label is noise when it is announced twice. The generated
-              component pages carry the specific rule for each component that
-              ships an icon.
+              with <Mono>aria-hidden</Mono>. An icon that duplicates an adjacent
+              label is noise when it is announced twice. The generated component
+              pages carry the specific rule for each component that ships an
+              icon.
             </p>
           </Prose>
         </section>

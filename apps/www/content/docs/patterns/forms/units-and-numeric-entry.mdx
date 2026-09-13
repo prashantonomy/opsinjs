@@ -1,6 +1,6 @@
 ---
 title: Units and numeric entry
-description: Accepting a number that has a unit attached — never inside the field, never ambiguous, and never rejected for being clinically surprising.
+description: Accepting a number that has a unit attached. The unit never sits inside the field, the value is never ambiguous, and a clinically surprising reading is never rejected.
 status: stable
 kind: pattern
 aliases: [entering a unit, numeric input health, mmol or mg, unit picker, compound units]
@@ -18,8 +18,8 @@ Use this whenever the answer to a question is a quantity: a weight, a height, a
 temperature, a glucose reading, a dose, a duration.
 
 The distinction from the rest of this group is that a quantity is **two facts in
-one field** — the magnitude and the unit — and almost every serious numeric bug
-in a health product comes from the second one going missing. A reader who enters
+one field**, the magnitude and the unit. Almost every serious numeric bug in a
+health product comes from the second one going missing. A reader who enters
 `96` has told you nothing until you know whether they meant kilograms, pounds,
 or a fasting glucose in mg/dL.
 
@@ -70,8 +70,8 @@ The rules:
   height, and forcing one system on both is a British and American problem in
   equal measure. See [Unit systems](../../health/unit-systems.mdx).
 - **Changing the unit converts the entered value, visibly.** Do not reinterpret
-  the digits. If the reader typed 12 st and switches to kg, they see 76.2 kg —
-  not 12 kg.
+  the digits. If the reader typed 12 st and switches to kg, they see 76.2 kg
+  rather than 12 kg.
 - **Compound units get separate fields under one legend.** Feet and inches;
   stones and pounds; hours and minutes. One field with a slash in it is a
   parsing problem wearing a costume.
@@ -80,7 +80,7 @@ The rules:
   as a validation error.
 - **Impossible is rejected; surprising is confirmed.** A negative height is
   impossible. A glucose reading of 27 mmol/L is surprising and may be a genuine
-  emergency — asking is right, blocking is dangerous. See
+  emergency. Asking is right and blocking is dangerous. See
   [Validation timing](./validation-timing.mdx).
 - **The mg/dL versus mmol/L trap deserves an explicit check.** A value plausible
   in one and implausible in the other should prompt "did you mean…?" with both
@@ -132,13 +132,14 @@ The rules:
   spoken.
 - **A compound entry is a `fieldset` with a `legend`**, so each part is
   announced with the whole: "Height, feet" and "Height, inches".
-- **The unit control is a real control** — a select, or a radio group — labelled
-  and reachable by keyboard, not a tap target styled as a suffix.
+- **The unit control is a real control**, either a select or a radio group. It
+  is labelled and reachable by keyboard, not a tap target styled as a suffix.
 - **Changing the unit announces the converted value** as a polite status message
   (WCAG 2.2 SC 4.1.3), because the number on screen has just changed without the
   reader typing.
 - **Never rely on a placeholder to carry the unit.** It disappears on entry,
-  frequently fails contrast, and is not a label — WCAG 2.2 SC 3.3.2.
+  frequently fails contrast, and is not a label. That is a failure of WCAG 2.2
+  SC 3.3.2.
 - **Steppers are additive.** Typing is always available; see
   [Autocomplete and input types](./autocomplete-and-input-types.mdx).
 - **Do not truncate or auto-format while typing.** Reformatting a number as the

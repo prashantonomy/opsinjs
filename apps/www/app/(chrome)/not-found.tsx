@@ -5,18 +5,18 @@ import { builtComponentCount } from "@/lib/registry"
 import { agentRoutes, registryRoutes, routes } from "@/lib/routes"
 
 /**
- * The 404 for anything below `(chrome)` — in practice every `notFound()` thrown
- * by a documentation route.
+ * The 404 for anything below `(chrome)`. In practice that is every `notFound()`
+ * thrown by a documentation route.
  *
  * WHY THIS FILE EXISTS SEPARATELY FROM `app/not-found.tsx`. Two sibling root
  * layouts and no `app/layout.tsx` means Next only uses `app/not-found.tsx` for
- * globally unmatched URLs. A `notFound()` thrown inside `(chrome)` looks for the
- * nearest not-found boundary instead, and without this file it fell through to
- * Next's built-in page: an empty server-rendered body, no `lang`, no title, with
- * the real copy painted only after hydration. This file renders inside the real
- * root layout, so it is server-rendered, styled, and reachable without JS — and
- * it carries its own `<title>`, because the root layout it renders inside
- * exports no metadata and a 404 with no title is announced by its URL.
+ * globally unmatched URLs. A `notFound()` thrown inside `(chrome)` looks for
+ * the nearest not-found boundary instead, and without this file it fell through
+ * to Next's built-in page: an empty server-rendered body, no `lang`, no title,
+ * with the real copy painted only after hydration. This file renders inside the
+ * real root layout, so it is server-rendered, styled, and reachable without JS.
+ * The file also carries its own `<title>`, because the root layout it renders
+ * inside exports no metadata and a 404 with no title is announced by its URL.
  */
 export default function NotFound() {
   return (
@@ -25,8 +25,8 @@ export default function NotFound() {
           API is collected from `layout` and `page` segments only, and a
           `not-found` file is neither. React hoists a <title> rendered anywhere
           into the document head, so this is the one route to a titled 404.
-          Without it the page is announced by its URL — WCAG 2.2 SC 2.4.2. */}
-      <title>Page not found — opsinjs</title>
+          Otherwise the page is announced by its URL. See WCAG 2.2 SC 2.4.2. */}
+      <title>Page not found · opsinjs</title>
       <main className="w-full max-w-xl">
         <p className="font-mono text-xs tracking-[0.16em] text-muted-foreground uppercase">
           404
@@ -49,10 +49,10 @@ export default function NotFound() {
               {getConsidered().length} component ideas were considered and left
               off the roster. Each one still answers at its canonical address
               under the component catalogue, with the reason it was refused and
-              what to use instead — so if a considered id brought you here, it
-              was the address that was wrong rather than the name. The catalogue
-              is the definitive list of what is built, what is specified and
-              what was set aside.
+              what to use instead. If a considered id brought you here, it was
+              therefore the address that was wrong rather than the name. The
+              catalogue is the definitive list of what is built, what is
+              specified and what was set aside.
             </p>
             <p className="mt-2 text-sm">
               <Link
@@ -74,7 +74,7 @@ export default function NotFound() {
               roster is a specification or a name that was considered and
               refused. An id in neither group has no page, no specification and
               no roadmap entry. If an assistant told you such a component exists
-              and sent you here, the honest answer is that it does not — and the
+              and sent you here, the honest answer is that it does not. The
               machine-readable catalogue at the foot of this page, not the
               assistant, is the authority on which group any name is in.
             </p>
@@ -106,7 +106,7 @@ export default function NotFound() {
                     stays free of the literal the IA gate bans. */}
                 {routes.docs("health", "alarm-fatigue")}
               </code>
-              . Search is on every documentation page — press{" "}
+              . Search is on every documentation page. Press{" "}
               <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[0.75em]">
                 ⌘K
               </kbd>{" "}

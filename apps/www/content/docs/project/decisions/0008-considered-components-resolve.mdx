@@ -1,6 +1,6 @@
 ---
-title: "0008 — Considered components resolve, never 404"
-description: Every catalogue id, including the ones with no specification, answers at a guessable URL — as a generated stub page, not as a catch-all route.
+title: "ADR 0008. Considered components resolve, never 404"
+description: Every catalogue id, including the ones with no specification, answers at a guessable URL. It does so as a generated stub page, not as a catch-all route.
 status: stable
 kind: project
 owner: core
@@ -32,15 +32,15 @@ comes back.
 
 **A 404 is the worst possible answer**, because it is indistinguishable from a
 typo, a moved page and a site outage. Faced with one, a code-generating assistant
-does not stop — it invents a plausible API and writes code against a component
+does not stop. It invents a plausible API and writes code against a component
 that does not exist. That is the specific failure this whole documentation
 architecture is built to eliminate, and it is worse here than elsewhere: the
 invented component will be rendering somebody's blood pressure.
 
 But the opposite is also a trap. Giving every considered name a full page would
 add thirty-five entries to a sidebar that already describes a system with no
-components in it, which is the empty-cathedral problem — a documentation site
-whose size is an accurate measure of nothing.
+components in it, which is the empty-cathedral problem. That is a documentation
+site whose size is an accurate measure of nothing.
 
 ## Decision
 
@@ -48,13 +48,12 @@ whose size is an accurate measure of nothing.
 navigation tree.**
 
 - `scripts/build-registry.mts` writes one MDX file per `considered` catalogue row
-  into the components directory, so the URL is
-  `docs/components/<id>` — the same shape as a real component page, guessable from
-  the name alone.
+  into the components directory, so the URL is `docs/components/<id>`. That is
+  the same shape as a real component page, guessable from the name alone.
 - The page states, in three short paragraphs and one machine-readable marker: what
   the name refers to, that it is not built and has no specification, and what to
   use instead. It carries `status: considered` and the not-implemented marker, and
-  it is deliberately *not* written in the shape of a specification — a considered
+  it is deliberately *not* written in the shape of a specification. A considered
   page that looks like a `planned` page is a lie with extra steps.
 - **It is excluded from the sidebar.** The components group lists its pages
   explicitly, and a page not listed is absent from the navigation tree while
@@ -77,15 +76,16 @@ We did *not* adopt a catch-all route.
   sidebar overnight. This is a real coupling and it is written here because that is
   the only place it can be found later.
 - **A second status gate.** `<PageTemplate>` must accept `considered` and require
-  a much smaller section set than `planned` — the notice, the alternative, and
-  nothing else.
+  a much smaller section set than `planned`. That set is the notice, the
+  alternative, and nothing else.
 - **Generated pages in an authored directory.** The components directory will
   contain both hand-written specifications and generated stubs; the generated ones
   carry the marker comment and are covered by the drift check, per
   [ADR 0006](0006-generated-not-authored.mdx).
 - **Thin content, deliberately.** These pages are short and repetitive by design.
-  The alternative — padding them into something that reads as substantial — is how
-  you end up with a documentation site that cannot be trusted about anything.
+  The alternative is padding them into something that reads as substantial, and
+  that is how you end up with a documentation site that cannot be trusted about
+  anything.
 
 ## What exists today
 
@@ -123,8 +123,8 @@ that for free because it is an ordinary page.
 a guessable URL, and a program fetching it to ask about one name receives
 thirty-four irrelevant answers alongside the one it wanted.
 
-**Doing nothing — let them 404.** Rejected. It is the failure described at the top
-of this record, and it is the reason the specification pages exist at all.
+**Doing nothing and letting them 404.** Rejected. It is the failure described at
+the top of this record, and it is the reason the specification pages exist at all.
 
 **Full specification pages for every considered id.** Rejected: a specification is
 expensive and reviewable, and writing thirty-five of them for names nobody has
@@ -134,7 +134,7 @@ committed to would devalue the ones that are real. See
 ## Revisiting this
 
 Revisit if the considered roster grows past the point where generated stubs are
-noise in the repository — at which point the answer is probably a smaller roster,
+noise in the repository. The answer at that point is probably a smaller roster,
 not a different mechanism.
 
 <LastUpdated />

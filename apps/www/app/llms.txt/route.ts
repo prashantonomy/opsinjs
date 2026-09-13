@@ -1,9 +1,9 @@
 /**
- * GET /llms.txt — the curated index of the whole site.
+ * GET /llms.txt is the curated index of the whole site.
  *
  * One entry per page, grouped under the sixteen documentation sections, with
  * absolute URLs, the page's release status and its search synonyms. Every page
- * appears exactly once — `check-llms.mts` asserts both that and that every URL
+ * appears exactly once. `check-llms.mts` asserts both that and that every URL
  * printed here answers 200, which is what stops this file rotting into a list
  * of paths that used to exist.
  *
@@ -16,8 +16,8 @@
  * below are computed from `implementedComponents()` rather than asserted.
  *
  * ALIASES. The synonyms come from the catalogue, which owns the whole alias
- * namespace — so the phrase a clinician would use ("reference range") reaches
- * the same page here, in search, and in `/r/index.json`.
+ * namespace. The phrase a clinician would use ("reference range") therefore
+ * reaches the same page here, in search, and in `/r/index.json`.
  */
 
 import {
@@ -71,14 +71,14 @@ export function GET(): Response {
 
      This line used to read "use the shards below if it is truncated", which is
      advice that works for the sections a shard names and silently fails for
-     every other one — at the time of writing, Introduction, Start here,
-     Recipes, Patterns, Handbook, Agents, Registry and Project had no shard at
-     all, so a reader sent to "the shards below" for a handbook chapter found
-     three files that did not contain it and no explanation. The recovery route
-     is real, so it is named instead: every capped file lists the pages it
-     dropped, and every page in the index below answers to a `.md` suffix.
-     Both the count and the names are derived from SHARDS and SECTIONS, so
-     adding a fourth shard rewrites the sentence rather than dating it. */
+     every other one. At the time of writing, Introduction, Start here, Recipes,
+     Patterns, Handbook, Agents, Registry and Project had no shard at all, so a
+     reader sent to "the shards below" for a handbook chapter found three files
+     that did not contain it and no explanation. The recovery route is real, so
+     it is named instead: every capped file lists the pages it dropped, and
+     every page in the index below answers to a `.md` suffix. Both the count and
+     the names are derived from SHARDS and SECTIONS, so adding a fourth shard
+     rewrites the sentence rather than dating it. */
   const shardedSections = new Set<string>(
     Object.values(SHARDS).flatMap((shard) => [...shard.sections])
   )
@@ -88,7 +88,7 @@ export function GET(): Response {
   const shardCoverage =
     unsharded.length === 0
       ? `The shards below carry the same corpus, split into ${Object.keys(SHARDS).length} smaller files.`
-      : `The shards below cover ${SECTIONS.length - unsharded.length} of the ${SECTIONS.length} sections; ${unsharded.map((section) => section.title).join(", ")} have no shard, so take those pages one at a time from the list further down this file — every documentation URL answers to a \`.md\` suffix.`
+      : `The shards below cover ${SECTIONS.length - unsharded.length} of the ${SECTIONS.length} sections; ${unsharded.map((section) => section.title).join(", ")} have no shard, so take those pages one at a time from the list further down this file. Every documentation URL answers to a \`.md\` suffix.`
 
   const lines: string[] = [
     `# ${SITE_NAME}`,
@@ -101,17 +101,17 @@ export function GET(): Response {
     "",
     "## Reading this site as a machine",
     "",
-    "- Append `.md` to any documentation URL to get that page as processed markdown, with its frontmatter: imports stripped, headings with explicit ids, code and tables as markdown. Documentation components are NOT rendered to prose — a stub notice arrives as `<StubNotice … />`, attributes and all. Those attributes are the content; the values behind them are published separately at `/r/index.json` and under Reference.",
-    `- [The whole corpus in one file](${absoluteUrl("/llms-full.txt")}) — size-capped, and it names every page it had to drop. ${shardCoverage}`,
+    "- Append `.md` to any documentation URL to get that page as processed markdown, with its frontmatter: imports stripped, headings with explicit ids, code and tables as markdown. Documentation components are NOT rendered to prose. A stub notice arrives as `<StubNotice … />`, attributes and all. Those attributes are the content; the values behind them are published separately at `/r/index.json` and under Reference.",
+    `- [The whole corpus in one file](${absoluteUrl("/llms-full.txt")}) is size-capped, and it names every page it had to drop. ${shardCoverage}`,
     ...Object.values(SHARDS).map(
       (shard) =>
-        `- [${shard.title}](${absoluteUrl(shard.file)}) — ${shard.blurb}`
+        `- [${shard.title}](${absoluteUrl(shard.file)}) is one of those shards. ${shard.blurb}`
     ),
-    `- [The registry catalog](${absoluteUrl("/r/registry.json")}) — the shadcn-spec catalog, and the file \`npx shadcn@latest mcp\` reads.`,
-    `- [The component roster](${absoluteUrl("/r/index.json")}) — every id opsinjs has claimed, its status, and whether anything is installable. This is the definitive answer to "does opsinjs have a …?".`,
-    `- [The offline bundle](${absoluteUrl("/r/docs.json")}) — the same corpus as JSON, one record per page.`,
-    "- `GET /api/search?query=<term>&tag=<section>` — full-text search. The parameter is `query`; `q` returns nothing.",
-    "- `GET /r/<name>.json` — one registry item. Single-word aliases resolve: `modal` reaches `dialog`. Multi-word aliases are not slugs and have no URL of their own — `/r/gauge-bar.json` is a 404 — so map a phrase to an id through the `aliases` field on the roster.",
+    `- [The registry catalog](${absoluteUrl("/r/registry.json")}) is the shadcn-spec catalog, and the file \`npx shadcn@latest mcp\` reads.`,
+    `- [The component roster](${absoluteUrl("/r/index.json")}) covers every id opsinjs has claimed, its status, and whether anything is installable. This is the definitive answer to "does opsinjs have a …?".`,
+    `- [The offline bundle](${absoluteUrl("/r/docs.json")}) is the same corpus as JSON, one record per page.`,
+    "- `GET /api/search?query=<term>&tag=<section>` runs a full-text search. The parameter is `query`; `q` returns nothing.",
+    "- `GET /r/<name>.json` returns one registry item. Single-word aliases resolve: `modal` reaches `dialog`. Multi-word aliases are not slugs and have no URL of their own. `/r/gauge-bar.json` is a 404, so map a phrase to an id through the `aliases` field on the roster.",
     "",
     "## Rules for generating against opsinjs",
     "",

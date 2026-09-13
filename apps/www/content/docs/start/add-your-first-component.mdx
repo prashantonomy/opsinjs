@@ -26,10 +26,10 @@ it, that is here too, at the bottom.
   source, so the command below is a real one rather than a sketch. What is
   missing is somewhere to fetch it from by default: there is no npm package and
   there will not be one, and `opsinjs.dev` is not serving yet, so `@opsinjs`
-  resolves only once you point it at a host that is —
+  resolves only once you point it at a host that is serving.
   [components.json](./installation/components-json.mdx) has the entry. The
-  component is `alpha`: the API will change without a deprecation, so use it in a
-  prototype and not in front of a patient.
+  component is `alpha`: the API will change without a deprecation, so use it in
+  a prototype and not in front of a patient.
 </Callout>
 
 ## Run one command
@@ -39,35 +39,34 @@ npx shadcn@latest add @opsinjs/status-pill
 ```
 
 That is the whole path. No provider to mount, no plugin to register, no
-`tailwind.config` to edit — opsinjs is Tailwind v4 and CSS-variable native, so the
-tokens arrive as CSS.
+`tailwind.config` to edit. opsinjs is Tailwind v4 and CSS-variable native, so
+the tokens arrive as CSS.
 
 ## Know what it writes
 
 Three files, so it is not a surprise:
 
 ```text
-<aliases.ui>/status-pill.tsx     the component source — yours now, edit freely
+<aliases.ui>/status-pill.tsx     the component source is yours now, edit freely
 <aliases.lib>/opsinjs.ts         units, categories, error codes: what every component reads
 <aliases.lib>/status.ts          the four clinical levels, their words and their glyphs
 ```
 
 The item declares those destinations as `@ui/…` and `@lib/…`, so where they
-actually land is whatever your `components.json` aliases say — in a default
-shadcn project, `components/ui/status-pill.tsx` and `lib/`. Two things the
-command does **not** write, and both are commonly assumed. It writes no CSS: the
-token layer is a separate registry item and
+actually land is whatever your `components.json` aliases say. In a default
+shadcn project, that is `components/ui/status-pill.tsx` and `lib/`. Two things
+the command does **not** write, and both are commonly assumed. It writes no CSS:
+the token layer is a separate registry item and
 [Presets](../theming/presets.mdx) has it. And it does not add the `@opsinjs`
-entry to `components.json` — that entry is the precondition for the command
+entry to `components.json`. That entry is the precondition for the command
 resolving at all, so you add it first, by hand.
 
 The only entry added to `package.json` is `lucide-react`, which is where the
-level glyphs come from and which any project with `iconLibrary` set to lucide —
-which opsinjs assumes — already has. opsinjs
-distributes **source you own**, not a package you upgrade. That is a deliberate
-trade: you get to change anything, and in exchange you take on the merge when we
-change it. [Upgrading](./installation/upgrading.mdx) is how that merge is made
-survivable.
+level glyphs come from and which any project with `iconLibrary` set to lucide
+already has. That is the icon library opsinjs assumes. opsinjs distributes
+**source you own**, not a package you upgrade. That is a deliberate trade: you
+get to change anything, and in exchange you take on the merge when we change it.
+[Upgrading](./installation/upgrading.mdx) is how that merge is made survivable.
 
 ## Verify it worked
 
@@ -82,8 +81,8 @@ Three checks, in order of how much they tell you:
    colour. If you see a hard-coded hex, the token layer was not imported.
 3. **It survives greyscale.** Switch your display or your devtools to greyscale.
    The pill must still say which level it is, in words and by its icon. If it does
-   not, the token layer loaded but the component is being used wrongly — colour is
-   never the only carrier of clinical status.
+   not, the token layer loaded but the component is being used wrongly. Colour
+   is never the only carrier of clinical status.
 
 ## Troubleshooting
 
@@ -106,8 +105,9 @@ produces exactly this symptom. See
 
 ## Next
 
-- [Quick start](./quick-start.mdx) — the same command with the reasoning attached.
-- [StatusPill](../components/status-pill.mdx) — the specification, including the
-  three things it must never be used for.
-- [Clinical status semantics](../health/clinical-status-semantics.mdx) — what the
-  four levels mean before you assign one.
+- [Quick start](./quick-start.mdx) has the same command with the reasoning
+  attached.
+- [StatusPill](../components/status-pill.mdx) is the specification, including
+  the three things it must never be used for.
+- [Clinical status semantics](../health/clinical-status-semantics.mdx) says what
+  the four levels mean before you assign one.

@@ -1,6 +1,6 @@
 ---
 title: Voice and tone
-description: One voice, four tones — calm, plain and in the second person, with the register set by the seriousness of the news rather than by the brand.
+description: One voice, four tones. The voice is calm, plain and in the second person, and the register is set by the seriousness of the news rather than by the brand.
 status: stable
 kind: content
 reviewer: content
@@ -16,12 +16,13 @@ aliases: [tone of voice, second person, register]
 
 Voice is who we are. It is constant, and in opsinjs it is three things:
 
-- **Calm.** Not soothing, not upbeat — calm. The reader supplies the emotion; the
-  interface supplies the facts. A product that is excited about a step count is a
-  product that will be excited about a bad result unless somebody remembers to
-  write a special case, and somebody will not.
+- **Calm.** The voice is not soothing and not upbeat. It is calm. The reader
+  supplies the emotion; the interface supplies the facts. A product that is
+  excited about a step count is a product that will be excited about a bad
+  result unless somebody remembers to write a special case, and somebody will
+  not.
 - **Plain.** Short sentences, common words, one idea each. The vocabulary is
-  fixed by the [plain-English A–Z](./plain-english-a-z.mdx).
+  fixed by the [plain-English A to Z](./plain-english-a-z.mdx).
 - **Second person, active, present.** "Your reading is higher than usual", not
   "The patient's reading has been observed to be elevated" and not "We have
   detected an elevation".
@@ -37,10 +38,10 @@ the four clinical status levels, so tone does not need a second scale of its own
 | `attention` | Direct, unhurried | State the fact first, then the single action, then the reassurance if there is a true one. |
 | `urgent` | Short, imperative, unadorned | The action first. Nothing decorative. No brand voice at all. |
 
-The canonical meaning of each level — what it asserts, who assigns it, what it
-must never be read as — is on
-[Clinical status semantics](../health/clinical-status-semantics.mdx). This page
-only says how each one sounds.
+[Clinical status semantics](../health/clinical-status-semantics.mdx) is where
+the canonical meaning of each level lives. It says what each level asserts, who
+assigns it, and what it must never be read as. This page only says how each one
+sounds.
 
 ### Two things the voice never does
 
@@ -57,7 +58,7 @@ statement about readings. Only the second is available to us.
 
 <DoDont>
   <DoDont.Do>Your resting heart rate was 58 bpm last night. That is in your usual range.</DoDont.Do>
-  <DoDont.Dont>Great news! Your resting heart rate is looking fantastic — keep up the good work!</DoDont.Dont>
+  <DoDont.Dont>Great news! Your resting heart rate is looking fantastic. Keep up the good work!</DoDont.Dont>
 </DoDont>
 
 <DoDont>
@@ -81,27 +82,27 @@ canonical for it.
 
 Fill in the marked parts. Each pattern is written for one status level.
 
-**`steady` — a value in range**
+**`steady` for a value in range**
 
 > Your `measure` was `value` `unit` on `when`. That is in your usual range.
 
-**`watch` — a value drifting**
+**`watch` for a value drifting**
 
 > Your `measure` has been `direction` than usual for `duration`. On its own this
 > is not unusual. It is worth mentioning at your next appointment.
 
-**`attention` — a value that needs something done**
+**`attention` for a value that needs something done**
 
 > Your `measure` was `value` `unit`, which is `comparison` your usual range.
 > `single action`. `true reassurance, if there is one`.
 
-**`urgent` — the reader must act now**
+**`urgent` when the reader must act now**
 
 > `Action`. `How`. `What to say when you get there`.
 
-**Any level — introducing a clinical term the reader will meet elsewhere**
+**Any level when you introduce a clinical term the reader will meet elsewhere**
 
-> `Clinical term` — `plain-English explanation`. You may see this on your
+> `Clinical term` means `plain-English explanation`. You may see this on your
 > `letter / results / prescription`.
 
 ### Length
@@ -124,12 +125,12 @@ explanation goes below the answer rather than in front of it.
 
 ## Related components
 
-- **`AlertBanner`** — the tone table above is its content contract; the level
-  drives both the wording and the colour, and they may never disagree.
-- **`CareCard`** — carries advice, so it is where the "no clinical judgement"
+- **`AlertBanner`** takes the tone table above as its content contract. The
+  level drives both the wording and the colour, and they may never disagree.
+- **`CareCard`** carries advice, so it is where the "no clinical judgement"
   rule bites hardest.
-- **`StatusPill`** — the word for the level, taken from the fixed vocabulary and
-  nowhere else. "Needs attention" is two words and is still the word; what is
-  forbidden is a synonym, a brand phrase or a sentence.
-- **`DisclaimerNote`** — the standing reminder of what this product is not; its
+- **`StatusPill`** has the word for the level, taken from the fixed vocabulary
+  and nowhere else. "Needs attention" is two words and is still the word; what
+  is forbidden is a synonym, a brand phrase or a sentence.
+- **`DisclaimerNote`** is the standing reminder of what this product is not. Its
   voice is plain and its tone never apologetic.

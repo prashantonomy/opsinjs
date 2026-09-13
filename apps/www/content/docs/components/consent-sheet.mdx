@@ -31,18 +31,18 @@ usedIn: [consent-before-collection, consent-flow]
 </StubNotice>
 
 Consent is the surface where dark patterns are most profitable and most damaging, so this
-component is unusually prescriptive about what a product may not remove — and unusually
-unhelpful about what it may not supply. **opsinjs ships no consent wording at all.** Not a
-heading, not a purpose, not a data category, not a retention period, not a jurisdiction, and
-not the words on the two controls. Every string a reader sees here arrives as a prop, and the
-sheet refuses to ask when one of them is missing.
+component is unusually prescriptive about what a product may not remove. The same component
+is unusually unhelpful about what it may not supply. **opsinjs ships no consent wording at
+all.** Not a heading, not a purpose, not a data category, not a retention period, not a
+jurisdiction, and not the words on the two controls. Every string a reader sees here arrives
+as a prop, and the sheet refuses to ask when one of them is missing.
 
 ## Preview
 
 The default sheet, with everything it can carry. The two things worth checking are both
 visible without reading a word: the decision controls are the same size as each other, and
-nothing on the sheet is set smaller or paler than anything else — there is no small print on a
-consent surface. Close it with the escape key and watch nothing happen: leaving is not an
+nothing on the sheet is set smaller or paler than anything else. There is no small print on
+a consent surface. Close it with the escape key and watch nothing happen: leaving is not an
 answer, and the component calls nothing.
 
 <ComponentPreview name="consent-sheet" />
@@ -60,7 +60,7 @@ answer, and the component calls nothing.
 [Sheet](./sheet.mdx) comes with it because ConsentSheet extends it rather than reimplementing
 it: the portal, the focus trap, the scrim, the keyboard inset and the always-present close
 control are all Sheet's, and so are `open` and `onOpenChange`. [Button](./button.mdx) comes
-with it because the two decision controls are the real one — a component that hand-rolled them
+with it because the two decision controls are the real one. A component that hand-rolled them
 would be shipping two controls nobody could hold to the same target rules.
 
 ## Usage
@@ -96,7 +96,7 @@ import { ConsentSheet } from "@/components/ui/consent-sheet"
   avoid={[
     { case: "You are showing the permissions the reader has already given, so they can review or withdraw them.", instead: "card" },
     { case: "The reader is only being told something, and there is no decision to make.", instead: "callout" },
-    { case: "You need an operating-system permission, such as notifications or health data access — the platform owns that dialogue.", instead: "sheet" },
+    { case: "You need an operating-system permission, such as notifications or health data access. The platform owns that dialogue.", instead: "sheet" },
     { case: "The message is the standing not-medical-advice note rather than a request.", instead: "disclaimer-note" },
     { case: "The reader must simply acknowledge something before continuing, with no meaningful choice.", instead: "dialog" },
     { case: "You are collecting the data itself rather than the permission to collect it.", instead: "field" },
@@ -104,9 +104,9 @@ import { ConsentSheet } from "@/components/ui/consent-sheet"
 />
 
 One sheet asks for one permission. If you have three to ask for, that is three sheets, each
-shown when it becomes relevant — never one sheet with three paragraphs and a single button.
-Bundled consent is not consent to any of its parts, and the reader who would have said yes to
-two of the three has been given no way to say so; see
+shown when it becomes relevant. The answer is never one sheet with three paragraphs and a
+single button. Bundled consent is not consent to any of its parts, and the reader who would
+have said yes to two of the three has been given no way to say so; see
 [Consent and disclosure](../health/consent-and-disclosure.mdx).
 
 That rule is in the API rather than only in this paragraph. There is no `purposes` array, no
@@ -135,17 +135,17 @@ rather than merely stated.
 **Refusal is a first-class outcome.** The decline control has the same size, the same
 prominence and the same visual weight as the accept control, and it is never a plain-text
 link beneath a filled button. If the product cannot function after a refusal, the sheet says
-so before the reader chooses, not after — that is what `consequenceOfDeclining` is, and why
+so before the reader chooses, not after. That is what `consequenceOfDeclining` is, and why
 it renders above the controls rather than in a confirmation afterwards.
 
 **Closing is not deciding, and it is not refusing either.** `onDecision` fires when a reader
 presses one of the two controls and at no other time. A close by the escape key, the scrim, a
 drag or the header's close control calls nothing at all; the product hears about it on
-`onOpenChange`, which is Sheet's and says which route was taken. `granted` is a boolean with
-two values and a consent has three states — agreed, refused, and not answered — so the third
-is spelled as the absence of a call. A boolean that could also mean *did not answer* is a
-boolean somebody will store as `false`, and a refusal nobody made is a record about a person
-that is not true.
+`onOpenChange`, which is Sheet's and says which route was taken. A consent has three
+states, and they are agreed, refused, and not answered. `granted` is a boolean with two
+values, so the third is spelled as the absence of a call. A boolean that could also mean
+*did not answer* is a boolean somebody will store as `false`, and a refusal nobody made is a
+record about a person that is not true.
 
 **What the product records.** A decision, a timestamp, the identifier and version of the text
 that was shown, and the scope consented to. All five are handed back on `ConsentDecision`;
@@ -184,7 +184,7 @@ made are borne entirely by the person who did not make it.
     },
     {
       name: "ConsentSheet.Body",
-      describes: "The scrolling column inside Sheet.Content, data-slot=\"consent-sheet\". One type step for everything in it and no muted ink anywhere on the sheet — nothing on a consent sheet is small print.",
+      describes: "The scrolling column inside Sheet.Content, data-slot=\"consent-sheet\". One type step for everything in it and no muted ink anywhere on the sheet, because nothing on a consent sheet is small print.",
     },
     {
       name: "ConsentSheet.Purpose",
@@ -203,7 +203,7 @@ made are borne entirely by the person who did not make it.
     },
     {
       name: "ConsentSheet.Withdrawal",
-      describes: "Where this decision can be changed later. Mandatory — without it the sheet does not ask at all. It renders as text and not as a link, because a string is not a destination and the control to withdraw belongs on the screen showing the data. data-slot=\"consent-sheet-withdrawal\".",
+      describes: "Where this decision can be changed later. It is mandatory. Without it the sheet does not ask at all. It renders as text and not as a link, because a string is not a destination and the control to withdraw belongs on the screen showing the data. data-slot=\"consent-sheet-withdrawal\".",
       prop: "withdrawalPath",
     },
     {
@@ -238,17 +238,17 @@ made are borne entirely by the person who did not make it.
     {
       part: "ConsentSheet",
       cardinality: "1",
-      note: "Sheet's container — data-slot=\"sheet-container\"",
+      note: "Sheet's container is data-slot=\"sheet-container\"",
       children: [
         {
           part: "ConsentSheet.Heading",
           cardinality: "1",
-          note: "Sheet's title — data-slot=\"sheet-title\", the popup's accessible name",
+          note: "Sheet's title is data-slot=\"sheet-title\", the popup's accessible name",
         },
         {
           part: "ConsentSheet.Body",
           cardinality: "1",
-          note: "inside Sheet.Content — data-slot=\"consent-sheet\"",
+          note: "data-slot=\"consent-sheet\" sits inside Sheet.Content",
           children: [
             {
               part: "ConsentSheet.Purpose",
@@ -258,7 +258,7 @@ made are borne entirely by the person who did not make it.
             {
               part: "ConsentSheet.Scope",
               cardinality: "1",
-              note: "a ul of exactly three — data-slot=\"consent-sheet-scope\"",
+              note: "data-slot=\"consent-sheet-scope\" is a ul of exactly three",
               children: [
                 {
                   part: "ConsentSheet.Scope.Collected",
@@ -285,12 +285,12 @@ made are borne entirely by the person who did not make it.
                 {
                   part: "ConsentSheet.Details.Trigger",
                   cardinality: "1",
-                  note: "aria-expanded, aria-controls — data-slot=\"consent-sheet-details-trigger\"",
+                  note: "data-slot=\"consent-sheet-details-trigger\" carries aria-expanded and aria-controls",
                 },
                 {
                   part: "ConsentSheet.Details.Panel",
                   cardinality: "1",
-                  note: "role=\"group\", in the DOM while collapsed — data-slot=\"consent-sheet-details-panel\"",
+                  note: "data-slot=\"consent-sheet-details-panel\" is a role=\"group\" that stays in the DOM while collapsed",
                 },
               ],
             },
@@ -309,7 +309,7 @@ made are borne entirely by the person who did not make it.
         {
           part: "ConsentSheet.Decisions",
           cardinality: "1",
-          note: "Sheet's footer — data-slot=\"consent-sheet-decisions\", or consent-sheet-decisions-missing when the wording is incomplete",
+          note: "Sheet's footer is data-slot=\"consent-sheet-decisions\", or consent-sheet-decisions-missing when the wording is incomplete",
           children: [
             {
               part: "ConsentSheet.Decline",
@@ -330,16 +330,16 @@ made are borne entirely by the person who did not make it.
 
 **Heading** states what is being asked, as a question. **Purpose** says what the data is
 for, in the reader's terms. **Scope** lists what is collected, who sees it and how long it is
-kept — three facts, not a paragraph. **Withdrawal** says where to change this later.
-**Decisions** are two equally weighted controls. **Details** is the optional full text for
-the reader who wants it, never hidden behind a link labelled only *terms*.
+kept. Those are three facts rather than a paragraph. **Withdrawal** says where to change this
+later. **Decisions** are two equally weighted controls. **Details** is the optional full text
+for the reader who wants it, never hidden behind a link labelled only *terms*.
 
 None of these parts is an export. They are identified by `data-slot` and are styleable from
 outside; there is no way to render one without the others, and no way to render `Accept`
 without `Decline`. A sheet whose two decisions differ in size or prominence is a composition
-error, and this component holds that promise by construction rather than by assertion — one
-grid, two tracks, one component, one variant, one size, and no prop that reaches either
-control on its own.
+error, and this component holds that promise by construction rather than by assertion. The
+construction is one grid, two tracks, one component, one variant, one size, and no prop that
+reaches either control on its own.
 
 The one route left open is a descendant selector smuggled through `className`, which is the
 same hole [Callout](./callout.mdx) and [DisclaimerNote](./disclaimer-note.mdx) name on
@@ -352,15 +352,15 @@ browser, not in CI, and is the only place equal weight is measured anywhere.
 ### Closing is not consent
 
 The asymmetry the whole component is built around. Press a control and a record arrives; leave
-by any of the four exits and nothing does — not a record, not a `false`, not a call.
+by any of the four exits and nothing does. There is no record, no `false` and no call.
 
 <ComponentPreview name="consent-sheet-closing-is-not-consent" kind="example" align="start" />
 
 ### Two questions, two sheets
 
 There is no `purposes` array, so this is what asking for two things looks like: two sheets,
-two ids, two versions, two records — and a reader who can grant one and refuse the other.
-The second one also shows `consequenceOfDeclining`, stated before the choice.
+two ids, two versions, two records. The reader can grant one and refuse the other. The second
+one also shows `consequenceOfDeclining`, stated before the choice.
 
 <ComponentPreview name="consent-sheet-two-questions-two-sheets" kind="example" align="start" />
 
@@ -379,7 +379,7 @@ in terms of what the reader gets, not in terms of the product's internal purpose
 names what the reader ends up with; a category names an activity the product performs.
 
 Never write *by continuing you agree*. Never write *we value your privacy*. Never label the
-decline control *not now* when it means *no*, or *maybe later* when there is no later — the
+decline control *not now* when it means *no*, or *maybe later* when there is no later. The
 component warns about both in development and renders them exactly as written, because only
 the product knows whether there genuinely is a later.
 
@@ -432,8 +432,8 @@ has been checked, with the gaps listed rather than left out.
 - **Neither colour axis reaches this component.** The static rig fails the build on any
   element that resolves both a category and a status custom property, and on any status
   surface with no `data-status`. Neither attribute appears anywhere in this file, and no
-  status or category utility does either — so the claim that a consent sheet takes no clinical
-  colour is enforced rather than asserted. See
+  status or category utility does either. The claim that a consent sheet takes no clinical
+  colour is therefore enforced rather than asserted. See
   [The two colour axes](../health/two-colour-axes.mdx).
 - **No type size in pixels, and no raw colour anywhere.** Every size is a step of the eleven,
   so the whole sheet scales with the reader's own root font size, and every colour is a
@@ -447,11 +447,11 @@ has been checked, with the gaps listed rather than left out.
 - **The sheet is a modal dialogue named by its heading.** `heading` is Sheet's `title`, which
   Base UI renders as an `<h2>` and points the popup's `aria-labelledby` at, so the visible
   question and the accessible name are the same string. Focus moves to the popup on open,
-  which is what makes the heading the first thing announced — and it is why neither decision
+  which is what makes the heading the first thing announced. It is also why neither decision
   control is focused. Auto-focusing accept is a keyboard dark pattern.
 - **Escape closes without deciding.** `onDecision` is not called; the close arrives on
   `onOpenChange` with the route `escape`. Setting `dismissible={false}` cancels that route
-  along with the scrim and the drag, and never the close control in the header — see
+  along with the scrim and the drag, and never the close control in the header. See
   [Sheet](./sheet.mdx) for why that does not make it a [Dialog](./dialog.mdx).
 - **Accept and decline are adjacent in the tab order and identical in size.** They are two
   cells of one grid, separated by `--opsin-target-separation`, and each holds a `Button`,
@@ -483,10 +483,10 @@ has been checked, with the gaps listed rather than left out.
   the heading is in fact the first thing read on open. Both are argued from the markup and
   from Base UI's source; nobody has listened to this component.
 - Whether a browser reveals the collapsed panel on paper in every print path. The panel is
-  hidden by `@media not print` rather than by the `hidden` attribute — which Tailwind's own
-  preflight declares `display: none !important`, so an attribute here would print nothing —
-  and the compiled output was checked against the pinned tailwindcss 4.3.3. What has not been
-  checked is a printer.
+  hidden by `@media not print` rather than by the `hidden` attribute. Tailwind's own
+  preflight declares that attribute `display: none !important`, so an attribute here would
+  print nothing. The compiled output was checked against the pinned tailwindcss 4.3.3. What
+  has not been checked is a printer.
 - The 44pt targets and the 200% reflow are layout facts, and the layout half of the
   accessibility rig runs nightly rather than on commit. Neither has been measured for this
   component.
@@ -542,7 +542,7 @@ and `footer` removed, so `open`, `onOpenChange`, `detents`, `modal`, `dismissibl
 `className` are inherited unchanged and are documented on Sheet's own page. That is
 [ADR 0021](../project/decisions/0021-modal-surfaces-own-their-open-state.mdx): the
 specification said "extends Sheet" and declared neither half of the open pair, which as
-written left this component unopenable. `title` is gone because `heading` is it — a
+written left this component unopenable. `title` is gone because `heading` is it. A
 TypeScript `extends` that kept both would produce a modal surface with two names, one
 announced and one read.
 
@@ -578,10 +578,10 @@ declared carried four of those five. A version id resolves to a scope only for a
 kept every version it ever published; this puts the answer in the record.
 
 `ConsentDetails` is the other. The specification typed `details` as a bare `ReactNode`, which
-leaves the disclosure control with no name — and the name a design system would invent is
-*terms*, *details* or *learn more*, which is the exact class of label the specification
-refuses, in the one list a screen reader can read with no sentence around it. Both halves
-travel together, which is the shape `DisclaimerNote.more` already uses.
+leaves the disclosure control with no name. The name a design system would invent is *terms*,
+*details* or *learn more*, which is the exact class of label the specification refuses, in the
+one list a screen reader can read with no sentence around it. Both halves travel together,
+which is the shape `DisclaimerNote.more` already uses.
 
 There is no `defaultGranted`, no `required` and no `hideDecline`. There is also no
 `acceptVariant`, no `declineVariant`, no `emphasis`, no `order` and no `purposes`. Their
@@ -593,11 +593,11 @@ absence is the specification.
 
 **Easily confused with**
 
-- [Sheet](./sheet.mdx) — the surface ConsentSheet is built on, with none of the contract.
-- [Dialog](./dialog.mdx) — for a decision with no consent semantics and nothing to record.
-- [DisclaimerNote](./disclaimer-note.mdx) — a statement, not a request. Nobody agrees to a
+- [Sheet](./sheet.mdx) is the surface ConsentSheet is built on, with none of the contract.
+- [Dialog](./dialog.mdx) is for a decision with no consent semantics and nothing to record.
+- [DisclaimerNote](./disclaimer-note.mdx) is a statement, not a request. Nobody agrees to a
   disclaimer.
-- [CareCard](./care-card.mdx) — asks the reader to do something in the world, rather than to
+- [CareCard](./care-card.mdx) asks the reader to do something in the world, rather than to
   permit something in the product.
 
 **Used by**

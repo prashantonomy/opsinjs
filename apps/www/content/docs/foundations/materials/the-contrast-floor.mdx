@@ -1,6 +1,6 @@
 ---
 title: The contrast floor
-description: Every translucent surface gets a minimum backing tint chosen so that text contrast never depends on what is behind it — the worst-case composite, the scrim rule, and the CI job that enforces both.
+description: Every translucent surface gets a minimum backing tint chosen so that text contrast never depends on what is behind it. The worst-case composite, the scrim rule, and the CI job that enforces both.
 status: stable
 kind: foundation
 aliases: [minimum opacity, backing tint, scrim, worst case composite, text over image, glass legibility]
@@ -17,9 +17,9 @@ a11yDate: 2026-09-02
 
 Put a translucent card over a photograph and the contrast of the text on that
 card is no longer a property of your design. It is a property of the
-photograph — and in a consumer health product the photograph is frequently
-chosen by the user, or is a camera feed, or is a chart whose shape changes with
-the data.
+photograph. In a consumer health product the photograph is frequently chosen
+by the user, or is a camera feed, or is a chart whose shape changes with the
+data.
 
 This is the page that separates a design system from a screenshot. The rule is
 one sentence:
@@ -57,8 +57,8 @@ segment between two extremes.
   `composite = α · tint + (1 − α)`.
 
 If the ink clears the floor against *both* extremes, it clears it against every
-backdrop that exists — including video, including a photograph nobody has seen,
-including a live camera feed. That is the entire method, and it is why the alpha
+backdrop that exists. This includes video, a photograph nobody has seen, and a
+live camera feed. That is the entire method, and it is why the alpha
 is chosen last rather than first: `α` is the smallest value for which both
 extremes pass.
 
@@ -75,8 +75,8 @@ is 255:
 
 The binding case in a light theme is the black backdrop, because that is where
 the surface is darkest and dark ink on it has the least to work with. So the
-ink's floor is checked against the ≈209 composite, not against white — even
-though white is what the surface looks like in every mock.
+ink's floor is checked against the ≈209 composite, not against white. That is
+true even though white is what the surface looks like in every mock.
 
 In a dark theme the polarity flips. The tint is near-black, the ink is light,
 and the binding case is the **white** backdrop, where the composite is at its
@@ -95,10 +95,11 @@ assumed from the other.
 This is the misconception that produces most unreadable glass in the wild.
 
 `backdrop-filter: blur()` is a low-pass filter. It removes **high spatial
-frequency** — texture, edges, detail — from what is behind the surface. It does
-not meaningfully change the **local mean luminance**. A photograph that is
-uniformly dark is still uniformly dark after a 40px blur; a photograph with a
-bright window in one corner still has a bright region there, merely a softer one.
+frequency** from what is behind the surface. That means texture, edges and
+detail. It does not meaningfully change the **local mean luminance**. A
+photograph that is uniformly dark is still uniformly dark after a 40px blur; a
+photograph with a bright window in one corner still has a bright region there,
+merely a softer one.
 
 So blur does two useful things and one thing it is often credited with and does
 not do:
@@ -120,15 +121,15 @@ Blur radius is tuned for feel; alpha is not tuned at all.
 A scrim is a layer whose job is to bound the backdrop *before* the material
 composites over it. Two kinds, with different rules.
 
-**Flat scrim — rung 5.** A uniform dark wash beneath an `overlay`. Its opacity
+**Flat scrim (rung 5).** A uniform dark wash beneath an `overlay`. Its opacity
 is chosen the same way everything else on this page is: it is the minimum at
 which the overlay above it, and any text placed directly on the scrim itself,
 clears the floor. It is not chosen to look right at 40%.
 
-**Gradient scrim — for text directly over imagery.** Where text has to sit on a
-photograph with no material between them — a hero, a body diagram, an onboarding
-illustration — a gradient scrim runs from the text's edge toward the middle of
-the image. One rule matters and it is routinely broken:
+**Gradient scrim (for text directly over imagery).** Where text has to sit on a
+photograph with no material between them, such as a hero, a body diagram or an
+onboarding illustration, a gradient scrim runs from the text's edge toward the
+middle of the image. One rule matters and it is routinely broken:
 
 > The gradient must reach its full opacity **before** the first text baseline,
 > not at it.
@@ -140,8 +141,8 @@ hold flat behind the text.
 
 **The rule that follows from both:** text never sits directly on an image. It
 sits on a material of rung 3 or higher, or on a scrim. There is no third option
-and no exception for "the image is dark anyway" — you do not control the image
-after the product ships.
+and no exception for "the image is dark anyway", because you do not control the
+image after the product ships.
 
 ### What the CI job actually does
 
@@ -156,8 +157,8 @@ additionally enumerates:
 
 Each is measured with both contrast models and compared to the published floor
 in [Contrast and APCA](../colour/contrast-and-apca.mdx). A pair below the floor
-fails the pull request — not the nightly, not a warning in a report nobody
-opens. The results:
+fails the pull request. It is not left to the nightly, and it is not a warning in
+a report nobody opens. The results:
 
 <ContrastReport scope="materials" />
 
@@ -172,8 +173,8 @@ comes from the ladder, and the ladder's alphas come from the calculation above.
 
 **2. A health value goes on an opaque rung.** `canvas`, `card` or `raised`. A
 number somebody may act on should have a *known* background, not a bounded one.
-The single exception — a sticky summary bar repeating a value that also appears
-opaquely on the same screen — and its reasoning are in
+The single exception is a sticky summary bar repeating a value that also appears
+opaquely on the same screen. That exception and its reasoning are in
 [Choosing a layer](./choosing-a-layer.mdx).
 
 **3. Never author alpha inline.** Not `rgba()`, not `oklch(… / 0.6)`, not
@@ -216,9 +217,9 @@ whose own alpha is below 1 is in no measured pair at all.
    the surface uses.
 4. Take a screenshot of step 3 and desaturate it fully.
 
-If any of the four is uncomfortable, the alpha is wrong — and if the alpha came
-from the ladder, then either the surface is at the wrong rung or you have found
-a real bug, which is worth reporting.
+If any of the four is uncomfortable, the alpha is wrong. If the alpha came from
+the ladder, then either the surface is at the wrong rung or you have found a real
+bug, which is worth reporting.
 
 ## Tokens
 
@@ -239,7 +240,7 @@ the theme was built.
 - Any alpha you introduce, including `opacity` on a container.
 - The scrim over a *video*, where the worst case is the worst frame and not the
   poster image.
-- Contrast inside imagery itself — a body diagram whose labels sit on the
+- Contrast inside imagery itself. A body diagram whose labels sit on the
   illustration is a contrast surface that belongs to whoever drew it.
 
 **The success criteria in play.** SC 1.4.3 for text, SC 1.4.11 for the borders
@@ -255,10 +256,10 @@ degradation of the floor; both are different ways of meeting it.
 
 <ResearchNote evidence="opinion" date="2026-09-02">
   Choosing the alpha from the worst-case composite rather than from a
-  representative backdrop is our judgement. The cheaper alternative — sample the
-  backdrops the product actually uses, measure against those, and accept a
-  lighter, prettier material — is what most systems do, and it is defensible when
-  the backdrop set is fixed and small.
+  representative backdrop is our judgement. The cheaper alternative is to sample
+  the backdrops the product actually uses, measure against those, and accept a
+  lighter, prettier material. That is what most systems do, and it is defensible
+  when the backdrop set is fixed and small.
 
   We reject it here because the backdrop set in a consumer health product is
   neither. Users set their own photographs; charts change shape with data; a
@@ -274,9 +275,9 @@ degradation of the floor; both are different ways of meeting it.
 
 ## Related
 
-- [The ladder](./the-ladder.mdx) — the six rungs, and which three this page
+- [The ladder](./the-ladder.mdx) has the six rungs, three of which this page
   applies to.
-- [Contrast and APCA](../colour/contrast-and-apca.mdx) — the floor itself: both
-  models, the thresholds, and why both are published.
-- [Reduced transparency](./reduced-transparency.mdx) — what happens when the
+- [Contrast and APCA](../colour/contrast-and-apca.mdx) has the floor itself, with
+  both models, the thresholds, and why both are published.
+- [Reduced transparency](./reduced-transparency.mdx) says what happens when the
   reader has asked for none of this.

@@ -4,14 +4,15 @@
  * TWO BANNERS IS THE CEILING FOR A WHOLE SCREEN, and one of them may be
  * `urgent`. This example sits exactly at the limit so the limit is something a
  * reader can see: a third banner here would not be a busier screen, it would be
- * a screen that has taught its reader to scroll past the second one — and that
+ * a screen that has taught its reader to scroll past the second one. That
  * lesson does not wear off in time for the banner that matters.
  *
  * THE MORE SERIOUS ONE IS FIRST, and that is the second rule on show. A reader
  * meets banners in DOM order, whether they are looking or listening, so the
  * order is the product saying which of the two it would rather they read. When
  * a product's own rules produce three, the repair is to merge them into one
- * banner that names the most serious first — not to render all three and hope.
+ * banner that names the most serious first, rather than to render all three and
+ * hope.
  *
  * Neither banner announces itself. `attention` carries a polite live region and
  * `watch` carries none, and both of these are present when the surface loads,
@@ -30,7 +31,7 @@
  * All three actions navigate rather than acting, so this example is
  * server-rendered and shows the form to prefer: a destination survives a new
  * tab, a copied address and a screen reader's list of links. The hrefs are
- * inert — the example renders with no document around it, so the fragments
+ * inert. The example renders with no document around it, so the fragments
  * reach nothing.
  *
  * Nothing here is a measurement. The subject is fictional, there is no number

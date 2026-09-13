@@ -4,16 +4,16 @@
  *
  * A result with a number, a unit and a time, and nothing else: no interval to
  * compare it against, no level of attention, no explanation and no next step.
- * That is a legitimate result — most products have some — and it is the open
+ * That is a legitimate result, and most products have some. It is the open
  * question this page carried while it was unbuilt: is that still a ResultCard,
  * or is it a Value in a Card?
  *
  * The answer this component gives is that it is a ResultCard, on one condition.
  * A card with no explanation says so. Silence where the meaning should be reads
  * as a result nobody thought worth explaining, which a reader hears as
- * reassurance — and it is the default nobody chose. The sentence is the
- * smallest honest thing that can go there: it says what is missing, and it says
- * nothing whatever about what the reading means.
+ * reassurance. That reassurance is the default nobody chose. The sentence is
+ * the smallest honest thing that can go there: it says what is missing, and it
+ * says nothing whatever about what the reading means.
  *
  * Notice what is NOT drawn. No bar, because no interval was supplied and this
  * component substitutes none. No pill, because no level was assigned and a

@@ -1,6 +1,6 @@
 ---
 title: Anatomy of a component page
-description: The twenty-two sections every component page has, which of them appear at each release phase, and why the order is deliberate — taught once so no page has to invent a structure.
+description: The twenty-two sections every component page has, which of them appear at each release phase, and why the order is deliberate. This contract is taught once so no page has to invent a structure.
 status: stable
 kind: handbook
 since: "unreleased"
@@ -27,8 +27,8 @@ that does not exist.
 The literal skeleton lives at `content/_templates/component.mdx` and is republished with
 every other template on
 [Documentation templates](../handbook/contributing/documentation-templates.mdx). Start
-from it. Never start from a blank file, and never start from another component's page —
-that is how a clinical contract gets copied onto a component it does not apply to.
+from it. Never start from a blank file, and never start from another component's page.
+That is how a clinical contract gets copied onto a component it does not apply to.
 
 ## How it works
 
@@ -39,7 +39,7 @@ that is how a clinical contract gets copied onto a component it does not apply t
 | 1 | Header | generated | H1, the one-sentence plain-English definition, status and since badges, category, last accessibility review, the base and style switcher, Copy Page |
 | 2 | Status notice | generated from props | `<StubNotice>` at `planned`: the intended shape, the safety questions the component must answer, the tracking issue, the not-implemented marker |
 | 3 | Preview | generated | `<ComponentPreview>` at a base and style, with theme, density and text-size switches |
-| 4 | Installation | generated | `<ComponentInstall>` — CLI and manual tabs built from the registry item, never typed by hand. The manual tab hosts `<ComponentSource>`, which resolves the id against the generated registry index and renders the component file's real bytes. That is the only place source appears on a page, and it is why no section owns it separately |
+| 4 | Installation | generated | `<ComponentInstall>` renders CLI and manual tabs built from the registry item, never typed by hand. The manual tab hosts `<ComponentSource>`, which resolves the id against the generated registry index and renders the component file's real bytes. That is the only place source appears on a page, and it is why no section owns it separately |
 | 5 | Usage | written | The import line and the minimal JSX. Two code blocks, zero prose |
 | 6 | When to use / when not to use | written | Two lists. Every entry in the *not* list names the component to use instead |
 | 7 | Clinical meaning | written | Mandatory for every `health-*` category, forbidden elsewhere |
@@ -69,7 +69,7 @@ will actually reach it. Burying the install command does not make anybody read t
 contract. It just makes the page feel hostile.
 
 **When to use / when not to use** is section 6, immediately after installation, because it
-is the section that prevents the most expensive mistake — reaching for
+is the section that prevents the most expensive mistake. That mistake is reaching for
 [AlertBanner](./alert-banner.mdx) when the situation calls for
 [Callout](./callout.mdx). Every entry on the *not* side names an alternative. A prohibition
 without a destination is not guidance; it is a dead end that the reader resolves by
@@ -78,7 +78,7 @@ ignoring you.
 **Clinical meaning** is section 7 rather than an appendix because for a health component it
 is the specification. What the component asserts about a person, what it must never be read
 as, which colour axis it may use and who owns the thresholds are not decoration around the
-API — they are constraints on it.
+API. They are constraints on it.
 
 **Accessibility** is section 14 and it is mandatory at every status, including `planned`,
 where it is written as the bar the implementation must clear rather than as results already
@@ -94,8 +94,8 @@ table that says "see the accessibility section" is how keyboard support goes mis
 | `beta` | adds 11, 13, 15, 16, 17, 19 |
 | `stable` | all twenty-two |
 
-Section 9 exists only at `planned` and disappears at `alpha`, when section 18 — the real
-generated `<PropsTable>` — replaces it. The two must never both be present: a hand-written
+Section 9 exists only at `planned` and disappears at `alpha`, when the real generated
+`<PropsTable>` in section 18 replaces it. The two must never both be present: a hand-written
 interface next to a generated one is an invitation to trust the wrong one.
 
 Section 21 is required for every health component before it reaches `stable`, and may be
@@ -133,11 +133,19 @@ away from the thing it documents without somebody noticing.
   half a specification. What does it render when the reference range is unknown? When the
   reading is thirty days old? When the value is implausible? Those answers belong on the
   page before the code exists, because they are the answers that get skipped once it does.
+- **Write a Related bullet as a sentence.** Section 20 takes the linked page as its
+  subject and a verb from the closed table, so it reads
+  `- [Button](./button.mdx) is the reference page.` rather than a link with a gloss
+  hung off it. The link text stays the page title, the gloss keeps its wording and its
+  lower-case first letter, the item ends in a full stop, and no colon stands between
+  the link and its gloss.
+  [Documentation templates](../handbook/contributing/documentation-templates.mdx) has
+  the verb table in full, and the same shape governs a `- **Bold term**` bullet.
 
 ## Not this
 
 - **Do not leave a heading empty**, and do not write *TODO: fill this in*. Omit the
-  section, or if the gap is real and must be tracked, use `<Todo>` — it registers the gap
+  section, or if the gap is real and must be tracked, use `<Todo>`. It registers the gap
   in the build's coverage report, so incompleteness is measured rather than hidden.
 - **Do not paste code into MDX.** `<ComponentSource>` and `<ComponentInstall>` resolve a
   name against the registry and render the real thing. A hand-copied snippet is wrong the
@@ -150,8 +158,8 @@ away from the thing it documents without somebody noticing.
   [Evidence and references](../health/evidence-and-references.mdx).
 - **Do not add a section this contract does not have.** `assert-ia` compares your headings
   against the outline for the page's `kind` and fails on an unexpected one as well as on a
-  missing one. If a page genuinely needs something the contract lacks, change the contract
-  — then every page gets it.
+  missing one. If a page genuinely needs something the contract lacks, change the contract.
+  Then every page gets it.
 - **Do not give a non-health component a clinical meaning.** [Card](./card.mdx) is a box.
   The moment a box carries a verdict about somebody's blood pressure, the verdict is
   invisible to review.
@@ -180,21 +188,21 @@ before you add one.
 
 **A `planned` page is a specification, not a placeholder.** If you cannot answer what the
 component asserts, what it refuses, how it composes and what it must never be read as, the
-component is not ready for a page — it belongs in the considered roster with a one-line
+component is not ready for a page. It belongs in the considered roster with a one-line
 reason, where an honest *not yet* costs nothing.
 
 ## Related
 
-- [Components overview](./index.mdx) — the full roster and how a row is read.
-- [Button](./button.mdx) — the reference page. It sets the anatomy every other component
+- [Components overview](./index.mdx) has the full roster and how a row is read.
+- [Button](./button.mdx) is the reference page. It sets the anatomy every other component
   page follows, which is why the least clinical component in the set is documented first.
-- [RangeBar](./range-bar.mdx) — the fullest clinical contract, and the best example of what
-  section 7 is for.
-- [Documentation templates](../handbook/contributing/documentation-templates.mdx) — every
-  page skeleton, republished verbatim.
-- [Component checklist](../handbook/contributing/component-checklist.mdx) — the definition
+- [RangeBar](./range-bar.mdx) has the fullest clinical contract, and the best example of
+  what section 7 is for.
+- [Documentation templates](../handbook/contributing/documentation-templates.mdx) covers
+  every page skeleton, republished verbatim.
+- [Component checklist](../handbook/contributing/component-checklist.mdx) is the definition
   of done, of which this page is one line.
-- [Proposing a component](../handbook/contributing/proposing-a-component.mdx) — how an id
-  gets onto the considered roster in the first place.
-- [Release phases](../project/release-phases.mdx) — what `planned`, `alpha`, `beta` and
+- [Proposing a component](../handbook/contributing/proposing-a-component.mdx) shows how an
+  id gets onto the considered roster in the first place.
+- [Release phases](../project/release-phases.mdx) says what `planned`, `alpha`, `beta` and
   `stable` each promise.

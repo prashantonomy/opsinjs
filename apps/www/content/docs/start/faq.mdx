@@ -19,8 +19,8 @@ Every answer here is short, opinionated and linked to the page that argues the
 case properly. Each question has its own anchor, so you can send someone a link to
 the answer rather than to the page.
 
-If your question is a *failure* rather than a question — something did not work —
-[Troubleshooting](./troubleshooting.mdx) is the other page.
+Something that did not work is a *failure* rather than a question, and
+[Troubleshooting](./troubleshooting.mdx) is the other page for it.
 
 ## About the project
 
@@ -35,12 +35,12 @@ larger half. [Introduction](../index.mdx).
 In a prototype, yes. Twenty-four components are implemented and at `alpha`, and
 their registry items carry the whole of their source; the other thirty-six
 entries in the catalogue are still specification, and say so on their own pages.
-Two things decide whether that is any use to you yet. There is no npm package and
-there never will be one — opsinjs is copied in as source through the shadcn CLI —
-and `opsinjs.dev`, the canonical host, is not serving, so `@opsinjs` resolves only
-against a registry you point it at yourself. `alpha` also means the API will
-change without a deprecation and nothing has been through an accessibility audit,
-so none of it belongs in front of a patient.
+Two things decide whether that is any use to you yet. There is no npm package
+and there never will be one, because opsinjs is copied in as source through the
+shadcn CLI. And `opsinjs.dev`, the canonical host, is not serving, so `@opsinjs`
+resolves only against a registry you point it at yourself. `alpha` also means
+the API will change without a deprecation and nothing has been through an
+accessibility audit, so none of it belongs in front of a patient.
 [Release phases](../project/release-phases.mdx) defines what each rung promises.
 
 ### Is it free, and can I use the guidance without the code?
@@ -56,8 +56,8 @@ rather it were reused than reinvented.
 Because general-purpose systems answer "how do I render a badge" and health
 products need an answer to "what is this badge allowed to assert about someone's
 body". Nothing in a general-purpose system stops you colouring a category by
-severity, printing a bare percentage change, or writing the word *normal* next to
-a result — all three of which are ordinary, avoidable harms.
+severity, printing a bare percentage change, or writing the word *normal* next
+to a result. All three are ordinary, avoidable harms.
 [Is opsinjs right for this project?](./is-opsinjs-right.mdx).
 
 ## Using it
@@ -74,8 +74,8 @@ dependency you cannot see inside.
 
 No. Take one component, or take only the tokens, or take only the doctrine and
 none of the code. The one thing that does not work is taking a component and
-discarding the rule that governs it — a `StatusPill` used as a decorative badge is
-a misuse. Nothing stops you mechanically: the
+discarding the rule that governs it. A `StatusPill` used as a decorative badge
+is a misuse. Nothing stops you mechanically: the
 [lint plugins](../handbook/tooling/index.mdx) that would catch it are specified
 and not built, so this one is on your code review.
 
@@ -144,7 +144,7 @@ raw values; every default here goes the other way, and you would spend your time
 fighting the system rather than using it.
 [Is opsinjs right for this project?](./is-opsinjs-right.mdx).
 
-### Does opsinjs handle units — millimoles versus milligrams per decilitre?
+### Does opsinjs handle units such as millimoles versus milligrams per decilitre?
 
 It treats units as a correctness problem rather than a localisation one, which
 means the formatting contract and the conversion rules are documented and testable
@@ -157,9 +157,9 @@ which system a given reader should see.
 ### Can I use my own brand colours?
 
 Yes, through the theme generator, which derives a full gamut-aware,
-contrast-validated system from one brand colour — and tells you when your brand
-colour cannot carry the meaning you want it to. What you cannot do is give a brand
-colour to the clinical status axis.
+contrast-validated system from one brand colour. It tells you when your brand
+colour cannot carry the meaning you want it to. What you cannot do is give a
+brand colour to the clinical status axis.
 [Theme generator](../theming/theme-generator.mdx).
 
 ### Why can't a category colour signal that something is bad?
@@ -196,10 +196,11 @@ first one for you. [Agents](../agents/index.mdx).
 ### Why does a page exist for a component that is not built?
 
 Because the alternative is a 404, and a 404 is the input from which an agent
-invents an API. A page that exists and says `considered` — or `planned`, for
-anything outside the component catalogue — with a machine-readable
-not-implemented marker at a guessable URL, is a definitive negative answer. That
-is the single most important thing this site does for a machine reader.
+invents an API. A page that exists, says `considered`, and carries a
+machine-readable not-implemented marker at a guessable URL is a definitive
+negative answer. Anything outside the component catalogue says `planned`
+instead. That is the single most important thing this site does for a machine
+reader.
 [Reading these docs](./reading-these-docs.mdx#for-agents).
 
 ## Contributing and governance
@@ -226,23 +227,23 @@ An answer here is only useful if it is current. Two ways to check:
 
 ## Troubleshooting
 
-**Your question is not here.** Search first — every page carries the words a
+**Your question is not here.** Search first. Every page carries the words a
 reader would actually type as `aliases`, including clinical vocabulary. If the
-search returns nothing, that is recorded, and repeated zero-result searches are how
-this page grows.
+search returns nothing, that is recorded, and repeated zero-result searches are
+how this page grows.
 
 **The answer here contradicts a component page.** The component page wins. This
 page is a summary; the specification is the contract.
 
 **You have a question that is really a bug report.** Use the feedback control at
-the foot of any page — it arrives prefilled with the page path and the docs
+the foot of any page. It arrives prefilled with the page path and the docs
 version, which is most of what makes a report actionable.
 
 ## Next
 
-- [Troubleshooting](./troubleshooting.mdx) — for questions that are really
+- [Troubleshooting](./troubleshooting.mdx) is for questions that are really
   failures.
-- [Is opsinjs right for this project?](./is-opsinjs-right.mdx) — if you are still
-  deciding.
-- [Community](../project/community.mdx) — where to ask something this page does not
-  answer.
+- [Is opsinjs right for this project?](./is-opsinjs-right.mdx) helps if you are
+  still deciding.
+- [Community](../project/community.mdx) is where to ask something this page does
+  not answer.

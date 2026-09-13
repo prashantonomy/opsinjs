@@ -1,6 +1,6 @@
 ---
 title: Required and optional
-description: Mark one or the other but never both — and in a health product, prefer marking optional, because it makes the cost of every required field visible.
+description: Mark one or the other but never both. In a health product, prefer marking optional, because it makes the cost of every required field visible.
 status: stable
 kind: pattern
 aliases: [required fields, optional fields, asterisk convention, marking required]
@@ -19,7 +19,7 @@ product. The failure here is not choosing wrongly; it is choosing twice.
 There are three defensible conventions:
 
 1. **Mark required fields.** Sensible when most fields are optional.
-2. **Mark optional fields.** Sensible when most fields are required — which is
+2. **Mark optional fields.** Sensible when most fields are required. That is
    the normal case in a health product, because a form that asks for things it
    does not need should have had the fields removed.
 3. **Mark nothing, because everything is required.** Only honest when it is
@@ -33,13 +33,13 @@ case, the asterisks multiply and nobody notices.
 ## When not to use
 
 - **Do not apply this to consent.** Consent is never "required" in the form
-  sense — if the reader cannot decline, it is not consent. See
+  sense. If the reader cannot decline, it is not consent. See
   [Consent and permissions](../consent-and-permissions.mdx).
 - **Do not apply it to a validated instrument.** Its own instructions govern
   which items may be skipped, and re-labelling them is a change to the
   instrument.
 - **Do not use it as an alternative to deleting the field.** The first question
-  is always whether to ask at all — see
+  is always whether to ask at all. See
   [Form design](./index.mdx) and each page in
   [Ask users for…](../ask-users-for/index.mdx).
 - **You want the code.** Schema-level requiredness is
@@ -72,7 +72,7 @@ Rules:
 - **`required` on the control matches the label.** The visual and the
   programmatic must agree; if the schema says required and the label says
   optional, the reader finds out at submit.
-- **Skipping has a stated consequence when there is one.** "Optional — without
+- **Skipping has a stated consequence when there is one.** "Optional. Without
   it we'll compare your readings to a general adult range rather than one for
   your age" is a decision. A bare "(optional)" on a field that quietly degrades
   the product is not.
@@ -100,8 +100,8 @@ Rules:
     it."
   </DoDont.Do>
   <DoDont.Dont>
-    "Ethnicity *" — required, unexplained, and in a health context that reads as
-    gatekeeping. See [Ethnicity](../ask-users-for/ethnicity.mdx).
+    "Ethnicity *" is required, unexplained, and reads as gatekeeping in a
+    health context. See [Ethnicity](../ask-users-for/ethnicity.mdx).
   </DoDont.Dont>
 </DoDont>
 
@@ -120,7 +120,7 @@ Rules:
   [Colour independence](../../accessibility/colour-independence.mdx).
 - **Do not announce requiredness twice.** A label containing "(required)" *and*
   the `required` attribute produces a double announcement in several
-  combinations — under the marked-optional convention this does not arise, which
+  combinations. Under the marked-optional convention this does not arise, which
   is a further small argument for it.
 - **Requiredness must not be discovered only at submit.** WCAG 2.2 SC 3.3.2
   (Labels or Instructions) is the floor.
@@ -134,7 +134,7 @@ Rules:
   adding a required field to a health form should be a decision somebody has to
   defend.
 
-  The prohibition on bare asterisks is better supported and less arguable — an
+  The prohibition on bare asterisks is better supported and less arguable. An
   asterisk is a learned convention with no accessible text, and its explanation
   is conventionally placed where a reader using a screen reader meets it last.
 

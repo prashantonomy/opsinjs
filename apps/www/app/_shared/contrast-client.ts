@@ -31,7 +31,7 @@ export type ContrastReading = {
   apcaLc: number | null
   /** Whether APCA clears the opsinjs floor for the stated size. */
   apcaPasses: boolean | null
-  /** WCAG 2.2 contrast ratio, 1–21. */
+  /** WCAG 2.2 contrast ratio, 1 to 21. */
   wcag: number | null
   /** Whether the ratio clears the WCAG 2.2 threshold for the stated size. */
   wcagPasses: boolean | null
@@ -129,13 +129,13 @@ export async function checkContrast(
 
 /** Human phrasing for an APCA Lc value, with the sign made explicit. */
 export function describeLc(lc: number | null): string {
-  if (lc === null) return "—"
+  if (lc === null) return "not measured"
   const magnitude = Math.abs(lc).toFixed(1)
   return `${lc < 0 ? "−" : ""}${magnitude} Lc`
 }
 
 /** Human phrasing for a WCAG ratio. */
 export function describeRatio(ratio: number | null): string {
-  if (ratio === null) return "—"
+  if (ratio === null) return "not measured"
   return `${ratio.toFixed(2)}:1`
 }

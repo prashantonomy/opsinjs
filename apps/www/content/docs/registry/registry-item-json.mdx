@@ -1,6 +1,6 @@
 ---
 title: registry-item.json
-description: One distributed item annotated field by field — files, targets, dependencies, CSS variables — and the fields opsinjs deliberately leaves empty.
+description: One distributed item annotated field by field. The annotations cover files, targets, dependencies and CSS variables, and the fields opsinjs deliberately leaves empty.
 status: stable
 kind: guide
 aliases: [registry item, item schema, item json, cssVars]
@@ -22,8 +22,8 @@ opsinjs serves one at `/r/<name>.json`, and one per style at
 <Callout>
 Twenty-four of the sixty items carry real `files`, each with `content`: the
 component source plus the shared substrate, `lib/opsinjs.ts` and `lib/status.ts`.
-The other thirty-six omit `files` entirely rather than carrying an empty array —
-they are reserved names on the considered roster. An item that resolves is
+The other thirty-six omit `files` entirely rather than carrying an empty array.
+They are reserved names on the considered roster. An item that resolves is
 therefore not evidence that a component exists. The field to read is
 `meta.opsinjs.implemented`, on the item itself or flattened into
 `/r/index.json`.
@@ -40,7 +40,7 @@ therefore not evidence that a component exists. The field to read is
   "description": "One test result, showing the number, what it is compared against, and what it means.",
   "author": "opsinjs",
   "categories": ["health-data-display"],
-  "docs": "ResultCard — https://opsinjs.dev/docs/components/result-card",
+  "docs": "ResultCard is documented at https://opsinjs.dev/docs/components/result-card",
   "meta": {
     "opsinjs": {
       "implemented": true,
@@ -69,8 +69,8 @@ therefore not evidence that a component exists. The field to read is
 ```
 
 `meta.opsinjs` is abridged above: the served object also carries `aliases`,
-`governedBy`, `usedIn` and the three URLs — `docs`, `markdown` and `catalogue` —
-so an item read on its own can find its own documentation. A reserved name
+`governedBy`, `usedIn` and the three URLs `docs`, `markdown` and `catalogue`, so
+an item read on its own can find its own documentation. A reserved name
 serves the same envelope with `implemented: false`, a `why` sentence, and no
 `files` and no `registryDependencies` at all.
 
@@ -80,22 +80,22 @@ serves the same envelope with `implemented: false`, a `why` sentence, and no
 | --- | --- | --- |
 | `name` | The item id | Identical to the catalogue id and the docs URL segment |
 | `type` | What kind of thing this is | See the table in [registry.json](./registry-json.mdx) |
-| `title` | Human-readable name | PascalCase, the same string as the catalogue `title` and the exported component — `ResultCard`, not "Result card" |
+| `title` | Human-readable name | PascalCase, the same string as the catalogue `title` and the exported component. That is `ResultCard`, not "Result card" |
 | `description` | One sentence | Plain English, written for the patient not the engineer |
 | `author` | Attribution | The literal string `opsinjs` on every item; the registry's `homepage` carries the URL |
 | `dependencies` | npm packages | Kept as small as possible, and omitted rather than sent empty; a health component that pulls a charting library is a design failure |
 | `devDependencies` | npm dev packages | Unused |
-| `registryDependencies` | Other items, by name or full URL | Composition is explicit, and namespaced — `result-card` names `@opsinjs/status-pill`, it does not inline it |
+| `registryDependencies` | Other items, by name or full URL | Composition is explicit, and namespaced. `result-card` names `@opsinjs/status-pill` rather than inlining it |
 | `files` | The code, with `path`, `type`, `target` and `content` | Present on the twenty-four implemented items; omitted entirely on the other thirty-six |
 | `cssVars` | `theme`, `light`, `dark` objects | Used by themes; components contribute none |
-| `css` | Raw CSS to merge into the stylesheet | Avoided — see below |
+| `css` | Raw CSS to merge into the stylesheet | Avoided, for the reasons given below |
 | `meta` | Free-form | Where opsinjs puts `implemented`, `status`, `category`, `since` and the page URLs |
 | `docs` | A note shown after install | The title and docs URL for an implemented item; the reserved-roster explanation for the rest |
 | `categories` | Grouping for search | Mirrors the catalogue category |
 
 ### `files`
 
-Each entry has a `path`, a `type`, a `target`, and — in a served item —
+Each entry has a `path`, a `type` and a `target`. A served item also has
 `content`.
 
 ```json
@@ -109,7 +109,7 @@ Each entry has a `path`, a `type`, a `target`, and — in a served item —
 
 `target` is the field worth understanding. Without it, the CLI decides the
 destination from your `components.json` aliases alone. With it, the item states
-where the file goes — and a target that begins with an alias placeholder, as
+where the file goes. A target that begins with an alias placeholder, as
 every opsinjs target does, still resolves through your `components.json` rather
 than around it. `@ui/result-card.tsx` means "your components directory", not a
 path opsinjs chose. A literal path would be the other use: a file that is not a
@@ -119,7 +119,7 @@ component, such as a config file at the project root.
 
 Names resolve within the same registry; full URLs resolve anywhere. A
 cross-registry dependency must be a URL or a namespaced name the consumer has
-configured — a bare name will resolve against the wrong registry, silently.
+configured. A bare name will resolve against the wrong registry, silently.
 
 opsinjs composes rather than inlines. `result-card` depends on
 `@opsinjs/status-pill`, `@opsinjs/value`, `@opsinjs/range-bar`,
@@ -139,10 +139,10 @@ by its full URL.
 but this.
 
 `css` is raw CSS appended to your stylesheet. opsinjs avoids it. The order of
-`app/globals.css` is load-bearing — see
-[Tailwind v4](../theming/tailwind-v4.mdx) — and an item that appends raw rules
-lands at whatever position the CLI chooses, which is not a position anybody
-reasoned about. Structured `cssVars` merge predictably; raw `css` accumulates.
+`app/globals.css` is load-bearing, as [Tailwind v4](../theming/tailwind-v4.mdx)
+explains, and an item that appends raw rules lands at whatever position the CLI
+chooses, which is not a position anybody reasoned about. Structured `cssVars`
+merge predictably; raw `css` accumulates.
 
 ### `meta` and `docs`
 
@@ -153,9 +153,9 @@ lives.
 
 `docs` is a string the CLI prints after install. On an implemented item opsinjs
 uses it for the component's name and its documentation URL. On a reserved name it
-carries the whole explanation — that the id resolves, that nothing sits behind
-it, and where to propose it — so that the fact reaches somebody who never opens
-the documentation.
+carries the whole explanation: that the id resolves, that nothing sits behind it,
+and where to propose it. It does this so that the fact reaches somebody who never
+opens the documentation.
 
 ## Generated, not hand-written
 
@@ -205,8 +205,8 @@ file declares a `target`. Otherwise the CLI has nowhere to put anything.
 
 ## Next
 
-- [Upgrades and diffs](./upgrades-and-diffs.mdx) — taking a newer item over code
-  you have edited.
-- [Version stamps](./version-stamps.mdx) — knowing which item version your file
-  came from.
-- [Presets](../theming/presets.mdx) — the theme-only item in practice.
+- [Upgrades and diffs](./upgrades-and-diffs.mdx) covers taking a newer item over
+  code you have edited.
+- [Version stamps](./version-stamps.mdx) is how you know which item version your
+  file came from.
+- [Presets](../theming/presets.mdx) covers the theme-only item in practice.

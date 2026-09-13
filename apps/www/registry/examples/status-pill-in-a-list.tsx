@@ -2,10 +2,10 @@
  * The primary use: making status scannable down a column.
  *
  * The rule this demonstrates is the escalation budget. Four rows, and exactly
- * one of them is `urgent` — because a screen with two urgent pills is a screen
- * that has taught its reader that red means nothing, and that lesson does not
- * wear off. If a product's own rules produce two, the screen needs an
- * AlertBanner about the more serious one, not a second pill.
+ * one of them is `urgent`. A screen with two urgent pills has taught its
+ * reader that red means nothing, and that lesson does not wear off. If a
+ * product's own rules produce two, the screen needs an AlertBanner about the
+ * more serious one, not a second pill.
  *
  * The measurements are deliberately fictional and carry no numbers at all. A
  * screenshot of an opsinjs example must never be mistakable for somebody's

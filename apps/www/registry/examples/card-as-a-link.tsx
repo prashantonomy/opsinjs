@@ -5,12 +5,12 @@
  * screenshot. Tab through: each card is ONE stop, not one per line, because the
  * card is a single control rather than a container full of them. Hover: the
  * title underlines, because a whole-card link with no affordance on its text
- * leaves a reader guessing which part of it is the link — the underline comes
+ * leaves a reader guessing which part of it is the link. The underline comes
  * from the root's `group` class and needs no prop. Focus: the ring is drawn
  * around the card's own corner, outside the material, so it stays visible on
  * every rung.
  *
- * The accessible name of a link card is its whole text content — Card sets no
+ * The accessible name of a link card is its whole text content. Card sets no
  * `aria-label`, because it cannot know which part of a card is its name, and a
  * label that does not begin with the visible text breaks voice control. That is
  * why both lines in each card here are short: everything inside the link is
@@ -20,24 +20,24 @@
  * button inside any of these. A card that is a link may hold no other
  * interactive element. A reader cannot tell what tapping the gap between two
  * buttons will do, and a keyboard user reaches a control nested inside a
- * control — which is a DOM the browser is entitled to flatten in whatever way
- * it likes. If a card needs two actions, it is not a link.
+ * control. That nesting is a DOM the browser is entitled to flatten in
+ * whatever way it likes. If a card needs two actions, it is not a link.
  *
  * The rung is `raised` rather than the default `card`, following the decision
  * table on `choosing-a-layer`: a tappable card is an object, and an object may
  * look lifted. A card that is not tappable stays on the `card` rung, where
  * nothing is lifted and nothing looks it. The shadow is not the affordance,
- * though — `rung` is a free prop that any resting card may also take, so at
+ * though. `rung` is a free prop that any resting card may also take, so at
  * rest a link card and a static card can look the same. That gap is named on
  * the component's Accessibility section rather than papered over here.
  *
  * WHERE ENTER GOES. A preview has nowhere to navigate to: a link that left the
  * example would take the reader out of the thing they are trying to try. So
  * each href is a same-document fragment whose id is on the list item that holds
- * the card. The anchor is real and the reference resolves — pressing Enter is
- * the browser following a link, not a handler pretending to — and because the
- * target is already on screen, following it moves the reader's position and
- * changes nothing visible.
+ * the card. The anchor is real and the reference resolves. Pressing Enter is
+ * the browser following a link, not a handler pretending to. Because the target
+ * is already on screen, following it moves the reader's position and changes
+ * nothing visible.
  */
 
 import { Card } from "@/registry/base-lyra/ui/card"

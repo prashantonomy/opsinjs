@@ -1,6 +1,6 @@
 ---
 title: Motion in health UI
-description: Motion may confirm, orient and soften a transition; it may never carry urgency, meaning or a value, because it is the one channel a reader can miss entirely by looking away.
+description: Motion may confirm an action, orient a reader and soften a transition. It may never carry urgency, meaning or a value, because a reader can miss it entirely.
 status: stable
 kind: health
 evidence: mixed
@@ -16,60 +16,66 @@ aliases: [animation, pulsing, flashing, blinking, urgency motion, calm motion]
 
 ## What this means
 
-A pulsing red dot is the most tempting element in health interface design. It
-costs eight lines of CSS, it reads as urgent to everyone in the design review,
-and it makes the screenshot look alive.
+Motion is the only visual channel in a health interface whose signal can be gone
+by the time a reader looks at the screen. It is also inexpensive to reach for: a
+pulsing red dot is a handful of CSS declarations, it reads as urgent to a design
+review watching a running screen, and it survives into the marketing
+screenshot. Those three properties carry the pattern through review, and none of
+them is evidence that the pulse reached a reader.
 
-It is also invisible to a reader who has reduced motion turned on, invisible to a
-screen reader, invisible in a screenshot the user sends to their partner,
-invisible to anyone who arrives at the screen after the animation has finished,
-and actively distressing to some readers with vestibular disorders or anxiety.
-The information content of a pulse is zero for a large fraction of the audience,
-and the fraction is enriched for exactly the people most likely to be using a
-health app.
+A pulse used to signal status behaves differently under five conditions, none of
+which a design review on a developer's own machine reproduces by default.
 
-Motion in a health product has a second problem that other products do not have.
-An animated number counting up to a result is a small delightful flourish when
-the number is a step count. When the number is a biopsy-adjacent lab value and
-the reader is holding their breath, the same flourish is a slot machine.
+| Channel or condition | What reaches the reader | Detectability in a design review |
+| --- | --- | --- |
+| **Setting.** `prefers-reduced-motion: reduce` is enabled at operating-system level. | The element renders with no state change at all, so no status signal is present. | Only where the reviewer's own device has the setting enabled. |
+| **Assistive technology.** The screen is read aloud by a screen reader. | Motion is not exposed in the accessibility tree, so nothing is announced. | Only where the reviewer runs a screen reader against the screen. |
+| **Capture.** The reader screenshots the result and sends the picture to someone else. | A still image carries no pulse, and the recipient sees an ordinary element. | No, because the capture is read outside the product. |
+| **Arrival time.** The reader reaches the screen after the animation has played. | A finished animation conveys nothing to a reader who was not watching it. | Rarely, because a reviewer opening the screen sees the animation from its start. |
+| **Physiology.** The reader has a vestibular disorder, or anxiety that movement aggravates. | The motion arrives and is distressing rather than informative. | No, because the reviewer cannot observe another reader's response. |
+
+Those five are settings, assistive technologies, reader behaviours and
+populations rather than edge cases, and they overlap with the audience a health
+product serves. opsinjs has not measured what share of its readers sits in one
+of them, and the rules below do not depend on the share, because the status
+signal is carried in colour, icon and word regardless of whether any animation
+plays. See [Clinical status semantics](./clinical-status-semantics.mdx) for
+that channel split.
+
+In a health product, motion carries a second constraint, and that constraint
+concerns framing rather than availability. An animated number counting up to a
+result is a small flourish when the number is a step count. When the number is a
+lab value the reader has been waiting on, the count-up invites them to
+anticipate, and anticipation is the wrong state to put someone in when the
+content may be bad news.
 
 ## The rule
 
 **Motion may support a message. It may never be the message.**
 
-Concretely:
+Seven requirements follow from that rule, and the Basis column names the
+authority each one rests on.
 
-1. **Urgency is never conveyed by motion.** No pulsing, flashing, shaking or
-   bouncing to indicate status. Status is colour, icon and word — see
-   [Clinical status semantics](./clinical-status-semantics.mdx).
-2. **A value is never revealed by animation.** Health numbers appear at their
-   final value. No count-up, no dial sweep on first paint, no progressive
-   reveal of a result.
-3. **Nothing that carries clinical meaning may auto-dismiss.** A message that
-   times out is a message the reader may never have read.
-4. **Nothing flashes.** More than three flashes per second is a seizure risk and
-   is prohibited outright; below that threshold it is still forbidden here
-   because it fails rules 1 and 3.
-5. **Every animation has a defined reduced-motion behaviour, stated per token.**
-   The fallback is not "no animation" by default — it is an instant, complete,
-   equally informative state. See
-   [Reduced motion](../foundations/motion/reduced-motion.mdx).
-6. **Motion never delays access to a result.** If an entrance transition means a
-   reader waits 400 ms to read their result, the transition is too expensive.
-7. **Transitions preserve continuity.** Morph a surface rather than swapping it,
-   so a reader who looks away and back does not lose their place. See
-   [Choreography](../foundations/motion/choreography.mdx).
+| # | Requirement | Basis |
+| --- | --- | --- |
+| 1 | Urgency is never conveyed by motion. Nothing pulses, flashes, shakes or bounces to indicate status. | Status is colour, icon and word. See [Clinical status semantics](./clinical-status-semantics.mdx). |
+| 2 | A value is never revealed by animation. Health numbers appear at their final value, with no count-up, no dial sweep on first paint and no progressive reveal of a result. | Opinion. See "Why (evidence)" below. |
+| 3 | Nothing that carries clinical meaning may auto-dismiss. A message that times out is a message the reader may never have read. | The reader's presence at the moment of display cannot be assumed. |
+| 4 | Nothing flashes. | Above three flashes per second, a seizure risk, prohibited outright. Below that threshold, rules 1 and 3. |
+| 5 | Every animation has a defined reduced-motion behaviour, stated per token. The fallback is an instant, complete and equally informative state rather than the absence of animation. | See [Reduced motion](../foundations/motion/reduced-motion.mdx). |
+| 6 | Motion never delays access to a result. A reader who waits 400 ms on an entrance transition before reading their result is waiting too long. | 400 ms is illustrative rather than measured. |
+| 7 | Transitions preserve continuity. A surface morphs rather than being swapped, so a reader who looks away and back does not lose their place. | See [Choreography](../foundations/motion/choreography.mdx). |
 
-What motion is *for*, in this system: confirming that an input was received,
-showing where a surface came from and where it went, keeping a scroll position
-comprehensible, and making a loading state feel bounded. All four are orientation
-jobs. None of them is a meaning job.
+Motion has four legitimate jobs in this system: confirming that an input was
+received, showing where a surface came from and where it went, keeping a scroll
+position comprehensible, and making a loading state feel bounded. All four are
+orientation jobs rather than meaning jobs.
 
 <MotionDemo
   easing="--opsin-ease-spring-sheet"
   duration="--opsin-duration-spring-sheet"
   property="translate"
-  label="A surface arriving — an orientation job, not a meaning job"
+  label="A surface arriving is an orientation job, not a meaning job"
 />
 
 ## Why (evidence)
@@ -80,24 +86,27 @@ jobs. None of them is a meaning job.
   moving content, 2.3.1 (Three Flashes or Below Threshold) for flashing, and
   2.3.3 (Animation from Interactions) for motion triggered by interaction. Rule 1
   additionally follows from 1.4.1 (Use of Colour) read together with the general
-  principle that information must not depend on a single sensory characteristic —
-  motion is a sensory characteristic. `prefers-reduced-motion` exists because
+  principle that information must not depend on a single sensory characteristic,
+  and motion is a sensory characteristic. `prefers-reduced-motion` exists because
   vestibular disorders are real and common enough that operating systems ship a
   system-level control for them.
 
-  **Opinion.** Rule 2 — no animated reveal of a health value — is ours, and it is
-  the one we would defend hardest. The argument is about the emotional frame a
+  **Opinion.** Rule 2 bans any animated reveal of a health value, and that rule
+  is ours. It is contentious because it forbids a pattern that is common,
+  inexpensive and generally liked. The argument is about the emotional frame a
   count-up creates: a number that arrives gradually invites the reader to
   anticipate, and anticipation is the wrong state to put someone in when the
   content may be bad news. See
   [Delivering difficult results](./delivering-difficult-results.mdx).
 
-  Rule 6's 400 ms is illustrative, not measured. The principle is that no
-  transition may sit between a reader and a result they came for.
+  Rule 6's 400 ms is illustrative rather than measured, and the principle it
+  stands for is that no transition may sit between a reader and a result they
+  came for.
 
-  What would change our mind on rule 2: evidence that a brief reveal improves
-  comprehension or recall of a result. We would still want it off by default and
-  off entirely for anything outside `steady`.
+  What would change our mind on rule 2: a controlled comparison showing that a
+  brief animated reveal improves comprehension or recall of a result would
+  revise it. Even then we would want the reveal off by default and off entirely
+  for anything outside `steady`.
 </ResearchNote>
 
 ## Applying it
@@ -109,9 +118,10 @@ jobs. None of them is a meaning job.
     contrast, size, position and words.
   </DoDont.Do>
   <DoDont.Dont>
-    Pulse the banner border to make it feel more urgent. Under reduced motion it
-    is a static banner; you have added risk for a subset of readers and
-    information for nobody.
+    Pulse the banner border to make it feel more urgent. Under
+    `prefers-reduced-motion: reduce` the border renders no state change at all,
+    so the pulse contributes nothing to those readers and carries a vestibular
+    risk wherever motion is not suppressed.
   </DoDont.Dont>
 </DoDont>
 
@@ -123,7 +133,7 @@ jobs. None of them is a meaning job.
   </DoDont.Do>
   <DoDont.Dont>
     Animate `0 → 142` over 800 ms. For 800 ms the interface displays values that
-    are not this person's result, one of which may be a value they have been
+    are not this person's result, one of which may be a value the reader has been
     dreading.
   </DoDont.Dont>
 </DoDont>
@@ -136,7 +146,8 @@ jobs. None of them is a meaning job.
   </DoDont.Do>
   <DoDont.Dont>
     Under reduced motion, remove the transition and let a modal appear with no
-    change of context at all. Reduced motion means less movement, not less
+    change of context at all. The reduced-motion path still has to show where the
+    surface came from, because reduced motion suppresses movement rather than
     orientation.
   </DoDont.Dont>
 </DoDont>
@@ -148,7 +159,9 @@ jobs. None of them is a meaning job.
   </DoDont.Do>
   <DoDont.Dont>
     Leave an indeterminate spinner on a screen indefinitely when a request has
-    failed. Perpetual motion reads as "still working" and is a lie about state.
+    failed. An indeterminate spinner is rendered identically whether or not a
+    request is outstanding, so after a failure it continues to assert that work
+    is in progress.
   </DoDont.Dont>
 </DoDont>
 
@@ -156,24 +169,25 @@ jobs. None of them is a meaning job.
 
 {/* Generated from `implements`. Do not restate the list by hand. */}
 
-The motion tokens themselves are spring-derived `linear()` easings with a stated
-reduced-motion behaviour per token rather than one global kill switch, which is
-what makes rule 5 checkable rather than aspirational.
+The motion tokens are spring-derived `linear()` easings, and each token declares
+its own reduced-motion behaviour rather than deferring to one global kill switch.
+Rule 5 therefore applies to the token definition, so a reviewer checks the token
+rather than whichever component happens to use it.
 
 ## What this does not cover
 
 - **How the easings are built.** Spring parameters, the `linear()` generator and
   the token set are [Motion](../foundations/motion/index.mdx).
-- **Writing transitions in code**, which is
+- **Writing transitions in code.** The code-level guidance is
   [Motion in practice](../handbook/motion-in-practice.mdx).
-- **Sound and haptics**, which are a separate channel with a separate budget:
-  [Sound and haptics](../foundations/sound-and-haptics.mdx).
+- **Sound and haptics.** These are a separate channel with a separate budget and
+  are covered in [Sound and haptics](../foundations/sound-and-haptics.mdx).
 - **Data visualisation transitions.** Animating between two chart states has its
   own honesty problems and belongs to
   [Data visualisation](../foundations/data-visualisation/index.mdx).
-- **Games, rewards and streak animation.** Outside the clinical surface, your
-  product may do what it likes — but not in the same visual channel as clinical
-  status.
+- **Games, rewards and streak animation.** These sit outside the clinical surface
+  and are the product's own decision, provided they do not use the visual channel
+  that carries clinical status.
 
 ## Updates to this page
 

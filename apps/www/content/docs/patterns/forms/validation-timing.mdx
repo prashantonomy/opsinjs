@@ -1,6 +1,6 @@
 ---
 title: Validation timing
-description: When a check should run — and why validating on every keystroke is both the most common choice and the worst one for the readers who most need help.
+description: When a check should run. Why validating on every keystroke is both the most common choice and the worst one for the readers who most need help.
 status: stable
 kind: pattern
 aliases: [when to validate, live validation, on blur validation, inline errors timing]
@@ -13,7 +13,7 @@ owner: design-system
 
 ## When to use
 
-Read this when deciding what triggers a validation message in any form — which
+Read this when deciding what triggers a validation message in any form. That
 is every form, since the default behaviour of most form libraries is a decision
 somebody made for you.
 
@@ -34,7 +34,7 @@ be correct in two more characters.
 
 - **The check is not a validation.** Showing remaining characters, or a password
   strength meter, is feedback, not an error, and it is governed by different
-  rules — never announce it assertively.
+  rules. Never announce it assertively.
 - **The value cannot be wrong.** A field with a constrained control does not
   need validation; it needs a control that cannot produce an invalid value.
 - **The value is a health reading.** A surprising physiological value is not
@@ -64,16 +64,16 @@ Why this shape:
 
 - **Nobody is told they are wrong about something they have not finished
   saying.** The first pass is silent.
-- **Once a reader knows a field is wrong, live feedback is genuinely helpful** —
-  they are now working *at* the error and the message disappearing is the signal
-  they wanted.
+- **Once a reader knows a field is wrong, live feedback is genuinely helpful.**
+  They are now working *at* the error, and the message disappearing is the
+  signal they wanted.
 - **Submit is the backstop**, because a reader can reach submit without ever
   blurring the last field, and because server-side checks only exist there.
 
 ### Health-specific rules
 
 - **Never block a save on a value being implausible.** A reading of 210/130 is
-  alarming and may be true. Ask ("that is much higher than your usual — is that
+  alarming and may be true. Ask ("that is much higher than your usual. Is that
   right?"), record whichever answer the reader gives, and let the status axis do
   its job. Refusing to store a true value is the single most damaging thing a
   health form can do.
@@ -90,11 +90,11 @@ Why this shape:
 
 <DoDont>
   <DoDont.Do>
-    "Enter your height in centimetres, for example 168." — says what is wanted,
-    with an example, when the reader has finished typing.
+    "Enter your height in centimetres, for example 168." It says what is
+    wanted, with an example, when the reader has finished typing.
   </DoDont.Do>
   <DoDont.Dont>
-    "Invalid input." — appearing after the reader has typed the digit `1`.
+    "Invalid input." appears after the reader has typed the digit `1`.
   </DoDont.Dont>
 </DoDont>
 
@@ -138,7 +138,7 @@ this page adds is about *timing*, not phrasing.
 
 <ResearchNote evidence="opinion" date="2026-09-02">
   "Silent until blur, live on correction" is a design opinion, though a widely
-  converged-upon one — several public design systems describe the same shape,
+  converged-upon one. Several public design systems describe the same shape,
   and the reasoning is mechanical rather than empirical: a live region cannot
   usefully announce a message about an incomplete value.
 
@@ -149,8 +149,9 @@ this page adds is about *timing*, not phrasing.
   matters most.
 
   What would change our mind on the general rule: evidence that first-time live
-  validation reduces completion errors enough to outweigh the announcement cost
-  — which would still leave the screen-reader case needing a different answer.
+  validation reduces completion errors enough to outweigh the announcement cost.
+  That evidence would still leave the screen-reader case needing a different
+  answer.
 </ResearchNote>
 
 ## Updates to this page

@@ -8,7 +8,7 @@
  * contrived shape. It is what `{copy.consent.retention}` resolves to when a
  * content service has a field nobody filled in, what a translation table
  * returns for a locale that was added last week, and what `{isReviewed && "…"}`
- * evaluates to on the day a review lapses — and in every one of those cases the
+ * evaluates to on the day a review lapses. In every one of those cases the
  * TypeScript is still correct.
  *
  * So the component does not ask. It draws no decision controls, says on screen
@@ -30,9 +30,9 @@ import { useState } from "react"
 import { Button } from "@/registry/base-lyra/ui/button"
 import { ConsentSheet } from "@/registry/base-lyra/ui/consent-sheet"
 
-/* Empty strings rather than omitted keys, because that is how the wording
-   actually goes missing — a field that exists and has nothing in it. The
-   component treats a whitespace-only string as missing for the same reason. */
+/* Empty strings rather than omitted keys, because a field that exists and has
+   nothing in it is how the wording actually goes missing. The component treats
+   a whitespace-only string as missing for the same reason. */
 const NOTHING_SUPPLIED = {
   collected: "",
   sharedWith: "",
@@ -57,7 +57,7 @@ export default function ConsentSheetNoWordingSupplied() {
         onOpenChange={(nextOpen) => setOpen(nextOpen)}
         consentId="example-consent-incomplete"
         textVersion="example-wording-0"
-        heading="Placeholder question — is this the example thing?"
+        heading="Placeholder question. Is this the example thing?"
         purpose="Placeholder for the purpose. Everything after this line was left empty on purpose."
         scope={NOTHING_SUPPLIED}
         withdrawalPath=""

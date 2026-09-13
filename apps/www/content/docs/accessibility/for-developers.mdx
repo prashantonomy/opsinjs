@@ -1,6 +1,6 @@
 ---
 title: For developers
-description: Semantics, names, roles, state and focus order — what the components will do for you and what your JSX still has to get right.
+description: Semantics, names, roles, state and focus order are split between what the components will do for you and what your JSX still has to get right.
 status: stable
 kind: accessibility
 a11yDate: 2026-09-02
@@ -43,7 +43,7 @@ None of this has been verified on a rendered page. Twenty-four components are
 implemented at `alpha` and the other thirty-six are at `considered` with no code;
 nothing is at `beta` or `stable`, and `a11yDate` is `null` on all sixty catalogue
 rows. So these remain the requirements an implementation has to satisfy, not
-descriptions of tested behaviour — and the twenty-four having been written is not
+descriptions of tested behaviour. The twenty-four having been written is not
 evidence that they meet them.
 </Callout>
 
@@ -97,10 +97,11 @@ skip levels. The tree is what assistive technology sees; the DOM is not.
 
 ### Query the way a test would
 
-In a test, find elements by role and accessible name — `getByRole('button', { name: 'Log a reading' })`.
-If you cannot express the element that way, a screen-reader user cannot find it
-either. This turns an accessibility property into an ordinary failing test, which
-is the only form of accessibility check that survives a deadline.
+In a test, find elements by role and accessible name. The query is
+`getByRole('button', { name: 'Log a reading' })`. If you cannot express the
+element that way, a screen-reader user cannot find it either. This turns an
+accessibility property into an ordinary failing test, which is the only form of
+accessibility check that survives a deadline.
 
 ### Force the preference queries on
 
@@ -132,11 +133,11 @@ aggregate from.
 </NoDataYet>
 
 Per-component conformance blocks, keyboard tables and the aggregated keyboard
-reference are all meant to be generated from the registry. Until a component has
-actually been evaluated — by a person, or by a tool that reads a rendered
-accessibility tree — its row here would be a number nobody produced, and the
-placeholder above is the honest substitute. What does run today is described
-under *Known gaps*: static source assertions, and nothing else.
+reference are all meant to be generated from the registry. Until a person or a
+tool that reads a rendered accessibility tree has actually evaluated a
+component, its row here would be a number nobody produced, and the placeholder
+above is the honest substitute. What does run today is described under *Known
+gaps*: static source assertions, and nothing else.
 
 ## Known gaps
 

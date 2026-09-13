@@ -1,5 +1,5 @@
 ---
-title: "0016 — The unit table ships spoken forms, not conversion factors"
+title: "ADR 0016. The unit table ships spoken forms, not conversion factors"
 description: An authored token source that says what a number is measured in and how to say it aloud, and refuses by name the three conversions that are not definitions.
 status: stable
 kind: project
@@ -41,9 +41,9 @@ the right call and this record exists to make it binding rather than a one-off.
 
 **`tokens/units.json` carries the identity of a unit and how to say it: id, symbol as
 displayed, spoken form, plural, and what family it measures.** It is an authored token
-source with an emitter, like colour and motion and material — never values typed into a
-component, because a conversion factor somebody typed into a `.tsx` file is a clinical
-number with no provenance.
+source with an emitter, like colour and motion and material. It is never values typed
+into a component, because a conversion factor somebody typed into a `.tsx` file is a
+clinical number with no provenance.
 
 **It carries exact DEFINITIONAL conversions and nothing else.** °C to °F is nine fifths
 plus thirty-two because the Fahrenheit scale is *defined* against Celsius. The
@@ -55,8 +55,8 @@ conversion that has none.
 
 - **mmol/L ↔ mg/dL.** Molar concentration and mass concentration are related by the molar
   mass of the substance being measured. That is a property of the *substance*, not of
-  either unit — and glucose and cholesterol are both reported in mmol/L. A single factor
-  in this table would be applied to both.
+  either unit. Glucose and cholesterol are both reported in mmol/L, and a single factor in
+  this table would be applied to both.
 - **HbA1c mmol/mol ↔ %.** The two ways of reporting it are related by a fitted regression
   between two assay standardisations. A regression is a measurement with a residual, not a
   definition, and it belongs to whoever measured it.
@@ -87,9 +87,9 @@ conversion that has none.
 ## Alternatives considered
 
 **Ship the three factors with a warning.** Rejected. The warning is read once and the
-factor is used forever, and the failure it guards against — the glucose factor applied to
-cholesterol — produces a number that looks entirely reasonable. There is no error state; a
-reader simply sees the wrong figure for their own result.
+factor is used forever, and the failure it guards against is the glucose factor applied to
+cholesterol, which produces a number that looks entirely reasonable. There is no error
+state; a reader simply sees the wrong figure for their own result.
 
 **Ship a per-substance conversion table.** Rejected, and it is the tempting one because it
 solves the objection directly. It would make opsinjs the owner of a list of molar masses
@@ -104,7 +104,7 @@ ships, and into the reference pages, from one parse of one file.
 ## Revisiting this
 
 Revisit when a conversion in the refused list becomes a definition rather than a
-measurement — which would mean a standards body had fixed it exactly, and the `basis` field
+measurement. That would mean a standards body had fixed it exactly, and the `basis` field
 would then have something true to say.
 
 Revisit the English-only spoken forms when there is a second locale with somebody to write

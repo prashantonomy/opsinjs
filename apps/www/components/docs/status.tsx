@@ -19,7 +19,7 @@ import {
 import { cn } from "@/lib/utils"
 
 /* ==========================================================================
-   status.tsx — <StatusBadge>, <SinceBadge>, <StatusLegend>,
+   status.tsx defines <StatusBadge>, <SinceBadge>, <StatusLegend>,
    <SectionProgress>, <StatusMatrix>, <ComponentsList>.
 
    THREE AXES THAT ARE CONSTANTLY CONFUSED, AND ONLY ONE OF THEM IS HERE.
@@ -35,10 +35,11 @@ import { cn } from "@/lib/utils"
                      What KIND of reading it is. Identity, never a verdict.
 
    A `planned` component is not "watch". The badge in this file is therefore
-   deliberately NEUTRAL — borders, weight and a word, no clinical hue. Tinting
-   release phase with the clinical ramp would teach a reader that the two
-   vocabularies are one, which is the single most damaging thing this site
-   could do to somebody who then ships a product with it.
+   deliberately NEUTRAL, and it is drawn with borders, weight and a word rather
+   than with a clinical hue. Tinting release phase with the clinical ramp would
+   teach a reader that the two vocabularies are one, which is the single most
+   damaging thing this site could do to somebody who then ships a product with
+   it.
 
    SERVER-ONLY BY DESIGN. Everything here reads registry/catalogue.ts through
    lib/catalogue.ts, which is a real, populated array: 24 rows resolve to a file
@@ -87,9 +88,9 @@ export function StatusBadge({
 }: StatusBadgeProps) {
   /**
    * MDX props are not typechecked. An unrecognised release phase must not take
-   * the prerender down; it renders as `planned` (the conservative default — it
-   * claims less than the truth for anything already built, and exactly the
-   * truth for anything not) and logs. assert-ia is the real gate.
+   * the prerender down; it renders as `planned` and logs. That default is the
+   * conservative one, claiming less than the truth for anything already built,
+   * and exactly the truth for anything not. assert-ia is the real gate.
    */
   const status: Status = isStatus(requested) ? requested : "planned"
   if (!isStatus(requested) && typeof window === "undefined") {
@@ -153,7 +154,7 @@ export function SinceBadge({ since, className }: SinceBadgeProps) {
 }
 
 /* --------------------------------------------------------------------------
-   <StatusLegend> — the sidebar footer
+   <StatusLegend> in the sidebar footer
    -------------------------------------------------------------------------- */
 
 /**
@@ -174,10 +175,10 @@ const IMPLEMENTED_PHASES: readonly Status[] = [
  *
  * The first line COUNTS the catalogue rather than restating it. What was here
  * before said "nothing is built yet" on all 400 pages, and went on saying it
- * through the run that built twenty-four components — beside their own alpha
- * badges and their own working install commands. A sentence about how much
- * exists, maintained by hand, in chrome that renders everywhere, is a falsehood
- * with a delay fuse. Do not put a number in this JSX.
+ * through the run that built twenty-four components. It said so beside their
+ * own alpha badges and their own working install commands. A sentence about how
+ * much exists, maintained by hand, in chrome that renders everywhere, is a
+ * falsehood with a delay fuse. Do not put a number in this JSX.
  */
 export function StatusLegend({ className }: { className?: string }) {
   const rows = getCatalogue()
@@ -281,13 +282,13 @@ export function SectionProgress({
 }
 
 /* --------------------------------------------------------------------------
-   <StatusMatrix> — the Components overview
+   <StatusMatrix> is the Components overview
    -------------------------------------------------------------------------- */
 
 export interface StatusMatrixProps {
   /**
    * Override the rows. Omit it and the whole catalogue is used, shipped and
-   * considered together — which is the point of the page it lives on.
+   * considered together. That mix is the point of the page it lives on.
    */
   rows?: CatalogueEntry[]
   /** Restrict to one category prefix. */
@@ -308,10 +309,10 @@ export interface StatusMatrixProps {
  * and a second, worse search box beside it would send people to the wrong one.
  *
  * The `considered` rows are the reason this table matters more than it looks.
- * They have no page, so their name here — with the reason and the alternative —
- * is the only answer an agent gets when it asks about `toast`. That answer is a
- * definitive "no, and here is what to use instead" rather than a 404 it would
- * fill in by inventing an API.
+ * They have no page, so the only answer an agent gets when it asks about
+ * `toast` is their name here, which carries the reason and the alternative.
+ * That answer is a definitive "no, and here is what to use instead" rather than
+ * a 404 it would fill in by inventing an API.
  */
 export function StatusMatrix({
   rows,
@@ -509,7 +510,7 @@ ${categories
                   {row.a11yDate ?? "Not yet"}
                 </td>
                 <td className="py-2 text-xs text-muted-foreground">
-                  {row.aliases.length ? row.aliases.join(", ") : "—"}
+                  {row.aliases.length ? row.aliases.join(", ") : "none"}
                 </td>
               </tr>
             ))}
@@ -533,9 +534,9 @@ export interface ComponentsListProps {
 }
 
 /**
- * The card index used on section pages. Each card's subtitle is the
- * component's plain-language definition, because that sentence is what a reader
- * is actually choosing between — they do not yet know the name.
+ * The card index used on section pages. Each card's subtitle is the component's
+ * plain-language definition, because that sentence is what a reader who does
+ * not yet know the name is actually choosing between.
  */
 export function ComponentsList({
   category,

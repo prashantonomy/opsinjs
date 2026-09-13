@@ -1,6 +1,6 @@
 ---
 title: Evals
-description: The task suite that checks whether this documentation answers the questions an agent actually asks, at the address it would guess — what each task asserts, and how a run is scored.
+description: The task suite that checks whether this documentation answers the questions an agent actually asks, at the address it would guess. It says what each task asserts, and how a run is scored.
 status: stable
 kind: reference
 full: true
@@ -16,8 +16,8 @@ Command: `pnpm run evals`.
 
 Each task in the source file is a question an agent asks in practice, the
 address the answer has to live at, and the things that answer cannot omit or
-claim. The script resolves each page — from `content/docs` on disk, or from the
-served `.md` twins when it is given `--base` — checks every assertion, and
+claim. The script resolves each page from `content/docs` on disk, or from the
+served `.md` twins when it is given `--base`. It checks every assertion and
 writes a dated result file. No score on this page is typed by a person, and a
 task with no result renders as `<NoDataYet>` rather than as an optimistic blank.
 
@@ -53,32 +53,32 @@ assertions are the interesting half:
 
 `mustContain` and `mustNotContain` are lowercase substring checks over the whole
 page, not regular expressions and not judgements by another model. The
-substrings are chosen because the page cannot be correct without them — a rule
-it exists to state, a unit it exists to disambiguate — rather than because an
-author happened to phrase it that way. `frontmatter` and `frontmatterAny` pin a
-declared field, `catalogueId` and `catalogueStatus` check the catalogue row
-instead of the prose, and `alsoResolves` asserts that the pages a good answer
-would link to are actually there.
+substrings are chosen because the page cannot be correct without them rather
+than because an author happened to phrase it that way. Each one is a rule the
+page exists to state, or a unit it exists to disambiguate. `frontmatter` and
+`frontmatterAny` pin a declared field, `catalogueId` and `catalogueStatus` check
+the catalogue row instead of the prose, and `alsoResolves` asserts that the
+pages a good answer would link to are actually there.
 
 A needle also has to survive typography and serialisation, which is why so many
 of them are JSX attributes rather than sentences. The runner matches plain
 substrings against the page text, so a phrase lifted from running prose passes
-or fails on where the author happened to break the line — the sentence saying a
+or fails on where the author happened to break the line. The sentence saying a
 component is implemented wraps on `TrendSparkline` and does not on `ResultCard`.
 An attribute (`importPath="@/components/ui/result-card"`, `status="alpha"`), a
 token name, a table cell or a fenced command is on one line by construction.
 Prefer an attribute whose value is already a string, because those survive both
 forms of the page: the `.md` twin serialises every JSX expression attribute,
 so `unbuilt={false}` on disk arrives as `unbuilt="false"` over HTTP. A needle
-written in the brace form then stops matching under `--base` — as a
-`mustContain` it fails against a page that is correct, and as a `mustNotContain`
-it passes while measuring nothing. Where the suite has to pin one of those, it
-asserts both spellings.
+written in the brace form then stops matching under `--base`. As a `mustContain`
+it fails against a page that is correct, and as a `mustNotContain` it passes
+while measuring nothing. Where the suite has to pin one of those, it asserts
+both spellings.
 
 `mustNotContain` is the more valuable half, because a page can be wrong in both
 directions: claiming more than its status supports, or still announcing an
 absence the registry has since filled. When one trips, check the page's status
-against `registry/catalogue.ts` before editing the page — the assertion may be
+against `registry/catalogue.ts` before editing the page. The assertion may be
 the stale half.
 
 ### What the twenty-two tasks cover
@@ -86,25 +86,26 @@ the stale half.
 **Doctrine.** `never-mix-the-axes`, `status-needs-a-word`, `normal-is-banned`,
 `units-are-correctness` and `no-invented-evidence` check that the five rules an
 agent most often breaks are stated in words on the page an agent lands on when
-it asks the corresponding question — and, for the last of them, that the page
+it asks the corresponding question. The last of them also checks that the page
 declares an `evidence` value rather than leaving the reader to guess.
 
 **Component identity.** `value-against-a-range` checks that the component for
 the most common health-UI task resolves and says when *not* to use it. The other
 three check the honesty contract in both directions, because it can now fail
 either way. `considered-has-no-example` asks for a working `BodyMap` snippet and
-asserts the page refuses to supply one — pinned to the catalogue row as well as
-to the page, so promoting `body-map` turns the task red rather than leaving it
-measuring nothing. `alpha-is-real-and-unstable` asks how far `ResultCard` can be
-trusted and asserts the page names the import path that resolves *and* says the
-API may move without a deprecation cycle: presenting a built component as settled
-fails it, and so does still calling it unbuilt. `considered-is-an-answer` checks
-that a reserved name resolves to a definite negative rather than to a 404.
+asserts the page refuses to supply one. The task is pinned to the catalogue row
+as well as to the page, so promoting `body-map` turns the task red rather than
+leaving it measuring nothing. `alpha-is-real-and-unstable` asks how far
+`ResultCard` can be trusted and asserts the page names the import path that
+resolves *and* says the API may move without a deprecation cycle: presenting a
+built component as settled fails it, and so does still calling it unbuilt.
+`considered-is-an-answer` checks that a reserved name resolves to a definite
+negative rather than to a 404.
 
 **Getting it installed.** `install-path`, `which-registry` and
 `tokens-not-values` check that the mechanical route from documentation to
-working project — `components.json`, the `@opsinjs` namespace, the token layer —
-is written down where a tool would look for it.
+working project is written down where a tool would look for it. That route is
+`components.json`, the `@opsinjs` namespace and the token layer.
 
 **Scope.** `touch-target-floor`, `machine-surface` and `scope-and-limits` check
 the boundaries: the target-size floor, the address of the machine surface, and
@@ -139,12 +140,12 @@ counts the same: there is no weight field in the suite and no weighting in the
 script, because a weight is a claim about relative importance that nobody has
 justified in writing.
 
-- **PASS** — every assertion held.
-- **PART** — some did. The score is the fraction, and each failed assertion is
-  named underneath the task, because "78%" is not actionable and
-  "resolves health/reference-ranges: no page at that address" is.
-- **FAIL** — none did, which for a task with a `page` usually means the page has
-  moved or been renamed.
+- **PASS** is the result when every assertion held.
+- **PART** is the result when some did. The score is the fraction, and each
+  failed assertion is named underneath the task, because "78%" is not actionable
+  and "resolves health/reference-ranges: no page at that address" is.
+- **FAIL** is the result when none did, which for a task with a `page` usually
+  means the page has moved or been renamed.
 
 The headline figure is the mean of the task scores against the `passMark`
 declared in the suite file, currently 0.9. The mark is high because the suite is
@@ -173,8 +174,8 @@ assistant. `<EvalResult>` prints a model name beside a score for exactly that
 reason: a score with no model attached is one nobody may attribute to one.
 
 It also does not measure whether the *documentation* is right. It measures
-whether the documentation is legible to a machine — which is a lower and more
-achievable bar, and the one this pillar is responsible for.
+whether the documentation is legible to a machine. That is a lower and more
+achievable bar, and it is the one this pillar is responsible for.
 
 ### Results
 
@@ -213,4 +214,4 @@ including whatever the twin renderer did to the page on the way out.
 
 Results are written dated to `public/r/evals.json`. A run is attached to a
 documentation version, so a regression can be traced to the change that caused
-it — see [Docs freshness](../project/docs-freshness.mdx).
+it. See [Docs freshness](../project/docs-freshness.mdx).

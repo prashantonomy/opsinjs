@@ -1,5 +1,5 @@
 /**
- * GET /r/registry.json — the shadcn registry catalog.
+ * GET /r/registry.json serves the shadcn registry catalog.
  *
  * This is the file `npx shadcn@latest mcp` fetches when a project has
  * `"@opsinjs": "https://opsinjs.dev/r/{name}.json"` in its components.json. If
@@ -8,20 +8,21 @@
  * has claimed is published here, whether or not there is code behind it, and
  * each row says which it is.
  *
- * Both rosters are published: the ids that carry a written specification page —
- * some of which now install real source — and the `considered` ids whose names
- * are merely reserved. An agent asking "does opsinjs have a symptom picker?"
- * gets `status: "considered"` rather than a silence it will fill in. The
- * per-row answers are `meta.opsinjs.status`, `meta.opsinjs.implemented` and the
- * presence of `files`; no count is asserted in this comment, because a count
- * written in a comment is a count nobody updates.
+ * Both rosters are published. One roster holds the ids that carry a written
+ * specification page, and some of those ids now install real source. The other
+ * holds the `considered` ids whose names are merely reserved. An agent asking
+ * "does opsinjs have a symptom picker?" gets `status: "considered"` rather than
+ * a silence it will fill in. The per-row answers are `meta.opsinjs.status`,
+ * `meta.opsinjs.implemented` and the presence of `files`; no count is asserted
+ * in this comment, because a count written in a comment is a count nobody
+ * updates.
  *
  * The registry specification requires a flat catalog served next to its items
  * (`/r/registry.json` alongside `/r/<name>.json`) and forbids a `content`
  * property inside a catalog's `files`. Neither is violated here. A built id
- * does carry `files`, with their paths, types and targets — that is what a
- * catalog is read for — and `buildCatalogEntry` strips the bytes, so the
- * catalog stays a roster rather than becoming a sixty-row download.
+ * does carry `files`, with their paths, types and targets, because that is what
+ * a catalog is read for. `buildCatalogEntry` strips the bytes, so the catalog
+ * stays a roster rather than becoming a sixty-row download.
  */
 
 import {

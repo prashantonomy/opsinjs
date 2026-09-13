@@ -1,6 +1,6 @@
 ---
 title: Glossary data
-description: The clinical-to-plain-English term list as a flat, searchable table — the machine twin of the Plain-English A–Z.
+description: The clinical-to-plain-English term list as a flat, searchable table. It is the machine twin of the Plain-English A to Z.
 status: stable
 kind: reference
 full: true
@@ -15,32 +15,32 @@ aliases: [term data, glossary table, plain english data]
 
 ## How this is generated
 
-**Source:** `tokens/glossary.json` — the same file the `<Term>` component reads
-at runtime, so a term that renders in a product is a term that appears here.
+**Source:** `tokens/glossary.json`, which is the same file the `<Term>` component
+reads at runtime, so a term that renders in a product is a term that appears here.
 **Script:** `scripts/build-reference.mts`. **Command:** `pnpm run generate`.
 
 **This is not the page you want if you are reading.**
-[Plain-English A–Z](../../content/plain-english-a-z.mdx) is canonical: it is
+[Plain-English A to Z](../../content/plain-english-a-z.mdx) is canonical: it is
 written to be read, it groups terms, it explains the judgement behind each
 replacement, and it is where a change to the guidance is made. This page is its
-flat twin — one row per term, every field of the source exposed — and it exists
-so that search, the `.md` twins and `/r` all cover the glossary without anybody
-writing a second copy of it by hand.
+flat twin, and the twin carries one row per term with every field of the source
+exposed. It exists so that search, the `.md` twins and `/r` all cover the glossary
+without anybody writing a second copy of it by hand.
 
 **Five columns.** *Term* is the clinical or technical word. *Plain* is the
 replacement to use in an interface. *Definition* is the one-sentence explanation
 shown when a reader expands a `<Term>`. *Aliases* are the other spellings and
 abbreviations a search should match. *Notes* carries the caveat, where the plain
-word is not an exact synonym and the difference could matter — those rows are the
+word is not an exact synonym and the difference could matter. Those rows are the
 ones worth reading twice.
 
 **Provenance.** Every definition here is written for this project. Nothing is
-copied from the NHS A–Z or any other Crown-copyright source; where a source
+copied from the NHS A to Z or any other Crown-copyright source; where a source
 informed a definition it is cited on the canonical page, not pasted here. A
 glossary is exactly the kind of asset that gets copied without checking, so the
 rule is absolute.
 
-{/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
+{/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 ## A-Z
 | Term | Say this instead | Show both | Why |
@@ -53,10 +53,10 @@ rule is absolute.
 | blood pressure | the pressure of blood pushing against the walls of your arteries, written as two numbers | first-use | The words are familiar but the two-number format is not. Always explain which number is which where both are shown. |
 | BMI | a number worked out from your height and weight | always | The abbreviation is widespread and the calculation is not. Anywhere BMI is shown, say that it does not distinguish muscle from fat and is a poor guide for some people. |
 | bradycardia | a slower than usual heart rate | first-use | Appears in device output. Also note that a slow resting heart rate is expected in many fit people. |
-| cholesterol | a fatty substance carried in your blood | first-use | Widely known as a word, widely misunderstood as a single number — most reports give several. |
+| cholesterol | a fatty substance carried in your blood | first-use | Widely known as a word, widely misunderstood as a single number. Most reports give several. |
 | chronic | long-lasting, or ongoing | first-use | Often heard as 'severe'. It describes duration. |
 | contraindication | a reason this treatment is not safe for you | plain-only | A word with no everyday equivalent that readers guess at. Never show it. |
-| diastolic | the pressure between heartbeats — the lower of the two blood pressure numbers | always | The reader's own record shows the clinical word, so both are needed to match them up. |
+| diastolic | the pressure between heartbeats, which is the lower of the two blood pressure numbers | always | The reader's own record shows the clinical word, so both are needed to match them up. |
 | eGFR | an estimate of how well your kidneys are filtering | always | Appears on results with no explanation. The word 'estimated' matters and should never be dropped. |
 | false positive | a result that says something was found when it was not there | first-use | Essential for interpreting any screening result honestly, and impossible to explain after the fact if the first screen did not mention it. |
 | fasting | not eating or drinking anything except water for a set time before a test | first-use | Readers frequently assume water is included. Say the time and say that water is allowed. |
@@ -67,8 +67,8 @@ rule is absolute.
 | in range | inside the range this test uses for comparison | plain-only | The replacement for 'normal'. Always name whose range it is: a laboratory's range, a device maker's range, or a range a clinician set for this person. |
 | LDL | one of the types of cholesterol measured in a blood test | always | Usually captioned 'bad cholesterol'. Same objection as HDL: it turns one number into a moral judgement. |
 | malignant | cancer | always | Never soften this and never show it without a route to a person. See /docs/health/emergency-and-escalation. |
-| mg/dL | milligrams per decilitre — a unit used for blood test results | always | See mmol/L. Converting between the two is a correctness surface, not a display preference. |
-| mmol/L | millimoles per litre — a unit used for blood test results | always | The same measurement is reported in mmol/L in some countries and mg/dL in others, and the numbers are not close. Never show a value without its unit. |
+| mg/dL | milligrams per decilitre, which is a unit used for blood test results | always | See mmol/L. Converting between the two is a correctness surface, not a display preference. |
+| mmol/L | millimoles per litre, which is a unit used for blood test results | always | The same measurement is reported in mmol/L in some countries and mg/dL in others, and the numbers are not close. Never show a value without its unit. |
 | oedema | swelling caused by fluid building up | first-use | Spelled two ways depending on country; the plain wording avoids the problem entirely. |
 | out of range | outside the range this test uses for comparison | plain-only | The replacement for 'abnormal'. It states a fact about a comparison and leaves the interpretation to whoever is entitled to make it. |
 | prognosis | what is likely to happen next | plain-only | A word no component should ever need. If a product is showing a prognosis, a clinician wrote it. |
@@ -77,7 +77,7 @@ rule is absolute.
 | resting heart rate | how many times your heart beats a minute when you are at rest | first-use | Understood as words but frequently confused with the heart rate shown during activity. Say when it was measured. |
 | screening | a test offered to people with no symptoms, to look for a possible problem early | first-use | Readers commonly assume a screening test is diagnostic. It is not, and the difference determines what the result means. |
 | SpO2 | an estimate of how much oxygen your blood is carrying | always | Shown by consumer devices as a bare percentage. The word 'estimate' is not optional: the measurement is affected by movement, cold hands and skin tone, and the product must say so. |
-| systolic | the pressure while your heart beats — the higher of the two blood pressure numbers | always | See diastolic. |
+| systolic | the pressure while your heart beats, which is the higher of the two blood pressure numbers | always | See diastolic. |
 | tachycardia | a faster than usual heart rate | first-use | Appears in device output with no explanation and reliably alarms people. |
 | titration | changing a dose in small steps until it is right for you | plain-only | No everyday equivalent; the plain wording is complete on its own. |
 | triglycerides | a type of fat measured in a blood test | always | Appears on the same report as cholesterol and is routinely mistaken for it. |

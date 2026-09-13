@@ -1,6 +1,6 @@
 ---
 title: Colour
-description: How opsinjs decides what colour anything is — two independent axes, one derivation engine, and a contrast floor the build refuses to ship below.
+description: How opsinjs decides what colour anything is. Two independent axes, one derivation engine, and a contrast floor the build refuses to ship below.
 status: stable
 kind: foundation
 aliases: [colour system, color system, palette, oklch, ramp, hue, chroma]
@@ -19,8 +19,9 @@ In most design systems colour is presentation. In a system whose reader is
 looking at their own blood pressure, colour is an **assertion**. A red surface
 behind a number says *something is wrong with you*. A green one says *you are
 fine*. Neither of those sentences is one a component library is qualified to
-say by accident, so opsinjs makes colour a decision with a stated owner, a
-stated meaning, and a measured floor — rather than a palette you pick from.
+say by accident, so opsinjs makes colour a decision rather than a palette you
+pick from, and that decision carries a stated owner, a stated meaning, and a
+measured floor.
 
 Two things follow, and they are the whole of this section:
 
@@ -28,8 +29,8 @@ Two things follow, and they are the whole of this section:
    measurement this is. *Status* says how urgent it is. An element may take
    colour from one axis; never from both. The full argument, and the vocabulary
    for the four status levels, lives in
-   [Two colour axes](../../health/two-colour-axes.mdx) — that is doctrine, and
-   this section is the mechanism that implements it.
+   [Two colour axes](../../health/two-colour-axes.mdx). That page is doctrine,
+   and this section is the mechanism that implements it.
 2. **Every value is derived, not chosen.** You give the engine one brand colour.
    It produces the ramps in OKLCH, clamps each step into the display's gamut,
    assigns the semantic roles, and then checks every pair it emitted against the
@@ -55,7 +56,7 @@ third. The role is one of four, and only four:
 | `surface` | the fill behind content | it is the *background* half of a measured pair |
 | `line` | a stroke, a glyph, a chart line, a focus ring | non-text contrast against the surface it sits on |
 | `ink` | text and icons **on the matching surface** | text contrast against that surface |
-| `accent` | an identity fill: a bar fill, a dial track, a legend dot | none, and that is the point — it is chosen for recognition, so it must be bounded by `line` or labelled in `ink` and may never carry text or be the only thing carrying the meaning |
+| `accent` | an identity fill: a bar fill, a dial track, a legend dot | none, and that is the point. It is chosen for recognition, which is why it must be bounded by `line` or labelled in `ink` and may never carry text or be the only thing carrying the meaning |
 
 So `--opsin-status-urgent-ink` is guaranteed legible on
 `--opsin-status-urgent-surface`, and on nothing else. Pairs are the unit of
@@ -101,7 +102,7 @@ than a diagram here.
 Authored input is `tokens/color.json`. `scripts/build-tokens.mts` reads it and
 writes `app/tokens.generated.css`, which `app/globals.css` imports at a fixed
 position. Until that script has run, the authored fallback block in
-`globals.css` is what renders — so a clean clone looks correct rather than
+`globals.css` is what renders. A clean clone therefore looks correct rather than
 unstyled, and `pnpm check:generated` fails the build if the two ever disagree.
 
 No colour value on this site is typed into MDX. If you see one, it is inside a
@@ -123,7 +124,7 @@ does.
 
 **Do not add a status level.** Four is a design decision with a clinical
 argument behind it, not a starting point. If you need a fifth, what you almost
-certainly need is a different component — see
+certainly need is a different component. See
 [Alarm fatigue](../../health/alarm-fatigue.mdx).
 
 **Adding a category is fine.** Categories are identity, and a product that
@@ -155,30 +156,33 @@ one:
   side by side, because they disagree in ways a designer should be able to see.
 - **Use of colour (SC 1.4.1).** No opsinjs component may express state through
   colour alone. That is a structural rule enforced at the component level, not a
-  guideline — see [Colour independence](../../accessibility/colour-independence.mdx).
+  guideline. [Colour independence](../../accessibility/colour-independence.mdx)
+  is where that rule is written down.
 - **Adaptation.** `prefers-contrast: more`, `forced-colors: active` and dark mode
   are three different requests and the engine owes each a different answer. One
   of the three is shipped: dark mode is a re-derivation, not an inversion
   ([Dark mode](./dark-mode.mdx)). `prefers-contrast: more` is honoured in exactly
-  one place — `Surface` drops its translucent layer under `contrast-more:` — and
-  nowhere else. `forced-colors: active` is implemented nowhere at all; the
-  specified answer, that the palette is handed to the operating system and the
-  system survives losing it entirely, is a specification and not yet a behaviour.
+  one place and nowhere else. That place is `Surface`, which drops its
+  translucent layer under `contrast-more:`. `forced-colors: active` is
+  implemented nowhere at all; the specified answer, that the palette is handed
+  to the operating system and the system survives losing it entirely, is a
+  specification and not yet a behaviour.
   See [Increased contrast](../../accessibility/increased-contrast.mdx).
 
 The failure mode that motivates all of this is specific: a reader with a
-red–green colour vision deficiency, on a phone at 40% brightness outdoors,
+red-green colour vision deficiency, on a phone at 40% brightness outdoors,
 glancing at a result. If the only difference between "Steady" and "Needs
-attention" is hue, that reader gets the wrong answer and acts on it — and those
-two are precisely the pair the generated audit finds indistinguishable under
+attention" is hue, that reader gets the wrong answer and acts on it. Those two
+are precisely the pair the generated audit finds indistinguishable under
 deuteranopia.
 
 ## Related
 
-- [Two colour axes](../../health/two-colour-axes.mdx) — the doctrine this
+- [Two colour axes](../../health/two-colour-axes.mdx) is the doctrine this
   section implements, and the argument for why an element may take colour from
   only one axis.
-- [Materials](../materials/index.mdx) — colour decides what a surface is; the
-  material ladder decides what is behind it, and the two multiply.
-- [Theme generator](../../theming/theme-generator.mdx) — the same engine,
+- [Materials](../materials/index.mdx) is a separate foundation. Colour decides
+  what a surface is; the material ladder decides what is behind it, and the two
+  multiply.
+- [Theme generator](../../theming/theme-generator.mdx) is the same engine,
   wired to an input box, with the APCA verdict shown as you type.

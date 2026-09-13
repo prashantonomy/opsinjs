@@ -6,22 +6,23 @@
  * WHAT THIS EXAMPLE IS REALLY ABOUT is the `values` channel. `children` is an
  * opaque element tree and LogSheet never reads it, so the keys that end up in
  * `LogEntry.values` are written by the product beside the controls that produce
- * them — here, `example-first` and `example-second`. That is the cost of the
- * design and it is visible in eleven lines below; what it buys is that a
- * control the product wrote itself, or wrapped in a component of its own, works
- * exactly like one opsinjs shipped.
+ * them. In this example they are `example-first` and `example-second`. That is
+ * the cost of the design and it is visible in eleven lines below; what it buys
+ * is that a control the product wrote itself, or wrapped in a component of its
+ * own, works exactly like one opsinjs shipped.
  *
- * TWO SEGMENTS ARE STILL ONE RECORD. Some measurements are a pair — a reading
- * with an upper and a lower part, a height in two units — and the pair is two
- * controls and two keys, saved together, in one entry. LogSheet has nothing to
- * say about which pairs are legitimate; it carries whatever the product keyed.
+ * TWO SEGMENTS ARE STILL ONE RECORD. Some measurements are a pair, and a pair
+ * is two controls and two keys, saved together, in one entry. A reading with
+ * an upper and a lower part is one, and a height in two units is another.
+ * LogSheet has nothing to say about which pairs are legitimate; it carries
+ * whatever the product keyed.
  *
  * `maxBackdateDays` IS THE PRODUCT'S NUMBER, and it is written here as an
  * `EXAMPLE_`-prefixed constant so that the authorship is explicit at the call
  * site: this example is standing in for a product, and the window is the kind
  * of thing a product decides from its own record-keeping rules. opsinjs ships
  * no default for it, and omitting it means no earliest date is offered or
- * stated. What it does NOT do is block — a time outside the window still saves,
+ * stated. What it does NOT do is block. A time outside the window still saves,
  * because a log that refuses an entry is a log with a hole in it exactly where
  * the interesting record was.
  *

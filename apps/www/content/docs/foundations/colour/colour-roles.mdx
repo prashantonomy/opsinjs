@@ -1,6 +1,6 @@
 ---
 title: Colour roles
-description: The four roles every colour token plays — surface, line, ink and accent — and the rule that a contrast guarantee attaches to a pair, never to a colour.
+description: The four roles every colour token plays are surface, line, ink and accent. A contrast guarantee attaches to a pair, never to a colour.
 status: stable
 kind: foundation
 aliases: [surface line ink, semantic colour, token naming, measured pair, role tokens]
@@ -16,12 +16,12 @@ a11yDate: 2026-09-02
 ## Overview
 
 A ramp of eleven steps is not a colour system, because it does not tell you
-which step to use. Roles are the layer that does. opsinjs has four of them —
-`surface`, `line`, `ink` and `accent` — and the reason there are four rather
-than thirty is that three is the number of distinct *contrast obligations* a
-colour can have, plus one deliberate exception. `accent` clears no floor of its
-own: it is chosen for recognition rather than for legibility, which is exactly
-why it may never carry text and may never be an element's only boundary.
+which step to use. Roles are the layer that does. The four opsinjs roles are
+`surface`, `line`, `ink` and `accent`, and there are four rather than thirty
+because three is the number of distinct *contrast obligations* a colour can
+have, plus one deliberate exception. `accent` clears no floor of its own: it is
+chosen for recognition rather than for legibility, which is exactly why it may
+never carry text and may never be an element's only boundary.
 
 The important idea on this page is not the naming. It is this:
 
@@ -63,15 +63,16 @@ role  ∈ { surface, line, ink, accent }
 ```
 
 `unknown` is a fifth status *stem* and deliberately not a fifth level. It is the
-absence of an assertion — no reading, a stale one, or one whose reference range
-the product does not own — so it is never ordered against the four; see
+absence of an assertion, which covers a reading never taken, a stale reading, or
+a reading whose reference range the product does not own. It is therefore never
+ordered against the four; see
 [Two colour axes](../../health/two-colour-axes.mdx).
 
 There is no fourth *segment*. No `-hover`, no `-subtle`, no `-2`. Interaction
 states are derived from the role token at use time, in OKLCH, by the rules in
-[Interaction states](../interaction-states.mdx) — they are not additional
-tokens, because a hover variant of every role on every one of the eleven stems
-is another forty-four tokens nobody can hold in their head.
+[Interaction states](../interaction-states.mdx). They are not additional tokens,
+because a hover variant of every role on every one of the eleven stems is
+another forty-four tokens nobody can hold in their head.
 
 Tailwind utilities are exposed for each token through `@theme inline`, so
 `bg-status-attention-surface` and `text-status-attention-ink` resolve to the same custom
@@ -84,9 +85,9 @@ who are not on Tailwind; see [CSS variables](../../theming/css-variables.mdx).
 
 ### Chrome roles are a separate namespace
 
-Alongside the two axes there is an ordinary application palette —
+Alongside the two axes there is an ordinary application palette.
 `--background`, `--foreground`, `--card`, `--muted`, `--muted-foreground`,
-`--border`, `--input`, `--ring`, `--primary` — inherited from the shadcn
+`--border`, `--input`, `--ring` and `--primary` are inherited from the shadcn
 convention so that a team already using it is not asked to relearn anything.
 These are unprefixed on purpose: they are the *neutral* system, they carry no
 clinical meaning, and they are the correct default for almost everything on a
@@ -109,22 +110,24 @@ themes and both gamuts. The list is, exactly:
    chosen for recognition and is not something a reader has to read;
 4. every `ink` against the page, at the body-text floor, because a status or
    category word frequently sits on the page rather than on its own tint;
-5. the three neutral roles — body text, secondary text, and a hairline boundary,
-   the last advisory — against the page;
+5. the three neutral roles of body text, secondary text and a hairline
+   boundary, each against the page and the last of them advisory;
 6. body text against every material rung's opaque fallback, `scrim` excepted
    because nothing is written on a dimmer (see
    [The contrast floor](../materials/the-contrast-floor.mdx)).
 
-"The page" in clauses 3 to 6 is the end of the neutral ramp — `--opsin-neutral-0`
-in light and `--opsin-neutral-950` in dark — and not `--card`. In light the two
-resolve to the same white, so a card is inside the measured pair; in dark `--card`
-sits a step lighter than the ramp's end, so a card is one step away from it.
+"The page" in clauses 3 to 6 is the end of the neutral ramp, which is
+`--opsin-neutral-0` in light and `--opsin-neutral-950` in dark. It is not
+`--card`. In light the two resolve to the same white, so a card is inside the
+measured pair; in dark `--card` sits a step lighter than the ramp's end, so a
+card is one step away from it.
 
 Anything not on that list is **unmeasured**. Unmeasured is not the same as
-failing — it may well be fine — but it is not something this system is promising
-you, and a health product should not be built on a promise nobody made. The
-focus ring is the gap worth knowing about: `--ring` against `--background` is
-precisely what a keyboard reader depends on, and nothing measures it today.
+failing, because an unmeasured pair may well be fine. It is still not something
+this system is promising you, and a health product should not be built on a
+promise nobody made. The focus ring is the gap worth knowing about: `--ring`
+against `--background` is precisely what a keyboard reader depends on, and
+nothing measures it today.
 
 ## Using it
 
@@ -135,7 +138,7 @@ word onto it lowers the contrast the reader actually gets. Two cautions come
 with that. The measured ground is the page rather than `--card`, which is the
 same colour in light and one step lighter in dark, so in dark a word on a card
 inherits a guarantee made a step away from it. And `line` on a neutral
-ground is not measured at all — `line` is the role for a stroke, a boundary or a
+ground is not measured at all. It is the role for a stroke, a boundary or a
 chart mark, and its floor is guaranteed only against its own surface.
 
 **Never take `ink` from one axis onto a `surface` from the other.** Heart ink
@@ -160,7 +163,7 @@ slightly different tint to separate it from its parent, the answer is a
     "because the ink read too dark". The accent role is chosen for recognition
     rather than legibility: its two pairs are measured at the non-text floor and
     are advisory even there, so the heading is now text held to no text floor at
-    all — and the reader has a coloured heading with no coloured surface to
+    all. The reader also has a coloured heading with no coloured surface to
     explain what the colour means.
   </DoDont.Dont>
 </DoDont>
@@ -201,9 +204,10 @@ Two related obligations sit with the implementer rather than with the tokens:
 
 ## Related
 
-- [How the engine works](./how-the-engine-works.mdx) — stage 6 is where a ramp
-  becomes these four roles, and stage 7 is where the pairs are validated.
-- [Interaction states](../interaction-states.mdx) — why hover, press and
+- [How the engine works](./how-the-engine-works.mdx) covers both stages.
+  Stage 6 is where a ramp becomes these four roles, and stage 7 is where the
+  pairs are validated.
+- [Interaction states](../interaction-states.mdx) explains why hover, press and
   selected are derived at use time rather than shipped as more tokens.
-- [Token architecture](../token-architecture.mdx) — the three-tier model, and
+- [Token architecture](../token-architecture.mdx) has the three-tier model, and
   the rule that a component never references a primitive.

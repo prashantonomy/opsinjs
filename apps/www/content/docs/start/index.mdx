@@ -48,7 +48,7 @@ the ones you will actually reference.
 
 **You are writing the copy.**
 [Content and language](../content/index.mdx) →
-[Plain English A–Z](../content/plain-english-a-z.mdx) →
+[Plain-English A to Z](../content/plain-english-a-z.mdx) →
 [Numbers, units and precision](../health/numbers-units-precision.mdx). In a health
 product the words are not decoration around the component; they are most of what
 the component does.
@@ -65,18 +65,18 @@ whose status says there is none.
 Four page kinds cover almost everything on this site, and knowing which one you
 are on tells you what you can expect from it:
 
-- **Doctrine** — [Health](../health/index.mdx). Rules about what an interface may
-  assert about a person's body. Real and complete today.
-- **Foundations** — [Foundations](../foundations/index.mdx). What a token *means*:
-  colour, material, motion, type, space, shape. Real today, and the layer every
-  implemented component reads from.
-- **Components** — [Components](../components/index.mdx). Sixty catalogued ids.
-  Twenty-four are `alpha` — written specification and shipped code, which the
-  page shows side by side. The other thirty-six are `considered`: a reserved
-  name, a reason to reach for something else, and no code. Every one of the
-  twenty-four names its intent, when *not* to use it, its clinical contract, its
-  API, and the accessibility bar it must clear.
-- **Recipes and screens** — [Recipes](../recipes/index.mdx). Task-first
+- **Doctrine.** [Health](../health/index.mdx) has the rules about what an
+  interface may assert about a person's body. Real and complete today.
+- **Foundations.** [Foundations](../foundations/index.mdx) says what a token
+  *means*: colour, material, motion, type, space, shape. Real today, and the
+  layer every implemented component reads from.
+- **Components.** [Components](../components/index.mdx) lists sixty catalogued
+  ids. Twenty-four are `alpha`. That means a written specification and shipped
+  code, which the page shows side by side. The other thirty-six are `considered`:
+  a reserved name, a reason to reach for something else, and no code. Every one
+  of the twenty-four names its intent, when *not* to use it, its clinical
+  contract, its API, and the accessibility bar it must clear.
+- **Recipes and screens.** [Recipes](../recipes/index.mdx) covers task-first
   assemblies: components plus tokens plus copy rules, in one scroll. The five
   [Screens](../screens/index.mdx) specimens are specifications; none has been
   built.
@@ -90,7 +90,7 @@ Two more you will need eventually: [Handbook](../handbook/index.mdx) and
 There is code, and there is no host serving it. `opsinjs.dev` does not resolve
 yet, so the commands on the installation pages work only against a registry you
 point `@opsinjs` at yourself; and there is no npm package, which is a permanent
-answer rather than a gap — distribution is registry copy-in, decided in
+answer rather than a gap. Distribution is registry copy-in, decided in
 [ADR 0002](../project/decisions/0002-shadcn-registry-distribution.mdx). Every
 installation page says so at the top.
 
@@ -112,8 +112,8 @@ You are oriented if you can do three things:
 1. **Name the rule that stops you colouring a "Sleep" tile amber because sleep was
    poor.** It is the never-mix rule in
    [The two colour axes](../health/two-colour-axes.mdx).
-2. **Say where a threshold comes from.** Your product's clinical owner — never
-   opsinjs, and never a component default.
+2. **Say where a threshold comes from.** It comes from your product's clinical
+   owner, never from opsinjs and never from a component default.
 3. **Find a component's governing doctrine without searching.** It is listed in
    the page header under `governedBy`, and the doctrine page lists the component
    back.
@@ -121,14 +121,14 @@ You are oriented if you can do three things:
 ## Troubleshooting
 
 **The sidebar is long and you cannot find a topic.** Use search (<Kbd>⌘</Kbd>
-<Kbd>K</Kbd>). Every page carries `aliases` — the words a reader would actually
-type, including clinical vocabulary like *a1c*, *spo2* and *resting heart rate* —
-so searching for the measurement usually lands you on the component that displays
-it.
+<Kbd>K</Kbd>). Every page carries `aliases`, which are the words a reader would
+actually type, including clinical vocabulary like *a1c*, *spo2* and *resting
+heart rate*. Searching for the measurement therefore usually lands you on the
+component that displays it.
 
 **You found two pages that seem to cover the same thing.** One of them is
 canonical and says so. Plain-language vocabulary is canonical in
-[Plain English A–Z](../content/plain-english-a-z.mdx); numeric formatting is
+[Plain-English A to Z](../content/plain-english-a-z.mdx); numeric formatting is
 canonical in
 [Numbers, units and precision](../health/numbers-units-precision.mdx). The other
 page links to it rather than restating it, and a build check enforces that.
@@ -140,9 +140,9 @@ with nothing behind it, and that is the answer rather than a missing page. See
 
 ## Next
 
-- [Quick start](./quick-start.mdx) — the end-to-end path for a single result
+- [Quick start](./quick-start.mdx) is the end-to-end path for a single result
   card, using three components that are implemented.
-- [Reading these docs](./reading-these-docs.mdx) — page contracts, status badges,
-  and how to read a token or contrast table without being misled.
-- [Health](../health/index.mdx) — the doctrine layer, and the part of opsinjs that
-  is worth reading even if you never install it.
+- [Reading these docs](./reading-these-docs.mdx) covers page contracts, status
+  badges, and how to read a token or contrast table without being misled.
+- [Health](../health/index.mdx) is the doctrine layer, and the part of opsinjs
+  that is worth reading even if you never install it.

@@ -1,6 +1,6 @@
 ---
 title: Roadmap
-description: The public backlog — ordered, with blockers, and deliberately without dates.
+description: The public backlog is ordered, shows its blockers, and deliberately has no dates.
 status: stable
 kind: project
 owner: core
@@ -20,7 +20,7 @@ and the person most damaged by it is the one who planned a release around it.
 What you get instead is the order, the reason for the order, and the blocker
 attached to anything that is not moving.
 
-The status of any individual component is not maintained here — it is generated
+The status of any individual component is not maintained here. It is generated
 from the catalogue, so it cannot drift from what the system actually contains.
 
 <StatusMatrix />
@@ -28,8 +28,8 @@ from the catalogue, so it cannot drift from what the system actually contains.
 ## The order, and why
 
 Every component named below now exists, which is why this reads in the past
-tense. It is kept on the page because it explains the shape of what was built —
-which components lean on which — rather than because anything in it is still
+tense. It is kept on the page because it explains the shape of what was built
+and which components lean on which, rather than because anything in it is still
 waiting.
 
 **1. Nothing shipped before the token layer was fixed.** Every component reads
@@ -63,8 +63,8 @@ What is next is not an ordered list, and inventing one would be the dated promis
 this page opens by refusing. The honest statement is what has *not* been done:
 nothing has moved past `alpha`, no screen specimen has been built, and no
 component has been through an accessibility or a clinical review. The rest of the
-catalogue is `considered` — reserved names with no commitment, each with a reason
-to reach for something else instead. See
+catalogue is `considered`. These are reserved names with no commitment, each with
+a reason to reach for something else instead. See
 [Release phases](release-phases.mdx) for what those words oblige us to.
 
 ## Blockers
@@ -73,7 +73,7 @@ to reach for something else instead. See
 accessibility audits and the keyboard reference are generated pages whose sources
 are still empty, and `a11yDate` is `null` on every catalogue row including the
 twenty-four that are built. Those pages are not missing, they are waiting on
-numbers nobody has produced — and an empty audit table is not a passing one.
+numbers nobody has produced. An empty audit table is not a passing one.
 
 **Colour-independence and the never-mix rule need a lint rule, not a document.**
 The rule is written, and a rule that is only written is a rule that survives
@@ -89,10 +89,10 @@ lists what is unknown today rather than implying it is fine.
 
 **The `[lang]` segment is not blocked, it is deferred**, with the exact retrofit
 recipe recorded in [ADR 0005](decisions/0005-no-lang-segment-yet.mdx). Unit
-systems — mmol/L against mg/dL, kilograms against stones, Celsius against
-Fahrenheit — are treated as a correctness problem and ship now, because getting
-those wrong harms someone in English just as effectively as in any other
-language.
+systems are treated as a correctness problem and ship now, because getting those
+wrong harms someone in English just as effectively as in any other language.
+Those systems are mmol/L against mg/dL, kilograms against stones, and Celsius
+against Fahrenheit.
 
 ## What this project will not do
 
@@ -108,7 +108,7 @@ if you need one, opsinjs is the wrong dependency:
 - **A CLI.** `npx shadcn` installs from our registry today and there is nothing a
   CLI of our own would add. Writing one before writing a component would have
   been building the shop before the stock; now that there is stock, the shop
-  still belongs to somebody else —
+  still belongs to somebody else, a choice recorded in
   [ADR 0002](decisions/0002-shadcn-registry-distribution.mdx).
 - **Native mobile.** The system targets the web, including web views in native
   apps. React Native is not on this list.

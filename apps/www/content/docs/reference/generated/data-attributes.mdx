@@ -27,16 +27,16 @@ breaking change and gets a major version, because somebody's stylesheet selects
 on it.
 
 **Four columns.** *Attribute* is the literal string you select on. *Emitted by*
-is the component and the part — attributes appear on parts, not on components as
+is the component and the part. Attributes appear on parts, not on components as
 a whole, and `data-open` on a dialog's backdrop is a different contract from
 `data-open` on its panel. *Condition* is the state that produces it, written so
-you can reproduce it. *Values* is the closed set, or `—` for a boolean attribute
-whose presence is the signal.
+you can reproduce it. *Values* is the closed set, or `(none)` for a boolean
+attribute whose presence is the signal.
 
-**Two families appear here.** Attributes inherited from Base UI —
-`data-open`, `data-closed`, `data-starting-style`, `data-ending-style`,
-`data-disabled` and their relatives — behave exactly as Base UI documents them,
-and are listed with a one-line summary and a link rather than re-documented.
+**Two families appear here.** Attributes inherited from Base UI behave exactly as
+Base UI documents them, and are listed with a one-line summary and a link rather
+than re-documented. That family is `data-open`, `data-closed`,
+`data-starting-style`, `data-ending-style`, `data-disabled` and their relatives.
 Attributes opsinjs adds are documented in full, and are the ones carrying system
 meaning: the clinical status of a value, the category it belongs to, whether the
 data behind it is stale or partial.
@@ -58,7 +58,7 @@ each component's own page. Separately from the system,
 by every not-built-yet marker on this site, so a program can tell a specification
 from a component without parsing prose.
 
-{/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
+{/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 <NoDataYet script="scripts/build-reference.mts" />
 

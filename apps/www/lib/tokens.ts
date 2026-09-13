@@ -1,19 +1,21 @@
 /**
  * The typed read model over the generated token map.
  *
- * `components/docs/tables.tsx` — `<TokenTable>` and the other generated tables —
- * reads the token map through here, and it is the only module that does. That is
- * narrower than it sounds, and the reason is worth knowing before adding a
- * caller: nothing in this application hand-writes a token VALUE, but there are
- * three legitimate ways to obtain one and they answer different questions.
+ * `<TokenTable>` and the other generated tables in `components/docs/tables.tsx`
+ * read the token map through here, and that file is the only module that does.
+ * That is narrower than it sounds, and the reason is worth knowing before
+ * adding a caller: nothing in this application hand-writes a token VALUE, but
+ * there are three legitimate ways to obtain one and they answer different
+ * questions.
  *
- *   - This file: the AUTHORED value and its metadata — namespace, tier, source
- *     path, description, reduced-motion twin. Server-renderable, sortable,
- *     printable. Use it for a table or a reference page.
+ *   - This file: the AUTHORED value and its metadata. The metadata is the
+ *     namespace, tier, source path, description and reduced-motion twin.
+ *     Server-renderable, sortable, printable. Use it for a table or a reference
+ *     page.
  *   - `getComputedStyle` on the live document: the value IN EFFECT, after the
  *     Display-P3 escalation, dark mode, reduced transparency and reduced motion
  *     have rewritten it. `<TokenSwatch>` and the `/tokens` browser use this
- *     deliberately — the `/tokens` browser goes further and enumerates
+ *     deliberately. The `/tokens` browser goes further and enumerates
  *     `document.styleSheets`, so it lists a namespace the day it is emitted
  *     without this file knowing about it.
  *   - `lib/generated/tokens.ts` directly: `scripts/build-reference.mts` imports
@@ -161,7 +163,7 @@ export const TOKEN_FORMAT_LABELS: Record<TokenFormat, string> = {
  * for a duration; and it is a LOSSY conversion for anything outside sRGB, which
  * is exactly why the colour browser shows the OKLCH value first and offers hex
  * second. `class` returns the Tailwind arbitrary-property form rather than
- * guessing a utility name — a wrong utility name copied out of documentation is
+ * guessing a utility name. A wrong utility name copied out of documentation is
  * worse than an ugly correct one.
  */
 export function formatToken(

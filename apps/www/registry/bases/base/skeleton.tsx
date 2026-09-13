@@ -1,10 +1,10 @@
 /**
- * Skeleton — the shape of content that has not arrived, and nothing more.
+ * Skeleton is the shape of content that has not arrived, and nothing more.
  *
  * THE RULE THIS COMPONENT EXISTS TO ENFORCE. A skeleton must never imply a
  * value. A rounded rectangle sitting where a reading will be, at the width the
- * reading will be, has already told the reader that a reading exists — and
- * sometimes none does, and the surface resolves into an EmptyState saying so.
+ * reading will be, has already told the reader that a reading exists. Sometimes
+ * none does, and the surface resolves into an EmptyState saying so.
  * That is why `shape` has four members and none of them is "value", "dial" or
  * "bar", and why a shape outside the four resolves to `text` rather than to
  * whatever is nearest what the caller asked for: `text` is the shape that
@@ -13,20 +13,20 @@
  * NOT COMPOSABLE. There is no `Skeleton.Block` export and no `Skeleton.Group`
  * export. The parts named in the anatomy are identified by `data-slot`, which
  * is enough to style them and not enough to assemble a value-shaped placeholder
- * out of them. Everything a caller needs to reach — width, height, the corner —
- * is reachable through `className` on the root and through the `data-slot`
- * selectors underneath it.
+ * out of them. The width, the height and the corner are everything a caller
+ * needs to reach, and each is reachable through `className` on the root and
+ * through the `data-slot` selectors underneath it.
  *
  * IT ANNOUNCES NOTHING, ON PURPOSE. The root is `aria-hidden`, so a dashboard
  * with eleven skeletons on it is silent rather than saying "loading" eleven
  * times. The polite announcement belongs to the region the skeletons are
- * inside — one `role="status"` on that region, one message — and this component
+ * inside: one `role="status"` on that region, one message. This component
  * deliberately does not mount it, because a component that speaks on the
  * caller's behalf speaks once per instance.
  *
  * IT IS A SERVER COMPONENT, AND `appearAfterMs` IS WHY THAT TOOK WORK. The
  * appearance delay is the one thing here that wants a timer, and a timer would
- * make every skeleton on the page a client component — which would mean the
+ * make every skeleton on the page a client component. That would mean the
  * placeholder that exists to stop the layout jumping does not render until
  * JavaScript has loaded, on exactly the connections where the jump is worst. So
  * the delay is CSS: an animation with `animation-fill-mode: backwards` holds
@@ -38,7 +38,7 @@
  * Holding an element hidden and then revealing it cannot be expressed as a
  * Tailwind utility: it needs a `@keyframes` rule, and no keyframe in Tailwind's
  * defaults has an explicit `from`, so none of them can hold anything.
- * `@starting-style` was the alternative and was turned down — a caller whose
+ * `@starting-style` was the alternative and was turned down. A caller whose
  * browser does not support it would get no delay and no error, which is a prop
  * that silently does nothing. The rule below is emitted only when
  * `appearAfterMs` is actually set, and React hoists and de-duplicates it by
@@ -59,7 +59,7 @@ import { cn } from "@/lib/utils"
  *
  * The reduced-motion block is not a duplicate of the token layer's. Inside
  * opsinjs `--opsin-duration-fast` already collapses to 1ms under
- * `prefers-reduced-motion` — `app/product.css` does it below its `@import`, and
+ * `prefers-reduced-motion`. `app/product.css` does it below its `@import`, and
  * that ordering is load-bearing. In a project that installed this file and does
  * not have the opsinjs token stylesheet, the `var()` falls through to its
  * literal fallback and nothing collapses it, so the component closes the
@@ -83,26 +83,26 @@ const APPEARANCE_CSS = `@keyframes opsin-skeleton-in {
 /**
  * Every shape, written out, because Tailwind reads class names as literal
  * strings. `rounded-${shape}` and `h-[${height}]` generate no CSS at all and
- * render a placeholder with no shape — the one defect a reviewer looking at a
- * grey rectangle is least likely to notice.
+ * render a placeholder with no shape. That is the one defect a reviewer looking
+ * at a grey rectangle is least likely to notice.
  *
  * The sizes are in `em` and in `rem` and never in `px`. At 200% text it is the
  * reader's root font size that changes, so a skeleton sized this way takes the
  * space the real content will take AT 200% rather than the space it took at
- * 100% — which is the difference between a placeholder that holds the layout
- * open and one that lets it collapse the moment the text lands.
+ * 100%. That is the difference between a placeholder that holds the layout open
+ * and one that lets it collapse the moment the text lands.
  */
 const SHAPES = {
   /* One line of body text. `1em` is the glyph height and not the line box; the
      rest of the line box is the margin in TEXT_LINE_RHYTHM below, so N of these
-     occupy the height N lines of text will — exactly, where the surrounding
-     text is at the body step, and approximately everywhere else. The bar
-     follows the INHERITED font size while the rhythm follows the body step's
-     leading, and those are the same number only at the body step. */
+     occupy the height N lines of text will. That reservation is exact where the
+     surrounding text is at the body step, and approximate everywhere else. The
+     bar follows the INHERITED font size while the rhythm follows the body
+     step's leading, and those are the same number only at the body step. */
   text: "h-[1em] rounded-full",
   line: "h-[1em] w-full rounded-full",
   /* A card, an image, a chart's plotting area. 4rem is a starting height and
-     nothing more — the caller knows what is coming and this component does not,
+     nothing more. The caller knows what is coming and this component does not,
      so `className` is expected here rather than exceptional. */
   block: "h-opsin-16 w-full rounded-opsin-md",
   /* An avatar or a thumbnail. Sized from the space scale rather than from the
@@ -134,8 +134,9 @@ const SHAPE_NAMES = Object.keys(SHAPES) as SkeletonShape[]
 const MAX_TEXT_LINES = 24
 
 /**
- * The vertical rhythm of the text shape, taken from the type scale rather than
- * guessed — with one precondition, stated here because the page states it too.
+ * The vertical rhythm of the text shape is taken from the type scale rather
+ * than guessed. There is one precondition, stated here because the page states
+ * it too.
  *
  * `--opsin-text-body-leading` is a unitless multiplier, so `(leading - 1) * 1em`
  * is what is left of a line box once the `1em` bar is taken out of it, and half
@@ -153,7 +154,7 @@ const MAX_TEXT_LINES = 24
  *
  * The fallback is the system's own body leading rather than a generic one, so
  * that an install without the opsinjs token sheet reserves the same space this
- * one does — the same convention the durations in APPEARANCE_CSS follow.
+ * one does. The durations in APPEARANCE_CSS follow the same convention.
  */
 const TEXT_LINE_RHYTHM: CSSProperties = {
   marginBlock: "calc((var(--opsin-text-body-leading, 1.294) - 1) * 0.5em)",
@@ -172,7 +173,7 @@ export interface SkeletonProps {
    * rendered shorter, the way a paragraph's last line is. Defaults to 3. The
    * count is repaired at both ends rather than trusted: a value below 1 is
    * raised to 1 rather than rendering a group that reserves no space at all,
-   * and a value above 24 is lowered to 24 — no paragraph a skeleton stands in
+   * and a value above 24 is lowered to 24. No paragraph a skeleton stands in
    * for has more lines than that, and an unbounded count allocates an unbounded
    * array during a server render.
    */
@@ -191,7 +192,7 @@ export interface SkeletonProps {
    * reads as content that is arriving.
    *
    * It loops for as long as the skeleton is mounted, and there is no pause,
-   * stop or hide control — `prefers-reduced-motion` is an operating-system
+   * stop or hide control. `prefers-reduced-motion` is an operating-system
    * preference, not the page-level mechanism WCAG 2.2 SC 2.2.2 asks for past
    * five seconds. Pass `false`, or replace the skeleton with words, on a wait
    * long enough for that to matter.
@@ -215,13 +216,13 @@ export function Skeleton({
   /* A shape outside the vocabulary is refused by resolving to `text`, not
      approximated. This file ships as source into JavaScript projects where a
      type is advice, and `shape="value"` is the exact request the four members
-     exist to turn down — so the answer to it has to be a shape that says
+     exist to turn down. The answer to it therefore has to be a shape that says
      nothing about a number, rather than the nearest available rectangle. */
   const resolved: SkeletonShape = SHAPE_NAMES.includes(shape) ? shape : "text"
 
   /* Line counts are repaired rather than rejected, at BOTH ends. There is no
-     honest rendering of `lines={0}` — a group that reserves no space defeats the
-     component — and no OPSIN code covers it, so the repair is silent and
+     honest rendering of `lines={0}`, because a group that reserves no space
+     defeats the component. No OPSIN code covers it, so the repair is silent and
      documented rather than warned about through a channel that does not exist.
 
      The ceiling is not cosmetic. This is a server component, so the array below
@@ -262,8 +263,8 @@ export function Skeleton({
   return (
     <div
       data-slot="skeleton"
-      /* It conveys nothing. Announcing it — once, let alone once per block — is
-         worse than silence, and the region around it owns the single polite
+      /* It conveys nothing. Announcing it even once, let alone once per block,
+         is worse than silence, and the region around it owns the single polite
          message that is worth making. */
       aria-hidden="true"
       /* A printed page has no loading state, and a grey rectangle on paper is

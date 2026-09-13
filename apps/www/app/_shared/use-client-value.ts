@@ -7,8 +7,8 @@ import { useCallback, useSyncExternalStore } from "react"
  *
  * Several of the tools on this site have to ask the *device* a question: does
  * this engine support relative colour syntax, is this display wide-gamut, has
- * the reader asked for reduced motion. The obvious implementation — read it in
- * an effect and push it into state — is both a lint error under
+ * the reader asked for reduced motion. The obvious implementation is to read it
+ * in an effect and push it into state. That is both a lint error under
  * `react-hooks/set-state-in-effect` and, more importantly, wrong: it renders one
  * answer on the server, a different one after hydration, and never notices when
  * the answer changes.
@@ -26,8 +26,8 @@ import { useCallback, useSyncExternalStore } from "react"
 const NO_SUBSCRIPTION = () => () => {}
 
 /**
- * A value that only exists in the browser and does not change afterwards —
- * feature detection, essentially. Returns null during server rendering and
+ * A value that only exists in the browser and does not change afterwards, which
+ * is essentially feature detection. Returns null during server rendering and
  * during hydration.
  *
  * `read` MUST return a primitive or a cached reference. Returning a fresh object

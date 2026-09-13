@@ -1,6 +1,6 @@
 /**
- * Three sparklines in a row, which is the arrangement the category tint exists
- * for — and the arrangement that shows the component's sharpest limitation.
+ * Three sparklines in a row is the arrangement the category tint exists for. It
+ * is also the arrangement that shows the component's sharpest limitation.
  *
  * WHAT THE TINT IS FOR. Findability, and nothing else. A reader scanning a
  * dashboard is looking for the sleep one among six, and a tinted line is how
@@ -24,7 +24,7 @@
  * NO TILE NAMES A DIRECTION. None of the three passes a `changeThreshold`, so
  * each caption gives its first and last reading and stops. A direction word
  * needs the difference below which a series is presented as unchanged, and that
- * belongs to the metric — three tiles that all said "Up" because three numbers
+ * belongs to the metric. Three tiles that all said "Up" because three numbers
  * happened to end higher than they started would be three verdicts nobody
  * signed.
  *

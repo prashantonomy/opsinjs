@@ -35,15 +35,15 @@ predictable, and this page is the checklist.
 
 Two arrangements work, and the choice has consequences you should make on purpose.
 
-**Inside one app** — `apps/web/components/opsinjs/`. Simplest, and correct when one
-app consumes opsinjs. Nothing crosses a package boundary, so nothing needs to be
-built or exported.
+**Inside one app** puts them in `apps/web/components/opsinjs/`. Simplest, and
+correct when one app consumes opsinjs. Nothing crosses a package boundary, so
+nothing needs to be built or exported.
 
-**In a shared package** — `packages/ui/src/opsinjs/`, consumed by several apps.
-Correct when more than one app renders the same health surfaces, and it is worth
-the extra configuration precisely because those surfaces must not drift between
-apps. The cost is that every consuming app must scan the package for classes,
-which is the failure below.
+**In a shared package** puts them in `packages/ui/src/opsinjs/`, consumed by
+several apps. Correct when more than one app renders the same health surfaces,
+and it is worth the extra configuration precisely because those surfaces must
+not drift between apps. The cost is that every consuming app must scan the
+package for classes, which is the failure below.
 
 What does not work is copying the same component into two apps and maintaining
 both. In a health system, two divergent copies of a component that renders a
@@ -63,7 +63,8 @@ in the package that owns the components and always target it.
 ## Get the aliases right in the right file
 
 `aliases` in `components.json` and `paths` in `tsconfig.json` must agree, and both
-must be correct **in the workspace being written to** — not at the repository root.
+must be correct **in the workspace being written to** rather than at the
+repository root.
 
 ```jsonc title="apps/web/tsconfig.json"
 {
@@ -129,7 +130,7 @@ wrong `components.json`, or there is one at the root that should not be there.
 from the app rather than from the package.
 
 **Duplicate React or duplicate Base UI.** A hoisting problem in your package
-manager, not an opsinjs problem — but it presents as one, so check it early.
+manager, not an opsinjs problem. But it presents as one, so check it early.
 
 **Turbo or Nx caches a stale CSS build.** Include the `@source` targets in the
 task's inputs, or the cache will happily return a build that predates your
@@ -137,8 +138,9 @@ components.
 
 ## Next
 
-- [components.json](./components-json.mdx) — the fields these paths come from.
-- [Tailwind v4](../../theming/tailwind-v4.mdx) — the ordering and scanning rules in
-  full.
-- [Upgrading](./upgrading.mdx) — keeping copied source current across several
-  workspaces.
+- [components.json](./components-json.mdx) covers the fields these paths come
+  from.
+- [Tailwind v4](../../theming/tailwind-v4.mdx) has the ordering and scanning
+  rules in full.
+- [Upgrading](./upgrading.mdx) covers keeping copied source current across
+  several workspaces.

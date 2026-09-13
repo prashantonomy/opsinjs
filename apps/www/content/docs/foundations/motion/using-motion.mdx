@@ -1,6 +1,6 @@
 ---
 title: Using motion
-description: Motion chosen by the job it is doing — enter, exit, feedback, navigation, loading — with duration derived from distance, and the count-up rule for animated numbers.
+description: Motion chosen by the job it is doing, with duration derived from distance, and the count-up rule for animated numbers. The five jobs are enter, exit, feedback, navigation and loading.
 status: stable
 kind: foundation
 aliases: [transition, enter animation, exit animation, count-up]
@@ -20,10 +20,10 @@ opsinjs chooses by **job**. There are five, they behave differently, and each on
 has a defensible reason for its curve and its duration. Once you have named the
 job, the token follows, and the argument is over.
 
-The related idea people reach for instead is a t-shirt scale of durations —
-`fast`, `medium`, `slow`. opsinjs has those steps, but they are the output of the
-decision, not the input. Choosing `slow` because a transition felt rushed is how
-a system ends up with a 560 ms press feedback.
+The related idea people reach for instead is a t-shirt scale of durations named
+`fast`, `medium` and `slow`. opsinjs has those steps, but they are the output
+of the decision, not the input. Choosing `slow` because a transition felt
+rushed is how a system ends up with a 560 ms press feedback.
 
 ## How it works
 
@@ -34,17 +34,18 @@ when it contains a value. Enter is also the only job allowed to be the longest,
 because the reader is being told where something came from and that takes a
 moment to read.
 
-**Exit.** Something leaves. Accelerating and *shorter than its enter* — usually
-around two thirds. Nobody needs to watch something they have dismissed; a
-symmetrical exit reads as the interface arguing with you. Exit is also where
-`data-ending-style` matters, because the element must survive long enough to
-animate before it is removed from the DOM — the mechanics are in
+**Exit.** Something leaves. Accelerating and *shorter than its enter*. Its
+duration is usually around two thirds of the enter's. Nobody needs to watch
+something they have dismissed; a symmetrical exit reads as the interface
+arguing with you. Exit is also where `data-ending-style` matters, because the
+element must survive long enough to animate before it is removed from the DOM.
+The mechanics are in
 [Handbook → Motion in practice](../../handbook/motion-in-practice.mdx).
 
 **Feedback.** The interface acknowledging your touch. The shortest thing in the
 system, on the `instant` step, applied on pointer-down rather than on click.
 Anything longer than a blink stops reading as acknowledgement and starts reading
-as lag — which, on a form where somebody is entering a blood-pressure reading, is
+as lag. On a form where somebody is entering a blood-pressure reading, that is
 the difference between one entry and two.
 
 **Navigation.** Moving between screens or between levels of one. This is where
@@ -100,8 +101,8 @@ exactly once per value, on first reveal, and for no longer than 600 ms.
 </DoDont>
 
 **Transitions, not keyframes, wherever a reader can interrupt.** Anywhere
-somebody can scroll, tap, dismiss or navigate mid-animation — which is nearly
-everywhere — use a CSS transition between two states. A transition reverses
+somebody can scroll, tap, dismiss or navigate mid-animation, use a CSS
+transition between two states. That is nearly everywhere. A transition reverses
 smoothly from wherever it has got to; a keyframe animation either restarts from
 the beginning, snaps, or holds the reader until it finishes. The single exception
 is the looping loading indicator, which has no end state.
@@ -113,8 +114,9 @@ is the looping loading indicator, which has no end state.
   </DoDont.Do>
   <DoDont.Dont>
     The same sheet as a keyframe animation. Interrupting it makes it jump to the
-    start or lurch to the end, and on a bottom sheet — the surface most likely to
-    be grabbed mid-flight — that is the most noticeable failure in the system.
+    start or lurch to the end. A bottom sheet is the surface most likely to be
+    grabbed mid-flight, and that is where the failure is most noticeable in the
+    system.
   </DoDont.Dont>
 </DoDont>
 
@@ -127,7 +129,7 @@ on.
   easing="--opsin-ease-spring-settle"
   duration="--opsin-duration-spring-settle"
   property="translate"
-  label="A popover settling — the chrome workhorse"
+  label="A popover settling is the chrome workhorse"
 />
 
 ## Tokens
@@ -142,7 +144,7 @@ Durations and easings are generated from `tokens/motion.json` by
 
 - **Feedback timing is a motor-accessibility issue.** A press acknowledgement
   that arrives late reads as a missed tap, and a reader with a tremor or reduced
-  dexterity will tap again — which on a logging surface means a duplicate entry.
+  dexterity will tap again. On a logging surface, that means a duplicate entry.
   This is why feedback is on the shortest step and fires on pointer-down.
 - **Interruptibility is an accessibility requirement, not a polish item.**
   Somebody using a switch or a screen reader may act at any point in an
@@ -153,14 +155,14 @@ Durations and easings are generated from `tokens/motion.json` by
   of animating the text content instead of the presentation.
 - **Nothing may be unusable while it animates.** Controls accept input during
   their entrance; a reader who knows where the button is does not wait.
-- **Every job has a reduced variant**, and none of them are simply removed —
-  see [Reduced motion](reduced-motion.mdx).
+- **Every job has a reduced variant**, and none of them are simply removed. See
+  [Reduced motion](reduced-motion.mdx).
 
 ## Related
 
-- [Choreography](choreography.mdx) — what happens when more than one thing has a
-  job at the same time.
-- [Springs as tokens](springs-as-tokens.mdx) — where the curves these jobs use
+- [Choreography](choreography.mdx) says what happens when more than one thing
+  has a job at the same time.
+- [Springs as tokens](springs-as-tokens.mdx) is where the curves these jobs use
   come from, and which of them may touch a value.
-- [Data states](../data-states.mdx) — the loading job's other half: what the
+- [Data states](../data-states.mdx) is the loading job's other half: what the
   skeleton is allowed to look like.

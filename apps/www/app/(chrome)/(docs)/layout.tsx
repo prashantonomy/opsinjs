@@ -12,22 +12,23 @@ import { source } from "@/lib/source"
  * The title template for every documentation page.
  *
  * `generateMetadata` in `docs/[[...slug]]/page.tsx` returns the frontmatter
- * title unchanged — "Range bar", "Colour roles" — which is right for the OG card
- * and wrong for a browser tab. This appends the system name once, in one place,
- * rather than in the four spots that page builds a title for. See the note on
- * `app/(chrome)/(home)/layout.tsx` for why it is not on the root layout.
+ * title unchanged. A title such as "Range bar" or "Colour roles" is right for
+ * the OG card and wrong for a browser tab. This appends the system name once,
+ * in one place, rather than in the four spots that page builds a title for. See
+ * the note on `app/(chrome)/(home)/layout.tsx` for why it is not on the root
+ * layout.
  */
 export const metadata: Metadata = {
   title: {
-    template: `%s — ${site.name}`,
-    default: `Documentation — ${site.name}`,
+    template: `%s · ${site.name}`,
+    default: `Documentation · ${site.name}`,
   },
 }
 
 /**
  * The documentation shell.
  *
- * This is a NESTED layout. It must not render `<html>` or `<body>` — those
+ * This is a NESTED layout. It must not render `<html>` or `<body>`. Those
  * belong to `app/(chrome)/layout.tsx`, which is one of the two root layouts and
  * also mounts the single theme provider.
  *

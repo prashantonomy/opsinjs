@@ -26,10 +26,10 @@ things go in your particular framework.
   catalogue are specifications with no code behind them.
   [Registry](../../registry/index.mdx) says which is which. Two things are still
   absent, and they fail differently. There is no npm package and there will not
-  be one — distribution is registry copy-in — and `opsinjs.dev`, the host every
-  command in this section names, is not serving yet, so `@opsinjs` resolves only
-  against a registry you point it at yourself. Everything implemented is
-  `alpha`: the API will change without a deprecation.
+  be one, because distribution is registry copy-in. `opsinjs.dev`, the host
+  every command in this section names, is also not serving yet, so `@opsinjs`
+  resolves only against a registry you point it at yourself. Everything
+  implemented is `alpha`: the API will change without a deprecation.
 </Callout>
 
 ## Pick your path
@@ -42,7 +42,7 @@ things go in your particular framework.
 | **Monorepo** | The app that consumes opsinjs is not the repository root | [Monorepo](./monorepo.mdx) |
 
 If you already have a working React 19 and Tailwind v4 application, go straight to
-[components.json](./components-json.mdx) — the framework pages are mostly about
+[components.json](./components-json.mdx). The framework pages are mostly about
 getting to that point.
 
 ## Understand the four things every path does
@@ -97,7 +97,7 @@ requirement rather than a preference.
 
 ## Verify it worked
 
-The same four checks work on every path, in this order — each one isolates a
+The same four checks work on every path, in this order. Each one isolates a
 different failure:
 
 1. **The file exists** where `components.json` said it would.
@@ -110,8 +110,8 @@ different failure:
 
 **The command fails to resolve `@opsinjs`.** Either `components.json` has no
 `registries` entry for the namespace, or it has one pointing at `opsinjs.dev`,
-which is not serving yet. The two produce different errors — an unknown registry
-against a network failure — and
+which is not serving yet. The two produce different errors. One is an unknown
+registry, the other a network failure, and
 [Troubleshooting](../troubleshooting.mdx#nothing-is-published-yet) separates them.
 
 **Everything works except the styling.** Almost certainly the `@source` line. This
@@ -127,7 +127,8 @@ do differently.
 
 ## Next
 
-- [Next.js](./next.mdx) — the reference install, and the one to read even if you
-  use something else.
-- [components.json](./components-json.mdx) — every field opsinjs reads.
-- [Quick start](../quick-start.mdx) — what to build once the pieces are in place.
+- [Next.js](./next.mdx) is the reference install, and the one to read even if
+  you use something else.
+- [components.json](./components-json.mdx) covers every field opsinjs reads.
+- [Quick start](../quick-start.mdx) says what to build once the pieces are in
+  place.

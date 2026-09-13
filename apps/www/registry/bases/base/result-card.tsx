@@ -1,5 +1,5 @@
 /**
- * ResultCard — one result, complete: what was measured, the number, where it
+ * ResultCard is one result, complete: what was measured, the number, where it
  * sits against the range somebody supplied, what that means in words, and what
  * to do next.
  *
@@ -25,13 +25,13 @@
  * least one reference interval at any moment.
  *
  * THE TWO AXES SIT ON DIFFERENT ELEMENTS, and this component is the worked
- * example of that rule. The card's surface is neutral at every level — a card
+ * example of that rule. The card's surface is neutral at every level. A card
  * whose whole background turns amber converts one measurement into an emotional
  * event, and a screen of four of them is unreadable. The status axis reaches
  * exactly one element, the pill, which is a child of the header. The category
  * axis reaches exactly one element, the title, which is its sibling. No element
- * resolves both, so there is nothing here for `axisConflict()` to report — and
- * calling it on the props object would be the mistake, because a card given a
+ * resolves both, so there is nothing here for `axisConflict()` to report.
+ * Calling it on the props object would be the mistake, because a card given a
  * category AND a level is the correct shape rather than the collision.
  *
  * IT OWNS NO CLINICAL NUMBER. No interval, no staleness boundary, no
@@ -43,7 +43,7 @@
  * AND IT SHIPS NO DISCLAIMER. The specification's part list asks the footnote
  * to carry a not-medical-advice note "by rule"; this file renders provenance
  * there and nothing else. Default legal text is the one string opsinjs may
- * never ship — it is jurisdictional, it is the product's to write, and a
+ * never ship. It is jurisdictional, it is the product's to write, and a
  * sentence supplied by a design system is a sentence nobody reviewed. The
  * component for it is `DisclaimerNote`, placed by the product.
  *
@@ -76,13 +76,13 @@ import { Value } from "@/registry/base-lyra/ui/value"
  *
  * `warnOnce` in the substrate is keyed to an `OpsinErrorCode`, and those codes
  * describe mistakes a consumer makes with the CLINICAL api. Most of what this
- * file complains about is a composition mistake instead — three actions, a
- * range with no unit to read it in, a reading supplied twice — and a component
+ * file complains about is a composition mistake instead, such as three actions,
+ * a range with no unit to read it in, or a reading supplied twice. A component
  * may not mint a code: the table is generated from `tokens/errors.json` and is
  * a versioned contract. So this file keeps its own small set, keyed on the
  * offender rather than on the message, because a warning that repeats on every
- * render — and twice per render under Strict Mode — is a channel somebody
- * switches off, and switching it off costs the real warnings too.
+ * render is a channel somebody switches off, and switching it off costs the
+ * real warnings too. Under Strict Mode that warning repeats twice per render.
  *
  * Declared rather than allocated. In a production bundle `isDevelopment()` is
  * statically false, every call below is dead code, and the set is never made.
@@ -105,12 +105,13 @@ function warnDev(key: string, message: string): void {
  * and the title renders in the inherited colour, which is the failure that
  * looks like nothing happening.
  *
- * `-ink` rather than the bare name, which is the ACCENT role on this axis —
- * the identity fill, chosen for recognition rather than for contrast, and never
- * text. The asymmetry between the axes is real and is worth restating: the bare
- * status name is the LINE role, the bare category name is the ACCENT role.
+ * `-ink` rather than the bare name, which is the ACCENT role on this axis. The
+ * ACCENT role is the identity fill, chosen for recognition rather than for
+ * contrast, and never text. The asymmetry between the axes is real and is worth
+ * restating: the bare status name is the LINE role, the bare category name is
+ * the ACCENT role.
  *
- * Category colour is identity — what this reading is about — and never a
+ * Category colour is identity. It says what this reading is about, and never a
  * verdict, so no word accompanies it. In greyscale it says nothing, and nothing
  * is what it is entitled to say: the title beside it already names the
  * measurement in full.
@@ -132,7 +133,7 @@ const CATEGORY_INK: Record<HealthCategory, string> = {
  * opsinjs has never seen. Both axes, because a card in a narrow column is not
  * wide, and a floor that holds on one axis is not a floor. The token is a rem,
  * so it grows with the reader's own text size instead of pinning at 44 device
- * pixels — and the literal fallback is what keeps it a floor in a project that
+ * pixels. The literal fallback is what keeps it a floor in a project that
  * has not imported the token sheet.
  */
 const TARGET_FLOOR =
@@ -153,8 +154,8 @@ const TARGET_FLOOR =
  * a border and a bigger box survive greyscale and a black-and-white printout.
  *
  * BE PRECISE ABOUT THE FILL, because the page used to claim one. `bg-card` is
- * the card's own ground, so on a ResultCard it paints no visible fill at all —
- * it is the explicit surface that keeps the link readable if a caller gives the
+ * the card's own ground, so on a ResultCard it paints no visible fill at all.
+ * It is the explicit surface that keeps the link readable if a caller gives the
  * card a different ground, and nothing more. The boundary and the target are
  * the difference a reader can see. All of it is argued rather than measured.
  */
@@ -180,7 +181,8 @@ const ALTERNATIVE_LINK =
 const ALTERNATIVE_BUTTON = "underline underline-offset-4"
 
 /**
- * One part of a compound reading — the two numbers that are one measurement.
+ * One part of a compound reading. A compound reading is the two numbers that
+ * are one measurement.
  *
  * THIS IS THE RESOLUTION OF A CONTRADICTION IN THE SPECIFICATION, and it is
  * recorded here as well as on the page. The proposed interface typed `value` as
@@ -188,11 +190,11 @@ const ALTERNATIVE_BUTTON = "underline underline-offset-4"
  * part tree routed every reading through `Value`, whose `value` is
  * `number | null`. A string has nowhere to go: it cannot be formatted to the
  * measurement's precision, cannot be shaped for a locale, cannot have its unit
- * spoken, and cannot be published as a machine-readable datum — every one of
- * which is a thing `Value` exists to do, and every one of which is a promise
- * the rest of this system has already made about numbers. So the compound
- * reading is a list of numbers, each of which is a real `Value`, which is the
- * same shape `ReadingInput` uses to take one in.
+ * spoken, and cannot be published as a machine-readable datum. Each of those is
+ * a thing `Value` exists to do, and each is a promise the rest of this system
+ * has already made about numbers. So the compound reading is a list of numbers,
+ * each of which is a real `Value`, which is the same shape `ReadingInput` uses
+ * to take one in.
  *
  * Each segment carries a `label` because "128 over 78" is meaningless read
  * aloud without one, and the labels are the product's words rather than this
@@ -201,15 +203,15 @@ const ALTERNATIVE_BUTTON = "underline underline-offset-4"
  */
 export interface ResultSegment {
   /**
-   * What this part of the reading is, in the reader's language — the word a
-   * listener needs before the number for the pair to mean anything. It is
-   * announced and is not drawn: on screen the two numbers are separated by a
+   * What this part of the reading is, in the reader's language. This is the
+   * word a listener needs before the number for the pair to mean anything. It
+   * is announced and is not drawn: on screen the two numbers are separated by a
    * solidus, the way the measurement is written.
    */
   label: string
   /**
    * This part's number. `null` is a first-class state meaning this part is
-   * missing, and it is never rendered as `0` — half a compound reading is not
+   * missing, and it is never rendered as `0`. Half a compound reading is not
    * a compound reading of zero.
    */
   value: number | null
@@ -235,7 +237,7 @@ export interface ResultAction {
   /**
    * What it does, where there is nowhere to go. A function cannot cross the
    * server/client boundary, so a card given one is being rendered by a client
-   * component already — see the note on the client boundary at the foot of
+   * component already. See the note on the client boundary at the foot of
    * this file.
    */
   onSelect?: () => void
@@ -264,9 +266,9 @@ export interface ResultCardProps {
    */
   titleLevel?: 2 | 3 | 4 | 5 | 6
   /**
-   * The reading. `null` renders the absence form — in words, never as `0` and
-   * never as a bare dash — because zero is a real measurement for several
-   * metrics and a missing one is not a measurement at all.
+   * The reading. `null` renders the absence form. That form is in words, never
+   * as `0` and never as a bare dash, because zero is a real measurement for
+   * several metrics and a missing one is not a measurement at all.
    *
    * Omit it only when the reading is compound and arrives through `segments`.
    */
@@ -279,19 +281,19 @@ export interface ResultCardProps {
    */
   segments?: ResultSegment[]
   /**
-   * Display symbol exactly as `tokens/units.json` spells it — "kg", "mmol/L",
-   * "mmHg". It reaches every number on the card, so one card cannot show two
-   * units. `Value` resolves the spoken form from that table, which is why a
-   * listener hears "millimoles per mole" rather than the symbol read out letter
-   * by letter, and why a unit the table does not hold is rendered as written
-   * rather than pronounced by guesswork.
+   * Display symbol exactly as `tokens/units.json` spells it, as in "kg",
+   * "mmol/L" or "mmHg". It reaches every number on the card, so one card cannot
+   * show two units. `Value` resolves the spoken form from that table, which is
+   * why a listener hears "millimoles per mole" rather than the symbol read out
+   * letter by letter, and why a unit the table does not hold is rendered as
+   * written rather than pronounced by guesswork.
    */
   unit?: string
   /**
-   * DECIMAL PLACES, from the precision of the measurement — the resolution of
-   * the device, or the number of places the laboratory reported. Not
-   * significant figures: the same metric shown to a different number of decimal
-   * places at different magnitudes cannot be compared at a glance.
+   * DECIMAL PLACES, from the precision of the measurement. That is the
+   * resolution of the device, or the number of places the laboratory reported.
+   * Not significant figures: the same metric shown to a different number of
+   * decimal places at different magnitudes cannot be compared at a glance.
    *
    * It reaches the reading, every segment of a compound one, and both boundary
    * labels on the bar, because a reading and the bound it is compared with are
@@ -310,7 +312,7 @@ export interface ResultCardProps {
    * MEASUREMENT, never of retrieval, of sync or of render: a fetch timestamp
    * here tells a reader their four-month-old reading was taken this morning.
    *
-   * REQUIRED, AND WITH NO ABSENCE FORM — which is a known gap rather than a
+   * REQUIRED, AND WITH NO ABSENCE FORM. That is a known gap rather than a
    * decision. Every other claim on this card degrades to a stated absence, and
    * this one cannot: a card given `value={null}` still renders an instant at
    * which that missing reading was measured. Do not invent one to satisfy the
@@ -325,7 +327,7 @@ export interface ResultCardProps {
    * `measuredAt`. Required, because a component that read the clock itself
    * would read it once per card rather than once per screen and make a page of
    * results disagree with itself across a minute boundary. Read it once where
-   * the screen is rendered — `new Date().toISOString()` — and pass the same
+   * the screen is rendered. Use `new Date().toISOString()` and pass the same
    * value to every card on it.
    */
   now: string
@@ -342,15 +344,15 @@ export interface ResultCardProps {
    * when there is none: the bar is then not drawn at all and nothing is
    * substituted. Never defaulted, in any population, for any metric.
    *
-   * It is drawn only where there is also a `unit` and a single `value` — a bar
+   * It is drawn only where there is also a `unit` and a single `value`. A bar
    * needs a scale, a scale needs a unit to be read in, and a compound reading
    * has no single position on one line.
    */
   range?: ReferenceRange
   /**
    * The level of attention the PRODUCT has assigned to this result. Never
-   * derived here from `value` and `range`, and the derivation is not missing —
-   * it is refused. Omitted, no pill is rendered and no level is stated, which
+   * derived here from `value` and `range`, and the derivation is not missing.
+   * It is refused. Omitted, no pill is rendered and no level is stated, which
    * is what "nobody has made a judgement about this" looks like rather than a
    * quiet reassurance.
    */
@@ -366,7 +368,7 @@ export interface ResultCardProps {
   /**
    * The plain-English paragraph: what the test looks at, what this result means
    * in context, what usually happens next. Absent, the card says in words that
-   * there is no explanation rather than rendering nothing — silence reads as
+   * there is no explanation rather than rendering nothing. Silence reads as
    * reassurance, and it is the default nobody chose.
    */
   meaning?: ReactNode
@@ -376,15 +378,15 @@ export interface ResultCardProps {
    */
   actions?: ResultAction[]
   /**
-   * Who measured it, with what device or assay, and — where it is not already
-   * on the bar — where the range came from. Rendered as the footnote. Omitted,
+   * Who measured it, with what device or assay, and where the range came from
+   * when that is not already on the bar. Rendered as the footnote. Omitted,
    * there is no footnote: this component ships no default provenance and no
    * default disclaimer.
    *
    * FREE TEXT, WITH NO PROVENANCE CLASS, AND THAT LIMITS WHAT A `status` HERE
    * MAY MEAN. Data provenance and device accuracy sorts every value into four
-   * classes — clinically measured, device measured, device estimated,
-   * self-reported — and bounds what an interface may assert by the class: a
+   * classes, which are clinically measured, device measured, device estimated
+   * and self-reported. It bounds what an interface may assert by the class: a
    * device-estimated or self-reported value may not carry a clinical status on
    * its own. This card cannot tell those apart, because nothing in the system
    * carries the class yet. So the rule is the caller's to keep: do not pass a
@@ -392,7 +394,7 @@ export interface ResultCardProps {
    */
   provenance?: string
   /**
-   * Merged onto the root. Layout belongs here — a card sets no width and no
+   * Merged onto the root. Layout belongs here. A card sets no width and no
    * place in a grid, because those are decisions of the screen it is on. A
    * class passed here wins where the two conflict, `truncate` included, which
    * is the one way to make a reading come back to somebody with digits missing.
@@ -432,7 +434,7 @@ export function ResultCard({
 
   /* The category, checked rather than trusted. This file ships as source into
      JavaScript projects where a type is advice, and a seventh category is a
-     seventh colour ramp that does not exist — so an unknown one is reported and
+     seventh colour ramp that does not exist. So an unknown one is reported and
      the title is left in the inherited colour rather than tinted from a ramp
      picked at random. */
   let tint: HealthCategory | undefined
@@ -453,9 +455,9 @@ export function ResultCard({
      different numbers on one card under one title. */
   /* A LABEL IS THE WHOLE REASON A SEGMENT IS A SEGMENT, so a blank one is
      dropped rather than announced. `{ label: "", value: 128 }` renders an
-     sr-only ", " and a listener hears ", 128 millimetres of mercury" — a bare
-     number in a health context, which is the ambiguity the label exists to
-     prevent. Trimmed like `title`, `provenance` and an action's label, which
+     sr-only ", " and a listener hears ", 128 millimetres of mercury". That is
+     a bare number in a health context, which is the ambiguity the label exists
+     to prevent. Trimmed like `title`, `provenance` and an action's label, which
      were already checked for content rather than for type. */
   const offered = segments ?? []
   const parts = offered.filter(
@@ -537,7 +539,7 @@ export function ResultCard({
       `recommended-not-first:${heading}`,
       `[opsinjs] <ResultCard> titled "${heading}" puts its recommended action ` +
         "after another one. The order on screen is yours and nothing was " +
-        "re-ordered — but a reader takes the first control they reach, and the " +
+        "re-ordered. But a reader takes the first control they reach, and the " +
         "reading order is the one a keyboard and a screen reader follow.",
     )
   }
@@ -545,10 +547,10 @@ export function ResultCard({
 
   /* THE LEVEL IS CHECKED, LIKE EVERY OTHER PROP THIS FILE TRUSTS NOBODY ABOUT.
      A type is advice in the JavaScript project this file ships into, and
-     `titleLevel={7}` builds `<h7>` — an unknown element with no heading role at
-     all, so the card's own name silently stops being a heading and leaves the
-     outline. `titleLevel={1}` puts a second `h1` on the page. Both fall back to
-     the documented default rather than being rendered. */
+     `titleLevel={7}` builds `<h7>`. That is an unknown element with no heading
+     role at all, so the card's own name silently stops being a heading and
+     leaves the outline. `titleLevel={1}` puts a second `h1` on the page. Both
+     fall back to the documented default rather than being rendered. */
   const LEVELS = [2, 3, 4, 5, 6]
   let level = titleLevel
   if (!LEVELS.includes(level)) {
@@ -564,19 +566,19 @@ export function ResultCard({
   }
   const Heading = `h${String(level)}` as "h2" | "h3" | "h4" | "h5" | "h6"
 
-  /* THE UNIT IS PRINTED AFTER THE LAST PART — but only when the last part is a
-     number. A `null` one renders `Value`'s absence form, which carries no unit
-     element at all, so suppressing the symbol on the parts before it would
-     leave a real number on screen with nothing anywhere saying what it is
-     measured in. That is OPSIN-0003's exact ambiguity, arrived at by layout
-     rather than by a missing prop. */
+  /* THE UNIT IS PRINTED AFTER THE LAST PART. That happens only when the last
+     part is a number. A `null` one renders `Value`'s absence form, which
+     carries no unit element at all, so suppressing the symbol on the parts
+     before it would leave a real number on screen with nothing anywhere saying
+     what it is measured in. That is OPSIN-0003's exact ambiguity, arrived at by
+     layout rather than by a missing prop. */
   const lastPart = parts.length === 0 ? undefined : parts[parts.length - 1]
   const unitPrintedAfterLast = unit !== undefined && typeof lastPart?.value === "number"
 
   /* TRIMMED, LIKE `title` AND `provenance`. A `meaning` of " " renders a blank
      paragraph, and a blank paragraph is the silence this part exists to refuse:
      the one guarantee this component argues hardest for should not be defeated
-     by a space. Only a string is trimmed — a node is taken as supplied, because
+     by a space. Only a string is trimmed. A node is taken as supplied, because
      a component this file cannot see inside may render anything. */
   const explained =
     typeof meaning === "string"
@@ -592,12 +594,12 @@ export function ResultCard({
        THE NAME IS THE TITLE AND NOT THE TITLE PLUS THE READING, and the gap is
        stated rather than hidden. The specification asks for a name shaped as
        the measurement's title followed by its reading and its unit. Assembling
-       that means either formatting the number here — which is the one thing
-       this file will not do — or pointing `aria-labelledby` at the title and
-       the reading, which needs ids this component cannot mint: `useId` is a
-       hook and would put every card in the system into the client bundle to buy
-       one string. The reading is the next thing announced after the name, and
-       the page says so. */
+       that means either formatting the number here or pointing
+       `aria-labelledby` at the title and the reading. Formatting the number
+       here is the one thing this file will not do. The pointing needs ids this
+       component cannot mint: `useId` is a hook and would put every card in the
+       system into the client bundle to buy one string. The reading is the next
+       thing announced after the name, and the page says so. */
     <article
       data-slot="result-card"
       aria-label={heading || undefined}
@@ -606,7 +608,7 @@ export function ResultCard({
            escape hatch: there is no prop on this component that tints it, and
            the status axis reaches the pill and stops. `bg-card` with a real
            border rather than a Surface, because the border is the boundary a
-           printer keeps — a rung paints its edge with an inset shadow, which
+           printer keeps. A rung paints its edge with an inset shadow, which
            a browser drops when it prints unless the reader has gone looking for
            the setting that keeps it, and a card is how a reading most often
            reaches an appointment. */
@@ -652,12 +654,12 @@ export function ResultCard({
                  so it filed `text-opsin-title3` and `text-category-<name>-ink`
                  in one conflict group and kept the later. A tinted title
                  therefore lost the exact type step the paragraph above insists
-                 on, and only when a category was supplied — right in review,
-                 wrong in the case the component exists for. The two utilities
-                 set different CSS properties, so passing both through applies
-                 both. `score-dial.tsx` keeps its own type-plus-colour strings
-                 whole for the same reason; the repair belongs in `lib/utils.ts`
-                 and is reported upward.
+                 on, and only when a category was supplied. That was right in
+                 review, wrong in the case the component exists for. The two
+                 utilities set different CSS properties, so passing both
+                 through applies both. `score-dial.tsx` keeps its own
+                 type-plus-colour strings whole for the same reason; the repair
+                 belongs in `lib/utils.ts` and is reported upward.
 
                  `wrap-break-word` IS THE REFLOW REPAIR, and it is the same one
                  `callout.tsx` and `alert-banner.tsx` carry. `flex-wrap` on the
@@ -667,8 +669,8 @@ export function ResultCard({
                  with text at 200% the pill leaves this column about 121px,
                  "measurement" alone paints about 247px, and a word cannot wrap
                  at a space that is not there. The line box overflowed while
-                 every BOX stayed inside the viewport — which is why only a
-                 measurement of the text itself found it — and the document
+                 every BOX stayed inside the viewport. Only a
+                 measurement of the text itself found it. The document
                  scrolled sideways at 346px against a 320px client width. That is
                  WCAG 1.4.10 Reflow, and a result card is where it bites: a long
                  single-word measurement name is the ordinary case here, not the
@@ -690,7 +692,7 @@ export function ResultCard({
           {/* The part is the wrapper rather than the timestamp itself:
               `RelativeTime` stamps `data-slot="relative-time"` on its own root
               and one element cannot carry two slots. `showAbsolute` is on and
-              is not a prop, because a result is durable and consequential — it
+              is not a prop, because a result is durable and consequential. It
               is read weeks later, printed, and taken to an appointment, and
               "3 days ago" on paper has no date on it at all.
 
@@ -722,7 +724,7 @@ export function ResultCard({
         {/* The only status-coloured element on the card, and it is rendered
             only when the product assigned a level. There is no fallback pill:
             `StatusPillProps.status` is required with no neutral default, and a
-            card that drew one anyway would be inventing a verdict — `unknown`
+            card that drew one anyway would be inventing a verdict. `unknown`
             most of all, because a reader who meets it reads it as "probably
             fine". `describes` is what stops a listener hearing a level floating
             free of the thing it applies to. */}
@@ -767,7 +769,7 @@ export function ResultCard({
                   /* THE UNIT IS PRINTED ONCE AND SPOKEN EVERY TIME. Every
                      segment is given the unit, so no `Value` here is a number
                      with nothing saying what it is measured in and each one
-                     carries its own spoken form — a listener hears the unit
+                     carries its own spoken form. A listener hears the unit
                      after each part, which is the unambiguous reading. What is
                      suppressed is only the visible symbol on every part but the
                      last, so the pair renders the way it is written: 12/8 mmHg
@@ -780,12 +782,12 @@ export function ResultCard({
                      tree as well as off the screen. `Value` marks the visible
                      symbol `aria-hidden` only when it resolved a spoken form
                      from `tokens/units.json`, and leaves it announced when it
-                     did not — "awkward to listen to, and true", in that file's
-                     own words. Hiding it outright deletes that: for a unit the
-                     table does not hold there is no sr-only spoken sibling to
-                     survive, and every part but the last becomes a bare number.
-                     Visually hidden leaves the symbol where a listener can
-                     still reach it and renders identically. */
+                     did not. It is "awkward to listen to, and true", in that
+                     file's own words. Hiding it outright deletes that: for a
+                     unit the table does not hold there is no sr-only spoken
+                     sibling to survive, and every part but the last becomes a
+                     bare number. Visually hidden leaves the symbol where a
+                     listener can still reach it and renders identically. */
                   className={
                     last || !unitPrintedAfterLast
                       ? undefined
@@ -811,7 +813,7 @@ export function ResultCard({
           `status` and no `category` on purpose: a bar handed a status draws its
           own word and glyph beside its label, and two objects for one assertion
           is the composition error the specification names. The label is
-          announced and not drawn — the card's own heading is two elements above
+          announced and not drawn. The card's own heading is two elements above
           it, and a bar that repeated it would put the same words on screen
           twice. `measuredAt` is passed so the bar's footnote states the date
           rather than saying nobody knows when the reading was taken, which
@@ -884,7 +886,7 @@ export function ResultCard({
 }
 
 /**
- * One next step, as a link or as a control — or as nothing at all.
+ * One next step, rendered as a link, as a control, or as nothing at all.
  *
  * Returning nothing rather than rendering something is the point. A control
  * with no name is unreachable by voice and announced as "button"; a control
@@ -941,7 +943,7 @@ function ResultCardAction({
     return (
       /* STAMPED, BECAUSE THE OTHER FORM IS. `Button` puts `data-slot="button"`
          on the handler form, and an anchor carrying nothing left the two forms
-         of one prop selectable by different means — so a print stylesheet or a
+         of one prop selectable by different means. So a print stylesheet or a
          test written against the published attribute table could not reach half
          of them. */
       <a
@@ -971,7 +973,7 @@ function ResultCardAction({
  * A literal rather than a clock read. `now` is required of every caller, so a
  * demo that quietly read the clock would be documenting a different component;
  * and a fixed instant is what makes this deterministic, in the same spirit as
- * every number in an opsinjs example being obviously synthetic — a clock here
+ * every number in an opsinjs example being obviously synthetic. A clock here
  * would make the card say something different every time the page was built.
  */
 const DEMO_NOW = "2026-03-14T11:12:00+00:00"
@@ -980,16 +982,16 @@ const DEMO_NOW = "2026-03-14T11:12:00+00:00"
  * The zero-prop default export (ADR 0009).
  *
  * `/view` renders this with no props and `shadcn add` ships it, so it is public,
- * reviewed code rather than a scratch demo. It shows the card whole — the part
+ * reviewed code rather than a scratch demo. It shows the card whole. The part
  * a reader needs to see about this component is that the number, the
  * comparison, the sentence and the next step are one object, in that order.
  *
  * THE NUMBERS ARE UNREAL AND THE RANGE IS UNOWNED. The reading, the interval
  * and the unit are chosen so that nobody could take them for their own result,
- * and the interval cites `EXAMPLE_SOURCE` — the one string an opsinjs example
- * may name as its source — rather than a laboratory, a guideline body or a
- * study. This file is one `shadcn add` away from somebody else's project and
- * one screenshot away from outliving the page it was written for.
+ * and the interval cites `EXAMPLE_SOURCE` rather than a laboratory, a guideline
+ * body or a study. `EXAMPLE_SOURCE` is the one string an opsinjs example may
+ * name as its source. This file is one `shadcn add` away from somebody else's
+ * project and one screenshot away from outliving the page it was written for.
  *
  * IT CARRIES NO STALENESS BOUNDARY, so it demonstrates no staleness treatment.
  * A number here would be a clinical boundary shipped verbatim into every
@@ -998,7 +1000,7 @@ const DEMO_NOW = "2026-03-14T11:12:00+00:00"
  * rather than hidden: no preview opsinjs ships shows that state, and none can.
  *
  * THE LEVEL AND THE BAR AGREE, which they have to. `status` is the product's
- * input and this component derives nothing from the reading — but a demo whose
+ * input and this component derives nothing from the reading. But a demo whose
  * pill says one thing while the bar beneath it says another teaches that a card
  * may contradict itself. The bar reads this fictional value as inside the
  * fictional interval, so the level beside it is the one whose shipped meaning
@@ -1023,7 +1025,7 @@ export default function ResultCardDemo() {
           { label: "Book a repeat example test", href: "#example", recommended: true },
           { label: "Read about this example test", href: "#example" },
         ]}
-        provenance="Example provenance — who measured it, with what, and whose interval it is compared against."
+        provenance="Example provenance names who measured it, with what, and whose interval it is compared against."
       />
     </div>
   )

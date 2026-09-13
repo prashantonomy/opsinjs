@@ -32,30 +32,30 @@ implements:
 
 ## The task
 
-You have a piece of health data — a measurement, a derived index, a series, a
-state, a word — and you have to decide what to render. The wrong choice here is
-not a styling problem. Putting a status colour on a category component implies a
-judgement nobody made; putting a score dial on a single measurement implies a
-composite that does not exist; putting an alert banner on information nobody has
-to act on spends the escalation budget on nothing and makes the next real alert
-invisible.
+You have a piece of health data, and it is a measurement, a derived index, a
+series, a state or a word. You have to decide what to render. The wrong choice
+here is not a styling problem. Putting a status colour on a category component
+implies a judgement nobody made; putting a score dial on a single measurement
+implies a composite that does not exist; putting an alert banner on information
+nobody has to act on spends the escalation budget on nothing and makes the next
+real alert invisible.
 
 This recipe produces a decision, not a surface. Every other recipe assumes you
 have already made it.
 
 ## What you need
 
-Nothing to install for this recipe itself — it ends in a decision, not a
+Nothing to install for this recipe itself. It ends in a decision, not a
 surface. What you need is the shape of your datum and two facts about it: **who
 assigned any clinical status it carries**, and **whether the reader needs the
 reference range to understand it**. If you cannot answer the first question, you
-do not yet have a component decision to make — you have a clinical rules
+do not yet have a component decision to make. You have a clinical rules
 question, and the answer belongs in your product, not in the UI.
 
 The components below are the full display roster, and every one of them is at
 `alpha`: the code exists and installs, and the API may change in any release
 without a deprecation cycle. None of it has been through an accessibility or a
-clinical review. Read the fourth column before you install anything — the wrong
+clinical review. Read the fourth column before you install anything. The wrong
 choice compiles exactly as well as the right one.
 
 | What you have | Component | Status | Why not the obvious alternative |
@@ -87,8 +87,8 @@ Before anything else, write the label you would say out loud. "Resting heart
 rate", not `rhr`. "How long you slept", not "sleep duration total minutes". If
 the plain-English name needs a clinical term, that term is a
 [Term](../components/term.mdx) with an expansion, not a word you leave for the
-reader to look up. The [Plain English A–Z](../content/plain-english-a-z.mdx) is
-the canonical vocabulary.
+reader to look up. The [Plain-English A to Z](../content/plain-english-a-z.mdx)
+is the canonical vocabulary.
 
 If you cannot name it in the reader's words, the problem is not the component.
 
@@ -107,16 +107,16 @@ it, the answer is that the datum has no status and no status colour appears.
 
 ### Decide whether the reader needs the range
 
-If the number is meaningless without knowing what it is being compared to — most
-lab results, most single readings — the range is part of the datum, not a detail,
-and the component has to carry it. That points at
+Most lab results and most single readings are meaningless without knowing what
+they are being compared to. For those, the range is part of the datum, not a
+detail, and the component has to carry it. That points at
 [ResultCard](../components/result-card.mdx) or
 [RangeBar](../components/range-bar.mdx), and at the
 [Show a value against a reference range](./value-against-a-range.mdx) recipe.
 
-If the reader already knows what good looks like for this number — steps today,
-hours slept — the range is noise and a [MetricTile](../components/metric-tile.mdx)
-is enough.
+If the reader already knows what good looks like for this number, the range is
+noise and a [MetricTile](../components/metric-tile.mdx) is enough. Steps today
+and hours slept are examples.
 
 ### Pick from the table
 
@@ -127,8 +127,8 @@ that would have been wrong. Most incorrect choices are one of those pairs.
 ### Check the two axes
 
 Look at every coloured element in what you have chosen and say which axis it is
-on. Category colours identify — they say *this is your heart data*. Status
-colours grade — they say *this needs attention*. A single element carries one or
+on. Category colours identify. They say *this is your heart data*. Status
+colours grade. They say *this needs attention*. A single element carries one or
 the other, never both, and never colour alone.
 [The two colour axes](../health/two-colour-axes.mdx) is the rule; a component
 that makes it hard to obey is a bug in the component.
@@ -136,7 +136,7 @@ that makes it hard to obey is a bug in the component.
 ### Check the escalation budget
 
 Count the surfaces on the finished screen that are at *attention* or *urgent*.
-The budget is one urgent surface per screen and it is not negotiable — see
+The budget is one urgent surface per screen and it is not negotiable. See
 [Alarm fatigue](../health/alarm-fatigue.mdx). If your choice puts you over
 budget, the fix is to demote, not to redesign the banner.
 
@@ -147,22 +147,22 @@ budget, the fix is to demote, not to redesign the banner.
 The decision you just made determines three strings, and they are the same three
 every time:
 
-- **The label** — what was measured, in the reader's words. Never what it means:
-  "Resting heart rate", not "Heart health".
-- **The unit** — adjacent to the number, never in a legend, never only in a
+- **The label** says what was measured, in the reader's words. Never what it
+  means: "Resting heart rate", not "Heart health".
+- **The unit** sits adjacent to the number, never in a legend, never only in a
   heading. See
   [Numbers, units & precision](../health/numbers-units-precision.mdx), which is
   canonical.
-- **The time** — when it was measured, not when it was synced. A value with no
-  time is a claim about the present that you cannot support.
+- **The time** says when it was measured, not when it was synced. A value with
+  no time is a claim about the present that you cannot support.
 
 <DoDont>
   <DoDont.Do>
-    "Resting heart rate · 58 bpm · measured this morning" — what was measured, the
-    unit beside the number, and when.
+    "Resting heart rate · 58 bpm · measured this morning". This gives what was
+    measured, the unit beside the number, and when.
   </DoDont.Do>
   <DoDont.Dont>
-    "Heart Health: 58 — Normal" — three faults in five words: an interpretation
+    "Heart Health: 58 Normal". Three faults in five words: an interpretation
     used as the label, a number with no unit, and a banned word.
   </DoDont.Dont>
 </DoDont>
@@ -206,8 +206,8 @@ definite "considered, not implemented" rather than a 404 you would fill by
 inventing an API. See [Components](../components/index.mdx).
 </Todo>
 
-**The datum came from a device.** Then it carries provenance — which device, at
-what accuracy, under what conditions — and the display has to be able to show it.
+**The datum came from a device.** Then it carries provenance: which device, at
+what accuracy, and under what conditions. The display has to be able to show it.
 `source-citation` is on the considered roster for exactly this.
 
 **The datum is a comparison against the reader's own history**, not against a
@@ -223,9 +223,9 @@ next action; see
 
 ## Related
 
-- **[Components](../components/index.mdx)** — the full matrix, including every
+- **[Components](../components/index.mdx)** is the full matrix, including every
   considered row, filterable by category and status.
-- **[The two colour axes](../health/two-colour-axes.mdx)** — the rule the fourth
-  column of the table keeps referring to, in full.
-- **[Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx)** —
-  ten prohibitions stated so you can test against them.
+- **[The two colour axes](../health/two-colour-axes.mdx)** is the rule the
+  fourth column of the table keeps referring to, in full.
+- **[Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx)**
+  covers ten prohibitions stated so you can test against them.

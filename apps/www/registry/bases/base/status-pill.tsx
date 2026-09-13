@@ -1,6 +1,6 @@
 /**
- * StatusPill — the level of attention something needs, as a word, an icon and a
- * colour together.
+ * StatusPill shows the level of attention something needs, as a word, an icon
+ * and a colour together.
  *
  * NOT COMPOSABLE, AND THAT IS THE WHOLE DESIGN. There is no `StatusPill.Icon`
  * export, no `color` prop, no `variant` prop, and no way to remove the word.
@@ -13,8 +13,8 @@
  * under deuteranopia and in greyscale (Lc 0), and `steady` and `urgent` are
  * indistinguishable under tritanopia. Four ordered levels cannot be made mutually
  * distinguishable by hue alone. So the order of reliance is word, then glyph
- * shape, then colour — and the glyphs are four distinct silhouettes rather than
- * one glyph in four colours, for the same reason.
+ * shape, then colour. The glyphs are four distinct silhouettes rather than one
+ * glyph in four colours, for the same reason.
  *
  * StatusPill derives nothing. It has no thresholds, no ranges and no opinions:
  * `status` is assigned by the consuming product from a reference range or a
@@ -72,7 +72,7 @@ if (isDevelopment()) {
 
 /**
  * Tailwind reads class names out of source as literal strings, so these cannot
- * be built from the level at runtime — `bg-status-${status}-surface` generates
+ * be built from the level at runtime. `bg-status-${status}-surface` generates
  * no CSS at all and the pill renders unstyled. Written out, once.
  *
  * Note which role does which job. `-surface` is the tinted background, `-ink` is
@@ -86,10 +86,10 @@ if (isDevelopment()) {
  * that `--text-opsin-*` is a font-size namespace, so it files
  * `text-opsin-caption1` and `text-status-watch-ink` in the SAME conflict group
  * and keeps whichever comes last. Spelled `text-status-<level>-ink`, the ink was
- * deleted by `SIZE[size]` on the line after it in the `cn()` call below — at
- * both sizes and for all four levels — and the word took its colour from
- * whatever ancestor happened to supply one, on a status-tinted surface, in a
- * pairing nothing has measured. Reordering rescues nothing: `TONE` last keeps
+ * deleted by `SIZE[size]` on the line after it in the `cn()` call below, at
+ * both sizes and for all four levels. The word took its colour from whatever
+ * ancestor happened to supply one, on a status-tinted surface, in a pairing
+ * nothing has measured. Reordering rescues nothing: `TONE` last keeps
  * the ink and drops the type step and its weight instead, which is the
  * regression `care-card.tsx` records at its own action list, and `field.tsx`
  * states flatly that there is no ordering that keeps both.
@@ -97,9 +97,9 @@ if (isDevelopment()) {
  * `[color:…]` is grouped by tailwind-merge under the CSS property rather than
  * under the `text-` prefix, so the size and the colour no longer meet and both
  * survive. `button.tsx` and `disclaimer-note.tsx` answer the identical trap the
- * same way. The components that set a type step beside a colour on an element
- * `cn` never touches — `range-bar.tsx`, `score-dial.tsx`, `result-card.tsx`,
- * `metric-tile.tsx` — join the two strings instead; that answer works only
+ * same way. `range-bar.tsx`, `score-dial.tsx`, `result-card.tsx` and
+ * `metric-tile.tsx` set a type step beside a colour on an element `cn` never
+ * touches, and they join the two strings instead; that answer works only
  * outside a `cn()` call, so it is not available on this root. A Tailwind editor
  * plugin will offer to rewrite these four lines as `text-status-<level>-ink`;
  * do not accept it, because that is the spelling that loses.
@@ -107,10 +107,10 @@ if (isDevelopment()) {
  * TEACHING `lib/utils.ts` THE NAMESPACE WOULD NOT FIX THIS COMPONENT, which is
  * why the repair is here rather than reported upward a second time.
  * `scripts/build-registry.mts` leaves `@/lib/utils` out of the shipped
- * substrate on purpose — `shadcn init` has already written it — so an installed
- * pill merges its classes with whatever `cn` the consuming app owns, and a
- * component that renders its own colours only under this repository's build is
- * not repaired.
+ * substrate on purpose, because `shadcn init` has already written it. So an
+ * installed pill merges its classes with whatever `cn` the consuming app owns,
+ * and a component that renders its own colours only under this repository's
+ * build is not repaired.
  *
  * The variable is `--opsin-status-<level>-ink` and not the theme's
  * `--color-status-<level>-ink`, because the `@theme inline` block that declares
@@ -123,7 +123,7 @@ if (isDevelopment()) {
  *
  * WHAT IT COSTS, STATED RATHER THAN SOFTENED: because the two no longer
  * conflict, a `text-*` class passed in `className` can no longer recolour the
- * word — both declarations are emitted and source order decides. The surface
+ * word. Both declarations are emitted and source order decides. The surface
  * and the boundary are still overridable that way, and there is no `style`
  * prop and no spread here to reach past a class with, so the remaining way to
  * recolour the ink is a rule of your own on `[data-slot="status-pill"]`, which
@@ -151,8 +151,8 @@ export interface StatusPillProps {
   /** Required. There is no neutral default and no "unknown" level. */
   status: ClinicalStatus
   /**
-   * Overrides the default word for this level — for translation, or for a
-   * product whose readers use different language. It may not change the
+   * Overrides the default word for this level. Use it for translation, or for
+   * a product whose readers use different language. It may not change the
    * meaning, and it may not be an empty string.
    */
   label?: string
@@ -178,16 +178,16 @@ export interface StatusPillProps {
    * rather than stripping the surface.
    *
    * THE INK IS THE ONE EXCEPTION, and the comment above `TONE` says why: it is
-   * written as an arbitrary property — `color:var(--opsin-status-<level>-ink)`
-   * in square brackets, spelled out that way here because Tailwind's scanner
-   * reads comments too and a bracketed candidate with a `<level>` placeholder
-   * in it compiles to CSS that does not parse — so `tailwind-merge` does not
-   * file it against a `text-*` class and
-   * a `text-*` class you pass does not replace it. Both declarations are
-   * emitted and source order decides. Recolour it with a rule of your own on
-   * `[data-slot="status-pill"]` instead — and read `tokens/color.json` first,
-   * because the ink you would be replacing is the half of the pairing that was
-   * tuned to stay legible on the surface underneath it.
+   * written as the arbitrary property `color:var(--opsin-status-<level>-ink)`
+   * in square brackets, so `tailwind-merge` does not file it against a `text-*`
+   * class, and a `text-*` class you pass does not replace it. It is spelled out
+   * that way here because Tailwind's scanner reads comments too, and a
+   * bracketed candidate with a `<level>` placeholder in it compiles to CSS that
+   * does not parse. Both declarations are emitted and source order decides.
+   * Recolour it with a rule of your own on `[data-slot="status-pill"]` instead.
+   * Read `tokens/color.json` first, because the ink you would be replacing is
+   * the half of the pairing that was tuned to stay legible on the surface
+   * underneath it.
    */
   className?: string
 }
@@ -203,9 +203,9 @@ export function StatusPill({
      `status` is typed to the four, and this file ships as source into JavaScript
      projects where a type is advice. A value outside the vocabulary has no
      entry in CLINICAL_STATUS_META and no glyph, so there is no honest pill to
-     draw — and drawing a plausible one would be the component inventing a
-     verdict about somebody's health, which is the single thing it exists not to
-     do. `unknown` gets its own code because it is the likeliest wrong answer
+     draw. Drawing a plausible one would be the component inventing a verdict
+     about somebody's health, which is the single thing it exists not to do.
+     `unknown` gets its own code because it is the likeliest wrong answer
      and the most dangerous: it is the absence of an assertion, and a reader who
      sees it rendered as a level will read it as "probably fine". */
   if (!isClinicalStatus(status)) {
@@ -237,9 +237,9 @@ export function StatusPill({
       className={cn(
         /* `inline-flex` with `items-center` rather than a fixed height: at 200%
            text the pill has to grow and wrap with the word, and a height would
-           truncate it. `whitespace-normal` is explicit for the same reason —
-           the word is never shortened to an ellipsis and never replaced by the
-           icon alone. */
+           truncate it. `whitespace-normal` is explicit for the same reason. The
+           word is never shortened to an ellipsis and never replaced by the icon
+           alone. */
         "inline-flex max-w-full items-center whitespace-normal rounded-full border align-middle",
         TONE[status],
         SIZE[size],
@@ -269,7 +269,7 @@ export function StatusPill({
  * `/view` renders this with no props and `shadcn add` ships it, so it is public,
  * reviewed code rather than a scratch demo. It shows all four levels because the
  * one thing a reader needs to see about this component is that the four are
- * distinguishable without colour — which is also why the page's preview is worth
+ * distinguishable without colour. That is also why the page's preview is worth
  * looking at in greyscale.
  *
  * The subjects are deliberately unreal (ADR 0012). No number, no unit, no

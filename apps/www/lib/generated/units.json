@@ -1,7 +1,7 @@
 {
   "$comment": "GENERATED FILE - DO NOT EDIT. Source: tokens/units.json. Generator: scripts/build-tokens.mts (`pnpm run generate`). Gate: `pnpm check:generated`. This is the reviewable copy, with the authored policy attached; the copy that renders is the Unit/UNITS region inside lib/opsinjs.ts, because lib/generated/ does not travel with `shadcn add`. SAFETY: there is no reference range, threshold, plausibility bound, 'typical' value or default precision in this file, for any metric in any population. A unit table says what a number is measured in; it never says what a number should be. `generatedAt` carries the token source hash rather than a build time, because this file is guarded by a byte-for-byte drift gate.",
-  "generatedAt": "20d89e51921d",
-  "sourceHash": "20d89e51921d",
+  "generatedAt": "f27bc3825416",
+  "sourceHash": "f27bc3825416",
   "counts": {
     "units": 22,
     "conversions": 14,
@@ -11,8 +11,8 @@
     "whyThisExists": "A screen reader handed `mmHg` improvises a pronunciation, and the improvisation is rarely close. 'One twenty over eighty em em aitch gee' is a failure. The spoken form is the whole reason this table exists; the symbol is the part everybody remembers to supply.",
     "spoken": "`spoken` is the wording for exactly one of the thing and `plural` is the wording for every other count, zero included. Both are British English, and that is a stated limit rather than a claim: a localised spoken form is not in this table yet, so a component asked for a non-English locale gets English words beside locale-formatted digits. Naming the gap is the honest state; inventing translations is not.",
     "precision": "THERE IS NO DEFAULT PRECISION IN THIS FILE, and its absence is the point. health/numbers-units-precision is canonical and its rule 2 reads 'Precision is a property of the metric, not of the value'. A unit is not a metric: blood glucose and cholesterol are both reported in mmol/L and do not share a number of decimal places, and a per-unit default would therefore be wrong for one of them on every screen. Decimal places travel with the measurement, from the product, or they are not asserted at all.",
-    "conversion": "A conversion belongs here only when it is a mathematical fact — an exact definition of one unit in terms of another. Every one carries `basis`, which names the definition it comes from. `toBase` is how to reach the family's base unit; the generator composes the full pairwise closure from it, in exact integer arithmetic, in both directions. A unit with no `toBase` converts to nothing, and that renders as an explicit 'we do not have this' rather than a substituted default.",
-    "refusal": "`refusedConversions` is the load-bearing half. A pair listed there is one that people expect to be arithmetic and is not, and each row says why. Publishing a factor for one of them would invite somebody to apply the glucose factor to cholesterol — see health/unit-systems, which states the non-goal directly: 'opsinjs ships no factors and no thresholds. Your clinical source owns the factor; the interface owns the labelling.'",
+    "conversion": "A conversion belongs here only when it is a mathematical fact, which is an exact definition of one unit in terms of another. Every one carries `basis`, which names the definition it comes from. `toBase` is how to reach the family's base unit; the generator composes the full pairwise closure from it, in exact integer arithmetic, in both directions. A unit with no `toBase` converts to nothing, and that renders as an explicit 'we do not have this' rather than a substituted default.",
+    "refusal": "`refusedConversions` is the load-bearing half. A pair listed there is one that people expect to be arithmetic and is not, and each row says why. Publishing a factor for one of them would invite somebody to apply the glucose factor to cholesterol. See health/unit-systems, which states the non-goal directly: 'opsinjs ships no factors and no thresholds. Your clinical source owns the factor; the interface owns the labelling.'",
     "lookup": "Units are found by their exact `symbol`, case included. There is no fuzzy matching and no alias list, because a table that guesses which unit somebody meant is a table that will one day guess wrong about a concentration. An unrecognised symbol resolves to nothing, and the component renders the symbol as written rather than guessing at a pronunciation."
   },
   "units": [
@@ -46,7 +46,7 @@
       "plural": "degrees Fahrenheit",
       "measures": "temperature",
       "base": "celsius",
-      "basis": "The Fahrenheit scale is defined against Celsius: a Fahrenheit degree is exactly five ninths of a Celsius degree and the scales meet where 32 °F is 0 °C, so °C = °F × 5/9 − 160/9. This conversion is affine rather than a ratio, which is why a temperature and a temperature DIFFERENCE do not convert the same way — 2 °C of change is 3.6 °F of change, not 35.6 °F."
+      "basis": "The Fahrenheit scale is defined against Celsius: a Fahrenheit degree is exactly five ninths of a Celsius degree and the scales meet where 32 °F is 0 °C, so °C = °F × 5/9 − 160/9. This conversion is affine rather than a ratio, which is why a temperature and a temperature DIFFERENCE do not convert the same way. 2 °C of change is 3.6 °F of change, not 35.6 °F."
     },
     {
       "id": "foot",
@@ -192,7 +192,7 @@
       "offsetNumerator": 32,
       "offsetDenominator": 1,
       "basis": [
-        "The Fahrenheit scale is defined against Celsius: a Fahrenheit degree is exactly five ninths of a Celsius degree and the scales meet where 32 °F is 0 °C, so °C = °F × 5/9 − 160/9. This conversion is affine rather than a ratio, which is why a temperature and a temperature DIFFERENCE do not convert the same way — 2 °C of change is 3.6 °F of change, not 35.6 °F."
+        "The Fahrenheit scale is defined against Celsius: a Fahrenheit degree is exactly five ninths of a Celsius degree and the scales meet where 32 °F is 0 °C, so °C = °F × 5/9 − 160/9. This conversion is affine rather than a ratio, which is why a temperature and a temperature DIFFERENCE do not convert the same way. 2 °C of change is 3.6 °F of change, not 35.6 °F."
       ]
     },
     {
@@ -203,7 +203,7 @@
       "offsetNumerator": -160,
       "offsetDenominator": 9,
       "basis": [
-        "The Fahrenheit scale is defined against Celsius: a Fahrenheit degree is exactly five ninths of a Celsius degree and the scales meet where 32 °F is 0 °C, so °C = °F × 5/9 − 160/9. This conversion is affine rather than a ratio, which is why a temperature and a temperature DIFFERENCE do not convert the same way — 2 °C of change is 3.6 °F of change, not 35.6 °F."
+        "The Fahrenheit scale is defined against Celsius: a Fahrenheit degree is exactly five ninths of a Celsius degree and the scales meet where 32 °F is 0 °C, so °C = °F × 5/9 − 160/9. This conversion is affine rather than a ratio, which is why a temperature and a temperature DIFFERENCE do not convert the same way. 2 °C of change is 3.6 °F of change, not 35.6 °F."
       ]
     },
     {

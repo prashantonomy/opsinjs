@@ -1,6 +1,6 @@
 ---
 title: Text resizing and zoom
-description: The 200% text check and the 400% reflow check — two different tests that fail in two different ways, and why a truncated number is a safety defect.
+description: The 200% text check and the 400% reflow check are two different tests that fail in two different ways. This page also says why a truncated number is a safety defect.
 status: stable
 kind: accessibility
 a11yDate: 2026-09-02
@@ -20,11 +20,11 @@ Two separate things, which are routinely confused:
 or functionality. In this system that is real: the product theme has no fixed
 pixel type sizes at the root, sets `-webkit-text-size-adjust: 100%` so mobile
 browsers do not silently rescale, and the preview harness exposes it as a genuine
-root font-size change — `[data-text-size="200"] { font-size: 200% }` in
-`app/product.css` — rather than a `transform: scale()`. That distinction matters:
-a transform makes everything bigger and proves nothing, whereas a root font-size
-change makes text bigger *inside a layout that did not grow*, which is the
-condition that actually breaks things.
+root font-size change. `app/product.css` does that with
+`[data-text-size="200"] { font-size: 200% }` rather than a `transform: scale()`.
+That distinction matters: a transform makes everything bigger and proves nothing,
+whereas a root font-size change makes text bigger *inside a layout that did not
+grow*, which is the condition that actually breaks things.
 
 **Reflow (SC 1.4.10).** Content reflows to a 320 CSS pixel equivalent width
 without two-dimensional scrolling. In practice this is tested as 400% browser
@@ -59,8 +59,8 @@ also be reachable another way.
 
 **Single-line assumptions.** Buttons, chips, table headers and status pills are
 usually designed at one line. At 200%, in German, with a long clinical term, they
-are not. Decide now whether they wrap or truncate — and for anything carrying a
-value, the answer is wrap.
+are not. Decide now whether they wrap or truncate. For anything carrying a value,
+the answer is wrap.
 
 **Viewport meta.** `user-scalable=no` and `maximum-scale=1` disable pinch zoom and
 are an outright failure. The docs site does not set them; check that your product
@@ -76,12 +76,11 @@ break under this and it is not covered by the two checks above.
 
 ### The 200% text check
 
-In the preview harness, switch text size to 200% — the text-size control on any
-`<ComponentPreview>`, which stamps `data-text-size` on the embedded `/view`
-document. In a
-product, use the operating system: iOS Settings → Accessibility → Display and
-Text Size → Larger Text at maximum, or the Android font-size slider, or a browser
-minimum-font-size setting.
+In the preview harness, switch text size to 200% with the text-size control on
+any `<ComponentPreview>`, which stamps `data-text-size` on the embedded `/view`
+document. In a product, use the operating system: iOS Settings → Accessibility
+→ Display and Text Size → Larger Text at maximum, or the Android font-size
+slider, or a browser minimum-font-size setting.
 
 **Expected result:** everything reflows, nothing is clipped, no number is
 truncated, and every interactive element is still reachable. **Failure looks
@@ -120,20 +119,20 @@ and 200% text in both themes. The check underneath it exists and runs:
 `scripts/check-a11y.mts --layout` loads every built `/view` route at 390x844 at
 1x, again with the root font size at 1.3x, and again through the route's own
 `?text=200`, and it fails when an element's `scrollWidth` exceeds its
-`clientWidth` — with a separate, louder failure for any `[data-opsinjs-value]`
-that truncates, because a missing digit is the failure this page is about. It
+`clientWidth`. Any `[data-opsinjs-value]` that truncates gets a separate, louder
+failure, because a missing digit is the failure this page is about. The check
 runs in `.github/workflows/nightly.yml`, the one job that installs Playwright;
 Playwright is still in no `package.json`. What is missing is the captured render:
 the check reports what failed and keeps no picture of what passed.
 
 ## Known gaps
 
-- **No 200% result is published.** The check exists and has real routes to
-  point at — every implemented component renders at `/view` and
-  `scripts/check-a11y.mts --layout` loads them through `?text=200` — but it
-  needs Playwright, which is deliberately in no `package.json`, so it runs only
-  in the nightly workflow and nothing on this site reports what a run found. The
-  mechanism is verifiable in `app/product.css`; the result is not.
+- **No 200% result is published.** The check exists and has real routes to point
+  at. Every implemented component renders at `/view`, and
+  `scripts/check-a11y.mts --layout` loads them through `?text=200`. The check
+  nevertheless needs Playwright, which is deliberately in no `package.json`, so
+  it runs only in the nightly workflow and nothing on this site reports what a
+  run found. The mechanism is verifiable in `app/product.css`; the result is not.
 - **Text spacing (SC 1.4.12) is not addressed anywhere in this system.** Line
   height is a token; the behaviour of the layout when a user stylesheet
   overrides it is untested and unspecified.

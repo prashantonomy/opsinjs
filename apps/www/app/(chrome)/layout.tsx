@@ -6,14 +6,14 @@ import "../globals.css"
 import { cn } from "@/lib/utils"
 
 /**
- * ROOT LAYOUT #1 of 2 — the documentation chrome.
+ * ROOT LAYOUT #1 of 2 is the documentation chrome.
  *
  * There is deliberately no `app/layout.tsx`. Next allows more than one root
  * layout only in its absence, and we need two: this one, which owns the docs
  * chrome, and `app/(view)/layout.tsx`, which owns a chrome-less <html> under
  * the opsinjs product theme so that previews render as the product rather than
  * as the documentation site. Reintroducing a top-level layout would silently
- * re-nest `(view)` inside globals.css and destroy that distinction — see
+ * re-nest `(view)` inside globals.css and destroy that distinction. See
  * ../../AGENTS.md and /docs/theming/lyra-and-the-docs-chrome.
  *
  * `(home)`, `(docs)` and `(playground)` are nested groups UNDER this layout and

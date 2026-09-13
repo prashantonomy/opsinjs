@@ -34,7 +34,7 @@ rather than asserted:
    [Target size and motor accessibility](./target-size-and-motor.mdx).
 3. **Every animated token carries a reduced-motion value.** Reduced motion is a
    per-token degradation, not a global kill switch, so a component still changes
-   state — it simply arrives immediately. See
+   state. It simply arrives immediately. See
    [Reduced motion](./reduced-motion.mdx).
 4. **Every accessibility number published on this site is generated, dated and
    reproducible.** Contrast figures come out of `scripts/check-contrast.mts` and
@@ -45,11 +45,11 @@ rather than asserted:
 Twenty-four of the sixty components in the roster are implemented at `alpha`;
 the other thirty-six are `considered` and have no code. That changes what these
 commitments cover, though less than it sounds. They cover the token layer, the
-CSS in `app/globals.css` and `app/product.css`, the page contracts every
-component specification must satisfy, and — for the twenty-four — whatever
-`pnpm run check:a11y` can prove by reading a component source. What they do not
-yet cover is any *rendered* component: nothing built here has met a screen
-reader, and `a11yDate` is `null` on all sixty catalogue rows.
+CSS in `app/globals.css` and `app/product.css`, and the page contracts every
+component specification must satisfy. For the twenty-four, they also cover
+whatever `pnpm run check:a11y` can prove by reading a component source. What
+they do not yet cover is any *rendered* component: nothing built here has met a
+screen reader, and `a11yDate` is `null` on all sixty catalogue rows.
 </Callout>
 
 ## What you own
@@ -87,15 +87,15 @@ Start from the role you are actually in. The five role pages are the same
 standard seen from five desks, and each one is a list of things you can do today
 rather than a restatement of WCAG.
 
-- [For designers](./for-designers.mdx) — contrast, target size, focus
+- [For designers](./for-designers.mdx) covers contrast, target size, focus
   appearance and colour independence, checked before handoff.
-- [For developers](./for-developers.mdx) — semantics, names, roles, state and
-  focus order, checked in the browser.
-- [For content](./for-content.mdx) — headings, link text, alt text and reading
-  level, checked while writing.
-- [For testing](./for-testing.mdx) — the manual and automated passes, and how to
-  reproduce each one.
-- [For compliance reviewers](./for-compliance-reviewers.mdx) — the curated
+- [For developers](./for-developers.mdx) covers semantics, names, roles, state
+  and focus order, checked in the browser.
+- [For content](./for-content.mdx) covers headings, link text, alt text and
+  reading level, checked while writing.
+- [For testing](./for-testing.mdx) has the manual and automated passes, and how
+  to reproduce each one.
+- [For compliance reviewers](./for-compliance-reviewers.mdx) is the curated
   twenty-minute path, written to be printed.
 
 Then use the per-topic pages for the specific question. Each of those carries its
@@ -118,9 +118,9 @@ size, a raw colour literal, both colour axes on one element, a banned word in
 copy or in an identifier, and a role that exists only under the documentation
 chrome. It reads text, not a rendered page, so it can prove a component does not
 do those things and cannot prove that what it renders is usable. The
-layout-dependent half — hit area, 1.3× and 200% against the built `/view`
-routes — runs nightly, on a schedule, which means it goes red the morning after
-a merge rather than before it.
+layout-dependent half is hit area, 1.3× and 200% against the built `/view`
+routes. That half runs nightly, on a schedule, which means it goes red the
+morning after a merge rather than before it.
 
 Every other measured result on this site is currently absent, and the pages that
 would carry those numbers say so in words rather than filling the gap.
@@ -144,7 +144,7 @@ because a conformance claim with no gaps section is not a conformance claim.
   change and [Surface](../components/surface.mdx) for what already changes.
 - **The automated checks read source and layout, never comprehension.** Two
   now run. `scripts/check-a11y.mts` blocks every pull request and reads the
-  component sources as text — it can prove a file imports a glyph and reads the
+  component sources as text. It can prove a file imports a glyph and reads the
   status vocabulary, and it cannot prove either one reaches the screen. Its
   `--layout` half runs once a night against the built `/view` routes and
   measures three things: hit area, survival at 1.3x, and 200% with no truncated

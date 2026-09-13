@@ -22,10 +22,10 @@ than it looks:
 
 - **Two numbers, always.** Each pair is reported both as a WCAG 2.2 contrast
   ratio and as an APCA lightness contrast. They answer different questions and
-  they disagree in predictable places — most visibly on light text over a
-  mid-tone surface, where the WCAG ratio is optimistic. The conformance answer is
-  the ratio; the *is this actually readable* answer is closer to the APCA figure.
-  Why we publish both is on
+  they disagree in predictable places. The disagreement is most visible on
+  light text over a mid-tone surface, where the WCAG ratio is optimistic. The
+  conformance answer is the ratio; the *is this actually readable* answer is
+  closer to the APCA figure. Why we publish both is on
   [Contrast and APCA](../foundations/colour/contrast-and-apca.mdx).
 - **Both themes.** A pair that passes in light and fails in dark is a failing
   pair. The dark theme is not a filter over the light one; it has its own
@@ -41,10 +41,11 @@ The floor itself, and the argument for it, is on
 
 ## What you own
 
-**Any pair you invent.** The moment you put text on a colour that is not a
-published pair — a brand colour, a photograph, a chart series, a gradient — the
-measurement on this page does not cover it. This is the most common way a product
-built on a well-measured design system ends up with unreadable text.
+**Any pair you invent.** Put text on a colour that is not a published pair and
+the measurement on this page does not cover it. A brand colour, a photograph, a
+chart series and a gradient are all colours of that kind, and pairing text with
+one of them is the most common way a product built on a well-measured design
+system ends up with unreadable text.
 
 **Text over translucent material.** Rungs 3 and 4 of the material ladder are
 translucent and blurred, so the effective background depends on what is behind
@@ -58,9 +59,9 @@ published numbers describe the shipped presets and not your theme. Run the
 validator: [Validating your theme](../theming/validating-your-theme.mdx).
 
 **Non-text contrast.** SC 1.4.11 covers the boundary of a control and the
-components of a graphic that convey information — the line of a range bar, the
-tick on a dial, the border of a focus ring. Those are measured here where they
-are token pairs, but the composition you build them into is not.
+components of a graphic that convey information. The line of a range bar, the
+tick on a dial and the border of a focus ring are measured here where they are
+token pairs, but the composition you build them into is not.
 
 ## How to check
 
@@ -86,11 +87,11 @@ verify the generator rather than trust it.
 
 ### Check a pair the system does not publish
 
-Read the two effective colours out of the browser — computed style, not the
-authored value, because the gamut escalation in `@supports (color-gamut: p3)`
-changes chroma on a wide-gamut display — and measure those. Lightness is
-deliberately unchanged by that escalation, so a correct measurement on an sRGB
-display remains correct on a P3 one.
+Read the two effective colours out of the browser and measure those. Take them
+from the computed style rather than from the authored value, because the gamut
+escalation in `@supports (color-gamut: p3)` changes chroma on a wide-gamut
+display. Lightness is deliberately unchanged by that escalation, so a correct
+measurement on an sRGB display remains correct on a P3 one.
 
 </Steps>
 

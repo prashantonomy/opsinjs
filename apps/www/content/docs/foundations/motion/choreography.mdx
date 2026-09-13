@@ -1,6 +1,6 @@
 ---
 title: Choreography
-description: What moves together and in what order — continuity over replacement, morph rather than swap, depth rather than translation, and a hard ceiling of one thing moving at a time.
+description: What moves together and in what order. Continuity over replacement, morph rather than swap, depth rather than translation, and a hard ceiling of one thing moving at a time.
 status: stable
 kind: foundation
 aliases: [stagger, sequencing, shared element, morph transition]
@@ -30,9 +30,9 @@ and it is the technique most often used badly.
 **Morph, do not swap.** When a card opens into a detail view, the card becomes
 the detail view: its container grows, its title stays put and grows with it, its
 value stays put. It does not fade out while a new screen fades in. The reader's
-eye stays on the number the whole way, which is the point — they tapped it
-because they wanted to know more about it, and they should never have to find it
-again on the other side.
+eye stays on the number the whole way, and that is the point, because they
+tapped it wanting to know more about it and should never have to find it again
+on the other side.
 
 Practically this means a transition is authored as *one element changing*
 wherever the two states share a real element, and as an enter/exit pair only when
@@ -41,7 +41,7 @@ they genuinely share nothing.
 **Depth on overlay, not translation across.** A surface arriving on top of
 another is a change in depth. The arriving surface comes forward; the surface
 underneath recedes slightly and dims. Nothing slides sideways, because sideways
-means "you have gone somewhere else" and the reader has not — they are still on
+means "you have gone somewhere else" and the reader has not. They are still on
 the results screen, with a sheet over it, and the interface should say so. This
 also makes the way back obvious, and it is what the
 [layering contract](../layering-and-elevation.mdx) is expressing visually.
@@ -52,8 +52,8 @@ transition genuinely involves two regions, one leads and the other follows, with
 the follower starting as the leader settles rather than at the same instant.
 
 **Stagger is for lists, is short, and is capped.** A list of tiles appearing may
-stagger — a small delay between items, in reading order — because it expresses
-the order the reader should scan them in. Three rules keep it from becoming a
+stagger, because a small delay between items in reading order expresses the
+order the reader should scan them in. Three rules keep it from becoming a
 performance: the per-item delay is a small fraction of the item's own duration;
 the total stagger is capped so a long list does not take a second to appear, with
 items past the cap arriving together; and staggering never applies to something
@@ -90,7 +90,7 @@ has more than one and needs cutting.
 
 **Do not choreograph a change in a value.** Continuity is for position and
 container, not for content. If a reading updates to a new number, the number is
-replaced — cleanly, in place, without a morph between digits. A morphing digit
+replaced cleanly and in place, with no morph between digits. A morphing digit
 implies the value passed through the intermediate states, and it did not.
 
 <DoDont>
@@ -106,8 +106,8 @@ implies the value passed through the intermediate states, and it did not.
 
 **Do not choreograph around a status change.** Nothing sweeps, ripples or
 cascades outward from a tile that has become urgent. Escalation is colour, icon
-and word — see [Motion](index.mdx), health rule 1 — and a choreographed
-escalation is motion carrying urgency by the back door.
+and word, and a choreographed escalation is motion carrying urgency by the back
+door. See [Motion](index.mdx), health rule 1.
 
 **Keep the whole sequence inside a single perceptual moment.** A transition that
 takes longer than roughly the time it takes to look from one side of a phone to
@@ -133,7 +133,7 @@ stagger step and its cap. All of them are generated from `tokens/motion.json` by
   the reading order is then carried by the DOM, where it belonged all along.
 - **Continuity must not be the only signal of identity.** A morph tells a sighted
   reader that this detail view is that tile. A screen-reader user gets that from
-  the heading, the accessible name and the announcement on arrival — all of which
+  the heading, the accessible name and the announcement on arrival. All three
   must be correct with the animation removed.
 - **Focus moves once, at the end.** A morphing transition must not move focus
   part-way through, and must land it on the new surface's heading or first
@@ -144,9 +144,9 @@ stagger step and its cap. All of them are generated from `tokens/motion.json` by
 
 ## Related
 
-- [Using motion](using-motion.mdx) — the five jobs the elements in a sequence are
-  each doing, and their durations.
-- [Layering and elevation](../layering-and-elevation.mdx) — the stacking contract
-  that depth-on-overlay is the visual expression of.
-- [Reduced motion](reduced-motion.mdx) — what a morph, a stagger and a depth
+- [Using motion](using-motion.mdx) has the five jobs the elements in a sequence
+  are each doing, and their durations.
+- [Layering and elevation](../layering-and-elevation.mdx) is the stacking
+  contract that depth-on-overlay is the visual expression of.
+- [Reduced motion](reduced-motion.mdx) says what a morph, a stagger and a depth
   change each become when a reader has asked for less.

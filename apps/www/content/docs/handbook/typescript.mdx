@@ -1,6 +1,6 @@
 ---
 title: TypeScript
-description: The exported surface — named prop interfaces, the ClinicalStatus and HealthCategory unions, and the rule that makes generated API tables possible.
+description: The exported surface comprises named prop interfaces, the ClinicalStatus and HealthCategory unions, and the rule that makes generated API tables possible.
 status: planned
 kind: handbook
 aliases: [types, ClinicalStatus type, HealthCategory type, props interface, generated props table]
@@ -59,7 +59,7 @@ member with its JSDoc as the description, surfaces defaults, marks required
 members, links every referenced type name into
 [Reference → Types](../reference/generated/types.mdx), and suppresses anything
 tagged `@internal`. Props inherited unchanged from Base UI are delegated with
-one sentence and a link rather than re-documented — opsinjs documents only what
+one sentence and a link rather than re-documented. opsinjs documents only what
 it adds.
 
 The consequence is that **JSDoc is documentation, not a comment**. A prop with
@@ -71,7 +71,7 @@ public.
 `strict: true` is on. `allowImportingTsExtensions: true` is set because the
 `.mts` build scripts import `lib/color/*.ts` with the explicit extension Node
 requires; `noEmit: true` makes that legal. `noUncheckedIndexedAccess` is
-deliberately off — see the note in `tsconfig.base.json`.
+deliberately off. See the note in `tsconfig.base.json`.
 
 ## Do this
 
@@ -104,7 +104,7 @@ deliberately off — see the note in `tsconfig.base.json`.
 
 ## Gotchas
 
-- **A renamed interface silently empties the API table.** No build error — the
+- **A renamed interface silently empties the API table.** No build error. The
   generator finds nothing and renders nothing. `assert-ia` is the backstop.
 - **`ComponentProps` and `ComponentPropsWithRef` differ** in React 19 in ways
   that matter for `ref` typing in a `render` prop; picking the wrong one
@@ -121,11 +121,11 @@ deliberately off — see the note in `tsconfig.base.json`.
 
 ## Related
 
-- [Reference → Types](../reference/generated/types.mdx) — the generated list of
+- [Reference → Types](../reference/generated/types.mdx) is the generated list of
   every exported symbol.
-- [Naming conventions](./naming-conventions.mdx) — what to call the interface,
-  the props and the files.
-- [Code style](./contributing/code-style.mdx) — the named-props-interface rule
+- [Naming conventions](./naming-conventions.mdx) says what to call the
+  interface, the props and the files.
+- [Code style](./contributing/code-style.mdx) has the named-props-interface rule
   as a contribution requirement.
-- [Clinical status semantics](../health/clinical-status-semantics.mdx) — what
+- [Clinical status semantics](../health/clinical-status-semantics.mdx) says what
   each `ClinicalStatus` member is allowed to mean.

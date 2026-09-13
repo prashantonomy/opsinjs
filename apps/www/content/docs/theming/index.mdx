@@ -14,8 +14,8 @@ aliases: [theme, retheme, token tiers, design tokens]
 Three pillars of this site talk about tokens and they do not overlap.
 **Foundations is what a token means. Handbook and Theming are how you change it.
 Reference is the generated list of every one.** If you want to know why status
-colour is high-chroma and category colour is not, you are in the wrong pillar —
-that is [Foundations](../foundations/index.mdx). This pillar assumes you have
+colour is high-chroma and category colour is not, you are in the wrong pillar.
+That is [Foundations](../foundations/index.mdx). This pillar assumes you have
 already accepted the model and now have a brand to apply.
 
 opsinjs is not a themeable component kit with a health skin on top. It is a
@@ -25,10 +25,10 @@ part of it is closed because changing it changes what a screen asserts about
 somebody's body. This page draws those three lines and then hands you off to the
 page that does the work.
 
-Everything below is real today. Tokens ship before components do — that was a
+Everything below is real today. Tokens ship before components do, and that was a
 deliberate ordering decision, recorded in
-[Tokens before components](../project/decisions/index.mdx) — so a theme you
-build now will be correct when the first component lands.
+[Tokens before components](../project/decisions/index.mdx). A theme you build
+now will therefore be correct when the first component lands.
 
 ## The three tiers
 
@@ -36,7 +36,7 @@ Every custom property in opsinjs sits in exactly one of three tiers. The tier
 tells you who owns the value, what may reference it, and what happens when you
 change it.
 
-### Tier 1 — ramps
+### Tier 1 ramps
 
 Names look like `--opsin-status-watch-line` and `--opsin-category-sleep-accent`.
 
@@ -45,17 +45,17 @@ neutral ramp, the six-rung material ladder, the motion springs, the radius and
 space scales. They are generated into `app/tokens.generated.css` by
 `scripts/build-tokens.mts` from the JSON under `tokens/`, and every pair in them
 has a machine-measured contrast figure attached. Nothing in product code should
-reference a tier-1 name directly — a component that reads
+reference a tier-1 name directly. A component that reads
 `--opsin-category-heart-accent` has hard-coded the answer to a question the
 role tier exists to answer.
 
 You change tier 1 by editing `tokens/*.json` and regenerating, which in practice
 means you are maintaining a fork. See
 [Category palettes](./category-palettes.mdx) and
-[Status palettes](./status-palettes.mdx) for what that costs on each axis — the
+[Status palettes](./status-palettes.mdx) for what that costs on each axis. The
 answer is very different for the two.
 
-### Tier 2 — roles
+### Tier 2 roles
 
 Names look like `--background`, `--foreground`, `--card`, `--muted`, `--primary`,
 `--border`, `--ring`, `--radius`, `--spacing`.
@@ -65,7 +65,7 @@ convention rather than a private one: a surface token names what a surface is
 *for*, and its `-foreground` partner names the text and icons that sit on it.
 Anything you already know about theming a shadcn project applies unchanged here.
 Roles are also deliberately fewer than shadcn's default set in the product
-theme — a health screen that needs nine background roles has a layout problem,
+theme. A health screen that needs nine background roles has a layout problem,
 not a token problem.
 
 Roles are exposed to Tailwind through `@theme inline`, so `bg-card`,
@@ -73,7 +73,7 @@ Roles are exposed to Tailwind through `@theme inline`, so `bg-card`,
 rebuild of anything else. [Tailwind v4](./tailwind-v4.mdx) explains why `inline`
 is load-bearing and what silently breaks without it.
 
-### Tier 3 — component variables
+### Tier 3 component variables
 
 Names look like `--opsin-range-bar-track` and are declared on a component's own
 selector, never globally.
@@ -101,7 +101,7 @@ it is specified in [Handbook tooling](../handbook/tooling/index.mdx).
 | Add a seventh health category | [Category palettes](./category-palettes.mdx) | 1 |
 | Restyle one part of one component | The component's own CSS variables | 3 |
 | Redefine what "urgent" looks like | Read [Status palettes](./status-palettes.mdx) first | 1 |
-| Change what "urgent" *means* | Not a theming question — see [Clinical status semantics](../health/clinical-status-semantics.mdx) | — |
+| Change what "urgent" *means* | Not a theming question. See [Clinical status semantics](../health/clinical-status-semantics.mdx) | Not applicable |
 
 The last two rows are the ones that matter. The status axis is the only part of
 the token system opsinjs argues you should leave alone, and the argument is not
@@ -142,7 +142,7 @@ exists to catch.
 
 Find any element that shows both a category and a status. Exactly one of them
 should be expressed as colour. If a tile is both "sleep" and "urgent" and both
-are colours, the theme is applied but the composition is wrong — see
+are colours, the theme is applied but the composition is wrong. See
 [The two colour axes](../health/two-colour-axes.mdx).
 
 </Steps>
@@ -175,9 +175,9 @@ theme is a different set of colours and needs its own measurement.
 
 ## Next
 
-- [Theme generator](./theme-generator.mdx) — the shortest path: one brand
+- [Theme generator](./theme-generator.mdx) is the shortest path: one brand
   colour in, a validated system out.
-- [Validating your theme](./validating-your-theme.mdx) — the part most design
+- [Validating your theme](./validating-your-theme.mdx) is the part most design
   systems leave to the reader, and the reason the generator exists.
-- [Token reference](./token-reference.mdx) — every token you may set, grouped by
-  tier, with what it controls and who reads it.
+- [Token reference](./token-reference.mdx) covers every token you may set,
+  grouped by tier, with what it controls and who reads it.

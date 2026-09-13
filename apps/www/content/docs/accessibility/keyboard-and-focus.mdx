@@ -38,8 +38,9 @@ Four rules sit behind that table and are the part worth arguing about:
    the other way costs a keyboard user forty presses to reach the save button.
 2. **Focus is never trapped except inside a modal surface,** and every modal
    surface returns focus to the element that opened it when it closes. If the
-   trigger is gone by then — it was in a list row that the action deleted — focus
-   moves to the nearest sensible ancestor and that placement is announced.
+   trigger is gone by then, focus moves to the nearest sensible ancestor and
+   that placement is announced. A trigger goes missing when an action deletes
+   the list row it sat in.
 3. **Focus is never obscured.** SC 2.4.11 is new in WCAG 2.2 and it is failed
    constantly by exactly the pattern consumer health apps love: a sticky bottom
    action bar. Scroll-into-view must account for sticky chrome on all four edges.
@@ -112,7 +113,7 @@ It would be assembled from the `<KeyboardTable>` on each component page, and
 `scripts/build-reference.mts` does not parse those blocks yet.
 </NoDataYet>
 
-The per-component keyboard tables — mandatory on every component page — are
+A keyboard table is mandatory on every component page, and those tables are
 meant to be aggregated here and into
 [the generated keyboard reference](../reference/generated/keyboard.mdx). Every
 implemented component carries one; nothing collects them, so the reference is
@@ -123,13 +124,13 @@ than a measurement, and aggregating the tables would not make it one.
 ## Known gaps
 
 - **No keyboard behaviour has been verified.** It has been implemented: `Dialog`
-  and `Sheet` sit on Base UI and add their own handling of <Kbd>Esc</Kbd> — a
-  dismissal that can be refused, and focus returned to the trigger — and
-  `Button` warns in development when it is handed the positive `tabIndex` the
-  table above bans. None of it has been walked with a keyboard by anyone,
-  no automated check presses a key, and `a11yDate` is `null` on every catalogue
-  row. The table above is the contract every component must meet, and it is
-  still not a report of tested behaviour.
+  and `Sheet` sit on Base UI and add their own handling of <Kbd>Esc</Kbd>. That
+  handling is a dismissal that can be refused, and it returns focus to the
+  trigger. `Button` warns in development when it is handed the positive
+  `tabIndex` the table above bans. None of it has been walked with a keyboard
+  by anyone, no automated check presses a key, and `a11yDate` is `null` on
+  every catalogue row. The table above is the contract every component must
+  meet, and it is still not a report of tested behaviour.
 - **There is no shipped skip link or landmark helper.**
 - **Focus-restoration behaviour after destructive actions is specified in prose
   only** and has no tested implementation.

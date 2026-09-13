@@ -1,5 +1,5 @@
 /**
- * GET /og?title=&description=&status=&section= — the social card service.
+ * GET /og?title=&description=&status=&section= is the social card service.
  *
  * One image service for the whole site, referenced from `generateMetadata`,
  * rather than an `opengraph-image.tsx` beside each route. Two reasons: an
@@ -7,17 +7,17 @@
  * Next 16's image conventions are most awkward, and a single service means the
  * cards cannot drift apart as pages are added.
  *
- * A DELIBERATE ABSENCE OF COLOUR. The card shows a release phase — planned,
- * alpha, beta, stable, deprecated — and it would be natural to colour those
- * the way a status is coloured elsewhere on this site. It does not. Clinical
- * status (steady, watch, attention, urgent — `unknown` is the absence of an
- * assertion, not a fifth level) owns that vocabulary, and reusing it for "this
- * component is in beta" would teach the reader to read a colour that means
- * "somebody needs to do something about their own health" as "a library is not
- * finished". That is the never-mix-the-axes rule applied to the system's own
- * marketing surface, and it is worth more here than a livelier picture: the
- * card is greyscale, with one filled chip for `stable` and outlines for
- * everything else.
+ * A DELIBERATE ABSENCE OF COLOUR. The release phases this card shows are
+ * planned, alpha, beta, stable and deprecated, and it would be natural for the
+ * card to colour them the way a status is coloured elsewhere on this site. It
+ * does not. Clinical status owns that vocabulary across steady, watch,
+ * attention and urgent, where `unknown` is the absence of an assertion rather
+ * than a fifth level. Reusing that vocabulary for "this component is in beta"
+ * would teach the reader to read a colour that means "somebody needs to do
+ * something about their own health" as "a library is not finished". That is
+ * the never-mix-the-axes rule applied to the system's own marketing surface,
+ * and it is worth more here than a livelier picture: the card is greyscale,
+ * with one filled chip for `stable` and outlines for everything else.
  *
  * Fonts are the runtime default. No font is fetched at request time, so the
  * card cannot fail because a font CDN did.

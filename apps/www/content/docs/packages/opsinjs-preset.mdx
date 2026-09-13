@@ -44,9 +44,9 @@ answer is worth stating up front because it determines everything else.
 | `@opsinjs/preset` | The `@theme inline` *mappings* that expose those values as utilities, and the derived scales | Configuration |
 
 Values in one, mappings in the other. The reason for splitting them is that a
-project may legitimately want opsinjs' utility vocabulary over its own values —
-a white-label build with its own ramps — and that is only possible if the
-mapping is separable from what it maps.
+project may legitimately want opsinjs' utility vocabulary over its own values,
+as a white-label build with its own ramps would, and that is only possible if
+the mapping is separable from what it maps.
 
 In practice most projects want both, and importing both is one extra line.
 
@@ -65,7 +65,7 @@ Order matters, and it matters more here than in most stacks. `app/globals.css`
 in this repository documents its own required order in a header comment, and the
 positions of the generated token layer and the pinned `dark` variant are
 deliberate rather than incidental. See
-[Tailwind v4](../theming/tailwind-v4.mdx) — the failure mode is silent, which is
+[Tailwind v4](../theming/tailwind-v4.mdx). The failure mode is silent, which is
 what makes it worth reading before you assemble your own stylesheet.
 
 ## What it maps
@@ -73,15 +73,15 @@ what makes it worth reading before you assemble your own stylesheet.
 The utility vocabulary, which is the actual product of this package:
 
 ```css
-/* Roles — the shadcn-compatible layer */
+/* Roles are the shadcn-compatible layer */
 --color-background, --color-foreground, --color-card, --color-muted,
 --color-border, --color-input, --color-ring, --color-primary
 
-/* Status — four ordinal levels, three slots each */
+/* Status has four ordinal levels, three slots each */
 --color-status-steady, --color-status-steady-surface, --color-status-steady-ink
 /* … watch, attention, urgent */
 
-/* Category — six ramps */
+/* Category has six ramps */
 --color-category-heart, --color-category-mind, --color-category-labs,
 --color-category-activity, --color-category-sleep, --color-category-nutrition
 
@@ -99,7 +99,7 @@ and the preview host's `data-density` attribute to keep reaching a utility. Plai
 
 It will not add a `mix-status-with-category` utility, or any convenience that
 makes it easy to put both colour axes on one element. The whole value of the
-two-axis model is that violating it takes deliberate effort — see
+two-axis model is that violating it takes deliberate effort. See
 [The two colour axes](../health/two-colour-axes.mdx).
 
 It will not ship a `text-danger` or `bg-warning` alias for a status colour
@@ -118,7 +118,7 @@ something was mapped with `@theme` rather than `@theme inline`.
 ### The status utilities exist and are complete
 
 All four levels, all three slots. A partial ramp produces a component that
-renders correctly in three states and wrongly in the fourth — and the fourth is
+renders correctly in three states and wrongly in the fourth. The fourth is
 usually the one nobody tested.
 
 ### Adding a category does not require a fork
@@ -151,8 +151,8 @@ pointing at your stylesheet, or it silently does nothing.
 
 ## Next
 
-- [`@opsinjs/tailwind.css`](./opsinjs-tailwind-css.mdx) — the values half.
-- [Tailwind v4](../theming/tailwind-v4.mdx) — `@theme inline`, `@source`, and
-  the ordering that breaks quietly.
-- [Adding your own tokens](../theming/adding-your-own-tokens.mdx) — extending
-  the vocabulary without forking it.
+- [`@opsinjs/tailwind.css`](./opsinjs-tailwind-css.mdx) is the values half.
+- [Tailwind v4](../theming/tailwind-v4.mdx) covers `@theme inline`, `@source`,
+  and the ordering that breaks quietly.
+- [Adding your own tokens](../theming/adding-your-own-tokens.mdx) covers
+  extending the vocabulary without forking it.

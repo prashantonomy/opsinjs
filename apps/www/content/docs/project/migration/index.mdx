@@ -1,6 +1,6 @@
 ---
 title: Migration guides
-description: Reserved for the upgrades that need more than a changelog entry — there are none yet, because there is no earlier version.
+description: Reserved for the upgrades that need more than a changelog entry. There are none yet, because there is no earlier version.
 status: planned
 kind: project
 owner: core
@@ -21,7 +21,7 @@ first time it is kept.
 
 <Todo>
 Write the first migration guide the first time a release breaks something. Do not
-retro-fit guides for changes that shipped without one — a missing guide is
+retro-fit guides for changes that shipped without one. A missing guide is
 recoverable, an inaccurate one is not.
 </Todo>
 
@@ -39,9 +39,9 @@ that means one of four things:
 - **A `data-*` attribute or a CSS custom property was renamed**, which reaches
   code the [versioning policy](../versioning-policy.mdx) covers but that no type
   checker will catch for you.
-- **A clinical contract changed** — what a component asserts, or what it must
-  never be read as. That is not a code change at all for most readers; it is a
-  reason to re-run a safety review.
+- **A clinical contract changed**, altering what a component asserts, or what it
+  must never be read as. That is not a code change at all for most readers; it
+  is a reason to re-run a safety review.
 - **The upgrade cannot be done in one step**, and the intermediate state has to be
   described so that a large codebase can move gradually.
 
@@ -49,8 +49,8 @@ that means one of four things:
 
 The version it moves from and to. What breaks, in the order you will hit it. The
 mechanical changes, as diffs. The changes that need a judgement, marked as such
-and never presented as mechanical. A way to verify you are finished. And — because
-this system is distributed as source you own — what to do if you have already
+and never presented as mechanical. A way to verify you are finished. And because
+this system is distributed as source you own, what to do if you have already
 modified the component being migrated, which is the case the usual upgrade guide
 forgets.
 

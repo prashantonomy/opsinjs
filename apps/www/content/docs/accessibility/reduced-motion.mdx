@@ -1,6 +1,6 @@
 ---
 title: Reduced motion
-description: Reduced motion is a per-token degradation, not a kill switch — what every animated token collapses to, and why the state change survives.
+description: Reduced motion is a per-token degradation, not a kill switch. This page says what every animated token collapses to, and why the state change survives.
 status: stable
 kind: accessibility
 a11yDate: 2026-09-02
@@ -22,11 +22,11 @@ component-by-component.
 In `app/globals.css` and `app/product.css`, under
 `@media (prefers-reduced-motion: reduce)`:
 
-- every duration token collapses to `1ms` — `--opsin-duration-instant`,
-  `--opsin-duration-fast`, `--opsin-duration-base`, `--opsin-duration-slow` and
-  `--opsin-duration-deliberate`;
-- every spring easing collapses to `linear(0, 1)` —
-  `--opsin-ease-spring` and `--opsin-ease-spring-gentle`.
+- every duration token collapses to `1ms`, and the properties set there are
+  `--opsin-duration-instant`, `--opsin-duration-fast`, `--opsin-duration-base`,
+  `--opsin-duration-slow` and `--opsin-duration-deliberate`;
+- every spring easing collapses to `linear(0, 1)`, and the properties set there
+  are `--opsin-ease-spring` and `--opsin-ease-spring-gentle`.
 
 Three consequences, and the second is the one that matters:
 
@@ -35,7 +35,7 @@ Three consequences, and the second is the one that matters:
 2. **The state change still happens.** An element that was going to arrive still
    arrives; it arrives immediately. This is the difference between reducing
    motion and removing feedback, and removing feedback is its own accessibility
-   failure — a reader who cannot see that the sheet opened has been given a worse
+   failure. A reader who cannot see that the sheet opened has been given a worse
    experience in the name of a better one.
 3. **Opacity cross-fades are kept.** They do not move, so they do not provoke the
    vestibular response that the preference exists to prevent, and they preserve
@@ -67,8 +67,9 @@ that grow or shrink as you scroll are among the most reliable triggers of motion
 sickness and are not covered by a duration token.
 
 **Meaningful transitions in your own flows.** If a page transition is how the
-reader understands they moved between steps, replace it with something static —
-a step indicator, a heading change, an announcement — rather than deleting it.
+reader understands they moved between steps, replace it with something static
+rather than deleting it. That static replacement can be a step indicator, a
+heading change or an announcement.
 
 ## How to check
 
@@ -117,14 +118,14 @@ source exists; the table is not generated yet.
 ## Known gaps
 
 - **Nothing fails the build when a token stops collapsing.** The guarantee is
-  exercised rather than theoretical — `button`, `care-card`, `dialog`,
+  exercised rather than theoretical. `button`, `care-card`, `dialog`,
   `consent-sheet` and `sheet` read a duration through
   `duration-(--opsin-duration-*)`, and `skeleton` gates its pulse on
-  `motion-safe:` — but the collapse itself is asserted by no check. The table
-  under Measured results is the artefact that would catch a regression; until it
-  is generated, the only evidence is a manual read of the three stylesheets, and
-  the ordering that makes the collapse work is easy to undo by moving an
-  `@import`.
+  `motion-safe:`. The collapse itself is nevertheless asserted by no check. The
+  table under Measured results is the artefact that would catch a regression;
+  until it is generated, the only evidence is a manual read of the three
+  stylesheets, and the ordering that makes the collapse work is easy to undo by
+  moving an `@import`.
 - **There is no lint rule** preventing a hard-coded duration in component source.
   A stylelint plugin is proposed on
   [Tooling](../handbook/tooling/index.mdx) and is not built.

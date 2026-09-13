@@ -30,24 +30,24 @@ import { cn } from "@/lib/utils"
 import { NoDataYet } from "./stub"
 
 /* ==========================================================================
-   colour.tsx — <ColorScale>, <TokenSwatch>, <StatusLadder>, <StatusAxisDemo>,
-   <CategoryGrid>.
+   colour.tsx holds <ColorScale>, <TokenSwatch>, <StatusLadder>,
+   <StatusAxisDemo> and <CategoryGrid>.
 
    NOTE ON FILE NAMING. British spelling in prose, American in code. The file is
    `colour.tsx` because the manifest names it that and it is prose-adjacent;
-   every identifier inside it is American — ColorScale, --color-*. That split is
-   the one Tailwind and CSS force on everybody, and it is applied consistently
-   rather than argued about per file.
+   every identifier inside it is American. ColorScale and --color-* are two of
+   them. That split is the one Tailwind and CSS force on everybody, and it is
+   applied consistently rather than argued about per file.
 
    THE TWO AXES ARE THE WHOLE SYSTEM.
 
-     AXIS 1 — CATEGORY. What a reading is ABOUT: sleep, heart, activity,
+     AXIS 1 IS CATEGORY. What a reading is ABOUT: sleep, heart, activity,
      nutrition, mind, labs. Identity. Low chroma, and never a verdict. A
      heart-tinted card does not mean something is wrong with a heart reading.
 
-     AXIS 2 — CLINICAL STATUS. What to DO about it: steady, watch, attention,
+     AXIS 2 IS CLINICAL STATUS. What to DO about it: steady, watch, attention,
      urgent. Verdict. High chroma, ordered, and never the only carrier of the
-     meaning — a status always ships with a word and an icon.
+     meaning. A status always ships with a word and an icon.
 
    The invariant is that one SURFACE takes its colour from exactly one axis.
    Both axes may appear on one screen: a heart-tinted card containing a `watch`
@@ -55,11 +55,12 @@ import { NoDataYet } from "./stub"
    because then a reader cannot tell which question the colour is answering.
 
    <StatusAxisDemo> is the artifact that makes that teachable. It calls
-   `axisConflict()` from lib/status.ts — the one caller in the repo, because no
-   shipped component resolves both axes on one element and so none of them has
-   anything to report — and REFUSES to render the mixed pair, then shows the two
-   legal alternatives rendered side by side. A rule you read is forgotten; a
-   tool that declines to draw the thing you asked for is not.
+   `axisConflict()` from lib/status.ts and REFUSES to render the mixed pair,
+   then shows the two legal alternatives rendered side by side. It is the one
+   caller of that function in the repo, because no shipped component resolves
+   both axes on one element and so none of them has anything to report. A rule
+   you read is forgotten; a tool that declines to draw the thing you asked for
+   is not.
 
    CUSTOM PROPERTIES AND THE PRE-GENERATE STATE. Every `var()` below carries a
    fallback, because `app/tokens.generated.css` is an empty placeholder until
@@ -94,17 +95,17 @@ const STATUS_ICONS: Record<ClinicalStatusOrUnknown, typeof Check> = {
 }
 
 /* --------------------------------------------------------------------------
-   Colour reading helpers — no dependency, no maths of our own
+   Colour reading helpers that have no dependency and do no maths of our own
    -------------------------------------------------------------------------- */
 
 /**
  * Ask the browser what a custom property currently resolves to.
  *
  * This is how a specimen shows a real value without importing the colour
- * engine: whatever the cascade decided — authored fallback, generated ramp,
- * wide-gamut escalation, dark theme — is what the reader sees and what the
- * caption says. A specimen that quoted a hard-coded value would be wrong the
- * first time a token moved, and wrong silently.
+ * engine: whatever the cascade decided is what the reader sees and what the
+ * caption says. An authored fallback, a generated ramp, a wide-gamut escalation
+ * and a dark theme all feed that decision. A specimen that quoted a hard-coded
+ * value would be wrong the first time a token moved, and wrong silently.
  */
 function useResolvedToken(variable: string): string {
   const subscribe = useCallback((onChange: () => void) => {
@@ -232,8 +233,8 @@ export interface ColorScaleProps {
  * `var()` is listed first and on purpose. It is the format a reader should
  * almost always copy: a raw OKLCH string pasted into a product stylesheet stops
  * following the theme, stops following the wide-gamut escalation, and stops
- * being covered by the contrast gate. The literal values exist for the places a
- * variable cannot go — a canvas, an email, a native shell.
+ * being covered by the contrast gate. A canvas, an email and a native shell are
+ * places a variable cannot go, and the literal values exist for them.
  */
 export function ColorScale({ name, steps, className }: ColorScaleProps) {
   const [format, setFormat] = useState<ColorFormat>("var")
@@ -348,7 +349,7 @@ function ScaleStep({
       {step.outOfSrgb ? (
         <span
           className="shrink-0 text-[0.6875rem] text-muted-foreground"
-          title="Outside sRGB. On an sRGB screen it displays as the clamped colour; the hue and lightness are unchanged, only the chroma — which is why every measured contrast figure holds in both gamuts."
+          title="Outside sRGB. On an sRGB screen it displays as the clamped colour; the hue and lightness are unchanged, only the chroma. That is why every measured contrast figure holds in both gamuts."
         >
           beyond sRGB
         </span>
@@ -375,7 +376,7 @@ export interface StatusLadderProps {
  * write.
  *
  * Every row carries the word and the icon. That is the specimen making its own
- * argument — cover the swatches and the ladder still reads correctly, which is
+ * argument. Cover the swatches and the ladder still reads correctly, which is
  * exactly the property a status pill needs on a greyscale printout, in
  * sunlight, or for a reader with deuteranopia.
  *
@@ -444,7 +445,7 @@ export function StatusLadder({
 
 /**
  * One line each, so the grid teaches what a category is FOR rather than only
- * naming it. This is prose about the axis, not token data — the values and the
+ * naming it. This is prose about the axis, not token data. The values and the
  * ramp descriptions live in tokens/color.json and are rendered by <ColorScale>.
  */
 const CATEGORY_EXAMPLES: Record<HealthCategory, string> = {
@@ -512,7 +513,7 @@ export function CategoryGrid({ className }: CategoryGridProps) {
 }
 
 /* --------------------------------------------------------------------------
-   <StatusAxisDemo> — the lab that refuses
+   <StatusAxisDemo> is the lab that refuses
    -------------------------------------------------------------------------- */
 
 export interface StatusAxisDemoProps {
@@ -525,11 +526,11 @@ export interface StatusAxisDemoProps {
  * The refusal is the feature, and it is deliberately the SAME refusal a
  * component would get: this component calls `axisConflict()` from lib/status.ts,
  * the function reserved to report OPSIN-0001. It is the only caller in the
- * repo — no shipped component resolves both axes on one element, so none of
- * them raises this at runtime, and what catches the mistake in a source file
- * today is A11Y008 in scripts/check-a11y.mts. The demo cannot drift from the
- * rule, because the sentence a developer reads here is the one the function
- * itself returns.
+ * repo. No shipped component resolves both axes on one element, so none of them
+ * raises this at runtime, and what catches the mistake in a source file today
+ * is A11Y008 in scripts/check-a11y.mts. The demo cannot drift from the rule,
+ * because the sentence a developer reads here is the one the function itself
+ * returns.
  *
  * Both legal alternatives are shown rendered, because "use a glyph instead" is
  * only convincing when you can see that it works.
@@ -551,7 +552,7 @@ export function StatusAxisDemo({ className }: StatusAxisDemoProps) {
     >
       <div className="grid gap-3 border-b border-border/60 p-3 sm:grid-cols-2">
         <label className="flex flex-col gap-1 text-xs" htmlFor={`${id}-cat`}>
-          Axis 1 — category (what the reading is about)
+          Axis 1 is the category (what the reading is about)
           <select
             id={`${id}-cat`}
             value={category}
@@ -570,7 +571,7 @@ export function StatusAxisDemo({ className }: StatusAxisDemoProps) {
         </label>
 
         <label className="flex flex-col gap-1 text-xs" htmlFor={`${id}-status`}>
-          Axis 2 — clinical status (what to do about it)
+          Axis 2 is the clinical status (what to do about it)
           <select
             id={`${id}-status`}
             value={status}
@@ -598,7 +599,7 @@ export function StatusAxisDemo({ className }: StatusAxisDemoProps) {
           >
             <p className="m-0 flex items-center gap-2 text-sm font-medium text-foreground">
               <Ban aria-hidden="true" className="size-4" />
-              {conflict.code} — this combination will not be rendered.
+              {conflict.code}. This combination will not be rendered.
             </p>
             <p className="m-0 mt-2 text-sm text-muted-foreground">
               {conflict.message}
@@ -606,7 +607,7 @@ export function StatusAxisDemo({ className }: StatusAxisDemoProps) {
             <p className="m-0 mt-2 text-sm text-muted-foreground">
               The reason is what a reader can conclude. Give one element two
               colours and they cannot tell which question the colour is
-              answering — and on a health screen the wrong answer is somebody
+              answering. On a health screen the wrong answer is somebody
               ignoring an urgent result because the tile has always been that
               colour.
             </p>

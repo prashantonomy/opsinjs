@@ -1,6 +1,6 @@
 ---
 title: Next.js
-description: The reference install — App Router, Tailwind v4, the exact CSS import position, and where the theme class belongs.
+description: The reference install. App Router, Tailwind v4, the exact CSS import position, and where the theme class belongs.
 status: planned
 kind: guide
 since: unreleased
@@ -17,7 +17,7 @@ aliases: [next.js install, app router setup, nextjs opsinjs]
 
 Next.js with the App Router is the reference target: it is what opsinjs is
 developed against, and the combination most likely to be exercised before a
-release. Read this page even if you use another framework — the CSS order rule and
+release. Read this page even if you use another framework. The CSS order rule and
 the theme-class rule are identical everywhere, and this is where they are stated in
 full.
 
@@ -31,8 +31,8 @@ full.
 </Callout>
 
 This page assumes a Next.js app on React 19 with Tailwind v4 already working. If
-Tailwind is not set up, do that first — opsinjs cannot compensate for a Tailwind
-installation that is not scanning your source.
+Tailwind is not set up, do that first, because opsinjs cannot compensate for a
+Tailwind installation that is not scanning your source.
 
 ## Set up the project
 
@@ -58,7 +58,7 @@ npx shadcn@latest add @opsinjs/status-pill
 This copies source into your repository: the component, plus the two `lib`
 modules every opsinjs component imports. It writes no CSS at all. The token
 layer is a separate registry item, and until you add it every custom property
-these components read resolves to nothing — which is the failure the next
+these components read resolves to nothing. That failure is what the next
 section is about. [Presets](../../theming/presets.mdx) has the item and what it
 writes.
 
@@ -97,7 +97,7 @@ Four rules, in priority order:
 3. **`@source` for every directory holding copied components.** Without this,
    Tailwind never sees the classes and generates none of them.
 4. **Your overrides last.** Anything you want to win goes after the token layer,
-   never inside it — editing the token layer directly makes the next upgrade a
+   never inside it. Editing the token layer directly makes the next upgrade a
    manual merge for no benefit.
 
 [Tailwind v4](../../theming/tailwind-v4.mdx) covers `@theme` versus `@theme inline`
@@ -138,7 +138,7 @@ root element will do; opsinjs takes no opinion and adds no dependency.
 
 `StatusPill` is implemented, and this is the whole of its simplest use. The
 level is a required prop with no default, and `describes` is what a screen
-reader announces the level as being about — without it a listener hears a
+reader announces the level as being about. Without it a listener hears a
 verdict with no subject:
 
 ```tsx title="app/page.tsx"
@@ -198,6 +198,7 @@ before it is an opsinjs one.
 
 ## Next
 
-- [components.json](./components-json.mdx) — every field opsinjs reads, annotated.
-- [Quick start](../quick-start.mdx) — the first real screen.
-- [Tailwind v4](../../theming/tailwind-v4.mdx) — the ordering rules in full.
+- [components.json](./components-json.mdx) covers every field opsinjs reads,
+  annotated.
+- [Quick start](../quick-start.mdx) covers the first real screen.
+- [Tailwind v4](../../theming/tailwind-v4.mdx) has the ordering rules in full.

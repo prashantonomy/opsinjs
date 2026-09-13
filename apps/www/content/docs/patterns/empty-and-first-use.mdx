@@ -1,6 +1,6 @@
 ---
 title: Empty and first use
-description: The surface before there is anything to show — six different kinds of nothing, and why rendering the wrong one is a safety problem rather than a polish problem.
+description: The surface before there is anything to show. There are six different kinds of nothing, and rendering the wrong one is a safety problem rather than a polish problem.
 status: planned
 kind: pattern
 aliases: [empty state, zero data, nothing to show, first use screen, no readings yet]
@@ -43,11 +43,11 @@ fact.
 - **The reader has never opened the product.** The first-open sequence is
   [Onboarding and first run](./onboarding-and-first-run.mdx). This pattern picks
   up afterwards, on individual surfaces.
-- **The value is below a minimum window.** A trend with four points is not empty
-  — it has data and cannot yet support a direction. Use
+- **The value is below a minimum window.** A trend with four points is not
+  empty. It has data and cannot yet support a direction. Use
   [Trend review](./trend-review.mdx).
-- **You want the definitions.** The five canonical data states — empty, loading,
-  error, stale, partial — are defined once in
+- **You want the definitions.** The five canonical data states are empty,
+  loading, error, stale and partial. They are defined once in
   [Data states](../foundations/data-states.mdx) and every data surface uses
   those definitions.
 
@@ -81,8 +81,8 @@ Rules:
   is useful. "No data" is not.
 - **Never apply a clinical status to absence.** An empty tile is not `attention`
   and not `steady`. It has no status, because there is nothing to have a status
-  about. This is the most common way the status axis leaks — see
-  [The two colour axes](../health/two-colour-axes.mdx).
+  about. This is the most common way the status axis leaks.
+  [The two colour axes](../health/two-colour-axes.mdx) is the rule it breaks.
 - **An error is not an empty state.** If the request failed, say so and offer a
   retry. Presenting a failure as "no data yet" makes the reader believe a fact
   about themselves that is actually a fact about your network.
@@ -104,7 +104,7 @@ Rules:
 ## Content
 
 Empty-state copy is where products are most tempted to be charming. In a health
-context, charm reads as evasion — the reader is looking at a screen that should
+context, charm reads as evasion. The reader is looking at a screen that should
 have their data on it.
 
 <DoDont>
@@ -120,11 +120,11 @@ have their data on it.
 
 <DoDont>
   <DoDont.Do>
-    "We couldn't load your readings. This is a problem on our side — try again."
+    "We couldn't load your readings. This is a problem on our side. Try again."
   </DoDont.Do>
   <DoDont.Dont>
-    "No readings found." — used for a failed request, which tells the reader
-    their data is gone.
+    "No readings found." This is used for a failed request, which tells the
+    reader their data is gone.
   </DoDont.Dont>
 </DoDont>
 
@@ -148,7 +148,7 @@ restate it here.
   must never be the only carrier of the message.
 - **Do not use motion to fill the space.** An animated empty state is
   attention-seeking with nothing to say, and it is the first thing removed under
-  `prefers-reduced-motion` — which means the layout has to work without it
+  `prefers-reduced-motion`. That means the layout has to work without it
   anyway.
 
 ## Research
@@ -164,8 +164,8 @@ restate it here.
 
   What would change our mind: nothing on the taxonomy. On presentation, evidence
   that distinguishing six states confuses readers more than one honest generic
-  message would argue for collapsing the middle rows — though never the error
-  row.
+  message would argue for collapsing the middle rows. It would never argue for
+  collapsing the error row.
 </ResearchNote>
 
 ## Updates to this page

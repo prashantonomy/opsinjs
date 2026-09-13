@@ -63,7 +63,7 @@ import { CopyButton } from "@/app/_shared/copy-button"
  * This is a CURATED set, not a mirror of the lucide library. Lucide ships
  * thousands of icons; opsinjs documents the fifty or so that have a defined job
  * in a health interface, and states what that job is. An inventory that lists
- * everything is a search box with extra steps — the value of documenting icons
+ * everything is a search box with extra steps. The value of documenting icons
  * at all is in the sentence beside each one, not in the picture.
  *
  * One library, one weight, one size ladder: lucide. The named `lyra` shadcn
@@ -91,7 +91,7 @@ const GROUPS: IconGroup[] = [
     id: "status",
     title: "Status",
     description:
-      "One glyph per clinical status level, declared once in lib/status.ts and never chosen per component. The four silhouettes are deliberately unlike each other rather than four variations on a circle, so they stay distinguishable in greyscale, at 16 pixels, and to somebody who cannot separate red from green. An icon never carries status on its own — it always appears with the word.",
+      "One glyph per clinical status level, declared once in lib/status.ts and never chosen per component. The four silhouettes are deliberately unlike each other rather than four variations on a circle, so they stay distinguishable in greyscale, at 16 pixels, and to somebody who cannot separate red from green. An icon never carries status on its own. It always appears with the word.",
     icons: [
       {
         name: "Check",
@@ -134,7 +134,7 @@ const GROUPS: IconGroup[] = [
     id: "trend",
     title: "Trend and direction",
     description:
-      "Direction only. Whether a direction is good news depends entirely on the measurement — a falling weight and a falling blood oxygen are not the same story — so these glyphs never take a status colour by default. The valence comes from the status axis, applied deliberately.",
+      "Direction only. Whether a direction is good news depends entirely on the measurement, because a falling weight and a falling blood oxygen are not the same story. These glyphs therefore never take a status colour by default. The valence comes from the status axis, applied deliberately.",
     icons: [
       {
         name: "TrendingUp",
@@ -149,7 +149,7 @@ const GROUPS: IconGroup[] = [
       {
         name: "Minus",
         Icon: Minus,
-        use: "No meaningful change — which is not the same as no data. Minus is also the not-known glyph above; the surrounding label is what separates them.",
+        use: "No meaningful change. That is not the same as no data. Minus is also the not-known glyph above; the surrounding label is what separates them.",
       },
       {
         name: "ArrowUp",
@@ -198,7 +198,7 @@ const GROUPS: IconGroup[] = [
       {
         name: "Wind",
         Icon: Wind,
-        use: "Respiratory measures — peak flow, breathing.",
+        use: "Respiratory measures such as peak flow and breathing.",
       },
       { name: "Scale", Icon: Scale, use: "Weight." },
       {
@@ -209,7 +209,7 @@ const GROUPS: IconGroup[] = [
       { name: "Footprints", Icon: Footprints, use: "Steps and distance." },
       { name: "Moon", Icon: Moon, use: "Sleep." },
       { name: "Brain", Icon: Brain, use: "Mood, cognition, mental wellbeing." },
-      { name: "Pill", Icon: Pill, use: "Medication — a dose taken or due." },
+      { name: "Pill", Icon: Pill, use: "A dose of medication, taken or due." },
     ],
   },
   {
@@ -227,7 +227,7 @@ const GROUPS: IconGroup[] = [
       {
         name: "CalendarClock",
         Icon: CalendarClock,
-        use: "Something scheduled — a repeat, a review.",
+        use: "A repeat, a review, anything scheduled.",
       },
       {
         name: "RotateCcw",
@@ -255,7 +255,7 @@ const GROUPS: IconGroup[] = [
       {
         name: "RefreshCw",
         Icon: RefreshCw,
-        use: "Stale — last synced some time ago. Retry available.",
+        use: "Stale. The value was last synced some time ago. Retry available.",
       },
       {
         name: "CloudOff",
@@ -324,7 +324,7 @@ const GROUPS: IconGroup[] = [
       {
         name: "Share2",
         Icon: Share2,
-        use: "Share with somebody — often a clinician.",
+        use: "Share with somebody. The recipient is often a clinician.",
       },
       {
         name: "Download",
@@ -377,7 +377,7 @@ export function IconBrowser() {
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Filter — urgent, sleep, stale, consent…"
+          placeholder="Filter for urgent, sleep, stale, consent…"
           className="h-9 min-w-56 flex-1 rounded-md border border-border bg-background px-3 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
         />
         <p className="font-mono text-xs text-muted-foreground">
@@ -388,7 +388,7 @@ export function IconBrowser() {
       {groups.length === 0 ? (
         <p className="mt-10 text-sm text-muted-foreground">
           Nothing matches “{query}”. This is a curated set of {total} icons with
-          a documented job, not a mirror of the whole lucide library — if what
+          a documented job, not a mirror of the whole lucide library. If what
           you need is not here, that is a question for{" "}
           <span className="font-medium">Proposing a component</span> rather than
           a search that found nothing.

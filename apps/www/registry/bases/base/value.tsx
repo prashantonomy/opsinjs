@@ -1,9 +1,9 @@
 /**
- * Value — one number, its unit, and nothing else.
+ * Value is one number, its unit, and nothing else.
  *
  * The smallest component in the system and the one with the widest blast
  * radius. Every number a reader sees passes through it, so a formatting
- * decision made here is made everywhere — and so is a formatting bug.
+ * decision made here is made everywhere. So is a formatting bug.
  *
  * WHAT IT ASSERTS, and it is a short list on purpose: that this quantity has
  * this magnitude in this unit, to this many decimal places. It carries no
@@ -21,21 +21,21 @@
  * unit is spoken the same way in every component that renders one.
  *
  * PRECISION MEANS DECIMAL PLACES, everywhere in opsinjs, and this file is
- * where that was settled. The alternative reading — significant figures —
- * makes the same metric show a different number of decimal places at different
- * magnitudes, which is exactly what `health/numbers-units-precision` rule 2
- * forbids: "the same metric is shown to the same number of decimal places
- * every time, so a reader can compare two readings at a glance". Decimal
- * places are also what an instrument's resolution actually is: a scale reads
- * to 100 g whatever is standing on it, light or heavy.
+ * where that was settled. Significant figures are the alternative reading,
+ * and they make the same metric show a different number of decimal places at
+ * different magnitudes, which is exactly what `health/numbers-units-precision`
+ * rule 2 forbids: "the same metric is shown to the same number of decimal
+ * places every time, so a reader can compare two readings at a glance".
+ * Decimal places are also what an instrument's resolution actually is: a scale
+ * reads to 100 g whatever is standing on it, light or heavy.
  *
  * AND IT HAS NO DEFAULT PRECISION TO FALL BACK ON. `precision` travels with
  * the MEASUREMENT, from the product. The unit table deliberately carries none,
- * because one unit serves many metrics — glucose and cholesterol are both
- * reported in mmol/L and do not share a number of decimal places — so a
- * per-unit default would be wrong for one of them on every screen. Omit it and
- * this component rounds nothing and pads nothing: the digits it was handed are
- * the digits it shows. That is louder than a guess, and it is meant to be.
+ * because one unit serves many metrics and a per-unit default would be wrong
+ * for one of them on every screen. Glucose and cholesterol are both reported in
+ * mmol/L and do not share a number of decimal places. Omit it and this
+ * component rounds nothing and pads nothing: the digits it was handed are the
+ * digits it shows. That is louder than a guess, and it is meant to be.
  *
  * NOTHING HERE ANIMATES. Not on first paint, not on a change. A number that
  * counts up has displayed, for every frame of the count, a figure that is not
@@ -67,15 +67,15 @@ const MAX_FRACTION_DIGITS = 20
  * Declared rather than created, the way `warnOnce` does it in the substrate: in
  * a production bundle `isDevelopment()` is statically false, every body that
  * touches this is dead code, and the set is never allocated. In development it
- * exists for the session, which is what "once" means — a column of thirty
+ * exists for the session, which is what "once" means. A column of thirty
  * readings with no `precision` prints one warning rather than thirty.
  *
  * It is not `warnOnce` itself because none of the five complaints below has an
  * OPSIN code. That table is generated from `tokens/errors.json` and allocating
  * a code in it is not this component's to do; the omission is reported upward
  * instead. The channel and the wording are the same either way. The one
- * complaint that does have a code — OPSIN-0003, a reading with no unit — goes
- * through `warnOnce` and not through here.
+ * complaint that does have a code is OPSIN-0003, which fires for a reading
+ * with no unit, and it goes through `warnOnce` rather than through here.
  *
  * EVERY KEY NAMES THE MISTAKE, NEVER THE READING. That is exactly the
  * identity/payload split `warnOnce` makes, and for the same reason: keying on
@@ -90,8 +90,8 @@ const MAX_FRACTION_DIGITS = 20
  * grow with the data.
  *
  * Every one of these lives in a render body, so without the set they print on
- * every render and twice again under Strict Mode — and a console an author
- * filters is a channel that no longer carries its one real finding.
+ * every render and twice again under Strict Mode. A console an author filters
+ * is a channel that no longer carries its one real finding.
  */
 let warnedDev: Set<string> | undefined
 
@@ -109,7 +109,7 @@ function warnDevOnce(key: string, message: string): void {
  * names out of source as literal strings: `text-opsin-${size}` generates no CSS
  * at all and the number renders unstyled.
  *
- * `inherit` adds nothing — the value takes the size, weight and family of the
+ * `inherit` adds nothing. The value takes the size, weight and family of the
  * sentence it sits in, which is what an inline reading should do. `display`
  * is the hero treatment, and it is the only place the numeric family is asked
  * for by name: a number set apart from running text is its own typographic
@@ -125,8 +125,8 @@ const ROOT_SIZE: Record<"inherit" | "display", string> = {
  * The unit's own type treatment, one step down from the number at `display`.
  *
  * The unit is the annotation and the magnitude is the message, so the symbol
- * is smaller and a little lighter — 600 against 700 — rather than competing
- * with the digits for the reader's eye.
+ * is smaller and a little lighter rather than competing with the digits for
+ * the reader's eye. The weights are 600 against 700.
  */
 const UNIT_SIZE: Record<"inherit" | "display", string> = {
   inherit: "",
@@ -141,16 +141,16 @@ export interface ValueProps {
    */
   value: number | null
   /**
-   * Display symbol, exactly as `tokens/units.json` spells it — "kg", "mmol/L",
-   * "°C". The spoken form is resolved from that table, so this is the only
-   * place a unit is named. A symbol the table does not hold is rendered as
-   * written rather than pronounced by guesswork.
+   * Display symbol, exactly as `tokens/units.json` spells it, such as "kg",
+   * "mmol/L" or "°C". The spoken form is resolved from that table, so this is
+   * the only place a unit is named. A symbol the table does not hold is
+   * rendered as written rather than pronounced by guesswork.
    */
   unit?: string
   /**
-   * Decimal places, from the precision of the MEASUREMENT — the resolution of
-   * the device, or the number of places the laboratory reported. Never chosen
-   * at render time to make a column line up.
+   * Decimal places, from the precision of the MEASUREMENT, which is the
+   * resolution of the device, or the number of places the laboratory reported.
+   * Never chosen at render time to make a column line up.
    *
    * Omitted, the component rounds nothing and pads nothing. There is no
    * per-unit default to fall back on, deliberately: precision is a property of
@@ -165,13 +165,13 @@ export interface ValueProps {
    */
   locale?: string
   /**
-   * What the absence form says when there is no reading — "no reading yet" by
-   * default. It replaces the words, never the em dash, and it is not used for
-   * a number that arrived broken, which is a different thing and says so.
+   * What the absence form says when there is no reading. The default is "no
+   * reading yet". It is not used for a number that arrived broken, which is a
+   * different thing and says so in different words.
    *
-   * An empty string falls back to the default and reports itself: an em dash
-   * with no words beside it is banned outright, because speech synthesis either
-   * skips it or reads it out as "dash".
+   * An empty string falls back to the default and reports itself. The absence
+   * form is words and nothing else, so an empty label would leave an empty
+   * element where a reader expects to be told something.
    */
   absenceLabel?: string
   /** Visual weight. Never changes the value, the precision or the unit. */
@@ -180,8 +180,8 @@ export interface ValueProps {
    * Merged onto the root with `tailwind-merge`, and a class you pass WINS over
    * the component's own where the two conflict. `cn("inline tabular-nums", …,
    * className)` puts yours last and `twMerge` keeps the later of a conflicting
-   * pair — verified: `twMerge("inline tabular-nums", "block truncate")` returns
-   * `"tabular-nums block truncate"`.
+   * pair. That was verified: `twMerge("inline tabular-nums", "block truncate")`
+   * returns `"tabular-nums block truncate"`.
    *
    * That includes `truncate` and any fixed height. This component never shortens
    * a number on its own and sets no ellipsis and no height; passing a class that
@@ -210,11 +210,12 @@ export function Value({
 
   /* Narrowed to a real reading, so nothing below has to assert its way past
      the type. A value outside the finite range can only have come from a
-     caller's pipeline — a parse that produced nothing, a division with no
-     divisor — and this file ships as source into JavaScript projects where
-     `number | null` is advice rather than a guarantee. Rendering the literal
-     text "NaN" beside somebody's own measurements is not an option, and
-     neither is quietly calling it an absence. */
+     caller's pipeline, and this file ships as source into JavaScript projects
+     where `number | null` is advice rather than a guarantee. A parse that
+     produced nothing and a division with no divisor are two of the ways such a
+     value arrives. Rendering the literal text "NaN" beside somebody's own
+     measurements is not an option, and neither is quietly calling it an
+     absence. */
   const reading: number | null = value === null || broken ? null : value
 
   if (broken && isDevelopment()) {
@@ -240,8 +241,8 @@ export function Value({
       `[opsinjs] <Value> was given the unit "${unit}", which is not in the unit ` +
         "table. It has been rendered as written and has NOT been given a spoken " +
         'form, because guessing at a pronunciation is how "mmHg" becomes "em em ' +
-        'aitch gee". Add the unit — its symbol, its spoken form and its plural — ' +
-        "to tokens/units.json and run `pnpm run generate`.",
+        'aitch gee". Add the unit to tokens/units.json with its symbol, its ' +
+        "spoken form and its plural, then run `pnpm run generate`.",
     )
   }
 
@@ -264,32 +265,33 @@ export function Value({
   const places = usable ? precision : undefined
 
   /* An empty `absenceLabel` is the only way this component can be made to
-     render an em dash with nothing beside it, and `numbers-units-precision`
-     rule 13 bans exactly that: "never render an absence as `0` or as an em dash
-     with no explanation". Falling back to the default wording is the honest
-     repair — a lone dash is either skipped by speech synthesis or read out as
-     "dash", so a reader who is listening is told nothing at all. */
+     render nothing at all where an absence belongs, and `numbers-units-
+     precision` rule 13 requires an absence to be said in words. Falling back to
+     the default wording is the honest repair: a blank slot is
+     indistinguishable from a component that failed to render. */
   const emptyLabel = absenceLabel !== undefined && absenceLabel.trim() === ""
   if (emptyLabel && isDevelopment()) {
     warnDevOnce(
       "empty-absence-label",
-      "[opsinjs] <Value> received absenceLabel=\"\", which would render an em dash " +
-        'with no words. The default wording was used instead. An absence is said in ' +
-        "words, and the words are the part a screen reader can hear.",
+      '[opsinjs] <Value> received absenceLabel="", which would leave the absence ' +
+        "slot empty. The default wording was used instead. An absence is said in " +
+        "words, and a blank is indistinguishable from a component that rendered " +
+        "nothing.",
     )
   }
   const absenceWords =
     absenceLabel !== undefined && !emptyLabel ? absenceLabel : "no reading yet"
 
-  /* Rounding is `halfExpand` — round-half-away-from-zero, which is
+  /* Rounding is `halfExpand`, which rounds half away from zero and is
      `numbers-units-precision` rule 3. It is INHERITED rather than named, and
      that is a portability decision rather than a preference: `roundingMode` is
      an ES2023 addition to `Intl.NumberFormatOptions`, so writing it out made
-     this file fail to typecheck in any consumer whose `lib` stops at ES2022 —
-     found by installing it into one. `halfExpand` is this formatter's own
-     default, so the behaviour is identical and only the documentation moved,
-     which is where it now is. Rounded ONCE, here, at the point of display —
-     never before a comparison, and never over an already-rounded value.
+     this file fail to typecheck in any consumer whose `lib` stops at ES2022.
+     That was found by installing it into one. `halfExpand` is this formatter's
+     own default, so the behaviour is identical and only the documentation
+     moved, which is where it now is. Rounded ONCE, here, at the point of
+     display. It is never rounded before a comparison, and never over an
+     already-rounded value.
 
      With no `places`, `maximumFractionDigits` is opened all the way rather than
      left at the formatter's default of three, which would round a reader's
@@ -313,7 +315,7 @@ export function Value({
      the formatter whether it is about to print a fraction the caller never
      asked for. `formatToParts` rather than a regular expression on the string,
      because `\d` matches only ASCII and a locale with its own digit shapes
-     would come back empty — the same trap the plural rule below avoids.
+     would come back empty. The plural rule below avoids the same trap.
 
      Development only, and it stays a warning. `precision` remains optional and
      no default is invented: precision belongs to the metric rather than to the
@@ -330,11 +332,11 @@ export function Value({
           `places and was given no \`precision\` to show them to: "${formatted}". ` +
           "With no precision this component rounds nothing and pads nothing, so " +
           "the digits are whatever the double happened to hold rather than what " +
-          "anybody measured. Pass the precision the measurement was reported to " +
-          "— the resolution of the device, or the number of places the laboratory " +
-          "gave. There is deliberately no default to fall back on: precision is a " +
-          "property of the metric and not of the unit, so nothing here can supply " +
-          "one for you.",
+          "anybody measured. Pass the precision the measurement was reported " +
+          "to. That is the resolution of the device, or the number of places " +
+          "the laboratory gave. There is deliberately no default to fall back " +
+          "on: precision is a property of the metric and not of the unit, so " +
+          "nothing here can supply one for you.",
       )
     }
   }
@@ -345,7 +347,7 @@ export function Value({
      matches only ASCII, so a locale with its own digit shapes would come back
      empty, and a locale that groups with a full stop would come back as a
      different number entirely. Comparing against `format(1)` is exact in every
-     locale, and it also settles the "1.0" case — a reading shown to one decimal
+     locale, and it also settles the "1.0" case. A reading shown to one decimal
      place matches `format(1)`, which is "1.0", and is spoken in the singular. */
   const singular =
     reading !== null && (formatted === formatter.format(1) || formatted === formatter.format(-1))
@@ -372,7 +374,7 @@ export function Value({
          this attribute must take the unit from the same place the caller did,
          and must never export, share or print what it finds here on its own. A
          companion `data-opsinjs-unit` would close that, and the attribute
-         vocabulary is fixed at four by the substrate contract — a fifth is a
+         vocabulary is fixed at four by the substrate contract. A fifth is a
          contract edit rather than this file's to make. Reported upward.
 
          IT ALSO CANNOT TELL THE TWO NON-STATES APART. The contract specifies ""
@@ -394,13 +396,15 @@ export function Value({
     >
       {reading === null ? (
         <span data-slot="value-absence">
-          {/* Decorative, and hidden for the reason the specification gives: a
-              punctuation mark is either skipped by speech synthesis or read out
-              as "dash", and neither of those is the message. The words beside it
-              are the message, and they are visible as well as spoken —
-              `numbers-units-precision` rule 13 bans an em dash with no
-              explanation, not an em dash. */}
-          <span aria-hidden="true">—</span>{" "}
+          {/* Words, and nothing but words. An absence has to be SAID:
+              `numbers-units-precision` rule 13 requires the explanation, and a
+              punctuation mark in a value slot is either skipped by speech
+              synthesis or read out as punctuation, so it never carried any part
+              of the message and was always hidden from the accessibility tree.
+              With it gone, the visible string and the accessible string are the
+              same string. The slot is never empty and never a glyph:
+              `absenceWords` falls back to the default wording precisely so that
+              it cannot be. */}
           {broken ? "not available" : absenceWords}
         </span>
       ) : (
@@ -446,10 +450,10 @@ export function Value({
                   its accessible name, so a Value must never be the only thing
                   naming a control: a product that makes a reading tappable owes
                   that control its own accessible name carrying the symbol as
-                  written. The substitution stays, because the alternative — the
-                  symbol spoken and the words dropped — is the failure this
-                  component exists to prevent, on every surface rather than on
-                  the few that are tappable. */}
+                  written. The substitution stays, because the alternative is
+                  the symbol spoken and the words dropped, and that is the
+                  failure this component exists to prevent, on every surface
+                  rather than on the few that are tappable. */}
               {spoken === undefined ? null : (
                 <span data-slot="value-spoken" className="sr-only">
                   {" "}
@@ -476,11 +480,11 @@ export function Value({
  * The numbers are obviously unreal (ADR 0012), and the magnitude is chosen
  * rather than convenient: over a tonne is not a person, and a count of zero is
  * a count. An earlier draft of this demo used a two-digit weight in kilograms,
- * which is a plausible reading for a small child — and this file is one
- * `shadcn add` away from somebody else's project and one screenshot away from
- * outliving the page it was written for, so a number a reader could take for
- * their own is the one thing it must never ship. There is no reference range in
- * sight either; this component has never seen one and never will.
+ * which is a plausible reading for a small child. This file is one `shadcn add`
+ * away from somebody else's project and one screenshot away from outliving the
+ * page it was written for, so a number a reader could take for their own is the
+ * one thing it must never ship. There is no reference range in sight either;
+ * this component has never seen one and never will.
  */
 export default function ValueDemo() {
   return (
@@ -489,7 +493,8 @@ export default function ValueDemo() {
           nothing but the type: same digits, same decimal place, same unit. */}
       <Value value={1000.2} unit="kg" precision={1} size="display" />
       <Value value={1000.2} unit="kg" precision={1} />
-      {/* A reading of zero — a measurement that was taken and came to nothing. */}
+      {/* A reading of zero is a measurement that was taken and came to
+          nothing. */}
       <Value value={0} unit="steps" precision={0} />
       {/* No reading at all, which is a different sentence and says so. */}
       <Value value={null} unit="steps" />

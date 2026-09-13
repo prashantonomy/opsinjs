@@ -1,10 +1,10 @@
 /**
- * app/_machine/corpus.ts — one reading of the documentation corpus, shared by
+ * app/_machine/corpus.ts is one reading of the documentation corpus, shared by
  * every machine surface.
  *
- * The `.md` twin route, `llms.txt`, `llms-full.txt`, the three shards,
- * `/r/docs.json` and `/rss.xml` are seven answers to the same question — "what
- * does this site say?" — asked at seven granularities. They agree because they
+ * "What does this site say?" is one question asked at seven granularities. The
+ * `.md` twin route, `llms.txt`, `llms-full.txt`, the three shards,
+ * `/r/docs.json` and `/rss.xml` are its seven answers. They agree because they
  * all come through here.
  *
  * THE PAGE TEXT API. Page bodies are read with `await page.data.getText(
@@ -13,12 +13,12 @@
  * `postprocess: { includeProcessedMarkdown: true }`, without which
  * `getText("processed")` is unavailable at runtime.
  *
- * WHAT "PROCESSED" DOES AND DOES NOT DO — measured, not assumed. With the
- * boolean form of `includeProcessedMarkdown`, remark runs and the MDAST is
- * stringified back to markdown: imports are stripped, headings gain explicit
- * ids, code blocks and tables come out as markdown. JSX ELEMENTS ARE NOT
- * RENDERED. `<StubNotice component="score-dial" issue="42" />` comes out
- * verbatim, attributes and all — the sentence that component renders in the
+ * WHAT "PROCESSED" DOES AND DOES NOT DO. What follows was measured rather than
+ * assumed. With the boolean form of `includeProcessedMarkdown`, remark runs and
+ * the MDAST is stringified back to markdown: imports are stripped, headings
+ * gain explicit ids, code blocks and tables come out as markdown. JSX ELEMENTS
+ * ARE NOT RENDERED. `<StubNotice component="score-dial" issue="42" />` comes
+ * out verbatim, attributes and all. The sentence that component renders in the
  * browser is not in the string. Verified against fumadocs-mdx 15.4.0.
  *
  * That is survivable, and this module is built around it rather than pretending
@@ -31,8 +31,8 @@
  * `includeProcessedMarkdown: { output: "function" }` and every call site would
  * pass markdown implementations of the components:
  * `getText("processed", { components })`. That is a real improvement and a real
- * piece of work — it needs a markdown twin of the whole MDX vocabulary — so it
- * is recorded here rather than half-done.
+ * piece of work, because it needs a markdown twin of the whole MDX vocabulary.
+ * It is therefore recorded here rather than half-done.
  */
 
 import { source } from "@/lib/source"
@@ -61,7 +61,7 @@ export interface SectionDescriptor {
 /**
  * The sixteen groups of the sidebar, in the order the root `meta.json`
  * declares them. `sectionOf` maps a page to exactly one of these, so a page
- * appears exactly once in `llms.txt` — which `check-llms.mts` asserts.
+ * appears exactly once in `llms.txt`. That is what `check-llms.mts` asserts.
  */
 export const SECTIONS: SectionDescriptor[] = [
   {
@@ -86,9 +86,9 @@ export const SECTIONS: SectionDescriptor[] = [
     id: "components",
     title: "Components",
     /* No count here, deliberately. This string is a module-level constant, so
-       it cannot call `implementedComponents()` — and the count it used to
-       carry ("Twenty-four specifications. None is implemented") was wrong in
-       both halves within one release. It is also served verbatim as
+       it cannot call `implementedComponents()`. The count it used to carry
+       ("Twenty-four specifications. None is implemented") was wrong in both
+       halves within one release. It is also served verbatim as
        `sections[].description` in `/r/docs.json`, which is read offline with
        no way to check a number against anything. So it names the two fields
        that do carry the answer instead. */
@@ -99,7 +99,7 @@ export const SECTIONS: SectionDescriptor[] = [
     id: "screens",
     title: "Screens",
     blurb:
-      "Whole-screen specimens — the two colour axes, the material ladder and motion working together rather than in isolation.",
+      "Whole-screen specimens showing the two colour axes, the material ladder and motion working together rather than in isolation.",
   },
   {
     id: "health",
@@ -111,7 +111,7 @@ export const SECTIONS: SectionDescriptor[] = [
     id: "foundations",
     title: "Foundations",
     blurb:
-      "What a token means — colour, materials, motion, typography, shape, space, data states and data visualisation.",
+      "What a token means in colour, materials, motion, typography, shape, space, data states and data visualisation.",
   },
   {
     id: "accessibility",
@@ -123,13 +123,13 @@ export const SECTIONS: SectionDescriptor[] = [
     id: "content",
     title: "Content & language",
     blurb:
-      "Writing for a patient reader: voice and tone across the four status levels, health literacy, and the plain-English A–Z.",
+      "Writing for a patient reader: voice and tone across the four status levels, health literacy, and the plain-English A to Z.",
   },
   {
     id: "patterns",
     title: "Patterns",
     blurb:
-      "Components, tokens and guidance assembled for exactly one user task — disclosing a result, logging daily, escalating an alert.",
+      "Components, tokens and guidance assembled for exactly one user task such as disclosing a result, logging daily or escalating an alert.",
   },
   {
     id: "handbook",
@@ -141,7 +141,7 @@ export const SECTIONS: SectionDescriptor[] = [
     id: "theming",
     title: "Theming & tokens",
     blurb:
-      "How to change what a token means — the theme generator, preset codes, category and status palettes, and Tailwind v4 ordering traps.",
+      "How to change what a token means. This section covers the theme generator, preset codes, category and status palettes, and Tailwind v4 ordering traps.",
   },
   {
     id: "agents",
@@ -189,7 +189,7 @@ export const SHARDS = {
     title: "Components and screens",
     sections: ["components", "screens"],
     blurb:
-      "Every component page and every screen specimen — the built components, the specifications and the reserved names, each carrying its own status. Read this before answering a question about what opsinjs provides.",
+      "Every component page and every screen specimen is here: the built components, the specifications and the reserved names, each carrying its own status. Read this before answering a question about what opsinjs provides.",
   },
   health: {
     file: "/llms-health.txt",
@@ -376,8 +376,8 @@ function builtScreenIds(): Set<string> {
  * Only `content/docs/components/<id>.mdx` carrying `kind: component` qualifies.
  * The same directory also holds the section index (`kind: reference`) and the
  * page-anatomy handbook (`kind: handbook`), and a screen page is a specimen
- * rather than a registry item — none of the three is a component, and none has
- * a catalogue id or anything to install. A screen is still a thing that can be
+ * rather than a registry item. None of the three is a component, and none has a
+ * catalogue id or anything to install. A screen is still a thing that can be
  * composed, so `pageImplemented()` answers for it separately, from the registry
  * rather than from here.
  */
@@ -391,18 +391,19 @@ export function componentIdOf(page: CorpusPage): string | null {
  * Whether the thing THIS page documents has been built, or `undefined` when the
  * page documents no such thing.
  *
- * Three surfaces need this answer about one page — the twin's `implemented:`
- * frontmatter, its `x-opsinjs-implemented` header, and the page record in
- * `/r/docs.json` — and before this they disagreed: the frontmatter answered per
- * page, the header answered for the system, and the bundle did not answer at
- * all while its own docblock said it did. One function, three callers.
+ * Three surfaces need this answer about one page. They are the twin's
+ * `implemented:` frontmatter, its `x-opsinjs-implemented` header, and the page
+ * record in `/r/docs.json`. Before this they disagreed: the frontmatter
+ * answered per page, the header answered for the system, and the bundle did not
+ * answer at all while its own docblock said it did. One function, three
+ * callers.
  *
  * A component page answers for its catalogue id. A screen page answers for the
  * screen, read from the registry by kind rather than written down as `false`,
- * so the day a screen is composed the answer moves with it. Everything else —
- * a guide, a doctrine page, an ADR, a generated token reference — documents
- * nothing that can be built, and gets `undefined` rather than a `false` that
- * would assert something untrue about a page that is real today.
+ * so the day a screen is composed the answer moves with it. Everything else
+ * documents nothing that can be built, and gets `undefined` rather than a
+ * `false` that would assert something untrue about a page that is real today.
+ * That covers a guide, a doctrine page, an ADR and a generated token reference.
  */
 export function pageImplemented(page: CorpusPage): boolean | undefined {
   const componentId = componentIdOf(page)
@@ -436,8 +437,8 @@ export function renderIndexEntry(page: CorpusPage): string {
 /**
  * YAML frontmatter for a single page's markdown twin. Deliberately a superset
  * of the authored frontmatter: it adds the canonical URL and, on a component
- * page, the implementation marker read from the registry index — so a page
- * read in isolation still knows where it came from and what it may be used
+ * page, the implementation marker read from the registry index. A page read in
+ * isolation therefore still knows where it came from and what it may be used
  * for.
  */
 export function renderFrontmatter(page: CorpusPage): string {
@@ -469,19 +470,20 @@ export function renderFrontmatter(page: CorpusPage): string {
   putList("usedIn", meta.usedIn)
   /* The one field on this page that nobody authored, and therefore the one
      field no MDX edit can correct. It used to be the literal `false`, which
-     told every reader that the twenty-four built components did not exist — on
-     the same HTTP response whose `x-opsinjs-implemented` header said they did,
-     and directly under a `status: "alpha"` line saying so too. It is now read
-     from the generated index that both of those are read from.
+     told every reader that the twenty-four built components did not exist.
+     That `false` went out on the same HTTP response whose
+     `x-opsinjs-implemented` header said they did, and directly under a
+     `status: "alpha"` line saying so too. It is now read from the generated
+     index that both of those are read from.
 
-     It is emitted only on a page that documents something buildable — a
-     component or a screen specimen — which is what `pageImplemented()` decides,
-     and what the twin's `x-opsinjs-implemented` header and the `/r/docs.json`
-     page record now decide with it. A health doctrine page, a token reference
-     or an ADR is not an unimplemented anything; stamping `implemented: false`
-     on one asserts something false about a page that is real today. A
-     `considered` id still gets `implemented: false`, which is the correct
-     answer for it. */
+     It is emitted only on a page that documents something buildable, which
+     means a component or a screen specimen. That is what `pageImplemented()`
+     decides, and what the twin's `x-opsinjs-implemented` header and the
+     `/r/docs.json` page record now decide with it. A health doctrine page, a
+     token reference or an ADR is not an unimplemented anything; stamping
+     `implemented: false` on one asserts something false about a page that is
+     real today. A `considered` id still gets `implemented: false`, which is the
+     correct answer for it. */
   const implemented = pageImplemented(page)
   if (implemented !== undefined) lines.push(`implemented: ${implemented}`)
   lines.push("---")
@@ -498,15 +500,16 @@ export function renderFrontmatter(page: CorpusPage): string {
  * field above it is. A component and a screen are the only things on this site
  * that can be built, so they are the only things whose page can honestly say
  * it has not been. On a guide, a handbook chapter, a foundation or a recipe,
- * `planned` means the writing is unfinished, not that the subject is vapour —
- * and stamping "do not tell a reader that it exists" on the `.md` twin of
+ * `planned` means the writing is unfinished, not that the subject is vapour.
+ * Stamping "do not tell a reader that it exists" on the `.md` twin of
  * `/docs/start/installation` contradicted the working install instructions
  * twenty lines below it, in the one copy of the page only machines read.
  *
  * The general signal is still on every page: `status` in the frontmatter this
  * module renders, and in the llms.txt annotations. This notice is the specific
- * one, and it says something a status alone cannot — do not write code against
- * the API sketched below. Keep it narrow enough to stay true.
+ * one, and it says something a status alone cannot. It tells the reader not to
+ * write code against the API sketched below. Keep it narrow enough to stay
+ * true.
  */
 export function notImplementedNotice(page: CorpusPage): string | null {
   const meta = metaOf(page)
@@ -533,8 +536,8 @@ export function notImplementedNotice(page: CorpusPage): string | null {
  * with no code that is not ambiguity, it is a wrong answer to the only question
  * the header exists to answer.
  *
- * `x-opsinjs-implemented` is overridden — exactly as `/r/<id>.json` overrides
- * it — whenever `pageImplemented()` has an answer for this page. A guide, a
+ * `x-opsinjs-implemented` is overridden whenever `pageImplemented()` has an
+ * answer for this page, exactly as `/r/<id>.json` overrides it. A guide, a
  * handbook chapter or a doctrine page names nothing buildable, so it has none,
  * and the system-scoped value from `implementedHeaders()` stands: that is what
  * the contract in `./contracts` says the header means off a per-item route, and
@@ -561,9 +564,10 @@ const JSX_ELEMENT = /<[A-Z][A-Za-z0-9]*[\s/>]/
  *
  * Emitted only when there are some. It exists because an agent that finds
  * `<ContrastReport scope="materials" />` in a markdown file has two reasonable
- * readings — that the page is broken, or that a table is missing — and both are
- * wrong. The third reading, that the element is a named view onto data that is
- * published separately and can be fetched, is the useful one, so it is stated.
+ * readings. One is that the page is broken and the other is that a table is
+ * missing, and both are wrong. The third reading, that the element is a named
+ * view onto data that is published separately and can be fetched, is the useful
+ * one, so it is stated.
  */
 export function jsxNotice(body: string): string | null {
   if (!JSX_ELEMENT.test(body)) return null
@@ -572,7 +576,7 @@ export function jsxNotice(body: string): string | null {
     "> components. Their attributes are the content: the values they render are",
     "> generated from `tokens/*.json` and `registry/catalogue.ts` and are",
     `> published separately at ${SITE_URL}/r/index.json and under the Reference`,
-    "> section. Nothing is missing from this page — the data simply does not",
+    "> section. Nothing is missing from this page. The data simply does not",
     "> live in the prose.",
   ].join("\n")
 }
@@ -639,9 +643,9 @@ export function jsxPreamble(): string {
  * context window is measured in characters rather than bytes. That is true of a
  * context window and false of everything that carries the file: the response
  * header, the CDN limit and check-llms all count bytes. This corpus is full of
- * em dashes and middots, so the two differ by about 0.2% — enough for a
- * "capped" llms-full.txt to ship 880 kB against a 879 kB cap and warn on every
- * run. Counting what the transport counts makes the cap true.
+ * em dashes and middots, so the two differ by about 0.2%. That difference is
+ * enough for a "capped" llms-full.txt to ship 880 kB against a 879 kB cap and
+ * warn on every run. Counting what the transport counts makes the cap true.
  */
 export const BUDGETS = {
   full: 900_000,
@@ -679,14 +683,14 @@ export function assemble(
 }
 
 /**
- * The footer a truncated file ends with — and, when the caller supplies the
- * dropped pages, a manifest of them.
+ * The footer a truncated file ends with, which also carries a manifest of the
+ * dropped pages when the caller supplies them.
  *
  * "44 of 68 pages were omitted" tells a reader that something is missing and
  * not one thing about WHAT, which is the harder half of the problem: an agent
  * that cannot name the gap cannot go and fetch it. Each line is a `.md` twin
  * URL, so the manifest is not an apology, it is the fetch list. Callers must
- * pay for it in the byte reservation — see `buildCorpusFile`.
+ * pay for it in the byte reservation. See `buildCorpusFile`.
  */
 export function truncationNotice(
   result: Assembled,
@@ -704,7 +708,7 @@ export function truncationNotice(
           "",
           ...omittedPages.map(
             (page) =>
-              `- ${metaOf(page).title} — ${pageMarkdownUrl(page)} (status: ${metaOf(page).status})`
+              `- [${metaOf(page).title}](${pageMarkdownUrl(page)}) (status: ${metaOf(page).status})`
           ),
         ]
   return [
@@ -724,7 +728,7 @@ export function bundleHeader(
   blurb: string,
   extra: string[] = []
 ): string {
-  return [`# ${SITE_NAME} — ${title}`, "", `> ${blurb}`, "", ...extra].join(
+  return [`# ${title} on ${SITE_NAME}`, "", `> ${blurb}`, "", ...extra].join(
     "\n"
   )
 }
@@ -740,11 +744,11 @@ export function bundleHeader(
  *
  * These files are size-capped and truncated at a page boundary, so what gets
  * dropped is the tail. In plain alphabetical order that tail was `metric-tile`
- * through `value` — thirteen of the twenty-four built components, including
- * every one an agent reaching for a health readout would want — while the head
- * kept two-kilobyte `considered` stubs for names that have no code at all. The
- * shard the site nominates as the authority on "what opsinjs provides" was
- * spending its budget on reserved names.
+ * through `value`, which is thirteen of the twenty-four built components and
+ * includes every one an agent reaching for a health readout would want. The
+ * head meanwhile kept two-kilobyte `considered` stubs for names that have no
+ * code at all. The shard the site nominates as the authority on "what opsinjs
+ * provides" was spending its budget on reserved names.
  *
  * This does not make the file complete; it makes what survives the useful half.
  * The budget itself is a separate, human decision, and `truncationNotice` now
@@ -776,7 +780,7 @@ export function truncationOrder(pages: CorpusPage[]): CorpusPage[] {
 /**
  * Build one of the four concatenated corpus files: `llms-full.txt` and the
  * three shards. They differ only in which sections they include and how much
- * they are allowed to carry, so they are one function — a shard that drifted
+ * they are allowed to carry, so they are one function. A shard that drifted
  * from the full file in header, ordering or truncation behaviour would be a
  * second, quieter version of the same corpus.
  */
@@ -806,9 +810,9 @@ export async function buildCorpusFile(options: {
   /* The line that says what is built.
 
      It used to be the literal "NOTHING IN THIS SYSTEM IS IMPLEMENTED", printed
-     at the head of all four files whatever the registry contained — so an agent
-     handed a shard read an all-caps negation four lines before it read a
-     component page whose own notice said the opposite, and resolved the
+     at the head of all four files whatever the registry contained. An agent
+     handed a shard therefore read an all-caps negation four lines before it
+     read a component page whose own notice said the opposite, and resolved the
      conflict in favour of the shout. It is now read from the same index
      `/r/index.json` reports.
 
@@ -821,7 +825,7 @@ export async function buildCorpusFile(options: {
   const implementedLine =
     built.length === 0
       ? "NOTHING IN THIS SYSTEM IS IMPLEMENTED. Every component page below is a specification. Do not generate code against a proposed API and do not describe a component as shipping."
-      : `${built.length} opsinjs component${built.length === 1 ? " is" : "s are"} implemented and installable; every other component id is a specification or a name reserved so the URL answers. Each page carries its own \`status\`, and ${SITE_URL}/r/index.json carries \`implemented\` per id — read one of those two before you generate code against any API, and never describe an unimplemented component as shipping.`
+      : `${built.length} opsinjs component${built.length === 1 ? " is" : "s are"} implemented and installable; every other component id is a specification or a name reserved so the URL answers. Each page carries its own \`status\`, and ${SITE_URL}/r/index.json carries \`implemented\` per id. Read one of those two before you generate code against any API, and never describe an unimplemented component as shipping.`
 
   const header = (included: number, omitted: number): string =>
     bundleHeader(options.title, options.blurb, [
@@ -837,9 +841,9 @@ export async function buildCorpusFile(options: {
 
   /* The budget is the size of the FILE, not the size of the pages in it, so the
      header and any truncation notice are paid for first. Both are measured in
-     their worst case — the header prints "N of M" only when pages were dropped
-     and the notice exists only then — so the reservation is never an
-     underestimate, and the finished file is always inside its budget. Adding
+     their worst case, because the header prints "N of M" only when pages were
+     dropped and the notice exists only then. The reservation is therefore never
+     an underestimate, and the finished file is always inside its budget. Adding
      them afterwards was how a capped llms-full.txt shipped 880 kB against a
      879 kB cap and warned on every single run. */
   const encoder = new TextEncoder()

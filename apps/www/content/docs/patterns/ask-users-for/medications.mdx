@@ -1,6 +1,6 @@
 ---
 title: Ask users for medications
-description: A medication is not a string — it is a name, a strength, a form and a schedule, entered by somebody reading a box in poor light.
+description: A medication is not a string. It is a name, a strength, a form and a schedule, entered by somebody reading a box in poor light.
 status: stable
 kind: pattern
 aliases: [medication list, drug name entry, dose entry, prescription input, what medicines do you take]
@@ -21,8 +21,8 @@ checks something that genuinely depends on knowing them.
 This is the most error-prone field in a consumer health product, for reasons
 that are all structural:
 
-- **A medication is at least four facts** — name, strength, form and schedule —
-  and readers routinely supply one of the four.
+- **A medication is at least four facts.** They are name, strength, form and
+  schedule. Readers routinely supply one of the four.
 - **The name is hard to type.** Long, unfamiliar, easily confused, and mangled
   by autocorrect. Brand and generic names coexist and readers use whichever is
   on the box.
@@ -56,7 +56,7 @@ that are all structural:
   B -->|"no"| D["Search a reference list by name"]
   D --> E{"Found?"}
   E -->|"yes"| F["Select; strength and form offered from the reference entry"]
-  E -->|"no"| G["Free text — always available, never a dead end"]
+  E -->|"no"| G["Free text<br/>always available, never a dead end"]
   F --> H["Reader adds strength, form and schedule"]
   G --> H
   H --> I["Review: the reader sees exactly what will be stored"]
@@ -68,9 +68,9 @@ that are all structural:
   generic names, and show both in the result so the reader can confirm they are
   the same thing.
 - **Free text is always available.** A reader whose medication is not in your
-  list — imported, unlicensed, newly approved, or simply missing — must be able
-  to record it. A closed list is a dead end at exactly the moment the reader is
-  trying to tell you something important.
+  list must be able to record it, whether imported, unlicensed, newly approved,
+  or simply missing. A closed list is a dead end at exactly the moment the
+  reader is trying to tell you something important.
 - **Never autocorrect a medication name.** `autocorrect="off"`,
   `autocapitalize="off"`, `spellcheck="false"`. Autocorrect turns medication
   names into unrelated English words with total confidence.
@@ -80,8 +80,9 @@ that are all structural:
 - **Strength is a number and a unit, entered separately.** `500` and `mg`, not
   `500mg` as a string. Offer the strengths that exist for the selected product,
   and allow another.
-- **Form matters** — tablet, capsule, liquid, patch, inhaler, injection. The
-  same name at the same strength in two forms is two different things.
+- **Form matters.** The forms are tablet, capsule, liquid, patch, inhaler and
+  injection. The same name at the same strength in two forms is two different
+  things.
 - **Schedule in the reader's words, then structured.** "Twice a day", "morning
   and night", "as needed" are how people describe their medicines. Offer those,
   map them to structure behind the scenes, and never require the reader to fill
@@ -92,14 +93,14 @@ that are all structural:
   imported, and from where. See
   [Data provenance and device accuracy](../../health/data-provenance-and-device-accuracy.mdx).
 - **Stopping is as easy as adding**, and a stopped medication is retained with
-  its dates rather than deleted — a clinician's next question is usually when it
+  its dates rather than deleted. A clinician's next question is usually when it
   stopped.
 
 ## Content
 
 <DoDont>
   <DoDont.Do>
-    "Search for your medicine. It's on the box or the pharmacy label — you can
+    "Search for your medicine. It's on the box or the pharmacy label. You can
     use the brand name or the generic name."
   </DoDont.Do>
   <DoDont.Dont>
@@ -111,7 +112,7 @@ that are all structural:
 <DoDont>
   <DoDont.Do>
     "This is the list you've told us about. Your clinician's records may show
-    something different — bring this with you rather than relying on it."
+    something different. Bring this with you rather than relying on it."
   </DoDont.Do>
   <DoDont.Dont>
     "Your medications" presented as an authoritative record, with no indication

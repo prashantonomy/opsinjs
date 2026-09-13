@@ -1,5 +1,5 @@
 ---
-title: "0002 — Distribute as a shadcn registry"
+title: "ADR 0002. Distribute as a shadcn registry"
 description: Ship components as copyable source through a shadcn-spec registry, and do not build a CLI first.
 status: stable
 kind: project
@@ -22,10 +22,10 @@ A component library can be delivered three ways: as an npm package you import, a
 source you copy into your own repository, or as both. The choice is usually made
 on developer convenience. In this domain there are two stronger arguments.
 
-**Health products modify components.** Not occasionally — always. The thresholds
-a range renders, the wording of a disclaimer, the exact phrasing of a status
-sentence: these are the parts a clinical safety review changes, and they are
-different for every product because the clinical context is different. A library
+**Health products modify components.** They do so always, not occasionally. The
+thresholds a range renders, the wording of a disclaimer, the exact phrasing of a
+status sentence: these are the parts a clinical safety review changes, and they
+are different for every product because the clinical context is different. A library
 that makes modification mean forking has misunderstood the job.
 
 **Copied source is auditable.** A file in your repository, in your pull request,
@@ -60,13 +60,13 @@ additional server.
   for agents that want the answer without the files.
 - **Bundle size is a per-consumer question**, not ours. The `<BundleSize>` block
   on a component page reports what the copied source costs, including whether it
-  forces a client boundary — a normal integration question that almost no design
-  system answers.
+  forces a client boundary. That is a normal integration question that almost no
+  design system answers.
 - **Not everything fits this model.** The colour engine is a callable API with
-  real algorithms in it — deriving a ramp, computing APCA — and copying that into
-  a product is worse than importing it. Those ship as `@opsinjs/*` packages, and
-  the [Packages](../../packages/index.mdx) section documents them as an API. The
-  registry is for components; the packages are for functions.
+  real algorithms in it. It derives a ramp and computes APCA, and copying that
+  into a product is worse than importing it. Those ship as `@opsinjs/*`
+  packages, and the [Packages](../../packages/index.mdx) section documents them
+  as an API. The registry is for components; the packages are for functions.
 
 ## Alternatives considered
 
@@ -74,16 +74,16 @@ additional server.
 forking loses the upgrade path entirely. It is also the wrong shape for a system
 whose most-changed parts are strings a clinician has to approve.
 
-**Both, from day one.** Rejected as premature. Two distribution paths mean two
-sets of documentation, two upgrade stories and twice the surface — before a
-single component exists. The packages arrive when there is something in them
-worth importing.
+**Both, from day one.** Rejected as premature. No component exists yet, and two
+distribution paths mean two sets of documentation, two upgrade stories and twice
+the surface. The packages arrive when there is something in them worth
+importing.
 
 **Our own CLI, first.** Rejected as building the shop before the stock. `npx
 shadcn` already does dependency resolution, path rewriting, diffing and dry runs.
-An `opsinjs` CLI is only justified by a job shadcn cannot do — theme validation is
-the likely first one — and [CLI reference](../../registry/cli-reference.mdx) says
-plainly which jobs those are.
+An `opsinjs` CLI is only justified by a job shadcn cannot do, and
+[CLI reference](../../registry/cli-reference.mdx) says plainly which jobs those
+are. Theme validation is the likely first one.
 
 ## Revisiting this
 

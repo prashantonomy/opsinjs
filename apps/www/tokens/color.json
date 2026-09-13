@@ -1,5 +1,5 @@
 {
-  "$comment": "AUTHORED SOURCE — not generated. scripts/build-tokens.mts reads this file and emits app/tokens.generated.css and lib/generated/tokens.ts. Edit here, never there.",
+  "$comment": "AUTHORED SOURCE. This file is not generated. scripts/build-tokens.mts reads this file and emits app/tokens.generated.css and lib/generated/tokens.ts. Edit here, never there.",
   "version": 1,
   "namespace": "color",
   "cssPrefix": "--opsin",
@@ -12,7 +12,7 @@
       "status": "status",
       "absence": "status"
     },
-    "$comment": "Example: --opsin-category-heart-600 (primitive tier) and --opsin-status-urgent-ink (semantic tier). `absence.unknown` is emitted under the status axis so a component can switch on one variable name, but it is NOT a status level — see rules."
+    "$comment": "Example: --opsin-category-heart-600 (primitive tier) and --opsin-status-urgent-ink (semantic tier). `absence.unknown` is emitted under the status axis so a component can switch on one variable name, but it is NOT a status level. See rules."
   },
   "rules": [
     "The two axes never mix. A surface may carry a category colour or a status colour, never both. Category answers 'what kind of reading is this'; status answers 'what should the reader do about it'. A card tinted by category and bordered by status makes the two indistinguishable at a glance and is the failure this system exists to prevent.",
@@ -55,7 +55,7 @@
     "base": "sRGB",
     "wide": "display-p3",
     "p3ChromaGain": 1.18,
-    "$comment": "Every step is authored twice. `srgb` is clamped into the sRGB gamut and is what every browser gets. `p3`, when present, is the same lightness and hue at up to 18% more chroma, clamped into Display-P3, emitted by build-tokens.mts inside @media (color-gamut: p3). A step with no `p3` key is already at or above the P3 boundary for its lightness, so there is no wide-gamut variant to serve. `clampedToSrgb: true` records that the envelope asked for more chroma than sRGB can hold at that lightness — the honest version of 'this colour is as saturated as the display allows'."
+    "$comment": "Every step is authored twice. `srgb` is clamped into the sRGB gamut and is what every browser gets. `p3`, when present, is the same lightness and hue at up to 18% more chroma, clamped into Display-P3, emitted by build-tokens.mts inside @media (color-gamut: p3). A step with no `p3` key is already at or above the P3 boundary for its lightness, so there is no wide-gamut variant to serve. `clampedToSrgb: true` records that the envelope asked for more chroma than sRGB can hold at that lightness. It is the honest version of 'this colour is as saturated as the display allows'."
   },
   "floor": {
     "text": {
@@ -73,7 +73,7 @@
       "wcag": 3,
       "appliesTo": "Boundaries, icons, chart strokes, focus rings and any graphic that carries meaning."
     },
-    "$comment": "opsinjs publishes BOTH an APCA Lc figure and a WCAG 2.2 ratio for every pair, and a pair must clear both. APCA models real text rendering better; WCAG 2.2 is what a procurement reviewer and a VPAT ask for. The measured numbers live in lib/generated/contrast.json and are produced by scripts/check-contrast.mts — they are never written by hand and never quoted in prose. One copy in this file is the named exception: `colourIndependence.statusCollisions` is a rounded snapshot kept so that an author reading the palette does not have to open the generated file, it is not authoritative, and nothing diffs it against the generator. Where the two disagree, the generated file is right."
+    "$comment": "opsinjs publishes BOTH an APCA Lc figure and a WCAG 2.2 ratio for every pair, and a pair must clear both. APCA models real text rendering better; WCAG 2.2 is what a procurement reviewer and a VPAT ask for. The measured numbers live in lib/generated/contrast.json and are produced by scripts/check-contrast.mts. They are never written by hand and never quoted in prose. One copy in this file is the named exception: `colourIndependence.statusCollisions` is a rounded snapshot kept so that an author reading the palette does not have to open the generated file, it is not authoritative, and nothing diffs it against the generator. Where the two disagree, the generated file is right."
   },
   "roles": {
     "order": ["surface", "line", "ink", "accent"],
@@ -1138,7 +1138,7 @@
       "isStatus": false,
       "word": "Not known",
       "sentence": "We do not have a reading to show.",
-      "$comment": "Deliberately NOT a fifth status level. `unknown` is the absence of an assertion — no reading, a stale reading, a reading whose reference range the product does not own. Rendering it as a status would claim a verdict the system does not have. It is nearly achromatic on purpose: it must never look like a mild version of `watch`.",
+      "$comment": "Deliberately NOT a fifth status level. `unknown` is the absence of an assertion: no reading, a stale reading, a reading whose reference range the product does not own. Rendering it as a status would claim a verdict the system does not have. It is nearly achromatic on purpose: it must never look like a mild version of `watch`.",
       "seed": {
         "l": 0.72,
         "c": 0.02,
@@ -1238,10 +1238,10 @@
     }
   },
   "colourIndependence": {
-    "$comment": "A MEASURED FINDING, not a claim. lib/color/cvd.ts was run over the four status accents and the six category accents under protanopia, deuteranopia, tritanopia and grayscale, and the pairs below fall below the Lc 15 collapse threshold — that is, as flat fills they become hard or impossible to tell apart. scripts/check-contrast.mts regenerates this audit into lib/generated/contrast.json and <CvdSimulator> renders it. The numbers here are a snapshot for authors, rounded to one decimal place, and they are the exception named under `floor`: the published ones are the generated ones, and nothing gates this copy against them. The snapshot lists only pairs among the four status levels. `unknown` collides with several of them and is deliberately absent, because it is the absence of an assertion rather than a fifth level, and a table that ranked it beside the four would teach the wrong model; the generated audit carries those pairs in full.",
+    "$comment": "A MEASURED FINDING, not a claim. lib/color/cvd.ts was run over the four status accents and the six category accents under protanopia, deuteranopia, tritanopia and grayscale, and the pairs below fall below the Lc 15 collapse threshold. As flat fills they become hard or impossible to tell apart. scripts/check-contrast.mts regenerates this audit into lib/generated/contrast.json and <CvdSimulator> renders it. The numbers here are a snapshot for authors, rounded to one decimal place, and they are the exception named under `floor`: the published ones are the generated ones, and nothing gates this copy against them. The snapshot lists only pairs among the four status levels. `unknown` collides with several of them and is deliberately absent, because it is the absence of an assertion rather than a fifth level, and a table that ranked it beside the four would teach the wrong model; the generated audit carries those pairs in full.",
     "method": "Viénot, Brettel and Mollon (1999) dichromacy projection in linear-light sRGB, plus a relative-luminance grayscale. Full severity. An approximation of dichromacy, not a model of any individual reader.",
     "collapseThresholdLc": 15,
-    "finding": "The status axis DOES collapse in pairs. steady and attention become identical under deuteranopia (Lc 0) and under grayscale (Lc 0); steady and urgent become identical under tritanopia (Lc 0). This is not a defect in the palette that a different hue would fix — four ordered levels cannot be made mutually distinguishable by hue alone for every form of colour vision, because two of the four sit at nearly the same lightness.",
+    "finding": "The status axis DOES collapse in pairs. steady and attention become identical under deuteranopia (Lc 0) and under grayscale (Lc 0); steady and urgent become identical under tritanopia (Lc 0). This is not a defect in the palette that a different hue would fix. Four ordered levels cannot be made mutually distinguishable by hue alone for every form of colour vision, because two of the four sit at nearly the same lightness.",
     "consequence": "It is the reason colour is never the sole carrier of status in this system. Every status level ships colour PLUS an icon PLUS a word, and the icons are chosen to differ in silhouette rather than only in colour. A product that renders a bare coloured dot to mean status has broken the system, and OPSIN-0002 fires on it in development.",
     "statusCollisions": [
       {

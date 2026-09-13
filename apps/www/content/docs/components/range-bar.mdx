@@ -16,11 +16,11 @@ usedIn: [value-against-a-range, results-screen]
   name="range-bar"
   status="alpha"
   questions={[
-    "The graphic is named by the same sentence that is printed underneath it, so a screen-reader user meets it twice — and where a status was supplied, hears the level twice as well, because the picture's name carries it and the word beside the label carries it. The alternative the charts doctrine allows — hiding the picture entirely when its text twin sits beside it — has not been tested with real users, and until it has, a named picture is the safer of the two.",
+    "The graphic is named by the same sentence that is printed underneath it, so a screen-reader user meets it twice. Where a status was supplied, the same user hears the level twice as well, because the picture's name carries it and the word beside the label carries it. Hiding the picture entirely when its text twin sits beside it is the alternative the charts doctrine allows. It has not been tested with real users, and until it has, a named picture is the safer of the two.",
     "Nothing here has been measured. No contrast pair has been checked by a machine, and two of them are known to need it: the status word and the category tint are `ink` roles, which are tuned against their own `-surface` and are painted here on whatever ground the host provides. No reading has been listened to, and there is no print stylesheet in opsinjs for any print behaviour to be tested against.",
-    "Two boundary labels can round to the same number when the range is narrower than the precision the metric is reported to. The component says so in development and changes nothing, because adding a decimal place would be a claim about accuracy nobody made — but a reader still sees two identical numbers.",
+    "Two boundary labels can round to the same number when the range is narrower than the precision the metric is reported to. The component says so in development and changes nothing, because adding a decimal place would be a claim about accuracy nobody made. A reader nevertheless still sees two identical numbers.",
     "A number's label is centred on its mark, so a mark near either end of the track puts part of its label outside the component's box. At 200% text in a narrow column that becomes horizontal scrolling on the page, which is what the reflow criterion is failed on. It is not fixed, and the fix is geometry rather than wording.",
-    "No named reviewer has signed this page off. Group J of the safety review checklist asks for a reviewer name and a date, and there is neither here — not because the component was not reviewed, but because nobody who reviewed it is recorded on it. Read every claim below as unattributed until that changes.",
+    "No named reviewer has signed this page off. Group J of the safety review checklist asks for a reviewer name and a date, and there is neither here. That is not because the component was not reviewed, but because nobody who reviewed it is recorded on it. Read every claim below as unattributed until that changes.",
   ]}
 >
   <code className="text-sm">range-bar</code> is implemented and installable. It
@@ -35,16 +35,16 @@ most dangerous, because the distance between *here is your number against its ra
 *here is a verdict about your health* is one careless colour choice wide.
 
 The sentence is the component and the bar is a drawing of the sentence. `RangeBar.Summary`
-states the reading, the range, the position and whose range it is — or, where there is no
-range it can honestly compare against, says so and stops — in words, on every surface and
-at every size. Everything else on this page exists to draw that sentence for people who
-would rather see it than read it.
+states the reading, the range, the position and whose range it is. Where there is no range
+it can honestly compare against, the summary says so and stops instead. Either sentence is
+rendered in words, on every surface and at every size. Everything else on this page exists
+to draw that sentence for people who would rather see it than read it.
 
 ## Preview
 
 Two bars: a reading against a range, and the same reading with no range to compare it
-with. The second is the one worth looking at, because it is the case products get wrong —
-the tempting repair is a typical adult band and a small asterisk, and a reader cannot tell
+with. The second is the one worth looking at, because it is the case products get wrong.
+The tempting repair is a typical adult band and a small asterisk, and a reader cannot tell
 a borrowed band from a real one.
 
 Open it under the product theme and turn the text size up. The claim that this component
@@ -75,7 +75,7 @@ import { RangeBar } from "@/components/ui/range-bar"
   value={14}
   unit="mg/dL"
   precision={0}
-  range={{ low: 10, high: 20, source: "Example data — not a reference range" }}
+  range={{ low: 10, high: 20, source: "Example data rather than a reference range" }}
 />
 ```
 
@@ -84,13 +84,13 @@ import { RangeBar } from "@/components/ui/range-bar"
 <WhenToUse
   use={[
     "One measurement that has a published reference range, shown to the person it belongs to: a blood test result, a blood-pressure reading, a resting heart rate.",
-    "A value whose meaning is positional rather than absolute — where the useful information is 'a little above the top of the range', not '5.9'.",
+    "A value whose meaning is positional rather than absolute. The useful information is 'a little above the top of the range', not '5.9'.",
     "Any surface where a reader would otherwise have to hold two numbers in their head and compare them: the value, and the range printed beside it.",
   ]}
   avoid={[
     { case: "The value has no reference range, or the range depends on facts you do not have (age, sex, pregnancy, medication, the assay the lab used).", instead: "value" },
     { case: "You are showing change over time rather than position within a range.", instead: "trend-sparkline" },
-    { case: "The number is a composite score you calculated, not a measurement — a risk index, a sleep score, a wellbeing score.", instead: "score-dial" },
+    { case: "The number is a composite score you calculated, not a measurement, whether that is a risk index, a sleep score or a wellbeing score.", instead: "score-dial" },
     { case: "You need a compact readout in a dashboard grid, where a bar would be illegible.", instead: "metric-tile" },
     { case: "The only thing you need to communicate is which of the four clinical status levels applies.", instead: "status-pill" },
     { case: "You want to tell someone what to do about the result.", instead: "care-card" },
@@ -106,7 +106,7 @@ on a line is a much stronger claim than printing two numbers in small type. Use
 
 You can also hand RangeBar a reading with no range and let it say that for you. It renders
 the number, states in the summary that there is nothing to compare it with, and draws no
-bar at all — which is the same message, in the component the rest of the screen is already
+bar at all. That is the same message, in the component the rest of the screen is already
 using.
 
 ## Clinical meaning
@@ -118,28 +118,28 @@ happens next.
 
 **What it must never be read as.** It is not a diagnosis, not a risk score, and not a
 verdict. A value outside the range is a value outside the range; it is not "bad", it is not
-"abnormal", and it is emphatically not "normal" when it is inside — that word is banned
+"abnormal", and it is emphatically not "normal" when it is inside. That word is banned
 throughout opsinjs and [Reference ranges and normal](../health/reference-ranges.mdx)
 explains why. Most people fall outside at least one reference range at any given time, and
 a UI that treats *outside* as *wrong* generates far more anxiety than information.
 
-**What it computes, and it is a short list.** A position along a line, and one of three
-words for that position — *within*, *above*, *below* — against the bounds the caller
+**What it computes, and it is a short list.** A position along a line, and one of the three
+words *within*, *above* and *below* for that position, against the bounds the caller
 supplied. That is arithmetic on the product's own numbers, and it is the same arithmetic
 that decides where the tick goes. It never becomes a level of attention: `status` is an
 input, and removing it changes the colour of the tick and nothing else.
 
-It computes that word only where there is something to compute it against. A range
-carrying a source and neither bound, or bounds that run downwards, is discarded rather
-than half-used — because *within* is the answer arithmetic falls through to, and *within
-the range* against an interval nobody supplied is a reassurance derived from nothing. The
-sentence in that case is the one the component gives for a reading with no range at all.
+It computes that word only where there is something to compute it against. *Within* is the
+answer arithmetic falls through to, and *within the range* against an interval nobody
+supplied is a reassurance derived from nothing, so a range carrying a source and neither
+bound, or bounds that run downwards, is discarded rather than half-used. The sentence in
+that case is the one the component gives for a reading with no range at all.
 
 **Which colour axis it may use.** The **status** axis only, and only when the consuming
 product has supplied a status. RangeBar may never derive a status from position on its own
 bar: *outside the range* and *needs attention* are different claims, and only a clinician
 or a validated rule can convert one into the other. It may never use the **category** axis
-to fill the bar — a heart-red bar and an attention-red bar side by side make the two axes
+to fill the bar. A heart-red bar and an attention-red bar side by side make the two axes
 indistinguishable, which is the single failure mode
 [The two colour axes](../health/two-colour-axes.mdx) exists to prevent.
 
@@ -161,9 +161,9 @@ product that never asked, when to stop telling somebody their result is current.
 **Recency and staleness are different obligations, and only the second one is clinical.**
 Not owning a staleness boundary is not a reason to say nothing about time. A number on a
 screen with no time beside it is read as *now*, so the footnote states when the reading was
-taken — and where `measuredAt` was not supplied, states that nobody knows, in the same
-words it uses for a range nobody has dated. That is a fact about the data. Deciding when
-that fact should start alarming somebody is the part that belongs to the product, and
+taken. Where `measuredAt` was not supplied, the footnote states that nobody knows, in the
+same words it uses for a range nobody has dated. That is a fact about the data. Deciding
+when that fact should start alarming somebody is the part that belongs to the product, and
 [RelativeTime](./relative-time.mdx) is where a product brings its own boundary.
 
 **Provenance class is not here at all, and a screen made only of bars cannot claim it.**
@@ -177,14 +177,13 @@ to must carry it alongside, from
 **Colour is never the only carrier.** Position on the bar, the tick and its numeric label,
 the two boundary numbers and the text summary all carry the same information
 independently, so the component survives greyscale and all three common forms of
-colour-vision deficiency. Nothing here has been put on paper — opsinjs has no print
-stylesheet — so read the print case as an intent rather than a result. Where a status has
-been supplied, its
-word and its glyph sit beside the label — outside the summary, so that a caller replacing
-the sentence cannot take the word with it. See
+colour-vision deficiency. Nothing here has been put on paper, because opsinjs has no print
+stylesheet. Read the print case as an intent rather than a result. Where a status has been
+supplied, its word and its glyph sit beside the label and outside the summary, so that a
+caller replacing the sentence cannot take the word with it. See
 [Colour independence](../accessibility/colour-independence.mdx).
 
-**A bar needs two bounds.** A one-sided range — *up to 20*, *10 and upwards* — has no
+**A bar needs two bounds.** A one-sided range such as *up to 20* or *10 and upwards* has no
 width, and a width is what a scale is made of. Given one bound, RangeBar draws no track at
 all and states the comparison in words instead; the alternative is to invent the other end
 of the line, and a scale nobody chose is indistinguishable, on screen, from one a
@@ -192,9 +191,9 @@ laboratory published.
 
 **A reading far outside its range compresses the band, and that is the honest picture.**
 The drawn extent is a band-width wider than the range on each side, and it always stretches
-to contain the reading — so a value ten times the top of the range leaves the band a sliver
-near one end. It is drawn to scale because it is true to scale: a bar that clipped the
-reading to the edge would be showing it somewhere it is not, and the numbers are on the
+to contain the reading. A value ten times the top of the range therefore leaves the band a
+sliver near one end. It is drawn to scale because it is true to scale: a bar that clipped
+the reading to the edge would be showing it somewhere it is not, and the numbers are on the
 marks and in the sentence either way.
 
 <SafetyCallout severity="urgent" evidence="opinion">
@@ -202,7 +201,7 @@ If the reference range is unknown, RangeBar renders the value with an explicit *
 reference range available* state and no band at all. It never falls back to a default
 range, a population average, or a range inferred from the person's own history. A plausible
 band is worse than no band, because the reader cannot tell the difference. A `range` that
-arrives with an empty `source` is reported as OPSIN-0004 and not drawn — an unattributed
+arrives with an empty `source` is reported as OPSIN-0004 and not drawn. An unattributed
 band is a comparison with no author. A `range` carrying a source but neither bound, or
 bounds that run downwards, is discarded the same way and reported in development: the
 sentence says there is nothing to compare the reading with, rather than stating a position
@@ -210,22 +209,22 @@ against an interval that was never supplied and is printed nowhere.
 </SafetyCallout>
 
 <ResearchNote evidence="mixed" date="2026-09-02">
-The design bet — that a value drawn against its range on a line is understood more reliably
-by non-specialists than the same value printed beside its range, or flagged H and L in a
-table — rests on the published literature on presenting laboratory results to patients. Two
-anchors worth reading before you argue with this page: the 2024 systematic review of
-result-presentation formats in JMIR (doi:10.2196/53993), and the 2018 study of patient
-portal result presentation in BMC Medical Informatics and Decision Making
+The design bet is that a value drawn against its range on a line is understood more
+reliably by non-specialists than the same value printed beside its range, or flagged H and
+L in a table. That bet rests on the published literature on presenting laboratory results
+to patients. Two anchors worth reading before you argue with this page: the 2024 systematic
+review of result-presentation formats in JMIR (doi:10.2196/53993), and the 2018 study of
+patient portal result presentation in BMC Medical Informatics and Decision Making
 (doi:10.1186/s12911-018-0589-7). Both are reviews of a body of work rather than a single
 trial, and both are the right starting point for checking this claim rather than taking it
 from us.
 
 What is **evidence** here is the broad direction: visual, positional formats support
 comprehension better than bare numbers for readers with low numeracy. What is **opinion**,
-and marked as such, is every specific decision on this page — the refusal to derive status
-from position, the treatment of an unknown range as a first-class state, the choice to put
-the numeric value adjacent to the tick rather than in a legend. Those are our judgements.
-Nobody has run a trial on them.
+and marked as such, is every specific decision on this page, including the refusal to
+derive status from position, the treatment of an unknown range as a first-class state, and
+the choice to put the numeric value adjacent to the tick rather than in a legend. Those are
+our judgements. Nobody has run a trial on them.
 </ResearchNote>
 
 ## Anatomy
@@ -249,12 +248,12 @@ Nobody has run a trial on them.
     },
     {
       name: "RangeBar.Track",
-      describes: "The drawn extent, wider than the range on both sides and always containing the reading. role=\"img\", never focusable and never a slider, and named by the summary sentence plus the status word where one was supplied — the tick carrying that status is inside the picture and pruned from the accessibility tree with it. Drawn only when the range has both bounds and there is a reading to put on it.",
+      describes: "The drawn extent, wider than the range on both sides and always containing the reading. role=\"img\", never focusable and never a slider, and named by the summary sentence plus the status word where one was supplied. The tick carrying that status is inside the picture and pruned from the accessibility tree with it. Drawn only when the range has both bounds and there is a reading to put on it.",
       prop: "range",
     },
     {
       name: "RangeBar.Band",
-      describes: "The range itself, drawn once. Never status-coloured and never category-coloured. Outlined rather than only filled, because a fill is the first thing a printer drops — that is the intent and not a tested outcome, since opsinjs has no print stylesheet — and the outline takes the same ink as the two boundary marks rather than the theme's generic hairline, which is the pairing the repo has already measured as failing the non-text floor.",
+      describes: "The range itself, drawn once. Never status-coloured and never category-coloured. Outlined rather than only filled, because a fill is the first thing a printer drops. That is the intent and not a tested outcome, since opsinjs has no print stylesheet. The outline takes the same ink as the two boundary marks rather than the theme's generic hairline, which is the pairing the repo has already measured as failing the non-text floor.",
     },
     {
       name: "RangeBar.Mark",
@@ -268,7 +267,7 @@ Nobody has run a trial on them.
     },
     {
       name: "RangeBar.Value",
-      describes: "The reading and its unit, adjacent to the tick, rendered by Value — which is what puts the unit into the accessibility tree in words rather than as a symbol nobody can pronounce.",
+      describes: "The reading and its unit, adjacent to the tick, rendered by Value. That component is what puts the unit into the accessibility tree in words rather than as a symbol nobody can pronounce.",
       prop: "unit",
     },
     {
@@ -278,7 +277,7 @@ Nobody has run a trial on them.
     },
     {
       name: "RangeBar.Footnote",
-      describes: "Provenance. When the range was last confirmed and when the reading was taken — or, for either of them, that nobody knows. Neither absence is silence and neither is ever rendered as today's date, because a number with no time beside it is read as now.",
+      describes: "Provenance. When the range was last confirmed and when the reading was taken. Where either of those is not known, it says that nobody knows. Neither absence is silence and neither is ever rendered as today's date, because a number with no time beside it is read as now.",
       prop: "measuredAt",
     },
   ]}
@@ -339,7 +338,7 @@ Nobody has run a trial on them.
         {
           part: "RangeBar.Footnote",
           cardinality: "0..1",
-          note: "data-slot=\"range-bar-footnote\". Present whenever there is a range or a reading — a reading with no measuredAt produces the sentence saying nobody knows when it was taken.",
+          note: "data-slot=\"range-bar-footnote\". Present whenever there is a range or a reading. A reading with no measuredAt produces the sentence saying nobody knows when it was taken.",
         },
       ],
     },
@@ -353,8 +352,8 @@ outside a track, because there is no way to hand it one.
 
 The slots are for restyling, and one of them is not for hiding. `display: none` on
 `[data-slot="range-bar-summary"]` takes the sentence out of the accessibility tree and
-leaves a picture whose entire meaning is a position on a line — and the picture is *named*
-by that sentence, so what remains is a graphic quoting text nobody can reach. No prop can
+leaves a picture whose entire meaning is a position on a line. The picture is *named* by
+that sentence, so what remains is a graphic quoting text nobody can reach. No prop can
 do this; only a stylesheet can, and this is the page asking you not to. A dashboard row
 that genuinely needs a compact form wants [MetricTile](./metric-tile.mdx), which is the
 component for that width and carries its own words.
@@ -373,7 +372,7 @@ show the reader two objects for one assertion.
 
 The tick sits outside the band, the band stays where it is, and nothing in the component
 turns that into a verdict. The status here was assigned by a product from a rule that
-product owns — delete it and the same tick is drawn in a neutral tone.
+product owns. Delete it and the same tick is drawn in a neutral tone.
 
 <ComponentPreview name="range-bar-outside-the-range" kind="example" align="start" />
 
@@ -398,18 +397,18 @@ what "nobody has made a judgement about this" looks like.
 The label is what was measured, in the reader's words. Prefer the everyday name and give
 the clinical one as a [Term](./term.mdx) if the reader will meet it on a letter from a
 clinic. The summary sentence states position, never verdict, and always includes both the
-value and the range so the sentence stands alone when it is read out of context — in a
-screen reader, in a notification, in a printed summary.
+value and the range so the sentence stands alone when it is read out of context in a
+screen reader, in a notification or in a printed summary.
 
 Keep the summary under about twenty words. It is read aloud, and a long sentence is a
 sentence somebody interrupts. The generated one is built to that budget: subject, reading,
 position, range, source, stop. Replace it with `summary` when your unit or your reader
-needs different phrasing — but you are replacing the words, not the sentence, and the
+needs different phrasing. Even then you are replacing the words, not the sentence, and the
 component will render whatever you pass in both the visible text and the graphic's
 accessible name.
 
 **Precision is decimal places, not significant figures**, and it belongs to the metric
-rather than to the value — the same metric shows the same number of decimal places every
+rather than to the value. The same metric shows the same number of decimal places every
 time, so two readings can be compared at a glance. It applies to the reading and to both
 boundary numbers alike, because a value and the bound it is being compared with are the
 same measurement. If a range is narrow enough that both marks round to the same number, the
@@ -422,15 +421,15 @@ nothing here does it for you. See
 <DoDont>
   <DoDont.Do>
     **"Example measurement is 26 mg/dL, above the range 10 to 20 mg/dL, from Example data
-    — not a reference range."** States the value, states the range, names whose range it
-    is, states the position, stops. Leaves the interpretation to the person who is
+    rather than a reference range."** States the value, states the range, names whose range
+    it is, states the position, stops. Leaves the interpretation to the person who is
     qualified to give it. It is also the sentence the component generates unaided. The
     numbers and the source are the synthetic ones every example in opsinjs uses: your
     screen puts a real reading and your laboratory's own attributed range into the same
     slots, and this page will never print either of those for you.
   </DoDont.Do>
   <DoDont.Dont>
-    **"Example measurement is 26 mg/dL — abnormal. Your result is poor."** Two failures.
+    **"Example measurement is 26 mg/dL. Abnormal. Your result is poor."** Two failures.
     It converts a position into a verdict the component has no basis for, and it converts
     a verdict into a judgement about the reader. Neither is RangeBar's to make.
   </DoDont.Dont>
@@ -453,7 +452,7 @@ nothing here does it for you. See
 The two words people reach for hardest here are **normal** and **abnormal**, and
 [Reference ranges and normal](../health/reference-ranges.mdx) is the argument for why
 *within the usual range* is both kinder and more accurate. That page carries the whole
-banned list, with what to write instead of each one, and it is longer than the two above —
+banned list, with what to write instead of each one, and it is longer than the two above.
 `elevated` and `positive` are on it, and both are words an author writes into a sentence
 about a reading above a range without noticing. Read the list there rather than a copy of
 it here: a hand-restated list drifts from the one the build actually enforces, and the
@@ -473,8 +472,8 @@ disabled user, and `a11yDate` is therefore still empty.
   paints a status colour without also reading `CLINICAL_STATUS_META` and a lucide glyph, and
   on any status surface with no `data-status`. This component reads the word and the icon
   name from that table and never writes either as a literal, so the four levels are four
-  distinct shapes rather than one shape in four colours — which is what the measured CVD
-  audit in `tokens/color.json` requires. See
+  distinct shapes rather than one shape in four colours. Four distinct shapes are what the
+  measured CVD audit in `tokens/color.json` requires. See
   [Health glyphs](../foundations/iconography/health-glyphs.mdx).
 - **No element takes colour from both axes.** The same gate reads every JSX element and
   fails on one that carries both `data-category` and `data-status`, or that writes a
@@ -482,16 +481,16 @@ disabled user, and `a11yDate` is therefore still empty.
   that does the work here: this file keeps every colour class in a module-level lookup
   keyed on the level or the category, and the gate reads the tag rather than resolving the
   table behind it. Both axis-bearing elements do carry their attribute, so a mixture would
-  trip it — but what is checked is the attributes, and the colours are checked by reading
+  trip it. What is checked is still the attributes, and the colours are checked by reading
   the file.
 - **No shipped threshold.** Two rules, and they catch the same defect spelled two ways. A
   name matching *stale*, *threshold*, *cutoff*, *limit*, *minimum*, *maximum*, *expiry*,
   *band* or *plausib* given a numeric literal is an error anywhere under `registry/`; so is
-  an object literal setting two numeric bounds — `low`/`high`, `from`/`to`, `lower`/`upper`,
-  `start`/`end` — without a `source` beside them in the same literal. There is no range, no
-  staleness boundary and no plausibility bound in this component or in any of its three
-  examples: every interval on screen arrived as a prop, and every one in an example names
-  `EXAMPLE_SOURCE`.
+  an object literal setting two numeric bounds without a `source` beside them in the same
+  literal. The pairs it looks for are `low`/`high`, `from`/`to`, `lower`/`upper` and
+  `start`/`end`. There is no range, no staleness boundary and no plausibility bound in this
+  component or in any of its three examples: every interval on screen arrived as a prop,
+  and every one in an example names `EXAMPLE_SOURCE`.
 - **No type size in pixels, and no raw colour literal**, so the whole component scales with
   the reader's own text size and takes every colour from the two axes and the eleven
   bridged surface roles.
@@ -500,15 +499,16 @@ disabled user, and `a11yDate` is therefore still empty.
 
 - **The summary is in the accessibility tree at every size**, as ordinary visible text
   rather than a hidden label. Where a usable range was supplied it states the reading, its
-  unit, the range, the position and whose range it is; where one was not — none given, or
-  one the component discarded — it states the reading and says there is nothing to compare
-  it with. It never states a position without printing the interval that position is
-  against. A reader who cannot see the bar loses the picture and nothing else.
+  unit, the range, the position and whose range it is; where one was not, whether because
+  none was given or because the component discarded the one that arrived, it states the
+  reading and says there is nothing to compare it with. It never states a position without
+  printing the interval that position is against. A reader who cannot see the bar loses the
+  picture and nothing else.
 - **The bar is not an interactive slider.** `RangeBar.Track` is `role="img"`. It is not
-  focusable, is not announced as a `slider`, a `meter` or a `progressbar` — all three
-  promise a value the reader can inspect or change — and it is not in the tab order. The
-  tick, the marks and their numbers sit inside it, so a screen reader is not read a list of
-  unlabelled shapes.
+  focusable, is not announced as a `slider`, a `meter` or a `progressbar`, and it is not in
+  the tab order. All three of those roles promise a value the reader can inspect or change.
+  The tick, the marks and their numbers sit inside it, so a screen reader is not read a
+  list of unlabelled shapes.
 - **The picture's name carries the level as well as the position.** Its accessible name is
   the summary sentence plus the status word where a status was supplied, because the tick
   is the element that takes the status colour and it is pruned from the accessibility tree
@@ -518,10 +518,10 @@ disabled user, and `a11yDate` is therefore still empty.
   [Value](./value.mdx), which substitutes the unit's spoken form from `tokens/units.json`:
   a listener hears *milligrams per decilitre* rather than the symbol read out letter by
   letter.
-- **At 200% text the component is already stacked** — summary under the track, boundary
-  labels beneath their marks — and the space reserved for those labels is set in `em`, so
-  it grows with them. Nothing is truncated and no ellipsis is set anywhere in the file.
-  Checked by eye; not checked by a machine.
+- **At 200% text the component is already stacked.** The summary sits under the track and
+  the boundary labels sit beneath their marks, and the space reserved for those labels is
+  set in `em`, so it grows with them. Nothing is truncated and no ellipsis is set anywhere
+  in the file. Checked by eye; not checked by a machine.
 - **Nothing animates.** There is no transition on the tick, no growth on the band and no
   count on the number, on first paint or afterwards. A health value that arrives by
   animation has displayed a figure that is not true for every frame of the journey.
@@ -535,7 +535,7 @@ disabled user, and `a11yDate` is therefore still empty.
   the machine rather than an argument. The band's outline is drawn from the same ink as the
   boundary marks rather than from the theme's hairline, because `lib/generated/contrast.json`
   records a neutral hairline on the page at APCA Lc 22.42 and WCAG 1.47:1 against a
-  non-text floor of Lc 45 and 3:1 — the new pairing is better and is still unmeasured. And
+  non-text floor of Lc 45 and 3:1. The new pairing is better and is still unmeasured. And
   the status word and the category tint are `ink` roles, which `tokens/color.json` tunes
   against the matching `-surface`; this component sets no surface of its own, so they are
   painted on the host's background instead, and that is a different pairing from the one
@@ -544,18 +544,18 @@ disabled user, and `a11yDate` is therefore still empty.
   name and once as the paragraph under it. It is the pattern this page's own specification
   asked for, and it has not been listened to by anybody.
 - Print. The band is outlined and the tick is a solid mark, which is what a printer
-  dropping backgrounds leaves standing — but opsinjs has no print stylesheet, none of this
-  has been put on paper, and the one print rule in the docs chrome keys on `data-status`,
-  which the band does not carry. Treat the outline as an intent.
+  dropping backgrounds leaves standing. Set against that, opsinjs has no print stylesheet,
+  none of this has been put on paper, and the one print rule in the docs chrome keys on
+  `data-status`, which the band does not carry. Treat the outline as an intent.
 - `forced-colors`, which is implemented nowhere in opsinjs, and `prefers-contrast: more`,
   which is implemented in [Surface](./surface.mdx#accessibility) alone rather than in the
   token layer. This bar renders no Surface, so neither mode changes the band, the tick or
   the labels, and nothing here has been measured under either.
 - What the two rows of labels do at very large text sizes. Each label is centred on its
   own mark and each holds its number and unit together, so nothing clips and nothing is
-  truncated — but where the band is a sliver two boundary labels will overlap, and a mark
-  near either end of the track puts part of its label outside the component's box. In a
-  narrow column at 200% text that becomes horizontal scrolling on the page, which is the
+  truncated. Where the band is a sliver, however, two boundary labels will overlap, and a
+  mark near either end of the track puts part of its label outside the component's box. In
+  a narrow column at 200% text that becomes horizontal scrolling on the page, which is the
   condition [Text resizing and zoom](../accessibility/text-resizing-and-zoom.mdx) treats as
   a failure. Clamping a label to the track is geometry this component has not had yet.
 
@@ -606,7 +606,7 @@ disabled user, and `a11yDate` is therefore still empty.
     },
     {
       attribute: "data-opsinjs-value",
-      condition: "On every Value: the reading and both bounds inside the track, and the same three again inside the summary sentence. Six per drawn bar, with the reading's own number appearing twice — de-duplicate before scraping. The three inside the track are pruned from the accessibility tree and are perfectly visible to a DOM query.",
+      condition: "On every Value: the reading and both bounds inside the track, and the same three again inside the summary sentence. Six per drawn bar, with the reading's own number appearing twice. De-duplicate before scraping. The three inside the track are pruned from the accessibility tree and are perfectly visible to a DOM query.",
       value: "The unrounded number, or an empty string when there is no reading",
     },
   ]}
@@ -614,13 +614,13 @@ disabled user, and `a11yDate` is therefore still empty.
 
 Three things differ from the interface this page proposed while it was unbuilt, and each of
 them is a decision rather than an oversight. `precision` is **decimal places**, not
-significant figures, and it does not sniff the precision of the float it was handed —
-significant figures would show one metric to different numbers of decimal places at
+significant figures, and it does not sniff the precision of the float it was handed.
+Significant figures would show one metric to different numbers of decimal places at
 different magnitudes. `category` is typed to the six health categories rather than to
 `string`, for the reason the page already gave about `status`: a component that accepts an
 arbitrary category accepts a seventh colour ramp that does not exist. And `measuredAt`
 renders a date in the footnote and no staleness treatment at all, because a staleness
-boundary is a clinical number opsinjs must not own — a surface that needs one wraps the
+boundary is a clinical number opsinjs must not own. A surface that needs one wraps the
 reading in [RelativeTime](./relative-time.mdx), which takes the boundary from you. Omitting
 it does not buy silence: the footnote then says that nobody knows when the reading was
 taken, on the same principle that governs a range with no `asOf`.
@@ -629,19 +629,19 @@ taken, on the same principle that governs a range with no `asOf`.
 and the dates in the footnote, so one bar cannot show two conventions.
 
 `ClinicalStatus` is the four-level union shared by every status-bearing component in the
-system — see [Clinical status semantics](../health/clinical-status-semantics.mdx). It is
-deliberately not a `string`: a component that accepts an arbitrary status string accepts
-`"critical"`, `"abnormal"` and `"bad"` on day one, and the vocabulary is gone. A value
-outside the four is refused with a development warning and the bar is drawn without a
-status, rather than approximated into one.
+system. [Clinical status semantics](../health/clinical-status-semantics.mdx) is where those
+four levels are defined. It is deliberately not a `string`: a component that accepts an
+arbitrary status string accepts `"critical"`, `"abnormal"` and `"bad"` on day one, and the
+vocabulary is gone. A value outside the four is refused with a development warning and the
+bar is drawn without a status, rather than approximated into one.
 
 `ReferenceRange` is declared once, in `lib/opsinjs.ts`, and shared with every other
 component that compares a reading against an interval. Both bounds are optional because a
 one-sided range is a real range; `source` is not, because an unattributed band is an
-assertion with no author. The type therefore permits two shapes that are not intervals —
-neither bound supplied, and bounds that run downwards — and RangeBar discards both, with a
-development warning, rather than comparing a reading against them. A one-sided range is
-still compared and still drawn as words.
+assertion with no author. The type therefore permits two shapes that are not intervals. One
+supplies neither bound, and the other has bounds that run downwards. RangeBar discards
+both, with a development warning, rather than comparing a reading against them. A one-sided
+range is still compared and still drawn as words.
 
 ## Related
 
@@ -649,33 +649,34 @@ still compared and still drawn as words.
 
 **Easily confused with**
 
-- [ScoreDial](./score-dial.mdx) — a dial shows a *derived* score against its bands; a range
-  bar shows a *measured* value against a published range. If you calculated the number,
-  it is a dial.
-- [TrendSparkline](./trend-sparkline.mdx) — position within a range versus change over
-  time. A reading can be inside its range and falling fast; these two say different things
-  and often belong on the same screen.
-- [MetricTile](./metric-tile.mdx) — the compact form for a dashboard grid. A tile may embed
-  a miniature bar, but a bar with its marks and summary needs the width of a full row.
-- `progress` (considered, no page yet — see the [roster](./index.mdx)) — visually similar,
-  semantically unrelated: progress is towards a goal somebody chose, not a range somebody
-  published.
+- [ScoreDial](./score-dial.mdx) shows a *derived* score against its bands; a range bar
+  shows a *measured* value against a published range. If you calculated the number, it is a
+  dial.
+- [TrendSparkline](./trend-sparkline.mdx) shows change over time rather than position
+  within a range. A reading can be inside its range and falling fast; these two say
+  different things and often belong on the same screen.
+- [MetricTile](./metric-tile.mdx) is the compact form for a dashboard grid. A tile may
+  embed a miniature bar, but a bar with its marks and summary needs the width of a full
+  row.
+- `progress` is visually similar and semantically unrelated: progress is towards a goal
+  somebody chose, not a range somebody published. It is considered and has no page yet, and
+  the [roster](./index.mdx) lists it.
 
 **Used by**
 
-- [Show a value against a reference range](../recipes/value-against-a-range.mdx) — the
+- [Show a value against a reference range](../recipes/value-against-a-range.mdx) is the
   end-to-end recipe, including the copy.
-- [Results screen](../screens/results-screen.mdx) — the canonical composition.
-- [Result disclosure](../patterns/result-disclosure.mdx) — how a result reaches the reader
-  before the bar is ever drawn.
+- [Results screen](../screens/results-screen.mdx) is the canonical composition.
+- [Result disclosure](../patterns/result-disclosure.mdx) shows how a result reaches the
+  reader before the bar is ever drawn.
 
 **Governed by**
 
-- [The two colour axes](../health/two-colour-axes.mdx) — why the band is never
+- [The two colour axes](../health/two-colour-axes.mdx) explains why the band is never
   category-coloured.
-- [Reference ranges and normal](../health/reference-ranges.mdx) — the banned word and the
-  argument behind it.
-- [Numbers, units and precision](../health/numbers-units-precision.mdx) — rounding, false
-  precision, and why 5.90 is a different claim from 5.9.
-- [Unit systems](../health/unit-systems.mdx) — mmol/L against mg/dL is a correctness
-  surface, not a preference.
+- [Reference ranges and normal](../health/reference-ranges.mdx) has the banned word and
+  the argument behind it.
+- [Numbers, units and precision](../health/numbers-units-precision.mdx) covers rounding,
+  false precision, and why 5.90 is a different claim from 5.9.
+- [Unit systems](../health/unit-systems.mdx) covers mmol/L against mg/dL, which is a
+  correctness surface, not a preference.

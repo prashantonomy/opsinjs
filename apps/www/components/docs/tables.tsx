@@ -19,18 +19,18 @@ import { cn } from "@/lib/utils"
 import { NoDataYet } from "./stub"
 
 /* ==========================================================================
-   tables.tsx — the generated tables: <PropsTable>, <DataAttributesTable>,
+   tables.tsx holds the generated tables: <PropsTable>, <DataAttributesTable>,
    <CssVariablesTable>, <KeyboardTable>, <TokenTable>, <BundleSize>, plus <Kbd>.
 
    Decision 8 in one sentence: every measured number on this site is generated,
    and a table with no data says so instead of showing an example row.
 
    That is not fussiness. A plausible sample row in a contrast table or a props
-   table is indistinguishable from a real one — to a reader skimming, and
-   completely to a model reading the HTML. The site's entire claim is that its
-   numbers can be trusted because none of them were typed; the moment one page
-   carries an illustrative "APCA Lc 68" the claim is gone and nobody can tell
-   which page it was.
+   table is indistinguishable from a real one to a reader skimming, and
+   completely indistinguishable to a model reading the HTML. The site's entire
+   claim is that its numbers can be trusted because none of them were typed; the
+   moment one page carries an illustrative "APCA Lc 68" the claim is gone and
+   nobody can tell which page it was.
 
    The exception, and it is a deliberate one, is <KeyboardTable> with no rows.
    Keyboard behaviour at `status: planned` is a REQUIREMENT, not a measurement:
@@ -123,7 +123,7 @@ export interface PropsTableProps {
    * The file the interface is exported from, relative to apps/www.
    *
    * Only ever a hint for the empty state, and only worth passing for an
-   * interface that does not exist yet — once it does, the generator knows where
+   * interface that does not exist yet. Once it does, the generator knows where
    * it came from and this is ignored.
    */
   path?: string
@@ -142,17 +142,18 @@ export interface PropsTableProps {
  *
  * `<PropsTable name="StatusPillProps" />` is the whole call. The rows come from
  * `PROPS_TABLES`, which `scripts/build-reference.mts` extracts from the
- * `export interface <Pascal>Props` in the component's own file — so the table
- * and the component cannot disagree without `pnpm check:generated` saying so.
+ * `export interface <Pascal>Props` in the component's own file. The table and
+ * the component therefore cannot disagree without `pnpm check:generated`
+ * saying so.
  *
  * WHY NOT `<auto-type-table>`. fumadocs-typescript is wired through
  * source.config.ts and would extract the same interface, but it THROWS when the
  * name it is given is missing, which turns a table with no data into a failed
  * build from inside an MDX page. Every other table in this file degrades to
  * <NoDataYet>, and an API table is the one a reader is most likely to meet
- * before its component exists. That is also why `components/mdx.tsx` registers
- * fumadocs' `TypeTable` — remark rewrites `<auto-type-table>` into it — while
- * telling pages to write `<PropsTable>`.
+ * before its component exists. That is also why `components/mdx.tsx` tells
+ * pages to write `<PropsTable>` and still registers fumadocs' `TypeTable`,
+ * because remark rewrites `<auto-type-table>` into it.
  *
  * Two rules that the generator enforces and that this component exists to make
  * visible when they are broken:
@@ -276,7 +277,7 @@ export function DataAttributesTable({
    -------------------------------------------------------------------------- */
 
 export interface CssVariableRow {
-  /** The selector the variable is read on — a part, not the root. */
+  /** The selector the variable is read on, which is a part and not the root. */
   selector: string
   variable: string
   controls: string
@@ -345,8 +346,8 @@ export interface KeyboardTableProps {
 /**
  * The baseline every interactive opsinjs component has to meet, whatever it
  * does. It is a requirement rather than a measurement, so it can be stated
- * before the component exists — which is the point of publishing it at
- * `planned`: the bar is set before anybody writes the code that has to clear it.
+ * before the component exists. That is the point of publishing it at `planned`:
+ * the bar is set before anybody writes the code that has to clear it.
  */
 const KEYBOARD_BASELINE: KeyboardRow[] = [
   {
@@ -380,7 +381,7 @@ const KEYBOARD_BASELINE: KeyboardRow[] = [
     keys: "Arrow keys",
     action: "Move within a composite widget",
     notes:
-      "Only inside a group that is a single tab stop — a segmented control, a radio group, a slider.",
+      "Only inside a group that is a single tab stop, such as a segmented control, a radio group or a slider.",
   },
 ]
 
@@ -406,7 +407,7 @@ export function KeyboardTable({ name, rows, className }: KeyboardTableProps) {
           No keyboard rows have been recorded for{" "}
           {name ? <code className="text-xs">{name}</code> : "this component"}.
           This is the baseline every interactive component has to clear, plus
-          whatever its own anatomy adds — a bar, not a result.
+          whatever its own anatomy adds. It is a bar, not a result.
         </p>
       ) : null}
       <Table head={["Key", "Action", "Notes"]}>
@@ -439,22 +440,24 @@ export interface TokenTableProps {
   /** A token namespace: `color`, `material`, `motion`, `type`, `space`, `shape`. */
   scope?: TokenNamespace
   /**
-   * A sub-group within the namespace — `status`, `category`, `ladder`. This is
-   * the selector most token pages actually want: a whole namespace is a table
-   * nobody reads, and `scope` on its own was forcing pages to print one.
+   * A sub-group within the namespace, such as `status`, `category` or `ladder`.
+   * This is the selector most token pages actually want: a whole namespace is a
+   * table nobody reads, and `scope` on its own was forcing pages to print one.
    * Combine with `scope` to disambiguate a group name that two namespaces
    * share.
    */
   group?: string
   /**
    * A tier: primitive, role or component-level. Orthogonal to `scope`, and the
-   * other axis a token page teaches — the whole point of the three-tier ladder
+   * other axis a token page teaches. The whole point of the three-tier ladder
    * is that a reader can look at one rung at a time.
    */
   tier?: TokenTier
   /** Or a component id, to list only the tokens that component consumes. */
   component?: string
-  /** Override the rows. Rarely needed — the generated map is the source. */
+  /**
+   * Override the rows. Rarely needed, because the generated map is the source.
+   */
   rows?: GeneratedToken[]
   className?: string
 }
@@ -601,8 +604,8 @@ export function BundleSize({
         className={className}
       >
         Size is measured from a real build. No size has been measured for this
-        component, and an estimate here would be a number nobody measured —
-        which is exactly what this table exists to replace.
+        component, and an estimate here would be a number nobody measured. That
+        is exactly what this table exists to replace.
       </NoDataYet>
     )
   }

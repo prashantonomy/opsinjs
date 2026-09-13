@@ -15,8 +15,8 @@ that every command afterwards can be short. `@opsinjs/result-card` instead of
 `https://opsinjs.dev/r/result-card.json`.
 
 It is a convenience, and it is also the mechanism that lets a project pull from
-several registries at once — your company's internal one, a third-party one, and
-opsinjs — without ambiguity about which `button` is meant.
+several registries at once without ambiguity about which `button` is meant. Those
+registries can be your company's internal one, a third-party one and opsinjs.
 
 ## Configure it
 
@@ -74,8 +74,8 @@ the default registry has" rather than as "the obvious one".
 It is the package scope, the registry namespace, the preset prefix and the
 GitHub organisation, all deliberately the same string.
 
-The alternative — a short, memorable namespace such as `@health` or `@ops` — is
-worse in one specific way that matters at exactly the wrong moment: two
+The alternative is a short, memorable namespace such as `@health` or `@ops`. It
+is worse in one specific way that matters at exactly the wrong moment: two
 different registries can plausibly both want it, and a developer who has
 configured the other one gets components from a system they have never heard of,
 with different clinical assumptions, at an import path that looks correct.
@@ -105,13 +105,14 @@ If you run a public registry, you can submit it to the shadcn registry
 directory so that the CLI resolves your namespace without every consumer
 configuring it. The requirements are that it is open source and publicly
 reachable, that it validates against the registry schema, and that the served
-catalog is flat — items at the root, no nested includes, and no inlined file
-contents in the catalog itself.
+catalog is flat. Flat means items at the root, no nested includes and no inlined
+file contents in the catalog itself.
 
 You do **not** need to do this to be used. A full URL works for anybody, with no
-configuration and no directory entry — for as long as the item names nothing
-else. The moment an item lists a namespaced sibling in `registryDependencies`,
-the consumer needs that namespace configured however they asked for the item.
+configuration and no directory entry. That holds for as long as the item names
+nothing else. The moment an item lists a namespaced sibling in
+`registryDependencies`, the consumer needs that namespace configured however
+they asked for the item.
 Fourteen opsinjs items are in that position, which is why
 [Registry and distribution](./index.mdx) asks consumers to add the `@opsinjs`
 block regardless of which form they type.
@@ -131,11 +132,11 @@ A list of items means the mapping is read and the URL is reachable.
 ### Fall back to prove the diagnosis
 
 If the namespace fails, try the same item by full URL. Probe with an item that
-composes nothing — `status-pill` is the reliable one — because an item carrying
-namespaced `registryDependencies` fails by URL too, for the same missing block,
-and so tells you nothing. If the URL works and the namespace does not, the
-problem is `components.json`: usually a missing `{name}`, or a file at a
-different root than the one your tool opened.
+composes nothing. The reason is that an item carrying namespaced
+`registryDependencies` fails by URL too, for the same missing block, and so tells
+you nothing. `status-pill` is the reliable one to reach for. If the URL works and
+the namespace does not, the problem is `components.json`: usually a missing
+`{name}`, or a file at a different root than the one your tool opened.
 
 ### Secrets are not in the file
 
@@ -158,13 +159,13 @@ unnamespaced name resolved against the default registry. Namespace it.
 
 **The MCP server does not see my registries.** It reads the same
 `components.json`. If the CLI can see them and the server cannot, the server is
-running from a different working directory — see
+running from a different working directory. See
 [MCP server](../agents/mcp-server.mdx).
 
 ## Next
 
-- [registry.json](./registry-json.mdx) — what a registry serves at its root.
-- [Self-hosting a fork](./self-hosting-a-fork.mdx) — running `@yourcompany`
+- [registry.json](./registry-json.mdx) says what a registry serves at its root.
+- [Self-hosting a fork](./self-hosting-a-fork.mdx) is how you run `@yourcompany`
   against a fork of opsinjs.
-- [components.json](../start/installation/components-json.mdx) — every field the
-  CLI reads.
+- [components.json](../start/installation/components-json.mdx) covers every field
+  the CLI reads.

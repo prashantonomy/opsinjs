@@ -1,5 +1,5 @@
 ---
-title: "0005 — No [lang] segment yet"
+title: "ADR 0005. No [lang] segment yet"
 description: Internationalisation is deferred deliberately, the retrofit is bounded by routing through one module, and unit systems ship now as a correctness feature.
 status: stable
 kind: project
@@ -42,8 +42,8 @@ cheap.**
   builds a documentation URL.
 - `assert-ia.mts` fails the build on a hardcoded `/docs/` path in TypeScript
   outside `lib/routes.ts` and `lib/source.ts`, with a short explicit allowlist for
-  the files that genuinely must contain one — the Next config, `robots.ts`,
-  `sitemap.ts` and the shared layout options.
+  the files that genuinely must contain one. Those files are the Next config,
+  `robots.ts`, `sitemap.ts` and the shared layout options.
 - In MDX, absolute documentation links are banned outright; pages link to each
   other by relative file path and the documentation engine resolves them. That
   rule exists for authoring reasons anyway, and it happens to make the corpus
@@ -56,8 +56,8 @@ cheap.**
 ## Consequences
 
 - **One place to change.** Adding a locale means changing route construction in
-  one module, adding the segment, and configuring the engine — not auditing four
-  hundred files for hardcoded paths.
+  one module, adding the segment, and configuring the engine rather than auditing
+  four hundred files for hardcoded paths.
 - **The corpus is monolingual and honest about it.** No locale appears in any URL,
   so no reader or crawler is told a translation exists.
 - **Some machinery will still be needed later**, and pretending otherwise would be
@@ -80,9 +80,9 @@ as instructions.
 
 ### Declare the locales
 
-Define an internationalisation configuration — the engine's `defineI18n` — with
-the default locale and the list, and pass it to the source loader so that the page
-tree and the search index become per-locale.
+The engine's `defineI18n` defines an internationalisation configuration. Give it
+the default locale and the list, and pass it to the source loader so that the
+page tree and the search index become per-locale.
 
 ### Add the routing proxy
 
@@ -99,7 +99,7 @@ contents follow.
 ### Update the module that owns paths
 
 `lib/routes.ts` gains a locale parameter. Because nothing else builds a URL, this
-is the point at which the whole site becomes locale-aware — which is the entire
+is the point at which the whole site becomes locale-aware. That is the entire
 purpose of the constraint.
 
 ### Update the machine surfaces
@@ -125,9 +125,9 @@ addressable.
 
 ## Revisiting this
 
-Revisit when there is a committed translator for a specific locale — not when
-somebody asks whether the site could be translated. The trigger is a person, not a
-feature request.
+Revisit when there is a committed translator for a specific locale rather than
+when somebody asks whether the site could be translated. The trigger is a person,
+not a feature request.
 
 <LastUpdated />
 

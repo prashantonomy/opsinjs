@@ -60,19 +60,20 @@ an unversioned pass cannot be reproduced.
 ### The keyboard pass
 
 Complete the primary task with the keyboard only, then complete the *recovery*
-task — cancel it, correct a validation error, dismiss a dialog. Expected result:
-every stop shows a visible focus indicator, no stop is obscured by sticky chrome,
-and no sequence leaves you unable to progress. Failure looks like a focus
-indicator that disappears behind a bottom bar, which is SC 2.4.11.
+task. Recovery means cancelling it, correcting a validation error, dismissing a
+dialog. Expected result: every stop shows a visible focus indicator, no stop is
+obscured by sticky chrome, and no sequence leaves you unable to progress.
+Failure looks like a focus indicator that disappears behind a bottom bar, which
+is SC 2.4.11.
 
 ### The zoom and text-size pass
 
-Set the browser to 400% zoom at a 1280 px viewport width — this is the SC 1.4.10
-Reflow condition, equivalent to a 320 px viewport — and separately set text size
-to 200% without zooming. Expected result: no horizontal scrolling of the page as
-a whole, no clipped text, no truncated numeric value. Failure in a health screen
-usually looks like a reading truncated to its first two digits. Method on
-[Text resizing and zoom](./text-resizing-and-zoom.mdx).
+Set the browser to 400% zoom at a 1280 px viewport width. That is the SC 1.4.10
+Reflow condition, and it is equivalent to a 320 px viewport. Separately, set
+text size to 200% without zooming. Expected result: no horizontal scrolling of
+the page as a whole, no clipped text, no truncated numeric value. Failure in a
+health screen usually looks like a reading truncated to its first two digits.
+Method on [Text resizing and zoom](./text-resizing-and-zoom.mdx).
 
 ### The greyscale pass
 
@@ -91,11 +92,11 @@ appears to happen at all.
 
 ### The screen-reader pass
 
-Complete the task with a screen reader on a device you have actually configured
-— not with the developer-tools accessibility tree, which shows you the data
-rather than the experience. Record what was announced, in what order, and what
-was silent. A silent success is a defect; a reader who submits a log entry and
-hears nothing does not know whether it saved.
+Complete the task with a screen reader on a device you have actually
+configured. Do not do it with the developer-tools accessibility tree, which
+shows you the data rather than the experience. Record what was announced, in
+what order, and what was silent. A silent success is a defect; a reader who
+submits a log entry and hears nothing does not know whether it saved.
 
 </Steps>
 
@@ -114,12 +115,12 @@ research finding.
 There are no published test results for this system. Playwright is in no
 `package.json`, so a normal clone does not have it and
 `scripts/capture-registry.mts` detects its absence and no-ops rather than
-pretending to produce artefacts. One job installs it at job time —
-`.github/workflows/nightly.yml` — and runs the accessibility rig's browser half
-against the built `/view` routes. That half measures hit area, survival at 1.3x
-and 200% with no truncated value, and it publishes nothing: it fails on what is
-wrong and records nothing about what passed. When a suite exists, its dated
-results appear here and on [Conformance report](./conformance-report.mdx).
+pretending to produce artefacts. The one job that installs it at job time is
+`.github/workflows/nightly.yml`, and it runs the accessibility rig's browser
+half against the built `/view` routes. That half measures hit area, survival at
+1.3x and 200% with no truncated value, and it publishes nothing: it fails on
+what is wrong and records nothing about what passed. When a suite exists, its
+dated results appear here and on [Conformance report](./conformance-report.mdx).
 
 ## Known gaps
 
@@ -128,9 +129,9 @@ results appear here and on [Conformance report](./conformance-report.mdx).
   blocks a pull request on the rules in `scripts/check-a11y.mts`, and the nightly
   adds the three browser measurements above. Between them they touch a handful of
   the criteria on [Conformance report](./conformance-report.mdx) and none of the
-  ones a person has to judge. No rule engine — axe or any other — runs over a
-  rendered page anywhere, and the nightly is on a schedule, so it goes red the
-  morning after a merge rather than before it.
+  ones a person has to judge. Axe does not run over a rendered page anywhere,
+  and no other rule engine does either. The nightly is on a schedule, so it goes
+  red the morning after a merge rather than before it.
 - **No assistive technology has been used against this codebase.** The docs site
   itself is unaudited; see [This site's accessibility](./this-site.mdx).
 

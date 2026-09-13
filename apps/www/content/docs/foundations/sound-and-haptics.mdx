@@ -11,8 +11,8 @@ a11yDate: 2026-09-02
 
 ## Overview
 
-An iOS-idiom consumer health app has three alert channels available to it —
-visual, audible and tactile — and the last two are the ones designers reach for
+An iOS-idiom consumer health app has three alert channels available to it. They
+are visual, audible and tactile. The last two are the ones designers reach for
 when the first one has stopped working. That is exactly the wrong reason to reach
 for them, and it is how alarm fatigue is manufactured: the visual escalation
 became noise, so a buzz was added, and now the buzz is noise too and there is
@@ -22,8 +22,8 @@ This page exists because opsinjs states flatly that
 [urgency must never be conveyed by motion](../health/motion-in-health-ui.mdx),
 and a rule about motion that says nothing about the other two non-textual
 channels invites the obvious workaround. So: the same rule applies, for the same
-reason, with one addition specific to these channels — they are the only ones the
-reader can be *absent* for.
+reason, with one addition specific to these channels. They are the only ones
+the reader can be *absent* for.
 
 <StubNotice />
 
@@ -45,9 +45,9 @@ channel with that failure rate cannot be load-bearing for a health message.
 
 | Pattern | Fires when | Never fires for |
 | --- | --- | --- |
-| `acknowledge` | A user-initiated action committed — a reading saved, a consent given | Anything the user did not initiate |
+| `acknowledge` | A user-initiated action committed, such as a reading saved or a consent given | Anything the user did not initiate |
 | `warn` | A user-initiated action produced a result the product has decided needs attention | A value merely arriving or updating |
-| `reject` | A user-initiated action was refused — a validation failure, an impossible entry | A slow network, a retryable error |
+| `reject` | A user-initiated action was refused, such as a validation failure or an impossible entry | A slow network, a retryable error |
 
 Three is not a starting point to be extended. A per-feature haptic vocabulary is
 unlearnable, and an unlearnable tactile signal is just a buzz.
@@ -68,10 +68,10 @@ The `warn` pattern is subject to the same at-most-one rule as an urgent surface.
 iOS, which is the primary platform for the products opsinjs is built for, and
 there is no web API for the richer tactile vocabulary the platform itself uses.
 So a web-only haptic implementation would work on some devices and silently do
-nothing on the ones that matter most — the worst possible shape for a signal
-whose whole justification is redundancy. The contract is published here so a
-product wrapping opsinjs in a native shell implements the same three patterns
-rather than inventing four.
+nothing on the ones that matter most. That is the worst possible shape for a
+signal whose whole justification is redundancy. The contract is published here
+so a product wrapping opsinjs in a native shell implements the same three
+patterns rather than inventing four.
 
 ## Using it
 
@@ -89,8 +89,8 @@ looking".
   <DoDont.Dont>
     A repeating buzz when a reading crosses a threshold, with no corresponding
     change on screen until the reader opens the app. Whoever has haptics
-    disabled, or is asleep, or left the phone charging, is told nothing — and
-    whoever does feel it has no way to know what it was about.
+    disabled, or is asleep, or left the phone charging, is told nothing.
+    Whoever does feel it has no way to know what it was about.
   </DoDont.Dont>
 </DoDont>
 
@@ -112,7 +112,7 @@ product's clinical governance, not to a tactile pattern.
 
 The three patterns are the tokens: named, ordinal, and mapped by an implementation
 to whatever the host platform provides. There are no durations or intensities in
-`tokens/`, deliberately — a millisecond figure would be meaningless across the
+`tokens/`, deliberately. A millisecond figure would be meaningless across the
 platforms this has to run on, and publishing one would imply an implementation
 that does not exist.
 
@@ -125,7 +125,7 @@ This is the foundation with the widest spread between "helps enormously" and
 
 - **For some readers this is the primary channel.** A deafblind reader may
   receive a tactile signal and nothing else. That is an argument for implementing
-  haptics well, and it is *not* an argument for making them exclusive — the same
+  haptics well, and it is *not* an argument for making them exclusive. The same
   reader must also be able to read the message.
 - **For some readers it is harmful.** Vibration can be distressing for people
   with sensory processing differences, can be genuinely painful with some pain
@@ -149,9 +149,9 @@ The conformance position and the testing route are on
 
 ## Related
 
-- [Alarm fatigue](../health/alarm-fatigue.mdx) — the shared escalation budget
+- [Alarm fatigue](../health/alarm-fatigue.mdx) has the shared escalation budget
   these channels draw from, and the at-most-one rule.
-- [Motion in health UI](../health/motion-in-health-ui.mdx) — the sibling rule for
-  the third non-textual channel, and the reason this page exists.
+- [Motion in health UI](../health/motion-in-health-ui.mdx) has the sibling rule
+  for the third non-textual channel, and the reason this page exists.
 - [Notifications and off-screen alerts](../health/notifications-and-off-screen-alerts.mdx)
-  — what happens when the reader is not looking at the app at all.
+  says what happens when the reader is not looking at the app at all.

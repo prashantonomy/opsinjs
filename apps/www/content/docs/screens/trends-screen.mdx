@@ -27,8 +27,9 @@ implements:
 ## What this screen does
 
 A person wants to know whether something is moving. Usually they arrive with a
-specific question — is my resting heart rate coming down, am I sleeping less than
-I was — and occasionally they arrive to browse.
+specific question, such as whether their resting heart rate is coming down or
+whether they are sleeping less than they were. Occasionally they arrive to
+browse.
 
 The screen answers with a window, a direction, a magnitude and a caveat, for one
 metric at a time. Its defining constraint is that **the chart is not the answer**:
@@ -36,14 +37,14 @@ the sentence under the chart is, because that is what the reader will remember a
 repeat. The chart is there to make the sentence checkable at a glance.
 
 **What this screen deliberately does not do.** It does not draw a trend from too
-few points — below the per-metric minimum it shows the readings and no line, and no
-direction word. It does not colour a line by whether the change is welcome:
+few points. Below the per-metric minimum it shows the readings and no line, and
+no direction word. It does not colour a line by whether the change is welcome:
 direction and valence stay separate
-([Trends and change](../health/trends-and-change.mdx)). It does not correlate —
-placing two metrics near each other invites a causal reading that the data does not
-support, so any comparison is a deliberate choice with words attached. And it does
-not celebrate: a caption that congratulates assumes both that the reader wanted the
-change and that they know why it happened.
+([Trends and change](../health/trends-and-change.mdx)). It does not correlate.
+Placing two metrics near each other invites a causal reading that the data does
+not support, so any comparison is a deliberate choice with words attached. And it
+does not celebrate: a caption that congratulates assumes both that the reader
+wanted the change and that they know why it happened.
 
 ## Composition
 
@@ -70,7 +71,7 @@ TrendsScreen                           page ground
 │   └── Caption                        what changed · over what window · what it
 │                                      does not mean
 ├── DataTable                          page ground, always reachable
-│   └── Row …                          date, value, unit — the numbers themselves
+│   └── Row …                          date, value, unit. The numbers themselves
 ├── RelatedMetrics                     page ground
 │   └── MetricTile …                   glance-level, no captions, no claims
 └── MethodNote                         page ground, lowest emphasis
@@ -89,8 +90,9 @@ without its caveat.
 
 **The data table is a peer, not a disclosure.** It is on the page, reachable
 without opening anything, because for a large number of readers it is the more
-useful representation —
-[Accessible charts](../foundations/data-visualisation/accessible-charts.mdx).
+useful representation.
+[Accessible charts](../foundations/data-visualisation/accessible-charts.mdx) makes
+the case.
 
 ## Preview
 
@@ -104,20 +106,22 @@ useful representation —
 - **The window is in the caption, not only on the axis.** Readers do not read axes,
   and "down 4 bpm" with no window is not a statement.
 - **The y-axis baseline is stable and defensible**, never fitted to dramatise a
-  small change — [Chart anatomy](../foundations/data-visualisation/chart-anatomy.mdx).
+  small change.
+  [Chart anatomy](../foundations/data-visualisation/chart-anatomy.mdx) covers it.
 - **Gaps are drawn as gaps.** Nothing is interpolated across a missing day, and the
   method note says how many readings the summary is based on.
 - **Absolute change leads; relative change follows if at all.** A percentage of a
-  small number is how a trivial change is made to sound decisive —
+  small number is how a trivial change is made to sound decisive. See
   [Risk and statistics](../health/risk-and-statistics.mdx).
 - **No causal language anywhere.** A trend shows association with time. Not with
   the new medication, the holiday, or anything else on the same axis.
 - **A reference band is context, not a verdict.** Crossing it is a position, and
   the rules for saying so are in
   [Show a value against a reference range](../recipes/value-against-a-range.mdx).
-- **The series colour is the category's and never changes with the data** —
-  [The two colour axes](../health/two-colour-axes.mdx). If a clinical rule assigned
-  a status, it appears in words beside the chart and does not recolour the line.
+- **The series colour is the category's and never changes with the data**.
+  [The two colour axes](../health/two-colour-axes.mdx) is the rule. If a
+  clinical rule assigned a status, it appears in words beside the chart and does
+  not recolour the line.
 
 ## Accessibility
 
@@ -126,7 +130,7 @@ table, related metrics and the method note are H2s.
 
 **Focus on entry.** Focus lands on the main content at the heading naming the
 metric. Changing the metric or the window updates the caption and announces the
-new summary politely — it does not move focus, because a reader who has just
+new summary politely. It does not move focus, because a reader who has just
 changed a control has not asked to be relocated.
 
 **The text summary is always present.** Direction, magnitude, unit, window and the
@@ -134,29 +138,30 @@ number of readings, available without opening a disclosure. A reader who cannot
 perceive the chart loses speed and nothing else.
 
 **The data table is a real table** with header cells and a caption, reachable by
-keyboard, and it survives being printed — a reviewer reading on paper gets numbers
+keyboard, and it survives being printed. A reviewer reading on paper gets numbers
 rather than an empty box where a canvas was.
 
 **Series are distinguishable without colour.** One series per chart by default;
-where there are two, they are directly labelled and differ in shape —
-[Colour independence](../accessibility/colour-independence.mdx).
+where there are two, they are directly labelled and differ in shape.
+[Colour independence](../accessibility/colour-independence.mdx) sets it out.
 
 **No motion carries meaning.** There is no draw-on animation whose completion is
 the signal that the data is complete. Under `prefers-reduced-motion` the chart is
-present, finished, immediately —
+present, finished, immediately. See
 [Reduced motion](../accessibility/reduced-motion.mdx).
 
 **Contrast.** The series against the ground, the points against the series, and the
-reference band against both, measured in both themes —
-[Contrast conformance](../accessibility/contrast-conformance.mdx).
+reference band against both, measured in both themes.
+[Contrast conformance](../accessibility/contrast-conformance.mdx) sets the floor.
 
 **Text at 200%.** The caption and the summary stay legible and unclipped; the chart
-may shrink or be replaced by the table; the sentence may never be truncated —
-[Text resizing and zoom](../accessibility/text-resizing-and-zoom.mdx).
+may shrink or be replaced by the table; the sentence may never be truncated.
+[Text resizing and zoom](../accessibility/text-resizing-and-zoom.mdx) covers it.
 
 **Touch and pointer are not the only route to a value.** If reading an individual
 point requires hovering or dragging on the chart, the same value is in the table
-without gesture — [Target size and motor accessibility](../accessibility/target-size-and-motor.mdx).
+without gesture. See
+[Target size and motor accessibility](../accessibility/target-size-and-motor.mdx).
 
 ## Status
 
@@ -165,7 +170,7 @@ without gesture — [Target size and motor accessibility](../accessibility/targe
   issue="opsinjs/opsinjs#0"
   questions={[
     "Where does the per-metric minimum number of readings live, so that a reviewer can find it and a component cannot invent it?",
-    "What does the screen show when the selected window contains no readings at all — an empty chart, or no chart?",
+    "What does the screen show when the selected window contains no readings at all: an empty chart, or no chart?",
     "May two metrics ever share an axis, and if so what words are required alongside to prevent a causal reading?",
     "How is an annotated event (a medication change, an illness) represented, given that no component for it exists?",
   ]}

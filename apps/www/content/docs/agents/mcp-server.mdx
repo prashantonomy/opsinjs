@@ -17,8 +17,9 @@ one and everything you learn transfers to any other shadcn-compatible registry.
 
 What the connection buys you is inventory. Without it, an assistant asked for a
 health component answers from its training data. With it, the assistant can list
-what exists, read each item's metadata, and — critically — discover whether the
-thing it was about to write has source behind it, and at what stability.
+what exists and read each item's metadata. Crucially, it can also discover
+whether the thing it was about to write has source behind it, and at what
+stability.
 
 Budget five minutes. You need a project with a `components.json`.
 
@@ -35,7 +36,7 @@ The MCP server reads registries from your project's `components.json`. Add the
 }
 ```
 
-The `{name}` placeholder is required by the spec — the CLI substitutes the item
+The `{name}` placeholder is required by the spec. The CLI substitutes the item
 name into it. See [Namespaces](../registry/namespaces.mdx) for composing several
 registries, and for why the namespace is `@opsinjs` rather than something
 shorter.
@@ -52,7 +53,7 @@ Substitute your client: `claude`, `cursor`, `vscode`, `codex` or `opencode`.
 Restart the client afterwards.
 
 If you prefer to write the configuration by hand, it is the same three lines
-everywhere — a command and its arguments:
+everywhere. Those lines name a command and its arguments:
 
 ```json title=".mcp.json"
 {
@@ -97,17 +98,17 @@ the [evals](./evals.mdx) exist to measure, and
 <Callout>
 **Twenty-four items carry source; thirty-six do not.** `add` against an
 implemented id writes real files. Against a `considered` id it resolves the item
-and finds nothing to write — that is the correct behaviour and not a broken
+and finds nothing to write. That is the correct behaviour and not a broken
 configuration. `meta.opsinjs.implemented` on the item is the discriminator, and
 it is worth checking before you conclude anything from an empty result.
 </Callout>
 
 | The server can | The server cannot |
 | --- | --- |
-| List every item with its status and `implemented` flag | Install a `considered` id — the item resolves and carries no files |
+| List every item with its status and `implemented` flag | Install a `considered` id, because the item resolves and carries no files |
 | Install the source of the twenty-four implemented items, exported prop interfaces included | Promise that an `alpha` API survives the next release |
-| Install the theme preset, which is real CSS | Fetch a documentation example on its own — the examples are not published as registry items |
-| Search across opsinjs and your other registries | Enforce the clinical rules — that is the [skill](./agent-skill.mdx) |
+| Install the theme preset, which is real CSS | Fetch a documentation example on its own. The examples are not published as registry items |
+| Search across opsinjs and your other registries | Enforce the clinical rules. That is the [skill](./agent-skill.mdx) |
 
 The last row is the important division of labour. The MCP server answers *what
 exists*. The skill answers *how to use it correctly*. Configure both.
@@ -142,14 +143,14 @@ re-enable the server in your client. This is by far the most common cause.
 
 **`@opsinjs` is not found.** The registry block is missing from
 `components.json`, or the file is not at the project root the client opened.
-The full-URL form — `npx shadcn@latest add https://opsinjs.dev/r/<name>.json` —
-needs no configuration for an item that composes nothing, and is a quick way to
-isolate the problem. It will not rescue one of the fourteen items whose
-`registryDependencies` are namespaced; those need the block whichever form you
-use.
+The full-URL form is `npx shadcn@latest add https://opsinjs.dev/r/<name>.json`.
+That form needs no configuration for an item that composes nothing, and is a
+quick way to isolate the problem. It will not rescue one of the fourteen items
+whose `registryDependencies` are namespaced; those need the block whichever form
+you use.
 
 **It lists items but `add` writes nothing.** Check the id first. For a
-`considered` id that is correct — see the callout above. For one of the
+`considered` id that is correct. See the callout above. For one of the
 twenty-four implemented ids it is a real fault: the item carries files, so an
 empty write means the fetch failed, the CLI resolved a different registry, or
 the aliases in `components.json` do not name a directory it can write to.
@@ -163,7 +164,7 @@ configuration file. Configure each; there is no shared one.
 
 ## Next
 
-- [Agent skill](./agent-skill.mdx) — the other half of the setup.
-- [Registry overview](../registry/index.mdx) — what the server is talking to.
-- [Machine-readable schemas](./machine-readable-schemas.mdx) — the same data,
-  fetched directly, when you are not using MCP at all.
+- [Agent skill](./agent-skill.mdx) is the other half of the setup.
+- [Registry overview](../registry/index.mdx) says what the server is talking to.
+- [Machine-readable schemas](./machine-readable-schemas.mdx) covers the same
+  data, fetched directly, when you are not using MCP at all.

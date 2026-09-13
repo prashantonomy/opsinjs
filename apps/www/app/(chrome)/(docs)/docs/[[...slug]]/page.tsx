@@ -21,8 +21,8 @@ import { absoluteUrl, docsMarkdownPath, ogUrl, site } from "@/lib/routes"
  * Reading `searchParams` in a page opts that route out of static generation, and
  * because this is the optional catch-all for the entire corpus, "that route" is
  * every documentation page on the site. The `?base=&style=` switcher described
- * in the component anatomy therefore lives in a CLIENT component — it reads
- * `useSearchParams()` and re-points an `<IframePreview>` at a
+ * in the component anatomy therefore lives in a CLIENT component. That
+ * component reads `useSearchParams()` and re-points an `<IframePreview>` at a
  * `/view/[base]/[style]/[kind]/[name]` URL, which is the surface where the
  * base × style matrix legitimately lives as real path segments. The docs page
  * itself has exactly one canonical, un-namespaced URL per component, which is
@@ -46,11 +46,12 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
         {/*
           PageTemplate is the contract enforcer. A page declares its `kind` in
           frontmatter, the kind fixes its headings, and the declared `status`
-          fixes which of those headings are required — a component page at
-          `planned` owes eleven sections, a stable one owes twenty-two. Handing
-          it the table of contents is what lets it check the page it is wrapping
-          instead of trusting the author, and a missing required section fails
-          the build rather than shipping a heading with three sentences under it.
+          fixes which of those headings are required. A component page at
+          `planned` owes eleven sections, and a stable one owes twenty-two.
+          Handing it the table of contents is what lets it check the page it is
+          wrapping instead of trusting the author, and a missing required
+          section fails the build rather than shipping a heading with three
+          sentences under it.
         */}
         <PageTemplate
           kind={page.data.kind}
@@ -64,8 +65,9 @@ export default async function Page(props: PageProps<"/docs/[[...slug]]">) {
             are required to use (`../health/alarm-fatigue.mdx`) into real URLs.
             Absolute `/docs/...` links are banned in MDX precisely so that this
             resolver is the only thing that knows what a documentation URL looks
-            like — which is what keeps a future `[lang]` segment a one-file
-            change instead of a corpus-wide find-and-replace.
+            like. Keeping that knowledge in one place is what makes a future
+            `[lang]` segment a one-file change instead of a corpus-wide
+            find-and-replace.
           */}
           <MDX
             components={getMDXComponents({
@@ -98,8 +100,8 @@ export async function generateMetadata(
    * once, and gets you one image per page for the trouble. A single `/og`
    * endpoint driven by the frontmatter is less code and, more usefully, means
    * the status badge on the social card comes from the same field the page
-   * header renders — a component that goes from `planned` to `alpha` updates
-   * its card without anybody remembering to.
+   * header renders. A component that goes from `planned` to `alpha` updates its
+   * card without anybody remembering to.
    *
    * The URL is built by `ogUrl` in lib/routes rather than assembled here, for
    * the same reason every other path is: one place knows the shape.

@@ -14,9 +14,10 @@ owner: design-system
 
 <StubNotice status="alpha">
   These codes fire. `warnOnce()` ships in `lib/opsinjs.ts`, and eleven of the
-  twenty-four `alpha` components call it — twenty-four call sites between them,
-  raising `OPSIN-0001`, `0002`, `0003`, `0004`, `0010`, `0011`, `0012`, `0013`,
-  `0016` and `0021`. The rest of the table is allocated and has no caller yet.
+  twenty-four `alpha` components call it. Those eleven make twenty-four call
+  sites between them, raising `OPSIN-0001`, `0002`, `0003`, `0004`, `0010`,
+  `0011`, `0012`, `0013`, `0016` and `0021`. The rest of the table is allocated
+  and has no caller yet.
   What is not stable is the channel rather than the codes: message wording,
   severity and which component raises which code all move while the components
   are at `alpha`. The code a message carries does not.
@@ -66,13 +67,13 @@ purpose; the second invocation computes the same message, finds it already
 reported, and prints nothing.
 
 **The runtime and this page read the same source.** `tokens/errors.json` is the
-only place a code is authored. `scripts/build-tokens.mts` emits it into
-`lib/opsinjs.ts` — which is the file `shadcn add` copies into your project, so
-the messages travel with the components — into `lib/generated/tokens.ts` for
-the documentation site, and into the table below. Editing any of the three is
+only place a code is authored. `scripts/build-tokens.mts` emits it into three
+places: `lib/opsinjs.ts`, `lib/generated/tokens.ts` for the documentation site,
+and the table below. `lib/opsinjs.ts` is the file `shadcn add` copies into your
+project, so the messages travel with the components. Editing any of the three is
 undone by the next `pnpm run generate`.
 
-{/* opsinjs:errors:begin — replaced by scripts/build-tokens.mts from tokens/errors.json */}
+{/* opsinjs:errors:begin. Everything below is replaced by scripts/build-tokens.mts from tokens/errors.json */}
 
 A warning is one `console.warn` call, and it looks like this. The braces are
 filled from what the component passed; this is the template as authored, so
@@ -133,8 +134,8 @@ warning itself rather than swallowed.
   usually worth two minutes.
 - **Treat a `safety` code as an error even though it warns.** Those are the ones
   where the visible result looks fine and the meaning is wrong, which is exactly
-  the class of bug that survives review — and the reader who is misled by it is
-  being misled about their own health.
+  the class of bug that survives review. The reader who is misled by it is being
+  misled about their own health.
 - **Search by code, not by message text.** Messages get clearer between
   versions; codes do not change.
 - **Turn warnings into failures in CI** if you want them enforced. They are
@@ -172,7 +173,7 @@ warning itself rather than swallowed.
   behaviour. Where `process` is not defined at all the channel stays silent
   rather than guessing.
 - **Server-rendered warnings appear in the server log**, not in the browser
-  console — which is why a warning can seem to fire "sometimes".
+  console. That is why a warning can seem to fire "sometimes".
 - **New codes are not a breaking change.** `OPSIN-0021` is allocated, so the
   next one is `OPSIN-0022`, whatever it turns out to be about. Renumbering an
   existing one would be.
@@ -182,11 +183,11 @@ warning itself rather than swallowed.
 
 ## Related
 
-- [The two colour axes](../health/two-colour-axes.mdx) — the rule behind
+- [The two colour axes](../health/two-colour-axes.mdx) is the rule behind
   `OPSIN-0001`, and the one most likely to look right and mean the wrong thing.
-- [ADR 0015](../project/decisions/0015-error-codes-are-flat.mdx) — why the
-  scheme is flat rather than banded.
-- [ESLint plugin](./tooling/eslint-plugin.mdx) — catching the same mistakes
-  before they run.
-- [Troubleshooting](../start/troubleshooting.mdx) — failures that are not
+- [ADR 0015](../project/decisions/0015-error-codes-are-flat.mdx) explains why
+  the scheme is flat rather than banded.
+- [ESLint plugin](./tooling/eslint-plugin.mdx) catches the same mistakes before
+  they run.
+- [Troubleshooting](../start/troubleshooting.mdx) covers failures that are not
   warnings, with their exact error text.

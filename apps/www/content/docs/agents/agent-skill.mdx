@@ -17,8 +17,9 @@ that carries the safety argument.
 A skill is a small bundle of instructions that a coding assistant loads
 automatically when it recognises the project. The opsinjs skill contains four
 rule files and an eval set, and it lives in this repository at
-`skills/opsinjs/` — so you can read every word of it before installing it, which
-is a property worth insisting on for anything that shapes generated health UI.
+`skills/opsinjs/`. You can therefore read every word of it before installing
+it, which is a property worth insisting on for anything that shapes generated
+health UI.
 
 ## Install it
 
@@ -32,8 +33,8 @@ with the `@opsinjs` registry configured, or an opsinjs dependency in
 
 The skill is also just a directory. If you would rather not install anything
 from a network, copy `skills/opsinjs/` out of this repository into your own
-project — it is five markdown files and a JSON eval set, with no build step and
-no runtime.
+project. That directory is five markdown files and a JSON eval set, with no
+build step and no runtime.
 
 If your tool does not support skills, the rules are ordinary markdown. Read
 [Rules for agents](./rules-for-agents.mdx) and paste it into your system prompt;
@@ -43,40 +44,41 @@ you lose the project detection and keep the rules.
 
 Four rule files, each one a prohibition with a check attached.
 
-**`rules/tokens-not-values.md`** — no hex, rgb, pixel radius or millisecond
-duration in generated code. Every appearance decision resolves to a token or to
-a utility that references one. The check is a regex over the diff: a literal
-colour in a generated file is a failure.
+**`rules/tokens-not-values.md`** permits no hex, rgb, pixel radius or
+millisecond duration in generated code. Every appearance decision resolves to a
+token or to a utility that references one. The check is a regex over the diff: a
+literal colour in a generated file is a failure.
 
-**`rules/status-and-colour.md`** — clinical urgency is expressed as a status
-level, never as a colour, and never as colour alone. Category and status never
-colour the same element. The check is structural: a `status` prop plus a colour
-class on the same element fails.
+**`rules/status-and-colour.md`** requires clinical urgency to be expressed as a
+status level, never as a colour, and never as colour alone. Category and status
+never colour the same element. The check is structural: a `status` prop plus a
+colour class on the same element fails.
 
-**`rules/never-invent.md`** — a component that is not in the catalogue does not
-exist, and neither does a prop that is not in the component's source. The rule
-binds in both directions, because the catalogue now has two kinds of row in it.
-For a name on the considered roster the correct answer is a refusal that names
-the status and stops. For one of the twenty-four `alpha` ids the correct answer
-is to install it and say, in the same breath, that an `alpha` API can change in
-any release without a deprecation cycle. A false refusal is the mirror image of
-an invention, and the rule file treats it as the same class of mistake.
+**`rules/never-invent.md`** holds that a component that is not in the catalogue
+does not exist, and neither does a prop that is not in the component's source.
+The rule binds in both directions, because the catalogue now has two kinds of
+row in it. For a name on the considered roster the correct answer is a refusal
+that names the status and stops. For one of the twenty-four `alpha` ids the
+correct answer is to install it and say, in the same breath, that an `alpha` API
+can change in any release without a deprecation cycle. A false refusal is the
+mirror image of an invention, and the rule file treats it as the same class of
+mistake.
 
-**`rules/registry.md`** — never emit `add @opsinjs/<name>` without first checking
-that `components.json` registers the namespace, and offer the one-line addition
-*before* the install command rather than as a footnote after it. The failure it
-prevents is specific: an unresolvable namespace produces an error that reads like
-a network problem, and the next thing that happens is somebody hand-writes a
-component and calls it opsinjs. The rule also forbids claiming an item has files
-when the registry says it has none.
+**`rules/registry.md`** says never to emit `add @opsinjs/<name>` without first
+checking that `components.json` registers the namespace, and to offer the
+one-line addition *before* the install command rather than as a footnote after
+it. The failure it prevents is specific: an unresolvable namespace produces an
+error that reads like a network problem, and the next thing that happens is
+somebody hand-writes a component and calls it opsinjs. The rule also forbids
+claiming an item has files when the registry says it has none.
 
 ## What it reads from your project
 
 The skill is project-aware, which is what makes it more useful than a pasted
-prompt. On each activation it reads your configuration — framework, aliases,
-icon library, base library, configured registries, and which components you have
-already installed — so that generated code matches your project's conventions
-rather than the documentation's.
+prompt. On each activation it reads your configuration so that generated code
+matches your project's conventions rather than the documentation's.
+Configuration here means framework, aliases, icon library, base library,
+configured registries, and which components you have already installed.
 
 It reads. It does not write, and it does not send your source anywhere.
 
@@ -87,7 +89,7 @@ The skill does not review clinical correctness. It cannot tell you whether a
 threshold is right, whether a message is safe for the population you serve, or
 whether a screen should exist at all. It enforces mechanical rules that catch
 mechanical mistakes. A human clinical review is a separate step and the skill's
-presence is not evidence that one happened — see
+presence is not evidence that one happened. See
 [Safety review checklist](../health/safety-review-checklist.mdx).
 </SafetyCallout>
 
@@ -124,8 +126,8 @@ running on general knowledge.
 ## Troubleshooting
 
 **The skill does not activate.** It looks for a `components.json`. A project
-without one — a plain library, a monorepo package — will not trigger it. Add the
-file or paste the rules.
+without one will not trigger it, whether that is a plain library or a monorepo
+package. Add the file or paste the rules.
 
 **It activates but the rules are ignored on long tasks.** Rules compete with a
 long conversation for attention. Re-anchoring helps: ask the assistant to
@@ -135,17 +137,19 @@ restate the opsinjs rules before a generation step.
 files in this repository, and a fork that keeps the clinical rules while
 changing the mechanical ones is a reasonable thing to maintain.
 
-**It suggested code that does not compile.** Check which id and what shape. An
-import from `@opsinjs/react` is always wrong — there is no published package —
-and is a rule failure worth reporting as an eval case. A component copied in
-from the registry that does not compile is a different bug: the usual cause is a
-missing `@/lib/utils`, which `shadcn init` writes and a hand-made
+**It suggested code that does not compile.** Check which id and what shape.
+There is no published package, so an import from `@opsinjs/react` is always
+wrong and is a rule failure worth reporting as an eval case. A component copied
+in from the registry that does not compile is a different bug: the usual cause
+is a missing `@/lib/utils`, which `shadcn init` writes and a hand-made
 `components.json` does not, and it belongs in the component's tracker rather
 than the skill's.
 
 ## Next
 
-- [Rules for agents](./rules-for-agents.mdx) — the rules in full, readable form.
-- [Evals](./evals.mdx) — how the skill's effect is measured rather than assumed.
-- [Prompt recipes](./prompt-recipes.mdx) — prompts written to work with the
+- [Rules for agents](./rules-for-agents.mdx) has the rules in full, readable
+  form.
+- [Evals](./evals.mdx) shows how the skill's effect is measured rather than
+  assumed.
+- [Prompt recipes](./prompt-recipes.mdx) covers prompts written to work with the
   skill rather than against it.

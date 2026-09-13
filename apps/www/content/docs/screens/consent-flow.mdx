@@ -28,7 +28,7 @@ implements:
 This is the only specimen in the set that is a sequence rather than a single
 surface, because consent cannot honestly be asked on one screen: there is the ask,
 there is the operating system's own permission prompt, and there is what the
-product does with the answer — including the answer *no*.
+product does with the answer. That answer includes *no*.
 
 The flow asks for **one scope**, at the moment that scope becomes useful, in words
 the reader can act on. It ends in one of three states: granted, declined, or
@@ -36,9 +36,9 @@ partially granted, and all three are ordinary outcomes that the product continue
 from.
 
 It is also the screen where a design's honesty is most directly testable. Almost
-every dark pattern in health software lives here — the pre-ticked box, the grey
-decline link beside a filled Allow button, the wall of text with a single inviting
-control at the bottom — and each of them is visible in a screenshot.
+every dark pattern in health software lives here: the pre-ticked box, the grey
+decline link beside a filled Allow button, the wall of text with a single
+inviting control at the bottom. Each of them is visible in a screenshot.
 
 **What this screen deliberately does not do.** It does not ask at first launch,
 before the person knows what they would be agreeing to. It does not bundle scopes
@@ -63,7 +63,7 @@ Rungs are given by position; they are named in
 ```text
 ConsentFlow                            three states, one scope
 ├── 1. Ask                             ConsentSheet, one rung above the surface
-│   │                                  that triggered it — context stays visible
+│   │                                  that triggered it, so context stays visible
 │   ├── Purpose                        the benefit, concretely, before the ask
 │   ├── ScopeList                      what will actually be read
 │   │   └── ScopeItem …                individually grantable, all off by default
@@ -74,14 +74,14 @@ ConsentFlow                            three states, one scope
 │   └── Answers                        two buttons, equal weight, equal size
 │       ├── AllowAction
 │       └── DeclineAction              "Not now", never a grey text link
-├── 2. PlatformPrompt                  the operating system's own dialog —
+├── 2. PlatformPrompt                  the operating system's own dialog. It is
 │                                      triggered only after Allow, never styled
 │                                      to look like ours, never pre-empted
 └── 3. Outcome                         page ground
     ├── Granted                        continue to the thing they wanted
     ├── PartiallyGranted               say what works and what does not
     └── Declined                       EmptyState: what still works, and the way
-                                       back — never a wall
+                                       back. It is never a wall
 ```
 
 Three composition rules this screen demonstrates:
@@ -118,7 +118,7 @@ not asked a question.
 - **Re-ask on a change of scope or wording, never on a timer.** A periodic re-ask
   trains people to tap through, which destroys the meaning of the answer.
 - **Revocation lives in one predictable place** for every scope, takes effect
-  immediately, and says what happens to data already collected —
+  immediately, and says what happens to data already collected. See
   [Consent and disclosure](../health/consent-and-disclosure.mdx).
 - **Consent to a feature is not consent to research, marketing, or sharing with an
   employer or insurer.** Each is a separate ask, in its own words.
@@ -126,7 +126,8 @@ not asked a question.
   obligations. If the product does not support it, say so rather than letting the
   adult flow be used on somebody else's behalf.
 - **No clinical status colour appears anywhere in this flow.** Consent is not a
-  clinical state — [The two colour axes](../health/two-colour-axes.mdx).
+  clinical state. [The two colour axes](../health/two-colour-axes.mdx) explains
+  the separation.
 
 ## Accessibility
 
@@ -141,21 +142,24 @@ question for anyone not reading visually.
 
 **Focus.** Focus enters the sheet on open and lands on the heading, not on Allow.
 Focus is trapped while the sheet is modal, <Kbd>Escape</Kbd> dismisses it, and
-focus returns to the control that opened it —
-[Keyboard and focus](../accessibility/keyboard-and-focus.mdx).
+focus returns to the control that opened it.
+[Keyboard and focus](../accessibility/keyboard-and-focus.mdx) specifies that
+behaviour.
 
 **Equal weight is verifiable.** Render the sheet in greyscale: if one answer still
-dominates, the dominance was built from colour and the screen is a funnel —
-[Colour independence](../accessibility/colour-independence.mdx).
+dominates, the dominance was built from colour and the screen is a funnel.
+[Colour independence](../accessibility/colour-independence.mdx) is the rule it
+breaks.
 
 **Targets.** Both answers clear 44pt with real separation between them, so that the
-wrong one is not tapped by accident —
+wrong one is not tapped by accident. See
 [Target size and motor accessibility](../accessibility/target-size-and-motor.mdx).
 
 **Text at 200%.** Both answers remain visible together. A reflow that puts Allow on
 screen and Decline below the fold creates a dark pattern out of a layout bug, so
-this is a test case rather than a nicety —
-[Text resizing and zoom](../accessibility/text-resizing-and-zoom.mdx).
+this is a test case rather than a nicety.
+[Text resizing and zoom](../accessibility/text-resizing-and-zoom.mdx) has the
+reflow case.
 
 **Reading level.** Consent copy fails more readers than any other copy in a health
 product. Check it against the target in
@@ -163,8 +167,9 @@ product. Check it against the target in
 inline with [Term](../components/term.mdx) rather than in a footnote.
 
 **No timers.** Nothing in the flow expires, auto-advances or auto-dismisses. A
-sheet that closes itself has taken the decision —
-[Cognitive accessibility](../accessibility/cognitive-accessibility.mdx).
+sheet that closes itself has taken the decision.
+[Cognitive accessibility](../accessibility/cognitive-accessibility.mdx) is where
+that rule lives.
 
 ## Status
 
@@ -172,9 +177,9 @@ sheet that closes itself has taken the decision —
   name="consent-flow"
   issue="opsinjs/opsinjs#0"
   questions={[
-    "What does the flow do when the person allows in our sheet and then denies the operating system prompt — and how is that state distinguished from declining ours?",
+    "What does the flow do when the person allows in our sheet and then denies the operating system prompt? How is that state distinguished from declining ours?",
     "How is a partial grant represented downstream, so that a screen depending on an ungranted scope degrades rather than appearing broken?",
-    "What is the minimum record of a grant — scope, timestamp, subject, wording version — and who owns its schema?",
+    "What is the minimum record of a grant: scope, timestamp, subject, wording version? And who owns its schema?",
     "Where does revocation live, and does the flow ever surface it proactively after a change of wording?",
   ]}
 />

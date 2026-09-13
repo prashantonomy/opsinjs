@@ -1,11 +1,12 @@
 /**
- * GET /r/index.json — the lightweight roster.
+ * GET /r/index.json serves the lightweight roster.
  *
  * `registry.json` is the shadcn-shaped catalog and has to keep that shape.
  * This is the opsinjs-shaped one: one flat row per id with the fields a
- * decision actually turns on — status, whether anything is installable, the
- * category, the search synonyms, the doctrine pages that govern it, and the
- * three URLs (documentation, its markdown twin, its registry item).
+ * decision actually turns on. Those fields are status, whether anything is
+ * installable, the category, the search synonyms, the doctrine pages that
+ * govern it, and the three URLs (documentation, its markdown twin, its
+ * registry item).
  *
  * The `aliases` published here are the same namespace declared once in
  * `registry/catalogue.ts`, which is what keeps a reader's search synonyms and

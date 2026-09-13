@@ -34,16 +34,17 @@ sees, and the transformation between them is where authoring choices become
 consequences.
 
 Processing does not render the components. Remark runs over the MDX and
-stringifies it back to markdown, so imports are gone and tables and code fences
-arrive as markdown — but `<TokenTable scope="color" />` comes out as that tag,
-attributes and all, and so does `<ComponentPreview name="range-bar" />`. That is
-why the attributes are the content: they name the component or the scope, and
-the values themselves are published separately at `/r/index.json` and under the
-Reference section. Every twin carrying such a tag opens with a block quote
-saying exactly that, so a machine is told where to go rather than left with a
-hole. The quote can be written once only because the components are a closed
-set; a tag outside it fails `assert-ia`, and — had it slipped through — would
-arrive in the twin unexplained.
+stringifies it back to markdown, so imports are gone and tables and code
+fences arrive as markdown. Component tags are the exception.
+`<TokenTable scope="color" />` comes out as that tag, attributes and all, and
+so does `<ComponentPreview name="range-bar" />`. That is why the attributes are
+the content: they name the component or the scope, and the values themselves
+are published separately at `/r/index.json` and under the Reference section.
+Every twin carrying such a tag opens with a block quote saying exactly that, so
+a machine is told where to go rather than left with a hole. The quote can be
+written once only because the components are a closed set; a tag outside it
+fails `assert-ia`, and would arrive in the twin unexplained if it ever
+slipped through.
 
 Frontmatter survives the transformation intact, which is why it carries so much
 weight. A model deciding whether to trust a page reads `status`, `evidence` and
@@ -72,16 +73,16 @@ merely encouraged to.
 
 ### Write aliases from the reader's vocabulary
 
-Aliases should be what somebody would actually type — `lab result`,
-`blood pressure`, `a1c` — not synonyms of your own title. They are the bridge
-between a clinical question and a component name.
+Aliases should be what somebody would actually type, such as `lab result`,
+`blood pressure` or `a1c`, rather than synonyms of your own title. They are the
+bridge between a clinical question and a component name.
 
 ### Declare evidence honestly
 
 `evidence: opinion` is a perfectly good value and is always better than a
-citation that does not exist. A health page must declare one, and a reviewer —
-human or machine — treats `cited` and `opinion` very differently, which only
-works if the distinction is real.
+citation that does not exist. A health page must declare one. Human and machine
+reviewers alike treat `cited` and `opinion` very differently, which only works
+if the distinction is real.
 
 ### Let the build own the numbers
 
@@ -91,10 +92,10 @@ should have produced it.
 
 ### Say plainly when something does not exist
 
-`<NotBuiltYet>`, `<StubNotice>`, `<NoDataYet>` and `<Todo>` all emit machine-
-readable markers as well as human-readable text. Reaching for prose instead
-—"coming soon" — produces a page a machine reads as a description of something
-that exists.
+`<NotBuiltYet>`, `<StubNotice>`, `<NoDataYet>` and `<Todo>` all emit
+machine-readable markers as well as human-readable text. Reaching instead for
+prose such as "coming soon" produces a page a machine reads as a description of
+something that exists.
 
 ## Not this
 
@@ -129,8 +130,8 @@ vocabulary, not a local exception.
 
 Two pages that say the same thing differently will disagree eventually, and a
 retrieval system will return whichever it likes. Canonicality is declared:
-[Plain English A–Z](../content/plain-english-a-z.mdx) owns plain language, and
-[Numbers, units and precision](../health/numbers-units-precision.mdx) owns
+[Plain-English A to Z](../content/plain-english-a-z.mdx) owns plain language,
+and [Numbers, units and precision](../health/numbers-units-precision.mdx) owns
 numeric formatting. Link; do not paraphrase.
 
 ## Gotchas
@@ -144,8 +145,8 @@ than rejected, so a misspelled `alias` simply does not exist. `assert-ia` checks
 the fields it knows about; it cannot check for a field you meant to write.
 
 **`status` on the page and `status` in the catalogue are separate facts.** They
-are asserted to agree. If you change one, change both — or better, change the
-catalogue and let the page follow.
+are asserted to agree. If you change one, change both. Better still, change
+the catalogue and let the page follow.
 
 **Aliases must be globally unique.** They are declared in the catalogue for
 exactly this reason. A duplicate is a build failure, not a merge conflict.
@@ -156,10 +157,10 @@ file to pasting it.
 
 ## Related
 
-- [Rules for agents](./rules-for-agents.mdx) — the consuming half of the same
+- [Rules for agents](./rules-for-agents.mdx) is the consuming half of the same
   contract.
 - [Documentation templates](../handbook/contributing/documentation-templates.mdx)
-  — the per-kind outlines these rules assume.
-- [Raw markdown API](./raw-markdown-api.mdx) — what your page becomes.
-- [Machine-readable schemas](./machine-readable-schemas.mdx) — the structured
-  data your frontmatter feeds.
+  has the per-kind outlines these rules assume.
+- [Raw markdown API](./raw-markdown-api.mdx) says what your page becomes.
+- [Machine-readable schemas](./machine-readable-schemas.mdx) covers the
+  structured data your frontmatter feeds.

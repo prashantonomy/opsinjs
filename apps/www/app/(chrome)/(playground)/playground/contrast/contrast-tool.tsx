@@ -19,11 +19,11 @@ import { statusLevels } from "@/app/_shared/axes"
  * The contrast oracle.
  *
  * Both numbers, always. APCA Lc and the WCAG 2.2 ratio measure different things
- * and disagree in predictable places — most visibly on light text over a
- * mid-tone, where WCAG is generous and APCA is not. Showing one number would
- * mean choosing which audience to serve: the procurement questionnaire that asks
- * for 4.5:1, or the reader who has to make out a blood-pressure figure on a
- * phone in a corridor. This shows both and lets the disagreement be visible.
+ * and disagree in predictable places. The most visible case is light text over
+ * a mid-tone, where WCAG is generous and APCA is not. Showing one number would
+ * mean choosing which audience to serve: the procurement questionnaire that
+ * asks for 4.5:1, or the reader who has to make out a blood-pressure figure on
+ * a phone in a corridor. This shows both and lets the disagreement be visible.
  *
  * The measurement is not computed here. It is a round trip to `/api/contrast`,
  * which is the same implementation `pnpm contrast` runs in CI. When that service
@@ -39,7 +39,7 @@ const SIZES: Array<{ id: ContrastSize; label: string; hint: string }> = [
   {
     id: "large",
     label: "Large text",
-    hint: "Headings and display numbers — a lower bar, deliberately.",
+    hint: "Headings and display numbers. The bar is deliberately lower.",
   },
   {
     id: "non-text",
@@ -65,10 +65,10 @@ export function ContrastTool() {
   const [tokenPairs, setTokenPairs] = useState<TokenPair[]>([])
 
   /**
-   * Quick picks built from the live token layer. This is the pairing that
-   * actually matters in this system — status ink on its own status surface —
-   * and having it one click away is what turns the tool from a generic colour
-   * checker into something that answers questions about opsinjs.
+   * Quick picks built from the live token layer. The pairing that actually
+   * matters in this system is status ink on its own status surface, and having
+   * it one click away is what turns the tool from a generic colour checker into
+   * something that answers questions about opsinjs.
    */
   useEffect(() => {
     const readTokenPairs = () => {
@@ -249,7 +249,7 @@ export function ContrastTool() {
           <p className="mt-5 max-w-md text-base leading-relaxed">
             This is body text at the pair you have chosen. Read it at
             arm&rsquo;s length, and then read it again on the worst screen you
-            own — that is the condition the floor exists for.
+            own. That is the condition the floor exists for.
           </p>
           <p className="mt-4 text-xs">
             Small print, a unit, a timestamp: the sizes that fail first.
@@ -273,7 +273,7 @@ export function ContrastTool() {
           />
           <Readout
             label="Verdict"
-            value={reading?.verdict ?? "—"}
+            value={reading?.verdict ?? "not measured"}
             passes={null}
             note="Against the published opsinjs floor for this size."
             state={state}
@@ -281,11 +281,11 @@ export function ContrastTool() {
         </div>
 
         {/*
-          The service's own prose, shown verbatim. When APCA and WCAG disagree —
-          the common and interesting case — two numbers do not tell you what to
-          do and this does. It is written by the endpoint rather than by this
-          page so that the tool, the CI failure message and the generated
-          conformance table all explain a disagreement the same way.
+          The service's own prose, shown verbatim. APCA and WCAG disagreeing is
+          the common and interesting case. When they do, two numbers do not tell
+          you what to do and this does. It is written by the endpoint rather
+          than by this page so that the tool, the CI failure message and the
+          generated conformance table all explain a disagreement the same way.
         */}
         {reading && reading.notes.length > 0 ? (
           <ul className="mt-4 space-y-2">
@@ -303,7 +303,7 @@ export function ContrastTool() {
         {state === "unavailable" ? (
           <p className="mt-4 rounded-md border border-status-attention bg-status-attention-surface p-3 text-sm leading-relaxed text-status-attention-ink">
             The contrast service did not answer, so there is no measurement to
-            show. Nothing here will estimate one — a plausible number from a
+            show. Nothing here will estimate one. A plausible number from a
             broken tool is how a wrong figure ends up in a design review. If you
             are running this locally, check that the development server is up.
           </p>

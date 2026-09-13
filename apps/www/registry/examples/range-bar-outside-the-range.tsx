@@ -4,7 +4,7 @@
  *
  * THE STATUS IS AN INPUT AND THIS FILE IS WHERE THAT IS EASIEST TO GET WRONG.
  * `status="attention"` is here because a product decided it, from a rule that
- * product owns and had reviewed. It is NOT because 26 is above 20 — RangeBar
+ * product owns and had reviewed. It is NOT because 26 is above 20. RangeBar
  * never makes that conversion, and a reader who is outside a range is not
  * thereby someone who needs to act. Delete the prop and the bar still draws
  * exactly the same tick in exactly the same place, in a neutral tone, which is

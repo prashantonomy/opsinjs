@@ -1,6 +1,6 @@
 ---
 title: Error and empty messages
-description: What to say when there is nothing to show, when the data is stale, and when it broke — including the one failure that must never be silent.
+description: What to say when there is nothing to show, when the data is stale, and when it broke. It also covers the one failure that must never be silent.
 status: stable
 kind: content
 reviewer: content
@@ -12,8 +12,8 @@ aliases: [error copy, empty state copy, failure wording, stale data copy]
 
 ## The rule
 
-**Say what happened, whether their data is safe, and what to do next — in that
-order, in that many sentences.**
+**Say what happened, whether their data is safe, and what to do next. Say it in
+that order, and in that many sentences.**
 
 Health apps have a failure mode that ordinary software does not: a screen that
 fails *quietly* leaves real numbers on display with nothing to say they are old.
@@ -24,8 +24,8 @@ dashboard of stale values is worse than an empty screen.
 So there are two rules, not one.
 
 **Rule one: never fail silently over data.** If a value on screen could not be
-refreshed, the value says so. Not the toast, not the corner of the screen — the
-value.
+refreshed, the value says so. The toast does not carry that message, and neither
+does the corner of the screen.
 
 **Rule two: distinguish the five data states in words.** The system defines empty,
 loading, error, **stale** and **partial** as five distinct states on
@@ -34,7 +34,7 @@ loading, error, **stale** and **partial** as five distinct states on
 | State | What it means | What the copy must say |
 | --- | --- | --- |
 | Empty | There has never been data | What this will show, and how to get the first one |
-| Loading | Data is coming | Nothing, usually — a skeleton says it better than a word |
+| Loading | Data is coming | Nothing, usually, because a skeleton says it better than a word |
 | Error | The attempt failed | What failed, whether anything was lost, what to do |
 | Stale | Old data is shown because new data could not be fetched | When it was last updated, and that it is not current |
 | Partial | Some sources returned and some did not | Which is missing, and what is still true |
@@ -59,7 +59,7 @@ complete is worse: it presents an incomplete picture as a complete one.
 
 An empty state is a first impression, not a failure. It has one job: tell the
 reader what will be here and how to get the first one. It is not a place for an
-illustration with a joke, and the illustration it does have is decorative — see
+illustration with a joke, and the illustration it does have is decorative. See
 [Alt text and descriptions](./alt-text-and-descriptions.mdx).
 
 Distinguish *never had any* from *none in this filter*. The second is not empty;
@@ -69,7 +69,7 @@ data.
 ## Approved / Rejected
 
 <DoDont>
-  <DoDont.Do>We could not save your reading. Your numbers are still here — try again.</DoDont.Do>
+  <DoDont.Do>We could not save your reading. Your numbers are still here. Try again.</DoDont.Do>
   <DoDont.Dont>Something went wrong. Please try again later.</DoDont.Dont>
 </DoDont>
 
@@ -109,7 +109,8 @@ data.
 > Last updated `absolute time`. We could not get anything newer.
 
 Rendered next to the values, not as a separate banner. The absolute time is
-required — see [Numbers, dates and time](./numbers-dates-and-time.mdx).
+required. [Numbers, dates and time](./numbers-dates-and-time.mdx) carries that
+rule.
 
 **Partial data**
 
@@ -154,15 +155,15 @@ required — see [Numbers, dates and time](./numbers-dates-and-time.mdx).
 
 ## Related components
 
-- **`EmptyState`** — owns the never-had-any and the filter-returned-nothing
-  copy; the distinction between the two is its most important prop.
-- **`Skeleton`** — the loading state. It says nothing on purpose; a word here
+- **`EmptyState`** owns the never-had-any and the filter-returned-nothing copy;
+  the distinction between the two is its most important prop.
+- **`Skeleton`** is the loading state. It says nothing on purpose; a word here
   competes with the data that is about to arrive.
-- **`AlertBanner`** — carries an error that affects the whole screen. Never used
+- **`AlertBanner`** carries an error that affects the whole screen. Never used
   for a field-level error.
-- **`Field`** — owns field-level error text, and the rule that the reader's input
+- **`Field`** owns field-level error text, and the rule that the reader's input
   survives.
-- **`Value`** and **`RelativeTime`** — carry the staleness marker, because
+- **`Value`** and **`RelativeTime`** carry the staleness marker, because
   staleness belongs on the value and not in a banner.
-- **`ResultCard`** — the partial-data wording is its content contract when one of
-  its sources is missing.
+- **`ResultCard`** takes the partial-data wording as its content contract when
+  one of its sources is missing.

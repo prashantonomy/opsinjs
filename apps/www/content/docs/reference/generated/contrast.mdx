@@ -39,14 +39,14 @@ each number means and why we did not pick one.
 **Six columns.** *Foreground* and *Background* are the token pair. *Theme* is
 light or dark, and every pair is measured in both. *Lc* is the APCA value. *Ratio*
 is the WCAG 2.2 value. *Verdict* is measured against the published floor for the
-pair's intended use, not against a single global threshold — body text, large
+pair's intended use, not against a single global threshold. Body text, large
 text and non-text boundaries have different floors, and a pair that passes for one
 fails for another.
 
 **Three verdicts, and `advisory` is the one to read carefully.** `pass` means the
 pair clears both floors for its role. `FAIL` means a gated pair does not.
-`advisory` means the pair is *not gated* — an accent used as an identity fill, a
-chart mark, or a hairline boundary — and it is a statement about how the pair is
+`advisory` means the pair is *not gated*, as with an accent used as an identity
+fill, a chart mark, or a hairline boundary. It is a statement about how the pair is
 used, not about whether it clears anything. Some advisory pairs clear their floor
 and some do not, and this table renders both the same way. The ones that do not
 are recorded in `lib/generated/contrast.json` with `"passes": false` and the
@@ -63,7 +63,7 @@ a theme it cannot verify and why
 these figures in a conformance document is only honest if you shipped the preset
 they describe.
 
-{/* opsinjs:generated:begin — everything below is replaced by scripts/check-contrast.mts */}
+{/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 ## Measured contrast
 Measured on 2026-09-02. 126 pairs: 80 pass, 0 fail, 46 advisory, and 11 of the advisory pairs measure below the floor for their role. Advisory pairs are not gated, so none of those is a build failure; each is an accent that has to be bounded by `line` or labelled in `ink` rather than read as text.

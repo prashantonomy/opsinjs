@@ -6,12 +6,12 @@
  *
  * FOUR EXITS CLOSE AT ONCE, and they close together or not at all. The role
  * becomes `alertdialog`, the close control is absent, a press on the scrim does
- * nothing, and Escape does not close it. That is one decision — the component
- * swaps Base UI's alert-dialog root in — rather than four props a later edit
- * could get three-quarters right.
+ * nothing, and Escape does not close it. The component swaps Base UI's
+ * alert-dialog root in. That is one decision rather than four props a later
+ * edit could get three-quarters right.
  *
  * ESCAPE IS REFUSED, AND THE ANSWER TO IT IS INCOMPLETE. The key never closes
- * this dialog — that half holds in every configuration. What it then does is
+ * this dialog. That half holds in every configuration. What it then does is
  * return focus to the last action, which is a response for a reader whose focus
  * had moved into the description or onto the other button, and is nothing at
  * all here: `initialFocus` defaults to `safest`, focus is already on *Use this
@@ -32,9 +32,9 @@
  * world in which going away is a valid answer here: recording has to happen on
  * one device or the other, and dismissing the question would leave the product
  * guessing on the reader's behalf. Nearly every dialog a product reaches for
- * fails that test — the reader could carry on, or there is a safe default — and
- * for those the answer is `severity="default"`, or an AlertBanner, which
- * announces without blocking anything.
+ * fails that test, because the reader could carry on, or there is a safe
+ * default. For those the answer is `severity="default"`, or an AlertBanner,
+ * which announces without blocking anything.
  *
  * Neither action is destructive, so `initialFocus="safest"` lands on the last
  * one only because something has to be first: here the order carries no risk,
@@ -60,7 +60,7 @@ export default function DialogAnAnswerIsNeeded() {
         onOpenChange={setOpen}
         severity="alert"
         title="Which device should record your readings?"
-        description="Readings can be recorded on one device at a time, and this account is set up on two. Choose one before you carry on — the other will stop recording, and nothing already saved is affected."
+        description="Readings can be recorded on one device at a time, and this account is set up on two. Choose one before you carry on. The other will stop recording, and nothing already saved is affected."
         actions={
           <>
             <Button variant="secondary" onClick={() => setOpen(false)}>

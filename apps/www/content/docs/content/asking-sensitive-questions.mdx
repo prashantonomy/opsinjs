@@ -1,6 +1,6 @@
 ---
 title: Asking sensitive questions
-description: How to ask something personal in a health form — say why you are asking, make optional genuinely optional, and never make the answer feel like a confession.
+description: How to ask something personal in a health form. Say why you are asking, make optional genuinely optional, and never make the answer feel like a confession.
 status: stable
 kind: content
 reviewer: content
@@ -13,9 +13,9 @@ aliases: [sensitive questions, why we ask, optional questions, form copy]
 ## The rule
 
 **Say why you are asking, before you ask.** Every question in a health form
-carries an implicit second question — *what happens to this answer?* — and a form
-that leaves it unanswered gets worse data, more abandonment, and a reader who
-feels examined rather than helped.
+carries an implicit second question. *What happens to this answer?* A form that
+leaves it unanswered gets worse data, more abandonment, and a reader who feels
+examined rather than helped.
 
 Four rules, in the order they apply to a question.
 
@@ -28,8 +28,8 @@ Four rules, in the order they apply to a question.
    required and optional explicitly rather than relying on an asterisk. See
    [Required and optional](../patterns/forms/required-and-optional.mdx).
 3. **Offer a way not to answer that is not a lie.** "Prefer not to say" is a
-   valid answer and must be stored as one — distinct from unanswered, and never
-   silently coerced into a default.
+   valid answer and must be stored as one. That stored answer is distinct from
+   unanswered, and it must never be silently coerced into a default.
 4. **Never explain a refusal back to the reader.** No "are you sure?", no "this
    will make your results less accurate" as a penalty. If the consequence is
    real, state it once, neutrally, before the question.
@@ -41,17 +41,17 @@ More than the obvious categories. A question is sensitive if any of these apply:
 - The answer could be **used against the reader** by an insurer, an employer or a
   family member with access to the phone.
 - The answer is about something the reader may **not have told anyone**.
-- The answer implies a **judgement** — alcohol, weight, smoking, adherence,
-  sexual health, mental health.
-- The answer is **immutable and identifying** — ethnicity, sex assigned at birth,
-  date of birth.
+- The answer implies a **judgement**. Alcohol, weight, smoking, adherence,
+  sexual health and mental health all carry one.
+- The answer is **immutable and identifying**, and that covers ethnicity, sex
+  assigned at birth and date of birth.
 - The reader may have to answer it **in front of somebody**, which is most of
   them, on a phone. See [On-screen privacy](../health/on-screen-privacy.mdx).
 
-The per-question guidance — what to ask, in what form, with what options — is in
-the [Ask users for…](../patterns/ask-users-for/index.mdx) family, which is
-canonical for each individual question. This page is the copy rule that applies
-across all of them.
+The per-question guidance says what to ask, in what form, and with what options.
+That guidance is in the [Ask users for…](../patterns/ask-users-for/index.mdx)
+family, which is canonical for each individual question. This page is the copy
+rule that applies across all of them.
 
 <SafetyCallout severity="attention" evidence="opinion">
 Some answers are disclosures rather than data. A question about mood, self-harm
@@ -65,12 +65,12 @@ and no product should ship such a question without reading it.
 ## Approved / Rejected
 
 <DoDont>
-  <DoDont.Do>How much alcohol do you drink in a usual week? We ask so we can show this alongside your readings — nobody else sees it.</DoDont.Do>
+  <DoDont.Do>How much alcohol do you drink in a usual week? We ask so we can show this alongside your readings. Nobody else sees it.</DoDont.Do>
   <DoDont.Dont>Alcohol consumption (units/week) *</DoDont.Dont>
 </DoDont>
 
 <DoDont>
-  <DoDont.Do>What is your ethnic group? (optional) — We ask this so we can check whether the app works as well for everyone. You can skip it.</DoDont.Do>
+  <DoDont.Do>What is your ethnic group? (optional) We ask this so we can check whether the app works as well for everyone. You can skip it.</DoDont.Do>
   <DoDont.Dont>Ethnicity (required for accurate results)</DoDont.Dont>
 </DoDont>
 
@@ -142,14 +142,14 @@ Two distinct states, both preserved. Never collapsed into a default value.
 
 ## Related components
 
-- **`Field`** — carries the label, the optional marker, the purpose clause and
-  the error text. The purpose clause is a first-class part of the field, not a
+- **`Field`** carries the label, the optional marker, the purpose clause and the
+  error text. The purpose clause is a first-class part of the field, not a
   tooltip.
-- **`ConsentSheet`** — the surface for asking permission rather than for asking a
-  question; governed by
+- **`ConsentSheet`** is the surface for asking permission rather than for asking
+  a question; governed by
   [Consent and disclosure](../health/consent-and-disclosure.mdx).
-- **`LogSheet`** — where repeat questions live, and where a "prefer not to say"
+- **`LogSheet`** is where repeat questions live, and where a "prefer not to say"
   from last time must not be re-asked as though it were unanswered.
-- **`CareCard`** — the usual home for what happens after a disclosure.
-- **`DisclaimerNote`** — states what the product does with answers, in the same
+- **`CareCard`** is the usual home for what happens after a disclosure.
+- **`DisclaimerNote`** states what the product does with answers, in the same
   register as everything else.

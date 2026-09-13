@@ -1,6 +1,6 @@
 ---
 title: Naming conventions
-description: The published naming contract — component ids, prop names, token names, data attributes, files and CSS custom properties, and the one place British and American spelling deliberately diverge.
+description: The published naming contract covers component ids, prop names, token names, data attributes, files and CSS custom properties. It also names the one place British and American spelling deliberately diverge.
 status: stable
 kind: handbook
 aliases: [naming rules, kebab case or pascal case, what to call a token, prop naming, file naming]
@@ -14,9 +14,9 @@ owner: design-system
 
 Names are a public API. Renaming a component id changes a URL, a registry entry
 and an agent's guess; renaming a CSS custom property breaks somebody's override.
-Both are covered by semver — see
-[Versioning policy](../project/versioning-policy.mdx) — so the conventions are
-published here rather than left in an internal document.
+Both are covered by semver, so the conventions are published here rather than
+left in an internal document. See
+[Versioning policy](../project/versioning-policy.mdx).
 
 | Thing | Case | Example |
 | --- | --- | --- |
@@ -63,8 +63,8 @@ The colour system's two axes have two reserved prefixes and they never mix:
 A token named `--opsin-category-heart-alert` is a category token trying to carry
 status and is rejected on sight. This is the naming form of
 [the two-axis rule](../health/two-colour-axes.mdx), and it is what makes it
-mechanically checkable — see the
-[stylelint plugin](./tooling/stylelint-plugin.mdx).
+mechanically checkable. The [stylelint plugin](./tooling/stylelint-plugin.mdx)
+is what runs that check.
 
 ### Aliases
 
@@ -84,19 +84,20 @@ with another page's, and `assert-ia` fails the build when it does.
   produces double negatives at every call site.
 - **Order token names from general to specific**: axis, then member, then role.
   It sorts usefully and it groups in devtools.
-- **Match the file name to the id.** `result-card.mdx`, `result-card.tsx`,
-  `result-card.json` — one string, everywhere, so a search finds all of it.
-- **Use the word the reader uses.** [Plain-English
-  A–Z](../content/plain-english-a-z.mdx) is the authority when a clinical term
-  and a plain one compete.
+- **Match the file name to the id.** `result-card.mdx`, `result-card.tsx` and
+  `result-card.json` are the same string everywhere, so a search finds all of
+  it.
+- **Use the word the reader uses.**
+  [Plain-English A to Z](../content/plain-english-a-z.mdx) is the authority
+  when a clinical term and a plain one compete.
 
 ## Not this
 
 - **Do not abbreviate.** `bp` is blood pressure to one team and British
   Petroleum to a search engine. `desc`, `val`, `cfg` and `btn` all cost more
   than they save.
-- **Do not encode the type in the name.** `statusString`, `rangeArray`,
-  `IResultCardProps` — TypeScript already knows.
+- **Do not encode the type in the name.** `statusString`, `rangeArray` and
+  `IResultCardProps` all say what TypeScript already knows.
 - **Do not use `variant` as a catch-all prop.** In a health system it is the
   prop most likely to end up carrying both axes at once. Name what varies.
 - **Do not name anything `normal`.** It is a banned word in this system, in
@@ -127,11 +128,11 @@ with another page's, and `assert-ia` fails the build when it does.
 
 ## Related
 
-- [Code style](./contributing/code-style.mdx) — the conventions as a
+- [Code style](./contributing/code-style.mdx) covers the conventions as a
   contribution requirement.
-- [TypeScript](./typescript.mdx) — the named-props-interface rule that the
+- [TypeScript](./typescript.mdx) has the named-props-interface rule that the
   generated API tables depend on.
-- [Versioning policy](../project/versioning-policy.mdx) — what semver covers,
-  which is more than the JavaScript API.
-- [The two colour axes](../health/two-colour-axes.mdx) — the rule the token
+- [Versioning policy](../project/versioning-policy.mdx) says what semver
+  covers, which is more than the JavaScript API.
+- [The two colour axes](../health/two-colour-axes.mdx) is the rule the token
   namespaces enforce.

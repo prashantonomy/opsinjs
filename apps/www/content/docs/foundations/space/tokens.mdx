@@ -18,8 +18,9 @@ define the responsive modes. Generated from `tokens/space.json` by
 `scripts/build-tokens.mts`.
 
 This is the table most often opened while building rather than while reading,
-because the `Used by` column answers the question that actually comes up — not
-"how big is `section`" but "what else assumes `section`, and will I break it".
+because the `Used by` column answers the question that actually comes up. That
+question is not "how big is `section`" but "what else assumes `section`, and will
+I break it".
 
 ## How it works
 
@@ -36,14 +37,14 @@ consume roles; the numeric steps exist underneath them. See
 
 **The floors.** `--opsin-target-minimum`, the minimum touch target, and the
 minimum separation between adjacent interactive elements. These are the only
-values in the space system that are not multiples of the root — they are
-absolute physical minimums and they do not move when the product's density is
-retuned. That is the point of them.
+values in the space system that are not multiples of the root. They are absolute
+physical minimums and they do not move when the product's density is retuned.
+That is the point of them.
 
 **The mode thresholds.** The container widths at which `compact`, `medium`,
 `expanded` and `wide` begin, plus the per-mode gutter and the line-measure cap.
 These are consumed by container queries, not media queries, everywhere except the
-shell — see [Responsive modes](responsive-modes.mdx).
+shell. See [Responsive modes](responsive-modes.mdx).
 
 ## Using it
 
@@ -85,8 +86,8 @@ in `compact`, and the table is describing the pane.
 
 ## Related
 
-- [Spacing scale](spacing-scale.mdx) — what each role is for.
-- [Density and touch](density-and-touch.mdx) — where the two absolute floors come
-  from and how they are measured.
-- [Reference → Tokens](../../reference/generated/tokens.mdx) — the same rows
+- [Spacing scale](spacing-scale.mdx) says what each role is for.
+- [Density and touch](density-and-touch.mdx) covers where the two absolute
+  floors come from and how they are measured.
+- [Reference → Tokens](../../reference/generated/tokens.mdx) has the same rows
   alongside every other family.

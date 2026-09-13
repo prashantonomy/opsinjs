@@ -4,8 +4,8 @@
  * A sheet holding something a reader typed, and the three exits it closes.
  *
  * `dismissible={false}` is the whole example. With it, the scrim, the escape
- * key and a downward drag stop closing the sheet — the three routes that are
- * all reached by accident and all discard what somebody typed without asking.
+ * key and a downward drag stop closing the sheet. Those three routes are all
+ * reached by accident and all discard what somebody typed without asking.
  * The close control in the header is untouched, because that is the deliberate
  * one, and a modal surface with no way out is a trap rather than a safeguard.
  *
@@ -13,9 +13,9 @@
  * product would not simply refuse the escape key: it would ask, and the sheet's
  * accessibility contract says the escape key and a tap on the background take
  * the same route to that question. This example takes the simpler of the two
- * paths so that the flag itself is legible. The other path is `dismissible`
- * left alone and the second argument to `onOpenChange` read — the `route` —
- * with the sheet held open while a confirmation is shown.
+ * paths so that the flag itself is legible. The other path leaves
+ * `dismissible` alone, reads the `route` that `onOpenChange` supplies as its
+ * second argument, and holds the sheet open while a confirmation is shown.
  *
  * The field is deliberately about nothing. It has a label, a hint and no
  * clinical meaning at all: a sheet is a container, and an example that put a

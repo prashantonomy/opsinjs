@@ -1,20 +1,20 @@
 /**
- * Card — a boundary, some padding, and one rung of the material ladder.
+ * Card is a boundary, some padding, and one rung of the material ladder.
  *
  * Card is the most-used component in any design system and the one that most
  * often becomes a dumping ground, so the interesting work here is what it
  * refuses. There is no `status`, no `variant` and no `color`: a Card that could
  * be tinted from the clinical axis would be a ResultCard with none of a
- * ResultCard's obligations — no staleness treatment, no attribution, no axis
- * discipline — and nothing in review catches the difference, because the two
- * render identically.
+ * ResultCard's obligations. It would have no staleness treatment, no
+ * attribution and no axis discipline, and nothing in review catches the
+ * difference, because the two render identically.
  *
  * THE DEFAULT RUNG IS `card`, AND THE SPECIFICATION SAID `raised`. That page was
  * written against the retired rung vocabulary, where `raised` was the name for
  * the rung a resting block of content sits on. On the ladder the tokens
- * actually publish, `raised` is one rung higher — `tokens/material.json` gives
+ * actually publish, `raised` is one rung higher. `tokens/material.json` gives
  * it a drop shadow and describes it as "menus, popovers, tooltips, a dragged
- * card" — and the rung named `card` is "the default home for a health value",
+ * card". The rung named `card` is "the default home for a health value",
  * opaque and deliberately shadowless. Taking the old word literally would have
  * put a shadow under every resting card in the system, which is the exact
  * clutter that rung's note exists to prevent. So the default is `card` and the
@@ -22,22 +22,23 @@
  *
  * "Products may move a card down the ladder, never off it" survives that
  * correction and means what it says: `canvas` for a card that should read as
- * part of the page, `raised` while a card is being lifted — dragged, or opened
- * as a menu — and never above `raised`, because a number a reader is trying to
- * read must not sit over a moving backdrop.
+ * part of the page, `raised` while a card is being lifted, and never above
+ * `raised`, because a number a reader is trying to read must not sit over a
+ * moving backdrop. A card is being lifted when it is dragged or opened as a
+ * menu.
  *
  * IT IS ONE OF EXACTLY THREE COMPONENTS WITH REAL COMPOUND PARTS. `Card.Header`,
  * `Card.Body` and `Card.Footer` are exported functions rather than `data-slot`
  * names, because the consumer supplies their content and no prop could carry
- * three ordered slots of arbitrary children. Everything else in the anatomy —
- * the root, the title, the description — is a `data-slot`, which is enough to
- * style and not enough to take apart. All three parts are optional: a Card with
- * only children is the common case and takes no ceremony at all.
+ * three ordered slots of arbitrary children. Everything else in the anatomy is
+ * a `data-slot`, which is enough to style and not enough to take apart. That
+ * covers the root, the title and the description. All three parts are optional:
+ * a Card with only children is the common case and takes no ceremony at all.
  *
  * IT IS A SERVER COMPONENT. It holds no state, listens for nothing, and every
  * decision it makes is made from props at render time. The one thing a reader
- * can change underneath it — the density of the interface — arrives as a CSS
- * custom property on the document, not as a value this component reads.
+ * can change underneath it is the density of the interface, and it arrives as a
+ * CSS custom property on the document, not as a value this component reads.
  */
 
 import type { ReactNode } from "react"
@@ -57,9 +58,9 @@ import { Surface } from "@/registry/base-lyra/ui/surface"
  * would be a fourth public export on Surface that exists only for this check.
  *
  * The list is used for one thing: telling somebody that a Card has been asked
- * to be a layer. `choosing-a-layer` puts it plainly — a translucent rung may
+ * to be a layer. `choosing-a-layer` puts it plainly. A translucent rung may
  * never contain another translucent rung, and a card inside a sheet stays
- * opaque — and `tokens/material.json` adds that a health value never goes above
+ * opaque. `tokens/material.json` adds that a health value never goes above
  * `raised`. Both are rules a caller can break with one prop and never see.
  */
 const TRANSLUCENT_RUNGS: MaterialRung[] = ["sheet", "overlay", "scrim"]
@@ -67,12 +68,12 @@ const TRANSLUCENT_RUNGS: MaterialRung[] = ["sheet", "overlay", "scrim"]
 /**
  * Development warnings, said once per distinct offence.
  *
- * `tokens/errors.json` states the policy — warnings are emitted in development
- * only, once per offending call site — and the warning below lives in a render
- * body, so without a keyed set it repeats on every render and twice again under
- * Strict Mode. A card inside a list that re-renders on scroll would print the
- * same four sentences until the console is unusable, and a channel somebody
- * filters is a channel that no longer carries its one real finding.
+ * `tokens/errors.json` states the policy. Warnings are emitted in development
+ * only, once per offending call site. The warning below lives in a render
+ * body, so without a keyed set it repeats on every render and twice again
+ * under Strict Mode. A card inside a list that re-renders on scroll would print
+ * the same four sentences until the console is unusable, and a channel
+ * somebody filters is a channel that no longer carries its one real finding.
  *
  * It is a module-local set rather than the substrate's `warnOnce` for the reason
  * the warning itself gives: `warnOnce` is keyed to an `OpsinErrorCode`, and no
@@ -109,7 +110,7 @@ function warnDev(key: string, message: string): void {
  * place this component follows `app/product.css` rather than the token steps
  * directly: that file names "the inside of a card" as the canonical use of the
  * scaled scale, so a reader who asks for a denser interface gets one here. The
- * two controls multiply — a product asking for `compact` inside a document
+ * two controls multiply. A product asking for `compact` inside a document
  * already set to a compact density gets the tightest card the system offers,
  * and that is the intended floor rather than an accident.
  */
@@ -123,8 +124,8 @@ const PADDING: Record<"comfortable" | "compact", string> = {
  *
  * `radius-md` is what `tokens/shape.json` publishes as the default for cards.
  * A card that is nearly the width of a phone screen takes `radius-lg` instead,
- * and that is a caller's decision through `className` rather than a prop —
- * it depends on the layout the card is in, which this component cannot see.
+ * and that is a caller's decision through `className` rather than a prop. It
+ * depends on the layout the card is in, which this component cannot see.
  *
  * `corner-shape` is applied as a property rather than through the product
  * theme's `data-opsin-shape="squircle"` attribute, for two reasons. The
@@ -143,7 +144,7 @@ const SHAPE = "rounded-opsin-md [corner-shape:var(--opsin-corner-shape)]"
  * The rung paints its fill with a background and its edge with an inset
  * box-shadow, and a browser drops both when it prints unless the reader has
  * gone looking for the setting that keeps them. Left alone, every card on a
- * printed page loses its boundary — and a printout is how a reading most often
+ * printed page loses its boundary. A printout is how a reading most often
  * reaches a clinician. A real border is the one boundary a printer keeps, so
  * the card grows one at print time and only at print time.
  */
@@ -151,7 +152,7 @@ const PRINT_BOUNDARY = "print:border print:border-border"
 
 export interface CardProps {
   /**
-   * Which rung of the material ladder. Defaults to `"card"` — the rung named
+   * Which rung of the material ladder. Defaults to `"card"`. That rung is named
    * for this component, opaque and deliberately shadowless. Products may move a
    * card down the ladder to `"canvas"`, or up to `"raised"` while it is being
    * lifted, and never above that: a value a reader is trying to read must not
@@ -162,9 +163,9 @@ export interface CardProps {
   rung?: MaterialRung
   /**
    * Padding scale. Affects space only, never type size. `"compact"` drops the
-   * padding one multiplier on the density-scaled spacing scale — four times
-   * `--spacing` rather than five — and it does not shrink the type, the
-   * separation between two controls in the footer, or the card's touch target.
+   * padding to four times `--spacing` rather than five, one multiplier down the
+   * density-scaled spacing scale. It does not shrink the type, the separation
+   * between two controls in the footer, or the card's touch target.
    *
    * @default "comfortable"
    */
@@ -173,9 +174,9 @@ export interface CardProps {
    * Makes the whole card a single link. A card that is a link may hold no other
    * interactive element: a reader cannot tell what tapping the gap between two
    * buttons will do, and a keyboard user reaches controls that are nested
-   * inside a control. TypeScript cannot express that exclusion — `children` is
-   * a `ReactNode` and an element's interactivity is not in its type — so it is
-   * a rule this component states and does not enforce.
+   * inside a control. TypeScript cannot express that exclusion, because
+   * `children` is a `ReactNode` and an element's interactivity is not in its
+   * type. So it is a rule this component states and does not enforce.
    */
   href?: string
   /**
@@ -185,8 +186,8 @@ export interface CardProps {
    */
   className?: string
   /**
-   * Everything the card holds — usually `Card.Header`, `Card.Body` and
-   * `Card.Footer`, and — equally correctly — a single paragraph.
+   * Everything the card holds. Usually that is `Card.Header`, `Card.Body` and
+   * `Card.Footer`, and equally correctly it is a single paragraph.
    */
   children: ReactNode
 }
@@ -199,7 +200,7 @@ export function Card({
   children,
 }: CardProps) {
   /* Not an OPSIN code. `tokens/errors.json` has no entry for a card asked to be
-     a layer, and a component may not mint one — the codes are a versioned
+     a layer, and a component may not mint one. The codes are a versioned
      contract and the table on the errors page is generated from that file. A
      development warning is the honest channel until one exists.
 
@@ -226,7 +227,7 @@ export function Card({
 
   /* The material is a child rather than the root, which is what Surface's own
      page asks for: a component that needs a different element wraps a Surface
-     instead of becoming one. It also has to be — the root carries
+     instead of becoming one. It also has to be, because the root carries
      `data-slot="card"` and a Surface root carries `data-slot="surface"`, and
      one element cannot carry both.
 
@@ -237,8 +238,8 @@ export function Card({
      with a boundary drawn inside its own whitespace.
 
      `h-full` needs the root to give it a definite height, and only two things
-     do: a parent grid or flex row stretching the card, and — on the link root
-     below — that root being a grid itself. Without one of those the percentage
+     do. One is a parent grid or flex row stretching the card. The other is the
+     link root below being a grid itself. Without one of those the percentage
      resolves against an auto height, computes to `auto`, and the material is
      content-sized while the root is taller. That is visible rather than
      theoretical: the fill and the edge are `inset-0` OF THE SURFACE, so a root
@@ -272,7 +273,7 @@ export function Card({
        four-attribute vocabulary a component may stamp, and the stylesheet
        declaring it does not travel with this file into somebody else's project.
        BOTH AXES, because the backstop sets both and the layout half of the
-       accessibility rig measures both — a card is usually far wider than its
+       accessibility rig measures both. A card is usually far wider than its
        floor, but a link card dropped into a narrow grid column is not, and a
        floor that holds on one axis is not a floor. The token is rem, so it
        grows when a reader raises their text size instead of pinning at 44
@@ -287,11 +288,11 @@ export function Card({
        error anywhere.
 
        `grid` rather than `block` is what makes the material fill the floor. A
-       single grid item stretches on both axes by default, so the Surface — and
-       with it the fill, the edge and the padding — reaches the bottom of a root
-       that the 44px minimum is holding open. As `block` the Surface would be
-       content-sized inside a taller root, and the boundary would stop short of
-       the focus ring drawn around the whole of it.
+       single grid item stretches on both axes by default, so the Surface
+       reaches the bottom of a root that the 44px minimum is holding open, and
+       with it the fill, the edge and the padding. As `block` the Surface would
+       be content-sized inside a taller root, and the boundary would stop short
+       of the focus ring drawn around the whole of it.
 
        The focus ring is declared here for the same reason. `app/product.css`
        already gives every `:focus-visible` an outline, and a consumer's
@@ -331,11 +332,11 @@ const PART_RHYTHM = "[&:not(:first-child)]:mt-4"
 
 export interface CardHeaderProps {
   /**
-   * The card's title. Pass the heading element the page's outline needs —
-   * `<h3>Recent readings</h3>` — and the slot takes care of how it looks. Pass
-   * a string instead and the title is styled text with no place in the outline,
-   * which is a legitimate choice for a card nobody needs to navigate to and a
-   * mistake for one they do.
+   * The card's title. Pass the heading element the page's outline needs, and
+   * the slot takes care of how it looks. `<h3>Recent readings</h3>` is the
+   * shape it takes. Pass a string instead and the title is styled text with no
+   * place in the outline, which is a legitimate choice for a card nobody needs
+   * to navigate to and a mistake for one they do.
    */
   title: ReactNode
   /**
@@ -366,7 +367,7 @@ export function CardHeader({
 
           The reset is what makes that safe. Left alone a browser gives an `h3`
           its own size, weight and margins, so the same title would be a
-          different size in a card under an h2 and a card under an h4 — the
+          different size in a card under an h2 and a card under an h4. The
           level would be carrying visual weight it is not entitled to. `font`
           and `margin` are reset on the direct children only, which is exactly
           the element the caller passed. */}
@@ -379,9 +380,9 @@ export function CardHeader({
       {/* `undefined` AND `null`, because `description` is a `ReactNode` and
           both spellings type-check. `description={subtitle ?? null}` is the
           ordinary way a caller says "there is no subtitle", and guarding on
-          `undefined` alone answers it with an empty paragraph carrying `mt-2` —
-          a blank gap substituted for an absence, which is the shape this system
-          refuses everywhere else. */}
+          `undefined` alone answers it with an empty paragraph carrying `mt-2`.
+          That is a blank gap substituted for an absence, which is the shape
+          this system refuses everywhere else. */}
       {description === undefined || description === null ? null : (
         <p
           data-slot="card-description"
@@ -428,8 +429,8 @@ export function CardFooter({ children, className }: CardFooterProps) {
            adjacent controls, and a footer with two buttons in it is exactly the
            case it was published for. `gap-opsin-2` would render the same 0.5rem
            and would keep rendering it if `tokens/space.json` ever raised the
-           separation floor — a divergence no gate in the system measures,
-           because both halves of the rig read elements and not gaps.
+           separation floor. That divergence is one no gate in the system
+           measures, because both halves of the rig read elements and not gaps.
 
            It is the fixed scale rather than `gap-2` for the reason the prop
            documentation gives: padding may tighten when somebody asks for a

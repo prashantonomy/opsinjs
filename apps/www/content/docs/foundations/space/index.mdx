@@ -13,7 +13,7 @@ a11yDate: 2026-09-02
 ## Overview
 
 opsinjs is deliberately roomier than most design systems, and roomier than the
-documentation site you are reading — the docs chrome is shadcn's `lyra`, which is
+documentation site you are reading. The docs chrome is shadcn's `lyra`, which is
 dense and square because it is a reading surface for a developer at a desk. The
 product theme is the opposite, and the divergence is explained on
 [Lyra and the docs chrome](../../theming/lyra-and-the-docs-chrome.mdx).
@@ -27,7 +27,7 @@ means fewer things fit on a screen, which means more scrolling. The reason
 opsinjs takes that trade anyway is that the two sides are not symmetrical. A
 reader who has to scroll loses a second. A reader who taps the wrong control
 because two 32-pixel targets were 4 pixels apart has logged a reading they did
-not take, or dismissed an alert they did not read — and they are doing this
+not take, or dismissed an alert they did not read. They are doing this
 one-handed, on a bus, possibly with cold hands, possibly at seventy, and possibly
 while frightened. Density is a trade of somebody's second against somebody else's
 mistake.
@@ -55,8 +55,8 @@ rather than two sets of hand-tuned numbers.
 **2. Space is measured between the things people see, not between boxes.** Two
 elements separated by 8 pixels of margin plus 12 pixels of their own internal
 padding are 20 pixels apart to a reader and 8 pixels apart to a stylesheet. When
-a rule in opsinjs specifies a separation — most importantly the minimum gap
-between touch targets — it means the perceived one.
+a rule in opsinjs specifies a separation, it means the perceived one. This
+matters most for the minimum gap between touch targets.
 
 **3. Wide screens get more of the story, not bigger type.** This is the rule most
 often broken and the one with the largest effect on how a health product feels on
@@ -93,7 +93,7 @@ doing too much. Tightening it moves the failure from "this needs editing" to
 
 **Expect space to grow with text.** At a 1.3× text-size multiplier, padding
 derived from the scale grows too. A layout that only fits because the gaps were
-fixed in pixels breaks for exactly the readers who most need it not to — see
+fixed in pixels breaks for exactly the readers who most need it not to. See
 [Dynamic Type](../typography/dynamic-type.mdx).
 
 ## Tokens
@@ -112,7 +112,7 @@ specimens is on [Space tokens](tokens.mdx).
   are on [Density and touch](density-and-touch.mdx).
 - **Space is the grouping channel that survives everything.** It works in
   greyscale, in a screenshot, at 200% zoom and under every colour-vision
-  difference. It does not survive a screen reader — which is why proximity is
+  difference. It does not survive a screen reader. That is why proximity is
   always backed by structure, headings and grouping semantics rather than left to
   do the job alone.
 - **Generous spacing is a cognitive-accessibility measure.** Fewer elements
@@ -130,9 +130,9 @@ specimens is on [Space tokens](tokens.mdx).
 
 ## Related
 
-- [Density and touch](density-and-touch.mdx) — the 44pt floor, separation and
-  thumb reach.
-- [Responsive modes](responsive-modes.mdx) — what happens as the container grows,
-  and why the answer is not "everything gets bigger".
-- [Layout](../layout.mdx) — the shell all of this space sits inside, and the
-  safe-area contract.
+- [Density and touch](density-and-touch.mdx) covers the 44pt floor, separation
+  and thumb reach.
+- [Responsive modes](responsive-modes.mdx) says what happens as the container
+  grows, and why the answer is not "everything gets bigger".
+- [Layout](../layout.mdx) is the shell all of this space sits inside, and holds
+  the safe-area contract.

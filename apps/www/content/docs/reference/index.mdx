@@ -1,6 +1,6 @@
 ---
 title: Reference
-description: The generated lists — every token, data attribute, CSS variable, key, exported type and defined term, written by a script from the same source the build uses.
+description: Written by a script from the same source the build uses, the generated lists cover every token, data attribute, CSS variable, key, exported type and defined term.
 status: stable
 kind: reference
 icon: Table
@@ -20,9 +20,10 @@ deliberate:
 > Reference = the generated list of every one.**
 
 If you are reading to understand a decision, you are in the wrong pillar. This
-one exists so that a question with a finite answer — *how many status levels are
-there, what does `data-stale` mean, which variable controls the ladder's third
-rung* — can be answered by looking, not by reading.
+one exists so that a question with a finite answer can be answered by looking
+rather than by reading. *How many status levels are there, what does
+`data-stale` mean, which variable controls the ladder's third rung* are
+questions of exactly that kind.
 
 ## How this is generated
 
@@ -49,11 +50,11 @@ its source fails CI rather than quietly lying.
 ### The page contract
 
 Every generated page has the same shape. Above the marker comment
-`opsinjs:generated:begin` sits a short hand-written block — the one you are
-reading now — that names the source and the script. Everything below it is
-replaced wholesale. Editing below the marker is not a mistake the tooling
-tolerates: the next `pnpm run generate` erases it, and `check:generated` fails
-the pull request that contained it.
+`opsinjs:generated:begin` sits a short hand-written block that names the source
+and the script. You are reading it now. Everything below it is replaced
+wholesale. Editing below the marker is not a mistake the tooling tolerates: the
+next `pnpm run generate` erases it, and `check:generated` fails the pull request
+that contained it.
 
 To change a row, change the source. There is no exception to this, and the
 absence of an exception is the point: a table that can be hand-edited is a table
@@ -62,15 +63,15 @@ you cannot trust when it matters.
 ### Two pages here are hand-written, on purpose
 
 [System glossary](system-glossary.mdx) defines the words this project uses about
-itself — rung, axis, role, base, style, preset. There is no machine-readable
+itself: rung, axis, role, base, style, preset. There is no machine-readable
 source for a project's own vocabulary, and inventing one to satisfy a rule would
 be worse than writing twenty definitions carefully. [The API index](api/index.mdx)
 is likewise hand-written; only the per-symbol pages beneath it are generated.
 
 ### Empty tables are honest, not broken
 
-Two of the eight lists are empty — [Data attributes](generated/data-attributes.mdx)
-and [Keyboard](generated/keyboard.mdx) — and they say so with a `<NoDataYet>`
+Two of the eight lists are empty: [Data attributes](generated/data-attributes.mdx)
+and [Keyboard](generated/keyboard.mdx). They say so with a `<NoDataYet>`
 block naming the script that will fill them. The reason is a gap in the
 aggregator rather than an empty system: the implemented components do emit data
 attributes and every component page carries its own `<KeyboardTable>`, but
@@ -79,7 +80,7 @@ parse those blocks for the second. Each page states that on itself, because
 "empty because nothing exists" and "empty because nobody wrote the extractor" are
 different problems and only one of them gets fixed by somebody reading this. What
 an empty table never means is that the page failed to load, and it is never
-padded with a plausible example row — a fake row in a reference table is
+padded with a plausible example row. A fake row in a reference table is
 indistinguishable from a real one, which is the exact failure this pillar exists
 to prevent.
 
@@ -88,5 +89,5 @@ to prevent.
 Everything here is duplicated into machine surfaces on purpose: `/llms.txt` and
 its shards, the `.md` twin of every page, and `/r/index.json`. Prefer those if
 you are a program. If you are a person and the list is long, the search box
-(<Kbd>Ctrl</Kbd> <Kbd>K</Kbd>) indexes generated pages exactly like written ones —
-that is the whole reason these are committed MDX rather than a runtime API.
+(<Kbd>Ctrl</Kbd> <Kbd>K</Kbd>) indexes generated pages exactly like written ones.
+That is the whole reason these are committed MDX rather than a runtime API.

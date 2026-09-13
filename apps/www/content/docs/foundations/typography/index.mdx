@@ -38,14 +38,14 @@ hospital corridor. Type has no loading state.
 On the licence question, because it comes up immediately: **SF Pro cannot be
 shipped as a webfont.** Apple licenses it for building interfaces on Apple
 platforms, not for redistribution, and self-hosting it on the web is outside
-those terms — read Apple's font licence yourself rather than taking this page's
+those terms. Read Apple's font licence yourself rather than taking this page's
 word for it. `system-ui` sidesteps the problem entirely: on Apple devices it
 resolves to the copy already installed, with no file served and no licence
 question to answer.
 
 A brand face remains available as an opt-in. This documentation site itself uses
-Inter, because the docs chrome is a different product with a different reader —
-the reasoning is on
+Inter, because the docs chrome is a different product with a different reader.
+The reasoning is on
 [Lyra and the docs chrome](../../theming/lyra-and-the-docs-chrome.mdx).
 
 ## How it works
@@ -64,10 +64,10 @@ available to a product whose readers skew older than a developer tools audience.
 The docs chrome is denser on purpose; the product is not a developer tool.
 
 **2. Every metric is set in tabular figures.** Any number that will be read
-against another number — a reading, a range bound, an axis label, a time, a
-count — uses `font-variant-numeric: tabular-nums`. Proportional digits change
-width as the value changes, so a heart rate ticking from 99 to 100 shifts the
-layout, and a column of readings does not line up so the eye cannot scan it.
+against another number uses `font-variant-numeric: tabular-nums`. That covers a
+reading, a range bound, an axis label, a time, a count. Proportional digits
+change width as the value changes, so a heart rate ticking from 99 to 100 shifts
+the layout, and a column of readings does not line up so the eye cannot scan it.
 This is not a preference. It is a correctness requirement on a screen of numbers,
 and it is carried by the type token rather than left to each component.
 
@@ -80,12 +80,12 @@ reading is simply bolder has no way to escalate.
 **4. Line length is capped, everywhere.** A measure of roughly 60 to 75
 characters is the readable range for continuous prose, and a health explanation
 on a tablet held in landscape will blow straight past it if nothing stops it.
-Wide screens get more content, not longer lines — the mechanism is on
+Wide screens get more content, not longer lines. The mechanism is on
 [Responsive modes](../space/responsive-modes.mdx).
 
 ## Using it
 
-**Pick the role, never the size.** The scale is named for jobs — body, headline,
+**Pick the role, never the size.** The scale is named for jobs: body, headline,
 footnote, and a separate family for values. Choosing `title-2` because it is
 "about the right size" is how a system acquires four different heading sizes that
 mean nothing.
@@ -129,7 +129,7 @@ rendered specimen for each role is on [Typography tokens](tokens.mdx).
 ## Accessibility impact
 
 - **A 200% text size must not break any layout in the system**, and a 1.3×
-  multiplier must not break anything at all — no clipping, no truncation, no
+  multiplier must not break anything at all: no clipping, no truncation, no
   overlap, no horizontal scroll. The check and the components most at risk are on
   [Dynamic Type](dynamic-type.mdx) and
   [Text resizing and zoom](../../accessibility/text-resizing-and-zoom.mdx).
@@ -138,8 +138,8 @@ rendered specimen for each role is on [Typography tokens](tokens.mdx).
   readable by a screen reader.
 - **Contrast is measured per role, not assumed.** APCA is sensitive to size and
   weight, so a pair that passes for a heading can fail for a footnote. Every
-  role–surface pair is measured by `pnpm contrast` and published on
-  [Contrast conformance](../../accessibility/contrast-conformance.mdx).
+  pairing of a role with a surface is measured by `pnpm contrast` and published
+  on [Contrast conformance](../../accessibility/contrast-conformance.mdx).
 - **Tabular figures help more than layout.** A column of aligned digits is
   substantially easier to scan for readers with dyslexia and for readers with low
   numeracy, which on a health screen is most readers.
@@ -149,9 +149,9 @@ rendered specimen for each role is on [Typography tokens](tokens.mdx).
 
 ## Related
 
-- [Type scale](type-scale.mdx) — the roles, why they are semantic, and which one
-  to reach for.
-- [Dynamic Type](dynamic-type.mdx) — the reader's multiplier, and the components
-  that have to survive it.
-- [Content and language](../../content/index.mdx) — the words inside the type;
-  typography cannot rescue a badly written sentence.
+- [Type scale](type-scale.mdx) covers the roles, why they are semantic, and
+  which one to reach for.
+- [Dynamic Type](dynamic-type.mdx) covers the reader's multiplier, and the
+  components that have to survive it.
+- [Content and language](../../content/index.mdx) covers the words inside the
+  type; typography cannot rescue a badly written sentence.

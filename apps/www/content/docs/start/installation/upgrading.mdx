@@ -1,6 +1,6 @@
 ---
 title: Upgrading
-description: Taking updates on code you own — diffs, dry runs, three-way merges, and what a version stamp is for.
+description: Taking updates on code you own. Diffs, dry runs, three-way merges, and what a version stamp is for.
 status: planned
 kind: guide
 since: unreleased
@@ -27,7 +27,7 @@ survivable, and this page is how opsinjs intends to make it so.
 <Callout title="There is code, but no released version to upgrade from">
   The twenty-four implemented components are `alpha` and every catalogue row is
   `since: unreleased`. So there is no earlier version of anything to move off,
-  no changelog entry to read, and no diff to run — the mechanics below are the
+  no changelog entry to read, and no diff to run. The mechanics below are the
   intended contract rather than a path anybody has walked. Emitted files carry
   no [version stamp](../../registry/version-stamps.mdx) either, which is what
   would otherwise tell you which version you have.
@@ -51,8 +51,8 @@ npx shadcn@latest diff @opsinjs/result-card
 ```
 
 This shows the difference between the file in your repository and the current
-registry version — including your own edits, which is usually the more interesting
-half.
+registry version. That includes your own edits, which is usually the more
+interesting half.
 
 ### Dry-run the write
 
@@ -73,20 +73,20 @@ version, run your tests. This is the common case and it takes a minute.
 
 **You have edited it lightly.** Take the new version and re-apply your edits on
 top, rather than hand-picking hunks out of the update. Re-applying a small, known
-change to new code is more reliable than reasoning about a merge — and it makes you
-re-justify the edit, which is often useful on its own.
+change to new code is more reliable than reasoning about a merge. It also makes
+you re-justify the edit, which is often useful on its own.
 
 **You have edited it heavily.** Treat it as a three-way merge between the version
 you started from, your current file, and the new one. A
 [version stamp](../../registry/version-stamps.mdx) in the file header is what
-would tell you the first of those three, and it is not emitted yet — so today
-that base comes from your own version control, or from the note you wrote in the
-pull request that installed the file. Write that note.
+would tell you the first of those three, and it is not emitted yet. That base
+therefore comes from your own version control today, or from the note you wrote
+in the pull request that installed the file. Write that note.
 
 If you find yourself doing a heavy merge repeatedly on the same component, the
-divergence is telling you something. Either your change belongs upstream — propose
-it — or your component has become a different component and should stop pretending
-to be an opsinjs one.
+divergence is telling you something. Either your change belongs upstream, or
+your component has become a different component. In the first case, propose it.
+In the second, the component should stop pretending to be an opsinjs one.
 
 ## Treat generated files as generated
 
@@ -109,7 +109,7 @@ any of those is a breaking change and gets a major version.
 
 The practical consequence: if you style opsinjs components from your own CSS by
 selecting on a data attribute, you are using a supported API and it will not move
-under you within a major version. That is deliberate — in a copy-in system, styling
+under you within a major version. That is deliberate. In a copy-in system, styling
 from outside is a legitimate integration strategy rather than a hack.
 [Versioning policy](../../project/versioning-policy.mdx).
 
@@ -118,7 +118,7 @@ from outside is a legitimate integration strategy rather than a hack.
 1. **Your tests pass**, especially any that assert on rendered clinical status.
 2. **Nothing in your own code was silently rewritten.** Read the diff of the whole
    commit, not just the component file.
-3. **The token layer still resolves** — an upgraded component may read a token that
+3. **The token layer still resolves.** An upgraded component may read a token that
    an older token layer does not define. Upgrade both together.
 4. **The greyscale check still passes.** A visual change that quietly makes status
    colour-only is exactly the kind of regression an upgrade can introduce and a
@@ -131,24 +131,25 @@ from outside is a legitimate integration strategy rather than a hack.
 **A component references a token that does not exist.** The component and the token
 layer are from different versions. Upgrade the token layer.
 
-**The diff is enormous and you did not edit the file.** Formatting drift — a
-different Prettier configuration reformatted it on the way in. Normalise before
-comparing, or the real change will be invisible inside the noise.
+**The diff is enormous and you did not edit the file.** This is formatting
+drift. A different Prettier configuration reformatted it on the way in.
+Normalise before comparing, or the real change will be invisible inside the
+noise.
 
 **Your edits are gone.** The upgrade overwrote them. This is why the dry run and
 the diff come first; recover from version control, then re-apply on top.
 
 **You cannot tell which version you have.** There is no stamp in the file to look
-at — emitting one is specified and not built. Fall back to version control: find
+at. Emitting one is specified and not built. Fall back to version control: find
 the commit that added or last updated the file and read the date, then diff
 against the registry to see how far apart you are. If that is hopeless, take the
 current version cleanly and record it this time.
 
 ## Next
 
-- [Version stamps](../../registry/version-stamps.mdx) — what is in a stamp and what
-  it lets tooling do.
-- [Versioning policy](../../project/versioning-policy.mdx) — what semver covers
-  here, which is more than you expect.
-- [Upgrades and diffs](../../registry/upgrades-and-diffs.mdx) — the registry-side
-  mechanics.
+- [Version stamps](../../registry/version-stamps.mdx) says what is in a stamp
+  and what it lets tooling do.
+- [Versioning policy](../../project/versioning-policy.mdx) says what semver
+  covers here, which is more than you expect.
+- [Upgrades and diffs](../../registry/upgrades-and-diffs.mdx) covers the
+  registry-side mechanics.

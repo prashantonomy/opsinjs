@@ -10,15 +10,15 @@ aliases: [add a category, seventh category, category ramp]
 
 ## Overview
 
-opsinjs ships six category ramps — `sleep`, `heart`, `activity`, `nutrition`,
-`mind` and `labs` — and six is a starting set rather than a claim about the
-shape of human health. A cycle-tracking app needs a seventh. A
+opsinjs ships six category ramps: `sleep`, `heart`, `activity`, `nutrition`,
+`mind` and `labs`. Six is a starting set rather than a claim about the shape
+of human health. A cycle-tracking app needs a seventh. A
 medication-adherence app needs one that is not a body system at all. Adding one
 is supported, it is a tier-1 change, and it has exactly one hard constraint.
 
 Those six ids are the ones `tokens/color.json` defines and the ones
 `app/tokens.generated.css` emits as `--opsin-category-<id>-*`. There is no
-seventh in the box, and in particular there is no `cycle` — the `cycle` ramp you
+seventh in the box, and in particular there is no `cycle`. The `cycle` ramp you
 will find in `tokens/color.json` is filed under `categoryExtensionExample` and
 its own comment begins "NOT SHIPPED". It is the worked example on this page,
 not a category.
@@ -38,8 +38,8 @@ The four status seeds sit at OKLCH hues 27 (`urgent`), 45 (`attention`), 82
 (`watch`) and 178 (`steady`). A new category at 40° is not a new category; it is
 a fifth status that nobody declared, and the first time it appears next to an
 actual status the screen becomes ambiguous. The system cannot detect this for
-you — both are just colours — which is precisely why it is written down as a
-rule instead of enforced by a type.
+you, because both are just colours. That is precisely why it is written down as
+a rule instead of enforced by a type.
 
 Two practical consequences:
 
@@ -48,12 +48,12 @@ Two practical consequences:
   categories that sit nearest are `heart` at 15 and `nutrition` at 70, and both
   of them are doing work a newcomer should not assume is available again.
 - **Watch 178 as well.** `steady` is the one status that is not warm, so "avoid
-  the warm arc" is not the whole rule: a teal category at 170–190 will read as
-  *this is fine* whether or not you meant it.
+  the warm arc" is not the whole rule: a teal category at 170 to 190 will read
+  as *this is fine* whether or not you meant it.
 
 Chroma will not save you. The shipped category seeds run from 0.11 (`labs`) to
 0.17 (`heart`), and the shipped status seeds from 0.11 (`steady`) to 0.20
-(`urgent`) — the two ranges overlap almost completely, so there is no chroma
+(`urgent`). The two ranges overlap almost completely, so there is no chroma
 threshold that separates the axes. **Hue separation and the word beside the
 colour are what separate them.** If you want a rule of thumb, keep a new
 category at least 30° away from 27, 45, 82 and 178, and check it against
@@ -98,16 +98,16 @@ pnpm run contrast
 
 Every new pair is measured with APCA and WCAG 2.2 and compared to the published
 floor. A category ink that fails against its own surface is a failure exactly as
-much as a status one is — the colour is quieter, the text is not.
+much as a status one is. The colour is quieter, but the text is not.
 
 </Steps>
 
 ## Retune an existing ramp
 
 Same mechanism, more caution. A category ramp is referenced by chart series
-colours, by section identity, by small glyphs, and — critically — by whatever
-your users have already learned. Moving `sleep` from violet to teal is a
-re-education cost paid by every existing user, so treat it as a versioned
+colours, by section identity and by small glyphs. Critically, it is referenced
+by whatever your users have already learned. Moving `sleep` from violet to teal
+is a re-education cost paid by every existing user, so treat it as a versioned
 change: record it in your changelog, not in a patch release.
 
 If your reason for retuning is "it does not match our brand", consider instead
@@ -134,7 +134,7 @@ meant. It is on [The two colour axes](../health/two-colour-axes.mdx) and in the
 status playground at [`/playground/status`](/playground/status).
 
 For product code, the cheapest enforcement is a lint rule rather than a review
-convention — see [Handbook tooling](../handbook/tooling/index.mdx).
+convention. See [Handbook tooling](../handbook/tooling/index.mdx).
 
 ## Verify it worked
 
@@ -148,8 +148,8 @@ authored once and mirrored, which almost always fails contrast in one of them.
 
 ### It survives colour-blind simulation
 
-Run the preview through `<CvdSimulator>` — protanopia, deuteranopia, tritanopia
-and grayscale. A category must remain *distinguishable from the other
+Run the preview through `<CvdSimulator>` for protanopia, deuteranopia,
+tritanopia and grayscale. A category must remain *distinguishable from the other
 categories*; it does not need to remain identifiable, because nothing important
 should depend on identifying it by colour alone.
 
@@ -180,9 +180,9 @@ in `app/tokens.generated.css`, the generator has already thrown it away.
 
 ## Next
 
-- [Status palettes](./status-palettes.mdx) — the other axis, and the one you
+- [Status palettes](./status-palettes.mdx) is the other axis, and the one you
   should not extend.
-- [Category identity](../health/category-identity.mdx) — what a category colour
-  is allowed to mean.
-- [Colour blindness](../foundations/colour/colour-blindness.mdx) — why
+- [Category identity](../health/category-identity.mdx) says what a category
+  colour is allowed to mean.
+- [Colour blindness](../foundations/colour/colour-blindness.mdx) explains why
   distinguishable is the bar and identifiable is not.

@@ -21,15 +21,15 @@ opsinjs.dev/docs/reference/api/HealthCategory
 opsinjs.dev/docs/reference/api/ReferenceRange
 ```
 
-The identifier is used verbatim — the same case, no kebab-casing, no
+The identifier is used verbatim, with the same case, no kebab-casing and no
 pluralisation. That is the whole design: an inline `<ApiLink>` in prose, a link
 from a props table, and a program guessing a URL from a type name it read in an
 error message all arrive at the same page without a lookup table.
 
 ## How this is generated
 
-**Source:** the `export` declarations under `apps/www/lib/` — this documentation
-site's own TypeScript, not a published package. No `@opsinjs` package has ever
+**Source:** the `export` declarations under `apps/www/lib/`, which are this
+documentation site's own TypeScript rather than a published package. No `@opsinjs` package has ever
 been released and, under
 [decision 0002](../../project/decisions/0002-shadcn-registry-distribution.mdx),
 none is going to be: opsinjs is distributed by copying source into your
@@ -62,8 +62,8 @@ would bury the symbols an `<ApiLink>` has to resolve to.
 Four things, and no more than a line scanner can honestly produce: the symbol's
 name, the first sentence of its doc comment, a table giving its kind and the
 file it is declared in, and the declaration line itself, copied from the source
-rather than reconstructed. Improve a page by improving its doc comment — there
-is nowhere else the summary can come from.
+rather than reconstructed. Improve a page by improving its doc comment, because
+there is nowhere else the summary can come from.
 
 For the health types the page is only ever half the answer. The declaration says
 there are four status levels; only
@@ -88,17 +88,17 @@ interface page shows its declaration line only.</Todo>
 
 ### What exists today
 
-A page for every `type` and `interface` under `lib/` — the colour model, the
-status and category vocabulary, the catalogue, preset and registry shapes, and
-the error types — each one written by `pnpm run generate` and replaced wholesale
-on the next run. The full list, with the functions and constants that do not get
+A page for every `type` and `interface` under `lib/`, each one written by
+`pnpm run generate` and replaced wholesale on the next run. That covers the
+colour model, the status and category vocabulary, the catalogue, preset and
+registry shapes, and the error types. The full list, with the functions and constants that do not get
 a page, is [Types](../generated/types.mdx).
 
 Two of them predate the generator and are still half hand-written above their
 generated block:
 
-- [ClinicalStatus](ClinicalStatus.mdx) — the four clinical status levels
-- [HealthCategory](HealthCategory.mdx) — the subject-identity categories
+- [ClinicalStatus](ClinicalStatus.mdx), the four clinical status levels
+- [HealthCategory](HealthCategory.mdx), the subject-identity categories
 
 Their prose was written as a specification, before the types were declared, and
 it is still marked as one. Where that prose and the generated block below it

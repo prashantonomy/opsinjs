@@ -11,17 +11,17 @@ import {
 } from "@/lib/status"
 
 /* ==========================================================================
-   page-template.tsx — <PageTemplate>: the page declares its `kind`, and the
-   section contract for that kind is enforced against what the page actually
-   contains.
+   page-template.tsx defines <PageTemplate>: the page declares its `kind`, and
+   the section contract for that kind is enforced against what the page
+   actually contains.
 
    WHY A RUNTIME COMPONENT AND NOT ONLY A LINTER
 
    A page's `kind` fully determines its headings. That contract is worth
    nothing if it is only written down: 280 MDX files are authored in parallel,
    and the failure mode is not a missing page but a page with the right title
-   and the wrong bones — a component page with no "When to use it", a health
-   page with no "What this does not cover". Both look finished.
+   and the wrong bones, such as a component page with no "When to use it", a
+   health page with no "What this does not cover". Both look finished.
 
    So it is enforced twice, and the two halves catch different things:
 
@@ -46,7 +46,7 @@ import {
    happens on the server where it can stop a build.
    ========================================================================== */
 
-/** Fatality policy — see `Problem.fatal` below. */
+/** The fatality policy is set out on `Problem.fatal` below. */
 type ProblemKind = "missing" | "order" | "forbidden" | "unexpected"
 
 interface Problem {
@@ -77,7 +77,7 @@ const ALIASES: Record<string, string[]> = {
   "accessibility requirements": ["accessibility"],
   "research and rationale": ["research & rationale", "research"],
   "approved / rejected": ["approved and rejected"],
-  "why (evidence)": ["why", "why — evidence"],
+  "why (evidence)": ["why"],
 }
 
 /** "Approved / Rejected" and "approved  /  rejected" are the same heading. */
@@ -113,10 +113,10 @@ export interface PageTemplateProps {
    * The page's release phase. Only `component` gates its outline on it.
    *
    * The default is `planned` because it is the CONSERVATIVE answer, not the
-   * common one. No component page sits at `planned` today — every generated
-   * page passes its real status, and registry/catalogue.ts is where those
-   * live — so the default only ever catches a page that forgot to declare
-   * one. `planned` is what that page should be held to: it claims the
+   * common one. No component page sits at `planned` today, because every
+   * generated page passes its real status, and registry/catalogue.ts is where
+   * those live. The default therefore only ever catches a page that forgot to
+   * declare one. `planned` is what that page should be held to: it claims the
    * least about the code while still resolving to a real outline, where
    * `considered` resolves to an empty one and would check nothing at all.
    */
@@ -126,7 +126,7 @@ export interface PageTemplateProps {
    * "Clinical meaning" mandatory and forbids it everywhere else. When it is not
    * supplied the section becomes optional rather than forbidden, because the
    * template cannot tell a non-clinical component from a page that simply did
-   * not pass the prop — and assert-ia, which reads the frontmatter, can.
+   * not pass the prop. assert-ia reads the frontmatter and can tell them apart.
    */
   category?: string
   /** The page's table of contents, from `page.data.toc`. */
@@ -168,7 +168,7 @@ export function PageTemplate({
   /**
    * Whether an H2 the outline does not name is a problem.
    *
-   * `component` is exact — unless the outline is EMPTY. `componentSections()`
+   * `component` is exact unless the outline is EMPTY. `componentSections()`
    * returns `[]` at `considered` (ADR 0008: those pages are generated and thin
    * by design), and an empty allowed-set makes every heading UNEXPECTED, which
    * put a developer error dump naming repo paths above the fold on all 36 of
@@ -178,8 +178,8 @@ export function PageTemplate({
    * Nothing is unguarded by this. assert-ia.mts checks `considered` pages
    * against CONSIDERED_COMPONENT_HEADINGS in both directions, before it
    * resolves an outline at all, precisely because `componentSections()` returns
-   * `[]` — its comment says this branch is "the same gate on the authoring
-   * side". The fix belongs here rather than in lib/status.ts: giving
+   * `[]`. The comment in assert-ia.mts calls that branch "the same gate on the
+   * authoring side". The fix belongs here rather than in lib/status.ts: giving
    * `considered` a non-empty outline there would collide with that gate.
    */
   const exact =
@@ -254,7 +254,7 @@ export function PageTemplate({
           problems.push({
             kind: "unexpected",
             section: heading,
-            detail: `kind "${kind}" has no such section — authors fill the template, they do not invent headings`,
+            detail: `kind "${kind}" has no such section. Authors fill the template, and they do not invent headings`,
             fatal: false,
           })
         }

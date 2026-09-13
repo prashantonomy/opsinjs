@@ -30,8 +30,8 @@ is wrong the moment the reader is somebody for whom down is not good.
 Everything the chart itself needs is at `alpha`: the code exists and installs,
 the API may change in any release without a deprecation cycle, and none of it
 has been through an accessibility or a clinical review. The last row is
-`considered` — reserved names, no code — so the band labels and the data-table
-twin are yours to build until those land.
+`considered`, meaning reserved names and no code. The band labels and the
+data-table twin are therefore yours to build until those land.
 
 | Part | Component | Status | What it does here |
 | --- | --- | --- | --- |
@@ -48,7 +48,7 @@ Tokens, by family:
 
 | Family | Where it applies | Reference |
 | --- | --- | --- |
-| `--opsin-category-*` | The series colour — identity only, constant across the whole series | [Chart colour](../foundations/data-visualisation/chart-colour.mdx) |
+| `--opsin-category-*` | The series colour carries identity only and stays constant across the whole series | [Chart colour](../foundations/data-visualisation/chart-colour.mdx) |
 | `--opsin-status-*` | Nowhere on the line. Only a separate status pill, if a rule assigned one | [The two colour axes](../health/two-colour-axes.mdx) |
 | Contrast floor | Line against ground, points against line, in both themes | [The contrast floor](../foundations/materials/the-contrast-floor.mdx) |
 | Motion | Nothing that conveys meaning; see below | [Motion in health UI](../health/motion-in-health-ui.mdx) |
@@ -77,9 +77,10 @@ appointment. Readers do not read axes.
 ### Choose a baseline for the y-axis and defend it
 
 An axis fitted to the data exaggerates every wobble. Choose a baseline that means
-something — zero where zero is meaningful, the reference band where one exists,
-a fixed clinically-sensible span otherwise — and keep it stable as data arrives,
-so the chart does not redraw its own scale and appear to change history.
+something. Use zero where zero is meaningful, the reference band where one
+exists, or a fixed clinically-sensible span otherwise. Keep it stable as data
+arrives, so the chart does not redraw its own scale and appear to change
+history.
 
 Never truncate the axis to dramatise a small change:
 [Chart anatomy](../foundations/data-visualisation/chart-anatomy.mdx) treats this
@@ -96,8 +97,8 @@ is the **partial** state from
 ### Separate direction from valence
 
 The line carries direction: up, down, flat. It does not carry whether that is good
-news. Colour the series by category — the identity of the metric — and hold that
-colour constant regardless of which way the line goes.
+news. Colour the series by category, which is the identity of the metric. Hold
+that colour constant regardless of which way the line goes.
 
 If your product's clinical rules have judged the change, the judgement appears
 beside the chart as a status, in words, with its own colour from the status axis.
@@ -114,12 +115,13 @@ know how much.
 ### Ship the data-table twin and the text summary
 
 A chart needs a text equivalent and a table equivalent, not as an accessibility
-afterthought but because they are frequently the more useful representations —
-[Accessible charts](../foundations/data-visualisation/accessible-charts.mdx).
+afterthought but because they are frequently the more useful representations.
+[Accessible charts](../foundations/data-visualisation/accessible-charts.mdx)
+makes that case.
 
 `TrendSparkline` supplies the text half. Its accessible description names what
 was measured, over what period, how many readings there are, what they range
-between, which way they went, and what is missing — and it says when the last
+between, which way they went, and what is missing. It also says when the last
 reading was actually taken rather than letting a three-month-old series read as
 current. It does **not** supply the table half and does not point at one, because
 `table` is a considered id with no code behind it. That twin is yours to build.
@@ -133,9 +135,9 @@ and the summary sentence is always present.
 > **`<Metric>` `<direction>` `<magnitude> <unit>` over `<window>`, compared with `<comparison window>`.**
 > **`<What a change of this size does not mean.>`**
 
-Direction words are neutral and physical: *up*, *down*, *about the same*. Not
-*improved*, *worse*, *better*, *deteriorating*, *worrying* — those are judgements,
-and a caption is not licensed to make them.
+Direction words are neutral and physical: *up*, *down*, *about the same*. Words
+like *improved*, *worse*, *better*, *deteriorating* and *worrying* are
+judgements, and a caption is not licensed to make them.
 
 <DoDont>
   <DoDont.Do>
@@ -144,9 +146,9 @@ and a caption is not licensed to make them.
     its own mean anything has changed."
   </DoDont.Do>
   <DoDont.Dont>
-    "Your heart health is improving! ↓ 6%" — a judgement the data cannot support,
-    a percentage with no baseline, and cheerfulness applied to a number the reader
-    may know something about that you do not.
+    "Your heart health is improving! ↓ 6%" is a judgement the data cannot
+    support, a percentage with no baseline, and cheerfulness applied to a number
+    the reader may know something about that you do not.
   </DoDont.Dont>
 </DoDont>
 
@@ -171,7 +173,7 @@ they are ill does not need congratulating.
 - The line's colour is the category's, and does not change with the data.
 - No causal language anywhere in the caption. A trend shows association with time
   and nothing else.
-- If the series crosses a reference range, that is position, not a verdict — see
+- If the series crosses a reference range, that is position, not a verdict. See
   [Show a value against a reference range](./value-against-a-range.mdx).
 
 **Accessibility**
@@ -179,13 +181,13 @@ they are ill does not need congratulating.
 - The text summary carries direction, magnitude, unit and window, and is available
   without opening anything.
 - The data table is reachable by keyboard, is a real table with headers, and
-  survives being printed — a reviewer reading on paper gets the numbers, not an
+  survives being printed. A reviewer reading on paper gets the numbers, not an
   empty box where a canvas was.
 - Series are distinguishable without colour: shape, direct labelling, or a single
-  series per chart —
-  [Colour independence](../accessibility/colour-independence.mdx).
+  series per chart.
+  [Colour independence](../accessibility/colour-independence.mdx) requires it.
 - No draw-on animation carries meaning. Under `prefers-reduced-motion` the chart
-  appears complete, immediately —
+  appears complete, immediately. See
   [Reduced motion](../accessibility/reduced-motion.mdx).
 - At 200% text the caption and the summary remain legible; the chart may shrink,
   the sentence may not.
@@ -214,16 +216,16 @@ carry no claim: no direction word, no colour change, no annotation. If it needs 
 caption, it needs this recipe instead.
 
 <Todo>
-Annotating an event on a series — a medication change, an illness, a holiday — is
-a real need with no component and no guidance yet. `timeline-entry` is on the
-considered roster.
+Annotating an event on a series is a real need with no component and no guidance
+yet. The event might be a medication change, an illness or a holiday.
+`timeline-entry` is on the considered roster.
 </Todo>
 
 ## Related
 
-- **[Trends and change](../health/trends-and-change.mdx)** — the doctrine:
+- **[Trends and change](../health/trends-and-change.mdx)** is the doctrine:
   direction separated from valence, and the minimum window before a trend exists.
-- **[TrendSparkline](../components/trend-sparkline.mdx)** — the component
+- **[TrendSparkline](../components/trend-sparkline.mdx)** is the component
   specification and its accessibility bar.
-- **[Trend review](../patterns/trend-review.mdx)** — the flow around this display,
-  for reading change over time without over-interpreting noise.
+- **[Trend review](../patterns/trend-review.mdx)** covers the flow around this
+  display, for reading change over time without over-interpreting noise.

@@ -13,11 +13,11 @@ import {
 export const metadata: Metadata = {
   title: "Official resources",
   description:
-    "The canonical domain, npm scope, registry URL and repository for opsinjs — and the honest statement that no package has been published, so anything on npm claiming to be opsinjs today is not.",
+    "The canonical domain, npm scope, registry URL and repository for opsinjs. The page also states honestly that no package has been published, so anything on npm claiming to be opsinjs today is not.",
 }
 
 /**
- * `/official` — the anti-impersonation page.
+ * `/official` is the anti-impersonation page.
  *
  * Every design system eventually gets a typo-squatted npm package, a mirrored
  * documentation site with injected affiliate links, or a registry URL that
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
  * accurate as the system moves. Components are installable from this origin's
  * registry today, so a page still claiming no installable item exists would
  * tell a developer that the working @opsinjs items they just added came from an
- * impostor — the inverse of what this page is for.
+ * impostor. That is the inverse of what this page is for.
  */
 export default function OfficialPage() {
   const registryUrl = absoluteUrl(registryRoutes.catalog())
@@ -54,7 +54,7 @@ export default function OfficialPage() {
           <p className="mt-2 text-sm leading-relaxed">
             There is no <Mono>{site.npmScope}</Mono> package on npm and no CLI
             of ours. If you find a package by this name today, whoever published
-            it is not us — do not install it, and please report it. The
+            it is not us. Do not install it, and please report it. The
             components that do exist are installed as source from the registry
             URL below and from no other origin. Every one of them is at{" "}
             <Mono>alpha</Mono> and carries no version number: nothing here has
@@ -105,10 +105,10 @@ export default function OfficialPage() {
             <p>
               opsinjs is distributed the shadcn way: you run a command, and
               source code is written into your repository. That is a genuinely
-              good distribution model — you own what you install, you can read
-              it, and you can change it without fighting a package boundary —
-              and it moves a trust decision to a place developers are not used
-              to making one.
+              good distribution model, because you own what you install, you can
+              read it, and you can change it without fighting a package
+              boundary. It also moves a trust decision to a place developers are
+              not used to making one.
             </p>
             <p>
               When you run <Mono>npx shadcn add</Mono> against a registry URL,
@@ -121,9 +121,9 @@ export default function OfficialPage() {
             <p>
               The health context sharpens this. Code that renders
               somebody&rsquo;s blood pressure and decides what colour to make it
-              is a bad place for an unreviewed third-party edit — not because it
-              is likely, but because the failure is quiet and the consequence is
-              somebody misreading their own result.
+              is a bad place for an unreviewed third-party edit. That is not
+              because it is likely, but because the failure is quiet and the
+              consequence is somebody misreading their own result.
             </p>
           </Prose>
         </section>
@@ -149,9 +149,9 @@ export default function OfficialPage() {
             </p>
             <p>
               <strong>Check the licence.</strong> The code is MIT and the
-              guidance prose is CC BY 4.0. A copy that claims different terms —
-              particularly one that claims the prose is unrestricted — is not
-              this project.
+              guidance prose is CC BY 4.0. A copy that claims different terms is
+              not this project, least of all one that claims the prose is
+              unrestricted.
             </p>
             <p>
               <strong>Report anything that looks wrong.</strong> Impersonation

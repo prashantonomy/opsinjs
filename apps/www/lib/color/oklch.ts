@@ -15,20 +15,20 @@
  * No import, no JSX, erasable syntax only: `scripts/build-tokens.mts` and
  * `scripts/check-contrast.mts` import this file directly under plain `node`.
  *
- * CONVENTIONS. `L` and every RGB channel is 0–1. `C` is unbounded but in
- * practice below about 0.4. `h` is degrees, 0–360. A "linear" RGB triple is
+ * CONVENTIONS. `L` and every RGB channel is 0 to 1. `C` is unbounded but in
+ * practice below about 0.4. `h` is degrees, 0 to 360. A "linear" RGB triple is
  * light-linear; an "sRGB" triple is gamma-encoded and is what a CSS colour
  * value means. Nothing here clamps unless the function name says so, because
- * an out-of-gamut result is information — it is how `maxChroma` finds the
+ * an out-of-gamut result is information. It is how `maxChroma` finds the
  * boundary and how `build-tokens.mts` knows a step needs a P3 variant.
  */
 
-/** A colour in OKLCH. `l` 0–1, `c` unbounded, `h` in degrees. */
+/** A colour in OKLCH. `l` 0 to 1, `c` unbounded, `h` in degrees. */
 export interface Oklch {
   l: number
   c: number
   h: number
-  /** Alpha 0–1. Absent means fully opaque. */
+  /** Alpha 0 to 1. Absent means fully opaque. */
   alpha?: number
 }
 
@@ -40,7 +40,7 @@ export interface Oklab {
   alpha?: number
 }
 
-/** Red, green and blue, each 0–1, in whichever space the function says. */
+/** Red, green and blue, each 0 to 1, in whichever space the function says. */
 export interface Rgb {
   r: number
   g: number
@@ -190,24 +190,24 @@ export function linearP3ToLinearSrgb(rgb: Rgb): Rgb {
 
 /* ── the conversions callers actually use ───────────────────────────────── */
 
-/** OKLCH → gamma-encoded sRGB, 0–1 per channel. Not clamped. */
+/** OKLCH → gamma-encoded sRGB, 0 to 1 per channel. Not clamped. */
 export function oklchToSrgb(color: Oklch): Rgb {
   return linearToSrgb(oklabToLinearSrgb(oklchToOklab(color)))
 }
 
-/** Gamma-encoded sRGB, 0–1 per channel → OKLCH. */
+/** Gamma-encoded sRGB, 0 to 1 per channel → OKLCH. */
 export function srgbToOklch(rgb: Rgb): Oklch {
   return oklabToOklch(linearSrgbToOklab(srgbToLinear(rgb)))
 }
 
-/** OKLCH → gamma-encoded Display-P3, 0–1 per channel. Not clamped. */
+/** OKLCH → gamma-encoded Display-P3, 0 to 1 per channel. Not clamped. */
 export function oklchToDisplayP3(color: Oklch): Rgb {
   return linearToSrgb(
     linearSrgbToLinearP3(oklabToLinearSrgb(oklchToOklab(color)))
   )
 }
 
-/** Gamma-encoded Display-P3, 0–1 per channel → OKLCH. */
+/** Gamma-encoded Display-P3, 0 to 1 per channel → OKLCH. */
 export function displayP3ToOklch(rgb: Rgb): Oklch {
   return oklabToOklch(
     linearSrgbToOklab(linearP3ToLinearSrgb(srgbToLinear(rgb)))
@@ -251,8 +251,8 @@ export function inGamut(
  *
  * Binary search rather than an analytic solution: the sRGB gamut boundary in
  * OKLCH is a piecewise surface with cusps, and forty bisections resolve it to
- * about 4e-13 — far finer than anything downstream can express. This is the
- * function that makes the token ramps honest, because it is what turns "the
+ * about 4e-13. That is far finer than anything downstream can express. This is
+ * the function that makes the token ramps honest, because it is what turns "the
  * envelope asked for 0.14 chroma here" into "sRGB can hold 0.128, so that is
  * what ships and the file records that it was clamped".
  */
@@ -277,7 +277,7 @@ export function maxChroma(
  *
  * Lightness and hue are preserved because both carry meaning here: lightness is
  * what the contrast floor is measured against, and hue is what identifies the
- * category. Clipping RGB channels instead — the usual browser behaviour —
+ * category. Clipping RGB channels instead is the usual browser behaviour. It
  * changes both, and can turn two adjacent ramp steps into the same colour.
  */
 export function clampToGamut(color: Oklch, gamut: Gamut = "srgb"): Oklch {
@@ -313,7 +313,7 @@ export function formatDisplayP3(color: Oklch, places = 4): string {
     : `color(display-p3 ${base} / ${round(color.alpha, 3)})`
 }
 
-/** 0–1 sRGB → 0–255 integers, clamped. */
+/** 0 to 1 sRGB → 0 to 255 integers, clamped. */
 export function toRgb255(rgb: Rgb): [number, number, number] {
   return [
     Math.round(clamp01(rgb.r) * 255),
@@ -322,7 +322,9 @@ export function toRgb255(rgb: Rgb): [number, number, number] {
   ]
 }
 
-/** OKLCH → 0–255 sRGB integers, clamped. The input for both contrast models. */
+/**
+ * OKLCH → 0 to 255 sRGB integers, clamped. The input for both contrast models.
+ */
 export function oklchToRgb255(color: Oklch): [number, number, number] {
   return toRgb255(oklchToSrgb(color))
 }
@@ -337,7 +339,10 @@ export function formatHex(color: Oklch): string {
   )
 }
 
-/** `#rgb`, `#rrggbb` or `#rrggbbaa` → sRGB 0–1. Returns null on anything else. */
+/**
+ * `#rgb`, `#rrggbb` or `#rrggbbaa` → sRGB 0 to 1. Returns null on anything
+ * else.
+ */
 export function parseHex(input: string): Rgb | null {
   const hex = input.trim().replace(/^#/, "")
   if (!/^[0-9a-fA-F]+$/.test(hex)) return null
@@ -357,7 +362,7 @@ export function parseHex(input: string): Rgb | null {
  * Parse the colour syntaxes a person is likely to paste into the theme
  * playground: `oklch(...)` with or without percentages, `#rrggbb`, and
  * `rgb(r g b)` or `rgb(r, g, b)`. Anything else returns null rather than
- * guessing — a theme derived from a misparsed brand colour is worse than a
+ * guessing. A theme derived from a misparsed brand colour is worse than a
  * refusal to derive one.
  */
 export function parseColor(input: string): Oklch | null {

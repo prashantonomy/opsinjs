@@ -290,7 +290,7 @@ const MDX_VOCABULARY = [
   /* Reconciled with components/mdx.tsx rather than removed from it. Each of
      these is a real, exported component that content may legitimately reach
      for, so the contract is widened to admit it instead of the export being
-     withdrawn — which is the choice MDX003 asks a human to make.
+     withdrawn. That choice is what MDX003 asks a human to make.
 
      TypeTable is not optional: remarkAutoTypeTable rewrites `<auto-type-table>`
      into it, so removing the export would break every generated API table.
@@ -639,7 +639,7 @@ function parsePage(file: string): ParsedPage {
  * Fences are matched with ANY leading indentation and with either delimiter,
  * because a fence nested in a list item is indented and is still a fence. The
  * previous form anchored on `^```` at column zero, so every example inside a
- * bullet read as prose — which is how a `render={(props) => <MyButton …>}`
+ * bullet read as prose. That is how a `render={(props) => <MyButton …>}`
  * illustration in handbook/composition-and-render was reported as an unknown
  * MDX tag, and how a `## heading` inside an indented block would have been
  * counted as a real section.
@@ -868,7 +868,7 @@ async function importAuthoredCatalogue(): Promise<CatalogueRow[] | null> {
     const mod = (await import(pathToFileURL(file).href)) as Record<string, unknown>
     /* `CATALOGUE` first, and it was missing. registry/catalogue.ts exports
        `CATALOGUE` (uppercase), `SHIPPED`, `CONSIDERED` and `RESERVED_ALIASES`,
-       and none of the names below matched — so this branch silently found
+       and none of the names below matched. This branch therefore silently found
        nothing and fell through to the frozen roster, which carries NO aliases.
        CAT005 and CAT006 would then have quietly stopped checking anything the
        moment lib/generated/catalogue.json was deleted or corrupted, and a
@@ -1062,7 +1062,7 @@ const HEADING_ALIASES: Record<string, string[]> = {
   "accessibility requirements": ["accessibility"],
   "research and rationale": ["research & rationale", "research"],
   "approved / rejected": ["approved and rejected"],
-  "why (evidence)": ["why", "why — evidence"],
+  "why (evidence)": ["why"],
 }
 
 /** "Approved / Rejected" and "approved  /  rejected" are the same heading. */
@@ -1545,12 +1545,12 @@ function checkHardcodedDocsPaths(): void {
     if (relative_.startsWith("lib/generated/")) continue
     const contents = readMaybe(file)
     if (contents === undefined) continue
-    /* Next's generated route keys — `PageProps<"/docs/[[...slug]]">` and the
-       Layout/Route equivalents — are the route's own identity, produced by
-       `next typegen`. They cannot be built through lib/routes.ts and renaming
-       the segment would change them anyway, so they are not what this rule is
-       looking for. Blanked rather than deleted, and confined to one line, so
-       that every offset below still names the line it came from. */
+    /* `PageProps<"/docs/[[...slug]]">` and the Layout/Route equivalents are
+       Next's generated route keys, which are the route's own identity,
+       produced by `next typegen`. They cannot be built through lib/routes.ts
+       and renaming the segment would change them anyway, so they are not what
+       this rule is looking for. Blanked rather than deleted, and confined to
+       one line, so that every offset below still names the line it came from. */
     const executable = stripTsComments(contents).replace(
       /\b(?:PageProps|LayoutProps|RouteContext|LayoutSlots)<[^>\n]*>/g,
       (matched) => " ".repeat(matched.length),
@@ -2075,7 +2075,7 @@ function checkCatalogue(
   /* CAT007 - an alias may not be a catalogue id.
      registry/catalogue.ts's own header comment says assert-ia "fails the build
      when ... an alias collides with any catalogue id". It did not: the check
-     did not exist. It was not hypothetical either — status-pill's page claimed
+     did not exist. It was not hypothetical either. status-pill's page claimed
      `badge` as a synonym while `badge` is a real catalogue row with a real page
      of its own, so a reader searching for a badge could be sent to a component
      that is its opposite. A pill is a judgement; a badge is a label. */

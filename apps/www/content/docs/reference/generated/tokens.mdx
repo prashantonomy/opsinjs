@@ -21,7 +21,7 @@ aliases: [all tokens, token index, complete token table]
 and `app/tokens.generated.css`. **Command:** `pnpm run generate`.
 
 Three columns, and the third is the one that matters. *Token* is the name you
-write. *What it controls* is the single property or decision it owns — if a token
+write. *What it controls* is the single property or decision it owns. If a token
 controls two unrelated things, that is a bug in the token, not a longer sentence
 in this column. *Used by* lists the components and foundations that read it, which
 is how you find out whether changing a value is a local adjustment or a system
@@ -32,9 +32,9 @@ for completeness only; a component that reads one has broken the rule described 
 [Token architecture](../../foundations/token-architecture.mdx). Semantic and
 component tiers are the ones you are meant to use.
 
-**What is deliberately excluded.** The documentation site's own theme variables —
-everything lyra, shadcn and fumadocs define for the chrome you are looking at —
-are not opsinjs tokens and are not listed. They are not part of the public
+**What is deliberately excluded.** The documentation site's own theme variables
+are not opsinjs tokens and are not listed, and that covers everything lyra,
+shadcn and fumadocs define for the chrome you are looking at. They are not part of the public
 surface, they carry no semver promise, and confusing the two is the most common
 way a consumer ends up styling their product with our sidebar's colours.
 
@@ -43,7 +43,7 @@ If you want to change a value rather than read one, you want
 want [Foundations](../../foundations/index.mdx). To change a row here, edit the
 JSON source; this page cannot be edited.
 
-{/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
+{/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 ## Tokens
 
@@ -280,7 +280,7 @@ JSON source; this page cannot be edited.
 | `--opsin-material-sheet-shadow` | semantic | Rung 3 (sheet): the shadow that separates it from what is behind. | `0 -1px 2px oklch(0 0 0 / 0.05)` | same | surface |
 | `--opsin-material-sheet-scrim` | semantic | Rung 3 (sheet): the minimum scrim opacity needed for text on this rung to clear the contrast floor. | `0.82` | same | surface |
 | `--opsin-material-sheet-opaque` | semantic | Rung 3 (sheet): the opaque substitute used under prefers-reduced-transparency and where backdrop-filter is unsupported. | `var(--opsin-neutral-0)` | `var(--opsin-neutral-900)` | surface |
-| `--opsin-material-overlay-tint` | semantic | Rung 4 (overlay): the tint over what is behind it. A pinned toolbar, a tab bar, a floating action bar — chrome that content scrolls beneath. | `var(--opsin-neutral-0)` | `var(--opsin-neutral-900)` | surface |
+| `--opsin-material-overlay-tint` | semantic | Rung 4 (overlay): the tint over what is behind it. A pinned toolbar, a tab bar and a floating action bar are all chrome that content scrolls beneath. | `var(--opsin-neutral-0)` | `var(--opsin-neutral-900)` | surface |
 | `--opsin-material-overlay-tint-alpha` | semantic | Rung 4 (overlay): how opaque that tint is. | `0.74` | `0.7` | surface |
 | `--opsin-material-overlay-blur` | semantic | Rung 4 (overlay): backdrop blur radius. | `28px` | same | surface |
 | `--opsin-material-overlay-saturation` | semantic | Rung 4 (overlay): backdrop saturation multiplier. | `1.8` | same | surface |
@@ -303,9 +303,9 @@ JSON source; this page cannot be edited.
 
 | Token | Tier | What it controls | Light | Dark | Used by |
 | --- | --- | --- | --- | --- | --- |
-| `--opsin-ease-spring-snap` | semantic | Direct manipulation only: a switch the reader just flipped, a segmented control, a pressed button settling. It overshoots by 1.5% — enough to feel physical, not enough to look playful — which is the largest overshoot in the system but not the only one: `spring-settle` overshoots by 0.88%. Only `spring-calm` and `spring-sheet` reach their target without passing it. | `linear(0, 0.0715, 0.2271, 0.4053, 0.5722, 0.7119, 0.8198, 0.8978, 0.9505, 0.9836, 1.0025, 1.0118, 1.015, 1.0147, 1.0126, 1.01, 1.0073, 1.0051, 1.0033, 1.0019, 1)` | same | no component |
+| `--opsin-ease-spring-snap` | semantic | Direct manipulation only: a switch the reader just flipped, a segmented control, a pressed button settling. It overshoots by 1.5%. That is enough to feel physical but not enough to look playful. The 1.5% is the largest overshoot in the system but not the only one: `spring-settle` overshoots by 0.88%. Only `spring-calm` and `spring-sheet` reach their target without passing it. | `linear(0, 0.0715, 0.2271, 0.4053, 0.5722, 0.7119, 0.8198, 0.8978, 0.9505, 0.9836, 1.0025, 1.0118, 1.015, 1.0147, 1.0126, 1.01, 1.0073, 1.0051, 1.0033, 1.0019, 1)` | same | no component |
 | `--opsin-ease-spring-settle` | semantic | The workhorse for chrome: popovers, tooltips, menus, chips appearing and disappearing. | `linear(0, 0.0742, 0.2328, 0.4113, 0.5758, 0.7116, 0.8157, 0.8905, 0.9412, 0.9736, 0.9928, 1.003, 1.0076, 1.0088, 1.0082, 1.0068, 1.0053, 1.0038, 1.0026, 1.0017, 1)` | same | no component |
-| `--opsin-ease-spring-calm` | semantic | A health value that changes while it is already on screen: a bar re-filling from one reading to the next, a dial travelling between two values the reader has already been shown. Never a first paint and never a first reveal — a value arrives at its final figure, with no count-up, no dial sweep and no line drawing itself in (health/motion-in-health-ui rule 2). Slightly overdamped (zeta just over 1) so it never overshoots and never bounces. | `linear(0, 0.0829, 0.2457, 0.4157, 0.5642, 0.6832, 0.774, 0.841, 0.8893, 0.9236, 0.9476, 0.9643, 0.9757, 0.9836, 0.9889, 0.9926, 0.995, 0.9967, 0.9978, 0.9985, 1)` | same | no component |
+| `--opsin-ease-spring-calm` | semantic | A health value that changes while it is already on screen: a bar re-filling from one reading to the next, a dial travelling between two values the reader has already been shown. Never a first paint and never a first reveal. A value arrives at its final figure, with no count-up, no dial sweep and no line drawing itself in (health/motion-in-health-ui rule 2). Slightly overdamped (zeta just over 1) so it never overshoots and never bounces. | `linear(0, 0.0829, 0.2457, 0.4157, 0.5642, 0.6832, 0.774, 0.841, 0.8893, 0.9236, 0.9476, 0.9643, 0.9757, 0.9836, 0.9889, 0.9926, 0.995, 0.9967, 0.9978, 0.9985, 1)` | same | no component |
 | `--opsin-ease-spring-sheet` | semantic | Large surfaces travelling a long distance: sheets, dialogs, full-screen pushes. Overdamped, because a sheet that bounces at the top of its travel reads as a dropped object. | `linear(0, 0.0881, 0.2576, 0.431, 0.5798, 0.6971, 0.7854, 0.8497, 0.8958, 0.9282, 0.9508, 0.9664, 0.9771, 0.9845, 0.9895, 0.9929, 0.9952, 0.9967, 0.9978, 0.9985, 1)` | same | sheet |
 | `--opsin-ease-standard` | semantic | Non-spring transitions where a spring would be overkill: colour, opacity, border. Fast out, slow in. | `cubic-bezier(0.2, 0, 0, 1)` | same | button, care-card, consent-sheet, dialog, sheet, skeleton |
 | `--opsin-ease-enter` | semantic | Something arriving from off-screen or from nothing. Decelerating, because an arrival should feel like it is coming to rest. | `cubic-bezier(0.05, 0.7, 0.1, 1)` | same | no component |
@@ -355,7 +355,7 @@ JSON source; this page cannot be edited.
 | `--opsin-text-title3-leading` | semantic | Line height for title3, unitless so it scales with the size. | `1.25` | same | dialog, empty-state, result-card, sheet, value |
 | `--opsin-text-title3-tracking` | semantic | Letter spacing for title3. | `-0.004em` | same | dialog, empty-state, result-card, sheet, value |
 | `--opsin-text-title3-weight` | semantic | Font weight for title3. | `600` | same | dialog, empty-state, result-card, sheet, value |
-| `--opsin-text-headline-size` | semantic | An emphasised line of body text — a status sentence, a question in a form. | `1.0625rem` | same | alert-banner, button, callout, card, care-card, empty-state, field, range-bar, reading-input, result-card, score-dial, surface, trend-sparkline |
+| `--opsin-text-headline-size` | semantic | An emphasised line of body text, such as a status sentence or a question in a form. | `1.0625rem` | same | alert-banner, button, callout, card, care-card, empty-state, field, range-bar, reading-input, result-card, score-dial, surface, trend-sparkline |
 | `--opsin-text-headline-leading` | semantic | Line height for headline, unitless so it scales with the size. | `1.294` | same | alert-banner, button, callout, card, care-card, empty-state, field, range-bar, reading-input, result-card, score-dial, surface, trend-sparkline |
 | `--opsin-text-headline-tracking` | semantic | Letter spacing for headline. | `-0.003em` | same | alert-banner, button, callout, card, care-card, empty-state, field, range-bar, reading-input, result-card, score-dial, surface, trend-sparkline |
 | `--opsin-text-headline-weight` | semantic | Font weight for headline. | `600` | same | alert-banner, button, callout, card, care-card, empty-state, field, range-bar, reading-input, result-card, score-dial, surface, trend-sparkline |
@@ -472,7 +472,7 @@ JSON source; this page cannot be edited.
 | --- | --- | --- | --- | --- | --- |
 | `--opsin-border-hairline` | semantic | Every boundary in the system by default. | `1px` | same | button, care-card, surface |
 | `--opsin-border-emphasis` | semantic | The boundary of a surface carrying `attention` or `urgent`, where the boundary is one of the three non-colour carriers of the status. | `2px` | same | button, field, surface |
-| `--opsin-border-focus` | semantic | The focus ring. Always 2px with a 2px offset, always in a colour measured against both the surface and the page behind it, and never removed — see /docs/accessibility/keyboard-and-focus. | `2px` | same | no component |
+| `--opsin-border-focus` | semantic | The focus ring. Always 2px with a 2px offset, always in a colour measured against both the surface and the page behind it, and never removed. See /docs/accessibility/keyboard-and-focus. | `2px` | same | no component |
 | `--opsin-border-focus-offset` | semantic | Offset for the focus boundary. | `2px` | same | no component |
 
 {/* opsinjs:generated:end */}

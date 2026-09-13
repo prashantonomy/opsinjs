@@ -1,6 +1,6 @@
 ---
 title: Screens
-description: Whole composed surfaces, specified as units — where a correct component and a wrong page order still produce an unusable result.
+description: Whole composed surfaces, specified as units. This is where a correct component and a wrong page order still produce an unusable result.
 icon: Smartphone
 status: stable
 kind: guide
@@ -23,17 +23,19 @@ Screens are also the only place where the three systems that make opsinjs
 distinctive have to hold **simultaneously**:
 
 - **The two colour axes.** On one component the never-mix rule is easy. On a
-  screen with six coloured elements from two axes, it is a discipline —
+  screen with six coloured elements from two axes, it is a discipline. See
   [The two colour axes](../health/two-colour-axes.mdx).
 - **The material ladder.** A rung is a relative claim. Six surfaces stacked on one
-  screen is where the ladder either reads as depth or reads as fog —
-  [Materials](../foundations/materials/index.mdx).
+  screen is where the ladder either reads as depth or reads as fog.
+  [Materials](../foundations/materials/index.mdx) is where the ladder lives.
 - **Motion.** Sequencing, continuity and what all of it degrades to under
-  `prefers-reduced-motion` — [Choreography](../foundations/motion/choreography.mdx).
+  `prefers-reduced-motion`.
+  [Choreography](../foundations/motion/choreography.mdx) covers all three.
 
 There are five specimens. They are chosen to cover the four things a consumer
-health product does — show a result, capture a reading, show change, ask
-permission — plus the first run that decides whether any of the rest happens.
+health product does: show a result, capture a reading, show change, ask
+permission. The fifth is the first run, which decides whether any of the rest
+happens.
 
 <Callout title="These are specifications, not screenshots">
 No screen is built. Each page carries the composition it is intended to have, the
@@ -48,7 +50,7 @@ The same six sections, in the same order.
 
 | Section | What it is for |
 | --- | --- |
-| What this screen does | The reader's situation on arrival, what they are trying to find out, and — explicitly — what the screen deliberately does not do. |
+| What this screen does | The reader's situation on arrival, what they are trying to find out, and an explicit statement of what the screen deliberately does not do. |
 | Composition | The part hierarchy, and the material rung each surface sits on. |
 | Preview | The screen rendered in isolation under the product theme, at device widths. |
 | Safety notes | Where this specific screen could mislead, and what it does instead of guessing. |
@@ -59,9 +61,9 @@ Two conventions worth knowing:
 
 **Previews render under the product theme, not the docs chrome.** A screen is
 embedded from an isolated `(view)` route with its own document and its own token
-scope, so what you see is the opsinjs product surface — squircle corners,
-system-ui, generous spacing — rather than this site's deliberately dense square
-chrome. The reasoning is in
+scope, so what you see is the opsinjs product surface rather than this site's
+deliberately dense square chrome. That surface has squircle corners, system-ui
+and generous spacing. The reasoning is in
 [Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx).
 
 **Material rungs are referred to by position, never by name.** The rungs are named
@@ -73,17 +75,17 @@ settle.
 
 <SectionProgress counts={{ planned: 5 }} />
 
-- **[Results screen](./results-screen.mdx)** — one result, what it means, and what
-  happens next. The highest-stakes screen in the set, and the one where the
-  reading order matters most.
-- **[Daily log screen](./daily-log-screen.mdx)** — the surface somebody returns to
-  every day, judged on how little it costs rather than how much it shows.
-- **[Trends screen](./trends-screen.mdx)** — change over time across several
-  metrics, with the axis rules and the data-table twins.
-- **[Consent flow](./consent-flow.mdx)** — a sequence rather than a screen, and the
-  one place where the design's honesty is directly testable.
-- **[Onboarding screen](./onboarding-screen.mdx)** — first run: the minimum
-  collected before something useful is visible.
+- **[Results screen](./results-screen.mdx)** covers one result, what it means,
+  and what happens next. The highest-stakes screen in the set, and the one where
+  the reading order matters most.
+- **[Daily log screen](./daily-log-screen.mdx)** is the surface somebody returns
+  to every day, judged on how little it costs rather than how much it shows.
+- **[Trends screen](./trends-screen.mdx)** covers change over time across
+  several metrics, with the axis rules and the data-table twins.
+- **[Consent flow](./consent-flow.mdx)** is a sequence rather than a screen, and
+  the one place where the design's honesty is directly testable.
+- **[Onboarding screen](./onboarding-screen.mdx)** is the first run. The minimum
+  is collected before something useful is visible.
 
 ## Recipes and patterns first
 
@@ -106,8 +108,8 @@ per-component review passes and a screen fails.
    identify; status colours grade. If any one element is doing both, or if you
    cannot say which it is doing, fix it before anything else.
 3. **Count the surfaces at *attention* and *urgent*.** The budget is one urgent
-   surface per screen — [Alarm fatigue](../health/alarm-fatigue.mdx). Two means one
-   of them is going to be ignored, and you do not get to choose which.
+   surface per screen. See [Alarm fatigue](../health/alarm-fatigue.mdx). Two means
+   one of them is going to be ignored, and you do not get to choose which.
 
 ## Troubleshooting
 
@@ -122,9 +124,9 @@ against the three questions above.
 **"The screen I need is not here."**
 
 <Todo>
-There is no **today** or **dashboard** specimen — the screen most consumer health
-products actually open on, and the one where the alarm budget and the two axes are
-hardest to hold. It is the largest gap in this set.
+There is no **today** or **dashboard** specimen. That screen is the one most
+consumer health products actually open on, and the one where the alarm budget
+and the two axes are hardest to hold. It is the largest gap in this set.
 </Todo>
 
 <Todo>
@@ -140,9 +142,9 @@ the thing that is wrong.
 
 ## Next
 
-- **[Results screen](./results-screen.mdx)** — start here; it is the specimen with
-  the most decided.
-- **[Safety review checklist](../health/safety-review-checklist.mdx)** — the
+- **[Results screen](./results-screen.mdx)** is where to start. It is the
+  specimen with the most decided.
+- **[Safety review checklist](../health/safety-review-checklist.mdx)** is the
   pre-ship pass for any screen showing a health value.
-- **[Layout](../foundations/layout.mdx)** — page shells, safe areas and the two
-  canonical health screen layouts these specimens are built on.
+- **[Layout](../foundations/layout.mdx)** covers page shells, safe areas and the
+  two canonical health screen layouts these specimens are built on.

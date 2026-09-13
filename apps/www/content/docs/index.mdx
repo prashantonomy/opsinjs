@@ -1,6 +1,6 @@
 ---
 title: Introduction
-description: opsinjs is a React design system for consumer health apps — the components that show a person their own numbers, and the rules that keep those numbers honest.
+description: opsinjs is a React design system for consumer health apps. It is the components that show a person their own numbers, and the rules that keep those numbers honest.
 status: stable
 kind: guide
 icon: Sparkles
@@ -15,8 +15,9 @@ aliases: [what is opsinjs, introduction to opsinjs, opsinjs overview]
 
 ## Overview
 
-**opsinjs is a React design system for consumer health apps — the components that
-show a person their own numbers, and the rules that keep those numbers honest.**
+**opsinjs is a React design system for consumer health apps. It is the
+components that show a person their own numbers, and the rules that keep those
+numbers honest.**
 
 It is built for the reader who is not a clinician: someone opening an app to see a
 blood-pressure reading, a sleep score, a lab result, a step count. That reader is
@@ -34,14 +35,14 @@ a general-purpose UI kit:
   card and "you are fine" on the next has made a reading error unavoidable. See
   [The two colour axes](./health/two-colour-axes.mdx).
 - **The doctrine is testable.** The rules in [Health](./health/index.mdx) are
-  written as prohibitions a reviewer can check on a screenshot — not as
+  written as prohibitions a reviewer can check on a screenshot rather than as
   principles. "Never show a bare percentage change." "At most one urgent surface
   per screen." "Do not print the word *normal* next to a person's result."
 - **Numbers in these docs are generated, never remembered.** Contrast ratios,
   token values, prop tables and bundle sizes come out of the source and fail the
   build when they drift. See [Reading these docs](./start/reading-these-docs.mdx).
 
-### Alpha, not unbuilt — and this page will not overstate it either
+### Alpha rather than unbuilt, and this page will not overstate it either
 
 There is no npm package of components, and there is not meant to be: distribution
 is copy-in through a shadcn registry, decided in
@@ -53,8 +54,9 @@ change in any release with no deprecation cycle, and none of it has been audited
 for accessibility or reviewed by a clinician. Nothing here belongs on a production
 health surface yet.
 
-The other thirty-six catalogue ids are `considered` — reserved names with no code,
-each answered by a short generated page saying so rather than a 404. And the
+The other thirty-six catalogue ids are `considered`. They are reserved names
+with no code, each answered by a short generated page saying so rather than a
+404. And the
 **specification** is still the part that is hardest to retrofit: every component
 page states what the component asserts about a person's health, what it must
 never be read as, which colour axis it may use, who owns its thresholds, and the
@@ -63,7 +65,7 @@ accessibility bar it has to clear.
 If you are an agent: read `status` on the page, or `implemented` on the row in
 `/r/index.json`, and do not generalise from one page to the next. `alpha` means
 you may generate against the published API, provided you say it is unstable.
-`considered` and `planned` are definitive negative answers, not gaps — do not
+`considered` and `planned` are definitive negative answers, not gaps. Do not
 generate an implementation from a proposed API. See
 [Reading these docs](./start/reading-these-docs.mdx#for-agents).
 
@@ -138,21 +140,21 @@ Sixteen groups, one persistent sidebar, and one rule that resolves almost every
 
 Beyond that:
 
-- **[Start here](./start/index.mdx)** — orientation, fit, installation, and the
-  page you are reading.
-- **[Recipes](./recipes/index.mdx)** — task-first. "Show a value against a
+- **[Start here](./start/index.mdx)** covers orientation, fit, installation, and
+  the page you are reading.
+- **[Recipes](./recipes/index.mdx)** is task-first. "Show a value against a
   reference range" is a recipe; `RangeBar` is a component.
-- **[Components](./components/index.mdx)** — the 24 implemented components and
+- **[Components](./components/index.mdx)** has the 24 implemented components and
   their specifications, plus a catalogue row and a page for every name we have
   considered and not built.
-- **[Health](./health/index.mdx)** — the doctrine layer. Read it even if you never
-  install anything.
+- **[Health](./health/index.mdx)** is the doctrine layer. Read it even if you
+  never install anything.
 - **[Foundations](./foundations/index.mdx)**, **[Accessibility](./accessibility/index.mdx)**,
-  **[Content and language](./content/index.mdx)** — the three pillars that are
+  **[Content and language](./content/index.mdx)** are the three pillars that are
   100% real today, because they depend on tokens and rules rather than on code.
-- **[Agents](./agents/index.mdx)** — this site is designed to be read by machines
-  as well as people. Every page has a `.md` twin at the same URL plus `.md`, and
-  the corpus is published as `llms.txt` shards.
+- **[Agents](./agents/index.mdx)** is written for machine readers. This site is
+  designed to be read by machines as well as people. Every page has a `.md` twin
+  at the same URL plus `.md`, and the corpus is published as `llms.txt` shards.
 
 ## Verify it worked
 
@@ -162,8 +164,9 @@ scrolling back:
 1. **What is the one thing opsinjs will never do for you?** Decide what a health
    value means. It renders your product's decision; it does not make it.
 2. **What can you install today?** Twenty-four `alpha` components, as copied
-   source from the registry — not a package, and not anything you should put in
-   front of a patient yet. Every page says which it is in machine-readable form.
+   source from the registry. That is not a package, and not anything you should
+   put in front of a patient yet. Every page says which it is in machine-readable
+   form.
 3. **Why are there two kinds of colour?** Because "which measurement is this" and
    "how worried should I be" are different questions, and one palette cannot
    answer both without ambiguity.
@@ -191,9 +194,10 @@ components that implement it. The link exists in both directions on purpose.
 
 ## Next
 
-- [Start here](./start/index.mdx) — the five-minute map of this site, and the
+- [Start here](./start/index.mdx) is the five-minute map of this site, and the
   shortest path for your role.
-- [Safety, scope and limitations](./start/safety-scope-and-limitations.mdx) — read
-  before you commit to opsinjs for anything regulated or clinical-adjacent.
-- [The two colour axes](./health/two-colour-axes.mdx) — the single idea that most
-  changes how a health product looks.
+- [Safety, scope and limitations](./start/safety-scope-and-limitations.mdx) is
+  the page to read before you commit to opsinjs for anything regulated or
+  clinical-adjacent.
+- [The two colour axes](./health/two-colour-axes.mdx) is the single idea that
+  most changes how a health product looks.

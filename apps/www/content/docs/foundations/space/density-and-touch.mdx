@@ -20,8 +20,8 @@ because it was in the part of the screen a thumb has to stretch for.
 opsinjs sets a floor: **any control a person taps is at least 44 points on both
 axes**, measured on the interactive area rather than the visual box. That figure
 is the long-standing platform guidance for touch interfaces and it sits above the
-WCAG 2.2 SC 2.5.8 minimum of 24 CSS pixels — the two numbers come from different
-places and
+WCAG 2.2 SC 2.5.8 minimum of 24 CSS pixels. The two numbers come from different
+places, and
 [Target size and motor](../../accessibility/target-size-and-motor.mdx) says which
 is which.
 
@@ -37,20 +37,21 @@ does not. What is measured is what responds to a tap.
 The product theme backstops this: buttons, elements with a button role, checkboxes
 and radios all carry a minimum block and inline size from
 `--opsin-target-minimum`. That is a safety net for something that slipped
-through, not a substitute for sizing a control properly — a backstop that
+through, not a substitute for sizing a control properly. A backstop that
 stretches a control to the floor may produce a layout nobody intended.
 
 **Corners take area away.** A rounded control has less tappable area on its
 diagonals than its bounding box implies, so the floor is measured on the real
-shape. This is one reason small controls do not take large radius rungs — see
+shape. This is one reason small controls do not take large radius rungs. See
 [Radius scale](../shape/radius-scale.mdx).
 
 **Separation is a second, independent requirement.** Two 44-point controls
 touching each other still produce mis-taps, because a finger contact patch is
 larger than the point it registers and people aim at the middle of what they can
 see. Adjacent interactive elements are separated by at least one step of the
-spacing scale, and controls with asymmetric consequences — save next to delete,
-open next to dismiss — are separated by more or are not adjacent at all.
+spacing scale, and controls with asymmetric consequences, such as save next to
+delete or open next to dismiss, are separated by more or are not adjacent at
+all.
 
 **Reach is not uniform.** On a phone held in one hand, the lower half of the
 screen is comfortable, the top corners require a grip change, and the far top
@@ -88,7 +89,7 @@ health screen the thing they miss may be the escalation.
 
 **Do not extend a hit area invisibly across a gap.** Padding a control so its
 tappable area overlaps its neighbour's visible space produces taps that appear to
-land on one thing and activate another — which is worse than a small target,
+land on one thing and activate another. That is worse than a small target,
 because the reader cannot see why it happened.
 
 **Keep the floor at every text size.** The floor holds at 1× and at 1.3×. A hit
@@ -130,9 +131,9 @@ values are generated from `tokens/space.json` by `scripts/build-tokens.mts`.
 
 ## Related
 
-- [Responsive modes](responsive-modes.mdx) — how reach and density change as the
-  container grows, and why nothing gets smaller in the process.
-- [Target size and motor](../../accessibility/target-size-and-motor.mdx) — the
-  conformance position and the gesture-alternative requirement.
-- [Layout](../layout.mdx) — where the primary action sits, and the safe-area
-  contract that keeps it reachable.
+- [Responsive modes](responsive-modes.mdx) shows how reach and density change
+  as the container grows, and why nothing gets smaller in the process.
+- [Target size and motor](../../accessibility/target-size-and-motor.mdx) has
+  the conformance position and the gesture-alternative requirement.
+- [Layout](../layout.mdx) covers where the primary action sits, and the
+  safe-area contract that keeps it reachable.

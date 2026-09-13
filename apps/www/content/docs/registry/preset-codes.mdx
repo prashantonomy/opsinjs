@@ -11,15 +11,15 @@ aliases: [preset code, decode, apply theme, share a theme]
 ## Overview
 
 A preset code is a short opaque string that stands for a complete theme
-configuration — style, base colour, icon library, font, radius. It exists so
+configuration: style, base colour, icon library, font and radius. It exists so
 that "use this theme" can be six characters in a chat message rather than a
 paste of a stylesheet.
 
 opsinjs uses two related things and it is worth separating them immediately:
 
-- **shadcn preset codes** — opaque short codes the shadcn CLI decodes and
+- **shadcn preset codes** are opaque short codes the shadcn CLI decodes and
   applies. This documentation site was itself initialised from one.
-- **opsinjs preset names** — readable, namespaced names such as
+- **opsinjs preset names** are readable, namespaced names such as
   `opsinjs-default`, served as registry items at `/r/themes/<name>.json`.
 
 The first is a compact wire format for shadcn's own configuration space. The
@@ -37,7 +37,7 @@ npx shadcn@latest preset decode <code>
 
 It prints the style, base colour, theme, chart colour, icon library, font and
 radius the code stands for. Reading that output takes two seconds and is the
-difference between a deliberate change and a surprising one — the named `lyra`
+difference between a deliberate change and a surprising one. The named `lyra`
 preset, for instance, brings a different icon library and a monospace UI font,
 which is not obvious from the name and was exactly the surprise this project
 avoided by using the code form instead.
@@ -48,8 +48,8 @@ Related commands:
 npx shadcn@latest preset resolve
 ```
 
-Prints the preset your project currently matches — the fastest answer to "what
-theme is this project actually on".
+Prints the preset your project currently matches. That is the fastest answer to
+"what theme is this project actually on".
 
 ```npm
 npx shadcn@latest preset url <code>
@@ -79,7 +79,7 @@ almost always what you want: a full apply may touch component-level
 configuration you have already tuned.
 
 <Callout>
-`apply` edits `app/globals.css`. The order of that file is load-bearing — the
+`apply` edits `app/globals.css`. The order of that file is load-bearing. The
 generated token layer sits at a fixed position and the `dark` variant is pinned
 last on purpose. After applying anything, re-read the file's own header comment
 and check that the structure survived. See
@@ -130,7 +130,7 @@ everywhere, and needs no encoder.
 The third question in the block above is the one that matters. A code that can
 silently redefine the clinical status ramp is a code that can change what a
 screen asserts about somebody's health by being pasted into a terminal. The
-likely answer is no — see [Status palettes](../theming/status-palettes.mdx).
+likely answer is no. See [Status palettes](../theming/status-palettes.mdx).
 
 ## Verify it worked
 
@@ -161,7 +161,7 @@ moved, something wrote outside the role tier.
 much older or newer CLI may not decode. Pin the CLI version that produced it.
 
 **`preset resolve` prints nothing recognisable.** The project has drifted from
-every known preset — normal after hand edits, and not an error.
+every known preset. That is normal after hand edits, and not an error.
 
 **A named preset and a code disagree.** They are different systems. The name
 resolves to opsinjs JSON; the code resolves to shadcn configuration. Prefer the
@@ -169,7 +169,8 @@ name for anything opsinjs-specific.
 
 ## Next
 
-- [Presets](../theming/presets.mdx) — the theming-side view.
-- [registry-item.json](./registry-item-json.mdx) — the shape a preset takes on
+- [Presets](../theming/presets.mdx) is the theming-side view.
+- [registry-item.json](./registry-item-json.mdx) is the shape a preset takes on
   the wire.
-- [Self-hosting a fork](./self-hosting-a-fork.mdx) — serving your own presets.
+- [Self-hosting a fork](./self-hosting-a-fork.mdx) covers serving your own
+  presets.

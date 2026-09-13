@@ -18,7 +18,7 @@ aliases: [vite install, vite react opsinjs]
 Vite is the simplest opsinjs target because there is no server/client boundary to
 reason about: everything is a client tree, so every component is available
 everywhere and no import can be in the wrong place. What you lose is server
-rendering, which for a health interface is a real cost — first paint is when
+rendering, which for a health interface is a real cost. First paint is when
 someone sees their number.
 
 <Callout title="Alpha, and no published host yet">
@@ -39,7 +39,7 @@ is the same rule here, and it is stated in full only once.
 ### Start from a React + TypeScript Vite app with Tailwind v4
 
 Tailwind v4 in Vite is installed as a Vite plugin rather than a PostCSS step.
-Confirm Tailwind is generating classes before you add opsinjs — debugging both at
+Confirm Tailwind is generating classes before you add opsinjs. Debugging both at
 once is unpleasant and unnecessary.
 
 ### Make sure `@/` resolves
@@ -115,7 +115,8 @@ and retrofitting it later is more work than starting from
 
 ## Next
 
-- [components.json](./components-json.mdx) — the aliases that have to agree with
-  your Vite config.
-- [Monorepo](./monorepo.mdx) — if the Vite app is one workspace among several.
-- [Quick start](../quick-start.mdx) — the first real screen.
+- [components.json](./components-json.mdx) covers the aliases that have to agree
+  with your Vite config.
+- [Monorepo](./monorepo.mdx) applies if the Vite app is one workspace among
+  several.
+- [Quick start](../quick-start.mdx) covers the first real screen.

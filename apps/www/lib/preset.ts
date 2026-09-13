@@ -1,5 +1,5 @@
 /**
- * `opsinjs-*` PRESET CODES — a whole theme in eleven characters.
+ * `opsinjs-*` PRESET CODES pack a whole theme into eleven characters.
  *
  * A preset code is a short, copy-pasteable string that carries every choice the
  * colour engine needs to rebuild a theme: `opsinjs-1a3KpQz7`. It exists so that
@@ -13,7 +13,7 @@
  * prefix and nothing accepts a bare code.
  *
  * ────────────────────────────────────────────────────────────────────────────
- * THE APPEND-ONLY RULE — read before touching anything below.
+ * THE APPEND-ONLY RULE. Read it before touching anything below.
  *
  * The enumerated arrays (RADIUS_VALUES, DENSITY_VALUES, …) are stored as
  * INDICES. A code emitted today says "radius index 3", so:
@@ -115,11 +115,11 @@ interface PresetFields {
 
 /** A theme as a person describes it. What `encodePreset` takes and `decodePreset` returns. */
 export interface Preset {
-  /** Brand hue in degrees, 0–359. */
+  /** Brand hue in degrees, 0 to 359. */
   hue: number
   /** Brand chroma. Quantised to 0.005 on the way in. */
   chroma: number
-  /** Brand lightness, 0–1. Quantised to 0.01 on the way in. */
+  /** Brand lightness, 0 to 1. Quantised to 0.01 on the way in. */
   lightness: number
   neutralChroma: number
   /** `--opsin-radius-base` in px. */
@@ -264,8 +264,8 @@ export interface DecodeResult {
  * Decode a preset code.
  *
  * Never throws and never guesses. Every failure comes back with a named reason
- * and a sentence, because the two places this is called from — a paste field
- * and a route handler — both have to say something useful rather than fall over.
+ * and a sentence, because it is called from a paste field and a route handler,
+ * both of which have to say something useful rather than fall over.
  */
 export function decodePreset(code: string): DecodeResult {
   const trimmed = code.trim()
@@ -315,7 +315,7 @@ export function decodePreset(code: string): DecodeResult {
       version,
       error: "bad-checksum",
       message:
-        "This code did not survive being copied — a character is wrong or missing. Ask for it again rather than applying a theme that is nearly right.",
+        "This code did not survive being copied. A character is wrong or missing. Ask for it again rather than applying a theme that is nearly right.",
     }
   }
 

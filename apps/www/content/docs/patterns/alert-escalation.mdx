@@ -1,6 +1,6 @@
 ---
 title: Alert escalation
-description: Moving from ambient to interruptive without spending attention you will need later — the four rungs, the per-session budget, and the rule that de-escalation must be as visible as escalation.
+description: Moving from ambient to interruptive without spending attention you will need later. The four rungs, the per-session budget, and the rule that de-escalation must be as visible as escalation.
 status: planned
 kind: pattern
 aliases: [escalation ladder, interruptive alerts, alert budget, when to interrupt]
@@ -17,11 +17,11 @@ owner: design-system
 Use this pattern when the product has something to say that the reader did not
 ask for, and you have to decide how hard to say it.
 
-The unit of design here is not the alert. It is the **ladder** — the set of
-increasingly interruptive surfaces available to you, and the rules about which
-rung a given piece of information is allowed to occupy. A product without a
-ladder has exactly two volumes, silent and shouting, and it uses the second one
-for subscription reminders.
+The unit of design here is not the alert. It is the **ladder**, which is the
+set of increasingly interruptive surfaces available to you, and the rules about
+which rung a given piece of information is allowed to occupy. A product without
+a ladder has exactly two volumes, silent and shouting, and it uses the second
+one for subscription reminders.
 
 Reach for it when:
 
@@ -56,12 +56,12 @@ that can do its job, and moves up only on a stated trigger.
 <FlowDiagram>
 {`flowchart TD
   A["Something changed"] --> B{"Does the reader need to know today?"}
-  B -->|"no"| C["Rung 1 — Ambient: a StatusPill on the metric"]
+  B -->|"no"| C["Rung 1, ambient<br/>a StatusPill on the metric"]
   B -->|"yes"| D{"Is there an action with a deadline?"}
-  D -->|"no"| E["Rung 2 — In-context: an AlertBanner in the relevant section"]
+  D -->|"no"| E["Rung 2, in-context<br/>an AlertBanner in the relevant section"]
   D -->|"yes"| F{"Is the deadline sooner than the next likely visit?"}
-  F -->|"no"| G["Rung 3 — Top of screen: a persistent CareCard with the action"]
-  F -->|"yes"| H["Rung 4 — Interruptive: a modal the reader must answer"]
+  F -->|"no"| G["Rung 3, top of screen<br/>a persistent CareCard with the action"]
+  F -->|"yes"| H["Rung 4, interruptive<br/>a modal the reader must answer"]
   C --> I["De-escalate when the condition clears"]
   E --> I
   G --> I
@@ -84,7 +84,7 @@ that can do its job, and moves up only on a stated trigger.
 4. **Interruptive.** A modal `Dialog` or `Sheet` that must be answered before
    the reader continues. Cost: the reader's entire current intention. This rung
    is for information whose absence would cause harm before the next likely
-   session — and for nothing else.
+   session. It is for nothing else.
 
 ### The budget
 
@@ -103,7 +103,7 @@ pattern adds the mechanics that make a budget enforceable:
   clears, the reader is told it cleared. An alert that silently disappears
   teaches the reader that the alerts were never real.
 - **Dismissal has a defined memory.** State, per rung, whether dismissal lasts
-  for the session, until the value changes, or forever — and never make rung 4
+  for the session, until the value changes, or forever. Never make rung 4
   dismissible without an answer.
 
 ### States
@@ -125,7 +125,7 @@ verb phrase naming the outcome.
 <DoDont>
   <DoDont.Do>
     Rung 3: "Your blood pressure has been above your usual range for six days.
-    Your clinic asked to hear about this — book a call." One fact, one
+    Your clinic asked to hear about this. Book a call." One fact, one
     timeframe, one action with an owner.
   </DoDont.Do>
   <DoDont.Dont>
@@ -158,9 +158,8 @@ alerts](../content/writing-status-and-alerts.mdx). Do not restate either here.
   Rung 4 moves focus, because it is modal and the reader must know they are
   trapped.
 - **Rung 4 is a real dialog.** Focus is trapped, <Kbd>Escape</Kbd> behaviour is
-  defined — and if the answer is genuinely required, <Kbd>Escape</Kbd> is
-  disabled and the reason is announced rather than the key silently doing
-  nothing.
+  defined. If the answer is genuinely required, <Kbd>Escape</Kbd> is disabled
+  and the reason is announced rather than the key silently doing nothing.
 - **Do not escalate by motion.** A pulsing banner is not a higher rung; it is
   the same rung plus a barrier for anyone with a vestibular disorder. Under
   `prefers-reduced-motion` the ladder must be unchanged, which is only possible

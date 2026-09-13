@@ -1,6 +1,6 @@
 /**
  * The same measurement twice, three hours old and five weeks old, with no
- * staleness boundary supplied — which is what a tile looks like when nobody has
+ * staleness boundary supplied. That is what a tile looks like when nobody has
  * said what old means for the thing being measured.
  *
  * WHY THIS EXAMPLE REPLACED THE ONE THAT SHOWED THE MUTED STATE. The earlier
@@ -8,11 +8,11 @@
  * idea better for it. It also shipped a boundary. opsinjs owns no such number
  * for any measurement in any population, the choice is clinical and belongs to
  * whoever knows what was measured, and in a worked example a number is read as
- * a recommendation whatever the caption beside it says — the more so in a file
- * that installs into somebody's repository. Naming the constant for its author
- * did not change what the number decided, so the number is gone rather than
- * renamed, and the state it demonstrated is described on the component's page
- * and shown by no preview opsinjs ships.
+ * a recommendation whatever the caption beside it says. It is read that way
+ * all the more in a file that installs into somebody's repository. Naming the
+ * constant for its author did not change what the number decided, so the
+ * number is gone rather than renamed, and the state it demonstrated is
+ * described on the component's page and shown by no preview opsinjs ships.
  *
  * WHAT IS LEFT IS WORTH SEEING ON ITS OWN, because it is the state most
  * dashboards are actually in. Both tiles are set identically: the same weight,

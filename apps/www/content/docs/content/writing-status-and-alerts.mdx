@@ -13,8 +13,8 @@ aliases: [alert copy, warning wording, escalation copy, breaking bad results]
 ## The rule
 
 **Every status surface carries a word from a fixed vocabulary, and the word is
-what makes the colour non-load-bearing.** There are four levels — `steady`,
-`watch`, `attention`, `urgent` — and each one has a sentence shape, a permitted
+what makes the colour non-load-bearing.** The four levels are `steady`, `watch`,
+`attention` and `urgent`, and each one has a sentence shape, a permitted
 vocabulary and a set of words it may not use.
 
 The canonical definition of the levels lives on
@@ -81,11 +81,11 @@ them is available to software that is not a medical device.
 
 <DoDont>
   <DoDont.Do>Your reading was 118 over 74. That is in your usual range.</DoDont.Do>
-  <DoDont.Dont>All good — nothing to see here!</DoDont.Dont>
+  <DoDont.Dont>All good. Nothing to see here!</DoDont.Dont>
 </DoDont>
 
 <DoDont>
-  <DoDont.Do>You have been doing well and your average is down — and your reading this morning was higher than usual.</DoDont.Do>
+  <DoDont.Do>You have been doing well and your average is down. Your reading this morning was higher than usual.</DoDont.Do>
   <DoDont.Dont>You have been doing so well! Unfortunately your reading this morning was very high. But keep going, you have got this!</DoDont.Dont>
 </DoDont>
 
@@ -96,25 +96,25 @@ one of them lets the reader find the important one.
 
 One pattern per level. The parts in backticks are variables.
 
-**`steady` — nothing is required of the reader**
+**`steady` requires nothing of the reader**
 
 > Your `measure` was `value` `unit`. That is in `your usual range / the range
 > your GP set`.
 
 Stop there. No praise, no streak, no encouragement to keep it up.
 
-**`watch` — a pattern worth noticing, no action today**
+**`watch` marks a pattern worth noticing and asks for no action today**
 
 > Your `measure` has been `higher / lower` than usual for `duration`. On its own
 > this is not unusual. `Mention it at your next appointment / We will tell you if
 > it continues`.
 
-**`attention` — one specific thing to do**
+**`attention` names one specific thing to do**
 
 > Your `measure` was `value` `unit`, which is `above / below` `the named
 > reference`. `One imperative action`. `What happens if it is the same again`.
 
-**`urgent` — the reader must act now**
+**`urgent` means the reader must act now**
 
 > `Imperative action`. `How to do it`. `What to say`.
 
@@ -124,17 +124,17 @@ wording specifically is governed by
 canonical, and disclosure of self-harm has its own rules on
 [Crisis and self-harm](../health/crisis-and-self-harm.mdx).
 
-**Any level — the status word itself**
+**Any level carries the status word itself**
 
 > Steady · Watch · Needs attention · Urgent
 
-These four words appear verbatim in the interface, and a fifth — Not known — covers
-the absence of a reading rather than a fifth degree of urgency. They are not
-decorated, not translated into a synonym, and not replaced with a symbol. A
-`StatusPill` renders one of exactly these, read from
+These four words appear verbatim in the interface, and Not known is a fifth word
+that covers the absence of a reading rather than a fifth degree of urgency. They
+are not decorated, not translated into a synonym, and not replaced with a
+symbol. A `StatusPill` renders one of exactly these, read from
 `CLINICAL_STATUS_META[level].word` in `lib/status.ts` rather than typed into the
-component. The word and the token id are not the same string, which is the detail
-people get wrong: the `attention` level says "Needs attention".
+component. The word and the token id are not the same string, which is the
+detail people get wrong: the `attention` level says "Needs attention".
 
 **A notification that precedes an in-app alert**
 
@@ -171,12 +171,13 @@ Banned at specific levels:
 
 ## Related components
 
-- **`StatusPill`** — renders one status word. The whole colour-independence
+- **`StatusPill`** renders one status word. The whole colour-independence
   guarantee rests on that word being present and correct.
-- **`AlertBanner`** — the level drives the wording, the colour, the icon and the
-  announcement politeness together; the patterns above are its content contract.
-- **`CareCard`** — carries the action. The "one imperative action" rule is its
+- **`AlertBanner`** has a level that drives the wording, the colour, the icon
+  and the announcement politeness together; the patterns above are its content
+  contract.
+- **`CareCard`** carries the action. The "one imperative action" rule is its
   rule.
-- **`ResultCard`** — the `steady` and `watch` patterns are what its body says.
-- **`DisclaimerNote`** — the standing statement of what the product cannot tell
-  the reader, which is what makes the restraint above sustainable.
+- **`ResultCard`** says the `steady` and `watch` patterns in its body.
+- **`DisclaimerNote`** is the standing statement of what the product cannot
+  tell the reader, which is what makes the restraint above sustainable.

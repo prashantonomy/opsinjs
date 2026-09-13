@@ -5,7 +5,7 @@ import { useId, useState, type CSSProperties, type ReactNode } from "react"
 import { cn } from "@/lib/utils"
 
 /* ==========================================================================
-   material.tsx — <MaterialLadder>.
+   material.tsx defines <MaterialLadder>.
 
    Six rungs, from the opaque page to the modal scrim, stacked over a
    deliberately hostile backdrop.
@@ -15,8 +15,8 @@ import { cn } from "@/lib/utils"
    card, and then the same surface is put over a photograph and the text sitting
    on it is measured against nothing in particular. On a health screen the text
    that becomes unreadable is a number and a verdict. So the ladder is shown
-   over a high-frequency, multi-hue field rather than a tasteful grey — the
-   floor has to be VISIBLE, not asserted.
+   over a high-frequency, multi-hue field rather than a tasteful grey. The floor
+   has to be VISIBLE, not asserted.
 
    The backdrop is generated in CSS rather than shipped as a photograph. That is
    not a compromise: a real photograph would be one sample, and a reader would
@@ -25,11 +25,11 @@ import { cn } from "@/lib/utils"
 
    TWO TOGGLES, AND BOTH ARE OS PREFERENCES, NOT PREVIEW TOYS.
 
-     Scrim — every translucent rung has a minimum scrim opacity in
+     Scrim. Every translucent rung has a minimum scrim opacity in
      tokens/material.json. Turning it off shows what the rung looks like without
      the thing that keeps its text legible, which is the argument for the scrim.
 
-     Reduced transparency — `prefers-reduced-transparency: reduce` is a stated
+     Reduced transparency. `prefers-reduced-transparency: reduce` is a stated
      preference, and app/globals.css already collapses every translucent rung to
      its opaque fallback when it is set. This toggle simulates that for a reader
      who has not set it, so the fallback can be reviewed rather than trusted.
@@ -42,7 +42,7 @@ interface Rung {
    * The rung's NAME, which is also its token segment.
    *
    * tokens/material.json addresses rungs by name rather than by number on
-   * purpose: a number invites arithmetic — "one more than a card" — and this
+   * purpose: a number invites arithmetic like "one more than a card", and this
    * ladder is not arithmetic. Each rung answers a different question about what
    * is behind it, and there is no sense in which `overlay` is `sheet` plus one.
    */
@@ -72,7 +72,7 @@ const RUNGS: Rung[] = [
     name: "card",
     label: "Card",
     question: "Is this a distinct piece of content on the page?",
-    use: "A grouped block of related values — a result, a day's readings. Opaque, bordered, no shadow. The workhorse.",
+    use: "A grouped block of related values, such as a result or a day's readings. Opaque, bordered, no shadow. The workhorse.",
     translucent: false,
     fallback: "Unchanged.",
   },
@@ -94,7 +94,7 @@ const RUNGS: Rung[] = [
     use: "A bottom sheet or side panel the reader can dismiss. The blur keeps enough of the page visible that they know where they will return to.",
     translucent: true,
     fallback:
-      "Opaque card colour, blur removed. Border, shadow and geometry stay — they are what carry the layering once the translucency is gone.",
+      "Opaque card colour, blur removed. Border, shadow and geometry stay. They are what carry the layering once the translucency is gone.",
   },
   {
     index: 4,
@@ -123,8 +123,8 @@ const RUNGS: Rung[] = [
  * `scripts/build-tokens.mts` emits from tokens/material.json. The numbered form
  * is the authored fallback currently in app/globals.css. Asking for both, in
  * that order, means this specimen renders correctly before `pnpm run generate`
- * has ever run AND after it has — and it is one edit to drop the second form
- * once the two naming schemes have been reconciled.
+ * has ever run AND after it has. Once the two naming schemes have been
+ * reconciled, dropping the second form is one edit.
  */
 function materialVar(rung: Rung, property: string, fallback: string): string {
   return `var(--opsin-material-${rung.name}-${property}, var(--opsin-material-${rung.index}-${property}, ${fallback}))`
@@ -157,7 +157,7 @@ const BACKDROPS: Record<Backdrop, { label: string; style: CSSProperties }> = {
 export interface MaterialLadderProps {
   /** Start on a particular backdrop. */
   backdrop?: Backdrop
-  /** Show only one rung — used inline on a rung's own page. */
+  /** Show only one rung. A rung's own page uses this inline. */
   only?: 0 | 1 | 2 | 3 | 4 | 5
   className?: string
 }
@@ -305,15 +305,15 @@ export function MaterialLadder({
         The backdrop is generated in CSS, not photographed, so it is the same
         worst case on every machine. Measured contrast for these pairs is
         published by <code className="text-[0.6875rem]">pnpm run contrast</code>{" "}
-        on foundations/materials/the-contrast-floor — this specimen shows you
-        the problem, that page gives you the numbers.
+        on foundations/materials/the-contrast-floor. This specimen shows you the
+        problem, and that page gives you the numbers.
       </p>
     </div>
   )
 }
 
 export interface MaterialSurfaceProps {
-  /** The rung by name. Never by number — see the note on `Rung.name`. */
+  /** The rung by name. Never by number. See the note on `Rung.name`. */
   rung: Rung["name"]
   children: ReactNode
   className?: string

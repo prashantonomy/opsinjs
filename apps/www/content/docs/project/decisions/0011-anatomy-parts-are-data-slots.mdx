@@ -1,5 +1,5 @@
 ---
-title: "0011 — Anatomy parts are structure, not a public API"
+title: "ADR 0011. Anatomy parts are structure, not a public API"
 description: The part tree in every specification is the DOM contract expressed as data-slot, not a set of exported compound components, and the data attribute vocabulary is four names.
 status: stable
 kind: project
@@ -20,9 +20,10 @@ aliases: [anatomy parts, data-slot, compound components, part names]
 
 Every component specification has an `## Anatomy` section, and every one of them
 draws a tree in dot notation: `ResultCard.Header`, `RangeBar.Track`,
-`StatusPill.Icon`. The line above the tree on the `StatusPill` page says what the
-tree is for — "the specification the implementation must match". It does not say
-what the tree *is*, and the two available readings lead to different systems.
+`StatusPill.Icon`. The line above the tree on the `StatusPill` page calls it "the
+specification the implementation must match", which says what the tree is for. It
+does not say what the tree *is*, and the two available readings lead to different
+systems.
 
 Read as an export list, the trees across the twenty-four specifications come to
 well over a hundred exported compound parts, and the system has acquired a
@@ -42,7 +43,7 @@ composition API is a list of ways to remove something.
 Meanwhile the styling contract has to exist somewhere. A consumer who has copied
 a component into their own repository will restyle a part of it, and the
 generated reference already commits to how: attributes "appear on parts, not on
-components as a whole". And the attribute name is already in this tree —
+components as a whole". And the attribute name is already in this tree.
 `components/ui/button.tsx` stamps `data-slot="button"`, because that is the
 convention every other shadcn component a consumer owns already carries.
 
@@ -53,9 +54,9 @@ convention every other shadcn component a consumer owns already carries.
 Every part named in a specification's tree renders an element carrying
 `data-slot="<component-id>-<part>"`, kebab-cased and derived mechanically from
 the tree: `ResultCard.Header` becomes `data-slot="result-card-header"`, and the
-root part — `StatusPill.Root`, or the component itself where the tree has no
-explicit root — becomes `data-slot="status-pill"`. There is no mapping table and
-no judgement involved.
+root part becomes `data-slot="status-pill"`. The root part is `StatusPill.Root`,
+or the component itself where the tree has no explicit root. There is no mapping
+table and no judgement involved.
 
 **The single exception is a slot whose content the consumer supplies and no prop
 could carry.** A real dot-notation compound export exists there, and only there.
@@ -75,10 +76,10 @@ to this record.**
 | `data-opsinjs-value` | every element rendering a measurement a reader reads as their own | the machine-readable value, or empty when the value is absent |
 | `data-category` | every element tinted from the category axis | the six health categories |
 
-Attributes Base UI puts on its own primitives — `data-open`, `data-closed`,
-`data-starting-style`, `data-ending-style` — pass through untouched and are
+Attributes Base UI puts on its own primitives pass through untouched and are
 delegated rather than re-documented, as [ADR 0001](0001-base-ui-not-radix.mdx)
-requires. They do not count against this list.
+requires. Those attributes are `data-open`, `data-closed`, `data-starting-style`
+and `data-ending-style`, and they do not count against this list.
 
 ## Consequences
 
@@ -92,9 +93,9 @@ requires. They do not count against this list.
   selects on it. That is the real cost of choosing the DOM as the contract, and
   it is preferable to the alternative, which is a styling surface nobody can rely
   on and everybody uses anyway.
-- **Styling a part is a CSS selector, not a prop.** This decision is what removes
-  the `classNames` object — one entry per part — from twenty-four interfaces
-  before any of them is written.
+- **Styling a part is a CSS selector, not a prop.** A `classNames` object carries
+  one entry per part, and this decision is what removes it from twenty-four
+  interfaces before any of them is written.
 - **`data-status` and `data-category` never appear on the same element.** Putting
   the two axes in one vocabulary is what makes that statement checkable from
   source rather than by eye; it is the same rule
@@ -113,8 +114,8 @@ requires. They do not count against this list.
 **Export every part as a compound component**, which is what most headless
 libraries do. Rejected. It hands a consumer the ability to render a `StatusPill`
 without its word, a `RangeBar` track without its summary, and a `Field` control
-without its label — every one of which the corresponding specification forbids in
-prose, and none of which prose can prevent. The `StatusPill` page names the
+without its label. The corresponding specification forbids every one of those in
+prose, and prose can prevent none of them. The `StatusPill` page names the
 mechanism exactly: every escape hatch that has been offered has been used. In a
 system whose components carry somebody's test results, composition freedom is the
 hazard rather than the selling point.
@@ -134,9 +135,9 @@ exchange for nothing.
 
 **A class name, or an ARIA attribute, as the hook.** Rejected. A class name is
 exactly what a consumer's build tooling is entitled to rewrite or minify, and
-ARIA is an accessibility contract that assistive technology reads — overloading
-it as a styling hook means a styling change becomes an accessibility change, in
-both directions.
+ARIA is an accessibility contract that assistive technology reads. Overloading it
+as a styling hook means a styling change becomes an accessibility change, in both
+directions.
 
 ## Revisiting this
 

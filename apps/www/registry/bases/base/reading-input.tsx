@@ -1,7 +1,7 @@
 "use client"
 
 /**
- * ReadingInput — a Field for typing a measurement, with the unit beside the
+ * ReadingInput is a Field for typing a measurement, with the unit beside the
  * number rather than hidden in the label.
  *
  * IT COMPOSES `Field` AND REIMPLEMENTS NOTHING. The label relationship, the
@@ -26,16 +26,17 @@
  *      metric, in any population, ever… This applies to example data too", and
  *      `check-a11y.mts` enforces it with no exemption of any kind for a name
  *      matching `plausib`. So the prop could never appear in this file's demo,
- *      in any example, or in any preview — a feature nobody could ever see
- *      working.
+ *      in any example, or in any preview. It would be a feature nobody could
+ *      ever see working.
  *   3. The specification's own hint copy had to be corrected once for exactly
  *      this reason: it recommended a hint of "for example 128", which is a
  *      plausible systolic reading rendered as guidance by a system with no
  *      clinical owner.
- *   4. What the reader actually needs is a SENTENCE, not a bound — "that is
- *      higher than most readings, did you mean 128?" — and only the product can
- *      write it. `warning` takes that sentence. The product compares; this file
- *      renders, associates it with the control, and refuses to make it an error.
+ *   4. What the reader actually needs is a SENTENCE, not a bound, and only
+ *      the product can write it. An example is "that is higher than most
+ *      readings, did you mean 128?". `warning` takes that sentence. The
+ *      product compares; this file renders, associates it with the control,
+ *      and refuses to make it an error.
  *
  * A value nobody has told this component is impossible is a value it accepts and
  * passes on, unchanged. There is no bound anywhere in this file, and nothing is
@@ -43,15 +44,16 @@
  *
  * UNITS: WHAT IT CONVERTS, AND THE ONE IT REFUSES BY NAME.
  * The switch offers whatever `units` lists, and on a switch it asks
- * `convertUnit()` — which is generated from `tokens/units.json` and carries only
- * conversions that are true by DEFINITION. kg↔lb↔st is the 1959 international
- * pound; °C↔°F is the definition of the Fahrenheit scale. mmol/L↔mg/dL is not
- * there and will not be: the factor is the molar mass of the substance being
- * measured, and this component does not know what was measured. ADR 0016.
+ * `convertUnit()`. That function is generated from `tokens/units.json` and
+ * carries only conversions that are true by DEFINITION. kg↔lb↔st is the 1959
+ * international pound; °C↔°F is the definition of the Fahrenheit scale.
+ * mmol/L↔mg/dL is not there and will not be: the factor is the molar mass of
+ * the substance being measured, and this component does not know what was
+ * measured. ADR 0016.
  *
  * So a switch this system cannot make is a switch that CLEARS the entry and says
- * so on screen, rather than relabelling the digits — because relabelling 5.2
- * from mmol/L to mg/dL is an eighteen-fold error that looks entirely reasonable.
+ * so on screen, rather than relabelling the digits. Relabelling 5.2 from mmol/L
+ * to mg/dL is an eighteen-fold error that looks entirely reasonable.
  * A product that needs that switch supplies the arithmetic itself: it is
  * controlled, it receives `cause: "unit"` with the unit the reader asked for, and
  * it re-renders with its own converted value. Or there is no switch.
@@ -98,10 +100,10 @@ import { cn } from "@/lib/utils"
 import { Field } from "@/registry/base-lyra/ui/field"
 
 /**
- * Once per cause, not once per render — the same policy `field.tsx` implements
- * and for the same reason, doubled here because this is a controlled input
- * inside somebody's form. A complaint printed on every keystroke, twice under
- * Strict Mode, buries whatever else the console had to say.
+ * Once per cause, not once per render. This is the same policy `field.tsx`
+ * implements and for the same reason, doubled here because this is a controlled
+ * input inside somebody's form. A complaint printed on every keystroke, twice
+ * under Strict Mode, buries whatever else the console had to say.
  *
  * None of these gets an OPSIN code. `tokens/errors.json` has no entry for any of
  * them and a component may not mint one: the table is generated from that file
@@ -124,7 +126,7 @@ function warnDevelopmentOnce(cause: string, message: string): void {
  * a reader typing "-" or "12." or "." has typed something incomplete rather than
  * something wrong, and a field that erases an incomplete entry erases the
  * keystroke that was going to complete it. Anything that does not match is still
- * KEPT in the box and reported as no reading — see `parseReading`.
+ * KEPT in the box and reported as no reading. See `parseReading`.
  */
 const NUMERIC = /^-?\d*\.?\d*$/
 
@@ -135,7 +137,7 @@ const NUMERIC = /^-?\d*\.?\d*$/
  * both forms to be accepted, because a reader with a European keyboard layout
  * types a comma and a field that silently drops it turns 7,5 into 75. Exactly
  * one separator is swapped, so "1,234" is not quietly read as one thousand two
- * hundred and thirty-four — a thousands separator is ambiguous between the two
+ * hundred and thirty-four. A thousands separator is ambiguous between the two
  * conventions and guessing which was meant is how a reading moves by a factor of
  * a thousand.
  *
@@ -164,14 +166,14 @@ function toText(value: number | null): string {
  *
  * `roundTo` returns a Number and `String()` drops a trailing zero, so a field
  * carrying `precision={1}` and the hint "To one decimal place." converted 12.5 kg
- * to stone and printed "2" — one significant figure fewer than the sentence
- * above the box had just guaranteed. A reader cannot tell a rounded 1.97 from an
- * exact 2, which is the whole point of stating a precision.
+ * to stone and printed "2". That is one significant figure fewer than the
+ * sentence above the box had just guaranteed. A reader cannot tell a rounded
+ * 1.97 from an exact 2, which is the whole point of stating a precision.
  *
  * It is used ONLY on the conversion path, and that restriction is the design.
  * `toText` also renders the caller's own digits and re-seeds the buffer from
  * props, and padding there would rewrite a number under somebody's cursor as
- * they type — "5." would become "5.0" mid-keystroke and the reader could never
+ * they type. "5." would become "5.0" mid-keystroke and the reader could never
  * reach "5.2". `reported` stays Numbers either way, so `onChange` and
  * `data-opsinjs-value` are untouched.
  *
@@ -179,7 +181,7 @@ function toText(value: number | null): string {
  * made-up decimal place is the false precision `roundTo` already refuses. The
  * range check is not decoration: `toFixed` throws a RangeError outside 0 to 100
  * where `String()` never threw, and this component does not validate `precision`
- * the way `Value` does — turning a formatting defect into a crash would be the
+ * the way `Value` does. Turning a formatting defect into a crash would be the
  * larger mistake.
  */
 function toConvertedText(value: number | null, places: number | undefined): string {
@@ -195,8 +197,8 @@ function toConvertedText(value: number | null, places: number | undefined): stri
  *
  * `unit-systems` rule 6: round AFTER conversion, at the destination's precision,
  * and accept that the round trip is lossy. With no precision nothing is rounded,
- * which is the honest arithmetic and is also unreadable — 5 kg is
- * 11.023113109243878 lb — so the caller is told once, in development, that the
+ * which is the honest arithmetic and is also unreadable, since 5 kg is
+ * 11.023113109243878 lb. So the caller is told once, in development, that the
  * component has no basis for choosing decimal places and they have not supplied
  * one. There is no per-unit default here and there is none in `Value` either:
  * precision belongs to the measurement, not to the unit, and two measurements
@@ -232,7 +234,7 @@ export interface ReadingSegment {
   /**
    * What this part is, in the reader's language. It is a real visible label on
    * its own box, because a reader typing two numbers has to know which box is
-   * which — this is the entry side of a measurement, where `ResultCard` only has
+   * which. This is the entry side of a measurement, where `ResultCard` only has
    * to announce it.
    */
   label: string
@@ -251,12 +253,12 @@ export interface ReadingInputChange {
    */
   segments: ReadingSegment[]
   /**
-   * The number, for a simple reading. `null` for a compound one — half of a
+   * The number, for a simple reading. `null` for a compound one. Half of a
    * pair is not the reading, and returning the first part as though it were is
    * how a systolic ends up stored as a whole blood pressure.
    */
   value: number | null
-  /** The unit the numbers above are in — the one the reader is looking at. */
+  /** The unit the numbers above are in, and the reader is looking at it. */
   unit: string
   /**
    * Exactly what is in each box, unparsed and in order. It is the only way to
@@ -281,8 +283,8 @@ export interface ReadingInputChange {
 
 export interface ReadingInputProps {
   /**
-   * The measurement, in the reader's words. Required, visible and persistent —
-   * a placeholder is not a label and disappears the moment somebody types.
+   * The measurement, in the reader's words. Required, visible and persistent.
+   * A placeholder is not a label and disappears the moment somebody types.
    *
    * Put the unit in `unit`, not in here. The label names WHAT is being measured;
    * a label reading "Weight (kg)" leaves readers who think in pounds typing
@@ -295,37 +297,38 @@ export interface ReadingInputProps {
    * between unit systems, and the same digits are one reading in mmol/L and a
    * very different one in mg/dL.
    *
-   * Use the display symbol exactly as `tokens/units.json` spells it — "kg",
-   * "°C", "mmHg". The spoken form comes from that table, so a listener hears
-   * "in kilograms" rather than the letters. A symbol the table does not hold is
-   * spoken as written rather than pronounced by guesswork.
+   * Use the display symbol exactly as `tokens/units.json` spells it, as in
+   * "kg", "°C" or "mmHg". The spoken form comes from that table, so a listener
+   * hears "in kilograms" rather than the letters. A symbol the table does not
+   * hold is spoken as written rather than pronounced by guesswork.
    */
   unit: string
   /**
    * The reading, in `unit`. Controlled: what you pass is what is shown, and a
    * change reaches the screen only when you apply it. Omitted, or `null`, is an
-   * empty field — never a zero.
+   * empty field. It is never a zero.
    *
    * Ignored when `segments` is supplied, because a compound reading has no
    * single number.
    */
   value?: number | null
   /**
-   * A compound reading — two or more numbers that are one measurement, such as
+   * A compound reading is two or more numbers that are one measurement, such as
    * a blood pressure. Each becomes its own labelled box inside one named group,
    * which is what makes them separately typable and separately announced.
    *
    * `numbers-units-precision` rule 11 says a compound value is DISPLAYED in its
-   * conventional form — 118/76, one string, not two fields — and that rule is
-   * about display. This is entry, where `patterns/forms/units-and-numeric-entry`
-   * requires the opposite: separate fields under one legend, because asking
-   * somebody to type a solidus is asking them to format their own record. Both
-   * are right about their own half; the page says so.
+   * conventional form. That is 118/76 as one string, not two fields, and that
+   * rule is about display. This is entry, where
+   * `patterns/forms/units-and-numeric-entry` requires the opposite: separate
+   * fields under one legend, because asking somebody to type a solidus is
+   * asking them to format their own record. Both are right about their own
+   * half; the page says so.
    */
   segments?: ReadingSegment[]
   /**
    * Every change: a typed digit, a cleared box, a unit switch. There is no
-   * uncontrolled mode and no internal value — a caller that does not apply the
+   * uncontrolled mode and no internal value. A caller that does not apply the
    * change gets a field that will not accept typing, which is the ordinary
    * behaviour of a controlled input rather than a fault.
    */
@@ -337,10 +340,10 @@ export interface ReadingInputProps {
    *
    * Every pair the reader can reach should be one this system can convert:
    * kg/lb/st and °C/°F are exact definitions and are converted for you.
-   * mmol/L and mg/dL are refused by name — the factor is the molar mass of the
-   * substance being measured, which is a property of the substance and not of
-   * either unit — so a switch between them clears the entry and says so, and a
-   * product that needs it supplies its own arithmetic on `cause: "unit"`.
+   * mmol/L and mg/dL are refused by name, because the factor is the molar mass
+   * of the substance being measured, which is a property of the substance and
+   * not of either unit. So a switch between them clears the entry and says so,
+   * and a product that needs it supplies its own arithmetic on `cause: "unit"`.
    */
   units?: string[]
   /**
@@ -371,8 +374,8 @@ export interface ReadingInputProps {
    */
   warning?: string
   /**
-   * Decimal places, from the precision of the MEASUREMENT — the resolution of
-   * the instrument, or the places the laboratory reports.
+   * Decimal places, from the precision of the MEASUREMENT. That is the
+   * resolution of the instrument, or the places the laboratory reports.
    *
    * It is used for one thing only: rounding a number this component converted
    * when the reader switched units. It never reformats, rounds or pads what the
@@ -426,9 +429,9 @@ const CONTROL_ROW = "flex flex-wrap items-end gap-opsin-2"
  * A native `<select>`, and the reasons are all the same reason. It is one tab
  * stop, it is keyboard-operable everywhere without a roving-tabindex
  * implementation to get wrong, it announces its own value, and on a phone it
- * opens the platform's own picker — which is a bigger target than anything drawn
- * in CSS. `appearance-none` removes only the platform's arrow, which is redrawn
- * beside it so the control still reads as a control.
+ * opens the platform's own picker. That picker is a bigger target than anything
+ * drawn in CSS. `appearance-none` removes only the platform's arrow, which is
+ * redrawn beside it so the control still reads as a control.
  *
  * The 44px floor is set in both axes and with a rem fallback, exactly as
  * `field.tsx` sets it and for the same reason: `app/tokens.generated.css` does
@@ -515,10 +518,11 @@ export function ReadingInput({
 
   /* ONE INTERNAL SHAPE, TWO PUBLIC ONES. Everything below works on an array of
      parts, so the simple and the compound reading share every code path that
-     could otherwise drift — the parsing, the conversion, the change payload and
-     the described-by wiring. The simple reading is a one-part array whose part
-     is named by the field's own label, which is also what `onChange` reports, so
-     a caller can hand `segments` straight to a ResultCard either way. */
+     could otherwise drift. That is the parsing, the conversion, the change
+     payload and the described-by wiring. The simple reading is a one-part array
+     whose part is named by the field's own label, which is also what `onChange`
+     reports, so a caller can hand `segments` straight to a ResultCard either
+     way. */
   const compound = segments !== undefined && segments.length > 0
   const parts: ReadingSegment[] = compound
     ? (segments as ReadingSegment[])
@@ -527,19 +531,20 @@ export function ReadingInput({
   /* A NUMBER THAT DID NOT SURVIVE ITS JOURNEY IS NOT A READING, AND THE CRASH IS
      WHY THIS IS HERE RATHER THAN IN THE PROP TYPES. `value` and
      `segments[].value` are typed `number | null`, and NaN is a `number`:
-     `Number(row.weight)` on "—", "" or `undefined` produces one, TypeScript
-     accepts it, and nothing else in this file narrows it. Two things then go
-     wrong at once. `toText(NaN)` puts the literal string "NaN" in the box — and
-     `NaN === NaN` is false, so the buffer below never reconciles with the props,
-     the render-phase `setEntry` fires on every pass, and React aborts the whole
-     tree with "Too many re-renders", taking the form and everything around it
-     off the screen. A degradation is arguable; a crash is not.
+     `Number(row.weight)` on an em dash, an empty string or `undefined` produces
+     one, TypeScript accepts it, and nothing else in this file narrows it. Two
+     things then go wrong at once. `toText(NaN)` puts the literal string "NaN"
+     in the box. `NaN === NaN` is false, so the buffer below never reconciles
+     with the props, the render-phase `setEntry` fires on every pass, and React
+     aborts the whole tree with "Too many re-renders", taking the form and
+     everything around it off the screen. A degradation is arguable; a crash is
+     not.
 
      So it is narrowed once, here, at the boundary where the two public shapes
      become one internal one, and `null` is what it becomes: the empty box every
      path below already knows how to render, with `toText` returning "" for it
      unchanged. Every other numeric component in this registry narrows a
-     non-finite number to an explicit third state rather than drawing it — this
+     non-finite number to an explicit third state rather than drawing it. This
      is that rule, arriving late. The caller is told in development, because a
      silently emptied box is a reading a product thinks it passed. */
   const incoming = parts.map((part) =>
@@ -551,7 +556,7 @@ export function ReadingInput({
       '[opsinjs] <ReadingInput label="' +
         label +
         '"> was given a value that is not a ' +
-        "finite number — NaN or an infinity, which is what `Number(x)` returns " +
+        "finite number. NaN or an infinity is what `Number(x)` returns " +
         "for an em dash, an empty string or `undefined`. That is not a reading, " +
         'so the box was left empty rather than filled with the word "NaN". ' +
         "Pass `null` for a measurement you do not have; the field already says " +
@@ -566,7 +571,7 @@ export function ReadingInput({
      and `reported` remembers the numbers this component last sent out.
 
      The buffer is re-synchronised from props whenever `reported` and the props
-     disagree — which happens when the caller changes the reading itself, when it
+     disagree. That happens when the caller changes the reading itself, when it
      REFUSES a change and passes the old value back, and on the first render.
      Both are the same event from here: what the caller says is now on screen has
      stopped matching what this component last said was on screen. Derived during
@@ -670,7 +675,7 @@ export function ReadingInput({
     const anyTyped = current.some((reading) => reading !== null)
 
     /* Nothing has been typed, so nothing can have happened to it. The switch is
-       reported and no sentence is drawn — a line saying an empty field stayed
+       reported and no sentence is drawn. A line saying an empty field stayed
        empty is noise in the description of every control on the row. */
     if (!anyTyped) {
       setEntry({ text, reported: current, effect: null })
@@ -747,8 +752,8 @@ export function ReadingInput({
      `Field.Control` runs whatever `aria-describedby` it is given through the
      labelable context, which appends the ids Field registered for the hint and
      the error rather than replacing them. So these four ids are added to that
-     list, never substituted for it — verified against `LabelableProvider`, which
-     splits the incoming attribute and concatenates.
+     list, never substituted for it. This is verified against
+     `LabelableProvider`, which splits the incoming attribute and concatenates.
 
      The unit is in the DESCRIPTION rather than in the name, so the field
      announces as "Example measurement, edit, 12, in kilograms" and the unit is
@@ -772,7 +777,8 @@ export function ReadingInput({
             /* The name says what it switches, which is what makes it usable
                from a list of controls: "Unit for Example measurement", not
                "Unit". There is no visible label because the selected option IS
-               the visible label — the symbol, on screen, beside the number. */
+               the visible label. That label is the symbol, on screen, beside
+               the number. */
             aria-label={`Unit for ${label}`}
             aria-describedby={describedBy === "" ? undefined : describedBy}
             className={UNIT_SELECT}
@@ -821,9 +827,9 @@ export function ReadingInput({
         name={name === undefined ? undefined : compound ? `${name}-${index}` : name}
         onChange={(event) => handleText(index, event.currentTarget.value)}
         /* `type="text"` and not `type="number"`, deliberately. A number input
-           silently discards what it cannot parse — so a reader who types a
-           comma on a European keyboard watches their entry disappear with no
-           message — it exposes spin buttons the specification refuses as a sole
+           silently discards what it cannot parse. So a reader who types a comma
+           on a European keyboard watches their entry disappear with no message.
+           It also exposes spin buttons the specification refuses as a sole
            means of entry, and it scrolls the value on a trackpad. `inputMode`
            brings up the same keypad without any of that. */
         type="text"
@@ -878,8 +884,8 @@ export function ReadingInput({
          explicit that a unit switch must never silently convert and never
          silently keep the digits, and that whichever it does it has to say so.
          These two sentences are the only reader-facing copy this component owns,
-         and there is no prop to translate them — a real gap, listed on the page
-         rather than hidden here.
+         and there is no prop to translate them. That is a real gap, listed on
+         the page rather than hidden here.
 
          It is NOT a live region. The substrate contract forbids a component
          mounting one on the caller's behalf, so this joins the description of
@@ -892,7 +898,7 @@ export function ReadingInput({
       >
         {effect.kind === "converted"
           ? `Converted from ${effect.was} ${effect.from}.`
-          : `Cleared — enter the reading again in ${effect.to}.`}
+          : `Cleared. Enter the reading again in ${effect.to}.`}
       </p>
     )
 
@@ -952,9 +958,10 @@ export function ReadingInput({
  *
  * `/view` renders this with no props and `shadcn add` ships it, so it is public,
  * reviewed code rather than a scratch demo. It shows the state a reading input
- * spends most of its life in — empty, with the unit already on screen — and the
- * one behaviour worth watching: switch to °F and the number converts by the
- * definition of the Fahrenheit scale, with a line underneath saying it did.
+ * spends most of its life in, which is empty, with the unit already on screen.
+ * It also shows the one behaviour worth watching: switch to °F and the number
+ * converts by the definition of the Fahrenheit scale, with a line underneath
+ * saying it did.
  *
  * The measurement is fictional and the numbers are deliberately unreal (ADR
  * 0012). °C and °F are the units, because the pair is an exact definitional
@@ -963,8 +970,8 @@ export function ReadingInput({
  *
  * There is no `warning` here and there is no bound anywhere in this file to
  * produce one. Deciding that a number looks like a typing mistake needs bounds,
- * bounds are clinical, and opsinjs ships none — for any metric, in any
- * population, including in a demo.
+ * bounds are clinical, and opsinjs ships none. That holds for any metric, in
+ * any population, including in a demo.
  */
 export default function ReadingInputDemo() {
   const [reading, setReading] = useState<number | null>(null)

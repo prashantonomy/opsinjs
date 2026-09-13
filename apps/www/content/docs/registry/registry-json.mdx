@@ -16,13 +16,13 @@ what a search command indexes.
 
 The authoritative schema is shadcn's, published at
 `https://ui.shadcn.com/schema/registry.json`, and opsinjs implements it without
-extending it. Where opsinjs needs a field the schema has no column for — status,
-`implemented`, category, aliases, the doctrine pages that govern a component —
-those sit under `meta`, which the specification reserves for exactly this, and
-are republished in a flatter shape at `/r/index.json` for a consumer that wants
-them without having to know where inside `meta` they live. Nothing opsinjs emits
-sits outside the schema: an item that fails somebody else's validator is a worse
-outcome than a second request.
+extending it. opsinjs sometimes needs a field the schema has no column for:
+status, `implemented`, category, aliases, and the doctrine pages that govern a
+component. Those sit under `meta`, which the specification reserves for exactly
+this, and are republished in a flatter shape at `/r/index.json` for a consumer
+that wants them without having to know where inside `meta` they live. Nothing
+opsinjs emits sits outside the schema: an item that fails somebody else's
+validator is a worse outcome than a second request.
 
 ## The file
 
@@ -44,7 +44,7 @@ outcome than a second request.
         { "path": "lib/opsinjs.ts", "type": "registry:lib", "target": "@lib/opsinjs.ts" },
         { "path": "lib/status.ts", "type": "registry:lib", "target": "@lib/status.ts" }
       ],
-      "docs": "ResultCard — https://opsinjs.dev/docs/components/result-card",
+      "docs": "ResultCard is documented at https://opsinjs.dev/docs/components/result-card",
       "meta": { "opsinjs": { "implemented": true, "status": "alpha", "…": "…" } }
     }
   ]
@@ -60,19 +60,19 @@ schema's own.
 | Field | Required | What it is |
 | --- | --- | --- |
 | `$schema` | No, in practice yes | Points at the schema. Editors validate against it, and a typo becomes an error instead of a mystery |
-| `name` | Yes | The registry's own name. Not a namespace — the namespace is chosen by the consumer in `components.json` |
+| `name` | Yes | The registry's own name, not a namespace. The namespace is chosen by the consumer in `components.json` |
 | `homepage` | Yes | Where a human goes to understand what this is. Surfaced by `search` and by the MCP server |
 | `items` | Yes | The array. Order is not significant |
 | `items[].name` | Yes | The item id. Kebab-case, and in opsinjs it is exactly the catalogue id and the docs URL segment |
-| `items[].type` | Yes | What kind of thing it is — see below |
-| `items[].title` | Yes | Human-readable. PascalCase in opsinjs, the same string as the exported component — `ResultCard`, not "Result card" |
+| `items[].type` | Yes | What kind of thing it is, one of the types listed below |
+| `items[].title` | Yes | Human-readable. PascalCase in opsinjs, the same string as the exported component. That is `ResultCard`, not "Result card" |
 | `items[].description` | Yes | One sentence. In opsinjs this is the plain-English definition written for the patient, not the engineer |
-| `items[].files` | For anything with code | Path, type and target per file. **No `content`** in the catalog — see the rule below. Absent entirely on the thirty-six reserved names |
+| `items[].files` | For anything with code | Path, type and target per file. **No `content`** in the catalog, as the rule below explains. Absent entirely on the thirty-six reserved names |
 | `items[].dependencies` | No | npm packages the item needs |
 | `items[].registryDependencies` | No | Other items it needs, by name or by URL. opsinjs names them namespaced, `@opsinjs/status-pill` |
 | `items[].categories` | No | Free-form grouping used by search |
 | `items[].docs` | No | The note the CLI prints after install |
-| `items[].meta` | No | The schema's escape hatch, and where every opsinjs-specific field lives — `implemented`, `status`, `category`, `aliases`, `governedBy` |
+| `items[].meta` | No | The schema's escape hatch, and where every opsinjs-specific field lives. Those fields are `implemented`, `status`, `category`, `aliases` and `governedBy` |
 
 ### The catalog carries no file contents
 
@@ -92,14 +92,14 @@ The types opsinjs uses:
 | Type | Used for |
 | --- | --- |
 | `registry:ui` | Every catalogue item, and the component file inside it. All sixty rows are this |
-| `registry:lib` | Shared non-component code — `lib/opsinjs.ts` and `lib/status.ts`, which ride along inside each component item. A file type, never an item type |
+| `registry:lib` | Shared non-component code. These are `lib/opsinjs.ts` and `lib/status.ts`, which ride along inside each component item. A file type, never an item type |
 | `registry:theme` | A theme: `cssVars` and no files, served from `/r/themes/<preset>.json` |
 
 Three, and no more. The specification also defines `registry:component`,
 `registry:hook`, `registry:block` and others; opsinjs emits none of them today,
 so a consumer switching on type only ever sees the three above. `registry:block`
 is the one worth naming, because it is where composed multi-file screens would
-go and the catalogue has no screens in it — a tool that branches on it will
+go and the catalogue has no screens in it. A tool that branches on it will
 branch on a case that never arrives. Consult shadcn's schema rather than this
 table if you are authoring a registry of your own: this list is what opsinjs
 emits, not the full vocabulary.
@@ -116,20 +116,20 @@ drift apart.
 **Descriptions are plain English.** The `description` field is what appears in a
 search result, in an MCP listing, and as a card subtitle. It is written for
 somebody with no clinical training, in the same voice as the product itself.
-"Shows a value against a reference range" — not "RangeBar component with
-configurable thresholds".
+Write "Shows a value against a reference range" rather than "RangeBar component
+with configurable thresholds".
 
 **No field outside the schema.** Status, `implemented`, category, aliases and the
-accessibility-review date are opsinjs's, not shadcn's, so they go under `meta` —
-the place the specification set aside for them — and are republished flat at
-`/r/index.json` for a consumer that would rather not walk into `meta` to find
+accessibility-review date are opsinjs's, not shadcn's, so they go under `meta`,
+which is the place the specification set aside for them, and are republished flat
+at `/r/index.json` for a consumer that would rather not walk into `meta` to find
 them. Nothing is invented at the top level, which is what keeps an opsinjs item
 valid against a validator that has never heard of opsinjs.
 
 **Every id resolves.** Both the twenty-four implemented components and the
 thirty-six names on the considered roster appear somewhere addressable. An agent
 asking about a considered component gets a definite "considered, not implemented"
-answer and never a 404 — that is the failure the whole design exists to
+answer and never a 404. That is the failure the whole design exists to
 eliminate.
 
 ## Generated, not hand-written
@@ -184,9 +184,9 @@ An item with a terse description is hard to find; that is a content bug.
 
 ## Next
 
-- [registry-item.json](./registry-item-json.mdx) — one distributed item, in
+- [registry-item.json](./registry-item-json.mdx) covers one distributed item, in
   full.
-- [Version stamps](./version-stamps.mdx) — the line that is specified for the
+- [Version stamps](./version-stamps.mdx) is the line that is specified for the
   head of every emitted file, and is not written yet.
-- [Machine-readable schemas](../agents/machine-readable-schemas.mdx) — the
+- [Machine-readable schemas](../agents/machine-readable-schemas.mdx) covers the
   companion `/r/index.json`.

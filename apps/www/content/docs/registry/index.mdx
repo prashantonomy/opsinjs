@@ -18,16 +18,17 @@ underneath you.
 
 That model comes from shadcn, and opsinjs implements shadcn's registry
 specification rather than inventing one. The decision is recorded as
-[0002 — shadcn registry distribution](../project/decisions/0002-shadcn-registry-distribution.mdx).
+[ADR 0002. Distribute as a shadcn registry](../project/decisions/0002-shadcn-registry-distribution.mdx).
 This page explains what the trade actually is, because it is a real trade with a
 real cost and the cost is usually described less clearly than the benefit.
 
 <Callout>
-Twenty-four of the sixty ids carry real `files` with `content` — the component
-itself plus the shared substrate, `lib/opsinjs.ts` and `lib/status.ts`. The
-other thirty-six are reserved names on the considered roster: they resolve, they
-omit `files` entirely, and they carry `meta.opsinjs.implemented: false`, which is
-a definitive answer rather than a failure. Which is which is visible in
+Twenty-four of the sixty ids carry real `files` with `content`. That content is
+the component itself plus the shared substrate, `lib/opsinjs.ts` and
+`lib/status.ts`. The other thirty-six are reserved names on the considered
+roster: they resolve, they omit `files` entirely, and they carry
+`meta.opsinjs.implemented: false`, which is a definitive answer rather than a
+failure. Which is which is visible in
 `/r/index.json`.
 </Callout>
 
@@ -50,7 +51,7 @@ is no wrapper, no `styled(...)`, no shadow DOM, no `!important` cascade fight.
 
 **A machine-readable inventory for free.** Because the registry is a spec other
 tools already implement, the shadcn CLI and its MCP server work against opsinjs
-with no adapter — which is most of how
+with no adapter. That is most of how
 [Agents & automation](../agents/index.mdx) gets to be short.
 
 ## What it costs
@@ -79,11 +80,11 @@ Three kinds of thing are distributed, addressable at stable paths:
 
 | Path | What |
 | --- | --- |
-| `/r/registry.json` | The catalog — every item, no file contents. What the CLI and the MCP server read first |
+| `/r/registry.json` | The catalog, which lists every item and carries no file contents. What the CLI and the MCP server read first |
 | `/r/<name>.json` | One item at the default base and style, with file contents inlined |
 | `/r/styles/<style>/<name>.json` | The same item at an explicit style, for the base × style matrix |
 | `/r/themes/<preset>.json` | A theme-only item: `cssVars` and no files |
-| `/r/index.json` | The opsinjs view — status, category, aliases — which the shadcn spec has no field for |
+| `/r/index.json` | The opsinjs view of status, category and aliases, which the shadcn spec has no field for |
 
 The last row is worth noticing. `registry.json` is somebody else's schema and
 opsinjs does not extend it with private fields, because an item that fails
@@ -105,8 +106,8 @@ The namespaced form is shorter and requires configuration first:
 npx shadcn@latest add @opsinjs/status-pill
 ```
 
-To use the second — and to install any component that builds on another,
-whichever form you name it by — add the namespace to your `components.json`:
+Add the namespace to your `components.json` to use the second form, and to
+install any component that builds on another, whichever form you name it by:
 
 ```json title="components.json"
 {
@@ -118,7 +119,7 @@ whichever form you name it by — add the namespace to your `components.json`:
 
 <Callout>
 Fourteen items list their siblings in `registryDependencies`, and they list them
-namespaced — `@opsinjs/status-pill` rather than a URL — so the CLI needs the
+namespaced as `@opsinjs/status-pill` rather than a URL, so the CLI needs the
 `registries` block above in order to follow them, even when you named the item
 by its full URL. Those fourteen are alert-banner, card, care-card,
 consent-sheet, dialog, empty-state, log-sheet, metric-tile, range-bar,
@@ -148,7 +149,7 @@ npx shadcn@latest search @opsinjs
 ```
 
 Sixty items: the twenty-four that are implemented and the thirty-six reserved
-names, which the search output does not distinguish — `implemented` in
+names, which the search output does not distinguish. `implemented` in
 `/r/index.json` does. An error naming the namespace means `components.json` was
 not read.
 
@@ -169,21 +170,23 @@ resolves, and it has no files. Check `implemented` for that name in
 
 **`@opsinjs` is not found.** Missing or malformed `registries` block. The `{name}`
 placeholder is required; a URL without it cannot be substituted into. The same
-error at the *second* step of an install — the item resolved, one of its
-`registryDependencies` did not — is the same cause: add the block and retry.
+error at the *second* step of an install has the same cause. At that step the
+item resolved and one of its `registryDependencies` did not, so add the block
+and retry.
 
 **A file was written to the wrong directory.** The CLI uses the `aliases` in your
 `components.json`. See
 [components.json](../start/installation/components-json.mdx).
 
 **I want a specific style.** Use the `/r/styles/<style>/<name>.json` path. The
-docs URL for a component never carries a style segment — one canonical URL per
+docs URL for a component never carries a style segment. One canonical URL per
 component was a deliberate decision, and the matrix lives on the machine
 surfaces instead.
 
 ## Next
 
-- [Namespaces](./namespaces.mdx) — configure `@opsinjs` and compose registries.
-- [registry.json](./registry-json.mdx) — the catalog, annotated field by field.
-- [Version stamps](./version-stamps.mdx) — the fork problem, and the smallest
-  thing that helps.
+- [Namespaces](./namespaces.mdx) shows how to configure `@opsinjs` and compose
+  registries.
+- [registry.json](./registry-json.mdx) is the catalog, annotated field by field.
+- [Version stamps](./version-stamps.mdx) covers the fork problem, and the
+  smallest thing that helps.

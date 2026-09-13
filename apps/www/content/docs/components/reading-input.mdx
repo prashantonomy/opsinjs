@@ -18,9 +18,9 @@ usedIn: [daily-log-entry, daily-log-screen]
   issue="opsinjs/opsinjs#0"
   questions={[
     "Nothing on this page has been measured. No contrast pair has been checked by a machine, no field has been listened to with a screen reader, no hit area has been measured at 1.3× or at 200% text, and nobody has typed into it with a switch device.",
-    "A compound reading is three tab stops — two boxes and a unit switch — and the keyboard baseline says one stop per component. That baseline was written for a component with one control. Whether a compound reading should instead be one stop with arrow keys inside it has not been tested with anybody who uses a keyboard by necessity.",
+    "Two boxes and a unit switch make a compound reading three tab stops, and the keyboard baseline says one stop per component. That baseline was written for a component with one control. Whether a compound reading should instead be one stop with arrow keys inside it has not been tested with anybody who uses a keyboard by necessity.",
     "The line saying what a unit switch did to the entry is not announced when it appears. The component mounts no live region, deliberately, so the sentence joins the description of every control on the row and is read when focus reaches one. Whether that reaches somebody who cannot see it is unknown.",
-    "The two sentences this component owns — converted from, and cleared — are English, and there is no prop to translate them. Every other word on the surface is the product's.",
+    "The two sentences this component owns say converted from and cleared. Both are English, and there is no prop to translate them. Every other word on the surface is the product's.",
   ]}
 >
   <code className="text-sm">reading-input</code> is implemented and installable.
@@ -44,7 +44,7 @@ the number.
 
 The field in the state it spends most of its life in: empty, with the unit already visible
 beside the box rather than waiting in a placeholder. Switch it to °F and watch the line
-underneath — the entry converts by the definition of the Fahrenheit scale and says so.
+underneath. The entry converts by the definition of the Fahrenheit scale and says so.
 
 Open it under the product theme and turn the text size up. Two claims are meant to be
 checked rather than believed: that the unit wraps *beneath* the number instead of
@@ -92,7 +92,7 @@ import { ReadingInput } from "@/components/ui/reading-input"
     "Entry where the product has its own view of what a likely answer is, and wants to say so without stopping anybody.",
   ]}
   avoid={[
-    { case: "The number is not a measurement of a person — a quantity, a count, a reference code.", instead: "number-field" },
+    { case: "The number is not a measurement of a person but a quantity, a count or a reference code.", instead: "number-field" },
     { case: "The value is best chosen from a small set rather than typed.", instead: "segmented-control" },
     { case: "The value sits on a continuous scale the reader estimates rather than measures, such as a pain score.", instead: "scale-input" },
     { case: "You are displaying a reading rather than collecting one.", instead: "value" },
@@ -110,7 +110,7 @@ warn about it, it does not need this component and should not carry its implicat
 **What it asserts.** That the reader entered this number, in this unit, meaning it as a
 measurement of themselves. Self-reported provenance travels with the value from here to
 every surface that displays it, and this component has no way to mark a reading as anything
-else — a field somebody typed into is a field somebody typed into.
+else. A field somebody typed into is a field somebody typed into.
 
 **What it must never be read as.** A validated measurement, a device reading, or an assessed
 value. Nothing that happens in this field asserts anything clinical about the number,
@@ -123,10 +123,10 @@ verdict during data entry, before anyone has checked whether the number is even 
 is no `data-status` in this component, no status class, no category class, and the advisory
 sentence is a paragraph in the ordinary foreground colour with no glyph. Form chrome and
 clinical status are separate vocabularies, and the two-axis rule is worth nothing if one
-leaks into the other — see [Field](./field.mdx), which arrives at the same answer from the
-other direction.
+leaks into the other. [Field](./field.mdx) arrives at the same answer from the other
+direction.
 
-**Plausibility is the product's, comparison included — and this is where the implementation
+**Plausibility is the product's, comparison included. This is where the implementation
 departs from what this page proposed.** The specification had a `plausible` prop carrying a
 minimum and a maximum, with the component doing the comparison. It does not exist. The
 product supplies the finished `warning` sentence instead, and this component performs no
@@ -137,10 +137,10 @@ comparison of any kind, because:
   each part of a compound reading, which unit the bounds are stated in once the reader has
   switched units, and what counts as *outside* for a value somebody is halfway through
   typing.
-- A shipped bound is forbidden for any metric in any population — including in example data,
-  and however the constant is named — so the prop could never have appeared in a demo, an
-  example or a preview. A feature nobody can ever see working is a feature that is wrong in
-  a way nobody notices.
+- A shipped bound is forbidden for any metric in any population. The ban reaches example
+  data, and it holds however the constant is named, so the prop could never have appeared
+  in a demo, an example or a preview. A feature nobody can ever see working is a feature
+  that is wrong in a way nobody notices.
 - What a reader actually needs is a sentence, not an interval, and only the product can
   write it.
 
@@ -160,7 +160,7 @@ a placeholder. See [Unit systems](../health/unit-systems.mdx).
 **Which switches this component will make, and the one it refuses by name.** A switch asks
 `tokens/units.json`, which carries conversions that are true by **definition** and nothing
 else: kg ↔ lb ↔ st is the 1959 international pound, °C ↔ °F is the definition of the
-Fahrenheit scale. mmol/L ↔ mg/dL is not in that table and will not be — the factor is the
+Fahrenheit scale. mmol/L ↔ mg/dL is not in that table and will not be. The factor is the
 molar mass of the substance being measured, which is a property of the *substance* rather
 than of either unit, and glucose, cholesterol and creatinine each carry a different one. The
 same goes for HbA1c mmol/mol ↔ %, which is a fitted regression rather than a definition, and
@@ -170,7 +170,7 @@ records all three refusals.
 So a switch this system cannot make **clears the entry and says so**, rather than relabelling
 the digits: keeping 5.2 and changing the label above it from mmol/L to mg/dL is an
 eighteen-fold error that looks entirely reasonable on screen. A product that needs that
-switch supplies the arithmetic itself — the field is controlled, `onChange` reports
+switch supplies the arithmetic itself. The field is controlled, `onChange` reports
 `cause: "unit"` with `unitEffect: "cleared"` and the unit the reader asked for, and the
 product re-renders with its own converted value so the reader keeps their entry. It supplies
 the conversion, or there is no switch.
@@ -185,9 +185,9 @@ already lives.
 
 <SafetyCallout severity="attention" evidence="opinion">
 Changing the unit selector must never silently change the stored value or silently keep the
-typed digits. Whichever the component does, it must say so on screen — *converted from 10
-kg* or *cleared, please re-enter* — because both behaviours are correct in some situation and
-the reader is the only person who knows which one this is.
+typed digits. Whichever the component does, it must say so on screen in words such as
+*converted from 10 kg* or *cleared, please re-enter*, because both behaviours are correct in
+some situation and the reader is the only person who knows which one this is.
 </SafetyCallout>
 
 ## Anatomy
@@ -225,7 +225,7 @@ the reader is the only person who knows which one this is.
     },
     {
       name: "ReadingInput.Unit",
-      describes: "The unit, always visible beside the number and never only in the label. A native <select> at the 44px floor when two or more units are offered, plain text when one is, and either way a spoken form from tokens/units.json in the box's description — so the field announces as \"in kilograms\" rather than as \"kay gee\".",
+      describes: "The unit, always visible beside the number and never only in the label. A native <select> at the 44px floor when two or more units are offered, plain text when one is, and either way a spoken form from tokens/units.json in the box's description. The field therefore announces as \"in kilograms\" rather than as \"kay gee\".",
       prop: "units",
     },
     {
@@ -235,7 +235,7 @@ the reader is the only person who knows which one this is.
     },
     {
       name: "ReadingInput.Effect",
-      describes: "What a unit switch did to the entry, in words — converted from, or cleared. Present only after a switch that changed something, and gone the moment a box is touched. The only reader-facing copy this component owns.",
+      describes: "What a unit switch did to the entry, in words that say converted from, or cleared. Present only after a switch that changed something, and gone the moment a box is touched. The only reader-facing copy this component owns.",
     },
   ]}
 />
@@ -256,7 +256,7 @@ the reader is the only person who knows which one this is.
         {
           part: "ReadingInput.Hint",
           cardinality: "0..1",
-          note: "data-slot=\"reading-input-hint\"; compound readings only — a simple reading's hint is Field's",
+          note: "data-slot=\"reading-input-hint\"; compound readings only, because a simple reading's hint is Field's",
         },
         {
           part: "ReadingInput.Control",
@@ -271,7 +271,7 @@ the reader is the only person who knows which one this is.
                 {
                   part: "Field",
                   cardinality: "0..1",
-                  note: "data-slot=\"field\"; here for a compound reading only — for a simple one the single Field wraps this whole tree from ReadingInput's first child down",
+                  note: "data-slot=\"field\"; here for a compound reading only. For a simple one the single Field wraps this whole tree from ReadingInput's first child down",
                 },
                 {
                   part: "Field.Control",
@@ -306,7 +306,8 @@ The two shapes differ in exactly one place, and the tree above can only draw one
 simple reading has **one** Field wrapping everything from `ReadingInput.Control` down, so the
 label and the hint are Field's own parts; a compound reading has one Field **inside each
 segment**, so each box carries its own label and the group is named by a `<legend>` above
-them. Everything else — the slots, the wrapping row, the unit, the warning — is identical.
+them. Everything else is identical, and that covers the slots, the wrapping row, the unit
+and the warning.
 
 The parts are identified by `data-slot` and are styleable from outside. None of them is an
 export and there is no dot-notation API: content arrives as a prop, and there is nothing a
@@ -323,13 +324,13 @@ reader cannot see while typing is a unit they will assume, and the assumption is
 
 `segments` turns the field into a real `<fieldset>` with a `<legend>`, and each part into its
 own labelled box. The group has a name, each box has a name, and the unit belongs to the
-whole group and is printed once after the last box — both parts of a compound reading are in
+whole group and is printed once after the last box. Both parts of a compound reading are in
 the same unit by definition, and a pair in two different units is two measurements.
 
 This is the entry side of a rule that reads the other way round on the display side.
 [Numbers, units and precision](../health/numbers-units-precision.mdx) rule 11 says a compound
-value is *written* in its conventional form — one string with a solidus, not two fields — and
-[ResultCard](./result-card.mdx) obeys it. Here,
+value is *written* in its conventional form, which is one string with a solidus rather than
+two fields, and [ResultCard](./result-card.mdx) obeys it. Here,
 [Units and numeric entry](../patterns/forms/units-and-numeric-entry.mdx) requires the
 opposite: separate fields under one legend, because asking somebody to type a solidus is
 asking them to format their own record, and a single box cannot tell you which half is
@@ -347,8 +348,8 @@ displays it with no mapping step in between.
 Switch it and watch the line underneath. `precision` is why the result is readable: it is the
 decimal places of the *measurement*, and without it 10 kg becomes 22.046226218487757 lb,
 which is the honest arithmetic and is unusable. There is no per-unit default anywhere in
-opsinjs to fall back on — decimal places belong to the measurement rather than to the unit,
-and two measurements reported in the same unit do not share one — so a conversion with no
+opsinjs to fall back on. Decimal places belong to the measurement rather than to the unit,
+and two measurements reported in the same unit do not share one. So a conversion with no
 precision is not rounded at all and says so in development.
 
 <ComponentPreview name="reading-input-switching-the-unit" kind="example" align="start" />
@@ -376,7 +377,7 @@ and nothing on screen stops them or records what they meant.
 Hints show the **shape** of an answer, not an example reading and not a bound. *To one
 decimal place* and *both parts, in whole numbers* help. A specimen number does not: it is a
 plausible reading published by a system with no clinical owner, and readers anchor on it. A
-sentence naming two bounds is worse still — it reads as a rule the reader has already broken,
+sentence naming two bounds is worse still. It reads as a rule the reader has already broken,
 and it is a threshold nobody has signed for.
 
 Advisory messages ask a question and offer the likely fix. They never say *invalid*, never
@@ -386,11 +387,11 @@ of the words.
 
 <DoDont>
   <DoDont.Do>
-    **"That is a long way above most readings — did you mean to type a decimal point?"** with
+    **"That is a long way above most readings. Did you mean to type a decimal point?"** with
     the entry left exactly as typed and the correction offered as a control.
   </DoDont.Do>
   <DoDont.Dont>
-    **"Invalid value — that reading is outside the accepted range."** Rejects a number that
+    **"Invalid value. That reading is outside the accepted range."** Rejects a number that
     might be real, blames the reader, and hands them a bound to satisfy rather than a mistake
     to check.
   </DoDont.Dont>
@@ -398,11 +399,11 @@ of the words.
 
 <DoDont>
   <DoDont.Do>
-    **"Example measurement — [ 10 ] [ kg ▾ ]"** with the unit visible and switchable beside
+    **"Example measurement [ 10 ] [ kg ▾ ]"** with the unit visible and switchable beside
     the number.
   </DoDont.Do>
   <DoDont.Dont>
-    **"Example measurement (kg) — [ 10 ]"** with the unit only in the label. Readers who use
+    **"Example measurement (kg) [ 10 ]"** with the unit only in the label. Readers who use
     pounds will type pounds, and nothing on screen will stop them or record what they meant.
   </DoDont.Dont>
 </DoDont>
@@ -422,7 +423,7 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
   an object literal with two numeric bounds and no `source` beside them. There is no bound in
   this component and none in any of its three examples. One example did briefly hold a
   comparison constant while this was being written, under a name that would have passed the
-  gate — it is gone rather than renamed, because renaming a plausibility bound does not stop
+  gate. It is gone rather than renamed, because renaming a plausibility bound does not stop
   it being one.
 - **Nothing on this surface takes colour from either axis.** The rig fails a component that
   paints a status colour without also reading `CLINICAL_STATUS_META` and a glyph, and one that
@@ -431,7 +432,7 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
   and no `data-status` anywhere in it, which is what the *no verdict during data entry* rule
   looks like when a machine checks it.
 - **No type size in pixels and no raw colour literal**, so the field scales with the reader's
-  own text size, and **no class that resolves to nothing under `/view`** — the docs chrome's
+  own text size, and **no class that resolves to nothing under `/view`**. The docs chrome's
   palette is larger than the product's, and a component that reaches into it looks correct in
   review and renders unstyled in the app.
 - **No banned word in the copy or in an identifier.** The nine strings this component and its
@@ -447,24 +448,24 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
 - **The unit is in the field's description.** The spoken form comes from `tokens/units.json`,
   so the box announces as *Example measurement, edit, 10, in kilograms* rather than leaving a
   screen reader to improvise a pronunciation of a symbol. The description ids this component
-  adds are *merged* with the ones Field registered rather than replacing them — checked by
-  reading Base UI's labelable provider, which splits the incoming attribute and concatenates,
-  and not by listening to it.
+  adds are *merged* with the ones Field registered rather than replacing them. That is
+  checked by reading Base UI's labelable provider, which splits the incoming attribute and
+  concatenates, and not by listening to it.
 - **The right keyboard appears.** `inputMode` defaults to `"decimal"`, which can type a whole
   number where `"numeric"` cannot type a fraction, so the default is the one that fails
   safely. `enterKeyHint` is the caller's, because only the form around the field knows what
   the return key will do.
 - **The box is `type="text"`, not `type="number"`**, and that is an accessibility decision
-  rather than a stylistic one. A number input silently discards what it cannot parse — a
-  reader typing a comma on a European keyboard watches their entry vanish with no message —
+  rather than a stylistic one. A number input silently discards what it cannot parse,
   exposes the spin buttons this component is required not to rely on, and changes its value
-  when a trackpad scrolls over it. A comma is accepted as a decimal separator here, exactly
-  one of them, because guessing whether *1,234* is a thousands separator is how a reading
-  moves by a factor of a thousand.
-- **The unit switch is a real control** with a name that says what it switches — *Unit for
-  Example measurement* — and the 44px floor set in both axes with a rem fallback, so it grows
-  with the reader's text size and survives being installed in a project that has not wired the
-  token sheet.
+  when a trackpad scrolls over it. A reader typing a comma on a European keyboard watches
+  their entry vanish with no message. A comma is accepted as a decimal separator here,
+  exactly one of them, because guessing whether *1,234* is a thousands separator is how a
+  reading moves by a factor of a thousand.
+- **The unit switch is a real control** with a name that says what it switches, and in the
+  example that name is *Unit for Example measurement*. The 44px floor is set in both axes
+  with a rem fallback, so it grows with the reader's text size and survives being installed
+  in a project that has not wired the token sheet.
 - **The advisory sentence is a description and never an error.** No `aria-invalid`, no focus
   move, no cleared box, no blocked submission. There are no spin buttons anywhere.
 - **At 200% text the unit wraps beneath the number.** The control row is a wrapping flex row
@@ -478,11 +479,11 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
   is spoken *118 over 76 millimetres of mercury*. Those are two different contracts, the entry
   side and the display side, and only the display side has ever been written down properly.
 - **The line saying what a unit switch did is not announced when it appears.** The substrate
-  contract forbids a component mounting a live region on the caller's behalf — an input that
-  speaks on every keystroke is an input nobody can use — so the sentence joins the description
-  of every control on the row and is read when focus reaches one. That is a deliberate refusal
-  of this page's own *announced politely* requirement, and what it costs somebody who cannot
-  see the line has not been established.
+  contract forbids a component mounting a live region on the caller's behalf, because an
+  input that speaks on every keystroke is an input nobody can use. The sentence therefore
+  joins the description of every control on the row and is read when focus reaches one. That
+  is a deliberate refusal of this page's own *announced politely* requirement, and what it
+  costs somebody who cannot see the line has not been established.
 - **No contrast pair has been measured** for this component in either theme, and
   `prefers-contrast` and `forced-colors` are not implemented anywhere in opsinjs yet, so the
   increased-contrast claim cannot currently be made by anyone.
@@ -496,7 +497,7 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
     {
       keys: "Tab",
       action: "Moves to the box, then to the unit switch",
-      notes: "A compound reading is three stops rather than one — two boxes and the switch — and the baseline's one-stop-per-component rule cannot hold for it: two numbers a reader types are two controls. The departure is stated rather than hidden, and whether it should instead be one stop with arrow keys inside is an open question on this page.",
+      notes: "A compound reading has two boxes and a switch, which makes it three stops rather than one, and the baseline's one-stop-per-component rule cannot hold for it: two numbers a reader types are two controls. The departure is stated rather than hidden, and whether it should instead be one stop with arrow keys inside is an open question on this page.",
     },
     {
       keys: "Shift + Tab",
@@ -516,7 +517,7 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
     {
       keys: "Enter",
       action: "Whatever the surrounding form does",
-      notes: "This component adds no primary action and swallows nothing. Set enterKeyHint so the return key names what it will do — only the form around the field knows.",
+      notes: "This component adds no primary action and swallows nothing. Set enterKeyHint so the return key names what it will do. Only the form around the field knows.",
     },
     {
       keys: "Escape",
@@ -549,8 +550,8 @@ not carry the parts at all, and could not distinguish an empty box from one hold
 that is not a number. `ReadingInputChange` carries the segments, the unit, the raw text of
 every box, what the reader did, and what a unit switch did to the numbers.
 
-**`onUnitChange` is gone.** It was a mode enum wearing a React handler's name — `"convert" |
-"clear"` — with no stated default, and two `stable` pages
+**`onUnitChange` is gone.** It was a mode enum of `"convert" | "clear"` wearing a React
+handler's name, with no stated default, and two `stable` pages
 ([Units and numeric entry](../patterns/forms/units-and-numeric-entry.mdx) and
 [Capture a daily log entry](../recipes/daily-log-entry.mdx)) already required *convert*. So
 conversion is not a mode: it happens whenever `tokens/units.json` owns the factor, the entry
@@ -572,9 +573,9 @@ export interface ReadingSegment {
 export interface ReadingInputChange {
   /** Every part of the reading, in `unit`. Interchangeable with ResultCard's `segments`. */
   segments: ReadingSegment[]
-  /** The number, for a simple reading. `null` for a compound one — half a pair is not it. */
+  /** The number, for a simple reading. `null` for a compound one. Half a pair is not it. */
   value: number | null
-  /** The unit the numbers above are in — the one the reader is looking at. */
+  /** The unit the numbers above are in, which is the one the reader is looking at. */
   unit: string
   /** Exactly what is in each box, unparsed. The only way to tell empty from unparseable. */
   text: string[]
@@ -594,16 +595,16 @@ because this file ships as source into JavaScript projects where a type is advic
 `unit` missing from the `units` it offers, `optionality` on a compound reading, a conversion
 this system does not own, and a conversion with no `precision`. Each is reported once per
 distinct offender in development and each renders the honest fallback rather than dropping
-the field — a form control removed from the screen to report a copy mistake takes somebody's
+the field. A form control removed from the screen to report a copy mistake takes somebody's
 form away. None of them is an `OPSIN-` code: those describe mistakes a consumer makes with
 the clinical API, they are a versioned contract generated from `tokens/errors.json`, and a
 component may not mint one.
 
 There is no `plausible`, no `canonicalUnit`, no `onUnitChange`, no `locale` and no `error`.
-The last two are the ones somebody will ask for: this component formats nothing, so there is
-nothing for a locale to shape — the digits on screen are the digits typed or the digits the
-caller passed — and an error belongs to the form, which is `Field`'s `error` prop and marks
-the control invalid, which an advisory must never do.
+The last two are the ones somebody will ask for: this component formats nothing, and the
+digits on screen are the digits typed or the digits the caller passed, so there is nothing
+for a locale to shape. An error belongs to the form, which is `Field`'s `error` prop and
+marks the control invalid, which an advisory must never do.
 
 <DataAttributesTable
   name="reading-input"
@@ -611,7 +612,7 @@ the control invalid, which an advisory must never do.
     {
       attribute: "data-slot",
       condition: "On every part, always",
-      value: "reading-input, reading-input-legend, reading-input-hint, reading-input-control, reading-input-segment, reading-input-unit, reading-input-warning, reading-input-effect — plus the slots the embedded Field stamps: field, field-label, field-hint, field-control, field-error.",
+      value: "reading-input, reading-input-legend, reading-input-hint, reading-input-control, reading-input-segment, reading-input-unit, reading-input-warning, reading-input-effect. The embedded Field stamps its own slots on top: field, field-label, field-hint, field-control, field-error.",
     },
     {
       attribute: "data-opsinjs-value",
@@ -621,21 +622,21 @@ the control invalid, which an advisory must never do.
     {
       attribute: "data-status",
       condition: "Never. There is none on this surface, at any value of any prop.",
-      value: "—",
+      value: "Never set",
     },
     {
       attribute: "data-category",
       condition: "Never. There is none on this surface, at any value of any prop.",
-      value: "—",
+      value: "Never set",
     },
   ]}
 />
 
-Base UI stamps its own state attributes on the control — `data-touched`, `data-dirty`,
-`data-filled`, `data-focused`, `data-invalid`, `data-valid`, `data-disabled` — and they pass
-through untouched. `data-filled` and `data-touched` are the pair worth knowing about: `null`
-means *there is no number in this box*, and it does not distinguish an emptied box from one
-nobody has reached yet. Those attributes do, and so does `ReadingInputChange.text`.
+The state attributes Base UI stamps on the control are `data-touched`, `data-dirty`,
+`data-filled`, `data-focused`, `data-invalid`, `data-valid` and `data-disabled`, and they
+pass through untouched. `data-filled` and `data-touched` are the pair worth knowing about:
+`null` means *there is no number in this box*, and it does not distinguish an emptied box
+from one nobody has reached yet. Those attributes do, and so does `ReadingInputChange.text`.
 
 ## Related
 
@@ -643,17 +644,17 @@ nobody has reached yet. Those attributes do, and so does `ReadingInputChange.tex
 
 **Easily confused with**
 
-- [Field](./field.mdx) — the general label, control, hint and error composition, and the
+- [Field](./field.mdx) is the general label, control, hint and error composition, and the
   component this one is built on rather than beside. ReadingInput is a Field with a unit, a
   compound form, and an advisory that is deliberately not an error.
-- `number-field` (considered, no page yet — see the [roster](./index.mdx)) — a plain numeric
-  input with no clinical semantics.
-- [Value](./value.mdx) — the display counterpart. The two must agree on precision and units,
+- `number-field` (considered, no page yet) is a plain numeric input with no clinical
+  semantics. See the [roster](./index.mdx).
+- [Value](./value.mdx) is the display counterpart. The two must agree on precision and units,
   or a reader will type one thing and read back another. `Value` formats, because nobody is
   typing into it; this one does not, for the same reason in reverse.
-- [ResultCard](./result-card.mdx) — where a compound reading goes once it has been entered.
+- [ResultCard](./result-card.mdx) is where a compound reading goes once it has been entered.
   It takes the same `segments` shape and writes the pair in its conventional form.
-- `scale-input` (considered) — for estimated scores such as pain or mood, which are not
+- `scale-input` (considered) is for estimated scores such as pain or mood, which are not
   measurements.
 
 **Used by**

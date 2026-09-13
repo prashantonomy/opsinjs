@@ -22,7 +22,7 @@ single stylesheet whose order you control.
 
 <Callout title="No published host, and this path is not tested">
   Two separate gaps. `opsinjs.dev` is not serving, so `@opsinjs` resolves only
-  against a registry you point it at yourself —
+  against a registry you point it at yourself. See
   [Troubleshooting](../troubleshooting.mdx#nothing-is-published-yet). And
   TanStack Start has not been exercised against opsinjs at all: the requirements
   below follow from the framework's architecture rather than from a build we
@@ -55,7 +55,7 @@ that resolves in the editor and fails at build, or the reverse.
 
 TanStack Start renders a document shell from the root route. The opsinjs token
 layer belongs in the single stylesheet that shell loads, after Tailwind and before
-your overrides — the rule stated in full on [Next.js](./next.mdx).
+your overrides. [Next.js](./next.mdx) states that rule in full.
 
 ### `@source` for the directory you copy components into
 
@@ -72,10 +72,10 @@ your overrides — the rule stated in full on [Next.js](./next.mdx).
 
 TanStack Start distinguishes server functions from client rendering rather than
 marking whole modules, so the practical guidance differs slightly from the
-App Router: put the loader work — fetching the value, resolving the range, applying
-your clinical mapping — in a server function, and keep the component that renders
-the result free of computation. That is the arrangement opsinjs assumes everywhere,
-and it happens to be the idiomatic one here.
+App Router. The loader work is fetching the value, resolving the range, and
+applying your clinical mapping. Put that in a server function, and keep the
+component that renders the result free of computation. That is the arrangement
+opsinjs assumes everywhere, and it happens to be the idiomatic one here.
 
 ## Verify it worked
 
@@ -94,11 +94,12 @@ and it happens to be the idiomatic one here.
 `tsconfig.json` disagree.
 
 **Something framework-specific goes wrong.** This path is not yet tested, so please
-report it rather than working around it in silence — the report is what turns this
+report it rather than working around it in silence. The report is what turns this
 page from inference into documentation. [Community](../../project/community.mdx).
 
 ## Next
 
-- [Vite](./vite.mdx) — the shared Vite mechanics in more detail.
-- [Next.js](./next.mdx) — the CSS order rule stated in full.
-- [Framework support](../framework-support.mdx) — where this sits in the matrix.
+- [Vite](./vite.mdx) covers the shared Vite mechanics in more detail.
+- [Next.js](./next.mdx) has the CSS order rule stated in full.
+- [Framework support](../framework-support.mdx) is where this sits in the
+  matrix.

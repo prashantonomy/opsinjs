@@ -2,18 +2,18 @@
 
 # This is NOT the Next.js you know
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+This version has breaking changes. APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
 
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+This block is written and re-added by `next dev`. Verify that at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
 
-# apps/www — the opsinjs documentation site
+# apps/www is the opsinjs documentation site
 
 The repository-wide rules are in `../../AGENTS.md`. This file is the app-local detail
 that recall gets wrong.
 
-## Route structure — two root layouts, no `app/layout.tsx`
+## Route structure with two root layouts and no `app/layout.tsx`
 
 ```
 app/(chrome)/layout.tsx      <html>/<body>, imports globals.css, mounts RootProvider
@@ -40,15 +40,15 @@ The component layer is being built against the specifications that already exist
 `content/docs/components/`. Those specifications are binding: you implement against
 them, you do not redesign them, and where one genuinely contradicts itself you resolve
 it deliberately with an ADR and fix the losing side in the same commit. The `considered`
-pages are not specifications and are not implementation targets — they are generated
+pages are not specifications and are not implementation targets. They are generated
 stubs that record a reserved name, say why it is not on the roster and name what to use
 instead, and `scripts/build-registry.mts` rewrites them from `registry/catalogue.ts` on
 every run.
 
 A component page moves to `alpha` only once its component renders at
 `/view/base/base-lyra/component/<id>` with `data-opsin-view-state="ready"` and the gates
-pass — and its catalogue row's `status` moves in the same commit. Everything not yet
-built keeps the honesty vocabulary (`<NotBuiltYet>`, `<StubNotice>`, `<NoDataYet>`,
+pass. Its catalogue row's `status` moves in the same commit. Everything not yet built
+keeps the honesty vocabulary (`<NotBuiltYet>`, `<StubNotice>`, `<NoDataYet>`,
 `<Todo>`), which is still most of the corpus.
 
 `registry/` is where the code lands. The mechanics are app-local and easy to get wrong
@@ -57,7 +57,7 @@ from recall:
 ```
 registry/bases/base/<id>.tsx       one flat file per component; the stem IS the
                                    catalogue id, the docs URL segment and the
-                                   registry item name — there is no mapping table
+                                   registry item name. There is no mapping table
 registry/examples/<id>-<name>.tsx  variations rendered by <ComponentPreview kind="example">
 registry/screens/<id>.tsx          whole-screen compositions
 registry/__index__.ts              GENERATED from the three directories above
@@ -76,29 +76,29 @@ directories and nothing deeper. Two consequences that cost an afternoon each:
 
 `registry/__index__.ts` is generated and drift-gated: an entry appears there the moment
 a real file exists, and `getRegistryEntry()` returning null is what makes
-`<ComponentPreview>` render `<NotBuiltYet>`. Never hand-edit it — `predev` and
+`<ComponentPreview>` render `<NotBuiltYet>`. Never hand-edit it. `predev` and
 `prebuild` both run `generate`, so a stale index cannot survive a dev start, and an
 unexpected regeneration diff will appear in `git status` mid-session.
 
-Tailwind already scans the registry from **both** stylesheets — `app/globals.css:49`
-and `app/product.css:25` each declare `@source "../registry/**/*.{ts,tsx}";` — so
-utility classes written in a new component file are in the content graph with no config
-change. The `product.css` one is the one that matters: it is the sheet a component
-actually renders against.
+`app/globals.css:49` and `app/product.css:25` each declare
+`@source "../registry/**/*.{ts,tsx}";`, so Tailwind already scans the registry from
+**both** stylesheets, and utility classes written in a new component file are in the
+content graph with no config change. The `product.css` one is the one that matters: it
+is the sheet a component actually renders against.
 
 **The palette a component renders against is `app/product.css`, not `app/globals.css`.**
 A preview is an iframe into `(view)`, which imports only `product.css`, so anything
-declared solely in `globals.css` — the lyra docs chrome's `--secondary`, `--accent`,
-`--destructive`, `--popover`, `--sidebar*`, `--chart-*` and the larger radii — resolves
-to nothing there. A component using them looks correct in review and renders unstyled in
-the product. `product.css`'s `@theme inline` block is the whole list of what is
-available.
+declared solely in `globals.css` resolves to nothing there. That is the lyra docs
+chrome's `--secondary`, `--accent`, `--destructive`, `--popover`, `--sidebar*`,
+`--chart-*` and the larger radii. A component using them looks correct in review and
+renders unstyled in the product. `product.css`'s `@theme inline` block is the whole
+list of what is available.
 
 ## fumadocs 16 API, as used here
 
 - Source map: `import { docs } from "@/.source"` → `loader()` in `lib/source.ts`.
   `.source/` is gitignored and regenerated by `postinstall` (`fumadocs-mdx`), which is why
-  `typecheck` is `fumadocs-mdx && next typegen && tsc --noEmit` — a clean clone would
+  `typecheck` is `fumadocs-mdx && next typegen && tsc --noEmit`. A clean clone would
   otherwise fail typecheck pointing at your own `lib/source.ts`.
 - Provider: `import { RootProvider } from "fumadocs-ui/provider/next"`. It already mounts
   next-themes; there is **no** `components/theme-provider.tsx` and there must never be
@@ -107,11 +107,12 @@ available.
   exist.** `source.config.ts` sets `postprocess: { includeProcessedMarkdown: true }` to
   make `getText('processed')` available; the `.md` twin routes and `/r/docs.json` depend
   on it.
-- Links inside MDX go through `createRelativeLink` — relative file paths, never `/docs/…`.
+- Links inside MDX go through `createRelativeLink`, which takes a relative file path
+  and never `/docs/…`.
 - `fumadocs-ui` is the alias `npm:@fumadocs/base-ui`. The primitive layer is Base UI, not
   Radix. Do not install `@radix-ui/*`.
 
-## CSS — the order in `app/globals.css` is load-bearing
+## The CSS order in `app/globals.css` is load-bearing
 
 `tailwindcss` → `tw-animate-css` → `shadcn/tailwind.css` → `fumadocs-ui/css/shadcn.css`
 → `fumadocs-ui/css/preset.css` → `@source` lines → the lyra `@theme inline` / `:root` /
@@ -120,8 +121,8 @@ available.
 
 Two traps this order defuses: importing `fumadocs-ui/css/neutral.css` as well gives you
 two themes fighting, and shadcn's own `@custom-variant dark (&:is(.dark *))` at the top of
-the file silently loses to fumadocs' `:where` form depending on import order — so the
-`:where` superset is pinned at the bottom where order stops mattering.
+the file silently loses to fumadocs' `:where` form depending on import order. The
+`:where` superset is therefore pinned at the bottom where order stops mattering.
 
 `app/tokens.generated.css` is emitted by `scripts/build-tokens.mts` from `tokens/*.json`.
 Never hand-edit it. `app/globals.css` owns only the `@import` line.
@@ -137,7 +138,7 @@ with an explicit `.ts` extension, which is why `tsconfig.json` sets
 
 ## Do not
 
-- Read `searchParams` in `app/(chrome)/(docs)/docs/[[...slug]]/page.tsx` — it deoptimises
+- Read `searchParams` in `app/(chrome)/(docs)/docs/[[...slug]]/page.tsx`. It deoptimises
   the whole corpus out of static generation.
 - Add a `webpack` key to `next.config.mjs`. Turbopack hard-fails on it.
 - Run `next lint`. It was removed; use `pnpm lint`.

@@ -25,12 +25,12 @@ nothing will tell you an upgrade exists unless you build the habit of asking.
 
 ### Find out what changed
 
-Read the [changelog](../project/changelog/index.mdx). The specified shortcut — a
-version stamp in the file itself, so it can name the version it came from — is
-not emitted yet, and [Version stamps](./version-stamps.mdx) explains what blocks
-it; until it lands, the changelog and your own record of what you installed are
-the whole answer. Do this before touching anything; an upgrade you cannot
-describe is one you cannot review.
+Read the [changelog](../project/changelog/index.mdx). The specified shortcut is
+a version stamp in the file itself, so it can name the version it came from. It
+is not emitted yet, and [Version stamps](./version-stamps.mdx) explains what
+blocks it; until it lands, the changelog and your own record of what you
+installed are the whole answer. Do this before touching anything; an upgrade you
+cannot describe is one you cannot review.
 
 ### Diff before you fetch
 
@@ -46,7 +46,7 @@ last.
 
 Some hunks are upstream fixes you want. Some are upstream style changes you do
 not care about. Some collide with a deliberate local change. Treat them
-separately — the temptation to accept or reject the whole file is what produces
+separately. The temptation to accept or reject the whole file is what produces
 both lost fixes and lost customisations.
 
 ### Take it
@@ -56,7 +56,7 @@ npx shadcn@latest add @opsinjs/result-card --overwrite
 ```
 
 Then re-apply your local changes from the diff you just read. If your local
-changes are extensive, a three-way merge is better — see below.
+changes are extensive, a three-way merge is better. See below.
 
 ### Re-check
 
@@ -76,10 +76,10 @@ version you want, and your current file. Any merge tool can take it from there,
 and the result is a merge with conflicts you resolve rather than a choice between
 two whole files.
 
-This only works if you can identify and obtain the version you originally copied,
-and today nothing in the file tells you which that was — the commit that ran
-`add` is the only record, which is why committing the install on its own is the
-first habit below. It is also the entire argument for the specified
+This only works if you can identify and obtain the version you originally
+copied, and today nothing in the file tells you which that was. The commit that
+ran `add` is the only record, which is why committing the install on its own is
+the first habit below. It is also the entire argument for the specified
 [version stamp](./version-stamps.mdx), and for opsinjs serving historical items
 rather than only the latest.
 
@@ -113,8 +113,9 @@ what has changed upstream is a small habit that prevents a large migration.
 <Callout>
 No upgrade path has been exercised in anger: every catalogue row is still
 `since: unreleased`, so there is not yet a second version of anything to upgrade
-to. The list below is the set of hazards the design anticipates, and it is a specification of
-what upgrade notes will have to cover — not a report of observed breakage.
+to. The list below is the set of hazards the design anticipates, and it is a
+specification of what upgrade notes will have to cover rather than a report of
+observed breakage.
 </Callout>
 
 - **A token pair moved.** Your contrast measurements are stale. Re-run them.
@@ -169,8 +170,8 @@ Composition is explicit, and this is what explicit looks like.
 
 ## Next
 
-- [Version stamps](./version-stamps.mdx) — the mechanism this page would depend
-  on, and what is blocking it.
-- [Changelog](../project/changelog/index.mdx) — what actually changed.
-- [Versioning policy](../project/versioning-policy.mdx) — what a version number
-  is allowed to imply.
+- [Version stamps](./version-stamps.mdx) covers the mechanism this page would
+  depend on, and what is blocking it.
+- [Changelog](../project/changelog/index.mdx) says what actually changed.
+- [Versioning policy](../project/versioning-policy.mdx) says what a version
+  number is allowed to imply.

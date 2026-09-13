@@ -77,12 +77,13 @@
  * Three gaps follow, and all three are named rather than closed. A shouted
  * `URGENT` is not the published casing. A word buried mid-sentence is not whole
  * text. And the JSX-text scan reads only the FIRST text run after an opening
- * tag, so `<span><svg />Urgent</span>` — a word placed after a sibling element,
- * which is exactly how an icon-then-word pill is written — is invisible to it.
- * The first two cost the level id or the sentence to close. The third is a
- * limitation of scanning JSX with a regex rather than a parser, and the honest
- * position is that this rule raises the cost of restating a status word without
- * making it impossible. What it must never do is claim otherwise.
+ * tag, so `<span><svg />Urgent</span>` is invisible to it. In that markup the
+ * word sits after a sibling element, which is exactly how an icon-then-word
+ * pill is written. The first two cost the level id or the sentence to close.
+ * The third is a limitation of scanning JSX with a regex rather than a parser,
+ * and the honest position is that this rule raises the cost of restating a
+ * status word without making it impossible. What it must never do is claim
+ * otherwise.
  *
  * ── SEVERITY, AND WHERE A WARNING ACTUALLY FAILS ──────────────────────────────
  *
@@ -182,13 +183,13 @@ const SCAN_DIRS = [
  * the cases tokens/glossary.json:19 names, and they are all covered here.
  *
  * `ly` was removed once and has been put back, and the round trip is worth
- * recording. It was removed because it matched `positively` — an ordinary
- * English adverb, in a COMMENT, in a correct file. But the real defect there
- * was that this scan was reading comments at all: an identifier is not a
- * comment, and the scan now reads the comment-blanked source. With that fixed,
- * `ly` costs nothing and covers `normally` and `poorly`, so removing it as well
- * was surplus leniency on a banned-word gate. Two independent reviewers said so
- * and they were right.
+ * recording. It was removed because it matched `positively`. That is an
+ * ordinary English adverb, and the match was in a COMMENT, in a correct file.
+ * But the real defect there was that this scan was reading comments at all:
+ * an identifier is not a comment, and the scan now reads the comment-blanked
+ * source. With that fixed, `ly` costs nothing and covers `normally` and
+ * `poorly`, so removing it as well was surplus leniency on a banned-word gate.
+ * Two independent reviewers said so and they were right.
  *
  * The gap this leaves is the PREFIXED form: `denormalize` is one segment that
  * does not begin with a banned word, so it passes. Closing it means stripping
@@ -510,16 +511,17 @@ function escapeForRegExp(value: string): string {
  *
  * Not `\b` either, and that is the part worth explaining. `\b` treats a hyphen
  * as a word boundary, so it fires on `whitespace-normal`, `font-normal` and
- * `normal-case` — Tailwind utilities, in a file that has done nothing wrong. It
- * fired on the first component this repository ever built, twice, which is
- * exactly how a check earns a reputation for crying wolf and then gets deleted.
- * So a hyphen on either side disqualifies a match here.
+ * `normal-case`. Those are Tailwind utilities, in a file that has done nothing
+ * wrong. It fired on the first component this repository ever built, twice,
+ * which is exactly how a check earns a reputation for crying wolf and then
+ * gets deleted. So a hyphen on either side disqualifies a match here.
  *
  * That leaves a hole, and A11Y010 below is what fills it: the compound
- * IDENTIFIER form — `normalRange`, `isNormal`, `NORMAL_RANGE` — which `\b`
- * never caught in the first place, because there is no boundary between `l` and
- * `R`. The ban on identifiers is real (`tokens/glossary.json:19`), and it is
- * enforced by segmenting identifiers rather than by widening this pattern.
+ * IDENTIFIER form, which `\b` never caught in the first place, because there
+ * is no boundary between `l` and `R`. That form is `normalRange`, `isNormal`
+ * and `NORMAL_RANGE`. The ban on identifiers is real
+ * (`tokens/glossary.json:19`), and it is enforced by segmenting identifiers
+ * rather than by widening this pattern.
  *
  * The apostrophe in "don't worry" is matched straight, curly or absent, and the
  * space is matched as any run of whitespace so that a line break inside a
@@ -539,10 +541,10 @@ function bannedWordPattern(word: string): RegExp {
  * It has to be asked, because this repository composes classes with `cn(...)`,
  * so a class list is an ordinary string literal and not an attribute value.
  * A token is utility-shaped when it is lower case, contains no sentence
- * punctuation, and carries a `-` or a `:` — `whitespace-normal`,
- * `dark:bg-status-urgent-surface`, `size-[1em]`. A sentence fails on the first
- * capital or full stop, and a one-word string fails for want of a separator, so
- * `"normal"` on its own is still copy and is still caught.
+ * punctuation, and carries a `-` or a `:`. `whitespace-normal`,
+ * `dark:bg-status-urgent-surface` and `size-[1em]` all qualify. A sentence
+ * fails on the first capital or full stop, and a one-word string fails for want
+ * of a separator, so `"normal"` on its own is still copy and is still caught.
  */
 function looksLikeClassList(text: string): boolean {
   const tokens = text.trim().split(/\s+/).filter(Boolean)
@@ -564,10 +566,11 @@ function looksLikeClassList(text: string): boolean {
  * Every way a file can paint a status colour.
  *
  * This matters more than it looks. The rule below used to trigger only on
- * `data-status`, which meant the exact defect it exists to catch — a surface
- * coloured `bg-status-urgent` with no word, no glyph and no DOM contract — was
- * the one shape that passed it clean. A check that is evaded by writing LESS is
- * worse than no check, because it reads as coverage.
+ * `data-status`. That meant the exact defect it exists to catch was the one
+ * shape that passed it clean. The defect is a surface coloured
+ * `bg-status-urgent` with no word, no glyph and no DOM contract. A check that
+ * is evaded by writing LESS is worse than no check, because it reads as
+ * coverage.
  *
  * Both spellings are matched: the custom property, and the Tailwind utility the
  * product theme bridges it to. The utility list is every colour-consuming prefix
@@ -580,8 +583,8 @@ function looksLikeClassList(text: string): boolean {
  * Every test in `checkStatusCarriers` asks "does this file DO x", and a comment
  * explaining why the file does not do x is not the file doing it. Without this,
  * a comment naming `CLINICAL_STATUS_META` makes the checker report the wrong one
- * of two branches and tell the author something false about their own file —
- * which is exactly the kind of thing that gets a checker distrusted and then
+ * of two branches and tell the author something false about their own file.
+ * That is exactly the kind of thing that gets a checker distrusted and then
  * disabled. `://` is spared so that a URL in a string is not turned into a
  * comment boundary.
  *
@@ -594,12 +597,13 @@ function looksLikeClassList(text: string): boolean {
  * The banned words worth reporting in a COMMENT, which is a smaller list than
  * the one worth reporting in copy.
  *
- * The full union contains words with common technical meanings — a constraint
- * that `failed`, `just` the block axis, a `positive` integer, a `perfectly
- * good` comparison, `normal` flow. In reader-facing copy every one of them is a
- * defect. In a comment about code, almost every occurrence is ordinary English,
- * and a rule that reports eight legitimate uses to catch one real one is a rule
- * that gets switched off — which would cost the real one too.
+ * The full union contains words with common technical meanings, such as a
+ * constraint that `failed`, `just` the block axis, a `positive` integer, a
+ * `perfectly good` comparison, and `normal` flow. In reader-facing copy every
+ * one of them is a defect. In a comment about code, almost every occurrence is
+ * ordinary English, and a rule that reports eight legitimate uses to catch one
+ * real one is a rule that gets switched off. Doing that would cost the real one
+ * too.
  *
  * So the comment scan takes the words that have no common technical sense: the
  * ones that can only be about a person. `normal` is kept because it is the word
@@ -634,7 +638,7 @@ function commentText(source: string): { text: string; index: number }[] {
 
   /* Its own scanner rather than a diff against `withoutComments`. The first
      version compared the blanked string to the source and treated any position
-     where they differed as comment — which is every character EXCEPT the spaces,
+     where they differed as comment. That was every character EXCEPT the spaces,
      because a blanked space equals a real space. Each comment WORD became its
      own region, so "normal flow" arrived as "normal" with nothing after it and
      the terms-of-art exemption below could never fire. The rule appeared to
@@ -757,8 +761,8 @@ function withoutComments(source: string): string {
      defect rather than fastidiousness: a `/*` inside one string literal pairs
      with a `*​/` inside another, and the regex form then blanks every line
      between them. That silently switched off A11Y001 and both halves of A11Y002
-     over the region — a check that stops checking without saying so, which is
-     the failure mode this whole file exists to avoid.
+     over the region. The result is a check that stops checking without saying
+     so, which is the failure mode this whole file exists to avoid.
 
      Blanks rather than deletes: every character inside a comment becomes a
      space and newlines are kept, so an offset into the result is the same
@@ -959,7 +963,7 @@ function checkStatusCarriers(
      PRESCRIBES: an AlertBanner tints its own surface from the status axis and
      renders a StatusPill inside for the word and the glyph. Under the narrowed
      rule that component was a hard error with no repair available except
-     deleting the rule — which is how a gate dies. One file cannot tell the
+     deleting the rule. That is how a gate dies. One file cannot tell the
      difference, so it says so, at warning severity, and `--strict` is what
      makes a warning fail. */
   const composesRegistry = /from\s+["']@\/registry\/[^"']+\/ui\/[^"']+["']/.test(code)
@@ -1342,9 +1346,9 @@ function checkAxisConflict(
  * `staleAfterHours`, `thresholdMmol`, `minimumPoints`, `upperLimit`: each of
  * them, defaulted to a literal, is opsinjs deciding when a reading is old, when
  * a trend is worth drawing, or when a value has crossed a line. §7 of the brief
- * forbids every one of those outright — "for any metric, in any population,
- * ever" — and an omitted one renders an explicit "we do not have this" rather
- * than a substituted default.
+ * forbids every one of those outright. The prohibition is "for any metric, in
+ * any population, ever". An omitted one renders an explicit "we do not have
+ * this" rather than a substituted default.
  */
 const THRESHOLD_NAMES =
   /(stale|threshold|cutoff|cut_?off|upperlimit|lowerlimit|minimum|maximum|\blimit\b|expire|expiry|freshfor|band|plausib|refrange|referencerange)/i
@@ -1353,8 +1357,8 @@ const THRESHOLD_NAMES =
  * The subset §7 names by name, which therefore has NO example exemption.
  *
  * "Never ship a reference range, threshold, plausibility bound, score band,
- * staleness default, emergency number, or default disclaimer text — for any
- * metric, in any population, ever… This applies to example data too."
+ * staleness default, emergency number, or default disclaimer text. This holds
+ * for any metric, in any population, ever… This applies to example data too."
  *
  * `minimumPoints` is not on that list and is not clinical in the same way: it
  * decides whether a line is drawn, not whether a reading is current. So it keeps
@@ -1384,9 +1388,8 @@ const THRESHOLD_EXEMPT =
  * the default export that `shadcn add` copies into a consumer's project, and an
  * example carried `STALE_AFTER_HOURS = 48`. Neither number came from anywhere.
  * opsinjs cannot know when a reading goes stale, because it does not know what
- * was measured — and a component that guesses has decided, on behalf of a
- * product that never asked, when to stop telling somebody their result is
- * current.
+ * was measured. A component that guesses has decided, on behalf of a product
+ * that never asked, when to stop telling somebody their result is current.
  *
  * It reads only the code, so a threshold DISCUSSED in a comment or documented on
  * a page is untouched. It fires on a default value and on a module constant,
@@ -1395,15 +1398,15 @@ const THRESHOLD_EXEMPT =
  */
 function checkShippedThresholds(file: string, source: string, starts: number[]): void {
   const code = withoutComments(source)
-  /* `name = 42`, `name: 42`, `name={42}` — a default, a property, a JSX prop. */
+  /* A default is `name = 42`, a property `name: 42`, a JSX prop `name={42}`. */
   const pattern = /\b([A-Za-z_$][\w$]*)\s*(?:=\s*|:\s*|=\{)\s*(-?\d+(?:\.\d+)?)\b/g
   let match: RegExpExecArray | null
   const reported = new Set<string>()
   /* THE INDIRECTION ROUTE, which is how one got past the first version of this
      rule. `minimumPoints={READINGS_A_TREND_NEEDS}` with
      `const READINGS_A_TREND_NEEDS = 4` above it is the same defect wearing a
-     name the pattern above cannot recognise — and it is the name somebody
-     reaches for precisely BECAUSE it reads as prose rather than as a threshold.
+     name the pattern above cannot recognise. It is the name somebody reaches
+     for precisely BECAUSE it reads as prose rather than as a threshold.
      So a numeric constant is resolved through to the prop it reaches: the prop
      name is the thing that says what the number decides, and a caller cannot
      rename that. */
@@ -1422,9 +1425,9 @@ function checkShippedThresholds(file: string, source: string, starts: number[]):
     if (literal === undefined) continue
     if (THRESHOLD_EXEMPT.test(prop) || !THRESHOLD_NAMES.test(prop)) continue
     /* `EXAMPLE_` is the same convention `EXAMPLE_SOURCE` uses, and it is the
-       only way to write a threshold in this repository. A demo has to pass one
-       — the whole point of `minimumPoints` is that a product supplies it, and
-       an example with no product is the example standing in for one. Requiring
+       only way to write a threshold in this repository. A demo has to pass one.
+       The whole point of `minimumPoints` is that a product supplies it, and an
+       example with no product is the example standing in for one. Requiring
        the prefix makes that authorship explicit at the call site, so a reader
        sees "this number was the example's choice" rather than a bare 4 that
        reads as the system's.
@@ -1445,7 +1448,7 @@ function checkShippedThresholds(file: string, source: string, starts: number[]):
       "A11Y014",
       file,
       `\`${prop}\` is given ${literal}, by way of \`${via}\`. Naming the constant ` +
-        "does not change what the number decides — and a name that reads as prose " +
+        "does not change what the number decides. A name that reads as prose " +
         "is the one somebody reaches for when a literal beside the prop looks " +
         "wrong. opsinjs does not own this number for any metric in any " +
         "population: take it from the caller and render an explicit \"we do not " +
@@ -1466,8 +1469,8 @@ function checkShippedThresholds(file: string, source: string, starts: number[]):
       "A11Y014",
       file,
       `\`${name}\` is given the literal ${value}. A name like that with a number ` +
-        "in it is a clinical decision — when a reading is stale, when a trend is " +
-        "worth drawing, where a value has crossed a line — and opsinjs does not " +
+        "in it is a clinical decision: when a reading is stale, when a trend is " +
+        "worth drawing, where a value has crossed a line. opsinjs does not " +
         "own one, for any metric, in any population. It does not know what was " +
         "measured. Take the number from the caller and render an explicit \"we do " +
         "not have this\" when they have not supplied one; never substitute a " +
@@ -1487,9 +1490,9 @@ function checkShippedThresholds(file: string, source: string, starts: number[]):
  *
  * This is a reference range, a score band or a plausibility bound, whichever
  * word the surrounding code uses, and §7 forbids every one of them: "for any
- * metric, in any population, ever". The tell is not the name — `score-dial`
- * shipped `{ from: 0, to: 40 }` and `trend-sparkline` invented a band bound and
- * attributed it to the caller's source — it is the SHAPE: two numbers that
+ * metric, in any population, ever". The tell is not the name. `score-dial`
+ * shipped `{ from: 0, to: 40 }`, and `trend-sparkline` invented a band bound
+ * and attributed it to the caller's source. It is the SHAPE: two numbers that
  * define an interval somebody is compared against, with nothing saying whose
  * interval it is.
  *
@@ -1502,7 +1505,7 @@ function checkShippedThresholds(file: string, source: string, starts: number[]):
  *
  * A11Y014 catches the same defect when it is spelled as a named constant. This
  * one catches it when it is spelled as a shape, which is how it arrived in
- * Batch C — three components, none of them caught by a name.
+ * Batch C. That batch was three components, none of them caught by a name.
  */
 const BOUND_PAIRS: [string, string][] = [
   ["low", "high"],
@@ -1529,7 +1532,7 @@ function checkUnownedIntervals(file: string, source: string, starts: number[]): 
         `This literal sets \`${lo}\` and \`${hi}\` to numbers and names no ` +
           "`source`. Two numbers that define an interval a reading is compared " +
           "against are a reference range, a score band or a plausibility bound, " +
-          "and opsinjs ships none of those for any metric in any population — the " +
+          "and opsinjs ships none of those for any metric in any population. The " +
           "product owns them, because the product knows who is reading. Take the " +
           "interval from the caller, require a `source` beside it, and render an " +
           "explicit \"we do not have this\" when there is none. In an example the " +
@@ -1557,8 +1560,9 @@ function checkBannedWords(
 
      Both exclusions were forced by real false positives on the first component
      this repository built. `whitespace-normal` is a Tailwind utility, and `\b`
-     treats a hyphen as a word boundary, so a correct file was reported twice —
-     once for the class and once for the comment explaining the class.
+     treats a hyphen as a word boundary, so a correct file was reported twice.
+     It was flagged once for the class and once for the comment explaining the
+     class.
 
      The first repair attempted was to make the word pattern reject a hyphen on
      either side. It was caught in review and reverted: it silenced the ban
@@ -1607,7 +1611,7 @@ function checkBannedWords(
    * rule. The ban's own sources scope it precisely: reference-ranges.mdx says
    * "any user-facing string about a person's own result", and glossary.json:19
    * extends it to "code identifiers". A comment is neither, so an ordinary
-   * English use — "a perfectly good comparison" — is not a defect and must not
+   * English use like "a perfectly good comparison" is not a defect and must not
    * fail a build. But a shipped comment that says "when the reading is normal"
    * is teaching the next person the vocabulary this system exists to retire,
    * and that is worth a line on the way past. `--strict` makes it fail, which
@@ -1634,7 +1638,7 @@ function checkBannedWords(
             "copies this file into a consumer's project, so the comment is read by " +
             `the next person who opens it. Write "${entry.instead}", or leave it if ` +
             "the word is being used in its ordinary English sense about something " +
-            "other than a reading — this is a warning because a comment is neither " +
+            "other than a reading. This is a warning because a comment is neither " +
             "reader-facing copy nor an identifier, and only those two are banned " +
             "outright.",
           /* The match offset, not the region's. A block comment can be forty

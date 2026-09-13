@@ -1,5 +1,5 @@
 /* ==========================================================================
-   product.css — THE opsinjs PRODUCT THEME.
+   product.css is THE opsinjs PRODUCT THEME.
 
    Imported by exactly one file: app/(view)/layout.tsx. Nothing else may import
    it, and it must never be imported alongside globals.css.
@@ -62,7 +62,7 @@
 
   /* --- Shape. Squircle where the browser supports corner-shape; a plain
      rounded rectangle at the same radius where it does not. The degradation is
-     a matter of taste and never of function — see foundations/shape. --- */
+     a matter of taste and never of function. See foundations/shape. --- */
   --radius: 1rem;
   --opsin-corner-shape: superellipse(4);
 
@@ -83,9 +83,9 @@
   /* --- Axis fallbacks. Identical to the authored defaults in globals.css
      section 8, and superseded by tokens.generated.css, which is imported after
      them at the foot of this file. Duplicated rather than shared because the
-     two stylesheets must be independently loadable — (view) never loads the
-     docs chrome. Four roles on both axes, plus `unknown`, which is the absence
-     of a verdict rather than a fifth level. --- */
+     two stylesheets must be independently loadable. The (view) layout never
+     loads the docs chrome. Four roles on both axes, plus `unknown`, which is
+     the absence of a verdict rather than a fifth level. --- */
   --opsin-status-steady-surface: oklch(0.972 0.015 178);
   --opsin-status-steady-line: oklch(0.541 0.1 178);
   --opsin-status-steady-ink: oklch(0.362 0.067 178);
@@ -204,8 +204,8 @@
 
 /* Density. `(view)` reads ?density= and stamps it on <html>; the preview
    toolbar in the docs drives the same attribute through the iframe URL. Only
-   spacing moves — type size and target minimum do not, because "compact" must
-   never become "harder to hit". */
+   spacing moves. Type size and target minimum do not move, because "compact"
+   must never become "harder to hit". */
 [data-density="compact"] {
   --spacing: 0.24rem;
 }
@@ -240,7 +240,7 @@
   }
 }
 
-/* The generated ramps. Same source of truth as the docs chrome — the axes do
+/* The generated ramps. Same source of truth as the docs chrome. The axes do
    not change between the two themes; only the shell does.
 
    Imported after every authored opsinjs value on purpose. Everything above is
@@ -250,7 +250,7 @@
    the fallbacks quietly beat the measured values.
 
    The one thing that follows it is the reduced-motion override immediately
-   below, and that ordering is deliberate for exactly the same reason — see the
+   below, and that ordering is deliberate for exactly the same reason. See the
    comment on that block. */
 @import "./tokens.generated.css";
 
@@ -268,17 +268,17 @@
 
    All five standalone durations collapse, not just the three this file happens
    to author as fallbacks. `instant` (80ms) and `deliberate` (560ms) are
-   generated rather than authored, so they were never in the list — and `/view`
-   is the only surface a component ever renders on, so the docs chrome's
-   equivalent block in globals.css does not reach them either. That left two
-   durations running at full length for a reader who had asked for none.
+   generated rather than authored, so they were never in the list. `/view` is
+   the only surface a component ever renders on, so the docs chrome's equivalent
+   block in globals.css does not reach them either. That left two durations
+   running at full length for a reader who had asked for none.
 
    `--opsin-ease-spring` is collapsed here because it is authored in this file
    and the generator does not emit it. The four sampled springs are not: they
    collapse inside tokens.generated.css's own reduced-motion block, per token,
-   to the settle times tokens/motion.json declares for each of them — 0ms for
-   calm and snap, 100ms for settle, 120ms for sheet — which is a better answer
-   than 1ms for a cue whose job is to say that a value changed. */
+   to the settle times tokens/motion.json declares for each of them. Those are
+   0ms for calm and snap, 100ms for settle and 120ms for sheet, and that is a
+   better answer than 1ms for a cue whose job is to say that a value changed. */
 @media (prefers-reduced-motion: reduce) {
   :root,
   .opsin-product {
@@ -352,17 +352,17 @@
 
   /* --- Type. Eleven steps, and each one carries all four of its properties
      rather than only a size. Tailwind's --text-* namespace takes three
-     sub-keys — --text-<step>--line-height, --text-<step>--letter-spacing and
-     --text-<step>--font-weight — so `text-opsin-body` sets font-size,
-     line-height, letter-spacing and font-weight together.
+     sub-keys, so `text-opsin-body` sets font-size, line-height, letter-spacing
+     and font-weight together. The three are --text-<step>--line-height,
+     --text-<step>--letter-spacing and --text-<step>--font-weight.
 
      Bridging only the size would have been worse than not bridging at all: a
      component would take its size from the ramp and its leading from whatever
      Tailwind's default for that size happens to be, and the leading is the part
      that was tuned for reading a number at arm's length. `headline` and `body`
-     are the proof — same size, same leading, same tracking, and they differ
-     ONLY in weight (600 against 400), so a bridge without the weight sub-key
-     would make them the same step.
+     are the proof. They have the same size, the same leading and the same
+     tracking, and they differ ONLY in weight (600 against 400), so a bridge
+     without the weight sub-key would make them the same step.
 
      Every size is a rem in tokens/type.json, so the whole ramp scales with
      [data-text-size] and with the reader's own root font size. Never write a px
@@ -416,7 +416,7 @@
      `ui-sans-serif` head that the generated stack does not have; these three
      are the token-layer stacks, for a component that wants to name the family
      it is asking for rather than inherit. `font-opsin-numeric` is about the
-     FAMILY only — tabular figures come from `[data-opsinjs-value]` in the base
+     FAMILY only. Tabular figures come from `[data-opsinjs-value]` in the base
      layer below, not from this utility, so setting the family is not a
      substitute for stamping the attribute on a rendered measurement. --- */
   --font-opsin-sans: var(--opsin-font-sans);
@@ -469,7 +469,7 @@
      and only for a figure that CHANGES while the reader is already looking at
      it: a bar re-filling from one reading to the next, a dial travelling
      between two values they have already been shown. Never a first paint and
-     never a first reveal — a value arrives at its final figure, with no
+     never a first reveal. A value arrives at its final figure, with no
      count-up, no dial sweep and no line drawing itself in
      (health/motion-in-health-ui rule 2). It is cleared for the morph because it
      is overdamped: it reaches its target without passing it, and a number that
@@ -495,11 +495,11 @@
      both stylesheets.
 
      Know what it does and does not give you. Tailwind 4 has no `--duration-*`
-     theme namespace — `duration-150` is a bare numeric utility — so a named
-     duration cannot become a `duration-*` class. `--animate-*` is an animation
-     shorthand namespace, so `animate-duration-base` sets `animation`, which is
-     almost never what a transition wants. For a transition, reference the token
-     itself: `duration-(--opsin-duration-base)`, or plain
+     theme namespace. `duration-150` is a bare numeric utility, and a named
+     duration therefore cannot become a `duration-*` class. `--animate-*` is an
+     animation shorthand namespace, so `animate-duration-base` sets `animation`,
+     which is almost never what a transition wants. For a transition, reference
+     the token itself: `duration-(--opsin-duration-base)`, or plain
      `var(--opsin-duration-base)` in a hand-written rule. Both resolve against
      the real custom property, so both pick up the reduced-motion collapse
      declared above. --- */
@@ -520,7 +520,8 @@
      `p-4` is 4 x `--spacing`, which is 0.28rem here, 0.24rem under
      [data-density="compact"] and 0.32rem under [data-density="comfortable"].
      Use it for padding and gaps that SHOULD breathe or tighten when a reader
-     changes density — the inside of a card, the gap between rows in a list.
+     changes density. The inside of a card and the gap between rows in a list
+     are two of them.
 
      `p-opsin-4` is `--opsin-space-4`, a fixed 1rem that density does not move.
      Use it where the measurement carries meaning and must not shrink because
@@ -528,7 +529,7 @@
      a focus-ring offset, the gap that stops two tappable rows from merging.
 
      The half step is `opsin-0-5`, hyphen and not full stop, because
-     `--spacing-opsin-0.5` is not a valid custom property — after `0` the `.5`
+     `--spacing-opsin-0.5` is not a valid custom property. After `0` the `.5`
      is a fresh token and the declaration is dropped silently. `p-opsin-px` is
      `--opsin-space-px` at 0.0625rem, which is 1px at a 16px root and grows with
      the root; Tailwind's own `p-px` is a device pixel and does not. --- */
@@ -607,8 +608,8 @@
 
      TEXT ENTRY IS IN THE LIST. It used to name only buttons, links carrying
      `data-opsin-target`, checkboxes and radios, which left every text input,
-     `<select>` and `<textarea>` outside the floor — so a hand-rolled `<input>`
-     next to a correctly sized `<Field>` reproduced the sub-floor target in
+     `<select>` and `<textarea>` outside the floor. A hand-rolled `<input>` next
+     to a correctly sized `<Field>` therefore reproduced the sub-floor target in
      silence, and a text field is the control a reader with a tremor has the
      hardest time hitting. `input` is matched by exclusion rather than by listing
      the twenty-odd type values, so a type nobody thought about is inside the

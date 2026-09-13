@@ -1,6 +1,6 @@
 ---
 title: "@opsinjs/react"
-description: The components as a conventional npm dependency, for teams that cannot vendor source — with the trade stated plainly before you take it.
+description: The components as a conventional npm dependency, for teams that cannot vendor source. The trade is stated plainly before you take it.
 status: planned
 kind: guide
 since: unreleased
@@ -30,16 +30,16 @@ those teams onto something with no health doctrine at all.
   questions={[
     "Does the package ship every registry component, or a smaller subset with a stronger stability promise?",
     "Is the package's version the design system's version, or does it version independently?",
-    "How does a consumer override a part they cannot edit — slots, render props, or CSS variables only?",
+    "How does a consumer override a part they cannot edit, and is the mechanism slots, render props, or CSS variables only?",
   ]}
 />
 
 **Nothing is published to npm, and nothing will be until this decision is
 made.** Twenty-four components are implemented today and distributed as
 registry copy-in source, which is what
-[0002 — shadcn registry distribution](../project/decisions/0002-shadcn-registry-distribution.mdx)
-chose. This page exists so the remaining question — whether to *also* publish
-them as a package — can be reviewed before anything is published.
+[ADR 0002. Distribute as a shadcn registry](../project/decisions/0002-shadcn-registry-distribution.mdx)
+chose. Whether to *also* publish them as a package is the remaining question,
+and this page exists so that it can be reviewed before anything is published.
 
 ## The trade, stated plainly
 
@@ -84,8 +84,8 @@ wrapping without the prop type means restating it by hand and drifting.
 
 **Client components marked.** Anything with interactivity carries the directive
 so that a React Server Components consumer gets a correct boundary rather than a
-build error. What is and is not a client component is documented per component —
-see [Server and client components](../handbook/server-and-client-components.mdx).
+build error. What is and is not a client component is documented per component.
+See [Server and client components](../handbook/server-and-client-components.mdx).
 
 **Styling stays CSS.** The package ships no CSS-in-JS and no style prop soup.
 Appearance comes from the token layer, which means
@@ -133,7 +133,7 @@ it forces one, the marking is wrong and it costs every consumer bundle size.
 ### Tree-shaking works
 
 Import one component into an empty app and measure. If the whole library
-arrives, the package's module structure is wrong — and `<BundleSize>` on each
+arrives, the package's module structure is wrong. `<BundleSize>` on each
 component page should be able to tell you before you find out.
 
 ### The styling escape hatches are sufficient
@@ -162,9 +162,9 @@ install.
 
 ## Next
 
-- [Registry and distribution](../registry/index.mdx) — the model this one
+- [Registry and distribution](../registry/index.mdx) is the model this one
   departs from.
-- [`@opsinjs/tailwind.css`](./opsinjs-tailwind-css.mdx) — the companion you will
+- [`@opsinjs/tailwind.css`](./opsinjs-tailwind-css.mdx) is the companion you will
   also need.
-- [Server and client components](../handbook/server-and-client-components.mdx) —
-  where the boundaries fall.
+- [Server and client components](../handbook/server-and-client-components.mdx)
+  is where the boundaries fall.

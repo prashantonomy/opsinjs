@@ -15,7 +15,7 @@ a11yDate: 2026-09-02
 
 ## Overview
 
-The four clinical status levels run green → amber → orange → red. Red–green is
+The four clinical status levels run green → amber → orange → red. Red-green is
 the most common form of colour vision deficiency. We have, in other words,
 chosen the single worst hue family available for the one axis in the system that
 carries a verdict.
@@ -25,7 +25,7 @@ with the three mechanisms that make it survivable. The short version: the
 green-to-red mapping is what a reader has already learned from every other
 health, transport and safety interface they have ever used, and unlearning it
 costs more than it buys. So opsinjs keeps the mapping and removes the
-*dependency* on it — colour becomes one of three redundant carriers rather than
+*dependency* on it. Colour becomes one of three redundant carriers rather than
 the carrier.
 
 The thing this is most often confused with is *contrast*. They are unrelated
@@ -39,26 +39,26 @@ difference and this page is about hue discrimination.
 ### What actually happens to our palette
 
 Under simulated protanopia and deuteranopia, the perceptual space collapses
-roughly onto a blue–yellow axis. The consequences for the two axes are not
+roughly onto a blue-yellow axis. The consequences for the two axes are not
 symmetric:
 
 - **The status axis loses most of its separation.** Three of its four seeds
-  already sit on one warm arc — `urgent` (hue 27), `attention` (hue 45),
-  `watch` (hue 82) — and `steady` (hue 178) does not stay clear of them under
-  simulation despite sitting half a wheel away. The four levels do not become
-  one colour, but the differences shrink to the point where a reader cannot
-  rely on them at a glance, which is the only way anybody reads a status.
+  already sit on one warm arc: `urgent` (hue 27), `attention` (hue 45) and
+  `watch` (hue 82). The fourth seed, `steady` (hue 178), sits half a wheel away
+  and still does not stay clear of them under simulation. The four levels do not
+  become one colour, but the differences shrink to the point where a reader
+  cannot rely on them at a glance, which is the only way anybody reads a status.
 - **The category axis loses separation too, and it costs less.** Its six hues
-  are spread right around the wheel — heart 15, nutrition 70, activity 140,
-  labs 210, sleep 275, mind 310 — and a wide spread turns out not to be
-  immunity: the audit records category pairs collapsing under every condition
-  it simulates. What differs is the consequence. A category is identity rather
+  are spread right around the wheel at heart 15, nutrition 70, activity 140,
+  labs 210, sleep 275 and mind 310. A wide spread turns out not to be immunity:
+  the audit records category pairs collapsing under every condition it
+  simulates. What differs is the consequence. A category is identity rather
   than a verdict, so a reader who confuses two of them loses a glance, not a
   decision.
 
-Under tritanopia the failure moves rather than lifts: the blue–violet end suffers,
-so `sleep` and `mind` converge, and the status axis does not get off either —
-`steady` and `urgent` are among the pairs the audit records collapsing there.
+Under tritanopia the failure moves rather than lifts: the blue-violet end suffers,
+so `sleep` and `mind` converge, and the status axis does not get off either. The
+audit records `steady` and `urgent` among the pairs collapsing there.
 
 Under **greyscale** the status axis fails almost completely, and it is important
 to say so rather than to claim a ladder that does not exist. The four status
@@ -68,14 +68,15 @@ same lightness in a heart ramp and in an urgent one, and the role mapping pins
 `surface` to step 50, `line` to 600 and `ink` to 800 in the light theme. Four
 ramps, one rung each: desaturate them and the four surfaces are one grey, and so
 are the four lines. The only status role whose lightness varies at all is
-`accent`, because in light it is the design seed used verbatim — and it is not
-monotonic either. `watch` is the lightest, `urgent` the darkest, and `steady` and
-`attention` fall between them out of order. Making the four levels a lightness
-ramp *as well* as a hue ramp would mean giving up either the chroma the status
-axis needs or the fixed lightness ladder the rest of the system depends on.
+`accent`, because in light it is the design seed used verbatim. That variation
+is not monotonic either. `watch` is the lightest, `urgent` the darkest, and
+`steady` and `attention` fall between them out of order. Making the four levels
+a lightness ramp *as well* as a hue ramp would mean giving up either the chroma
+the status axis needs or the fixed lightness ladder the rest of the system
+depends on.
 
 <Callout title="What “status must survive greyscale” means here">
-  It means the *meaning* survives — that a greyscale screenshot, a photocopy or a
+  It means the *meaning* survives. A greyscale screenshot, a photocopy or a
   black-and-white print still tells you which level you are looking at. It does
   not mean the four greys are distinguishable, and we do not claim that they
   are. The meaning survives because the word and the icon are always present.
@@ -90,7 +91,7 @@ component-level rule is structural rather than advisory: a component that can
 render a status without its word does not pass review.
 
 1. **The word.** Always present, always adjacent, never a tooltip and never
-   behind a hover. The token names — `steady`, `watch`, `attention`, `urgent` —
+   behind a hover. The token names `steady`, `watch`, `attention` and `urgent`
    are close to the words without being them: `attention` renders as "Needs
    attention", and the absence of a reading renders as "Not known". The rendered
    word is fixed in `lib/status.ts`; the sentence around it is the content
@@ -102,10 +103,10 @@ render a status without its word does not pass review.
    16px and in a single colour. Not one glyph recoloured four times, which is
    the most common way this requirement is faked. The rule that an icon may
    never carry status on its own is in [Iconography](../iconography/index.mdx).
-3. **The position or the arrangement.** Where a component shows several levels
-   at once — a range with bands, a legend, a ladder — the levels are ordered,
-   and the order is the same everywhere. A reader who cannot see the hues can
-   still count.
+3. **The position or the arrangement.** A range with bands, a legend and a
+   ladder all show several levels at once. Wherever a component does that, the
+   levels are ordered, and the order is the same everywhere. A reader who cannot
+   see the hues can still count.
 
 ### The audit
 
@@ -121,7 +122,7 @@ the whole declared pair set and is published rather than asserted.
 </CvdSimulator>
 
 Toggle protanopia, deuteranopia, tritanopia and greyscale. The thing to watch
-for is not "can I still tell the colours apart" — you often cannot, and that is
+for is not "can I still tell the colours apart". You often cannot, and that is
 expected. It is "can I still read the level", which you can, because the word is
 there.
 
@@ -137,7 +138,7 @@ rule. Everything below is an application of it.
   <DoDont.Do>
     A status pill that reads "Needs attention", with its own glyph, on the
     `attention` surface. Remove the colour and it still says what it is. Remove
-    the word and it does not — which is why the component will not render without
+    the word and it does not. That is why the component will not render without
     it.
   </DoDont.Do>
   <DoDont.Dont>
@@ -184,18 +185,18 @@ glyph; the simulation audit runs over the full declared pair set and is
 published with the theme it was run against.
 
 **What is yours.** The sentence around the word, not the word. The status word
-is fixed — the component reads it from `lib/status.ts` and will not render
-without it — so what you own is the measurement, the comparison and the action
-beside it. We cannot guarantee those are meaningful, and "Alert" is none of
-them. The same applies to any status you compute yourself from a threshold we
-do not own —
-[Reference ranges](../../health/reference-ranges.mdx) draws that boundary.
+is fixed, because the component reads it from `lib/status.ts` and will not
+render without it. What you own is therefore the measurement, the comparison and
+the action beside it. We cannot guarantee those are meaningful, and "Alert" is
+none of them. The same applies to any status you compute yourself from a
+threshold we do not own. [Reference ranges](../../health/reference-ranges.mdx)
+draws that boundary.
 
 **What we do not attempt.** We do not ship a colour-blind-safe alternative
 palette, and we do not offer a "colour blind mode" toggle. Both are common and
 both are, in our view, worse: an alternative palette means two designs, only one
 of which is tested, and a mode toggle asks a reader to self-identify to a health
-app in order to read it. The redundancy is unconditional instead — everybody
+app in order to read it. The redundancy is unconditional instead. Everybody
 gets the word.
 
 <ResearchNote evidence="opinion" date="2026-09-02">
@@ -203,20 +204,21 @@ gets the word.
   blue-to-orange one is a judgement, not a finding. The argument for keeping it
   is transfer: the mapping is already learned, and a health product is a bad
   place to teach a new colour language. The argument against is that a
-  blue–yellow axis survives the most common deficiencies far better.
+  blue-yellow axis survives the most common deficiencies far better.
 
   We chose transfer, and paid for it with unconditional redundancy. What would
   change our mind is evidence that readers with normal colour vision transfer
-  just as well to a blue–orange status axis in a health context; we are not aware
-  of such evidence, and we are not going to fabricate a study to justify a
-  decision we made on judgement.
+  just as well to a status axis running from blue to orange in a health context;
+  we are not aware of such evidence, and we are not going to fabricate a study
+  to justify a decision we made on judgement.
 </ResearchNote>
 
 ## Related
 
-- [Colour independence](../../accessibility/colour-independence.mdx) — the same
-  requirement stated as an accessibility guarantee, with the generated audit.
-- [Two colour axes](../../health/two-colour-axes.mdx) — why category and status
-  are separate, and why only one of them is allowed to carry a verdict.
-- [Data visualisation](../data-visualisation/index.mdx) — charts have their own
-  redundancy problem, and category colours are not chart colours.
+- [Colour independence](../../accessibility/colour-independence.mdx) has the
+  same requirement stated as an accessibility guarantee, with the generated
+  audit.
+- [Two colour axes](../../health/two-colour-axes.mdx) explains why category and
+  status are separate, and why only one of them is allowed to carry a verdict.
+- [Data visualisation](../data-visualisation/index.mdx) covers charts, which
+  have their own redundancy problem. Category colours are not chart colours.

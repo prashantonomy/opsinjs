@@ -15,10 +15,11 @@
  * indicator sitting hard against the low end of a ring is a strong, wordless
  * claim that this is how they did.
  *
- * There is a third state neither dial shows, and it is worth knowing about: a
- * value that is not a finite number — a division with no divisor upstream — is
- * a calculation that RAN AND FAILED, and both the printed words and the arc's
- * accessible sentence say "not available" for it rather than "no score yet".
+ * There is a third state neither dial shows, and it is worth knowing about. A
+ * value that is not a finite number is a calculation that RAN AND FAILED. A
+ * division with no divisor upstream produces one, and both the printed words
+ * and the arc's accessible sentence say "not available" for it rather than "no
+ * score yet".
  *
  * The bands are invented and say so. `source` is required on every band for the
  * same reason `ReferenceRange.source` is: two numbers that define an interval

@@ -15,15 +15,15 @@ import { agentRoutes, registryRoutes, routes, site } from "@/lib/routes"
  * alongside the one that file hoists itself. So the template is declared on each
  * nested group instead, where every descendant is a real `page`.
  *
- * Pages below here set a bare noun — "Tokens", "Icons", "Official resources" —
- * and this appends the system name, so a reader with a dozen tabs open can tell
- * ours apart. `/` overrides it with `title: { absolute }` because its own title
- * already names the system.
+ * Pages below here set a bare noun such as "Tokens", "Icons" or "Official
+ * resources". The template appends the system name, so a reader with a dozen
+ * tabs open can tell ours apart. `/` overrides it with `title: { absolute }`
+ * because its own title already names the system.
  */
 export const metadata: Metadata = {
   title: {
-    template: `%s — ${site.name}`,
-    default: `${site.name} — a design system for consumer health apps`,
+    template: `%s · ${site.name}`,
+    default: `${site.name} · a design system for consumer health apps`,
   },
 }
 
@@ -31,16 +31,16 @@ export const metadata: Metadata = {
  * Chrome for the six routes that are not documentation and not tools:
  * `/`, `/colors`, `/tokens`, `/icons`, `/showcase`, `/official`.
  *
- * A NESTED layout — the `<html>`/`<body>` pair and the theme provider belong to
- * `app/(chrome)/layout.tsx`. `HomeLayout` supplies the same top navigation as
- * the documentation shell, minus the sidebar, so the frozen nav from
- * `lib/layout.shared.tsx` is identical on every page of the site.
+ * This is a NESTED layout. The `<html>`/`<body>` pair and the theme provider
+ * belong to `app/(chrome)/layout.tsx`. `HomeLayout` supplies the same top
+ * navigation as the documentation shell, minus the sidebar, so the frozen nav
+ * from `lib/layout.shared.tsx` is identical on every page of the site.
  *
  * The footer is here rather than in the root layout on purpose. It is a
  * DISCOVERY surface: `/tokens`, `/icons`, `/showcase` and `/official` are real
  * pages that the six-item top navigation has no room for, and without a footer
- * they would be reachable only from the landing page — which is precisely the
- * orphaned-live-page failure this site criticises other design systems for. The
+ * they would be reachable only from the landing page. That orphaned-live-page
+ * failure is precisely what this site criticises other design systems for. The
  * documentation shell has the sidebar for the same job and does not need it.
  */
 export default function HomeGroupLayout({ children }: { children: ReactNode }) {
@@ -50,10 +50,10 @@ export default function HomeGroupLayout({ children }: { children: ReactNode }) {
       {/*
         A SIBLING of HomeLayout, not a child. HomeLayout puts its children inside
         <main>, and a <footer> nested inside <main> does not expose the
-        contentinfo landmark — it degrades to a generic element, and the site
-        loses the landmark screen-reader users navigate by. Rendering it here
-        keeps the landmark, and `mt-auto` still works because the root layout's
-        <body> is a flex column.
+        contentinfo landmark. The footer degrades to a generic element, and the
+        site loses the landmark screen-reader users navigate by. Rendering it
+        here keeps the landmark, and `mt-auto` still works because the root
+        layout's <body> is a flex column.
       */}
       <SiteFooter />
     </>
@@ -166,9 +166,9 @@ function SiteFooter() {
 
         <div className="mt-10 flex flex-col gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>
-            Code is MIT. The guidance prose — health, accessibility and content
-            — is CC BY 4.0, licensed separately so it can be quoted inside a
-            clinical safety case with a clear attribution path.
+            Code is MIT. The guidance prose for health, accessibility and
+            content is CC BY 4.0, licensed separately so it can be quoted inside
+            a clinical safety case with a clear attribution path.
           </p>
           <p className="flex gap-4">
             <Link

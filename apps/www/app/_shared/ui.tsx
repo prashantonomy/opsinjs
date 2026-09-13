@@ -126,6 +126,93 @@ export function Grid({
 }
 
 /* -------------------------------------------------------------------------- */
+/* Tables                                                                     */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * A semantic fact table for hand-written routes. `components/docs/tables.tsx`
+ * belongs to the closed MDX vocabulary and must not be reached from here, so
+ * this is the primitive a marketing or browser page uses when the honest shape
+ * of a fact is a row rather than a paragraph.
+ *
+ * The first cell of every row is a `<th scope="row">`, not a `<td>`: the row
+ * label is a heading, and that is what lets a screen reader announce a cell as
+ * "Rung 3, Blur, 12px" rather than reading a stream of unattached values. The
+ * header cells carry `scope="col"` for the same reason. Pass the row label
+ * first in every row and the rest of the row in column order.
+ *
+ * The table sits inside its own `overflow-x-auto` container so a wide table
+ * scrolls within itself and the page body never scrolls horizontally. Colour
+ * comes only from the token classes the rest of this file uses; a table here
+ * carries neither axis, so no status or category value is ever typed in.
+ */
+export function FactTable({
+  caption,
+  columns,
+  rows,
+  className,
+}: {
+  caption?: ReactNode
+  columns: string[]
+  rows: ReactNode[][]
+  className?: string
+}) {
+  return (
+    <div
+      className={cn(
+        "overflow-x-auto rounded-lg border border-border bg-card",
+        className
+      )}
+    >
+      <table className="w-full border-collapse text-left text-sm">
+        {caption ? (
+          <caption className="border-b border-border px-4 py-3 text-left leading-relaxed text-muted-foreground">
+            {caption}
+          </caption>
+        ) : null}
+        <thead>
+          <tr className="border-b border-border">
+            {columns.map((column) => (
+              <th
+                key={column}
+                scope="col"
+                className="px-4 py-3 text-left align-bottom font-medium text-foreground"
+              >
+                {column}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, rowIndex) => (
+            <tr key={rowIndex} className="border-b border-border last:border-0">
+              {row.map((cell, cellIndex) =>
+                cellIndex === 0 ? (
+                  <th
+                    key={cellIndex}
+                    scope="row"
+                    className="px-4 py-3 text-left align-top font-medium text-foreground"
+                  >
+                    {cell}
+                  </th>
+                ) : (
+                  <td
+                    key={cellIndex}
+                    className="px-4 py-3 align-top leading-relaxed text-muted-foreground"
+                  >
+                    {cell}
+                  </td>
+                )
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+/* -------------------------------------------------------------------------- */
 /* Links                                                                      */
 /* -------------------------------------------------------------------------- */
 
@@ -217,7 +304,7 @@ export function LinkCard({
  * the corpus. Documentation pages have `<NotBuiltYet>` and `<StubNotice>`, which
  * additionally emit the machine-readable not-implemented marker an agent reads.
  * This is the human-facing equivalent for pages that are not about one named
- * component, so it deliberately does NOT emit that marker — an agent must never
+ * component, so it deliberately does NOT emit that marker. An agent must never
  * conclude from the landing page that a specific component was answered for,
  * in either direction. The marker is per-component and this notice is not.
  *
@@ -241,7 +328,7 @@ export function ImplementationStatusNotice({
       </p>
       <p>
         {children ??
-          "Every component that exists today is alpha: installable as source from the shadcn registry this site serves, and free to change its API in any release without a deprecation cycle. Nothing is published to npm, most of the catalogue is still a specification or a reserved name rather than code, and none of it has been through an independent accessibility or clinical review — so none of it belongs on a production health surface yet."}
+          "Every component that exists today is alpha: installable as source from the shadcn registry this site serves, and free to change its API in any release without a deprecation cycle. Nothing is published to npm, most of the catalogue is still a specification or a reserved name rather than code, and none of it has been through an independent accessibility or clinical review. None of it therefore belongs on a production health surface yet."}
       </p>
       {href ? (
         <p className="mt-2">
@@ -271,8 +358,8 @@ export function ImplementationStatusNotice({
  * pages follow, applied to the marketing surface.
  *
  * Note what each row carries besides colour: a word, a shape, and a sentence.
- * Status is never colour alone — that is the rule the specimen is here to make
- * visible rather than to assert.
+ * Status is never colour alone. The specimen is here to make that rule visible
+ * rather than to assert it.
  */
 export function StatusSpecimen({ compact }: { compact?: boolean }) {
   return (

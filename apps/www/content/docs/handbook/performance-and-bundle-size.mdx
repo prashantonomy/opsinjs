@@ -17,7 +17,7 @@ owner: design-system
 Two budgets, and the second one is the one that will actually bite you.
 
 **Bundle size.** You copy source into your repository, so you ship only what you
-import — there is no barrel and no runtime you cannot see. Each component page
+import. There is no barrel and no runtime you cannot see. Each component page
 will carry a `BundleSize` block with its gzipped size, its dependency tail, and
 whether it forces a client boundary. Those numbers are measured in CI, never
 typed.
@@ -58,7 +58,7 @@ Rendering cost concentrates in a small number of places:
 
 ### Measuring
 
-Measure the client bundle for the route, not the component in isolation — a
+Measure the client bundle for the route, not the component in isolation. A
 component's marginal cost depends on what is already there. Measure frames on a
 mid-range device with a real backdrop behind the material, not on a development
 machine with a plain background.
@@ -107,17 +107,17 @@ machine with a plain background.
   reveal a compositing problem; test on a real device.
 - **A "small" icon library is small until you import the barrel.** Then it is
   every icon.
-- **Server components have a cost too** — it is just paid on your server rather
+- **Server components have a cost too.** It is just paid on your server rather
   than the reader's phone, and it shows up as time to first byte instead of as
   bundle size.
 
 ## Related
 
-- [Performance budget](../foundations/materials/performance-budget.mdx) — the
+- [Performance budget](../foundations/materials/performance-budget.mdx) has the
   three-surface rule and where it comes from.
-- [Server and client components](./server-and-client-components.mdx) — the
+- [Server and client components](./server-and-client-components.mdx) covers the
   boundary that dominates bundle size.
-- [Motion in practice](./motion-in-practice.mdx) — which properties are cheap to
-  animate.
-- [Browser support](../start/browser-support.mdx) — the per-feature floor and
+- [Motion in practice](./motion-in-practice.mdx) says which properties are cheap
+  to animate.
+- [Browser support](../start/browser-support.mdx) has the per-feature floor and
   the documented degradation for each.

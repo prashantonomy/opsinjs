@@ -1,6 +1,6 @@
 ---
 title: Sheet
-description: A panel that slides up from the bottom of the screen, stops at sensible heights, and can be dragged or dismissed — the one-handed way to do something without leaving the page.
+description: A panel that slides up from the bottom of the screen, stops at sensible heights, and can be dragged or dismissed. It is the one-handed way to do something without leaving the page.
 status: alpha
 kind: component
 since: "unreleased"
@@ -17,10 +17,10 @@ usedIn: [daily-log-entry, daily-log-screen]
   issue="opsinjs/opsinjs#0"
   questions={[
     "`content` is supported only as the sole detent. Base UI resolves every snap point against the popup's own height and clamps it there, so a sheet that can reach `full` is already as tall as the viewport and has no content height left to return to. Is a mixed list worth a measurement pass and the frame of jump it would cost, or is the restriction the right answer?",
-    "The sheet ships two words of its own — the close control's label and the grabber's accessible name — and there is no prop that translates either. Every other string in a sheet is the product's. Where does a component's own copy go when the product is not in English?",
+    "The close control's label and the grabber's accessible name are the two words the sheet ships of its own, and there is no prop that translates either. Every other string in a sheet is the product's. Where does a component's own copy go when the product is not in English?",
     "The software-keyboard handling is Base UI's `VirtualKeyboardProvider` plus a padded viewport. It has not been exercised on a device with a software keyboard and a visual viewport, so the claim that the primary action is never covered is argued rather than observed.",
-    "`onOpenChange` reports which route a close arrived by, so a product can ask before discarding unsaved input. Nothing in opsinjs shows that confirmation — it would be a Dialog opening from a Sheet, which this page calls a composition error. What is the shape of the answer?",
-    "Nothing in this component has been measured in a browser. Everything claimed below is argued from its own source and from Base UI's, which is the honest ceiling for `alpha` — so what gets measured first: the hit areas, the keyboard behaviour on a real device, or the scroll chaining on iOS?",
+    "`onOpenChange` reports which route a close arrived by, so a product can ask before discarding unsaved input. Nothing in opsinjs shows that confirmation. It would be a Dialog opening from a Sheet, which this page calls a composition error. What is the shape of the answer?",
+    "Nothing in this component has been measured in a browser. Everything claimed below is argued from its own source and from Base UI's, which is the honest ceiling for `alpha`. Given that ceiling, what gets measured first: the hit areas, the keyboard behaviour on a real device, or the scroll chaining on iOS?",
   ]}
 >
   <code className="text-sm">sheet</code> is implemented and installable. It is{" "}
@@ -44,7 +44,7 @@ does not.
 ## Preview
 
 The default sheet: one content-sized detent, dismissible, modal. Open it and look for the two
-things that are easiest to leave out — the close control is in the header before you go looking
+things that are easiest to leave out. The close control is in the header before you go looking
 for it, and the action is pinned below the content rather than sitting at the end of it.
 
 The sheet portals to the end of the document rather than into the frame below, so what it
@@ -86,7 +86,7 @@ import { Sheet } from "@/components/ui/sheet"
 
 <WhenToUse
   use={[
-    "A focused task the reader starts from the current screen and returns from — capturing a reading, choosing an option, reviewing details.",
+    "A focused task the reader starts from the current screen and returns from, such as capturing a reading, choosing an option or reviewing details.",
     "Content that benefits from being reachable one-handed, at the bottom of the screen where the thumb is.",
     "A surface whose height should follow its content rather than filling the viewport.",
   ]}
@@ -106,14 +106,14 @@ answered. Products that use a sheet for the second case end up with readers dism
 questions by accident.
 
 `dismissible={false}` is not a way to turn a sheet into a dialog, and the component will not
-let it become one. It closes the three ambient routes — the scrim, the escape key and a
-downward drag — and it never removes the close control, because a modal surface with no way
-out is a trap. The one surface that legitimately has no "went away" outcome is
-`Dialog severity="alert"`. The component holds that promise by naming the three routes it
-cancels rather than the one it spares, so a close arriving by a route it does not recognise
-closes the sheet rather than being swallowed. It was written the other way round once, and for
-as long as it was, `dismissible={false}` produced a modal sheet with focus trapped inside it
-and no exit at all.
+let it become one. The scrim, the escape key and a downward drag are the three ambient routes,
+and `dismissible={false}` closes all three. It never removes the close control, because a
+modal surface with no way out is a trap. The one surface that legitimately has no "went away"
+outcome is `Dialog severity="alert"`. The component holds that promise by naming the three
+routes it cancels rather than the one it spares, so a close arriving by a route it does not
+recognise closes the sheet rather than being swallowed. It was written the other way round
+once, and for as long as it was, `dismissible={false}` produced a modal sheet with focus
+trapped inside it and no exit at all.
 
 **A sheet is not a privacy boundary**, and nothing about being the top surface makes what it
 holds less visible to the room.
@@ -121,8 +121,8 @@ holds less visible to the room.
 and this is the whole of what the component does about it: nothing, deliberately, in both
 directions. Masking a sensitive value belongs to the value rather than to the container,
 because only the thing that knows it is a reading knows whether it is one this reader asked to
-keep hidden — and rule 3 of that page, that a masked value occupies the same space as the real
-one, is a promise a container cannot make on its content's behalf. Covering the window before
+keep hidden. Rule 3 of that page, that a masked value occupies the same space as the real one,
+is also a promise a container cannot make on its content's behalf. Covering the window before
 the operating system takes its app-switcher snapshot belongs to the host app, because a React
 component is never told the app is being backgrounded. A sheet holding something a reader
 would not want read over their shoulder needs both of those from somewhere else.
@@ -134,7 +134,7 @@ would not want read over their shoulder needs both of those from somewhere else.
   parts={[
     {
       name: "Sheet",
-      describes: "The root. Renders no element of its own — it is Base UI's Drawer.Root, which groups the parts and owns open, modal, dismissible and the detents. It is the one part in this tree with no data-slot, because there is nothing for one to land on; style the container instead.",
+      describes: "The root. Renders no element of its own. It is Base UI's Drawer.Root, which groups the parts and owns open, modal, dismissible and the detents. It is the one part in this tree with no data-slot, because there is nothing for one to land on; style the container instead.",
       prop: "open",
     },
     {
@@ -149,7 +149,7 @@ would not want read over their shoulder needs both of those from somewhere else.
     },
     {
       name: "Sheet.Grabber",
-      describes: "A real button when there is more than one detent — the control that drag-between-detents owes a keyboard or switch user. Its accessible name states the height the sheet is at now, and aria-expanded carries the change, so the current height is readable at any moment rather than only inferable from what the button says it will do next. A decorative bar when there is only one detent, because there is then nothing to move between.",
+      describes: "A real button when there is more than one detent. That button is the control that drag-between-detents owes a keyboard or switch user. Its accessible name states the height the sheet is at now, and aria-expanded carries the change, so the current height is readable at any moment rather than only inferable from what the button says it will do next. A decorative bar when there is only one detent, because there is then nothing to move between.",
       prop: "detents",
     },
     {
@@ -167,7 +167,7 @@ would not want read over their shoulder needs both of those from somewhere else.
     },
     {
       name: "Sheet.Content",
-      describes: "The scrolling region, and the only real export. It stamps Base UI's data-drawer-content, which is what makes a flick inside it scroll rather than dismiss, and it prevents scroll chaining so the page behind never moves. It is also a focus stop in its own right — tabIndex 0, a group role and the sheet's own name — because a scrolling region holding nothing focusable is otherwise reachable by keyboard in Chromium and nowhere else.",
+      describes: "The scrolling region, and the only real export. It stamps Base UI's data-drawer-content, which is what makes a flick inside it scroll rather than dismiss, and it prevents scroll chaining so the page behind never moves. It is also a focus stop in its own right, because a scrolling region holding nothing focusable is otherwise reachable by keyboard in Chromium and nowhere else. Making it one takes tabIndex 0, a group role and the sheet's own name.",
     },
     {
       name: "Sheet.Footer",
@@ -277,9 +277,9 @@ holds the close control. **Content** scrolls internally once it exceeds the dete
 `Sheet.Content` is the only exported part, and it passes the narrow test that
 [ADR 0011](../project/decisions/0011-anatomy-parts-are-data-slots.mdx) sets: the consumer
 supplies its content, and a sheet may hold things that do not scroll beside the things that do,
-so no prop could carry it. Everything else is a `data-slot` — enough to style, not enough to
-take apart. The footer arrives as a prop for the same reason in reverse: a prop can carry it,
-and the pinning is the point.
+so no prop could carry it. Everything else is a `data-slot`. That is enough to style and not
+enough to take apart. The footer arrives as a prop for the same reason in reverse: a prop can
+carry it, and the pinning is the point.
 
 Nesting a `Sheet` inside a `Sheet` is a composition error. Two stacked modal surfaces produce
 a focus order nobody can predict and an escape key with two plausible meanings. Base UI's
@@ -288,25 +288,26 @@ counts its own depth through a context and warns in development.
 
 ### Why `content` is the only detent that cannot be combined
 
-Base UI's snap points are fractions of the viewport, pixel values or rem strings — there is no
-content-sized one — and every snap point it resolves is clamped to the popup's own measured
+Base UI's snap points are fractions of the viewport, pixel values or rem strings, and there is
+no content-sized one. Every snap point it resolves is clamped to the popup's own measured
 height, with the offset computed as `popupHeight − clampedHeight`. So a sheet that can reach
 `full` has to be as tall as the viewport, and once it is, its natural height *is* the viewport:
 there is no content height left to snap back to.
 
 `content` is therefore implemented as the absence of a snap point rather than the presence of
-one. The popup takes its own height, up to the full viewport, and the browser lays it out — no
-measurement in JavaScript, nothing frozen at first open, and nothing to go stale when the
-content changes. Passing it alongside `half` or `full` drops it with a development warning
-rather than approximating it.
+one. The popup takes its own height, up to the full viewport, and the browser lays it out.
+There is no measurement in JavaScript, nothing frozen at first open, and nothing to go stale
+when the content changes. Passing it alongside `half` or `full` drops it with a development
+warning rather than approximating it.
 
 ## Examples
 
 ### A form the reader cannot leave by accident
 
-`dismissible={false}` closes the three routes that are all reached by accident — the scrim, the
-escape key and a downward drag — and leaves the deliberate one alone. Try the escape key and a
-tap on the dimmed area; neither closes it, and the close control in the header does.
+`dismissible={false}` closes the three routes that are all reached by accident and leaves the
+deliberate one alone. Those three are the scrim, the escape key and a downward drag. Try the
+escape key and a tap on the dimmed area; neither closes it, and the close control in the
+header does.
 
 <ComponentPreview name="sheet-a-form-that-stays-put" kind="example" align="start" />
 
@@ -314,7 +315,7 @@ tap on the dimmed area; neither closes it, and the close control in the header d
 
 The rule this shows is the expensive one: every gesture has a control. The bar at the top is
 not decoration here but a real button with a real accessible name, so the sheet travels between
-half and full for somebody who never touches it with a pointer. Watch the scrolling too — a
+half and full for somebody who never touches it with a pointer. Watch the scrolling too. A
 flick that starts inside `Sheet.Content` scrolls the list, and the same flick started on the
 header drags the sheet.
 
@@ -323,8 +324,8 @@ header drags the sheet.
 ## Content guidelines
 
 Title the sheet with what the reader is doing there, as a noun phrase or a short imperative.
-The primary action says what it does — *Save reading*, *Choose unit* — and never *Done*, which
-tells a reader nothing about what happens to what they typed.
+The primary action says what it does, as *Save reading* and *Choose unit* do, and it is never
+*Done*, which tells a reader nothing about what happens to what they typed.
 
 Keep sheets to one task. A sheet with its own tabs is a screen that has not admitted it yet.
 
@@ -334,14 +335,14 @@ detent the sheet is resting at. Neither can be replaced by a prop today, which i
 for any product that is not in English and is an open question on this page. The scrolling
 region names itself with the title you passed, so it adds no third string and needs no
 translating. Every other word inside a sheet is the product's, and therefore the product's to
-check against [Plain English A–Z](../content/plain-english-a-z.mdx).
+check against [Plain-English A to Z](../content/plain-english-a-z.mdx).
 
 A sheet that asks the reader to decide something puts **both answers in the footer at equal
 weight**. `Sheet.Close` is an exit and not a *no*: it is a footnote-sized text control in the
 header, and letting it stand in for declining makes declining harder than accepting, which is
-what the safety checklist's consent item forbids. This matters most for the component that
-extends this one — see [ConsentSheet](./consent-sheet.mdx) — and it is a rule about the
-footer's contents rather than about the base, which cannot see what the two controls mean.
+what the safety checklist's consent item forbids. This matters most for
+[ConsentSheet](./consent-sheet.mdx), the component that extends this one. The rule is about
+the footer's contents rather than about the base, which cannot see what the two controls mean.
 
 <DoDont>
   <DoDont.Do>
@@ -384,13 +385,13 @@ listed rather than left out.
 - **Every colour is a token, and every token resolves under the product theme.** The static rig
   fails the build on a hex literal, an `oklch()`, a Tailwind palette colour or a numbered ramp
   step anywhere in `registry/**`, and separately on the chrome-only roles and radii that exist
-  in `app/globals.css` and not in `app/product.css`. The sheet paints four roles of its own —
-  the muted foreground on the close control, the plain foreground it takes on hover, the border
-  role on the grabber's bar and the footer's rule, and the ring role on every focus outline —
-  and everything else is Surface's material. The ring is declared in the component rather than
-  inherited from `app/product.css` on purpose: that stylesheet does not travel with the file
-  into a consumer's project, and a control whose focus ring depends on a stylesheet it was not
-  installed with is a control that loses it silently.
+  in `app/globals.css` and not in `app/product.css`. The sheet paints four roles of its own,
+  and everything else is Surface's material. The four roles are the muted foreground on the
+  close control, the plain foreground it takes on hover, the border role on the grabber's bar
+  and the footer's rule, and the ring role on every focus outline. The ring is declared in the
+  component rather than inherited from `app/product.css` on purpose: that stylesheet does not
+  travel with the file into a consumer's project, and a control whose focus ring depends on a
+  stylesheet it was not installed with is a control that loses it silently.
 - **No `px` font size, and no banned word** in copy or in an identifier. Unlike most components
   in the system this one ships two reader-facing strings, so the copy half of that gate is
   doing real work here rather than guarding a future edit.
@@ -400,7 +401,7 @@ listed rather than left out.
 - **A modal sheet is a dialogue.** Base UI gives the popup the dialog role, points its
   `aria-labelledby` at `Sheet.Title`, moves focus into it on open, traps focus while it is open,
   and returns focus to whatever opened it on close. The page behind is made genuinely inert
-  rather than merely dimmed, so assistive technology cannot reach it either — the scrim's
+  rather than merely dimmed, so assistive technology cannot reach it either. The scrim's
   dimming is the visible half of something that is also true in the accessibility tree.
 - **Escape closes a dismissible sheet, and the product is told which route a close came by.**
   `onOpenChange` receives `close-control`, `scrim`, `escape`, `drag` or `other`, which is what
@@ -409,8 +410,8 @@ listed rather than left out.
   reason strings, and the mapping is typed against that union rather than against `string`, so
   a name that cannot match is a compile error rather than a close silently reclassified as
   `other`. With `dismissible={false}` the escape key, the platform's close watcher, the scrim
-  and a drag are all cancelled by name — Base UI's own flag covers the pointer only — and
-  nothing else is, so a route the component does not recognise closes the sheet.
+  and a drag are all cancelled by name, because Base UI's own flag covers the pointer only.
+  Nothing else is cancelled, so a route the component does not recognise closes the sheet.
 - **Every gesture has a control.** Drag-to-dismiss has the close button, which no prop removes
   and no configuration cancels. Drag-between-detents has the grabber, which becomes a real
   `<button>` the moment there is more than one detent; its accessible name states the height
@@ -424,12 +425,12 @@ listed rather than left out.
   stops the page behind from moving when that scroll reaches its end. It also carries
   `tabIndex={0}`, `role="group"` and the sheet's own title as its name, because a scrolling
   region whose contents are not focusable is a keyboard stop only where the browser decides to
-  make one — Chrome and Edge from 127, and neither Safari nor Firefox — and a list nobody can
-  reach with a keyboard is not a scrolling region, it is lost content. The cost is one extra
-  tab stop in a sheet whose content already fits. Without `Sheet.Content` nothing scrolls and
-  every flick is a drag, which is why its absence raises a development warning.
-- **A non-modal sheet does not take focus.** `modal={false}` traps nothing, makes nothing
-  inert, and — because Base UI resolves initial focus without consulting that flag — has to
+  make one. Chrome and Edge do so from 127, and neither Safari nor Firefox does. A list nobody
+  can reach with a keyboard is not a scrolling region, it is lost content. The cost is one
+  extra tab stop in a sheet whose content already fits. Without `Sheet.Content` nothing scrolls
+  and every flick is a drag, which is why its absence raises a development warning.
+- **A non-modal sheet does not take focus.** `modal={false}` traps nothing and makes nothing
+  inert. Because Base UI resolves initial focus without consulting that flag, it also has to
   decline the focus move explicitly, which it does. Focus is moved on appearance only into a
   modal surface, which is the only case the
   [focus doctrine](../accessibility/keyboard-and-focus.mdx) allows it. Everything else about
@@ -443,7 +444,7 @@ listed rather than left out.
   works.** Under that query the sheet crossfades in place at its detent instead of travelling
   the height of the screen: the transitioned property becomes opacity, and the entering and
   leaving transforms become the resting one. The duration and the easing are left to the token
-  layer, which already collapses the sheet spring to 120ms and flat under the same query — what
+  layer, which already collapses the sheet spring to 120ms and flat under the same query. What
   a token cannot know is the distance, and the distance is the only thing the component
   overrides. An earlier version of this component removed the transition outright and argued
   the case in a comment; it was wrong, and the page that settles it names `sheet` by name.
@@ -460,7 +461,7 @@ listed rather than left out.
   the popup is `overflow-hidden` for the sake of its top corner, which means a header that
   cannot shrink loses text with no scrollbar, so the title carries `min-w-0 break-words` to
   defeat the `min-width: auto` a flex item takes by default. Ordinary prose was never the
-  problem; a single long token — a compound word, a medication name — at 200% was.
+  problem; a single long token at 200% was, whether a compound word or a medication name.
 - **The close control's name is visible.** The glyph beside it is decorative and
   `aria-hidden`; the word carries the meaning, which is what makes the control reachable by
   voice and legible to somebody who has never met that glyph.
@@ -470,17 +471,17 @@ listed rather than left out.
 - The 44×44 hit area on the grabber, the close control, the scrolling region and the footer's
   actions, and the separation between adjacent targets. They are stated in the component as
   `--opsin-target-minimum` and `--opsin-target-separation`, and measured by nobody. The reason
-  is not that the nightly rig has no target here — it has one, because every built registry
+  is not that the nightly rig has no target here. It has one, because every built registry
   entry is a target and `sheet` is built. The reason is that the rig loads the component's
   `/view` route and measures what is on it, and every control this claim is about is inside a
   portal that is closed when that page loads, so it reaches nothing. Making it measurable means
   opening the sheet before the measurement, which nothing does yet.
 - The pair the grabber makes with the close control. With more than one detent the grabber is a
   44pt band and the header below it starts one `--opsin-target-separation` away, which is the
-  floor and no more — so a miss on Close used to land on a full-width grabber and resize the
-  sheet. The grabber is now only as wide as it needs to be and centred, which puts it nowhere
-  near the close control at the end of that row, but "nowhere near" is a reading of the source
-  and not a measurement.
+  floor and no more. A miss on Close therefore used to land on a full-width grabber and resize
+  the sheet. The grabber is now only as wide as it needs to be and centred, which puts it
+  nowhere near the close control at the end of that row, but "nowhere near" is a reading of the
+  source and not a measurement.
 - Contrast for the close control's muted foreground against the sheet rung's material, and for
   the material against whatever the product puts behind it. `<ContrastReport>` below takes its
   rows as a prop and nothing wires the measured file into it yet.
@@ -488,12 +489,12 @@ listed rather than left out.
   viewport, and it has not been exercised on one.
 - Scroll chaining on iOS Safari specifically, where `overscroll-behavior` has historically been
   the least reliable.
-- What a screen reader actually says when the grabber is pressed. The design has an answer now
-  — the name states the current height and `aria-expanded` changes with it, which is a state
-  change the platform announces without the component mounting a live region, and it mounts
-  none deliberately — but nobody has heard it. Whether *expanded* and *collapsed* are useful
-  words for *full* and *half* is exactly the sort of thing that has to be listened to rather
-  than reasoned about.
+- What a screen reader actually says when the grabber is pressed. The design has an answer
+  now, but nobody has heard it. The name states the current height and `aria-expanded` changes
+  with it, which is a state change the platform announces without the component mounting a live
+  region, and it mounts none deliberately. Whether *expanded* and *collapsed* are useful words
+  for *full* and *half* is exactly the sort of thing that has to be listened to rather than
+  reasoned about.
 - Everything about `modal={false}` other than the focus move. A non-modal sheet is fixed to the
   bottom edge while the page behind stays focusable, which is the shape WCAG 2.4.11 is about;
   nothing here has been checked against it, and the escape key's behaviour on that path is
@@ -552,9 +553,9 @@ in wherever that is not all of them.
 <PropsTable name="SheetProps" />
 
 `detents` takes the three members of [Detent](../reference/api/Detent.mdx), in order, and the
-first is where the sheet opens — every time, including after a reader has dragged the last one
-somewhere else. `half` and `full` are fractions of the viewport and combine freely; `content`
-is supported only on its own, for the reason under [Anatomy](#anatomy).
+first is where the sheet opens. It opens there every time, including after a reader has dragged
+the last one somewhere else. `half` and `full` are fractions of the viewport and combine
+freely; `content` is supported only on its own, for the reason under [Anatomy](#anatomy).
 
 `onOpenChange` takes a second argument the original specification did not declare. It is not
 decoration: the accessibility contract on this page requires that a sheet holding unsaved input
@@ -574,9 +575,9 @@ on the root, because the root renders no element at all. There is no `as`, no `r
 shape that survives a product opening one from a notification, a deep link or a timer.
 
 There is deliberately no way to reach Base UI's third modal state, `'trap-focus'`. Two states
-are what this API models — the page behind is either reachable or it is not — and a third that
-traps focus while leaving the page scrollable is a surface nobody on this project has written
-guidance for.
+are what this API models, because the page behind is either reachable or it is not. A third
+that traps focus while leaving the page scrollable is a surface nobody on this project has
+written guidance for.
 
 ### Sheet.Content
 
@@ -592,15 +593,15 @@ contains its own overscroll. Replace either and a flick inside the sheet starts 
 
 **Easily confused with**
 
-- [Dialog](./dialog.mdx) — a question that must be answered, rather than a place the reader
+- [Dialog](./dialog.mdx) is a question that must be answered, rather than a place the reader
   chose to go.
-- [LogSheet](./log-sheet.mdx) — a Sheet with a capture contract and a field ceiling.
-- [ConsentSheet](./consent-sheet.mdx) — a Sheet with a consent contract and equally weighted
+- [LogSheet](./log-sheet.mdx) is a Sheet with a capture contract and a field ceiling.
+- [ConsentSheet](./consent-sheet.mdx) is a Sheet with a consent contract and equally weighted
   decisions.
-- [Surface](./surface.mdx) — the layer Sheet is built from, twice: once for the sheet and once
+- [Surface](./surface.mdx) is the layer Sheet is built from, twice: once for the sheet and once
   for the scrim.
-- `popover` (considered, no page yet — see the [roster](./index.mdx)) — small, anchored, and
-  attached to a control rather than to the screen.
+- `popover` is considered and has no page yet, and the [roster](./index.mdx) lists it. It is
+  small, anchored, and attached to a control rather than to the screen.
 
 **Used by**
 
@@ -613,17 +614,17 @@ contains its own overscroll. Replace either and a flick inside the sheet starts 
 - [Layering, elevation and z-index](../foundations/layering-and-elevation.mdx)
 - [Choreography](../foundations/motion/choreography.mdx)
 - [Density and touch targets](../foundations/space/density-and-touch.mdx)
-- [Motion in health UI](../health/motion-in-health-ui.mdx) — names `sheet` in its `implements`,
+- [Motion in health UI](../health/motion-in-health-ui.mdx) names `sheet` in its `implements`,
   and its reduced-motion Do/Dont is written about this component by name.
-- [On-screen privacy](../health/on-screen-privacy.mdx) — names `sheet` in its `implements`, and
+- [On-screen privacy](../health/on-screen-privacy.mdx) names `sheet` in its `implements`, and
   what the sheet owes it is the paragraph under [When to use it](#when-to-use-it): nothing, in
   both directions, on purpose.
-- [0011 — Anatomy parts are data-slots](../project/decisions/0011-anatomy-parts-are-data-slots.mdx)
+- [ADR 0011. Anatomy parts are structure, not a public API](../project/decisions/0011-anatomy-parts-are-data-slots.mdx)
 
 Both health pages are linked here in prose and not in `governedBy` frontmatter, and that is
 deliberate rather than an omission. `sheet` is one of the nine components with a non-health
 category, and the substrate contract gives those no `governedBy` field at all. The reverse
-index is therefore asymmetric for this page — `check:ia` says so, as a warning, on twenty of
-the component pages including ones that do carry the field — and the asymmetry is a question
+index is therefore asymmetric for this page, and `check:ia` says so, as a warning, on twenty
+of the component pages including ones that do carry the field. The asymmetry is a question
 about the contract rather than about this component. Reading the doctrine is not optional
 because the frontmatter is absent, which is why the links are here.

@@ -3,8 +3,8 @@
  * it does NOT change.
  *
  * `sm` is visual weight and nothing else. It does not drop the word, it does not
- * drop the icon, and there is no size at which a pill becomes a coloured dot —
- * which is the request this prop exists to refuse. A dot in a dense table is a
+ * drop the icon, and there is no size at which a pill becomes a coloured dot.
+ * That is the request this prop exists to refuse. A dot in a dense table is a
  * status carried by colour alone, and the measured CVD audit says that is
  * unreadable for a real share of readers whatever hue it is.
  *

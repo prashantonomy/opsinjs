@@ -1,6 +1,6 @@
 ---
 title: Icons
-description: Bring your own icon set — the slot contract, the sizing rule, and the hard prohibition on an icon carrying clinical status by itself.
+description: Bring your own icon set. This page covers the slot contract, the sizing rule, and the hard prohibition on an icon carrying clinical status by itself.
 status: planned
 kind: handbook
 aliases: [icon slot contract, bring your own icons, passing an icon prop, which icon set]
@@ -21,7 +21,8 @@ that show an icon accept it as a node:
 <AlertBanner icon={<TriangleAlert aria-hidden />}>…</AlertBanner>
 ```
 
-Anything that renders an SVG works — lucide, Phosphor, Heroicons, your own set.
+Anything that renders an SVG works, whether lucide, Phosphor, Heroicons or your
+own set.
 What opsinjs specifies is the **slot contract**: the size the icon is expected
 to occupy, how it aligns to the text baseline, how it inherits colour, and the
 accessibility expectation that it is decorative unless you say otherwise.
@@ -51,7 +52,7 @@ not a dependency of the system.
 - **Pass `aria-hidden` on decorative icons**, which is nearly all of them.
 - **Give an icon-only control a real accessible name** on the control, not on
   the icon: `<button aria-label="Dismiss">`. And ask whether it should be
-  icon-only at all — see [Cognitive
+  icon-only at all. See [Cognitive
   accessibility](../accessibility/cognitive-accessibility.mdx).
 - **Use one icon library per application.** Two sets have different stroke
   weights, different optical sizes and different metaphors for the same idea,
@@ -87,7 +88,7 @@ not a dependency of the system.
   libraries add one when you pass a `title` prop, which is usually not what you
   wanted alongside a labelled control.
 - **Stroke-based icons thin out at small sizes** and can fall below the contrast
-  floor even though the colour token passes — contrast is measured on the token
+  floor even though the colour token passes. Contrast is measured on the token
   pair, not on a one-pixel stroke.
 - **Sizing in `px` breaks Dynamic Type.** Use `em` or a token so the icon scales
   with the text around it; see [Dynamic
@@ -100,11 +101,11 @@ not a dependency of the system.
 
 ## Related
 
-- [Iconography](../foundations/iconography/index.mdx) — the foundation: what an
+- [Iconography](../foundations/iconography/index.mdx) is the foundation: what an
   icon may and may not carry.
-- [Health glyphs](../foundations/iconography/health-glyphs.mdx) — the
+- [Health glyphs](../foundations/iconography/health-glyphs.mdx) covers the
   prohibition on symbols implying clinical authority.
-- [Colour independence](../accessibility/colour-independence.mdx) — why the word
-  and not the glyph carries status.
-- [Icon inventory](../foundations/iconography/icon-inventory.mdx) — the icons
+- [Colour independence](../accessibility/colour-independence.mdx) explains why
+  the word and not the glyph carries status.
+- [Icon inventory](../foundations/iconography/icon-inventory.mdx) has the icons
   this site uses and what each one means.

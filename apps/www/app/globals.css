@@ -1,12 +1,12 @@
 /* ==========================================================================
-   opsinjs — the single stylesheet for the documentation site.
+   opsinjs is the single stylesheet for the documentation site.
 
    THE ORDER OF THIS FILE IS LOAD-BEARING. Read before editing:
 
    1  tailwindcss            the engine
    2  tw-animate-css         shadcn's animation utilities
-   3  shadcn/tailwind.css    shadcn's own theme bridge (a runtime dependency,
-                             not a CLI-only tool — this import is why)
+   3  shadcn/tailwind.css    shadcn's own theme bridge, imported because it is a
+                             runtime dependency rather than a CLI-only tool
    4  fumadocs shadcn.css    maps fumadocs' chrome onto the shadcn tokens, so
                              the docs chrome inherits the theme instead of
                              shipping a second one
@@ -29,12 +29,12 @@
                              tokens/*.json. Never hand-edited; committed and
                              diffed by `pnpm check:generated`. Imported AFTER
                              section 8 so it wins the cascade; the two
-                             reduced-motion overrides — the token collapse, then
-                             the blanket that reaches the fumadocs chrome the
-                             tokens do not — sit BELOW that import for the same
-                             reason.
+                             reduced-motion overrides sit BELOW that import
+                             for the same reason. They are the token collapse
+                             and then the blanket that reaches the fumadocs
+                             chrome the tokens do not reach.
    10 @layer base, the 640-767px nav reflow repair, @media print
-   11 @custom-variant dark   pinned LAST on purpose — see the note there.
+   11 @custom-variant dark   pinned LAST on purpose. See the note there.
 
    The docs chrome is lyra. The opsinjs PRODUCT theme lives in ./product.css
    and is loaded only by app/(view)/layout.tsx, so every preview renders under
@@ -52,7 +52,7 @@
 @source "../registry/**/*.{ts,tsx}";
 
 /* --------------------------------------------------------------------------
-   7. lyra — written by `shadcn init --preset buFywKm`. UNCHANGED.
+   7. lyra was written by `shadcn init --preset buFywKm`. UNCHANGED.
    -------------------------------------------------------------------------- */
 
 @theme inline {
@@ -172,13 +172,13 @@
 
    Two colour axes, and they never meet on one element.
 
-   AXIS 1 — CATEGORY. What kind of measurement this is: a heart rate, a blood
+   AXIS 1. CATEGORY. What kind of measurement this is: a heart rate, a blood
    sugar, a sleep duration. Category colour is identity. It carries no verdict.
    It is deliberately low-chroma so that it cannot be misread as urgency, and
-   it is used for chart lines, small glyphs and section identity — never for
-   the surface of anything that reports a result.
+   it is used for chart lines, small glyphs and section identity. It is never
+   used for the surface of anything that reports a result.
 
-   AXIS 2 — STATUS. How urgent this is, on four levels. Status colour is a
+   AXIS 2. STATUS. How urgent this is, on four levels. Status colour is a
    verdict and is always high-chroma, and it is NEVER the only carrier of that
    verdict: a status always ships with a word, and with an icon where the
    layout allows one. Colour-blind users, people reading in sunlight and people
@@ -186,9 +186,9 @@
 
    The invariant: an element takes a colour from exactly one axis. A tile that
    is "cardio" AND "urgent" gets its category from a glyph or a label and its
-   status from the surface — not two competing reds. <StatusAxisDemo> refuses
-   to render a mixed pair and explains why; the ESLint and Stylelint rules
-   documented under handbook/tooling exist to catch it in product code.
+   status from the surface rather than from two competing reds. <StatusAxisDemo>
+   refuses to render a mixed pair and explains why; the ESLint and Stylelint
+   rules documented under handbook/tooling exist to catch it in product code.
 
    The values below are AUTHORED DEFAULTS, not measured results. They exist so
    that a clean clone renders before `pnpm generate` has run. `pnpm contrast`
@@ -202,56 +202,56 @@
      Four roles, and the SAME four on both axes. `surface` is what the block
      is drawn on; `line` is its 1px edge and its chart stroke; `ink` is the
      only foreground allowed on that surface; `accent` is the identity fill,
-     which must be bounded by `line` or labelled in `ink` — it is never text
+     which must be bounded by `line` or labelled in `ink`. It is never text
      and never the sole boundary, because at these chromas it does not clear
      the non-text floor on its own. */
-  /* Sleep — duration, timing, consistency */
+  /* Sleep covers duration, timing and consistency */
   --opsin-category-sleep-surface: oklch(0.972 0.013 275);
   --opsin-category-sleep-line: oklch(0.541 0.136 275);
   --opsin-category-sleep-ink: oklch(0.362 0.104 275);
   --opsin-category-sleep-accent: oklch(0.58 0.14 275);
 
-  /* Heart — blood pressure, resting heart rate */
+  /* Heart covers blood pressure and resting heart rate */
   --opsin-category-heart-surface: oklch(0.972 0.014 15);
   --opsin-category-heart-line: oklch(0.541 0.165 15);
   --opsin-category-heart-ink: oklch(0.362 0.126 15);
   --opsin-category-heart-accent: oklch(0.62 0.17 15);
 
-  /* Activity — steps, active minutes, distance */
+  /* Activity covers steps, active minutes and distance */
   --opsin-category-activity-surface: oklch(0.972 0.022 140);
   --opsin-category-activity-line: oklch(0.541 0.155 140);
   --opsin-category-activity-ink: oklch(0.362 0.118 140);
   --opsin-category-activity-accent: oklch(0.7 0.16 140);
 
-  /* Nutrition — energy, protein, hydration */
+  /* Nutrition covers energy, protein and hydration */
   --opsin-category-nutrition-surface: oklch(0.972 0.02 70);
   --opsin-category-nutrition-line: oklch(0.541 0.118 70);
   --opsin-category-nutrition-ink: oklch(0.362 0.08 70);
   --opsin-category-nutrition-accent: oklch(0.75 0.14 70);
 
-  /* Mind — mood, stress, questionnaire scores */
+  /* Mind covers mood, stress and questionnaire scores */
   --opsin-category-mind-surface: oklch(0.972 0.018 310);
   --opsin-category-mind-line: oklch(0.541 0.136 310);
   --opsin-category-mind-ink: oklch(0.362 0.104 310);
   --opsin-category-mind-accent: oklch(0.62 0.14 310);
 
-  /* Labs — blood glucose, HbA1c, cholesterol */
+  /* Labs covers blood glucose, HbA1c and cholesterol */
   --opsin-category-labs-surface: oklch(0.972 0.015 210);
   --opsin-category-labs-line: oklch(0.541 0.094 210);
   --opsin-category-labs-ink: oklch(0.362 0.063 210);
   --opsin-category-labs-accent: oklch(0.6 0.11 210);
 
   /* --- Axis 2: status (high chroma; four ordinal levels, plus no-verdict) -
-     steady    in the range this person was told to expect — nothing to do
+     steady    in the range this person was told to expect and needs no action
      watch     outside it, but not something to act on today
      attention needs an action, on a timescale the product must state
      urgent    needs an action now, and the product must say what it is
      unknown   no reading, a stale one, or no range to judge it against
      `unknown` is deliberately NOT a fifth level: it is the absence of an
      assertion, and colouring it anywhere near `watch` would let a reader
-     take it as 'probably fine'. The words are part of the token — see
-     health/clinical-status-semantics — and a status never renders without
-     one, because colour is a second channel and never the only one. */
+     take it as 'probably fine'. The words are part of the token, and a
+     status never renders without one, because colour is a second channel and
+     never the only one. See health/clinical-status-semantics. */
   --opsin-status-steady-surface: oklch(0.972 0.015 178);
   --opsin-status-steady-line: oklch(0.541 0.1 178);
   --opsin-status-steady-ink: oklch(0.362 0.067 178);
@@ -282,7 +282,16 @@
      documented opaque fallback, because a translucent surface over a
      photograph is exactly where a contrast floor is lost and health copy is
      the last text that may become unreadable. <MaterialLadder> stacks all six
-     over a busy backdrop so the floor is visible rather than asserted. */
+     over a busy backdrop so the floor is visible rather than asserted.
+
+     Rungs 0 to 5 here are the numbered aliases the landing-page specimen
+     consumes; the shipped ladder is emitted by build-tokens.mts into
+     tokens.generated.css under its rung NAMES (canvas card raised sheet overlay
+     scrim). The two must agree, because the landing page tells the reader it is
+     showing the shipped definition. Rungs 3 and 4 had drifted and are corrected
+     to match. They had read 8px and 20px against the emitted sheet 20px and
+     overlay 28px. Nothing diffs these two files, so a change to material.json
+     must be mirrored here by hand. */
   --opsin-material-0-bg: var(--background);
   --opsin-material-0-blur: 0px;
   --opsin-material-0-border: transparent;
@@ -299,12 +308,12 @@
   --opsin-material-2-shadow: 0 1px 2px oklch(0 0 0 / 0.06), 0 4px 12px oklch(0 0 0 / 0.06);
 
   --opsin-material-3-bg: oklch(1 0 0 / 0.82);
-  --opsin-material-3-blur: 8px;
+  --opsin-material-3-blur: 20px;
   --opsin-material-3-border: oklch(0 0 0 / 0.08);
   --opsin-material-3-shadow: 0 1px 2px oklch(0 0 0 / 0.05);
 
   --opsin-material-4-bg: oklch(1 0 0 / 0.74);
-  --opsin-material-4-blur: 20px;
+  --opsin-material-4-blur: 28px;
   --opsin-material-4-border: oklch(0 0 0 / 0.10);
   --opsin-material-4-shadow: 0 8px 32px oklch(0 0 0 / 0.12);
 
@@ -356,56 +365,56 @@
      Four roles, and the SAME four on both axes. `surface` is what the block
      is drawn on; `line` is its 1px edge and its chart stroke; `ink` is the
      only foreground allowed on that surface; `accent` is the identity fill,
-     which must be bounded by `line` or labelled in `ink` — it is never text
+     which must be bounded by `line` or labelled in `ink`. It is never text
      and never the sole boundary, because at these chromas it does not clear
      the non-text floor on its own. */
-  /* Sleep — duration, timing, consistency */
+  /* Sleep covers duration, timing and consistency */
   --opsin-category-sleep-surface: oklch(0.276 0.081 275);
   --opsin-category-sleep-line: oklch(0.806 0.092 275);
   --opsin-category-sleep-ink: oklch(0.941 0.028 275);
   --opsin-category-sleep-accent: oklch(0.714 0.123 275);
 
-  /* Heart — blood pressure, resting heart rate */
+  /* Heart covers blood pressure and resting heart rate */
   --opsin-category-heart-surface: oklch(0.276 0.099 15);
   --opsin-category-heart-line: oklch(0.806 0.112 15);
   --opsin-category-heart-ink: oklch(0.941 0.03 15);
   --opsin-category-heart-accent: oklch(0.714 0.15 15);
 
-  /* Activity — steps, active minutes, distance */
+  /* Activity covers steps, active minutes and distance */
   --opsin-category-activity-surface: oklch(0.276 0.092 140);
   --opsin-category-activity-line: oklch(0.806 0.106 140);
   --opsin-category-activity-ink: oklch(0.941 0.038 140);
   --opsin-category-activity-accent: oklch(0.714 0.141 140);
 
-  /* Nutrition — energy, protein, hydration */
+  /* Nutrition covers energy, protein and hydration */
   --opsin-category-nutrition-surface: oklch(0.276 0.062 70);
   --opsin-category-nutrition-line: oklch(0.806 0.092 70);
   --opsin-category-nutrition-ink: oklch(0.941 0.034 70);
   --opsin-category-nutrition-accent: oklch(0.714 0.123 70);
 
-  /* Mind — mood, stress, questionnaire scores */
+  /* Mind covers mood, stress and questionnaire scores */
   --opsin-category-mind-surface: oklch(0.276 0.081 310);
   --opsin-category-mind-line: oklch(0.806 0.092 310);
   --opsin-category-mind-ink: oklch(0.941 0.034 310);
   --opsin-category-mind-accent: oklch(0.714 0.123 310);
 
-  /* Labs — blood glucose, HbA1c, cholesterol */
+  /* Labs covers blood glucose, HbA1c and cholesterol */
   --opsin-category-labs-surface: oklch(0.276 0.049 210);
   --opsin-category-labs-line: oklch(0.806 0.073 210);
   --opsin-category-labs-ink: oklch(0.941 0.026 210);
   --opsin-category-labs-accent: oklch(0.714 0.097 210);
 
   /* --- Axis 2: status (high chroma; four ordinal levels, plus no-verdict) -
-     steady    in the range this person was told to expect — nothing to do
+     steady    in the range this person was told to expect and needs no action
      watch     outside it, but not something to act on today
      attention needs an action, on a timescale the product must state
      urgent    needs an action now, and the product must say what it is
      unknown   no reading, a stale one, or no range to judge it against
      `unknown` is deliberately NOT a fifth level: it is the absence of an
      assertion, and colouring it anywhere near `watch` would let a reader
-     take it as 'probably fine'. The words are part of the token — see
-     health/clinical-status-semantics — and a status never renders without
-     one, because colour is a second channel and never the only one. */
+     take it as 'probably fine'. The words are part of the token, and a
+     status never renders without one, because colour is a second channel and
+     never the only one. See health/clinical-status-semantics. */
   --opsin-status-steady-surface: oklch(0.276 0.052 178);
   --opsin-status-steady-line: oklch(0.806 0.073 178);
   --opsin-status-steady-ink: oklch(0.941 0.026 178);
@@ -452,7 +461,7 @@
    so a bare `:root` escalation block placed after the `.dark` declarations
    would win in dark mode too and leak light-theme chroma into it. The
    escalation therefore repeats every CLASS selector it escalates, in the same
-   order as the base cascade — which is also what makes it correct inside
+   order as the base cascade. That ordering is also what makes it correct inside
    `.opsin-product`, where the theme is applied by class rather than by :root.
    -------------------------------------------------------------------------- */
 
@@ -515,23 +524,23 @@
    Committed, and diffed by `pnpm check:generated`. Never hand-edit it; change
    the JSON and regenerate.
 
-   POSITION IS LOAD-BEARING, and it sits AFTER the whole of section 8 — its
-   :root and .dark blocks and its gamut and reduced-transparency overrides. This
-   file redeclares the same custom properties from the token source, with values
-   `pnpm contrast` has measured, and it carries its own P3 escalation and its
-   own reduced-motion block. `:root` here and `:root` there have identical
+   POSITION IS LOAD-BEARING, and it sits AFTER the whole of section 8, which is
+   its :root and .dark blocks and its gamut and reduced-transparency overrides.
+   This file redeclares the same custom properties from the token source, with
+   values `pnpm contrast` has measured, and it carries its own P3 escalation and
+   its own reduced-motion block. `:root` here and `:root` there have identical
    specificity, so whichever is declared LAST wins, and it must be this one.
    Section 8 above is the authored fallback and nothing else: it exists so a
    clean checkout renders in the right colours before anybody has run
    `pnpm run generate`, and it is the source of truth for no value at all. It
    was previously imported BEFORE section 8, which meant the authored guesses
-   silently beat the generated values — the drift this whole layer exists to
-   make impossible.
+   silently beat the generated values. That is the drift this whole layer exists
+   to make impossible.
 
-   What follows it is the pair of reduced-motion blocks immediately below — the
-   token collapse and then the blanket that reaches the fumadocs chrome — and
-   that ordering is deliberate for the same cascade reason read the other way
-   round; see the comments on those blocks.
+   What follows it is the pair of reduced-motion blocks immediately below.
+   They are the token collapse and then the blanket that reaches the fumadocs
+   chrome, and that ordering is deliberate for the same cascade reason read
+   the other way round; see the comments on those blocks.
    -------------------------------------------------------------------------- */
 
 @import "./tokens.generated.css";
@@ -551,7 +560,7 @@
    and quietly undid it: a reader who had asked for reduced motion still got the
    full 80ms to 560ms everywhere in the docs chrome, including in <MotionDemo>,
    which is billed as the observable proof that it works. Moving this block
-   below the import is the fix — app/product.css carries the same block, in the
+   below the import is the fix. The same block sits in app/product.css, in the
    same place, for the same reason, and this file was never brought into line
    with it. Moving the import is NOT the fix, because the import's position is
    the only thing that makes the measured values beat the authored fallbacks at
@@ -560,8 +569,9 @@
    The two springs stay in the list because they are authored in section 8 and
    the generator does not emit them. The four sampled springs and `ease-standard`
    are absent because tokens.generated.css collapses those itself, per token, to
-   the settle times tokens/motion.json declares for each of them — a better
-   answer than 1ms for a cue whose job is to say that a value changed. */
+   the settle times tokens/motion.json declares for each of them. A settle time
+   is a better answer than 1ms for a cue whose job is to say that a value
+   changed. */
 @media (prefers-reduced-motion: reduce) {
   :root,
   .opsin-product {
@@ -579,20 +589,20 @@
 
    Collapsing the tokens was necessary and it was not sufficient. Nothing in the
    docs chrome consumes an opsin duration: everything that actually moves on a
-   docs page is fumadocs' — the page cross-fade (`fd-fade-out`, 0.3s), the
-   sidebar (`fd-sidebar-out`, 0.25s), 0.15s on the header, 0.1s on every link
-   and button — and fumadocs ships no `prefers-reduced-motion` rule of its own.
-   Measured on /docs/components/result-card with the preference emulated both
-   ways, every one of those computed identically in both states while the tokens
-   on the same page collapsed correctly. A reader who has asked their operating
-   system for less movement was getting the full-length chrome and a collapsed
-   token layer that no chrome element read.
+   docs page is fumadocs', and fumadocs ships no `prefers-reduced-motion` rule
+   of its own. The moving parts are the page cross-fade (`fd-fade-out`, 0.3s),
+   the sidebar (`fd-sidebar-out`, 0.25s), 0.15s on the header, 0.1s on every
+   link and button. Measured on /docs/components/result-card with the preference
+   emulated both ways, every one of those computed identically in both states
+   while the tokens on the same page collapsed correctly. A reader who has asked
+   their operating system for less movement was getting the full-length chrome
+   and a collapsed token layer that no chrome element read.
 
    `foundations/motion/reduced-motion` is right that a blanket kill switch is the
    wrong answer for OUR motion: a token that declares what it becomes carries the
    spatial information through, and a rule at the bottom of a stylesheet cannot.
-   That doctrine governs what opsinjs authors. This is the other case — motion in
-   a third-party chrome we do not author and cannot give per-token variants to —
+   That doctrine governs what opsinjs authors. The other case is motion in a
+   third-party chrome we do not author and cannot give per-token variants to,
    and there the choice is between the coarse collapse and ignoring the
    preference. `accessibility/reduced-motion` already publishes 1ms as what this
    site's durations become, so the chrome collapses to the same number rather
@@ -600,21 +610,22 @@
 
    IT COLLAPSES DURATION AND NOTHING ELSE. No `animation: none`, no
    `transition: none`, no change to fill mode: the state change still happens and
-   still lands in its finished state, which matters most for the exit animations
-   — an exit that is removed rather than shortened leaves a dismissed sidebar on
-   the screen. `animation-iteration-count` is deliberately not forced to 1 here,
-   because that stops a looping indicator mid-cycle and a frozen spinner tells a
-   reader nothing; a looping animation instead guards itself with
-   `(prefers-reduced-motion: no-preference)`, as `opsin-motion-dot` on the home
-   page does, and any new one must do the same rather than rely on this block.
+   still lands in its finished state, which matters most for the exit
+   animations. An exit that is removed rather than shortened leaves a dismissed
+   sidebar on the screen. `animation-iteration-count` is deliberately not forced
+   to 1 here, because that stops a looping indicator mid-cycle and a frozen
+   spinner tells a reader nothing; a looping animation instead guards itself
+   with `(prefers-reduced-motion: no-preference)`, as `opsin-motion-dot` on
+   the home page does, and any new one must do the same rather than rely on
+   this block.
 
    SCOPE. This file dresses the docs chrome only. Every component preview is an
    iframe onto /view, which loads app/product.css, and nothing under
-   registry/bases/ is rendered directly by a chrome page — so the one animation
-   in the system with a documented reduced-motion EXCEPTION, Button's busy
-   spinner, is not reached by this rule and keeps its speed where it lives. If a
-   base component is ever imported into a chrome page, that exception has to be
-   re-examined here before it is. */
+   registry/bases/ is rendered directly by a chrome page. The one animation in
+   the system with a documented reduced-motion EXCEPTION, Button's busy spinner,
+   is therefore not reached by this rule and keeps its speed where it lives. If
+   a base component is ever imported into a chrome page, that exception has to
+   be re-examined here before it is. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -634,7 +645,7 @@
    resolve the custom property at use time and therefore follow the theme, the
    gamut escalation and the media-query overrides above. */
 @theme inline {
-  /* Category — identity. `-<name>` is the accent (the identity fill), and it
+  /* Category is identity. `-<name>` is the accent (the identity fill), and it
      is deliberately NOT offered as a text colour: use `-ink` on `-surface`,
      and `-line` for a stroke or an edge. */
   --color-category-sleep: var(--opsin-category-sleep-accent);
@@ -662,7 +673,7 @@
   --color-category-labs-line: var(--opsin-category-labs-line);
   --color-category-labs-ink: var(--opsin-category-labs-ink);
 
-  /* Status — verdict. `-<name>` is the line, because a status is most often
+  /* Status is a verdict. `-<name>` is the line, because a status is most often
      reached for as a border or a rule. `unknown` is the absence of a verdict
      and is here so that 'we do not know' is as easy to render as a level. */
   --color-status-steady: var(--opsin-status-steady-line);
@@ -722,7 +733,7 @@
 
   /* A visible, high-contrast focus ring that does not depend on the theme
      accent. Health interfaces are used one-handed, in a hurry, and often by
-     keyboard or switch — losing the focus ring is a safety problem, not a
+     keyboard or switch. Losing the focus ring is a safety problem, not a
      polish problem. */
   :focus-visible {
     outline: 2px solid var(--ring);
@@ -805,11 +816,11 @@
      <ResearchNote> are all <aside>, so a printed component page lost its release
      phase, its "do not generate code against it" sentence, its open safety
      questions, its clinical safety notes and the evidence label saying whether a
-     claim was cited or opinion — and printed as settled documentation. Three
-     pages promise this stylesheet produces an artefact fit for a review file,
-     and those are exactly the parts a reviewer is there to read. The prefix
-     selector covers `nd-sidebar` and `nd-sidebar-mobile`, which is what the
-     bare element selector was really catching. */
+     claim was cited or opinion. The page printed as settled documentation.
+     Three pages promise this stylesheet produces an artefact fit for a review
+     file, and those are exactly the parts a reviewer is there to read. The
+     prefix selector covers `nd-sidebar` and `nd-sidebar-mobile`, which is what
+     the bare element selector was really catching. */
   header[role="banner"],
   nav[aria-label="Main"],
   [data-print="hide"],
@@ -882,7 +893,7 @@
 
   /* Keep the review provenance on the paper copy. */
   [data-reviewed]::after {
-    content: " — printed from " attr(data-page-url);
+    content: " (printed from " attr(data-page-url) ")";
     font-size: 9pt;
   }
 
@@ -896,11 +907,12 @@
 
    shadcn writes `@custom-variant dark (&:is(.dark *))` at the top of this file;
    fumadocs declares `(&:where(.dark, .dark *))`. Last declaration wins, and
-   which one that is depends on import order — a silent, order-dependent bug in
-   which `dark:` either does or does not apply to the element carrying `.dark`
-   itself. Declaring the `:where` superset here, at the very bottom, makes the
-   answer order-independent: `dark:` applies to `.dark` AND its descendants, and
-   `:where` keeps specificity at zero so it never fights a component's own rule.
+   which one that is depends on import order. That is a silent, order-dependent
+   bug in which `dark:` either does or does not apply to the element carrying
+   `.dark` itself. Declaring the `:where` superset here, at the very bottom,
+   makes the answer order-independent: `dark:` applies to `.dark` AND its
+   descendants, and `:where` keeps specificity at zero so it never fights a
+   component's own rule.
 
    Do not move this line. Do not reintroduce the shadcn form above.
    -------------------------------------------------------------------------- */

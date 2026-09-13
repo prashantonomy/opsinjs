@@ -21,18 +21,19 @@ import { CopyButton } from "./copy"
 import { NoDataYet } from "./stub"
 
 /* ==========================================================================
-   meta.tsx — <BrowserSupport>, <VersionNotice>, <LastUpdated>, <Figure>,
+   meta.tsx holds <BrowserSupport>, <VersionNotice>, <LastUpdated>, <Figure>,
    <PromptRecipe>, <EvalResult>, <RegistryItem>, <Feedback>.
 
    The page furniture: provenance, support, and the two components that exist
-   because opsinjs is read by agents — <PromptRecipe> and <EvalResult>.
+   because opsinjs is read by agents. Those two are <PromptRecipe> and
+   <EvalResult>.
 
    <BrowserSupport> tests the READER'S browser rather than reciting a table.
-   Four of the features this design system leans on are recent —
-   `backdrop-filter`, `corner-shape`, wide-gamut colour and `linear()` easing —
-   and each has a documented degradation. A static support table tells you what
-   was true when somebody typed it; `CSS.supports()` tells you what is true in
-   the browser you are holding, which is the only version of the answer that
+   Four of the features this design system leans on are recent, and each has a
+   documented degradation. The four are `backdrop-filter`, `corner-shape`,
+   wide-gamut colour and `linear()` easing. A static support table tells you
+   what was true when somebody typed it; `CSS.supports()` tells you what is true
+   in the browser you are holding, which is the only version of the answer that
    settles an argument.
    ========================================================================== */
 
@@ -46,8 +47,8 @@ export interface LastUpdatedProps {
   /**
    * The source file's path relative to `content/docs`, e.g.
    * `components/range-bar.mdx`. When it is not supplied the path is derived
-   * from the URL, which is right for every page whose slug matches its file —
-   * which is every page, because fumadocs derives one from the other.
+   * from the URL, which is right for every page whose slug matches its file.
+   * That is every page, because fumadocs derives one from the other.
    */
   file?: string
   className?: string
@@ -183,7 +184,7 @@ const FEATURES: Feature[] = [
     label: "Display-P3 colour",
     test: "color: color(display-p3 1 0 0)",
     degradation:
-      "The sRGB ramp. The escalation only raises chroma — hue and lightness are identical — so every measured contrast figure holds in both gamuts.",
+      "The sRGB ramp. The escalation only raises chroma and keeps hue and lightness identical. Every measured contrast figure therefore holds in both gamuts.",
   },
   {
     id: "linear",
@@ -205,8 +206,8 @@ const FEATURES: Feature[] = [
  * Feature support is a property of the browser, not of this component, and it
  * cannot change while the page is open. It is therefore computed ONCE, cached
  * at module scope so `getSnapshot` returns a stable reference, and read through
- * `useSyncExternalStore` — which gives a `null` server snapshot, a real client
- * snapshot, and no setState inside an effect.
+ * `useSyncExternalStore`. That hook gives a `null` server snapshot, a real
+ * client snapshot, and no setState inside an effect.
  */
 let supportCache: Record<string, boolean> | null = null
 
@@ -417,21 +418,21 @@ export function PromptRecipe({
 export interface EvalResultProps {
   /** The eval task id, as it appears in skills/opsinjs/evals/evals.json. */
   task: string
-  /** Score 0–1. */
+  /** Score 0 to 1. */
   score?: number
   /** ISO date the score was produced. */
   date?: string
   /**
    * The model a score is attributed to, when it is attributed to one at all.
    *
-   * `scripts/run-evals.mts` produces no such score: it scores the CORPUS —
-   * whether the page an agent would need exists, at the address it would guess,
-   * still saying the thing it exists to say — and its payload records
-   * `"scored": "the opsinjs documentation corpus, not a model"`. So a run-evals
-   * number arrives here with no model and renders "model not recorded", which
-   * is the honest label. The prop exists for a hand-entered score that DID come
-   * from one model on one day, where naming it is the difference between a
-   * measurement and a rumour.
+   * `scripts/run-evals.mts` produces no such score: it scores the CORPUS. What
+   * it measures is whether the page an agent would need exists, at the address
+   * it would guess, still saying the thing it exists to say. Its payload
+   * records `"scored": "the opsinjs documentation corpus, not a model"`. So a
+   * run-evals number arrives here with no model and renders "model not
+   * recorded", which is the honest label. The prop exists for a hand-entered
+   * score that DID come from one model on one day, where naming it is the
+   * difference between a measurement and a rumour.
    */
   model?: string
   className?: string
@@ -441,18 +442,18 @@ export interface EvalResultProps {
  * The current dated score for one eval task.
  *
  * Model and date are shown next to every score because a bare percentage is not
- * a fact about opsinjs — it is a fact about one corpus, or one model, on one
+ * a fact about opsinjs. It is a fact about one corpus, or one model, on one
  * day, and the same documentation will score differently next month without
  * anybody touching it.
  *
  * NOTHING READS THE SCORES YET. `scripts/run-evals.mts` writes
  * `public/r/evals.json` and this component takes `score` as a prop, so a suite
  * that passed and a suite nobody ran are indistinguishable on the page. Closing
- * that needs three files moving together — a route in `lib/routes.ts`, the read
- * here, and the paragraph plus `<Todo>` on `content/docs/agents/evals.mdx` that
- * currently describe the gap correctly — so it is not something this component
- * can fix on its own, and the honest absence below is what stands until it
- * does.
+ * that needs three files moving together. The three are a route in
+ * `lib/routes.ts`, the read here, and the paragraph plus `<Todo>` on
+ * `content/docs/agents/evals.mdx` that currently describe the gap correctly.
+ * That is not something this component can fix on its own, and the honest
+ * absence below is what stands until it does.
  */
 export function EvalResult({
   task,
@@ -503,8 +504,8 @@ export interface FeedbackProps {
 }
 
 /**
- * Was this useful, and report a problem — prefilled with the page path and the
- * docs version.
+ * Was this useful, and report a problem. Both are prefilled with the page path
+ * and the docs version.
  *
  * The GitHub link is not a fallback bolted on afterwards; it is the guaranteed
  * path. `/api/feedback` may be unavailable, may be rate-limited, or may not be

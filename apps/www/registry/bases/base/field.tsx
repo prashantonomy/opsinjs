@@ -1,6 +1,6 @@
 /**
- * Field — a label, its guidance, its error, and the wiring that ties all three
- * to one control.
+ * Field is a label, its guidance, its error, and the wiring that ties all
+ * three to one control.
  *
  * THIS IS THE COMPONENT THAT DECIDES WHETHER EVERY FORM IN A PRODUCT IS
  * ACCESSIBLE, once. Not because a label is hard, but because the relationships
@@ -24,8 +24,8 @@
  *       `aria-describedby` is rebuilt from that set. This is the part hand-rolled
  *       forms get wrong: an error that unmounts and leaves its id behind points
  *       the description at nothing.
- *     - `aria-invalid` is applied to the control — not to the wrapper — whenever
- *       the field's computed validity is false.
+ *     - `aria-invalid` is applied to the control rather than the wrapper
+ *       whenever the field's computed validity is false.
  *     - `data-invalid`, `data-valid`, `data-touched`, `data-dirty`, `data-filled`,
  *       `data-focused` and `data-disabled` on the root and the control.
  *
@@ -48,10 +48,9 @@
  * all: the one the docs chrome uses is declared in `app/globals.css` and
  * resolves to nothing under /view, which the accessibility gate fails a
  * component for reaching. So the error is carried by a glyph, a weight change,
- * the border
- * emphasis on the control, and the words — which is what the specification asks
- * for anyway ("text plus an icon plus the invalid state"), arrived at from the
- * other direction.
+ * the border emphasis on the control, and the words. That is what the
+ * specification asks for anyway ("text plus an icon plus the invalid state"),
+ * arrived at from the other direction.
  *
  * The glyph is `CircleAlert` and it is deliberately NOT `TriangleAlert`. The
  * triangle is `attention`'s glyph in CLINICAL_STATUS_META, and four distinct
@@ -61,7 +60,7 @@
  * IT IS A SERVER COMPONENT. Every Base UI part it composes carries its own
  * 'use client', so the state, the effects and the id generation all happen
  * inside the client boundary the primitive already declares. This file adds no
- * hook, no state and no handler of its own — it maps props to markup — so a
+ * hook, no state and no handler of its own. It maps props to markup, so a
  * directive here would only pull the wrapper into a bundle it does not need to
  * be in.
  */
@@ -82,8 +81,8 @@ import { cn } from "@/lib/utils"
  * used", and a marker that needs a legend is a marker most readers meet without
  * one. Rendered inside the `<label>`, so the accessible name is
  * "Example measurement (optional)" and a screen-reader user hears the exception
- * at the same moment a sighted reader sees it — rather than as a floating
- * symbol somewhere near the field.
+ * at the same moment a sighted reader sees it rather than as a floating symbol
+ * somewhere near the field.
  *
  * They are English, and there is no prop to translate them. That is a real gap
  * and it is listed on the page rather than hidden here.
@@ -99,9 +98,9 @@ const OPTIONALITY_WORD: Record<"required" | "optional", string> = {
  * TWO OF THE THREE VALUES COLLAPSE ONTO ONE MODE, and pretending otherwise
  * would be the more comfortable lie. Base UI's `onSubmit` is documented as
  * "triggers validation when the form is submitted, and re-validates on change
- * after submission" — which IS this system's `submit-then-change`. There is no
- * mode that validates on submit and then refuses to look again, so `"submit"`
- * takes the same one.
+ * after submission". That behaviour IS this system's `submit-then-change`.
+ * There is no mode that validates on submit and then refuses to look again, so
+ * `"submit"` takes the same one.
  *
  * That is the harmless direction of the two. A field that re-checks itself
  * after the reader corrects it clears its error as soon as the correction is
@@ -139,12 +138,13 @@ const VALIDATION_MODE: Record<
  *
  * Four things here are load-bearing and easy to mistake for taste:
  *
- *   `min-h-` AND `min-w-[var(--opsin-target-minimum,2.75rem)]` — the product
- *   stylesheet's 44px backstop covers `button`, `[role="button"]`, checkboxes
- *   and radios, and NOT a text input. The floor has to be set here or it is not
- *   set. The generated token is a rem, so it grows with the reader's own text
- *   size; the shorter authored spelling in `app/product.css` is a hard 44px
- *   that does not, and it is being retired.
+ *   `min-h-` AND `min-w-[var(--opsin-target-minimum,2.75rem)]` set the target
+ *   floor on the control. The product stylesheet's 44px backstop covers
+ *   `button`, `[role="button"]`, checkboxes and radios, and NOT a text input,
+ *   which is why the floor has to be set here or it is not set. The generated
+ *   token is a rem, so it grows with the reader's own text size; the shorter
+ *   authored spelling in `app/product.css` is a hard 44px that does not, and it
+ *   is being retired.
  *
  *   Both axes, not just the block one, because `w-full` holds the inline axis
  *   only while nobody narrows the control. `FieldControlProps.className` is
@@ -153,9 +153,9 @@ const VALIDATION_MODE: Record<
  *   and nothing says so. `app/product.css` sets both `min-block-size` and
  *   `min-inline-size` on the controls it does cover; this matches it.
  *
- *   And the `2.75rem` fallback is not decoration. This file ships to a
- *   consumer through `shadcn add`, and `app/tokens.generated.css` — the one
- *   place `--opsin-target-minimum` is declared — does not go with it. Without
+ *   And the `2.75rem` fallback is not decoration. This file ships to a consumer
+ *   through `shadcn add`, and `app/tokens.generated.css` does not go with it.
+ *   That file is the one place `--opsin-target-minimum` is declared. Without
  *   the fallback the declaration is invalid at computed-value time in an app
  *   that has not wired the token sheet, `min-height` becomes `auto`, and the
  *   input still looks like an input and is simply short. That is the one
@@ -168,27 +168,28 @@ const VALIDATION_MODE: Record<
  *   the first time that rule changes.
  *
  *   `data-[invalid]:` and not a colour. Base UI stamps `data-invalid` on the
- *   control, so the emphasis border tracks the field's real validity — the
- *   `error` prop AND a native constraint that failed — rather than only the
- *   half this file knows about. It is an inset shadow rather than a wider
- *   border so that nothing moves by a pixel when the error appears. Know what
- *   that costs: a `box-shadow` is dropped by forced-colors mode and by the
+ *   control, so the emphasis border tracks the field's real validity rather
+ *   than only the half this file knows about. Real validity is the `error` prop
+ *   AND a native constraint that failed. It is an inset shadow rather than a
+ *   wider border so that nothing moves by a pixel when the error appears. Know
+ *   what that costs: a `box-shadow` is dropped by forced-colors mode and by the
  *   docs stylesheet's print rules, so on paper and under Windows High Contrast
  *   this carrier is gone. It is the third of four, and the two that carry the
- *   meaning — the glyph and the words — survive both. It is not swapped for an
- *   `outline` because `app/product.css` already spends the control's outline
- *   on `:focus-visible`, and a focused invalid field would then show one state
- *   or the other rather than both. `--opsin-border-emphasis` carries its
- *   `2px` fallback for the same reason the two above carry theirs, and the
- *   consequence here is worse: an invalid `box-shadow` is not a short shadow but
- *   no shadow at all, so in an app without the token sheet the whole
- *   declaration drops and the third carrier is gone before forced-colors mode
- *   or a printer ever gets to it. `button.tsx` writes the token the same way.
+ *   meaning survive both. Those two are the glyph and the words. It is not
+ *   swapped for an `outline` because `app/product.css` already spends the
+ *   control's outline on `:focus-visible`, and a focused invalid field would
+ *   then show one state or the other rather than both.
+ *   `--opsin-border-emphasis` carries its `2px` fallback for the same reason
+ *   the two above carry theirs, and the consequence here is worse: an invalid
+ *   `box-shadow` is not a short shadow but no shadow at all, so in an app
+ *   without the token sheet the whole declaration drops and the third carrier
+ *   is gone before forced-colors mode or a printer ever gets to it.
+ *   `button.tsx` writes the token the same way.
  *
  * AND ONE TRAP, because this list goes through `cn()` and the parts above do
- * not. `cn` is `twMerge(clsx(...))`, and tailwind-merge is unconfigured — it
- * has never been told that `--text-opsin-*` is a font-size namespace, so it
- * files `text-opsin-body` and `text-foreground` in the SAME conflict group and
+ * not. `cn` is `twMerge(clsx(...))`, and tailwind-merge is unconfigured. It has
+ * never been told that `--text-opsin-*` is a font-size namespace, so it files
+ * `text-opsin-body` and `text-foreground` in the SAME conflict group and
  * silently drops whichever comes first. There is no ordering that keeps both.
  * So the size is set here and the colour is not: Tailwind's preflight already
  * gives every form control `color: inherit`, which takes the page's foreground
@@ -211,10 +212,10 @@ const CONTROL_CLASS = [
  * `tokens/errors.json`'s policy says warnings are emitted "once per offending
  * call site, through console.warn", and `warnOnce()` in `lib/opsinjs.ts`
  * implements that half for the codes in the table. Neither warning below has a
- * code — see the note at the top of `Field` — but the once-per-cause half of
- * the policy is not attached to the code, and dropping it along with the code
- * is how a component floods a console. Field is imported into a product's own
- * form, which is a client component with state, so an empty `label` on a
+ * code. See the note at the top of `Field`. The once-per-cause half of the
+ * policy is not attached to the code, though, and dropping it along with the
+ * code is how a component floods a console. Field is imported into a product's
+ * own form, which is a client component with state, so an empty `label` on a
  * controlled field prints once per keystroke; Strict Mode doubles it; and the
  * warning that gets buried is somebody else's.
  *
@@ -224,7 +225,7 @@ const CONTROL_CLASS = [
  * nothing to distinguish one offender from another, so it collapses to one
  * warning for the whole session; and on the server the module scope is the
  * process, so it is one warning per process rather than per request. Coarse is
- * the right direction — a repeated identical complaint teaches nothing.
+ * the right direction. A repeated identical complaint teaches nothing.
  */
 const warnedCauses = new Set<string>()
 
@@ -253,7 +254,7 @@ export interface FieldProps {
    */
   label: string
   /**
-   * The control. Put a `Field.Control` here — Field supplies its id, its
+   * The control. Put a `Field.Control` here. Field supplies its id, its
    * `aria-describedby` and its invalid state through context, so a product
    * never wires them by hand. Anything else that participates in Base UI's
    * field context works too; anything that does not gets a label pointing at
@@ -283,7 +284,7 @@ export interface FieldProps {
   optionality?: "required" | "optional" | "none"
   /**
    * When the control's own constraints are checked. Governs the invalid state,
-   * not the `error` prop — a message the product passed in is a message the
+   * not the `error` prop. A message the product passed in is a message the
    * product has already decided to show. Defaults to `"submit-then-change"`:
    * never tell somebody their answer is wrong while they are still typing it.
    *
@@ -357,11 +358,11 @@ export function Field({
       validationMode={VALIDATION_MODE[validateOn]}
       className={cn("flex w-full flex-col gap-opsin-2", className)}
     >
-      {/* `text-opsin-headline` is body size at the emphasis weight — the same
-          size, leading and tracking as the answer the reader is about to type,
-          heavier. A label set smaller than the field it labels is a label that
-          stops being read. It wraps rather than truncating, which is the whole
-          of the 200%-text requirement for this part. */}
+      {/* `text-opsin-headline` is body size at the emphasis weight. It is the
+          same size, leading and tracking as the answer the reader is about to
+          type, only heavier. A label set smaller than the field it labels is a
+          label that stops being read. It wraps rather than truncating, which is
+          the whole of the 200%-text requirement for this part. */}
       <FieldPrimitive.Label
         data-slot="field-label"
         className="text-opsin-headline text-foreground"
@@ -399,7 +400,7 @@ export function Field({
 
       {/* ONE ELEMENT, TWO SOURCES OF WORDS.
           With `error`, `match` is forced on and the product's sentence is the
-          content — the branch that should be taken in a shipped product.
+          content. That is the branch that should be taken in a shipped product.
           Without it, Base UI decides: the element mounts only when the
           control's own constraints have failed at the moment `validateOn`
           prescribes, and the content is the browser's message.
@@ -445,8 +446,8 @@ export interface FieldControlProps extends NativeInputProps {
   render?: ReactElement
   /**
    * Only meaningful alongside `render`, for an element that has children of its
-   * own — the `<option>` list of a `<select>`. An `<input>` is void and takes
-   * none.
+   * own, such as the `<option>` list of a `<select>`. An `<input>` is void and
+   * takes none.
    */
   children?: ReactNode
   /** Merged onto the control. The control's own classes win where they conflict. */
@@ -493,8 +494,9 @@ Field.Control = FieldControl
  * `/view` renders this with no props and `shadcn add` ships it, so it is public,
  * reviewed code rather than a scratch demo. It shows the three states that
  * decide whether this component is worth having: a field with guidance, a field
- * whose exception is marked, and a field with an error — where the point is
- * what has NOT happened, because the hint is still there underneath it.
+ * whose exception is marked, and a field with an error. With the error, the
+ * point is what has NOT happened, because the hint is still there underneath
+ * it.
  *
  * The labels are deliberately unreal (ADR 0012). Nothing here is a measurement
  * anybody could mistake for their own, and the date is one nobody has.

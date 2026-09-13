@@ -71,10 +71,10 @@ repository:
 ### Verify the "no evaluation" claim
 
 Open [Components](../components/index.mdx) and pick any component at `alpha`.
-Its catalogue row carries `a11yDate: null` — the field this project uses to
-record when a component was last reviewed for accessibility — and it is `null`
-on all sixty rows, so the status matrix prints "not yet reviewed" rather than a
-date. Nothing here has been through a review and nothing claims it has.
+Its catalogue row carries `a11yDate: null`, which is the field this project uses
+to record when a component was last reviewed for accessibility. That field is
+`null` on all sixty rows, so the status matrix prints "not yet reviewed" rather
+than a date. Nothing here has been through a review and nothing claims it has.
 
 ### Verify the "generated numbers" claim
 
@@ -108,8 +108,8 @@ of the run that produced them.
   script="scripts/capture-registry.mts"
   what="A measured result for any rendered component"
 >
-Nothing that renders has been measured. The two scripts that would do it —
-`scripts/check-a11y.mts --layout` and `scripts/capture-registry.mts` — both need
+Nothing that renders has been measured. The two scripts that would do it are
+`scripts/check-a11y.mts --layout` and `scripts/capture-registry.mts`. Both need
 Playwright, which is deliberately in no `package.json`, so they run only in the
 nightly workflow and neither publishes a figure here.
 </NoDataYet>
@@ -118,8 +118,8 @@ nightly workflow and neither publishes a figure here.
 
 Stated plainly, because a statement without this section is not a statement.
 
-- **No conformance evaluation of any kind has been performed** — no third-party
-  audit, no internal audit, no expert review.
+- **No conformance evaluation of any kind has been performed.** There has been
+  no third-party audit, no internal audit, no expert review.
 - **No assistive technology has been used against this codebase.** Every cell of
   the tested matrix on [Screen readers](./screen-readers.mdx) says *Not tested*.
 - **`forced-colors` is unimplemented, and `prefers-contrast` is answered in one

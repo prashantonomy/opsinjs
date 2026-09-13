@@ -1,5 +1,5 @@
 /**
- * app/_machine/contracts.ts — the single seam between the machine-route layer
+ * app/_machine/contracts.ts is the single seam between the machine-route layer
  * (`app/r/**`, `app/api/**`, the `llms-*` family, `/og`, `/rss.xml`) and the
  * modules other workers own (`lib/catalogue.ts`, `lib/registry.ts`,
  * `lib/color/*`).
@@ -8,17 +8,18 @@
  * The seventeen route handlers below it are written in the same parallel phase
  * as `lib/`. If each of them imported `{ getCatalogue }` directly and that
  * export turned out to be spelled `catalogue`, seventeen files would fail
- * typecheck at once and the scaffold's one hard constraint — a green build —
- * would be lost to a naming coin-flip. So every borrowed symbol is resolved
- * HERE, once, through a namespace import plus a runtime lookup across the
- * plausible spellings. A namespace import type-checks whatever the module
+ * typecheck at once and the green build that is this scaffold's one hard
+ * constraint would be lost to a naming coin-flip. So every borrowed symbol is
+ * resolved HERE, once, through a namespace import plus a runtime lookup across
+ * the plausible spellings. A namespace import type-checks whatever the module
  * actually exports; the lookup either finds the function or reports, in the
  * response body, that it could not. A machine surface that answers
  * `{"error":"catalogue-unavailable"}` is strictly better than one that fails
  * to compile, and strictly better than one that silently serves an empty list.
  *
  * WHEN `lib/` IS FROZEN: replace each `resolve*` body with a direct import.
- * The routes never change — they only ever see the shapes declared here.
+ * The routes never change, because they only ever see the shapes declared
+ * here.
  *
  * NOTE ON DOCUMENTATION PATHS: nothing in this file constructs one. Page URLs
  * come from fumadocs (`page.url`, built from the `baseUrl` that
@@ -46,23 +47,24 @@ import pkg from "@/package.json"
  * out of a consuming project and the URL this app serves cannot drift.
  *
  * Overridable for preview deployments. Every route below is statically
- * rendered, so this is baked at build time — set it in the build environment,
+ * rendered, so this is baked at build time. Set it in the build environment,
  * not at request time.
  *
  * THE DEFAULT DOES NOT RESOLVE. `dig opsinjs.dev` returns no record, so every
- * absolute URL built from this constant — in `llms.txt`, in the four shards, in
- * every `/r` payload, in each `.md` twin's frontmatter, in the sitemap and in
- * the feed — is a name the project intends to own rather than a URL an agent
- * can fetch. Set `NEXT_PUBLIC_SITE_URL` to the origin that actually serves the
- * build, and do not treat the fallback as a contract until the domain exists.
+ * absolute URL built from this constant is a name the project intends to own
+ * rather than a URL an agent can fetch. Those URLs appear in `llms.txt`, in
+ * the four shards, in every `/r` payload, in each `.md` twin's frontmatter, in
+ * the sitemap and in the feed. Set `NEXT_PUBLIC_SITE_URL` to the origin that
+ * actually serves the build, and do not treat the fallback as a contract until
+ * the domain exists.
  */
 /**
  * NOTE FOR THE SEQUENTIAL FINISH: `app/_shared/site.ts` (the human-facing
  * routes) declares the same origin, name and repository URL, resolved from the
  * same environment variable and with the same fallback. The two were written
- * in parallel and agree exactly. They should be collapsed into one module —
- * this one imports from that one — once both file sets are settled. They are
- * kept separate here only so that neither worker's build depends on the
+ * in parallel and agree exactly. Once both file sets are settled they should
+ * be collapsed into one module, with this one importing from that one. They
+ * are kept separate here only so that neither worker's build depends on the
  * other's file landing first.
  */
 export const SITE_URL = (
@@ -82,9 +84,10 @@ export const SITE_TAGLINE =
 
 /**
  * The one paragraph every machine surface opens with. It has to do two jobs at
- * once: say what the system is for, and say — before anything else is read —
- * exactly how much of it is built, so a model neither invents the API of a
- * component that does not exist nor hand-rolls one that does.
+ * once: say what the system is for, and say exactly how much of it is built.
+ * The second job has to land before anything else is read, so a model
+ * neither invents the API of a component that does not exist nor hand-rolls
+ * one that does.
  *
  * It is computed rather than asserted, and computed LAZILY.
  *
@@ -93,15 +96,16 @@ export const SITE_TAGLINE =
  * `lib/catalogue.ts`, which imports back through this module's own import graph;
  * evaluating it while this module is still initialising throws a ReferenceError
  * from inside `lib/catalogue.ts` and every `/r/*` route answers 500. Every caller
- * is a `force-static` route, so this runs once at build time either way — the
+ * is a `force-static` route, so this runs once at build time either way. The
  * only thing eagerness bought was the crash.
  */
 export function siteSummary(): string {
   const built = implementedComponents()
   const opening = [
-    "opsinjs is a design system for screens where somebody who is not a clinician",
-    "reads their own health data — a blood-pressure reading, an HbA1c result, a",
-    "symptom log — and has to decide what, if anything, to do about it.",
+    "opsinjs is a design system for screens where somebody who is not a",
+    "clinician reads their own health data, such as a blood-pressure reading,",
+    "an HbA1c result or a symptom log, and has to decide what, if anything, to",
+    "do about it.",
     "",
   ]
 
@@ -125,11 +129,11 @@ export function siteSummary(): string {
   /* Once something is built the old paragraph is simply false, on the surface a
      model trusts most. The replacement has to do the same job in the other
      direction: say how many, name them, and say what the REST of the roster
-     actually is — because a reader who saw "nothing is implemented" last week
-     must not conclude that the whole roster shipped, and a reader arriving
-     today must not conclude that none of it did. The ids are listed here, and
-     only here, because this is the one payload that has no per-item rows to
-     carry the answer instead.
+     actually is. A reader who saw "nothing is implemented" last week must not
+     conclude that the whole roster shipped, and a reader arriving today must
+     not conclude that none of it did. The ids are listed here, and only here,
+     because this is the one payload that has no per-item rows to carry the
+     answer instead.
 
      Every number below is read off the catalogue. The first version of this
      paragraph typed "24 specified components" as a literal; it was true on the
@@ -192,11 +196,11 @@ export function siteSummary(): string {
           "The screen pages are specimens; none of them is implemented either.",
         ]
       : [
-          "Every other component page is either a specification — intent, when not",
-          "to use it (naming the alternative), the clinical contract, the proposed",
-          "anatomy and API, and the accessibility bar the implementation must clear",
-          "— or a `considered` id: a reserved name with no specification and no",
-          "code.",
+          "Every other component page is either a specification or a `considered`",
+          "id. A specification carries intent, when not to use it (naming the",
+          "alternative), the clinical contract, the proposed anatomy and API, and",
+          "the accessibility bar the implementation must clear. A `considered` id",
+          "is a reserved name with no specification and no code.",
         ]
 
   return [
@@ -228,8 +232,8 @@ export function siteSummary(): string {
  *
  * It matters most on `/api/feedback`, whose whole answer to "we do not store
  * your report" is a pre-filled issue URL built from these two segments. Until
- * the repository is real that link is a promise rather than a destination —
- * which is why that route also echoes the report back in the response body, so
+ * the repository is real that link is a promise rather than a destination.
+ * That is why that route also echoes the report back in the response body, so
  * the reader still holds what they typed.
  */
 export const GITHUB_OWNER = "opsinjs"
@@ -272,7 +276,7 @@ export const DOCS_VERSION: string =
 
 /**
  * Build-time stamp. These routes are `force-static`, so this is the moment the
- * corpus was compiled, not the moment it was requested — which is exactly the
+ * corpus was compiled, not the moment it was requested. That is exactly the
  * property an offline bundle needs.
  */
 export const GENERATED_AT = new Date().toISOString()
@@ -285,8 +289,8 @@ export const GENERATED_AT = new Date().toISOString()
  * built the notice is the original sentence, word for word, because that is the
  * string this scaffold exists to publish. Once something is built, "no opsinjs
  * component is implemented yet" becomes a false statement on the surface an
- * agent trusts most — and the replacement has to say how many, so that a reader
- * who saw the old sentence does not conclude the whole roster shipped.
+ * agent trusts most. The replacement has to say how many, so that a reader who
+ * saw the old sentence does not conclude the whole roster shipped.
  *
  * The notice deliberately does NOT list the implemented ids. Every payload that
  * carries this block already carries the per-item answer (`implemented` on a
@@ -353,7 +357,7 @@ function callable(value: unknown): ((...args: unknown[]) => unknown) | null {
  * carries that is not listed here is passed through untouched under `extra`.
  */
 export interface CatalogueRow {
-  /** kebab-case id — the registry item name and the docs path segment. */
+  /** The kebab-case id is the registry item name and the docs path segment. */
   name: string
   /** PascalCase display name. Derived from `name` when absent. */
   title: string
@@ -362,13 +366,13 @@ export interface CatalogueRow {
   category: string
   status: string
   /**
-   * `true` for every id that is more than a reserved name — one with a written
-   * specification page behind it, whether or not that page's component has been
-   * built yet. It is NOT an implementation flag: `implemented` on the roster row
-   * answers that, from the registry index. Defaulted from `status !== "considered"`
-   * when the catalogue row does not declare it, which is the same rule stated
-   * twice; no count is written down here, because a count in a comment is a
-   * count nobody updates.
+   * `true` for every id that is more than a reserved name. An id qualifies
+   * when it has a written specification page behind it, whether or not that
+   * page's component has been built yet. It is NOT an implementation flag:
+   * `implemented` on the roster row answers that, from the registry index.
+   * Defaulted from `status !== "considered"` when the catalogue row does not
+   * declare it, which is the same rule stated twice; no count is written down
+   * here, because a count in a comment is a count nobody updates.
    */
   shipped: boolean
   since?: string
@@ -383,8 +387,8 @@ export interface CatalogueRow {
    */
   dependencies: string[]
   /**
-   * Other opsinjs components this one composes, as bare catalogue ids. They are
-   * namespaced on the way out — see `buildRegistryItem` — because shadcn
+   * Other opsinjs components this one composes, as bare catalogue ids.
+   * `buildRegistryItem` namespaces them on the way out, because shadcn
    * resolves a bare dependency name against ui.shadcn.com, not against us.
    */
   registryDependencies: string[]
@@ -573,7 +577,7 @@ export interface RegistrySourceFile {
    * The file's own text, inlined.
    *
    * THIS FIELD IS THE DIFFERENCE BETWEEN AN INSTALL AND A NO-OP. shadcn 4.20's
-   * installer loop is `for (…) { if (!file.content) continue; … }` — a `files[]`
+   * installer loop is `for (…) { if (!file.content) continue; … }`. A `files[]`
    * entry with a path and a type but no content is skipped in silence, with no
    * warning and a success message at the end. Every entry served from `/r`
    * therefore carries its bytes; `scripts/build-registry.mts` reads them at
@@ -584,11 +588,10 @@ export interface RegistrySourceFile {
 }
 
 /**
- * `lib/registry.ts` — `getRegistryEntry(name, base, style)` over
+ * `lib/registry.ts` provides `getRegistryEntry(name, base, style)` over
  * `registry/__index__.ts`, which returns null for an id nothing is built for.
- * The lookup is by `kind: "component"`, so examples and screens — which exist in
- * the index but are never distributed — are unreachable from here by
- * construction.
+ * The lookup is by `kind: "component"`, so examples and screens are unreachable
+ * from here by construction. They exist in the index but are never distributed.
  */
 export function getBuiltFiles(
   name: string,
@@ -626,10 +629,10 @@ export function getBuiltFiles(
 /**
  * Every distinct component id that has a real renderable behind it.
  *
- * The one question three separate surfaces need answered — the `implemented`
- * flag and the notice in `provenance()`, and the `x-opsinjs-implemented` header
- * on every response — and it is answered once, here, from the generated index
- * rather than from a constant somebody has to remember to change.
+ * This one question is answered once, here, from the generated index rather
+ * than from a constant somebody has to remember to change. Three separate
+ * surfaces ask it: the `implemented` flag and the notice in `provenance()`,
+ * and the `x-opsinjs-implemented` header on every response.
  *
  * `REGISTRY_META.count` is deliberately not used: it counts index entries, which
  * is files × styles, so it would report two implemented components the day a
@@ -691,9 +694,10 @@ export function implementedComponents(): string[] {
  * and then it is the system's loudest lie, in the file an agent trusts most.
  * Asking the generated index costs one array filter and cannot go stale.
  *
- * Screens are never distributed — `getBuiltFiles()` looks up components only —
- * so this answers "has this specimen been composed", which is the question a
- * `/docs/screens/<name>.md` twin is asked, and nothing about installability.
+ * Screens are never distributed, because `getBuiltFiles()` looks up components
+ * only. This therefore answers "has this specimen been composed", which is the
+ * question a `/docs/screens/<name>.md` twin is asked, and nothing about
+ * installability.
  */
 export function implementedScreens(): string[] {
   return builtNamesOfKind("screen")
@@ -704,10 +708,10 @@ export function implementedScreens(): string[] {
  * ------------------------------------------------------------------ */
 
 /**
- * `lib/color/apca.ts` — APCA-W3 lightness contrast. Signed: negative Lc means
- * light text on a dark background. `/api/contrast` reports both the signed
- * value and its magnitude, because the sign is the polarity and the magnitude
- * is what a threshold is compared against.
+ * `lib/color/apca.ts` computes APCA-W3 lightness contrast. Signed: negative Lc
+ * means light text on a dark background. `/api/contrast` reports both the
+ * signed value and its magnitude, because the sign is the polarity and the
+ * magnitude is what a threshold is compared against.
  */
 export function resolveApca(): ((fg: string, bg: string) => number) | null {
   const fn = callable(
@@ -717,7 +721,9 @@ export function resolveApca(): ((fg: string, bg: string) => number) | null {
   return (fg, bg) => Number(fn(fg, bg))
 }
 
-/** `lib/color/wcag.ts` — WCAG 2.2 relative-luminance ratio, 1–21. */
+/**
+ * `lib/color/wcag.ts` computes the WCAG 2.2 relative-luminance ratio, 1 to 21.
+ */
 export function resolveWcag(): ((fg: string, bg: string) => number) | null {
   const fn = callable(
     pick(wcagModule, [
@@ -745,12 +751,13 @@ export const STATIC_CACHE_CONTROL =
  *
  * On a route that serves one registry item it is that item's answer; on a
  * documentation twin that documents one component or one screen it is that
- * subject's answer; everywhere else — the index, the catalog, the corpus,
+ * subject's answer; everywhere else the URL is the system, so it is the
+ * system's answer. That last case covers the index, the catalog, the corpus,
  * `/llms.txt`, and prose pages whose subject is the system rather than a
- * buildable thing — the URL is the system, so it is the system's answer.
- * `serveRegistryItem()` and `/llms.mdx/<slug>` supply their per-subject value
- * through the caller-headers-last spread in `json()` and `text()`, and both
- * send `x-opsinjs-status` beside it so a reader can tell which scope it got.
+ * buildable thing. `serveRegistryItem()` and `/llms.mdx/<slug>` supply their
+ * per-subject value through the caller-headers-last spread in `json()` and
+ * `text()`, and both send `x-opsinjs-status` beside it so a reader can tell
+ * which scope it got.
  *
  * The alternative was to make it uniformly system-scoped on every response, on
  * the grounds that one header meaning two things is a header nobody can read

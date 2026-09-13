@@ -8,11 +8,11 @@ import { CopyButton } from "./copy"
 import { NotBuiltYet } from "./stub"
 
 /* ==========================================================================
-   anatomy.tsx — <Anatomy>, <CompositionTree>, <RelatedComponents>, <ApiLink>,
-   <FlowDiagram>.
+   anatomy.tsx defines <Anatomy>, <CompositionTree>, <RelatedComponents>,
+   <ApiLink> and <FlowDiagram>.
 
-   These five exist for a reader who is deciding, and — increasingly — for a
-   model that is generating.
+   These five exist for a reader who is deciding, and they increasingly exist
+   for a model that is generating.
 
    <CompositionTree> is the one to keep. Wrong nesting of compound parts is the
    most common generation failure in every design system: `<Card.Header>`
@@ -22,9 +22,10 @@ import { NotBuiltYet } from "./stub"
    single highest-value thing on a compound component's page.
 
    <RelatedComponents> answers the question that actually brings people to a
-   component page — "is this the right one?" — with the components most often
-   confused with this one and the ONE line of reason each. A related list
-   without reasons is a list of links; with them it is a decision.
+   component page. That question is "is this the right one?", and the answer
+   is the components most often confused with this one and the ONE line of
+   reason each. A related list without reasons is a list of links; with them
+   it is a decision.
    ========================================================================== */
 
 function textOf(node: ReactNode): string {
@@ -52,9 +53,9 @@ export interface ApiLinkProps {
  * An inline link from a type name to its own page in the Reference pillar.
  *
  * Per-symbol pages rather than an anchor on one enormous page (B11). An anchor
- * on a 4,000-line reference is unreadable on a phone, unlinkable from an error
- * message, and — the reason it matters here — impossible for an agent to fetch
- * without pulling the whole document into its context.
+ * on a 4,000-line reference is unreadable on a phone and unlinkable from an
+ * error message. It is also impossible for an agent to fetch without pulling
+ * the whole document into its context, which is the reason it matters here.
  */
 export function ApiLink({ symbol, children, className }: ApiLinkProps) {
   const name = symbol ?? textOf(children)
@@ -100,7 +101,7 @@ export interface AnatomyProps {
  * implementation gets reviewed against; once it is built, the same list is the
  * `data-slot` contract, one line per slot, in the order the parts nest. The
  * not-built marker above it is the only thing that comes and goes, and it is
- * resolved from the registry rather than assumed — a marker that stayed put
+ * resolved from the registry rather than assumed. A marker that stayed put
  * after the component landed would make every built page read as unbuilt, which
  * is the same defect as the reverse and rather harder to notice.
  */
@@ -121,7 +122,7 @@ export function Anatomy({
       {built ? null : (
         <NotBuiltYet name={name} className="mb-3">
           The labelled diagram is drawn over a real render. There is nothing to
-          render, so the parts are listed instead — which is what the
+          render, so the parts are listed instead. That list is what the
           implementation will have to match.
         </NotBuiltYet>
       )}
@@ -261,9 +262,8 @@ export function CompositionTree({
             No composition tree yet for {name}.
           </strong>{" "}
           If it turns out to be a single element rather than a compound
-          component, say so here in a sentence — an empty tree and a
-          deliberately flat component look identical, and only one of them is
-          finished.
+          component, say so here in a sentence. An empty tree and a deliberately
+          flat component look identical, and only one of them is finished.
         </p>
       </div>
     )
@@ -302,8 +302,8 @@ export interface RelatedComponentsProps {
  *
  * The "confused with" list is the one that earns its place. Somebody who is
  * about to use AlertBanner for a piece of neutral guidance is not going to
- * search for Callout — they do not know it exists. The only place that mistake
- * can be caught is on the page they are already reading.
+ * search for Callout, because they do not know it exists. The only place that
+ * mistake can be caught is on the page they are already reading.
  */
 export function RelatedComponents({
   name,

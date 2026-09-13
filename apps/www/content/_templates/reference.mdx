@@ -7,12 +7,12 @@ full: true
 ---
 
 {/*
-  TEMPLATE — kind: reference.
+  TEMPLATE for kind: reference.
 
-  A reference page has exactly ONE hand-written section — "How this is
-  generated" — and a generated body. `build-reference.mts` (or the named script)
-  replaces everything below the marker wholesale. Do not hand-edit below it:
-  `pnpm check:generated` regenerates and fails on a diff.
+  A reference page has exactly ONE hand-written section and a generated body.
+  The hand-written section is "How this is generated". `build-reference.mts` (or
+  the named script) replaces everything below the marker wholesale. Do not
+  hand-edit below it: `pnpm check:generated` regenerates and fails on a diff.
 
   If the generator has not run, the body is <NoDataYet> naming the script. Never
   a hand-typed sample row: a plausible fake in a reference table is indis-
@@ -27,10 +27,10 @@ full: true
 Source file: `path/to/source`. Script: `scripts/build-reference.mts`. Command:
 `pnpm run generate`.
 
-What the rows mean, what is deliberately excluded, and how to change one — which
-is always by changing the source, never this page.
+What the rows mean, what is deliberately excluded, and how to change one.
+Changing one always means changing the source, never this page.
 
-{/* opsinjs:generated:begin — everything below is replaced by the script */}
+{/* opsinjs:generated:begin. Everything below is replaced by the script */}
 
 <NoDataYet script="scripts/build-reference.mts" />
 

@@ -1,6 +1,6 @@
 ---
 title: Migrating from shadcn/ui
-description: The token map, the component equivalences, the API translations — and an honest list of what opsinjs has no equivalent for.
+description: The token map, the component equivalences and the API translations. It ends with an honest list of what opsinjs has no equivalent for.
 status: planned
 kind: handbook
 aliases: [shadcn migration, radix to base ui, asChild to render, moving from shadcn, token mapping]
@@ -44,8 +44,8 @@ the same project and migrated component by component.
 | `Skeleton` | [Skeleton](../components/skeleton.mdx) | Same role |
 | `Button` | [Button](../components/button.mdx) | The reference page; sets the anatomy |
 | `Form` + `FormField` | [Field](../components/field.mdx) | Library-agnostic; see [Forms](./forms.mdx) |
-| `Progress` | — | `considered`; a `RangeBar` is not a progress bar |
-| `Toast` | — | `considered`; see [Alert escalation](../patterns/alert-escalation.mdx) |
+| `Progress` | No equivalent | `considered`; a `RangeBar` is not a progress bar |
+| `Toast` | No equivalent | `considered`; see [Alert escalation](../patterns/alert-escalation.mdx) |
 
 The complete list, including everything on the `considered` roster, is in
 [Components](../components/index.mdx).
@@ -55,7 +55,7 @@ The complete list, including everything on the `considered` roster, is in
 | shadcn/ui | opsinjs |
 | --- | --- |
 | `asChild` + single child | `render={<element />}` |
-| `variant="destructive"` | `status="urgent"` — and read [Clinical status semantics](../health/clinical-status-semantics.mdx) first |
+| `variant="destructive"` | `status="urgent"`. Read [Clinical status semantics](../health/clinical-status-semantics.mdx) first |
 | `variant="secondary"` for a category tint | `category="sleep"` |
 | `data-state="open"` | `data-open` |
 | `data-state="closed"` | `data-closed` |
@@ -72,8 +72,8 @@ no shadcn counterpart because shadcn has no axes.
 | `--muted` / `--muted-foreground` | The lower-emphasis neutral roles |
 | `--border` | The neutral line role |
 | `--destructive` | *No equivalent.* Use `--opsin-status-urgent-*` only where a clinical status genuinely applies |
-| — | `--opsin-status-<level>-*` |
-| — | `--opsin-category-<name>-*` |
+| No shadcn equivalent | `--opsin-status-<level>-*` |
+| No shadcn equivalent | `--opsin-category-<name>-*` |
 
 The generated, authoritative list is in
 [Reference → Tokens](../reference/generated/tokens.mdx).
@@ -126,16 +126,17 @@ The generated, authoritative list is in
 - **Your custom `--radius` will not produce the opsinjs shape.** opsinjs derives
   a radius ladder and uses `corner-shape` where supported; see
   [Squircle](../foundations/shape/squircle.mdx).
-- **The docs chrome you are reading is lyra — square and dense — and the opsinjs
-  product theme is not.** Do not judge the product theme by this site; see
-  [Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx).
+- **The docs chrome you are reading is lyra, which is square and dense. The
+  opsinjs product theme is not.** Do not judge the product theme by this site;
+  see [Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx).
 
 ## Related
 
-- [Composition and render](./composition-and-render.mdx) — the `asChild` to
+- [Composition and render](./composition-and-render.mdx) has the `asChild` to
   `render` translation in detail.
-- [The two colour axes](../health/two-colour-axes.mdx) — why `variant` splits in
-  two.
-- [Components](../components/index.mdx) — the full roster, including what is
+- [The two colour axes](../health/two-colour-axes.mdx) explains why `variant`
+  splits in two.
+- [Components](../components/index.mdx) has the full roster, including what is
   only `considered`.
-- [Registry](../registry/index.mdx) — installing both registries side by side.
+- [Registry](../registry/index.mdx) covers installing both registries side by
+  side.

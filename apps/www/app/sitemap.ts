@@ -14,10 +14,11 @@ import { source } from "@/lib/source"
  *
  * 1. THE `.md` TWINS. Every documentation page is also served as processed
  *    markdown at the same URL with `.md` appended. Those are not disallowed in
- *    robots.txt — an assistant fetching one should get it — but listing them
- *    here would submit a second, textually near-identical copy of the entire
- *    corpus for indexing, which is the textbook duplicate-content mistake. The
- *    canonical HTML page is what belongs in a sitemap; the twin is an API.
+ *    robots.txt, because an assistant fetching one should get it. Listing them
+ *    here would nevertheless submit a second, textually near-identical copy of
+ *    the entire corpus for indexing, which is the textbook duplicate-content
+ *    mistake. The canonical HTML page is what belongs in a sitemap; the twin
+ *    is an API.
  *
  * 2. `/view/**`. Chrome-less preview shells, disallowed in robots.txt.
  *

@@ -21,14 +21,15 @@ and there will not be one: opsinjs is distributed by copying source into your
 own repository rather than as an npm package, which is
 [decision 0002](../../project/decisions/0002-shadcn-registry-distribution.mdx).
 **Script:** `scripts/build-reference.mts`, which scans declaration lines
-textually rather than through `fumadocs-typescript` — for the same reason the
-props tables are extracted textually: a reference generator has to run before
+textually rather than through `fumadocs-typescript`. The reason is the one that
+makes the props tables textual too: a reference generator has to run before
 anything compiles and produce identical bytes on every machine.
 **Command:** `pnpm run generate`.
 
 **Read this table as the site's own vocabulary, not as an installable API.**
-Every row below is a symbol of this documentation site — the routing helpers,
-the colour maths, the catalogue and status models the pages are rendered from.
+Every row below is a symbol of this documentation site. The table covers the
+routing helpers, the colour maths, and the catalogue and status models the pages
+are rendered from.
 That is worth publishing, because the status ladder, the category set and the
 colour derivation are defined here and are the same definitions the doctrine
 pages describe in prose. It is not, however, anything you can install: an
@@ -39,12 +40,12 @@ each component's own page rather than here.
 This page is an index. Types and interfaces also get a page of their own under
 [API](../api/index.mdx), at `reference/api/<Symbol>`, because a type name in
 prose should be a link to a page and not an anchor two thousand words down a
-single document. Functions and constants are listed here only — a page per
+single document. Functions and constants are listed here only, because a page per
 `STATUS_META` would be a page of nothing. The index carries the summary; the
 symbol page carries the declaration line and the file it was read from.
 
 **Four columns.** *Symbol* is the exported identifier, exactly as it is written
-in the source. *Kind* is what the declaration is — `const`, `function`, `type`
+in the source. *Kind* is what the declaration is, so `const`, `function`, `type`
 or `interface`. *Declared in* is the file it lives in, relative to `apps/www`.
 *Summary* is the first sentence of its doc comment, which means the way to
 improve this page is to improve the comment; a row whose summary reads `-` is a
@@ -71,7 +72,7 @@ shared substrate a copied component carries with it is listed under
 `lib/opsinjs.ts` and the clinical vocabulary it re-exports is listed under
 `lib/status.ts`, once each.
 
-{/* opsinjs:generated:begin — everything below is replaced by scripts/build-reference.mts */}
+{/* opsinjs:generated:begin - everything below is replaced by scripts/build-reference.mts */}
 
 ## Exported symbols
 
@@ -143,11 +144,11 @@ shared substrate a copied component carries with it is listed under
 | `deriveTheme` | function | `lib/color/derive.ts` | Derive a complete, contrast-validated theme from one brand colour. |
 | [`DeriveWarning`](../api/DeriveWarning.mdx) | interface | `lib/color/derive.ts` | - |
 | [`Detent`](../api/Detent.mdx) | type | `lib/opsinjs.ts` | How far a sheet is open. |
-| `displayP3ToOklch` | function | `lib/color/oklch.ts` | Gamma-encoded Display-P3, 0–1 per channel → OKLCH. |
+| `displayP3ToOklch` | function | `lib/color/oklch.ts` | Gamma-encoded Display-P3, 0 to 1 per channel → OKLCH. |
 | `DOCS_BASE` | const | `lib/routes.ts` | The docs base segment. Everything else derives from it. |
 | `docsMarkdownPath` | function | `lib/routes.ts` | The same page as processed markdown: `/docs/components/range-bar.md`. |
 | `docsPath` | function | `lib/routes.ts` | The URL of a docs page from its slug segments. |
-| `doctrinePath` | function | `lib/routes.ts` | A doctrine page reference as written in frontmatter — `two-colour-axes`, or `foundations/colour/contrast-and-apca` when it is not in Health. |
+| `doctrinePath` | function | `lib/routes.ts` | A doctrine page reference as written in frontmatter, such as `two-colour-axes`, or `foundations/colour/contrast-and-apca` when it is not in Health. |
 | `editUrl` | function | `lib/routes.ts` | "Edit this page" on GitHub, from a source file path relative to the content root. |
 | `encodePreset` | function | `lib/preset.ts` | Encode a theme as a preset code. |
 | `encodeTransfer` | function | `lib/color/oklch.ts` | Light-linear channel → gamma-encoded. |
@@ -188,9 +189,9 @@ shared substrate a copied component carries with it is listed under
 | `HEALTH_CATEGORIES` | const | `lib/status.ts` | - |
 | `HEALTH_CATEGORY_LABELS` | const | `lib/status.ts` | - |
 | [`HealthCategory`](../api/HealthCategory.mdx) | type | `lib/status.ts` | What a reading is ABOUT. |
-| `healthPath` | function | `lib/routes.ts` | A health doctrine page, by page id — the form `governedBy` and `implements` use. |
+| `healthPath` | function | `lib/routes.ts` | A health doctrine page, by the page id that `governedBy` and `implements` use. |
 | `inGamut` | function | `lib/color/oklch.ts` | - |
-| `isBuilt` | function | `lib/registry.ts` | True only when there is a real renderable behind this name — a base component on disk, not a catalogue row. |
+| `isBuilt` | function | `lib/registry.ts` | True only when a base component for this name is on disk, which a catalogue row alone is not. |
 | `isClinicalStatus` | function | `lib/status.ts` | - |
 | `isDevelopment` | function | `lib/opsinjs.ts` | True in development, and false wherever that cannot be established. |
 | `isHealthCategory` | function | `lib/catalogue.ts` | True for the four `health-*` categories, which carry the extra clinical obligations. |
@@ -212,21 +213,21 @@ shared substrate a copied component carries with it is listed under
 | `listBases` | function | `lib/registry.ts` | - |
 | `listByKind` | function | `lib/registry.ts` | Every entry of a kind, for the examples gallery and the screens index. |
 | `listStyles` | function | `lib/registry.ts` | - |
-| [`MaterialRung`](../api/MaterialRung.mdx) | type | `lib/opsinjs.ts` | A rung of the material ladder — how a surface sits above what is behind it. |
+| [`MaterialRung`](../api/MaterialRung.mdx) | type | `lib/opsinjs.ts` | A rung of the material ladder, meaning how a surface sits above what is behind it. |
 | `maxChroma` | function | `lib/color/oklch.ts` | The largest chroma that is still inside `gamut` at this lightness and hue. |
-| `minimumFontSize` | function | `lib/color/apca.ts` | The smallest font size, in px, at which this Lc is usable at the given weight — a coarse reading of the APCA font-size guidance, not the full lookup table. |
+| `minimumFontSize` | function | `lib/color/apca.ts` | The smallest font size, in px, at which this Lc is usable at the given weight, from a coarse reading of the APCA font-size guidance rather than from the full lookup table. |
 | `mixOklch` | function | `lib/color/oklch.ts` | Mix two OKLCH colours. |
 | `MODE_VALUES` | const | `lib/preset.ts` | The colour mode a theme opens in. `system` follows the reader's own setting. |
 | `NEUTRAL_CHROMA_VALUES` | const | `lib/preset.ts` | Chroma of the neutral ramp. Index 0 is a dead grey; the default is index 2. |
-| `ogUrl` | function | `lib/routes.ts` | The OG image service. One endpoint for the whole site — there is no per-route opengraph-image. |
+| `ogUrl` | function | `lib/routes.ts` | The OG image service. |
 | [`Oklab`](../api/Oklab.mdx) | interface | `lib/color/oklch.ts` | A colour in OKLab. |
 | `oklabToLinearSrgb` | function | `lib/color/oklch.ts` | OKLab → light-linear sRGB. Ottosson's inverse matrices. |
 | `oklabToOklch` | function | `lib/color/oklch.ts` | - |
-| [`Oklch`](../api/Oklch.mdx) | interface | `lib/color/oklch.ts` | A colour in OKLCH. `l` 0–1, `c` unbounded, `h` in degrees. |
-| `oklchToDisplayP3` | function | `lib/color/oklch.ts` | OKLCH → gamma-encoded Display-P3, 0–1 per channel. Not clamped. |
+| [`Oklch`](../api/Oklch.mdx) | interface | `lib/color/oklch.ts` | A colour in OKLCH. `l` 0 to 1, `c` unbounded, `h` in degrees. |
+| `oklchToDisplayP3` | function | `lib/color/oklch.ts` | OKLCH → gamma-encoded Display-P3, 0 to 1 per channel. Not clamped. |
 | `oklchToOklab` | function | `lib/color/oklch.ts` | - |
-| `oklchToRgb255` | function | `lib/color/oklch.ts` | OKLCH → 0–255 sRGB integers, clamped. The input for both contrast models. |
-| `oklchToSrgb` | function | `lib/color/oklch.ts` | OKLCH → gamma-encoded sRGB, 0–1 per channel. Not clamped. |
+| `oklchToRgb255` | function | `lib/color/oklch.ts` | OKLCH → 0 to 255 sRGB integers, clamped. |
+| `oklchToSrgb` | function | `lib/color/oklch.ts` | OKLCH → gamma-encoded sRGB, 0 to 1 per channel. Not clamped. |
 | `OPSIN_ERRORS` | const | `lib/opsinjs.ts` | The table `warnOnce()` reads. Generated from `tokens/errors.json`. |
 | [`OpsinError`](../api/OpsinError.mdx) | interface | `lib/opsinjs.ts` | One warning code: what it is called, how severe it is, and the page that prevents it. |
 | [`OpsinErrorCode`](../api/OpsinErrorCode.mdx) | type | `lib/opsinjs.ts` | Every warning code opsinjs can emit. |
@@ -236,7 +237,7 @@ shared substrate a copied component carries with it is listed under
 | `OUTLINE_IS_EXACT` | const | `lib/status.ts` | `kind: project` is free-form and `kind: guide` has task sections between its fixed first and last headings, so for these two the outline is a REQUIRED SUBSET rather than the complete list. |
 | `P3_CHROMA_GAIN` | const | `lib/color/derive.ts` | How much more chroma Display-P3 is allowed to spend than sRGB at the same step. |
 | `parseColor` | function | `lib/color/oklch.ts` | Parse the colour syntaxes a person is likely to paste into the theme playground: `oklch(...)` with or without percentages, `#rrggbb`, and `rgb(r g b)` or `rgb(r, g, b)`. |
-| `parseHex` | function | `lib/color/oklch.ts` | `#rgb`, `#rrggbb` or `#rrggbbaa` → sRGB 0–1. Returns null on anything else. |
+| `parseHex` | function | `lib/color/oklch.ts` | `#rgb`, `#rrggbb` or `#rrggbbaa` → sRGB 0 to 1. |
 | `passesApca` | function | `lib/color/apca.ts` | - |
 | [`Preset`](../api/Preset.mdx) | interface | `lib/preset.ts` | A theme as a person describes it. What `encodePreset` takes and `decodePreset` returns. |
 | `PRESET_PREFIX` | const | `lib/preset.ts` | - |
@@ -258,8 +259,8 @@ shared substrate a copied component carries with it is listed under
 | [`RegistryQuery`](../api/RegistryQuery.mdx) | interface | `lib/registry.ts` | - |
 | `registryRoutes` | const | `lib/routes.ts` | - |
 | `relativeLuminance` | function | `lib/color/wcag.ts` | WCAG 2.2 relative luminance, 0 for black and 1 for white. |
-| [`Rgb`](../api/Rgb.mdx) | interface | `lib/color/oklch.ts` | Red, green and blue, each 0–1, in whichever space the function says. |
-| [`Rgb255`](../api/Rgb255.mdx) | type | `lib/color/apca.ts` | A colour as 0–255 sRGB integers, which is what APCA is defined over. |
+| [`Rgb`](../api/Rgb.mdx) | interface | `lib/color/oklch.ts` | Red, green and blue, each 0 to 1, in whichever space the function says. |
+| [`Rgb255`](../api/Rgb255.mdx) | type | `lib/color/apca.ts` | A colour as 0 to 255 sRGB integers, which is what APCA is defined over. |
 | [`RoleName`](../api/RoleName.mdx) | type | `lib/color/derive.ts` | The roles a derived theme guarantees. Components consume these and never a step. |
 | [`RolePair`](../api/RolePair.mdx) | interface | `lib/color/derive.ts` | - |
 | [`RoleValue`](../api/RoleValue.mdx) | interface | `lib/color/derive.ts` | - |
@@ -268,7 +269,7 @@ shared substrate a copied component carries with it is listed under
 | `searchCatalogue` | function | `lib/catalogue.ts` | The filter behind `\<StatusMatrix\>`: matches an id, a name, the description or any alias. |
 | `searchTokens` | function | `lib/tokens.ts` | Substring match over name, description and value. The `/tokens` browser's filter. |
 | `SECTION_OUTLINES` | const | `lib/status.ts` | The H2s a page must have, by `kind`. |
-| `SECTIONS_RAIL` | const | `lib/routes.ts` | THE SECTIONS RAIL — the persistent jump rail rendered as the sidebar banner by `\<SectionsRail\>`, and duplicated as Link entries at the top of the root `content/docs/meta.json`. |
+| `SECTIONS_RAIL` | const | `lib/routes.ts` | THE SECTIONS RAIL is the persistent jump rail rendered as the sidebar banner by `\<SectionsRail\>`, and duplicated as Link entries at the top of the root `content/docs/meta.json`. |
 | `SHIPPED_PRESETS` | const | `lib/preset.ts` | The shipped presets. |
 | `simulate` | function | `lib/color/cvd.ts` | Simulate a dichromacy. |
 | `simulateOklch` | function | `lib/color/cvd.ts` | - |
@@ -277,7 +278,7 @@ shared substrate a copied component carries with it is listed under
 | `source` | const | `lib/source.ts` | - |
 | `spokenUnit` | function | `lib/opsinjs.ts` | How a screen reader should say this unit for this count. |
 | `srgbToLinear` | function | `lib/color/oklch.ts` | - |
-| `srgbToOklch` | function | `lib/color/oklch.ts` | Gamma-encoded sRGB, 0–1 per channel → OKLCH. |
+| `srgbToOklch` | function | `lib/color/oklch.ts` | Gamma-encoded sRGB, 0 to 1 per channel → OKLCH. |
 | [`Status`](../api/Status.mdx) | type | `lib/status.ts` | The release phase of a page or a catalogue entry. |
 | `STATUS_META` | const | `lib/status.ts` | Ordered most-finished first. |
 | `STATUS_ORDER` | const | `lib/status.ts` | Statuses in display order. |
@@ -296,7 +297,7 @@ shared substrate a copied component carries with it is listed under
 | `tokenMeta` | function | `lib/tokens.ts` | - |
 | `tokensAreGenerated` | function | `lib/tokens.ts` | Whether the generated layer has actually been produced. |
 | `tokensUsedBy` | function | `lib/tokens.ts` | Every token one component consumes. |
-| `toRgb255` | function | `lib/color/oklch.ts` | 0–1 sRGB → 0–255 integers, clamped. |
+| `toRgb255` | function | `lib/color/oklch.ts` | 0 to 1 sRGB → 0 to 255 integers, clamped. |
 | `toRgb255Input` | function | `lib/color/apca.ts` | Coerce any accepted colour form to an sRGB triple. |
 | [`TrendPoint`](../api/TrendPoint.mdx) | interface | `lib/opsinjs.ts` | One reading in a series, for the components that draw change over time. |
 | [`Unit`](../api/Unit.mdx) | interface | `lib/opsinjs.ts` | One unit: what it is called, what a reader sees, and how it is SPOKEN. |
@@ -306,7 +307,7 @@ shared substrate a copied component carries with it is listed under
 | `UNITS` | const | `lib/opsinjs.ts` | Every unit this system can speak, sorted by id. Generated from `tokens/units.json`. |
 | `UNITS_BY_SYMBOL` | const | `lib/opsinjs.ts` | The lookup `findUnit()` reads, derived from `UNITS` rather than emitted twice. |
 | `unknownImplementsIds` | function | `lib/catalogue.ts` | Validate a doctrine page's `implements` list. |
-| [`UnknownStatus`](../api/UnknownStatus.mdx) | type | `lib/status.ts` | The absence of an assertion — no reading, a stale reading, or a reading whose reference range the product does not own. |
+| [`UnknownStatus`](../api/UnknownStatus.mdx) | type | `lib/status.ts` | The absence of an assertion, which covers a reading never taken, a stale reading, or a reading whose reference range the product does not own. |
 | [`UnresolvedReason`](../api/UnresolvedReason.mdx) | interface | `lib/registry.ts` | Why a lookup came back empty. The input to `\<NotBuiltYet\>`. |
 | [`ViewKind`](../api/ViewKind.mdx) | type | `lib/routes.ts` | What a `/view` route can render. |
 | [`ViewParams`](../api/ViewParams.mdx) | interface | `lib/routes.ts` | - |

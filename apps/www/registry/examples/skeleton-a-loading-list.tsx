@@ -3,7 +3,7 @@
  *
  * The rule this demonstrates is the one about announcement. There are three
  * rows, nine Skeleton roots and twelve placeholder blocks here, and between
- * them they say nothing to a screen reader — every Skeleton root is
+ * them they say nothing to a screen reader. Every Skeleton root is
  * `aria-hidden`. The single polite message belongs to the REGION, is mounted by
  * this file rather than by the component, and says once what nine skeletons
  * would otherwise say nine times.
@@ -32,7 +32,7 @@
  * rather than a timer.
  *
  * The rows carry no numbers and no units. A screenshot of an opsinjs example
- * must never be mistakable for somebody's result — which is also why the
+ * must never be mistakable for somebody's result. That is also why the
  * placeholder for each row's second line is a text bar and not a short block
  * where a reading would sit.
  */
@@ -42,11 +42,11 @@ import { Skeleton } from "@/registry/base-lyra/ui/skeleton"
 const ROWS = ["first", "second", "third"]
 
 /* This example's own choice, and nothing more. `foundations/data-states` names
-   a floor — below roughly a tenth of a second a skeleton is worse than nothing,
-   because the flash reads as a glitch — and then says the number itself is a
-   product decision. This is one, made for a list of three rows, not a figure
-   opsinjs holds: opsinjs owns no thresholds of any kind. Pick your own from
-   what the request actually costs. */
+   a floor. Below roughly a tenth of a second a skeleton is worse than nothing,
+   because the flash reads as a glitch. The doc then says the number itself
+   is a product decision. This is one, made for a list of three rows, not a
+   figure opsinjs holds: opsinjs owns no thresholds of any kind. Pick your own
+   from what the request actually costs. */
 const APPEAR_AFTER_MS = 200
 
 export default function SkeletonALoadingList() {
@@ -71,7 +71,7 @@ export default function SkeletonALoadingList() {
             className="flex items-start gap-opsin-3 border-b border-border pb-opsin-3"
           >
             {/* The avatar's seat. It is a circle because a circle is coming,
-                and for no other reason — a shape chosen to fill space rather
+                and for no other reason. A shape chosen to fill space rather
                 than to match what lands is where the layout shift comes back. */}
             <Skeleton
               shape="circle"

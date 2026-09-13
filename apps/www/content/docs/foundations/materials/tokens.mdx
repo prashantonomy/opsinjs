@@ -1,6 +1,6 @@
 ---
 title: Material tokens
-description: The generated reference for all six rungs — eight properties each, both themes, and the preference overrides that replace them.
+description: The generated reference for all six rungs covers eight properties each, both themes, and the preference overrides that replace them.
 status: stable
 kind: foundation
 aliases: [material tokens, opsin-material, surface tokens, blur token, scrim token]
@@ -46,7 +46,7 @@ list.
 **The name is what appears in CSS, and the ordinal appears nowhere.**
 `--opsin-material-sheet-blur`, never `--opsin-material-3-blur`. The numbers on
 [The ladder](./the-ladder.mdx) are the ordering and nothing addresses a rung by
-one, because a number invites arithmetic — "one more than a card" — and the
+one, because a number invites arithmetic such as "one more than a card", and the
 ladder is not arithmetic: each rung answers a different question about what is
 behind it. The rule is stated in `tokens/material.json` itself, which is where
 the emitter reads it.
@@ -62,7 +62,7 @@ declarations applied together.
 ### What the generator emits
 
 1. A `:root` block with all six rungs for the light theme.
-2. A `.dark` block overriding the rungs that differ — in dark, the translucent
+2. A `.dark` block overriding the rungs that differ. In dark, the translucent
    rungs' tints are near-black rather than near-white, and the borders flip from
    dark-at-low-alpha to white-at-low-alpha, because a dark border on a dark
    surface is invisible.
@@ -80,12 +80,13 @@ than overriding the tokens, because a printed page has no backdrop to filter.
 ### Rungs 0, 1 and 2 reference other tokens
 
 The opaque rungs do not carry literal colours. `canvas`, `card` and `raised` all
-resolve their tint to a step of the neutral ramp — `--opsin-neutral-0` in light,
-and `950`, `900`, `800` respectively in dark, so the ladder lifts one step at a
-time where a flat colour would leave the three indistinguishable. Their borders
-resolve the same way: `--opsin-neutral-200` in light, `800` and `700` in dark.
-`canvas` is the exception to the exception and has no border at all — `none`,
-literally, because the page itself has no edge.
+resolve their tint to a step of the neutral ramp. In light the step is
+`--opsin-neutral-0`, and in dark it is `950`, `900` and `800` respectively, so
+the ladder lifts one step at a time where a flat colour would leave the three
+indistinguishable. Their borders resolve the same way: `--opsin-neutral-200` in
+light, `800` and `700` in dark. `canvas` is the exception to the exception and
+has no border at all. Its border token resolves to `none`, literally, because
+the page itself has no edge.
 
 This is deliberate: an opaque material is a *composition* of the neutral palette,
 not a parallel palette, and a theme change should move the ladder with it. The
@@ -113,7 +114,7 @@ as one rather than approximating it.
 **Do not add a per-component variant.** "The sheet on this one screen needs a
 slightly stronger blur" is how a six-rung ladder becomes a fourteen-value
 parameter space. If a screen genuinely needs something the ladder does not have,
-that is intake, not CSS — see
+that is intake, not CSS. See
 [Contributing tokens](../../handbook/contributing/contributing-tokens.mdx).
 
 ## Tokens
@@ -133,7 +134,7 @@ Three properties of that table matter and are easy to take for granted:
   reads `--opsin-material-<rung>-opaque`, because that is the only backdrop the
   generator knows. So the published figure for `sheet` and `overlay` is their
   *reduced-transparency* figure, and the translucent case is bounded by the alpha
-  and the scrim minimum instead — that calculation is
+  and the scrim minimum instead. That calculation is
   [The contrast floor](./the-contrast-floor.mdx), and it is stated here rather
   than hidden behind a number that looks like it covers more than it does.
 - **`scrim` has no row, and that is correct.** Rung 5 exists to remove the page
@@ -148,12 +149,12 @@ Three properties of that table matter and are easy to take for granted:
 There is no separate reduced-transparency row for the same reason there is no
 duplicate: `sheet` and `overlay` fall back to the card colour, so their fallback
 pair and `card`'s row are the same measurement. `scrim` is the one rung whose
-fallback is its own value — a dark wash at a higher alpha — because a scrim that
-became opaque would be a blank screen.
+fallback is its own value, because a scrim that became opaque would be a blank
+screen. That value is a dark wash at a higher alpha.
 
 ## Related
 
-- [The ladder](./the-ladder.mdx) — what each rung is for.
-- [The contrast floor](./the-contrast-floor.mdx) — where the alphas come from.
-- [Generated token reference](../../reference/generated/tokens.mdx) — the same
+- [The ladder](./the-ladder.mdx) says what each rung is for.
+- [The contrast floor](./the-contrast-floor.mdx) is where the alphas come from.
+- [Generated token reference](../../reference/generated/tokens.mdx) has the same
   data for the whole system, not just materials.

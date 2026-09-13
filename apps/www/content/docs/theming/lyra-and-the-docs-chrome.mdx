@@ -20,14 +20,14 @@ system in the first ten seconds, and every screenshot you took from it would be
 misleading.
 
 It is not opsinjs. It is `lyra`, a shadcn style, chosen for a documentation site
-and confined to it. The product theme — the one the components are designed
-against — is squircle-cornered, set in the reader's own system font, generously
-spaced, and built around 44-pixel touch targets. Two themes, one repository, and
-a hard boundary between them.
+and confined to it. The components are designed against the product theme, which
+is squircle-cornered, set in the reader's own system font, generously spaced, and
+built around 44-pixel touch targets. Two themes, one repository, and a hard
+boundary between them.
 
 This is a project page rather than a theming guide because it is a decision with
 consequences, not a technique. The decision record is
-[0004 — lyra docs chrome](../project/decisions/0004-lyra-docs-chrome.mdx).
+[ADR 0004. lyra themes the documentation chrome only](../project/decisions/0004-lyra-docs-chrome.mdx).
 
 ## The two audiences are not the same person
 
@@ -55,16 +55,17 @@ two, and to say so on a page that anyone can find.
 | Corners | Square to slightly rounded | Squircle via `corner-shape`, radius `1rem` |
 | Type | Inter, small | The platform UI stack, `ui-sans-serif, system-ui, …` |
 | Spacing | Tailwind default `--spacing` | `--spacing: 0.28rem`, measurably roomier |
-| Targets | Ordinary control sizes | `--opsin-target-minimum: 2.75rem` — 44px at the default root size — enforced in `@layer base` |
+| Targets | Ordinary control sizes | `--opsin-target-minimum: 2.75rem` is 44px at the default root size and is enforced in `@layer base` |
 | Colour | Neutral, low chroma | Neutral shell, plus the two health axes |
 | Density | One | `[data-density]`: compact, default, comfortable |
 | Text size | One | `[data-text-size]`: 100, 125, 150, 200 |
 
-The two axes — six category ramps and four status ramps — are identical in both,
-because they are generated from the same `tokens/*.json` and imported into both
-stylesheets. **The axes do not change between the docs and the product. Only the
-shell does.** That is the invariant that makes the split safe: a status colour
-you see in a callout on this page is the same status colour a patient sees.
+The two axes are six category ramps and four status ramps, and they are identical
+in both, because they are generated from the same `tokens/*.json` and imported
+into both stylesheets. **The axes do not change between the docs and the
+product. Only the shell does.** That is the invariant that makes the split safe:
+a status colour you see in a callout on this page is the same status colour a
+patient sees.
 
 ## How the isolation is enforced
 
@@ -74,14 +75,14 @@ There is no `app/layout.tsx` in this application. There are two *root* layouts,
 siblings, and neither is nested under the other:
 
 - `app/(chrome)/layout.tsx` owns an `<html>` and a `<body>`, imports
-  `globals.css`, and mounts the docs provider. Everything you read — the docs,
-  the home page, the playgrounds — lives under it.
+  `globals.css`, and mounts the docs provider. The docs, the home page and the
+  playgrounds all live under it, and that is everything you read.
 - `app/(view)/layout.tsx` owns its **own** `<html>` and `<body>` and imports
   `product.css` and nothing else. No docs chrome, no docs stylesheet, no
   provider.
 
 A route group nested under a root layout cannot own `<html>`, so the isolation
-could not have been achieved with one root layout and a group — the second
+could not have been achieved with one root layout and a group. The second
 document would have rendered a nested `<html>` and inherited the docs
 stylesheet, which is exactly the failure this arrangement prevents. `product.css`
 carries that constraint in a comment at the top of the file so that nobody
@@ -98,7 +99,7 @@ own `<html>`.
 Three real costs, stated so that nobody discovers them as surprises.
 
 **Duplication.** The axis fallbacks appear in both stylesheets. They must,
-because the two must be independently loadable — `(view)` never loads the docs
+because the two must be independently loadable. `(view)` never loads the docs
 chrome, so it cannot inherit anything from it. Both files import the same
 generated `tokens.generated.css`, so the *generated* values are shared and only
 the authored pre-generation fallbacks are duplicated. It is still duplication
@@ -106,9 +107,9 @@ and it will drift if nobody watches it.
 
 **An iframe boundary.** A preview is a separate document. It cannot share React
 state with the page around it, it costs a request, and it needs its own
-accessibility treatment. The alternative — rendering previews inline under the
-docs theme — would have made every screenshot on the site a lie, so the boundary
-is worth its cost.
+accessibility treatment. The alternative is rendering previews inline under the
+docs theme, and that would have made every screenshot on the site a lie, so the
+boundary is worth its cost.
 
 **Two things to keep accessible.** The docs chrome is a product too. Its
 conformance is reported separately, on
@@ -136,7 +137,7 @@ come in three states and only one of them is safe to capture. A preview of an
 implemented component embeds its `/view` route in the bordered frame, so what
 you photograph is the product theme, not this chrome. A preview whose page has
 not asked to mount the frame shows a dashed note carrying the `/view` address
-instead — open that address and screenshot there. And a preview of an id with
+instead. Open that address and screenshot there. And a preview of an id with
 no code behind it renders `<NotBuiltYet>` in the same frame with the switches
 still present, so the shape of the eventual thing is communicated without
 pretending it exists; that placeholder is a specimen of the honesty vocabulary

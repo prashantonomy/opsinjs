@@ -7,7 +7,7 @@
  * THE RULE THIS DEMONSTRATES is the one that costs the most to hold: every
  * gesture has a control. Drag-between-detents does not exist for a keyboard
  * user, a switch user, or anybody whose grip makes a precise drag unreliable,
- * so the grabber is not decoration here — it is a real button whose accessible
+ * so the grabber is not decoration here. It is a real button whose accessible
  * name states the height the sheet is at now, with `aria-expanded` carrying the
  * change when it moves. Tab into the sheet and press it: the sheet travels
  * between half and full without a pointer ever touching it, and a reader who

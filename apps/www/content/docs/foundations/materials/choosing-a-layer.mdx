@@ -36,8 +36,8 @@ question people most often skip.
 yes, it is `sheet`, and it needs a `scrim` beneath it. Both, or neither.
 
 **3. Otherwise: is it temporarily above the page, or part of it?** A surface that
-appears, is dismissed and leaves nothing behind — a menu, a popover, a dragged
-card — is `raised`. A bounded piece of content that belongs to the page is
+appears, is dismissed and leaves nothing behind, such as a menu, a popover or a
+dragged card, is `raised`. A bounded piece of content that belongs to the page is
 `card`. If it is neither, it is `canvas` and it needs no material at all.
 
 `overlay` and `sheet` are the pair people get backwards, because two retired
@@ -52,7 +52,7 @@ beneath is `overlay`; the panel that covers the page is `sheet`. See
 | Page background | `canvas` | nothing is behind it, so nothing shows through it |
 | A section of a list or a form | `card` | a bounded piece of content, in place, not above the page |
 | A card showing one reading, tappable | `card` | tapping is an affordance, not a depth; `card` is the default home for a health value |
-| A card showing one reading, not tappable | `card` | the same rung — the difference between the two rows is the affordance, and nothing else |
+| A card showing one reading, not tappable | `card` | the same rung, because the difference between the two rows is the affordance, and nothing else |
 | Menu, dropdown, select list | `raised` | temporarily above the page, over arbitrary content |
 | Popover, tooltip | `raised` | same, and small enough that translucency would be noise |
 | Toast, snackbar | `raised` | appears over content it knows nothing about; must not depend on it |
@@ -70,33 +70,33 @@ beneath is `overlay`; the panel that covers the page is `sheet`. See
 
 ### The five nesting rules
 
-**N1 — A translucent rung may never contain another translucent rung.** A card
+**N1. A translucent rung may never contain another translucent rung.** A card
 inside a sheet is `card` or `raised`, never `overlay`. Two stacked blurs cost
 twice as much, and the composite of a translucent surface over a translucent
 surface has no bounded worst case, so the contrast floor cannot be computed for
 it.
 
-**N2 — A scrim is a sibling of the rung it serves, never its child.** It sits
+**N2. A scrim is a sibling of the rung it serves, never its child.** It sits
 between the `sheet` and everything below, in the stacking order, not inside the
 sheet's box.
 
-**N3 — At most one `sheet` at a time.** A dialog opened from a dialog is a bug
+**N3. At most one `sheet` at a time.** A dialog opened from a dialog is a bug
 in the flow, not a stack to be styled. If a decision genuinely requires two
 steps, it requires two steps *inside* one sheet.
 
-**N4 — When a `sheet` is open, the chrome on the `overlay` rung goes under the
+**N4. When a `sheet` is open, the chrome on the `overlay` rung goes under the
 scrim.** A nav bar that stays bright and crisp above a scrim looks interactive
 and is not. Dim it with everything else.
 
-**N5 — `raised`'s shadow is the only shadow you may add.** `canvas` and `card`
+**N5. `raised`'s shadow is the only shadow you may add.** `canvas` and `card`
 have none, `sheet` and `overlay` carry their own, and `scrim` has none. "A small
 shadow to make it pop" on a `card` is how a system acquires nine elevations, none
 of which mean anything.
 
 ### The one conditional case
 
-A sticky summary bar that shows a health value — today's blood pressure, the
-latest glucose reading — is the only place a number a person may act on is
+A sticky summary bar that shows a health value, such as today's blood pressure or
+the latest glucose reading, is the only place a number a person may act on is
 allowed on a translucent rung, and it is allowed only when **the same value also
 appears on an opaque surface on the same screen**. The bar is then a convenience
 and not the record. If the bar is the only place the value appears, it is not
@@ -163,7 +163,7 @@ accessibility controls wearing plain clothes:
   stronger guarantee.
 
 One more, which belongs to the components rather than to the tokens: `sheet`
-surfaces are modal, and modality is a focus contract — focus moves in, is
+surfaces are modal, and modality is a focus contract. Focus moves in, is
 trapped, and returns to the trigger on dismissal. The material says nothing
 about that, and choosing `sheet` does not implement it.
 [Keyboard and focus](../../accessibility/keyboard-and-focus.mdx) is the
@@ -171,9 +171,9 @@ contract.
 
 ## Related
 
-- [The ladder](./the-ladder.mdx) — what each rung is made of, and the boundary
+- [The ladder](./the-ladder.mdx) says what each rung is made of, and the boundary
   between opaque and translucent.
-- [Performance budget](./performance-budget.mdx) — why "at most three composited
-  surfaces" is a real number and how to check you are under it.
-- [Layering and elevation](../layering-and-elevation.mdx) — the z-index
+- [Performance budget](./performance-budget.mdx) explains why "at most three
+  composited surfaces" is a real number and how to check you are under it.
+- [Layering and elevation](../layering-and-elevation.mdx) has the z-index
   contract that decides what is in front of what.

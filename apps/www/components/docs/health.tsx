@@ -14,17 +14,17 @@ import { cn } from "@/lib/utils"
 import { NoDataYet } from "./stub"
 
 /* ==========================================================================
-   health.tsx — <RangeDemo>, <Glossary>, <Term>.
+   health.tsx defines <RangeDemo>, <Glossary> and <Term>.
 
    The docs site dogfooding its own vocabulary. <Term> here is the
-   documentation's own version of the shipped `term` component — a docs-chrome
-   twin, not a copy of it, because the shipped one lives under
+   documentation's own version of the shipped `term` component. This version is
+   a docs-chrome twin, not a copy of it, because the shipped one lives under
    registry/bases/base/ and renders in the product theme inside /view. It
    behaves the way the shipped one has to: plain English first, the clinical
    word kept, and a link to the full definition rather than a tooltip that a
    touch reader cannot open.
 
-   <RangeDemo> is the shared host for the health-data pages — RangeBar,
+   <RangeDemo> is the shared host for the health-data pages. RangeBar,
    ResultCard, MetricTile all show a value against a reference range, and all
    three arguments are about the same three edge cases:
 
@@ -39,7 +39,7 @@ import { NoDataYet } from "./stub"
    not the component, and that is still true now that `range-bar` is built: the
    real one lives under registry/bases/base/ and renders in the PRODUCT theme,
    which only exists inside a /view iframe, so a doctrine page cannot host it
-   without <ComponentPreview> — and <ComponentPreview> has no sliders. A reader
+   without <ComponentPreview>. <ComponentPreview> has no sliders. A reader
    who wants the shipped component wants that; a reader on a doctrine page wants
    to move one input at a time and watch the rule hold. This carries no
    not-implemented marker either way: it is not pretending to be an API, in
@@ -60,7 +60,7 @@ export interface TermProps {
 }
 
 /**
- * A clinical term inline in prose, linked to its entry in the A–Z.
+ * A clinical term inline in prose, linked to its entry in the A to Z.
  *
  * It is a link, not a tooltip. A tooltip needs a hover, which a phone does not
  * have, and it hides the one piece of information the reader stopped for. The
@@ -80,7 +80,7 @@ export function Term({ id, plain, children, className }: TermProps) {
     >
       {children}
       {plain ? (
-        <span className="sr-only"> — in plain English: {plain}</span>
+        <span className="sr-only">. In plain English: {plain}</span>
       ) : null}
     </Link>
   )
@@ -110,12 +110,12 @@ export interface GlossaryProps {
 }
 
 /**
- * The filterable A–Z. Every definition is written for opsinjs.
+ * The filterable A to Z. Every definition is written for opsinjs.
  *
- * Nothing here is copied from the NHS A–Z or any other Crown-copyright source.
- * That is a licensing fact and also a quality one: a definition written for a
- * general health encyclopedia is written for a different reader than somebody
- * looking at their own result on a phone, and the difference shows.
+ * Nothing here is copied from the NHS A to Z or any other Crown-copyright
+ * source. That is a licensing fact and also a quality one: a definition written
+ * for a general health encyclopedia is written for a different reader than
+ * somebody looking at their own result on a phone, and the difference shows.
  */
 export function Glossary({ entries, className }: GlossaryProps) {
   const id = useId()
@@ -136,7 +136,7 @@ export function Glossary({ entries, className }: GlossaryProps) {
   if (!entries?.length) {
     return (
       <NoDataYet
-        what="The plain-English A–Z"
+        what="The plain-English A to Z"
         script="scripts/build-tokens.mts"
         className={className}
       >
@@ -236,11 +236,11 @@ function verdictFor(
  * all of which the reader can change.
  *
  * The thresholds in this demo are ARBITRARY and the caption says so. opsinjs
- * does not own clinical thresholds and never will — they belong to the service,
- * to a guideline, or to the person's own clinician, and a design system that
- * shipped defaults for them would be quietly making clinical decisions on
- * behalf of every product that installed it. The demo exists to show what the
- * UI does with a threshold, not to supply one.
+ * does not own clinical thresholds and never will. Clinical thresholds belong
+ * to the service, to a guideline, or to the person's own clinician, and a
+ * design system that shipped defaults for them would be quietly making clinical
+ * decisions on behalf of every product that installed it. The demo exists to
+ * show what the UI does with a threshold, not to supply one.
  */
 export function RangeDemo({
   label = "Systolic blood pressure",
@@ -324,7 +324,7 @@ export function RangeDemo({
               }}
             />
             <span className="sr-only">
-              {HEALTH_CATEGORY_LABELS[category]} —{" "}
+              {HEALTH_CATEGORY_LABELS[category]}.{" "}
             </span>
             {label}
           </p>
@@ -359,7 +359,7 @@ export function RangeDemo({
                 />
               </div>
               <p className="m-0 mt-1 text-xs opacity-80">
-                Your range: {low}–{high} {unit}
+                Your range: {low} to {high} {unit}
               </p>
             </>
           ) : (
@@ -374,7 +374,7 @@ export function RangeDemo({
 
           {verdict ? (
             <p className="m-0 mt-2 text-sm font-medium">
-              {CLINICAL_STATUS_META[verdict].word} —{" "}
+              {CLINICAL_STATUS_META[verdict].word}.{" "}
               {CLINICAL_STATUS_META[verdict].sentence}
             </p>
           ) : (

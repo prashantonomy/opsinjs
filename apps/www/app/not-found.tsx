@@ -4,7 +4,7 @@ import "./not-found.css"
 import { agentRoutes, registryRoutes, routes } from "@/lib/routes"
 
 /**
- * The GLOBAL 404 — served for URLs that match no route at all.
+ * The GLOBAL 404 is served for URLs that match no route at all.
  *
  * WHY IT LIVES HERE AND NOT IN `(chrome)`. With two sibling root layouts and no
  * `app/layout.tsx`, Next uses `app/not-found.tsx` for globally unmatched URLs
@@ -15,14 +15,15 @@ import { agentRoutes, registryRoutes, routes } from "@/lib/routes"
  * WHY IT IMPORTS ITS OWN STYLESHEET. As the global error boundary, whatever this
  * file imports is pulled into every route's chunk graph. While it imported
  * `globals.css`, every `/view/*` preview shipped a preload for the 177 kB docs
- * stylesheet — falsifying the isolation the preview routes exist to provide.
- * `not-found.css` is ~40 lines of plain CSS with no Tailwind layer behind it.
+ * stylesheet. That preload falsified the isolation the preview routes exist to
+ * provide. `not-found.css` is ~40 lines of plain CSS with no Tailwind layer
+ * behind it.
  *
  * It also renders inside a Next-generated `<html>` with no root layout and so no
  * `lang` attribute, which is why the language is declared on the wrapper below:
  * a site this insistent about accessibility should not ship a 404 that fails
- * WCAG 2.2 SC 3.1.1. The `lang` cannot reach `<html>` from here at all — there
- * is no layout in which to set it — so the wrapper is the whole of what is
+ * WCAG 2.2 SC 3.1.1. The `lang` cannot reach `<html>` from here at all, because
+ * there is no layout in which to set it. The wrapper is therefore all that is
  * available, and it is stated as a limit rather than as a fix. The `<title>`
  * below is the same situation with a different ending: React hoists it into the
  * head, so SC 2.4.2 is genuinely satisfied rather than approximated.
@@ -30,21 +31,21 @@ import { agentRoutes, registryRoutes, routes } from "@/lib/routes"
  * WHAT A 404 IS FOR ON THIS SITE. Every other page here exists to stop an agent
  * inventing an API. A 404 is the one response that invites exactly that: ask an
  * assistant for `SymptomPicker`, let it hit a dead URL, and it will cheerfully
- * write you a component. So this page answers the question instead of shrugging
- * — it says what the three real causes are and where the definitive answer for
- * each one lives.
+ * write you a component. So this page answers the question instead of
+ * shrugging. It says what the three real causes are and where the definitive
+ * answer for each one lives.
  */
 export default function NotFound() {
   return (
     <div lang="en" className="nf-root">
       {/* Rendered in the tree rather than exported as `metadata`, because the
           Metadata API is collected from `layout` and `page` segments only and
-          this file is neither — and, with no root layout above it, there is no
-          layout here to carry a title either. React hoists a <title> rendered
-          anywhere into the document head, which is the only way this file can
-          have one. WCAG 2.2 SC 2.4.2: a page with no title is announced by its
-          URL, and a URL is what the reader already could not make sense of. */}
-      <title>Page not found — opsinjs</title>
+          this file is neither. With no root layout above it, there is no layout
+          here to carry a title either. React hoists a <title> rendered anywhere
+          into the document head, which is the only way this file can have one.
+          WCAG 2.2 SC 2.4.2: a page with no title is announced by its URL, and a
+          URL is what the reader already could not make sense of. */}
+      <title>Page not found · opsinjs</title>
       <main className="nf-main">
         <p className="nf-eyebrow">404</p>
         <h1 className="nf-title">There is no page at this address.</h1>
@@ -63,7 +64,7 @@ export default function NotFound() {
               Thirty-six component ideas were considered and left off the
               roster. Each one still answers at its canonical address under the
               component catalogue, with the reason it was refused and what to
-              use instead — so if a considered id brought you here, it was the
+              use instead. So if a considered id brought you here, it was the
               address that was wrong rather than the name. The catalogue is the
               definitive list of what is built, what is specified and what was
               set aside.
@@ -83,9 +84,9 @@ export default function NotFound() {
               specification or a name that was considered and refused. An id in
               neither group has no page, no specification and no roadmap entry.
               If an assistant told you such a component exists and sent you
-              here, the honest answer is that it does not — and the
-              machine-readable catalogue at the foot of this page, not the
-              assistant, is the authority on which group any name is in.
+              here, the honest answer is that it does not. The machine-readable
+              catalogue at the foot of this page, not the assistant, is the
+              authority on which group any name is in.
             </p>
             <p>
               <Link href={routes.docs("project", "roadmap")}>Roadmap</Link>
@@ -107,7 +108,7 @@ export default function NotFound() {
               <code className="nf-code">
                 {routes.docs("health", "alarm-fatigue")}
               </code>
-              . Search is on every documentation page — press{" "}
+              . Search is on every documentation page. Press{" "}
               <kbd className="nf-code">⌘K</kbd> once you are on one.
             </p>
           </li>

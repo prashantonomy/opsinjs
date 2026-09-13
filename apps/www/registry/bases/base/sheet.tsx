@@ -1,20 +1,20 @@
 "use client"
 
 /**
- * Sheet — a panel that comes up from the bottom edge, rests at a stated height,
- * and can always be left.
+ * Sheet is a panel that comes up from the bottom edge, rests at a stated
+ * height, and can always be left.
  *
  * WHY THIS FILE IS `"use client"` AND SURFACE IS NOT. Surface answers every
  * question it has with a media query, so it renders once on the server and is
  * correct forever. A Sheet cannot: it holds which detent it is resting at, it
  * mounts a portal, it moves focus, and it listens for a drag. None of that has
- * a CSS answer, so the directive is a requirement rather than a convenience —
- * and it is on this file rather than borrowed from Base UI, because the demo at
- * the bottom holds state of its own and a file whose demo needs `useState` is a
+ * a CSS answer, so the directive is a requirement rather than a convenience. It
+ * is on this file rather than borrowed from Base UI, because the demo at the
+ * bottom holds state of its own and a file whose demo needs `useState` is a
  * client file whatever its imports say.
  *
  * THERE IS NO `sheet` PRIMITIVE IN BASE UI 1.7.0. `@base-ui/react/drawer` is
- * the one this is built on, and the mapping is not one-to-one — every place the
+ * the one this is built on, and the mapping is not one-to-one. Every place the
  * two vocabularies disagree is written out beside the code that resolves it,
  * because a wrapper that quietly renames a prop is a wrapper nobody can audit:
  *
@@ -22,7 +22,7 @@
  *                         Base UI's covers the pointer only, so the escape key
  *                         and the close watcher are cancelled by hand below)
  *   spec `detents`      ↔ Base UI `snapPoints`               (fractions, pixels
- *                         or rems — there is no content-sized snap point)
+ *                         or rems, and no content-sized snap point)
  *   spec `modal`        ↔ Base UI `modal`                    (Base UI has a
  *                         third state, `'trap-focus'`, that this API does not
  *                         model and deliberately does not expose)
@@ -38,10 +38,11 @@
  *
  * `onOpenChange` TAKES A SECOND ARGUMENT THE SPECIFICATION DOES NOT DECLARE,
  * and it is not decoration. The page requires that a sheet holding unsaved
- * input "asks first — by the same route as a background tap", which a product
- * cannot do unless it is told which route was taken. A one-argument handler is
- * still assignable to the two-argument type, so `onOpenChange={setOpen}` keeps
- * working and a product that needs the route can read it.
+ * input "asks first", and that it does so "by the same route as a background
+ * tap", which a product cannot do unless it is told which route was taken. A
+ * one-argument handler is still assignable to the two-argument type, so
+ * `onOpenChange={setOpen}` keeps working and a product that needs the route can
+ * read it.
  *
  * WHAT IT DOES NOT DO. It mounts no live region, it announces nothing on its
  * own behalf, and it never decides that a reader has finished. It also refuses
@@ -74,7 +75,7 @@ import { Surface } from "@/registry/base-lyra/ui/surface"
  * Not `warnOnce` from the substrate, and the reason is the same one Surface
  * gives: `warnOnce` is keyed on a code from `tokens/errors.json`, that table has
  * no code for any of the six mistakes below, and a component may not mint one.
- * What can be borrowed is the policy — `tokens/errors.json` says a warning fires
+ * What can be borrowed is the policy. `tokens/errors.json` says a warning fires
  * once per offending call site, because a repeated identical complaint teaches
  * nothing and drowns the next one. Every one of these checks sits in the render
  * path, so the un-deduplicated version printed on every pass of an open sheet
@@ -112,7 +113,7 @@ function warnOncePerSession(key: string, message: string): void {
  * component's accessibility contract turns on are coarser than the ones the
  * primitive reports. What matters to a product is whether the reader made a
  * deliberate exit (`close-control`) or brushed against one of the ambient ones
- * (`scrim`, `escape`, `drag`) — the first needs no confirmation and the other
+ * (`scrim`, `escape`, `drag`). The first needs no confirmation and the other
  * three, over unsaved input, need the same one.
  *
  * Module-local, not exported: a registry file's public surface is its props,
@@ -151,7 +152,7 @@ function routeFor(reason: DrawerRootChangeEventReason): SheetDismissRoute {
  * `outsidePress = 'outside-press'`, `escapeKey = 'escape-key'` and
  * `closeWatcher = 'close-watcher'`. The first version of this switch matched the
  * NAMES. Only `swipe` happens to be spelled the same in both, so every other
- * close fell through to `"other"` — and under `dismissible={false}` the handler
+ * close fell through to `"other"`. Under `dismissible={false}` the handler
  * below cancels everything that is not `"close-control"`. The close control was
  * therefore cancelled along with the scrim and the escape key, and the shipped
  * example that sets `dismissible={false}` became a modal sheet with focus
@@ -169,9 +170,9 @@ function routeFor(reason: DrawerRootChangeEventReason): SheetDismissRoute {
  * JavaScript projects and into whatever version of Base UI the consumer resolves,
  * where the type is advice.
  *
- * `KNOWN_REASONS` is the same guard from the other side — every reason the
- * primitive declares, so a reason that reaches this handler and is NOT in the
- * declared union is a development warning. Four of the nine are recognised and
+ * `KNOWN_REASONS` is the same guard from the other side. It lists every reason
+ * the primitive declares, so a reason that reaches this handler and is NOT in
+ * the declared union is a development warning. Four of the nine are recognised and
  * deliberately map to `"other"`: `trigger-press` (this API has no trigger),
  * `focus-out`, `imperative-action` and `none` are all closes the sheet cannot
  * attribute to anything a reader did, which is what `"other"` means. Warning on
@@ -202,9 +203,9 @@ const KNOWN_REASONS = new Set<DrawerRootChangeEventReason>([
  * `content` is deliberately absent and the reason is mechanical rather than
  * aesthetic. Base UI resolves every snap point against the popup's own measured
  * height and clamps it there (`useDrawerSnapPoints`: `offset = popupHeight -
- * clampedHeight`), so a sheet that can reach `full` has to be viewport-tall —
- * and once it is, its natural height IS the viewport and there is no content
- * height left to snap to. The two requirements are not satisfiable at the same
+ * clampedHeight`), so a sheet that can reach `full` has to be viewport-tall.
+ * Once it is, its natural height IS the viewport and there is no content height
+ * left to snap to. The two requirements are not satisfiable at the same
  * time, so `content` is supported as the only detent, where it needs no snap
  * point at all: the popup takes its own height and the browser lays it out.
  */
@@ -231,7 +232,7 @@ const DETENT_WORD: Record<Detent, string> = {
  * The default, and the reason it is the smallest of the three.
  *
  * Declared at module scope rather than inline in the parameter list so that the
- * array identity is stable across renders — an inline `= ["content"]` is a new
+ * array identity is stable across renders. An inline `= ["content"]` is a new
  * array every time and would defeat any memo that is ever added below it.
  */
 const DEFAULT_DETENTS: Detent[] = ["content"]
@@ -291,8 +292,8 @@ function hasContentSlot(children: ReactNode): boolean {
  * The detents this sheet will actually rest at, from the ones it was given.
  *
  * Order is preserved because the specification says "rest positions, in order"
- * and the first one is where the sheet opens. Duplicates are dropped silently —
- * two identical stops are not a mistake worth a warning, and Base UI
+ * and the first one is where the sheet opens. Duplicates are dropped silently.
+ * Two identical stops are not a mistake worth a warning, and Base UI
  * deduplicates resolved heights within a pixel anyway.
  */
 function resolveDetents(detents: Detent[]): Detent[] {
@@ -391,7 +392,7 @@ const OFFSCREEN_TRANSFORM =
  * half right and the conclusion was wrong, and the page that settles it names
  * this component by name: `health/motion-in-health-ui.mdx` lists `sheet` in its
  * `implements`, its rule 5 says the reduced-motion fallback "is not 'no
- * animation' by default — it is an instant, complete, equally informative
+ * animation' by default. It is an instant, complete, equally informative
  * state", and its Do/Dont pair is written about a sheet: DO "show the sheet in
  * place with a crossfade of opacity only, retaining every affordance", DONT
  * "remove the transition and let a modal appear with no change of context at
@@ -412,8 +413,8 @@ const SLIDE =
  *
  * Three overrides, all of them under `motion-reduce`, and all of them ordered
  * after their unprefixed twins at the same specificity so the media query wins
- * on source order — verified by compiling these exact candidates against the
- * pinned tailwindcss 4.3.3 rather than assumed.
+ * on source order. The ordering was verified by compiling these exact
+ * candidates against the pinned tailwindcss 4.3.3 rather than assumed.
  *
  *   1. The transitioned property becomes `opacity` instead of `transform`.
  *   2. The starting and ending transforms become the RESTING one rather than
@@ -426,10 +427,10 @@ const SLIDE =
  *
  * The duration and easing are NOT overridden, and that is the division of
  * labour this file keeps. The token layer already declares this transition's
- * reduced-motion fallback — `app/tokens.generated.css` collapses
+ * reduced-motion fallback. `app/tokens.generated.css` collapses
  * `--opsin-duration-spring-sheet` to 120ms and `--opsin-ease-spring-sheet` to
- * `linear` under the query — so the crossfade is 120ms and flat without this
- * file restating either. What the token layer cannot know is the DISTANCE,
+ * `linear` under the query. The crossfade is therefore 120ms and flat without
+ * this file restating either. What the token layer cannot know is the DISTANCE,
  * because distance is not a token; that is the component's own to answer, and
  * it is the only thing answered here.
  *
@@ -450,7 +451,7 @@ const REDUCED_MOTION_CROSSFADE = [
  * How the Surface inside the popup is told to lay its content out.
  *
  * Surface owns the class list on its own content wrapper and takes no prop for
- * it, so a composing component reaches it by its `data-slot` — which is the
+ * it, so a composing component reaches it by its `data-slot`. That is the
  * whole point of the slot contract, and is the supported way to do this rather
  * than a workaround. Without it the header, the scrolling content and the
  * footer are three blocks in normal flow, the content has no bounded height,
@@ -488,13 +489,13 @@ export interface SheetProps {
   open: boolean
   /**
    * Called when the sheet asks to open or close. The second argument says which
-   * route was taken — `close-control` for the header's close button,
+   * route was taken: `close-control` for the header's close button,
    * `scrim` for a tap on the background, `escape` for the escape key or the
    * platform's back gesture, `drag` for a swipe down, and `other` for anything
    * else, including a close the product asked for itself.
    *
    * The sheet does not close itself: `open` is the only thing that closes it.
-   * That is what makes "ask before discarding unsaved input" possible — leave
+   * That is what makes "ask before discarding unsaved input" possible. Leave
    * `open` alone, show the confirmation, and close when the reader answers.
    */
   onOpenChange: (open: boolean, route: SheetDismissRoute) => void
@@ -520,11 +521,11 @@ export interface SheetProps {
    */
   detents?: Detent[]
   /**
-   * Traps focus and makes the page behind genuinely inert — not dimmed, but
-   * unreachable, by a pointer and by assistive technology alike. It is also the
-   * only state in which the sheet takes focus on appearance: `modal={false}`
-   * does none of the three, so it opens where the reader can see it and leaves
-   * the caret exactly where they left it.
+   * Traps focus and makes the page behind genuinely inert. Inert here means
+   * unreachable rather than dimmed, by a pointer and by assistive technology
+   * alike. It is also the only state in which the sheet takes focus on
+   * appearance: `modal={false}` does none of the three, so it opens where the
+   * reader can see it and leaves the caret exactly where they left it.
    *
    * A non-modal sheet has no accessibility story on this page beyond that
    * sentence. It is pinned to the bottom edge while the page behind stays
@@ -579,8 +580,8 @@ export function Sheet({
   /* Supplied to Drawer.Title rather than read back off it. Base UI's DialogTitle
      takes an `id` and registers whatever it is given as the popup's
      `titleElementId`, so one id ends up on the heading, in the popup's
-     `aria-labelledby`, and in the scrolling region's — three references, one
-     source. */
+     `aria-labelledby`, and in the scrolling region's. That is three references
+     from one source. */
   const titleId = useId()
   const stops = resolveDetents(detents)
   const snapPoints = toSnapPoints(stops)
@@ -595,8 +596,8 @@ export function Sheet({
      Adjusted during the render that notices the change rather than in an
      effect, which is React's own answer for state derived from a prop: an
      effect would commit the sheet at the old detent, paint it, and then correct
-     it — one frame of the sheet at the height it was left at last time, on the
-     way in. */
+     it. That is one frame of the sheet at the height it was left at last time,
+     on the way in. */
   if (openLastRender !== open) {
     setOpenLastRender(open)
     if (open) setStopIndex(0)
@@ -664,12 +665,12 @@ export function Sheet({
                   "is not one of the nine @base-ui/react 1.7.0 declares. It was " +
                   'reported to onOpenChange as "other" and the sheet was allowed ' +
                   "to close. If Base UI has renamed or added a reason, routeFor " +
-                  "and KNOWN_REASONS in sheet.tsx are the two places to fix — see " +
+                  "and KNOWN_REASONS in sheet.tsx are the two places to fix. See " +
                   "the note above them.",
               )
             }
 
-            /* `disablePointerDismissal` covers the pointer and nothing else — the
+            /* `disablePointerDismissal` covers the pointer and nothing else. The
                escape key and the platform's close watcher reach the primitive by
                a different path and would close an undismissable sheet. Cancelling
                here is the other half of the same promise.
@@ -677,9 +678,9 @@ export function Sheet({
                ALLOW-LISTED, NOT DENY-LISTED. Only the three ambient routes are
                cancelled. The close control is never cancelled, because
                `dismissible` governs the routes a reader takes by accident and not
-               the one they take on purpose — and neither is a route this
-               component failed to recognise, because refusing to close a modal
-               surface on an unknown signal is how it becomes a trap. */
+               the one they take on purpose. Neither is a route this component
+               failed to recognise, because refusing to close a modal surface on
+               an unknown signal is how it becomes a trap. */
             const ambient = route === "scrim" || route === "escape" || route === "drag"
             if (!nextOpen && !dismissible && ambient) {
               details.cancel()
@@ -706,7 +707,7 @@ export function Sheet({
                       to paint a rung. Doing it here by hand would mean a second
                       copy of the reduced-transparency and no-backdrop-filter
                       fallbacks, and the copy is the one that would rot. It holds
-                      no content, so it is handed none — `null` is a legitimate
+                      no content, so it is handed none. `null` is a legitimate
                       `ReactNode` and this is the one place in the system that
                       passes it. */}
                   <Surface rung="scrim" className="size-full">
@@ -733,11 +734,12 @@ export function Sheet({
                 <Drawer.Popup
                   data-slot="sheet-container"
                   /* A MODAL SURFACE MAY TAKE FOCUS; A NON-MODAL ONE MAY NOT.
-                     Base UI resolves initial focus without consulting `modal` —
-                     `resolvedInitialFocus = initialFocus === undefined ? popupRef
-                     : initialFocus` in DrawerPopup — so left alone, a
-                     `modal={false}` sheet pulls the reader out of whatever they
-                     were doing on the page it deliberately left reachable. The
+                     Base UI resolves initial focus without consulting `modal`.
+                     The relevant line in DrawerPopup is `resolvedInitialFocus =
+                     initialFocus === undefined ? popupRef : initialFocus`. Left
+                     alone, a `modal={false}` sheet pulls the reader out of
+                     whatever they were doing on the page it deliberately left
+                     reachable. The
                      repository's focus doctrine allows a component to move focus
                      on appearance only into a modal surface, so the non-modal
                      path declines it explicitly.
@@ -801,10 +803,11 @@ export function Sheet({
                              name they were already on.
 
                              `aria-expanded` carries the change. With more than
-                             one detent the list is always exactly half and full —
-                             `content` cannot be combined with either — so this is
-                             a two-state disclosure and the platform announces the
-                             state itself on press, without a live region. Base
+                             one detent the list is always exactly half and full,
+                             because `content` cannot be combined with either. So
+                             this is a two-state disclosure and the platform
+                             announces the state itself on press, without a live
+                             region. Base
                              UI's own vocabulary agrees: it stamps `data-expanded`
                              on the popup at the tallest snap point. */
                           aria-expanded={stops[index] === "full"}
@@ -818,8 +821,8 @@ export function Sheet({
                                header, whose `pt-opsin-2` is exactly
                                `--opsin-target-separation` and no more, so a miss
                                on Close landed on the grabber and resized the
-                               sheet instead of leaving it — for the reader whose
-                               grip makes precision unreliable, who is the reader
+                               sheet instead of leaving it. The reader whose grip
+                               makes precision unreliable is exactly the reader
                                this button exists for. Centred and only as wide as
                                it needs to be, it is nowhere near the close
                                control, which sits at the opposite end of the row
@@ -841,9 +844,9 @@ export function Sheet({
                     ) : (
                       /* One detent, so there is nothing to move between and the
                          bar is decorative. It stays because it is what tells a
-                         reader the sheet can be pulled down at all — and the
-                         control for THAT gesture is the close button below, which
-                         is why it is never optional. */
+                         reader the sheet can be pulled down at all. The control
+                         for THAT gesture is the close button below, which is why
+                         it is never optional. */
                       <div
                         data-slot="sheet-grabber"
                         aria-hidden="true"
@@ -867,7 +870,7 @@ export function Sheet({
                         /* `min-w-0 break-words` and not decoration. The popup is
                            `overflow-hidden` for the top corner radius and this is
                            a flex item, whose default `min-width: auto` refuses to
-                           shrink below its min-content width — so at 200% root
+                           shrink below its min-content width. So at 200% root
                            font size a single long token (a compound word, a
                            medication name) pushed past the available inline size
                            and was clipped with no scrollbar, which WCAG 1.4.4
@@ -893,7 +896,7 @@ export function Sheet({
                            that `--text-opsin-*` is a font-size namespace, so it
                            files `text-opsin-footnote` and `text-muted-foreground`
                            in the SAME conflict group and keeps only the later
-                           one — which silently cost this control its type step,
+                           one. That silently cost this control its type step,
                            its leading and its tracking, verified against the
                            pinned tailwind-merge. The two utilities set different
                            CSS properties, so passing both through applies both.
@@ -963,11 +966,11 @@ export interface SheetContentProps {
  *
  * IT IS A FOCUS STOP, DELIBERATELY AND UNCONDITIONALLY. A scroll container that
  * holds nothing focusable can only be reached and scrolled from the keyboard
- * where the browser decides to make scrollers focusable on its own — Chrome and
- * Edge from 127, and not Safari or Firefox. This system's readers are on Safari,
- * and a sheet holding a long list of things nobody can reach with the keyboard
- * is a WCAG 2.1.1 failure whatever the page says about arrow keys. `tabIndex={0}`
- * makes it the same stop in every engine.
+ * where the browser decides to make scrollers focusable on its own. That is
+ * Chrome and Edge from 127, and not Safari or Firefox. This system's readers
+ * are on Safari, and a sheet holding a long list of things nobody can reach
+ * with the keyboard is a WCAG 2.1.1 failure whatever the page says about arrow
+ * keys. `tabIndex={0}` makes it the same stop in every engine.
  *
  * Unconditional, and the alternative was worse. Measuring whether the content
  * actually overflows would mean measuring layout in JavaScript on every render
@@ -977,9 +980,10 @@ export interface SheetContentProps {
  *
  * `role="group"` with the sheet's own name, because a nameless stop is a stop a
  * screen-reader user arrives at without being told what it is or why focus
- * paused there. The name is the title the product already wrote — see
- * `SheetTitleId` — so nothing here needs translating, and the role is dropped
- * entirely rather than pointed at a missing id when there is no Sheet above it.
+ * paused there. The name is the title the product already wrote, which
+ * `SheetTitleId` carries, so nothing here needs translating. The role is
+ * dropped entirely rather than pointed at a missing id when there is no Sheet
+ * above it.
  */
 export function SheetContent({ children, className }: SheetContentProps) {
   const titleId = useContext(SheetTitleId)
@@ -1010,12 +1014,12 @@ Sheet.Content = SheetContent
  * The zero-prop default export (ADR 0009).
  *
  * `/view` renders this with no props and `shadcn add` ships it, so it is public,
- * reviewed code rather than a scratch demo. It shows the default sheet — one
- * content-sized detent, dismissible, modal — because that is the shape a
- * product reaches for first, and because the two things worth checking about it
- * are visible in that shape: the close control is in the header before you look
- * for it, and the action is pinned below the content rather than at the end of
- * it.
+ * reviewed code rather than a scratch demo. It shows the default sheet: one
+ * content-sized detent, dismissible and modal. It shows that shape because it
+ * is the one a product reaches for first, and because the two things worth
+ * checking about it are visible in that shape: the close control is in the
+ * header before you look for it, and the action is pinned below the content
+ * rather than at the end of it.
  *
  * There is not a number anywhere in it. A sheet renders no measurement of its
  * own, and a screenshot of an opsinjs demo must never be mistakable for
@@ -1024,8 +1028,8 @@ Sheet.Content = SheetContent
  * IT USES THE REAL `Button`, which is why `button` is in this component's
  * `registryDependencies` even though `Sheet` itself never imports it. A demo
  * that hand-rolled two controls would be teaching, in shipped source, that the
- * primary action at the foot of a sheet is a styled `<button>` — and it would
- * be teaching it in the one file a consumer reads first.
+ * primary action at the foot of a sheet is a styled `<button>`. It would be
+ * teaching it in the one file a consumer reads first.
  */
 export default function SheetDemo() {
   const [open, setOpen] = useState(false)

@@ -3,26 +3,26 @@ import type { CSSProperties } from "react"
 import { cn } from "@/lib/utils"
 
 /* ==========================================================================
-   type.tsx — <TypeScaleSpecimen>, <SpaceSpecimen>, <RadiusSpecimen>.
+   type.tsx holds <TypeScaleSpecimen>, <SpaceSpecimen> and <RadiusSpecimen>.
 
    A specimen shows the thing. That is the whole difference between a
    foundations page that is useful and one that is a table of numbers with a
    paragraph on top.
 
    Each of these takes a TOKEN NAME, never a value. They render with
-   `var(--the-token)`, so whatever the cascade currently resolves — the authored
-   fallback in globals.css, the generated ramp from tokens/*.json, a theme
-   override, a reader's own zoom — is what appears. A specimen that hard-coded
-   "17px" would be wrong the first time the scale moved, and would be wrong
-   silently, which is worse.
+   `var(--the-token)`, so what appears is whatever the cascade currently
+   resolves, whether that is the authored fallback in globals.css, the
+   generated ramp from tokens/*.json, a theme override or a reader's own
+   zoom. A specimen that hard-coded "17px" would be wrong the first time the
+   scale moved, and would be wrong silently, which is worse.
 
    THE 200% ROW IS NOT OPTIONAL. foundations/typography/dynamic-type and
    accessibility/text-resizing-and-zoom both promise a 200% demonstration.
    <TypeScaleSpecimen> renders every step twice, at its own size and at double,
-   in the same column width — so what the reader sees is not "bigger text" but
-   what actually happens: the line wraps, the measure collapses, and a label
-   that fitted on one line now takes three. That is the failure mode the
-   promise is about.
+   in the same column width. What the reader sees is therefore not "bigger
+   text" but what actually happens: the line wraps, the measure collapses, and
+   a label that fitted on one line now takes three. That is the failure mode
+   the promise is about.
    ========================================================================== */
 
 export interface TypeScaleSpecimenProps {
@@ -38,7 +38,7 @@ export interface TypeScaleSpecimenProps {
   trackingToken?: string
   /** Font weight for the step. */
   weight?: number
-  /** The string to set. Health copy by default — it is what these are for. */
+  /** The string to set. Health copy by default, which is what these are for. */
   sample?: string
   /** Skip the doubled row on a step where it adds nothing. */
   hide200?: boolean

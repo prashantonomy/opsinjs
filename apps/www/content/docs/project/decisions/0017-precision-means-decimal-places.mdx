@@ -1,6 +1,6 @@
 ---
-title: "0017 — precision means decimal places, everywhere"
-description: One name, one meaning, taken from the measurement rather than the unit — and never significant figures, which would make one metric change shape as it moves.
+title: "ADR 0017. precision means decimal places, everywhere"
+description: One name, one meaning, taken from the measurement rather than the unit. It is never significant figures, which would make one metric change shape as it moves.
 status: stable
 kind: project
 owner: core
@@ -22,16 +22,16 @@ sentence on the RangeBar page is corrected in the same commit.
 Two specifications gave one prop two meanings. [Value](../../components/value.mdx) says
 `precision` is "decimal places". [RangeBar](../../components/range-bar.mdx) said
 "significant figures for display". They are not a matter of taste, because RangeBar's own
-part tree nests a `RangeBar.Value` inside a `RangeBar.Tick` — so a tick label and the
-reading it sits under are the same component, resolving both readings of the same word, on
-the same bar, at the same time.
+part tree nests a `RangeBar.Value` inside a `RangeBar.Tick`. A tick label and the reading
+it sits under are therefore the same component, resolving both readings of the same word,
+on the same bar, at the same time.
 
 A third source settles it and neither page cited it.
 [Numbers, units and precision](../../health/numbers-units-precision.mdx) declares itself
 canonical and its rule 2 reads: *the same metric is shown to the same number of decimal
 places every time*. Significant figures cannot satisfy that. A metric shown to three
 significant figures is one decimal place at 99.5 and none at 100, so a reading that crosses
-a power of ten changes shape while the person is watching it — which is exactly the
+a power of ten changes shape while the person is watching it. That is exactly the
 comparison the rule exists to protect.
 
 ## Decision
@@ -43,7 +43,7 @@ rule forbids the behaviour, not just the name.
 **Precision is a property of the MEASUREMENT, not of the unit, and there is no default.**
 A scale reads to a fixed resolution whatever is standing on it; a laboratory reports a
 fixed number of places whatever the result. So the number travels with the reading, from
-the product. Omitted, `Value` rounds nothing and pads nothing — it does not guess from the
+the product. Omitted, `Value` rounds nothing and pads nothing. It does not guess from the
 float it was handed, and it does not fall back to a per-unit default.
 
 **There is no per-unit default because a unit is not a metric.** Blood glucose and
@@ -65,8 +65,9 @@ tick says 5.5 against a bound that says 6 is inviting a comparison the reader ca
 - **`RangeBar`'s page needed a one-word edit** and got it. The rest of that specification is
   unchanged.
 - **A metric whose useful precision changes with magnitude has no answer here**, and that is
-  the real cost. The alternative — letting it change — buys that case at the price of every
-  metric being comparable with itself, and the canonical page has already made that trade.
+  the real cost. The alternative is letting it change, which buys that case at the price of
+  every metric being comparable with itself, and the canonical page has already made that
+  trade.
 - **Ticks on a wide range may round to the same label.** That is a legibility problem for
   the component to solve by choosing fewer ticks, not by rounding them differently from each
   other.
@@ -75,7 +76,7 @@ tick says 5.5 against a bound that says 6 is inviting a comparison the reader ca
 
 **Keep both, with `precision` and `significantFigures` as separate props.** Rejected. It
 makes the forbidden behaviour available under a clearer name, and the first product to use
-it will do so on the one metric where it looks best — which is the metric a reader is
+it will do so on the one metric where it looks best. That is the metric a reader is
 watching most closely.
 
 **Let the unit table carry a default and let the metric override it.** Rejected, and it was

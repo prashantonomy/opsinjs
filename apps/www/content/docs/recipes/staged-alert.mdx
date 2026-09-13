@@ -40,7 +40,7 @@ recipe that told you to would be worse.
 Every rung of the ladder below is at `alpha`: the code exists and installs, the
 API may change in any release without a deprecation cycle, and none of it has
 been through an accessibility or a clinical review. What none of it does is
-decide which rung a message belongs on — that is the clinical rule your product
+decide which rung a message belongs on. That is the clinical rule your product
 owns, and it is the first step below.
 
 | Part | Component | Status | What it does here |
@@ -57,7 +57,7 @@ Tokens, by family:
 
 | Family | Where it applies | Reference |
 | --- | --- | --- |
-| `--opsin-status-*` | The pill, the banner and the care card — the only place the status axis appears | [Clinical status semantics](../health/clinical-status-semantics.mdx) |
+| `--opsin-status-*` | The pill, the banner and the care card, which are the only place the status axis appears | [Clinical status semantics](../health/clinical-status-semantics.mdx) |
 | `--opsin-category-*` | Never on an alert. An alert grades; it does not identify | [The two colour axes](../health/two-colour-axes.mdx) |
 | Material rung | The banner's rung in context; the interruptive surface's rung above it | [Layering and elevation](../foundations/layering-and-elevation.mdx) |
 | Motion | Presentation only, never emphasis | [Motion in health UI](../health/motion-in-health-ui.mdx) |
@@ -79,10 +79,10 @@ deadline, not the importance of the subject matter.
 
 ### Take the level from the clinical rule, not from the design
 
-The four levels — steady, watch, attention, urgent — are defined in
-[Clinical status semantics](../health/clinical-status-semantics.mdx), and they are
-assigned upstream of the UI. Your job is to render the level you were given, not
-to choose one that feels right.
+The four levels are steady, watch, attention and urgent. They are defined in
+[Clinical status semantics](../health/clinical-status-semantics.mdx), and they
+are assigned upstream of the UI. Your job is to render the level you were given,
+not to choose one that feels right.
 
 If you find yourself picking a level because the banner looked insufficiently
 serious, stop: you are making a clinical judgement in a stylesheet.
@@ -107,7 +107,7 @@ One urgent surface per screen. That is the whole rule, and
 
 When a second urgent message arrives for the same screen, you do not stack them.
 You either aggregate them into one surface that names both, or you demote one, or
-you move one to a screen of its own — and which of those it is, is a product
+you move one to a screen of its own. Which of those it is, is a product
 decision that somebody makes once and writes down. There is no fourth option, and
 "show both" is not an option.
 
@@ -121,8 +121,8 @@ anxiety with no outlet. Every alert at *attention* or above carries exactly one
 primary action, reachable from the alert itself, and that action is specific:
 "Call the clinic", "Log today's reading", "Book a repeat test". Not "Learn more".
 
-If the honest answer is that there is nothing to do yet, say that in words —
-"There is nothing you need to do. Your clinic will contact you." — and drop the
+If the honest answer is that there is nothing to do yet, say that in words:
+"There is nothing you need to do. Your clinic will contact you." Then drop the
 alert a rung, because an alert with no action is information.
 
 ### Decide persistence and acknowledgement before you ship
@@ -133,15 +133,16 @@ have been seen at all.
 
 Decide per level: what dismisses it, whether dismissal is recorded, whether it
 returns, and what condition ends it for good. The end condition is usually the
-underlying state resolving, not the person tapping something — an alert that a tap
-silences while the situation continues is the more dangerous of the two failures.
+underlying state resolving, not the person tapping something. An alert that a
+tap silences while the situation continues is the more dangerous of the two
+failures.
 
 ### Suppress repetition, not information
 
 The same alert re-raised daily is noise; a genuinely new instance is not. Suppress
-by identity and state, never by count — "we have already told them three times" is
-not a reason to stop telling them if the state is still true and still urgent. The
-right lever is to change the surface, not to go silent.
+by identity and state, never by count. "We have already told them three times"
+is not a reason to stop telling them if the state is still true and still
+urgent. The right lever is to change the surface, not to go silent.
 
 </Steps>
 
@@ -161,12 +162,13 @@ essentials are:
 <DoDont>
   <DoDont.Do>
     "Your blood pressure has been above your usual range for three mornings. Book
-    a check with your clinic in the next week." — fact, action, timing, in that
-    order.
+    a check with your clinic in the next week." That is fact, action, timing, in
+    that order.
   </DoDont.Do>
   <DoDont.Dont>
-    "⚠️ URGENT: ABNORMAL BP DETECTED!!" — capitals and punctuation used as
-    severity, a banned word, a machine's vocabulary, and no action at all.
+    "⚠️ URGENT: ABNORMAL BP DETECTED!!" The faults are capitals and
+    punctuation used as severity, a banned word, a machine's vocabulary, and no
+    action at all.
   </DoDont.Dont>
 </DoDont>
 
@@ -179,11 +181,11 @@ trust permanently; a person who has learned that your app exaggerates will disco
 the alert that matters.
 
 **Emergencies are a special case and are not a banner.** If a value or an answer
-implies immediate danger, the surface says plainly what to do right now — call
-emergency services, go to hospital — in the shortest sentence that can carry it,
-above everything else, and the rest of the screen gets out of the way. The rule
-for when this applies belongs to your product and is not something a component
-infers. See
+implies immediate danger, the surface says plainly what to do right now: call
+emergency services, or go to hospital. It comes in the shortest sentence that
+can carry it, above everything else, and the rest of the screen gets out of the
+way. The rule for when this applies belongs to your product and is not something
+a component infers. See
 [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx).
 
 ## Get it right
@@ -196,17 +198,18 @@ infers. See
 - The action is reachable and specific.
 - Dismissal does not resolve the underlying state, and does not pretend to.
 - No alert is raised from a single out-of-range reading unless the rule says a
-  single reading is sufficient — see
+  single reading is sufficient. See
   [Reference ranges](../health/reference-ranges.mdx).
 - The alert is honest about uncertainty: if the data behind it is stale or partial,
-  the alert says so rather than asserting a current fact —
-  [Uncertainty and staleness](../health/uncertainty-and-staleness.mdx).
+  the alert says so rather than asserting a current fact.
+  [Uncertainty and staleness](../health/uncertainty-and-staleness.mdx) is the
+  doctrine on stale and partial data.
 
 **Accessibility**
 
 - Severity is carried by the word and the icon as well as the colour, and survives
-  greyscale and every simulated colour-vision deficiency —
-  [Colour independence](../accessibility/colour-independence.mdx).
+  greyscale and every simulated colour-vision deficiency.
+  [Colour independence](../accessibility/colour-independence.mdx) sets that bar.
 - The announcement is proportionate: an ambient status change is announced
   politely and does not interrupt; an interruptive surface takes focus, and only
   the interruptive surface may. The contract is in
@@ -214,11 +217,11 @@ infers. See
 - Focus is never stolen at *attention* or below. A banner that grabs focus mid-task
   loses the reader's place and their typed input.
 - An interruptive surface traps focus, is dismissible with <Kbd>Escape</Kbd>, and
-  returns focus to where it came from —
+  returns focus to where it came from. See
   [Keyboard and focus](../accessibility/keyboard-and-focus.mdx).
 - Nothing pulses, flashes or shakes. Motion never conveys urgency, at any level,
-  and under `prefers-reduced-motion` the alert is simply present —
-  [Reduced motion](../accessibility/reduced-motion.mdx).
+  and under `prefers-reduced-motion` the alert is simply present.
+  [Reduced motion](../accessibility/reduced-motion.mdx) covers that form.
 - At 200% text the alert reflows and the action stays visible with it; the action
   never scrolls away from the sentence that justifies it.
 - The dismiss control is a real control with a real name, at least 44pt, and is not
@@ -229,8 +232,8 @@ infers. See
 **The alert arrives while the app is closed.** A push notification is the same
 message on a surface you do not control, delivered to a lock screen somebody else
 may be able to read. It needs its own budget and its own privacy posture, and the
-in-app alert the person finds on opening must match what the notification said —
-a push that says more than the screen it opens is a broken promise.
+in-app alert the person finds on opening must match what the notification said.
+A push that says more than the screen it opens is a broken promise.
 
 <Todo>
 Off-screen alerts and their relationship to the in-app banner are not covered by
@@ -247,18 +250,19 @@ because your integration broke.
 missed readings is one message about a missed week.
 
 **The alert is a question.** "Did you take your evening dose?" is not an alert; it
-is a prompt for input, and it belongs in the logging flow —
-[Capture a daily log entry](./daily-log-entry.mdx).
+is a prompt for input, and it belongs in the logging flow.
+[Capture a daily log entry](./daily-log-entry.mdx) is that flow.
 
 **The reader is a carer, not the patient.** The urgency is the same, the wording is
 not, and the privacy considerations are different. Say who the alert is about.
 
 ## Related
 
-- **[Alarm fatigue](../health/alarm-fatigue.mdx)** — the doctrine behind the
+- **[Alarm fatigue](../health/alarm-fatigue.mdx)** is the doctrine behind the
   budget, including why prominence is a scarce resource rather than a free one.
-- **[Alert escalation](../patterns/alert-escalation.mdx)** — the same ladder at
-  flow scale, from ambient to interruptive, with the per-session budget.
+- **[Alert escalation](../patterns/alert-escalation.mdx)** covers the same
+  ladder at flow scale, from ambient to interruptive, with the per-session
+  budget.
 - **[AlertBanner](../components/alert-banner.mdx)** and
-  **[CareCard](../components/care-card.mdx)** — the two component specifications
-  that carry the top two rungs.
+  **[CareCard](../components/care-card.mdx)** are the two component
+  specifications that carry the top two rungs.

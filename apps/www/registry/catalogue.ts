@@ -1,5 +1,5 @@
 /**
- * THE CATALOGUE — the single source of truth for what opsinjs contains.
+ * THE CATALOGUE is the single source of truth for what opsinjs contains.
  *
  * Everything downstream reads this file and nothing re-declares it: the status
  * matrix, the sidebar chips, `/r/index.json`, `/r/registry.json`, `llms.txt`,
@@ -11,7 +11,7 @@
  *
  * `aliases` are search synonyms. They are indexed by fumadocs, emitted into
  * `llms.txt` and into `/r/index.json`, and they must be globally unique across
- * the whole corpus — an alias that resolves to two pages resolves to neither.
+ * the whole corpus. An alias that resolves to two pages resolves to neither.
  * Uniqueness cannot survive fifteen authors inventing synonyms in parallel, so
  * it is declared here once. A component page's frontmatter COPIES the array
  * below verbatim; it never invents one.
@@ -19,8 +19,9 @@
  * WHAT IS ACTUALLY ENFORCED, because this comment used to claim three things and
  * only one of them existed:
  *   CAT005  fatal    two pages claim the same alias
- *   CAT007  fatal    an alias is also a catalogue id — added after `status-pill`
- *                    claimed `badge`, which is a real component and its opposite
+ *   CAT007  fatal    an alias is also a catalogue id. This was added after
+ *                    `status-pill` claimed `badge`, which is a real component
+ *                    and its opposite
  *   CAT006  warning  a page is MISSING an alias its catalogue row has
  *   CAT011  warning  a page claims an alias its catalogue row does NOT have
  * CAT011 closed the gap this paragraph used to describe. The agreement between a
@@ -38,16 +39,17 @@
  * `/view/base/base-lyra/component/<id>`, and installs with `shadcn add`. Alpha
  * is not a promise of stability: the API may change in any release without a
  * deprecation cycle, and none of it has been through an accessibility or
- * clinical review. The other thirty-six rows carry `status: "considered"` — a
- * reserved name and a reason to reach for something else, with no code and no
- * hand-written page — only the stub `scripts/build-registry.mts` generates
- * from this row so the address answers instead of returning a 404.
+ * clinical review. The other thirty-six rows carry `status: "considered"`,
+ * which is a reserved name and a reason to reach for something else, with no
+ * code and no hand-written page. The only page any of them has is a stub that
+ * `scripts/build-registry.mts` generates from the row, so the address answers
+ * instead of returning a 404.
  *
- * `planned` — specified in full, no code, see `lib/status.ts` — is still a
- * legal status and pages elsewhere in the corpus use it, but no row in this
- * file does. Do not copy it onto a new row on the assumption that it is what a
- * shipped row says. A row reaches `alpha` in the same commit as the file under
- * `registry/bases/base/` that implements it and the `status` in that
+ * `planned` means specified in full, with no code. See `lib/status.ts`. It is
+ * still a legal status and pages elsewhere in the corpus use it, but no row in
+ * this file does. Do not copy it onto a new row on the assumption that it is
+ * what a shipped row says. A row reaches `alpha` in the same commit as the file
+ * under `registry/bases/base/` that implements it and the `status` in that
  * component's page frontmatter; the three never move apart.
  *
  * Imports here are relative and carry an explicit `.ts` extension because
@@ -61,7 +63,7 @@ import type { HealthCategory, Status } from "../lib/status.ts"
 /**
  * A catalogue category. The first four begin with `health-`, which is what
  * makes the Clinical meaning section and the `governedBy` frontmatter mandatory
- * on that component's page — `assert-ia.mts` enforces it in both directions.
+ * on that component's page. `assert-ia.mts` enforces it in both directions.
  */
 export const CATALOGUE_CATEGORIES = [
   "health-data-display",
@@ -82,10 +84,10 @@ export type CatalogueCategory = (typeof CATALOGUE_CATEGORIES)[number]
 
 /** Human labels for the categories, used by the status matrix and the sidebar. */
 export const CATALOGUE_CATEGORY_LABELS: Record<CatalogueCategory, string> = {
-  "health-data-display": "Health — data display",
-  "health-communication": "Health — communication",
-  "health-input": "Health — input",
-  "health-formatting": "Health — formatting",
+  "health-data-display": "Health data display",
+  "health-communication": "Health communication",
+  "health-input": "Health input",
+  "health-formatting": "Health formatting",
   "data-display": "Data display",
   surfaces: "Surfaces",
   feedback: "Feedback",
@@ -116,7 +118,7 @@ export interface CatalogueEntry {
    *
    * It is NOT the page's H1 subtitle. That comes from the page's own
    * frontmatter `description`, and on all but one row the two sentences are
-   * worded differently — a card subtitle has to survive on one line and a page
+   * worded differently. A card subtitle has to survive on one line and a page
    * subtitle does not. Nothing compares them, so editing this one will not
    * change the page: when you change either, read the other and make sure they
    * still describe the same component.
@@ -132,15 +134,15 @@ export interface CatalogueEntry {
   owner: "design" | "engineering" | "clinical" | "content"
   /**
    * Date of the last accessibility review, ISO 8601. `null` on every row,
-   * because no accessibility review has happened — not for the twenty-four
-   * built components either. Rendering a date here that nobody produced would
-   * be the exact dishonesty this file exists to avoid, so the matrix prints
-   * "not yet reviewed" rather than a placeholder.
+   * because no accessibility review has happened. It has not happened for the
+   * twenty-four built components either. Rendering a date here that nobody
+   * produced would be the exact dishonesty this file exists to avoid, so the
+   * matrix prints "not yet reviewed" rather than a placeholder.
    */
   a11yDate: string | null
   /**
    * Doctrine pages that govern this component, by page id. Mandatory for every
-   * `health-*` category. These are ids, not paths — `lib/routes.ts` turns them
+   * `health-*` category. These are ids, not paths. `lib/routes.ts` turns them
    * into URLs.
    */
   governedBy?: string[]
@@ -148,7 +150,7 @@ export interface CatalogueEntry {
   healthCategory?: HealthCategory
   /**
    * The recipes and screens that use this component: the reverse of a recipe's
-   * component list. Bare page ids — `health-metric-card`, not
+   * component list. Write the bare page id `health-metric-card` rather than
    * `recipes/health-metric-card`.
    *
    * This is what `/r/index.json` publishes as the reverse index. The component
@@ -166,7 +168,7 @@ export interface CatalogueEntry {
    * It is declared on the row rather than inferred from the source because a
    * consumer's `shadcn add` installs precisely this list, and a list scraped
    * from import statements would silently follow a refactor into installing
-   * something nobody reviewed. Omit it rather than writing `[]` — a component
+   * something nobody reviewed. Omit it rather than writing `[]`. A component
    * whose only imports are `@/lib/utils` and `@/lib/opsinjs` needs nothing.
    */
   dependencies?: string[]
@@ -176,7 +178,7 @@ export interface CatalogueEntry {
    * `result-card` names `status-pill` and `value` here and never inlines a copy
    * of either: a second copy of a status pill is a second place the two colour
    * axes can drift apart. Bare ids, because the catalogue does not know what a
-   * registry namespace is — `app/_machine/registry-payload.ts` prefixes
+   * registry namespace is. `app/_machine/registry-payload.ts` prefixes
    * `@opsinjs/` when it serves the item, which is what makes shadcn resolve the
    * dependency against this registry instead of against ui.shadcn.com.
    *
@@ -197,7 +199,7 @@ export interface CatalogueEntry {
    * ONE OF THE 24 BUILT ONES.
    *
    * `emitConsideredStub` in `scripts/build-registry.mts` turns each id into a
-   * link on the stub page, so naming another `considered` row resolves — and
+   * link on the stub page, so naming another `considered` row resolves. It
    * hands the reader a second page that also says "not built, use something
    * else". That is the dead end this roster exists to prevent: the point of the
    * row is that the answer ends here. `tabs` and `segmented-control` used to
@@ -207,7 +209,7 @@ export interface CatalogueEntry {
    * When no built component is the honest answer, OMIT THE FIELD rather than
    * naming an unbuilt id. The generator then says there is no direct
    * replacement and points at the catalogue, and `why` above carries the real
-   * answer — for the rows delegated to Base UI, that answer is Base UI's own
+   * answer. For the rows delegated to Base UI, that answer is Base UI's own
    * component, which is not ours to list here.
    */
   useInstead?: string[]
@@ -631,7 +633,7 @@ export const SHIPPED: CatalogueEntry[] = [
     name: "callout",
     title: "Callout",
     description:
-      "A short piece of set-apart information — a note, a tip, a caveat — that helps you understand what you are reading without claiming anything about your health.",
+      "A short piece of set-apart information that helps you understand what you are reading without claiming anything about your health, whether it is a note, a tip or a caveat.",
     category: "feedback",
     status: "alpha",
     since: "unreleased",
@@ -721,7 +723,7 @@ export const SHIPPED: CatalogueEntry[] = [
  * These are real, deliberate decisions rather than an idea list. A considered
  * row has NO hand-written page. What it has is a row here, a row in the status
  * matrix, a row in `/r/index.json`, and a definitive machine-readable answer at
- * a guessable URL saying "considered, not planned, not implemented — do not
+ * a guessable URL saying "considered, not planned, not implemented. Do not
  * generate code against this", with `useInstead` naming what to reach for.
  *
  * That last property is the whole point. An agent that gets a 404 for
@@ -792,7 +794,7 @@ export const CONSIDERED: CatalogueEntry[] = [
     aliases: ["activity ring", "close your rings", "daily goal"],
     owner: "design",
     a11yDate: null,
-    why: "Goal rings are strongly associated with one platform's fitness product, and the pattern rewards streaks — which is the wrong incentive for a reader managing a condition rather than training for one.",
+    why: "Goal rings are strongly associated with one platform's fitness product, and the pattern rewards streaks. That is the wrong incentive for a reader managing a condition rather than training for one.",
     useInstead: ["score-dial", "metric-tile"],
   },
   {
@@ -922,7 +924,7 @@ export const CONSIDERED: CatalogueEntry[] = [
     aliases: ["dropdown", "picker"],
     owner: "engineering",
     a11yDate: null,
-    why: "Delegated to Base UI. opsinjs adds guidance — for short lists a radio group is easier for the reader, and Base UI has one — rather than a component.",
+    why: "Delegated to Base UI. opsinjs adds guidance rather than a component. The guidance is that for short lists a radio group is easier for the reader, and Base UI has one.",
     useInstead: ["field"],
   },
   {
@@ -948,7 +950,7 @@ export const CONSIDERED: CatalogueEntry[] = [
     aliases: ["toggle"],
     owner: "engineering",
     a11yDate: null,
-    why: "Delegated to Base UI. A switch must never be used for consent — consent is a decision with a record, not a setting — so ConsentSheet is the opsinjs answer for that case, and the setting itself stays Base UI's.",
+    why: "Delegated to Base UI. A switch must never be used for consent, because consent is a decision with a record, not a setting. ConsentSheet is therefore the opsinjs answer for that case, and the setting itself stays Base UI's.",
     useInstead: ["consent-sheet"],
   },
   {
@@ -1105,7 +1107,7 @@ export const CONSIDERED: CatalogueEntry[] = [
     aliases: ["segmented buttons", "toggle group"],
     owner: "design",
     a11yDate: null,
-    why: "Likely to be promoted — it is the right control for switching a chart between day, week and month. It was held back until TrendSparkline existed to use it; TrendSparkline is implemented now and this is not, so the only thing keeping it here is that nobody has built it.",
+    why: "Likely to be promoted. It is the right control for switching a chart between day, week and month. It was held back until TrendSparkline existed to use it; TrendSparkline is implemented now and this is not, so the only thing keeping it here is that nobody has built it.",
     useInstead: ["button"],
   },
   {
@@ -1170,7 +1172,7 @@ export const CONSIDERED: CatalogueEntry[] = [
     aliases: ["profile picture", "initials", "user image"],
     owner: "design",
     a11yDate: null,
-    why: "Straightforward to build and full of representation decisions — default imagery, initials for names that do not have them, and what a clinician's avatar implies about who wrote a message.",
+    why: "Straightforward to build and full of representation decisions. Those decisions are default imagery, initials for names that do not have them, and what a clinician's avatar implies about who wrote a message.",
     useInstead: ["card"],
   },
   {
@@ -1183,7 +1185,7 @@ export const CONSIDERED: CatalogueEntry[] = [
     aliases: ["data table", "grid", "rows and columns"],
     owner: "engineering",
     a11yDate: null,
-    why: "Every chart in this system ships a table twin, so a table is a requirement rather than an option — but a responsive, accessible table is a project of its own and would be the largest component here by an order of magnitude.",
+    why: "Every chart in this system ships a table twin, so a table is a requirement rather than an option. A responsive, accessible table is nevertheless a project of its own and would be the largest component here by an order of magnitude.",
     useInstead: ["card", "metric-tile"],
   },
   {
@@ -1205,19 +1207,20 @@ export const CONSIDERED: CatalogueEntry[] = [
 export const CATALOGUE: CatalogueEntry[] = [...SHIPPED, ...CONSIDERED]
 
 /**
- * RESERVED ALIASES — synonyms that belong to a doctrine or content page rather
- * than to a component, recorded here so that the whole alias namespace is
- * declared in one file rather than discovered a page at a time.
+ * RESERVED ALIASES are synonyms that belong to a doctrine or content page
+ * rather than to a component, recorded here so that the whole alias namespace
+ * is declared in one file rather than discovered a page at a time.
  *
  * BE CLEAR ABOUT WHAT THIS LIST DOES AND DOES NOT DO, because the sentence that
- * used to stand here — "the array is exactly what that page's frontmatter
- * `aliases` must contain" — was not true of seven of the thirteen entries and
- * nothing was ever going to notice. Nothing reads this map at build time. It is
- * not compared against the pages it names, so a reserved synonym the page never
- * carries is simply absent from search; and it is not compared against the rows
- * above it, so a component row may claim a word reserved here without a warning
- * anywhere. CAT005 catches the case that actually breaks a reader — two PAGES
- * claiming one synonym — and that is the only alias collision any gate sees.
+ * used to stand here claimed "the array is exactly what that page's frontmatter
+ * `aliases` must contain". That was not true of seven of the thirteen entries
+ * and nothing was ever going to notice. Nothing reads this map at build time.
+ * It is not compared against the pages it names, so a reserved synonym the page
+ * never carries is simply absent from search; and it is not compared against
+ * the rows above it, so a component row may claim a word reserved here without
+ * a warning anywhere. The case that actually breaks a reader is two PAGES
+ * claiming one synonym. CAT005 catches it, and that is the only alias collision
+ * any gate sees.
  *
  * TWO WORDS HAVE ALREADY GONE THE OTHER WAY, and they are named rather than
  * quietly deleted: `term` claims "plain english", which is reserved below for

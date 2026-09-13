@@ -1,12 +1,12 @@
 /**
- * app/_machine/registry-payload.ts — the shadcn-spec registry, built from the
+ * app/_machine/registry-payload.ts builds the shadcn-spec registry from the
  * catalogue.
  *
  * WHY EVERY CLAIMED ID IS PUBLISHED, BUILT OR NOT
  * `npx shadcn@latest mcp` points an assistant at `/r/registry.json`. If that
  * catalog is missing or malformed the MCP server fails quietly and the
- * assistant falls back on what it thinks it remembers about a "RangeBar" —
- * which is nothing, so it invents one. A catalog that lists every id opsinjs
+ * assistant falls back on what it thinks it remembers about a "RangeBar". That
+ * memory is nothing, so it invents one. A catalog that lists every id opsinjs
  * has claimed, each carrying `meta.opsinjs.status`, `meta.opsinjs.implemented`
  * and a `docs` sentence that says which of the two it is, converts that silent
  * failure into a definitive answer in either direction. That was the whole
@@ -15,11 +15,11 @@
  * the answer an assistant must not have to guess at is "no", and it is only
  * trustworthy if "yes" comes from the same place.
  *
- * Every payload below therefore branches on `getBuiltFiles(...)` — the actual
- * source in `registry/__index__.ts` — rather than on a status word or a
- * constant. `implemented` in `meta.opsinjs`, the presence of `files`, and the
- * `docs` sentence are three renderings of that one lookup, and they cannot
- * disagree.
+ * Every payload below therefore asks `getBuiltFiles(...)` what source actually
+ * exists in `registry/__index__.ts`, and branches on the answer rather than on
+ * a status word or a constant. `implemented` in `meta.opsinjs`, the presence of
+ * `files`, and the `docs` sentence are three renderings of that one lookup, and
+ * they cannot disagree.
  *
  * Item names never carry a base or style. The docs page for a component has
  * exactly one canonical URL; the base × style matrix is addressable here, at
@@ -81,8 +81,8 @@ export interface RegistryItem {
  * Resolve a component's documentation URL by asking the loader for the page,
  * rather than assembling a path. Two things fall out of that: no literal
  * documentation prefix appears in this file (the prefix is owned by
- * `lib/routes.ts` and read by `lib/source.ts`), and a link is only ever
- * emitted for a page that exists — so `/r/index.json` cannot advertise a 404.
+ * `lib/routes.ts` and read by `lib/source.ts`), and a link is only ever emitted
+ * for a page that exists. `/r/index.json` therefore cannot advertise a 404.
  */
 export function componentDocsUrl(name: string): string | undefined {
   const page = source.getPage(["components", name])
@@ -107,9 +107,9 @@ export function componentIndexUrl(): string | undefined {
 /**
  * The shadcn CLI prints an item's `docs` string after `add`. It is therefore
  * the only channel that reaches a developer who never opened this site, and the
- * only place either half of the answer — "this does not exist yet", or "this
- * exists and here is how far you may lean on it" — can arrive at the exact
- * moment somebody tries to install it.
+ * only place either half of the answer can arrive at the exact moment somebody
+ * tries to install it. The two halves are "this does not exist yet" and "this
+ * exists and here is how far you may lean on it".
  *
  * Every branch below is chosen on the PAYLOAD where it can be, and on
  * `row.status` only for the part status actually decides. A sentence about
@@ -123,7 +123,7 @@ function docsSentence(row: CatalogueRow, files: RegistryItemFile[]): string {
     return [
       `${row.title} is on the considered roster: the name is reserved and the id resolves,`,
       `but no specification has been written and no code exists.`,
-      `Build it yourself, or open a proposal — ${url}`,
+      `Build it yourself, or open a proposal. See ${url}`,
     ].join(" ")
   }
 
@@ -133,66 +133,67 @@ function docsSentence(row: CatalogueRow, files: RegistryItemFile[]): string {
      A row keeps `status: "planned"` until its page has been rewritten from a
      specification into documentation, and source can land under
      `registry/bases/<base>/` before that rewrite happens. No row is in that
-     window today — the catalogue holds `alpha` and `considered` rows and
-     nothing else — but the window is a real state of this repository and it is
-     where the failure lives: in it the single old sentence contradicted itself
-     twice, opening "is NOT IMPLEMENTED" and going on to say "there are no files
-     to install yet", beside a payload that shipped some. So the branch is
-     chosen on the payload, not on the status, and each branch says one coherent
-     thing. */
+     window today, because the catalogue holds `alpha` and `considered` rows and
+     nothing else. The window is nevertheless a real state of this repository,
+     and it is where the failure lives: in it the single old sentence
+     contradicted itself twice, opening "is NOT IMPLEMENTED" and going on to say
+     "there are no files to install yet", beside a payload that shipped some. So
+     the branch is chosen on the payload, not on the status, and each branch
+     says one coherent thing. */
   if (row.status === "planned" && files.length === 0) {
     return [
       `${row.title} is NOT IMPLEMENTED. This registry entry is a specification, not a component:`,
       `it publishes the intended name, category and clinical contract so that tooling gets a`,
       `definitive answer instead of a 404. There are no files to install yet.`,
-      `Read the specification before building your own — it names the safety questions the`,
-      `component has to answer — at ${url}`,
+      `Read the specification at ${url} before building your own. It names the safety`,
+      `questions the component has to answer.`,
     ].join(" ")
   }
 
   if (row.status === "planned") {
     return [
       `${row.title} installs source from this entry, and its documentation page is still marked`,
-      `a specification (status: planned) — the two have not been declared to agree yet.`,
+      `a specification (status: planned). The two have not been declared to agree yet.`,
       `Treat the page as the contract and this code as an implementation under review:`,
-      `read it before you depend on the API, because it names the safety questions the`,
-      `component has to answer — at ${url}`,
+      `read it at ${url} before you depend on the API, because it names the safety`,
+      `questions the component has to answer.`,
     ].join(" ")
   }
 
-  /* A row that is neither `considered` nor `planned` and has source behind it —
-     today that is every `alpha` id. The CLI has just written this component into
-     somebody's project, so `Title — url` is the one moment where saying nothing
-     costs something: the reader has the code and no statement about how much
-     they may rely on it. The caveat is read off `row.status` rather than typed,
-     so the day a row is promoted the sentence stops making it. */
+  /* This branch takes a row that is neither `considered` nor `planned` and has
+     source behind it. Today that is every `alpha` id. The CLI has just written
+     this component into somebody's project, so a bare `Title is documented at
+     url` line is the one moment where saying nothing costs something: the
+     reader has the code and no statement about how much they may rely on it.
+     The caveat is read off `row.status` rather than typed, so the day a row is
+     promoted the sentence stops making it. */
   if (files.length > 0 && row.status !== "stable") {
     return [
       `${row.title} installs real source, and its documentation page is \`${row.status}\` rather than \`stable\`,`,
-      `so the API may still change. Read the page before you depend on it — it names the clinical`,
-      `contract and the accessibility bar this component has to clear — at ${url}`,
+      `so the API may still change. Read the page at ${url} before you depend on it.`,
+      `It names the clinical contract and the accessibility bar this component has to clear.`,
     ].join(" ")
   }
 
-  return `${row.title} — ${url}`
+  return `${row.title} is documented at ${url}`
 }
 
 /**
  * Bare catalogue ids in, namespaced registry references out.
  *
- * A catalogue row composes by id — `result-card` names `status-pill` — because
- * the catalogue is the roster of what opsinjs contains and has no business
- * knowing what a registry namespace is. shadcn does not read it that way: a
- * dependency with no namespace is resolved against its own default registry, so
- * a bare `status-pill` on the wire sends a consumer to
- * `ui.shadcn.com/r/styles/<style>/status-pill.json` and they get a 404 or, worse,
- * somebody else's component with the same name. `@opsinjs/status-pill` resolves
- * through the `registries` entry the consumer already has in `components.json`,
- * which is how they reached this item in the first place.
+ * A catalogue row composes by id, because the catalogue is the roster of what
+ * opsinjs contains and has no business knowing what a registry namespace is.
+ * That is why `result-card` names `status-pill`. shadcn does not read it that
+ * way: a dependency with no namespace is resolved against its own default
+ * registry, so a bare `status-pill` on the wire sends a consumer to
+ * `ui.shadcn.com/r/styles/<style>/status-pill.json` and they get a 404 or,
+ * worse, somebody else's component with the same name. `@opsinjs/status-pill`
+ * resolves through the `registries` entry the consumer already has in
+ * `components.json`, which is how they reached this item in the first place.
  *
- * An id that already carries a namespace or is an absolute URL is passed through
- * untouched — that is how a row would declare a dependency on an upstream
- * shadcn item, and rewriting it would break exactly that case.
+ * An id that already carries a namespace or is an absolute URL is passed
+ * through untouched. Passing it through is how a row would declare a dependency
+ * on an upstream shadcn item, and rewriting it would break exactly that case.
  */
 function namespaceRegistryDependencies(ids: string[]): string[] {
   return ids.map((id) =>
@@ -238,7 +239,7 @@ function opsinjsMeta(
  * A full `registry-item.json`. `files` is omitted rather than sent empty while
  * nothing is built for this id: an empty array reads as "this component has no
  * source", whereas an absent one, next to `implemented: false`, reads as "there
- * is nothing to install yet" — which is the true statement.
+ * is nothing to install yet". That is the true statement.
  *
  * When there IS something to install, every entry in `files` carries `content`.
  * That is not a nicety: an entry without it is skipped by shadcn's installer
@@ -354,7 +355,7 @@ export function serveRegistryItem(
         didYouMean: suggestNames(name),
         roster: absoluteUrl("/r/index.json"),
         catalog: absoluteUrl("/r/registry.json"),
-        hint: "Every id opsinjs has claimed — specified or merely considered — appears in the roster. If it is not there, it does not exist and must not be invented.",
+        hint: "Every id opsinjs has claimed appears in the roster, whether it is specified or merely considered. If it is not there, it does not exist and must not be invented.",
       },
       { status: 404 }
     )
@@ -390,14 +391,14 @@ export function serveRegistryItem(
   const item = buildRegistryItem(row, { base, style })
 
   /* This route serves ONE item, so `x-opsinjs-implemented` answers about that
-     item and overrides the system-wide default `json()` sets. Without this
-     override a `HEAD /r/card.json` answered `true` — because something,
-     somewhere, was built — while the body it described carried
-     `implemented: false` and no `files` at all. A tool deciding whether to
-     install would have been told yes about a component that has no code, which
-     is exactly the failure every other surface in this repository is built to
-     prevent. The system-wide answer is still on the response, unambiguously, as
-     `x-opsinjs-implemented-count`. */
+     item and overrides the system-wide default `json()` sets. The default
+     answers `true` as soon as something, somewhere, is built, so without this
+     override a `HEAD /r/card.json` answered `true` while the body it described
+     carried `implemented: false` and no `files` at all. A tool deciding whether
+     to install would have been told yes about a component that has no code,
+     which is exactly the failure every other surface in this repository is
+     built to prevent. The system-wide answer is still on the response,
+     unambiguously, as `x-opsinjs-implemented-count`. */
   return json(item, {
     headers: {
       "x-opsinjs-status": row.status,

@@ -1,6 +1,6 @@
 ---
 title: Ask users for a date of birth
-description: Three text fields, not a calendar — and first, the question of whether an age band would have done instead.
+description: Three text fields, not a calendar. First, the question of whether an age band would have done instead.
 status: stable
 kind: pattern
 aliases: [date of birth field, DOB input, birthday field, age band, date picker for birth date]
@@ -17,7 +17,7 @@ Ask for a date of birth when a decision in your product genuinely depends on
 knowing the reader's exact date rather than their approximate age:
 
 - **Identity matching.** Linking a record to a clinical system that keys on it.
-- **Age-dependent reference ranges** where the boundary is sharp — some
+- **Age-dependent reference ranges** where the boundary is sharp. Some
   paediatric measures change materially within a year.
 - **Eligibility with a legal date boundary**, such as a screening programme.
 
@@ -30,12 +30,12 @@ answer, cheaper to store, and less useful to anyone who should not have it.
 
 - **You only need to know that they are an adult.** Ask that. A yes/no or a
   single band answers it without collecting a birth date.
-- **You are asking for a recent date** — when a symptom started, when a dose was
-  taken. Those have completely different affordances: relative options
+- **You are asking for a recent date**, such as when a symptom started or when a
+  dose was taken. Those have completely different affordances: relative options
   ("today", "yesterday") beat any date entry. See
   [Symptoms](./symptoms.mdx).
 - **You are asking for a future date.** An appointment is a picker problem, and
-  a calendar is the right control there — the argument below is specifically
+  a calendar is the right control there. The argument below is specifically
   about dates decades in the past.
 - **You want form-level behaviour.** [Form design](../forms/index.mdx).
 
@@ -63,9 +63,9 @@ the reasoning holds outside those contexts.
 
 Details that matter:
 
-- **Order the fields for the reader's locale** — day, month, year in most of the
-  world; month, day, year in the United States. Do not reorder the *labels* to
-  match a stored format.
+- **Order the fields for the reader's locale.** The order is day, month, year
+  in most of the world; month, day, year in the United States. Do not reorder
+  the *labels* to match a stored format.
 - **Every part is labelled visibly**: "Day", "Month", "Year". Not placeholders.
 - **Accept a month as digits or as a name.** Someone typing "March" or "Mar" has
   answered the question.
@@ -110,7 +110,7 @@ Details that matter:
 
 <DoDont>
   <DoDont.Do>
-    Error: "Your date of birth must include a year." — names the missing part
+    Error: "Your date of birth must include a year." It names the missing part
     and leaves the day and month as entered.
   </DoDont.Do>
   <DoDont.Dont>
@@ -146,9 +146,9 @@ Details that matter:
 
   What is ours and is opinion: the age-band-first gate at the top of this page,
   and the strength of the position on partial and unknown dates. The gate is the
-  more important of the two — a date of birth is special-category-adjacent data
-  that many products collect out of habit for a decision that an age band would
-  have settled.
+  more important of the two, because a date of birth is
+  special-category-adjacent data that many products collect out of habit for a
+  decision that an age band would have settled.
 
   What would change our mind: nothing on the picker. On age bands, evidence that
   banded self-report is materially less accurate than an exact date would be a

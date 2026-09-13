@@ -1,23 +1,23 @@
 /**
- * GET /rss.xml — the changelog feed.
+ * GET /rss.xml is the changelog feed.
  *
  * One item per changelog entry, newest first. The changelog is a folder of
  * narrative pages rather than a single append-only file, which is what makes a
  * feed possible at all: each entry has its own URL, its own markdown twin and
  * its own date.
  *
- * WHY A DESIGN SYSTEM NEEDS ONE. Versioning here covers the JavaScript API,
- * the rendered DOM, the `data-*` attributes and the CSS custom properties — so
- * a change that a consuming team has to act on can be a renamed variable with
+ * WHY A DESIGN SYSTEM NEEDS ONE. Versioning here covers the JavaScript API, the
+ * rendered DOM, the `data-*` attributes and the CSS custom properties. A change
+ * that a consuming team has to act on can therefore be a renamed variable with
  * no import to update and no type error to catch. A feed is the cheapest way
- * for somebody who copied the source into their own repository to find out
- * that the thing they copied has moved.
+ * for somebody who copied the source into their own repository to find out that
+ * the thing they copied has moved.
  *
  * Entries are dated from frontmatter (`reviewed`, falling back to `since` when
  * it is an ISO date). An undated entry is still published, sorted after the
- * dated ones — better a visible entry with no timestamp than a silently
- * dropped release note. While the changelog is empty the feed is valid and
- * says so in its description, rather than 404ing and looking broken.
+ * dated ones, because a visible entry with no timestamp is better than a
+ * silently dropped release note. While the changelog is empty the feed is valid
+ * and says so in its description, rather than 404ing and looking broken.
  */
 
 import {
@@ -81,7 +81,7 @@ export function GET(): Response {
 
   const description = entries.length
     ? `Release notes for ${SITE_NAME}. Versioning covers the JavaScript API, the rendered DOM, data attributes and the CSS custom properties.`
-    : `Release notes for ${SITE_NAME}. Nothing has been released yet — no component is implemented — so this feed is empty by design rather than broken. It will carry an item per changelog entry once there is one.`
+    : `Release notes for ${SITE_NAME}. No component is implemented, so nothing has been released yet and this feed is empty by design rather than broken. It will carry an item per changelog entry once there is one.`
 
   const items = entries.map(({ page, date }) => {
     const meta = metaOf(page)

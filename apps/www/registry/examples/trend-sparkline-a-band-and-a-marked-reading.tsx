@@ -4,24 +4,25 @@
  * THE BAND IS NEUTRAL, ATTRIBUTED, AND STATED IN WORDS. It is drawn in the same
  * grey as every other neutral surface and outlined with a dash, never in a
  * status colour, because a tinted band would tell the reader that sitting inside
- * it is welcome and sitting outside it is not — a comparison the component has
- * not been given. Its `source` is required and the caption names it; so are its
- * two numbers, because a reader who is told a shaded interval exists and who
- * owns it, and never what it says, has been shown a picture with no twin.
+ * it is welcome and sitting outside it is not. That is a comparison the
+ * component has not been given. Its `source` is required and the caption names
+ * it; so are its two numbers, because a reader who is told a shaded interval
+ * exists and who owns it, and never what it says, has been shown a picture with
+ * no twin.
  *
  * A BAND NEEDS BOTH OF ITS ENDS, which is what the second sparkline is here to
  * show. Its range has an upper bound and no lower one. That is a real range, and
- * it is rendered as words — "up to 20 steps" — and as no rectangle at all,
+ * it is rendered as the words "up to 20 steps" and as no rectangle at all,
  * because a rectangle has four edges and the missing one would have to be taken
  * from the readings or from zero and would then be attributed, in the caption,
  * to a source that never gave it.
  *
  * THE MARKED READING IS NOT COLOURED IN THE PLOT. The product flagged the last
- * reading, and the verdict appears as a StatusPill in the caption — word, glyph,
- * colour and `data-status` together — while the plot draws the marker in the
- * line's own tint. A dot the size of a full stop can carry a colour and nothing
- * else, and a status carried by colour alone is one a third of readers cannot
- * read at all.
+ * reading, and the verdict appears as a StatusPill in the caption. That pill
+ * carries word, glyph, colour and `data-status` together, while the plot draws
+ * the marker in the line's own tint. A dot the size of a full stop can carry a
+ * colour and nothing else, and a status carried by colour alone is one a third
+ * of readers cannot read at all.
  *
  * The readings are fictional and the source string says so. Nothing here is a
  * reference range, in any unit, for anybody.

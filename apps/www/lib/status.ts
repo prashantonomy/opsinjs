@@ -2,10 +2,10 @@
  * THE SINGLE STATUS VOCABULARY.
  *
  * `source.config.ts` declares the same two enums for frontmatter validation and
- * cannot export them — fumadocs-mdx refuses any export from a source config
- * that is not a collection — so this file is the runtime copy, and
- * `assert-ia.mts` asserts the two agree. If you add a status or a kind, add it
- * in both places in the same commit.
+ * cannot export them, because fumadocs-mdx refuses any export from a source
+ * config that is not a collection. This file is therefore the runtime copy,
+ * and `assert-ia.mts` asserts the two agree. If you add a status or a kind,
+ * add it in both places in the same commit.
  *
  * Everything that renders a release phase, gates a section, or asks "what
  * headings does this page need" reads from here. Nothing re-declares it.
@@ -47,7 +47,7 @@ export interface StatusMeta {
    * against. Nothing renders it: `<StatusBadge>` shows `label` and `summary`,
    * and `project/release-phases.mdx` states the same commitments in its own
    * prose. So this is the source a reviewer checks that page against, not a
-   * string the page interpolates — change a promise here and edit that page in
+   * string the page interpolates. Change a promise here and edit that page in
    * the same commit, because nothing will do it for you.
    */
   promise: string
@@ -131,7 +131,7 @@ export const STATUS_META: Record<Status, StatusMeta> = {
     summary:
       "Looked at, decided against for now, with the reason written down.",
     promise:
-      "There is no specification, no code and no plan. There IS a catalogue row and a short generated page at the component's own address, saying why the name was declined and what to reach for instead — the address answers rather than 404s, which is the whole point of keeping the row. A considered entry is a decision, not a backlog item.",
+      "There is no specification, no code and no plan. There IS a catalogue row and a short generated page at the component's own address, saying why the name was declined and what to reach for instead. The address answers rather than 404s, which is the whole point of keeping the row. A considered entry is a decision, not a backlog item.",
     order: 5,
     canDemonstrate: false,
     tone: "unknown",
@@ -206,8 +206,8 @@ export const CLINICAL_STATUSES = [
 export type ClinicalStatus = (typeof CLINICAL_STATUSES)[number]
 
 /**
- * The absence of an assertion — no reading, a stale reading, or a reading whose
- * reference range the product does not own.
+ * The absence of an assertion, which covers a reading never taken, a stale
+ * reading, or a reading whose reference range the product does not own.
  *
  * Deliberately NOT a fifth clinical status: rendering "we do not know" as a
  * status would claim a verdict the system does not have, and colouring it
@@ -330,20 +330,21 @@ export interface AxisConflict {
  * report, and a blanket per-props call would flag every correct tile and card
  * (`metric-tile.tsx` and `result-card.tsx` say so at their own tops). What
  * catches the mistake today is A11Y008 in `scripts/check-a11y.mts`, a static
- * check over component sources — which runs here and does not run in a consumer
+ * check over component sources. It runs here and does not run in a consumer
  * project, so do not build on a warning appearing at runtime. OPSIN-0001 is
  * reserved in `tokens/errors.json` for the day a component does resolve both
  * axes and has to report it; this is the function it will call.
  *
- * Both axes may appear on one SCREEN — a heart-tinted card containing a
+ * Both axes may appear on one SCREEN. A heart-tinted card containing a
  * `watch` pill is correct and common. What may not happen is one surface
  * carrying both, because then the reader cannot tell which of the two the
  * colour is answering.
  *
  * THE MESSAGE BELOW IS A SECOND WORDING OF OPSIN-0001, ON PURPOSE.
  * `tokens/errors.json` owns the canonical one, and it opens with the component
- * name — which this function does not have, because it is given two values and
- * not the thing that holds them. So the sentence differs and the RULE does not.
+ * name. This function does not have that name, because it is given two values
+ * and not the thing that holds them. So the sentence differs and the RULE does
+ * not.
  * `scripts/build-tokens.mts` asserts that this file claims the same code and
  * sends a reader to the same page; only the phrasing is free to differ, and if
  * you are adding a third wording somewhere, do not.
@@ -478,7 +479,7 @@ export const OUTLINE_IS_EXACT: Record<Exclude<Kind, "component">, boolean> = {
  * appear as an H2, so they are not listed. Everything else is, in page order.
  *
  * At each status the listed sections are the WHOLE page. The others are
- * omitted, not left empty — a heading with nothing under it is worse than an
+ * omitted, not left empty. A heading with nothing under it is worse than an
  * absent heading, and `<PageTemplate kind="component">` fails the build either
  * way. `## Clinical meaning` is included here but is mandatory only for a
  * `health-*` category and forbidden outside one; `assert-ia.mts` checks both
@@ -491,7 +492,7 @@ export const OUTLINE_IS_EXACT: Record<Exclude<Kind, "component">, boolean> = {
  * page for a component nobody has designed. Leaving the entry out would make
  * `componentSections("considered", …)` empty, and the machine-readable page
  * contract `<PageTemplate>` emits would then tell an agent that a considered
- * page is entitled to no sections at all — while the page in front of it has
+ * page is entitled to no sections at all. Yet the page in front of it has
  * three. Keep this list and the generator in step.
  */
 export const COMPONENT_SECTIONS_BY_STATUS: Record<Status, string[]> = {

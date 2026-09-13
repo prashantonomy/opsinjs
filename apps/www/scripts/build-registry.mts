@@ -524,7 +524,7 @@ function emitIndex(
    * with no content is not an error, not a warning and not a retry: the file is
    * skipped, the install reports success, and nothing is written. That failure
    * mode is why this whole emitter exists, and nothing else in the repository
-   * would notice if it came back — `check:generated` only diffs the output
+   * would notice if it came back. `check:generated` only diffs the output
    * against itself, so an emitter that stopped writing content would regenerate
    * cleanly and every gate would stay green while `shadcn add` did nothing.
    *
@@ -786,8 +786,8 @@ function emitConsideredStub(
     "",
     `<StubNotice name=${q(row.name)} status="considered">`,
     `  **${title} is not built, and it has no specification.** The name is recorded in`,
-    `  the catalogue so that this address answers instead of returning a 404 — not`,
-    `  because the component is coming.`,
+    `  the catalogue so that this address answers instead of returning a 404.`,
+    `  The reason is not that the component is coming.`,
     `</StubNotice>`,
     "",
     "## What this name refers to",

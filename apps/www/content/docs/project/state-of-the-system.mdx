@@ -1,6 +1,6 @@
 ---
 title: State of the system
-description: Dated and blunt — what exists today, what is safe to build on, what will break, and who is behind it.
+description: Dated and blunt about what exists today, what is safe to build on, what will break, and who is behind it.
 status: stable
 kind: project
 owner: core
@@ -17,13 +17,13 @@ aliases: [what exists, is it ready, production ready, current state]
 **As of the date at the foot of this page, opsinjs is a documentation site, a set
 of design tokens, and twenty-four React components you can install as registry
 source. Every one of the twenty-four is `alpha`. No component ships as an npm
-package and none is meant to — distribution is registry copy-in, decided in
+package and none is meant to. Distribution is registry copy-in, decided in
 [ADR 0002](decisions/0002-shadcn-registry-distribution.mdx). Nothing here is
 `stable`, nothing has been independently audited for accessibility, and no
 component has been through a clinical review.**
 
 That paragraph is the first thing on this page because almost every other page on
-this site is written as though the whole system were finished — a component page
+this site is written as though the whole system were finished. A component page
 describes an anatomy, an API and an accessibility bar in the present tense,
 because a specification written in the conditional is unreadable. The marker that
 tells you which you are reading is the `status` in the page's frontmatter:
@@ -35,15 +35,15 @@ This page is where the plain version of that lives.
 
 | Surface | State | Safe to build on? |
 | --- | --- | --- |
-| Doctrine — Health, Accessibility, Content and language | Written, self-reviewed, no external clinical review | **Yes**, as guidance. Cite it with the `reviewed` date on the page |
-| Foundations — colour, materials, motion, type, space, shape | Written against real tokens | **Yes**, as guidance |
+| Doctrine covering Health, Accessibility, Content and language | Written, self-reviewed, no external clinical review | **Yes**, as guidance. Cite it with the `reviewed` date on the page |
+| Foundations covering colour, materials, motion, type, space and shape | Written against real tokens | **Yes**, as guidance |
 | Design tokens (`tokens/*.json`) | Authored: two colour axes, six material rungs, spring easings, type, space and shape scales | **Yes**, as values. Names may change before 1.0 |
 | Generated tables and measured contrast | Produced by scripts from those tokens; empty wherever the source is empty | **Yes**, for the presets described. Not for a theme you derived |
 | Component pages (24) | Written as specifications; for these twenty-four they now also describe shipped code | **Yes** to design against, and to review an implementation against |
 | React components | **24, all `alpha`**, under `registry/bases/base/`. The other 36 catalogue ids are `considered`: reserved names with no code, each answered by a generated stub page | **Yes** to prototype and evaluate, knowing the API may move without a deprecation cycle. **No** for a production health surface |
 | `@opsinjs/*` npm packages | **None published** | No |
 | Registry endpoints under `/r` | Serve the catalogue, and the full source of all 24 implemented items | **Yes.** The item shape follows the upstream shadcn specification and moves with it |
-| CLI | Does not exist and is not planned first — `npx shadcn` already does the job | — |
+| CLI | Does not exist and is not planned first, because `npx shadcn` already does the job | Not applicable |
 | Accessibility conformance | No independent audit has taken place | No. See [Accessibility statement](../accessibility/accessibility-statement.mdx) |
 
 ## What is safe to build on, in order
@@ -72,7 +72,7 @@ describes code you can install and read, and the page is the right place to chec
 an implementation against. For everything else it is a specification: enough to
 design a screen against and enough to build your own version deliberately, but
 not enough to generate code from. Read `status` rather than inferring which of
-the two you have — it is in the frontmatter, in the `.md` twin and in
+the two you have. It is in the frontmatter, in the `.md` twin and in
 `/r/index.json`, so a program never has to guess.
 
 ## What will break
@@ -93,7 +93,7 @@ the two you have — it is in the frontmatter, in the `.md` twin and in
 
 No independent accessibility audit. No cross-browser test matrix running in CI.
 No performance budget enforced against a real bundle, because there is no bundle.
-No usability research with patients — the research citations on health pages are
+No usability research with patients. The research citations on health pages are
 other people's published work, read and cited, not studies this project ran.
 Where a page needs a number that nobody has measured, it renders an honest empty
 state naming the script that will fill it, rather than an estimate.

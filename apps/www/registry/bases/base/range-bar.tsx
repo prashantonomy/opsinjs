@@ -1,5 +1,5 @@
 /**
- * RangeBar — where one reading sits against the range it is being compared
+ * RangeBar shows where one reading sits against the range it is being compared
  * with. The sentence is the component; the bar is a drawing of the sentence.
  *
  * WRITE THE SENTENCE FIRST, AND THE PICTURE SECOND. `RangeBar.Summary` is not a
@@ -11,9 +11,9 @@
  * is no bar to draw at all.
  *
  * IT DERIVES NO VERDICT. Everything this component computes is arithmetic on
- * numbers the product supplied — a position along a line, and the word
- * "within", "above" or "below" for that position against the product's own
- * bounds. `status` is an INPUT. RangeBar never turns "above the range" into
+ * numbers the product supplied. It computes a position along a line, and the
+ * word "within", "above" or "below" for that position against the product's
+ * own bounds. `status` is an INPUT. RangeBar never turns "above the range" into
  * "needs attention": that conversion needs a clinician or a validated rule, and
  * it belongs to whoever owns the range. Most people sit outside at least one
  * reference range at any moment, and an interface that treats outside as wrong
@@ -24,11 +24,12 @@
  * file. `ReferenceRange.source` is required because a band with no author is an
  * assertion nobody signed; a range that arrives without one is reported as
  * OPSIN-0004 and drawn as nothing at all, because a plausible band is worse
- * than no band — the reader cannot tell the two apart. A range that is not an
- * interval — neither bound supplied, or bounds that run downwards — is
- * discarded on the same terms, in the sentence as well as in the picture: the
- * word "within" is what arithmetic falls through to, and "within the range"
- * against bounds nobody gave is a reassurance derived from nothing.
+ * than no band. The reader cannot tell the two apart. A range is not an
+ * interval when neither bound is supplied, or when the bounds run downwards.
+ * Such a range is discarded on the same terms, in the sentence as well as in
+ * the picture: the word "within" is what arithmetic falls through to, and
+ * "within the range" against bounds nobody gave is a reassurance derived from
+ * nothing.
  *
  * A BAR NEEDS TWO BOUNDS. A one-sided range ("up to 20") has no width, and a
  * width is what a scale is made of; drawing one would mean inventing the other
@@ -38,7 +39,7 @@
  *
  * THE TWO AXES SIT ON DIFFERENT ELEMENTS, deliberately. `status` colours the
  * tick and nothing else; `category` tints the label and nothing else. Neither
- * ever reaches the track or the band, and no single element resolves both — a
+ * ever reaches the track or the band, and no single element resolves both. A
  * heart-red bar beside an attention-red bar is the collision the two-axis rule
  * exists to prevent, and it is a collision the reader has no way to decode.
  *
@@ -114,18 +115,20 @@ if (isDevelopment()) {
 /**
  * Development warnings, said once per offending call site.
  *
- * `tokens/errors.json` states the policy — development only, once per offending
- * call site, through `console.warn` — and `warnOnce` in the substrate keeps to
- * it, but `warnOnce` is keyed to an `OpsinErrorCode` and the four complaints in
- * the component body below have no code allocated: they are drawing and
- * labelling defects rather than mistakes with the clinical API, and a component
- * may not mint a code, because the errors table is generated from that file.
+ * `tokens/errors.json` states the policy, and that policy is development only,
+ * once per offending call site, through `console.warn`. `warnOnce` in the
+ * substrate keeps to it, but `warnOnce` is keyed to an `OpsinErrorCode` and the
+ * four complaints in the component body below have no code allocated: they are
+ * drawing and labelling defects rather than mistakes with the clinical API, and
+ * a component may not mint a code, because the errors table is generated from
+ * that file.
  *
  * Without a keyed set they print on every render, and twice again per render
  * under Strict Mode. A bar inside a list that re-renders on scroll would repeat
  * the same paragraph until the console is unusable, and a channel somebody
- * filters is one that no longer carries the finding they needed — which here is
- * a range with no interval under it, or two bounds that read as one number.
+ * filters is one that no longer carries the finding they needed. Here that
+ * finding is a range with no interval under it, or two bounds that read as one
+ * number.
  *
  * The key names the offence and the values that caused it, never the reading:
  * one bar with a bad range says so once, and a second bar with a different bad
@@ -144,7 +147,7 @@ function warnDev(key: string, message: string): void {
  *
  * Tailwind reads class names out of source as literal strings, so
  * `bg-status-${level}` generates no CSS at all and the tick renders invisible
- * against the rail. The bare status name is the LINE role — the boundary
+ * against the rail. The bare status name is the LINE role. That is the boundary
  * colour, which is what a 4px mark on a neutral rail is. `-accent` is
  * deliberately absent: it is the identity fill, chosen for recognition rather
  * than contrast, and a tick is read for its position before its colour.
@@ -178,7 +181,7 @@ const TICK_TONE: Record<ClinicalStatus, string> = {
  * a card is on precisely the measured ground; in dark `--card` is one step
  * lighter than `--opsin-neutral-950`, so the recorded figure is close to but
  * not the pairing on a card, and no number for that pairing has been produced.
- * This file therefore claims what was measured and no more — see
+ * This file therefore claims what was measured and no more. See
  * `score-dial.tsx`, which reads the same rows for the same roles. `CATEGORY_INK`
  * below stands on the same ground, and `category.<name>.ink-on-page` is
  * measured and passing in the same way.
@@ -193,7 +196,7 @@ const STATUS_INK: Record<ClinicalStatus, string> = {
 /**
  * The category tint, on the label and on nothing else.
  *
- * Category colour is IDENTITY — what this reading is about — and never a
+ * Category colour is IDENTITY. It says what this reading is about, and never a
  * verdict, so it says nothing in greyscale except which metric you are looking
  * at, which is why no word accompanies it. The label is also the one place the
  * specification permits it: the track, the band and the tick stay outside the
@@ -240,21 +243,21 @@ export interface RangeBarProps {
   label: string
   /**
    * The measurement. `null` is a first-class state meaning there is no reading,
-   * distinct from `0`, and renders the words rather than a tick at zero — a
+   * distinct from `0`, and renders the words rather than a tick at zero. A
    * mark at the bottom of a range is a reading, and a missing one is not.
    */
   value: number | null
   /**
-   * Display symbol exactly as `tokens/units.json` spells it — "kg", "mmol/L",
-   * "mg/dL". Every number this component renders goes through `Value`, which
-   * resolves the spoken form from that table, so a listener hears "milligrams
-   * per decilitre" rather than an improvised pronunciation.
+   * Display symbol exactly as `tokens/units.json` spells it, as in "kg",
+   * "mmol/L" or "mg/dL". Every number this component renders goes through
+   * `Value`, which resolves the spoken form from that table, so a listener
+   * hears "milligrams per decilitre" rather than an improvised pronunciation.
    */
   unit: string
   /**
    * The range this reading is being compared with, and whose it is. Omit it
    * entirely when none is available: the component then draws no band, says so
-   * in the summary, and substitutes nothing. `source` is required — a range
+   * in the summary, and substitutes nothing. `source` is required. A range
    * with an empty one is reported as OPSIN-0004 and not drawn.
    */
   range?: ReferenceRange
@@ -274,11 +277,11 @@ export interface RangeBarProps {
    */
   category?: HealthCategory
   /**
-   * DECIMAL PLACES, from the precision of the measurement — the resolution of
-   * the device, or the number of places the laboratory reported. Not
-   * significant figures: the same metric shown to a different number of decimal
-   * places at different magnitudes cannot be compared at a glance, which is
-   * what `health/numbers-units-precision` rule 2 forbids.
+   * DECIMAL PLACES, from the precision of the measurement. That is the
+   * resolution of the device, or the number of places the laboratory reported.
+   * Not significant figures: the same metric shown to a different number of
+   * decimal places at different magnitudes cannot be compared at a glance,
+   * which is what `health/numbers-units-precision` rule 2 forbids.
    *
    * It applies to the reading and to the two boundary labels alike, because a
    * value and the bound it is being compared with are the same metric. Omitted,
@@ -289,8 +292,9 @@ export interface RangeBarProps {
    * When the measurement was taken, ISO 8601. Rendered as a date in the
    * footnote so that a number on a screen is not read as "now". Omitted, the
    * footnote says that nobody knows when the reading was taken rather than
-   * saying nothing — the same answer this component gives for a range nobody
-   * has dated, and for the same reason: silence about a time is read as now.
+   * saying nothing. That is the same answer this component gives for a range
+   * nobody has dated, and for the same reason: silence about a time is read as
+   * now.
    *
    * That is a recency signal, and it is not a staleness treatment. There is no
    * `staleAfterHours` here and there will not be one: how old is too old is
@@ -300,8 +304,8 @@ export interface RangeBarProps {
    */
   measuredAt?: string
   /**
-   * Replaces the generated sentence — for a unit whose phrasing does not fit
-   * the template, or for a reader whose language is not English. It cannot
+   * Replaces the generated sentence. Use it for a unit whose phrasing does not
+   * fit the template, or for a reader whose language is not English. It cannot
    * remove the sentence: there is no value of this prop that renders the
    * component without one, because the sentence is the component.
    */
@@ -322,7 +326,7 @@ export interface RangeBarProps {
  * WIDER THAN THE RANGE ON BOTH SIDES, by one band-width each way, so that a
  * reading outside the range has somewhere to be. And it always contains the
  * reading: a value far beyond the range compresses the band towards a sliver,
- * which is TRUE TO SCALE and is the information — a picture that clipped the
+ * which is TRUE TO SCALE and is the information. A picture that clipped the
  * reading to the edge instead would be showing it somewhere it is not.
  *
  * It carries the reading back out with it, narrowed to a real number. Every
@@ -337,9 +341,9 @@ function drawnExtent(
   const { low, high } = range
   if (low === undefined || high === undefined) return null
   /* A range whose bounds are equal or inverted has no width, and a width is
-     what a scale is made of. Such a range is refused before it reaches here —
-     it never becomes `compared` — and this stays so the function is honest read
-     on its own rather than honest by arrangement with its caller. */
+     what a scale is made of. Such a range is refused before it reaches here,
+     because it never becomes `compared`. This stays so the function is honest
+     read on its own rather than honest by arrangement with its caller. */
   if (!(high > low)) return null
   const reach = high - low
   const start = Math.min(low - reach, value)
@@ -356,9 +360,10 @@ function drawnExtent(
  * number is and never what being there means.
  *
  * IT IS ONLY EVER CALLED WITH A RANGE THAT HAS A BOUND. `within` is the
- * fall-through, so a range carrying neither bound would come back `within` — a
- * position, in the reassuring direction, against an interval nobody supplied.
- * That range is discarded in the component body before it reaches here.
+ * fall-through, so a range carrying neither bound would come back `within`.
+ * That is a position, in the reassuring direction, against an interval nobody
+ * supplied. That range is discarded in the component body before it reaches
+ * here.
  */
 function positionOf(value: number, range: ReferenceRange): Position {
   if (range.low !== undefined && value < range.low) return "below"
@@ -371,7 +376,7 @@ function positionOf(value: number, range: ReferenceRange): Position {
  *
  * A range with neither bound is discarded upstream and never reaches here; the
  * empty return is what keeps this function total, and it is not a state the
- * sentence is ever built from — an empty phrase spliced into "within the range
+ * sentence is ever built from. An empty phrase spliced into "within the range
  * …, from …" is a comparison with nothing in it.
  */
 function rangePieces(range: ReferenceRange, unit: string): SummaryPiece[] {
@@ -393,9 +398,9 @@ function rangePieces(range: ReferenceRange, unit: string): SummaryPiece[] {
  * moment somebody edited one of them.
  *
  * It always states the reading, the range and the position, in that order, so
- * that it stands alone when it is read out of context — in a screen reader, in
- * a notification, in a printed summary — and it names whose range it is, which
- * is why `ReferenceRange.source` is required.
+ * that it stands alone when it is read out of context, whether in a screen
+ * reader, in a notification or in a printed summary. It also names whose range
+ * it is, which is why `ReferenceRange.source` is required.
  */
 function summaryPieces(
   label: string,
@@ -452,8 +457,8 @@ function digitsOf(reading: number, precision: number | undefined, locale: string
  *
  * Units are SPOKEN here rather than written: the accessible name is heard, and
  * "mmol/L" read out character by character is the failure `Value` exists to
- * prevent. A unit the table does not hold falls back to the symbol as written —
- * awkward to listen to, and true.
+ * prevent. A unit the table does not hold falls back to the symbol as written.
+ * That is awkward to listen to, and true.
  */
 function summaryText(
   pieces: SummaryPiece[],
@@ -470,7 +475,7 @@ function summaryText(
          untrue about their own record, which is
          `health/numbers-units-precision` rule 13. Both branches are reached
          only in a state that draws no graphic and therefore has no accessible
-         name — but they agree with what `Value` renders, so the sentence and
+         name. But they agree with what `Value` renders, so the sentence and
          its picture cannot start disagreeing if the drawing rules change. */
       if (piece.reading === null) return "no reading yet"
       if (!Number.isFinite(piece.reading)) return "not available"
@@ -479,8 +484,8 @@ function summaryText(
          decides it: by asking the same formatter what one looks like, rather
          than by inspecting the raw number. A reading of 1.4 shown to no decimal
          places is "1" in the picture and was "1 milligrams" in the picture's
-         name — the two halves of one sentence disagreeing about a number they
-         had both got right. */
+         name. That was the two halves of one sentence disagreeing about a
+         number they had both got right. */
       const singular =
         digits === digitsOf(1, precision, locale) || digits === digitsOf(-1, precision, locale)
       return `${digits} ${spokenUnit(piece.unit, singular ? 1 : piece.reading) ?? piece.unit}`
@@ -520,7 +525,7 @@ export function RangeBar({
 }: RangeBarProps) {
   /* THE FIFTH LEVEL IS REFUSED, NOT APPROXIMATED. This file ships as source
      into JavaScript projects where a type is advice, and a level outside the
-     four has no word, no glyph and no meaning — so the bar is drawn without a
+     four has no word, no glyph and no meaning. So the bar is drawn without a
      status rather than with an invented one. `unknown` gets its own code
      because it is the likeliest wrong answer and the most dangerous: it is the
      absence of an assertion, and a reader who meets it rendered as a level
@@ -553,24 +558,25 @@ export function RangeBar({
 
   /* OPSIN-0004, at its enforcement point. A range is a comparison somebody
      chose, and an unattributed one asks this system to vouch for a threshold it
-     has never seen. The repair is to drop the range entirely — not to draw the
-     band and omit the credit, which would leave the reader looking at a
-     comparison with no author and no way to know that is what they are doing. */
+     has never seen. The repair is to drop the range entirely rather than to
+     draw the band and omit the credit, which would leave the reader looking
+     at a comparison with no author and no way to know that is what they are
+     doing. */
   const attributed =
     range !== undefined && typeof range.source === "string" && range.source.trim() !== ""
   if (range !== undefined && !attributed) {
     warnOnce("OPSIN-0004", { component: "RangeBar" })
   }
 
-  /* AN INTERVAL, OR NOTHING AT ALL — the second and third ways a range arrives
-     unusable, and they are dangerous in the sentence rather than in the
+  /* AN INTERVAL, OR NOTHING AT ALL. These are the second and third ways a range
+     arrives unusable, and they are dangerous in the sentence rather than in the
      picture. Both bounds are optional on `ReferenceRange`, so `{ source }` on
      its own typechecks, and a pair that runs downwards typechecks too. Neither
      is an interval, and neither may be half-used: the drawing already refuses
      both, and the SENTENCE is what would otherwise state a position against
-     them — "within the range ,", in the reassuring direction, naming an
-     interval printed nowhere on the screen, or "below the range 20 to 10".
-     They take the exit an unattributed range already takes: the reading, and
+     them. That is "within the range ,", in the reassuring direction, naming an
+     interval printed nowhere on the screen, or "below the range 20 to 10". They
+     take the exit an unattributed range already takes: the reading, and
      the words for having nothing to compare it with. */
   const boundless = range !== undefined && range.low === undefined && range.high === undefined
   const inverted =
@@ -630,7 +636,7 @@ export function RangeBar({
   /* An empty `summary` is the only way this component can be asked to render
      without a sentence, and the answer is no. The generated one is used
      instead, because a bar with no words is a picture whose entire meaning is
-     carried by a position on a line — which is nothing at all in a screen
+     carried by a position on a line. That is nothing at all in a screen
      reader, on a printout, or to a reader who cannot see it. */
   const blankSummary = summary !== undefined && summary.trim() === ""
   if (blankSummary) {
@@ -649,7 +655,7 @@ export function RangeBar({
 
   /* THE PICTURE'S NAME CARRIES THE LEVEL AS WELL AS THE POSITION. The tick is
      the element that takes the status colour, and it lives inside the
-     `role="img"`, whose children are pruned from the accessibility tree — so
+     `role="img"`, whose children are pruned from the accessibility tree. So
      without this, a reader who reaches the graphic through a rotor, or who is
      magnified into it, meets a coloured mark and no word.
      `accessibility/screen-readers` rule 4 is that the status word is in the
@@ -666,11 +672,11 @@ export function RangeBar({
     extent === null ? 0 : ((point - extent.start) / (extent.end - extent.start)) * 100
 
   /* NEVER SILENT ABOUT WHEN. A number on a screen with no time beside it is
-     read as "now", so an absent `measuredAt` is STATED — the same answer this
-     component already gives for a range nobody has dated, and the reader is
-     the person entitled to know that nobody knows. It is a recency signal and
-     not a staleness treatment: there is no boundary here and there will not be
-     one, because how old is too old is clinical, differs by metric, and
+     read as "now", so an absent `measuredAt` is STATED. That is the same answer
+     this component already gives for a range nobody has dated, and the reader
+     is the person entitled to know that nobody knows. It is a recency signal
+     and not a staleness treatment: there is no boundary here and there will not
+     be one, because how old is too old is clinical, differs by metric, and
      belongs to whoever owns the range. */
   const asOf = compared?.asOf
   const hasReading = value !== null && Number.isFinite(value)
@@ -704,7 +710,7 @@ export function RangeBar({
             `tailwind-merge` cannot tell `text-opsin-headline` (a size from the
             theme's own type ramp) from `text-category-labs-ink` (a colour): both
             are `text-*` with a key it does not know, so it treats them as one
-            property and silently drops the earlier. Verified —
+            property and silently drops the earlier. This is verified.
             twMerge("text-opsin-headline", "text-category-labs-ink") returns the
             colour alone, and the label loses its type size. Concatenation keeps
             both, and the two declarations do not conflict in CSS because they
@@ -759,10 +765,10 @@ export function RangeBar({
                else assigned. It is not focusable and it is not in the tab order,
                because a stop that does nothing is a stop every keyboard user
                pays for on every row of a list. The name is the summary
-               sentence — which the reader also has in full underneath, and the
-               repetition is the cost of the picture having a name at all —
-               plus the status word, which is inside the picture as a colour
-               and nowhere inside it as a word. */
+               sentence, plus the status word. The reader also has the sentence
+               in full underneath, so the repetition is the cost of the picture
+               having a name at all. The status word is inside the picture as a
+               colour and nowhere inside it as a word. */
             role="img"
             aria-label={graphicName}
             className="relative h-[0.9em] rounded-full border border-border bg-muted"
@@ -773,9 +779,9 @@ export function RangeBar({
 
                 OUTLINED RATHER THAN ONLY FILLED, because the fill is a
                 near-neutral on a near-neutral and is the first thing a printer
-                drops — an intent rather than a tested outcome, since opsinjs
-                has no print stylesheet yet. The outline takes the same ink as
-                the two boundary marks rather than the theme's generic
+                drops. That is an intent rather than a tested outcome, since
+                opsinjs has no print stylesheet yet. The outline takes the same
+                ink as the two boundary marks rather than the theme's generic
                 hairline: `lib/generated/contrast.json` records a neutral
                 hairline on the page at APCA Lc 22.42 and WCAG 1.47:1 against a
                 non-text floor of Lc 45 and 3:1, and the band is the primary
@@ -799,22 +805,22 @@ export function RangeBar({
               >
                 {/* THE TWO BOUND LABELS GROW OUTWARDS, AND THAT IS WHAT STOPS
                     THEM COLLIDING. Centred on their marks they overlapped at
-                    200% text on a phone — measured at 20px of overlap at 390px
-                    and 42px at 320px, which prints the reference range as
-                    "10 mg/d20 mg/dL" and is invisible to an overflow check
-                    because the document never widens. They cannot wrap out of
-                    it either: the mark is a 1px containing block, so dropping
+                    200% text on a phone. The overlap was 20px at 390px and 42px
+                    at 320px, which prints the reference range as "10 mg/d20
+                    mg/dL" and is invisible to an overflow check because the
+                    document never widens. They cannot wrap out of it either:
+                    the mark is a 1px containing block, so dropping
                     `whitespace-nowrap` would break the label after every
                     character.
 
                     So the lower bound's label ends on its mark and the upper
                     bound's label starts on its mark. Each still points at the
-                    position it names — the tick anchoring is untouched, which
+                    position it names. The tick anchoring is untouched, which
                     matters because these marks sit at computed positions inside
-                    the track and are not its ends — and the low label occupies
-                    only the space before its mark while the high label occupies
-                    only the space after its, so at any type size there is a
-                    whole band between them. `end-1/2` and `start-1/2` are
+                    the track and are not its ends. The low label occupies only
+                    the space before its mark while the high label occupies only
+                    the space after its, so at any type size there is a whole
+                    band between them. `end-1/2` and `start-1/2` are
                     logical properties and flip on their own in a
                     right-to-left locale, which is why the translate pair the
                     centring needed is gone rather than mirrored.
@@ -842,7 +848,7 @@ export function RangeBar({
             ))}
 
             {/* The tick is the only part of the RAIL that may carry status
-                colour — the band, the track and the boundary marks stay
+                colour. The band, the track and the boundary marks stay
                 neutral, so the one coloured thing on the bar is the reader's
                 own reading. The status word above it carries the same level in
                 `-ink`, which is the point: the colour is redundant to a word

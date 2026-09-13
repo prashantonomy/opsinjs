@@ -14,8 +14,8 @@ import { ToolNav } from "./tool-nav"
  */
 export const metadata: Metadata = {
   title: {
-    template: `%s — ${site.name}`,
-    default: `Playground — ${site.name}`,
+    template: `%s · ${site.name}`,
+    default: `Playground · ${site.name}`,
   },
 }
 
@@ -25,11 +25,12 @@ export const metadata: Metadata = {
  * A NESTED layout: `<html>`, `<body>` and the theme provider belong to
  * `app/(chrome)/layout.tsx`.
  *
- * It keeps the site's top navigation — a tool that strands you is a tool people
- * stop opening — and adds a second strip for moving between the three. Below
- * that it is full-bleed: no prose column, no sidebar, no table of contents.
- * These pages are instruments, and an instrument constrained to a 65-character
- * measure is an instrument you cannot see the readout of.
+ * A tool that strands you is a tool people stop opening, which is why this
+ * layout keeps the site's top navigation and adds a second strip for moving
+ * between the three. Below that it is full-bleed: no prose column, no
+ * sidebar, no table of contents. These pages are instruments, and an
+ * instrument constrained to a 65-character measure is an instrument you
+ * cannot see the readout of.
  *
  * WHY THREE TOOLS AND NOT SIX. The original plan had six. Three shipped, because
  * a navigation item pointing at a half-finished tool costs more credibility than
