@@ -3,6 +3,7 @@
 import { useEffect, useId, useState, type ReactNode } from "react"
 
 import contrast from "@/lib/generated/contrast.json"
+import { getEntry } from "@/lib/catalogue"
 import { apiRoutes } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import { NoDataYet } from "./stub"
@@ -14,8 +15,13 @@ import { NoDataYet } from "./stub"
    Three of these four report numbers, and the rule for all three is the same:
    opsinjs does not print a contrast figure a human typed. `pnpm contrast` runs
    the hand-written APCA-W3 and WCAG 2.2 implementations in lib/color/ over
-   every token pair in both themes, writes lib/generated/contrast.json, and CI
-   fails on a regression. Until that has run, these components say so.
+   every token pair in both themes and writes lib/generated/contrast.json. The
+   gate that fails when a published figure becomes untrue is `contrast:verify`,
+   and it runs in the nightly workflow, not the pull-request check in ci.yml.
+   The pull-request check proves only that the committed file matches a fresh
+   run, so it catches a hand-edit or a stale commit, not a token that has
+   drifted below its floor. Until the measurement has run, these components say
+   so.
 
    <ContrastReport> READS THAT FILE. It used to render only what an MDX author
    passed as a `pairs` prop, which no page has ever done, so every call site
@@ -23,7 +29,10 @@ import { NoDataYet } from "./stub"
    and full. The `pairs` prop is still honoured first, because that is how a
    page shows a subset the generator does not group. The default is nevertheless
    the measurement. The file groups pairs by TOKEN SCOPE, not by component, so a
-   component-scoped report still has nothing to show and still says so.
+   component-scoped report resolves through the catalogue: each component's row
+   declares the scopes it draws colour from in `contrastScopes`, and the report
+   shows every measured pair under those scopes. That is the token pairs the
+   component uses, not a measurement of the component itself.
 
    <ContrastOracle> is the exception and it is not really one. It is a tool, not
    a report: the reader types two colours and gets an answer about THOSE, which
@@ -94,18 +103,50 @@ const MEASURED: (ContrastPair & { scope: string })[] = contrast.pairs.map(
 const MEASURED_SCOPES: string[] = contrast.scopes
 
 /**
+ * The published run summary, widened so the two fields that
+ * finding product-theme-and-tokens-15 added to `check-contrast.mts` can be read
+ * before the generator has run again. `passing`, `failing` and `advisory` are a
+ * true partition of the measured pairs. `advisoryFailing` is the advisory pairs
+ * that sit below their floor, and `subFloor` is the non-text part of that (the
+ * accents and hairlines a reader still has to tell from their ground),
+ * with the genuinely exempt fills and rings removed. They are read as optional
+ * because a committed file written before that change carries neither, and a
+ * "0 failing" figure must never be shown without the sub-floor count beside it.
+ */
+const SUMMARY = contrast.summary as {
+  total: number
+  passing: number
+  failing: number
+  advisory: number
+  advisoryFailing?: number
+  subFloor?: number
+}
+
+/**
  * Which measured rows this call site is asking for.
  *
  * `all` is resolved here rather than in the data because it is a question about
- * the report, not a group the generator emits. Everything else must match a
- * scope name verbatim: guessing that `color` means "the colour scopes" would be
- * this file inventing a grouping and publishing it as a measurement.
+ * the report, not a group the generator emits. A `scope` must match a scope
+ * name verbatim: guessing that `color` means "the colour scopes" would be this
+ * file inventing a grouping and publishing it as a measurement.
+ *
+ * A `component` resolves through the catalogue. The component's author declares
+ * which measured token scopes it draws colour from in `contrastScopes` on its
+ * `registry/catalogue.ts` row, and this returns every measured row under those
+ * scopes. The grouping is therefore authored data, not a guess made here. The
+ * limit is worth stating plainly: these are the token pairs the component draws
+ * from, not a measurement of the component itself. An id that is unknown or
+ * declares no scopes returns nothing.
  */
 function measuredPairs(
   scope: string | undefined,
   component: string | undefined
 ): ContrastPair[] {
-  if (component) return []
+  if (component) {
+    const scopes = getEntry(component)?.contrastScopes
+    if (!scopes || scopes.length === 0) return []
+    return MEASURED.filter((row) => scopes.includes(row.scope))
+  }
   if (!scope) return []
   if (scope === "all") return MEASURED
   return MEASURED.filter((row) => row.scope === scope)
@@ -129,7 +170,83 @@ export function ContrastReport({
 }: ContrastReportProps) {
   const rows = pairs?.length ? pairs : measuredPairs(scope, component)
 
+  // Rows resolved from a component id are the token pairs the component draws
+  // colour from, and not a measurement of the component, so that table carries
+  // a caption saying so. A `pairs` prop or a `scope` call does not.
+  const fromComponent = !pairs?.length && Boolean(component)
+
+  // The run summary is a fact about the whole measured set, so it is shown only
+  // when this call renders that whole set (scope="all"). That is the two
+  // scope="all" call sites, the conformance page and the token reference. Over a
+  // scope- or component-filtered table the global
+  // counts would not match the rows below. It exists to answer finding
+  // product-theme-and-tokens-15: the partition's `failing` count excludes the
+  // advisory accents and hairlines that sit below the non-text floor, so a bare
+  // "0 failing" reads as a clean sheet. The summary shows the sub-floor count in
+  // the same breath, and names where the regression gate actually runs.
+  const showSummary = !pairs?.length && scope === "all"
+
   if (!rows.length) {
+    // A component-scoped call with the file generated but no rows is one of
+    // three authoring gaps, and the reader has to be told which of them it is:
+    // the id is in no catalogue row at all, the row declares no
+    // `contrastScopes`, or the declared scopes name nothing the generator
+    // measured. None of the three is closed by running the contrast generator,
+    // which is keyed by token scope, emits no component rows, and emits no
+    // scope a catalogue row has invented. So each states its actual cause
+    // rather than reaching for <NoDataYet>, which promises a script run that
+    // would fill the table. This departs from D13, which keeps <NoDataYet> for
+    // the genuinely-no-scopes case, and the departure is recorded in the
+    // subtask state file. Every branch points at the scope tables that hold
+    // the real measurements instead.
+    if (component && MEASURED.length > 0) {
+      const entry = getEntry(component)
+      const scopes = entry?.contrastScopes
+      return (
+        <div
+          role="note"
+          className={cn(
+            "not-prose my-4 border border-dashed border-border px-4 py-3 text-sm text-muted-foreground",
+            className
+          )}
+        >
+          <p className="m-0">
+            {!entry ? (
+              <>
+                The contrast report is scoped to{" "}
+                <code className="text-xs">{component}</code>, which resolves to
+                no row in{" "}
+                <code className="text-xs">registry/catalogue.ts</code>. The id
+                is not one the catalogue carries, so it may be a typo or a
+                renamed component. The measured pairs live under the scope
+                tables on the Foundations pages.
+              </>
+            ) : !scopes || scopes.length === 0 ? (
+              <>
+                The contrast report for{" "}
+                <code className="text-xs">{component}</code> is composed from
+                the measured token scopes it draws colour from, and this id
+                declares none on its{" "}
+                <code className="text-xs">registry/catalogue.ts</code> row. The
+                measured pairs live under the scope tables on the Foundations
+                pages.
+              </>
+            ) : (
+              <>
+                The contrast report for{" "}
+                <code className="text-xs">{component}</code> declares its scopes
+                on{" "}
+                <code className="text-xs">registry/catalogue.ts</code>, and none
+                of them is among the measured scopes ({MEASURED_SCOPES.join(", ")}
+                ). Either those groups are not ones the generator measures, or a
+                name has drifted from the one it emits. The measured pairs live
+                under the scope tables on the Foundations pages.
+              </>
+            )}
+          </p>
+        </div>
+      )
+    }
     return (
       <NoDataYet
         what={
@@ -148,18 +265,9 @@ export function ContrastReport({
             Every figure here is measured from the token values by{" "}
             <code className="text-xs">scripts/check-contrast.mts</code> into{" "}
             <code className="text-xs">lib/generated/contrast.json</code>, in
-            both themes, and a regression fails the build. Nothing on this site
-            quotes a contrast number that a person typed.
-          </>
-        ) : component ? (
-          <>
-            <code className="text-xs">lib/generated/contrast.json</code> holds{" "}
-            {MEASURED.length} measured pairs and groups them by token scope, not
-            by component: nothing records which of them{" "}
-            <code className="text-xs">{component}</code> puts on screen, so
-            running <code className="text-xs">pnpm run contrast</code> again
-            adds no row here. The scopes it draws from are measured, and their
-            tables are on the Foundations pages.
+            both themes, and the nightly workflow fails when a published figure
+            becomes untrue. Nothing on this site quotes a contrast number that a
+            person typed.
           </>
         ) : scope ? (
           <>
@@ -185,7 +293,46 @@ export function ContrastReport({
   }
 
   return (
-    <div className={cn("not-prose my-4 overflow-x-auto", className)}>
+    <div className={cn("not-prose my-4", className)}>
+      {showSummary ? (
+        <div
+          role="note"
+          className="mb-3 border border-border px-4 py-3 text-sm"
+        >
+          <p className="m-0">
+            <span className="font-medium">{SUMMARY.total}</span> token pairs
+            measured, {SUMMARY.passing} at or above their floor and{" "}
+            {SUMMARY.advisory} advisory.{" "}
+            {typeof SUMMARY.subFloor === "number" ? (
+              <>
+                The partition records {SUMMARY.failing} required pairs below
+                floor, but {SUMMARY.advisoryFailing ?? 0} of the advisory pairs
+                measure below their floor too, and {SUMMARY.subFloor} of those
+                are non-text marks (accents and hairlines) that sit below the
+                non-text floor of APCA Lc 45 and WCAG 3:1. Read the{" "}
+                {SUMMARY.failing} figure with the {SUMMARY.subFloor} beside it.
+              </>
+            ) : (
+              <>
+                The sub-floor count that separates a clean sheet from a set with
+                advisory accents below floor is written by{" "}
+                <code className="text-xs">scripts/check-contrast.mts</code> and
+                appears here once <code className="text-xs">pnpm run contrast</code>{" "}
+                has run again.
+              </>
+            )}
+          </p>
+          <p className="m-0 mt-2 text-xs text-muted-foreground">
+            The gate that fails when one of these figures becomes untrue is{" "}
+            <code className="text-xs">pnpm run contrast:verify</code>, which runs
+            in the nightly workflow, not the pull-request check in{" "}
+            <code className="text-xs">ci.yml</code>. A green pull request proves
+            the committed numbers match a fresh run, not that every one clears
+            its floor.
+          </p>
+        </div>
+      ) : null}
+      <div className="overflow-x-auto">
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-border text-left">
@@ -225,6 +372,13 @@ export function ContrastReport({
           ))}
         </tbody>
       </table>
+      </div>
+      {fromComponent ? (
+        <p className="mt-2 text-xs text-muted-foreground">
+          These are the measured token pairs this component draws colour from,
+          not a measurement of the component itself.
+        </p>
+      ) : null}
     </div>
   )
 }

@@ -155,6 +155,37 @@ const SCAN_DIRS = [
   join(REGISTRY_DIR, "screens"),
 ]
 
+/**
+ * A11Y016's surface is Tailwind's, not SCAN_DIRS. SCAN_DIRS omits `components/`
+ * and the rest of the app because the lyra chrome and the app shell are allowed
+ * the classes the a11y rules forbid, but an unparsable class candidate breaks
+ * the stylesheet wherever Tailwind reads it, chrome included. Tailwind reads two
+ * things and the scan surface has to cover both. The explicit half is the four
+ * `@source` globs the two stylesheets declare: `app/product.css` lines 25 and 26
+ * pull registry and components as `.ts` and `.tsx`, and `app/globals.css` lines
+ * 51 and 52 pull content as `.md` and `.mdx` and registry again. The implicit
+ * half is larger and was the hole a candidate in `scripts/` once fell through:
+ * neither stylesheet writes `source(none)`, so Tailwind ALSO auto-detects every
+ * non-gitignored file under `apps/www`, which reaches `app/`, `lib/`, `hooks/`
+ * and `scripts/` as well. So the surface is the whole of `apps/www` walked for
+ * the file types Tailwind scans (`.ts`, `.tsx`, `.mts`, `.md`, `.mdx`), and the
+ * exclusions match the ones Tailwind makes: the dotfile trees (`.next`,
+ * `.source`, `.turbo`), `node_modules` and `public`, which `walk` skips. CSS
+ * files are not scanned: a selector such as `[data-slot="x"] > span` is
+ * legitimate and is not a Tailwind candidate.
+ */
+const CANDIDATE_SCAN: { dir: string; predicate: (name: string) => boolean }[] = [
+  {
+    dir: APP_DIR,
+    predicate: (name) =>
+      name.endsWith(".ts") ||
+      name.endsWith(".tsx") ||
+      name.endsWith(".mts") ||
+      name.endsWith(".md") ||
+      name.endsWith(".mdx"),
+  },
+]
+
 /* ------------------------------------------------------------------ *
  * The vocabularies this check is written against                      *
  * ------------------------------------------------------------------ */
@@ -256,7 +287,7 @@ const COLOUR_UTILITIES =
 
 /**
  * The roles declared only in app/globals.css. Under /view the stylesheet is
- * app/product.css, whose `@theme inline` block bridges eleven surface roles and
+ * app/product.css, whose `@theme inline` block bridges the surface, state and primary roles and
  * the two axes and nothing else, so every name here resolves to a colour in the
  * docs and to nothing at all in the product. This is the single most likely
  * defect across twenty-four components, because it looks correct in review: the
@@ -355,7 +386,12 @@ function walk(dir: string, predicate: (name: string) => boolean, out: string[]):
     return
   }
   for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
-    if (entry.name.startsWith(".") || entry.name === "node_modules") continue
+    // Skip exactly what Tailwind ignores when it auto-detects sources: the
+    // dotfile trees (.next, .source, .turbo), node_modules and public. No
+    // SCAN_DIRS tree holds a `public` directory, so this only narrows the
+    // wider CANDIDATE_SCAN walk that A11Y016 runs over the whole app.
+    if (entry.name.startsWith(".") || entry.name === "node_modules" || entry.name === "public")
+      continue
     const full = join(dir, entry.name)
     if (entry.isDirectory()) walk(full, predicate, out)
     else if (predicate(entry.name)) out.push(full)
@@ -1141,7 +1177,7 @@ function checkColourLiterals(file: string, source: string, starts: number[]): vo
         "the value differs between light and dark, between sRGB and P3, and " +
         "between a consumer's theme and this one, and a literal is the same in all " +
         "four. Use a role token - a surface, line, ink or accent on one of the two " +
-        "axes, or one of the eleven bridged surface roles.",
+        "axes, or one of the bridged surface, state and primary roles.",
       lineAt(starts, match.index),
     )
   }
@@ -1173,7 +1209,7 @@ function checkColourLiterals(file: string, source: string, starts: number[]): vo
       file,
       `\`${match[0]}\` is a Tailwind palette colour. It is not an opsinjs token, it ` +
         "carries no meaning on either axis, and it has been measured against " +
-        "nothing. The two axes and the eleven surface roles are the whole palette " +
+        "nothing. The two axes and the bridged surface, state and primary roles are the whole palette " +
         "a component may use.",
       lineAt(starts, match.index),
     )
@@ -1712,13 +1748,13 @@ function checkViewPalette(file: string, source: string, starts: number[]): void 
   const utility = new RegExp(`(?<![\\w-])(${COLOUR_UTILITIES})-(${roles})(?:\\/\\d+)?(?![\\w-])`, "g")
   while ((match = utility.exec(source)) !== null) {
     const role = (match[2] ?? "").split("-")[0] as string
-    const advice = CHROME_ONLY_ADVICE[role] ?? "one of the eleven bridged surface roles"
+    const advice = CHROME_ONLY_ADVICE[role] ?? "one of the bridged surface, state and primary roles"
     fail(
       "A11Y011",
       file,
       `\`${match[0]}\` resolves to nothing under /view. --${match[2]} is declared ` +
         "only in app/globals.css, which is the docs chrome; the product stylesheet " +
-        "is app/product.css and bridges eleven surface roles plus the two axes. " +
+        "is app/product.css and bridges the surface, state and primary roles plus the two axes. " +
         "This is the defect that looks correct in review, because " +
         "<ComponentPreview> renders inline in the docs document. Use " +
         `${advice}.`,
@@ -1798,10 +1834,230 @@ function checkViewPalette(file: string, source: string, starts: number[]): void 
 }
 
 /* ------------------------------------------------------------------ *
+ * A11Y016 - a Tailwind candidate carrying a raw angle bracket         *
+ * ------------------------------------------------------------------ */
+
+/**
+ * A11Y016 - a class candidate whose square brackets hold a raw `<` or `>`.
+ *
+ * Tailwind v4 lifts any bracketed run that reads as a class out of every file
+ * its `@source` globs reach, comments included, and compiles it to a CSS rule.
+ * When that run carries a raw angle bracket the generated selector carries one
+ * too, and Lightning CSS rejects it with "Unexpected token Delim(<)". Both
+ * `app/product.css` and `app/globals.css` then fail to build and every route
+ * returns HTTP 500. This is the P0 that a placeholder class string parked in a
+ * `status-pill.tsx` JSDoc comment once caused.
+ *
+ * Two things set this rule apart from its neighbours and both are deliberate.
+ *
+ * Its surface is Tailwind's, not SCAN_DIRS, which is why it walks CANDIDATE_SCAN
+ * instead. The reasoning that lets SCAN_DIRS skip the chrome does not carry:
+ * an unparsable candidate breaks the stylesheet from anywhere Tailwind reads.
+ *
+ * It reads raw source with comments intact. It must not blank quoted code
+ * inside comments the way A11Y004 to A11Y007 do, because the whole defect was a
+ * candidate sitting inside a JSDoc comment in backticks, and Tailwind's scanner
+ * cannot tell a comment from live code. The next reader will assume the blanking
+ * applies here too, so this note says plainly that it must not.
+ *
+ * The two patterns require the bracketed run to be whitespace-free, which keeps
+ * them off prose and off a TypeScript generic such as `Array<string>`. The
+ * first catches the arbitrary-property shape that broke the build: the property
+ * `color:var(--opsin-status-<level>-ink)` set in square brackets. The second
+ * catches the same hazard in the utility-prefixed arbitrary-value form: a `bg-`
+ * utility taking the bracketed value `var(--x-<level>)`. Both placeholders are
+ * named here outside their brackets on purpose, the way status-pill.tsx spells
+ * the same ink, so this docblock does not become the candidate it describes and
+ * trip its own rule now that scripts/ is on the scan surface.
+ */
+function checkAngleBracketCandidates(): number {
+  const files: string[] = []
+  for (const { dir, predicate } of CANDIDATE_SCAN) walk(dir, predicate, files)
+
+  const arbitraryProperty = /\[[a-zA-Z][a-zA-Z-]*:[^\]\s]*[<>][^\]\s]*\]/g
+  const arbitraryValue = /(?<![\w-])[a-z][\w-]*-\[[^\]\s]*[<>][^\]\s]*\]/g
+
+  for (const file of files) {
+    const label = relative(APP_DIR, file).split(sep).join("/")
+    let source: string
+    try {
+      source = readFileSync(file, "utf8")
+    } catch (error) {
+      fail("A11Y000", label, `could not be read - ${(error as Error).message}`)
+      continue
+    }
+    const starts = lineStarts(source)
+    for (const pattern of [arbitraryProperty, arbitraryValue]) {
+      pattern.lastIndex = 0
+      let match: RegExpExecArray | null
+      while ((match = pattern.exec(source)) !== null) {
+        fail(
+          "A11Y016",
+          label,
+          `The class candidate \`${match[0]}\` carries a raw angle bracket. ` +
+            "Tailwind v4 lifts it as a class candidate, comments included, and compiles " +
+            'it to a CSS rule whose selector holds that bracket, which Lightning CSS ' +
+            'rejects with "Unexpected token Delim(<)": app/product.css and app/globals.css ' +
+            "then both fail to build and every route returns HTTP 500. Spell the example " +
+            "in prose with the placeholder outside the square brackets, the way " +
+            "status-pill.tsx now does, or write a concrete level such as " +
+            "`[color:var(--opsin-status-steady-ink)]`. A generated mirror in " +
+            "registry/__index__.ts or lib/generated/props.ts is not a second defect to " +
+            "fix: the source is inlined verbatim, so repairing it and regenerating clears " +
+            "the copies.",
+          lineAt(starts, match.index),
+        )
+      }
+    }
+  }
+
+  return files.length
+}
+
+/* ------------------------------------------------------------------ *
+ * A11Y017 - four clinical levels, four distinct glyph names           *
+ * ------------------------------------------------------------------ */
+
+/**
+ * A11Y017 - the four clinical status levels must resolve to four different icon
+ * names, both in the CLINICAL_STATUS_META vocabulary and in every component's
+ * own four-level icon map.
+ *
+ * The colour-independence thesis reads word first, then glyph shape, then
+ * colour, because colour is the carrier that collapses. The generated audit
+ * measures the collapse: the CVD rows put steady and attention at Lc 0 in
+ * greyscale and steady and urgent at Lc 0 under tritanopia, so for a
+ * colour-blind reader, a low-vision reader, or anyone reading a photocopy or a
+ * phone in daylight, the level rests entirely on the word and the silhouette. If
+ * two levels share a silhouette the reader is down to the word alone, and on
+ * StatusPill a misread level is a misread verdict about a body. The StatusPill
+ * page said in its Accessibility section that the four shapes are "checked on
+ * every commit" while nothing checked shape distinctness at all: the only
+ * in-code test was a dev-only console.warn comparing each icon to its meta name,
+ * which is a binding check and never compares the four levels to each other, so
+ * setting attention and urgent to the same icon passed every gate. This rule is
+ * that missing check.
+ *
+ * WHAT IT DOES NOT PROVE, and the honest half of the claim. It compares names,
+ * not rendered pixels. Two different lucide names can still draw two similar
+ * silhouettes, so a green A11Y017 says the four levels are four distinct icon
+ * NAMES and not that a person has confirmed four distinct SHAPES at the rendered
+ * size. The shape judgement stays a person's. So the StatusPill page must not
+ * file the "four distinct shapes" line under "checked on every commit": this
+ * rule backs only the name-distinctness half of that line, and the shape half
+ * is argued but not measured. Moving that bullet on the page into the
+ * argued-but-not-measured framing is statuspill-06.b, which owns status-pill.mdx
+ * and has not landed yet, so the page still overstates the promise until it does.
+ *
+ * `unknown` is excluded on purpose. lib/status.ts says it is the absence of an
+ * assertion rather than a fifth clinical status, so it is not one of the four
+ * this rule counts and its `Minus` glyph never competes with them.
+ */
+function checkClinicalIconNames(
+  statusMeta: Record<string, { word: string; icon: string }>,
+  clinicalLevels: string[],
+): void {
+  const levelsByIcon = new Map<string, string[]>()
+  for (const level of clinicalLevels) {
+    const icon = statusMeta[level]?.icon
+    if (typeof icon !== "string" || icon.length === 0) continue
+    levelsByIcon.set(icon, [...(levelsByIcon.get(icon) ?? []), level])
+  }
+  for (const [icon, levels] of levelsByIcon) {
+    if (levels.length < 2) continue
+    fail(
+      "A11Y017",
+      "lib/status.ts",
+      `CLINICAL_STATUS_META gives the levels ${levels.join(" and ")} the same icon ` +
+        `"${icon}". The four clinical levels must be four distinct glyph shapes, because ` +
+        "the measured CVD audit puts steady and attention at Lc 0 in greyscale and steady " +
+        "and urgent at Lc 0 under tritanopia: once hue is gone a reader ranks a level by " +
+        "its word and its silhouette, and two levels sharing a silhouette halves that. " +
+        "Give steady, watch, attention and urgent each its own lucide icon name.",
+    )
+  }
+}
+
+/**
+ * The per-file half of A11Y017. A component names its icons in a
+ * `Record<ClinicalStatus, ...>` literal, because Tailwind and the bundler both
+ * need the names as source rather than as a runtime lookup, and that literal is
+ * where two levels quietly become one glyph. This reads each such map and fails
+ * when two of the four clinical keys carry the same value.
+ *
+ * Only a bare identifier counts as a value here. An icon map's values are
+ * component references such as `Check` or `OctagonAlert`; a tone or ink map's
+ * values are class strings, and two levels are free to share a class, so a
+ * string value is not a collision. Restricting to identifiers is what tells the
+ * icon map apart from the colour maps without parsing TypeScript. A file with no
+ * `Record<ClinicalStatus, ...>` literal is not a finding.
+ */
+function checkStatusIconMaps(
+  label: string,
+  source: string,
+  starts: number[],
+  clinicalLevels: string[],
+): void {
+  const code = withoutComments(source)
+  const opener = /Record<ClinicalStatus\s*,/g
+  const identifier = /^[A-Za-z_$][\w$]*$/
+  let match: RegExpExecArray | null
+  while ((match = opener.exec(code)) !== null) {
+    const eq = code.indexOf("=", match.index)
+    if (eq === -1) continue
+    const open = code.indexOf("{", eq)
+    if (open === -1) continue
+    let depth = 0
+    let end = -1
+    for (let index = open; index < code.length; index += 1) {
+      const char = code[index]
+      if (char === "{") depth += 1
+      else if (char === "}") {
+        depth -= 1
+        if (depth === 0) {
+          end = index
+          break
+        }
+      }
+    }
+    if (end === -1) continue
+    const body = code.slice(open + 1, end)
+
+    const levelsByValue = new Map<string, string[]>()
+    for (const level of clinicalLevels) {
+      const pair = new RegExp(`(?:^|[,{\\s])${level}\\s*:\\s*([^,}\\n]+)`).exec(body)
+      if (!pair) continue
+      const value = (pair[1] ?? "").trim()
+      if (!identifier.test(value)) continue
+      levelsByValue.set(value, [...(levelsByValue.get(value) ?? []), level])
+    }
+    for (const [value, levels] of levelsByValue) {
+      if (levels.length < 2) continue
+      fail(
+        "A11Y017",
+        label,
+        `A Record<ClinicalStatus, ...> map gives the levels ${levels.join(" and ")} the ` +
+          `same value \`${value}\`. Where that map is the four-level icon set, two levels ` +
+          "then draw one glyph shape, which is the CVD failure the four-distinct-shapes rule " +
+          "exists to prevent: with hue gone a reader ranks a level by its word and its " +
+          "silhouette. Give each level its own icon.",
+        lineAt(starts, match.index),
+      )
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ *
  * The static half                                                     *
  * ------------------------------------------------------------------ */
 
 async function staticChecks(): Promise<number> {
+  /* A11Y016 runs first and as its own pass over the whole app, so it covers
+     app/, lib/, hooks/ and scripts/ as well as registry/, components/ and
+     content/ even when registry/ is still empty and the early return below
+     fires. Its file count is added to the total this function reports. */
+  const candidateFiles = checkAngleBracketCandidates()
+
   const files: string[] = []
   for (const dir of SCAN_DIRS) {
     walk(dir, (name) => name.endsWith(".tsx") || name.endsWith(".ts"), files)
@@ -1821,7 +2077,7 @@ async function staticChecks(): Promise<number> {
         "  Exiting 0.",
       ].join("\n"),
     )
-    return 0
+    return candidateFiles
   }
 
   const generated = await importModule("lib/generated/tokens.ts")
@@ -1839,7 +2095,7 @@ async function staticChecks(): Promise<number> {
 
   const statusModule = await importModule("lib/status.ts")
   const statusMeta = statusModule?.CLINICAL_STATUS_META as
-    | Record<string, { word: string }>
+    | Record<string, { word: string; icon: string }>
     | undefined
   if (!statusMeta) {
     fail(
@@ -1858,6 +2114,13 @@ async function staticChecks(): Promise<number> {
   const banned = generatedBanned ?? []
   const statusWords = Object.values(statusMeta ?? {}).map((meta) => meta.word)
   const statusLevels = Object.keys(statusMeta ?? {})
+  /* The four clinical levels, `unknown` set aside: it is the absence of an
+     assertion, not a fifth status, so its glyph never competes with theirs. */
+  const clinicalLevels = statusLevels.filter((level) => level !== "unknown")
+
+  /* A11Y017, half one: the vocabulary. Read the four clinical icon names out of
+     CLINICAL_STATUS_META once and fail if two of them are the same name. */
+  if (statusMeta) checkClinicalIconNames(statusMeta, clinicalLevels)
 
   for (const file of files) {
     const label = relative(APP_DIR, file).split(sep).join("/")
@@ -1869,10 +2132,32 @@ async function staticChecks(): Promise<number> {
       continue
     }
     const starts = lineStarts(source)
-    const elements = jsxElements(source)
+    /* jsxElements and styleCallBodies tokenise an opening tag and a cn()/cva()
+       call body as raw text, and both read a `'` as a string delimiter. This
+       repository's components carry long explanatory comments inside opening
+       tags, and English prose has apostrophes ("the theme's own ink", "the
+       reader's own text size"): one of them opens a string that never closes, so
+       the scanner runs past the tag's real `>` and swallows a neighbour. That
+       both invents an A11Y008 on an element carrying neither axis and hides a
+       real one by folding it into a sibling's span. Blanking comments first is
+       what stops it: a block comment inside an opening tag and a braced JSX
+       comment between elements then contribute no delimiter, because they
+       contribute nothing. Comments are stripped before tag boundaries are found,
+       so a comment holding a stray `<` or a stray closing bracket cannot move one
+       either. withoutComments preserves every offset and newline, so the line
+       numbers below are still the file's own, and a comment naming `data-status`
+       or a status class no longer lands it on an element that a comment cannot
+       stamp. A11Y016 is the deliberate exception and is untouched: it reads its
+       own raw source elsewhere because the defect it hunts lives inside a comment
+       Tailwind's scanner cannot tell from live code. */
+    const scannable = withoutComments(source)
+    const elements = jsxElements(scannable)
 
     if (statusMeta) {
       checkStatusCarriers(label, source, starts, elements, statusWords, statusLevels)
+      /* A11Y017, half two: the bindings. Any Record<ClinicalStatus, ...> icon
+         map in this file must give the four levels four distinct glyphs. */
+      checkStatusIconMaps(label, source, starts, clinicalLevels)
     }
     /* A11Y004-007 read the source with quoted code inside comments blanked.
        They are looking for a value a browser will resolve, and a token name or
@@ -1885,7 +2170,7 @@ async function staticChecks(): Promise<number> {
     checkColourLiterals(label, quotedBlanked, starts)
     checkAxisConflict(label, starts, [
       ...elements.map((element) => ({ ...element, noun: "This element" })),
-      ...styleCallBodies(source).map((body) => ({ ...body, noun: "This class list" })),
+      ...styleCallBodies(scannable).map((body) => ({ ...body, noun: "This class list" })),
     ])
     if (generatedBanned) checkBannedWords(label, source, starts, banned)
     checkViewPalette(label, source, starts)
@@ -1893,7 +2178,7 @@ async function staticChecks(): Promise<number> {
     checkUnownedIntervals(label, source, starts)
   }
 
-  return files.length
+  return files.length + candidateFiles
 }
 
 /* ------------------------------------------------------------------ *
@@ -1902,6 +2187,26 @@ async function staticChecks(): Promise<number> {
 
 /** The floor from accessibility/target-size-and-motor, and OPSIN-0015's own. */
 const TARGET_FLOOR = 44
+
+/**
+ * The data-slot values that rely on SC 2.5.8's inline-target exemption: a
+ * control that sits inside running text, whose box cannot reach the 44 CSS pixel
+ * floor without growing the line it is on and overlapping the line above. A slot
+ * here is not failed by A11Y101; its measured box is printed instead, so the
+ * number is reported rather than hidden.
+ *
+ * This is a closed list. An entry names an exemption argued on the component's
+ * own page, so adding a slot is a decision to make there and defend, not a way
+ * to quiet the gate from inside the rig. `term-trigger` is the inline disclosure
+ * trigger that sits inside running text. A11Y104 below asserts that its box does
+ * not grow the line it is on, and that assertion currently FAILS: term.tsx still
+ * grows the hit area with vertical padding, so the box is taller than the line.
+ * term-01.a is the fix that moves the hit area off padding; once it lands A11Y104
+ * passes and this exemption describes a trigger that reads its number without
+ * disturbing the leading. Until then the exemption only stops A11Y101 from
+ * double-reporting the trigger, while A11Y104 holds the real failure open.
+ */
+const INLINE_TARGET_EXEMPT = new Set<string>(["term-trigger"])
 
 /**
  * The multiplier foundations/typography/dynamic-type states as the bar: "every
@@ -1937,6 +2242,20 @@ interface HitAreaReport {
   label: string
   width: number
   height: number
+}
+
+/**
+ * One inline disclosure trigger and the line it sits in. `boxHeight` is the
+ * trigger's own border box; `lineHeight` is the used line-height of its nearest
+ * block-level ancestor, which is the leading every line of that paragraph should
+ * hold. A11Y104 fails when the first grows past the second, because that is the
+ * uneven-pitch defect the term finding describes.
+ */
+interface InlineTriggerReport {
+  slot: string
+  text: string
+  boxHeight: number
+  lineHeight: number
 }
 
 async function loadPlaywright(): Promise<
@@ -1999,7 +2318,7 @@ interface LayoutBrowser {
 
 async function measurePage(
   page: LayoutPage,
-): Promise<{ hits: HitAreaReport[]; overflow: OverflowReport }> {
+): Promise<{ hits: HitAreaReport[]; overflow: OverflowReport; inlineTriggers: InlineTriggerReport[] }> {
   const hits = (await page.evaluate(() => {
     const root = document.querySelector("#opsin-view-root")
     if (!root) return []
@@ -2061,7 +2380,45 @@ async function measurePage(
     }
   })) as OverflowReport
 
-  return { hits, overflow }
+  /* The inline-trigger line-box measurement. For each disclosure trigger inside
+     running text it returns the trigger's own border box and the used
+     line-height of its nearest block-level ancestor, both in CSS pixels. When
+     line-height computes to the keyword `normal` there is no px value to read,
+     so it is approximated as font size times 1.2, which is close enough to catch
+     a control that has grown the line box by a whole extra line and is the only
+     case A11Y104 asserts on. */
+  const inlineTriggers = (await page.evaluate(() => {
+    const root = document.querySelector("#opsin-view-root")
+    if (!root) return []
+    const px = (value: string): number => {
+      const parsed = Number.parseFloat(value)
+      return Number.isFinite(parsed) ? parsed : 0
+    }
+    const lineHeightOf = (element: Element): number => {
+      const style = getComputedStyle(element)
+      if (style.lineHeight.endsWith("px")) return px(style.lineHeight)
+      return px(style.fontSize) * 1.2
+    }
+    const blockAncestor = (element: Element): Element => {
+      let parent = element.parentElement
+      while (parent && parent !== root) {
+        const display = getComputedStyle(parent).display
+        if (display !== "inline" && display !== "inline-block" && display !== "inline-flex") {
+          return parent
+        }
+        parent = parent.parentElement
+      }
+      return element.parentElement ?? element
+    }
+    return [...root.querySelectorAll('[data-slot="term-trigger"]')].map((node) => ({
+      slot: node.getAttribute("data-slot") ?? "",
+      text: (node.textContent ?? "").trim().slice(0, 40),
+      boxHeight: Math.round(node.getBoundingClientRect().height * 100) / 100,
+      lineHeight: Math.round(lineHeightOf(blockAncestor(node)) * 100) / 100,
+    }))
+  })) as InlineTriggerReport[]
+
+  return { hits, overflow, inlineTriggers }
 }
 
 function reportOverflow(url: string, label: string, overflow: OverflowReport): void {
@@ -2203,6 +2560,18 @@ async function layoutChecks(base: string): Promise<void> {
       const first = await measurePage(page)
       for (const hit of first.hits) {
         if (hit.width >= TARGET_FLOOR && hit.height >= TARGET_FLOOR) continue
+        if (INLINE_TARGET_EXEMPT.has(hit.slot)) {
+          /* Reported, not failed. An SC 2.5.8 inline target is below the floor
+             by design; printing its measured box keeps the number visible so a
+             regression that shrinks it further is still noticed by a reader. */
+          console.log(
+            `check-a11y: <${hit.tag} data-slot="${hit.slot}"> measures ` +
+              `${hit.width}x${hit.height}${hit.label ? ` ("${hit.label}")` : ""} at 1x, ` +
+              `below the ${TARGET_FLOOR}x${TARGET_FLOOR} floor and exempt under SC 2.5.8 ` +
+              "as an inline target. Its page names the exemption.",
+          )
+          continue
+        }
         fail(
           "A11Y101",
           url,
@@ -2214,6 +2583,26 @@ async function layoutChecks(base: string): Promise<void> {
             "is disproportionately likely to have a motor or a vision impairment. " +
             "If the hit area is expanded by a pseudo-element this measures the " +
             "visible box and is wrong - say so in the component's page.",
+        )
+      }
+      /* The inline-trigger line-box assertion, at 1x only so a taller root font
+         at 1.3x or 200x does not report the same paragraph twice. An inline
+         control that grows its own line box makes every line of the paragraph
+         holding one taller than its neighbours, which reads as broken layout
+         rather than as a cue. The repair is to move the hit area out of layout
+         with a positioned pseudo-element, not to shrink the control. */
+      for (const trigger of first.inlineTriggers) {
+        if (trigger.boxHeight <= trigger.lineHeight + 0.5) continue
+        fail(
+          "A11Y104",
+          url,
+          `<button data-slot="${trigger.slot}">${trigger.text ? ` ("${trigger.text}")` : ""} ` +
+            `has a ${trigger.boxHeight}px border box inside a ${trigger.lineHeight}px line, ` +
+            "so it has grown the line box and every line of the paragraph that holds " +
+            "one is taller than its neighbours. An inline disclosure trigger must " +
+            "leave the leading alone: grow its hit area with a positioned " +
+            "pseudo-element that sits outside the line box rather than with padding " +
+            "or a minimum height on the control itself.",
         )
       }
       reportOverflow(url, "1x", first.overflow)
