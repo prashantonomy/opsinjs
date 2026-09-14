@@ -7,10 +7,11 @@
     "space": "--opsin-space-{step}",
     "target": "--opsin-target-{name}",
     "gutter": "--opsin-gutter-{mode}",
-    "measure": "--opsin-measure-{name}"
+    "measure": "--opsin-measure-{name}",
+    "graphic": "--opsin-graphic-{name}"
   },
   "rules": [
-    "The scale is a 4px grid. Every gap, pad and inset in the system is one of the steps below; there is no `13px`.",
+    "The scale is a 4px grid. Every fixed gap, pad and inset is one of the `--opsin-space-*` steps below, which density never moves, and there is no `13px` among them. The one exception is Tailwind's density-scaled `--spacing` scale: app/product.css bases it on this grid at the default density and multiplies it by `densities.<name>.scale` under compact, so a scaled pad such as `p-4` is a published step times a published multiplier and leaves the grid on purpose when the reader asks for a denser view.",
     "Generosity is the default. This is a consumer health system read one-handed, often by someone who is anxious, often by someone over 60. Dense is a mode, not the baseline. The docs chrome is dense because it is a reference tool for developers, and the product is not.",
     "44px is a floor, not a target size. A control may be visually smaller than 44px only if its hit area is padded to 44px and it is separated from its neighbours by at least `space-2`.",
     "Never remove padding to make something fit. Reduce the content or change the layout."
@@ -28,7 +29,7 @@
     "2": {
       "px": 8,
       "rem": 0.5,
-      "use": "Gap between tightly related lines; minimum separation between two interactive targets."
+      "use": "Gap between tightly related lines. For the separation between two interactive targets see targets.separation, which is the same number and carries its scope."
     },
     "3": {
       "px": 12,
@@ -85,7 +86,7 @@
     "separation": {
       "px": 8,
       "rem": 0.5,
-      "use": "The minimum gap between two adjacent targets whose visible boxes are smaller than 44px."
+      "use": "The minimum gap between two adjacent targets whose visible boxes are smaller than 44px. It is a floor for undersized targets only. Two targets that both meet the 44px minimum are outside its scope, and separating those is governed by the differing cost of a mis-tap between them rather than by a fixed gap."
     },
     "$comment": "WCAG 2.2 SC 2.5.8 (Target Size, Minimum) is the checkable requirement and is 24 by 24 CSS pixels with an exception for spacing. Every number above meets it with room; the published conformance figure is measured, not asserted, by the accessibility pillar."
   },
@@ -100,7 +101,7 @@
       "scale": 0.875,
       "targetToken": "minimum",
       "use": "Dense lists, such as a log of forty readings or a table on a wide screen. Never applied to a screen's primary value.",
-      "note": "The scale multiplies padding and gaps only. It never multiplies type sizes and never reduces a touch target below the 44px floor."
+      "note": "The scale multiplies padding and gaps only. It never multiplies type sizes and never reduces a touch target below the 44px floor. app/product.css applies it through the `--opsin-density-scale` custom property on `[data-density=\"compact\"]`, so a scaled pad such as `p-4` leaves the 4px grid on purpose; the grid guarantee covers the fixed `--opsin-space-*` steps only."
     }
   },
   "gutters": {
@@ -133,6 +134,14 @@
       "use": "The maximum line length for prose anywhere in the product, including a disclaimer nobody wants to read."
     },
     "wide": { "ch": 80, "use": "Code and machine output only." }
+  },
+  "graphic": {
+    "$comment": "The width of a picture that illustrates a reading, such as the ScoreDial arc, capped so the graphic cannot grow past the column of words it shares. It is authored in rem so the cap grows with the reader's root font size, which is the reason the arc was written in em in the first place; a px cap would freeze the picture while the words beside it doubled. This is not a type size, which lives in type.json, and not a hit area, which is targets, and not a line length, since measure is in ch and an arc has no line.",
+    "dial": {
+      "px": 272,
+      "rem": 17,
+      "use": "The maximum width of the ScoreDial arc. This is 16em against the product body of 1.0625rem, which is 17rem and lands on the 4px grid at 68 steps, and it yields to w-full when the column is narrower."
+    }
   },
   "safeArea": {
     "$comment": "The product theme is built for installed web apps and web views, where the browser chrome does not protect the edges. Every screen-level surface pads with env(safe-area-inset-*) added to its gutter, and a fixed bottom action bar adds it to its bottom padding rather than to its height.",

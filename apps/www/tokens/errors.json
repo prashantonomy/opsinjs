@@ -32,7 +32,7 @@
       "code": "OPSIN-0003",
       "severity": "safety",
       "title": "A value was rendered without a unit",
-      "message": "<Value> received `{value}` with no `unit`. A bare number in a health context is ambiguous between unit systems: the same digits are one reading in mmol/L and a very different one in mg/dL, and nothing on the surface tells the reader which was meant. Pass the unit the reading was measured in.",
+      "message": "<Value> received `{value}` with no `unit`. A bare number in a health context is ambiguous between unit systems: the same digits are one reading in mmol/L and a very different one in mg/dL, and nothing on the surface tells the reader which was meant. Pass the unit the reading was measured in. If the number has no unit by design, such as a composite score, pass `unit={null}` to say so; the warning stays for a caller who simply forgot.",
       "docs": "health/unit-systems"
     },
     {

@@ -13,12 +13,15 @@ import {
   Check,
   ChevronDown,
   ChevronRight,
+  Circle,
   CircleDashed,
+  CircleDot,
   CircleQuestionMark,
   CircleSlash,
   Clock,
   CloudOff,
   Copy,
+  Diamond,
   Download,
   Droplet,
   Eye,
@@ -34,7 +37,7 @@ import {
   Minus,
   Moon,
   MoveRight,
-  OctagonAlert,
+  Octagon,
   Pill,
   Plus,
   RefreshCw,
@@ -48,13 +51,13 @@ import {
   Thermometer,
   TrendingDown,
   TrendingUp,
-  TriangleAlert,
   WifiOff,
   Wind,
   X,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { CLINICAL_STATUS_META } from "@/lib/status"
 import { CopyButton } from "@/app/_shared/copy-button"
 
 /**
@@ -91,27 +94,30 @@ const GROUPS: IconGroup[] = [
     id: "status",
     title: "Status",
     description:
-      "One glyph per clinical status level, declared once in lib/status.ts and never chosen per component. The four silhouettes are deliberately unlike each other rather than four variations on a circle, so they stay distinguishable in greyscale, at 16 pixels, and to somebody who cannot separate red from green. An icon never carries status on its own. It always appears with the word.",
+      "One glyph per clinical status level, declared once in lib/status.ts and never chosen per component. What separates the four is the ordinal weight of the silhouette rather than membership of one family: a plain circle, then a circle with a centre, then a diamond, then an octagon, each heavier than the last, so the order of the levels survives greyscale, holds at 16 pixels, and reaches somebody who cannot separate red from green. An icon never carries status on its own. It always appears with the word.",
     icons: [
+      // The status sentences have one source: CLINICAL_STATUS_META in
+      // lib/status.ts. Build each string from the map so a third copy of the
+      // wording cannot drift out of step with the writing page.
       {
-        name: "Check",
-        Icon: Check,
-        use: "Steady. This reading is where it is expected to be.",
+        name: "Circle",
+        Icon: Circle,
+        use: `${CLINICAL_STATUS_META.steady.word}. ${CLINICAL_STATUS_META.steady.sentence}`,
       },
       {
-        name: "Eye",
-        Icon: Eye,
-        use: "Watch. Outside the usual range; keep an eye on it.",
+        name: "CircleDot",
+        Icon: CircleDot,
+        use: `${CLINICAL_STATUS_META.watch.word}. ${CLINICAL_STATUS_META.watch.sentence}`,
       },
       {
-        name: "TriangleAlert",
-        Icon: TriangleAlert,
-        use: "Needs attention. Contact your care team.",
+        name: "Diamond",
+        Icon: Diamond,
+        use: `${CLINICAL_STATUS_META.attention.word}. ${CLINICAL_STATUS_META.attention.sentence}`,
       },
       {
-        name: "OctagonAlert",
-        Icon: OctagonAlert,
-        use: "Urgent. This reading needs help now.",
+        name: "Octagon",
+        Icon: Octagon,
+        use: `${CLINICAL_STATUS_META.urgent.word}. ${CLINICAL_STATUS_META.urgent.sentence}`,
       },
       {
         name: "Minus",

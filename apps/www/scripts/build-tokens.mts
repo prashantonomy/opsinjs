@@ -13,13 +13,16 @@
  *   registry/generated/themes/opsinjs-default.json   a shadcn-spec registry:theme item
  *
  * AND REPLACES NAMED REGIONS IN TWO HAND-WRITTEN FILES
- *   lib/opsinjs.ts                         TWO regions: the OPSIN_ERRORS table
- *                                          warnOnce() reads, and the Unit/UNITS
- *                                          table every rendered measurement reads
+ *   lib/opsinjs.ts                         THREE regions: the OPSIN_ERRORS table
+ *                                          warnOnce() reads, the Unit/UNITS table
+ *                                          every rendered measurement reads, and
+ *                                          the BANNED_WORDS table a component's
+ *                                          copy is checked against
  *   content/docs/handbook/error-codes.mdx  the published table of every code
  *
- * Those regions come from tokens/errors.json and tokens/units.json, which are
- * authored data rather than token sources. The substrate copies are not in
+ * Those regions come from tokens/errors.json, tokens/units.json and the banned
+ * list in tokens/glossary.json, which are authored data rather than token
+ * sources. The substrate copies are not in
  * lib/generated/ on purpose: that directory does not travel with `shadcn add`,
  * and a warning channel - or a spoken unit form - that compiles here and fails
  * in a consumer's project is worse than none.
@@ -146,6 +149,23 @@ const MDX_REGION_END = "{/* opsinjs:errors:end */}"
 const UNITS_REGION_BEGIN = "/* opsinjs:units:begin"
 const UNITS_REGION_END = "/* opsinjs:units:end */"
 const UNITS_PLACEHOLDER_ANCHOR = "The unit table is deliberately NOT here yet"
+
+/**
+ * The banned-word table's own region inside lib/opsinjs.ts, and the reserved
+ * space it grows into the first time this script runs after the anchor lands.
+ *
+ * lib/opsinjs.ts ships the `GeneratedBannedWord` interface and, below it, a
+ * comment block saying the table is deliberately not there yet and reserving the
+ * space for it. That block is the anchor: `installBannedRegion` below replaces it
+ * with an empty pair of markers, once, and every run after that is an ordinary
+ * three-way splice like the error table's. Anchoring on a sentence rather than
+ * appending stops a second copy of the table appearing in a file that already
+ * ships one, and a component that prints a word the doctrine bans outright is
+ * precisely the drift this pipeline exists to prevent.
+ */
+const BANNED_REGION_BEGIN = "/* opsinjs:banned:begin"
+const BANNED_REGION_END = "/* opsinjs:banned:end */"
+const BANNED_PLACEHOLDER_ANCHOR = "The banned-word table is deliberately NOT here yet"
 
 const PREFIX = "--opsin-"
 
@@ -357,6 +377,39 @@ function emitColor(source: JsonObject, out: TokenLeaf[]): void {
         value,
         p3: str(node?.p3),
         description: `Neutral ramp, step ${step}.`,
+      })
+    }
+  }
+
+  /* The chrome roles: the page, the card, the muted fill and its ink, the
+     hairline, the input boundary, the focus ring and the primary action colour.
+     color.json's chrome block names a neutral ladder step where one exists and
+     states an explicit oklch only where none does, so a bare step name is
+     resolved here to that step's srgb string and the emitted token carries a
+     colour rather than a name a consumer would resolve again. Emitting these is
+     what makes the audited page the rendered page. */
+  const chromeRoles = obj(obj(source.chrome)?.roles)
+  if (chromeRoles && neutralSteps) {
+    const resolveChrome = (raw: string | undefined): string | undefined => {
+      if (!raw) return undefined
+      const step = unprefix(raw, "neutral")
+      if (step === raw) return raw
+      return str(obj(neutralSteps[step])?.srgb)
+    }
+    for (const [role, entry] of Object.entries(chromeRoles)) {
+      if (isMetaKey(role)) continue
+      const node = obj(entry)
+      const value = resolveChrome(str(node?.light))
+      if (!value) continue
+      out.push({
+        path: `chrome.roles.${role}`,
+        cssVar: `${PREFIX}chrome-${kebab(role)}`,
+        namespace: "chrome",
+        group: "color",
+        tier: "semantic",
+        value,
+        dark: resolveChrome(str(node?.dark)),
+        description: `Chrome role ${role}, resolved to the ladder step it names.`,
       })
     }
   }
@@ -667,10 +720,12 @@ function emitShape(source: JsonObject, out: TokenLeaf[]): void {
     })
   }
 
+  const ladderRem = new Map<string, number>()
   for (const rung of arr(source.ladder)) {
     const name = str(rung.name)
     const rem = num(rung.rem)
     if (!name || rem === undefined) continue
+    ladderRem.set(name, rem)
     out.push({
       path: `ladder.${name}`,
       cssVar: `${PREFIX}radius-${kebab(unprefix(name, "radius"))}`,
@@ -680,6 +735,35 @@ function emitShape(source: JsonObject, out: TokenLeaf[]): void {
       value: `${rem}rem`,
       description: str(rung.use),
     })
+  }
+
+  // Concentric inner radii. shape.json authors these pairings and rule 3 defines
+  // the formula: an inner radius is its outer ladder step minus the padding that
+  // sits inside it, floored at radius-xs. The gap is expressed as gapSteps
+  // multiples of Tailwind's --spacing so one emitted value stays correct at every
+  // density, because --spacing is redeclared per density in app/product.css. The
+  // outer rem is resolved from the ladder walked above so it cannot drift from the
+  // ladder token, and the floor references var(--opsin-radius-xs) so a product that
+  // re-bases the ladder gets a re-based floor.
+  const concentricity = obj(source.concentricity)
+  if (concentricity) {
+    for (const entry of arr(concentricity.inner)) {
+      const name = str(entry.name)
+      const outer = str(entry.outer)
+      const gapSteps = num(entry.gapSteps)
+      if (!name || !outer || gapSteps === undefined) continue
+      const outerRem = ladderRem.get(outer)
+      if (outerRem === undefined) continue
+      out.push({
+        path: `concentricity.inner.${name}`,
+        cssVar: `${PREFIX}radius-inner-${kebab(unprefix(name, "radius-inner"))}`,
+        namespace: "radius",
+        group: "shape",
+        tier: "semantic",
+        value: `max(calc(${outerRem}rem - ${gapSteps} * var(--spacing)), var(${PREFIX}radius-xs))`,
+        description: str(entry.use),
+      })
+    }
   }
 
   const cornerShape = obj(source.cornerShape)
@@ -794,6 +878,29 @@ function emitSpace(source: JsonObject, out: TokenLeaf[]): void {
       group: "space",
       tier: "semantic",
       value: `${ch}ch`,
+      description: str(node?.use),
+    })
+  }
+
+  // The graphic caps are authored and emitted in rem, never in px, and that is
+  // deliberate. This width bounds a picture that illustrates a reading, such as
+  // the ScoreDial arc, and the arc was written in em so it grows with the
+  // reader's root font size. A px cap would freeze the picture at one size while
+  // the words beside it doubled, which is exactly the drift the em authoring was
+  // meant to avoid, so the token carries the rem through untouched.
+  const graphic = obj(source.graphic) ?? {}
+  for (const [name, entry] of Object.entries(graphic)) {
+    if (isMetaKey(name)) continue
+    const node = obj(entry)
+    const rem = num(node?.rem)
+    if (rem === undefined) continue
+    out.push({
+      path: `graphic.${name}`,
+      cssVar: `${PREFIX}graphic-${kebab(name)}`,
+      namespace: "graphic",
+      group: "space",
+      tier: "semantic",
+      value: `${rem}rem`,
       description: str(node?.use),
     })
   }
@@ -1186,6 +1293,7 @@ interface UnitRow {
   spoken: string
   plural: string
   measures: string
+  joined?: true
   toBase?: ToBase
 }
 
@@ -1331,6 +1439,9 @@ function buildUnits(source: JsonObject | undefined): UnitTable {
     const spoken = str(row.spoken)
     const plural = str(row.plural)
     const measures = str(row.measures)
+    /* Only the literal boolean `true` sets this. A string "true" or a 1 is not
+       an author saying the symbol attaches to the number, so it stays absent. */
+    const joined = row.joined === true ? (true as const) : undefined
 
     for (const key of FORBIDDEN_UNIT_KEYS) {
       if (Object.hasOwn(row, key)) forbidden.push(`${id ?? symbol ?? "a row"} carries \`${key}\``)
@@ -1378,7 +1489,7 @@ function buildUnits(source: JsonObject | undefined): UnitTable {
       toBase = { unit, scale: reduce(scale), offset: reduce(offset), basis }
     }
 
-    units.push({ id, symbol, spoken, plural, measures, toBase })
+    units.push({ id, symbol, spoken, plural, measures, joined, toBase })
   }
 
   if (forbidden.length > 0) {
@@ -2297,6 +2408,96 @@ function installUnitsRegion(file: string, current: string): string {
   )
 }
 
+/**
+ * Grows the reserved space in lib/opsinjs.ts into a pair of banned-word region
+ * markers.
+ *
+ * Runs once, on the first generate after the anchor comment landed, and is a
+ * no-op ever after: the moment the begin marker exists, this returns the file
+ * untouched and `spliceRegion` does the ordinary three-way splice. It works
+ * exactly like `installUnitsRegion`, and it is a separate function only because
+ * the anchor sentence and the markers differ.
+ *
+ * The anchor is the comment block whose first line reads "The banned-word table
+ * is deliberately NOT here yet", which sits below the `GeneratedBannedWord`
+ * interface and above the example data. Anchoring on it keeps the generated
+ * table in that position, without a human hand-editing a file another worker may
+ * be inside, and it leaves the interface alone: the interface ships persistently
+ * outside the region, so this region carries the data and nothing else.
+ *
+ * A missing anchor is fatal for the same reason a missing marker is: silently
+ * recovering would put a second banned-word table in a file that may already
+ * ship one, and a component free to print a barred word is the drift this
+ * pipeline exists to prevent.
+ */
+function installBannedRegion(file: string, current: string): string {
+  if (current.includes(BANNED_REGION_BEGIN)) return current
+
+  const anchor = current.indexOf(BANNED_PLACEHOLDER_ANCHOR)
+  const open = anchor === -1 ? -1 : current.lastIndexOf("/*", anchor)
+  const close = anchor === -1 ? -1 : current.indexOf("*/", anchor)
+  if (anchor === -1 || open === -1 || close === -1) {
+    console.error(
+      [
+        `build-tokens: ${file.replace(APP_DIR, "")} has neither the banned-word region nor the space reserved for it.`,
+        `  Expected either a line beginning ${q(BANNED_REGION_BEGIN)}, or the comment`,
+        `  block whose first line reads ${q(BANNED_PLACEHOLDER_ANCHOR)}.`,
+        "",
+        "  tokens/glossary.json's banned list is emitted into that file because it is",
+        "  one of the two modules `shadcn add` copies into a consumer's project, and a",
+        "  word this pipeline bars here but not there would let an installed component",
+        "  print the one word the doctrine bans outright. Restore either the markers, an",
+        "  empty region between them is fine, this script fills it, or the reserved",
+        "  block, and run `pnpm run generate` again.",
+      ].join("\n"),
+    )
+    process.exit(1)
+  }
+
+  return (
+    current.slice(0, open) +
+    `${BANNED_REGION_BEGIN}. Replaced by scripts/build-tokens.mts from tokens/glossary.json */\n\n${BANNED_REGION_END}` +
+    current.slice(close + 2)
+  )
+}
+
+/**
+ * The banned-word table as TypeScript, for the region inside `lib/opsinjs.ts`.
+ *
+ * Emitted into the file that TRAVELS, for the same reason the error and unit
+ * tables are: `lib/generated/` does not survive `shadcn add`, and a component
+ * installed into somebody else's project still has to know that a word such as
+ * "normal" is one its copy must not use. The reviewable copy, with the authored
+ * policy prose attached, is the `banned` list in lib/generated/glossary.json;
+ * this is the copy a warning channel reads at runtime.
+ *
+ * Only the `BANNED_WORDS` const is emitted here. The `GeneratedBannedWord`
+ * interface it is typed against ships persistently above this region in
+ * lib/opsinjs.ts, so emitting it a second time would declare the name twice.
+ * That is a departure from this subtask's plan, which asked for the interface as
+ * well; wave 1 shipped the interface outside the region, so the code wins and
+ * this emits the rows alone. The rows come from the same `glossary.banned`
+ * object that fills lib/generated/tokens.ts, so the two copies cannot drift.
+ */
+function emitSubstrateBanned(banned: BannedWord[]): string {
+  const rows = banned
+    .map((row) =>
+      [
+        "  {",
+        `    word: ${q(row.word)},`,
+        `    instead: ${q(row.instead)},`,
+        `    reason: ${q(row.reason)},`,
+        "  },",
+      ].join("\n"),
+    )
+    .join("\n")
+
+  return `/** Words a component's copy must not use, with the replacement and the reason. Generated from \`tokens/glossary.json\`. */
+export const BANNED_WORDS: GeneratedBannedWord[] = [
+${rows}
+]`
+}
+
 /** A rational as the two integer fields the emitted table carries. */
 function conversionInts(row: UnitConversionRow): {
   n: number
@@ -2335,6 +2536,7 @@ function emitSubstrateUnits(table: UnitTable): string {
         `    spoken: ${q(unit.spoken)},`,
         `    plural: ${q(unit.plural)},`,
         `    measures: ${q(unit.measures)},`,
+        ...(unit.joined === true ? ["    joined: true,"] : []),
         "  },",
       ].join("\n"),
     )
@@ -2380,6 +2582,11 @@ function emitSubstrateUnits(table: UnitTable): string {
  * default precision. A unit table says what a number is measured in; it never
  * says what a number should be. Decimal places belong to the MEASUREMENT and
  * travel with it from the product - health/numbers-units-precision, rule 2.
+ *
+ * \`joined\` is typography, not a claim about a reading: it records that a symbol
+ * sits against the number with no space, as everyday English writes 98% and
+ * 36.8°C. Which symbols take it is settled by
+ * content/docs/content/grammar-and-mechanics.mdx, not by this table.
  */
 export interface Unit {
   /** Stable key. Never the display symbol: \`°C\` is \`celsius\`. */
@@ -2392,6 +2599,8 @@ export interface Unit {
   plural: string
   /** What is being measured, dimensionally. Never what a reading should be. */
   measures: string
+  /** Whether the symbol attaches to the number with no space, as in 98% and 36.8°C. Absent means a space. */
+  joined?: true
 }
 
 /** Every unit this system can speak, sorted by id. Generated from \`tokens/units.json\`. */
@@ -2783,16 +2992,19 @@ function main(): void {
     }
   }
 
-  /* The substrate carries TWO generated regions and they are spliced in
-     sequence, errors first, over one read of the file. Reading it twice would
-     splice the second region into a copy that no longer matches what the first
-     splice produced, and the later write would silently drop the earlier one.
+  /* The substrate carries THREE generated regions and they are spliced in
+     sequence, errors first, then units, then banned words, over one read of the
+     file. Reading it twice would splice a later region into a copy that no longer
+     matches what an earlier splice produced, and the later write would silently
+     drop the earlier one. Each splice below therefore reads the output of the one
+     before it, never the file on disk.
 
      The unit region is only touched when there is something to put in it or a
      region already exists. A tree with no tokens/units.json keeps the reserved
      comment block exactly as it is, which is the honest zero state: an empty
      UNITS array claims this system has looked and found no units, and it has
-     not looked. */
+     not looked. The banned region has no such zero state, because tokens/
+     glossary.json ships in every clone, so it is spliced unconditionally. */
   const substrateSource = mustRead(
     OUT_SUBSTRATE,
     "It is the shared substrate every registry item ships; restore it from git.",
@@ -2804,7 +3016,7 @@ function main(): void {
     SUBSTRATE_REGION_END,
     emitSubstrateErrors(errors),
   )
-  const substrate =
+  const withUnits =
     exists(unitsFile) || withErrors.includes(UNITS_REGION_BEGIN)
       ? spliceRegion(
           OUT_SUBSTRATE,
@@ -2814,6 +3026,14 @@ function main(): void {
           emitSubstrateUnits(units),
         )
       : withErrors
+
+  const substrate = spliceRegion(
+    OUT_SUBSTRATE,
+    installBannedRegion(OUT_SUBSTRATE, withUnits),
+    BANNED_REGION_BEGIN,
+    BANNED_REGION_END,
+    emitSubstrateBanned(glossary.banned),
+  )
 
   const outputs = [
     { file: OUT_CSS, contents: emitCss(tokens, hash) },

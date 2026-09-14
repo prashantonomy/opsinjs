@@ -34,6 +34,25 @@
       "use": "The application background. Nothing is behind it, so nothing shows through it."
     },
     {
+      "rung": 0.5,
+      "name": "inset",
+      "question": "Is this a recess carved into a card, not a surface lifted above it?",
+      "blurPx": 0,
+      "saturation": 1,
+      "tint": { "light": "--opsin-neutral-100", "dark": "oklch(0.178 0.006 250)" },
+      "tintAlpha": 1,
+      "border": "none",
+      "shadow": "none",
+      "minScrimOpacity": 0,
+      "opaqueFallback": {
+        "light": "--opsin-neutral-100",
+        "dark": "oklch(0.178 0.006 250)"
+      },
+      "translucent": false,
+      "use": "The recessed well inside a card: the explanatory note a Callout draws inside the reading it annotates, and the track a RangeBar lays its range along. Its fill sits below the card fill in both themes, so the well reads as carved into the card rather than lifted off it. In light it is neutral-100, one step under the white card, which is where a Callout already sat. In dark it is a value between the page and the card, below the card so the well is a recess and above the page so a Callout used on its own is still visible.",
+      "note": "A token-only rung. Its half-step number says it sits between canvas and card without renumbering the six named rungs the ladder documents and Surface exposes. Callout and RangeBar read --opsin-material-inset-tint directly; Surface's rung prop and the MaterialRung union stay at the six elevation rungs, because a recess is not a thing a reader raises a Surface to. The dark tint and opaqueFallback are the one entry in this ladder authored as a raw oklch rather than a --opsin-neutral-* name, because the neutral ramp holds no step between neutral-900 at L 0.205 and neutral-950 at L 0.145, and the recess needs L 0.178, between the dark card fill and the dark page. build-tokens.mts emits this rung as a literal rather than a var() reference, so unlike every other rung it does not follow a re-tune of the neutral ramp: if the ramp is re-tuned, either add a neutral step near L 0.178 and name it here, or re-pick this literal by hand so the recess still sits between the dark card and the dark page."
+    },
+    {
       "rung": 1,
       "name": "card",
       "question": "Is this a distinct piece of content on the page?",
@@ -84,20 +103,21 @@
       "blurPx": 20,
       "saturation": 1.6,
       "tint": { "light": "--opsin-neutral-0", "dark": "--opsin-neutral-900" },
-      "tintAlpha": { "light": 0.82, "dark": 0.78 },
+      "tintAlpha": { "light": 0.93, "dark": 0.90 },
+      "$comment": "minScrimOpacity is published once per rung, but tintAlpha is published per theme, and the component renders each theme at max(tintAlpha, minScrimOpacity). The dark tintAlpha here (0.90) sits below the floor (0.93), so max() returns the floor and the authored dark alpha never renders. A dark tintAlpha may not be set below minScrimOpacity and be expected to take effect. To make a lower dark alpha effective, publish minScrimOpacity per theme, which is a build-tokens change.",
       "border": {
         "light": "oklch(0 0 0 / 0.08)",
         "dark": "oklch(1 0 0 / 0.10)"
       },
       "shadow": "0 -1px 2px oklch(0 0 0 / 0.05)",
-      "minScrimOpacity": 0.82,
+      "minScrimOpacity": 0.93,
       "opaqueFallback": {
         "light": "--opsin-neutral-0",
         "dark": "--opsin-neutral-900"
       },
       "translucent": true,
-      "use": "A bottom sheet or side panel the reader can dismiss by dragging. The blur keeps enough of the page visible that the reader knows where they will return to.",
-      "note": "Saturation is boosted above 1 because a large blur desaturates whatever is behind it; without the boost the sheet looks grey rather than translucent."
+      "use": "A bottom sheet or side panel the reader can dismiss by dragging. Its tint is now near opaque, so the panel lands close to the card colour and a white control inside it no longer floats above a greyer surface. What keeps the covered page recognisable is the scrim around the panel rather than the page reading through the panel, because at this opacity very little of the page shows through the tint.",
+      "note": "The rung stays translucent rather than becoming a fourth opaque rung for two reasons. prefers-reduced-transparency and print still swap it to its opaque fallback, so it needs one declared. And the thin translucency it keeps still carries the saturation boost. The dark tint is a declared 0.90 that the published floor raises to 0.93, the same floor the light tint already meets, so both themes render the panel at roughly the same opacity. Saturation is boosted above 1 because a large blur desaturates whatever is behind it, and without the boost the sheet looks grey rather than translucent."
     },
     {
       "rung": 4,
@@ -107,6 +127,7 @@
       "saturation": 1.8,
       "tint": { "light": "--opsin-neutral-0", "dark": "--opsin-neutral-900" },
       "tintAlpha": { "light": 0.74, "dark": 0.7 },
+      "$comment": "minScrimOpacity is published once per rung, but tintAlpha is published per theme, and the component renders each theme at max(tintAlpha, minScrimOpacity). The dark tintAlpha here (0.7) sits below the floor (0.74), so max() returns the floor and the authored dark alpha never renders. A dark tintAlpha may not be set below minScrimOpacity and be expected to take effect. To make a lower dark alpha effective, publish minScrimOpacity per theme, which is a build-tokens change.",
       "border": {
         "light": "oklch(0 0 0 / 0.10)",
         "dark": "oklch(1 0 0 / 0.12)"
@@ -154,7 +175,11 @@
     "$comment": "This is also the fallback for browsers with no backdrop-filter support, so the query and the @supports fallback emit the same declarations. See /docs/foundations/materials/reduced-transparency."
   },
   "contrastFloor": {
-    "measuredAgainst": "opaqueFallback",
-    "$comment": "The published APCA and WCAG numbers for text on a material are measured against that material's OPAQUE FALLBACK, which is its worst case for text contrast. Measuring against a nice backdrop would let the system publish numbers no reader will ever experience. scripts/check-contrast.mts implements this and lib/generated/contrast.json records it."
+    "measuredAgainst": "worstCaseComposite",
+    "backdrops": {
+      "darkest": "--opsin-neutral-950",
+      "lightest": "--opsin-neutral-0"
+    },
+    "$comment": "The published APCA and WCAG numbers for text on a material are its worst case, and that worst case is produced one way for an opaque rung and another for a translucent one. For an opaque rung the surface the reader sees is the tint itself, so that is what the text is measured against. For a translucent rung the surface the reader sees is the tint composited at its own tintAlpha over whatever is behind it, so the text is measured against the tint composited over both backdrops named above, the darkest and the lightest the product can produce, and the worse of the two figures is published. The opaque fallback is not the worst case for a translucent rung. A light tint over dark scrolling content is at its lightest, and so at its kindest to dark text, exactly when the opaque fallback is the fill, so measuring against the fallback alone would publish the flattering figure rather than the honest one. This is what the overlay rung's note has always demanded. scripts/check-contrast.mts implements the composite and lib/generated/contrast.json records the result. Exactly one contrast floor is published per rung, and none is published for large text. A large-text floor is a separate measurement, not a relaxation that can be assumed from the body floor. Any component prop that selects between a body floor and a large-text floor ships in the same commit as the token that gives it an effect, and never before, so a prop cannot promise a floor these tokens do not yet publish."
   }
 }

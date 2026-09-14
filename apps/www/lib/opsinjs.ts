@@ -46,11 +46,20 @@
  * comments below are therefore published documentation, not notes to the next
  * reader of the source.
  *
- * ONE REGION OF THIS FILE IS GENERATED. The `OPSIN_ERRORS` table between the
- * `opsinjs:errors` markers near the bottom is emitted from `tokens/errors.json`
- * by `scripts/build-tokens.mts`, and `pnpm run generate` replaces it wholesale.
- * Edit the JSON. Everything outside those two markers, including `warnOnce()`
- * itself, is hand-written and is left alone by the generator.
+ * THREE REGIONS OF THIS FILE ARE GENERATED, each between a marker pair that
+ * `scripts/build-tokens.mts` replaces wholesale on `pnpm run generate`. The
+ * `OPSIN_ERRORS` table sits between the `opsinjs:errors` markers near the bottom
+ * and is emitted from `tokens/errors.json`. The unit table sits between the
+ * `opsinjs:units` markers and is emitted from `tokens/units.json`. The
+ * banned-word table sits between the `opsinjs:banned` markers, which do not
+ * exist yet: the reserved comment above the example data is the anchor the
+ * emitter grows into that pair on its first run, splicing rows from
+ * `tokens/glossary.json`. Edit the JSON, never a region.
+ *
+ * Everything outside those three marker pairs is hand-written, `warnOnce()`
+ * included, and the generator leaves it alone. The one thing that is not safe to
+ * fill by hand is that reserved anchor comment: the emitter deletes it and
+ * writes the `opsinjs:banned` region in its place, so leave it where it stands.
  *
  * It is generated INTO this file rather than into `lib/generated/` for the
  * reason the first paragraph gives: `lib/generated/` does not travel with
@@ -92,6 +101,126 @@ export type {
   HealthCategory,
   AxisConflict,
 } from "./status.ts"
+
+/* ------------------------------------------------------------------ *
+ * The words a component's copy may not use                            *
+ * ------------------------------------------------------------------ */
+
+/**
+ * One banned word: the word a component's copy must not use, what to write in
+ * its place, and why the word is barred.
+ *
+ * The shape lives here, in the shipped substrate, rather than in lib/generated,
+ * because a component that reads this list has to compile inside a consumer's
+ * project. build-registry ships exactly two library files, this one and
+ * lib/status.ts, so a list a component imports can live in one of those two and
+ * nowhere else, and lib/generated is a documentation-site artefact that never
+ * leaves this repository.
+ *
+ * The rows themselves are generated rather than typed by hand. The space below
+ * is reserved and not yet filled. Once scripts/build-tokens.mts emits its
+ * banned-word region, the rows will arrive there from tokens/glossary.json, the
+ * single source for the banned list and the plain-language glossary alike, and
+ * `node scripts/build-tokens.mts --check` will then hold the generated copy and
+ * that source in step, failing the build the moment one drifts. Only the shape
+ * is stated here, so the generated region can carry data alone.
+ */
+export interface GeneratedBannedWord {
+  /** The word a component's copy must not use, lower case. */
+  word: string
+  /** What to write in its place. */
+  instead: string
+  /** Why the word is barred, in one sentence a reader could be shown. */
+  reason: string
+}
+
+/* opsinjs:banned:begin. Replaced by scripts/build-tokens.mts from tokens/glossary.json */
+
+/** Words a component's copy must not use, with the replacement and the reason. Generated from `tokens/glossary.json`. */
+export const BANNED_WORDS: GeneratedBannedWord[] = [
+  {
+    word: "abnormal",
+    instead: "outside the usual range",
+    reason: "The counterpart of the same problem, and the version that frightens people.",
+  },
+  {
+    word: "bad",
+    instead: "the specific finding, stated plainly",
+    reason: "Carries a verdict the system is not entitled to give.",
+  },
+  {
+    word: "diagnosis",
+    instead: "say what the reading is and who can interpret it",
+    reason: "opsinjs components never diagnose. Using the word implies they do.",
+  },
+  {
+    word: "don't worry",
+    instead: "state what the reading means and what happens next",
+    reason: "Reassurance the system cannot back up, and it reads as a reason to worry.",
+  },
+  {
+    word: "elevated",
+    instead: "higher than",
+    reason: "Clinical register; means little to a lay reader, and it sounds like a verdict to the readers who do recognise it.",
+  },
+  {
+    word: "failed",
+    instead: "outside the range we expected",
+    reason: "A reading is not a test the reader sat.",
+  },
+  {
+    word: "good",
+    instead: "say the direction - higher, or lower",
+    reason: "Moral framing of something largely outside the reader's control.",
+  },
+  {
+    word: "healthy",
+    instead: "in the usual range",
+    reason: "A verdict on a life, from one number. A reading can sit inside a range while the person is unwell, and outside it while they are fine.",
+  },
+  {
+    word: "just",
+    instead: "delete it",
+    reason: "'Just a bit high' minimises a reading the reader may need to act on.",
+  },
+  {
+    word: "negative",
+    instead: "the test did not find <what it looked for>",
+    reason: "Same collision, in the other direction.",
+  },
+  {
+    word: "normal",
+    instead: "in the usual range, or the expected range for you",
+    reason: "Outside a reference range is not abnormal in the everyday sense of the word, and inside one is not a clean bill of health. 'Normal' also carries a judgement about the person rather than about the reading. This word is banned outright across the system, including in code identifiers.",
+  },
+  {
+    word: "optimal",
+    instead: "in the usual range",
+    reason: "Sets up every future reading as a decline, in the register of a fitness tracker rather than a clinic.",
+  },
+  {
+    word: "perfect",
+    instead: "in the usual range",
+    reason: "Sets up every future reading as a decline.",
+  },
+  {
+    word: "poor",
+    instead: "lower than the range for you",
+    reason: "Judges the person, not the measurement.",
+  },
+  {
+    word: "positive",
+    instead: "the test found <what it found>",
+    reason: "In everyday English 'positive' means good news. In a test result it usually means the opposite, and the collision is dangerous.",
+  },
+  {
+    word: "unhealthy",
+    instead: "higher than the usual range",
+    reason: "The same verdict in the other direction. Say which way the reading sits and against whose range; the replacement wording assumes the common case, so where the reading is low, say 'lower than the usual range'.",
+  },
+]
+
+/* opsinjs:banned:end */
 
 /* ------------------------------------------------------------------ *
  * Example data                                                        *
@@ -193,6 +322,33 @@ export type MaterialRung =
   | "overlay"
   | "scrim"
 
+/**
+ * The state a data surface is in, named once so the surfaces converge on one vocabulary, though no component accepts it yet.
+ *
+ * These are the five states of ../content/docs/foundations/data-states.mdx,
+ * loading, error, empty, partial and stale, plus the resolved case where the
+ * value is real, current and simply rendered. The members are listed with the
+ * five doctrine states first and resolved last; the order a surface actually
+ * moves through them is the resolution order the foundation's flow diagram
+ * fixes, which is error first, then loading, empty, partial, stale and finally
+ * resolved.
+ *
+ * No component accepts this type yet. It exists so that when the data surfaces
+ * do converge on a single state input they converge on one set of names rather
+ * than six, and because lib/opsinjs.ts is the substrate `shadcn add` copies into
+ * a consumer's project, a type declared here already travels with every
+ * installed component and costs nothing at runtime. Turning this alias into a
+ * running state machine, with a prop, a guard and a default, is a larger change
+ * this name does not stand in for.
+ */
+export type DataState =
+  | "loading"
+  | "error"
+  | "empty"
+  | "partial"
+  | "stale"
+  | "resolved"
+
 /* opsinjs:units:begin - replaced by scripts/build-tokens.mts from tokens/units.json */
 
 /**
@@ -206,6 +362,11 @@ export type MaterialRung =
  * default precision. A unit table says what a number is measured in; it never
  * says what a number should be. Decimal places belong to the MEASUREMENT and
  * travel with it from the product - health/numbers-units-precision, rule 2.
+ *
+ * `joined` is typography, not a claim about a reading: it records that a symbol
+ * sits against the number with no space, as everyday English writes 98% and
+ * 36.8°C. Which symbols take it is settled by
+ * content/docs/content/grammar-and-mechanics.mdx, not by this table.
  */
 export interface Unit {
   /** Stable key. Never the display symbol: `°C` is `celsius`. */
@@ -218,6 +379,8 @@ export interface Unit {
   plural: string
   /** What is being measured, dimensionally. Never what a reading should be. */
   measures: string
+  /** Whether the symbol attaches to the number with no space, as in 98% and 36.8°C. Absent means a space. */
+  joined?: true
 }
 
 /** Every unit this system can speak, sorted by id. Generated from `tokens/units.json`. */
@@ -235,6 +398,7 @@ export const UNITS: Unit[] = [
     spoken: "degree Celsius",
     plural: "degrees Celsius",
     measures: "temperature",
+    joined: true,
   },
   {
     id: "centimetre",
@@ -249,6 +413,7 @@ export const UNITS: Unit[] = [
     spoken: "degree Fahrenheit",
     plural: "degrees Fahrenheit",
     measures: "temperature",
+    joined: true,
   },
   {
     id: "foot",
@@ -354,6 +519,7 @@ export const UNITS: Unit[] = [
     spoken: "per cent",
     plural: "per cent",
     measures: "proportion",
+    joined: true,
   },
   {
     id: "pound",
@@ -728,9 +894,9 @@ export const OPSIN_ERRORS: Record<OpsinErrorCode, OpsinError> = {
     code: "OPSIN-0003",
     severity: "safety",
     title: "A value was rendered without a unit",
-    message: "<Value> received `{value}` with no `unit`. A bare number in a health context is ambiguous between unit systems: the same digits are one reading in mmol/L and a very different one in mg/dL, and nothing on the surface tells the reader which was meant. Pass the unit the reading was measured in.",
+    message: "<Value> received `{value}` with no `unit`. A bare number in a health context is ambiguous between unit systems: the same digits are one reading in mmol/L and a very different one in mg/dL, and nothing on the surface tells the reader which was meant. Pass the unit the reading was measured in. If the number has no unit by design, such as a composite score, pass `unit={null}` to say so; the warning stays for a caller who simply forgot.",
     docs: "health/unit-systems",
-    params: ["value"],
+    params: ["value", "null"],
   },
   "OPSIN-0004": {
     code: "OPSIN-0004",

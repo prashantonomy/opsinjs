@@ -47,7 +47,7 @@
       "multiplier": 1,
       "px": 14,
       "rem": 0.875,
-      "use": "The default. Buttons, chips, status pills, cards."
+      "use": "The default. Buttons, chips, cards."
     },
     {
       "name": "radius-lg",
@@ -105,6 +105,20 @@
   },
   "concentricity": {
     "formula": "inner = max(outer - gap, radius-xs)",
-    "$comment": "The single most common shape defect in a health card is a full-width chart or image with the card's own radius applied to it, which reads as a sticker rather than as part of the card. build-tokens.mts emits `--opsin-radius-inner-{name}` for each ladder step at the standard card paddings so the calculation does not have to be done by hand."
+    "inner": [
+      {
+        "name": "radius-inner-card",
+        "outer": "radius-md",
+        "gapSteps": 5,
+        "use": "A box inside a card at the comfortable density (card padding p-5)."
+      },
+      {
+        "name": "radius-inner-card-compact",
+        "outer": "radius-md",
+        "gapSteps": 4,
+        "use": "A box inside a card at the compact density (card padding p-4)."
+      }
+    ],
+    "$comment": "The single most common shape defect in a health card is a full-width chart or image with the card's own radius applied to it, which reads as a sticker rather than as part of the card. The `concentricity.inner` array below is the authored pairing set: each entry names an outer ladder step and the padding that sits inside it. Once callout-03.c teaches `build-tokens.mts` to read this array, one `--opsin-radius-inner-{name}` token is emitted per entry, so a component references the concentric radius through that token rather than recomputing it. Until the token exists, or for a consumer that has not regenerated, apply the value directly, computing it by hand from the two tokens involved as the inline style value `max(calc(var(--opsin-radius-{outer}) - var(--opsin-space-{pad})), var(--opsin-radius-xs))`, which is floored at `--opsin-radius-xs`. Only the two pairings the system actually ships are listed: a box inside a card at the comfortable density and a box inside a card at the compact density. A ladder step nobody pairs with a published padding gets no entry, because a token no component consumes is a token nobody keeps correct."
   }
 }

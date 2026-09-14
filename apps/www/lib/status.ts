@@ -238,28 +238,31 @@ export const CLINICAL_STATUS_META: Record<
     word: "Steady",
     sentence: "This reading is where it is expected to be.",
     assignedBy: "The consuming product, from a reference range it owns.",
-    icon: "Check",
+    icon: "Circle",
     level: 1,
   },
   watch: {
     word: "Watch",
-    sentence: "This reading is outside the usual range. Keep an eye on it.",
+    sentence:
+      "This reading is outside your usual range. On its own that is not unusual, and there is nothing to do before your next reading.",
     assignedBy: "The consuming product, from a reference range it owns.",
-    icon: "Eye",
+    icon: "CircleDot",
     level: 2,
   },
   attention: {
     word: "Needs attention",
-    sentence: "This reading needs to be looked at. Contact your care team.",
+    sentence:
+      "Contact your care team about this reading. It is outside the range they set for you.",
     assignedBy: "The consuming product, from a clinically reviewed threshold.",
-    icon: "TriangleAlert",
+    icon: "Diamond",
     level: 3,
   },
   urgent: {
     word: "Urgent",
-    sentence: "This reading needs help now.",
+    sentence:
+      "Contact your urgent care service now. Tell them this reading and when you took it.",
     assignedBy: "A clinically reviewed threshold with a named clinical owner.",
-    icon: "OctagonAlert",
+    icon: "Octagon",
     level: 4,
   },
   unknown: {

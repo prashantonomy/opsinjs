@@ -95,6 +95,7 @@ shared substrate a copied component carries with it is listed under
 | `apiSymbolPath` | function | `lib/routes.ts` | A generated per-symbol API page. `\<ApiLink\>` resolves here, never to an anchor. |
 | `axisConflict` | function | `lib/status.ts` | THE NEVER-MIX RULE, as a function. |
 | [`AxisConflict`](../api/AxisConflict.mdx) | interface | `lib/status.ts` | - |
+| `BANNED_WORDS` | const | `lib/opsinjs.ts` | Words a component's copy must not use, with the replacement and the reason. Generated from `tokens/glossary.json`. |
 | `baseOptions` | function | `lib/layout.shared.tsx` | THE FROZEN TOP NAV. |
 | `baseStyleQuery` | function | `lib/routes.ts` | The `?base=&style=` query a docs page uses for the same switch. |
 | `builtComponentCount` | function | `lib/registry.ts` | How many distinct components have a real renderable behind them. |
@@ -110,12 +111,13 @@ shared substrate a copied component carries with it is listed under
 | [`ClinicalStatus`](../api/ClinicalStatus.mdx) | type | `lib/status.ts` | What a reading means and what, if anything, to do about it. |
 | [`ClinicalStatusMeta`](../api/ClinicalStatusMeta.mdx) | interface | `lib/status.ts` | - |
 | [`ClinicalStatusOrUnknown`](../api/ClinicalStatusOrUnknown.mdx) | type | `lib/status.ts` | - |
-| `cn` | function | `lib/utils.ts` | - |
+| `cn` | function | `lib/utils.ts` | Join and de-duplicate class names, resolving Tailwind conflicts last-wins. |
 | `COLLAPSE_THRESHOLD` | const | `lib/color/cvd.ts` | The minimum Lc at which two swatches shown side by side are still telling two different colours apart. |
 | [`ColorInput`](../api/ColorInput.mdx) | type | `lib/color/apca.ts` | Anything the contrast functions accept: an sRGB triple, an OKLCH object, or a CSS colour string (`#0b6bcb`, `oklch(0.62 0.17 15)`, `rgb(11 107 203)`). |
 | `COMPONENT_SECTIONS_BY_STATUS` | const | `lib/status.ts` | THE COMPONENT PAGE ANATOMY, status-gated. |
 | `componentPath` | function | `lib/routes.ts` | A component specification page, by catalogue id. |
 | `componentSections` | function | `lib/status.ts` | The sections required for a component page at a given status and category. |
+| `compositeOver` | function | `lib/color/oklch.ts` | Composite a translucent `foreground` at `alpha` over an opaque `backdrop`, source-over, and return the opaque colour a reader actually sees. |
 | `CONTRAST_USE_LABELS` | const | `lib/color/apca.ts` | - |
 | [`ContrastCheck`](../api/ContrastCheck.mdx) | interface | `lib/color/derive.ts` | - |
 | `contrastRatio` | function | `lib/color/wcag.ts` | The contrast ratio, from 1 (identical) to 21 (black on white). |
@@ -127,6 +129,7 @@ shared substrate a copied component carries with it is listed under
 | `CVD_TYPES` | const | `lib/color/cvd.ts` | - |
 | [`CvdCollision`](../api/CvdCollision.mdx) | interface | `lib/color/cvd.ts` | - |
 | [`CvdType`](../api/CvdType.mdx) | type | `lib/color/cvd.ts` | The three dichromacies, plus the achromatic check every specimen must also survive. |
+| [`DataState`](../api/DataState.mdx) | type | `lib/opsinjs.ts` | The state a data surface is in, named once so the surfaces converge on one vocabulary, though no component accepts it yet. |
 | [`DecodeError`](../api/DecodeError.mdx) | type | `lib/preset.ts` | - |
 | `decodePreset` | function | `lib/preset.ts` | Decode a preset code. |
 | [`DecodeResult`](../api/DecodeResult.mdx) | interface | `lib/preset.ts` | - |
@@ -170,6 +173,7 @@ shared substrate a copied component carries with it is listed under
 | [`Gamut`](../api/Gamut.mdx) | type | `lib/color/oklch.ts` | The colour spaces this module can express a colour in. |
 | `GAMUT_EPSILON` | const | `lib/color/oklch.ts` | The tolerance a channel may exceed 0 or 1 by and still count as in gamut. |
 | `GAMUT_VALUES` | const | `lib/preset.ts` | - |
+| [`GeneratedBannedWord`](../api/GeneratedBannedWord.mdx) | interface | `lib/opsinjs.ts` | One banned word: the word a component's copy must not use, what to write in its place, and why the word is barred. |
 | `getAllPages` | function | `lib/source.ts` | Every page in the corpus. The input to the sitemap, llms.txt and the shards. |
 | `getByCategory` | function | `lib/catalogue.ts` | - |
 | `getByStatus` | function | `lib/catalogue.ts` | - |

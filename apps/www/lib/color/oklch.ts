@@ -440,3 +440,40 @@ export function mixOklch(from: Oklch, to: Oklch, amount: number): Oklch {
     h: (((from.h + delta * t) % 360) + 360) % 360,
   }
 }
+
+/**
+ * Composite a translucent `foreground` at `alpha` over an opaque `backdrop`,
+ * source-over, and return the opaque colour a reader actually sees.
+ *
+ * The blend is done in light-linear sRGB, never in gamma-encoded sRGB. Mixing
+ * two gamma-encoded channels directly is the common mistake, and it produces a
+ * figure a browser will not reproduce, because a browser composites in a linear
+ * space. So each channel is decoded to linear, mixed as `fg * alpha + bg * (1 -
+ * alpha)`, and the result is read back to OKLCH. `alpha` is clamped to 0 to 1,
+ * and `backdrop` is treated as opaque, which is what every backdrop this system
+ * composites against is: the darkest and the lightest ground the product can
+ * produce.
+ *
+ * Blur and backdrop-saturation are deliberately NOT modelled here, and that is
+ * not an omission. A blur averages the backdrop rather than lightening or
+ * darkening it, so the extreme backdrop is still the extreme after a blur, and
+ * the contrast floor is about the extreme. A saturation boost changes the hue a
+ * reader sees but not the lightness contrast the floor measures. Modelling
+ * either one would trade a figure a browser reproduces for one it does not.
+ */
+export function compositeOver(
+  foreground: Oklch,
+  backdrop: Oklch,
+  alpha: number
+): Oklch {
+  const a = clamp01(alpha)
+  const fg = oklabToLinearSrgb(oklchToOklab(foreground))
+  const bg = oklabToLinearSrgb(oklchToOklab(backdrop))
+  return oklabToOklch(
+    linearSrgbToOklab({
+      r: fg.r * a + bg.r * (1 - a),
+      g: fg.g * a + bg.g * (1 - a),
+      b: fg.b * a + bg.b * (1 - a),
+    })
+  )
+}

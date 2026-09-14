@@ -12,7 +12,8 @@
     "Motion never carries urgency. An urgent reading is urgent because of its word, its icon and its position, never because it moved faster or pulsed. A pulsing red card is the single most common alarm-fatigue defect in consumer health UI and it is banned outright.",
     "Morph, do not swap. When a value changes, animate the value in place; do not cross-fade one card out and another in. A swap reads as 'a different reading'; a morph reads as 'this reading changed'.",
     "Reduced motion is per token, not a kill switch. Every token below declares its own `reducedMotion` fallback. Removing all motion removes the cue that something changed, which is worse for a reader who is tracking a number over time.",
-    "Nothing that conveys a health value may animate for longer than `duration-deliberate`. A reader waiting to see a number is not being delighted."
+    "Nothing that conveys a health value may animate for longer than `duration-deliberate`. A reader waiting to see a number is not being delighted.",
+    "A looping placeholder has a period, not a ceiling. The skeleton shimmer repeats while a reader waits, so one sweep of it may run longer than `duration-deliberate`; what bounds its total motion is a finite iteration count on its consumer, kept under the five seconds at which WCAG 2.2 SC 2.2.2 engages, and not the transition ceiling."
   ],
   "sampling": {
     "model": "Damped harmonic oscillator, unit displacement, zero initial velocity. x(t) = 1 - e^(-zeta*w0*t) * (cos(wd*t) + (zeta*w0/wd) * sin(wd*t)) for zeta < 1, with w0 = sqrt(k/m), zeta = c / (2*sqrt(k*m)), wd = w0*sqrt(1 - zeta^2); the critically damped and overdamped closed forms are used when zeta >= 1.",
@@ -121,7 +122,12 @@
     },
     "duration-deliberate": {
       "ms": 560,
-      "use": "The ceiling. Used for a first-run reveal or a consent sheet, where the point is that the reader notices. Nothing may exceed it."
+      "use": "The ceiling on a transition a reader is waiting on, such as a first-run reveal or a consent sheet, where the point is that the reader notices. No such transition may exceed it. A looping placeholder period, like the skeleton shimmer, is bounded instead by its iteration count, so a single sweep of it may run longer."
+    },
+    "duration-shimmer": {
+      "ms": 1600,
+      "use": "One sweep of a loading placeholder's sheen. This is a period, the time for the sheen to make one pass across the bar, and not a travel time. At 1600ms the movement reads as calm rather than as urgency, which the first motion rule requires of anything that is not a value the reader controls. Its consumer pairs it with a finite iteration count so the total motion stays under the five seconds at which WCAG 2.2 SC 2.2.2 engages.",
+      "reducedMotion": { "ms": 0 }
     }
   },
   "reducedMotion": {

@@ -6,6 +6,7 @@
     "whyThisExists": "A screen reader handed `mmHg` improvises a pronunciation, and the improvisation is rarely close. 'One twenty over eighty em em aitch gee' is a failure. The spoken form is the whole reason this table exists; the symbol is the part everybody remembers to supply.",
     "spoken": "`spoken` is the wording for exactly one of the thing and `plural` is the wording for every other count, zero included. Both are British English, and that is a stated limit rather than a claim: a localised spoken form is not in this table yet, so a component asked for a non-English locale gets English words beside locale-formatted digits. Naming the gap is the honest state; inventing translations is not.",
     "precision": "THERE IS NO DEFAULT PRECISION IN THIS FILE, and its absence is the point. health/numbers-units-precision is canonical and its rule 2 reads 'Precision is a property of the metric, not of the value'. A unit is not a metric: blood glucose and cholesterol are both reported in mmol/L and do not share a number of decimal places, and a per-unit default would therefore be wrong for one of them on every screen. Decimal places travel with the measurement, from the product, or they are not asserted at all.",
+    "joined": "`joined: true` is a typographic fact about a symbol, not a claim about a reading: it records that the symbol is written hard against the number with no space, so a component omits the no-break space before it and renders `98%` and `36.8°C` rather than `98 %` and `36.8 °C`. Only the degree symbol and the percent sign carry it, which are the closed no-space exceptions named in content/docs/content/grammar-and-mechanics. The spoken form is unaffected.",
     "conversion": "A conversion belongs here only when it is a mathematical fact, which is an exact definition of one unit in terms of another. Every one carries `basis`, which names the definition it comes from. `toBase` is how to reach the family's base unit; the generator composes the full pairwise closure from it, in exact integer arithmetic, in both directions. A unit with no `toBase` converts to nothing, and that renders as an explicit 'we do not have this' rather than a substituted default.",
     "refusal": "`refusedConversions` is the load-bearing half. A pair listed there is one that people expect to be arithmetic and is not, and each row says why. Publishing a factor for one of them would invite somebody to apply the glucose factor to cholesterol. See health/unit-systems, which states the non-goal directly: 'opsinjs ships no factors and no thresholds. Your clinical source owns the factor; the interface owns the labelling.'",
     "lookup": "Units are found by their exact `symbol`, case included. There is no fuzzy matching and no alias list, because a table that guesses which unit somebody meant is a table that will one day guess wrong about a concentration. An unrecognised symbol resolves to nothing, and the component renders the symbol as written rather than guessing at a pronunciation."
@@ -49,6 +50,7 @@
       "spoken": "degree Celsius",
       "plural": "degrees Celsius",
       "measures": "temperature",
+      "joined": true,
       "toBase": { "unit": "celsius", "numerator": 1, "denominator": 1, "basis": "The base unit of this family." }
     },
     {
@@ -57,6 +59,7 @@
       "spoken": "degree Fahrenheit",
       "plural": "degrees Fahrenheit",
       "measures": "temperature",
+      "joined": true,
       "toBase": {
         "unit": "celsius",
         "numerator": 5,
@@ -113,7 +116,8 @@
       "symbol": "%",
       "spoken": "per cent",
       "plural": "per cent",
-      "measures": "proportion"
+      "measures": "proportion",
+      "joined": true
     },
     {
       "id": "step",

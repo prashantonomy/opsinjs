@@ -91,13 +91,13 @@
         "accent": "seed"
       },
       "dark": {
-        "surface": 900,
+        "surface": 950,
         "line": 300,
-        "ink": 100,
+        "ink": 200,
         "accent": 400
       }
     },
-    "$comment": "Steps chosen by measurement, not by eye: across all ten chromatic ramps, ink-on-surface measures Lc 88-90 in light and Lc -90 to -92 in dark, and line-on-surface measures Lc 67-71 in light and Lc -62 to -66 in dark. `accent` in light is the design-direction seed used verbatim; in dark it is step 400, because the seed's lightness is chosen against a white page and reads as a hole on a dark one."
+    "$comment": "Steps chosen by measurement, not by eye: across all ten chromatic ramps, ink-on-surface measures Lc 88-90 in light. In dark, the surface is step 950 rather than step 900, a quieter slab that spends far less of the urgency budget than a saturated step-900 fill, and ink is step 200 rather than step 100, so a category label keeps enough chroma to be told apart by hue instead of collapsing to a near-white with every other label; the measured dark ink-on-surface figure is carried in the generated lib/generated/contrast.json. Line-on-surface measures Lc 67-71 in light; the dark figure tracks the surface step and is carried in the generated lib/generated/contrast.json rather than quoted here. `accent` in light is the design-direction seed used verbatim; in dark it is step 400, because the seed's lightness is chosen against a white page and reads as a hole on a dark one."
   },
   "neutral": {
     "$comment": "A very slightly cool neutral (chroma 0.002-0.009 at hue 250). A perfectly achromatic grey next to any of the chromatic ramps reads as a rendering fault rather than as a colour choice. 0 and 1000 are exact white and black and carry no chroma.",
@@ -179,6 +179,55 @@
         "c": 0,
         "h": 0,
         "srgb": "oklch(0 0 0)"
+      }
+    }
+  },
+  "chrome": {
+    "$comment": "The chrome roles: the page background, the card fill, body ink, the muted fill and its ink, the hairline, the input boundary, the focus ring, and the primary action colour with its ink. Every component renders these. Before this block they lived only as raw oklch values in app/product.css, at grey hues that did not sit on the neutral ladder, so the contrast gate measured a page that was not the page that rendered. Holding them here gives scripts/build-tokens.mts a source of truth and makes the audited page the rendered page. Each role names a ladder step where one exists and states an explicit oklch only where none does. Declared per theme. The honest residual, which this makes visible and does not fix: ring at chroma 0.13 and primary at chroma 0.135 are as chromatic as the category axis, whose labs seed is 0.11, so calling these roles neutral is wrong. That is a design question for a human, not a value to tune here. Values are fixed by DECISIONS.md D5. mutedForeground follows product-theme-and-tokens-02.a; border and input follow product-theme-and-tokens-07.a.",
+    "roles": {
+      "background": {
+        "light": "neutral-50",
+        "dark": "neutral-950"
+      },
+      "foreground": {
+        "light": "neutral-900",
+        "dark": "neutral-100"
+      },
+      "card": {
+        "light": "neutral-0",
+        "dark": "neutral-900"
+      },
+      "cardForeground": {
+        "light": "neutral-900",
+        "dark": "neutral-100"
+      },
+      "muted": {
+        "light": "neutral-100",
+        "dark": "neutral-800"
+      },
+      "mutedForeground": {
+        "light": "neutral-600",
+        "dark": "neutral-300"
+      },
+      "border": {
+        "light": "neutral-500",
+        "dark": "neutral-500"
+      },
+      "input": {
+        "light": "neutral-500",
+        "dark": "neutral-500"
+      },
+      "ring": {
+        "light": "oklch(0.55 0.13 250)",
+        "dark": "oklch(0.68 0.115 250)"
+      },
+      "primary": {
+        "light": "oklch(0.51 0.135 250)",
+        "dark": "oklch(0.72 0.12 250)"
+      },
+      "primaryForeground": {
+        "light": "oklch(0.99 0 0)",
+        "dark": "oklch(0.16 0.01 260)"
       }
     }
   },
@@ -741,17 +790,18 @@
     }
   },
   "status": {
+    "$comment": "The `word`, `sentence`, `assignedBy` and `icon` fields on each level mirror CLINICAL_STATUS_META in lib/status.ts, which is the single source of that copy. Nothing reads them here; this file cannot import the map, so it restates the strings and they must be kept byte for byte in step with lib/status.ts. Colour lives here (seed and steps); the vocabulary lives there.",
     "steady": {
       "level": 1,
       "word": "Steady",
       "sentence": "This reading is where it is expected to be.",
       "assignedBy": "The consuming product, from a reference range it owns.",
-      "icon": "check",
+      "icon": "Circle",
       "seed": {
-        "l": 0.64,
+        "l": 0.62,
         "c": 0.11,
         "h": 178,
-        "srgb": "oklch(0.64 0.11 178)"
+        "srgb": "oklch(0.62 0.11 178)"
       },
       "steps": {
         "50": {
@@ -841,14 +891,16 @@
     "watch": {
       "level": 2,
       "word": "Watch",
-      "sentence": "This reading is outside the usual range. Keep an eye on it.",
+      "sentence": "This reading is outside your usual range. On its own that is not unusual, and there is nothing to do before your next reading.",
       "assignedBy": "The consuming product, from a reference range it owns.",
-      "icon": "eye",
+      "icon": "CircleDot",
       "seed": {
-        "l": 0.78,
-        "c": 0.14,
+        "l": 0.60,
+        "c": 0.123,
         "h": 82,
-        "srgb": "oklch(0.78 0.14 82)"
+        "srgb": "oklch(0.60 0.123 82)",
+        "p3": "oklch(0.60 0.14 82)",
+        "clampedToSrgb": true
       },
       "steps": {
         "50": {
@@ -939,14 +991,14 @@
     "attention": {
       "level": 3,
       "word": "Needs attention",
-      "sentence": "This reading needs to be looked at. Contact your care team.",
+      "sentence": "Contact your care team about this reading. It is outside the range they set for you.",
       "assignedBy": "The consuming product, from a clinically reviewed threshold.",
-      "icon": "alert-triangle",
+      "icon": "Diamond",
       "seed": {
-        "l": 0.66,
+        "l": 0.58,
         "c": 0.15,
         "h": 45,
-        "srgb": "oklch(0.66 0.15 45)"
+        "srgb": "oklch(0.58 0.15 45)"
       },
       "steps": {
         "50": {
@@ -1037,14 +1089,14 @@
     "urgent": {
       "level": 4,
       "word": "Urgent",
-      "sentence": "This reading needs help now.",
-      "assignedBy": "A clinically reviewed threshold, signed off by a named clinical owner.",
-      "icon": "alert-octagon",
+      "sentence": "Contact your urgent care service now. Tell them this reading and when you took it.",
+      "assignedBy": "A clinically reviewed threshold with a named clinical owner.",
+      "icon": "Octagon",
       "seed": {
-        "l": 0.56,
+        "l": 0.52,
         "c": 0.2,
         "h": 27,
-        "srgb": "oklch(0.56 0.2 27)"
+        "srgb": "oklch(0.52 0.2 27)"
       },
       "steps": {
         "50": {
@@ -1241,18 +1293,28 @@
     "$comment": "A MEASURED FINDING, not a claim. lib/color/cvd.ts was run over the four status accents and the six category accents under protanopia, deuteranopia, tritanopia and grayscale, and the pairs below fall below the Lc 15 collapse threshold. As flat fills they become hard or impossible to tell apart. scripts/check-contrast.mts regenerates this audit into lib/generated/contrast.json and <CvdSimulator> renders it. The numbers here are a snapshot for authors, rounded to one decimal place, and they are the exception named under `floor`: the published ones are the generated ones, and nothing gates this copy against them. The snapshot lists only pairs among the four status levels. `unknown` collides with several of them and is deliberately absent, because it is the absence of an assertion rather than a fifth level, and a table that ranked it beside the four would teach the wrong model; the generated audit carries those pairs in full.",
     "method": "Viénot, Brettel and Mollon (1999) dichromacy projection in linear-light sRGB, plus a relative-luminance grayscale. Full severity. An approximation of dichromacy, not a model of any individual reader.",
     "collapseThresholdLc": 15,
-    "finding": "The status axis DOES collapse in pairs. steady and attention become identical under deuteranopia (Lc 0) and under grayscale (Lc 0); steady and urgent become identical under tritanopia (Lc 0). This is not a defect in the palette that a different hue would fix. Four ordered levels cannot be made mutually distinguishable by hue alone for every form of colour vision, because two of the four sit at nearly the same lightness.",
+    "finding": "The status axis collapses in pairs, and it collapses across nearly every simulation now that the four accents are packed into the narrow lightness band the non-text floor leaves on a near-white page. Measured over the current accents with lib/color/cvd.ts: under tritanopia all six pairs fall to Lc 0; under deuteranopia five of the six do; under grayscale both steady and watch, and watch and attention, fall to Lc 0, so a reader ranking bands by weight on a dial or a bar cannot separate those fills. This is not a defect a different hue would fix. Four ordered levels sharing roughly 0.10 of lightness cannot be made mutually distinguishable by fill alone for every form of colour vision, and that lightness band is fixed from above by the rule that each accent must also clear the non-text contrast floor against the page and against its own surface. The lighter spread the report proposed was measured and rejected here because it drops steady and watch back below that floor, which is the failure the re-seed existed to remove. The system answers the collapse the only way it can, by never letting colour carry status alone.",
     "consequence": "It is the reason colour is never the sole carrier of status in this system. Every status level ships colour PLUS an icon PLUS a word, and the icons are chosen to differ in silhouette rather than only in colour. A product that renders a bare coloured dot to mean status has broken the system, and OPSIN-0002 fires on it in development.",
     "statusCollisions": [
       {
         "type": "protanopia",
         "pair": ["steady", "watch"],
-        "lc": 9.8
+        "lc": 10.9
       },
       {
         "type": "protanopia",
-        "pair": ["steady", "attention"],
-        "lc": 12.4
+        "pair": ["watch", "attention"],
+        "lc": 7.7
+      },
+      {
+        "type": "protanopia",
+        "pair": ["attention", "urgent"],
+        "lc": 11
+      },
+      {
+        "type": "deuteranopia",
+        "pair": ["steady", "watch"],
+        "lc": 0
       },
       {
         "type": "deuteranopia",
@@ -1262,17 +1324,32 @@
       {
         "type": "deuteranopia",
         "pair": ["steady", "urgent"],
-        "lc": 8.3
+        "lc": 10.2
+      },
+      {
+        "type": "deuteranopia",
+        "pair": ["watch", "attention"],
+        "lc": 0
+      },
+      {
+        "type": "deuteranopia",
+        "pair": ["watch", "urgent"],
+        "lc": 9
       },
       {
         "type": "deuteranopia",
         "pair": ["attention", "urgent"],
-        "lc": 13.5
+        "lc": 0
+      },
+      {
+        "type": "tritanopia",
+        "pair": ["steady", "watch"],
+        "lc": 0
       },
       {
         "type": "tritanopia",
         "pair": ["steady", "attention"],
-        "lc": 14.2
+        "lc": 0
       },
       {
         "type": "tritanopia",
@@ -1282,22 +1359,42 @@
       {
         "type": "tritanopia",
         "pair": ["watch", "attention"],
-        "lc": 14.5
+        "lc": 0
+      },
+      {
+        "type": "tritanopia",
+        "pair": ["watch", "urgent"],
+        "lc": 0
       },
       {
         "type": "tritanopia",
         "pair": ["attention", "urgent"],
-        "lc": 10
-      },
-      {
-        "type": "grayscale",
-        "pair": ["steady", "attention"],
         "lc": 0
       },
       {
         "type": "grayscale",
+        "pair": ["steady", "watch"],
+        "lc": 0
+      },
+      {
+        "type": "grayscale",
+        "pair": ["steady", "attention"],
+        "lc": 8.8
+      },
+      {
+        "type": "grayscale",
+        "pair": ["watch", "attention"],
+        "lc": 0
+      },
+      {
+        "type": "grayscale",
+        "pair": ["watch", "urgent"],
+        "lc": 12.1
+      },
+      {
+        "type": "grayscale",
         "pair": ["attention", "urgent"],
-        "lc": 14.7
+        "lc": 7.9
       }
     ],
     "categoryNote": "Category accents collapse too, and it matters less: a category is also carried by its label and its icon, and mistaking Sleep for Mind has no clinical consequence. The category audit is still generated and published so that nobody has to take that on trust."

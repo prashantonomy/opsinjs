@@ -9,11 +9,11 @@ import {
 } from "react"
 import {
   Ban,
-  Check,
-  Eye,
+  Circle,
+  CircleDot,
+  Diamond,
   Minus,
-  OctagonAlert,
-  TriangleAlert,
+  Octagon,
 } from "lucide-react"
 
 import {
@@ -86,11 +86,11 @@ function categoryVar(
   return `var(--opsin-category-${category}-${role}, ${fallback})`
 }
 
-const STATUS_ICONS: Record<ClinicalStatusOrUnknown, typeof Check> = {
-  steady: Check,
-  watch: Eye,
-  attention: TriangleAlert,
-  urgent: OctagonAlert,
+const STATUS_ICONS: Record<ClinicalStatusOrUnknown, typeof Circle> = {
+  steady: Circle,
+  watch: CircleDot,
+  attention: Diamond,
+  urgent: Octagon,
   unknown: Minus,
 }
 
