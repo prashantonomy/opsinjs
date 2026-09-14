@@ -1095,6 +1095,43 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: false,
     },
   },
+  "SegmentedControlProps": {
+    "options": {
+      type: "SegmentedControlOption[]",
+      description: "The options, in the order they appear. Two or more: a control offering one option is not a choice, and a control offering none has nothing to render. Each option is a value, a visible label and an optional `disabled` flag.",
+      required: true,
+    },
+    "value": {
+      type: "string",
+      description: "The currently chosen value, matching one option's `value`. This is a controlled component with no internal selection state, so a `value` that matches no option renders the row with nothing chosen, and a development warning names it.",
+      required: true,
+    },
+    "onValueChange": {
+      type: "(value: string) => void",
+      description: "Called with the new value when the reader chooses a different segment. The caller stores it and passes it back as `value`; the control keeps no state of its own.",
+      required: true,
+    },
+    "label": {
+      type: "string",
+      description: "Required. The accessible name for the group, applied as `aria-label` on the radiogroup, so a screen-reader user hears what the row selects before its options. Name the parameter the row sets, \"Chart window\" rather than \"day, week, month\". There is no default, because a guessed name would describe the wrong thing on most screens.",
+      required: true,
+    },
+    "size": {
+      type: "\"sm\" | \"md\"",
+      description: "Visual weight only. `md` sets the label at the headline step; `sm` is narrower and a step quieter. Both clear the target floor, so `sm` is never shorter. Defaults to `md`.",
+      required: false,
+    },
+    "fullWidth": {
+      type: "boolean",
+      description: "Fills the width of its container, with the segments sharing it equally. For a control that spans a card or a toolbar. Defaults to `false`, where the row is only as wide as its options.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root track. Width, margin and place in a layout belong here. A class you pass wins over the track's own where the two conflict, because it is merged last.",
+      required: false,
+    },
+  },
   "SheetContentProps": {
     "children": {
       type: "ReactNode",
@@ -1193,6 +1230,33 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     "className": {
       type: "string",
       description: "Merged onto the root. This is where the size of what is coming goes, and it is expected rather than exceptional: the component knows the vocabulary of shapes and the caller knows the content.",
+      required: false,
+    },
+  },
+  "SourceCitationProps": {
+    "source": {
+      type: "ReactNode",
+      description: "Where this piece of health information came from, in the reader's own plain words: \"from your cuff\", \"estimated by your watch from movement and heart rate\", \"you entered this\". It renders inline content rather than a block element. THERE IS NO DEFAULT AND THERE WILL NOT BE ONE. Provenance shipped from a design system attributes a reading to an instrument the product may not own, and it arrives looking checked because it came from a library. Supply none and the citation says on screen that none was supplied, rather than inventing a source. `false` from a `&&` branch, `0` from the same branch on an empty collection, an empty array and a whitespace-only string all count as supplying none. The boundary is words: a caller who wraps the provenance in an element is taken at their word, so an empty string inside a `<strong>` is the one route to a silently sourceless citation. TYPED OPTIONAL AND REQUIRED BY THE CONTRACT, which is the same shape `DisclaimerNote.children` has. Marking it required buys nothing, because `{reading.source}` with an undefined `reading.source` type-checks either way. It costs the ability to render the missing state at all, which is the state a product is most likely to ship by accident and the one that most needs seeing.",
+      required: false,
+    },
+    "more": {
+      type: "{ label: string; href: string }",
+      description: "The fuller citation, for readers who want it: a manufacturer's accuracy document, a reference range's own source, a study you have read. This is where rule 6 of data provenance lands. A manufacturer's accuracy claim is attributed and linked here rather than restated as the product's own, and it is never paraphrased into a stronger claim. BOTH HALVES TOGETHER, and that is why this is one object rather than a bare href. A destination with no label would need a label written here, and the label this system would have to invent is exactly the one the requirement refuses: \"learn more\" names nothing, and a screen reader's list of links is where that costs somebody the citation they were looking for. The product names its own destination in its own words. `more` mirrors `DisclaimerNote.more` for that reason.",
+      required: false,
+    },
+    "checkedOn": {
+      type: "string | number",
+      description: "When this provenance was last checked, as a calendar date. A string is a strict `YYYY-MM-DD`; a number is epoch milliseconds. It renders as a plain date in the reader's locale, pinned to UTC so the day does not drift, inside a `<time>` element that carries the machine date. There is no live timer and no clock read: a date not supplied is a date not shown, and a value that is not a real calendar date is refused rather than rendered as a plausible wrong one. It is not a freshness verdict. This component holds no staleness boundary and says nothing about whether the source can still be relied on; it reports the date the product recorded and no more. Deciding a source is out of date belongs to the product.",
+      required: false,
+    },
+    "locale": {
+      type: "string",
+      description: "BCP 47 language tag for the last-checked date, as in `en-GB`. It formats the date and nothing else, because the source words and the link label are the product's own text in the product's own language and this component neither writes nor translates them. Omit it and the date takes the runtime's default locale, which on a server is the server's language rather than the reader's. A malformed tag is reported in development and falls back to that default.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. Width, margin and place in a layout belong here: they are decisions of the surface the citation stands on rather than of the citation. It is also the one hole in this component's refusal to carry a colour, and the component says so rather than pretending otherwise: a utility from either axis passed through here reaches the root, and in development it raises a warning naming what to use instead.",
       required: false,
     },
   },
@@ -1414,10 +1478,12 @@ export const PROPS_SOURCES: Record<string, string> = {
   "RelativeTimeProps": "registry/bases/base/relative-time.tsx",
   "ResultCardProps": "registry/bases/base/result-card.tsx",
   "ScoreDialProps": "registry/bases/base/score-dial.tsx",
+  "SegmentedControlProps": "registry/bases/base/segmented-control.tsx",
   "SheetContentProps": "registry/bases/base/sheet.tsx",
   "SheetDescriptionProps": "registry/bases/base/sheet.tsx",
   "SheetProps": "registry/bases/base/sheet.tsx",
   "SkeletonProps": "registry/bases/base/skeleton.tsx",
+  "SourceCitationProps": "registry/bases/base/source-citation.tsx",
   "StatusPillProps": "registry/bases/base/status-pill.tsx",
   "SurfaceProps": "registry/bases/base/surface.tsx",
   "TermGlossaryProviderProps": "registry/bases/base/term.tsx",
@@ -1427,6 +1493,6 @@ export const PROPS_SOURCES: Record<string, string> = {
 }
 
 export const PROPS_META: { interfaces: number; props: number } = {
-  interfaces: 32,
-  props: 254,
+  interfaces: 34,
+  props: 266,
 }

@@ -1,11 +1,11 @@
 {
   "$comment": "GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts, projected through lib/catalogue.ts. Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`. Consumed by the /r routes, the llms shards and the generated catalogue reference page. It exists as JSON rather than being imported from the TypeScript because the route handlers, the llms shards and any external tool all need the same rows without loading the app's module graph. `generatedAt` carries the source hash rather than a build time, because this file is guarded by a byte-for-byte drift gate.",
-  "generatedAt": "42b23fdcd7ae",
-  "sourceHash": "42b23fdcd7ae",
+  "generatedAt": "c922721d46e3",
+  "sourceHash": "c922721d46e3",
   "counts": {
-    "shipped": 25,
-    "considered": 35,
-    "implemented": 25
+    "shipped": 27,
+    "considered": 33,
+    "implemented": 27
   },
   "categories": [
     {
@@ -76,7 +76,7 @@
       "description": "One test result, showing the number, what it is compared against, and what it means.",
       "type": "registry:ui",
       "category": "health-data-display",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "results",
@@ -103,7 +103,7 @@
       "description": "A bar showing where one reading sits against the range it is compared with.",
       "type": "registry:ui",
       "category": "health-data-display",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "reference range",
@@ -128,7 +128,7 @@
       "description": "A single composite number drawn as a ring, with the words that say what it counts.",
       "type": "registry:ui",
       "category": "health-data-display",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "dial",
@@ -154,7 +154,7 @@
       "description": "A small chart of one reading over time, with an honest caption saying what changed.",
       "type": "registry:ui",
       "category": "health-data-display",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "sparkline",
@@ -178,7 +178,7 @@
       "description": "A compact tile showing one reading, its unit and when it was taken.",
       "type": "registry:ui",
       "category": "health-data-display",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "stat",
@@ -208,7 +208,7 @@
       "description": "A short label saying what a reading means and what, if anything, to do about it.",
       "type": "registry:ui",
       "category": "health-data-display",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "chip",
@@ -229,7 +229,7 @@
       "description": "A prominent message about something that needs the reader's attention now.",
       "type": "registry:ui",
       "category": "health-communication",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "warning banner",
@@ -255,7 +255,7 @@
       "description": "A card saying what to do next, and how urgently.",
       "type": "registry:ui",
       "category": "health-communication",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "what to do next",
@@ -281,7 +281,7 @@
       "description": "A clinical word with its everyday meaning attached, so a sentence can be read without leaving it.",
       "type": "registry:ui",
       "category": "health-communication",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "glossary term",
@@ -300,7 +300,7 @@
       "description": "A sheet that asks permission for one specific thing, and records the answer.",
       "type": "registry:ui",
       "category": "health-communication",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "consent",
@@ -325,7 +325,7 @@
       "description": "The standing note about what this information is and is not.",
       "type": "registry:ui",
       "category": "health-communication",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "disclaimer",
@@ -344,12 +344,31 @@
       ]
     },
     {
+      "name": "source-citation",
+      "title": "SourceCitation",
+      "description": "Where a piece of health information came from, and when it was last checked.",
+      "type": "registry:ui",
+      "category": "health-communication",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "citation",
+        "evidence link",
+        "reviewed by"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/source-citation",
+      "registryDependencies": [
+        "link"
+      ]
+    },
+    {
       "name": "log-sheet",
       "title": "LogSheet",
       "description": "A form for writing down what happened today, in as few taps as possible.",
       "type": "registry:ui",
       "category": "health-input",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "log",
@@ -374,7 +393,7 @@
       "description": "An input for typing in a measurement, with the unit shown and switchable beside the number.",
       "type": "registry:ui",
       "category": "health-input",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "enter a reading",
@@ -399,7 +418,7 @@
       "description": "One number and its unit, formatted the same way everywhere in the product.",
       "type": "registry:ui",
       "category": "health-formatting",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "number",
@@ -419,7 +438,7 @@
       "description": "When a reading was taken, said the way a person would say it.",
       "type": "registry:ui",
       "category": "health-formatting",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "time ago",
@@ -439,7 +458,7 @@
       "description": "The base panel every other surface is built from, at one of six material rungs.",
       "type": "registry:ui",
       "category": "surfaces",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "material",
@@ -459,7 +478,7 @@
       "description": "A bounded block of related content.",
       "type": "registry:ui",
       "category": "surfaces",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "panel",
@@ -483,7 +502,7 @@
       "description": "A panel that slides over the screen and can be dismissed by dragging.",
       "type": "registry:ui",
       "category": "surfaces",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "bottom sheet",
@@ -510,7 +529,7 @@
       "description": "A window that interrupts, for the one decision that cannot wait.",
       "type": "registry:ui",
       "category": "surfaces",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "modal",
@@ -535,7 +554,7 @@
       "description": "A short piece of set-apart information that helps you understand what you are reading without claiming anything about your health, whether it is a note, a tip or a caveat.",
       "type": "registry:ui",
       "category": "feedback",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "admonition",
@@ -557,7 +576,7 @@
       "description": "What a screen shows when there is nothing to show, and what to do about it.",
       "type": "registry:ui",
       "category": "feedback",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "no data",
@@ -578,7 +597,7 @@
       "description": "The shape of content that has not arrived yet.",
       "type": "registry:ui",
       "category": "feedback",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "loading placeholder",
@@ -591,12 +610,30 @@
       "docs": "/docs/components/skeleton"
     },
     {
+      "name": "segmented-control",
+      "title": "SegmentedControl",
+      "description": "A small row of mutually exclusive options.",
+      "type": "registry:ui",
+      "category": "navigation",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "segmented buttons",
+        "toggle group"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/segmented-control",
+      "dependencies": [
+        "@base-ui/react"
+      ]
+    },
+    {
       "name": "button",
       "title": "Button",
       "description": "The control that makes something happen.",
       "type": "registry:ui",
       "category": "actions-and-forms",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "cta",
@@ -617,7 +654,7 @@
       "description": "Navigation to somewhere else.",
       "type": "registry:ui",
       "category": "actions-and-forms",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "anchor",
@@ -635,7 +672,7 @@
       "description": "A labelled input with its help text, its error, and the wiring that connects them.",
       "type": "registry:ui",
       "category": "actions-and-forms",
-      "status": "alpha",
+      "status": "beta",
       "since": "unreleased",
       "aliases": [
         "form field",
@@ -799,27 +836,6 @@
         "field"
       ],
       "why": "The anchors and the number of points on a rating scale are what make it comparable over time, and they belong to whichever instrument the product is using. A fixed set of labelled options is a radio group, and opsinjs delegates that to Base UI rather than wrapping it."
-    },
-    {
-      "name": "source-citation",
-      "title": "SourceCitation",
-      "description": "Where a piece of health information came from, and when it was last checked.",
-      "type": "registry:ui",
-      "category": "health-communication",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "citation",
-        "evidence link",
-        "reviewed by"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "disclaimer-note",
-        "callout"
-      ],
-      "why": "Strongly wanted and likely to be promoted. Held back only because provenance is currently doctrine rather than a component, and shipping the box before the rules would encourage products to cite whatever is to hand."
     },
     {
       "name": "range-legend",
@@ -1206,25 +1222,6 @@
       "why": "Application navigation is a product decision, not a design-system one. The material rung, the safe-area handling and the touch-target floor it needs are all documented."
     },
     {
-      "name": "segmented-control",
-      "title": "SegmentedControl",
-      "description": "A small row of mutually exclusive options.",
-      "type": "registry:ui",
-      "category": "navigation",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "segmented buttons",
-        "toggle group"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "button"
-      ],
-      "why": "Likely to be promoted. It is the right control for switching a chart between day, week and month. It was held back until TrendSparkline existed to use it; TrendSparkline is implemented now and this is not, so the only thing keeping it here is that nobody has built it."
-    },
-    {
       "name": "stepper",
       "title": "Stepper",
       "description": "Progress through a sequence of steps.",
@@ -1414,6 +1411,9 @@
     "legal note": "disclaimer-note",
     "small print": "disclaimer-note",
     "safety note": "disclaimer-note",
+    "citation": "source-citation",
+    "evidence link": "source-citation",
+    "reviewed by": "source-citation",
     "log": "log-sheet",
     "diary": "log-sheet",
     "journal": "log-sheet",
@@ -1478,6 +1478,8 @@
     "ghost": "skeleton",
     "loading state": "skeleton",
     "placeholder": "skeleton",
+    "segmented buttons": "segmented-control",
+    "toggle group": "segmented-control",
     "cta": "button",
     "action": "button",
     "submit": "button",
@@ -1514,9 +1516,6 @@
     "pain scale": "scale-input",
     "rating scale": "scale-input",
     "likert": "scale-input",
-    "citation": "source-citation",
-    "evidence link": "source-citation",
-    "reviewed by": "source-citation",
     "key": "range-legend",
     "chart legend": "range-legend",
     "band legend": "range-legend",
@@ -1560,8 +1559,6 @@
     "overflow container": "scroll-area",
     "bottom navigation": "tab-bar",
     "nav bar": "tab-bar",
-    "segmented buttons": "segmented-control",
-    "toggle group": "segmented-control",
     "wizard": "stepper",
     "step indicator": "stepper",
     "multi step": "stepper",

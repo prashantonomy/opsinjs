@@ -51,31 +51,33 @@ registry, not here.
 
 | Component | Category | Status | Since | Search synonyms |
 | --- | --- | --- | --- | --- |
-| `result-card` | health-data-display | alpha | unreleased | results, lab result, test result, report card, blood pressure, a1c |
-| `range-bar` | health-data-display | alpha | unreleased | reference range, normal range, in range, range indicator, gauge bar |
-| `score-dial` | health-data-display | alpha | unreleased | dial, ring, gauge, score, index, bmi |
-| `trend-sparkline` | health-data-display | alpha | unreleased | sparkline, trend, over time, mini chart, line chart, chart, graph |
-| `metric-tile` | health-data-display | alpha | unreleased | stat, kpi, vitals, summary tile, steps, resting heart rate, spo2, tile |
-| `status-pill` | health-data-display | alpha | unreleased | chip, status chip, status badge, status label, traffic light |
-| `alert-banner` | health-communication | alpha | unreleased | warning banner, notification banner, inline alert, warning, notification, alert, banner |
-| `care-card` | health-communication | alpha | unreleased | what to do next, action card, advice card, next steps, guidance card, what to do, advice |
-| `term` | health-communication | alpha | unreleased | glossary term, jargon, plain word, definition, plain english, tooltip term |
-| `consent-sheet` | health-communication | alpha | unreleased | consent, permission, opt in, data sharing, agree |
-| `disclaimer-note` | health-communication | alpha | unreleased | disclaimer, not medical advice, legal note, small print, safety note |
-| `log-sheet` | health-input | alpha | unreleased | log, diary, journal, daily entry, capture, quick entry, bottom sheet entry |
-| `reading-input` | health-input | alpha | unreleased | enter a reading, measurement input, numeric entry, manual entry, numeric input, unit switch |
-| `value` | health-formatting | alpha | unreleased | number, unit, format a number, numeric display, figure, format, formatted number |
-| `relative-time` | health-formatting | alpha | unreleased | time ago, timestamp, last updated, date display, ago, freshness, staleness |
-| `surface` | surfaces | alpha | unreleased | material, glass, blur, elevation, layer, translucency, vibrancy |
-| `card` | surfaces | alpha | unreleased | panel, container, content box, box, tile group |
-| `sheet` | surfaces | alpha | unreleased | bottom sheet, drawer, side panel, slide over, modal sheet, detent |
-| `dialog` | surfaces | alpha | unreleased | modal, alert dialog, confirm, popup |
-| `callout` | feedback | alpha | unreleased | admonition, note box, info box, tip, note, aside |
-| `empty-state` | feedback | alpha | unreleased | no data, nothing here, zero state, blank slate |
-| `skeleton` | feedback | alpha | unreleased | loading placeholder, shimmer, ghost, loading state, placeholder |
-| `button` | actions-and-forms | alpha | unreleased | cta, action, submit, primary button |
-| `link` | actions-and-forms | alpha | unreleased | anchor, hyperlink |
-| `field` | actions-and-forms | alpha | unreleased | form field, input wrapper, form control, validation message, label, error message, hint |
+| `result-card` | health-data-display | beta | unreleased | results, lab result, test result, report card, blood pressure, a1c |
+| `range-bar` | health-data-display | beta | unreleased | reference range, normal range, in range, range indicator, gauge bar |
+| `score-dial` | health-data-display | beta | unreleased | dial, ring, gauge, score, index, bmi |
+| `trend-sparkline` | health-data-display | beta | unreleased | sparkline, trend, over time, mini chart, line chart, chart, graph |
+| `metric-tile` | health-data-display | beta | unreleased | stat, kpi, vitals, summary tile, steps, resting heart rate, spo2, tile |
+| `status-pill` | health-data-display | beta | unreleased | chip, status chip, status badge, status label, traffic light |
+| `alert-banner` | health-communication | beta | unreleased | warning banner, notification banner, inline alert, warning, notification, alert, banner |
+| `care-card` | health-communication | beta | unreleased | what to do next, action card, advice card, next steps, guidance card, what to do, advice |
+| `term` | health-communication | beta | unreleased | glossary term, jargon, plain word, definition, plain english, tooltip term |
+| `consent-sheet` | health-communication | beta | unreleased | consent, permission, opt in, data sharing, agree |
+| `disclaimer-note` | health-communication | beta | unreleased | disclaimer, not medical advice, legal note, small print, safety note |
+| `source-citation` | health-communication | alpha | unreleased | citation, evidence link, reviewed by |
+| `log-sheet` | health-input | beta | unreleased | log, diary, journal, daily entry, capture, quick entry, bottom sheet entry |
+| `reading-input` | health-input | beta | unreleased | enter a reading, measurement input, numeric entry, manual entry, numeric input, unit switch |
+| `value` | health-formatting | beta | unreleased | number, unit, format a number, numeric display, figure, format, formatted number |
+| `relative-time` | health-formatting | beta | unreleased | time ago, timestamp, last updated, date display, ago, freshness, staleness |
+| `surface` | surfaces | beta | unreleased | material, glass, blur, elevation, layer, translucency, vibrancy |
+| `card` | surfaces | beta | unreleased | panel, container, content box, box, tile group |
+| `sheet` | surfaces | beta | unreleased | bottom sheet, drawer, side panel, slide over, modal sheet, detent |
+| `dialog` | surfaces | beta | unreleased | modal, alert dialog, confirm, popup |
+| `callout` | feedback | beta | unreleased | admonition, note box, info box, tip, note, aside |
+| `empty-state` | feedback | beta | unreleased | no data, nothing here, zero state, blank slate |
+| `skeleton` | feedback | beta | unreleased | loading placeholder, shimmer, ghost, loading state, placeholder |
+| `segmented-control` | navigation | alpha | unreleased | segmented buttons, toggle group |
+| `button` | actions-and-forms | beta | unreleased | cta, action, submit, primary button |
+| `link` | actions-and-forms | beta | unreleased | anchor, hyperlink |
+| `field` | actions-and-forms | beta | unreleased | form field, input wrapper, form control, validation message, label, error message, hint |
 
 ## Considered
 
@@ -88,7 +90,6 @@ registry, not here.
 | `goal-ring` | health-data-display | Goal rings are strongly associated with one platform's fitness product, and the pattern rewards streaks. That is the wrong incentive for a reader managing a condition rather than training for one. | score-dial, metric-tile |
 | `timeline-entry` | health-data-display | A timeline is a layout, and every product's timeline holds different things. Shipping one would ship a data model with it. | card, relative-time |
 | `scale-input` | health-input | The anchors and the number of points on a rating scale are what make it comparable over time, and they belong to whichever instrument the product is using. A fixed set of labelled options is a radio group, and opsinjs delegates that to Base UI rather than wrapping it. | field |
-| `source-citation` | health-communication | Strongly wanted and likely to be promoted. Held back only because provenance is currently doctrine rather than a component, and shipping the box before the rules would encourage products to cite whatever is to hand. | disclaimer-note, callout |
 | `range-legend` | health-data-display | A legend that can be separated from its chart is a legend that will be. The bands are documented inside RangeBar instead. | range-bar |
 | `toast` | feedback | A message that removes itself is the wrong shape for anything about someone's health: the reader who most needs it is the one most likely to miss it. Kept on the roster because products use toasts for save confirmations, which is legitimate. | alert-banner, callout |
 | `tooltip` | overlay | There is no hover on a phone, and this is a phone-first system. Anything important enough for a tooltip is important enough to be on the screen. | term, field |
@@ -109,7 +110,6 @@ registry, not here.
 | `divider` | layout | A border and a spacing token. Documented in Foundations rather than shipped. | card |
 | `scroll-area` | layout | Delegated to Base UI. Custom scrollbars are also a frequent cause of unreachable content at 200% text. | card |
 | `tab-bar` | navigation | Application navigation is a product decision, not a design-system one. The material rung, the safe-area handling and the touch-target floor it needs are all documented. | surface |
-| `segmented-control` | navigation | Likely to be promoted. It is the right control for switching a chart between day, week and month. It was held back until TrendSparkline existed to use it; TrendSparkline is implemented now and this is not, so the only thing keeping it here is that nobody has built it. | button |
 | `stepper` | navigation | The pattern that matters is one question per page, and that is documented in Patterns. A stepper component tends to encourage the opposite. | field |
 | `menu` | overlay | Delegated to Base UI. Hiding a destructive or a safety-relevant action in an overflow menu is a defect whatever renders it. | sheet, button |
 | `icon-button` | actions-and-forms | A variant of Button rather than a component, and one that needs a visible label far more often than products assume. | button |
