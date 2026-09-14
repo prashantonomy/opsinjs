@@ -412,10 +412,10 @@ export function KeyboardTable({ name, rows, className }: KeyboardTableProps) {
       ) : null}
       <Table head={["Key", "Action", "Notes"]}>
         {data.map((row) => (
-          <Row key={row.keys}>
+          <Row key={`${row.keys}-${row.action}`}>
             <Cell>
               {row.keys.split(" + ").map((key, i) => (
-                <span key={key}>
+                <span key={`${key}-${i}`}>
                   {i > 0 ? <span className="px-1">+</span> : null}
                   <Kbd>{key}</Kbd>
                 </span>
