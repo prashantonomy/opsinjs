@@ -1,39 +1,407 @@
 ---
-title: "SourceCitation"
-description: "Where a piece of health information came from, and when it was last checked."
-status: considered
+title: SourceCitation
+description: Where a piece of health information came from, in plain words, with an optional link to the fuller citation and an optional date it was last checked.
+status: alpha
 kind: component
 since: "unreleased"
-category: "health-communication"
-aliases: ["citation", "evidence link", "reviewed by"]
+category: health-communication
+aliases: [citation, evidence link, reviewed by]
+governedBy: [data-provenance-and-device-accuracy, evidence-and-references]
+usedIn: [results-screen]
 ---
 
-{/* GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts (status: considered).
-    Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`.
-    Rationale: content/docs/project/decisions/0008-considered-components-resolve.mdx.
-    Source hash 42b23fdcd7ae. */}
+## Status
 
-<PageTemplate kind="component" status="considered" category="health-communication" />
-
-<StubNotice name="source-citation" status="considered">
-  **SourceCitation is not built, and it has no specification.** The name is recorded in
-  the catalogue so that this address answers instead of returning a 404.
-  The reason is not that the component is coming.
+<StubNotice
+  name="source-citation"
+  status="alpha"
+  questions={[
+    "The missing-source case prints one English admission line and warns in development, following DisclaimerNote. Is a printed admission the right output for a value whose provenance went missing, or should a product refuse to render the value at all before it reaches this component? The line is English with no translation seam, so a product shipping in another language renders an English admission on the day it is meant to be read, and the component cannot know that has happened.",
+    "Rule 2 asks that provenance sit in the value's accessible name, not only beside the value. This component renders the provenance as visible text near the value, and it does not associate the two programmatically, so a screen-reader user who reaches the value on its own does not hear where it came from. Whether the component should own that association, and how, is unresolved.",
+    "No contrast pair for the source ink or the quieter date ink has been measured on the surfaces a citation sits on. The neutral token pairs it draws from are published in the table below, but this component's own rendered pixels are not, and nobody has listened to it in a screen reader.",
+    "Whether the citation should be a named group, so a listener meets the source, the date and the link as one thing rather than as loose lines, is the same open question DisclaimerNote carries and is not settled here.",
+  ]}
+>
+  <code className="text-sm">source-citation</code> is implemented and
+  installable. It is <strong className="font-medium">alpha</strong>: it works
+  and it is documented, the API may change in any release without a deprecation
+  cycle, and it is not for a production health surface yet. The questions below
+  are still open.
 </StubNotice>
 
-## What this name refers to
+A value without its provenance is read with the standing of the most trustworthy value on the
+screen. A wrist estimate rendered like a clinic measurement is read like a clinic measurement,
+and the reader has no way to tell a reading from a guess an algorithm made about a process it
+cannot observe. This component puts the origin of a number back beside the number, in the
+reader's own plain words. What it does not do is supply those words, and that refusal is the
+larger half of the component.
 
-Where a piece of health information came from, and when it was last checked.
+## Preview
 
-## Why it is not on the roster
+The citation carrying everything it can hold: the plain words of where a value came from, a
+link to the fuller source, and the date it was last checked. The provenance names a device
+that could belong to no product and the link points at a placeholder anchor, because the
+product that installs the component writes the source and opsinjs ships none of it. The state
+where nobody wrote it is shown below under Examples.
 
-Strongly wanted and likely to be promoted. Held back only because provenance is currently doctrine rather than a component, and shipping the box before the rules would encourage products to cite whatever is to hand.
+<ComponentPreview name="source-citation" />
 
-## What to use instead
+## Installation
 
-Use [DisclaimerNote](disclaimer-note.mdx) or [Callout](callout.mdx) instead.
+<ComponentInstall
+  name="source-citation"
+  unbuilt={false}
+  importPath="@/components/ui/source-citation"
+  registryDependencies={["link"]}
+/>
 
-Do not generate code against this page. It documents an absence. The
-machine-readable list of every component id and its status is at
-`/r/index.json`, and the [status matrix](index.mdx) shows the same rows for
-a human reader.
+SourceCitation composes [Link](./link.mdx) for the destination of the fuller citation, so
+installing it installs Link with it. The link and any other navigation link on the surface are
+then the same control, with one focus ring and one underline offset between them.
+
+## Usage
+
+```tsx
+import { SourceCitation } from "@/components/ui/source-citation"
+```
+
+```tsx
+<SourceCitation
+  source="Estimated by your watch from movement and heart rate."
+  more={{ label: "Read how this is worked out", href: "/how-it-works" }}
+  checkedOn="2026-03-14"
+  locale="en-GB"
+/>
+```
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Beside a health value whose provenance a reader needs in order to weigh it: an estimate from a wearable, a reading from a home device, a figure the reader typed in themselves.",
+    "To attribute and link a manufacturer's accuracy document or a study you have read, in the product's own words, rather than restating its claim as the product's own.",
+    "Wherever a number's origin bounds what may be said about it, so the origin travels with the number at the point it is read rather than sitting behind a tap on a detail screen.",
+  ]}
+  avoid={[
+    { case: "The message is a standing statement about what the whole product is and does, rather than the source of one value.", instead: "disclaimer-note" },
+    { case: "You are saying when a reading was taken or synced, rather than where it came from.", instead: "relative-time" },
+    { case: "You are explaining what a term means, rather than where a value came from.", instead: "term" },
+    { case: "The note is information about the content with no source to attribute.", instead: "callout" },
+  ]}
+/>
+
+Provenance held behind a tap is absent from the glance and from the value's accessible name,
+which are the two places a reviewer checks for it. The point of this component is that the
+origin is on the same surface as the number, so put it there. A citation on a detail screen the
+reader has to reach for is a citation most readers never see, which is close enough to no
+citation at all.
+
+## Clinical meaning
+
+**What it asserts.** Where a piece of health information came from, in the product's own plain
+words, and, when the product supplies one, the date that provenance was last checked and a link
+to the fuller source. It asserts nothing about what the value means. There is no reference
+range, no threshold and no verdict in this component, and it holds no reading of its own.
+
+**Which of the provenance rules it carries.**
+[Data provenance and device accuracy](../health/data-provenance-and-device-accuracy.mdx) sets
+ten rules. This component carries two of them and no more. It renders **rule 2**, that
+provenance is visible to the reader in plain words at the value, and it gives **rule 6** a
+home, that a manufacturer's accuracy claim is attributed and linked rather than restated as the
+product's own or paraphrased into a stronger one. The other eight rules stay the caller's. The
+component holds no provenance class, so it cannot keep rule 3, which bounds a value's status by
+its class; it checks no wording against the four classes, so it cannot keep rule 5, that the
+string names the device rather than the marketing; and it would render a wrong provenance
+string as readily as a right one. It reports where it can and asserts nothing it cannot.
+
+**What it must never be read as.** A guarantee that the source is right, that it is current, or
+that anybody checked it. `checkedOn` is the date the product recorded, and the component makes
+no claim beyond that. It is not a freshness verdict: this component holds no staleness boundary
+and says nothing about whether the source can still be relied on. Deciding a source is out of
+date belongs to the product, and a value old enough to doubt is wrapped in
+[RelativeTime](./relative-time.mdx) beside it, not signalled by this component.
+
+**Which colour axis it may use.** Neither, exactly as with DisclaimerNote. There is no `status`
+prop and no `category` prop, the root carries neither `data-status` nor `data-category`, and
+there is no fill of any kind. Category colour would make a statement about where a number came
+from read as a statement about what the number is; status colour would make it read as a level.
+Provenance is neither. See [The two colour axes](../health/two-colour-axes.mdx).
+
+**Who owns the words.** The consuming product. opsinjs ships no provenance: no default source,
+no placeholder citation, no specimen DOI, no URL, no study and no date. The implementation is
+written so that this cannot be got round by accident, and a citation rendered with no source
+prints an admission that none was supplied rather than inventing one.
+
+<SafetyCallout severity="attention" evidence="opinion">
+Never restate a manufacturer's accuracy figure as your own, and never invent one to fill the
+space. Attribute the claim and link it through `more`, in the manufacturer's own terms. A
+figure copied from a design system or paraphrased into something stronger is a provenance
+failure of exactly the kind this component exists to make visible.
+</SafetyCallout>
+
+## Anatomy
+
+<Anatomy
+  name="source-citation"
+  parts={[
+    {
+      name: "SourceCitation",
+      describes: "The root. Neutral, quiet and outside both colour axes: no status prop, no category prop, no fill, no radius, no role and no boundary. The type step, the ink and the space around it are the whole treatment.",
+      prop: "className",
+    },
+    {
+      name: "SourceCitation.Source",
+      describes: "The product's own plain words for where the value came from, at the footnote step in the readable foreground ink. With nothing supplied it prints one line saying so, which is deliberately unlovely and impossible to mistake for a source.",
+      prop: "source",
+    },
+    {
+      name: "SourceCitation.Checked",
+      describes: "The date the provenance was last checked, one line down in the quieter secondary ink, prefixed with the component's own words \"Last checked on\". It is a paragraph whose date sits in a time element carrying the machine date, and it appears only when checkedOn resolves to a real calendar date.",
+      prop: "checkedOn",
+    },
+    {
+      name: "SourceCitation.Link",
+      describes: "The fuller citation. Label and destination arrive together as one object, so the label always names where it goes; a vague one raises a development warning and still renders. It is a standing target on its own line and keeps the floor an inline link sheds.",
+      prop: "more",
+    },
+  ]}
+/>
+
+<CompositionTree
+  name="source-citation"
+  tree={[
+    {
+      part: "SourceCitation",
+      cardinality: "1",
+      note: "data-slot=\"source-citation\". No role, no data-status, no data-category, no data-opsinjs-value.",
+      children: [
+        {
+          part: "SourceCitation.Source",
+          cardinality: "1",
+          note: "data-slot=\"source-citation-source\"",
+        },
+        {
+          part: "SourceCitation.Checked",
+          cardinality: "0..1",
+          note: "data-slot=\"source-citation-checked\", a paragraph whose date sits in a time element",
+        },
+        {
+          part: "SourceCitation.Link",
+          cardinality: "0..1",
+          note: "data-slot=\"source-citation-link\"",
+        },
+      ],
+    },
+  ]}
+/>
+
+That is the whole component. The parts are identified by `data-slot` and are styleable from
+outside; none of them is an export, and there is no way to render one without the root. There is
+no heading part and no dismiss control: a citation with a heading is a section, and a citation
+the reader can turn off is a source the product would rather they did not read.
+
+## Examples
+
+### A device estimate naming its own method
+
+The provenance sits at the value, in the reader's own plain words: the device that produced the
+estimate, the inputs it is worked out from, and the class of the figure, which is an estimate
+rather than a measurement. It names the device rather than the marketing, and the `more` link
+points at where the fuller accuracy document would live, attributed rather than restated. The
+value is a phrase and not a number, so nothing here can be mistaken for somebody's own reading.
+
+<ComponentPreview name="source-citation-a-device-estimate" kind="example" align="start" />
+
+### When nobody said where it came from
+
+Provenance arrives from a data layer, a content table or a flag, and every one of those can
+return nothing without anybody noticing. The citation prints an admission rather than rendering
+empty, because an empty one passes review, passes every gate in this repository, and reaches a
+reader as a value whose source has silently gone missing. [DisclaimerNote](./disclaimer-note.mdx)
+refuses in the same shape and for the same reason.
+
+The boundary is worth stating, because it is narrower than that promise sounds. The component
+detects a missing *source*: `undefined`, `false` from an `&&` branch, `0` from the same branch on
+an empty collection, an empty array, a whitespace-only string and a source that is nothing but a
+number are all read as none supplied. A caller who wraps the provenance in an element is taken at
+their word, so an empty string inside `<strong>{source}</strong>` still renders an empty citation
+with no admission. Printing the admission over somebody's own markup would be a false accusation
+on their screen, so the component does not; the cost is that this one route stays open, and it is
+stated here rather than left for a reader to find.
+
+<ComponentPreview name="source-citation-no-source-supplied" kind="example" align="start" />
+
+## Content guidelines
+
+Write the source in the reader's own words, and name the concrete thing rather than the brand's
+marketing. "From your Model X cuff" and "you entered this on the day" are provenance a reader can
+weigh; "clinically validated technology" is not, because it names nothing checkable. Say the
+class of the figure where it matters: an estimate is called an estimate, and a self-reported
+figure names the reader as its source. Where a device does not measure what the number looks
+like it measures, say so, though that sentence is the caller's to write and this component does
+not check that it was written.
+
+Name the link for where it goes. "Read how this estimate is worked out" and "see the accuracy
+document" are destinations; "learn more", "source" and a bare "here" are not, and a screen reader
+can list every link on a page with no sentence around any of them. `more` takes the label and the
+destination together so a link cannot be added without one, and a label from a short list of
+vague ones raises a development warning. That list is English, so the identical failure in another
+language is not caught.
+
+Never restate a manufacturer's accuracy figure as your own, and never invent one. Attribute it
+and link it through `more`. A cited figure the reader can follow to its source is worth more than
+a confident number with no owner, and a paraphrase that makes the claim stronger is the failure
+rule 6 names.
+
+<DoDont>
+  <DoDont.Do>
+    **"Estimated by your watch from movement and heart rate, so read it as an estimate."** Names
+    the device, the inputs and the class of the figure, in words the reader can weigh.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Powered by clinically validated technology."** Names no device and no method, restates a
+    marketing claim as the product's own, and leaves the reader nothing to check.
+  </DoDont.Dont>
+</DoDont>
+
+The admission line the component prints when no source is supplied is English, and there is no
+prop through which a product can translate it, for the reason DisclaimerNote gives: a prop that
+accepts the admission is one keystroke from a prop that accepts the citation, which is the thing
+this component exists to refuse. A product shipping in another language guards the missing case
+upstream, supplying its own copy for it, and the absence of a translation seam here is recorded in
+[ADR 0005](../project/decisions/0005-no-lang-segment-yet.mdx).
+
+## Accessibility
+
+Some of what follows is checked by a gate on every commit and the rest is argued. They are
+labelled separately, because `alpha` promises that accessibility is claimed only where it has
+been checked, with the gaps listed rather than left out. Nobody has yet listened to this
+component in a screen reader.
+
+**Checked, by the gates on every commit:**
+
+- **No `px` type size anywhere.** The source and the date are set at `text-opsin-footnote`, a rem
+  from the generated ramp, so the citation scales with the reader's own text size rather than
+  staying put at a fixed size.
+- **No raw colour literal and no ramp step.** The source ink is the neutral `--foreground` role
+  and the date ink is `--muted-foreground`, so both follow the theme; a hex, an `oklch()` or a
+  numbered ramp step fails the build.
+- **No banned word in the one reader-facing string this component owns, none in its development
+  warnings, and none as a code identifier.** That single string is the line printed when no source
+  is supplied.
+- **No shipped threshold and no unowned numeric interval.** No clinical number is written into
+  this component and none passes through it.
+
+**Enforced by the API rather than by a gate:**
+
+- **The source is readable, not paled.** It takes the foreground ink at the footnote step. It is
+  smaller than the value it sits under, because it is secondary to it, and it is not a pale grey,
+  because provenance set one step down in muted ink complies with the letter of rule 2 and none of
+  its purpose.
+- **The link names its destination.** `more` carries the label and the href together, so a link
+  cannot be added without a label, and a label from a short list of vague ones raises a
+  development warning.
+- **It cannot be tinted from either axis without being told.** There is no colour prop.
+  `className` reaches the root, which is the one hole, and a class from either axis raises a
+  development warning naming what to use instead.
+- **It invents no date.** A `checkedOn` value that does not resolve to a real calendar date is
+  refused rather than rendered as a plausible wrong one, and the component never reads the clock.
+
+**Argued, and true of the implementation, but not yet measured:**
+
+- **The link keeps the target floor an inline link sheds.** SC 2.5.8 exempts an inline target, so
+  Link's inline form carries no floor. This link is not inside a sentence: it is a control on its
+  own line, so it re-adds `--opsin-target-minimum` on both axes. Both axes, because SC 2.5.8 is a
+  44x44 region and a short label in a language with shorter words would otherwise sit under the
+  floor. The floor is declared in rem so it grows with the reader's text size, and no browser has
+  measured it. See [Target size and motor](../accessibility/target-size-and-motor.mdx).
+- **It reflows at 200% text** without truncating and without horizontal scroll: no fixed height,
+  `min-w-0` with `wrap-break-word` on the source and the date, and `wrap-anywhere` on the link, so
+  a long device name or a bare word breaks rather than widening the layout past the viewport.
+- **The date reads as one phrase.** The prefix "Last checked on" and the formatted date sit in one
+  `<time>` element, so a listener meets "Last checked on 14 March 2026" rather than a bare date
+  with nothing to place it by. The prefix is English, in the same position RelativeTime's event
+  words hold and translate for no caller.
+- **There is no animated transform to reduce.** No transition and no animation anywhere in the
+  component or either example. The composed inline link's `active:translate-y-px` is an instant
+  one-pixel shift on `:active`, not an animation, so `prefers-reduced-motion` has nothing here to
+  act on.
+
+**Not yet checked at all, and listed rather than omitted:**
+
+- Whether the provenance reaches a screen-reader user who arrives at the value on its own. This
+  component renders the provenance beside the value and does not put it in the value's accessible
+  name, so the association is the caller's to make. It is the open question above.
+- The measured contrast of the source ink and the date ink on the surfaces a citation sits on. The
+  neutral token pairs are published below; the rendered pixels are not.
+
+<KeyboardTable
+  name="source-citation"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Moves to the link, when there is one",
+      notes: "The citation itself is not focusable and is not a tab stop: it is text. When more is supplied the link is the component's only focusable element, and there is never more than one.",
+    },
+    {
+      keys: "Shift + Tab",
+      action: "Moves back out of the link",
+      notes: "Reverse order matches the visual order, which it can hardly fail to do with one stop. The link is the last interactive thing in the citation.",
+    },
+    {
+      keys: "Enter",
+      action: "Follows the link",
+      notes: "Only when a link is present. It is an ordinary anchor rather than a button, so it is Enter and not Space, and a middle-click or a modifier-click gets the browser's own behaviour.",
+    },
+    {
+      keys: "Space",
+      action: "Scrolls the page, as it does anywhere else",
+      notes: "Listed because it is a real answer rather than a gap: nothing in this component captures Space, and nothing here activates on it.",
+    },
+  ]}
+/>
+
+<ContrastReport component="source-citation" />
+
+## API reference
+
+<PropsTable name="SourceCitationProps" />
+
+`source` is typed optional and is required by the contract, which is the same shape
+[DisclaimerNote](./disclaimer-note.mdx) uses for its own words. Marking it required buys nothing,
+because `{reading.source}` with an undefined `reading.source` type-checks either way. It costs the
+ability to render the missing state at all, which is the state a product is most likely to ship by
+accident and the one that most needs seeing.
+
+`checkedOn` is formatted from what the caller supplied and from nothing else. A string is a strict
+`YYYY-MM-DD` calendar date and a number is milliseconds since the epoch; both are pinned to UTC so
+the day does not drift, and a value that is not a real calendar date is refused rather than
+rendered as a plausible wrong one. There is no clock read and no live timer.
+
+## Related
+
+<RelatedComponents name="source-citation" />
+
+**Easily confused with**
+
+- [DisclaimerNote](./disclaimer-note.mdx) is the standing statement about what the whole product
+  is and does. A citation is about where one value came from.
+- [RelativeTime](./relative-time.mdx) says when a reading was taken or synced. A citation says
+  where it came from, and the two answer different questions about the same number.
+- [Callout](./callout.mdx) is information about the content with no source to attribute. If there
+  is nothing to cite, it is a callout.
+- [Term](./term.mdx) explains what a word means. A citation explains where a value came from.
+
+**Used by**
+
+- [Results screen](../screens/results-screen.mdx) names it as the component that carries a value's
+  provenance beside the value.
+- [Show a value against a reference range](../recipes/value-against-a-range.mdx) names it as where
+  a value's origin belongs.
+- [Choose a component](../recipes/choose-a-component.mdx) routes a question about where a number
+  came from to this component.
+
+**Governed by**
+
+- [Data provenance and device accuracy](../health/data-provenance-and-device-accuracy.mdx)
+- [Evidence and references](../health/evidence-and-references.mdx)

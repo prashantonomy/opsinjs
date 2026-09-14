@@ -34,12 +34,12 @@
  * two words that divergence has already cost.
  * ────────────────────────────────────────────────────────────────────────────
  *
- * TWENTY-FIVE ROWS ARE BUILT. Each of them carries `status: "alpha"`, has a
+ * TWENTY-SEVEN ROWS ARE BUILT. Each of them carries `status: "alpha"`, has a
  * file at `registry/bases/base/<id>.tsx`, renders at
  * `/view/base/base-lyra/component/<id>`, and installs with `shadcn add`. Alpha
  * is not a promise of stability: the API may change in any release without a
  * deprecation cycle, and none of it has been through an accessibility or
- * clinical review. The other thirty-five rows carry `status: "considered"`,
+ * clinical review. The other thirty-three rows carry `status: "considered"`,
  * which is a reserved name and a reason to reach for something else, with no
  * code and no hand-written page. The only page any of them has is a stub that
  * `scripts/build-registry.mts` generates from the row, so the address answers
@@ -239,7 +239,7 @@ export interface CatalogueEntry {
 }
 
 /**
- * THE 25 SHIPPED IDS. Frozen. Every one has a specification page at
+ * THE TWENTY-SEVEN SHIPPED IDS. Every one has a specification page at
  * `/docs/components/<id>` and a row in `/r/index.json`. Order within a category
  * is the order they appear in the sidebar.
  */
@@ -624,6 +624,22 @@ export const SHIPPED: CatalogueEntry[] = [
   },
 
   {
+    name: "source-citation",
+    title: "SourceCitation",
+    description:
+      "Where a piece of health information came from, and when it was last checked.",
+    category: "health-communication",
+    status: "alpha",
+    since: "unreleased",
+    aliases: ["citation", "evidence link", "reviewed by"],
+    owner: "content",
+    a11yDate: null,
+    governedBy: ["data-provenance-and-device-accuracy", "evidence-and-references"],
+    registryDependencies: ["link"],
+    usedIn: ["results-screen"],
+    contrastScopes: ["neutral"],
+  },
+  {
     name: "log-sheet",
     title: "LogSheet",
     description:
@@ -918,6 +934,19 @@ export const SHIPPED: CatalogueEntry[] = [
   },
 
   {
+    name: "segmented-control",
+    title: "SegmentedControl",
+    description: "A small row of mutually exclusive options.",
+    category: "navigation",
+    status: "alpha",
+    since: "unreleased",
+    aliases: ["segmented buttons", "toggle group"],
+    owner: "design",
+    a11yDate: null,
+    dependencies: ["@base-ui/react"],
+    contrastScopes: ["neutral"],
+  },
+  {
     name: "button",
     title: "Button",
     description: "The control that makes something happen.",
@@ -1106,20 +1135,6 @@ export const CONSIDERED: CatalogueEntry[] = [
     a11yDate: null,
     why: "The anchors and the number of points on a rating scale are what make it comparable over time, and they belong to whichever instrument the product is using. A fixed set of labelled options is a radio group, and opsinjs delegates that to Base UI rather than wrapping it.",
     useInstead: ["field"],
-  },
-  {
-    name: "source-citation",
-    title: "SourceCitation",
-    description:
-      "Where a piece of health information came from, and when it was last checked.",
-    category: "health-communication",
-    status: "considered",
-    since: "unreleased",
-    aliases: ["citation", "evidence link", "reviewed by"],
-    owner: "content",
-    a11yDate: null,
-    why: "Strongly wanted and likely to be promoted. Held back only because provenance is currently doctrine rather than a component, and shipping the box before the rules would encourage products to cite whatever is to hand.",
-    useInstead: ["disclaimer-note", "callout"],
   },
   {
     name: "range-legend",
@@ -1380,19 +1395,6 @@ export const CONSIDERED: CatalogueEntry[] = [
     a11yDate: null,
     why: "Application navigation is a product decision, not a design-system one. The material rung, the safe-area handling and the touch-target floor it needs are all documented.",
     useInstead: ["surface"],
-  },
-  {
-    name: "segmented-control",
-    title: "SegmentedControl",
-    description: "A small row of mutually exclusive options.",
-    category: "navigation",
-    status: "considered",
-    since: "unreleased",
-    aliases: ["segmented buttons", "toggle group"],
-    owner: "design",
-    a11yDate: null,
-    why: "Likely to be promoted. It is the right control for switching a chart between day, week and month. It was held back until TrendSparkline existed to use it; TrendSparkline is implemented now and this is not, so the only thing keeping it here is that nobody has built it.",
-    useInstead: ["button"],
   },
   {
     name: "stepper",
