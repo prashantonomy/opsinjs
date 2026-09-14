@@ -1,7 +1,7 @@
 ---
 title: Link
 description: The control that takes the reader somewhere else, and the one place the system decides how a navigation link looks so a banner's action and a card's action match.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: actions-and-forms
@@ -12,17 +12,20 @@ aliases: [anchor, hyperlink]
 
 <StubNotice
   name="link"
-  status="alpha"
+  status="beta"
   questions={[
     "The `render` slot substitutes the product's own router link, but it has never been measured against a router that renders its own focus behaviour. Link carries its focus ring in its class list, and a router element that also draws one, or that strips the className it is handed, could leave the reader with two rings or none. Nothing has been run against Next or React Router here.",
     "No contrast pair for the three emphases has been measured. `inline` and `secondary` inherit the surrounding ink, and `action` on a neutral ground draws a boundary that was carried over from the card action recipe rather than measured on the surfaces Link now sits on. Whether the ladder holds in greyscale is argued, not tested.",
     "On a status tint the tinted arm brings no neutral ink so the level's own ink shows through, and an `action` link takes a boundary whose colour the caller supplies per level. That per-level boundary colour has not been measured against the four tints in either theme.",
   ]}
 >
-  <code className="text-sm">link</code> is implemented and installable. It is{" "}
-  <strong className="font-medium">alpha</strong>: it works and it is documented,
-  the API may change in any release without a deprecation cycle, and it is not
-  for a production health surface yet.
+  <code className="text-sm">link</code> is implemented, installable, and its API
+  surface is complete. It is{" "}
+  <strong className="font-medium">beta</strong>: the surface is expected to
+  hold, and a change that breaks it would land only in a minor release, with a
+  changelog entry and a migration note. It has been through no accessibility
+  or clinical review, so it is still not for a production health surface, and
+  the questions below are still open.
 </StubNotice>
 
 Link is the other half of Button. Button refuses `href` on principle and says, on its own
@@ -183,6 +186,42 @@ import { Link } from "@/components/ui/link"
 </Link>
 ```
 
+## States
+
+Link is interactive, an anchor a reader points to and clicks, and its states differ by
+which emphasis is rendered rather than being one behaviour for all three, and no state
+is claimed for a variant that does not carry it. Every emphasis draws a focus ring in
+its own class list,
+`focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring`, for
+the reason the Accessibility section below gives: the product theme already outlines
+every focused element, but a project installed without that theme should not lose the
+ring silently. `action` and `secondary` add a hover fill, `hover:bg-muted`, from the same
+card action recipe Button's handler form shares, so resting a pointer over either reads
+as a pressable box rather than as static text. `inline` carries no hover class of its
+own, because the underline is already its resting state and there is no quieter form for
+hover to lift it out of. The one-pixel press, `active:translate-y-px`, belongs to
+`inline` alone: the card action recipe behind `action` and `secondary` never declares it,
+so a boxed link gives no positional feedback on press beyond the hover fill it is already
+showing. Link has no disabled state, because an anchor is not a control Base UI can
+disable, and a destination a product does not want followed is a link the product should
+not render, rather than one drawn in place and dimmed. Link asserts no `:visited` rule of
+its own either: nothing in its class list touches that pseudo-class, so a reader who has
+already opened the destination meets whichever colour the browser or the product
+stylesheet gives a visited anchor, if either gives one, which is a fact about the
+surrounding page rather than a behaviour this component owns.
+
+Link carries no reading, so most of the five canonical
+[data states](../foundations/data-states.mdx) describe a value it never holds rather
+than a gap in the implementation.
+
+| Data state | What Link renders |
+| --- | --- |
+| Error | Nothing of its own. `href` is required rather than defaulted, so a destination that cannot be resolved is a Link the caller does not render, not one rendered pointing nowhere. |
+| Loading | Nothing of its own. A destination not yet known is a Link not yet rendered; the surface composing it shows a Skeleton in its place until the `href` exists to pass in. |
+| Empty | Not a state Link can reach silently. `children` is required and is the accessible name a screen reader's link list depends on, so there is no route to a Link with a destination and no label. |
+| Partial | No partial form. A Link is one destination and one label together, and there is no state where it renders one without the other. |
+| Stale | None of its own. Link carries no timestamp and no measurement; a reading old enough to doubt is wrapped in [RelativeTime](./relative-time.mdx) beside the link, not signalled by the link itself. |
+
 ## Content guidelines
 
 Link text names the destination, in sentence case, without terminal punctuation. The reader
@@ -204,6 +243,20 @@ measurement is worked out*, not *read more*.
     times in a list has learnt nothing about any of them.
   </DoDont.Dont>
 </DoDont>
+
+## Motion
+
+Link declares no motion. None of the three emphases names a `transition`, a `duration`
+or an `ease` utility anywhere in `link.tsx`: the one-pixel press on `inline`,
+`active:translate-y-px`, is an instantaneous position change rather than an animated
+one, and the hover fill `action` and `secondary` borrow from the card action recipe,
+`hover:bg-muted`, swaps in on the same frame it fires because that recipe carries no
+transition class beside it either. Link reads no token from `tokens/motion.json`, so
+there is nothing here for `prefers-reduced-motion` to reduce, and no reduced-motion
+branch to write. A future revision that adds a transition to the hover fill or the press
+would need to name the duration and easing token it took and quote that token's own
+reduced-motion fallback here; nothing does that today, so this section makes no such
+claim.
 
 ## Accessibility
 
@@ -243,9 +296,73 @@ neutral scope alone.
 
 <ContrastReport component="link" />
 
+## Data attributes
+
+Link emits exactly one data attribute, on the root, whichever form the root takes. When
+`render` is not passed the root is Link's own `<a href>`; when it is, the same
+`data-slot` is merged onto the router element the product supplied, alongside `href` and
+Link's own attributes, which win where they meet the router element's. There is no
+second data attribute anywhere in the source.
+
+<DataAttributesTable
+  name="link"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On the root, always, whether Link rendered its own anchor or merged itself onto the router element passed as render",
+      value: "link",
+    },
+  ]}
+/>
+
+Link carries neither `data-status` nor `data-category`, because a link sits on neither
+colour axis: it holds no reading and no clinical level, and colouring it by category or
+by urgency is the exact collision the two-axis rule exists to prevent. There is no
+`data-opsinjs-value` either, for the same reason: nothing rendered here is a
+measurement. `data-slot="link"` is the one hook a product has for a rule of its own,
+whether that rule targets a plain anchor or the router element Link merged onto.
+
+## CSS variables
+
+<CssVariablesTable name="link" />
+
+Link exposes no custom property of its own. Its ink, its fill and its boundary are the
+semantic roles the card action recipe reads for `action` and `secondary`, `--foreground`
+for the neutral ink, `--card` and `--muted` for the fill and its hover swap, and
+`--border` for the boundary, listed under Tokens below. The one place a raw custom
+property appears in the file is inside the card action recipe's target floor,
+`min-h-(--opsin-target-minimum,2.75rem)`, and that is a token being read with a literal
+fallback for a project installed without the generated stylesheet, not a property Link
+declares. To recolour any emphasis, write a rule against `[data-slot="link"]` rather
+than reaching for a variable this file does not set.
+
+## Tokens
+
+<TokenTable component="link" />
+
+These are the tokens Link actually reads, resolved from the source by
+`scripts/build-tokens.mts` rather than listed by hand, so the table cannot drift from
+what the component consumes. They are the neutral chrome roles the card action recipe
+shares with Button, `--foreground`, `--card`, `--muted` and `--border`, together with
+the `--opsin-target-minimum` floor and the type step each emphasis sets. Link never
+reads a category token and never reads a status token onto its own element, because it
+sits on neither colour axis, and a row here naming one would be the defect the two-axis
+rule exists to catch.
+
 ## API reference
 
 <PropsTable name="LinkProps" />
+
+## Cost
+
+<BundleSize name="link" />
+
+Bundle cost is measured from a real build, and no build has taken that measurement for
+any opsinjs component yet, so there is no figure to show here. When one is taken it will
+include the composed [Button](./button.mdx) module Link installs alongside itself for
+the card action recipe, so the number belongs to a resolved build rather than to an
+estimate typed in by hand. A measured size is a stable-phase gate rather than a beta
+one, which is why its absence does not hold this component at beta.
 
 ## Related
 

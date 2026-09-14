@@ -1,7 +1,7 @@
 ---
 title: Field
 description: The wrapper that gives every input a visible label, a hint, an error message and the wiring that connects them is why no control in the system can ship without a name.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: actions-and-forms
@@ -13,17 +13,20 @@ usedIn: [ask-users-for/contact-details, ask-users-for/date-of-birth, ask-users-f
 
 <StubNotice
   name="field"
-  status="alpha"
+  status="beta"
   issue="opsinjs/opsinjs#0"
   questions={[
     "The two English words Field ships are “required” and “optional”, and no prop translates them. Every other string in the component comes from the product. Does the marker become a `ReactNode` prop, does it move to a locale object, or does a product override it through the `data-slot`?",
     "An error is added to the control's description and marks it invalid; it is not announced while focus is elsewhere, because Field mounts no live region. A form of ten fields that fails on submit therefore says nothing until the reader arrives at each field. The pattern that closes this is an error summary at the top of the form. Who owns it, and does Field need to expose the ids it generated so a summary can link to them?",
   ]}
 >
-  <code className="text-sm">field</code> is implemented and installable. It is{" "}
-  <strong className="font-medium">alpha</strong>: it works and it is documented,
-  the API may change in any release without a deprecation cycle, and it is not
-  for a production health surface yet.
+  <code className="text-sm">field</code> is implemented, installable, and its API
+  surface is complete. It is{" "}
+  <strong className="font-medium">beta</strong>: the surface is expected to hold,
+  and a change that breaks it would land only in a minor release, with a
+  changelog entry and a migration note. It has been through no accessibility or
+  clinical review, so it is still not for a production health surface, and the
+  questions below are still open.
 </StubNotice>
 
 Field is where the accessibility of every form in a product is decided, once. If the wrapper
@@ -255,6 +258,41 @@ to make the case for reaching past it.
 
 <ComponentPreview name="field-validating-on-submit" kind="example" align="start" />
 
+## States
+
+Field is interactive: it wraps a native control, and Base UI stamps that control's real
+interaction states onto the root and the control as data attributes, rather than leaving a
+product to track them by hand. `data-invalid` is the one Field's own prop reaches: it is
+forced true whenever `error` is a non-empty string, and it is also true whenever the control's
+own constraint validation does not pass under the active `validateOn` mode. `data-invalid` is
+what draws the left rule on the root and the inset emphasis shadow, plus the forced-colors
+dashed border, on the control. `data-focused` follows the control's real focus, and Field paints
+nothing of its own for it: the ring a focused control shows is the product stylesheet's ordinary
+`:focus-visible` treatment rather than a style this file writes. `data-disabled` follows the
+control's native `disabled` attribute, because Field ships no `disabled` prop of its own; the
+only route in is the attribute a caller puts directly on the element passed as `children`.
+`data-touched`, `data-dirty`, `data-filled` and `data-valid` are also stamped on the root and the
+control, recording in turn whether the control has been blurred once, whether its value has
+moved from its default, whether it currently holds one, and whether it currently meets its own
+constraints; none of the four changes what Field paints, and a product that wants to style by
+one writes its own rule against the `data-slot`. There is no hover or pressed treatment anywhere
+in this file, because the control Field wraps is whatever native element the product supplied,
+and it keeps that element's own platform affordances rather than taking on Field's.
+
+The five data states below describe a value a surface fetches and displays, and Field sits one
+layer under that: it wires a label, a hint and an error to a control the reader types into, and
+it fetches nothing itself. Its own `error` prop is a validation message, forced by the product
+or by a constraint the control did not meet, and it must not be read as the Error state below: a
+field whose own constraint does not pass has not lost a fetch.
+
+| Data state | What Field renders |
+| --- | --- |
+| Error | Nothing of its own. `error` marks the control invalid and adds a sentence to its description, which is a validation message rather than a report that a fetch did not complete. A control whose own options or data have not arrived is a concern for whatever populates `children`, not for Field. |
+| Loading | Nothing. Field renders its label, its hint and whatever `children` currently is on the same render, with no fetch of its own to wait on. A control still waiting on data, such as an option list that has not arrived yet, carries its own loading treatment inside `children`. |
+| Empty | Not a state Field marks on its own. An empty control is a control with nothing typed into it, which the absence of `data-filled` already records, and Field renders the label and the hint exactly as it would around any value. |
+| Partial | Applies across several Fields, not to one on its own. Two Fields side by side, one holding a value and one not, are two independent components, and neither reports the other's absence; a compound reading that needs to say "half of this pair is missing" is [ReadingInput](./reading-input.mdx)'s job, built on top of Field. |
+| Stale | None. Staleness describes a stored value shown back to a reader, and Field is where a value is typed rather than where it is shown again. A stale reading is [Value](./value.mdx)'s or [ResultCard](./result-card.mdx)'s concern once the entry becomes a record. |
+
 ## Content guidelines
 
 Labels are nouns naming what goes in the field, in sentence case, with no trailing colon.
@@ -309,10 +347,22 @@ changes them.
   </DoDont.Dont>
 </DoDont>
 
+## Motion
+
+Field declares no transition, no animation and no easing anywhere in `field.tsx`, and it imports
+nothing from `tokens/motion.json`. The left rule, the inset shadow and the forced-colors dashed
+border that mark an invalid field all appear the instant `data-invalid` changes, with no
+duration and nothing to ease, because a CSS attribute selector switching a declaration on or off
+is not a transition in the first place. There is therefore nothing here for
+`prefers-reduced-motion` to reduce: a reader who asks for less motion sees exactly the same
+instant change everyone else does. Base UI's own focus, touched, dirty, filled and validity
+attributes are the same kind of instant flip, driven by a keystroke or a blur rather than by a
+timer, so none of them is a candidate for a reduced-motion rule either.
+
 ## Accessibility
 
 Some of this is checked by a gate in CI, some is delegated to Base UI and can be read
-in its source, and some is an argument. They are separated below because `alpha` promises that
+in its source, and some is an argument. They are separated below because `beta` promises that
 accessibility is claimed only where it has been checked, with the gaps listed rather than left
 out. A component that delegates its central promise and does not say so is one nobody can
 audit.
@@ -489,6 +539,99 @@ checked.
 
 <ContrastReport component="field" />
 
+## Data attributes
+
+Field renders one `data-slot` per part, plus the interaction-state attributes Base UI reads
+straight off `@base-ui/react/field`, and neither the status axis nor the category axis appears
+anywhere in this file.
+
+<DataAttributesTable
+  name="field"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On the root, always.",
+      value: "field",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the label, always.",
+      value: "field-label",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the optionality marker, nested inside the label. Absent when optionality is \"none\".",
+      value: "field-optionality",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the hint, when hint is a non-empty string.",
+      value: "field-hint",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the error element, when error is a non-empty string or when the control's own constraint does not currently pass.",
+      value: "field-error",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the control, always.",
+      value: "field-control",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On Field.Form, Base UI's own Form primitive re-exported with a data-slot and nothing else added. Not one of Field's parts; present only where a product mounts it around a set of fields.",
+      value: "field-form",
+    },
+    {
+      attribute: "data-invalid",
+      condition: "On the root and on the control, whenever the field's computed validity is false: forced by a non-empty error, or by the control's own constraint not currently passing.",
+      value: "Present with no value when invalid; absent otherwise",
+    },
+  ]}
+/>
+
+Base UI stamps `data-touched`, `data-dirty`, `data-filled`, `data-focused`, `data-valid` and
+`data-disabled` on the root and on the control alongside `data-invalid`, and they pass through
+untouched: whether the control has been blurred once, whether its value has moved from its
+default, whether it currently holds one, whether it currently has focus, whether it currently
+meets its own constraints, and whether the native `disabled` attribute is set. None of the six
+changes what Field paints; a product that wants to style by one writes its own rule against a
+`data-slot`. Field carries neither `data-status` nor `data-category`, at any value of any prop,
+because it asserts no clinical level and belongs to no measurement category, so neither axis has
+anything to attach to. It carries no `data-opsinjs-value` either: Field wraps a control rather
+than rendering a reading of its own, and a control built to expose one, such as
+`ReadingInput.Segment`, is where that attribute appears.
+
+## CSS variables
+
+<CssVariablesTable name="field" />
+
+Field declares no custom property of its own; the generator finds nothing to tabulate and says
+so rather than inventing a row. It reads two token variables directly with `var()`, rather than
+through a Tailwind colour utility, each carrying its own fallback so the value stays defined in
+a consuming app that has not wired the token sheet: `--opsin-target-minimum` sets the target
+floor on both axes of the control, and `--opsin-border-emphasis` sets the width of the invalid
+left rule and the invalid shadow. Neither is declared here, only read, so neither is a property
+Field owns; a product that wants to change one changes the token, not this component. Every
+colour Field paints, the label's foreground, the hint's muted foreground, and the control's
+border and background, is a semantic token role read the same way, listed under Tokens below.
+
+## Tokens
+
+<TokenTable component="field" />
+
+These are the tokens `scripts/build-tokens.mts` resolves from Field's real imports, not a list
+kept by hand, so the table above cannot drift from what the component actually reads. They are
+chrome and type roles throughout: the foreground and muted-foreground roles that colour the
+label, the hint and the error; the background and border-input roles that draw the control; the
+body and headline type steps, set at the same size and different weights so the label and the
+error read at one size; the spacing steps that lay the parts out and clear the invalid rule's
+indent; and the target-minimum and border-emphasis roles, read directly with `var()` rather than
+through a Tailwind colour utility. None of them is a category token and none of them is a status
+token: Field reads neither axis onto any element, which is the same no-status-colour argument
+the Accessibility section above makes in full.
+
 ## API reference
 
 <PropsTable name="FieldProps" />
@@ -553,6 +696,17 @@ so the state, the effects and the id generation happen inside the boundary the p
 already declares; this file adds no hook, no state and no handler, so a directive here would
 only pull the wrapper into a bundle it does not need to be in. A product's own form does have
 state and handlers, so it is a client component, and importing Field into it works unchanged.
+
+## Cost
+
+<BundleSize name="field" />
+
+Bundle cost is measured from a real production build, and none has been taken for any opsinjs
+component yet, so there is no figure to print here. Measuring it is a stable-phase gate rather
+than a beta one, and a number nobody measured would be worse than the honest blank the
+generator prints. When a build does measure it, the figure will fold in the two runtime
+dependencies this component installs, `@base-ui/react` for the field primitive and
+`lucide-react` for the error glyph, alongside Field's own file.
 
 ## Related
 

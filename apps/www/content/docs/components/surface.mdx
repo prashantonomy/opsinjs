@@ -1,7 +1,7 @@
 ---
 title: Surface
 description: The primitive behind every panel, sheet and card in the system. It decides how solid or translucent a layer looks, and guarantees that whatever sits on it stays readable.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: surfaces
@@ -13,7 +13,7 @@ usedIn: [choose-a-component, daily-log-screen, health-metric-card, onboarding-sc
 
 <StubNotice
   name="surface"
-  status="alpha"
+  status="beta"
   questions={[
     "The translucent case, which is the one this component exists for, has not been measured. Every published materials figure is text against a rung's opaque fallback; nothing measures the tint composited at its published floor over the darkest and the lightest tone the theme can produce, and `minScrimOpacity` is published alongside that measurement rather than derived from it.",
     "Whether `prefers-contrast: more` belongs in this component at all. It is answered here before it is answered in the token layer, which is where Increased contrast says the answer belongs, and what happens to a component that has already shipped its own is unsettled. The colour half is unmeasured as well: the edge widens and keeps its published alpha, and nobody has checked the result against the non-text floor.",
@@ -22,16 +22,18 @@ usedIn: [choose-a-component, daily-log-screen, health-metric-card, onboarding-sc
     "Whether the scrim's floor holds at 200% text. The floor is a colour relationship and does not move with type size, but nobody has looked at a 200% sheet over a hostile backdrop, and the edge widths are fixed pixel values, so the material thins relative to its content as the type grows.",
   ]}
 >
-  <code className="text-sm">surface</code> is implemented and installable. It is{" "}
-  <strong className="font-medium">alpha</strong>: it works, the material it
-  renders comes entirely from measured tokens, the API may change in any release
-  without a deprecation cycle, and it is not for a production health surface
-  yet.
+  <code className="text-sm">surface</code> is implemented, installable, and its
+  API surface is complete. It is{" "}
+  <strong className="font-medium">beta</strong>: the surface is expected to
+  hold, and a change that breaks it would land only in a minor release, with a
+  changelog entry and a migration note. It has been through no accessibility or
+  clinical review, so it is still not for a production health surface, and the
+  questions below are still open.
 </StubNotice>
 
-What keeps it at alpha is the last list in [Accessibility](#accessibility), and it is
-stated there rather than summarised here because most of it is a measurement nobody has
-taken. That includes the one for the translucent material this component exists
+What keeps this at beta rather than stable is the last list in [Accessibility](#accessibility),
+and it is stated there rather than summarised here because most of it is a measurement nobody
+has taken. That includes the one for the translucent material this component exists
 to make safe.
 
 Surface is the least visible component in the system and the one most likely to be
@@ -285,6 +287,29 @@ measured.
 
 <ComponentPreview name="surface-opaque-fallback" kind="example" align="start" />
 
+## States
+
+Surface has no interaction states of its own. It renders no role, takes no focus and adds
+no tab stop, so it has no hover, focus, pressed or disabled variant to design for: anything
+a reader can act on lives inside the children `Surface.Content` holds, and each child
+carries its own states on its own terms. A caller reaching for a hover ring or a pressed
+fill on Surface itself is reaching for a prop this component does not have and will not
+gain, because a Surface that reacted to pointer events would claim an interactivity its
+four static layers do not back.
+
+Surface also takes no data of its own: it renders whatever `rung` names and whatever
+children a caller hands it, so none of the five canonical data states changes what the
+four layers paint. The table says so plainly rather than describing a behaviour the source
+does not have.
+
+| Data state | What Surface renders |
+| --- | --- |
+| Error | The children a caller passes, unchanged. Surface carries no error copy and does not switch to a different rung when a reading does not arrive; a composing component that wants the error to look different picks that appearance itself and passes it as content. |
+| Loading | The same delegation. A skeleton placeholder sits inside a Surface as a child rather than Surface switching into a loading appearance of its own. See [Skeleton](./skeleton.mdx). |
+| Empty | The same. An empty-state message is copy the composing component writes; Surface has no empty variant to render instead of it. |
+| Partial | The same. Surface never reads what its children contain, so it has no notion of a reading being partial; a composing component marks that in the children rather than through a prop here. |
+| Stale | The same. A staleness indicator, a word, an icon or a timestamp, is content, which is what `Surface.Content` exists to hold rather than a state Surface tracks itself. |
+
 ## Content guidelines
 
 Surface holds content; it generates none, and it ships no default copy at all. The
@@ -328,10 +353,29 @@ depends on what happened to be behind it in the designer's screenshot.
   </DoDont.Dont>
 </DoDont>
 
+## Motion
+
+Surface declares no motion. There is no `transition`, no `animation` and no reference to
+any `--opsin-ease-*` or `--opsin-duration-*` token anywhere in the source, so there is
+nothing here for `prefers-reduced-motion` to reduce: reducing zero motion is still zero
+motion. The four layers mount in their resolved state and stay there for the life of the
+surface; a rung change is a new `rung` prop, which is a full re-render rather than a
+transition between two materials.
+
+That is easy to conflate with `prefers-reduced-transparency`, which this component does
+handle, but the two preferences answer different questions and Surface's handling of one
+says nothing about the other. Reduced transparency swaps four token values and removes
+`Surface.Backdrop` from the render entirely, covered in [Accessibility](#accessibility);
+reduced motion is a request about movement over time, and Surface has none to hold back.
+A caller who wants a rung change to be perceptible rather than instant supplies that
+transition on the composing component, not on Surface, because animating the material
+itself would put a moving blur behind exactly the content this component exists to keep
+legible.
+
 ## Accessibility
 
 Some of this is checked by a gate on every commit, some is measured nightly, and some is an
-argument. They are separated below because `alpha` promises that accessibility is claimed
+argument. They are separated below because `beta` promises that accessibility is claimed
 only where it has been checked, with the gaps listed rather than left out.
 
 **Checked, by `pnpm run check:a11y` on every commit:**
@@ -490,6 +534,77 @@ rows below.
 
 <ContrastReport component="surface" />
 
+## Data attributes
+
+<DataAttributesTable
+  name="surface"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "The root element, on every rung including the refusal path for a value outside the six.",
+      value: "surface",
+    },
+    {
+      attribute: "data-slot",
+      condition: "The backdrop layer. Present only on a translucent rung (sheet, overlay or scrim) rendered without the opaque prop, and removed under reduced transparency, increased contrast, forced colours and where backdrop-filter is unsupported.",
+      value: "surface-backdrop",
+    },
+    {
+      attribute: "data-slot",
+      condition: "The scrim layer. Present on every recognised rung; absent only on the refusal path.",
+      value: "surface-scrim",
+    },
+    {
+      attribute: "data-slot",
+      condition: "The edge layer. Present on every recognised rung; absent only on the refusal path.",
+      value: "surface-edge",
+    },
+    {
+      attribute: "data-slot",
+      condition: "The content wrapper, on every rung including the refusal path.",
+      value: "surface-content",
+    },
+  ]}
+/>
+
+The table lists all five data-slot values this component ever renders: the root and the
+four parts inside it, which is the same closed vocabulary [Anatomy](#anatomy) describes.
+Surface stamps no `data-status` and no `data-category`, because it carries neither axis
+itself; a category tint or a status arrives through `className`, on the caller's terms,
+and [the two colour axes](../health/two-colour-axes.mdx) rule still governs whatever lands
+there. It stamps no `data-opsinjs-value` either, because Surface renders no measurement of
+its own. There is also no `data-rung`: the rung a Surface is drawn at is legible from its
+resolved `--opsin-material-*` custom properties in devtools, not from an attribute.
+
+## CSS variables
+
+<CssVariablesTable name="surface" />
+
+Surface sets seven custom properties on its own root element in an inline `style` object
+(`--opsinjs-surface-tint`, `-opaque`, `-alpha`, `-blur`, `-saturation`, `-edge` and
+`-edge-width`), so that a single reduced-transparency, increased-contrast or
+unsupported-`backdrop-filter` rule can override one declaration instead of branching in
+JavaScript. None of them is offered as a public theming surface: the source states
+directly that they are internal plumbing rather than a versioned API, and restyling
+belongs on the `data-slot` parts or on the semantic `--opsin-material-*` token roles listed
+under [Tokens](#tokens) instead. The table above has no rows because there is no override
+point to document, not because the component paints with nothing of its own.
+
+## Tokens
+
+<TokenTable component="surface" />
+
+These rows are generated by `scripts/build-tokens.mts` from `tokensUsedBy`, not listed by
+hand, so a rung that starts reading a further token shows up here the next time the
+generator runs rather than waiting for someone to notice the page is stale. Surface reads
+only from the `materials` scope: each rung's tint, tint alpha, minimum scrim opacity,
+blur, saturation, border and shadow tokens, plus two structural roles,
+`--opsin-border-hairline` for the edge's resting width and `--opsin-border-emphasis` for
+its increased-contrast width. It never reads a category token and a status token onto the
+same element, because Surface carries neither axis itself; a caller who wants a category
+tint applies it through `className`, and [the two colour axes](../health/two-colour-axes.mdx)
+rule is what keeps that from becoming a status colour on the same layer.
+
 ## API reference
 
 <PropsTable name="SurfaceProps" />
@@ -530,6 +645,18 @@ it can, and renders the children with no material at all. It does not fall back 
 the wrong depth is the failure the whole renaming exists to prevent, and it is invisible.
 The children are still rendered, because Surface is a wrapper and dropping it would take a
 reader's own data off the screen in order to report a styling mistake.
+
+## Cost
+
+<BundleSize name="surface" />
+
+No size has been measured yet. Bundle cost comes from a real build of the registry item,
+not an estimate, and [the release phases](../project/release-phases.mdx) make that
+measurement a `stable` gate rather than a `beta` one, so its absence here is not a gap this
+promotion is meant to close. Surface has no runtime dependency of its own, only `cn` and
+the `MaterialRung` type, both of which travel with every registry item, so whatever figure
+eventually lands here is close to the floor a zero-dependency server component can reach.
+Inventing a figure ahead of that measurement would be worse than leaving it unmeasured.
 
 ## Related
 

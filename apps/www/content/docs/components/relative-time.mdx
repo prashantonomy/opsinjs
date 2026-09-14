@@ -1,7 +1,7 @@
 ---
 title: RelativeTime
 description: When something happened, written the way people say it in phrases like "3 days ago". The exact date and time are always in reach, and explicit words appear when the product's own staleness boundary has been passed.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: health-formatting
@@ -14,7 +14,7 @@ usedIn: [choose-a-component, daily-log-screen, daily-logging, health-metric-card
 
 <StubNotice
   name="relative-time"
-  status="alpha"
+  status="beta"
   issue="opsinjs/opsinjs#0"
   questions={[
     "The component does not tick, and it does not read the clock: `now` is required and comes from the caller. A surface left open for an hour therefore still shows the phrase it was rendered with. The exact date is in the accessibility tree and in print at every age, and it comes onto the screen beside the phrase once the reading is older than a day; within a day the phrase alone is on screen, which is what recency asks for. That narrows the question without closing it. Whether such a surface should also get an opt-in client wrapper that re-renders is open, and the answer decides whether a phrase as fine as '3 minutes ago' should be rendered on one at all.",
@@ -24,10 +24,12 @@ usedIn: [choose-a-component, daily-log-screen, daily-logging, health-metric-card
     "A consumer needed a word this component does not have. AlertBanner wants to name the instant a product's rules produced a finding, rather than an event that happened to the reader or to the data, and none of the five events is that instant. The obvious candidates 'detected', 'flagged' and 'triggered' are refused at every level by the content doctrine's banned-words table, which reads them as machine register that puts an algorithm between the reader and the reading. So the open decision is not which sixth word to add but whether an instant of that kind belongs on a patient-facing surface at all.",
   ]}
 >
-  <code className="text-sm">relative-time</code> is implemented and installable.
-  It is <strong className="font-medium">alpha</strong>: it works and it is
-  documented, the API may change in any release without a deprecation cycle, and
-  it is not for a production health surface yet.
+  <code className="text-sm">relative-time</code> is implemented, installable, and
+  its API surface is complete. It is <strong className="font-medium">beta</strong>:
+  the surface is expected to hold, and a change that breaks it would land only in a
+  minor release, with a changelog entry and a migration note. It has been through
+  no accessibility or clinical review, so it is still not for a production health
+  surface, and the questions below are still open.
 </StubNotice>
 
 Relative time is a small kindness that turns into a hazard at the edges. *Two days ago* is
@@ -281,6 +283,25 @@ eleven days earlier. The prefix is what keeps them apart.
 
 <ComponentPreview name="relative-time-measured-and-synced" kind="example" align="start" />
 
+## States
+
+RelativeTime is a leaf formatter and a server component. It is not focusable, it
+holds no control, and it has no hover, focus, pressed or disabled state, so the
+interaction column of a states matrix is empty by design rather than unfilled. The
+one visual state it owns is the muted stale treatment, and that is reached only by
+supplying a threshold and exceeding it, never by asking for it directly. The rest
+of the canonical data states belong to the surface that composes the timestamp,
+because a formatter runs after the data has arrived and cannot see the fetch that
+produced it.
+
+| Data state | What RelativeTime renders |
+| --- | --- |
+| Error | No error surface of its own. A malformed input is refused instead: an `at` that is not an ISO 8601 timestamp with an offset, or an `event` outside the five, renders nothing at all and warns on the development console rather than showing a plausible-looking guess. An error reaching the data layer belongs to the surface that composed the timestamp. |
+| Loading | Nothing to load. The component is handed a resolved string and renders synchronously in one pass, so a skeleton or a spinner is the concern of the surface fetching the reading. |
+| Empty | No empty state. `at` is required, and a timestamp that cannot be read renders nothing rather than a placeholder. A reading that is absent altogether is shown by the surface around it, which is why [Value](./value.mdx) renders an explicit absence and this component does not. |
+| Partial | The one place it renders part of itself. Where `now` cannot be parsed, or the reading is timestamped in the future, the relative phrase is dropped and the exact date is rendered on its own, because a dated timestamp is never wrong where a computed age would be a guess. |
+| Stale | The component's only visual state. Past `staleAfterHours`, or wherever a supplied threshold could not be applied, the phrase and the exact date recede to `text-muted-foreground` while the event word and the words "may be out of date" stay at the inherited foreground, and `data-slot="relative-time-staleness"` carries those words. It is a muted typographic change, never a status tint. |
+
 ## Content guidelines
 
 Always name the event. *Measured 3 days ago* is a fact; *3 days ago* is a fragment, and the
@@ -353,10 +374,23 @@ that case, and leave it on wherever the zone can differ, such as a result issued
   </DoDont.Dont>
 </DoDont>
 
+## Motion
+
+RelativeTime declares no transition, no animation and no timer. It mounts once with
+the phrase it was rendered with and it never changes on its own, so there is
+nothing for `prefers-reduced-motion` to reduce. This is the same decision that
+keeps it out of a live region, because nothing about it moves after it is rendered.
+A timestamp is a health-adjacent fact, and a health value is never animated onto
+the screen on first paint: there is no count-up from a lower number and no sweep of
+the phrase, so the age is present the moment the element renders. A product that
+re-renders the component on an interval with a fresh `now` inherits that stillness,
+and it should not add a transition to soften the change, because a timestamp that
+animates as it updates draws the eye to the clock rather than to the reading.
+
 ## Accessibility
 
 Some of these are held by a gate on every pull request. The rest are arguments about the
-implementation, and they are labelled as such: `alpha` promises that accessibility is claimed
+implementation, and they are labelled as such: `beta` promises that accessibility is claimed
 only where it has been checked, with the gaps listed rather than left out.
 
 **Checked, by `node scripts/check-a11y.mts` on every pull request:**
@@ -463,6 +497,57 @@ only where it has been checked, with the gaps listed rather than left out.
 
 <ContrastReport component="relative-time" />
 
+## Data attributes
+
+<DataAttributesTable
+  name="relative-time"
+  rows={[
+    { attribute: "data-slot", condition: "On the root time element, at every age", value: "relative-time" },
+    { attribute: "data-slot", condition: "On the event word, at every age", value: "relative-time-prefix" },
+    { attribute: "data-slot", condition: "On the relative phrase, present at every past age and absent for a future or unmeasurable instant", value: "relative-time-relative" },
+    { attribute: "data-slot", condition: "On the exact date, in the accessibility tree at every age; on screen once older than absoluteAfterDays, otherwise visually hidden", value: "relative-time-absolute" },
+    { attribute: "data-slot", condition: "On the staleness words, past staleAfterHours or wherever a supplied threshold could not be applied", value: "relative-time-staleness" },
+  ]}
+/>
+
+These are the hooks a surface styles or tests against, transcribed from the
+component source rather than derived. RelativeTime stamps no `data-status` and no
+`data-category`, because it paints from neither colour axis, and the accessibility
+gate refuses any file that paints a status colour without the matching
+`data-status`, which is what stops the stale treatment from drifting into an amber
+tint in a later commit. It stamps no `data-opsinjs-value` either, because that
+attribute marks a measurement a person reads as their own and an instant is not
+one. The exact instant travels instead on the `datetime` attribute of the root
+`time` element, which carries the caller's `at` string unmodified so the instant
+survives copy, export and print even when the visible text is a phrase.
+
+## CSS variables
+
+<CssVariablesTable name="relative-time" />
+
+RelativeTime declares no CSS custom property of its own. It sets no inline `style`,
+and every colour it shows is a semantic token role read straight from the token
+layer rather than a value it defines: the muted stale treatment is the role
+`text-muted-foreground`, which the theme remaps for dark mode, and the roles it
+consumes are the ones listed under Tokens. There is nothing here for a product to
+override through an `--opsin-*` variable, so a surface that needs a different
+treatment restyles the `data-slot` parts rather than reaching for a custom property
+that does not exist.
+
+## Tokens
+
+<TokenTable component="relative-time" />
+
+These are the token roles RelativeTime reads, resolved by `tokensUsedBy` from the
+component source and generated by `scripts/build-tokens.mts` rather than listed by
+hand, so the table cannot drift from what the code actually consumes. The stale
+treatment sits on the chrome role behind `text-muted-foreground`, which the theme
+aliases to a generated token rather than to a raw colour. The component paints from
+neither the category axis nor the status axis, so it never reads a category token
+and a status token onto one element, which is the rule that keeps a colour meaning
+a kind of measurement and a colour meaning how urgent it is from ever landing on
+the same span.
+
 ## API reference
 
 `at`, `event` and `now` are required, and none of them has a default: an instant with no
@@ -494,6 +579,19 @@ is already visible in the
 surrounding row; the date stays in the accessibility tree and in print even then.
 
 <PropsTable name="RelativeTimeProps" />
+
+## Cost
+
+<BundleSize name="relative-time" />
+
+Bundle cost is read from a real production build, and none has been taken for this
+component, so the figure above is absent rather than estimated. Measuring it is a
+stable-phase gate rather than a beta one, because beta asks that the API surface
+hold and not that the shipped size be pinned. RelativeTime pulls in no npm
+dependency and no other registry item, and its only imports are `cn` and a
+development-only warning helper, so the measured size will be small once a build
+records it, and a number invented to fill the gap would be worth less than the
+honest absence.
 
 ## Related
 

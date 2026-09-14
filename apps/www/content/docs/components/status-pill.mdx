@@ -1,7 +1,7 @@
 ---
 title: StatusPill
 description: A short label that says which of four levels of attention something needs. It is shown as a word, an icon and a colour together, never as a colour alone.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: health-data-display
@@ -14,16 +14,18 @@ usedIn: [alert-escalation, choose-a-component, health-metric-card, offline-and-s
 
 <StubNotice
   name="status-pill"
-  status="alpha"
+  status="beta"
   questions={[
     "When a pill's level changes while it is on screen, what is announced, how urgently, and what stops a list of pills from flooding a screen reader? The component mounts no live region today, on purpose.",
     "Does the pill's surface and boundary hold up under `prefers-contrast: more` and in forced colours? Neither is implemented in the token layer today, so the increased-contrast claim cannot yet be made for this component.",
   ]}
 >
-  <code className="text-sm">status-pill</code> is implemented and installable.
-  It is <strong className="font-medium">alpha</strong>: it works and it is
-  documented, the API may change in any release without a deprecation cycle, and
-  it is not for a production health surface yet.
+  <code className="text-sm">status-pill</code> is implemented, installable, and its
+  API surface is complete. It is <strong className="font-medium">beta</strong>: the
+  surface is expected to hold, and a change that breaks it would land only in a minor
+  release, with a changelog entry and a migration note. It has been through no
+  accessibility or clinical review, so it is still not for a production health surface,
+  and the questions below are still open.
 </StubNotice>
 
 StatusPill is where the status axis becomes visible. It is a small component with an
@@ -209,6 +211,33 @@ heading reads as loudly as the sentence it qualifies rather than a step below it
 
 <ComponentPreview name="status-pill-sizes" kind="example" align="start" />
 
+## States
+
+StatusPill has no interaction states. It is not focusable, it takes no hover or pressed
+treatment, and it never becomes disabled, because it is a label rather than a control. If a
+product turns it into a filter it has built a [Button](./button.mdx), and the states that
+matter then are Button's, not this component's.
+
+It has no data states of its own either. The five data states the system defines live in the
+reading rather than in the pill: a result that has not arrived shows a
+[Skeleton](./skeleton.mdx), one that could not be loaded or is genuinely absent shows an
+[EmptyState](./empty-state.mdx), and a reading old enough to doubt is wrapped in
+[RelativeTime](./relative-time.mdx). The pill is handed a level only once the surface around it
+has a level to state.
+
+| Data state | What StatusPill renders |
+| --- | --- |
+| Error | Nothing. The surface reports the error; a pill would assert a level the reading does not have. |
+| Loading | Nothing. The surface shows a Skeleton until a level exists. |
+| Empty | Nothing. There is no reading to grade, so there is no pill. |
+| Partial | The level for the part that exists, where the product has assigned one, while the surface says which part is missing. |
+| Stale | The level unchanged, with freshness carried beside it by RelativeTime rather than by the pill. |
+
+The one value that looks like a state and is not is `unknown`. It is the absence of an
+assertion, and the pill refuses it rather than drawing it as a fifth level, because a reader
+who sees it rendered reads it as "probably fine". See
+[Clinical status semantics](../health/clinical-status-semantics.mdx).
+
 ## Content guidelines
 
 Use the level's own word. Do not substitute synonyms per screen: a reader who has learnt
@@ -242,10 +271,23 @@ health needs attention* labels a human being, and the pill has no basis for that
   </DoDont.Dont>
 </DoDont>
 
+## Motion
+
+StatusPill uses no motion. It does not animate when it mounts, and it does not animate when its
+level changes while it is on screen. That is deliberate: motion is never a carrier of status in
+this system, so a pill that moved to announce a change would be leaving to movement a meaning
+the word and the colour are required to carry. No part of it declares a transition token.
+
+Because it declares no transition, there is nothing for `prefers-reduced-motion` to reduce. A
+surface that wants a level change to be noticed does that through a live region it owns, and an
+[AlertBanner](./alert-banner.mdx) where the change is urgent, rather than by animating the pill.
+What a screen reader should announce when a pill's level changes is one of the open questions at
+the top of this page.
+
 ## Accessibility
 
 Two of these are checked by a gate on every commit. The rest are arguments, and they are
-labelled as such: `alpha` promises that accessibility is claimed only where it has been
+labelled as such: `beta` promises that accessibility is claimed only where it has been
 checked, with the gaps listed rather than left out.
 
 **Checked, by `pnpm run check:a11y` on every commit:**
@@ -336,9 +378,63 @@ the ink on surface and the line on surface for its four levels.
 
 <ContrastReport component="status-pill" />
 
+## Data attributes
+
+<DataAttributesTable
+  name="status-pill"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On the root and both inner parts, always",
+      value: "status-pill, status-pill-icon, status-pill-label",
+    },
+    {
+      attribute: "data-status",
+      condition: "On the root, always, because status is required",
+      value: "steady | watch | attention | urgent",
+    },
+  ]}
+/>
+
+The pill carries neither `data-category` nor `data-opsinjs-value`. It states a level, not a
+category and not a measurement, so the two attributes that would tie it to the category axis or
+to a reader's own number are absent by design. `data-status` is the hook a product styles or
+scrapes a level by, and the three `data-slot` values are how a rule of your own reaches the
+word, the glyph or the whole pill without an export.
+
+## CSS variables
+
+<CssVariablesTable name="status-pill" />
+
+StatusPill exposes no custom property of its own for a consumer to set. Its colours are the
+semantic status roles listed under Tokens below, read straight from the token layer rather than
+through a component-scoped variable, so there is nothing of its own to override here. The one
+custom property it reads directly is its ink, `--opsin-status-steady-ink` and its three level
+siblings, and the Anatomy note above says why that is written as a bracketed `color:` property
+rather than a `text-*` utility. To recolour any part, write a rule against its `data-slot`.
+
+## Tokens
+
+<TokenTable component="status-pill" />
+
+These are the tokens the pill actually reads, generated from its source by
+`scripts/build-tokens.mts` rather than listed by hand. They are the status surface, line and ink
+roles for the four levels, together with the type step and spacing each size sets. The pill
+never reads a category token or a raw ramp step, and a row here that named one would be the bug
+the two-axis rule exists to catch.
+
 ## API reference
 
 <PropsTable name="StatusPillProps" />
+
+## Cost
+
+<BundleSize name="status-pill" />
+
+Bundle cost is measured from a real build, and no such measurement has been taken for any
+opsinjs component yet, so there is no number to show here. It is a stable-phase gate rather than
+a beta one, and putting a figure here that nobody measured is the one thing the size section
+must never do.
 
 ## Related
 

@@ -1,7 +1,7 @@
 ---
 title: TrendSparkline
 description: A small line showing how one measurement has moved over time, with a caption that says what changed and leaves the verdict to you.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: health-data-display
@@ -14,7 +14,7 @@ usedIn: [choose-a-component, sharing-with-a-clinician, trend-review, trend-with-
 
 <StubNotice
   name="trend-sparkline"
-  status="alpha"
+  status="beta"
   issue="opsinjs/opsinjs#0"
   questions={[
     "`window` is a display string, so the component is never told how long the period is and lays the readings out across the extent of the series it was given. Two sparklines side by side are therefore only comparable when their series cover the same span, and nothing checks that. A duration prop would close it; the specification does not have one.",
@@ -24,10 +24,13 @@ usedIn: [choose-a-component, sharing-with-a-clinician, trend-review, trend-with-
     "The band's contrast is now defined in `scripts/check-contrast.mts` under the `surfaces` scope: the edge is drawn in the neutral that clears the non-text floor, and the fill is published as advisory. What remains unmeasured is the caption text against whatever surface a caller places this component on, and the component's behaviour at 200% text. That behaviour is reasoned from the source. The Accessibility section below says which claims a gate holds up and which are only argued.",
   ]}
 >
-  <code className="text-sm">trend-sparkline</code> is implemented and
-  installable. It is <strong className="font-medium">alpha</strong>: it works,
-  the API may change in any release without a deprecation cycle, and it is not
-  for a production health surface yet.
+  <code className="text-sm">trend-sparkline</code> is implemented,
+  installable, and its API surface is complete. It is{" "}
+  <strong className="font-medium">beta</strong>: the surface is expected to
+  hold, and a change that breaks it would land only in a minor release, with a
+  changelog entry and a migration note. It has been through no accessibility or
+  clinical review, so it is still not for a production health surface, and the
+  questions below are still open.
 </StubNotice>
 
 A sparkline is a claim that a pattern exists. Four points and a slope look exactly like
@@ -387,6 +390,24 @@ the only condition under which these three pictures may be compared with one ano
 
 <ComponentPreview name="trend-sparkline-a-row-of-tiles" kind="example" align="start" />
 
+## States
+
+TrendSparkline has no interaction states. Nothing in it is focusable, and there is
+no hover, no pressed and no disabled variant, because a sparkline is a glyph a reader
+looks at rather than a control they operate. The keyboard table above records the same
+fact from the other side: Tab skips the whole component. What it does have is a set of
+data states, and it keeps each of the five as its own sentence rather than folding any
+two together, because telling somebody they recorded nothing on a day they did record
+something is untrue about their own record.
+
+| Data state | What TrendSparkline renders |
+| --- | --- |
+| Error | A reading whose value is a number but not a finite one is counted apart from the gaps and described in the caption as a reading that could not be read. It is not drawn. TrendSparkline has no whole-surface error state of its own, because fetching the series belongs to the surface that composes this beneath a number. In development it warns once per distinct broken value. |
+| Loading | None of its own. TrendSparkline formats a series it is handed, so a skeleton or a spinner belongs to the surface that loads the series, not to the glyph drawn from it. |
+| Empty | Below `minimumPoints`, or with no readings at all, it draws no line and renders the refusal sentence, which names the count it has and the minimum the view needs. When the surrounding surface has no chart slot, an [EmptyState](./empty-state.mdx) with its `not-enough` reason owns that refusal instead, so the shortfall is stated once. |
+| Partial | A gap is an explicit `{ value: null }` entry, drawn as a real break in the path with a dot on each side and counted in the caption as a gap where nothing was recorded. Nothing is interpolated across it, so a fortnight of absent data leaves a fortnight of absent line. |
+| Stale | The caption prints the date of the last reading from its own `at`, so a three-month-old series does not read as current. It invents no staleness boundary and passes no verdict about age: how old is too old belongs to the metric, and a product that wants that verdict places a [RelativeTime](./relative-time.mdx) beside the plot. |
+
 ## Content guidelines
 
 Captions state direction where a `changeThreshold` makes one available, then magnitude and
@@ -454,10 +475,22 @@ the caption follows it.
   </DoDont.Dont>
 </DoDont>
 
+## Motion
+
+TrendSparkline declares no transition and no animation. The line does not draw its own
+length, the marker does not fade or pop, and a value that changes replaces the picture
+at once rather than morphing into it, on first paint and after it. That is a decision
+rather than an omission. A path that draws itself reads as time passing and implies a
+direction the data has not been checked for, and a health value that counts up or
+sweeps into place animates the very number a reader is trying to read. So there is no
+count-up on the readings, no sweep along the line, and no reduced-motion fallback,
+because `prefers-reduced-motion` has nothing here to reduce. The component consumes no
+token from `tokens/motion.json`.
+
 ## Accessibility
 
 Several of these are held by a gate on every commit. The rest are arguments, and they are
-labelled as such: `alpha` promises that accessibility is claimed only where it has been
+labelled as such: `beta` promises that accessibility is claimed only where it has been
 checked, with the gaps listed rather than left out.
 
 **Checked, by `pnpm run check:a11y` on every commit:**
@@ -642,6 +675,62 @@ checked, with the gaps listed rather than left out.
 
 <ContrastReport component="trend-sparkline" />
 
+## Data attributes
+
+<DataAttributesTable
+  name="trend-sparkline"
+  rows={[
+    { attribute: "data-slot", condition: "On the root wrapper, always", value: "trend-sparkline" },
+    { attribute: "data-slot", condition: "On the period label, only when you supplied your own caption and a line was drawn", value: "trend-sparkline-window" },
+    { attribute: "data-slot", condition: "On the SVG plot, only when there are enough readings to draw", value: "trend-sparkline-plot" },
+    { attribute: "data-slot", condition: "On the zero baseline, whenever a plot is drawn", value: "trend-sparkline-baseline" },
+    { attribute: "data-slot", condition: "On the shaded band, only when the range carries a source and both bounds with the lower below the upper", value: "trend-sparkline-band" },
+    { attribute: "data-slot", condition: "On the line path, whenever a plot is drawn", value: "trend-sparkline-line" },
+    { attribute: "data-slot", condition: "On each gap-edge dot, one on each side of a break in the series", value: "trend-sparkline-gap-edge" },
+    { attribute: "data-slot", condition: "On the emphasised reading, only when one reading carries one of the four levels", value: "trend-sparkline-point" },
+    { attribute: "data-slot", condition: "On the caption paragraph, always", value: "trend-sparkline-caption" },
+    { attribute: "data-category", condition: "On the line, when a known category was passed", value: "sleep | heart | activity | nutrition | mind | labs" },
+    { attribute: "data-status", condition: "On the emphasised reading only, the one plot element that carries the status axis", value: "steady | watch | attention | urgent" },
+    { attribute: "data-opsinjs-value", condition: "On every Value: the caption's first and last readings, its marked reading when one is present, and its band bounds, in addition to the emphasised reading on the plot. De-duplicate before scraping. The emphasised reading is the only carrier within the plot itself; every other one lives in the caption below it.", value: "The unrounded number behind whichever reading that Value renders" },
+  ]}
+/>
+
+Every part of the plot and the caption is identified by `data-slot`, so a product can
+select or style any of them from outside without a class this component owns. The two
+colour axes never meet on one element: `data-category` sits on the line, and
+`data-status` sits on the emphasised reading alone, which is the DOM contract the print
+stylesheet, the colour-vision audit and a product's own tests read the level from.
+`data-opsinjs-value` carries a reading unrounded wherever it appears, on the caption's
+Values as well as on the emphasised point in the plot, because rounding is a display
+decision and a machine reading the DOM wants the datum. No element carries both axes,
+which is what A11Y008 checks on every commit.
+
+## CSS variables
+
+<CssVariablesTable name="trend-sparkline" />
+
+TrendSparkline exposes no custom property of its own. There is no `--opsin-*` variable a
+caller could set to recolour it, because every colour it draws is a semantic token role
+read straight from the token layer, and those roles are the ones listed under Tokens
+below. The stroke widths it does set are arbitrary properties that read a space token,
+such as `var(--opsin-space-px)`, rather than declaring a variable of their own. To
+re-tint the line, pass a `category`; to change what a role resolves to, change the
+token, not a property on this component.
+
+## Tokens
+
+<TokenTable component="trend-sparkline" />
+
+These are the tokens the component reads, resolved by `tokensUsedBy` from the data
+`scripts/build-tokens.mts` generates, rather than a list kept by hand. The line takes a
+category `-line` role on the category axis, and the baseline, the band edge, the
+gap-edge dots and the emphasised marker take neutral roles, so they carry neither
+category nor status. The plot draws no status colour at all: the reading's verdict is
+rendered as a StatusPill inside the caption, not on the mark. So a category role and a
+status role never land on one element, which is the two-axis rule, a colour that says
+which kind of measurement this is never sharing a mark with a colour that says how
+urgent it is.
+
 ## API reference
 
 <PropsTable name="TrendSparklineProps" />
@@ -664,6 +753,17 @@ copy that can drift. `TrendDirection` is exported from this file as the vocabula
 may use in its own caption; the component itself only ever produces `up`, `down` and `level`,
 only when a `changeThreshold` was supplied, and never `unsettled`, because deciding a series
 is unsettled needs a noise measure that no prop carries.
+
+## Cost
+
+<BundleSize name="trend-sparkline" />
+
+No bundle size is quoted here, because none has been measured. A real figure comes from
+a production build of the installed component rather than from a guess, and inventing
+one is forbidden. Bundle cost is a stable-phase gate and not a beta one, so this stays
+empty until a build is taken. TrendSparkline composes StatusPill and Value and lists
+both as registry dependencies, so a measured figure would count them too, because a
+consumer who installs this pulls all three in together.
 
 ## Related
 

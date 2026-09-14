@@ -1,7 +1,7 @@
 ---
 title: DisclaimerNote
 description: The short standing note saying that what you are looking at is information, not medical advice. It is placed by rule so it is always in the same place and never in the way.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: health-communication
@@ -14,7 +14,7 @@ usedIn: [ask-users-for/ethnicity, ask-users-for/height-and-weight, ask-users-for
 
 <StubNotice
   name="disclaimer-note"
-  status="alpha"
+  status="beta"
   issue="opsinjs/opsinjs#0"
   questions={[
     "Once per screen, once per session, or once per surface that shows a health value? The component enforces none of these. It renders where it is put, and a second note on the same surface is invisible to it. The placement rule is still a rule people follow rather than one the code keeps.",
@@ -23,10 +23,12 @@ usedIn: [ask-users-for/ethnicity, ask-users-for/height-and-weight, ask-users-for
     "Nobody has listened to this component in a screen reader, and its link's hit area has not been measured. The token pairs its colour comes from are published in the table below, but this note's own rendered pixels are not. The accessibility section below says which claims are checked by a gate and which are only argued.",
   ]}
 >
-  <code className="text-sm">disclaimer-note</code> is implemented and
-  installable. It is <strong className="font-medium">alpha</strong>: it works
-  and it is documented, the API may change in any release without a deprecation
-  cycle, and it is not for a production health surface yet.
+  <code className="text-sm">disclaimer-note</code> is implemented,
+  installable, and its API surface is complete. It is <strong className="font-medium">beta</strong>:
+  the surface is expected to hold, and a change that breaks it would land only in
+  a minor release, with a changelog entry and a migration note. It has been
+  through no accessibility or clinical review, so it is still not for a production
+  health surface, and the questions below are still open.
 </StubNotice>
 
 A disclaimer that appears everywhere is read nowhere, and a disclaimer that appears nowhere
@@ -52,6 +54,7 @@ Examples.
   unbuilt={false}
   importPath="@/components/ui/disclaimer-note"
   dependencies={["lucide-react"]}
+  registryDependencies={["link"]}
 />
 
 ## Usage
@@ -245,6 +248,30 @@ reader to find.
 
 <ComponentPreview name="disclaimer-note-no-text-supplied" kind="example" align="start" />
 
+## States
+
+The note itself is not interactive. It is a server component with no state, no hook, no
+event handler and no dismiss control, so it has no hover, pressed or disabled state of its
+own. The one focusable part is the link, present only when `more` is supplied, and its
+states are decided by [Link](./link.mdx): a focus ring and a one-pixel press. Hover adds
+nothing, because the underline is the rest state and there is no quieter state for hover to
+lift from, and the disabled, selected and loading states do not apply, because a note's link
+is never turned off, chosen or pending.
+
+The five canonical [data states](../foundations/data-states.mdx) mostly do not apply here,
+because this component carries no reading. It is a standing statement about what the product
+is, not a display of a measurement, so it holds no value to be in error, loading, partial or
+stale about. The one state it does own is the absence of its words, and it makes that absence
+visible rather than rendering empty.
+
+| Data state | What DisclaimerNote renders |
+| --- | --- |
+| Error | No error state of its own. The component fetches nothing and holds no reading. Copy that fails to arrive upstream reaches the note as no words, which it handles as the empty row below rather than as an error. |
+| Loading | No skeleton and no spinner. It renders synchronously with whatever children arrive, and a surface still loading its copy passes no words, which is again the empty row below. |
+| Empty | The one state the component makes visible itself. With no words supplied, meaning `undefined`, `false` from an `&&` branch, `0` from that branch on an empty collection, an empty array or a whitespace-only string, it prints one line saying the app has not added its notice, and raises a development warning. A body wrapped in an element is taken at its word, so an empty string inside `<strong>` is the one route to a silently empty note. |
+| Partial | No partial state. The note is one or two sentences plus the optional icon, link and version marker. A note with words but without a `more` link or a `textVersion` simply omits those parts, which is the ordinary shape rather than a degraded one. |
+| Stale | No staleness of its own. The note carries no timestamp. `textVersion` records which wording a reader saw, and the component renders it exactly as written without comparing it to a current version or flagging an old one, because deciding that a note's wording is out of date belongs to the product. |
+
 ## Content guidelines
 
 Two sentences at most. Say what the product does, then what it does not do. Use plain words:
@@ -322,10 +349,25 @@ own copy for it rather than relying on the component to speak, and the absence o
 translation seam here is deliberate and recorded in
 [ADR 0005](../project/decisions/0005-no-lang-segment-yet.mdx).
 
+## Motion
+
+This component declares no motion. There is no transition, no animation, no transform, and
+no duration or easing token anywhere in the source or in either example, so it reads no token
+from `tokens/motion.json` and there is nothing for `prefers-reduced-motion` to reduce. That
+is a deliberate answer rather than an omission: a standing legal statement that faded, slid or
+counted itself in would be asking for the attention the component exists to withhold, and the
+note appears in its final position on first paint.
+
+The component also renders no health value, so the rule that a health number is never animated
+on first paint has nothing here to bind to. It is worth stating anyway, because the rule is why
+this note would refuse a count-up or a sweep even if it ever showed a reading: a value that
+animates in reads as a value still settling, which is the wrong thing to say about a number a
+reader is being asked to act on.
+
 ## Accessibility
 
 Some of what follows is checked by a gate on every commit and the rest is argued. They are
-labelled separately, because `alpha` promises that accessibility is claimed only where it has
+labelled separately, because `beta` promises that accessibility is claimed only where it has
 been checked, with the gaps listed rather than left out. Nobody has yet listened to this
 component in a screen reader.
 
@@ -481,6 +523,74 @@ component in a screen reader.
 
 <ContrastReport component="disclaimer-note" />
 
+## Data attributes
+
+Every part is addressable from outside by a `data-slot`, so a surface can adjust the note's
+layout without reaching for a class the component does not publish. The root and the statement
+paragraph are always present; the glyph, the link and the version marker each appear only when
+the caller asks for them. What is not here is the point of the table as much as what is: the
+root carries neither `data-status` nor `data-category`, and there is no `data-opsinjs-value`,
+because the note sits outside both colour axes and displays no measurement. This is the
+two-axis rule answered by absence rather than by a choice of which axis to use. The glyph also
+carries `aria-hidden="true"`, because it is a scanning aid and a duplicate of what the words
+already say.
+
+<DataAttributesTable
+  name="disclaimer-note"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On the root. Always present.",
+      value: "disclaimer-note",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the optional glyph. Present only when icon is set.",
+      value: "disclaimer-note-icon",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the statement paragraph. Always present.",
+      value: "disclaimer-note-text",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the link. Present only when more supplies both a label and an href.",
+      value: "disclaimer-note-link",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the version marker. Present only when textVersion is a non-empty string.",
+      value: "disclaimer-note-version",
+    },
+  ]}
+/>
+
+## CSS variables
+
+<CssVariablesTable name="disclaimer-note" />
+
+The component declares no custom property of its own. Its colours are the semantic token
+roles, `--foreground` for the ink, `--border` for the hairline and `--muted-foreground` for
+the version marker, read straight from the token layer and listed under Tokens below. It does
+read a few token custom properties inside `var()`, among them `--opsin-target-minimum` for the
+link's target floor, `--opsin-measure-comfortable` for the paragraph's measure and
+`--opsin-border-emphasis` for the thicker hairline under `prefers-contrast: more`, each with a
+literal fallback so the declaration stays valid in a project installed without the generated
+token stylesheet. Reading a token is not authoring one, so there is no tier-3 property to
+document here.
+
+## Tokens
+
+<TokenTable component="disclaimer-note" />
+
+These are the tokens the component reads, resolved by `scripts/build-tokens.mts` from the token
+source rather than listed by hand, so the table cannot drift from what the component actually
+consumes. A health component never reads a category token and a status token onto one element,
+which is the two-axis rule. Here that rule is answered by absence: the note reads only the
+neutral chrome and space roles and takes no colour from either axis, so there is no element on
+which the two could meet.
+
 ## API reference
 
 <PropsTable name="DisclaimerNoteProps" />
@@ -494,6 +604,18 @@ missing state at all, which is the state that most needs seeing.
 the product that already had the value could read: it survives no screenshot, no printout and
 no support ticket. The data-attribute vocabulary is closed at four in any case, so a fifth
 would be a change to the system rather than to this component.
+
+## Cost
+
+<BundleSize name="disclaimer-note" />
+
+Bundle cost is measured from a real build, and no build has been taken, so there is no figure
+to show. Writing one in by hand is forbidden, because a number nobody measured reads as one
+somebody did. When a figure is taken it will include the two things this component pulls in
+beyond its own markup, the composed [Link](./link.mdx) and the single `Info` glyph from
+`lucide-react`, so the measurement belongs to a build that resolves those rather than to an
+estimate. A measured size is a stable-phase gate rather than a beta one, which is why its
+absence does not hold the component at beta.
 
 ## Related
 

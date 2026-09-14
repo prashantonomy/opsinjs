@@ -1,7 +1,7 @@
 ---
 title: Dialog
 description: A window that opens over the page and waits for an answer. It takes your keyboard and your attention until you deal with it, and gives them back where it found them.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: surfaces
@@ -13,7 +13,7 @@ usedIn: [alert-escalation, consent-flow]
 
 <StubNotice
   name="dialog"
-  status="alpha"
+  status="beta"
   questions={[
     "`sheetBelow` is gone. The specification asked for the dialog to become a Sheet below a width, and a Sheet is draggable and dismissible by design. An alert dialog nobody may dismiss on a laptop would therefore have become dismissible with a thumb on a phone. The shape moved and the behaviour did not. On a phone the dialog now floats inset on all four sides rather than docking to the bottom edge, so it no longer borrows a sheet's silhouette; the open question is whether that inset panel is the right answer on a phone, or whether the honest answer is that some of these questions should never have been dialogs at all.",
     "Escape on an alert dialog does not close it, and a refused press now moves focus to the popup so the labelled, described container is announced again, which means the reader hears the question rather than nothing. But `patterns/alert-escalation.mdx` asks for the reason to be announced, and the title is the question, not the reason. That re-announcement is also the behaviour every screen reader is expected to produce from a focus move onto a labelled, described container, and nobody in this repository has yet put a screen reader on it. So the question narrows: does an alert dialog owe somebody who presses Escape the reason the key was refused, over and above the question they are being asked, and how do we come to trust an announcement we have described but not heard?",
@@ -21,10 +21,13 @@ usedIn: [alert-escalation, consent-flow]
     "Depth in this system is carried by scale rather than by shadow, and the rung a dialog sits on is the same rung a Sheet sits on. Nothing yet says what a dialog over a sheet should look like. The page below says it should not happen at all.",
   ]}
 >
-  <code className="text-sm">dialog</code> is implemented and installable. It is{" "}
-  <strong className="font-medium">alpha</strong>: it works and it is documented,
-  the API may change in any release without a deprecation cycle, and it is not
-  for a production health surface yet.
+  <code className="text-sm">dialog</code> is implemented, installable, and its
+  API surface is complete. It is{" "}
+  <strong className="font-medium">beta</strong>: the surface is expected to
+  hold, and a change that breaks it would land only in a minor release, with
+  a changelog entry and a migration note. It has been through no
+  accessibility or clinical review, so it is still not for a production
+  health surface, and the questions below are still open.
 </StubNotice>
 
 Dialog is the only component in the system that takes something away from the reader:
@@ -350,6 +353,31 @@ this example.
 
 <ComponentPreview name="dialog-an-answer-is-needed" kind="example" align="start" />
 
+## States
+
+Dialog's own interaction states are open and closed, which Base UI tracks and this
+component consumes through `data-starting-style` and `data-ending-style` on the scrim
+and the container. The transition those two states drive is documented in full under
+Motion, immediately below. Hover, focus and pressed happen on the parts a caller
+supplies, not on anything Dialog draws itself: the close control built here shows a
+muted background on hover and the platform's focus ring on focus-visible, and every
+control inside `actions` carries whichever states [Button](./button.mdx) gives it.
+There is no disabled state on the dialog itself. `severity="alert"` removes the close
+control outright rather than disabling it, and a control inside `actions` or `children`
+that a caller marks disabled is that control's own state rather than the dialog's.
+
+The five canonical data states mostly describe a surface that holds a reading, and
+Dialog holds none. Each row says what this component actually does, rather than what a
+component in this family typically does.
+
+| Data state | What Dialog renders |
+| --- | --- |
+| Error | Nothing of its own. Dialog runs no validation and fetches nothing; its own defects, an alert dialog with no `actions`, or `actions` with nothing focusable inside it, surface as development-only console warnings rather than as anything a reader sees. What the reader sees on a genuine error is whatever `children` renders. |
+| Loading | Nothing. `open` arrives already resolved from the caller, so there is no request in flight for this component to reflect, and it renders no skeleton or spinner in its place. A dialog that opens to show the outcome of a pending action carries that state through `children`. |
+| Empty | Not a state Dialog tracks as data. `title` is required and always renders; a confirmation with no `description` and no `children` is a legitimate minimal shape on an ordinary dialog. On an alert dialog the same absence is instead a gap in the required copy, and the component answers it with a development warning under Accessibility rather than with a rendered empty state. |
+| Partial | Not applicable. Whatever partial value a caller passes travels inside `children`, unread and untouched by this component. |
+| Stale | Not applicable. Dialog renders no measurement and keeps no notion of when its contents were last true; a reading's age is [RelativeTime](./relative-time.mdx)'s job, rendered inside `children` if a caller puts one there. |
+
 ## Content guidelines
 
 The title asks the question. The description says what happens if the reader says yes,
@@ -398,11 +426,51 @@ that is a surface with no close control, a refused Escape key and nothing to pre
   </DoDont.Dont>
 </DoDont>
 
+## Motion
+
+Dialog is the second surface in this family, after [Sheet](./sheet.mdx), whose arrival
+and departure are more than an opacity swap. The container takes
+`--opsin-ease-spring-sheet` on `--opsin-duration-spring-sheet`, an overdamped spring at
+483ms that `tokens/motion.json` reserves for large surfaces travelling a long distance:
+sheets, dialogs, full-screen pushes, chosen so the panel settles at its resting position
+rather than passing it and springing back. Opacity, translate and scale all ride that
+same clock together, because splitting a spring's own curve across two durations
+produces a different spring rather than a faster one. The exit swaps to
+`--opsin-ease-exit` on the shorter `--opsin-duration-base`, 220ms, because something
+leaving accelerates and does not ask the reader to watch it finish. The scrim behind the
+panel fades on its own pair, `--opsin-ease-standard` and the same
+`--opsin-duration-base`, and under reduced motion its transition is removed outright
+rather than substituted, so it snaps to full opacity instead of crossfading.
+
+Under `prefers-reduced-motion: reduce` the container keeps only its opacity transition;
+the translate that carries the phone's rise from the bottom and the scale that carries
+the wider screen's grow-in are pinned to their resting values, so nothing moves but the
+fade. That fallback is the token's own, not this file's invention: `tokens/motion.json`
+states `spring-sheet`'s `reducedMotion` entry as an easing of `linear` and a duration of
+120ms, with the note that this is a cross-fade in place because a sheet that appears
+with no travel still needs to be seen to appear, and `app/tokens.generated.css` is what
+substitutes those values for `--opsin-ease-spring-sheet` and
+`--opsin-duration-spring-sheet` under the query. A panel that popped between frames
+under reduced motion would trade a vestibular problem for a comprehension one, which is
+the trade [Motion in health UI](../health/motion-in-health-ui.mdx) argues against for
+this exact family of surfaces.
+
+<MotionCurve token="--opsin-ease-spring-sheet" />
+
+Depth is carried by the scrim and by the surface's edge rather than by the entrance, and
+no prop removes either. `children` is where a caller's own content rides this same
+entrance, and that content may hold a health value: the container animates opacity and
+offset, never a number inside it, so nothing here can put a reading through a count-up
+or a sweep, which [Motion in health UI](../health/motion-in-health-ui.mdx) rules out for
+this surface family. Whether that reasoning holds once somebody has actually watched a
+value arrive this way is still open, and it stays listed as unmeasured under
+Accessibility rather than as settled here.
+
 ## Accessibility
 
 Some of this is checked by a gate in continuous integration. Most of it is argued, and
 the things nobody has measured are listed rather than left out. That separation is
-what `alpha` promises.
+what `beta` promises.
 
 **Checked, by `pnpm run check:a11y` on every pull request and every push to `main`:**
 (There is no commit hook in this repository, so a local commit is checked by nobody.)
@@ -662,6 +730,89 @@ what `alpha` promises.
 
 <ContrastReport component="dialog" />
 
+## Data attributes
+
+These are the attributes a product's own stylesheet, a test or a scraper can key on,
+transcribed from the component's own source rather than from what a dialog in general
+tends to expose. Which of them exist depends on `severity`, on whether `description`
+and `children` were supplied, and on the phase of the entrance and exit transitions, so
+the conditions below are as much a part of the contract as the names.
+
+<DataAttributesTable
+  name="dialog"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On the portal root, the scrim, the viewport, the container, the header, the title and the body, always while the dialog is mounted",
+      value: "dialog, dialog-scrim, dialog-viewport, dialog-container, dialog-header, dialog-title, dialog-body",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the close control, only on an ordinary dialog; absent when severity is alert",
+      value: "dialog-close",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the description, only when a non-empty description is supplied",
+      value: "dialog-description",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the content wrapper, only when children is supplied",
+      value: "dialog-content",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the actions row, only when actions is supplied",
+      value: "dialog-actions",
+    },
+    {
+      attribute: "data-open",
+      condition: "On the scrim and the container, while the dialog is open. Stamped by Base UI, not by this file",
+    },
+    {
+      attribute: "data-starting-style",
+      condition: "On the scrim and the container, for one frame before the entrance transition begins",
+    },
+    {
+      attribute: "data-ending-style",
+      condition: "On the scrim and the container, for the duration of the exit transition",
+    },
+  ]}
+/>
+
+There is no `data-status`, no `data-category` and no `data-opsinjs-value` anywhere in
+this file, and the absence is not an omission: Dialog renders no measurement and
+asserts no clinical level, so neither colour axis has anywhere to sit. The Surface
+nested inside the container stamps its own `data-slot="surface"` and the layers beneath
+it; those belong to [Surface](./surface.mdx) and are documented there rather than
+repeated on this page.
+
+## CSS variables
+
+<CssVariablesTable name="dialog" />
+
+Dialog sets no `--opsin-*` custom property of its own, in an inline style or in a
+companion stylesheet, so the table above has nothing to list. Every colour on this
+surface, the scrim's tint, the panel's fill, the close control's hover background and
+its focus ring, is a semantic token role read straight from the token layer and listed
+under Tokens below, which is the one place a product retunes them. The one place this
+file writes a literal fallback is beside a token reference inside a `var()`, such as
+`var(--opsin-space-4,1rem)` on the actions row's gap: that fallback exists for a
+consumer who installs the component without `app/tokens.generated.css`, and it is a
+rescue value rather than a custom property this component declares.
+
+## Tokens
+
+<TokenTable component="dialog" />
+
+These are the tokens Dialog actually reads, resolved from its own source by
+`scripts/build-tokens.mts` rather than listed by hand, so the table above cannot drift
+from what the component consumes. Nothing here reads a category token, because a
+dialog carries no clinical category of its own; the surface's material, its shape and
+its motion are the tokens in the table, and the two-colour-axes rule has nothing to
+check on this component, because neither axis appears in this file at all.
+
 ## API reference
 
 <PropsTable name="DialogProps" />
@@ -712,6 +863,22 @@ question, a consequence and two verbs with nothing in between.
 that matters here is handled inside the component, and the Escape refusal is the whole
 of it. A second parameter that only sometimes matters is a second parameter people copy
 without reading.
+
+## Cost
+
+No bundle size has been measured for this component. A real figure comes out of a
+production build, none has been taken, and inventing one is forbidden, which is exactly
+what this section exists to prevent; bundle cost is a stable-phase gate rather than a
+beta one, so the figure below stays absent until a build produces it. What can be said
+without a measurement is the shape of the cost: Dialog carries `"use client"`, so
+importing it puts a client boundary on the page that renders it, and it composes
+[Surface](./surface.mdx) and [Button](./button.mdx) while importing `@base-ui/react`'s
+`Dialog` and `AlertDialog` primitives together with `lucide-react`'s close glyph. A
+project that already installs Surface and Button for another component adds the dialog
+contract and those two dependencies, though how much that is stays unmeasured until a
+build reports it.
+
+<BundleSize name="dialog" />
 
 ## Related
 

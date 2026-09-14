@@ -1,7 +1,7 @@
 ---
 title: ConsentSheet
 description: A sheet that asks permission for one specific thing at a time, explains what it is for, and makes saying no or changing your mind later just as easy as saying yes.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: health-communication
@@ -14,7 +14,7 @@ usedIn: [ask-users-for/contact-details, consent-and-permissions, consent-before-
 
 <StubNotice
   name="consent-sheet"
-  status="alpha"
+  status="beta"
   issue="opsinjs/opsinjs#0"
   questions={[
     "The component withholds its decision controls when any of the wording a consent record needs is missing, which is a harder failure than anything else in the system makes. Is refusing to ask the right answer in every product, or does a product with a partial content service need a way to ask anyway and record that it did?",
@@ -23,11 +23,12 @@ usedIn: [ask-users-for/contact-details, consent-and-permissions, consent-before-
     "A reader who has already refused once sees exactly the same sheet the second time. There is no `previousDecision` prop, so the component cannot soften a re-ask or decline to make one, and re-asking on a timer is a dark pattern the component cannot currently refuse.",
   ]}
 >
-  <code className="text-sm">consent-sheet</code> is implemented and installable.
-  It is <strong className="font-medium">alpha</strong>: it is built against the
-  specification below and passes the static gates, the API may change in any
-  release without a deprecation cycle, and it is not for a production health
-  surface yet.
+  <code className="text-sm">consent-sheet</code> is implemented, installable, and
+  its API surface is complete. It is <strong className="font-medium">beta</strong>:
+  the surface is expected to hold, and a change that breaks it would land only in a
+  minor release, with a changelog entry and a migration note. It has been through no
+  accessibility or clinical review, so it is still not for a production health
+  surface, and the questions below are still open.
 </StubNotice>
 
 Consent is the surface where dark patterns are most profitable and most damaging, so this
@@ -388,6 +389,31 @@ absent from the DOM in this state, rather than rendered empty.
 
 <ComponentPreview name="consent-sheet-no-wording-supplied" kind="example" align="start" />
 
+## States
+
+ConsentSheet is a client component, so it has real interaction states as well as the
+canonical data states. Its interactive parts are the two decision controls and, when
+`details` is supplied, the disclosure trigger. Both decision controls are `Button` instances
+of the same secondary variant, so they take their hover, focus-visible and pressed treatments
+from Button unchanged, and they take them identically because both carry one shared class
+string. Neither is focused when the sheet opens. The component sets no disabled state on
+either control: when the wording is incomplete the controls are removed rather than greyed,
+because a greyed pair still reads as a question the reader could answer. The disclosure
+trigger is a plain button carrying its own focus-visible ring, declared in the file because
+the product stylesheet's ring does not travel with `shadcn add`.
+
+The five canonical data states map onto a component that displays no reading of its own but
+does have one hard branch, the state where the wording is incomplete and the sheet refuses to
+ask.
+
+| Data state | What ConsentSheet renders |
+| --- | --- |
+| Error | Wording that arrives broken, from a content service that returned an error and left a required field blank, is treated as missing. The sheet draws no decision controls, shows the not-asked line where they would have been, and names the missing fields in the development console. It never asks a question with pieces of it absent. |
+| Loading | The component has no loading state of its own. A product opens the sheet once it holds the wording, and wording still in flight reads as missing, so an early open shows the not-asked line rather than a spinner or a skeleton. |
+| Empty | The not-asked state is the empty case. When any required string is blank the two controls become the single not-asked line and nothing is recorded. The scope list is drawn only when the sheet can ask, so it is always absent from the DOM in this state; the purpose paragraph, the withdrawal sentence and the consequence sentence are each absent only when their own string is missing, independently of the others. |
+| Partial | A content service that supplies some fields and leaves others blank still resolves to the not-asked state, because the sheet asks only when every required field is present. There is no partial ask by design, since a consent recorded against half its wording is the outcome the component exists to prevent. |
+| Stale | Not applicable. The component holds nothing between one opening and the next and renders exactly the wording it is handed each time. Keeping a version current is the product's work through `textVersion`, so a stale record is a product concern rather than a render state here. |
+
 ## Content guidelines
 
 Ask a question. Use *we* for the product and *you* for the reader. Say what the data is for
@@ -437,10 +463,34 @@ have, and it arrives looking reviewed because it came from a library.
   </DoDont.Dont>
 </DoDont>
 
+## Motion
+
+A consent sheet carries no health value, so the rule that a measurement never animates on
+first paint, with no count-up and no sweep, has nothing here to act on. There is no figure to
+reveal, only wording to read. Two pieces of motion remain, and each brings its own
+reduced-motion answer from the token layer rather than a branch this component writes.
+
+The larger one is Sheet's entrance, which ConsentSheet takes unchanged because it extends
+Sheet. That travel is the `spring-sheet` token, an overdamped spring so a large surface
+arriving does not bounce at the top of its travel and read as a dropped object. Its own
+reduced-motion fallback is a cross-fade in place, because a sheet that appears with no travel
+still needs to be seen to appear. Stripping the motion out entirely is the wrong answer, so
+the token keeps the appearance cue and drops only the travel.
+
+The smaller one is this component's own: the disclosure glyph that turns when the full wording
+opens, on `--opsin-duration-fast` eased with `--opsin-ease-standard`.
+
+<MotionDemo easing="--opsin-ease-standard" duration="--opsin-duration-fast" />
+
+Under `@media (prefers-reduced-motion: reduce)` a rotation is one of the movements the token
+policy removes, so the glyph turns without travel for a reader who asked for less. Nothing is
+lost by that, because the open state the turn illustrates is also carried on the trigger's
+`aria-expanded`, which every reader gets whether the glyph moves or not.
+
 ## Accessibility
 
 Three of these are checked by a gate on every commit. The rest are arguments from the markup,
-and they are labelled as such: `alpha` promises that accessibility is claimed only where it
+and they are labelled as such: `beta` promises that accessibility is claimed only where it
 has been checked, with the gaps listed rather than left out.
 
 **Checked, by `pnpm run check:a11y` on every commit:**
@@ -573,6 +623,65 @@ has been checked, with the gaps listed rather than left out.
 
 <ContrastReport component="consent-sheet" />
 
+## Data attributes
+
+<DataAttributesTable
+  name="consent-sheet"
+  rows={[
+    { attribute: "data-slot", condition: "The scrolling body column inside Sheet.Content, present whenever the sheet renders its content", value: "consent-sheet" },
+    { attribute: "data-slot", condition: "The pinned footer grid, only when every required string is supplied", value: "consent-sheet-decisions" },
+    { attribute: "data-slot", condition: "The footer line that stands in when any required string is missing", value: "consent-sheet-decisions-missing" },
+    { attribute: "data-slot", condition: "The decline cell, first in the tab order", value: "consent-sheet-decline" },
+    { attribute: "data-slot", condition: "The accept cell, identical to the decline cell", value: "consent-sheet-accept" },
+    { attribute: "data-slot", condition: "The scope list, only when the sheet can ask (every required string is supplied)", value: "consent-sheet-scope" },
+    { attribute: "data-slot", condition: "The first scope item, what is collected", value: "consent-sheet-scope-collected" },
+    { attribute: "data-slot", condition: "The second scope item, who can see it", value: "consent-sheet-scope-shared-with" },
+    { attribute: "data-slot", condition: "The third scope item, how long it is kept", value: "consent-sheet-scope-retention" },
+    { attribute: "data-slot", condition: "The optional disclosure wrapper, only when details is supplied", value: "consent-sheet-details" },
+    { attribute: "data-slot", condition: "The disclosure trigger, which also carries aria-controls", value: "consent-sheet-details-trigger" },
+    { attribute: "data-slot", condition: "The disclosure panel, a role=group that stays in the DOM while collapsed", value: "consent-sheet-details-panel" },
+    { attribute: "data-slot", condition: "The withdrawal sentence, present whenever withdrawalPath is supplied, including in the not-asked state", value: "consent-sheet-withdrawal" },
+    { attribute: "data-slot", condition: "The consequence sentence, only when consequenceOfDeclining is supplied", value: "consent-sheet-consequence" },
+    { attribute: "aria-expanded", condition: "On the disclosure trigger, reflecting whether the full wording is open", value: "true when open, false when collapsed" },
+  ]}
+/>
+
+Every part ConsentSheet draws carries a `data-slot`, so a product can style any of them from
+outside without a single export or a class the component owns. What it never carries is either
+colour axis: no element takes a `data-status` and no element takes a `data-category`, which is
+how the claim that a consent surface is neither a clinical status nor a category stays
+checkable rather than merely stated. It renders no measurement, so there is no
+`data-opsinjs-value` anywhere either. Two of the slots above are conditional. The scope list
+and the decisions grid appear only when the sheet can ask, so a rule written against
+`consent-sheet-scope` or `consent-sheet-decisions` must not assume its element is present. The
+question and the purpose are the exception to the naming: they render through Sheet's own
+`title` and `Sheet.Description`, so they carry `sheet-title` and `sheet-description` rather
+than a slot of their own, and both are documented on [Sheet](./sheet.mdx).
+
+## CSS variables
+
+<CssVariablesTable name="consent-sheet" />
+
+ConsentSheet declares no custom property of its own. Where its class strings name a variable
+they are reading a token role rather than setting one: the target-separation role that spaces
+the two controls, the target-minimum role that floors the disclosure trigger's hit area, and
+the fast-duration role on the glyph. Each is read straight from the token layer, with a
+literal fallback for a consumer whose build has not loaded the product stylesheet, and each is
+listed under Tokens. There is nothing of the component's own to tabulate here, so the table
+stays empty rather than inventing a row.
+
+## Tokens
+
+<TokenTable component="consent-sheet" />
+
+These are the token roles ConsentSheet reads, resolved by `tokensUsedBy` and generated by
+`scripts/build-tokens.mts` rather than listed here by hand, so the table cannot drift from
+what the component actually consumes. They are spacing, target, type and motion roles only. A
+health component never reads a category token and a status token onto one element, which is
+the two-axis rule; this sheet reads neither axis at all, which is what keeps a consent surface
+free of the clinical colour that would read as a warning about the reader rather than a
+question for them.
+
 ## API reference
 
 <PropsTable name="ConsentSheetProps" />
@@ -626,6 +735,16 @@ which is the shape `DisclaimerNote.more` already uses.
 There is no `defaultGranted`, no `required` and no `hideDecline`. There is also no
 `acceptVariant`, no `declineVariant`, no `emphasis`, no `order` and no `purposes`. Their
 absence is the specification.
+
+## Cost
+
+<BundleSize name="consent-sheet" />
+
+No size has been measured, so none is shown, and inventing one is out of the question. Bundle
+cost is read from a real build, it is a stable-phase gate rather than a beta one, and it has
+not been taken for this component. A consent sheet that extends Sheet and pulls in Button
+carries their weight along with its own, which is one more reason the figure has to come from
+a build that includes them rather than from an estimate of this file alone.
 
 ## Related
 

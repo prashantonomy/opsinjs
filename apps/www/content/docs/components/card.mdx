@@ -1,7 +1,7 @@
 ---
 title: Card
 description: A bounded group of related content with a border and consistent padding is the ordinary box that most of a screen is made of.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: surfaces
@@ -13,7 +13,7 @@ usedIn: [choose-a-component, daily-log-screen, health-metric-card, onboarding-sc
 
 <StubNotice
   name="card"
-  status="alpha"
+  status="beta"
   issue="opsinjs/opsinjs#0"
   questions={[
     "A card that is a link may hold no other interactive element, and that exclusion is stated rather than enforced. TypeScript cannot see interactivity in a `ReactNode`, and a runtime walk of the children cannot see inside another component. Such a walk would catch a raw `<button>` and miss every wrapped one, which is worse than catching nothing. Does this become an error code with a gate that reads examples and screens, or does it stay a rule the documentation keeps?",
@@ -21,10 +21,11 @@ usedIn: [choose-a-component, daily-log-screen, health-metric-card, onboarding-sc
     "The accessible name of a link card is its whole text content, because Card cannot know which part of a card is its name. Where the content is long that name is long. Should the component offer a way to name the link, or is the honest answer that a card with that much in it is not a link?",
   ]}
 >
-  <code className="text-sm">card</code> is implemented and installable. It is{" "}
-  <strong className="font-medium">alpha</strong>: it works, it is documented, the
-  API may change in any release without a deprecation cycle, and it is not for a
-  production health surface yet.
+  <code className="text-sm">card</code> is implemented, installable, and its API surface is
+  complete. It is <strong className="font-medium">beta</strong>: the surface is expected to
+  hold, and a change that breaks it would land only in a minor release, with a changelog entry
+  and a migration note. It has been through no accessibility or clinical review, so it is still
+  not for a production health surface, and the questions below are still open.
 </StubNotice>
 
 Card is the most-used component in any design system and the one that most often becomes a
@@ -330,6 +331,31 @@ tokens describe a box inside a card and there is none for a card inside a sheet.
 
 <ComponentPreview name="card-on-a-sheet" kind="example" align="start" />
 
+## States
+
+Card's interaction states apply only when `href` is set, because a card with no `href` is not
+a control and has none of them. Rest is not empty even so: the trailing chevron marks a link
+card as tappable before a pointer or a finger arrives. Hover adds the title underline and
+nothing else, because touch has no hover and the chevron already carries the affordance. Press
+is the one-pixel downward shift the anchor takes on `:active`, instant and untransitioned, the
+same acknowledgement [Button](./button.mdx) ships. Focus is the `focus-visible` ring the
+component declares on its own root. There is no disabled state, because a card is not a control
+a product switches off: a destination a reader may not follow is a card with no `href` rather
+than a faded one. There is no selected state, because a card records no choice, and no loading
+state, because Card holds content rather than fetching it.
+
+None of the five canonical data states belong to Card itself. `Card.Body` "has no contract of
+its own", so a card cannot represent a state that belongs to the content placed inside it
+rather than to the boundary around it.
+
+| Data state | What Card renders |
+| --- | --- |
+| Error | Nothing of its own. Card fetches nothing and holds no data of its own, so an error belongs to whatever is placed inside it. |
+| Loading | Nothing of its own, for the same reason. A product waiting on content renders a [Skeleton](./skeleton.mdx) in the card's place rather than asking Card to represent the wait. |
+| Empty | Nothing of its own. A card with nothing worth bounding is a decision made before this component is reached, which is why [When to use it](#when-to-use-it) points a reader with nothing yet to show at `empty-state` instead. |
+| Partial | Nothing of its own. Card renders whichever children it is given, complete or partial, and has no way to tell the two apart. |
+| Stale | Nothing of its own. Staleness is a property of a measurement, and Card carries no measurement; a `ResultCard` placed inside one is where a stale reading would be marked. |
+
 ## Content guidelines
 
 A card holds one idea. If the title needs *and* in it, it is two cards. Titles are noun
@@ -375,10 +401,21 @@ words a clinician never saw onto a health surface.
   </DoDont.Dont>
 </DoDont>
 
+## Motion
+
+Card declares no transition anywhere in its class list. The one state change that moves
+anything, the press acknowledgement on a link card, is `active:translate-y-px`: an
+instantaneous transform rather than an eased animation, matching the timing a press asks for,
+which is that the acknowledgement lands with the touch rather than catching up to it. Hover's
+title underline and the `focus-visible` ring are both instant state changes as well, drawn the
+moment the state applies rather than transitioned into place. So there is nothing here for
+`prefers-reduced-motion` to reduce: a reader who has asked for less motion sees exactly the same
+card as a reader who has not, because no part of it was ever animated to begin with.
+
 ## Accessibility
 
 Some of this is checked by a gate on every commit and the rest is an argument. They are
-separated below because `alpha` promises that accessibility is claimed only where it has been
+separated below because `beta` promises that accessibility is claimed only where it has been
 checked, with the gaps listed rather than left out.
 
 **Checked, by `pnpm run check:a11y` on every commit:**
@@ -493,6 +530,54 @@ checked, with the gaps listed rather than left out.
 
 <ContrastReport component="card" />
 
+## Data attributes
+
+<DataAttributesTable
+  name="card"
+  rows={[
+    { attribute: "data-slot", condition: "Always, on the root", value: "card" },
+    { attribute: "data-slot", condition: "On the link row, present only when href is set", value: "card-link-row" },
+    { attribute: "data-slot", condition: "On Card.Header, when it is rendered", value: "card-header" },
+    { attribute: "data-slot", condition: "On the title element inside Card.Header", value: "card-title" },
+    { attribute: "data-slot", condition: "On the description paragraph inside Card.Header, present only when description is set", value: "card-description" },
+    { attribute: "data-slot", condition: "On Card.Body, when it is rendered", value: "card-body" },
+    { attribute: "data-slot", condition: "On Card.Footer, when it is rendered", value: "card-footer" },
+  ]}
+/>
+
+There is no `data-status` and no `data-category` on any part of this component, and both
+absences are the same refusal the props already make. A `data-status` on a card that holds no
+clinical meaning would be a hook for the exact mistake `href` and Anatomy already argue against,
+and a `data-category` would identify a measurement Card cannot see. There is no
+`data-opsinjs-value` for the same reason: Card renders no measurement of its own, so it has no
+number to expose. The material Card composes stamps its own `data-slot="surface"`, documented
+on [Surface](./surface.mdx#data-attributes) rather than repeated here, because that attribute is
+Surface's to emit and not Card's.
+
+## CSS variables
+
+<CssVariablesTable name="card" />
+
+Card sets no custom property of its own. Every colour it shows, the muted foreground on the
+description, the hairline edge, the focus ring, is a semantic token role read straight from the
+token layer and listed under [Tokens](#tokens) below, and the fill a card shows is written as an
+inline custom property on [Surface's](./surface.mdx) own root rather than on Card's. A consumer
+who wants to retint a card retints the token role, not a variable this component invented for
+the purpose.
+
+## Tokens
+
+<TokenTable component="card" />
+
+`--opsin-target-minimum` and `--opsin-target-separation` are the two tokens a link card's own
+class list names directly, the floor on both axes and the gap the footer holds even when
+`density="compact"` tightens everything around it. `--opsin-corner-shape` and the `radius-md`
+step choose the corner, and the ring colour comes from the same `ring` role every focusable
+element in the system uses. None of them is a category token or a status token, and that is
+consistent with the rest of this page: a component with no `category` prop and no `status` prop
+reads no category token and no status token onto one element, so the two-axis rule holds here
+by having nothing to hold apart.
+
 ## API reference
 
 ### Card
@@ -559,6 +644,17 @@ somebody asks for a denser interface, and the distance between two things a thum
 may not. The footer reads that token directly rather than a spacing step that happens to hold
 the same value today, so a retune of the published minimum moves every card footer with it and
 no gate has to notice.
+
+## Cost
+
+<BundleSize name="card" />
+
+Bundle cost is measured from a real build, and none has been taken for this component yet.
+That is not a beta gap: a size budget is a stable-phase gate, not one this promotion is asked to
+clear, so the honest state of this section is no number rather than an invented one. `card` is
+the most-used component in the system, so its eventual measurement should be read as close to a
+floor cost, one every screen that uses a card pays regardless of what else is on it, rather than
+as a typical figure for a single component.
 
 ## Related
 

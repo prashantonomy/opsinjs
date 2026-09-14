@@ -1,7 +1,7 @@
 ---
 title: Sheet
 description: A panel that slides up from the bottom of the screen, stops at sensible heights, and can be dragged or dismissed. It is the one-handed way to do something without leaving the page.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: surfaces
@@ -13,7 +13,7 @@ usedIn: [alert-escalation, consent-and-permissions, consent-flow, daily-log-entr
 
 <StubNotice
   name="sheet"
-  status="alpha"
+  status="beta"
   issue="opsinjs/opsinjs#0"
   questions={[
     "`content` is supported only as the sole detent. Base UI resolves every snap point against the popup's own height and clamps it there, so a sheet that can reach `full` is already as tall as the viewport and has no content height left to return to. Is a mixed list worth a measurement pass and the frame of jump it would cost, or is the restriction the right answer?",
@@ -23,11 +23,13 @@ usedIn: [alert-escalation, consent-and-permissions, consent-flow, daily-log-entr
     "Nothing in this component has been measured in a browser. Everything claimed below is argued from its own source and from Base UI's, which is the honest ceiling for `alpha`. Given that ceiling, what gets measured first: the hit areas, the keyboard behaviour on a real device, or the scroll chaining on iOS?",
   ]}
 >
-  <code className="text-sm">sheet</code> is implemented and installable. It is{" "}
-  <strong className="font-medium">alpha</strong>: it is built against the
-  specification below and passes the static gates, the API may change in any
-  release without a deprecation cycle, and it is not for a production health
-  surface yet.
+  <code className="text-sm">sheet</code> is implemented, installable, and its
+  API surface is complete. It is{" "}
+  <strong className="font-medium">beta</strong>: the surface is expected to
+  hold, and a change that breaks it would land only in a minor release, with a
+  changelog entry and a migration note. It has been through no accessibility
+  or clinical review, so it is still not for a production health surface, and
+  the questions below are still open.
 </StubNotice>
 
 The bottom sheet is the defining interaction of a modern consumer health app, and it is also
@@ -374,6 +376,40 @@ header drags the sheet.
 
 <ComponentPreview name="sheet-two-detents-and-a-control" kind="example" align="start" />
 
+## States
+
+Sheet is interactive, and unlike a component that only formats a value, it owns a state
+machine of its own: whether it is open, which detent it is resting at, and whether a drag is
+in flight. Two of its own controls take focus. `Sheet.Close` and `Sheet.Grabber` both draw the
+outset focus ring, and `Sheet.Close` additionally takes a hover treatment of a muted
+background; `Sheet.Grabber` takes none, so a pointer resting on it before a press gives no
+visual cue beyond the ring that arrives once it is focused. Neither control is ever disabled,
+because a modal surface whose exit or whose drag control could be switched off is a trap by
+definition, and neither carries a pressed style of its own beyond the browser's default active
+outline. The popup itself, `Sheet.Container`, can also take focus, not from a Tab press but
+programmatically, the moment a dismiss the product refused needs somewhere to put the reader
+back; it draws the same ring turned inward, because an outset ring on an edge this close to the
+popup's own clipped top corner loses its top line. `Sheet.Content` takes that same inward ring
+for the identical reason, on the one edge-to-edge region in the file.
+
+Two further states belong to the sheet as a whole rather than to one control, and Base UI
+stamps both onto the container as data attributes rather than as anything this file writes by
+hand: open or closed, which the `open` prop drives directly, and dragging, present for the span
+of a swipe and read off the same custom property the resting transform composes. See
+[Data attributes](#data-attributes) for the full set.
+
+The five canonical data states from [Data states](../foundations/data-states.mdx) describe a
+reading, and Sheet holds no reading of its own to be in one. Each row says what this container
+actually does.
+
+| Data state | What Sheet renders |
+| --- | --- |
+| Error | Nothing of its own. Sheet runs no validation and marks nothing invalid; a control gone wrong inside it is that control's state to show, most often [Field](./field.mdx)'s, inside `Sheet.Content`. |
+| Loading | Nothing. Opening and closing are synchronous state changes with no request in between, and a sheet whose content is still arriving renders whatever the caller puts in `Sheet.Content`, typically a [Skeleton](./skeleton.mdx). |
+| Empty | The header, the grabber and the footer render exactly as they would with content. A sheet with nothing but a title inside `Sheet.Content` is a legitimate, if unusual, sheet rather than an empty state this component has an opinion about. |
+| Partial | Not applicable at the level of the container. Sheet has no notion of a body that is part answered and part not; a form that captures three fields and shows one still blank is the form's own concern, not this container's. |
+| Stale | Not applicable. Staleness belongs to a reading ageing on a display surface, which [RelativeTime](./relative-time.mdx) is the component for; Sheet holds no reading and no timestamp of its own. |
+
 ## Content guidelines
 
 Title the sheet with what the reader is doing there, as a noun phrase or a short imperative.
@@ -430,10 +466,47 @@ the footer's contents rather than about the base, which cannot see what the two 
   </DoDont.Dont>
 </DoDont>
 
+## Motion
+
+Sheet is the component `spring-sheet` was tuned for, and its container consumes both halves of
+that token pair directly: `--opsin-ease-spring-sheet` for the curve and
+`--opsin-duration-spring-sheet` for the settle time, applied together as a
+`transition-transform`, or, once there is more than one detent, as a two-property transition of
+transform and padding-bottom so the reserved offset settles on the same schedule as the slide.
+The spring is overdamped, reaching its resting position without passing it, because a sheet
+that bounces at the top of its travel reads as a dropped object rather than a surface arriving.
+`tokens/motion.json` records its settle time as 483 milliseconds, measured from the spring's
+own stiffness, damping and mass rather than chosen by eye.
+
+<MotionDemo easing="--opsin-ease-spring-sheet" duration="--opsin-duration-spring-sheet" />
+
+Under `prefers-reduced-motion: reduce` the pair collapses to its own fallback: the easing
+becomes `linear` and the duration becomes 120 milliseconds, which `tokens/motion.json`
+documents as "Cross-fade in place. A sheet that appears with no travel still needs to be seen
+to appear." The component reads that instruction rather than dropping the transition outright.
+`REDUCED_MOTION_CROSSFADE` in the source switches the transitioned property from `transform` to
+`opacity` and pins both the starting and the ending transform to the sheet's own resting
+position, so the popup is already at its detent for the whole of the transition and travels no
+distance while still visibly fading in and out. The duration and the easing are left entirely
+to the token, which is the division of labour this file keeps: a component may only answer for
+the one thing a token cannot know, and that is distance.
+
+The scrim's fade is a second transition, and it is left alone rather than answered here. It
+runs on `--opsin-duration-base` paired with `--opsin-ease-standard`, and the two collapse under
+reduced motion through two different files: `app/product.css` reduces `--opsin-duration-base`
+to 1 millisecond for every consumer of it, and `app/tokens.generated.css` reduces
+`--opsin-ease-standard` to `linear`. A fade has no distance to remove, so there is nothing
+further for this component to add.
+
+No health value is ever animated on first paint by anything in this file. Sheet renders no
+measurement of its own; it holds whatever the caller passes into `Sheet.Content`, and a reading
+a product wants to count up or sweep into place on arrival is the caller's animation to add or
+withhold, never something Sheet does to a number that has already arrived.
+
 ## Accessibility
 
 Some of this is checked by a gate and the rest is an argument. They are separated below because
-`alpha` promises that accessibility is claimed only where it has been checked, with the gaps
+`beta` promises that accessibility is claimed only where it has been checked, with the gaps
 listed rather than left out.
 
 **Checked, by `pnpm run check:a11y` on every pull request and every push to `main`:**
@@ -659,6 +732,154 @@ in wherever that is not all of them.
 
 <ContrastReport component="sheet" />
 
+## Data attributes
+
+Sheet's own attributes and Base UI's sit on the same handful of elements, and a selector that
+reaches for one without the other misses half of what changes. The root renders no element of
+its own, so it carries no `data-slot`; everything below is on a part underneath it.
+
+<DataAttributesTable
+  name="sheet"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On the container, the grabber (both the button and the decorative bar), the header, the title and the close control, always",
+      value: "sheet-container, sheet-grabber, sheet-header, sheet-title, sheet-close",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the scrim, only while modal is true, which is the default",
+      value: "sheet-scrim",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the scrolling region, once for every Sheet.Content the caller renders",
+      value: "sheet-content",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the description, only when the caller renders a Sheet.Description",
+      value: "sheet-description",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the footer, only when footer is passed",
+      value: "sheet-footer",
+    },
+    {
+      attribute: "data-overflow",
+      condition: "On sheet-footer while its content runs past the fold",
+      value: "below",
+    },
+    {
+      attribute: "data-drawer-content",
+      condition: "On sheet-content, always. Base UI's own marker, not a data-slot, and what makes a touch beginning inside the region a scroll rather than a swipe",
+      value: "present",
+    },
+    {
+      attribute: "data-open",
+      condition: "On the unlabelled Base UI viewport, on sheet-scrim and on sheet-container, while the sheet is open",
+      value: "present",
+    },
+    {
+      attribute: "data-closed",
+      condition: "The same three parts, while the sheet is closed but still mounted for its exit transition",
+      value: "present",
+    },
+    {
+      attribute: "data-starting-style",
+      condition: "The same three parts, for the frame the enter transition begins from",
+      value: "present",
+    },
+    {
+      attribute: "data-ending-style",
+      condition: "The same three parts, for the frame the exit transition ends at",
+      value: "present",
+    },
+    {
+      attribute: "data-expanded",
+      condition: "On sheet-container, only while the active detent is full, the tallest snap point",
+      value: "present",
+    },
+    {
+      attribute: "data-swiping",
+      condition: "On sheet-container, for the span of a drag",
+      value: "present",
+    },
+    {
+      attribute: "data-swipe-direction",
+      condition: "On sheet-container, for the span of a drag. Base UI's swipeDirection prop defaults to down and this file never overrides it",
+      value: "down",
+    },
+    {
+      attribute: "data-swipe-dismiss",
+      condition: "On sheet-container, only when the drag in flight has travelled far enough to close the sheet on release",
+      value: "present",
+    },
+  ]}
+/>
+
+Four of the rows above, `data-open`, `data-closed`, `data-starting-style` and
+`data-ending-style`, are Base UI's own, stamped by `Drawer.Popup`, `Drawer.Backdrop` and the
+viewport between them that carries no `data-slot` of its own, the same pattern
+[Dialog](./dialog.mdx) documents for its own scrim, viewport and container. `data-expanded`,
+`data-swiping`, `data-swipe-direction` and `data-swipe-dismiss` belong to the popup alone, and
+together they are the DOM's own record of the two things this component is built around: which
+detent it is resting at, and whether a drag is in flight. A nested drawer gets three further
+attributes from the same primitive, `data-nested`, `data-nested-drawer-open` and
+`data-nested-drawer-swiping`; they are left out of the table above because nesting a `Sheet`
+inside a `Sheet` is the composition error [Anatomy](#anatomy) warns against, and a row here
+would read as documenting a shape the component spends a development warning arguing against.
+
+There is no `data-status`, no `data-category` and no `data-opsinjs-value` anywhere on this
+component. Sheet asserts no clinical level, paints no category band and renders no measurement
+of its own; it is a container, and the two colour axes and the value a reader typed belong to
+whatever the caller puts inside it.
+
+## CSS variables
+
+<CssVariablesTable name="sheet" />
+
+Sheet exposes no custom property of its own for a consumer to override, which is why the table
+above renders empty. What the source reads instead falls into two groups, and neither is a
+component-scoped variable. Base UI writes and reads its own custom properties on the popup for
+the resting transform, `--drawer-snap-point-offset`, `--drawer-swipe-movement-y` and
+`--drawer-keyboard-inset`, all owned by the primitive rather than by this file. Everything else
+is a published `--opsin-*` token role: the spring pair for the slide, `--opsin-target-minimum`
+for the 44px floor on the close control and the grabber, `--opsin-measure-comfortable` for the
+container's capped width above the phone breakpoint, and the surface, border and safe-area
+roles Surface and the footer read. Two of those carry a literal fallback beside the `var()`
+call rather than a second variable of their own, `2.75rem` beside `--opsin-target-minimum` and
+`66ch` beside `--opsin-measure-comfortable`, because this file ships as source into a consumer's
+project through `shadcn add`, which does not carry `app/product.css` with it, and an unresolved
+custom property is invalid at computed-value time rather than falling back to nothing on its
+own. To recolour or resize any part of a Sheet, write a rule against its `data-slot` instead of
+reaching for a variable that is not here to reach for.
+
+## Tokens
+
+<TokenTable component="sheet" />
+
+These rows are generated from the source by `scripts/build-tokens.mts`, which records which
+component reads each token rather than being a list kept by hand. What comes back spans five
+namespaces: `material-sheet-shadow` for the footer's scroll edge, the `ease-spring-sheet` and
+`duration-spring-sheet` pair with `ease-standard`, `duration-fast` and `duration-base` for the
+slide and the scrim (see [Motion](#motion)), the `title3`, `body`, `callout` and `footnote` type
+steps for the title, the description, the close control and any provenance a caller adds, the
+space and target-size roles the layout and the 44px minimums read, and `radius-xl`,
+`radius-sm` and `corner-shape` for the popup's top corner and its inner controls.
+
+Five colour roles this component paints do not appear above: the foreground the close control's
+label takes, the muted surface it takes on hover, the muted foreground on the grabber's bar, the
+border role on the footer's rule, and the ring role on every focus outline. That is not an
+omission in the generator. [Accessibility](#accessibility) names all five as chrome roles, the
+handful every component in the system renders, and `tokens/color.json` declares them once for
+the whole product rather than per consumer, so `scripts/build-tokens.mts` has no per-component
+list to add sheet to. Sheet never reads a category token or a status token on any element
+either, which is the two-axis rule holding trivially for a component that carries neither axis:
+it states no clinical level and paints no category band, so there is nothing of that kind here,
+or anywhere else on this page, to keep separate.
+
 ## API reference
 
 ### Sheet
@@ -708,6 +929,18 @@ Render it inside `Sheet.Content`, as the demo above does, and the popup gains an
 `aria-describedby` pointing at it, so the purpose or scope a reader must weigh is announced with
 the dialog. There is at most one, and when the caller renders none the popup carries no
 `aria-describedby` at all, which is the honest absence the Accessibility section describes.
+
+## Cost
+
+<BundleSize name="sheet" />
+
+Bundle cost is measured from a real build, and no build has measured this component yet.
+Measuring it is a stable-phase gate rather than a beta one, so the table above is the honest
+answer today: no figure, and a script named beside it rather than a number typed by hand. Sheet
+pulls in `@base-ui/react`'s drawer module for the whole of its behaviour and `lucide-react` for
+the close glyph, and both travel with every consumer regardless of how many detents a product
+configures or whether it is ever dragged. Inventing a figure here would be a number nobody
+measured standing in for one that was, which is exactly what this table exists to refuse.
 
 ## Related
 

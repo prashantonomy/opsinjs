@@ -1,7 +1,7 @@
 ---
 title: CareCard
 description: A card that tells you what to do and when. It carries one instruction, at one of three levels of urgency, with the urgency stated in the heading rather than implied by colour.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: health-communication
@@ -14,7 +14,7 @@ usedIn: [alert-escalation, ask-users-for/contact-details, ask-users-for/symptoms
 
 <StubNotice
   name="care-card"
-  status="alpha"
+  status="beta"
   issue="opsinjs/opsinjs#0"
   questions={[
     "The card renders every pairing of `urgency` and `status` and derives neither from the other. One inconsistent pair would put 'when you next get a chance' over an urgent reading. Should a pair like that raise a development warning, or would warning about it be opsinjs asserting the mapping it has just refused to ship?",
@@ -23,10 +23,12 @@ usedIn: [alert-escalation, ask-users-for/contact-details, ask-users-for/symptoms
     "Contrast for the two action tones has not been measured for this component. Until it is, its accessibility section says which claims are checked by a gate and which are only argued.",
   ]}
 >
-  <code className="text-sm">care-card</code> is implemented and installable. It
-  is <strong className="font-medium">alpha</strong>: it works and it is
-  documented, the API may change in any release without a deprecation cycle, and
-  it is not for a production health surface yet.
+  <code className="text-sm">care-card</code> is implemented, installable, and its
+  API surface is complete. It is <strong className="font-medium">beta</strong>:
+  the surface is expected to hold, and a change that breaks it would land only in
+  a minor release, with a changelog entry and a migration note. It has been
+  through no accessibility or clinical review, so it is still not for a production
+  health surface, and the questions below are still open.
 </StubNotice>
 
 CareCard is where a health product stops describing and starts asking. That makes
@@ -347,6 +349,30 @@ nothing this example can do would change that.
 
 <ComponentPreview name="care-card-no-author-supplied" kind="example" align="start" />
 
+## States
+
+CareCard is a server component. It holds no state, mounts no hook and reads no clock, so the
+card itself has no hover, focus, pressed or disabled treatment. Its only interactive parts are
+the actions, and each action is a composed [Link](./link.mdx) or [Button](./button.mdx) whose
+focus and press behaviour is that component's rather than this one's. The card is not focusable
+and never becomes disabled: a region a keyboard user would have to step through on every card in
+a list is a cost with no return, so the tab stops belong to the actions alone. The one movement
+anywhere on the card is a one-pixel press cue on those actions, described under Motion below.
+
+The five data states the system defines live in the reading that prompted the instruction, not
+in the card, because a CareCard carries an action rather than a measurement. What it does carry
+is its own admissions: an instruction with no named author renders the author line as words
+saying nobody has been named, an instruction with a next step that could not render says so in
+the place the control would have taken, and neither is left silently blank.
+
+| Data state | What CareCard renders |
+| --- | --- |
+| Error | Nothing of its own. The card states a next step the product has already resolved, so there is no fetch to fail here. A next step that was supplied but could render nothing, because its destination or handler was missing, is reported in words where the control would have sat rather than dropped in silence. |
+| Loading | Nothing. There is no reading to wait on: the surface that owns the reading shows a [Skeleton](./skeleton.mdx) and renders the card once the next step exists. |
+| Empty | The card still renders whatever it was given. A card with no instruction renders no heading, a card with no author renders the author line as an admission in words, and a card asked for an action it could not build says so in place. There is no empty reading, because the card holds no reading. |
+| Partial | The ordinary case, and not an error. Every part except the instruction and the author is optional, so a card with a heading and an author but no reason, deadline, status or action is complete rather than partial: it renders the parts it was given and omits the rest. |
+| Stale | Nothing of its own, because the card reads no clock and cannot detect staleness. A deadline the product has flagged as behind the reader is stated in words when `overdue` is true, and the freshness of the reading that prompted the card is carried beside it by the surface, such as [RelativeTime](./relative-time.mdx), rather than by the card. |
+
 ## Content guidelines
 
 Start with a verb, and let the card supply the timing. The three phrases are the component's
@@ -402,10 +428,31 @@ the second route.
   </DoDont.Dont>
 </DoDont>
 
+## Motion
+
+CareCard declares no transition. It does not animate when it mounts, it does not animate when a
+prop changes while it is on screen, and it mounts no live region, so it can neither appear with
+movement that implies urgency nor speak over what the reader is doing. That is deliberate: on a
+health surface urgency is carried by the word and never by movement, so a card that slid or
+faded in to be noticed would be leaving to motion a meaning the heading is required to carry.
+The card reads no motion token, so there is nothing here for `prefers-reduced-motion` to reduce.
+
+There is one movement on the card, and it is not an animation. Each action carries a one-pixel
+press cue that shifts the control down while it is held, applied by the composed
+[Button](./button.mdx) and [Link](./link.mdx) as an instantaneous transform with no transition.
+That is exactly the shape `prefers-reduced-motion` asks a press acknowledgement to take, so it
+needs no reduced-motion branch and it comes from the action rather than from a transition this
+card declares.
+
+For a health card the point is stronger than a preference. A value that prompted a next step is
+never animated onto this card: there is no count-up, no sweep and no entrance, because the card
+shows no measurement to animate and because a health value that arrives with movement reads as a
+value that has changed a moment ago. See [Motion in health UI](../health/motion-in-health-ui.mdx).
+
 ## Accessibility
 
 Some of these are checked by a gate on every commit. The rest are arguments, and they are
-labelled as such: `alpha` promises that accessibility is claimed only where it has been
+labelled as such: `beta` promises that accessibility is claimed only where it has been
 checked, with the gaps listed rather than left out.
 
 **Checked, by `pnpm run check:a11y` on every commit:**
@@ -471,8 +518,8 @@ checked, with the gaps listed rather than left out.
   floor does. A project that installed this file without the token sheet therefore gets a
   real gap rather than none, which is the adjacent-target case. The row wraps rather than
   shrinking, so at 200% text the two controls stack and keep their floor. The 44px floor
-  itself was measured on the demo at 390px in both themes during an internal visual review in
-  September 2026, so that half holds as an internal measurement rather than by a gate. The
+  itself is set in both dimensions in the source, so that half holds by construction, though
+  it has not been measured in a browser. The
   200% behaviour is reasoned from the CSS; nobody has looked at it at 200% in either theme,
   and the layout half of the rig runs nightly against a deployed URL and has not yet run
   against this component. See
@@ -581,6 +628,59 @@ checked, with the gaps listed rather than left out.
 
 <ContrastReport component="care-card" />
 
+## Data attributes
+
+These are the attributes a product's own stylesheet, a test or a scraper keys on, and they are
+the DOM contract this card holds stable. The card writes no `data-status` of its own: the level
+reaches the screen only through the embedded [StatusPill](./status-pill.mdx), so the one status
+attribute on the card sits on the pill and nowhere else. It writes no `data-category` and no
+`data-opsinjs-value` at all, because a card carries an instruction rather than a kind of
+measurement or a reader's own number, so the two attributes that would tie it to the category
+axis or to a reading are absent by construction. The parts are reached through their `data-slot`
+without an export, which is why none of them is a component of its own.
+
+<DataAttributesTable
+  name="care-card"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On the root section, the composed Card and each part that renders",
+      value: "care-card on the root, card on the material it sits in, care-card-heading when an instruction was supplied, care-card-timing when a timing phrase renders inside the heading, care-card-attribution always because the author line renders its admission when no author was named, care-card-reason when a reason was supplied, care-card-deadline when a readable dueBy renders, and care-card-actions on the actions row or on the sentence that replaces it when a next step was supplied and none could render. The embedded controls stamp their own: link on an action that has an href, button on an action that has an onSelect.",
+    },
+    {
+      attribute: "data-status",
+      condition: "On the embedded StatusPill's root, when a status was supplied. Never on an element this card draws itself.",
+      value: "steady | watch | attention | urgent",
+    },
+  ]}
+/>
+
+## CSS variables
+
+<CssVariablesTable name="care-card" />
+
+CareCard exposes no custom property of its own for a consumer to set. It declares no `--opsin-*`
+variable in an inline style or a companion stylesheet, so there is nothing to list and the table
+above says as much. Where the class list names a token, such as the target floor the actions
+carry from `--opsin-target-minimum` or the gap between two actions from
+`--opsin-target-separation`, the card reads that role from the token layer with a `var()`
+fallback rather than setting a value of its own. Its colours are the semantic token roles listed
+under Tokens, read straight from the token layer, which is the one place a product retunes them.
+
+## Tokens
+
+<TokenTable component="care-card" />
+
+These are the tokens the card actually reads, resolved from its source by
+`scripts/build-tokens.mts` rather than listed by hand, so the table cannot drift from what the
+component consumes. They are the neutral chrome and type roles the card's own surface, heading
+and body take, together with the target roles the actions read. A health component never reads a
+category token and a status token onto one element, which is the two-colour-axes rule at the
+token layer: the card's own surface takes a neutral chrome role at every level, the status
+colour lives inside the embedded [StatusPill](./status-pill.mdx), and no category token appears
+anywhere in the file. A row here that named a category role or a raw ramp step would be the bug
+that rule exists to catch.
+
 ## API reference
 
 <PropsTable name="CareCardProps" />
@@ -606,6 +706,18 @@ family rule AlertBanner, ResultCard and EmptyState already follow. Whether the t
 family has not been checked on screen: no example on this page uses `onSelect`, so the two have
 never been rendered side by side. Given both, the link wins. A destination survives a new tab,
 a copied address and a screen reader's list of links, and a handler does not.
+
+## Cost
+
+<BundleSize name="care-card" />
+
+Bundle cost is measured from a real build, and no such measurement has been taken for this card
+or for any opsinjs component yet, so there is no number to show here. It is a stable-phase gate
+rather than a beta one, and putting a figure here that nobody measured is the one thing this
+section must never do. What the card composes is on the record instead: it pulls in
+[Card](./card.mdx), [Button](./button.mdx), [StatusPill](./status-pill.mdx) and
+[Link](./link.mdx), and its own file adds a date formatter and the development warnings, so the
+real figure will be read from a build once one is taken rather than estimated from that list.
 
 ## Related
 

@@ -1,7 +1,7 @@
 ---
 title: AlertBanner
 description: A message that appears at the top of a screen because something needs your attention now, saying what has happened and what to do about it.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: health-communication
@@ -14,7 +14,7 @@ usedIn: [alert-escalation, choose-a-component, forms/error-summaries, offline-an
 
 <StubNotice
   name="alert-banner"
-  status="alpha"
+  status="beta"
   questions={[
     "The escalation budget is not enforced at runtime, and the component argues below that it cannot be from inside one banner. A lint rule over a screen file could see what a component cannot; nobody has written one.",
     "`steady` is legal, and the implementation keeps it for de-escalation, which is the sentence that withdraws an earlier alert. That is one honest use against a standing risk: a banner that can be steady is a banner a product will reach for whenever it wants to be noticed.",
@@ -24,10 +24,12 @@ usedIn: [alert-escalation, choose-a-component, forms/error-summaries, offline-an
     "The root carries no accessible name, so it is not a landmark. Naming it needs a generated id, which would make every banner in every product a client component. On a live region a name can also displace the content in the announcement.",
   ]}
 >
-  <code className="text-sm">alert-banner</code> is implemented and installable.
-  It is <strong className="font-medium">alpha</strong>: it works and it is
-  documented, the API may change in any release without a deprecation cycle, and
-  it is not for a production health surface yet.
+  <code className="text-sm">alert-banner</code> is implemented, installable, and
+  its API surface is complete. It is <strong className="font-medium">beta</strong>:
+  the surface is expected to hold, and a change that breaks it would land only in a
+  minor release, with a changelog entry and a migration note. It has been through no
+  accessibility or clinical review, so it is still not for a production health
+  surface, and the questions below are still open.
 </StubNotice>
 
 AlertBanner is the loudest thing opsinjs ships, and the implementation is mostly a set of
@@ -423,6 +425,29 @@ where the banner asserts there is something to do, and this one asserts the oppo
   align="start"
 />
 
+## States
+
+The banner itself takes no interaction state. It is not focusable and is never focused, so it
+has no hover, no focus and no pressed appearance of its own, and there is no disabled banner.
+What is interactive is the controls it composes: each action is a [Link](./link.mdx) on the
+`href` transport or a [Button](./button.mdx) on the `onSelect` transport, and the dismiss
+control is a Button, so hover, focus and pressed live on those and are documented on their own
+pages. The banner is the container that carries them, not a control in its own right.
+
+The five data states the system defines describe the lifecycle of a value a component displays.
+AlertBanner holds no reading of its own: it renders a message a product has already assembled,
+so most of these states belong to the surface the banner sits on rather than to the banner.
+Two of them, Error and Stale, are conditions a banner is raised to announce rather than states
+it enters. See [data states](../foundations/data-states.mdx).
+
+| Data state | What AlertBanner renders |
+| --- | --- |
+| Error | The state a banner most often exists to report. It draws no error appearance of its own; a product raises a banner to tell the reader that something elsewhere has gone wrong, and at `attention` or `urgent` the banner asserts there is a specific thing to do about it. A `status` outside the four levels is a caller mistake rather than a data condition, so the banner renders nothing and reports it in development. |
+| Loading | None. The banner renders synchronously from the props it is handed, and a product that does not yet know whether to raise one shows no banner rather than a placeholder. A banner that appeared while a check ran would be an interruption whose whole content is that nothing is known yet. |
+| Empty | There is no empty banner: the empty state is the absence of one, which is the surface behind it showing its own content. An empty `heading` is reported in development and the level is still rendered, because a level with no subject carries more than none. At `attention` and `urgent` an absent action is a composition error, reported and still rendered, because the sentence is the most useful thing on the screen. |
+| Partial | Not represented. The banner renders exactly the parts it was given, so a `steady` or `watch` banner with a heading and a body and no actions is complete rather than partial. It carries no notion of a value that is half loaded. |
+| Stale | A condition the banner is raised to announce, not one it holds. `detectedAt` carries the instant the product's rules found the condition, stamped on the root as `data-detected-at`, and [offline and stale data](../patterns/offline-and-stale-data.mdx) raises a banner when a cached value can no longer be vouched for. The banner reports the staleness of the data behind it and owns no staleness threshold of its own. |
+
 ## Content guidelines
 
 The heading names the subject in under eight words, and it does not name the level: the
@@ -486,10 +511,22 @@ ships no emergency number, because it does not know where the reader is.
   </DoDont.Dont>
 </DoDont>
 
+## Motion
+
+The banner ships no transition of any kind. It has no entrance animation, no state that could
+animate, and no timer, so there is nothing for `prefers-reduced-motion` to reduce and nothing
+that has to be switched off to be safe. That is a deliberate line rather than an omission.
+Urgency is never carried by motion at any level or under any circumstances, so there is no
+pulse, no flash, no shake and no colour cycle for the mode to remove. A health value is never
+animated on first paint either, which rules out a count-up on a number or a sweep across a
+fill, and this banner draws neither. The one honest way to hold that line is to ship no motion
+at all rather than a transition a reader has to opt out of. See
+[motion in health UI](../health/motion-in-health-ui.mdx).
+
 ## Accessibility
 
 Six of these are checked by a gate on every commit. The rest are arguments, and they are
-labelled as such: `alpha` promises that accessibility is claimed only where it has been
+labelled as such: `beta` promises that accessibility is claimed only where it has been
 checked, with the gaps listed rather than left out.
 
 **Checked, by `pnpm run check:a11y` on every commit:**
@@ -641,9 +678,9 @@ The `<ContrastReport>` below is **not** empty. The catalogue row for this compon
 `contrastScopes` of `neutral` and `status`, so the table resolves through that row and holds
 every measured pair in those two scopes, in both themes. Per D13 those are the token pairs
 this component draws colour from, and the table is that set of pairs rather than a
-measurement of the banner itself. Several rows sit below the non-text floor: the neutral
-hairline boundary on the page fails at 1.47:1 in light and 1.90:1 in dark, and the watch
-accent on the watch surface fails at 1.88:1 in light. Neither of those pairs is one this
+measurement of the banner itself. Several rows sit below the non-text floor, among them
+the neutral hairline boundary on the page and the watch accent on the watch surface, and the
+ContrastReport below carries the measured value for each. Neither of those pairs is one this
 banner paints as text, and neither is one it paints at all. The hairline is a neutral chrome
 boundary this component never draws, and `-accent` is the identity fill role, chosen for
 recognition rather than contrast, which the banner leaves out on purpose because it is never
@@ -689,6 +726,99 @@ has to make out on a banner.
 />
 
 <ContrastReport component="alert-banner" />
+
+## Data attributes
+
+<DataAttributesTable
+  name="alert-banner"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On the root section, always",
+      value: "alert-banner",
+    },
+    {
+      attribute: "data-status",
+      condition: "On the root, always, because status is required",
+      value: "steady | watch | attention | urgent",
+    },
+    {
+      attribute: "data-detected-at",
+      condition: "On the root, when a non-empty detectedAt is passed",
+      value: "The ISO 8601 instant the product's rules found the condition, verbatim. Absent otherwise, and never a rendered phrase.",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the inner announcement wrapper, always",
+      value: "alert-banner-announcement",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the heading, always",
+      value: "alert-banner-heading",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the heading-text span, when heading is non-empty",
+      value: "alert-banner-heading-text",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the body, always",
+      value: "alert-banner-body",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the actions row, when at least one action survived",
+      value: "alert-banner-actions",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On each action wrapper",
+      value: "alert-banner-action",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the dismiss wrapper, when dismissible and onAcknowledge are both supplied",
+      value: "alert-banner-dismiss",
+    },
+  ]}
+/>
+
+The root stamps `data-status` and, when it is told when the condition was found,
+`data-detected-at`. There is no `data-category`: a banner carries no category colour and there
+is no `category` prop for one to come from, so the two-axis collision has no route onto this
+surface. There is no `data-opsinjs-value` either, because the banner renders no measurement of
+its own. The composed controls carry their own slots rather than the ones handed to them: a
+`[data-slot="alert-banner-action"]` wrapper holds a `[data-slot="link"]` on the `href`
+transport and a `[data-slot="button"]` on the `onSelect` transport, and the
+[StatusPill](./status-pill.mdx) inside the heading writes `data-slot="status-pill"` with its
+own `data-status`, so an `urgent` banner carries `data-status="urgent"` on two elements. A
+check that counts urgent surfaces reads the component slot rather than the bare attribute, as
+[Clinical meaning](#clinical-meaning) sets out.
+
+## CSS variables
+
+<CssVariablesTable name="alert-banner" />
+
+The banner declares no `--opsin-*` custom property of its own for a consumer to set. Its fill,
+its ink and its boundary are the semantic status roles, `--opsin-status-<level>-surface`,
+`-ink` and the bare `-<level>` line role, read straight from the token layer and listed under
+Tokens below rather than through a component-scoped variable. It reads two chrome roles for
+shape and spacing, `--opsin-corner-shape` and `--opsin-target-separation`, but it defines
+neither, so there is nothing of its own to override here. To restyle a part, write a rule
+against the `data-slot` it carries.
+
+## Tokens
+
+<TokenTable component="alert-banner" />
+
+These are the tokens the banner actually reads, resolved from its source by
+`scripts/build-tokens.mts` rather than listed here by hand. They are the status surface, ink
+and line roles for the four levels, the density-scaled spacing and radius steps, and the
+corner-shape and target-separation roles. The banner never reads a category token, because it
+carries no category colour, so no element on this surface takes a category role and a status
+role at once, which is the two-axis rule holding at the token layer rather than in a paragraph.
 
 ## API reference
 
@@ -776,6 +906,17 @@ There is no `category`, no `variant`, no `tone` and no `color`. There is no `ani
 `duration` and no `pulse`: urgency carried by motion is the failure this component's own
 doctrine page names first. There is no `onDismiss` separate from `onAcknowledge`, because
 the distinction between the two is a record the product keeps rather than two controls.
+
+## Cost
+
+<BundleSize name="alert-banner" />
+
+No size has been measured, because a bundle figure comes from a real build and none has been
+taken against this component. A number typed in here would drift from the one a build computes,
+so inventing one is refused the way a fabricated contrast pass is. Bundle cost is a
+stable-phase gate rather than a beta one. The banner composes
+[StatusPill](./status-pill.mdx), [Button](./button.mdx) and [Link](./link.mdx), so its measured
+cost will carry theirs, and the figure lands here on the day the build that produces it runs.
 
 ## Related
 

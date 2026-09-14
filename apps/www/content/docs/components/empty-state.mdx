@@ -1,7 +1,7 @@
 ---
 title: EmptyState
 description: What a screen shows before there is anything on it. It says plainly why it is empty and gives you one clear thing to do about it.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: feedback
@@ -13,7 +13,7 @@ usedIn: [choose-a-component, consent-flow, daily-log-screen, daily-logging, empt
 
 <StubNotice
   name="empty-state"
-  status="alpha"
+  status="beta"
   issue="opsinjs/opsinjs#0"
   questions={[
     "May an empty state carry a primary action when the reader cannot actually take it yet, such as while waiting for a device to sync or waiting for a laboratory? The component allows one and has no opinion, which means the decision is currently nobody's.",
@@ -22,10 +22,12 @@ usedIn: [choose-a-component, consent-flow, daily-log-screen, daily-logging, empt
     "The contrast pairs and the hit-area floor have not been measured for this component. Both forms of an action now render the same neutral pair, bg-card with the body foreground, so the recommended step reads at one weight whichever prop the caller passed, and neither transport is the one to prefer for a contrast reason. The href form is still the one to reach for where a destination exists, because it stays server-rendered and gives the reader a real link to open or copy. That pair is argued from the tokens rather than measured here. Its accessibility section below says which claims are checked by a gate, which are only argued, and which cannot be made.",
   ]}
 >
-  <code className="text-sm">empty-state</code> is implemented and installable.
-  It is <strong className="font-medium">alpha</strong>: it works and it is
-  documented, the API may change in any release without a deprecation cycle, and
-  it is not for a production health surface yet.
+  <code className="text-sm">empty-state</code> is implemented, installable, and
+  its API surface is complete. It is <strong className="font-medium">beta</strong>:
+  the surface is expected to hold, and a change that breaks it would land only in
+  a minor release, with a changelog entry and a migration note. It has been
+  through no accessibility or clinical review, so it is still not for a
+  production health surface, and the questions below are still open.
 </StubNotice>
 
 Empty states are where a product either explains itself or looks broken. In a health
@@ -272,6 +274,30 @@ accessibility section says which of these a standing gate covers.
 
 <ComponentPreview name="empty-state-with-an-illustration" kind="example" align="start" />
 
+## States
+
+EmptyState has no interaction states of its own. The root is a plain container:
+no hover, focus, pressed or disabled treatment on the title, the body or the
+illustration, and none of the three is ever a control. `EmptyState.Action` and
+`EmptyState.Secondary` are the exception, because each wraps a
+[Link](./link.mdx) or a [Button](./button.mdx): the hover, focus, pressed and
+disabled states a reader meets there belong to those components and are
+documented on their own pages rather than repeated here.
+
+The five data states the system defines (see [Data
+states](../foundations/data-states.mdx)) do not divide evenly across `reason`.
+Three of the five reason values carry Empty, one carries Partial, and one
+carries Error; the remaining two data states are not this component's to render
+at all.
+
+| Data state | What EmptyState renders |
+| --- | --- |
+| Error | `reason="could-not-load"`: the neutral "Could not load" marker before the title, a title and body that say the request did not complete rather than that a reading is missing, a mandatory action, and, when no usable action was given, a visible line admitting no way back was offered rather than a silent control. |
+| Loading | Nothing. EmptyState is never the right surface while a request is still in flight; the [Skeleton](./skeleton.mdx) preserves the layout instead, and mounting an empty state during a load is the confusion the exclusion list in "When to use it" names first. |
+| Empty | `reason="nothing-yet"`, `"no-matches"` or `"nothing-left"`: a title, a body naming what is absent and why, and at most one action. None of the three draws a marker of its own; the difference between "never existed", "hidden by a filter" and "used up and gone" lives entirely in the words the caller writes. |
+| Partial | `reason="not-enough"`: the same title-and-body shape, except the body is a safety statement rather than an explanation, stating the rule a view is waiting for and how far off it is, because there is data, only not enough of it for this view to be honest. |
+| Stale | Nothing. A stale value is real and present, so the surface it belongs to has content to show and is never empty; staleness is `staleAfterHours` on [MetricTile](./metric-tile.mdx), not a reason this component accepts. |
+
 ## Content guidelines
 
 Say what is not here, then why, then what to do. Never use an empty state to be cheerful about
@@ -350,10 +376,27 @@ population. See [ADR 0012](../project/decisions/0012-synthetic-example-data.mdx)
 or a reading count written here would be a clinical rule with no owner and no date, and a
 threshold in a Do block is a threshold somebody copies.
 
+## Motion
+
+EmptyState uses no motion. It does not animate when it mounts, and none of its
+parts, not the illustration, the title, the body or either action, transitions
+when `reason` or the content changes; a caller who swaps `reason` on a mounted
+EmptyState replaces the rendered content in place with no transition of any
+kind. That is deliberate: an empty state's job is to state an absence plainly,
+and animating an admission that there is nothing here would spend motion on the
+one moment it is least suited to draw attention to itself. No part of the file
+declares a transition token.
+
+Because it declares no transition, there is nothing for `prefers-reduced-motion`
+to reduce. The illustration's appearance and disappearance across the
+`@max-[17rem]` container-query boundary is a layout change rather than a motion
+effect: the picture is present, or it is gone, with no cross-fade, resize or
+other animation carrying it between the two.
+
 ## Accessibility
 
 Some of these are checked by a gate on every commit. The rest are arguments, and they are
-labelled as such: `alpha` promises that accessibility is claimed only where it has been
+labelled as such: `beta` promises that accessibility is claimed only where it has been
 checked, with the gaps listed rather than left out.
 
 **Checked, by `pnpm run check:a11y` on every commit:**
@@ -492,6 +535,56 @@ checked, with the gaps listed rather than left out.
 
 <ContrastReport component="empty-state" />
 
+## Data attributes
+
+<DataAttributesTable
+  name="empty-state"
+  rows={[
+    { attribute: "data-slot", condition: "On the root, always", value: "empty-state" },
+    { attribute: "data-slot", condition: "On the illustration wrapper, only when illustration is supplied", value: "empty-state-illustration" },
+    { attribute: "data-slot", condition: "On the error marker, only when reason is could-not-load", value: "empty-state-error-flag" },
+    { attribute: "data-slot", condition: "On the heading, always", value: "empty-state-title" },
+    { attribute: "data-slot", condition: "On the paragraph, always", value: "empty-state-body" },
+    { attribute: "data-slot", condition: "On the action wrapper, only when action renders a control", value: "empty-state-action" },
+    { attribute: "data-slot", condition: "On the refusal line, only when reason is could-not-load and no usable action was given", value: "empty-state-error-no-retry" },
+    { attribute: "data-slot", condition: "On the secondary wrapper, only when secondary renders a control", value: "empty-state-secondary" },
+  ]}
+/>
+
+EmptyState carries none of the other three attributes in the vocabulary. There is
+no `data-status`, because an absence is not a clinical level; no `data-category`,
+because it is not a kind of measurement; and no `data-opsinjs-value`, because it
+never renders a reader's own number and refuses one outright on the rare body
+that resolves to a bare digit. The eight `data-slot` values above, most of them
+conditional on which parts actually render, are the only hook this component
+offers a rule of your own.
+
+## CSS variables
+
+<CssVariablesTable name="empty-state" />
+
+EmptyState exposes no custom property of its own for a consumer to set. Its
+colours are the semantic neutral roles listed under Tokens below, read straight
+from the token layer rather than through a component-scoped variable, so there
+is nothing of its own to override here. The one custom property the file reads
+directly is `--opsin-measure-tight`, consumed with a `45ch` fallback to cap the
+width of the centred body and refusal paragraphs, and that variable belongs to
+the type scale rather than to this component. To recolour any part, write a rule
+against its `data-slot`.
+
+## Tokens
+
+<TokenTable component="empty-state" />
+
+These are the tokens EmptyState actually reads, generated from its source by
+`scripts/build-tokens.mts` rather than listed by hand. Because neither colour
+axis applies to an absence, the rows are drawn entirely from the neutral scope:
+the foreground and border roles behind the title, the body, the error marker and
+the card-action recipe its two actions resolve through, together with the type
+and spacing steps each part sets. EmptyState never reads a category token and a
+status token onto one element, because it never reads either onto any element,
+which is the two-axis rule holding by having nothing on either axis to mix.
+
 ## API reference
 
 <PropsTable name="EmptyStateProps" />
@@ -515,6 +608,15 @@ offender rather than on every render. A warning channel that repeats is one some
 off. None of them is an `OPSIN-` code: those describe mistakes a consumer makes with the
 clinical API, they are a versioned contract generated from `tokens/errors.json`, and a
 component may not mint one.
+
+## Cost
+
+<BundleSize name="empty-state" />
+
+Bundle cost is measured from a real build, and no such measurement has been
+taken for any opsinjs component yet, so there is no number to show here. It is a
+stable-phase gate rather than a beta one, and putting a figure here that nobody
+measured is the one thing the size section must never do.
 
 ## Related
 

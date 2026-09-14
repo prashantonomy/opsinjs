@@ -1,7 +1,7 @@
 ---
 title: ScoreDial
 description: A single composite score shown on a dial with its band named in words, alongside an honest statement of what went into the number.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: health-data-display
@@ -14,7 +14,7 @@ usedIn: [choose-a-component, health-metric-card, results-screen]
 
 <StubNotice
   name="score-dial"
-  status="alpha"
+  status="beta"
   questions={[
     "There is no provenance field. A composite score is by construction built from inputs of mixed provenance, and nothing on this surface records or shows which of them is a device estimate and which is something the reader typed. The derivation sentence is the only place it can be said, and nothing checks that it was.",
     "What is announced when a score changes while the dial is on screen? The component mounts no live region, deliberately, and the caller has no guidance here yet.",
@@ -23,10 +23,12 @@ usedIn: [choose-a-component, health-metric-card, results-screen]
     "Two doctrine pages bear on this component and are not in `governedBy`: clinical-status-semantics, because the dial renders a status word, and uncertainty-and-staleness, because it renders a calculation date with no staleness treatment. The relationship is enforced in both directions, and neither doctrine page's `implements` names `score-dial`. It therefore cannot be declared from this page alone.",
   ]}
 >
-  <code className="text-sm">score-dial</code> is implemented and installable. It
-  is <strong className="font-medium">alpha</strong>: it works and it is
-  documented, the API may change in any release without a deprecation cycle, and
-  it is not for a production health surface yet.
+  <code className="text-sm">score-dial</code> is implemented, installable, and
+  its API surface is complete. It is <strong className="font-medium">beta</strong>:
+  the surface is expected to hold, and a change that breaks it would land only in a
+  minor release, with a changelog entry and a migration note. It has been through
+  no accessibility or clinical review, so it is still not for a production health
+  surface yet, and the questions below are still open.
 </StubNotice>
 
 A dial is the most persuasive graphic in the set and therefore the most dangerous. A number
@@ -422,6 +424,22 @@ alternative is telling a reader that a number which did exist was never taken.
 
 <ComponentPreview name="score-dial-zero-is-not-absence" kind="example" align="start" />
 
+## States
+
+ScoreDial is not interactive. Nothing in it is focusable, it takes no hover, focus, pressed or
+disabled treatment, and Tab passes straight over it, because it is a picture of a reading
+somebody else assigned rather than a control a reader operates. The states worth documenting
+here are the five data states, and the dial answers each of them in words a reader can weigh
+rather than by vanishing or by drawing a mark it cannot stand behind.
+
+| Data state | What ScoreDial renders |
+| --- | --- |
+| Error | A `value` that is not a finite number is a calculation that ran without arriving at a number. The reading prints *not available*, the band-name line reads "No range is named, because the score could not be worked out.", no indicator is drawn, and the arc's accessible sentence says *not available* too, so the ear and the eye are handed one answer. A scale of no width and a score outside its scale are refused the same way, with no mark and a sentence saying why, and each of the three is reported in development. |
+| Loading | None of its own. ScoreDial formats a score the product has already calculated, so it never fetches and has nothing to wait for. A skeleton or a spinner belongs to the surface that composes the dial, which is where the wait actually happens. |
+| Empty | A `value` of `null` is the no-score state, which is a calculation that never ran and is not a score of zero. The reading prints *no score yet*, the band-name line reads "No range is named, because there is no score yet.", no indicator is drawn, and the calculated line is withheld because there is no score for it to date. |
+| Partial | `coverage` whose `available` count is below its `expected` count puts *Based on 4 of 6* on its own line under the reading and into the accessible sentence, so a score built from part of the usual evidence says so on its face. An empty `bands` array is the neighbouring case: the number is placed on the scale and the words state that no band is named for it, rather than a band being invented to fill the gap. |
+| Stale | None of its own, and that is deliberate. The dial renders `calculatedAt` as a plain calculated date with no relative phrasing and no staleness tint, because a staleness window is a number opsinjs does not own for any metric. A dial that has a score but no instant says in words that nobody knows when it was calculated. A caller who needs an old score to read as old renders a RelativeTime beside the dial and hands the whole screen one `now`. |
+
 ## Content guidelines
 
 Band names are the product's vocabulary. Keep them plain and non-judgemental: a band name
@@ -472,10 +490,23 @@ translatable without forking the file, and that is a known gap rather than a dec
   </DoDont.Dont>
 </DoDont>
 
+## Motion
+
+ScoreDial declares no transition, no sweep and no count-up. Nothing animates on first paint,
+nothing animates when the score changes while the dial is on screen, and no prop turns motion
+on. A health value is never animated onto this surface, because a dial that fills or a number
+that counts up shows, for every frame of its travel, a score that is not true.
+[Motion in health UI](../health/motion-in-health-ui.mdx) names the dial sweep as the first case
+to avoid, and this component obeys it by having no motion of its own to reduce. Since the source
+reads no motion token, `prefers-reduced-motion` has nothing to degrade: the arc is drawn once,
+in its final position, and it holds there. A reader who needs an old score to read as old is
+served by a RelativeTime beside the dial rather than by movement on the arc, because attention on
+this surface is carried by a word and a glyph and never by motion.
+
 ## Accessibility
 
 Some of this is checked by a gate and the rest is argued. The split is labelled, because
-`alpha` promises that accessibility is claimed only where it has been checked, with the gaps
+`beta` promises that accessibility is claimed only where it has been checked, with the gaps
 listed rather than left out. The two measured contrast failures at the bottom of this section
 are among them.
 
@@ -586,7 +617,7 @@ are among them.
 - **What follows from that.** The component's position is that the arc is redundant to the
   words: the band name, the status word, the scale, the band list and the derivation carry
   everything, the glyph carries the level a second time, and covering the arc with your hand
-  loses nothing. That argument is what made a failing stroke tolerable at `alpha`. The track's own
+  loses nothing. That argument is what made a failing stroke tolerable at `beta`. The track's own
   repair has now happened, in the token layer, where wave 1 moved the border role onto the neutral
   ladder; the tinted-band accent and the indicator-on-band pair still need a token-layer fix,
   because this component cannot reach the floor with a colour the system does not own. The two
@@ -642,6 +673,70 @@ are among them.
 />
 
 <ContrastReport component="score-dial" />
+
+## Data attributes
+
+<DataAttributesTable
+  name="score-dial"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On every part. The root and the always-present parts are stamped on every dial; score-dial-indicator only when there is a placeable score, score-dial-coverage only when coverage is short, score-dial-band-source only when a band list is shown, and score-dial-calculated-line and score-dial-calculated-at only when there is a score (the -at time element only when a readable instant was passed).",
+      value: "score-dial, score-dial-label, score-dial-track, score-dial-band, score-dial-boundary, score-dial-indicator, score-dial-reading, score-dial-score, score-dial-band-name, status-pill, score-dial-coverage, score-dial-scale, score-dial-band-source, score-dial-derivation, score-dial-calculated-line, score-dial-calculated-at",
+    },
+    {
+      attribute: "data-status",
+      condition: "On the one band the score fell in, on the indicator, and on the StatusPill, and only when the product assigned a level to a placed score. This dial narrows the axis to two levels and refuses the other two, so it never stamps attention or urgent.",
+      value: "steady | watch",
+    },
+    {
+      attribute: "data-category",
+      condition: "On ScoreDial.Label, when a category from the six was supplied. It is the only element the category axis touches.",
+      value: "sleep | heart | activity | nutrition | mind | labs",
+    },
+    {
+      attribute: "data-opsinjs-value",
+      condition: "On the Value inside ScoreDial.Score, on every dial that renders a reading. Stamped by Value, not by the dial itself.",
+      value: "The unrounded number, or an empty string when there is no reading",
+    },
+  ]}
+/>
+
+The `data-slot` values are how a rule of your own reaches one part of the dial, the arc, the band
+name, the derivation or the whole thing, without an export existing for it. `data-status` is the
+hook a product styles or scrapes a level by, and it sits only on the elements that carry the
+status tint, never on a neutral band. The `<time>` element additionally carries a `dateTime`
+attribute holding the ISO instant it was passed, which is the machine-readable copy of the
+calculated date. There is no Base UI state attribute here, because the dial opens nothing and
+toggles nothing: it is a static picture with a visible text twin.
+
+## CSS variables
+
+<CssVariablesTable name="score-dial" />
+
+ScoreDial exposes no CSS custom property of its own for a consumer to set. Its colours are the
+semantic token roles listed under [Tokens](#tokens) below, read straight from the token layer
+rather than through a component-scoped variable, so there is nothing of its own to override here.
+It does read two sizing tokens by name, `--opsin-measure-comfortable` to cap the column's width
+and `--opsin-graphic-dial` to cap the arc's, each written with an inline fallback so a consumer
+who installed the dial without the token layer still gets a bounded width; but it reads those, it
+does not declare them, and neither is a hook the component owns. To recolour or resize any part,
+write a rule against its `data-slot`. The table above has no rows because there is no
+component-scoped variable to list.
+
+## Tokens
+
+<TokenTable component="score-dial" />
+
+These are the token roles ScoreDial actually reads, resolved from its source by `tokensUsedBy`
+and generated by `scripts/build-tokens.mts` rather than listed by hand, so they cannot drift from
+what the component draws. They are semantic roles and never raw values: the category ink role
+tints the label, the status ink and accent roles paint the indicator and the one band the reading
+fell in, the chrome border role draws the track and every untinted band, and the neutral
+foreground and muted roles carry the words and the marks. A health component never reads a
+category token and a status token onto one element, which is the two colour axes kept apart in
+the token layer itself: the category reaches the label, the status reaches the arc, and no single
+element takes a colour from both.
 
 ## API reference
 
@@ -722,6 +817,18 @@ derived from the bounds by value, so an unordered or gapped set still marks the 
 There is no `size`, no `color`, no `variant` and no prop that hides the band name or the
 derivation. There is no `sweep`, `animate` or `duration` either: a dial that animates is the
 failure this component's own doctrine page names first.
+
+## Cost
+
+<BundleSize name="score-dial" />
+
+Bundle cost is measured from a real production build, and no such measurement has been taken for
+this component, so the widget above shows that rather than a figure. It is a stable-phase gate
+rather than a beta one, and typing in a number nobody measured is the one thing this section must
+never do. Two facts bear on the eventual figure and can be stated without one: the dial pulls in
+four `lucide-react` glyphs through its status map, which it keeps so the colour-carried status
+reads as composed rather than as colour alone, and it composes [Value](./value.mdx) and
+[StatusPill](./status-pill.mdx), so whatever the build reports will not be the arc by itself.
 
 ## Related
 

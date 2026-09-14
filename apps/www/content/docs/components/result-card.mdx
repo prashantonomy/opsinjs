@@ -1,7 +1,7 @@
 ---
 title: ResultCard
 description: One test result, shown in full. What was measured, the number, where it sits against its range, what that means in plain English, and what to do next.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: health-data-display
@@ -14,7 +14,7 @@ usedIn: [choose-a-component, health-metric-card, result-disclosure, results-scre
 
 <StubNotice
   name="result-card"
-  status="alpha"
+  status="beta"
   questions={[
     "The card's accessible name is its title alone, not the title plus the reading the specification asked for. Assembling that sentence means either formatting the number here or pointing `aria-labelledby` at two elements. Formatting the number is the one thing this component refuses to do, and pointing at two elements needs ids no server component can mint. The reading is the next thing announced after the name, and nobody has listened to it.",
     "Nothing on this page has been measured. No contrast pair has been checked by a machine, no card has been listened to, no card has been printed, and no hit area has been measured at 1.3× or at 200% text.",
@@ -22,10 +22,12 @@ usedIn: [choose-a-component, health-metric-card, result-disclosure, results-scre
     "The not-medical-advice note is not on this card and will not be. Where it lives is a product decision this component deliberately does not make, and that might be once per screen, once per session, or beside every result. The open question is whether products will make it at all.",
   ]}
 >
-  <code className="text-sm">result-card</code> is implemented and installable.
-  It is <strong className="font-medium">alpha</strong>: it works and it is
-  documented, the API may change in any release without a deprecation cycle, and
-  it is not for a production health surface yet.
+  <code className="text-sm">result-card</code> is implemented, installable, and
+  its API surface is complete. It is <strong className="font-medium">beta</strong>:
+  the surface is expected to hold, and a change that breaks it would land only in a
+  minor release, with a changelog entry and a migration note. It has been through
+  no accessibility or clinical review, so it is still not for a production health
+  surface, and the questions below are still open.
 </StubNotice>
 
 ResultCard is the composition the whole health-data-display family exists to serve. It is
@@ -395,6 +397,23 @@ paper.
 
 <ComponentPreview name="result-card-an-old-reading" kind="example" align="start" />
 
+## States
+
+ResultCard is a region rather than a control. The root is an `<article>`, it is not
+focusable, and it is not a tab stop, so it carries no hover, focus, pressed or disabled
+state of its own. The only interactive parts are the actions, and each is a real
+[Link](./link.mdx) or [Button](./button.mdx) that carries its own focus ring and pressed
+treatment from that component. What matters for a result is the data states below, because
+the card's whole job is to render each claim honestly whether it is present or absent.
+
+| Data state | What ResultCard renders |
+| --- | --- |
+| Error | No error surface of its own. A malformed input degrades to a stated absence rather than a message: an unknown `category` leaves the title in its inherited colour, a `range` with no `unit` draws no bar, and each mistake is reported once to the console in development. A fetch error belongs to the screen that composes the card, which decides whether to show this card at all. |
+| Loading | Nothing of its own. The card takes resolved values, so a skeleton or a spinner while the result loads is the composing screen's to draw. A half-built card would put a placeholder number on a health surface, which a reader takes as a reading. |
+| Empty | Each absent claim renders as an absence in words. `value={null}` renders [Value](./value.mdx)'s absence form, never `0` and never a bare dash; no `range` draws no bar; no `status` draws no pill; and an absent `meaning` renders the sentence saying there is none. |
+| Partial | The card is built for partial data. Every claim is independently omittable, so a card with a reading and a time but no interval, level or explanation is still a card. A compound reading with one `null` segment renders that part's absence form beside the parts that are present. |
+| Stale | Only when the product supplies `staleAfterHours`. The boundary is passed straight through to [RelativeTime](./relative-time.mdx), and past it the timestamp carries the words *may be out of date* as muted text, with the absolute date beside it. Omit the boundary and there is no staleness treatment, which is the honest output when nobody has said what old means for this measurement. |
+
 ## Content guidelines
 
 The title is the everyday name of the test with the clinical name available as a
@@ -435,10 +454,24 @@ says nothing at all about what the reading means.
   </DoDont.Dont>
 </DoDont>
 
+## Motion
+
+ResultCard declares no transition and no animation. Nothing moves on first paint or
+afterwards: the number does not count up, the bar does not sweep out, and the card does not
+slide or fade into place. So there is nothing for `prefers-reduced-motion` to reduce, and
+the component reads no motion token.
+
+This is a rule for a health value rather than an omission. A number animated into place has
+shown, for every frame of the journey, a figure that is not the reading, and a reader who
+glances away and back during a count-up reads a value the measurement never had. The reading
+is true from its first frame, which is the only frame a health surface can afford to be wrong
+on. The embedded [RangeBar](./range-bar.mdx) and [StatusPill](./status-pill.mdx) hold the
+same rule, so no part of the card moves.
+
 ## Accessibility
 
 Some of this is enforced by a gate on every pull request and every push to `main`. The rest
-is argued, and it is labelled as such: `alpha` promises that accessibility is claimed only
+is argued, and it is labelled as such: `beta` promises that accessibility is claimed only
 where it has been checked, with the gaps listed rather than left out. Nothing here has been
 through a review with a disabled user, and `a11yDate` is therefore still empty.
 
@@ -619,6 +652,66 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
 
 <ContrastReport component="result-card" />
 
+## Data attributes
+
+These are the attributes a product's own stylesheet, a test, or a scraper keys on, and they
+are the DOM contract this card holds stable. The card writes no `data-status` of its own: the
+level reaches the screen only through the embedded [StatusPill](./status-pill.mdx), so the one
+status attribute on the card sits on the pill and nowhere else. The one attribute the card
+writes for the category axis, `data-category`, sits on the title alone. The two axes are on
+two different elements, which is the two-colour-axes rule written as attributes rather than as
+colour.
+
+<DataAttributesTable
+  name="result-card"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On every part, always",
+      value: "result-card, result-card-header, result-card-title, result-card-time, result-card-reading, result-card-meaning, result-card-actions, result-card-footnote, result-card-action on the link form of an action. The embedded components stamp their own slots too: status-pill, relative-time, range-bar, value, button. The handler form of an action is a Button and carries button rather than result-card-action.",
+    },
+    {
+      attribute: "data-status",
+      condition: "On the embedded StatusPill's root, when a status was supplied. Never on an element this component draws itself.",
+      value: "steady | watch | attention | urgent",
+    },
+    {
+      attribute: "data-category",
+      condition: "On ResultCard.Title, when a category was supplied and is one of the six",
+      value: "sleep | heart | activity | nutrition | mind | labs",
+    },
+    {
+      attribute: "data-opsinjs-value",
+      condition: "On every Value: one for the reading, or one per segment of a compound one, plus the ones a drawn RangeBar renders for the reading and both bounds. De-duplicate before scraping, because the reading's own number appears more than once on a card with a bar.",
+      value: "The unrounded number, or an empty string when there is no reading",
+    },
+  ]}
+/>
+
+## CSS variables
+
+ResultCard exposes no custom property of its own. It declares no `--opsin-*` variable in an
+inline style or a companion stylesheet, so there is nothing to list and the table below says
+as much. Where the class list names a token, such as the comfortable measure the meaning
+paragraph is held to or the separation between two actions, the card reads that role from the
+token layer rather than setting a value. Its colours are the semantic token roles listed under
+Tokens, read straight from the token layer, which is the one place a product retunes them.
+
+<CssVariablesTable name="result-card" />
+
+## Tokens
+
+These are the tokens the card reads, resolved from the source by `scripts/build-tokens.mts`
+rather than listed by hand, so the table cannot drift from what the component actually
+consumes. A health component never reads a category token and a status token onto one
+element, which is the two-colour-axes rule at the token layer: the category ink is on the
+title, the status colour is inside the embedded [StatusPill](./status-pill.mdx), and the
+card's own surface takes a neutral chrome role at every level. There is no ramp step and no
+raw colour anywhere in the file, so the card scales with the reader's own text size and takes
+every colour from a role a product can retune.
+
+<TokenTable component="result-card" />
+
 ## API reference
 
 <PropsTable name="ResultCardProps" />
@@ -706,31 +799,18 @@ There is no `attribution` prop, no `disclaimer` prop and no `density` prop. The 
 are copy the product writes; the third is a decision of the screen the card is on, and it
 belongs in `className`.
 
-<DataAttributesTable
-  name="result-card"
-  rows={[
-    {
-      attribute: "data-slot",
-      condition: "On every part, always",
-      value: "result-card, result-card-header, result-card-title, result-card-time, result-card-reading, result-card-meaning, result-card-actions, result-card-footnote, result-card-action on the link form of an action. The embedded components stamp their own slots too: status-pill, relative-time, range-bar, value, button. The handler form of an action is a Button and carries button rather than result-card-action.",
-    },
-    {
-      attribute: "data-status",
-      condition: "On the embedded StatusPill's root, when a status was supplied. Never on an element this component draws itself.",
-      value: "steady | watch | attention | urgent",
-    },
-    {
-      attribute: "data-category",
-      condition: "On ResultCard.Title, when a category was supplied and is one of the six",
-      value: "sleep | heart | activity | nutrition | mind | labs",
-    },
-    {
-      attribute: "data-opsinjs-value",
-      condition: "On every Value: one for the reading, or one per segment of a compound one, plus the ones a drawn RangeBar renders for the reading and both bounds. De-duplicate before scraping, because the reading's own number appears more than once on a card with a bar.",
-      value: "The unrounded number, or an empty string when there is no reading",
-    },
-  ]}
-/>
+## Cost
+
+No bundle size has been measured for this component. A real figure comes from a production
+build, none has been taken, and inventing one is forbidden. Bundle cost is a stable-phase
+gate rather than a beta one, so the figure below stays absent until a build produces it. What
+can be said without a measurement is the shape of the cost: the card ships as source and
+composes [StatusPill](./status-pill.mdx), [Value](./value.mdx), [RangeBar](./range-bar.mdx),
+[RelativeTime](./relative-time.mdx), [Button](./button.mdx) and [Link](./link.mdx), so a
+project that already installs those adds the arrangement and little else, though how much that
+is stays unmeasured until a build reports it.
+
+<BundleSize name="result-card" />
 
 ## Related
 

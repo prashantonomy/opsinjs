@@ -34,12 +34,14 @@
  * two words that divergence has already cost.
  * ────────────────────────────────────────────────────────────────────────────
  *
- * TWENTY-SEVEN ROWS ARE BUILT. Each of them carries `status: "alpha"`, has a
+ * TWENTY-SEVEN ROWS ARE BUILT: twenty-five at `status: "beta"` and two
+ * (`segmented-control` and `source-citation`) at `status: "alpha"`. Each has a
  * file at `registry/bases/base/<id>.tsx`, renders at
- * `/view/base/base-lyra/component/<id>`, and installs with `shadcn add`. Alpha
- * is not a promise of stability: the API may change in any release without a
- * deprecation cycle, and none of it has been through an accessibility or
- * clinical review. The other thirty-three rows carry `status: "considered"`,
+ * `/view/base/base-lyra/component/<id>`, and installs with `shadcn add`. Neither
+ * phase is a promise of full stability: at alpha the API may change in any
+ * release without a deprecation cycle, at beta it breaks only in a minor release
+ * with a documented migration, and none of it has been through an accessibility
+ * or clinical review. The other thirty-three rows carry `status: "considered"`,
  * which is a reserved name and a reason to reach for something else, with no
  * code and no hand-written page. The only page any of them has is a stub that
  * `scripts/build-registry.mts` generates from the row, so the address answers
@@ -250,7 +252,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "One test result, showing the number, what it is compared against, and what it means.",
     category: "health-data-display",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: [
       "results",
@@ -290,7 +292,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A bar showing where one reading sits against the range it is compared with.",
     category: "health-data-display",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: [
       "reference range",
@@ -324,7 +326,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A single composite number drawn as a ring, with the words that say what it counts.",
     category: "health-data-display",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: ["dial", "ring", "gauge", "score", "index", "bmi"],
     owner: "design",
@@ -348,7 +350,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A small chart of one reading over time, with an honest caption saying what changed.",
     category: "health-data-display",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: ["sparkline", "trend", "over time", "mini chart", "line chart", "chart", "graph"],
     owner: "clinical",
@@ -375,7 +377,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A compact tile showing one reading, its unit and when it was taken.",
     category: "health-data-display",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: [
       "stat",
@@ -423,7 +425,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A short label saying what a reading means and what, if anything, to do about it.",
     category: "health-data-display",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: ["chip", "status chip", "status badge", "status label", "traffic light"],
     owner: "clinical",
@@ -455,7 +457,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A prominent message about something that needs the reader's attention now.",
     category: "health-communication",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: [
       "warning banner",
@@ -495,7 +497,7 @@ export const SHIPPED: CatalogueEntry[] = [
     title: "CareCard",
     description: "A card saying what to do next, and how urgently.",
     category: "health-communication",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: [
       "what to do next",
@@ -539,7 +541,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A clinical word with its everyday meaning attached, so a sentence can be read without leaving it.",
     category: "health-communication",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: ["glossary term", "jargon", "plain word", "definition", "plain english", "tooltip term"],
     owner: "content",
@@ -567,7 +569,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A sheet that asks permission for one specific thing, and records the answer.",
     category: "health-communication",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: ["consent", "permission", "opt in", "data sharing", "agree"],
     owner: "clinical",
@@ -592,7 +594,7 @@ export const SHIPPED: CatalogueEntry[] = [
     title: "DisclaimerNote",
     description: "The standing note about what this information is and is not.",
     category: "health-communication",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: ["disclaimer", "not medical advice", "legal note", "small print", "safety note"],
     owner: "clinical",
@@ -645,7 +647,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A form for writing down what happened today, in as few taps as possible.",
     category: "health-input",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: ["log", "diary", "journal", "daily entry", "capture", "quick entry", "bottom sheet entry"],
     owner: "design",
@@ -677,7 +679,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "An input for typing in a measurement, with the unit shown and switchable beside the number.",
     category: "health-input",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: [
       "enter a reading",
@@ -715,7 +717,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "One number and its unit, formatted the same way everywhere in the product.",
     category: "health-formatting",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: ["number", "unit", "format a number", "numeric display", "figure", "format", "formatted number"],
     owner: "content",
@@ -754,7 +756,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "When a reading was taken, said the way a person would say it.",
     category: "health-formatting",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: ["time ago", "timestamp", "last updated", "date display", "ago", "freshness", "staleness"],
     owner: "content",
@@ -780,7 +782,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "The base panel every other surface is built from, at one of six material rungs.",
     category: "surfaces",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: ["material", "glass", "blur", "elevation", "layer", "translucency", "vibrancy"],
     owner: "design",
@@ -800,7 +802,7 @@ export const SHIPPED: CatalogueEntry[] = [
     title: "Card",
     description: "A bounded block of related content.",
     category: "surfaces",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: ["panel", "container", "content box", "box", "tile group"],
     owner: "design",
@@ -823,7 +825,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A panel that slides over the screen and can be dismissed by dragging.",
     category: "surfaces",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: ["bottom sheet", "drawer", "side panel", "slide over", "modal sheet", "detent"],
     owner: "design",
@@ -846,7 +848,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A window that interrupts, for the one decision that cannot wait.",
     category: "surfaces",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: ["modal", "alert dialog", "confirm", "popup"],
     owner: "engineering",
@@ -863,7 +865,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A short piece of set-apart information that helps you understand what you are reading without claiming anything about your health, whether it is a note, a tip or a caveat.",
     category: "feedback",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: ["admonition", "note box", "info box", "tip", "note", "aside"],
     owner: "content",
@@ -887,7 +889,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "What a screen shows when there is nothing to show, and what to do about it.",
     category: "feedback",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: [
       "no data",
@@ -917,7 +919,7 @@ export const SHIPPED: CatalogueEntry[] = [
     title: "Skeleton",
     description: "The shape of content that has not arrived yet.",
     category: "feedback",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: ["loading placeholder", "shimmer", "ghost", "loading state", "placeholder"],
     owner: "design",
@@ -951,7 +953,7 @@ export const SHIPPED: CatalogueEntry[] = [
     title: "Button",
     description: "The control that makes something happen.",
     category: "actions-and-forms",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: ["cta", "action", "submit", "primary button"],
     owner: "engineering",
@@ -976,7 +978,7 @@ export const SHIPPED: CatalogueEntry[] = [
     title: "Link",
     description: "Navigation to somewhere else.",
     category: "actions-and-forms",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: ["anchor", "hyperlink"],
     owner: "engineering",
@@ -990,7 +992,7 @@ export const SHIPPED: CatalogueEntry[] = [
     description:
       "A labelled input with its help text, its error, and the wiring that connects them.",
     category: "actions-and-forms",
-    status: "alpha",
+    status: "beta",
     since: "unreleased",
     aliases: [
       "form field",

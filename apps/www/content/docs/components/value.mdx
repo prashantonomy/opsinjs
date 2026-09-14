@@ -1,7 +1,7 @@
 ---
 title: Value
 description: A number and its unit, formatted the same way everywhere. It is rounded honestly, spoken correctly, and never shown to more precision than the measurement actually has.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: health-formatting
@@ -14,17 +14,20 @@ usedIn: [ask-users-for/height-and-weight, choose-a-component, daily-log-screen, 
 
 <StubNotice
   name="value"
-  status="alpha"
+  status="beta"
   questions={[
     "The spoken unit forms in tokens/units.json are British English, and the component now substitutes them only when the reader's language is English and leaves the symbol audible otherwise. What stays undecided is whether a per-language spoken form belongs in the token file, in the product, or in neither.",
     "`size` has two values, `inherit` and `display`. At `display` the number takes `title1` and the unit takes `title3`, and the scale's largest step, `largeTitle`, is set by no component in the system. Whether a hero value should move up to `largeTitle` stays open, because that answer changes every hero number in MetricTile, ResultCard, ScoreDial and RangeBar at once rather than on this page alone.",
     "Contrast has not been measured for this component, and its behaviour at 200% text has not been observed at all. That behaviour is reasoned from the source, and nothing has looked at it in either theme. The Accessibility section below says which claims a gate holds up, which are only argued, and which are known defects that nobody has fixed.",
   ]}
 >
-  <code className="text-sm">value</code> is implemented and installable. It is{" "}
-  <strong className="font-medium">alpha</strong>: it works, the unit table
-  behind it is real and generated, the API may change in any release without a
-  deprecation cycle, and it is not for a production health surface yet.
+  <code className="text-sm">value</code> is implemented, installable, and its
+  API surface is complete. It is{" "}
+  <strong className="font-medium">beta</strong>: the surface is expected to
+  hold, and a change that breaks it would land only in a minor release, with a
+  changelog entry and a migration note. It has been through no accessibility or
+  clinical review, so it is still not for a production health surface, and the
+  questions below are still open.
 </StubNotice>
 
 Value is the smallest component in the system and the one with the widest blast radius. Every
@@ -340,6 +343,25 @@ registry source and is captured as an image that outlives the page around it.
 
 <ComponentPreview name="value-spoken-units" kind="example" align="start" />
 
+## States
+
+Value is a pure formatter and a server component, so it has no interaction states of its own.
+It is not focusable, takes no hover, focus, pressed or disabled treatment, and the keyboard
+table below records that Tab skips it. What it does hold apart is the three data conditions its
+doctrine keeps separate: a reading, an absence, and a failure. Loading and staleness belong to
+the surface that composes it, not to the formatter, so the five canonical states from
+[Data states](../foundations/data-states.mdx) resolve mostly to *delegated* here, and the two
+rows that are not delegated are the ones this component exists to keep from collapsing into each
+other.
+
+| Data state | What Value renders |
+| --- | --- |
+| Error | A non-finite reading, meaning NaN or an infinity, is a failure rather than an absence. Value renders the words "not available" in the absence slot and reports the value once in development. It never prints "NaN" beside a reading and never coerces the failure to 0. |
+| Loading | Nothing of its own. Value is a synchronous formatter with no data to fetch, so a surface still waiting on a reading shows its own skeleton and composes Value only once a value exists. |
+| Empty | `value={null}` renders the absence form, the words "no reading yet" by default or the caller's `absenceLabel`, and never 0 and never a blank. At the `display` size the absence drops to the headline step in the muted role, so an empty tile is never the loudest thing on a screen. |
+| Partial | Not applicable. Value formats one scalar reading with no sub-fields, so it is whole or absent with nothing in between. A compound reading such as a blood pressure is two Values composed by the surface, and each one is whole or absent on its own. |
+| Stale | Nothing of its own. Value renders no timestamp and holds no notion of freshness, so *whether a reading is still current* is carried beside it by [RelativeTime](./relative-time.mdx) and by the surface, as [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx) requires. |
+
 ## Content guidelines
 
 Group large numbers with the locale's own separator and never with a hard-coded comma. Use
@@ -393,10 +415,24 @@ gets cropped into a slide deck and the sentence explaining it is the part that d
   </DoDont.Dont>
 </DoDont>
 
+## Motion
+
+Value uses no motion. It declares no transition token, it does not animate on first paint, and
+it does not animate when the reading changes. Because it declares no transition, there is
+nothing for `prefers-reduced-motion` to reduce, and there is no reduced-motion fallback to quote
+because there is no motion to fall back from.
+
+That silence is a health decision rather than an oversight. A number that counts up has
+displayed, for every frame of the count, a figure that is not true, so a health value is never
+swept, tweened or counted onto the screen. A surface that wants a new reading noticed does that
+through the layout around the number, or through a component that owns an announcement, rather
+than by moving the digits. If you need a reading to draw the eye, change what sits beside it,
+and leave the number itself still.
+
 ## Accessibility
 
 Some of these are held up by a gate on every commit. The rest are arguments, and they are
-labelled as such: `alpha` promises that accessibility is claimed only where it has been
+labelled as such: `beta` promises that accessibility is claimed only where it has been
 checked, with the gaps listed rather than left out. Two of the four lists below are gaps, and
 they are the ones worth reading first.
 
@@ -526,6 +562,79 @@ they are the ones worth reading first.
 
 <ContrastReport component="value" />
 
+## Data attributes
+
+<DataAttributesTable
+  name="value"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On the root, always",
+      value: "value",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the formatted magnitude, when there is a reading",
+      value: "value-number",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the visible symbol, when a unit is present and unitDisplay is not \"spoken\"",
+      value: "value-unit",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the visually hidden spoken unit, when the unit table holds a spoken form and the reader's locale is English or unset",
+      value: "value-spoken",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the absence words, when there is no reading",
+      value: "value-absence",
+    },
+    {
+      attribute: "data-opsinjs-value",
+      condition: "On the root, always",
+      value: "The unrounded reading, or an empty string when there is no reading (both a null and a non-finite value render the empty string)",
+    },
+  ]}
+/>
+
+These are the styling and machine-readable hooks Value emits. It stamps no `data-status` and no
+`data-category`, and that absence is the contract rather than an omission: Value carries neither
+colour axis, so nothing downstream can key a status or a category off the number and reintroduce
+a distinction this component refuses to make. `data-opsinjs-value` publishes the reading
+unrounded, because rounding is a display decision and whatever reads the attribute wants the
+datum, but it is a magnitude with no unit beside it, so nothing may treat it as a complete datum
+on its own. It holds the empty string for both non-states and cannot tell an absence from a
+failure, which is a known limitation reported to the substrate owners; the visible words keep the
+two apart where a reader can see them.
+
+## CSS variables
+
+<CssVariablesTable name="value" />
+
+Value exposes no custom property of its own for a consumer to set. It declares no `--opsin-*`
+variable in an inline style or a companion stylesheet, so there is nothing component-scoped to
+override here. Its colours are the semantic token roles listed under Tokens below, read straight
+from the token layer. The one colour it ever paints, the muted theme role on an absence at the
+`display` size, is read through `var(--muted-foreground)` and spelled as a bracketed `color:`
+property so it survives `twMerge`, and even that role is defined by the theme rather than by this
+component. To recolour any part, write a rule against its `data-slot`.
+
+## Tokens
+
+<TokenTable component="value" />
+
+These are the tokens Value actually reads, generated from its source by `scripts/build-tokens.mts`
+rather than listed by hand. They are type steps and a single chrome colour role: the number
+resolves to `title1` at the `display` size and the unit one step down to `title3`, an absence at
+that size drops to `headline` in the muted-foreground role, and a reading is set in the numeric
+family so a changing digit does not shift the ones beside it. Value reads no category token and no
+status token, and it never puts the two axes onto one element, which for the smallest and
+most-repeated element in the system is where that rule matters most. A row here that named a
+category or a status role would be the bug the two-axis rule exists to catch.
+
 ## API reference
 
 <PropsTable name="ValueProps" />
@@ -575,6 +684,18 @@ absolute reading and wrong by the offset for a delta, and there is no argument o
 say which you meant. The `basis` string it returns still reads like provenance for whichever
 answer came back. Do not send a change figure through it. Making the distinction expressible,
 rather than only documented, belongs to the substrate module and is reported there.
+
+## Cost
+
+<BundleSize name="value" />
+
+Bundle cost is measured from a real build, and no such measurement has been taken for Value, so
+there is no number to show here. A measured size is a stable-phase gate rather than a beta one,
+and printing a figure that nobody produced would be a fabricated measurement of the kind this
+system forbids everywhere. When a build produces one, it lands here. Value is the smallest
+component in the system, so the honest expectation is that its own code is close to nothing and
+that almost all of its weight is the shared unit table it reads from `@/lib/opsinjs`, but that is
+an argument rather than a figure, and the figure waits for the build.
 
 ## Related
 

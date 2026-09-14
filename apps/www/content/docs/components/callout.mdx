@@ -1,7 +1,7 @@
 ---
 title: Callout
 description: A short piece of set-apart information that helps you understand what you are reading without claiming anything about your health. It is a note, a tip or a caveat.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: feedback
@@ -13,7 +13,7 @@ usedIn: [alert-escalation, choose-a-component, consent-and-permissions, consent-
 
 <StubNotice
   name="callout"
-  status="alpha"
+  status="beta"
   issue="opsinjs/opsinjs#0"
   questions={[
     "The boundary is enforced inside this repository and argued outside it. `check:a11y` fails the build if this component's own source paints a colour from either axis, and that is verified. `className` reaches the root, so a product that passes an axis utility through it has that utility stripped from the class list in every build before it can take effect, and development also warns about it. That closes the class-name route, but not a stylesheet or a `style` attribute the consumer writes. What does real enforcement look like on the consumer's side?",
@@ -23,10 +23,13 @@ usedIn: [alert-escalation, choose-a-component, consent-and-permissions, consent-
     "The root now carries `role=\"note\"` named by its title, so a screen-reader user gets the start, the end and the name a bare element withheld. It was chosen over `role=\"group\"` and over an `aria-labelledby` that would need `useId` and a client boundary this server component keeps out. What is still open: nobody has listened to it in VoiceOver on iOS or TalkBack, and the count question stands, since a screen carrying several callouts now announces a container for each and nothing says how many a reader tolerates before the boundary becomes noise.",
   ]}
 >
-  <code className="text-sm">callout</code> is implemented and installable. It is{" "}
-  <strong className="font-medium">alpha</strong>: it works and it is documented,
-  the API may change in any release without a deprecation cycle, and it is not
-  for a production health surface yet.
+  <code className="text-sm">callout</code> is implemented, installable, and its
+  API surface is complete. It is{" "}
+  <strong className="font-medium">beta</strong>: the surface is expected to hold,
+  and a change that breaks it would land only in a minor release, with a
+  changelog entry and a migration note. It has been through no accessibility or
+  clinical review, so it is still not for a production health surface, and the
+  questions below are still open.
 </StubNotice>
 
 Callout is the component [AlertBanner](./alert-banner.mdx) is most often mistaken for, and the
@@ -190,6 +193,25 @@ see the padding of the box it sits in, so the caller applies the rule at the cal
 
 <ComponentPreview name="callout-on-a-card" kind="example" align="start" />
 
+## States
+
+Callout has no interaction states. It is a server component with no client boundary, so it
+takes no hover, focus, pressed or disabled treatment; `role="note"` gives it a start and an
+end but no `tabindex`, and it is never part of the tab order in either direction.
+
+It has no data states of its own either, for a different reason: it is never handed a reading
+to grade. `variant`, `title` and `children` are copy the caller already has in hand before
+render, so there is no fetch behind this component and nothing here that could be pending,
+missing or incomplete in the sense the five data states describe.
+
+| Data state | What Callout renders |
+| --- | --- |
+| Error | Not applicable. Callout does not detect a data error; a caller who wants to say what happened writes it into the body, and this component renders that sentence exactly as it renders any other. |
+| Loading | Not applicable. Nothing here reads a value, so there is no reading to wait for. |
+| Empty | Not applicable. The body is copy the caller already wrote, not a data source, so there is no populated case for an empty one to differ from. |
+| Partial | Not applicable, for the same reason as Empty: partial describes a reading that arrived incomplete, and Callout never holds a reading. |
+| Stale | Not applicable inside this component. A caller reaches for Callout to say that a reading elsewhere is stale, see [Offline and stale data](../patterns/offline-and-stale-data.mdx), but the component is the message and not the mechanism that would notice the staleness. |
+
 ## Content guidelines
 
 Keep it to a short paragraph. A callout longer than the content it annotates has become the
@@ -241,11 +263,20 @@ allowed to disagree, and [Lyra and the docs chrome](../theming/lyra-and-the-docs
 explains why. It is also a naming collision worth knowing about. The `<Callout>` tag in these
 pages and the `Callout` component you install are different things that share a word.
 
+## Motion
+
+Callout declares no transition and reads no token from `tokens/motion.json`. The fill, the
+boundary and the glyph render in position on first paint and do not move again for the life of
+the render, so there is nothing here for `prefers-reduced-motion` to reduce. That is not a
+placeholder waiting on a later release: a leaf component with no open state, no mount animation
+and no counter has nowhere to put a transition, and giving it one to fill this heading would be
+motion invented to answer a question the component does not ask.
+
 ## Accessibility
 
 Some of this is checked by a gate, including one gate that is doing more for this component
 than it does for most. The rest is argued, and the things nobody has measured are listed rather
-than left out. That separation is what `alpha` promises.
+than left out. That separation is what `beta` promises.
 
 **Checked, by `pnpm run check:a11y` on every pull request and on every push to `main`:**
 `check:a11y` runs inside `pnpm check` and as its own step in `.github/workflows/ci.yml`. There
@@ -391,6 +422,46 @@ is no commit hook in this repository, so nothing checks a commit that is never p
 
 <ContrastReport component="callout" />
 
+## Data attributes
+
+<DataAttributesTable
+  name="callout"
+  rows={[
+    { attribute: "data-slot", condition: "The root", value: "callout" },
+    { attribute: "data-slot", condition: "The icon", value: "callout-icon" },
+    { attribute: "data-slot", condition: "The title, when a title with text is passed", value: "callout-title" },
+    { attribute: "data-slot", condition: "The body", value: "callout-body" },
+  ]}
+/>
+
+Callout emits exactly the four `data-slot` values named in the anatomy and nothing else. It
+carries no `data-status` and no `data-category`, because the whole of its API refuses both
+axes; no `data-opsinjs-value`, because it never renders a measurement; and no `data-variant`,
+because the vocabulary this system publishes is closed at four names, and a distinction that
+changes no fill, no ink and no boundary was judged not worth a fifth. The four slots are the
+hook a caller's own stylesheet reaches the icon, the title or the body by, without an export to
+import.
+
+## CSS variables
+
+<CssVariablesTable name="callout" />
+
+Callout exposes no custom property of its own. Its fill is `--opsin-material-inset-tint`, its
+ink is `text-foreground` and its boundary is `border-border`, all read straight from the token
+layer rather than through a component-scoped variable, so there is nothing here of its own to
+override. The Tokens section below lists the roles it actually reads; to recolour a part, write
+a rule against its `data-slot`.
+
+## Tokens
+
+<TokenTable component="callout" />
+
+These are the tokens `callout.tsx` actually reads, generated from the source by
+`scripts/build-tokens.mts` rather than listed by hand. They are the neutral fill, ink and
+boundary roles the one shared treatment paints, plus the shape and spacing tokens that size the
+box. Callout never reads a status token and a category token onto the same element, which is
+the two-axis rule this component was built to keep rather than to be an exception to.
+
 ## API reference
 
 <PropsTable name="CalloutProps" />
@@ -418,6 +489,15 @@ of them and a component may not mint one. In its place the file keeps a module-l
 the offending class list, so the warning prints once per distinct offending class list for the
 life of the module rather than on every render. Two different offending class lists are two
 different mistakes in two different places, and both are reported.
+
+## Cost
+
+<BundleSize name="callout" />
+
+Bundle cost is measured from a real build, and no such measurement has been taken for any
+opsinjs component yet, so there is no number to show here. It is a stable-phase gate rather
+than a beta one, and putting a figure here that nobody measured is the one thing the size
+section must never do.
 
 ## Related
 

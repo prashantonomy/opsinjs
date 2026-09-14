@@ -1,7 +1,7 @@
 ---
 title: Term
 description: A clinical word shown with its everyday meaning attached, so you can read a sentence without having to look anything up.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: health-communication
@@ -14,7 +14,7 @@ usedIn: [ask-users-for/ethnicity, ask-users-for/medications, ask-users-for/sex-a
 
 <StubNotice
   name="term"
-  status="alpha"
+  status="beta"
   issue="opsinjs/opsinjs#0"
   questions={[
     "A collapsed definition reaches a reader through the trigger's accessible description rather than through the collapsed element itself. That is the load-bearing claim in this component and it has not been tested with a real screen reader on a real phone.",
@@ -25,10 +25,13 @@ usedIn: [ask-users-for/ethnicity, ask-users-for/medications, ask-users-for/sex-a
     "The resting cue that a word can be opened is a dotted underline, now thickened to `0.12em` so it scales with the reader's text rather than pinning at a hairline. That is still the only resting cue, and the dotted-underline-means-definition convention comes from the desktop `<abbr>` element and is not one a phone reader over sixty has necessarily learned. Whether a thicker dotted rule is discoverable enough on its own has not been tested with real readers.",
   ]}
 >
-  <code className="text-sm">term</code> is implemented and installable. It is{" "}
-  <strong className="font-medium">alpha</strong>: it works and it is documented,
-  the API may change in any release without a deprecation cycle, and it is not
-  for a production health surface yet.
+  <code className="text-sm">term</code> is implemented, installable, and its API
+  surface is complete. It is{" "}
+  <strong className="font-medium">beta</strong>: the surface is expected to hold,
+  and a change that breaks it would land only in a minor release, with a
+  changelog entry and a migration note. It has been through no accessibility or
+  clinical review, so it is still not for a production health surface, and the
+  questions below are still open.
 </StubNotice>
 
 Term is small, unglamorous and probably the component with the highest ratio of benefit to
@@ -155,7 +158,7 @@ is the bigger question the rule actually asks, which is whether the visible text
 plain wording with the clinical spelling as the annotation rather than the other way around.
 That is a change to the component's shape and to `policy.rule` together, so it is recorded
 here and at the top of `term.tsx` rather than settled quietly, and it is the first thing to
-decide before this component leaves alpha.
+decide before this component leaves beta.
 
 <SafetyCallout severity="attention" evidence="opinion">
 A definition that drifts into advice is the failure mode of this component, and it is not
@@ -281,6 +284,32 @@ cannot see it on the screen.
 
 <ComponentPreview name="term-an-abbreviation" kind="example" align="start" />
 
+## States
+
+Term is interactive in one of its two presentations and inert in the other. In the disclosure
+presentation the trigger is a real `<button>`, so it carries interaction states: focus draws a
+two-pixel ring offset from the word out of the `ring` role, hover fills the word with a neutral
+tint from the `--state-hover` role behind a hover-capable query so a touch reader is never
+charged for it, press takes a darker neutral fill from `--state-press` together with a one-pixel
+downward shift, and the open state holds the word on the chrome `muted` fill while its dotted
+rule turns solid for as long as the definition is showing. There is no disabled state, because
+Term has no `disabled` prop: a word in a sentence is either glossed or written plainly, and
+greying out a word in running text would read as an error rather than as a control switched off.
+The inline presentation is a plain `<span>` with no control, so it carries none of these.
+
+Term renders authored glossary content rather than a live reading, so the five canonical data
+states below are the composing surface's to hold and not Term's. Term stamps no `data-status`,
+no `data-category` and no `data-opsinjs-value`, because it sits outside both colour axes and puts
+no number on the screen.
+
+| Data state | What Term renders |
+| --- | --- |
+| Error | Term fetches nothing, so it has no load-error state. A glossary defect stands in for one: an `id` the glossary does not hold, or an entry whose `plain` field is empty, renders the word unmarked and warns in development rather than surfacing anything to the reader. |
+| Loading | None. A definition is authored content already present at render, not something fetched, so there is no pending state to show. |
+| Empty | An empty glossary, or a `<Term>` mounted outside any provider, renders the word unmarked: the `children` a call site supplied, or otherwise the raw `id`. Nothing is marked, because a mark would promise an explanation that is not there. |
+| Partial | An entry may carry `plain` without an `expansion`, which is the ordinary case for a word that is not an abbreviation, and Term renders the definition without an expansion. It has no half-loaded state of its own. |
+| Stale | None. The glossary is versioned authored content, not a reading captured at a time, so Term has nothing to mark as out of date. Freshness belongs to the value a surface shows, not to the word Term glosses. |
+
 ## Content guidelines
 
 Definitions are one sentence, under about twenty words, in the second person where it helps.
@@ -333,10 +362,23 @@ that kind belongs on a screen that carries a route to a person. See
   </DoDont.Dont>
 </DoDont>
 
+## Motion
+
+Term reads no motion token, and `tokens/motion.json` is not consulted anywhere in its source.
+The definition appears and disappears by an instant `display` swap rather than an animation, the
+open tint and the solid rule switch at once, and the only movement is a one-pixel press shift on
+the trigger that snaps without an easing or a duration behind it. Because nothing here reads a
+duration or an easing token, there is nothing for `prefers-reduced-motion` to reduce, so the
+component needs no reduced-motion branch and declares none.
+
+The health rule that a reading is never animated on first paint, no count-up and no sweep, is
+met here by having no reading to animate: Term puts no number on the screen. A definition is
+text, and it arrives already written.
+
 ## Accessibility
 
 Some of this is checked by a gate on every pull request and every push to `main`. Most of it
-is argued, and it is labelled as such: `alpha` promises that accessibility is claimed only
+is argued, and it is labelled as such: `beta` promises that accessibility is claimed only
 where it has been checked, with the gaps listed rather than left out.
 
 **Checked, by `node scripts/check-a11y.mts` on every pull request and every push to `main`.
@@ -479,6 +521,69 @@ claiming a gate that does not run:**
 
 <ContrastReport component="term" />
 
+## Data attributes
+
+Term emits only `data-slot`, and it emits no `data-status`, no `data-category` and no
+`data-opsinjs-value`. That absence is by design rather than unfinished work: Term sits outside
+both colour axes and shows no reading, so it has no status to carry, no category to carry, and no
+number to expose. The open state is carried by `aria-expanded` on the trigger, which is an ARIA
+attribute rather than a data one, and it is not repeated as a data attribute. A product
+stylesheet or a product-side test keys on the four `data-slot` parts below; on the two paths that
+render an unmarked word the trigger and definition slots are absent, which is what the
+composition tree records as `0-1`.
+
+<DataAttributesTable
+  name="term"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On the root, always.",
+      value: "term",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the word as it reads in the sentence, in both presentations: a <button> in the disclosure presentation and a <span> in the inline one. Absent on the two paths that render an unmarked word, an id the glossary does not hold and an entry marked plain-only.",
+      value: "term-trigger",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the plain-English definition, in both presentations. Absent on the same two unmarked paths, which have nothing to define.",
+      value: "term-definition",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the full form of an abbreviation, inside the definition. Present only when the entry carries an expansion.",
+      value: "term-expansion",
+    },
+  ]}
+/>
+
+## CSS variables
+
+Term declares no custom property of its own, so this table has no rows to print. Its colours are
+the semantic token roles listed under Tokens, read straight from the token layer: the trigger's
+fills come from the interaction-state roles `--state-hover` and `--state-press` and the chrome
+`muted` role, its focus ring from the `ring` role, and the definition's ink from
+`--muted-foreground`. None of those is a value Term owns, so there is no `--opsin-*` property here
+for a product to override, and a product retheming Term retunes those shared roles rather than a
+variable private to this component. The one length Term reaches for that has no token, the dotted
+rule's `em` offset and thickness, is a judgement stated in the source rather than a custom
+property a stylesheet could set.
+
+<CssVariablesTable name="term" />
+
+## Tokens
+
+These are the token roles Term reads, resolved by `scripts/build-tokens.mts` from the token layer
+rather than listed here by hand. Term reads chrome and interaction-state roles for the trigger's
+fills, ring and open tint and for the definition's quieter ink, a spacing role for the small
+horizontal inset the tint paints into, and a radius role for the trigger's corners. It reads no
+category token and no status token: Term is outside both colour axes by design, so the two-axis
+rule that a health component never puts a category colour and a status colour on one element is
+met here by reading neither, which is the strongest way to meet it.
+
+<TokenTable component="term" />
+
 ## API reference
 
 <PropsTable name="TermProps" />
@@ -520,6 +625,19 @@ belongs in a lint rule over the product's own source, and it does not exist yet.
 lint rule is the only real gate on a `<Term id>` that names a `plain-only` entry: at runtime
 the component can only render the sentence the call site wrote and warn that the entry says
 its clinical word should not reach a reader, and that rule does not exist either.
+
+## Cost
+
+No bundle size has been measured for Term, so nothing is printed here. The figure comes from a
+real build weighing the code that actually ships, none has been taken, and inventing a number to
+fill the heading is exactly what the honesty rules forbid. Bundle cost is a stable-phase gate
+rather than a beta one, so it is measured once the shipping build is the one being weighed and
+not before. When it is taken it will not be a pure formatter's figure: Term carries a
+`"use client"` boundary over the whole file, including the inline presentation that does not need
+one, and that cost is described in the anatomy and will become a real number here only when a
+build produces it.
+
+<BundleSize name="term" />
 
 ## Related
 

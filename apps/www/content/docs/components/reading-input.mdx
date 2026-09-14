@@ -1,7 +1,7 @@
 ---
 title: ReadingInput
 description: A field for typing in a measurement, with the unit shown and switchable beside the number, and room for an advisory the product wrote.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: health-input
@@ -14,7 +14,7 @@ usedIn: [ask-users-for/date-of-birth, ask-users-for/height-and-weight, ask-users
 
 <StubNotice
   name="reading-input"
-  status="alpha"
+  status="beta"
   issue="opsinjs/opsinjs#0"
   questions={[
     "No field has been listened to with a screen reader, no hit area has been measured at 1.3× or at 200% text, nobody has typed into it with a switch device, and no reading has been taken off the rendered control. The neutral token pairs the field draws its colour from are measured and gated; a reading off the control itself is not, and those are two different things.",
@@ -23,10 +23,13 @@ usedIn: [ask-users-for/date-of-birth, ask-users-for/height-and-weight, ask-users
     "The three sentences this component owns say converted from, cleared, and restored. All three are English, and there is no prop to translate them. Every other word on the surface is the product's.",
   ]}
 >
-  <code className="text-sm">reading-input</code> is implemented and installable.
-  It is <strong className="font-medium">alpha</strong>: it works and it is
-  documented, the API may change in any release without a deprecation cycle, and
-  it is not for a production health surface yet.
+  <code className="text-sm">reading-input</code> is implemented, installable,
+  and its API surface is complete. It is
+  <strong className="font-medium">beta</strong>: the surface is expected to hold,
+  and a change that breaks it would land only in a minor release, with a
+  changelog entry and a migration note. It has been through no accessibility or
+  clinical review, so it is still not for a production health surface, and the
+  questions below are still open.
 </StubNotice>
 
 Numeric entry is where unit confusion, decimal slips and transposed digits enter a health
@@ -373,6 +376,30 @@ goes.
 
 <ComponentPreview name="reading-input-a-warning-the-product-owns" kind="example" align="start" />
 
+## States
+
+ReadingInput is interactive and runs as a client component, so its live states are the
+ordinary ones of a form control rather than the data states below. Each box and the unit
+switch take the browser's own focus ring, and both hold the minimum target floor in each
+axis with a rem fallback, so the floor survives an install that has not wired the token
+sheet. The `disabled` prop disables every box and the unit switch together. There is no
+hover or pressed styling of this component's own, because the boxes are text inputs and the
+switch is a native `<select>`, and each keeps its platform affordances. Nothing on the
+surface changes colour on any interaction, from the category axis or the status axis, which
+is the same promise the field makes about what has been typed into it.
+
+The five canonical data states describe a value a surface displays, and this component
+collects a value rather than displaying one, so several of them belong to whatever composes
+it rather than to the field. Each is named honestly below rather than left out.
+
+| Data state | What ReadingInput renders |
+| --- | --- |
+| Error | Nothing of its own. The field never marks itself invalid: the advisory `warning` is a description, so it sets no `aria-invalid`, blocks no submission and moves no focus. A true validation error belongs to the surrounding form, through `Field`'s `error` prop. |
+| Loading | Nothing. The field is controlled and paints what the caller passes on the same render, so there is no fetch to wait on. A surface loading a prior reading shows its own placeholder around the field. |
+| Empty | The state it spends most of its life in: an empty box with the unit already visible beside it, `data-opsinjs-value` an empty string, and `ReadingInputChange.value` `null`. Empty is never a zero. |
+| Partial | A compound reading with one box filled and another blank stays exactly that. Each box is independent, the blank part reports `value: null`, and `ReadingInputChange.value` is `null` for any compound reading, because half a pair is not the reading. Nothing is flagged and nothing is filled in. |
+| Stale | None. Staleness is a property of a stored reading's age, and an entry control owns no age: a number being typed has not been anywhere yet. The surface that later displays the saved value carries staleness, through [Value](./value.mdx) and [ResultCard](./result-card.mdx). |
+
 ## Content guidelines
 
 Label the measurement in the reader's words and put the unit beside the field, never in the
@@ -413,10 +440,25 @@ of the words.
   </DoDont.Dont>
 </DoDont>
 
+## Motion
+
+This component declares no transition, no animation and no motion token, and it reads
+nothing from `tokens/motion.json`. So there is nothing for `prefers-reduced-motion` to
+reduce: a reader who asks for less motion sees exactly what every reader sees. That is the
+right answer for a field rather than an omission, because the one thing a reading input
+could animate is the number itself.
+
+A health value is never animated on first paint, and a converted reading is a health value
+the instant it lands, so neither the digits a reader types nor the digits a unit switch
+writes back count up or sweep into place: they appear at once, at full precision. The line a
+switch draws beneath the boxes appears the same way, without a transition, so a reader using
+speech is not waiting on an animation to settle before the description is stable enough to
+read.
+
 ## Accessibility
 
 Some of this is enforced by a gate on every pull request and every push to `main`. The rest
-is argued, and it is labelled as such: `alpha` promises that accessibility is claimed only
+is argued, and it is labelled as such: `beta` promises that accessibility is claimed only
 where it has been checked, with the gaps listed rather than left out. Nothing here has been
 through a review with a disabled user, and `a11yDate` is therefore still empty.
 
@@ -565,6 +607,81 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
 
 <ContrastReport component="reading-input" />
 
+## Data attributes
+
+<DataAttributesTable
+  name="reading-input"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On reading-input, reading-input-control, reading-input-segment and reading-input-unit, always. The embedded Field stamps its own slots on top: field, field-label, field-hint, field-control, field-error.",
+      value: "reading-input, reading-input-control, reading-input-segment, reading-input-unit",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On reading-input-legend and reading-input-hint, only for a compound reading",
+      value: "reading-input-legend, reading-input-hint",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On reading-input-warning, only when the warning prop is supplied",
+      value: "reading-input-warning",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On reading-input-effect, only after a unit switch that changed something",
+      value: "reading-input-effect",
+    },
+    {
+      attribute: "data-opsinjs-value",
+      condition: "On every ReadingInput.Segment, always",
+      value: "The number currently in that box, or an empty string when there is none. It is read off the box rather than off the prop, so it is what is on screen rather than what the caller last applied.",
+    },
+    {
+      attribute: "data-status",
+      condition: "Never. There is none on this surface, at any value of any prop.",
+      value: "Never set",
+    },
+    {
+      attribute: "data-category",
+      condition: "Never. There is none on this surface, at any value of any prop.",
+      value: "Never set",
+    },
+  ]}
+/>
+
+The state attributes Base UI stamps on the control are `data-touched`, `data-dirty`,
+`data-filled`, `data-focused`, `data-invalid`, `data-valid` and `data-disabled`, and they
+pass through untouched. `data-filled` and `data-touched` are the pair worth knowing about:
+`null` means *there is no number in this box*, and it does not distinguish an emptied box
+from one nobody has reached yet. Those attributes do, and so does `ReadingInputChange.text`.
+
+## CSS variables
+
+<CssVariablesTable name="reading-input" />
+
+ReadingInput declares no custom property of its own, so the generator finds nothing to
+tabulate and says so rather than inventing a row. Its colours are the semantic token roles
+listed under Tokens, read straight from the token layer rather than through a per-component
+variable: the boundary is `border-input`, the surface is `background`, and the copy is
+`foreground` with the muted sentences in `muted-foreground`. A component that minted its own
+`--opsin-*` colour would add a second place those roles could drift from the rest of the
+system, which is the reason this one exposes none.
+
+## Tokens
+
+<TokenTable component="reading-input" />
+
+These are the tokens ReadingInput reads, resolved by `scripts/build-tokens.mts` from the
+component's real imports rather than typed out by hand, so the table cannot fall out of step
+with what the component actually consumes. They are chrome and type roles throughout: the
+spacing steps of the control row, the radius and the target-minimum floor of the unit
+switch, the boundary role, and the weight that carries emphasis without colour. None of them
+is a category token and none is a status token. The field reads neither axis onto any
+element, because a control that took its colour from what has been typed would be delivering
+a verdict during data entry, so the two-axis rule holds here by the field touching neither
+axis at all.
+
 ## API reference
 
 <PropsTable name="ReadingInputProps" />
@@ -654,37 +771,17 @@ digits on screen are the digits typed or the digits the caller passed, so there 
 for a locale to shape. An error belongs to the form, which is `Field`'s `error` prop and
 marks the control invalid, which an advisory must never do.
 
-<DataAttributesTable
-  name="reading-input"
-  rows={[
-    {
-      attribute: "data-slot",
-      condition: "On every part, always",
-      value: "reading-input, reading-input-legend, reading-input-hint, reading-input-control, reading-input-segment, reading-input-unit, reading-input-warning, reading-input-effect. The embedded Field stamps its own slots on top: field, field-label, field-hint, field-control, field-error.",
-    },
-    {
-      attribute: "data-opsinjs-value",
-      condition: "On every ReadingInput.Segment, always",
-      value: "The number currently in that box, or an empty string when there is none. It is read off the box rather than off the prop, so it is what is on screen rather than what the caller last applied.",
-    },
-    {
-      attribute: "data-status",
-      condition: "Never. There is none on this surface, at any value of any prop.",
-      value: "Never set",
-    },
-    {
-      attribute: "data-category",
-      condition: "Never. There is none on this surface, at any value of any prop.",
-      value: "Never set",
-    },
-  ]}
-/>
+## Cost
 
-The state attributes Base UI stamps on the control are `data-touched`, `data-dirty`,
-`data-filled`, `data-focused`, `data-invalid`, `data-valid` and `data-disabled`, and they
-pass through untouched. `data-filled` and `data-touched` are the pair worth knowing about:
-`null` means *there is no number in this box*, and it does not distinguish an emptied box
-from one nobody has reached yet. Those attributes do, and so does `ReadingInputChange.text`.
+<BundleSize name="reading-input" />
+
+No size has been measured, and none is invented to fill the gap. A bundle figure is worth
+printing only when it comes off a real production build, and taking that measurement is a
+stable-phase gate rather than a beta one, so the number is genuinely absent rather than
+pending a paste. When a build does measure it, the figure will fold in the one runtime
+dependency this component pulls in, `lucide-react` for the single chevron beside the unit
+switch, and the `field` base it composes. Until then a made-up kilobyte count would be worth
+less than the honest blank the generator prints.
 
 ## Related
 

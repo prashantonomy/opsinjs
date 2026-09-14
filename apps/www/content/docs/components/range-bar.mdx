@@ -1,7 +1,7 @@
 ---
 title: RangeBar
 description: A single measurement drawn on a line, so you can see at a glance where your number sits compared with the range it is usually expected to fall in.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: health-data-display
@@ -14,7 +14,7 @@ usedIn: [choose-a-component, result-disclosure, results-screen, trend-review, va
 
 <StubNotice
   name="range-bar"
-  status="alpha"
+  status="beta"
   questions={[
     "The picture is hidden from assistive technology with `aria-hidden`, because the same sentence sits immediately beside it in the summary paragraph, which is the arrangement the charts doctrine permits when a text twin is right there. That stops a screen-reader user meeting the reading twice, but it also means the drawing is never offered on its own in a rotor, and no screen-reader user has yet been asked whether they would rather have the named picture back. Until someone has, the picture stays hidden and the sentence carries the whole reading.",
     "Nothing here has been measured. No contrast pair has been checked by a machine, and two of them are known to need it: the status word and the category tint are `ink` roles, which are tuned against their own `-surface` and are painted here on whatever ground the host provides. No reading has been listened to, and there is no print stylesheet in opsinjs for any print behaviour to be tested against.",
@@ -23,10 +23,12 @@ usedIn: [choose-a-component, result-disclosure, results-screen, trend-review, va
     "No named reviewer has signed this page off. Group J of the safety review checklist asks for a reviewer name and a date, and there is neither here. That is not because the component was not reviewed, but because nobody who reviewed it is recorded on it. Read every claim below as unattributed until that changes.",
   ]}
 >
-  <code className="text-sm">range-bar</code> is implemented and installable. It
-  is <strong className="font-medium">alpha</strong>: it works and it is
-  documented, the API may change in any release without a deprecation cycle, and
-  it is not for a production health surface yet.
+  <code className="text-sm">range-bar</code> is implemented, installable, and its
+  API surface is complete. It is <strong className="font-medium">beta</strong>:
+  the surface is expected to hold, and a change that breaks it would land only in
+  a minor release, with a changelog entry and a migration note. It has been
+  through no accessibility or clinical review, so it is still not for a production
+  health surface, and the questions below are still open.
 </StubNotice>
 
 RangeBar is the component the rest of opsinjs is arranged around, and it is the one to
@@ -419,6 +421,23 @@ component states a position and still no verdict.
 
 <ComponentPreview name="range-bar-far-above-the-range" kind="example" align="start" />
 
+## States
+
+RangeBar is not interactive. Nothing in it takes focus, it answers no pointer or
+keyboard event, and it has no hover, pressed or disabled appearance, because it is a
+drawing of a reading somebody else assigned rather than a control. The picture is hidden
+from assistive technology and the summary sentence beside it is the whole announcement.
+So the states worth naming are the five data states, read here against what the component
+was actually handed.
+
+| Data state | What RangeBar renders |
+| --- | --- |
+| Error | It owns no fetch, so an upstream error belongs to the surface that composes it. A range handed in with no `source`, with neither bound, or with bounds that run downwards is not an interval: it is discarded, the summary states there is nothing to compare the reading with, and the defect is reported in development. |
+| Loading | No skeleton and no spinner. It renders synchronously from the props it is given, so the composing surface owns any loading affordance while the reading is still being fetched. |
+| Empty | A `value` of `null` is a first-class empty state, distinct from `0`: no tick is drawn, and the summary names the metric and states its range where one was supplied rather than placing a mark at zero. |
+| Partial | A reading with no range, or a range with only one bound, draws no track. The summary carries the whole comparison in words, and the picture that would need an invented second bound is not drawn. |
+| Stale | It states when the reading was taken, and says outright that nobody knows where `measuredAt` is absent, because a number with no time is read as now. It owns no staleness boundary, because how old is too old is clinical: a surface that needs one wraps the reading in [RelativeTime](./relative-time.mdx). |
+
 ## Content guidelines
 
 The label is what was measured, in the reader's words. Prefer the everyday name and give
@@ -485,11 +504,20 @@ about a reading above a range without noticing. Read the list there rather than 
 it here: a hand-restated list drifts from the one the build actually enforces, and the
 enforced one is generated from `tokens/glossary.json` and that table.
 
+## Motion
+
+RangeBar declares no transition, no animation and no first-paint movement. The tick does
+not slide into position, the band does not grow, and the number does not count up, so
+there is nothing for `prefers-reduced-motion` to reduce and nothing read from
+`tokens/motion.json`. That silence is deliberate for a health value: a reading that arrives
+by animation has shown, for every frame of the journey, a figure that is not true. The
+reading is drawn where the numbers put it, at once, and it stays there.
+
 ## Accessibility
 
 Some of this is enforced by a gate on every pull request and every push to `main`. The
 rest is argued, and it is labelled as such:
-`alpha` promises that accessibility is claimed only where it has been checked, with the
+`beta` promises that accessibility is claimed only where it has been checked, with the
 gaps listed rather than left out. Nothing on this page has been through a review with a
 disabled user, and `a11yDate` is therefore still empty.
 
@@ -635,9 +663,16 @@ disabled user, and `a11yDate` is therefore still empty.
 
 <ContrastReport component="range-bar" />
 
-## API reference
+## Data attributes
 
-<PropsTable name="RangeBarProps" />
+Every part carries a `data-slot`, so a product can restyle or scrape any piece by attribute
+rather than by a class this file could rename under it. The two colour axes ride on
+different attributes and never meet on one element: `data-category` sits on the label
+alone, `data-status` on the StatusPill and the tick, and the root, the track and the band
+carry neither, which is what makes a bar safe to drop into a category-tinted card. A DOM
+query is the honest way to read a bar's numbers, because `data-opsinjs-value` holds the
+unrounded figure behind every `Value`, including the three inside the hidden picture that a
+screen reader never meets.
 
 <DataAttributesTable
   name="range-bar"
@@ -664,6 +699,44 @@ disabled user, and `a11yDate` is therefore still empty.
     },
   ]}
 />
+
+## CSS variables
+
+Every colour on this bar is a semantic token role read straight from the token layer,
+listed under Tokens below, so the component declares no colour custom property of its own
+for a product to theme. The one custom property it does set is `--rb-label-half`, a private
+layout allowance on the unnamed wrapper around the track that clamps the centred reading
+label away from either track edge. It is written inline rather than exposed for overriding,
+so read the row below as a record of where that number lives and what it does, not as a
+knob a stylesheet can turn.
+
+<CssVariablesTable
+  name="range-bar"
+  rows={[
+    {
+      selector: "div:has(> [data-slot=\"range-bar-track\"])",
+      variable: "--rb-label-half",
+      controls: "Half a label plus a margin, the distance the centred reading label's midpoint is clamped away from either edge of the track, so a label up to twice it stays inside the track and a wider unit overhangs only by the excess while the tick keeps the true position. Resolved in em at the reading's own type step and set inline on the unnamed track wrapper, so it scales with text size rather than being a themeable override.",
+    },
+  ]}
+/>
+
+## Tokens
+
+These are the token roles RangeBar reads, resolved from the source by
+`scripts/build-tokens.mts` through `tokensUsedBy` rather than typed here by hand, so the
+table cannot drift from the classes the component sets. They are the two colour axes held
+apart: the category ink on the label, the status tone on the tick and the StatusPill, and
+the neutral surface, border and inset roles the root, the track and the band take from
+neither. No element reads a category role and a status role at once, because a bar that
+tinted one mark from both axes would paint identity and urgency the same colour, which is
+the collision [The two colour axes](../health/two-colour-axes.mdx) exists to prevent.
+
+<TokenTable component="range-bar" />
+
+## API reference
+
+<PropsTable name="RangeBarProps" />
 
 Three things differ from the interface this page proposed while it was unbuilt, and each of
 them is a decision rather than an oversight. `precision` is **decimal places**, not
@@ -702,6 +775,17 @@ assertion with no author. The type therefore permits two shapes that are not int
 supplies neither bound, and the other has bounds that run downwards. RangeBar discards
 both, with a development warning, rather than comparing a reading against them. A one-sided
 range is still compared and still drawn as words.
+
+## Cost
+
+Bundle cost is measured from a real production build, and none has been taken for RangeBar,
+so the figure below is absent rather than estimated. A gzipped size a product could plan a
+budget against is a stable-phase gate, not a beta one, and putting a plausible number here
+would be a measurement nobody made. The honest inputs are on the Installation line above:
+the component lists `lucide-react` as a dependency and composes `Value` and `StatusPill`,
+so a real figure will fold those in once a build finally measures it.
+
+<BundleSize name="range-bar" />
 
 ## Related
 

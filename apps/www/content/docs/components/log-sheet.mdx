@@ -1,7 +1,7 @@
 ---
 title: LogSheet
 description: A small sheet that slides up so you can record something in a few seconds without leaving the screen you were on. One reading, one dose, one note.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: health-input
@@ -14,7 +14,7 @@ usedIn: [ask-users-for/height-and-weight, ask-users-for/medications, ask-users-f
 
 <StubNotice
   name="log-sheet"
-  status="alpha"
+  status="beta"
   questions={[
     "The field ceiling is a design rule and is not enforced, because it cannot be enforced honestly: React.Children sees direct children only, so a product that wraps its own two fields in one component of its own would be counted as having one. Is the answer a lint rule, a `fields` prop that enumerates them, or leaving it a rule people follow?",
     "The same reading logged twice within minutes is either a duplicate to merge or a real second measurement, and this component cannot tell, because it has no slot key and no view of the rest of the log. Does that stay entirely the product's problem, or does the entry need to carry something that lets the product decide?",
@@ -23,11 +23,12 @@ usedIn: [ask-users-for/height-and-weight, ask-users-for/medications, ask-users-f
     "Nothing here has been measured in a browser. The `autoFocus` that moves focus to the discard question, the keyboard-safe inset under the save action, and the platform picker's reading of `min` on the time control are all argued from source rather than observed. That is the honest ceiling for `alpha`, and it means the first three things to measure are already named.",
   ]}
 >
-  <code className="text-sm">log-sheet</code> is implemented and installable. It
-  is <strong className="font-medium">alpha</strong>: it is built against the
-  specification below and passes the static gates, the API may change in any
-  release without a deprecation cycle, and it is not for a production health
-  surface yet.
+  <code className="text-sm">log-sheet</code> is implemented, installable, and its
+  API surface is complete. It is <strong className="font-medium">beta</strong>:
+  the surface is expected to hold, and a change that breaks it would land only in
+  a minor release, with a changelog entry and a migration note. It has been
+  through no accessibility or clinical review, so it is still not for a production
+  health surface, and the questions below are still open.
 </StubNotice>
 
 Daily logging fails on friction. Every second between the intention to record something and
@@ -356,6 +357,31 @@ the window, so the platform enforces there what the sheet never does.
   align="start"
 />
 
+## States
+
+LogSheet is interactive, and its interaction states belong to the parts it composes rather than
+to anything it draws itself. Hover, focus and pressed on the save action and on the two answers
+are [Button](./button.mdx)'s; focus and the invalid treatment on the time control and the note
+are [Field](./field.mdx)'s; the drag, the focus trap and the return of focus to the trigger are
+[Sheet](./sheet.mdx)'s. The one interaction this component owns is the footer swap: while there
+is unsaved input, a dismissal replaces the save action with the discard question in place, and
+answering *Keep editing* puts it back. Nothing here is ever disabled. The save action stays
+active at every moment, on purpose, because a capture surface that greys out its own save is a
+form arguing with the reader, and a reader who cannot make the sheet go away by the obvious
+button loses their place instead.
+
+The five canonical data states are display concerns, and LogSheet captures rather than displays,
+so most of them belong to the surface that shows a reading afterwards rather than to the sheet
+that recorded it. The row for each says what this component actually does.
+
+| Data state | What LogSheet renders |
+| --- | --- |
+| Error | Nothing of its own. It runs no validation, marks no field invalid, and never blocks a save. An implausible value is the product's to warn about on its own control, and a save that does not reach storage is a downstream state on a surface this component cannot see. |
+| Loading | Nothing. It holds no async work of its own: `onSave` returns void and the sheet reads the clock only at open and at save. A saving or queued state after `onSave` returns is the product's surface, which is one of the open questions above. |
+| Empty | The sheet still opens, and an entry whose `values` are all null with no note still reaches `onSave`, because the save is never blocked and the action is never disabled. Whether to store, drop, or re-ask is the first line of the product's handler. |
+| Partial | The ordinary case, passed through untouched. A `null` for a control the reader left alone travels in `values` verbatim, kept distinct from `0` and from a key that is absent, and nothing is coerced or dropped for being empty. |
+| Stale | Not applicable. Staleness is a reading ageing on a display surface. A fresh entry carries `recordedAt`, the save time, beside `occurredAt`, the time it is about, and how old a stored reading looks later is [RelativeTime](./relative-time.mdx)'s job, not this sheet's. |
+
 ## Content guidelines
 
 The title is what is being logged, as a noun phrase: *Blood pressure*, *Morning weight*, *How
@@ -394,10 +420,33 @@ different question from *Notes*, and gets a different answer.
   </DoDont.Dont>
 </DoDont>
 
+## Motion
+
+LogSheet declares no transition of its own. The category band does not animate in, the footer
+swap between the save action and the discard question is an instant re-render, and no element
+this file renders carries a duration or an easing. That swap is deliberately without motion: the
+discard question is the most consequential thing on the surface, and a reader who triggered it
+by trying to leave needs to see it at once rather than watch it arrive.
+
+The only movement a reader sees is the sheet arriving and leaving, and that motion is
+[Sheet](./sheet.mdx)'s, read by Sheet rather than by this file. It runs on
+`--opsin-ease-spring-sheet` paired with `--opsin-duration-spring-sheet`, a spring tuned
+overdamped so the surface reaches its resting height without passing it and springing back,
+because a capture sheet that bounces at the top of its travel reads as a dropped object. Under
+`prefers-reduced-motion: reduce` that token's own fallback replaces the slide with a cross-fade
+in place, because a sheet that appears with no travel still needs to be seen to appear.
+
+<MotionCurve token="--opsin-ease-spring-sheet" />
+
+A health value is never animated on first paint anywhere in this component. There is no count-up
+on the number a reader types, no sweep, and no motion tied to the value at all. The product's own
+fields render their contents with nothing this component adds, so a measurement never appears to
+move toward a figure it has not reached yet.
+
 ## Accessibility
 
 Three of these are checked by a gate on every commit. The rest are arguments, and they are
-labelled as such: `alpha` promises that accessibility is claimed only where it has been
+labelled as such: `beta` promises that accessibility is claimed only where it has been
 checked, with the gaps listed rather than left out. Nothing on this page has been measured in
 a browser.
 
@@ -512,7 +561,7 @@ a browser.
     {
       keys: "Tab",
       action: "Moves through the sheet's parts in visual order",
-      notes: "The sheet is not one tab stop. The order is Sheet's close control, then its scrolling region, then each of the product's fields, then the time, then the note, then the pinned action. A form is a sequence of controls and every one of them has to be reachable. Budget more presses than that list has entries: the time is a native datetime-local, and an engine that splits one into editable segments charges a Tab for each. A walk through the example in Chromium spent seven consecutive presses inside that single input. The number is the browser's and the locale's rather than the component's, and the alternative of a hand-built date control with roving focus takes far more away from a reader than the extra presses do.",
+      notes: "The sheet is not one tab stop. The order is Sheet's close control, then its scrolling region, then each of the product's fields, then the time, then the note, then the pinned action. A form is a sequence of controls and every one of them has to be reachable. Budget more presses than that list has entries: the time is a native datetime-local, and an engine that splits one into editable segments charges a Tab for each. A keyboard user therefore spends more Tab presses inside that single input than the number of visible entries suggests. The number is the browser's and the locale's rather than the component's, and the alternative of a hand-built date control with roving focus takes far more away from a reader than the extra presses do.",
     },
     {
       keys: "Shift + Tab",
@@ -538,6 +587,85 @@ a browser.
 />
 
 <ContrastReport component="log-sheet" />
+
+## Data attributes
+
+These are the attributes a product's own stylesheet, its print rules, its tests or a scraper key
+on, and they are the DOM contract this component holds stable. Which parts exist depends on what
+was supplied and on whether the discard question is standing, so the conditions below are part of
+the contract rather than footnotes to it.
+
+<DataAttributesTable
+  name="log-sheet"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On the capture region, the fields wrapper and the time field, always",
+      value: "log-sheet, log-sheet-fields, log-sheet-time",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the note field, only when noteLabel is supplied",
+      value: "log-sheet-note",
+    },
+    {
+      attribute: "data-slot",
+      condition: "On the category band, only when a category from the six is supplied and recognised",
+      value: "log-sheet-category",
+    },
+    {
+      attribute: "data-slot",
+      condition: "In the sheet's footer, on the save action while no discard question is up",
+      value: "log-sheet-save",
+    },
+    {
+      attribute: "data-slot",
+      condition: "In the sheet's footer, only while the discard question stands over unsaved input",
+      value: "log-sheet-confirm, log-sheet-answers, log-sheet-discard, log-sheet-keep",
+    },
+    {
+      attribute: "data-category",
+      condition: "On log-sheet-category, when a category from the six is supplied and recognised",
+      value: "sleep | heart | activity | nutrition | mind | labs",
+    },
+  ]}
+/>
+
+There is no `data-status` anywhere on this surface, and its absence is the point: the status axis
+does not appear here at any price, so there is no element for it to sit on. There is no
+`data-opsinjs-value` either, because this component renders no measurement of its own. The
+product owns every entry control, and their values travel through the `values` prop rather than
+through the DOM, so the sheet never stamps a reader's number onto anything. Each of the three
+action wrappers holds one [Button](./button.mdx), which stamps its own `data-slot="button"` after
+spreading its props, which is why the wrapper carries the `log-sheet-` slot and the control
+inside it does not. The sheet's own Base UI state attributes, such as `data-open`, sit on
+[Sheet](./sheet.mdx)'s parts and are documented on its page rather than repeated here.
+
+## CSS variables
+
+<CssVariablesTable name="log-sheet" />
+
+LogSheet exposes no custom property of its own for a consumer to set. It declares no `--opsin-*`
+variable in an inline style or a companion stylesheet, so there is nothing to list and the table
+above says as much. Where the class list names a token, such as the gap between the two stacked
+answers, the component reads that role from the token layer rather than setting a value: the
+answer gap reads `--opsin-space-4` with a literal `1rem` written beside it as the fallback for a
+consumer who copies the file in through `shadcn add` without this repository's product
+stylesheet. Its colours are the semantic token roles listed under Tokens, read straight from the
+token layer, which is the one place a product retunes them.
+
+## Tokens
+
+<TokenTable component="log-sheet" />
+
+These are the tokens LogSheet actually reads, resolved from its source by
+`scripts/build-tokens.mts` rather than listed by hand, so the table cannot drift from what the
+component consumes. A health component never reads a category token and a status token onto one
+element, which is the two-colour-axes rule at the token layer, and this component makes that easy
+to check: the category accent is on the band alone, no status token appears in the file at all,
+and every other colour is a neutral chrome role. There is no ramp step and no raw colour value
+anywhere in the file, so the sheet scales with the reader's own text size and takes every colour
+from a role a product can retune.
 
 ## API reference
 
@@ -609,6 +737,20 @@ not afterwards told that it holds input nobody has saved.
 
 There is no `fields` prop, no `values` schema, no `saveOnEnter`, and no way to make the save
 action anything other than the last thing in the tab order.
+
+## Cost
+
+No bundle size has been measured for this component. A real figure comes from a production build,
+none has been taken, and inventing one is forbidden, which is exactly what this section exists to
+prevent. Bundle cost is a stable-phase gate rather than a beta one, so the figure below stays
+absent until a build produces it. What can be said without a measurement is the shape of the
+cost: LogSheet carries `"use client"`, so importing it forces a client boundary on the page that
+renders it, and it composes [Sheet](./sheet.mdx), [Field](./field.mdx) and [Button](./button.mdx)
+while importing no npm package of its own, so a project that already installs those three adds the
+capture contract and little else, though how much that is stays unmeasured until a build reports
+it.
+
+<BundleSize name="log-sheet" />
 
 ## Related
 

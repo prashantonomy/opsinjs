@@ -1,7 +1,7 @@
 ---
 title: Button
 description: A control you press to make something happen. It is the least clinical component in the system, and its page sets the pattern every other component page follows.
-status: alpha
+status: beta
 kind: component
 since: "unreleased"
 category: actions-and-forms
@@ -13,7 +13,7 @@ usedIn: [consent-and-permissions, consent-flow, daily-log-entry, daily-log-scree
 
 <StubNotice
   name="button"
-  status="alpha"
+  status="beta"
   questions={[
     "opsinjs has no destructive colour role, and Button refuses to borrow one from the clinical status axis. So `destructive` is separated from `secondary` by the ink of its boundary rather than by weight. That boundary is now drawn in `--foreground`, which measures at least 15.9:1 against both surfaces in both themes, so the outline itself is visible. What nobody has tested is whether a visible outline is warning enough for a destructive action, or whether a destructive action belongs behind a confirmation Dialog rather than in a variant at all.",
     "Interaction states are specified as OKLCH derivations of the role a component already uses, and no script derives them yet. The four state fills are authored by hand in `app/product.css` rather than emitted by `scripts/build-tokens.mts`, so a consumer who retunes a surface role does not retune its states along with it. The values are measured, and press is a distinct fill from hover on every variant. What stays open is the light neutral pair: press tops out at 1.21:1 against `--background` and 1.26:1 against `--card`, because both surfaces sit so close to white that no opaque step below them can climb higher without reading as a different fill. The question is whether that ceiling means the light theme needs a carrier for press other than a fill.",
@@ -22,10 +22,13 @@ usedIn: [consent-and-permissions, consent-flow, daily-log-entry, daily-log-scree
     "Base UI supplies `type=\"button\"`, so this component reverses the platform default and a form's submit control has to say `type=\"submit\"`. Should the component restore the platform default instead, given that doing so makes every `onClick` inside a form also submit it?",
   ]}
 >
-  <code className="text-sm">button</code> is implemented and installable. It is{" "}
-  <strong className="font-medium">alpha</strong>: it works and it is documented,
-  the API may change in any release without a deprecation cycle, and it is not
-  for a production health surface yet.
+  <code className="text-sm">button</code> is implemented, installable, and its API
+  surface is complete. It is{" "}
+  <strong className="font-medium">beta</strong>: the surface is expected to hold,
+  and a change that breaks it would land only in a minor release, with a
+  changelog entry and a migration note. It has been through no accessibility or
+  clinical review, so it is still not for a production health surface, and the
+  questions below are still open.
 </StubNotice>
 
 Button is the reference page. It carries no clinical contract, which is exactly why
@@ -236,6 +239,37 @@ survives somebody swapping it for a plain `button` later.
 
 <ComponentPreview name="button-busy-at-the-foot-of-a-form" kind="example" align="start" />
 
+## States
+
+Button is interactive, and every one of its states is carried by a token role rather than
+by an ad hoc colour. `hover:` and `active:` read the state roles `app/product.css`
+declares, `--state-hover` and `--state-press` for the three neutral rungs and
+`--state-primary-hover` and `--state-primary-press` for primary; press is a distinct fill
+from hover on every variant, and `active:translate-y-px` adds an instant 1px shift with no
+transition, so a press reads even where the fill alone would not carry it. Focus is drawn
+as an outline read from `--opsin-border-focus` and `--opsin-border-focus-offset`, so focus
+never repaints the fill the way hover and press do. Busy takes the same opaque press tone
+the pointer state does, scoped `not-disabled:aria-busy:` so a caller who also passes
+`disabled` keeps the measured muted pair instead, and pairs that tone with the
+spinning-or-still glyph in the icon's seat, so a control that is working reads as distinct
+from one a reader has merely pressed. Native `disabled` swaps in the measured `--muted`
+fill and `--muted-foreground` ink rather than dimming the whole control with `opacity`, for
+the reason the Accessibility section below sets out in full.
+
+None of the five data states below describes a reading, because a Button never carries
+one: it is a control a reader operates, not a value the product measured. The nearest of
+the five is Loading, which a caller reaches through `busy`, and the table names that
+mapping and says plainly why the other four do not apply rather than stretching them to
+fit.
+
+| Data state | What Button renders |
+| --- | --- |
+| Error | Not applicable. A Button holds no reading that can go wrong; when the action it starts does not succeed, the surface that called it shows the outcome beside the control, not on the button itself. |
+| Loading | The `busy` prop. The opaque press fill, a spinning glyph that becomes a still hourglass under reduced motion, and, where the caller passes `busyLabel`, that word beside the glyph. The label stays unchanged and the control stays in the tab order throughout. |
+| Empty | Not applicable. `children` is required, so there is no way to render a Button with nothing to say; a Button given no label raises a development warning rather than entering a state. |
+| Partial | Not applicable. A Button is one action rather than a set of parts that can arrive separately. |
+| Stale | Not applicable. A Button carries no timestamp and nothing about it can go out of date; staleness belongs to the reading a button might act on, never to the control that acts. |
+
 ## Content guidelines
 
 Labels are verbs that name the outcome, in sentence case, without terminal punctuation.
@@ -281,11 +315,37 @@ is for: a clear escape hatch next to the action it lets you back out of.
   </DoDont.Dont>
 </DoDont>
 
+## Motion
+
+Button animates two things, and only one of them is driven by a token. The colour change
+on hover, press and busy reads `--opsin-duration-fast` eased with `--opsin-ease-standard`,
+the same pairing the demo below plays. The product stylesheet collapses
+`--opsin-duration-fast` to 1ms inside its own `prefers-reduced-motion: reduce` block, so
+the reduced behaviour arrives from the token layer and this file writes no branch for it.
+
+<MotionDemo easing="--opsin-ease-standard" duration="--opsin-duration-fast" />
+
+The press acknowledgement, `active:translate-y-px`, is a separate and untimed shift:
+`transition-colors` deliberately excludes transform, so the 1px move happens on the same
+frame as the pointer event rather than travelling to it over time. There is nothing for
+`prefers-reduced-motion` to remove here, because there is no transition to begin with, and
+an instant shift is already the outcome the preference asks a component to reach.
+
+The busy glyph is the one animation with no motion token behind it. It spins with
+`animate-spin`, which is Tailwind's own keyframe rather than an `--opsin-motion-*` role,
+and its reduced behaviour comes from a Tailwind variant rather than from the token layer:
+`motion-reduce:hidden` removes the spinning `LoaderCircle` and `motion-reduce:block`
+reveals a still `Hourglass` in its seat, so the reduced preference gets an instant,
+complete state rather than a frozen arc. There is no `--opsin-motion-busy` token, so no
+doctrine page can list this behaviour and a consumer who retunes the motion tokens does not
+retune it; the honest gap is the missing token rather than the behaviour itself, which
+already does what [Reduced motion](../accessibility/reduced-motion.mdx) asks.
+
 ## Accessibility
 
 Some of this is checked by a gate on every commit. Most of it is argued. The two are
 separated below, and the things nobody has measured are listed rather than left out. That
-separation is what `alpha` promises.
+separation is what `beta` promises.
 
 **Checked, by `pnpm run check:a11y` on every commit:**
 
@@ -519,6 +579,64 @@ See [Cognitive accessibility](../accessibility/cognitive-accessibility.mdx).
 
 <ContrastReport component="button" />
 
+## Data attributes
+
+<DataAttributesTable
+  name="button"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On the root and every inner part, always",
+      value: "button, button-target, button-icon, button-busy, button-busy-label, button-label",
+    },
+    {
+      attribute: "data-disabled",
+      condition: "On the root, whenever Base UI's own disabled state is true, which is whenever busy is true or the caller's own disabled prop is true",
+      value: "Present with no value when either is true; absent otherwise",
+    },
+  ]}
+/>
+
+Button carries neither `data-status` nor `data-category` nor `data-opsinjs-value`: it
+takes no clinical axis of its own, so none of the three attributes the health components
+stamp ever appears here. The two states a caller actually cares about, busy and native
+unavailability, are exposed through ARIA and through the native attribute rather than
+through a data attribute of their own: `aria-busy` and `aria-disabled` while `busy` is
+true, and the native `disabled` attribute when the caller's own `disabled` prop is true.
+`data-disabled` is the one attribute Base UI's `useButton` adds beyond `data-slot`, and it
+tracks the single boolean the component passes as `disabled` on the root, `busy ||
+disabled`, so it is present during both states rather than only the caller's own. Whichever
+of `button-icon` or `button-busy` is present is a fact about which slot the tree contains,
+not a data attribute to select on: there is no `data-busy` of its own, only the slot itself.
+
+## CSS variables
+
+<CssVariablesTable name="button" />
+
+Button declares no custom property of its own. Its fill, ink and boundary read the
+semantic token roles listed under Tokens below, together with the four state roles
+hand-authored in `app/product.css`, `--state-hover`, `--state-press`,
+`--state-primary-hover` and `--state-primary-press`, none of which this file declares. The
+boundary width and the focus ring read `--opsin-border-hairline`, `--opsin-border-focus`
+and `--opsin-border-focus-offset` with a `2px` fallback each, so a consumer who raises any
+of the three for a low-vision theme gets the new value on every rung, and the control still
+draws a boundary and a ring in a project that installed this file without the product
+stylesheet. There is nothing of Button's own to override here; a rule of your own reaches a
+part through its `data-slot` instead.
+
+## Tokens
+
+<TokenTable component="button" />
+
+These are the tokens Button actually reads, generated from the component's own source by
+`scripts/build-tokens.mts` rather than typed out by hand: the fill and ink roles behind
+each of the four rungs in `TONE`, the `--opsin-border-hairline`, `--opsin-border-focus` and
+`--opsin-border-focus-offset` roles the boundary and the ring fall back to, the
+`--opsin-target-minimum` role the hit area is floored at, and the type and spacing roles
+each size sets. Button reads no `--opsin-category-*` role and no `--opsin-status-*` role on
+any rung, so the two colour axes never meet on this control, exactly as the API reference
+section below states.
+
 ## API reference
 
 <PropsTable name="ButtonProps" />
@@ -556,6 +674,15 @@ map `destructive` onto the status axis. The static gate catches this inside this
 repository only; in a consumer project it is a rule and not an enforcement. For the same
 reason, do not set `border-width` to zero on `destructive`: that boundary is the whole of
 its signal apart from the label.
+
+## Cost
+
+<BundleSize name="button" />
+
+Bundle cost is measured from a real build, and no such measurement has been taken for any
+opsinjs component yet, so there is no figure to show here. It is a stable-phase gate rather
+than a beta one, and a size nobody measured is exactly the number this section exists to
+refuse to print.
 
 ## Related
 
