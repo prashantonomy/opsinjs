@@ -1,11 +1,11 @@
 {
   "$comment": "GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts, projected through lib/catalogue.ts. Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`. Consumed by the /r routes, the llms shards and the generated catalogue reference page. It exists as JSON rather than being imported from the TypeScript because the route handlers, the llms shards and any external tool all need the same rows without loading the app's module graph. `generatedAt` carries the source hash rather than a build time, because this file is guarded by a byte-for-byte drift gate.",
-  "generatedAt": "c922721d46e3",
-  "sourceHash": "c922721d46e3",
+  "generatedAt": "d310e86cfa0e",
+  "sourceHash": "d310e86cfa0e",
   "counts": {
-    "shipped": 27,
-    "considered": 33,
-    "implemented": 27
+    "shipped": 37,
+    "considered": 23,
+    "implemented": 37
   },
   "categories": [
     {
@@ -224,6 +224,45 @@
       ]
     },
     {
+      "name": "timeline-entry",
+      "title": "TimelineEntry",
+      "description": "One dated event in a vertical history.",
+      "type": "registry:ui",
+      "category": "health-data-display",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "history item",
+        "event list",
+        "activity feed"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/timeline-entry",
+      "registryDependencies": [
+        "relative-time",
+        "status-pill"
+      ]
+    },
+    {
+      "name": "range-legend",
+      "title": "RangeLegend",
+      "description": "The key explaining what the bands on a range mean.",
+      "type": "registry:ui",
+      "category": "health-data-display",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "key",
+        "chart legend",
+        "band legend"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/range-legend",
+      "dependencies": [
+        "lucide-react"
+      ]
+    },
+    {
       "name": "alert-banner",
       "title": "AlertBanner",
       "description": "A prominent message about something that needs the reader's attention now.",
@@ -413,6 +452,22 @@
       ]
     },
     {
+      "name": "body-map",
+      "title": "BodyMap",
+      "description": "A diagram of a body for pointing at where something hurts.",
+      "type": "registry:ui",
+      "category": "health-input",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "pain map",
+        "anatomy diagram",
+        "where does it hurt"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/body-map"
+    },
+    {
       "name": "value",
       "title": "Value",
       "description": "One number and its unit, formatted the same way everywhere in the product.",
@@ -451,6 +506,22 @@
       ],
       "implemented": true,
       "docs": "/docs/components/relative-time"
+    },
+    {
+      "name": "table",
+      "title": "Table",
+      "description": "Rows and columns of data.",
+      "type": "registry:ui",
+      "category": "data-display",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "data table",
+        "grid",
+        "rows and columns"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/table"
     },
     {
       "name": "surface",
@@ -628,6 +699,46 @@
       ]
     },
     {
+      "name": "tab-bar",
+      "title": "TabBar",
+      "description": "The persistent bar of top-level destinations at the bottom of the screen.",
+      "type": "registry:ui",
+      "category": "navigation",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "bottom navigation",
+        "nav bar"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/tab-bar",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "surface"
+      ]
+    },
+    {
+      "name": "stepper",
+      "title": "Stepper",
+      "description": "Progress through a sequence of steps.",
+      "type": "registry:ui",
+      "category": "navigation",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "wizard",
+        "step indicator",
+        "multi step"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/stepper",
+      "dependencies": [
+        "lucide-react"
+      ]
+    },
+    {
       "name": "button",
       "title": "Button",
       "description": "The control that makes something happen.",
@@ -689,6 +800,77 @@
         "@base-ui/react",
         "lucide-react"
       ]
+    },
+    {
+      "name": "icon-button",
+      "title": "IconButton",
+      "description": "A button whose only visible content is an icon.",
+      "type": "registry:ui",
+      "category": "actions-and-forms",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "glyph button",
+        "round button"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/icon-button",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "button"
+      ]
+    },
+    {
+      "name": "divider",
+      "title": "Divider",
+      "description": "A line separating two groups of content.",
+      "type": "registry:ui",
+      "category": "layout",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "separator",
+        "rule"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/divider"
+    },
+    {
+      "name": "avatar",
+      "title": "Avatar",
+      "description": "A picture or initials standing for a person.",
+      "type": "registry:ui",
+      "category": "utility",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "profile picture",
+        "initials",
+        "user image"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/avatar",
+      "dependencies": [
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "visually-hidden",
+      "title": "VisuallyHidden",
+      "description": "Content that screen readers announce and eyes do not see.",
+      "type": "registry:ui",
+      "category": "utility",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "sr only",
+        "screen reader only",
+        "clip"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/visually-hidden"
     },
     {
       "name": "questionnaire",
@@ -756,26 +938,6 @@
       "why": "Dose data drives dosing decisions. A component that displays a missed dose is one product decision away from implying what to do about it, which is prescribing."
     },
     {
-      "name": "body-map",
-      "title": "BodyMap",
-      "description": "A diagram of a body for pointing at where something hurts.",
-      "type": "registry:ui",
-      "category": "health-input",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "pain map",
-        "anatomy diagram",
-        "where does it hurt"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "field"
-      ],
-      "why": "A body diagram must represent a range of bodies, ages, skin tones and disabilities, or it tells some readers they are not the intended user. Doing that properly is an illustration commission, not a component."
-    },
-    {
       "name": "goal-ring",
       "title": "GoalRing",
       "description": "Progress towards a daily goal, drawn as a closing ring.",
@@ -797,27 +959,6 @@
       "why": "Goal rings are strongly associated with one platform's fitness product, and the pattern rewards streaks. That is the wrong incentive for a reader managing a condition rather than training for one."
     },
     {
-      "name": "timeline-entry",
-      "title": "TimelineEntry",
-      "description": "One dated event in a vertical history.",
-      "type": "registry:ui",
-      "category": "health-data-display",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "history item",
-        "event list",
-        "activity feed"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "card",
-        "relative-time"
-      ],
-      "why": "A timeline is a layout, and every product's timeline holds different things. Shipping one would ship a data model with it."
-    },
-    {
       "name": "scale-input",
       "title": "ScaleInput",
       "description": "A one-to-ten scale for rating something like pain or mood.",
@@ -836,26 +977,6 @@
         "field"
       ],
       "why": "The anchors and the number of points on a rating scale are what make it comparable over time, and they belong to whichever instrument the product is using. A fixed set of labelled options is a radio group, and opsinjs delegates that to Base UI rather than wrapping it."
-    },
-    {
-      "name": "range-legend",
-      "title": "RangeLegend",
-      "description": "The key explaining what the bands on a range mean.",
-      "type": "registry:ui",
-      "category": "health-data-display",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "key",
-        "chart legend",
-        "band legend"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "range-bar"
-      ],
-      "why": "A legend that can be separated from its chart is a legend that will be. The bands are documented inside RangeBar instead."
     },
     {
       "name": "toast",
@@ -1165,25 +1286,6 @@
       "why": "Kept off the shipped roster deliberately: a generic badge next to a StatusPill is exactly how the two colour axes get mixed. If you need a badge to carry a health meaning, you need a StatusPill."
     },
     {
-      "name": "divider",
-      "title": "Divider",
-      "description": "A line separating two groups of content.",
-      "type": "registry:ui",
-      "category": "layout",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "separator",
-        "rule"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "card"
-      ],
-      "why": "A border and a spacing token. Documented in Foundations rather than shipped."
-    },
-    {
       "name": "scroll-area",
       "title": "ScrollArea",
       "description": "A scrolling region with styled scrollbars.",
@@ -1201,45 +1303,6 @@
         "card"
       ],
       "why": "Delegated to Base UI. Custom scrollbars are also a frequent cause of unreachable content at 200% text."
-    },
-    {
-      "name": "tab-bar",
-      "title": "TabBar",
-      "description": "The persistent bar of top-level destinations at the bottom of the screen.",
-      "type": "registry:ui",
-      "category": "navigation",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "bottom navigation",
-        "nav bar"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "surface"
-      ],
-      "why": "Application navigation is a product decision, not a design-system one. The material rung, the safe-area handling and the touch-target floor it needs are all documented."
-    },
-    {
-      "name": "stepper",
-      "title": "Stepper",
-      "description": "Progress through a sequence of steps.",
-      "type": "registry:ui",
-      "category": "navigation",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "wizard",
-        "step indicator",
-        "multi step"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "field"
-      ],
-      "why": "The pattern that matters is one question per page, and that is documented in Patterns. A stepper component tends to encourage the opposite."
     },
     {
       "name": "menu",
@@ -1261,86 +1324,6 @@
         "button"
       ],
       "why": "Delegated to Base UI. Hiding a destructive or a safety-relevant action in an overflow menu is a defect whatever renders it."
-    },
-    {
-      "name": "icon-button",
-      "title": "IconButton",
-      "description": "A button whose only visible content is an icon.",
-      "type": "registry:ui",
-      "category": "actions-and-forms",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "glyph button",
-        "round button"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "button"
-      ],
-      "why": "A variant of Button rather than a component, and one that needs a visible label far more often than products assume."
-    },
-    {
-      "name": "avatar",
-      "title": "Avatar",
-      "description": "A picture or initials standing for a person.",
-      "type": "registry:ui",
-      "category": "utility",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "profile picture",
-        "initials",
-        "user image"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "card"
-      ],
-      "why": "Straightforward to build and full of representation decisions. Those decisions are default imagery, initials for names that do not have them, and what a clinician's avatar implies about who wrote a message."
-    },
-    {
-      "name": "table",
-      "title": "Table",
-      "description": "Rows and columns of data.",
-      "type": "registry:ui",
-      "category": "data-display",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "data table",
-        "grid",
-        "rows and columns"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "card",
-        "metric-tile"
-      ],
-      "why": "Every chart in this system ships a table twin, so a table is a requirement rather than an option. A responsive, accessible table is nevertheless a project of its own and would be the largest component here by an order of magnitude."
-    },
-    {
-      "name": "visually-hidden",
-      "title": "VisuallyHidden",
-      "description": "Content that screen readers announce and eyes do not see.",
-      "type": "registry:ui",
-      "category": "utility",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "sr only",
-        "screen reader only",
-        "clip"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "field"
-      ],
-      "why": "Four lines of CSS that every component here uses internally, shipped as a utility class rather than as a component so that it works outside React too."
     }
   ],
   "aliases": {
@@ -1381,6 +1364,12 @@
     "status badge": "status-pill",
     "status label": "status-pill",
     "traffic light": "status-pill",
+    "history item": "timeline-entry",
+    "event list": "timeline-entry",
+    "activity feed": "timeline-entry",
+    "key": "range-legend",
+    "chart legend": "range-legend",
+    "band legend": "range-legend",
     "warning banner": "alert-banner",
     "notification banner": "alert-banner",
     "inline alert": "alert-banner",
@@ -1427,6 +1416,9 @@
     "manual entry": "reading-input",
     "numeric input": "reading-input",
     "unit switch": "reading-input",
+    "pain map": "body-map",
+    "anatomy diagram": "body-map",
+    "where does it hurt": "body-map",
     "number": "value",
     "unit": "value",
     "format a number": "value",
@@ -1441,6 +1433,9 @@
     "ago": "relative-time",
     "freshness": "relative-time",
     "staleness": "relative-time",
+    "data table": "table",
+    "grid": "table",
+    "rows and columns": "table",
     "material": "surface",
     "glass": "surface",
     "blur": "surface",
@@ -1480,6 +1475,11 @@
     "placeholder": "skeleton",
     "segmented buttons": "segmented-control",
     "toggle group": "segmented-control",
+    "bottom navigation": "tab-bar",
+    "nav bar": "tab-bar",
+    "wizard": "stepper",
+    "step indicator": "stepper",
+    "multi step": "stepper",
     "cta": "button",
     "action": "button",
     "submit": "button",
@@ -1493,6 +1493,16 @@
     "label": "field",
     "error message": "field",
     "hint": "field",
+    "glyph button": "icon-button",
+    "round button": "icon-button",
+    "separator": "divider",
+    "rule": "divider",
+    "profile picture": "avatar",
+    "initials": "avatar",
+    "user image": "avatar",
+    "sr only": "visually-hidden",
+    "screen reader only": "visually-hidden",
+    "clip": "visually-hidden",
     "survey": "questionnaire",
     "assessment": "questionnaire",
     "phq": "questionnaire",
@@ -1504,21 +1514,12 @@
     "pill tracker": "dose-tracker",
     "dose": "dose-tracker",
     "adherence tracker": "dose-tracker",
-    "pain map": "body-map",
-    "anatomy diagram": "body-map",
-    "where does it hurt": "body-map",
     "activity ring": "goal-ring",
     "close your rings": "goal-ring",
     "daily goal": "goal-ring",
-    "history item": "timeline-entry",
-    "event list": "timeline-entry",
-    "activity feed": "timeline-entry",
     "pain scale": "scale-input",
     "rating scale": "scale-input",
     "likert": "scale-input",
-    "key": "range-legend",
-    "chart legend": "range-legend",
-    "band legend": "range-legend",
     "snackbar": "toast",
     "transient message": "toast",
     "notification toast": "toast",
@@ -1553,28 +1554,10 @@
     "activity indicator": "spinner",
     "counter": "badge",
     "label chip": "badge",
-    "separator": "divider",
-    "rule": "divider",
     "scroller": "scroll-area",
     "overflow container": "scroll-area",
-    "bottom navigation": "tab-bar",
-    "nav bar": "tab-bar",
-    "wizard": "stepper",
-    "step indicator": "stepper",
-    "multi step": "stepper",
     "dropdown menu": "menu",
     "context menu": "menu",
-    "overflow menu": "menu",
-    "glyph button": "icon-button",
-    "round button": "icon-button",
-    "profile picture": "avatar",
-    "initials": "avatar",
-    "user image": "avatar",
-    "data table": "table",
-    "grid": "table",
-    "rows and columns": "table",
-    "sr only": "visually-hidden",
-    "screen reader only": "visually-hidden",
-    "clip": "visually-hidden"
+    "overflow menu": "menu"
   }
 }

@@ -1,39 +1,278 @@
 ---
-title: "Table"
-description: "Rows and columns of data."
-status: considered
+title: Table
+description: Rows and columns of data in a real semantic table, the readable twin a chart ships beside it, with a required caption, right-aligned numeric columns and its own sideways scroll.
+status: alpha
 kind: component
 since: "unreleased"
-category: "data-display"
-aliases: ["data table", "grid", "rows and columns"]
+category: data-display
+aliases: [data table, grid, rows and columns]
+usedIn: [trends-screen]
 ---
 
-{/* GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts (status: considered).
-    Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`.
-    Rationale: content/docs/project/decisions/0008-considered-components-resolve.mdx.
-    Source hash c922721d46e3. */}
+## Status
 
-<PageTemplate kind="component" status="considered" category="data-display" />
-
-<StubNotice name="table" status="considered">
-  **Table is not built, and it has no specification.** The name is recorded in
-  the catalogue so that this address answers instead of returning a 404.
-  The reason is not that the component is coming.
+<StubNotice
+  name="table"
+  status="alpha"
+  questions={[
+    "No contrast pair for the header ink, the caption ink or the hairline row and header borders has been measured on the surfaces a table sits on. The neutral token roles it draws from are published, but this component's own rendered pixels are not.",
+    "Nobody has listened to it in a screen reader. Whether scope=\"col\" on the header cells, scope=\"row\" on the first body cell and the caption together give a listener a usable read of which row and which column a value sits in is argued from the markup and not verified.",
+    "The scroll container is focusable and carries no role and no name of its own, so it is a bare focus stop. Whether it should instead be a labelled region, and whether it should be a tab stop at all when the table fits and does not scroll, is unresolved, because overflow cannot be detected in a server component and the stop is present either way.",
+    "Behaviour at 200% text and the reflow of a table wider than the viewport have not been observed in either theme. The focusable scroll container is the argued answer to a wide table, and nobody has watched it reflow.",
+    "There is no keyboard navigation from cell to cell. This is a table to read rather than a grid to operate, so it has no arrow key cell traversal, no roving tabindex and no selection. Whether any chart twin needs cell traversal is deferred rather than answered.",
+  ]}
+>
+  <code className="text-sm">table</code> is implemented and installable. It is{" "}
+  <strong className="font-medium">alpha</strong>: it works and it is documented,
+  the API may change in any release without a deprecation cycle, and it is not
+  for a production health surface yet. The questions below are still open.
 </StubNotice>
 
-## What this name refers to
+Every chart in this system owes the reader a way to read it that does not depend on seeing it. A line going up is a shape, and a shape is not a figure a screen reader can read out or a keyboard user can tab to. So every chart ships a table beside it, and this is that table: the same numbers, in rows and columns, in a real `<table>` with a caption, headers that carry their scope, and its own sideways scroll.
 
-Rows and columns of data.
+Everything unusual about it follows from what it refuses to be. It is not a data grid. It does not sort, it does not let a reader select a row, and it does not virtualise ten thousand rows. Those are a project of their own, and they would turn the honest twin of a chart into the largest component in the catalogue. The data driven API keeps it small and keeps the parts a reader relies on, the caption and the header scopes, out of a caller's reach to get wrong.
 
-## Why it is not on the roster
+## Preview
 
-Every chart in this system ships a table twin, so a table is a requirement rather than an option. A responsive, accessible table is nevertheless a project of its own and would be the largest component here by an order of magnitude.
+One caption, one text column that labels each row, and two numeric columns that right-align in tabular figures. Open it under the product theme and turn the text size up. Two things are worth checking by eye: that the numbers in a column line up on their digits as the widths change, and that a table wider than the frame scrolls inside its own box rather than dragging the page sideways.
 
-## What to use instead
+<ComponentPreview name="table" />
 
-Use [Card](card.mdx) or [MetricTile](metric-tile.mdx) instead.
+## Installation
 
-Do not generate code against this page. It documents an absence. The
-machine-readable list of every component id and its status is at
-`/r/index.json`, and the [status matrix](index.mdx) shows the same rows for
-a human reader.
+<ComponentInstall
+  name="table"
+  unbuilt={false}
+  importPath="@/components/ui/table"
+/>
+
+Table composes nothing and depends on nothing, so it installs on its own. The numbers you put in its cells are usually a [Value](./value.mdx), which you install separately and nest in the cell.
+
+## Usage
+
+```tsx
+import { Table } from "@/components/ui/table"
+```
+
+```tsx
+<Table
+  caption="Example figures by period, and not a real record"
+  columns={[
+    { key: "period", header: "Period" },
+    { key: "count", header: "Count", numeric: true },
+  ]}
+  rows={[
+    { period: "Period one", count: "12" },
+    { period: "Period two", count: "1,000" },
+  ]}
+/>
+```
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "As the accessible twin of a chart: the same figures the chart draws, in rows and columns a screen reader user and a keyboard user can read.",
+    "A small set of rows and columns a reader compares directly, where the structure is columns of like values rather than one reading on its own.",
+    "A comparison a reader is meant to read down a column, where lining the numbers up on their digits is the point.",
+  ]}
+  avoid={[
+    { case: "You have one reading with a label, a time and a surface of its own.", instead: "metric-tile" },
+    { case: "You are drawing a trend the reader reads as a shape rather than as figures.", instead: "trend-sparkline" },
+    { case: "The data has not arrived and you are holding the layout open.", instead: "skeleton" },
+    { case: "There are no rows to show, because the result is genuinely empty.", instead: "empty-state" },
+    { case: "You are building an interactive data grid with sorting, row selection and virtualised scrolling.", instead: "card" },
+  ]}
+/>
+
+The last exclusion is the one that matters most, and it is a decision made before the first row is drawn. opsinjs ships no data grid, and Table is deliberately not one: it has no sorting, no selection and no virtualisation, and adding them on top of it fights the component rather than extending it. A surface that genuinely needs a grid builds one on Base UI, on a Card or a surface of its own, and owns the comparator, the selection model and the announcement of a new order. Card is the surface such a grid sits on rather than the grid itself. Table is the readable twin of a chart, and its job is to be read.
+
+## Anatomy
+
+<Anatomy
+  name="table"
+  parts={[
+    {
+      name: "Table",
+      describes: "The scroll container and the semantic table it wraps. The container scrolls sideways on its own so a table wider than the screen never pushes the page body sideways, and it is focusable so a keyboard reader can scroll it. The table carries the reader's own text colour and nothing from either colour axis.",
+      prop: "className",
+    },
+    {
+      name: "Table.Caption",
+      describes: "The required caption naming what the table holds, rendered as a real caption element. It is always present for a screen reader, and captionHidden takes it off the screen for a table that sits under a heading already naming the data, but it is never dropped from the markup.",
+      prop: "caption",
+    },
+    {
+      name: "Table.Head",
+      describes: "The header row, one column header per column drawn from columns[].header, each a th with scope=\"col\", set in the muted foreground at the footnote step so the headers read as labels rather than as data.",
+      prop: "columns",
+    },
+    {
+      name: "Table.Row",
+      describes: "One row per entry in rows[], separated by a hairline. There is no hover fill and no selected fill, because this is a table to read rather than a grid to pick from.",
+      prop: "rows",
+    },
+    {
+      name: "Table.Cell",
+      describes: "One cell per column in each row. The first column is a th with scope=\"row\" when rowHeader is on, so a screen reader names each row by its first cell; every other cell is a td. A numeric column right-aligns its cells, renders them in tabular figures, and stamps data-opsinjs-value so the figures stay tabular in a consumer's theme.",
+      prop: "columns",
+    },
+  ]}
+/>
+
+<CompositionTree
+  name="table"
+  tree={[
+    {
+      part: "Table",
+      cardinality: "1",
+      note: "A div with data-slot=\"table-container\" that scrolls sideways and is focusable, wrapping a table with data-slot=\"table\". No data-status and no data-category anywhere.",
+      children: [
+        {
+          part: "Table.Caption",
+          cardinality: "1",
+          note: "data-slot=\"table-caption\", a real caption element; sr-only when captionHidden, never absent",
+        },
+        {
+          part: "Table.Head",
+          cardinality: "1",
+          note: "data-slot=\"table-header\", a thead holding one row of th cells with data-slot=\"table-head\" and scope=\"col\"",
+        },
+        {
+          part: "Table.Body",
+          cardinality: "1",
+          note: "data-slot=\"table-body\", a tbody",
+          children: [
+            {
+              part: "Table.Row",
+              cardinality: "1..n",
+              note: "data-slot=\"table-row\", one per rows[] entry, a hairline between rows",
+              children: [
+                {
+                  part: "Table.Cell",
+                  cardinality: "1..n",
+                  note: "data-slot=\"table-cell\"; the first is a th with scope=\"row\" when rowHeader is on, the rest are td; a numeric cell adds text-right, tabular figures and data-opsinjs-value",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ]}
+/>
+
+That is the whole component. The parts are identified by `data-slot` and are styleable from outside, and none of them is an export: there is no `Table.Row` to render on its own, which is what stops a caller assembling a table with no caption or a header cell with no scope. The caption is the one part that is required and always drawn, because a table a screen reader user meets with no caption is a grid of numbers naming nothing.
+
+## Examples
+
+### The readable twin of a chart
+
+A chart draws the shape; this table carries the figures beside it. The caption stays in the markup so a screen reader still meets it, and captionHidden takes it off the screen because the visible heading above already names the data. That is the usual shape of a chart twin: one name for the eye, the same name kept for the ear.
+
+<ComponentPreview name="table-a-chart-twin" kind="example" align="start" />
+
+### Numeric columns line up on their digits
+
+Two numeric columns right-align in tabular figures while the first column labels each row. The numbers are Value components nested in the cells, which is how a real deployment formats a figure: Table owns the grid and the scope, and Value owns the rounding, the unit and the spoken form. The magnitudes are over 800 kg on purpose, so nothing here reads as a weight anybody could take for their own.
+
+<ComponentPreview name="table-numeric-columns" kind="example" align="start" />
+
+## Content guidelines
+
+Write a caption that names the rows and the columns, so the table stands on its own when a screen reader reaches it away from the chart beside it. "Weekly figures for the example account, in the example unit" is a caption; "Table" and an empty string are not. Where a visible heading already names the data, keep the caption in the markup with `captionHidden` rather than dropping it, because the heading names it for the eye and the caption names it for the ear.
+
+Mark a column of numbers `numeric`. It right-aligns the column and sets it in tabular figures, so the numbers line up on their digits and do not re-kern as a digit changes, which is what lets a reader compare two rows at a glance. A column of numbers left as text ragged-aligns and shifts sideways as the data changes, and two rows no longer line up. Use the same precision down a column, through the [Value](./value.mdx) you nest in each cell, so a comparison the reader is meant to make is arithmetic they do not have to do.
+
+<DoDont>
+  <DoDont.Do>
+    **"Weekly figures for the example account, in the example unit"** as the caption. It names what the rows are and what the columns measure, so the table reads on its own.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Table"**, or an empty caption. It names nothing, so a screen reader user meets a grid of numbers with no idea what they count.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **A column of numbers marked `numeric`.** It right-aligns in tabular figures, so the digits line up and the column stays still as the data changes.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A column of numbers left as text.** It ragged-aligns and re-kerns as digits change, so two rows no longer line up for the comparison the column exists to make.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility
+
+Some of what follows is checked by a gate on every commit and the rest is argued. They are labelled separately, because `alpha` promises that accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nobody has yet listened to this component in a screen reader.
+
+**Checked, by the gates on every commit:**
+- **No `px` type size anywhere.** The caption, the headers and the cells are set from the generated ramp, `text-opsin-subheadline`, `text-opsin-footnote` and `text-opsin-body`, so the table scales with the reader's own text size.
+- **No raw colour literal and no ramp step.** The ink is the neutral `--foreground` and `--muted-foreground` roles and the dividers are `border-border`, so a hex, an `oklch()` or a numbered ramp step fails the build.
+- **No banned word in the reader facing strings this component owns, none in its development warnings, and none as a code identifier.**
+- **No shipped threshold and no unowned numeric interval.** No clinical number is written into this component and none passes through it.
+
+**Enforced by the API rather than by a gate:**
+- **The caption is required and always rendered.** It is a `string` a caller cannot omit at the type level, and `captionHidden` takes it off the screen with the sr-only pattern rather than out of the markup.
+- **The headers carry their scope.** Every column header is `scope="col"`, and the first cell of each row is `scope="row"` when `rowHeader` is on, which is the default, so a listener meets each value with a row name and a column name rather than as a loose number.
+- **It cannot be tinted from either axis.** There is no colour prop, no `data-status` and no `data-category`. The one hole is `className` on the container, which reaches only chrome.
+
+**Argued, and true of the implementation, but not yet measured:**
+- **A wide table scrolls inside its own box.** The container is `overflow-x-auto`, so a table wider than the viewport scrolls sideways within itself and the page body does not. The container is focusable with `tabIndex={0}` and carries the focus ring, so a keyboard reader can reach the scroll. It has no role and no name of its own, and whether it should be a labelled region is the open question above.
+- **It reflows at 200% text.** No fixed height and no `px` size anywhere, cells wrap rather than truncate, and a table too wide to fit falls to the scroll container rather than to the viewport. Nobody has watched this at 200% in either theme.
+- **There is no motion.** No transition and no animation, so `prefers-reduced-motion` has nothing here to act on.
+
+**Not yet checked at all, and listed rather than omitted:**
+- Whether a screen reader reads the row and column structure usefully from the scopes and the caption. Argued from the markup, not heard.
+- The measured contrast of the header ink, the caption ink and the hairline dividers on the surfaces a table sits on. The neutral token roles are published below; the rendered pixels are not.
+
+<KeyboardTable
+  name="table"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Moves focus onto the scrollable table, then past it",
+      notes: "The scroll container is the one focusable thing in the table. It is focusable so a keyboard reader can scroll a table wider than the screen sideways. Nothing detects overflow at render time, so the stop is present even when the table fits and does not scroll.",
+    },
+    {
+      keys: "Shift + Tab",
+      action: "Moves back out of the table",
+      notes: "Reverse of Tab. The header cells, the row headers and the data cells are never focus stops: a table here is read, not tabbed through cell by cell.",
+    },
+    {
+      keys: "Left, Right",
+      action: "Scroll the table sideways when the container has focus",
+      notes: "Native behaviour of a focusable scroll region. Nothing in the component captures these keys, so they do their usual job when the container is not focused.",
+    },
+    {
+      keys: "Space",
+      action: "Scrolls the page, as anywhere else",
+      notes: "Listed because it is a real answer rather than a gap: nothing in this component captures Space, and there is no control in the table to activate with it.",
+    },
+  ]}
+/>
+
+<ContrastReport component="table" />
+
+## API reference
+
+<PropsTable name="TableProps" />
+
+`caption` is typed `string` and required. A table with no caption passes every code gate in this repository and reaches a screen reader user as a grid of numbers naming nothing, so the requirement is at the type level and there is no honest caption this component can invent in its place. `captionHidden` is the escape hatch for the twin under a heading, and it hides the caption without removing it.
+
+`columns` and `rows` are the whole data model, and the model is flat on purpose. A cell is a `ReactNode`, so the number in a numeric column is usually a [Value](./value.mdx): Table owns the grid, the scope and the alignment, and Value owns the rounding, the unit and the spoken form. `numeric` on a column right-aligns it and sets it in tabular figures, and it stamps `data-opsinjs-value` on those cells as the tabular-figures hook, empty because Table never owns the magnitude.
+
+There is no `onSort`, no `selectedRows` and no `virtualized`. A number that has to be sortable or selectable belongs in a product's own grid, and Table is the readable twin of a chart rather than that grid.
+
+## Related
+
+<RelatedComponents name="table" />
+
+**Easily confused with**
+- [MetricTile](./metric-tile.mdx) is one labelled reading on its own surface. A table is many values compared across rows and columns.
+- [TrendSparkline](./trend-sparkline.mdx) draws a series as a shape. A table is the same series as figures, and it ships as the sparkline's readable twin.
+- [Card](./card.mdx) is a surface for one record laid out freely. A table is the grid layout for like values across rows.
+- [ResultCard](./result-card.mdx) places one result with its explanation. A table places many results side by side.
+
+**Used by**
+- [Trends screen](../screens/trends-screen.mdx) places this table as the readable data-table twin of the trend chart it draws beside.

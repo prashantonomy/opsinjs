@@ -1,39 +1,309 @@
 ---
-title: "TimelineEntry"
-description: "One dated event in a vertical history."
-status: considered
+title: TimelineEntry
+description: One dated event in a vertical history, with a neutral rail and marker, the time written the way people say it, and any clinical status shown as a nested pill rather than a tint.
+status: alpha
 kind: component
 since: "unreleased"
-category: "health-data-display"
+category: health-data-display
 aliases: ["history item", "event list", "activity feed"]
+governedBy: ["uncertainty-and-staleness", "trends-and-change"]
+usedIn: ["daily-log-screen"]
 ---
 
-{/* GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts (status: considered).
-    Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`.
-    Rationale: content/docs/project/decisions/0008-considered-components-resolve.mdx.
-    Source hash c922721d46e3. */}
+## Status
 
-<PageTemplate kind="component" status="considered" category="health-data-display" />
-
-<StubNotice name="timeline-entry" status="considered">
-  **TimelineEntry is not built, and it has no specification.** The name is recorded in
-  the catalogue so that this address answers instead of returning a 404.
-  The reason is not that the component is coming.
+<StubNotice
+  name="timeline-entry"
+  status="alpha"
+  questions={[
+    "Nothing here has been measured. The neutral marker fill and the hairline connector are painted on whatever ground the host provides, and no contrast pair for the marker against that ground, or the connector against it, has been checked by a machine.",
+    "No screen reader has met this component. The rail and marker carry aria-hidden and the root is a list item, so the entry announces its content and skips its chrome only where a product places it inside its own list. Whether that reads well has not been listened to by anybody.",
+    "It does not forward a locale to the composed RelativeTime, because the prop list has no locale on it, so the recorded time formats in whichever locale the runtime defaults to and a server render can disagree with a browser. Whether a locale prop belongs here is open.",
+    "The event word is fixed at recorded and is not a prop. A history records that something happened, so recorded is the honest word, but a surface that needs to tell a measured reading apart from a synced one cannot say so through this component yet.",
+    "Marker alignment against the recorded time at 200 percent text has not been checked, and no named reviewer has signed this page off.",
+  ]}
+>
+  <code className="text-sm">timeline-entry</code> is implemented and
+  installable. It is <strong className="font-medium">alpha</strong>: it works and
+  it is documented, the API may change in any release without a deprecation
+  cycle, and it is not for a production health surface yet.
 </StubNotice>
 
-## What this name refers to
+A history is a list of things that happened, and each thing needs three facts side by side:
+what it was, when it was recorded, and, where a product has made a judgement, how much
+attention it needs. TimelineEntry places one of those events on a vertical rail. It is
+deliberately one entry and not the timeline, because a timeline is a layout every product
+builds differently, and a component that owned the list would own a data model with it.
 
-One dated event in a vertical history.
+So the product keeps the list. It supplies the `ol` or `ul`, decides what an entry is and
+in what order they run, and drops a TimelineEntry into each row. The entry draws the neutral
+rail and marker, writes the recorded time the way people say it, and shows any status the
+product assigned on a pill that keeps its own word and glyph. The entry itself stays out of
+both colour axes.
 
-## Why it is not on the roster
+## Preview
 
-A timeline is a layout, and every product's timeline holds different things. Shipping one would ship a data model with it.
+Three entries on one rail, with the connector stopping at the last. The middle one carries
+a status, and the thing to check is where that status lands: on a pill beside the title,
+never as a tint on the entry, the marker or the rail. Open it in greyscale and the rail is
+still a rail, the times still read, and the one status still carries a word and a distinct
+shape.
 
-## What to use instead
+<ComponentPreview name="timeline-entry" />
 
-Use [Card](card.mdx) or [RelativeTime](relative-time.mdx) instead.
+## Installation
 
-Do not generate code against this page. It documents an absence. The
-machine-readable list of every component id and its status is at
-`/r/index.json`, and the [status matrix](index.mdx) shows the same rows for
-a human reader.
+It pulls in two registry items and no npm dependency. RelativeTime writes the recorded
+time, and StatusPill renders any status the product assigns.
+
+<ComponentInstall
+  name="timeline-entry"
+  unbuilt={false}
+  importPath="@/components/ui/timeline-entry"
+  registryDependencies={["relative-time", "status-pill"]}
+/>
+
+## Usage
+
+```tsx
+import { TimelineEntry } from "@/components/ui/timeline-entry"
+```
+
+```tsx
+<ol>
+  <TimelineEntry
+    when="2026-03-14T08:12:00+00:00"
+    now={new Date().toISOString()}
+    title="Repeat prescription issued"
+    status="watch"
+    isLast
+  >
+    Issued by the example clinic.
+  </TimelineEntry>
+</ol>
+```
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Showing one recorded event in a history the product lays out: a prescription issued, a test booked, a note added, an appointment attended.",
+    "Placing a single dated entry on a vertical rail, where the product owns the list around it and each entry names what happened and when.",
+    "A row that needs the recorded time written the way people say it, with an optional status the product assigned shown beside the event on a pill.",
+  ]}
+  avoid={[
+    { case: "You want one component to own the whole history, its ordering and its data model. opsinjs does not ship that, on purpose, so build the list yourself out of one entry per row.", instead: "card" },
+    { case: "You are charting one reading as it moves over time rather than listing distinct events.", instead: "trend-sparkline" },
+    { case: "You only need to say when a single thing happened, with no rail, no marker and no event around it.", instead: "relative-time" },
+    { case: "You are recording medicine doses taken and missed, which has its own shape.", instead: "dose-tracker" },
+    { case: "You need the reader to write down what happened rather than read a recorded event.", instead: "log-sheet" },
+  ]}
+/>
+
+The first exclusion is the one that matters. If you find yourself wanting the component to
+hold the list, sort it, group it by day or fetch it, you want a layout the product builds
+and this entry is a piece of it rather than a replacement for it. Lay out your own list, put
+one TimelineEntry in each row, and set `isLast` on the final one so the rail does not trail
+past it.
+
+## Clinical meaning
+
+**What it asserts.** That the named event was recorded at the given instant, and nothing
+more. It does not assert that the event was clinically significant, that the record of the
+history is complete, or that the time is still fresh. A gap between two entries is not
+evidence that nothing happened in it, and this component makes no claim either way.
+
+**What it must never be read as.** A diagnosis, a verdict, or a guarantee that the history
+in front of the reader is complete or current. Where the product supplies a status, the
+status says how much attention that one event needs, in the product's own words on a pill;
+the entry adds nothing to it. TimelineEntry never triages, never diagnoses and never
+advises, and any words in the title or the body are the product's, not the system's.
+
+**Which colour axis it may use.** Neither, on the entry itself. The rail and the marker are
+neutral chrome, a muted fill and a hairline, and they take colour from neither the category
+axis nor the status axis. Where the product supplies a `status` it is delegated to a nested
+StatusPill, which carries the status axis with a word, a distinct glyph and a colour
+together, exactly as it does everywhere else in the system. The entry around it stays
+neutral, so a status colour never lands on the record of an event where a reader could not
+tell it from a category tint. See [The two colour axes](../health/two-colour-axes.mdx).
+
+**Who owns the thresholds and the words.** The consuming product, always. TimelineEntry
+owns no thresholds, no staleness boundary and no event text: the product supplies the
+title, the body, the status and the instant, and the component draws them. It shares that
+discipline with the two pages that govern it. [Uncertainty, staleness and missing
+data](../health/uncertainty-and-staleness.mdx) is why the entry never guesses whether a
+recorded time is now too old to trust, and [Trends and change](../health/trends-and-change.mdx)
+is why one entry is one event rather than a shape that implies a direction the product never
+claimed.
+
+## Anatomy
+
+<Anatomy
+  name="timeline-entry"
+  parts={[
+    { name: "TimelineEntry", describes: "The root, a single list item. It takes colour from neither axis, so an entry is safe to drop into a category-tinted surface, and it holds no fixed height, so every part grows and wraps at larger text sizes rather than clipping.", prop: "when" },
+    { name: "TimelineEntry.Rail", describes: "The neutral vertical column on the left, holding the marker and, unless this is the last entry, the connector line beneath it. It carries aria-hidden, so the whole drawing is out of the accessibility tree and the content beside it is the announcement. Never a category or a status tint.", prop: "isLast" },
+    { name: "TimelineEntry.Marker", describes: "The dot on the rail. A muted fill and a hairline border, neutral chrome and nothing more. It never changes colour with the status: a status rides the pill instead." },
+    { name: "TimelineEntry.Time", describes: "The recorded time, rendered by the system RelativeTime with the event word fixed at Recorded. The exact date and time are in the accessibility tree at every age and join the phrase on screen once the entry is older than a day, as RelativeTime does everywhere.", prop: "now" },
+    { name: "TimelineEntry.Title", describes: "What happened, in the reader's words, with any status pill beside it. The status pill sits here rather than in a running sentence, so a wrapping row drops the pill to its own line and keeps the title whole.", prop: "title" },
+    { name: "StatusPill", describes: "The level the product assigned, rendered by the system StatusPill at its sm size: a word from the clinical vocabulary, one of four distinct glyphs, and a bordered tinted capsule. It stamps data-status. Rendered only when status is supplied, and it is the only element in the entry that carries an axis colour.", prop: "status" },
+    { name: "TimelineEntry.Body", describes: "The product's own detail beneath the title, in muted body text. Colour from neither axis. Absent when no children are given.", prop: "children" },
+  ]}
+/>
+
+<CompositionTree
+  name="timeline-entry"
+  tree={[
+    {
+      part: "TimelineEntry",
+      cardinality: "1",
+      note: "data-slot=\"timeline-entry\", a li element. Neither data-status nor data-category.",
+      children: [
+        { part: "TimelineEntry.Rail", cardinality: "1", note: "data-slot=\"timeline-entry-rail\", aria-hidden=\"true\". Holds the marker and the connector.", children: [
+          { part: "TimelineEntry.Marker", cardinality: "1", note: "data-slot=\"timeline-entry-marker\". Neutral muted fill and hairline." },
+        ] },
+        { part: "TimelineEntry.Time", cardinality: "1", note: "data-slot=\"timeline-entry-time\", wrapping a RelativeTime with event fixed at recorded." },
+        { part: "TimelineEntry.Title", cardinality: "1", note: "data-slot=\"timeline-entry-title\".", children: [
+          { part: "StatusPill", cardinality: "0..1", note: "data-slot=\"status-pill\", data-status=\"<level>\". Absent when no status was supplied." },
+        ] },
+        { part: "TimelineEntry.Body", cardinality: "0..1", note: "data-slot=\"timeline-entry-body\". Absent when no children are given." },
+      ],
+    },
+  ]}
+/>
+
+The parts are `data-slot` names, not exports. There is no `TimelineEntry.Rail` to import and
+the entry is not composable: which parts exist is decided by the props, so a status pill
+appears only when a status was given, a body only when there were children, and the
+connector only when the entry is not the last. The connector line inside the rail has no
+`data-slot` of its own; it is drawn or not drawn from `isLast` and styled through the rail.
+
+The root is a list item, and it wants a list around it. Place your TimelineEntry elements
+inside your own `ol` or `ul` so a screen reader announces the history as a list of so many
+items. The component supplies the item and the product supplies the list, which is the same
+split that keeps a data model out of opsinjs.
+
+## Examples
+
+### A history on one rail
+
+Every row names its event and dates it, the connector runs from the first entry to the last
+and stops there, and one row carries a status the product assigned. An age is read faster
+down a rail than a column of full dates, and the status sits on a pill rather than colouring
+the row.
+
+<ComponentPreview name="timeline-entry-in-a-history" kind="example" align="start" />
+
+### The status rides the pill
+
+Two entries that are identical but for the status. The first carries one and the second does
+not, and the rail, the marker and the entry are the same neutral chrome in both. The status
+changes the pill beside the title and changes nothing else, which is what keeps a record of
+an event out of the two colour axes.
+
+<ComponentPreview name="timeline-entry-with-a-status" kind="example" align="start" />
+
+## Content guidelines
+
+Name the event in the title as something that happened: `Repeat prescription issued`, `Blood
+test booked`, `Appointment attended`. A title that is a bare noun leaves the reader to guess
+whether the thing was done, is due, or was cancelled, and the recorded time cannot answer
+that on its own.
+
+Let the status say only what the product's own rule says, and let it stay on the pill. If
+you feel the pull to colour the whole row so a serious event stands out, that pull is the
+bug: a tinted row is a status carried by colour alone, and a reader cannot tell it from a
+category tint or read it in greyscale.
+
+<DoDont>
+  <DoDont.Do>
+    **"Repeat prescription issued" with the recorded time beneath it and, where the product assigned one, a status on a pill beside the title.** Names the event, dates it, and keeps any verdict on the pill where it carries a word and a glyph.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **The whole entry tinted amber to signal the event needs attention.** It paints a status colour onto the record of an event, leaves a reader unable to tell it from a category tint, and drops the word and glyph a status needs to survive greyscale.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **"Blood test booked" as one entry among several, in a list the product lays out.** One event, one item, and the product owns the order and the shape of the history around it.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **Reaching for TimelineEntry to render and manage the entire history.** It is one entry on purpose. A component that owned the list would own a data model, which is the reason a full timeline was declined.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility
+
+Some of this is enforced by a gate on every pull request, and the rest is argued from the
+source and labelled as such. Alpha promises only that accessibility is claimed where it has
+been checked, with the gaps listed rather than left out, and nothing here has been through a
+review with a disabled user.
+
+**Argued, and true of the implementation, but not yet measured.** The rail and the marker
+carry `aria-hidden`, so the drawing is out of the accessibility tree and a screen reader
+meets the recorded time, the title, any status word and the body in reading order, with
+nothing said twice. The recorded time is the system RelativeTime, so the exact date and time
+are always in the accessibility tree even when the phrase alone is on screen. The status,
+where there is one, rides a StatusPill that carries its own word and glyph, so the level
+survives greyscale and does not depend on the pill's colour. Nothing in the entry is
+focusable, because nothing in it is a control.
+
+**The list is the product's to provide.** The root is a list item, and it announces as one
+item of a list only when a product places it inside an `ol` or `ul`. A lone entry outside a
+list is still readable but loses the count, so the page asks you to wrap your entries as the
+examples do.
+
+**Not checked at all, and listed rather than omitted.** No contrast pair has been put in
+front of a machine: the muted marker and the hairline connector are painted on whatever
+ground the host provides, and that pairing is unmeasured. Marker alignment against the time
+at 200 percent text has not been checked, and no screen reader has met the component.
+
+<KeyboardTable
+  name="timeline-entry"
+  rows={[
+    { keys: "Tab", action: "Skips the entry", notes: "Nothing in a TimelineEntry is focusable, and that is the contract rather than an omission. It is a record of an event somebody else wrote, not a control, so a tab stop that did nothing would be one a keyboard user pays for on every row of a history." },
+    { keys: "Shift + Tab", action: "Skips the entry", notes: "Same in reverse. The recorded time, the title and the body are reached by reading, not by operating anything, in either direction." },
+  ]}
+/>
+
+<ContrastReport component="timeline-entry" />
+
+## API reference
+
+`when`, `now` and `title` are required. `when` is ISO 8601 with an offset, the same
+contract RelativeTime enforces on its `at`, and `now` is the reference instant, taken as a
+prop because this component never reads the clock. `now` accepts a Date, a number or a
+string for the caller's convenience and is normalised to an ISO string before it reaches
+RelativeTime. `status` is optional and is the four-level clinical union shared across the
+system; a value outside the four is refused by StatusPill itself and no pill is drawn.
+`isLast` stops the connector so the rail does not trail past the final entry. The event word
+is fixed at `Recorded` and is not a prop, and no `locale` is forwarded, so a product that
+needs either composes RelativeTime directly.
+
+<PropsTable name="TimelineEntryProps" />
+
+## Related
+
+<RelatedComponents name="timeline-entry" />
+
+**Easily confused with**
+
+- [RelativeTime](./relative-time.mdx) renders the recorded time inside this entry, and on
+  its own it is the time and nothing else. A bare time is a RelativeTime, and an event with
+  a time beneath it is a TimelineEntry.
+- [Card](./card.mdx) places a bounded block around related content, and a TimelineEntry can
+  sit inside one where a history needs more than a rail. A card holds content, and a
+  timeline entry places one dated event on a rail.
+- [TrendSparkline](./trend-sparkline.mdx) renders one reading as it moves over time, where
+  this lists distinct events. A falling reading is a sparkline, and a booked appointment is
+  a timeline entry.
+
+**Used by**
+
+- [Daily log screen](../screens/daily-log-screen.mdx) places TimelineEntry in the history list it lays out.
+
+**Governed by**
+
+- [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx)
+- [Trends and change](../health/trends-and-change.mdx)

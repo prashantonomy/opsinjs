@@ -1,39 +1,262 @@
 ---
-title: "BodyMap"
-description: "A diagram of a body for pointing at where something hurts."
-status: considered
+title: BodyMap
+description: A neutral, non-realistic body schematic for pointing at where something is. It is a multi-select input that records region keys and interprets nothing about them, so the product owns every word and every meaning.
+status: alpha
 kind: component
 since: "unreleased"
-category: "health-input"
+category: health-input
 aliases: ["pain map", "anatomy diagram", "where does it hurt"]
+governedBy: [two-colour-axes]
 ---
 
-{/* GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts (status: considered).
-    Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`.
-    Rationale: content/docs/project/decisions/0008-considered-components-resolve.mdx.
-    Source hash c922721d46e3. */}
+## Status
 
-<PageTemplate kind="component" status="considered" category="health-input" />
-
-<StubNotice name="body-map" status="considered">
-  **BodyMap is not built, and it has no specification.** The name is recorded in
-  the catalogue so that this address answers instead of returning a 404.
-  The reason is not that the component is coming.
+<StubNotice
+  name="body-map"
+  status="alpha"
+  questions={[
+    "Not screen-reader tested. The group is a set of native toggle buttons with aria-pressed and a per-region aria-label, which is argued rather than verified against VoiceOver, NVDA or TalkBack.",
+    "Each region is its own tab stop, so the default nine-region schematic is nine stops. Whether the diagram should become a single roving toolbar to shorten that sequence is undecided, and the checkbox list is offered as the primary keyboard path meanwhile.",
+    "The abstract silhouette has not been reviewed for whether it reads as neutral to every reader. It is deliberately non-realistic, and this page says so, but no user research backs the choice yet.",
+    "Region markers carry their name through aria-label only, with no visible on-figure text. Whether visible labels fit without overlap at 200 percent text is unmeasured.",
+  ]}
+>
+  <code className="text-sm">body-map</code> is implemented and installable. It is{" "}
+  <strong className="font-medium">alpha</strong>: it works and it is documented, the API may
+  change in any release without a deprecation cycle, and it is not for a production health
+  surface yet.
 </StubNotice>
 
-## What this name refers to
+BodyMap is the most careful build in the system, because a body diagram makes a claim about
+who the reader is before it records anything. Its answer is to draw nobody in particular. The
+figure is an abstract outline, front and back, and the component records only which regions
+the reader pointed at. It names no symptom, grades no severity, and decides nothing about
+what a marked region means.
 
-A diagram of a body for pointing at where something hurts.
+It is a controlled multi-select. You hand it the regions and the current selection, and it
+hands back the next selection. Everything a marked region could be taken to mean stays with
+the product that reads the value.
 
-## Why it is not on the roster
+## Preview
 
-A body diagram must represent a range of bodies, ages, skin tones and disabilities, or it tells some readers they are not the intended user. Doing that properly is an illustration commission, not a component.
+Mark a region and read the result in greyscale. The claim this component has to earn is that
+a selected region is distinguishable without colour, so check that the muted fill, the
+hairline and the tick tell a marked region from an unmarked one with the hue removed. Left
+and right are the person's own sides, so the "Left arm" marker sits on the viewer's right.
 
-## What to use instead
+<ComponentPreview name="body-map" />
 
-Use [Field](field.mdx) instead.
+## Installation
 
-Do not generate code against this page. It documents an absence. The
-machine-readable list of every component id and its status is at
-`/r/index.json`, and the [status matrix](index.mdx) shows the same rows for
-a human reader.
+<ComponentInstall name="body-map" unbuilt={false} importPath="@/components/ui/body-map" />
+
+## Usage
+
+```tsx
+import { BodyMap } from "@/components/ui/body-map"
+```
+
+```tsx
+<BodyMap
+  label="Where are you noticing something?"
+  value={regions}
+  onValueChange={setRegions}
+/>
+```
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Letting someone point at one or more general regions of the body, as structured input a product will interpret on its own terms.",
+    "Capturing a coarse location beside a free-text note or a reading, where a key like left-arm is more reliable to work with than a sentence.",
+    "Offering a faster alternative to a long checkbox list, while keeping that list available for keyboard and assistive-technology users.",
+  ]}
+  avoid={[
+    { case: "You are recording one specific measurement or reading rather than a location.", instead: "reading-input" },
+    { case: "You need a realistic figure that represents a particular body, age or condition.", instead: "field" },
+    { case: "You are asking how strong or how bad something is rather than where it is.", instead: "scale-input" },
+    { case: "The answer is really free text and a diagram would only get in the way.", instead: "field" },
+  ]}
+/>
+
+The exclusion that matters is realism. If a product needs an anatomically detailed figure,
+this component is the wrong tool and always will be, because a detailed figure is an
+illustration commission that has to represent a range of bodies rather than one abstract
+outline. Use a labelled [Field](./field.mdx) and words instead. What BodyMap offers is a
+coarse, neutral pointer, and its honesty depends on staying coarse.
+
+## Clinical meaning
+
+**What it asserts.** Only that the reader indicated these regions. Nothing more. It does not
+assert what is there, whether it hurts, how strongly, since when, or what it means. A marked
+"chest" is the reader pointing at their chest, and it is not a symptom, not a finding, and
+not a diagnosis.
+
+**What it must never be read as.** A symptom checker, a triage, or a diagnosis. The
+component runs no rules over a selection and reaches no conclusion from it. A product that
+treats a marked region as evidence of a condition has added a judgement the component does
+not make and does not endorse, and it owns that judgement completely.
+
+**Which colour axis it may use.** Neither. A marked region carries no clinical level and
+names no category, so a selection is shown with a muted fill, a hairline and a tick, and
+never with a hue. Painting a region in a status colour would say the location is urgent, and
+painting it in a category colour would say which body system it belongs to, and both are
+claims this input has no basis to make. See [The two colour axes](../health/two-colour-axes.mdx).
+
+**Who owns the region vocabulary and any interpretation.** The consuming product. The
+component ships a generic set of region words so it has something to render, and a product
+replaces them with its own copy and its own language. What a marked region is taken to mean,
+and whether a selection triggers anything at all, is the product's decision and never the
+component's.
+
+## Anatomy
+
+<Anatomy
+  name="body-map"
+  parts={[
+    { name: "BodyMap", describes: "The root. A group (role=group) named by label, laying out the figures. Carries data-slot=\"body-map\" and neither data-status nor data-category, because a selection carries no clinical level and names no category.", prop: "label" },
+    { name: "Figure", describes: "One neutral schematic per view, front or back, as a group named for the view. An abstract silhouette drawn from a circle and rounded rectangles, aria-hidden and non-interactive, with the region buttons positioned over it. Carries data-slot=\"body-map-figure\".", prop: "view" },
+    { name: "Region", describes: "One toggle per region: a native button with aria-pressed for its selected state and an aria-label from the region label. Selected is a muted fill, a hairline and a tick; unselected is a card fill, a hairline and a plus. Carries data-slot=\"body-map-region\".", prop: "regions" },
+  ]}
+/>
+
+<CompositionTree
+  name="body-map"
+  tree={[
+    {
+      part: "BodyMap",
+      cardinality: "1",
+      note: "data-slot=\"body-map\", role=\"group\" named by label",
+      children: [
+        {
+          part: "Figure",
+          cardinality: "1 to 2",
+          note: "data-slot=\"body-map-figure\", one per view, role=\"group\" named for the view",
+          children: [
+            { part: "Region", cardinality: "0 or more", note: "data-slot=\"body-map-region\", a native button with aria-pressed and aria-label" },
+          ],
+        },
+      ],
+    },
+  ]}
+/>
+
+The silhouette is not a part you can style through a slot, on purpose. It is decorative and
+aria-hidden, and it is drawn from primitive shapes rather than a lifelike outline so that it
+is abstract by construction. A product that needs the figure to look like a specific body
+should not be reaching for this component at all.
+
+## Examples
+
+### Pointing at what hurts
+
+The base case: a controlled multi-select over the front and back schematic. Mark a region
+and the count updates. Read it in greyscale to confirm a marked region stands out on its
+fill, its hairline and its tick, not its colour.
+
+<ComponentPreview name="body-map-pointing-at-what-hurts" kind="example" align="start" />
+
+### Pairing the map with a checkbox list
+
+A diagram is a spatial control, so it is offered alongside a plain list rather than instead
+of one. Here the map and a native checkbox list are bound to the same selection, so a reader
+can answer with whichever suits them and a keyboard or assistive-technology user has a
+robust path to the identical result. Ship both together.
+
+<ComponentPreview name="body-map-with-a-checkbox-list" kind="example" align="start" />
+
+## Content guidelines
+
+Label the group with the question the reader is answering, and keep the region words plain.
+"Head", "Left arm" and "Lower back" say where without saying anything the map cannot
+support. Do not smuggle a diagnosis or a symptom into a region label, and do not read one
+out of a selection.
+
+<DoDont>
+  <DoDont.Do>
+    **A group labelled "Where are you noticing something?" with regions named "Chest" and "Left arm".** The words say where, and nothing more, which is all the input can honestly carry.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A region relabelled "Chest pain" or "Fracture".** That is a symptom or a diagnosis the map cannot make, presented as though the reader confirmed it by pointing.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **The map shipped next to a checkbox list bound to the same answer.** Some readers point, some read a list, and both reach the same value.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **The map as the only way to answer.** A spatial control with no list behind it shuts out readers for whom pointing at a small target is the hard part.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility
+
+Every region is a real, focusable, labelled button, so the map is reachable and operable
+from the keyboard, and its selected state is carried by `aria-pressed` rather than by any
+pixel. That is argued from the implementation rather than verified by a screen-reader pass,
+and the gaps are listed rather than left out, which is what `alpha` promises.
+
+**Argued, and true of the implementation, but not yet tested:**
+
+- **Each region is a button with a name.** The button's accessible name is the region
+  label, and its pressed state is `aria-pressed`, so a screen-reader user hears the region
+  and whether it is marked. The whole map is a group named by `label`, and each figure is a
+  group named for its view.
+- **The selected state is not colour.** A marked region gains a muted fill, a hairline and a
+  tick, and an unmarked one shows a plus, so the difference survives greyscale, a reader
+  stylesheet that strips fills, and colour vision deficiency. The pixel is a backstop;
+  `aria-pressed` is the carrier.
+- **The targets meet the floor.** Each marker is at least the 44 by 44 minimum on both axes,
+  carried in `rem` so it grows with the reader's text size, with a literal fallback for an
+  app that has not wired the token sheet.
+- **Left and right are the subject's sides.** The `left-arm` marker sits on the viewer's
+  right, matching clinical convention, so a product's own copy and any read-back stay
+  consistent with how the reader would name their own side.
+
+**Known gaps, listed rather than omitted:**
+
+- **A map is a spatial control.** Pointing at a target is exactly the task some readers
+  cannot do, which is why the page pairs the map with a checkbox list bound to the same
+  value and asks a product to ship both. The list is the robust path, not a courtesy.
+- **The default schematic is nine tab stops.** Each region is its own stop, so a full front
+  and back map is a long tab sequence. Whether it should become a single roving toolbar is
+  an open question above.
+- **Increased contrast and forced colours are unverified.** The markers draw only neutral
+  chrome roles and carry no `forced-colors:` rule of their own, so under a high-contrast
+  theme they inherit whatever the surface does and nothing more. Nobody has opened the map
+  under a real high-contrast theme yet.
+
+<KeyboardTable
+  name="body-map"
+  rows={[
+    { keys: "Tab", action: "Moves to the next region", notes: "Each region is a button and its own tab stop, so the default nine-region map is nine stops. That is why the checkbox list is offered as the primary keyboard path." },
+    { keys: "Shift + Tab", action: "Moves to the previous region", notes: "The same sequence in reverse." },
+    { keys: "Space or Enter", action: "Toggles the focused region", notes: "Native button activation. aria-pressed flips, and the fill, the hairline and the tick follow it." },
+  ]}
+/>
+
+<ContrastReport component="body-map" />
+
+## API reference
+
+<PropsTable name="BodyMapProps" />
+
+## Related
+
+<RelatedComponents name="body-map" />
+
+**Easily confused with**
+
+- [ReadingInput](./reading-input.mdx) records a measurement rather than a location, so reach for it when the answer is a number and a unit.
+- [Field](./field.mdx) wraps a single control, and a free-text description of where something is belongs in one.
+- `scale-input` records how strong something is rather than where it is. Its status is considered and it has no page yet, so the [roster](./index.mdx) is where it appears.
+
+**Used by**
+
+- Nothing uses BodyMap yet. It is newly at `alpha` and no pattern, recipe or screen composes it so far.
+
+**Governed by**
+
+- [The two colour axes](../health/two-colour-axes.mdx)

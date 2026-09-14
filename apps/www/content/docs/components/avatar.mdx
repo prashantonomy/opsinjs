@@ -1,39 +1,256 @@
 ---
-title: "Avatar"
-description: "A picture or initials standing for a person."
-status: considered
+title: Avatar
+description: A picture or initials standing for a person, with the person's name as its accessible label and a neutral fallback when there is no picture.
+status: alpha
 kind: component
 since: "unreleased"
-category: "utility"
-aliases: ["profile picture", "initials", "user image"]
+category: utility
+aliases: [profile picture, initials, user image]
 ---
 
-{/* GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts (status: considered).
-    Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`.
-    Rationale: content/docs/project/decisions/0008-considered-components-resolve.mdx.
-    Source hash c922721d46e3. */}
+## Status
 
-<PageTemplate kind="component" status="considered" category="utility" />
-
-<StubNotice name="avatar" status="considered">
-  **Avatar is not built, and it has no specification.** The name is recorded in
-  the catalogue so that this address answers instead of returning a 404.
-  The reason is not that the component is coming.
+<StubNotice
+  name="avatar"
+  status="alpha"
+  questions={[
+    "No contrast pair has been measured for the initials ink or the person glyph on the muted fill an avatar sits on. The neutral token pair is published below, and this component's own rendered pixels are not.",
+    "Nobody has listened to it in a screen reader, so whether the name reads cleanly through role=\"img\" and whether the decorative glyph stays silent are both unverified.",
+    "Initials are taken by Unicode code point, not by grapheme cluster, so a name whose first character carries a combining mark can lose the mark. Intl.Segmenter would fix it and has not been adopted.",
+    "The fallback chain has no loading tier. A slow picture shows the initials first and then replaces them, and whether that flash of initials is acceptable has not been reviewed.",
+  ]}
+>
+  <code className="text-sm">avatar</code> is implemented and installable. It is{" "}
+  <strong className="font-medium">alpha</strong>: it works and it is
+  documented, the API may change in any release without a deprecation cycle,
+  and it is not for a production health surface yet.
 </StubNotice>
 
-## What this name refers to
+An avatar answers one question, who, and it answers it in the fastest way a screen can. A
+face beside a message, a circle of initials beside a name in a list, a neutral person where
+neither is known. It carries no other meaning, and the discipline in this component is
+mostly about the meanings it refuses to carry.
 
-A picture or initials standing for a person.
+The name is the whole of it. It is the picture's alt text and the source of the initials at
+once, so a screen reader and a sighted reader are told the same thing from the same field,
+and there is no way for the two to drift apart. What opsinjs does not supply is the picture.
+A photo of a person is the product's to store, to serve and to moderate, and this component
+draws the circle around whatever the product hands it without vouching for what is inside.
 
-## Why it is not on the roster
+## Preview
 
-Straightforward to build and full of representation decisions. Those decisions are default imagery, initials for names that do not have them, and what a clinician's avatar implies about who wrote a message.
+The avatar at its three sizes, each carrying initials derived from a fictional name, because
+opsinjs ships no photograph of any person. The state where a picture loads, and the state
+where neither a picture nor a name is supplied, are shown below under Examples.
 
-## What to use instead
+<ComponentPreview name="avatar" />
 
-Use [Card](card.mdx) instead.
+## Installation
 
-Do not generate code against this page. It documents an absence. The
-machine-readable list of every component id and its status is at
-`/r/index.json`, and the [status matrix](index.mdx) shows the same rows for
-a human reader.
+<ComponentInstall
+  name="avatar"
+  unbuilt={false}
+  importPath="@/components/ui/avatar"
+  dependencies={["lucide-react"]}
+/>
+
+The one dependency is `lucide-react`, for the neutral person glyph the avatar shows when
+there is neither a picture nor a usable name.
+
+## Usage
+
+```tsx
+import { Avatar } from "@/components/ui/avatar"
+```
+
+```tsx
+<Avatar name="Ada Vance" src="/people/ada-vance.jpg" size="md" />
+```
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Beside a person's name in a message, a comment or a care-team list, so a reader can tell one author from another at a glance.",
+    "As the fallback identity for a person with no photo, where initials or a neutral person glyph stand in without pretending a picture exists.",
+    "At a small fixed size in a dense list, where a full name would not fit but a circular mark and its accessible name still identify the person.",
+  ]}
+  avoid={[
+    { case: "You want the mark to open a menu or a profile when it is pressed.", instead: "icon-button" },
+    { case: "You are showing a count or a short status word rather than a person.", instead: "badge" },
+    { case: "You need a round placeholder to hold an avatar's space while its picture is still loading.", instead: "skeleton" },
+    { case: "You are trying to show who wrote a piece of health guidance and on whose authority.", instead: "source-citation" },
+  ]}
+/>
+
+The avatar is not a control, and the moment a face becomes pressable it becomes something a
+keyboard user has to be able to reach and a screen reader has to announce as a button. That
+is a different component. Wrap the avatar in a button or a link when a press has to do
+something, and let the wrapper own the focus and the name while the avatar rides along
+inside it. And resist the urge to let an avatar carry authority. A clinician's face styled
+to look more official than a patient's would say on whose authority a message stands, which
+is a claim a product makes in words, through a citation, and never a claim a circle makes by
+looking the part.
+
+## Anatomy
+
+<Anatomy
+  name="avatar"
+  parts={[
+    {
+      name: "Avatar",
+      describes: "The root. A neutral circle with a muted fill and a hairline boundary, sized in rem so it grows with the reader's text. It carries the person's name as its accessible label whenever a fallback is shown, and it is never a control.",
+      prop: "size",
+    },
+    {
+      name: "Avatar.Image",
+      describes: "The picture, when the product supplies one and it loads. Its alt text is the person's name. If it fails to load it is dropped and the fallback takes its place, so a broken URL is never a broken image icon on screen.",
+      prop: "src",
+    },
+    {
+      name: "Avatar.Fallback",
+      describes: "What shows when there is no picture: the initials derived from the name, or a neutral lucide User glyph when the name yields no initials. It is hidden from assistive technology, because the name is on the root.",
+      prop: "name",
+    },
+  ]}
+/>
+
+<CompositionTree
+  name="avatar"
+  tree={[
+    {
+      part: "Avatar",
+      cardinality: "1",
+      note: "data-slot=\"avatar\". When a fallback shows it takes role=\"img\" with aria-label set to the name; when the image shows it is a plain container and the image's alt carries the name. No data-status, no data-category, no data-opsinjs-value.",
+      children: [
+        {
+          part: "Avatar.Image",
+          cardinality: "0..1",
+          note: "data-slot=\"avatar-image\". An img whose alt is the person's name; its onError drops it in favour of the fallback.",
+        },
+        {
+          part: "Avatar.Fallback",
+          cardinality: "0..1",
+          note: "data-slot=\"avatar-fallback\", aria-hidden. Holds the initials text or the User glyph, which is itself aria-hidden.",
+        },
+      ],
+    },
+  ]}
+/>
+
+Exactly one of the image and the fallback renders at a time, never both. The parts are
+reachable by `data-slot` for styling and none of them is a separate export, so there is no
+way to render a fallback without the root or to assemble a value-shaped badge out of the
+pieces.
+
+## Examples
+
+### A name becomes its initials
+
+Names are not all one shape, and the initials have to hold up across the shapes a real
+product meets. A two-part name gives its first and last initials, a single name gives one,
+and a non-Latin name keeps its own script rather than being transliterated into a guess.
+
+<ComponentPreview name="avatar-initials-from-a-name" kind="example" align="start" />
+
+### The fallback chain, one tier at a time
+
+The same avatar with three different things behind it: a picture that loads, a name with no
+picture, and neither a picture nor a name. Each tier asserts less than the one above it, and
+the last is a neutral person that says somebody without pretending to say who.
+
+<ComponentPreview name="avatar-the-fallback-chain" kind="example" align="start" />
+
+## Content guidelines
+
+Pass the person's real name, spelled the way they spell it, and pass nothing else through
+`name`. It is the alt text a screen reader reads and the source of the initials at once, so
+a placeholder like "User" or "Unknown" becomes both a wrong label and wrong initials. When
+there is genuinely no person, there is no avatar to draw.
+
+A photo is the product's to supply and to moderate. opsinjs ships no default face and no
+placeholder person, and it does not check, crop or filter what a `src` points at. If a
+product cannot stand behind an uploaded image, it should not pass it, and the initials will
+carry the person until it can.
+
+<DoDont>
+  <DoDont.Do>
+    **"Ada Vance", with her photo, or "AV" when there is none.** One field feeds
+    both the picture's alt text and the initials, so the label and the mark can
+    never say different things.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A generic silhouette used for everyone, with no name behind it.** A
+    nameless circle identifies nobody, and a screen reader announces an
+    unlabelled image or says nothing at all.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility
+
+The avatar is presentation, not interaction. It takes no focus and is not a tab stop,
+because it does nothing when it is pressed. When it sits inside a button or a link, that
+control owns the focus and the accessible name, and the avatar is decorative inside it.
+
+When the avatar shows a fallback, the root becomes `role="img"` with the person's name as
+its `aria-label`, and the initials or the glyph inside are hidden, so a listener hears the
+name once rather than hearing a stray letter or nothing. When the avatar shows a picture,
+the picture's own `alt` carries the name and the root stays a plain container, so the name
+is still announced once. A name that is empty is the one gap: the component cannot invent a
+label, so it warns in development, draws the neutral person glyph, and leaves the circle
+unlabelled rather than announcing a nameless image.
+
+The circle is sized in rem, so it grows when the reader enlarges text rather than staying
+fixed while everything around it grows. The contrast of the initials and the glyph on the
+muted fill is drawn from the theme's neutral pair and has not been measured on this
+component's own surfaces, which is one of the open questions above.
+
+<KeyboardTable
+  name="avatar"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Skips the avatar",
+      notes: "The avatar is not focusable and is not a tab stop. It presents a person, it does not act, so there is nothing to focus. Inside a button or a link, that wrapping control is the tab stop and the avatar is not.",
+    },
+    {
+      keys: "Shift + Tab",
+      action: "Skips the avatar in reverse",
+      notes: "Reverse order matches forward order, because the avatar is absent from the tab sequence in both directions.",
+    },
+    {
+      keys: "Enter",
+      action: "Does nothing here",
+      notes: "Listed as a real answer rather than a gap: the avatar captures no key and activates on none. A wrapping link or button owns Enter when there is one.",
+    },
+  ]}
+/>
+
+<ContrastReport component="avatar" />
+
+## API reference
+
+<PropsTable name="AvatarProps" />
+
+`name` is the only required prop, and it is required for a reason the type cannot enforce on
+its own: a JavaScript caller can still pass an empty string. When it resolves to nothing,
+the component warns in development and falls back to the neutral person glyph rather than
+rendering a circle that names nobody. `src` is optional, and a missing or broken one is a
+fallback rather than an error. `size` changes only the diameter, never the meaning.
+
+## Related
+
+<RelatedComponents name="avatar" />
+
+**Easily confused with**
+
+- [IconButton](./icon-button.mdx) is a control you press. An avatar presents a person and
+  does nothing when it is tapped.
+- [Badge](./badge.mdx) is a count or a short status word. An avatar is a person, not a
+  label.
+- [Skeleton](./skeleton.mdx) is the round placeholder that holds an avatar's space while a
+  picture loads. An avatar is what arrives once it has.
+
+**Used by**
+
+- Nothing in the corpus uses Avatar yet.

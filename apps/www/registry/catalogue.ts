@@ -34,14 +34,14 @@
  * two words that divergence has already cost.
  * ────────────────────────────────────────────────────────────────────────────
  *
- * TWENTY-SEVEN ROWS ARE BUILT: twenty-five at `status: "beta"` and two
- * (`segmented-control` and `source-citation`) at `status: "alpha"`. Each has a
+ * THIRTY-SEVEN ROWS ARE BUILT: twenty-five at `status: "beta"` and twelve at
+ * `status: "alpha"`. Each has a
  * file at `registry/bases/base/<id>.tsx`, renders at
  * `/view/base/base-lyra/component/<id>`, and installs with `shadcn add`. Neither
  * phase is a promise of full stability: at alpha the API may change in any
  * release without a deprecation cycle, at beta it breaks only in a minor release
  * with a documented migration, and none of it has been through an accessibility
- * or clinical review. The other thirty-three rows carry `status: "considered"`,
+ * or clinical review. The other twenty-three rows carry `status: "considered"`,
  * which is a reserved name and a reason to reach for something else, with no
  * code and no hand-written page. The only page any of them has is a stub that
  * `scripts/build-registry.mts` generates from the row, so the address answers
@@ -241,7 +241,7 @@ export interface CatalogueEntry {
 }
 
 /**
- * THE TWENTY-SEVEN SHIPPED IDS. Every one has a specification page at
+ * THE THIRTY-SEVEN SHIPPED IDS. Every one has a specification page at
  * `/docs/components/<id>` and a row in `/r/index.json`. Order within a category
  * is the order they appear in the sidebar.
  */
@@ -449,6 +449,36 @@ export const SHIPPED: CatalogueEntry[] = [
     ],
     contrastScopes: ["neutral", "status"],
     dependencies: ["lucide-react"],
+  },
+  {
+    name: "timeline-entry",
+    title: "TimelineEntry",
+    description: "One dated event in a vertical history.",
+    category: "health-data-display",
+    status: "alpha",
+    since: "unreleased",
+    aliases: ["history item", "event list", "activity feed"],
+    owner: "design",
+    a11yDate: null,
+    governedBy: ["uncertainty-and-staleness", "trends-and-change"],
+    registryDependencies: ["relative-time", "status-pill"],
+    usedIn: ["daily-log-screen"],
+    contrastScopes: ["neutral"],
+  },
+  {
+    name: "range-legend",
+    title: "RangeLegend",
+    description: "The key explaining what the bands on a range mean.",
+    category: "health-data-display",
+    status: "alpha",
+    since: "unreleased",
+    aliases: ["key", "chart legend", "band legend"],
+    owner: "design",
+    a11yDate: null,
+    governedBy: ["reference-ranges", "two-colour-axes"],
+    dependencies: ["lucide-react"],
+    usedIn: ["trends-screen"],
+    contrastScopes: ["neutral", "status"],
   },
 
   {
@@ -710,6 +740,19 @@ export const SHIPPED: CatalogueEntry[] = [
     ],
     contrastScopes: ["neutral"],
   },
+  {
+    name: "body-map",
+    title: "BodyMap",
+    description: "A diagram of a body for pointing at where something hurts.",
+    category: "health-input",
+    status: "alpha",
+    since: "unreleased",
+    aliases: ["pain map", "anatomy diagram", "where does it hurt"],
+    owner: "design",
+    a11yDate: null,
+    governedBy: ["two-colour-axes"],
+    contrastScopes: ["neutral"],
+  },
 
   {
     name: "value",
@@ -773,6 +816,20 @@ export const SHIPPED: CatalogueEntry[] = [
       "trend-review",
       "trends-screen",
     ],
+    contrastScopes: ["neutral"],
+  },
+
+  {
+    name: "table",
+    title: "Table",
+    description: "Rows and columns of data.",
+    category: "data-display",
+    status: "alpha",
+    since: "unreleased",
+    aliases: ["data table", "grid", "rows and columns"],
+    owner: "engineering",
+    a11yDate: null,
+    usedIn: ["trends-screen"],
     contrastScopes: ["neutral"],
   },
 
@@ -949,6 +1006,34 @@ export const SHIPPED: CatalogueEntry[] = [
     contrastScopes: ["neutral"],
   },
   {
+    name: "tab-bar",
+    title: "TabBar",
+    description:
+      "The persistent bar of top-level destinations at the bottom of the screen.",
+    category: "navigation",
+    status: "alpha",
+    since: "unreleased",
+    aliases: ["bottom navigation", "nav bar"],
+    owner: "design",
+    a11yDate: null,
+    dependencies: ["lucide-react"],
+    registryDependencies: ["surface"],
+    contrastScopes: ["materials", "neutral"],
+  },
+  {
+    name: "stepper",
+    title: "Stepper",
+    description: "Progress through a sequence of steps.",
+    category: "navigation",
+    status: "alpha",
+    since: "unreleased",
+    aliases: ["wizard", "step indicator", "multi step"],
+    owner: "design",
+    a11yDate: null,
+    dependencies: ["lucide-react"],
+    contrastScopes: ["neutral"],
+  },
+  {
     name: "button",
     title: "Button",
     description: "The control that makes something happen.",
@@ -1030,6 +1115,59 @@ export const SHIPPED: CatalogueEntry[] = [
     ],
     contrastScopes: ["neutral"],
   },
+  {
+    name: "icon-button",
+    title: "IconButton",
+    description: "A button whose only visible content is an icon.",
+    category: "actions-and-forms",
+    status: "alpha",
+    since: "unreleased",
+    aliases: ["glyph button", "round button"],
+    owner: "design",
+    a11yDate: null,
+    dependencies: ["lucide-react"],
+    registryDependencies: ["button"],
+    contrastScopes: ["neutral"],
+  },
+
+  {
+    name: "divider",
+    title: "Divider",
+    description: "A line separating two groups of content.",
+    category: "layout",
+    status: "alpha",
+    since: "unreleased",
+    aliases: ["separator", "rule"],
+    owner: "design",
+    a11yDate: null,
+    contrastScopes: ["neutral"],
+  },
+
+  {
+    name: "avatar",
+    title: "Avatar",
+    description: "A picture or initials standing for a person.",
+    category: "utility",
+    status: "alpha",
+    since: "unreleased",
+    aliases: ["profile picture", "initials", "user image"],
+    owner: "design",
+    a11yDate: null,
+    dependencies: ["lucide-react"],
+    contrastScopes: ["neutral"],
+  },
+  {
+    name: "visually-hidden",
+    title: "VisuallyHidden",
+    description: "Content that screen readers announce and eyes do not see.",
+    category: "utility",
+    status: "alpha",
+    since: "unreleased",
+    aliases: ["sr only", "screen reader only", "clip"],
+    owner: "engineering",
+    a11yDate: null,
+    contrastScopes: ["neutral"],
+  },
 ]
 
 /**
@@ -1087,19 +1225,6 @@ export const CONSIDERED: CatalogueEntry[] = [
     useInstead: ["log-sheet", "care-card"],
   },
   {
-    name: "body-map",
-    title: "BodyMap",
-    description: "A diagram of a body for pointing at where something hurts.",
-    category: "health-input",
-    status: "considered",
-    since: "unreleased",
-    aliases: ["pain map", "anatomy diagram", "where does it hurt"],
-    owner: "design",
-    a11yDate: null,
-    why: "A body diagram must represent a range of bodies, ages, skin tones and disabilities, or it tells some readers they are not the intended user. Doing that properly is an illustration commission, not a component.",
-    useInstead: ["field"],
-  },
-  {
     name: "goal-ring",
     title: "GoalRing",
     description: "Progress towards a daily goal, drawn as a closing ring.",
@@ -1113,19 +1238,6 @@ export const CONSIDERED: CatalogueEntry[] = [
     useInstead: ["score-dial", "metric-tile"],
   },
   {
-    name: "timeline-entry",
-    title: "TimelineEntry",
-    description: "One dated event in a vertical history.",
-    category: "health-data-display",
-    status: "considered",
-    since: "unreleased",
-    aliases: ["history item", "event list", "activity feed"],
-    owner: "design",
-    a11yDate: null,
-    why: "A timeline is a layout, and every product's timeline holds different things. Shipping one would ship a data model with it.",
-    useInstead: ["card", "relative-time"],
-  },
-  {
     name: "scale-input",
     title: "ScaleInput",
     description: "A one-to-ten scale for rating something like pain or mood.",
@@ -1137,19 +1249,6 @@ export const CONSIDERED: CatalogueEntry[] = [
     a11yDate: null,
     why: "The anchors and the number of points on a rating scale are what make it comparable over time, and they belong to whichever instrument the product is using. A fixed set of labelled options is a radio group, and opsinjs delegates that to Base UI rather than wrapping it.",
     useInstead: ["field"],
-  },
-  {
-    name: "range-legend",
-    title: "RangeLegend",
-    description: "The key explaining what the bands on a range mean.",
-    category: "health-data-display",
-    status: "considered",
-    since: "unreleased",
-    aliases: ["key", "chart legend", "band legend"],
-    owner: "design",
-    a11yDate: null,
-    why: "A legend that can be separated from its chart is a legend that will be. The bands are documented inside RangeBar instead.",
-    useInstead: ["range-bar"],
   },
   {
     name: "toast",
@@ -1359,19 +1458,6 @@ export const CONSIDERED: CatalogueEntry[] = [
     useInstead: ["status-pill"],
   },
   {
-    name: "divider",
-    title: "Divider",
-    description: "A line separating two groups of content.",
-    category: "layout",
-    status: "considered",
-    since: "unreleased",
-    aliases: ["separator", "rule"],
-    owner: "design",
-    a11yDate: null,
-    why: "A border and a spacing token. Documented in Foundations rather than shipped.",
-    useInstead: ["card"],
-  },
-  {
     name: "scroll-area",
     title: "ScrollArea",
     description: "A scrolling region with styled scrollbars.",
@@ -1385,33 +1471,6 @@ export const CONSIDERED: CatalogueEntry[] = [
     useInstead: ["card"],
   },
   {
-    name: "tab-bar",
-    title: "TabBar",
-    description:
-      "The persistent bar of top-level destinations at the bottom of the screen.",
-    category: "navigation",
-    status: "considered",
-    since: "unreleased",
-    aliases: ["bottom navigation", "nav bar"],
-    owner: "design",
-    a11yDate: null,
-    why: "Application navigation is a product decision, not a design-system one. The material rung, the safe-area handling and the touch-target floor it needs are all documented.",
-    useInstead: ["surface"],
-  },
-  {
-    name: "stepper",
-    title: "Stepper",
-    description: "Progress through a sequence of steps.",
-    category: "navigation",
-    status: "considered",
-    since: "unreleased",
-    aliases: ["wizard", "step indicator", "multi step"],
-    owner: "design",
-    a11yDate: null,
-    why: "The pattern that matters is one question per page, and that is documented in Patterns. A stepper component tends to encourage the opposite.",
-    useInstead: ["field"],
-  },
-  {
     name: "menu",
     title: "Menu",
     description: "A list of actions opened from a button.",
@@ -1423,58 +1482,6 @@ export const CONSIDERED: CatalogueEntry[] = [
     a11yDate: null,
     why: "Delegated to Base UI. Hiding a destructive or a safety-relevant action in an overflow menu is a defect whatever renders it.",
     useInstead: ["sheet", "button"],
-  },
-  {
-    name: "icon-button",
-    title: "IconButton",
-    description: "A button whose only visible content is an icon.",
-    category: "actions-and-forms",
-    status: "considered",
-    since: "unreleased",
-    aliases: ["glyph button", "round button"],
-    owner: "design",
-    a11yDate: null,
-    why: "A variant of Button rather than a component, and one that needs a visible label far more often than products assume.",
-    useInstead: ["button"],
-  },
-  {
-    name: "avatar",
-    title: "Avatar",
-    description: "A picture or initials standing for a person.",
-    category: "utility",
-    status: "considered",
-    since: "unreleased",
-    aliases: ["profile picture", "initials", "user image"],
-    owner: "design",
-    a11yDate: null,
-    why: "Straightforward to build and full of representation decisions. Those decisions are default imagery, initials for names that do not have them, and what a clinician's avatar implies about who wrote a message.",
-    useInstead: ["card"],
-  },
-  {
-    name: "table",
-    title: "Table",
-    description: "Rows and columns of data.",
-    category: "data-display",
-    status: "considered",
-    since: "unreleased",
-    aliases: ["data table", "grid", "rows and columns"],
-    owner: "engineering",
-    a11yDate: null,
-    why: "Every chart in this system ships a table twin, so a table is a requirement rather than an option. A responsive, accessible table is nevertheless a project of its own and would be the largest component here by an order of magnitude.",
-    useInstead: ["card", "metric-tile"],
-  },
-  {
-    name: "visually-hidden",
-    title: "VisuallyHidden",
-    description: "Content that screen readers announce and eyes do not see.",
-    category: "utility",
-    status: "considered",
-    since: "unreleased",
-    aliases: ["sr only", "screen reader only", "clip"],
-    owner: "engineering",
-    a11yDate: null,
-    why: "Four lines of CSS that every component here uses internally, shipped as a utility class rather than as a component so that it works outside React too.",
-    useInstead: ["field"],
   },
 ]
 

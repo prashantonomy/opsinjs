@@ -107,6 +107,60 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: false,
     },
   },
+  "AvatarProps": {
+    "name": {
+      type: "string",
+      description: "Required. The person this avatar stands for. It is the picture's alt text and the source of the initials at once, so it can never say one thing to a screen reader and another on screen. An empty or whitespace only name is the mistake a data layer ships by accident: it warns in development and falls back to a neutral person glyph rather than an unlabelled circle.",
+      required: true,
+    },
+    "src": {
+      type: "string",
+      description: "The picture, when the product has one. opsinjs ships none: no default image, no placeholder face. When it is absent, or when it does not load, the avatar falls back to the initials and then to the person glyph. The URL is used as given, so its trust and the content behind it are the product's to own and to moderate.",
+      required: false,
+    },
+    "size": {
+      type: "AvatarSize",
+      description: "Diameter only. Three sizes, \"sm\", \"md\" and \"lg\", sized in rem so the circle grows with the reader's text size. Defaults to \"md\". A value outside the three is repaired to \"md\" and warned in development, because an avatar is decorative chrome and there is no honest smaller or larger reading to guess.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. For layout only, such as a margin in a stack. A category or status colour passed here is refused by the design rather than by code: the chrome is neutral, and tinting a person from either health axis is the bug the two-axes rule names.",
+      required: false,
+    },
+  },
+  "BodyMapProps": {
+    "regions": {
+      type: "{ key: string; label: string }[]",
+      description: "The controlled vocabulary of regions, in the order they are considered. Each entry is a stable `key` and the visible words the product wants for it. Defaults to the nine generic regions the schematic ships with. Pass your own to subset the regions or to relabel them for your copy or language. A `key` with no built-in place on the figure cannot be drawn: it is warned once in development and skipped on the diagram, because a marker placed at a guessed position would be worse than no marker. The shipped keys are `head`, `chest`, `abdomen`, `left-arm`, `right-arm`, `left-leg`, `right-leg`, `upper-back` and `lower-back`.",
+      required: false,
+    },
+    "value": {
+      type: "string[]",
+      description: "The keys currently marked. This is a controlled component with no selection state of its own, so a key here that matches no region simply shows nothing marked for it.",
+      required: true,
+    },
+    "onValueChange": {
+      type: "(value: string[]) => void",
+      description: "Called with the next set of marked keys when the reader toggles a region. The caller stores it and passes it back as `value`.",
+      required: true,
+    },
+    "label": {
+      type: "string",
+      description: "Required. The accessible name for the whole group, applied as `aria-label`. Name it as the question the reader is answering, for example \"Where are you noticing something?\", so a screen-reader user hears what the regions are for before the regions themselves. There is no default, because a guessed name would describe the wrong thing on most screens.",
+      required: true,
+    },
+    "view": {
+      type: "\"front\" | \"back\" | \"both\"",
+      description: "Which figure or figures to show. `both` draws the front then the back side by side, `front` and `back` draw one. Defaults to `both`. A figure only ever shows the regions whose geometry belongs to that view.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root group. Layout, width and place in a form belong here. A class you pass wins over the root's own where the two conflict, because it is merged last.",
+      required: false,
+    },
+  },
   "ButtonProps": {
     "variant": {
       type: "ButtonVariant",
@@ -471,6 +525,23 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: false,
     },
   },
+  "DividerProps": {
+    "orientation": {
+      type: "\"horizontal\" | \"vertical\"",
+      description: "Which way the line runs. `horizontal` is a full-width rule between stacked groups; `vertical` is a full-height rule between side-by-side groups. A value outside the two is drawn horizontal, which is the form that needs nothing from its container, and a development warning names the mistake. Defaults to `horizontal`.",
+      required: false,
+    },
+    "label": {
+      type: "string",
+      description: "An optional short label centred on a horizontal rule, for a named boundary such as \"Earlier\" or \"Today\". A label changes the structure: the rule stops being a `role=\"separator\"` element, because a separator cannot carry an accessible name, and becomes two decorative hairlines with the label as plain text between them. A whitespace-only label is treated as no label. A label with `orientation=\"vertical\"` has no sound layout, so it is dropped with a development warning and the vertical rule is drawn plain. The label is the visible echo of a grouping that structure must also carry, never the only thing a screen reader has to tell the two groups apart.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. This is where a vertical rule is given its height when its container does not, and where the caller controls the spacing around a horizontal rule. It is unrestricted, so it is the one route by which colour can reach a divider, and the two-colour-axes rule applies to it in full: a divider takes neither a status nor a category tint. `cn` merges whatever it is handed and cannot detect a class from either axis.",
+      required: false,
+    },
+  },
   "EmptyStateProps": {
     "reason": {
       type: "\"nothing-yet\" | \"no-matches\" | \"nothing-left\" | \"not-enough\" | \"could-not-load\"",
@@ -575,6 +646,43 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     "className": {
       type: "string",
       description: "Merged onto the root. Field lays its own parts out in a column and leaves the space BETWEEN fields to the form, which is the only place that knows how many there are.",
+      required: false,
+    },
+  },
+  "IconButtonProps": {
+    "icon": {
+      type: "ReactNode",
+      description: "Required. The glyph, and the only thing a sighted reader sees. Always decorative and always hidden from assistive technology, because the label carries the meaning and an announced icon makes a screen reader say the action as a picture. Size it in `em` upstream or leave it: the icon slot sizes any child `svg` at `1em`, so the glyph tracks the type step.",
+      required: true,
+    },
+    "label": {
+      type: "string",
+      description: "Required. The accessible name, and there is no way to remove it: this is the whole reason IconButton is a separate control rather than a size of Button. It is set as `aria-label` on the button and, as a fallback, as a visually hidden text node inside it. Name the action and its object, such as \"Close the reading details\", so a voice-control user can say what they mean and a screen-reader user hears a verb rather than \"button\". A missing or whitespace-only value raises a development warning.",
+      required: true,
+    },
+    "variant": {
+      type: "ButtonProps[\"variant\"]",
+      description: "Emphasis, mirrored from Button. Four values in descending order: `primary`, `secondary`, `quiet`, `destructive`. Defaults to `secondary`, which keeps a visible boundary, because an icon-only control with no border and no word is the hardest of all to recognise as a control. Reach for `quiet` only in a toolbar or a header where the surrounding context already says these are controls.",
+      required: false,
+    },
+    "size": {
+      type: "ButtonProps[\"size\"]",
+      description: "Visual weight only, mirrored from Button. Both sizes clear the 44pt target floor; `sm` takes a smaller glyph at the same target, never a shorter one. Defaults to `md`.",
+      required: false,
+    },
+    "onClick": {
+      type: "ButtonProps[\"onClick\"]",
+      description: "The action. Forwarded to the button unchanged. IconButton defines no handler of its own, so this is the caller's own click, run in the caller's own context.",
+      required: false,
+    },
+    "disabled": {
+      type: "boolean",
+      description: "Makes the control genuinely unavailable through the native attribute, which takes it out of the tab order and the accessibility tree. There is no busy state here: IconButton does not expose Button's `busy`, because an icon-only control has no label to keep visible while it works, so a busy icon button is a control whose name and glyph both vanish. Use a labelled Button where a busy state matters. Defaults to `false`.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the composed Button last, so a class you pass wins over the square shape where the two conflict. Width, margin and place in a layout belong here. Do not resolve a category or a status colour through it: this control takes neither axis.",
       required: false,
     },
   },
@@ -794,6 +902,18 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       type: "string",
       description: "BCP 47 locale for number separators, digit shapes and the dates in the footnote. Passed through to every `Value` this component renders, so one bar cannot show two conventions. This component renders on a server and again in a browser. With no locale the server formats with the host process's locale and the browser formats with the reader's, so where the two differ the number separators and the footnote date change under the reader on hydration and React reports a mismatch. Pass the locale the surface is rendered in, taken from wherever that surface already knows it. Omitting it does not hand formatting to the reader's own environment on the server; it hands it to the server's.",
       required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. A class passed here wins where the two conflict.",
+      required: false,
+    },
+  },
+  "RangeLegendProps": {
+    "bands": {
+      type: "RangeLegendBand[]",
+      description: "The rows of the key, in the order the reader should meet them. Each names one tone a RangeBar draws: the neutral reference-range band, or one of the four clinical status levels. The words are yours, because the product owns the ranges those words describe; this component supplies none. An empty array renders nothing and is reported in development. A legend with no rows is a caption for a picture it forgot to name.",
+      required: true,
     },
     "className": {
       type: "string",
@@ -1287,6 +1407,23 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: false,
     },
   },
+  "StepperProps": {
+    "steps": {
+      type: "StepperStep[]",
+      description: "The steps, in the order the reader moves through them. Two or more: one step is not a sequence and nothing is a sequence with none. Each step is a short `label` and an optional `description`. The order here is the order drawn, so order the steps the way the reader progresses, not the way a table stores them.",
+      required: true,
+    },
+    "current": {
+      type: "number",
+      description: "The 0-based index of the step the reader is on now. Every step before it is drawn complete, the step at this index is drawn current and carries aria-current=\"step\", and every step after it is drawn upcoming. This is a value the product passes from a flow it owns; the component keeps no state. A value outside the range, or a non-integer, is truncated and clamped to the nearest real step and a development warning names it, because a progress indicator that renders nothing is useless.",
+      required: true,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root list. Width, margin and place in a layout belong here. A class you pass wins over the list's own where the two conflict, because it is merged last.",
+      required: false,
+    },
+  },
   "SurfaceProps": {
     "rung": {
       type: "MaterialRung",
@@ -1307,6 +1444,65 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       type: "ReactNode",
       description: "Everything the surface holds.",
       required: true,
+    },
+  },
+  "TabBarProps": {
+    "items": {
+      type: "TabBarItem[]",
+      description: "The destinations, in the order they appear. Two to five: one destination is not navigation, and a persistent bar with more than five stops no longer reads as one glanceable set. Each item is a key, a label, an icon and an optional href. A count outside two to five raises a development warning and still renders, so the mistake is visible rather than silent.",
+      required: true,
+    },
+    "value": {
+      type: "string",
+      description: "The key of the current destination, matching one item's key. This is a controlled component with no internal selection state, so a value that matches no item renders the bar with no destination current, and a development warning names it.",
+      required: true,
+    },
+    "onValueChange": {
+      type: "(key: string) => void",
+      description: "Called with the chosen destination's key when the reader picks a different one. Optional, because a bar built from links can leave navigation to the href alone. When present, the caller stores the key and passes it back as value; the bar keeps no state of its own.",
+      required: false,
+    },
+    "label": {
+      type: "string",
+      description: "Required. The accessible name for the nav landmark, applied as aria-label, so a screen-reader user hears what the bar navigates before its destinations. Name what the bar moves between, \"Main sections\" rather than \"navigation\". There is no default, because a guessed name would describe the wrong thing on most screens.",
+      required: true,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the Surface root. Position belongs here: a product pins the bar with something like \"fixed inset-x-0 bottom-0\" through this prop, and the bar itself sets no position of its own. A class you pass wins over the root's own where the two conflict.",
+      required: false,
+    },
+  },
+  "TableProps": {
+    "caption": {
+      type: "string",
+      description: "The caption naming what the table holds. Required, and required for accessibility rather than for looks: a screen reader user who lands on a grid of numbers with no caption has no idea what they count. It renders as a real caption element, and captionHidden can take it off the screen but never out of the markup. A string, so it can serve as the visible or the visually hidden caption text without a second prop.",
+      required: true,
+    },
+    "captionHidden": {
+      type: "boolean",
+      description: "Take the caption off the screen while leaving it in the accessibility tree, for the twin that sits under a heading already naming the data. It uses the sr-only pattern, so the caption is still present and still read. Default false: a table on its own keeps its caption visible.",
+      required: false,
+    },
+    "columns": {
+      type: "TableColumn[]",
+      description: "The columns, left to right. Each has a stable key, a header node, an optional alignment and an optional numeric flag. A numeric column right-aligns and renders tabular figures. An empty array renders nothing and warns, because a table with no columns is a caller mistake rather than an empty result.",
+      required: true,
+    },
+    "rows": {
+      type: "Array<Record<string, ReactNode>>",
+      description: "The rows, each a record keyed by column key to the node for that cell. A key with no value renders an empty cell rather than warning, because sparse rows are legitimate. Zero rows renders the header over an empty body; for a genuinely empty result reach for EmptyState instead, which says so in words.",
+      required: true,
+    },
+    "rowHeader": {
+      type: "boolean",
+      description: "Treat the first column as each row's header cell, a th scope=\"row\", so a screen reader names every row by its first cell. Default true, because in a chart twin the first column is the period or the category that identifies the row. Pass false when the first column is data rather than a label, and every cell becomes a plain td.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the scroll container with tailwind-merge, and a class you pass wins where the two conflict. This is where a max width or a top and bottom border goes.",
+      required: false,
     },
   },
   "TermGlossaryProviderProps": {
@@ -1345,6 +1541,43 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     "className": {
       type: "string",
       description: "Merged onto the root. Layout belongs here; the mark, the control and the definition's own treatment do not, because each of them is an accessibility claim this component makes on the page.",
+      required: false,
+    },
+  },
+  "TimelineEntryProps": {
+    "when": {
+      type: "string",
+      description: "When the event was recorded, as ISO 8601 with an offset, for example `2026-03-14T08:12:00+01:00`. It is handed to the composed RelativeTime as its `at`, so the same contract applies: a timestamp with no offset is read in whichever zone the code is running in and is refused rather than guessed at, and a string that cannot be parsed renders no relative phrase.",
+      required: true,
+    },
+    "now": {
+      type: "Date | number | string",
+      description: "The instant the recorded time is measured against, as a Date, a number of milliseconds since the epoch, or an ISO 8601 string. Required, because this component never reads the clock: a Date or a number is normalised to an ISO string before it reaches RelativeTime, and a string is passed straight through so RelativeTime applies its own offset rule. Read the clock once where the screen is rendered and pass the same value to every entry on it.",
+      required: true,
+    },
+    "title": {
+      type: "string",
+      description: "What happened, in the reader's words: `Repeat prescription issued`, `Blood test booked`. Required. An empty title is reported in development and the entry still renders, because the product owns its copy, but an entry with a time and no event beside it is a marker on a rail that says nothing.",
+      required: true,
+    },
+    "children": {
+      type: "ReactNode",
+      description: "The body of the entry: any detail the product wants beneath the title. It takes colour from neither axis and is the product's own content. Omit it and the entry is a time and a title.",
+      required: false,
+    },
+    "status": {
+      type: "ClinicalStatus",
+      description: "The clinical status the product assigned to this event, from the four-level union shared across the system. It is rendered as a nested StatusPill beside the title, never as a tint on the entry, the rail or the marker. It is an input the product owns and is never derived here. Omit it and no pill is rendered. A value outside the four is refused by StatusPill itself.",
+      required: false,
+    },
+    "isLast": {
+      type: "boolean",
+      description: "Whether this is the last entry, which stops the connector line below the marker so the rail does not trail past the final event. Defaults to false. The product sets it on the last item of the list it owns.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root list item with `tailwind-merge`, last, so a conflicting class passed here wins. The entry's own chrome is neutral by design; a class that tints it is the caller's decision and the two colour axes gate reads the component source rather than a caller override.",
       required: false,
     },
   },
@@ -1452,11 +1685,25 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: false,
     },
   },
+  "VisuallyHiddenProps": {
+    "children": {
+      type: "ReactNode",
+      description: "The words to announce. They are read by assistive technology and drawn nowhere. Give a control the name its icon stands for, or a repeated link the subject a sighted reader gets from the layout around it. Do not place a focusable control in here: an always-hidden control is a keyboard trap, and a control that must appear on focus is a skip link, which is a different pattern. Empty children announce nothing and raise a development warning.",
+      required: true,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the span. It is rarely needed, because the component's whole treatment is the clip and there is nothing visible to style. Use it to position the span when it must sit at a particular point for a control's accessible name to compose correctly, not to make any of it visible: a class that unclips the content defeats the component.",
+      required: false,
+    },
+  },
 }
 
 /** Interface name to the file it is exported from, relative to apps/www. */
 export const PROPS_SOURCES: Record<string, string> = {
   "AlertBannerProps": "registry/bases/base/alert-banner.tsx",
+  "AvatarProps": "registry/bases/base/avatar.tsx",
+  "BodyMapProps": "registry/bases/base/body-map.tsx",
   "ButtonProps": "registry/bases/base/button.tsx",
   "CalloutProps": "registry/bases/base/callout.tsx",
   "CardBodyProps": "registry/bases/base/card.tsx",
@@ -1467,13 +1714,16 @@ export const PROPS_SOURCES: Record<string, string> = {
   "ConsentSheetProps": "registry/bases/base/consent-sheet.tsx",
   "DialogProps": "registry/bases/base/dialog.tsx",
   "DisclaimerNoteProps": "registry/bases/base/disclaimer-note.tsx",
+  "DividerProps": "registry/bases/base/divider.tsx",
   "EmptyStateProps": "registry/bases/base/empty-state.tsx",
   "FieldControlProps": "registry/bases/base/field.tsx",
   "FieldProps": "registry/bases/base/field.tsx",
+  "IconButtonProps": "registry/bases/base/icon-button.tsx",
   "LinkProps": "registry/bases/base/link.tsx",
   "LogSheetProps": "registry/bases/base/log-sheet.tsx",
   "MetricTileProps": "registry/bases/base/metric-tile.tsx",
   "RangeBarProps": "registry/bases/base/range-bar.tsx",
+  "RangeLegendProps": "registry/bases/base/range-legend.tsx",
   "ReadingInputProps": "registry/bases/base/reading-input.tsx",
   "RelativeTimeProps": "registry/bases/base/relative-time.tsx",
   "ResultCardProps": "registry/bases/base/result-card.tsx",
@@ -1485,14 +1735,19 @@ export const PROPS_SOURCES: Record<string, string> = {
   "SkeletonProps": "registry/bases/base/skeleton.tsx",
   "SourceCitationProps": "registry/bases/base/source-citation.tsx",
   "StatusPillProps": "registry/bases/base/status-pill.tsx",
+  "StepperProps": "registry/bases/base/stepper.tsx",
   "SurfaceProps": "registry/bases/base/surface.tsx",
+  "TabBarProps": "registry/bases/base/tab-bar.tsx",
+  "TableProps": "registry/bases/base/table.tsx",
   "TermGlossaryProviderProps": "registry/bases/base/term.tsx",
   "TermProps": "registry/bases/base/term.tsx",
+  "TimelineEntryProps": "registry/bases/base/timeline-entry.tsx",
   "TrendSparklineProps": "registry/bases/base/trend-sparkline.tsx",
   "ValueProps": "registry/bases/base/value.tsx",
+  "VisuallyHiddenProps": "registry/bases/base/visually-hidden.tsx",
 }
 
 export const PROPS_META: { interfaces: number; props: number } = {
-  interfaces: 34,
-  props: 266,
+  interfaces: 44,
+  props: 311,
 }

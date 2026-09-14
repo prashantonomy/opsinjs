@@ -57,6 +57,8 @@ registry, not here.
 | `trend-sparkline` | health-data-display | beta | unreleased | sparkline, trend, over time, mini chart, line chart, chart, graph |
 | `metric-tile` | health-data-display | beta | unreleased | stat, kpi, vitals, summary tile, steps, resting heart rate, spo2, tile |
 | `status-pill` | health-data-display | beta | unreleased | chip, status chip, status badge, status label, traffic light |
+| `timeline-entry` | health-data-display | alpha | unreleased | history item, event list, activity feed |
+| `range-legend` | health-data-display | alpha | unreleased | key, chart legend, band legend |
 | `alert-banner` | health-communication | beta | unreleased | warning banner, notification banner, inline alert, warning, notification, alert, banner |
 | `care-card` | health-communication | beta | unreleased | what to do next, action card, advice card, next steps, guidance card, what to do, advice |
 | `term` | health-communication | beta | unreleased | glossary term, jargon, plain word, definition, plain english, tooltip term |
@@ -65,8 +67,10 @@ registry, not here.
 | `source-citation` | health-communication | alpha | unreleased | citation, evidence link, reviewed by |
 | `log-sheet` | health-input | beta | unreleased | log, diary, journal, daily entry, capture, quick entry, bottom sheet entry |
 | `reading-input` | health-input | beta | unreleased | enter a reading, measurement input, numeric entry, manual entry, numeric input, unit switch |
+| `body-map` | health-input | alpha | unreleased | pain map, anatomy diagram, where does it hurt |
 | `value` | health-formatting | beta | unreleased | number, unit, format a number, numeric display, figure, format, formatted number |
 | `relative-time` | health-formatting | beta | unreleased | time ago, timestamp, last updated, date display, ago, freshness, staleness |
+| `table` | data-display | alpha | unreleased | data table, grid, rows and columns |
 | `surface` | surfaces | beta | unreleased | material, glass, blur, elevation, layer, translucency, vibrancy |
 | `card` | surfaces | beta | unreleased | panel, container, content box, box, tile group |
 | `sheet` | surfaces | beta | unreleased | bottom sheet, drawer, side panel, slide over, modal sheet, detent |
@@ -75,9 +79,15 @@ registry, not here.
 | `empty-state` | feedback | beta | unreleased | no data, nothing here, zero state, blank slate |
 | `skeleton` | feedback | beta | unreleased | loading placeholder, shimmer, ghost, loading state, placeholder |
 | `segmented-control` | navigation | alpha | unreleased | segmented buttons, toggle group |
+| `tab-bar` | navigation | alpha | unreleased | bottom navigation, nav bar |
+| `stepper` | navigation | alpha | unreleased | wizard, step indicator, multi step |
 | `button` | actions-and-forms | beta | unreleased | cta, action, submit, primary button |
 | `link` | actions-and-forms | beta | unreleased | anchor, hyperlink |
 | `field` | actions-and-forms | beta | unreleased | form field, input wrapper, form control, validation message, label, error message, hint |
+| `icon-button` | actions-and-forms | alpha | unreleased | glyph button, round button |
+| `divider` | layout | alpha | unreleased | separator, rule |
+| `avatar` | utility | alpha | unreleased | profile picture, initials, user image |
+| `visually-hidden` | utility | alpha | unreleased | sr only, screen reader only, clip |
 
 ## Considered
 
@@ -86,11 +96,8 @@ registry, not here.
 | `questionnaire` | health-input | Validated instruments are licensed, scored and interpreted by their publishers, and a component that renders one invites a product to alter its wording or its scoring. That is a clinical-safety problem no amount of API design fixes. | field, log-sheet |
 | `symptom-picker` | health-input | A symptom picker is one step from a symptom checker, and a symptom checker is a regulated device in most of the markets this system targets. The controlled vocabulary is also product-specific and cannot be shipped in a design system. | field, log-sheet |
 | `dose-tracker` | health-input | Dose data drives dosing decisions. A component that displays a missed dose is one product decision away from implying what to do about it, which is prescribing. | log-sheet, care-card |
-| `body-map` | health-input | A body diagram must represent a range of bodies, ages, skin tones and disabilities, or it tells some readers they are not the intended user. Doing that properly is an illustration commission, not a component. | field |
 | `goal-ring` | health-data-display | Goal rings are strongly associated with one platform's fitness product, and the pattern rewards streaks. That is the wrong incentive for a reader managing a condition rather than training for one. | score-dial, metric-tile |
-| `timeline-entry` | health-data-display | A timeline is a layout, and every product's timeline holds different things. Shipping one would ship a data model with it. | card, relative-time |
 | `scale-input` | health-input | The anchors and the number of points on a rating scale are what make it comparable over time, and they belong to whichever instrument the product is using. A fixed set of labelled options is a radio group, and opsinjs delegates that to Base UI rather than wrapping it. | field |
-| `range-legend` | health-data-display | A legend that can be separated from its chart is a legend that will be. The bands are documented inside RangeBar instead. | range-bar |
 | `toast` | feedback | A message that removes itself is the wrong shape for anything about someone's health: the reader who most needs it is the one most likely to miss it. Kept on the roster because products use toasts for save confirmations, which is legitimate. | alert-banner, callout |
 | `tooltip` | overlay | There is no hover on a phone, and this is a phone-first system. Anything important enough for a tooltip is important enough to be on the screen. | term, field |
 | `popover` | overlay | Base UI's popover is complete and unopinionated, and opsinjs has nothing to add to it beyond tokens. | sheet, dialog |
@@ -107,14 +114,7 @@ registry, not here.
 | `progress` | feedback | Delegated to Base UI. Never use it to show a health value: a progress bar implies a target, and most readings do not have one. | range-bar, score-dial |
 | `spinner` | feedback | Skeletons are preferred throughout: a skeleton says what is arriving, and a spinner says only that something is. | skeleton |
 | `badge` | data-display | Kept off the shipped roster deliberately: a generic badge next to a StatusPill is exactly how the two colour axes get mixed. If you need a badge to carry a health meaning, you need a StatusPill. | status-pill |
-| `divider` | layout | A border and a spacing token. Documented in Foundations rather than shipped. | card |
 | `scroll-area` | layout | Delegated to Base UI. Custom scrollbars are also a frequent cause of unreachable content at 200% text. | card |
-| `tab-bar` | navigation | Application navigation is a product decision, not a design-system one. The material rung, the safe-area handling and the touch-target floor it needs are all documented. | surface |
-| `stepper` | navigation | The pattern that matters is one question per page, and that is documented in Patterns. A stepper component tends to encourage the opposite. | field |
 | `menu` | overlay | Delegated to Base UI. Hiding a destructive or a safety-relevant action in an overflow menu is a defect whatever renders it. | sheet, button |
-| `icon-button` | actions-and-forms | A variant of Button rather than a component, and one that needs a visible label far more often than products assume. | button |
-| `avatar` | utility | Straightforward to build and full of representation decisions. Those decisions are default imagery, initials for names that do not have them, and what a clinician's avatar implies about who wrote a message. | card |
-| `table` | data-display | Every chart in this system ships a table twin, so a table is a requirement rather than an option. A responsive, accessible table is nevertheless a project of its own and would be the largest component here by an order of magnitude. | card, metric-tile |
-| `visually-hidden` | utility | Four lines of CSS that every component here uses internally, shipped as a utility class rather than as a component so that it works outside React too. | field |
 
 {/* opsinjs:generated:end */}
