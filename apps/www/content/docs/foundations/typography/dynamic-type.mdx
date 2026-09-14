@@ -42,10 +42,13 @@ failure being tested for.
 resolves through Tailwind's `--spacing`, and radii resolve to `rem`. A single
 `px` font size anywhere in a component is a component that has opted out.
 
-**Roles scale non-linearly.** Small roles grow proportionally more than large
-ones, so that at a high multiplier a caption becomes genuinely readable while a
-display heading does not become preposterous. This is only expressible because
-the scale is semantic. The argument is on [Type scale](type-scale.mdx).
+**Every role scales by the same factor.** The multiplier is applied once, to the
+root font size, so a caption and a title grow in the same proportion and the
+relationships inside the scale hold at every size. This is the right trade for a
+health product. A reader who has already set a larger system text size, and most
+of the people checking a reading have, keeps that exact setting through, because
+each role resolves to `rem`; the product does not second-guess it by tuning
+roles against each other. The argument is on [Type scale](type-scale.mdx).
 
 **Touch targets do not shrink and do not stretch.** The 44pt floor from
 [Density and touch](../space/density-and-touch.mdx) is a floor at every text
@@ -108,9 +111,11 @@ different measurement.
 
 ## Tokens
 
-The multiplier steps used by the preview switch, the per-role scaling behaviour
-and the minimum sizes are generated from `tokens/type.json` by
-`scripts/build-tokens.mts`.
+The multiplier steps used by the preview switch, and the size, line height,
+tracking and weight of every role, are generated from `tokens/type.json` by
+`scripts/build-tokens.mts`. The steps multiply the rem value of every role by the
+same factor; they do not change the leading ratios, which are already
+multipliers.
 
 <TokenTable scope="type" />
 
@@ -136,8 +141,8 @@ and the minimum sizes are generated from `tokens/type.json` by
 
 ## Related
 
-- [Type scale](type-scale.mdx) explains why a semantic scale is what makes
-  non-linear scaling possible.
+- [Type scale](type-scale.mdx) explains why a scale named for jobs lets every
+  role scale together and keeps the reader's own setting.
 - [Responsive modes](../space/responsive-modes.mdx) covers container queries,
   and why a component cannot decide its layout from the viewport.
 - [Text resizing and zoom](../../accessibility/text-resizing-and-zoom.mdx) has

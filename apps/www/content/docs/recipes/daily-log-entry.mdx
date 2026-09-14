@@ -102,7 +102,8 @@ three jobs beyond being a text box:
 - **The right keyboard**, first time. A decimal measurement needs a decimal pad,
   not a spelling keyboard with a numbers layer.
 - **The unit beside the field**, switchable, with the value converting when it is
-  switched. See [Unit systems](../health/unit-systems.mdx).
+  switched. Because switching it changes the number without anybody typing, the
+  product announces the conversion. See [Unit systems](../health/unit-systems.mdx).
 - **A plausibility warning, not a block.** A body temperature of 96 is implausible
   in °C and ordinary in °F; a systolic of 400 is almost certainly a typo. Say so,
   softly, and let it be saved anyway. A hard maximum means the one person whose
@@ -194,6 +195,13 @@ number between 30 and 300" is help; "Invalid value" is a shrug.
   dragging.
 - The save is announced politely; the undo affordance is reachable by keyboard for
   as long as it is available. An undo that only a mouse can reach is not an undo.
+- Switching the unit converts the number on screen without anybody typing, so the
+  product routes `ReadingInputChange.effectText` through the same polite announcer
+  it uses for the save, on every change where `effectText` is not null.
+  [ReadingInput](../components/reading-input.mdx) hands you the exact sentence and
+  deliberately mounts no live region of its own, so if the product stays silent a
+  reader hears only the new unit and saves a number they were never told about.
+  [Screen readers](../accessibility/screen-readers.mdx) has the announcement rules.
 - Validation is announced when it appears and is associated with its field, so it
   is heard rather than only seen.
   [Screen readers](../accessibility/screen-readers.mdx) covers the announcement.

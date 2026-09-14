@@ -62,13 +62,16 @@ ratio at the dark end. See [Contrast and APCA](./contrast-and-apca.mdx).
 **4. Surfaces gain chroma; inks lose it.** This is the counter-intuitive one and
 it is not a stylistic choice. At low lightness a tint needs more chroma to read
 as coloured at all, so the dark status and category surfaces are authored with
-*higher* `C` than their light counterparts. Light text, conversely, is
+*higher* `C` than their light counterparts. Those surfaces sit at ladder step
+950, a deliberately quiet rung, so the tint still reads as coloured without the
+fill becoming a heavy slab that competes with the content resting on it. Light
+text, conversely, is
 uncomfortable when it is saturated, because saturated light text glares.
 Dark-theme inks therefore carry *less* `C` than light-theme inks. Both
 movements are at constant hue.
 
-**5. Pure black is not a background.** The dark background sits near `L 0.16`
-with a trace of chroma rather than at `L 0`. Three reasons: on OLED panels,
+**5. Pure black is not a background.** The dark background sits at `L 0.145`,
+the end of the neutral ramp, with a trace of chroma rather than at `L 0`. Three reasons: on OLED panels,
 pure black next to moving content smears; high-contrast black-to-white text
 produces halation that readers with astigmatism report as blurring; and against
 true black every raised surface has to be grey, which flattens the material
@@ -77,9 +80,10 @@ ladder to a single step.
 **6. Elevation inverts its mechanism.** In light, a surface rises by getting
 whiter and casting a shadow. In dark, a shadow against a near-black background
 is close to invisible, so a surface rises by getting *lighter* and by carrying a
-brighter hairline. Dark-theme borders are therefore authored as white at low
-alpha rather than as a solid grey, so that a border over a raised surface still
-separates. The rung-by-rung consequences are in
+brighter hairline. The hairline is a solid ladder grey, `--opsin-chrome-border`
+at neutral step 500, the same value the light theme uses rather than a low-alpha
+white, so one measured value draws every boundary and a border over a raised
+surface still separates against the near-black ground. The rung-by-rung consequences are in
 [The ladder](../materials/the-ladder.mdx).
 
 **7. `color-scheme` is declared.** The root carries `color-scheme` so that form
@@ -94,7 +98,7 @@ implemented with colours alone.
 | Status surface | very light tint, low chroma | dark tint, **higher** chroma |
 | Status ink | dark, higher chroma | light, **lower** chroma |
 | Status line | mid lightness | lifted, so it still reads on a dark surface |
-| Border | solid neutral | white at low alpha |
+| Border | solid neutral | solid neutral, the same value |
 | Elevation cue | shadow | lighter surface plus brighter hairline |
 | Background | near-white | near-black, never black |
 
@@ -122,6 +126,19 @@ theme exists for.
 the reflex, and in a health product they produce a screen where an ordinary
 reading looks alarming. The status axis is the only thing on the page permitted
 to raise its voice.
+
+<Todo>
+  Quieting the dark surfaces to step 950 leaves one gap that the fill alone
+  cannot close. `watch` and `attention` now share that rung, so their dark
+  surfaces sit at the same lightness and measure roughly Lc 0.00 against each
+  other; the 37 degree hue gap that separates them on a light ground collapses
+  toward two browns on a dark one. This is the never-mix doctrine working as
+  intended rather than a defect, because a status surface is never the thing
+  that carries the level. The line, the word and the icon do that, in both
+  themes, so a reader tells `watch` from `attention` by the label and the
+  boundary and not by the fill. Separating the two fills as well would need a
+  per-level lightness or chroma decision the shared ladder does not yet carry.
+</Todo>
 
 **Test the transition, not just the two ends.** Anything that animates a colour
 across a theme change should either be instantaneous or respect

@@ -27,10 +27,31 @@ is too tight" in a way they cannot disagree with "step 3".
 ## How it works
 
 **The scale.** Tailwind derives its entire spacing system from `--spacing`, so
-`p-4` means four units of whatever that root is. The product theme raises the
-root above the default, which makes the whole system proportionally roomier
-without touching a single utility class. The docs chrome leaves it at the
-default, which is why this site is tighter than the product it documents.
+`p-4` means four units of whatever that root is. The product theme sets that
+root to 0.25rem in `app/product.css`, which is the 4-point grid at a 16px font
+size, so a scaled step lands on the same pixel a fixed token would: `p-5`
+resolves to 20px, exactly as `p-opsin-5` does. A denser layout scales the root
+down rather than rewriting a single utility class.
+
+**A card takes the scaled step, a modal takes the fixed token.** The inside
+padding of a card-like surface uses the density-scaled step, `p-4` or `p-5`, so
+it tightens when a reader chooses a denser layout. A modal surface such as a
+dialog or a sheet uses the fixed token, `p-opsin-4` or `p-opsin-5`, which
+density never moves, because a surface laid over the screen should hold its
+inset while the content behind it reflows. At the default density the two
+spellings are the same number, so a results screen that stacks a card, a result
+card and a dialog insets all three on one published step: 16px at `p-4` and
+`p-opsin-4`, 20px at `p-5` and `p-opsin-5`.
+
+**The compact density leaves the 4px grid, and the page says so rather than
+hiding it.** Density is one multiplier on `--spacing`, and the compact setting
+takes the root to 0.21875rem, where `p-4` renders 14px and `p-5` renders 17.5px.
+No single multiplier can keep both steps on the grid at every density: for `p-5`
+to stay on it the root must be a multiple of 0.05rem, for `p-4` it must be a
+multiple of 0.0625rem, and 0.25rem is the smallest value that satisfies both,
+which is why it is the default. The 4px guarantee therefore covers the fixed
+`--opsin-space-*` steps, which density leaves alone, and the density-scaled
+Tailwind scale is the stated exception.
 
 **The named roles.** Each maps to a step, and the map is generated:
 

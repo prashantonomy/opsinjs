@@ -189,14 +189,17 @@ are known colours, so text on them is measured exactly as any other pair is. See
 
 **The translucent rungs (3, 4, 5) carry a stronger one.** Their rendered colour
 depends on the backdrop, so they are measured against the worst-case composite
-rather than against their nominal tint. Every one of them clears the floor
-against a pure-black and a pure-white backdrop, in both themes, which is what
-makes them safe over imagery and video. The calculation is
+rather than against their nominal tint: the rung's tint at its own alpha over a
+pure-black and a pure-white backdrop, in both themes. Where a rung clears the
+floor at both extremes it is safe over imagery and video; where it does not the
+report below records the shortfall rather than hiding it. The calculation is
 [The contrast floor](./the-contrast-floor.mdx).
 
-**Borders are measured too.** A hairline at low alpha over a translucent rung is
-the most commonly missed non-text contrast failure (SC 1.4.11), because it looks
-correct on the one backdrop the designer tested.
+**Borders are not measured yet.** A hairline at low alpha over a translucent rung
+is the most commonly missed non-text contrast failure (SC 1.4.11), because it
+looks correct on the one backdrop the designer tested, and nothing on this site
+has measured one. It is an open gap, named here rather than implied by a table
+that does not hold the row. [Material tokens](./tokens.mdx) states the same.
 
 **The fallback path is a first-class path.** Reduced transparency is not a
 degraded experience. The rung keeps its border, its shadow and its position, and

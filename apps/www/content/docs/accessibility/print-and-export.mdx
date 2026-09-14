@@ -50,6 +50,14 @@ each item is there because of a specific failure:
   reviewer to misread a number.
 - **Sets an 18 mm page margin,** so there is room to write in.
 
+The product theme adds a second `@media print` block of its own in
+`app/product.css`. It redeclares `--background`, `--card`, `--foreground`,
+`--card-foreground`, `--muted-foreground` and `--border` as ink on paper, and it
+carries every material rung to its opaque fallback. So a screen printed from the
+dark theme prints as ink on white rather than as pale text on a dark fill. This is
+the half a consuming product actually ships, because the product stylesheet travels
+with the theme a product installs while the docs-site `globals.css` above does not.
+
 ## What you own
 
 **What a printed result must still say.** This is the important half of the page.
@@ -66,6 +74,17 @@ must still carry:
 4. **The status word,** not the status colour.
 5. **The disclaimer,** if one was shown on screen. A printout that drops the "this
    is not a diagnosis" line has changed what the document claims.
+6. **A visible boundary.** The print stylesheet drops a background colour and a
+   box-shadow, and it keeps an outline and a border. A surface that leaned on its
+   fill or its shadow to show where it ends prints as boundaryless content on a
+   same-coloured page. opsinjs draws a [Surface](../components/surface.mdx) edge as
+   an outline for exactly this reason, so a surface at a rung that publishes a
+   border keeps its boundary on paper. That is the `card`, `raised`, `sheet` and
+   `overlay` rungs, which is what Card, MetricTile, Dialog and Sheet render. The
+   three rungs that publish no border by design, `canvas`, `inset` and `scrim`,
+   draw no edge on screen or on paper, so a panel built on one of those prints
+   boundaryless, and a product that draws its own container edge must reach for a
+   property in the second group, an outline or a real border, never the first.
 
 **Pagination of long data.** A twelve-month log printed as one enormous table
 needs repeated headers on each page. That is a product decision.
@@ -124,9 +143,14 @@ this project deliberately does not install.
   reasoned about.
 - **There is no PDF export path,** for the reviewer bundle or for anything else;
   printing is the only route to paper.
-- **No component implements the printed-value rules,** because no component
-  exists. In particular nothing yet resolves a relative time to an absolute one
-  in print.
+- **The printed-value rules are implemented per component, but nothing verifies a
+  whole screen end to end.** RelativeTime resolves to an absolute stamp in print
+  (`print:not-sr-only`), Surface draws a printed boundary on every rung that
+  publishes a border, and several components ship `print:` rules, so the rules are
+  no longer absent. What
+  is still missing is any check that one screen carries the value with its unit and
+  precision, the status word and the disclaimer onto paper together, because there
+  is no automated print capture to assert against.
 - **Page numbers, running headers and a printed provenance footer are not
   implemented,** beyond the review stamp the stylesheet appends to
   `[data-reviewed]`.

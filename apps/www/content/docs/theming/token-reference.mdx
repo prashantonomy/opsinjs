@@ -15,10 +15,16 @@ Source files: `tokens/color.json`, `tokens/material.json`, `tokens/motion.json`,
 `tokens/type.json`, `tokens/space.json`, `tokens/shape.json`.
 Script: `scripts/build-tokens.mts`. Command: `pnpm run generate`.
 
-Every row below is rendered by `<TokenTable>` from `lib/generated/tokens.ts`,
-which the script writes from those JSON files. No value on this page is typed by
-a person, and `pnpm run check:generated` fails the build if the committed
-generated output no longer matches its source.
+Every token and contrast row below is generated. The token tables are rendered
+by `<TokenTable>` from `lib/generated/tokens.ts`, which the script writes from
+those JSON files, and the measured-contrast table by `<ContrastReport>` from the
+same generated output. No value in those tables is typed by a person, and
+`pnpm run check:generated` fails the build if the committed generated output no
+longer matches its source. The one hand-authored part is the
+[Data attributes](#data-attributes) section at the foot of the page: it mirrors
+[ADR 0011](../project/decisions/0011-anatomy-parts-are-data-slots.mdx) by hand
+rather than a generator, and ADR 0011 is the record that wins if the two ever
+disagree.
 
 This page is the **theme author's** view: it is grouped by tier, and it says
 what you may set. The exhaustive machine-readable dump is
@@ -139,3 +145,49 @@ Not a token table: the measured result of every pair the tables above imply, in
 both themes, against the published floor.
 
 <ContrastReport scope="all" />
+
+## Data attributes
+
+Tokens are not the only contract opsinjs stamps into the DOM. It also writes two
+families of `data-*` attribute, and they are not the same thing. One family is
+component anatomy, closed by
+[ADR 0011](../project/decisions/0011-anatomy-parts-are-data-slots.mdx) and
+stamped by the components themselves on their parts. The other is theme hooks,
+read by `app/product.css` and set on a container or a control by the host
+document or the preview route, never by a component. The two use different
+stems, the difference is not decorative, and a consumer who reaches for the
+wrong stem by analogy gets nothing back and no warning. So the whole vocabulary
+sits here, in one place.
+
+**Component anatomy: four names, closed.** Every opsinjs component stamps these
+on its parts, and ADR 0011 fixes the vocabulary at four. This table copies that
+ADR by hand, so ADR 0011 is the authority: where the two disagree, ADR 0011 is
+right and this page is the stale copy.
+
+| Attribute | Where it appears | Value |
+| --- | --- | --- |
+| `data-slot` | every part, without exception | the part name, kebab-cased, such as `result-card-header` |
+| `data-status` | every element whose colour, icon or word carries a clinical status | `steady`, `watch`, `attention`, `urgent`, `unknown` |
+| `data-category` | every element tinted from the category axis | one of the six health categories |
+| `data-opsinjs-value` | every element rendering a measurement a reader reads as their own | the machine-readable value, or empty when the value is absent |
+
+**Theme hooks.** These are read by the product stylesheet, and the host sets
+them, not a component.
+
+| Attribute | Where it goes | What it does |
+| --- | --- | --- |
+| `data-density` | a container | `compact` scales spacing by 0.875; comfortable is the default and carries no attribute |
+| `data-text-size` | the root element | `125`, `150` or `200` raises the root font size by that percentage, a real font-size change rather than a transform, so 200% reflows the whole page; `100` is the unstamped default |
+| `data-opsin-target` | a link | opts a bare link into the tap-target floor that buttons, inputs, selects and text areas already meet |
+
+Mind the stem. The anatomy attributes are `data-slot`, `data-status`,
+`data-category` and the longer `data-opsinjs-value`, while the theme hooks
+include `data-density` and `data-opsin-target` on the shorter `opsin` stem, with
+`data-text-size` on its own stem. The
+tabular-figures rule keys off `data-opsinjs-value`, the anatomy attribute a
+component actually emits. `app/product.css` also accepts `data-opsin-value` as a
+courtesy alias, so a consumer who writes the theme stem by analogy with
+`data-opsin-target` still gets tabular figures rather than losing them without a
+word. There is deliberately no `data-opsin-shape` attribute: the squircle is set
+per component through the `corner-shape` property, because a fifth anatomy name
+would break the vocabulary ADR 0011 closes at four.

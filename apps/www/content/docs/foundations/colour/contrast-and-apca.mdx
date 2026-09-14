@@ -29,8 +29,9 @@ and states which one it is bound by:
 
 The thing this is most often confused with is a *contrast checker*. A checker
 tells you about one pair you thought to check. This page is about a floor that
-is applied to the whole declared pair set, in CI, on every pull request, so that
-nobody has to remember to check.
+is applied to the whole declared pair set, measured in CI, with the gated set
+held against regression by a nightly run, so that nobody has to remember to
+check.
 
 ## How it works
 
@@ -118,12 +119,37 @@ Two of those rows are opinions rather than requirements and are marked as such:
   finding.
 </ResearchNote>
 
+The floor above is not a single switch. Every measured pair sits in one of
+three states, and whether a pair that falls below its floor blocks a build
+depends on which. The tables further down print each pair as `Pass` or `Below
+floor` without naming its state, so the three are defined here.
+
+**Gated.** The pair is in the regression baseline. A commit that drives it below
+its floor fails the nightly regression run. Body text, an `ink` role against its own
+surface or against the page, and the neutral hairlines are gated, because a
+reader has to read them or leans on them to tell two regions apart.
+
+**Advisory.** The pair is measured and published, but it sits outside the
+regression baseline, because it carries recognition rather than words. An
+`accent` fill is the case: it may never carry text and may never be an element's
+only boundary, so the nightly regression run does not block on it. A non-text
+advisory pair that measures below its floor does fail the `--strict` run, and its
+count is published beside the "failing" figure, so a "0 failing" total can never
+stand on its own while an accent or a hairline sits below the non-text floor.
+
+**Exempt.** The pair is outside the floor's scope, and the reason sits beside it.
+A band fill measured against the page, a status tint measured on a card, a
+status ring measured against its own surface, and a placeholder fill on the page
+are exempt: none of them is text, and none is the only thing separating two
+regions, so no floor applies.
+
 ### Where the numbers on this site come from
 
 Every figure published on this site is measured, in CI, by hand-written
 implementations of both models in `lib/color/`, and rendered by
-`<ContrastReport>`. None is typed by a person; a regression fails the pull
-request rather than the nightly. The current results for the two clinical axes:
+`<ContrastReport>`. None is typed by a person, and a regression is caught by the
+nightly run rather than by an individual pull request. The current results for
+the two clinical axes:
 
 <ContrastReport scope="status" />
 
@@ -179,11 +205,16 @@ because both models assume a known, opaque background. That case is
 This page *is* the accessibility impact of the colour system, so what follows is
 the boundary rather than a restatement.
 
-**What is guaranteed.** Every pair in the declared set, in both themes and both
-gamuts, clears both models at the floor above, on every commit. The list of
-declared pairs is enumerated in [Colour roles](./colour-roles.mdx) and the
-measured results are published, dated, on
-[Contrast conformance](../../accessibility/contrast-conformance.mdx).
+**What is guaranteed.** The gated set clears both models at the floor above, in
+both themes and in sRGB. The nightly run measures the whole gated set and fails
+on any pair that has dropped below its floor, so a regression is caught within a
+day rather than on the commit that introduced it. Advisory pairs are published as
+well, and one may sit below its floor: the number that do is printed beside the
+"failing" figure in the summary, so a clean total never hides a sub-floor accent
+or hairline. Exempt pairs are outside the floor's scope by design. The list of
+declared pairs, and which state each takes, is enumerated in
+[Colour roles](./colour-roles.mdx), and the measured results are published,
+dated, on [Contrast conformance](../../accessibility/contrast-conformance.mdx).
 
 **What is not guaranteed, and is yours.**
 

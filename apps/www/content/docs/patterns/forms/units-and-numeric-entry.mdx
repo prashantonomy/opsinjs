@@ -136,7 +136,9 @@ The rules:
   is labelled and reachable by keyboard, not a tap target styled as a suffix.
 - **Changing the unit announces the converted value** as a polite status message
   (WCAG 2.2 SC 4.1.3), because the number on screen has just changed without the
-  reader typing.
+  reader typing. The component supplies the sentence; the product owns the live
+  region and makes the announcement, because no opsinjs component mounts one on a
+  caller's behalf. See [Screen readers](../../accessibility/screen-readers.mdx).
 - **Never rely on a placeholder to carry the unit.** It disappears on entry,
   frequently fails contrast, and is not a label. That is a failure of WCAG 2.2
   SC 3.3.2.

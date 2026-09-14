@@ -123,20 +123,22 @@ that is intake, not CSS. See
 
 ## Accessibility impact
 
-Each rung is measured with body text on it, in both themes, on every commit. The
-published results:
+Each rung is measured with body text on it, in both themes. An opaque rung is
+measured on its own colour, and a translucent rung against its worst-case
+composite. The published results:
 
 <ContrastReport scope="materials" />
 
 Three properties of that table matter and are easy to take for granted:
 
-- **It measures the opaque fallback, not the composite.** `check-contrast.mts`
-  reads `--opsin-material-<rung>-opaque`, because that is the only backdrop the
-  generator knows. So the published figure for `sheet` and `overlay` is their
-  *reduced-transparency* figure, and the translucent case is bounded by the alpha
-  and the scrim minimum instead. That calculation is
-  [The contrast floor](./the-contrast-floor.mdx), and it is stated here rather
-  than hidden behind a number that looks like it covers more than it does.
+- **A translucent rung is measured as a composite, not as its opaque fallback.**
+  `check-contrast.mts` composites the rung's tint at its per-theme alpha over the
+  darkest and the lightest backdrops the product can produce, `--opsin-neutral-950`
+  and `--opsin-neutral-0`, and measures the ink against each, so the published
+  figures for `sheet` and `overlay` are the real worst case rather than the
+  reduced-transparency colour. The method is
+  [The contrast floor](./the-contrast-floor.mdx). The opaque rungs are still
+  measured on their own colour, because that is the only surface they ever show.
 - **`scrim` has no row, and that is correct.** Rung 5 exists to remove the page
   from consideration, so nothing sits on it and there is no text pair to measure.
   The generator skips it by name rather than by accident.
@@ -146,11 +148,13 @@ Three properties of that table matter and are easy to take for granted:
   on this site has measured one. That is an open gap, and it is named here rather
   than left to be inferred from a table that does not contain it.
 
-There is no separate reduced-transparency row for the same reason there is no
-duplicate: `sheet` and `overlay` fall back to the card colour, so their fallback
-pair and `card`'s row are the same measurement. `scrim` is the one rung whose
-fallback is its own value, because a scrim that became opaque would be a blank
-screen. That value is a dark wash at a higher alpha.
+Under reduced transparency a translucent rung collapses to its opaque fallback,
+which for `sheet` and `overlay` is the card colour, so in that mode their contrast
+is `card`'s row. The report above measures the translucent case instead, the
+surface these rungs actually render, which is why `sheet` and `overlay` now carry
+their own composite rows rather than repeating `card`. `scrim` is the one rung
+whose fallback is its own value, because a scrim that became opaque would be a
+blank screen. That value is a dark wash at a higher alpha.
 
 ## Related
 

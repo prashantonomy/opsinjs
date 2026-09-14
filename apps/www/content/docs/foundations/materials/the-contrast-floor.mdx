@@ -150,17 +150,29 @@ image after the product ships.
 [Colour roles](../colour/colour-roles.mdx), and for every translucent rung it
 additionally enumerates:
 
-1. each ink role allowed on that rung, against the rung's **darkest** composite;
-2. the same, against the rung's **lightest** composite;
-3. the rung's border against both, as a non-text pair;
-4. all of the above in light and dark, and in sRGB and Display-P3.
+1. each ink role allowed on that rung, against the rung's **darkest** composite,
+   the rung's tint at its own alpha over black;
+2. the same, against the rung's **lightest** composite, the tint over white;
+3. both of those in light and in dark.
 
 Each is measured with both contrast models and compared to the published floor
-in [Contrast and APCA](../colour/contrast-and-apca.mdx). A pair below the floor
-fails the pull request. It is not left to the nightly, and it is not a warning in
-a report nobody opens. The results:
+in [Contrast and APCA](../colour/contrast-and-apca.mdx). Where a rung clears the
+floor at both extremes it is safe over any backdrop; where it does not the report
+below records the shortfall rather than a fallback figure that hid it. The
+results:
 
 <ContrastReport scope="materials" />
+
+<Todo>
+  Three lines the older version of this section carried were promises the
+  pipeline did not keep, and each is a gap rather than a guarantee until the code
+  closes it. A translucent rung's border is not measured as a non-text pair, so a
+  material boundary clears no floor of its own. Nothing is measured in Display-P3,
+  only in sRGB, so a wide-gamut screen sits outside the audited set. And a
+  below-floor result fails `contrast:verify`, which runs in the nightly workflow
+  rather than in the pull-request check, so a regression is caught the next night
+  and not at the commit that introduced it.
+</Todo>
 
 ## Using it
 
@@ -227,11 +239,13 @@ bug, which is worth reporting.
 
 ## Accessibility impact
 
-**What is guaranteed.** Text and borders on every translucent rung clear the
-published floor against both compositing extremes, in both themes and both
-gamuts, measured on every commit. In practice that means a rung 3 or rung 4
-surface is safe over *any* backdrop, including content that did not exist when
-the theme was built.
+**What is guaranteed.** Every translucent rung's text is measured against its
+real worst-case composite, its own tint at its own alpha over black and over
+white, in both themes, rather than against the opaque fallback it never shows.
+The figures in the report above are that worst case: where a rung clears the
+floor at both extremes it is safe over *any* backdrop, including content that did
+not exist when the theme was built, and where one does not the report says so
+rather than resting on a fallback that always passed.
 
 **What is yours.**
 

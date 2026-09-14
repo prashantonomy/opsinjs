@@ -11,7 +11,6 @@ implements:
   [
     consent-sheet,
     sheet,
-    field,
     button,
     disclaimer-note,
     term,
@@ -32,8 +31,8 @@ product does with the answer. That answer includes *no*.
 
 The flow asks for **one scope**, at the moment that scope becomes useful, in words
 the reader can act on. It ends in one of three states: granted, declined, or
-partially granted, and all three are ordinary outcomes that the product continues
-from.
+partially granted, which here means yes to some of the sheets and no to others,
+and all three are ordinary outcomes that the product continues from.
 
 It is also the screen where a design's honesty is most directly testable. Almost
 every dark pattern in health software lives here: the pre-ticked box, the grey
@@ -61,28 +60,40 @@ Rungs are given by position; they are named in
 [The ladder](../foundations/materials/the-ladder.mdx).
 
 ```text
-ConsentFlow                            three states, one scope
-├── 1. Ask                             ConsentSheet, one rung above the surface
-│   │                                  that triggered it, so context stays visible
+ConsentFlow                            three states, one scope per sheet
+├── 1. Ask                             one ConsentSheet per scope, shown when
+│   │                                  that scope becomes useful, one rung above
+│   │                                  the surface that triggered it
 │   ├── Purpose                        the benefit, concretely, before the ask
-│   ├── ScopeList                      what will actually be read
-│   │   └── ScopeItem …                individually grantable, all off by default
-│   │       ├── Field
-│   │       └── Description            plain English, Term where unavoidable
 │   ├── HandlingNote                   who else sees it · how long · how to delete
 │   ├── DisclaimerNote                 what this consent does not cover
 │   └── Answers                        two buttons, equal weight, equal size
 │       ├── AllowAction
 │       └── DeclineAction              "Not now", never a grey text link
+├── 1b. Ask again                      the next scope, only if the reader reaches
+│                                      the moment it serves; never bundled with
+│                                      the first into one accept-everything sheet
 ├── 2. PlatformPrompt                  the operating system's own dialog. It is
 │                                      triggered only after Allow, never styled
 │                                      to look like ours, never pre-empted
 └── 3. Outcome                         page ground
     ├── Granted                        continue to the thing they wanted
-    ├── PartiallyGranted               say what works and what does not
+    ├── PartiallyGranted               say which asks were agreed to and which
+    │                                  were not
     └── Declined                       EmptyState: what still works, and the way
                                        back. It is never a wall
 ```
+
+**One scope is one sheet.** [ConsentSheet](../components/consent-sheet.mdx) has no
+`purposes` array and no per-item switch, and that is deliberate: it asks one
+question so the answer means one thing. Three permissions are three sheets, each
+asked when it becomes useful and each recording its own grant against its own
+wording. A sheet that gathered several scopes behind individual switches would be
+a product invention with no doctrine behind it, and it would need a control the
+roster does not carry. [Consent and disclosure](../health/consent-and-disclosure.mdx)
+holds the reasoning. The shipped specimen of the sequence is
+`registry/examples/consent-sheet-two-questions-two-sheets.tsx`, where the reader
+grants the first scope and refuses the second.
 
 Three composition rules this screen demonstrates:
 
@@ -131,9 +142,9 @@ not asked a question.
 
 ## Accessibility
 
-**Landmarks and headings.** Each step has one H1 stating what is being asked. The
-scope list is a real list; each item's description is programmatically associated
-with its control.
+**Landmarks and headings.** Each step has one H1 stating what is being asked.
+Each scope is asked on its own sheet rather than as an item in a list, and its
+description is programmatically associated with the answers it governs.
 
 **Reading order is the contract.** Purpose, scope, handling, boundary, then the two
 answers. This screen fails more often on order than on anything else: an Allow

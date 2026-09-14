@@ -156,18 +156,30 @@ theme on exactly one display.
 ### Do not mix the two axes
 
 ```tsx
-// Wrong: the tile is both a category and a verdict, in colour, twice.
-<MetricTile category="heart" className="bg-category-heart-surface"
-            status="urgent" />
+// Wrong: the tile is both a category and a verdict, in colour, twice. The
+// background line would reach past the bridge for a category surface value and
+// paint it under a status tile. The value is left as a note, not a token, so
+// this block cannot be pasted into the tint the rule forbids.
+<MetricTile
+  category="heart"
+  status="urgent"
+  style={{ background: "/* a category surface value goes here, and must not */" }}
+/>
 
 // Right: identity from the glyph, verdict from the surface.
 <MetricTile category="heart" status="urgent" />
 ```
 
 The rule and its rationale are in
-[The two colour axes](../health/two-colour-axes.mdx). The interactive
-demonstration at [`/playground/status`](/playground/status) refuses to render
-the mixed pair.
+[The two colour axes](../health/two-colour-axes.mdx). opsinjs ships no Tailwind
+utility that tints a card by category, and the wrong tile above has to reach
+past the bridge for a raw category surface value to break the rule at all. That
+withdrawal is deliberate. A category surface and a status surface at the same
+ladder step measure Lc 0.00 and WCAG 1.00 against each other, so a heart card
+and an urgent card would be the same colour to a reader. Category identity
+travels by glyph, ink and accent, and the surface is left to status. The
+interactive demonstration at [`/playground/status`](/playground/status) refuses
+to render the mixed pair.
 
 ### Do not invent a component, a prop or a variant
 

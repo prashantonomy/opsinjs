@@ -1,6 +1,6 @@
 ---
 title: Typography tokens
-description: The generated reference for every type role, with a rendered specimen for each. Each entry lists the role's size, line height, tracking, weight and numeric variant.
+description: The generated reference for every type role, with a rendered specimen for each. Each entry lists the role's size, line height, tracking and weight.
 status: stable
 kind: foundation
 aliases: [font tokens, text tokens, type token reference]
@@ -23,8 +23,7 @@ token you do not actually know.
 
 ## How it works
 
-`tokens/type.json` holds one entry per role, and each entry is four values plus
-two flags:
+`tokens/type.json` holds one entry per role, and each entry is four values:
 
 - **size** is expressed relative to the root, never in pixels, so the reader's
   multiplier and browser zoom both apply.
@@ -34,13 +33,15 @@ two flags:
   slightly positive at the small end. Type set at one tracking across a whole
   scale looks wrong at both extremes.
 - **weight** is a numeric weight the platform font can actually produce.
-- **`tabular`** says whether the role sets `font-variant-numeric: tabular-nums`.
-  True for every value role, false for every reading role, and not overridable
-  per component.
-- **`scaleRate`** shows how fast this role grows as the reader's multiplier
-  rises. Small roles grow faster than large ones; this is the field that makes
-  the scale non-linear and it is the reason the whole scale is semantic. See
-  [Type scale](type-scale.mdx).
+
+There is no per-role `tabular` flag and no `scaleRate` field, because the file
+holds neither. Tabular figures are not a property of a size role at all. The
+product theme sets `font-variant-numeric: tabular-nums` on anything carrying the
+`data-opsinjs-value` attribute, and the numeric family is reached through
+`font-opsin-numeric`, so a measurement gets aligned digits from what it is rather
+than from the step it sits in. Every role also scales by the same factor, because
+the reader's multiplier is applied once at the root font size and never tuned per
+role. See [Type scale](type-scale.mdx).
 
 The generator emits both a `--opsin-text-<role>-*` group of custom properties and
 a Tailwind `--text-*` mapping, so a role is reachable as a utility class or as a
@@ -52,9 +53,10 @@ raw variable depending on how the consuming product is built.
 want: if a role is used by nothing, either you have found the one you need or the
 role should not exist.
 
-**Check `tabular` before you set a number.** If the role you are about to use has
-`tabular: false`, it is a reading role and a number set in it will shift the
-layout when it changes.
+**Set a number in a value context, not just in a size role.** A size role gives a
+number its size; it is the `data-opsinjs-value` attribute and `font-opsin-numeric`
+that give it tabular, aligned digits. A number rendered without them shifts the
+layout every time it changes, whichever role it is in.
 
 **Copy the role name, never the computed size.** A pixel value pasted into a
 component is a component that no longer participates in Dynamic Type, and the
@@ -73,14 +75,15 @@ default and wrong at 1.3× is visible here rather than in production.
 
 ## Accessibility impact
 
-- **Publishing `scaleRate` is what makes non-linear scaling reviewable.** Without
-  it, "the type scales" is a claim; with it, anyone can see which roles grow and
-  by how much.
+- **The generated table is what makes the scale reviewable.** Because every value
+  is emitted rather than typed, "the type scales" stops being a claim: anyone can
+  read the size and weight of every role, at more than one multiplier, and check
+  it against what renders.
 - **Every pairing of a role with a surface is measured for contrast at the
   role's own size and weight.** APCA is size- and weight-sensitive, so a single
   ratio for the whole scale would be wrong for most of it. The measured results
   are on [Contrast conformance](../../accessibility/contrast-conformance.mdx).
-- **The minimum size is published and enforced.** `caption` is the floor; a
+- **The minimum size is published and enforced.** `caption2` is the floor; a
   generated table makes it obvious when something has been set below it.
 - **The specimens are real text.** They are selectable, translatable and
   readable by a screen reader, not images of type. That is also the rule the
@@ -88,8 +91,8 @@ default and wrong at 1.3× is visible here rather than in production.
 
 ## Related
 
-- [Type scale](type-scale.mdx) says what each role is for, and covers the two
-  families.
+- [Type scale](type-scale.mdx) says what each role is for, and covers how a
+  measurement gets tabular figures.
 - [Dynamic Type](dynamic-type.mdx) says what these values become at the
   reader's own text size, and covers the 1.3× bar.
 - [Reference → Tokens](../../reference/generated/tokens.mdx) has the same rows

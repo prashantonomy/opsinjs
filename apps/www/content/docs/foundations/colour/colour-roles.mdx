@@ -83,16 +83,39 @@ resolves to the **line**, `bg-category-heart` resolves to the **accent**. The
 other roles are always spelt out. Raw `var()` access is supported for consumers
 who are not on Tailwind; see [CSS variables](../../theming/css-variables.mdx).
 
+The category axis also exposes one role fewer, and this is the rule that keeps
+the two axes apart. `surface` is bridged to a utility only on the status axis, so
+a status can tint a card with `bg-status-attention-surface` while a category has
+`line`, `ink` and `accent` and no surface utility to reach for. The reason is not
+chroma. Both axes run the same lightness ladder and the same chroma envelope, so
+at a given step a category surface and a status surface measure Lc 0.00 and WCAG
+1.00 against each other, which is no difference a reader could use. So a category
+paints a stroke, a word or an identity fill and never a tinted card, and only a
+status owns the tinted surface. A category surface value still exists as the
+measurement reference its `ink` is gated against, and it is what the ramp
+specimen shows, but nothing paints a card with it.
+
 ### Chrome roles are a separate namespace
 
 Alongside the two axes there is an ordinary application palette.
 `--background`, `--foreground`, `--card`, `--muted`, `--muted-foreground`,
-`--border`, `--input`, `--ring` and `--primary` are inherited from the shadcn
-convention so that a team already using it is not asked to relearn anything.
-These are unprefixed on purpose: they are the *neutral* system, they carry no
-clinical meaning, and they are the correct default for almost everything on a
-screen. The `--opsin-*` tokens are the exception you reach for when the element
-is genuinely saying something about a measurement.
+`--border` and `--input` are inherited from the shadcn convention so that a team
+already using it is not asked to relearn anything. These seven are unprefixed on
+purpose: they are the *neutral* system, they carry no clinical meaning, and they
+are the correct default for almost everything on a screen.
+
+Two more roles ship under the same convention and are not neutral. `--ring` and
+`--primary` are a brand blue, seeded at chroma 0.13 and 0.135, which is as
+chromatic as the category axis, whose labs seed sits at 0.11 and whose heart
+seed at 0.17. Calling them neutral would be wrong. They carry no clinical
+meaning either, but they are a third saturated presence on the screen, one that
+competes with both measurement axes for the reader's eye, so a focus ring or a
+primary button is a deliberate accent rather than a quiet default. Whether the
+chrome palette should stay this chromatic is a design question the system has
+not yet closed.
+
+The `--opsin-*` tokens are the exception you reach for when the element is
+genuinely saying something about a measurement.
 
 If most of your screen is coloured from the two axes, the screen is shouting.
 See [Alarm fatigue](../../health/alarm-fatigue.mdx).
@@ -100,7 +123,10 @@ See [Alarm fatigue](../../health/alarm-fatigue.mdx).
 ### The declared pair set
 
 `scripts/check-contrast.mts` measures a *declared* list of pairs, in both
-themes and both gamuts. The list is, exactly:
+themes and in sRGB. Each measured pair is gated, advisory or exempt, the
+three states [Contrast and APCA](./contrast-and-apca.mdx) defines, and the
+clauses below say which state each pair takes rather than restating what the
+states mean. The list is, exactly:
 
 1. every `ink` against the `surface` of the same axis and name, at the body-text
    floor;
@@ -110,24 +136,48 @@ themes and both gamuts. The list is, exactly:
    chosen for recognition and is not something a reader has to read;
 4. every `ink` against the page, at the body-text floor, because a status or
    category word frequently sits on the page rather than on its own tint;
-5. the three neutral roles of body text, secondary text and a hairline
-   boundary, each against the page and the last of them advisory;
+5. the neutral roles: body text and secondary text against the page at the
+   body-text floor; the card hairline and the focus ring against both the page
+   and a card at the non-text floor, gated on the chrome tokens the theme
+   renders; and one grouping hairline between list rows against the page, left
+   advisory because a row divider carries no meaning that SC 1.4.11 covers;
 6. body text against every material rung's opaque fallback, `scrim` excepted
    because nothing is written on a dimmer (see
    [The contrast floor](../materials/the-contrast-floor.mdx)).
 
-"The page" in clauses 3 to 6 is the end of the neutral ramp, which is
-`--opsin-neutral-0` in light and `--opsin-neutral-950` in dark. It is not
-`--card`. In light the two resolve to the same white, so a card is inside the
-measured pair; in dark `--card` sits a step lighter than the ramp's end, so a
-card is one step away from it.
+"The page" in clauses 3 to 6 is `--opsin-chrome-background`, which resolves to
+`--opsin-neutral-50` in light and `--opsin-neutral-950` in dark. It is not
+`--card`, which is `--opsin-chrome-card` and resolves to `--opsin-neutral-0` in
+light and `--opsin-neutral-900` in dark. In both themes the card sits one ladder
+step lighter than the page, so a card is one step away from the measured pair
+rather than inside it.
 
 Anything not on that list is **unmeasured**. Unmeasured is not the same as
 failing, because an unmeasured pair may well be fine. It is still not something
 this system is promising you, and a health product should not be built on a
-promise nobody made. The focus ring is the gap worth knowing about: `--ring`
-against `--background` is precisely what a keyboard reader depends on, and
-nothing measures it today.
+promise nobody made. The focus ring used to be the gap worth knowing about, and
+it no longer is: `--ring` against the page and against a card is measured and
+gated in both themes, on the chrome tokens the theme actually renders, so the
+boundary a keyboard reader depends on is now something the system checks rather
+than something it hopes.
+
+<Todo>
+  One honest gap survives the measurement. A 1px hairline on a near-black dark
+  page cannot reach the APCA Lc 45 non-text floor at any value the neutral ladder
+  holds, so the dark card hairline is measured, published and below the APCA floor
+  while it still clears the WCAG 3:1 ratio. It is gated rather than hidden, which
+  catches any further lightening of the border, and the shortfall is stated at its
+  source in `app/product.css`. Closing it needs a boundary treatment the neutral
+  ladder does not yet carry.
+</Todo>
+
+The neutral and chrome pairs, measured in both themes, render below. The card
+hairline rows sit in the neutral scope, and the focus ring rows in the chrome
+scope, because the ring is a chrome role rather than a neutral one.
+
+<ContrastReport scope="neutral" />
+
+<ContrastReport scope="chrome" />
 
 ## Using it
 

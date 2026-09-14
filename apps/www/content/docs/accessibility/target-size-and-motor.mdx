@@ -72,8 +72,16 @@ Two further guarantees:
 
 **Spacing between adjacent targets.** Size is not the whole story: two 44 px
 targets with zero gap in a list of daily readings still produce mis-taps, because
-the boundary is invisible. Give adjacent destructive and constructive actions
-real separation, and never place "delete" adjacent to "save".
+the boundary is invisible. The system does publish one number here.
+`--opsin-target-separation` is 8 px, or `0.5rem`, and its token scopes it exactly:
+it is the minimum gap between two adjacent targets whose *visible* boxes are
+smaller than 44 px, a floor for undersized controls only. Two controls that both
+meet the 44 px minimum fall outside that scope, so the 8 px floor does not settle
+the gap between them. What settles that gap is the cost of a mis-tap: give
+adjacent destructive and constructive actions more separation than the floor, and
+never place "delete" adjacent to "save".
+[Density and touch](../foundations/space/density-and-touch.mdx) carries the same
+rule from the spacing side.
 
 **Where you put the targets.** A 44 px control in the top-left corner of a large
 phone is not reachable one-handed. Primary actions in a patient-facing app belong
@@ -142,11 +150,17 @@ pseudo-element, and it runs on a schedule rather than on a pull request.
 
 ## Known gaps
 
-- **No target size has been measured,** only specified. The token exists; nothing
-  renders it.
-- **Adjacent-target separation has no published minimum.** The rule above says
-  "real separation" because we have not yet chosen a defensible number, and we
-  would rather say so than invent one.
+- **There is no published per-component measured table.** The nightly layout gate
+  described above does measure, and it fails any interactive element under 44 by
+  44, but it publishes no artefact, it cannot see a hit area a pseudo-element has
+  expanded, and it runs on a schedule rather than on every pull request. So the
+  token is enforced somewhere, while the per-component table at each density this
+  page wants is still not produced.
+- **Adjacent-target separation has a floor but no number for asymmetric actions.**
+  `--opsin-target-separation` publishes an 8 px floor for targets whose visible
+  boxes are under 44 px. The prose rule then asks for more than a floor whenever
+  two adjacent actions carry asymmetric consequences, and that second case has no
+  published number. We would rather say so than invent one.
 - **There is no shipped alternative for path-based gestures,** because there are
   no shipped gestures.
 

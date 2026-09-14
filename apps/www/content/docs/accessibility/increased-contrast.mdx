@@ -1,6 +1,6 @@
 ---
 title: Increased contrast
-description: What prefers-contrast is meant to change, what forced-colours mode does instead, and an honest account of the fact that neither is implemented yet.
+description: What prefers-contrast is meant to change, what forced-colours mode does instead, and an honest account of the per-component forced-colours answers that now exist while no global escalation does.
 status: beta
 kind: accessibility
 a11yDate: 2026-09-02
@@ -14,10 +14,34 @@ aliases: [high contrast mode, forced-colors, windows contrast themes]
 
 ## What we guarantee
 
-Today: **nothing.** This page exists because the gap is real and should be
-visible, not because there is a feature to describe. `app/globals.css` implements
-`prefers-reduced-motion` and `prefers-reduced-transparency`; there is no
-`prefers-contrast` block and no `forced-colors` block anywhere in this codebase.
+Today: **nothing system-wide.** This page exists because the gap is real and
+should be visible, not because there is a global feature to describe.
+`app/globals.css` implements `prefers-reduced-motion` and
+`prefers-reduced-transparency`; there is no `prefers-contrast` block and no
+site-wide `forced-colors` block. Several components now answer `forced-colors:
+active` on their own, and a grep of `registry/bases/base` for a `forced-colors:`
+variant class shows the seven below:
+
+- **`Surface`** draws its edge as an `outline` rather than a `box-shadow`, so a
+  browser keeps it and recolours it to `CanvasText` on the four rungs that publish
+  a border, and every card and tile built on `Surface` stays bounded.
+- **`Field`** switches an invalid control's border to dashed, so the invalid state
+  still reads once the browser has repainted that border to a system colour.
+- **`Button`** gives its primary variant `Highlight` and `HighlightText`, so the
+  recommended action stays filled and its label meets the system pairing.
+- **`ScoreDial`** and **`TrendSparkline`** map their SVG strokes to system
+  colours, because forced colours recolours boxes and text but leaves strokes
+  where the author put them.
+- **`RangeBar`** maps its boundary tick to `CanvasText` and its reading marker to
+  `Highlight` inside a `CanvasText` outline, so the scale's edges and the current
+  reading stay separable once the palette is replaced.
+- **`Sheet`** maps its scrim to `Canvas`, so the dimmed backdrop becomes the
+  system background rather than a tint the browser would otherwise drop.
+
+All of this lives in each component rather than in a stylesheet, and deliberately
+so. The product stylesheet does not travel with a `shadcn add` install while the
+component file does, so a rule that ships inside the component reaches the reader
+who installed only that component.
 
 What the system *does* provide that makes the gap survivable in the meantime:
 
@@ -60,10 +84,16 @@ information that would otherwise be lost.
 
 ## What you own
 
-**Everything, currently.** Until the block above exists, high-contrast support in
-a product built on opsinjs is entirely the product's responsibility.
+**Two mechanisms, two answers.** Forced colours is answered per component today, in
+the files listed above, so a product built on opsinjs does not have to redraw the
+boundary Surface already draws or the strokes ScoreDial already maps. What stays
+the product's there is its own colours, its own information-bearing images, and any
+boundary it draws with a shadow instead of a border, which are the three items
+below. `prefers-contrast: more` is the other half, and it has no token-layer
+escalation yet, so raising contrast on demand is still entirely the product's
+responsibility until the block above lands.
 
-Once it exists, these remain yours:
+These stay yours under both mechanisms:
 
 - **Any colour you introduce.** Your brand accent, your chart series, your
   illustrations. The system can only escalate what it defines.
@@ -81,9 +111,12 @@ Once it exists, these remain yours:
 ### Emulate `prefers-contrast: more`
 
 In Chrome or Edge developer tools, Rendering → Emulate CSS media feature
-`prefers-contrast`. **Expected result today:** nothing changes, because nothing is
-implemented. That is the correct current outcome, and confirming it is the point
-of the check.
+`prefers-contrast`. **Expected result today:** the token layer changes nothing,
+because there is no `@media (prefers-contrast: more)` block in either stylesheet.
+Surface and DisclaimerNote do answer the variant in their own utilities, so on any
+page that renders a Card, Dialog, Sheet or DisclaimerNote you should see the
+surface go opaque, lose its backdrop blur and gain a thicker edge. Seeing those
+three changes and nothing else is the correct current outcome.
 
 ### Turn on a Windows contrast theme
 
@@ -118,11 +151,17 @@ be light, dark and increased-contrast.
 
 This page is mostly gap, so the list is the substance rather than a footnote.
 
-- **`prefers-contrast` is not implemented.** No `@media (prefers-contrast: more)`
-  block exists in `app/globals.css` or `app/product.css`.
-- **`forced-colors` is not implemented or tested.** No `@media (forced-colors: active)`
-  block exists, and the site has never been opened under a Windows contrast
-  theme.
+- **`prefers-contrast` has no token-layer answer.** No `@media (prefers-contrast: more)`
+  block exists in `app/globals.css` or `app/product.css`, so the escalation this
+  page specifies is still the one that is missing. It is answered per component
+  instead: [Surface](../components/surface.mdx) maps `contrast-more:` to an opaque
+  tint and a thicker edge in its own utilities, and DisclaimerNote thickens its
+  rule under the same variant.
+- **`forced-colors` is answered per component, has no site-wide block, and has not
+  been tested on a real theme.** Surface, Field, Button, ScoreDial,
+  TrendSparkline, RangeBar and Sheet each handle it in their own file, but no
+  site-wide `@media (forced-colors: active)` block exists and the site has never
+  been opened under a Windows contrast theme.
 - **There is no increased-contrast token set,** so nothing can be measured.
 - **`prefers-contrast: less` is not considered at all,** and we have no view on
   what it should do.

@@ -95,10 +95,13 @@ can read and that disappears in a screenshot.
 the container rather than the content, and it is one of the more reliable ways to
 make a transition look broken part-way through.
 
-**Do not apply the squircle attribute to everything.** The product theme applies
-`corner-shape` to elements carrying `data-opsin-shape="squircle"`, not to every
-rounded box, so that a browser without support gets an ordinary rounded rectangle
-rather than a fallback that looks wrong.
+**Do not reach for the squircle on every rounded box.** The corner shape is not
+applied globally and no component stamps an attribute for it. Each surface that
+wants it opts in by carrying an inline `corner-shape` property that reads
+`var(--opsin-corner-shape)` beside its radius, which is how Card, Callout and
+Dialog draw it. Keeping it to the surfaces the system draws leaves third-party
+components, embedded content and anything with an incidental radius alone, and a
+browser without support simply keeps the ordinary rounded rectangle.
 
 ## Tokens
 

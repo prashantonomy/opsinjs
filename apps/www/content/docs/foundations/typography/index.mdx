@@ -69,7 +69,8 @@ reading, a range bound, an axis label, a time, a count. Proportional digits
 change width as the value changes, so a heart rate ticking from 99 to 100 shifts
 the layout, and a column of readings does not line up so the eye cannot scan it.
 This is not a preference. It is a correctness requirement on a screen of numbers,
-and it is carried by the type token rather than left to each component.
+and the system carries it on the `data-opsinjs-value` attribute rather than
+leaving each component to remember it.
 
 **3. Type never carries status on its own.** Bold is not urgent, red is not
 severe, and a larger size is not more important clinically. Weight and size
@@ -85,26 +86,32 @@ Wide screens get more content, not longer lines. The mechanism is on
 
 ## Using it
 
-**Pick the role, never the size.** The scale is named for jobs: body, headline,
-footnote, and a separate family for values. Choosing `title-2` because it is
-"about the right size" is how a system acquires four different heading sizes that
-mean nothing.
+**Pick the role, never the size.** The scale is one family of eleven reading
+roles named for the jobs they do: body, headline, footnote, a title for a screen,
+a caption for a label. There is no separate family for values. Choosing `title2`
+because it is "about the right size" is how a system acquires four different
+heading sizes that mean nothing.
 
-**Use the value roles for values.** The numeric roles are the only ones that
-carry tabular figures and the tighter tracking a large number needs. Setting a
-reading in `title-1` because it looked close enough gives you a number that
-shifts as it updates.
+**A measurement is a reading role too.** A health value is set in a reading role
+at `title2` or larger, never below `body`, with its label in `subheadline` and
+its provenance in `footnote`. There is no `text-opsin-value-*` utility to reach
+for. The tabular, aligned figures a number needs come from the
+`data-opsinjs-value` attribute and `font-opsin-numeric`, not from the role, so a
+value stays stable as it updates because of what it is rather than because of
+which size step it landed in.
 
 <DoDont>
   <DoDont.Do>
-    `120/80` set in a value role, with `mmHg` set in the unit role beside it at a
-    smaller size and a lighter weight. The figures are tabular, so the layout is
-    stable as the reading changes, and the unit is present but subordinate.
+    `120/80` in `title1` carrying `data-opsinjs-value`, with `mmHg` in `title3`
+    beside it at a smaller size and a lighter weight. The value attribute makes
+    the figures tabular, so the layout is stable as the reading changes, and the
+    unit is present but subordinate.
   </DoDont.Do>
   <DoDont.Dont>
-    The same reading in a display heading with the unit at the same weight. The
-    digits reflow as the value changes, the unit competes with the number for
-    attention, and at a large text size the whole line wraps in the middle of the
+    The same reading and unit both in `title1`, and neither carrying the value
+    attribute. The digits reflow as the value changes because nothing set them
+    tabular, the unit competes with the number for attention at the same size,
+    and at a large text size the whole line wraps in the middle of the
     measurement.
   </DoDont.Dont>
 </DoDont>

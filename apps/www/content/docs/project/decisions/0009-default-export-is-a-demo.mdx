@@ -103,6 +103,49 @@ export default function StatusPillDemo() {
   needs a state it does not have, or the interesting behaviour belongs in an
   example. Both are worth knowing before the page reaches `alpha`.
 
+Because the demo ships and is copied first, four rules hold it to a common
+standard across the registry.
+
+1. **A demo renders the primary happy case and emits no development warning.** A
+   warning fires when a component is asked to render something it is built to
+   refuse or to protest, so a demo that trips one is telling every consumer who
+   copies it to start from the case the component objects to. Absence, under-data
+   and refused-input cases are still worth showing, so they live in
+   `registry/examples/`, where a page presents them deliberately and the warning
+   is the lesson rather than an accident. The exception is what "happy case"
+   means: it is the case that demonstrates the component's actual claim, not the
+   prettiest frame. `Surface` renders its demo over a backdrop chosen to be hard
+   on a translucent surface rather than kind to it, and the `BACKDROP_TILES`
+   comment in `surface.tsx` argues why, because a translucent surface that only
+   ever sits on a gentle ground has not been shown doing its job. There is one
+   true exception to the no-warning half, and it is `ScoreDial`. Its demo passes
+   `bands={[]}` and so trips the "was given no bands" warning in `score-dial.tsx`
+   on purpose, because [ADR 0012](0012-synthetic-example-data.mdx) forbids a
+   shipped default export from distributing invented band geometry into
+   `/r/score-dial.json` and into every `shadcn add` copy. The absence warning is
+   the honest output there, so the demo keeps it, and the supplied-band case
+   lives in `registry/examples/` instead, where an example file carries no
+   catalogue row and appears in no `/r` payload and can therefore show real
+   geometry. Read this as no licence to invent bands: the fix for the warning is
+   an example, never a band set added to the demo.
+2. **A demo carries a one-line orienting footnote only when the component portals
+   out of the preview frame.** A portal is the one case where what the reader sees
+   is not where the component rendered, so the footnote tells them the dialog or
+   sheet they are looking at came from the button above it. A component that
+   renders in place needs no such note, and adding one to every demo would train
+   readers to skip the note in the one demo that needs it.
+3. **A demo never prints prop syntax as rendered text.** The source is shown by
+   `<ComponentSource>` and the props by the generated table, so a caption that
+   spells a prop states a third time what two generated surfaces already state,
+   and it states it in a place that cannot stay in step with the interface. Label
+   a shape in the rendered preview with plain words, not with the prop that
+   produced it.
+4. **A demo uses the registry components it depends on rather than hand-rolling a
+   copy of one.** The demo is the file a consumer reads first, so a hand-rolled
+   stand-in for a component the file already declares as a dependency teaches the
+   consumer to bypass the very component the demo sits beside. Import the real
+   one.
+
 ## Alternatives considered
 
 **Export the component as the default and give every prop a default value.**

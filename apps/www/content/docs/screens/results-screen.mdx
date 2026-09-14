@@ -66,6 +66,11 @@ ResultsScreen                          page ground
 └── DisclaimerNote                     page ground, lowest emphasis
 ```
 
+<Todo>This composition names `source-citation`, which has no component on the
+roster yet. Until it lands, a team building the provenance section writes the
+source and the instrument as plain prose the product supplies, rather than
+composing a component that does not exist.</Todo>
+
 Three composition rules this screen exists to demonstrate:
 
 **The card is the only surface off the page ground.** Elevation is meaning here:
@@ -84,7 +89,19 @@ rule assigned a status, the screen shows no status and no colour stands in for o
 
 ## Preview
 
-<IframePreview kind="screen" name="results-screen" />
+<IframePreview kind="screen" name="results-screen" embed />
+
+The specimen above is assembled entirely from parts that already ship: ResultCard
+as the answer, Term for the one word that needs expanding, CareCard for the single
+next step, RelativeTime carrying the absolute measurement instant in the provenance
+line, DisclaimerNote to close the surface, and Surface as the ground beneath them.
+Card is not a ground the specimen places: it arrives as a registry dependency of
+CareCard, which is built on it. The frame renders at phone, tablet and desktop
+widths (390, 744 and 1180 pixels) so the reading order and the one-status-pill rule
+can be checked against something rendered rather than argued from prose. One part of
+the composition is not a component: `source-citation` has no code on the roster, so
+provenance appears here as a plain paragraph the product writes, exactly as the
+ResultCard demo already renders it.
 
 ## Safety notes
 
@@ -173,4 +190,12 @@ no entrance animation carrying meaning.
     "If the product's clinical rules assign no status, does the screen show an explicit 'no assessment' state or nothing at all?",
     "What is shown when the result arrives before the summary sentence that explains it has been written?",
   ]}
-/>
+>
+Nothing here is a new component. The preview above arranges parts that already ship
+into the composition this page specifies, so the three screen-level checks have
+something rendered to run against. The screen as a stable, shippable surface is
+still under review: the composition, its refusals and its accessibility bar are the
+proposal, and the questions below have to be answered before it ships. Do not
+generate product code against this page. The only thing that exists is a
+documentation specimen under `registry/screens/`, which is not served from `/r`.
+</StubNotice>

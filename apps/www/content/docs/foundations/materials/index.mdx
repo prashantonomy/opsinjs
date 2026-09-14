@@ -103,11 +103,13 @@ implemented:
 | --- | --- | --- |
 | `prefers-reduced-transparency: reduce` | translucent rungs collapse to their opaque fallback, drop their blur and reset their saturation | yes, in the token layer, for all six rungs |
 | `prefers-contrast: more` | borders strengthen and tints deepen; blur is unaffected | no. `Surface` alone answers it, in its own utilities: it collapses the tint to the opaque fallback and widens the edge, and it does not deepen a tint or change a border colour. See [Increased contrast](../../accessibility/increased-contrast.mdx) |
-| `forced-colors: active` | the palette is replaced by the operating system's; the ladder survives as borders alone | no. Nothing in opsinjs answers it. See [Increased contrast](../../accessibility/increased-contrast.mdx) |
+| `forced-colors: active` | the palette is replaced by the operating system's; the ladder survives as borders alone | partly. `Surface` draws its edge as an outline, which forced colours keeps and recolours to `CanvasText`, and it stops rendering the backdrop; the scrim's dimming is still lost, because the system palette replaces the tint with `Canvas`, and no forced-colours capture exists yet. See [Increased contrast](../../accessibility/increased-contrast.mdx) |
 
-The two unimplemented rows stay on the page because the specification is worth
-publishing; the third column is there so that nobody plans a translucent sheet
-under forced colours believing the layer boundary already survives it.
+The two partially answered rows stay on the page because the specification is
+worth publishing even where the answer is incomplete; the third column is there
+so that nobody plans a translucent sheet under forced colours believing its
+dimming survives, because `Surface`'s edge now does and the scrim's dimming does
+not.
 
 Print is a fourth case and behaves like the first, with the additional rule that
 shadows and blur are removed rather than approximated. That one is real but it

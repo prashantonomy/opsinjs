@@ -82,11 +82,27 @@ range bar whose marker is invisible against its track.
 Render the screen under protanopia, deuteranopia and tritanopia. Use the
 simulator at [`/playground/status`](/playground/status), which applies the same
 transforms the docs use. **Expected result:** the status levels remain
-distinguishable from one another, and no category colour becomes confusable with
-a status colour. **Failure looks like** `steady` and `attention` collapsing into
-one tone under deuteranopia. That is not hypothetical: they are the pair the
-generated audit in `lib/generated/contrast.json` records as indistinguishable
-there, and it is exactly why they also differ in word and icon.
+distinguishable from one another, because each carries a word and an icon whose
+shape differs. Colour alone does not rank all four levels under a dichromacy
+simulation: the audit records `steady` against `attention` at Lc 0 under
+deuteranopia, so by hue those two collapse. What keeps them rankable is the word
+and the differing icon shape, which is the property this check really tests. The
+cross-axis question is
+separate. Could a category colour be read as a status colour? Two things now
+answer it. The audit measures it, because `scripts/check-contrast.mts` projects
+every role rather than the accent swatch alone and records any
+category-versus-status pair that collapses under `cvd.crossAxisCollisions` in
+`lib/generated/contrast.json`. The palette then answers it by role rather than by
+hue: a category may tint an accent, a line or ink, but it can never tint a
+surface, because the category surface utility was withdrawn, so a whole card is
+never painted a category colour that a status tint could be mistaken for. Where
+the generated table still shows a category surface token and a status surface
+token collapsing to one grey, that is a fact about two tokens the theme never
+renders on the same element, not a confusion a reader can meet. **Failure looks
+like** `steady` and `attention` collapsing into one tone under deuteranopia. That
+is not hypothetical: they are the pair the generated audit in
+`lib/generated/contrast.json` records as indistinguishable there, and it is
+exactly why they also differ in word and icon.
 
 ### Photocopy it
 
@@ -109,12 +125,14 @@ and it is the check we intend to automate first.
 <NoDataYet script="scripts/check-contrast.mts" />
 
 The audit itself exists and is committed. `scripts/check-contrast.mts` projects
-every status and category accent through the three dichromacy matrices and a
-relative-luminance greyscale using `lib/color/cvd.ts`, and writes every pair that
-falls below the collapse threshold into `lib/generated/contrast.json` under `cvd`.
-What is missing is the wiring, not the measurement: no report component on this
-site reads that block yet, so the table above has nothing to render and says so
-rather than printing figures a person typed.
+every status and category role, not the accent swatch alone, through the three
+dichromacy matrices and a relative-luminance greyscale using `lib/color/cvd.ts`,
+and writes every pair that falls below the collapse threshold into
+`lib/generated/contrast.json`, both within an axis under `cvd` and across the two
+axes under `cvd.crossAxisCollisions`. What is missing is the wiring, not the
+measurement: no report component on this site reads that block yet, so the table
+above has nothing to render and says so rather than printing figures a person
+typed.
 
 ## Known gaps
 

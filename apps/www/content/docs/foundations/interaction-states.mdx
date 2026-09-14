@@ -75,6 +75,31 @@ theme generator uses. That is the point: a derived state cannot be out of step
 with the role it derives from, and a preset that changes the role changes every
 state with it.
 
+**What implements press today.** Press is the one state a phone can show that
+hover cannot, so a system read one-handed by people over 60 has to carry it on
+every control a thumb reaches. It is implemented on Button and on the shared
+Link, and every component that composes them inherits it: Card, CareCard,
+MetricTile, Term, DisclaimerNote, ResultCard, AlertBanner and EmptyState all
+acknowledge a touch. Two controls are still short of it, the close control on
+Dialog and the close control on Sheet, which change their background on hover but
+give a touch no press cue.
+
+There is no page-level press treatment, and that is deliberate. `app/product.css`
+backstops focus with a global `:focus-visible` ring and backstops the touch floor
+with a minimum block and inline size on interactive roles, and it restores the
+browser tap highlight that the CSS reset had zeroed, but a global `:active` fill
+would fight a control that presses by shifting rather than by filling. Each
+control therefore declares its own press from the shared derivation, and the two
+close controls above are the ones that have not yet.
+
+<Todo>
+  Add the press acknowledgement to the close controls on Dialog and Sheet, or
+  record in each Anatomy section why a close control does not take it. They are
+  the last two hand-rolled interactive elements in the registry that stop at
+  hover and focus, and press is the state a one-handed reader on a phone can see
+  when hover is not there to give.
+</Todo>
+
 ## Using it
 
 **Do not author a state colour.** If you find yourself choosing a hover colour,

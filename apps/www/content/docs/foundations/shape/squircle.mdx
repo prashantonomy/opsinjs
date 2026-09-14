@@ -35,35 +35,35 @@ says what curve fills it.
 
 ## How it works
 
-**The declaration.** The product theme sets it inside a support query, applied to
-elements that opt in by attribute rather than to every rounded box:
+**The declaration.** Each component that opts in carries the property in its own
+class list, beside its radius, rather than the product theme setting it once on
+every box that opts in by attribute. In Card the shape role is
+`rounded-opsin-md [corner-shape:var(--opsin-corner-shape)]`, and Callout and
+Dialog carry the same arbitrary property on their own shape role. Three
+deliberate choices sit behind that one line.
 
-```css
-@supports (corner-shape: superellipse(4)) {
-  [data-opsin-shape="squircle"] {
-    corner-shape: var(--opsin-corner-shape);
-  }
-}
-```
+**It rides on the component, not on a rule in the stylesheet.** The property
+travels with the component into a consumer's project, where the product theme's
+stylesheet may not be present. A rule that keyed the squircle off a
+`data-opsin-shape` attribute in `app/product.css` would deliver nothing to a card
+copied into another codebase, whereas the inline property reaches the corner
+wherever the component goes.
 
-Three deliberate choices are in those four lines.
-
-**It is guarded by `@supports`.** That guard is there not because it needs to
-be but because it is the documentation. An unknown property is discarded
-regardless. Anyone reading the stylesheet can see immediately which part of the
-shape system is conditional.
-
-**It is applied by attribute, not universally.** A blanket `* { corner-shape }`
-would also reshape third-party components, embedded content and anything with an
-incidental radius. Opting in per element keeps the enhancement to surfaces the
-system actually owns.
+**It is not an attribute.** A `data-opsin-shape` attribute would be a fifth
+member of a data-attribute vocabulary that is closed at four, so the theme does
+not stamp one. Opting in per component, on the surfaces the system draws, keeps
+the enhancement off third-party components, embedded content and anything with an
+incidental radius, and it does so without growing that vocabulary. No `@supports`
+guard is needed, because an engine that does not recognise `corner-shape`
+discards the declaration on its own.
 
 **The shape itself is a token.** `--opsin-corner-shape` is a custom property, so
 a product that wants a rounder or squarer character changes one value rather than
-every rule.
+every component.
 
-**The degradation.** Where `corner-shape` is unsupported, the element keeps its
-`border-radius` and is drawn with a circular corner. It is the same size, the same
+**The degradation.** Where `corner-shape` is unsupported, the engine drops the
+inline declaration and the element keeps its `border-radius`, drawn with a
+circular corner. It is the same size, the same
 colour, in the same place, and it works identically. Nothing is conditional on
 this rendering: no layout depends on it, no interaction depends on it, no
 information is carried by it. That is what makes it the safest enhancement in the
@@ -93,9 +93,11 @@ the difference is smaller than the inconsistency it buys.
 
 <DoDont>
   <DoDont.Do>
-    A result card carrying `data-opsin-shape="squircle"` at the `lg` rung. Where
-    `corner-shape` is supported it is a squircle; where it is not it is an
-    ordinary rounded card at the same radius. Nobody can tell anything is missing.
+    A result card whose shape role carries
+    `[corner-shape:var(--opsin-corner-shape)]` beside its radius, taken to the
+    `lg` rung by the layout. Where `corner-shape` is supported it is a squircle;
+    where it is not it is an ordinary rounded card at the same radius. Nobody can
+    tell anything is missing.
   </DoDont.Do>
   <DoDont.Dont>
     An SVG-masked squircle. It looks right in every browser and it clips the

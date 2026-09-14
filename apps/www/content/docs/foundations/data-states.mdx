@@ -22,10 +22,22 @@ reassurance. Nothing there means nothing wrong. That inference is wrong often
 enough to matter, and it is entirely the interface's fault.
 
 So opsinjs defines five data states, once, for every surface that displays data.
-A component either renders all five or documents in its `When not to use` section
-why one is impossible. The third [principle](principles.mdx) is *say what you do
-not know*, and these five states are that principle turned into something a
-reviewer can check.
+A component either renders all five, or its `When to use it` section names the
+state it omits and says why drawing that state would be dishonest or impossible.
+Every built component page carries `When to use it` at alpha and above, which is
+every page that can render a data state, so the check has a section that exists to
+land in. A considered stub renders nothing and takes no such obligation. The third [principle](principles.mdx) is *say
+what you do not know*, and these five states are that principle turned into
+something a reviewer can check.
+
+<Todo>
+  No data surface has yet written that paragraph. `When to use it` on every built
+  component page argues about when to reach for the component, and none of them
+  yet names the data state it cannot render or says why leaving it out is honest.
+  Until each one does, this check names a real section but points at prose nobody
+  has written, so the count of unanswered surfaces stands at every built data
+  surface.
+</Todo>
 
 ## How it works
 
@@ -34,9 +46,11 @@ is the first one that applies.
 
 **1. Error.** The system tried and failed. This is a state about the *system*,
 not about the person, and the copy must make that obvious: the reading is not
-missing, the fetch failed. An error state always offers a retry or a route
-onwards, and it never occupies the space with something that could be read as a
-value.
+missing, the fetch failed. Rendered as an
+[EmptyState](../components/empty-state.mdx) with `reason="could-not-load"`, which
+draws a neutral marker in neither axis of colour and makes its action mandatory.
+An error state always offers a retry or a route onwards, and it never occupies
+the space with something that could be read as a value.
 
 **2. Loading.** The system is trying. Rendered as a
 [skeleton](../components/skeleton.mdx) that preserves the final layout, so the
@@ -77,11 +91,21 @@ and the rendering, never the number.
   S -->|no| V[Resolved: render the value]`}
 </FlowDiagram>
 
-Every state is exposed as a `data-state` attribute so it can be styled and
-tested from outside the component. See
-[Handbook → Data attributes](../handbook/data-attributes.mdx). Every state also
-has a machine-readable form in the registry so an agent generating a screen
-cannot forget one.
+Today these five states are legible only from the visible words a component
+renders, and from nothing else. No `data-state` attribute is emitted and no
+registry field publishes them, so CSS that selects on a state and a test that
+asserts on one have nothing to bind to: the state is in the reading, not in the
+DOM. The DOM attribute contract a fifth attribute would join is
+[Handbook → Data attributes](../handbook/data-attributes.mdx).
+
+<Todo>
+  A machine-readable form of the five states does not exist yet. Publishing one
+  means adding `data-state` as a fifth member of the substrate's data-attribute
+  vocabulary and emitting it from every data surface, and that is a decision
+  every component page that today calls the vocabulary closed at four has to make
+  together rather than one page at a time. Until it lands, select on the visible
+  words a surface renders, not on an attribute the DOM does not carry.
+</Todo>
 
 ## Using it
 
@@ -121,6 +145,30 @@ a skeleton is worse than showing nothing, because the flash reads as a glitch.
 Beyond a few seconds, a skeleton stops being informative and the surface should
 say what it is waiting for. Both thresholds are product decisions; the mechanism
 is documented on [Motion → Using motion](motion/using-motion.mdx).
+
+**The kit does not yet satisfy this contract from one component.** The five
+states are one state machine on the flow diagram above, and four separate
+mechanisms in the kit today, so a product assembles them itself. A
+[Skeleton](../components/skeleton.mdx) is a standalone widget the product swaps
+in and out for loading. An [EmptyState](../components/empty-state.mdx) carries
+empty through its four absence reasons, partial through `reason="not-enough"`,
+and error through `reason="could-not-load"`.
+[TrendSparkline](../components/trend-sparkline.mdx) draws its own too-short
+caption rather than reaching for that EmptyState, so the too-short case lives in
+two places. Stale is `staleAfterHours` on
+[MetricTile](../components/metric-tile.mdx). No data surface takes a state input
+and none renders the machine itself. The one name they will converge on when they
+do is `DataState` in `lib/opsinjs.ts`, and no component accepts it yet, so do not
+reach for a `state` prop today.
+
+<Todo>
+  A product wires the five states together from separate parts rather than
+  receiving them from one surface: Skeleton for loading, EmptyState for empty,
+  partial and error, TrendSparkline's own caption for the too-short trend, and
+  `staleAfterHours` on MetricTile for stale. `DataState` names the vocabulary
+  those surfaces will share once they take a state input, and no surface accepts
+  it yet.
+</Todo>
 
 ## Tokens
 

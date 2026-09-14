@@ -37,10 +37,13 @@ health product does: show a result, capture a reading, show change, ask
 permission. The fifth is the first run, which decides whether any of the rest
 happens.
 
-<Callout title="These are specifications, not screenshots">
-No screen is built. Each page carries the composition it is intended to have, the
-ways it could mislead, and the accessibility contract it must meet, so that it can
-be reviewed and argued with now. The preview frame falls back to the
+<Callout title="One built specimen, four specifications">
+One of the five is now built. The results screen renders its real composition in
+the preview frame, assembled from parts that already ship, so the three screen-level
+checks below have something rendered to run against. The other four are still
+specifications: each carries the composition it is intended to have, the ways it
+could mislead, and the accessibility contract it must meet, so that it can be
+reviewed and argued with now, and its preview frame falls back to the
 not-implemented notice until the registry has something to put in it.
 </Callout>
 
@@ -113,9 +116,11 @@ per-component review passes and a screen fails.
 
 ## Troubleshooting
 
-**"The preview is empty."** Expected. Nothing is built, so the frame renders the
-not-implemented notice, naming the screen and its status. The composition and the
-contract on the page are the reviewable artefact for now.
+**"The preview is empty."** Expected on the four screens that are still
+specifications. Their frame renders the not-implemented notice, naming the screen
+and its status, and the composition and the contract on the page are the reviewable
+artefact for now. The results screen is the exception: its frame renders the real
+assembly.
 
 **"My screen has parts no specimen covers."** Likely. These five are specimens,
 not a catalogue. Compose from [Recipes](../recipes/index.mdx) and check the result
