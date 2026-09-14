@@ -7,7 +7,7 @@ since: "unreleased"
 category: health-communication
 aliases: [consent, permission, opt in, data sharing, agree]
 governedBy: [consent-and-disclosure, clinical-interaction-guidelines, crisis-and-self-harm, regulatory-context]
-usedIn: [consent-before-collection, consent-flow]
+usedIn: [ask-users-for/contact-details, consent-and-permissions, consent-before-collection, consent-flow, forms/required-and-optional, onboarding-and-first-run, onboarding-screen, sharing-with-a-clinician]
 ---
 
 ## Status
@@ -34,16 +34,22 @@ Consent is the surface where dark patterns are most profitable and most damaging
 component is unusually prescriptive about what a product may not remove. The same component
 is unusually unhelpful about what it may not supply. **opsinjs ships no consent wording at
 all.** Not a heading, not a purpose, not a data category, not a retention period, not a
-jurisdiction, and not the words on the two controls. Every string a reader sees here arrives
-as a prop, and the sheet refuses to ask when one of them is missing.
+jurisdiction, and not the words on the two controls. Every consent string a reader sees here
+arrives as a prop, and the sheet refuses to ask when one of them is missing. One sentence is
+the exception, and it carries no legal content: the line that says nothing was asked. It
+names the state of the interface rather than any purpose, recipient or retention period, it
+ships in English only as a last resort, and `notAskedMessage` replaces it.
 
 ## Preview
 
 The default sheet, with everything it can carry. The two things worth checking are both
 visible without reading a word: the decision controls are the same size as each other, and
-nothing on the sheet is set smaller or paler than anything else. There is no small print on
-a consent surface. Close it with the escape key and watch nothing happen: leaving is not an
-answer, and the component calls nothing.
+nothing in the consent text is set smaller or paler than anything else. There is no small
+print on a consent surface. The one quiet mark on screen is Sheet's header Close control,
+which is footnote-size and muted on purpose, because it is the way out rather than a third
+answer, and making it as loud as the two decision controls would turn it into one. Close it
+with the escape key and watch nothing happen: leaving is not an answer, and the component
+calls nothing.
 
 <ComponentPreview name="consent-sheet" />
 
@@ -184,16 +190,16 @@ made are borne entirely by the person who did not make it.
     },
     {
       name: "ConsentSheet.Body",
-      describes: "The scrolling column inside Sheet.Content, data-slot=\"consent-sheet\". One type step for everything in it and no muted ink anywhere on the sheet, because nothing on a consent sheet is small print.",
+      describes: "The scrolling column inside Sheet.Content, data-slot=\"consent-sheet\". One type step for everything in it and no muted ink anywhere in it, because nothing on a consent sheet is small print. The header Close control above it is Sheet's, and stays deliberately quiet so it is not a third answer.",
     },
     {
       name: "ConsentSheet.Purpose",
-      describes: "What the data is for, one paragraph, before the controls in the DOM so it is read first. data-slot=\"consent-sheet-purpose\".",
+      describes: "What the data is for, one paragraph, before the controls in the DOM so it is read first. It renders through Sheet.Description, so it carries that part's own data-slot=\"sheet-description\" rather than a slot of its own, and it is the popup's aria-describedby, announced after the heading when the sheet opens.",
       prop: "purpose",
     },
     {
       name: "ConsentSheet.Scope",
-      describes: "Three facts as a real ul with the browser's own markers, each li carrying its own slot: consent-sheet-scope-collected, -shared-with, -retention. There is no label in front of any of them, because the label would be a word opsinjs had chosen, in English, for somebody else's legal statement.",
+      describes: "Three facts as a real ul with the browser's own markers, each li carrying its own slot: consent-sheet-scope-collected, -shared-with, -retention. There is no label in front of any of them, because the label would be a word opsinjs had chosen, in English, for somebody else's legal statement. The whole ul is drawn only when the sheet can ask; in the not-asked state it is absent from the DOM rather than rendered empty, so a rule written against data-slot=\"consent-sheet-scope\" must not assume the element is always present.",
       prop: "scope",
     },
     {
@@ -213,7 +219,7 @@ made are borne entirely by the person who did not make it.
     },
     {
       name: "ConsentSheet.Decisions",
-      describes: "Sheet's pinned footer, holding a two-track grid that never collapses to one. Equal width and equal height come from the layout rather than from a rule somebody has to remember. data-slot=\"consent-sheet-decisions\".",
+      describes: "Sheet's pinned footer, holding a two-track grid that never collapses to one. Equal width and equal height come from the layout rather than from a rule somebody has to remember. Being pinned has a cost: the controls are on screen from the first frame, so on a phone they can sit in view while the withdrawal and consequence sentences are still below the fold. The DOM order puts the explanation before the controls, which is the order a screen reader follows, so that reader meets the whole explanation first. The sighted-reader cue for the same overflow is Sheet's own and is not yet measured, so it is not relied on here to signal that text continues. data-slot=\"consent-sheet-decisions\".",
     },
     {
       name: "ConsentSheet.Decline",
@@ -227,7 +233,8 @@ made are borne entirely by the person who did not make it.
     },
     {
       name: "ConsentSheet.NotAsked",
-      describes: "What stands in the footer when any of the required wording is missing: one unlovely line saying nothing was asked, where the two controls would have been. data-slot=\"consent-sheet-decisions-missing\".",
+      describes: "What stands in the footer when any of the required wording is missing: one unlovely line saying nothing was asked, where the two controls would have been. It is the one string on this surface that does not arrive as consent wording, so it is replaceable: it holds no legal content, it defaults to English because the case that produces it is a missing locale, and a product with more than one language passes its own sentence through notAskedMessage. data-slot=\"consent-sheet-decisions-missing\".",
+      prop: "notAskedMessage",
     },
   ]}
 />
@@ -253,12 +260,12 @@ made are borne entirely by the person who did not make it.
             {
               part: "ConsentSheet.Purpose",
               cardinality: "1",
-              note: "data-slot=\"consent-sheet-purpose\"",
+              note: "data-slot=\"sheet-description\", rendered through Sheet.Description as the popup's aria-describedby",
             },
             {
               part: "ConsentSheet.Scope",
-              cardinality: "1",
-              note: "data-slot=\"consent-sheet-scope\" is a ul of exactly three",
+              cardinality: "0..1",
+              note: "data-slot=\"consent-sheet-scope\" is a ul of exactly three, drawn only when the sheet can ask, because three markers with nothing after them read as content that failed to load",
               children: [
                 {
                   part: "ConsentSheet.Scope.Collected",
@@ -362,13 +369,22 @@ There is no `purposes` array, so this is what asking for two things looks like: 
 two ids, two versions, two records. The reader can grant one and refuse the other. The second
 one also shows `consequenceOfDeclining`, stated before the choice.
 
+The second question follows an answer to the first, never a dismissal of it. Leaving question
+one by escape, the scrim or Close returns the reader to the page rather than raising the next
+request, and only an answer through `onDecision` moves the sequence on. When the last sheet
+closes, focus returns to the control that opened it, so a keyboard reader is never left with
+focus on the page body. This is the rule above made concrete: each permission is shown when it
+becomes relevant, and "relevant" is never "the reader just tried to leave".
+
 <ComponentPreview name="consent-sheet-two-questions-two-sheets" kind="example" align="start" />
 
 ### When the wording is missing
 
 The state a product ships by accident, from a content service with an empty field or a locale
 nobody filled in. The sheet refuses to ask, says so where the controls would have been, and
-names the missing pieces in the development console.
+names the missing pieces in the development console. It draws none of the wording it could
+not stand behind: the scope list, the purpose paragraph and the withdrawal line are all
+absent from the DOM in this state, rather than rendered empty.
 
 <ComponentPreview name="consent-sheet-no-wording-supplied" kind="example" align="start" />
 
@@ -449,6 +465,13 @@ has been checked, with the gaps listed rather than left out.
   question and the accessible name are the same string. Focus moves to the popup on open,
   which is what makes the heading the first thing announced. It is also why neither decision
   control is focused. Auto-focusing accept is a keyboard dark pattern.
+- **The purpose sentence is the sheet's accessible description.** It renders through
+  `Sheet.Description`, which registers its id with the drawer store so the popup gains
+  `aria-describedby` pointing at it, and a screen reader then announces the heading and then
+  the purpose when the sheet opens. The scope list is deliberately left out of that
+  description: `aria-describedby` is read in full on open, and a long list read before the
+  reader has reached the controls would bury the one sentence that frames the decision. The
+  scope stays in the reading order instead, after the description and ahead of the controls.
 - **Escape closes without deciding.** `onDecision` is not called; the close arrives on
   `onOpenChange` with the route `escape`. Setting `dismissible={false}` cancels that route
   along with the scrim and the drag, and never the close control in the header. See
@@ -457,7 +480,20 @@ has been checked, with the gaps listed rather than left out.
   cells of one grid, separated by `--opsin-target-separation`, and each holds a `Button`,
   which floors its own hit area at `--opsin-target-minimum`. The pair never stacks: stacking
   would make one of them the control under the thumb. At 200% text the labels wrap and both
-  controls grow taller together; neither truncates.
+  controls grow taller together. The horizontal inset is reduced on both cells identically
+  through the one class string they share, so the doubled padding does not eat the label, and
+  `overflow-wrap: anywhere` is the last-resort guard that makes a word with no break
+  opportunity break inside its box rather than be clipped by it. The pair stays equal by
+  construction in every one of those states, because it is one grid carrying one class string
+  on both controls.
+- **The explanation is read before the controls in the DOM, and only there.** A screen reader
+  follows source order, so the purpose, scope, details, withdrawal and consequence all precede
+  the two answers. A sighted reader on a short viewport is not guaranteed the same order: the
+  footer is pinned, so the answers stay in view while the last sentences may still be below the
+  fold. This is a known property of pinning a decision control so it cannot scroll out of
+  reach, not an oversight. Sheet stamps the footer while text remains below it, but that
+  sighted-reader cue is not yet measured as perceptible, so a reader who cannot hear the
+  DOM order is not yet promised it.
 - **The scope facts are a list.** A `<ul>` with the browser's own markers rather than
   `list-style: none` and a restored `role="list"`, because Safari drops the list role from a
   marker-less list and a repair that depends on remembering an attribute is one that goes
@@ -477,8 +513,11 @@ has been checked, with the gaps listed rather than left out.
 **Not yet checked at all, and listed rather than omitted:**
 
 - Contrast for the two decision controls against the sheet's material, in both themes and
-  under increased contrast. `prefers-contrast` and `forced-colors` are not implemented
-  anywhere in opsinjs yet, so nobody can currently make the increased-contrast claim.
+  under increased contrast. Surface now answers `contrast-more:` in its own utilities and
+  draws the sheet's edge as an `outline` that forced colours keeps and recolours rather than
+  as a box-shadow it would strip, so the panel holds a boundary. The scrim's dimming is still
+  lost, because a forced-colours palette replaces its tint with `Canvas`. Nobody has opened
+  the site under a real Windows contrast theme, and that is the part still owed.
 - Whether any screen reader announces the disclosure's expanded state as intended, and whether
   the heading is in fact the first thing read on open. Both are argued from the markup and
   from Base UI's source; nobody has listened to this component.
@@ -489,7 +528,8 @@ has been checked, with the gaps listed rather than left out.
   has not been checked is a printer.
 - The 44pt targets and the 200% reflow are layout facts, and the layout half of the
   accessibility rig runs nightly rather than on commit. Neither has been measured for this
-  component.
+  component, and the specific number still owed is the rendered width of each decision label
+  at 200% text against the width of its cell at a 390 viewport.
 - **Print and export of the decision itself.** The sheet renders the wording; the decision and
   its timestamp exist only in what `onDecision` handed the product, because this component
   stores nothing. A reader entitled to a copy of what they agreed to needs that copy from the
@@ -605,6 +645,9 @@ absence is the specification.
 - [Ask for consent before collecting](../recipes/consent-before-collection.mdx)
 - [Consent flow](../screens/consent-flow.mdx)
 - [Consent and permissions](../patterns/consent-and-permissions.mdx)
+- [Onboarding and first run](../patterns/onboarding-and-first-run.mdx) asks permission during first run, before any data is collected.
+- [Onboarding screen](../screens/onboarding-screen.mdx) shows the sheet as one step of first-run setup.
+- [Sharing with a clinician](../patterns/sharing-with-a-clinician.mdx) asks permission before any reading is sent to a clinician.
 
 **Governed by**
 

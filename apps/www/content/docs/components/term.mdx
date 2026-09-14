@@ -7,7 +7,7 @@ since: "unreleased"
 category: health-communication
 aliases: [glossary term, jargon, plain english, definition, tooltip term, plain word]
 governedBy: [who-this-is-for, clinical-interaction-guidelines]
-usedIn: [value-against-a-range, results-screen]
+usedIn: [ask-users-for/ethnicity, ask-users-for/medications, ask-users-for/sex-and-gender, ask-users-for/symptoms, choose-a-component, consent-and-permissions, consent-flow, onboarding-screen, result-disclosure, results-screen, trends-screen, value-against-a-range]
 ---
 
 ## Status
@@ -18,10 +18,11 @@ usedIn: [value-against-a-range, results-screen]
   issue="opsinjs/opsinjs#0"
   questions={[
     "A collapsed definition reaches a reader through the trigger's accessible description rather than through the collapsed element itself. That is the load-bearing claim in this component and it has not been tested with a real screen reader on a real phone.",
-    "`auto` chooses inline or disclosure by the LENGTH of the definition, because choosing by the width available means measuring, and measuring after the server has rendered means a flash. Is a character budget the right proxy, and is 40 the right number?",
+    "`auto` chooses inline or disclosure by the LENGTH of the definition, because choosing by the width available means measuring, and measuring after the server has rendered means a flash. The budget is 80 characters, derived from the comfortable measure and checked against the 36 entries in this repository's glossary. What remains unproven is whether a character count is the right proxy at all for a reader on a small phone with text at 200%.",
     "`once` is set by the caller, because a component cannot see where one surface ends and the next begins. Should the provider count appearances instead, and if it did, what would reset the count: a route change, a card, a paragraph?",
     "The inline trigger does not reach a 44x44 hit area and relies on the inline-target exception. Is that the right trade for a reader with a tremor, or should a term behind a disclosure be given a line of its own?",
-    "`tokens/glossary.json`'s policy rule says the plain wording is the visible text and the clinical word is the annotation, and it names the shape this component implements as the thing not to do. The same policy block's own note on `showBoth: \"always\"` argues the other way, because matching a printout needs the clinical spelling on the screen. Which of the two governs: does the component invert, or does the rule gain a stated exception?",
+    "`tokens/glossary.json`'s policy rule says the plain wording is the visible text and the clinical word is the annotation, and it names the shape this component implements as the thing not to do. Part of this is now settled: where a call site leaves the presentation to `auto`, an `always` entry shows both readings inline rather than hiding the plain wording behind a press. What is still open is the shape itself, which is whether the visible text should be the plain wording with the clinical spelling as the annotation, a change to both the component and `policy.rule`.",
+    "The resting cue that a word can be opened is a dotted underline, now thickened to `0.12em` so it scales with the reader's text rather than pinning at a hairline. That is still the only resting cue, and the dotted-underline-means-definition convention comes from the desktop `<abbr>` element and is not one a phone reader over sixty has necessarily learned. Whether a thicker dotted rule is discoverable enough on its own has not been tested with real readers.",
   ]}
 >
   <code className="text-sm">term</code> is implemented and installable. It is{" "}
@@ -116,38 +117,45 @@ and is not reusable, however tempting the shortcut. Cite sources; never paste th
 
 **One entry can refuse to be shown.** A glossary entry marked `showBoth: "plain-only"` says
 the clinical word is never put in front of a reader. The entry exists so an author can look
-up what to write instead. Term honours that by rendering the plain wording as ordinary text
-and marking nothing, and by saying so in development. There is nothing to explain when the
-word on the screen is already the plain one. On that one path `children` is discarded rather
-than printed: `children` is where a call site writes the clinical word inflected for its own
-sentence, and printing it would be the component overruling the refusal it is implementing.
-The sentence a reader gets is therefore not the sentence the author wrote, so the discard
-warns in development, and the repair is to write the plain wording directly and drop the
-component.
+up what to write instead. When no call site names it, Term honours that by rendering the
+plain wording as ordinary text and marking nothing, and by saying so in development. There
+is nothing to explain when the word on the screen is already the plain one. When a call site
+does name it, `children` carries a sentence the author has already written with the clinical
+word in it, and the two cannot both be satisfied: a runtime cannot rewrite a sentence, and a
+gloss spliced into the slot where a word belongs reads as broken grammar, such as *An sudden,
+or short-lasting problem*. So Term renders the sentence the author wrote and warns loudly in
+development that the entry says that word should not reach a reader. The cost is honest and
+on the record: a reader meets a clinical word the glossary meant to keep away from them, but
+that word is visible and reviewable in the source, where a silently garbled sentence was
+neither. The repair is to write the plain wording directly and drop the component, and the
+gate that would catch it before a reader does is a lint rule over the product's own source
+that does not exist yet.
 
-**The other two `showBoth` values are recorded and not implemented, and this page says so
-rather than letting the type imply otherwise.** In the glossary, `always` means *show the
-clinical word and the plain wording together every time*, and it exists for matching: a
-reader holding a printout has to be able to tell it is the same measurement as the one on the
-screen. Term chooses inline or disclosure from `present`, `once` and the length of the
-definition and never from `showBoth`, so an `always` entry with a long definition still lands
-behind a control with its plain wording out of sight. Obeying it would mean overriding the
-call site's own `present` and `once`, which a component does not get to do to the surface it
-is standing on. The mismatch therefore warns in development instead, and `present="inline"`
-is how a call site asks for what the glossary asked for. `first-use` is the caller's to
-express through `once`, for the same reason `once` is a prop at all: opsinjs cannot see
-where one surface ends and the next begins.
+**`always` now governs the `auto` path, and this page says exactly how far that goes.** In
+the glossary, `always` means *show the clinical word and the plain wording together every
+time*, and it exists for matching: a reader holding a printout has to be able to tell it is
+the same measurement as the one on the screen. Where a call site leaves the presentation to
+`auto`, an `always` entry is shown inline whatever its length, because `auto` is the call
+site expressing no opinion and the authored glossary is a better authority than a character
+count. What `always` does not do is overrule the call site: an explicit `present` and `once`
+still win, because they are the surface's own statements about this occurrence. `first-use`
+is still the caller's to express through `once`, for the same reason `once` is a prop at all,
+which is that opsinjs cannot see where one surface ends and the next begins. The one case
+that still warns is an `always` entry a call site has put behind a press by naming
+`present="disclosure"` on a first appearance.
 
-**Where this component and the authored glossary disagree, and it is not settled.**
-`tokens/glossary.json` carries a policy rule reading *plain wording is the default and the
-clinical term is the annotation, never the other way around*, and it names the shape this
+**Where this component and the authored glossary disagree, part is now settled and part is
+not.** `tokens/glossary.json` carries a policy rule reading *plain wording is the default and
+the clinical term is the annotation, never the other way around*, and it names the shape this
 component implements as the thing not to do. That shape is a clinical word with its
-explanation on demand. The counter-argument is in the same policy block, in its own note on
-why `always` exists: matching a printout needs the clinical spelling visible on the screen.
-Both sentences are authored, they contradict each other, and neither the component nor the
-glossary settles it alone. The conflict is recorded here and at the top of `term.tsx`
-rather than resolved quietly in favour of whichever was written second, and it is the first
-thing to decide before this component leaves alpha.
+explanation attached or on demand. What is now settled is the narrower half: where a call site
+expresses no preference, the glossary decides the presentation, so an `always` entry shows
+both readings inline rather than hiding the plain wording behind a press. What is still open
+is the bigger question the rule actually asks, which is whether the visible text should be the
+plain wording with the clinical spelling as the annotation rather than the other way around.
+That is a change to the component's shape and to `policy.rule` together, so it is recorded
+here and at the top of `term.tsx` rather than settled quietly, and it is the first thing to
+decide before this component leaves alpha.
 
 <SafetyCallout severity="attention" evidence="opinion">
 A definition that drifts into advice is the failure mode of this component, and it is not
@@ -261,12 +269,15 @@ one press away and still in the accessibility tree, and it is not printed a seco
 ### An abbreviation needs two things
 
 The expansion is what the letters stand for; the definition is what the thing is, and
-neither substitutes for the other. `SpO2` also shows the third field: written down it is
-read aloud as a word by speech synthesis, so the entry says how the letters are spoken and
-the letters are added to the control's accessible name after the written form. The name is
-*SpO2 S P O 2*. Added, not substituted. The written spelling is the one on the reader's own
-paperwork, and taking it out of the accessibility tree would withhold it from precisely the
-readers who cannot see it on the screen.
+neither substitutes for the other. Both entries here are marked `showBoth: "always"`, so both
+arrive inline whatever their length and nothing in this example sits behind a press; both
+definitions are also short enough that the budget would keep them inline in any case, so the
+two reasons agree. `SpO2` also shows the third
+field: written down it is read aloud as a word by speech synthesis, so the entry says how the
+letters are spoken and the letters are added to the reading order after the written form.
+Added, not substituted. The written spelling is the one on the reader's own paperwork, and
+taking it out of the accessibility tree would withhold it from precisely the readers who
+cannot see it on the screen.
 
 <ComponentPreview name="term-an-abbreviation" kind="example" align="start" />
 
@@ -280,9 +291,15 @@ Expansions are the full form and nothing else: *eGFR* expands to *estimated glom
 filtration rate*, and *an estimate of how well your kidneys are filtering* is the definition.
 Most readers need both, in that order, and the component renders them in that order.
 
-Length is not only a style question here. `auto` sends a definition inline when it is short
-enough to share a line with the sentence it interrupts and behind a control when it is not,
-so a definition written tightly is a definition the reader gets without pressing anything.
+Length is not only a style question here. `auto` sends a definition of about eighty
+characters or less inline, beside the word, and sends a longer one behind a control, so a
+definition written tightly is one the reader gets without pressing anything. That ceiling is
+for an entry the glossary has not marked `showBoth: "always"`; an `always` entry is shown
+inline whatever its length, because matching a printout matters more there than saving a
+line, so the length advice below is about the entries the budget still decides. The two
+limits work together: under about twenty words is the ceiling for the sentence, and about
+eighty characters is what keeps that sentence in the reader's line at the comfortable
+measure.
 
 One class of definition needs deciding before it is written at all: the ones whose plain
 wording turns into a verdict once it is spliced into a sentence about the reader's own
@@ -326,9 +343,9 @@ where it has been checked, with the gaps listed rather than left out.
 There is no commit hook in this repository, and a sentence that implied one would be
 claiming a gate that does not run:**
 
-- **No type size in px anywhere in this component.** The word, the definition and the
-  control's padding are all relative, so a reader who has raised their text size gets a
-  larger definition and a larger target with it. See
+- **No type size in px anywhere in this component.** The word, the definition and the em inset
+  on the trigger's positioned `::before` that draws the target are all relative, so a reader who
+  has raised their text size gets a larger definition and a larger target with it. See
   [Dynamic type](../foundations/typography/dynamic-type.mdx).
 - **No colour literal, no numbered ramp step, and no class that resolves in the docs chrome
   and to nothing in the product.** The gate proves this file contains no colour value it
@@ -353,9 +370,12 @@ claiming a gate that does not run:**
 - **The word is never split from its definition in the reading order.** The definition is the
   trigger's next sibling. Nothing is portalled, and the component never moves focus.
 - **The disclosure trigger is not marked by colour alone.** A dotted underline distinguishes
-  it, and it is the only mark, so it survives greyscale and increased contrast. Its offset is
-  in `em` rather than pixels, so the rule stays clear of the descenders of a word a reader
-  has enlarged. The inline trigger carries no mark at all, and that is deliberate, because
+  it, and it is the only mark, so it survives greyscale and increased contrast. While the
+  definition is hidden the rule is dotted, and while it is showing the rule is solid, so a
+  reader can tell from the word alone whether its definition is currently open. That is a
+  change of form and not of colour, and it survives greyscale with the rest of the mark. Its
+  offset is in `em` rather than pixels, so the rule stays clear of the descenders of a word a
+  reader has enlarged. The inline trigger carries no mark at all, and that is deliberate, because
   an underline pointing at a definition that is already on the screen promises something
   already delivered. This bullet is therefore a claim about the disclosure and not about
   every term.
@@ -367,7 +387,10 @@ claiming a gate that does not run:**
   earlier version named the control *what does e G F R mean?*, which replaced the visible
   word rather than containing it and so did not meet that criterion on any disclosure this
   page renders. Escape closes it and consumes the key only while the definition is open;
-  focus never left the control, so there is nothing to return.
+  focus never left the control, so there is nothing to return. Tapping or clicking the word a
+  second time also closes the definition, and while it is open the word's underline is solid
+  rather than dotted and the word sits on a faint neutral tint, so a reader can see it is
+  showing and see the way back to it.
 - **Abbreviations that must be spelt out carry both forms.** An entry carrying `speech` puts
   the letters into the accessibility tree after the written word rather than in place of it,
   so a speech reader hears the synthesiser's attempt at the word and then the letters, and a
@@ -383,21 +406,27 @@ claiming a gate that does not run:**
 
 **Not yet checked at all, and listed rather than omitted:**
 
-- **The 44x44 hit area is not met, and this is the exception being relied on.** The trigger is
-  an inline box inside running text: vertical padding grows the target without changing the
-  paragraph's leading, but reaching 44 CSS pixels would overlap the line above it and trade
-  one motor problem for a worse one. SC 2.5.8 exempts inline targets, and
-  [Target size and motor](../accessibility/target-size-and-motor.mdx) asks for the exception
-  to be named out loud rather than assumed. The nightly layout run measures every button's
-  box and will report this one.
+- **The 44x44 hit area is not met, and this is the exception being relied on.** The trigger's
+  own box is the word it contains and nothing more, so it does not reach 44 CSS pixels. The hit
+  area comes instead from an absolutely positioned `::before` pseudo-element that takes no part
+  in layout. The product theme floors every button at `--opsin-target-minimum`, and this trigger
+  is opted out of that floor deliberately: a 44 pixel box on a line around 22 pixels tall would
+  make every line that carries a term taller than its neighbours and would push the focus ring up
+  through the line above, which trades one motor problem for a worse one. SC 2.5.8 exempts an
+  inline target from the floor, and
+  [Target size and motor](../accessibility/target-size-and-motor.mdx) asks for that exception to
+  be named out loud rather than assumed, which is what this bullet does. The layout half of
+  `scripts/check-a11y.mts` exempts this slot by name and prints its measured box rather than
+  failing on it, and it separately fails if the trigger's box ever grows taller than the line it
+  sits in.
 
-  Two of them can also meet, which is the part nothing will report. Vertical padding on an
-  inline box leaves the line box alone, which is why `inline` was chosen. The padding box
-  nevertheless still reaches past it above and below, so two terms on adjacent wrapped lines
-  sitting roughly over one another have overlapping targets, and a reader with a tremor lands
-  on the wrong definition rather than on nothing. SC 2.5.8's exemption covers the size of a
-  target and says nothing about two of them overlapping, and the nightly run measures each
-  box rather than the space between two, so this sentence is the only place it is recorded.
+  Two of them can also meet, which is the part nothing will report. The positioned `::before`
+  sits outside the line box, which is why the paragraph's leading is left alone. The
+  pseudo-element nevertheless still reaches past the line box above and below, so two terms on
+  adjacent wrapped lines sitting roughly over one another have overlapping targets, and a reader
+  with a tremor lands on the wrong definition rather than on nothing. SC 2.5.8's exemption covers
+  the size of a target and says nothing about two of them overlapping, and the layout run measures
+  each box rather than the space between two, so this sentence is the only place it is recorded.
 - **No screen reader has been run against it.** The description-carries-the-collapsed-
   definition technique is the load-bearing claim on this page and it is argued from the
   accessible-name computation, not from a recording of VoiceOver or TalkBack.
@@ -407,9 +436,15 @@ claiming a gate that does not run:**
   Voice Access matching it. Related and outside this page:
   [Conformance report](../accessibility/conformance-report.mdx) still records SC 2.5.3 as not
   evaluated on the ground that no labelled control exists, which this component makes untrue.
-- **Contrast has not been measured for this component.** The definition uses the muted
-  foreground role; that pair is measured at the token layer and not on this surface, and
-  `prefers-contrast` and `forced-colors` are not implemented anywhere in opsinjs yet.
+- **The definition's own ink is measured; its interaction-state fills are not.** The definition
+  takes `--muted-foreground`, which `app/product.css` now routes to `--opsin-chrome-muted-foreground`
+  and which resolves to neutral-600 in light and neutral-300 in dark. That is the same ladder step
+  the `neutral.ink-secondary` rows in the `<ContrastReport>` below measure, so the ink a reader
+  reads a definition in is measured, without the report being a measurement of this component: it
+  prints the neutral token pairs Term draws colour from because the catalogue row declares that
+  scope, not a per-component reading. What no measured pair covers is the open-state tint
+  (`aria-expanded:bg-muted`) and the `--state-hover` and `--state-press` fills the trigger paints on
+  hover and press, and this component answers neither `prefers-contrast` nor `forced-colors`.
 
 <KeyboardTable
   name="term"
@@ -427,12 +462,12 @@ claiming a gate that does not run:**
     {
       keys: "Enter",
       action: "Show or hide the definition",
-      notes: "Native button activation. The definition appears beside the word rather than over it, so nothing covers the sentence being read.",
+      notes: "Native button activation. The definition appears beside the word rather than over it, so nothing covers the sentence being read. The same key presses the word again to close it, which is the way back other than Escape.",
     },
     {
       keys: "Space",
       action: "Show or hide the definition",
-      notes: "Native button activation, which is also what stops the page scrolling when it fires.",
+      notes: "Native button activation, which is also what stops the page scrolling when it fires. Pressing it a second time closes the definition again.",
     },
     {
       keys: "Escape",
@@ -481,7 +516,10 @@ behaviour is written down here instead of being discovered. Marking a word whose
 does not exist is the one outcome worse than leaving it plain, and a component cannot fail
 somebody else's build from inside a render. The warning is development-only by policy, so in
 the build a reader uses there is no signal at all. The build-time half of that promise
-belongs in a lint rule over the product's own source, and it does not exist yet.
+belongs in a lint rule over the product's own source, and it does not exist yet. The same
+lint rule is the only real gate on a `<Term id>` that names a `plain-only` entry: at runtime
+the component can only render the sentence the call site wrote and warn that the entry says
+its clinical word should not reach a reader, and that rule does not exist either.
 
 ## Related
 
@@ -499,8 +537,22 @@ belongs in a lint rule over the product's own source, and it does not exist yet.
 
 **Used by**
 
-- [Show a value against a reference range](../recipes/value-against-a-range.mdx)
-- [Results screen](../screens/results-screen.mdx)
+- [Choose a component](../recipes/choose-a-component.mdx) presents Term as the way to gloss a
+  clinical word inline without sending the reader elsewhere.
+- [Consent and permissions](../patterns/consent-and-permissions.mdx) glosses the clinical words
+  in consent copy so a reader knows what they are agreeing to.
+- [Consent flow](../screens/consent-flow.mdx) is the worked consent screen, and it leans on the
+  glossary so the agreement stays informed.
+- [Onboarding screen](../screens/onboarding-screen.mdx) lists Term among the components it
+  composes, so a clinical word a first run reader meets can be glossed where it appears.
+- [Result disclosure](../patterns/result-disclosure.mdx) attaches plain meanings to the words on
+  a result the reader did not create and cannot immediately interpret.
+- [Results screen](../screens/results-screen.mdx) glosses the terms beside a value so the number
+  can be read without leaving the card.
+- [Trends screen](../screens/trends-screen.mdx) lists Term among the components it composes, so a
+  measurement name can be glossed where it appears on the screen.
+- [Show a value against a reference range](../recipes/value-against-a-range.mdx) explains the test
+  name and the words around the range so the display is not mistaken for a verdict.
 
 **Governed by**
 

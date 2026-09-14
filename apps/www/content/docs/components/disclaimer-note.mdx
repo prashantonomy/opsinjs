@@ -7,7 +7,7 @@ since: "unreleased"
 category: health-communication
 aliases: [not medical advice, disclaimer, legal note, safety note, small print]
 governedBy: [regulatory-context, clinical-interaction-guidelines, safety-review-checklist]
-usedIn: [value-against-a-range, results-screen, consent-flow]
+usedIn: [ask-users-for/ethnicity, ask-users-for/height-and-weight, ask-users-for/medications, ask-users-for/sex-and-gender, ask-users-for/symptoms, choose-a-component, consent-and-permissions, consent-flow, onboarding-and-first-run, onboarding-screen, result-disclosure, results-screen, sharing-with-a-clinician, value-against-a-range]
 ---
 
 ## Status
@@ -20,7 +20,7 @@ usedIn: [value-against-a-range, results-screen, consent-flow]
     "Once per screen, once per session, or once per surface that shows a health value? The component enforces none of these. It renders where it is put, and a second note on the same surface is invisible to it. The placement rule is still a rule people follow rather than one the code keeps.",
     "Does it need to be dismissible, and if a reader dismisses it, does it return? And does the product record that they saw it? There is no dismiss control, because one needs a name, a target floor and a memory that outlives a render, and none of the three has been designed.",
     "textVersion renders as visible text, because the data-attribute vocabulary is closed at four and an id in an attribute is a record only the product that already had it can read. Is visible text the right home for it, or does the vocabulary need a fifth member?",
-    "Nobody has listened to this component in a screen reader, and its contrast pairs and its link's hit area have not been measured. Until they are, the accessibility section below says which claims are checked by a gate and which are only argued.",
+    "Nobody has listened to this component in a screen reader, and its link's hit area has not been measured. The token pairs its colour comes from are published in the table below, but this note's own rendered pixels are not. The accessibility section below says which claims are checked by a gate and which are only argued.",
   ]}
 >
   <code className="text-sm">disclaimer-note</code> is implemented and
@@ -36,10 +36,12 @@ supply the words, and that refusal is the larger half of the component.
 
 ## Preview
 
-The note in place with everything it can carry, and beneath it the same note with no words
-supplied. The second is the state worth looking at: opsinjs ships no disclaimer text, so an
-empty one says on screen that none was written rather than filling the gap with a sentence
-nobody reviewed.
+Two placements of the one note, each carrying obviously synthetic placeholder wording so the
+preview warns about nothing. The first sits inline under the block it qualifies, with an icon
+and a link out. The second is the footer form, which ends a surface rather than following a
+single block. Neither is real copy, because the product that installs the component writes the
+words and opsinjs ships none of them. The state where nobody wrote them is shown below under
+Examples.
 
 <ComponentPreview name="disclaimer-note" />
 
@@ -159,7 +161,7 @@ transfer risk onto the reader.
     },
     {
       name: "DisclaimerNote.Version",
-      describes: "The id of this note's wording, rendered exactly as the caller wrote it, with no word added around it. Present only when textVersion is, and at the same size and ink as the text.",
+      describes: "The id of this note's wording, rendered exactly as the caller wrote it, with no word added around it. Present only when textVersion is, and set one step down from the statement: the footnote size, in the secondary ink, so a reader can tell this identifier from what the note is telling them.",
       prop: "textVersion",
     },
   ]}
@@ -235,8 +237,9 @@ detects missing *words*: `undefined`, `false` from an `&&` branch, `0` from the 
 an empty collection, an empty array, a whitespace-only string and a body that is nothing but a
 number are all read as none supplied. A caller who wraps the copy in an element is taken at
 their word, and an empty `copy.text` inside `<strong>{copy.text}</strong>` still renders an
-empty note with no admission and no development warning. Printing *nothing was supplied* over
-somebody's own markup would be a false accusation on their screen, so the component does not;
+empty note with no admission and no development warning. Printing *this app has not added its
+notice about what it can and cannot do* over somebody's own markup would be a false accusation
+on their screen, so the component does not;
 the cost is that this one route stays open, and it is stated here rather than left for a
 reader to find.
 
@@ -310,6 +313,15 @@ rather than an internal identifier. It is rendered exactly as written, with no w
 around it, because any word this system added would be English in a note that may be read in
 any language.
 
+The same limit reaches one sentence the component owns rather than the caller. When no words
+are supplied it prints its own admission, and that line is English. There is no prop through
+which a product can translate it, for the reason the version marker carries none: any wording
+this system shipped would be English in a note meant to be read in any language. A product
+shipping in another language should therefore guard the missing case upstream, supplying its
+own copy for it rather than relying on the component to speak, and the absence of a
+translation seam here is deliberate and recorded in
+[ADR 0005](../project/decisions/0005-no-lang-segment-yet.mdx).
+
 ## Accessibility
 
 Some of what follows is checked by a gate on every commit and the rest is argued. They are
@@ -364,10 +376,22 @@ component in a screen reader.
   loose sentences with no boundary and no name. `role="note"` or a named `<aside>` would
   supply one; neither is adopted on a guess, and a landmark on every screen for a sentence
   that never changes is its own kind of noise. It is an open question above.
-- **It meets the same contrast floor as body text**, because it uses the same two roles as
-  body text. There is no muted role and no footnote step anywhere in the component. Legal
-  text set one step down in pale grey complies with the letter of a requirement and none of
-  its purpose. See [Contrast conformance](../accessibility/contrast-conformance.mdx).
+- **It meets the same contrast floor as body text**, because the statement and the link use
+  the same two roles as body text. There is no muted role and no footnote step on either of
+  them, the parts a reader has to read; the single exception is the version marker, which
+  takes the footnote step in the secondary ink precisely because it is the note's identifier
+  and not its message. Legal text set one step down in pale grey complies with the letter of
+  a requirement and none of its purpose. The neutral pairs the note draws its colour from are
+  measured and published in the table below, and the ink pair clears the body floor by a wide
+  margin in both themes. The chrome roles the note uses do not stand on their own: each
+  resolves through an `--opsin-chrome-*` role to a step on the `--opsin-neutral-*` ladder, so
+  `--border`, the colour of the one boundary this note draws, is a measured ladder step rather
+  than an independently authored value. Read that boundary in the `border-on-page` and
+  `border-on-card` rows, which measure the exact token the border uses, once the contrast
+  table is regenerated. One row below is not a verdict on this note: `neutral.hairline-on-page`
+  measures a grouping cue drawn between two list rows and not the edge this component draws, so
+  do not read its figure as this note's result. See
+  [Contrast conformance](../accessibility/contrast-conformance.mdx).
 - **It reflows at 200% text** without truncating and without horizontal scroll: no fixed
   height, no overflow container, `min-w-0` with `wrap-break-word` on the paragraph and on the
   version marker, and `wrap-anywhere` on the link. The link needs the stronger of the two and
@@ -393,17 +417,30 @@ component in a screen reader.
   fallback, so the two components disagree about this and one of them is wrong.
 - **Print includes the note.** Nothing here is `print:hidden`, and there is no fill to lose:
   a browser drops background colours on paper unless the reader has changed a setting, and a
-  component whose whole treatment is a hairline and some space survives that. The residual
-  gap is the same one [Callout](./callout.mdx) records. Printing from the dark theme gives
-  near-white ink on white paper, and the repair is a print block in the theme layer rather
-  than anything a component can do without writing a raw colour.
+  component whose whole treatment is a hairline and some space survives that. The dark-theme
+  case that [Callout](./callout.mdx) once recorded as outstanding is now answered in the theme
+  layer: its `@media print` block takes all four selector groups, the two light roots and the
+  two dark ones, to black ink on a white page, so a note printed from the dark theme is no
+  longer near-white on white. The one residual left to the reader is their own browser setting
+  for whether background colours print at all.
+- **Its one boundary widens under `prefers-contrast: more`.** The root carries a
+  `contrast-more:` rule on the top border, so the hairline thickens to the emphasis width,
+  `--opsin-border-emphasis`, when a reader asks the platform for stronger contrast. This is
+  the model [Surface](./surface.mdx) already uses for its edge, so a card the note sits in
+  and the note's own boundary answer the same setting together. The rule changes the border
+  width and not its colour, so it moves no contrast ratio; what nobody has measured is
+  whether a thicker line at that ratio reads as a boundary on a phone outdoors, which is a
+  question for a browser rather than for the source.
 
 **Not yet checked at all, and listed rather than omitted:**
 
-- Contrast for the text against the page and for the hairline against the page, in both
-  themes and under increased contrast. `prefers-contrast` and `forced-colors` are not
-  implemented anywhere in opsinjs yet, so nobody can currently make the increased-contrast
-  claim.
+- This component declares no `forced-colors` rule, and nothing here is tested against a
+  forced-colours palette, so a reader in that mode meets whatever the browser substitutes
+  rather than a treatment this note chose. The gap is in this file, not in the system: other
+  components do answer forced colours in their own utilities, among them
+  [Button](./button.mdx), [Field](./field.mdx), [RangeBar](./range-bar.mdx),
+  [Sheet](./sheet.mdx), [ScoreDial](./score-dial.mdx) and
+  [TrendSparkline](./trend-sparkline.mdx). This note simply has not been given one yet.
 - The link's hit area. The floor is declared in rem on both axes so that it grows with the
   reader's text size rather than pinning at 44 device pixels, and no browser has measured it.
   See [Target size and motor](../accessibility/target-size-and-motor.mdx).
@@ -412,8 +449,8 @@ component in a screen reader.
 - How `textVersion` is announced. It renders as a bare span with no label, no association with
   the paragraph it versions and no word around it. That last absence is by design, since any
   word added would be English. A listener therefore meets it as a fragment arriving straight
-  after the link with nothing to place it by. A sighted reader has position and typographic
-  separation to tell them what it is; a listener has neither. Whether visible text is the
+  after the link with nothing to place it by. A sighted reader has position, and now the
+  footnote size and the secondary ink, to tell them what it is; a listener still has neither. Whether visible text is the
   right home for the marker at all is the third open question above.
 
 <KeyboardTable
@@ -475,9 +512,15 @@ would be a change to the system rather than to this component.
 
 **Used by**
 
-- [Show a value against a reference range](../recipes/value-against-a-range.mdx)
-- [Results screen](../screens/results-screen.mdx)
-- [Consent flow](../screens/consent-flow.mdx)
+- [Choose a component](../recipes/choose-a-component.mdx) names it the standard not-medical-advice note, whose placement and wording are governed.
+- [Consent and permissions](../patterns/consent-and-permissions.mdx) uses it to state what the consent does not cover.
+- [Consent flow](../screens/consent-flow.mdx) carries the boundary note beside the request.
+- [Onboarding and first run](../patterns/onboarding-and-first-run.mdx) sets the not-medical-advice boundary as the reader starts.
+- [Onboarding screen](../screens/onboarding-screen.mdx) places the note on the first surface a reader meets.
+- [Result disclosure](../patterns/result-disclosure.mdx) places the governed note by rule beside a disclosed result.
+- [Results screen](../screens/results-screen.mdx) shows the boundary note under the reading.
+- [Sharing with a clinician](../patterns/sharing-with-a-clinician.mdx) marks what the shared view is and is not.
+- [Show a value against a reference range](../recipes/value-against-a-range.mdx) places the governed not-medical-advice note by rule.
 
 **Governed by**
 

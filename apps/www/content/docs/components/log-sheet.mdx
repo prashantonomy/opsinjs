@@ -7,7 +7,7 @@ since: "unreleased"
 category: health-input
 aliases: [log, capture, quick entry, bottom sheet entry, diary, journal, daily entry]
 governedBy: [numbers-units-precision, unit-systems, consent-and-disclosure]
-usedIn: [daily-log-entry, daily-log-screen]
+usedIn: [ask-users-for/height-and-weight, ask-users-for/medications, ask-users-for/symptoms, daily-log-entry, daily-log-screen, daily-logging, forms/autocomplete-and-input-types, forms/question-pages, forms/required-and-optional, forms/units-and-numeric-entry, forms/validation-timing]
 ---
 
 ## Status
@@ -19,7 +19,7 @@ usedIn: [daily-log-entry, daily-log-screen]
     "The field ceiling is a design rule and is not enforced, because it cannot be enforced honestly: React.Children sees direct children only, so a product that wraps its own two fields in one component of its own would be counted as having one. Is the answer a lint rule, a `fields` prop that enumerates them, or leaving it a rule people follow?",
     "The same reading logged twice within minutes is either a duplicate to merge or a real second measurement, and this component cannot tell, because it has no slot key and no view of the rest of the log. Does that stay entirely the product's problem, or does the entry need to carry something that lets the product decide?",
     "Daily logging names six states. They are draft, saving, queued offline, conflict, failed, and the empty first use. LogSheet expresses one of them, through `onDiscard`. The other five happen after `onSave` returns, on a surface this component cannot see. Where do they belong?",
-    "The component ships four strings of its own, and `timeLabel` is the only override. The four are the time control's label and the three words of the discard question. Every other string in the sheet is the product's. Where does a component's own copy go when the product is not in English? Sheet has the same open question and they want the same answer.",
+    "The component ships six strings of its own, and `timeLabel` is the only override. The six are the time control's label, the two guidance sentences it can render, and the three words of the discard question. Every other string in the sheet is the product's. Where does a component's own copy go when the product is not in English? Sheet has the same open question and they want the same answer.",
     "Nothing here has been measured in a browser. The `autoFocus` that moves focus to the discard question, the keyboard-safe inset under the save action, and the platform picker's reading of `min` on the time control are all argued from source rather than observed. That is the honest ceiling for `alpha`, and it means the first three things to measure are already named.",
   ]}
 >
@@ -146,20 +146,38 @@ guarantees is only that nothing it does can stop the save going through: unlikel
 happen, and a log that refuses them is a log with a hole in it exactly where the interesting
 data was.
 
+**An empty entry is the product's to keep or drop, not the sheet's to block.** An entry whose
+`values` are all null and whose note is absent is a record of nothing, and it still reaches
+`onSave`, because this component blocks no save for any reason and an emptiness test is a
+validation like any other. Whether to store it, drop it, or ask the reader again is the
+product's decision, and the place to make it is the first line of `onSave`, where the product
+can see the record it is about to keep. The example under Two fields, and the window the
+product owns shows that decision as two lines at the top of its handler. Disabling the save
+action is refused on purpose: it would make the sheet a form that argues with the reader, and
+a reader who cannot make the sheet go away by pressing the obvious button will press it anyway
+or lose their place.
+
 **Timing is part of the record, and the two times are stored separately.** `occurredAt` is the
 time the entry is *about*, defaulted to the moment the sheet opened and editable throughout.
-`recordedAt` is the time the save happened, read at the save and never editable.
+`recordedAt` is the time the save happened, read at the save and never editable. An emptied
+time control saves with the time of the save and is not marked as re-dated, so the two fields
+never disagree.
 
 **`backdated` is the reader's action, not arithmetic.** It is true when the reader moved the
 time control away from the time the sheet opened at. Deriving it from `occurredAt !==
 recordedAt` is the obvious implementation and is wrong: those two always differ by however
 long the entry took to type, so every record would come back marked and the flag would mean
-nothing.
+nothing. Clearing the control is an absence rather than a re-dating, so an emptied time is
+false here and its `occurredAt` equals its `recordedAt`.
 
 **`maxBackdateDays` is the product's number and nothing is substituted for it.** Omit it and
 no earliest date is offered and none is stated. Supply it and the platform's date picker is
-told where the window starts and the field's guidance names the date in words. A time outside
-the window still saves, because refusing an entry is the one thing this sheet will not do.
+told where the window starts and the field's guidance names the date in words. The window
+opens at the start of the named day, so the whole of the earliest day the guidance names is
+offered. This sheet refuses no entry, so a time the reader types outside the window still
+saves. The platform's picker is a separate matter: on a touch device the picker is the only
+way to change the time and it will not offer a value below the window, so there the window is
+enforced by the platform even though the sheet enforces nothing.
 
 ## Anatomy
 
@@ -182,7 +200,7 @@ the window still saves, because refusing an entry is the one thing this sheet wi
     },
     {
       name: "LogSheet.Time",
-      describes: "A Field wrapping a datetime-local control, defaulted to the moment the sheet opened. Its min comes from maxBackdateDays when there is one, and it never blocks the save.",
+      describes: "A Field wrapping a datetime-local control, defaulted to the moment the sheet opened. Its min comes from maxBackdateDays when there is one, set to the start of the earliest day rather than a clock time, and it never blocks the save. Its guidance also says what an empty control means: leave it empty and the time you save is used.",
       prop: "timeLabel",
     },
     {
@@ -197,15 +215,19 @@ the window still saves, because refusing an entry is the one thing this sheet wi
     },
     {
       name: "LogSheet.Confirm",
-      describes: "Replaces the save action in the footer when a dismissal arrives over unsaved input. It is the discard question and its two answers, asked in place rather than in a second modal surface.",
+      describes: "Replaces the save action in the footer when a dismissal arrives over unsaved input. It is the discard question and its two answers stacked, the destructive one above and the safe one below, asked in place rather than in a second modal surface.",
+    },
+    {
+      name: "LogSheet.Answers",
+      describes: "The stack holding the two answers, carrying data-slot=\"log-sheet-answers\". They are vertical rather than side by side, with 16px between them, so the destructive answer never sits a thumb's width from the safe one.",
     },
     {
       name: "LogSheet.Keep",
-      describes: "The safe answer, and the one focus lands on. Returns to the entry with nothing lost.",
+      describes: "The safe answer, and the one focus lands on. It is the full-width primary at the foot of the footer, in the place the save action occupied, so a thumb already travelling there lands on the answer that returns to the entry with nothing lost. Nothing lost is true of focus as well as of the values: answering it puts focus back on the control the reader was in when the question appeared, or on the sheet's close control when there was none.",
     },
     {
       name: "LogSheet.Discard",
-      describes: "The destructive answer, and the only route out of the question. Calls onDiscard with the entry that was about to be lost, then closes by whichever route asked.",
+      describes: "The destructive answer. Its label is Discard entry, it is natural width above the safe answer, and it is first in the tab order of the two, which is the house order for a pinned action row: least destructive last. Discarding is the only route that leaves with the entry gone. Keep editing, Escape, the scrim and a drag all return to the entry; a second tap of the header close control leaves the question standing and puts focus back on the two answers. Calls onDiscard with the entry that was about to be lost, then closes by whichever route asked.",
       prop: "onDiscard",
     },
   ]}
@@ -264,14 +286,21 @@ the window still saves, because refusing an entry is the one thing this sheet wi
           note: "data-slot=\"log-sheet-confirm\" in Sheet's footer; present only over unsaved input",
           children: [
             {
-              part: "LogSheet.Keep",
+              part: "LogSheet.Answers",
               cardinality: "1",
-              note: "data-slot=\"log-sheet-keep\"",
-            },
-            {
-              part: "LogSheet.Discard",
-              cardinality: "1",
-              note: "data-slot=\"log-sheet-discard\"",
+              note: "data-slot=\"log-sheet-answers\", the two answers stacked with 16px between them",
+              children: [
+                {
+                  part: "LogSheet.Discard",
+                  cardinality: "1",
+                  note: "data-slot=\"log-sheet-discard\", natural width, first in the tab order",
+                },
+                {
+                  part: "LogSheet.Keep",
+                  cardinality: "1",
+                  note: "data-slot=\"log-sheet-keep\", full width, at the foot of the footer",
+                },
+              ],
             },
           ],
         },
@@ -316,8 +345,10 @@ as a draft.
 
 Two controls writing two keys into one entry, which is what the `values` channel is for: the
 key is written beside the control rather than inferred from it. `maxBackdateDays` is the
-example standing in for a product. opsinjs ships no default for it, and a time outside the
-window still saves.
+example standing in for a product. opsinjs ships no default for it, and the sheet refuses no
+save: where the platform lets a time be typed rather than picked, an earlier one still saves.
+On a touch device the picker is the only way to set the time and will not offer a value below
+the window, so the platform enforces there what the sheet never does.
 
 <ComponentPreview
   name="log-sheet-two-fields-and-a-backdate-window"
@@ -390,6 +421,15 @@ a browser.
 - **The sheet is a modal dialogue named by its title**, focus trapped while open and returned
   to the trigger on close. All of that is Sheet's, unchanged, and Sheet's page says the same
   thing about it.
+- **The sheet carries no description of its own, by design.** Sheet exposes `Sheet.Description`,
+  which wires the popup's `aria-describedby`, and this component renders none. A form sheet's
+  content is its fields, so a sentence describing the whole sheet would be copy this component
+  invented rather than anything the reader needs. The title names what is being logged, each
+  field carries its own visible label, and the time control carries a hint when there is a
+  window or an emptied control to explain. The one place a description earns its keep is the
+  discard question, and its two answers already carry one. A tool inspecting the open sheet
+  therefore finds no `aria-describedby` on the container, and that absence is a decision rather
+  than an oversight.
 - **Focus is not moved to the first field on open.** The specification asked for that and this
   component declines, for three reasons: a component moving focus on appearance is refused by
   the repository's own focus doctrine; landing in a control raises the software keyboard over
@@ -404,13 +444,28 @@ a browser.
   keyboard or screen-reader user learns that a question has appeared is therefore that focus
   is on it. Focus lands on *Keep editing*, which is the non-destructive answer; the
   destructive one is never the default. It moves in reply to the reader asking to leave, not
-  on appearance.
+  on appearance. Both answers carry `aria-describedby` pointing at the question's own
+  paragraph, so the sentence that says what is at stake is voiced with the button's name
+  rather than being left unsaid.
+- **Answering Keep editing puts focus back where it was.** The control the reader was in when
+  the question appeared is remembered before the footer is replaced, and focus is moved back to
+  it before the answers unmount, so a keyboard or screen-reader user returns to the field they
+  were typing in rather than to the top of the dialog. When the question went up over a scrim
+  tap, where focus was outside the sheet, it falls back to the sheet's close control rather
+  than dropping focus on the page behind.
+- **While the question is up the header close control does not withdraw it.** Escape, a scrim
+  tap and a drag are ambient gestures and answer with Keep editing, but the close control is a
+  deliberate act: tapping it again leaves the question standing and returns focus to the
+  answers, so the same gesture never flips the sheet between two states without ever closing
+  it.
 - **The question is asked in place, not in a second modal surface.** A confirmation dialogue
   opening from a sheet is two stacked modal surfaces, a focus order nobody can predict, and an
   escape key with two plausible meanings.
-- **Nothing blocks the save.** No validation runs here, no field is marked invalid by this
-  component, and `min` on the time control constrains what the platform picker offers rather
-  than what can be typed.
+- **Nothing blocks the save.** No validation runs here, and no field is marked invalid by this
+  component. `min` on the time control constrains the platform picker, not the save: on a
+  platform with a keyboard a time below the window can still be typed and saved, while on a
+  touch device the picker is the only way to set the time and will not offer a value below the
+  window, so the platform enforces there what this component never does.
 - **Numeric input mode and autocomplete are the product's to declare** on its own controls.
   `Field.Control` sets neither, deliberately: the right `autocomplete` token depends on what
   is being asked for, and a guess would fill somebody's postcode into a field asking for
@@ -422,8 +477,11 @@ a browser.
 
 - The `autoFocus` that moves focus to the discard question. It is React's own behaviour on
   mount, inside a portal that is itself resolving initial focus, and that ordering has not been
-  watched in a browser.
-- Whether the platform's date picker honours `min` the way this page describes. Picker
+  watched in a browser. The focus return on Keep editing sits beside it: nobody has watched
+  focus land back in the field in a browser, and nobody has listened to the described-by
+  question in VoiceOver or TalkBack.
+- Whether the platform's date picker honours `min` the way this page now describes, refusing
+  a value below the window on touch and offering the whole of the earliest named day. Picker
   behaviour for `datetime-local` differs between engines and none of them has been checked.
 - The keyboard-safe inset under the save action on a real device with a software keyboard.
   Sheet's page carries the same gap and it is the same mechanism.
@@ -434,6 +492,17 @@ a browser.
   under that mode the material goes to its opaque fallback and its edge widens to the
   emphasis width, which changes the very pairing this bullet is about. Nobody has measured
   it in either state.
+- The heart category accent and the urgent status accent are near neighbours in hue: in the
+  light theme the band paints `oklch(0.62 0.17 15)` against an urgent accent of
+  `oklch(0.52 0.2 27)`, and in dark the two sit at the same lightness, `oklch(0.714 0.15 15)`
+  against `oklch(0.714 0.176 27)`. Twelve degrees of hue apart in both. This surface is where a
+  layperson meets that pairing most, because the
+  sheet is a capture surface for the most-logged category and the band carries no word and no
+  glyph by design, so hue is the only thing it has to say what it is about. Nothing here mixes
+  the two colour axes: the band is category only, this component paints no status at any price,
+  and the closeness is between two palettes rather than on any one element. So it is a palette
+  question for the token owner rather than a defect in this component, and nobody has asked a
+  reader what a red bar under a heading means to them before they have typed anything.
 - What a screen reader says when the footer's contents are replaced. The swap is a
   re-render inside a region nobody is listening to, and focus arriving is the only signal.
 
@@ -453,7 +522,7 @@ a browser.
     {
       keys: "Escape",
       action: "Asks before discarding when there is unsaved input; closes when there is not",
-      notes: "The keyboard equivalent of a tap on the background, and it behaves identically. That is the whole reason Sheet reports which route a close arrived by. With the question already up, Escape answers it with Keep editing, which is the safe answer; the way out is the Discard control, two stops away.",
+      notes: "The keyboard equivalent of a tap on the background, and it behaves identically. That is the whole reason Sheet reports which route a close arrived by. With the question already up, Escape answers it with Keep editing, which is the safe answer; the way out is the Discard entry control, first in the tab order of the two answers and so one Shift+Tab from the focused safe answer. The close control in the header is the exception: once the question is up it does not withdraw it, because repeating a deliberate act should not undo the question it raised. It leaves both answers on screen and returns focus to them.",
     },
     {
       keys: "Enter",
@@ -463,7 +532,7 @@ a browser.
     {
       keys: "Space",
       action: "Activates the focused button",
-      notes: "Save, Keep editing and Discard are real buttons, so Space activates them and does not scroll the sheet.",
+      notes: "Save, Keep editing and Discard entry are real buttons, so Space activates them and does not scroll the sheet.",
     },
   ]}
 />

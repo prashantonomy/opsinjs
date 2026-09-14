@@ -7,7 +7,7 @@ since: "unreleased"
 category: health-input
 aliases: [measurement input, numeric input, unit switch, enter a reading, numeric entry, manual entry]
 governedBy: [numbers-units-precision, unit-systems, uncertainty-and-staleness]
-usedIn: [daily-log-entry, daily-log-screen]
+usedIn: [ask-users-for/date-of-birth, ask-users-for/height-and-weight, ask-users-for/medications, daily-log-entry, daily-log-screen, daily-logging, forms/autocomplete-and-input-types, forms/question-pages, forms/units-and-numeric-entry, forms/validation-timing, onboarding-and-first-run, onboarding-screen]
 ---
 
 ## Status
@@ -17,10 +17,10 @@ usedIn: [daily-log-entry, daily-log-screen]
   status="alpha"
   issue="opsinjs/opsinjs#0"
   questions={[
-    "Nothing on this page has been measured. No contrast pair has been checked by a machine, no field has been listened to with a screen reader, no hit area has been measured at 1.3× or at 200% text, and nobody has typed into it with a switch device.",
+    "No field has been listened to with a screen reader, no hit area has been measured at 1.3× or at 200% text, nobody has typed into it with a switch device, and no reading has been taken off the rendered control. The neutral token pairs the field draws its colour from are measured and gated; a reading off the control itself is not, and those are two different things.",
     "Two boxes and a unit switch make a compound reading three tab stops, and the keyboard baseline says one stop per component. That baseline was written for a component with one control. Whether a compound reading should instead be one stop with arrow keys inside it has not been tested with anybody who uses a keyboard by necessity.",
-    "The line saying what a unit switch did to the entry is not announced when it appears. The component mounts no live region, deliberately, so the sentence joins the description of every control on the row and is read when focus reaches one. Whether that reaches somebody who cannot see it is unknown.",
-    "The two sentences this component owns say converted from and cleared. Both are English, and there is no prop to translate them. Every other word on the surface is the product's.",
+    "The line saying what a unit switch did to the entry leaves through onChange as effectText, and a product that offers a unit switch must route it through its own polite announcer. The component still mounts no live region and speaks nothing itself. What stays unknown is whether a product that does route the sentence announces it at the right moment, because nobody who depends on that path has listened.",
+    "The three sentences this component owns say converted from, cleared, and restored. All three are English, and there is no prop to translate them. Every other word on the surface is the product's.",
   ]}
 >
   <code className="text-sm">reading-input</code> is implemented and installable.
@@ -121,7 +121,8 @@ checked.
 that turns amber because the value entered is outside a reference range is delivering a
 verdict during data entry, before anyone has checked whether the number is even right. There
 is no `data-status` in this component, no status class, no category class, and the advisory
-sentence is a paragraph in the ordinary foreground colour with no glyph. Form chrome and
+sentence is a paragraph in the ordinary foreground colour with no glyph, set at the emphasis
+weight so it is found without either. Form chrome and
 clinical status are separate vocabularies, and the two-axis rule is worth nothing if one
 leaks into the other. [Field](./field.mdx) arrives at the same answer from the other
 direction.
@@ -175,6 +176,10 @@ switch supplies the arithmetic itself. The field is controlled, `onChange` repor
 product re-renders with its own converted value so the reader keeps their entry. It supplies
 the conversion, or there is no switch.
 
+The entry is not destroyed when it is cleared, though. A reader who goes back to the unit they
+typed in gets their own digits back, and the line says the entry was restored, so a switch
+brushed by accident on a phone costs nothing.
+
 **Whose unit the value is in.** The one named by `unit`, always. The specification had
 `value` in a canonical unit with the display converted, which means every keystroke
 round-trips display → canonical → display; [Unit systems](../health/unit-systems.mdx) rule 6
@@ -225,17 +230,17 @@ some situation and the reader is the only person who knows which one this is.
     },
     {
       name: "ReadingInput.Unit",
-      describes: "The unit, always visible beside the number and never only in the label. A native <select> at the 44px floor when two or more units are offered, plain text when one is, and either way a spoken form from tokens/units.json in the box's description. The field therefore announces as \"in kilograms\" rather than as \"kay gee\".",
+      describes: "The unit, always visible beside the number and never only in the label. A native <select> at the 44px floor when two or more units are offered, plain text when one is, and either way a spoken form from tokens/units.json in the box's description. The field therefore announces as \"in kilograms\" rather than as \"kay gee\". Each option in the open list carries its spoken plural on an aria-label, so a reader arrowing the choices hears \"kilograms\" or \"stone\" while the visible option text and the control's width stay the bare symbol, and the closed control still reads its spoken form from the box's description.",
       prop: "units",
     },
     {
       name: "ReadingInput.Warning",
-      describes: "The product's advisory sentence. A description rather than an error: it never sets aria-invalid, never moves focus, never clears the entry and never blocks a submission. No glyph and no status colour, because a form is not a verdict.",
+      describes: "The product's advisory sentence. A description rather than an error: it never sets aria-invalid, never moves focus, never clears the entry and never blocks a submission. No glyph and no status colour, because a form is not a verdict. It is set at the emphasis weight instead, which is body size at weight 600 with the colour unchanged, so the one sentence the product most wants read is found without either. Weight is the only axis left, because colour here belongs to the two axes this component may not touch.",
       prop: "warning",
     },
     {
       name: "ReadingInput.Effect",
-      describes: "What a unit switch did to the entry, in words that say converted from, or cleared. Present only after a switch that changed something, and gone the moment a box is touched. The only reader-facing copy this component owns.",
+      describes: "What a unit switch did to the entry, in words that say converted from, cleared, or restored. Present only after a switch that has something to say, which includes the retarget case where nothing in the boxes changed but the instruction still names the newly selected unit, and gone the moment a box is touched. The same sentence is handed to onChange as effectText so a product can announce it. The only reader-facing copy this component owns. The reassuring sentences, converted from and restored, stay muted, while the cleared sentence that asks the reader to type the reading again takes the full foreground at the emphasis weight, because information a reader acts on does not go in the colour reserved for things that can be skipped.",
     },
   ]}
 />
@@ -435,7 +440,7 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
   own text size, and **no class that resolves to nothing under `/view`**. The docs chrome's
   palette is larger than the product's, and a component that reaches into it looks correct in
   review and renders unstyled in the app.
-- **No banned word in the copy or in an identifier.** The nine strings this component and its
+- **No banned word in the copy or in an identifier.** The strings this component and its
   examples own are read by the same gate that reads a page.
 
 **Argued, and true of the implementation, but not yet measured:**
@@ -450,7 +455,14 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
   screen reader to improvise a pronunciation of a symbol. The description ids this component
   adds are *merged* with the ones Field registered rather than replacing them. That is
   checked by reading Base UI's labelable provider, which splits the incoming attribute and
-  concatenates, and not by listening to it.
+  concatenates, and not by listening to it. The list a reader arrows through carries the same
+  spoken form: each option is given its plural on an `aria-label`, so `st` announces as
+  *stone* and `lb` as *pounds* while the visible text stays the bare symbol and the control
+  keeps its width. Chromium computes the option's accessible name from that `aria-label`,
+  confirmed by reading the accessibility tree; folding the plural into the visible option text
+  instead would widen the closed control off the number, which is why the name rides the
+  attribute rather than the text. So choosing `st` from `lb` by ear now names the unit rather
+  than reading only the symbol.
 - **The right keyboard appears.** `inputMode` defaults to `"decimal"`, which can type a whole
   number where `"numeric"` cannot type a fraction, so the default is the one that fails
   safely. `enterKeyHint` is the caller's, because only the form around the field knows what
@@ -478,18 +490,42 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
   [Numbers, units and precision](../health/numbers-units-precision.mdx) says the same reading
   is spoken *118 over 76 millimetres of mercury*. Those are two different contracts, the entry
   side and the display side, and only the display side has ever been written down properly.
-- **The line saying what a unit switch did is not announced when it appears.** The substrate
-  contract forbids a component mounting a live region on the caller's behalf, because an
-  input that speaks on every keystroke is an input nobody can use. The sentence therefore
-  joins the description of every control on the row and is read when focus reaches one. That
-  is a deliberate refusal of this page's own *announced politely* requirement, and what it
-  costs somebody who cannot see the line has not been established.
-- **No contrast pair has been measured** for this component in either theme, and
-  `prefers-contrast` and `forced-colors` are not implemented anywhere in opsinjs yet, so the
-  increased-contrast claim cannot currently be made by anyone.
+- **The component announces no unit switch itself, and whether the product does has not been
+  listened to.** The substrate contract forbids a component mounting a live region on the
+  caller's behalf, because an input that speaks on every keystroke is an input nobody can use.
+  That refusal stands. What has changed is that the sentence is no longer a dead end: it
+  leaves through `onChange` as `effectText`, character for character what a sighted reader
+  sees, so a product that offers a unit switch can route it through its own polite announcer.
+  The gap is now the product's announcement rather than a component that swallows the words,
+  and nobody who relies on that route has yet listened to confirm it fires at the right
+  moment.
+- **The component itself has not been measured, and its boundary inherits a number rather
+  than owning a measured pair.** The hairline around the box and around the unit switch draws
+  `border-input`, the field's boundary role. Under D5 that role is the same neutral-500 step
+  as `--border` in both themes, so the field reads at whatever `--border` reads at. Only
+  `--border` is put through the gate, though. The pairs `neutral.border-on-page` and
+  `neutral.border-on-card`, recorded in `lib/generated/contrast.json` once the contrast
+  generator has run, measure the card hairline, which is `--border`. The field takes that
+  number without a gated pair of its own, so a drift in the `input` role alone would move the
+  field's boundary and still pass every gate. The contrast report below resolves the neutral
+  scope through this component's catalogue row, which is a measurement of the token pairs the
+  field draws its colour from and not a reading taken off the rendered control. The two are
+  not the same thing. The dark boundary is honest about its own shortfall: neutral-500 on the
+  near-black page reaches about Lc 28.72 against an Lc 45 non-text floor, so it is published,
+  measured and below the APCA floor while it clears WCAG 3:1. `prefers-contrast` and
+  `forced-colors` are not answered by this component, so the increased-contrast claim still
+  cannot be made for the field itself.
 - **No hit area has been measured** at 1.3× zoom or at 200% text, on the boxes or on the unit
   switch.
-- **The two owned sentences are English**, with no way to translate them.
+- **Choosing a unit from the open list by ear now names the unit, but has not been heard on a
+  real screen reader.** Each option carries its spoken plural on an `aria-label`, so a reader
+  arrowing `kg`, `lb` and `st` reads *kilograms*, *pounds* and *stone* rather than the glyphs,
+  and the accessibility tree confirms the computed name. The switch stays a native `<select>`
+  for the platform behaviour it brings, and the spoken name rides the attribute rather than a
+  non-native listbox, so no platform behaviour is given up to get it. What stays unchecked is
+  how a given screen reader voices a native select's own open popup, which is platform
+  behaviour this component does not control and which nobody has listened to here.
+- **The three owned sentences are English**, with no way to translate them.
 
 <KeyboardTable
   name="reading-input"
@@ -512,7 +548,7 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
     {
       keys: "Up / Down",
       action: "Changes the unit, when the switch has focus",
-      notes: "The native select's own behaviour, which is why it is a native select: it is one tab stop, it works on every platform without a roving-tabindex implementation to get wrong, and on a phone it opens the system picker. On a change the entry converts or is cleared, and the line beneath says which.",
+      notes: "The native select's own behaviour, which is why it is a native select: it is one tab stop, it works on every platform without a roving-tabindex implementation to get wrong, and on a phone it opens the system picker. On a change the entry converts or is cleared, and the line beneath says which. This component does not announce the number when it changes; the sentence leaves through onChange as effectText, and a product that offers a unit switch announces it politely itself.",
     },
     {
       keys: "Enter",
@@ -522,7 +558,7 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
     {
       keys: "Escape",
       action: "Nothing here",
-      notes: "There is no overlay to dismiss and no entry to revert. A reader who wants a previous value back gets it from the product's own undo; this field never restores a number it was not given.",
+      notes: "There is no overlay to dismiss and no entry to revert. A reader who wants a previous value back gets it from the product's own undo. This field still never invents a number it was not given; the one case where a number does come back is the reader's own, when a refused switch cleared the entry and they go back to the unit they typed in, and the line then says the entry was restored.",
     },
   ]}
 />
@@ -533,7 +569,7 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
 
 <PropsTable name="ReadingInputProps" />
 
-Four differences from the interface this page proposed while it was unbuilt, each named here
+Five differences from the interface this page proposed while it was unbuilt, each named here
 rather than slipped in.
 
 **There is no `plausible` prop**, and its absence is argued in full under *Clinical meaning*
@@ -558,6 +594,16 @@ conversion is not a mode: it happens whenever `tokens/units.json` owns the facto
 is cleared when it does not, and either way the component says which on screen. A product
 that wants different behaviour has it, by handling `cause: "unit"` itself.
 
+**`ReadingInputChange` carries `effectText`, and the component speaks none of it.** The
+proposed interface had no field for the sentence a unit switch draws, because it assumed the
+component would announce the change on the reader's behalf. It does not: it mounts no live
+region, for the reason [screen readers](../accessibility/screen-readers.mdx) rule 1 gives, so
+the exact sentence a sighted reader sees leaves through `effectText` and a product that offers
+a unit switch routes it through its own polite announcer. The number can change under a focus
+that never moves, and a description a screen reader has already read is not read again, so a
+caller that does nothing leaves a blind reader saving a value they were never told had
+changed.
+
 `ReadingSegment` and `ReadingInputChange` are exported alongside the props interface. The
 generator emits a table only for interfaces named `<Pascal>Props`, so these are the shipped
 declarations, copied from `registry/bases/base/reading-input.tsx`:
@@ -581,8 +627,10 @@ export interface ReadingInputChange {
   text: string[]
   /** Whether the reader typed in a box or moved the unit switch. */
   cause: "value" | "unit"
-  /** On a switch: converted by a definitional factor, cleared, or nothing had been typed. */
-  unitEffect: "converted" | "cleared" | "unchanged" | null
+  /** On a switch: converted by a definitional factor, cleared, restored to the typed unit, or unchanged. "Unchanged" is two cases: nothing had been typed, or a cleared refusal was retargeted to name the newly selected unit. That second case still ships an effectText, so do not gate an announcer on unitEffect. */
+  unitEffect: "converted" | "cleared" | "restored" | "unchanged" | null
+  /** The sentence drawn beneath the boxes, or `null`. The product must announce it politely. */
+  effectText: string | null
 }
 ```
 
@@ -659,8 +707,16 @@ from one nobody has reached yet. Those attributes do, and so does `ReadingInputC
 
 **Used by**
 
-- [Capture a daily log entry](../recipes/daily-log-entry.mdx)
-- [Daily log screen](../screens/daily-log-screen.mdx)
+- [Capture a daily log entry](../recipes/daily-log-entry.mdx) is the single-entry recipe this
+  component is the control for.
+- [Daily log screen](../screens/daily-log-screen.mdx) places that entry on the screen a reader
+  returns to on a cadence.
+- [Daily logging](../patterns/daily-logging.mdx) is the repeated-entry pattern where a reader
+  types a measurement each time, with the unit shown rather than typed.
+- [Onboarding and first run](../patterns/onboarding-and-first-run.mdx) uses it to collect the
+  one baseline measurement the first value needs, and no more.
+- [Onboarding screen](../screens/onboarding-screen.mdx) enters that first measurement on first
+  run, where a first reading is never interpreted as a baseline.
 
 **Governed by**
 

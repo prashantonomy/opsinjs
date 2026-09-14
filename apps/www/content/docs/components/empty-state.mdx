@@ -6,7 +6,7 @@ kind: component
 since: "unreleased"
 category: feedback
 aliases: [blank slate, no data, nothing here, zero state]
-usedIn: [onboarding-screen, trends-screen]
+usedIn: [choose-a-component, consent-flow, daily-log-screen, daily-logging, empty-and-first-use, onboarding-and-first-run, onboarding-screen, results-screen, trend-review, trends-screen]
 ---
 
 ## Status
@@ -19,7 +19,7 @@ usedIn: [onboarding-screen, trends-screen]
     "May an empty state carry a primary action when the reader cannot actually take it yet, such as while waiting for a device to sync or waiting for a laboratory? The component allows one and has no opinion, which means the decision is currently nobody's.",
     "Is an illustration ever appropriate on a health empty state? The component treats one as decoration and drops it before it drops a word, but whether a picture helps or hurts beside an absence of somebody's own data has not been researched here.",
     "A view that becomes empty should be announced once, politely. This component deliberately mounts no live region, opsinjs ships no announcement helper, and what the surrounding region should do instead is still specified nowhere. The filter example writes one caller's half out by hand; that is a demonstration, not a specification.",
-    "The contrast pairs and the hit-area floor have not been measured for this component. Worse than unmeasured on one path: the onSelect form of an action loses its label colour to a class-merge defect in Button, so no contrast claim can be made for it at all. Prefer the href form. Its accessibility section below says which claims are checked by a gate, which are only argued, and which cannot be made.",
+    "The contrast pairs and the hit-area floor have not been measured for this component. Both forms of an action now render the same neutral pair, bg-card with the body foreground, so the recommended step reads at one weight whichever prop the caller passed, and neither transport is the one to prefer for a contrast reason. The href form is still the one to reach for where a destination exists, because it stays server-rendered and gives the reader a real link to open or copy. That pair is argued from the tokens rather than measured here. Its accessibility section below says which claims are checked by a gate, which are only argued, and which cannot be made.",
   ]}
 >
   <code className="text-sm">empty-state</code> is implemented and installable.
@@ -35,10 +35,13 @@ sentence about the reader's data, and says so out loud when nobody supplied one.
 
 ## Preview
 
-Two of the four reasons, side by side, because they are the two that are hardest to keep
-apart. On the left the reader can fix the emptiness themselves. On the right the product has
-declined to draw something and owes an explanation of what it is waiting for. Nothing on
-either card is cheerful about the absence, and neither card invents a number.
+Three of the five reasons: the two empties that are hardest to keep apart, and the error
+state that must never be mistaken for either. They stack on a narrow surface and sit side by
+side once there is room. In the first the reader can fix the emptiness themselves. In the
+second the product has declined to draw something and owes an explanation of what it is
+waiting for. The third is a load that did not complete, which says the readings are safe
+rather than gone and offers a way to try again. Nothing on any card is cheerful about the
+absence, and none invents a number.
 
 <ComponentPreview name="empty-state" />
 
@@ -48,7 +51,7 @@ either card is cheerful about the absence, and neither card invents a number.
   name="empty-state"
   unbuilt={false}
   importPath="@/components/ui/empty-state"
-  registryDependencies={["button"]}
+  registryDependencies={["button", "link"]}
 />
 
 ## Usage
@@ -78,7 +81,7 @@ import { EmptyState } from "@/components/ui/empty-state"
   ]}
   avoid={[
     { case: "The content is loading and will arrive shortly, so the layout should be preserved rather than replaced.", instead: "skeleton" },
-    { case: "Something went wrong and the reader needs to know it went wrong rather than that there is nothing there.", instead: "alert-banner" },
+    { case: "The whole view failed and needs a prominent notice that something went wrong, rather than one surface reporting in place that it could not load, which is this component's could-not-load reason.", instead: "alert-banner" },
     { case: "There is content, but it needs a caveat.", instead: "callout" },
     { case: "The reader must give permission before anything can be shown.", instead: "consent-sheet" },
     { case: "A single value is missing inside an otherwise full surface.", instead: "value" },
@@ -92,11 +95,16 @@ them will leave before the data arrives and conclude the app lost their readings
 skeleton where a value may not turn up, because the honest resolution of that load is this
 component.
 
-The four reasons are not decoration on a single empty. `nothing-yet` and `no-matches` look
+The five reasons are not decoration on a single empty. `nothing-yet` and `no-matches` look
 identical on screen and are opposites underneath. In one the data does not exist. In the
 other it does, and a control is hiding it. `not-enough` is the one that carries a safety
 obligation, because it is what a view renders when it has decided that drawing something
-would be dishonest.
+would be dishonest. That obligation is scoped. `not-enough` carries it for a surface with no
+chart at all, and a series too short to plot inside a chart card is
+[TrendSparkline](./trend-sparkline.mdx)'s own refusal, stated in the card rather than by a
+whole-surface empty state. `could-not-load` is the one that is not about the reader's data at all: a
+fetch tried and failed, so the readings are safe rather than gone, and it is the only reason
+that draws a marker of its own and requires a way to try again.
 
 ## Anatomy
 
@@ -110,8 +118,13 @@ would be dishonest.
     },
     {
       name: "EmptyState.Illustration",
-      describes: "Rendered only when one is supplied. aria-hidden and inert, dropped in print, and dropped again when the container is narrower than 24rem, so the picture goes before any word does.",
+      describes: "Rendered only when one is supplied. aria-hidden and inert, dropped in print, and dropped again once the content area it is given falls below 17rem. Because a container query measures the content box rather than the padded surface, that threshold sits below the width a phone leaves inside the padded box and above what a narrow embedded card leaves, so the picture is present on a phone and leaves only inside a narrow card, and it goes before any word does.",
       prop: "illustration",
+    },
+    {
+      name: "EmptyState.ErrorFlag",
+      describes: "Shown only for reason=\"could-not-load\", rendered before the title: the words \"Could not load\" beside an aria-hidden icon, in neutral ink with a neutral boundary. It carries neither colour axis, because a failed fetch is neither a clinical level nor a kind of measurement, so the error is told apart from an absence by the word and the icon and never by a tint.",
+      prop: "reason",
     },
     {
       name: "EmptyState.Title",
@@ -120,12 +133,17 @@ would be dishonest.
     },
     {
       name: "EmptyState.Body",
-      describes: "Why, in one or two sentences, as a paragraph. Always rendered: with no children it says that no explanation has been supplied, rather than substituting a sentence nobody wrote. false from a && branch, an empty array, a whitespace string and a bare number all count as no children.",
+      describes: "Why, in one or two sentences, as a paragraph. Always rendered: with no children it says there is nothing here and the app does not say why, rather than substituting a sentence nobody wrote. false from a && branch, an empty array, a whitespace string and a bare number all count as no children.",
       prop: "children",
     },
     {
       name: "EmptyState.Action",
-      describes: "The one next step. An anchor when the action has an href, a primary Button when it has an onSelect. Rendered only when the action can actually do something.",
+      describes: "The one next step. A Link with emphasis=\"action\" when the action has an href, a neutral Button when it has an onSelect, and both carry the same recommended treatment, so the form the caller chooses changes the semantics and not the prominence. Rendered only when the action can actually do something.",
+      prop: "action",
+    },
+    {
+      name: "EmptyState.ErrorNoRetry",
+      describes: "The admission shown when could-not-load was given no usable action. Rather than fake a control with nothing behind it, the surface says in a line of its own that no way back was offered, the same kind of admission the missing title and the missing body make. It renders between the action and the secondary, and never a digit.",
       prop: "action",
     },
     {
@@ -150,6 +168,11 @@ would be dishonest.
           note: "data-slot=\"empty-state-illustration\", aria-hidden and inert",
         },
         {
+          part: "EmptyState.ErrorFlag",
+          cardinality: "0..1",
+          note: "data-slot=\"empty-state-error-flag\", could-not-load only, before the title; a word and an aria-hidden icon in neutral ink with a neutral boundary, taking neither colour axis",
+        },
+        {
           part: "EmptyState.Title",
           cardinality: "1",
           note: "data-slot=\"empty-state-title\", an h2 through h6, never empty",
@@ -163,6 +186,11 @@ would be dishonest.
           part: "EmptyState.Action",
           cardinality: "0..1",
           note: "data-slot=\"empty-state-action\", wrapping an <a> or a Button",
+        },
+        {
+          part: "EmptyState.ErrorNoRetry",
+          cardinality: "0..1",
+          note: "data-slot=\"empty-state-error-no-retry\", shown when could-not-load was given no usable action",
         },
         {
           part: "EmptyState.Secondary",
@@ -183,10 +211,13 @@ tidiness: [Button](./button.mdx) stamps its own `data-slot="button"`, and one el
 carry two slot names. Style the wrapper, and the control keeps the treatment its own
 component owns.
 
-`reason` deliberately renders nothing. It is required because the four empties need four
-different sentences and one of them is a safety statement; it is invisible because a
-component that turned a reason into a sentence would be writing that sentence about somebody
-else's data.
+`reason` renders nothing for the four empties and a neutral word with an icon for
+`could-not-load`. It is required because the four empties need four different sentences, one
+of them a safety statement, and because the fifth reason is an error that must not be taken
+for an absence. For the four empties it stays invisible, since a component that turned a
+reason into a sentence would be writing that sentence about somebody else's data; for
+`could-not-load` it draws its own marker in neither axis of colour, so a load that did not
+complete never reads as an empty list.
 
 ## Examples
 
@@ -211,10 +242,11 @@ list takes it instead.
 
 ### What happens when nobody wrote the body
 
-On the left, the component refusing to help. There is no default sentence for an empty health
-surface, so the omission is stated rather than filled. On the right, the same component with
-two sentences. That is the entire fix, and it is why the left-hand one also logs a development
-warning naming the reason it was given.
+The first card is the component refusing to help. There is no default sentence for an empty
+health surface, so the omission is stated rather than filled. The second is the same component
+with two sentences. That is the entire fix, and it is why the first also logs a development
+warning naming the reason it was given. They stack on a narrow surface and sit side by side
+once there is room for both.
 
 <ComponentPreview name="empty-state-no-copy-supplied" kind="example" align="start" />
 
@@ -223,13 +255,20 @@ warning naming the reason it was given.
 Cover the picture and the empty state still says what is absent, why, and what to do about
 it. That is the test. The component keeps it out four ways. The picture is out of the
 accessibility tree, out of the tab order with `inert`, off paper, and out of the layout once
-the surface it was given is narrower than 24rem.
+the content area it is given falls below 17rem.
 
 **The illustration is `aria-hidden` and `inert` in the rendered DOM**, which you can check
-in the frame below rather than take on trust. What has not been observed is the behaviour
-that needs a viewport: whether the picture actually leaves below 24rem, and whether it leaves
-in print. Both are container and media queries in the source, and neither has been exercised
-against a browser. The accessibility section says so.
+in the frame below rather than take on trust. The drop threshold is a different kind of claim.
+The picture carries `@max-[17rem]:hidden`, a container query that reads the padded content box
+rather than the surface, so the width it measures is what is left after the root's `px-4` is
+taken off. A 390px phone leaves 308px inside that box and a 360px phone 278px, both above the
+17rem threshold, so the picture stays; a 300px embedded card leaves 266px and loses it. A
+browser resize pass at those three widths confirms the picture is present on the two phones and
+gone in the narrow card. The earlier 20rem threshold was measured against the same content box,
+where a 390px phone already falls to 308px, so its true crossover was a 402px viewport and it
+dropped the picture on every phone the system is built for. Whether it leaves in print is a
+further gap, because that is a media query and no capture has produced a printed page. The
+accessibility section says which of these a standing gate covers.
 
 <ComponentPreview name="empty-state-with-an-illustration" kind="example" align="start" />
 
@@ -243,16 +282,28 @@ a statement about the person.
 
 For `not-enough`, state the rule and the gap. The reader is not being told off; they are being
 told what the view is waiting for. This is the one reason whose body is not an explanation but
-a safety statement, and it is the one most often left empty.
+a safety statement, and it is the one most often left empty. The sentence carries three facts
+and no more: how many readings there are, how many a trend needs, and the window they are
+counted over. [TrendSparkline](./trend-sparkline.mdx) states the too-short case in that same
+shape, so a reader who meets the refusal in a chart card and again on a bare surface meets one
+sentence built the same way.
+
+For `could-not-load`, say the system failed to load, never that the reading is missing. A
+request that did not complete is a fact about the network or the service, not about the
+person, so the words point at the load and offer a way to try again. Do not let the copy imply
+the reading itself is gone or that an absence is a result: *No readings* on a failed fetch
+tells the reader a falsehood about their own record.
 
 This component ships no copy about the reader, and that is a deliberate constraint rather than
 an unfinished job. There is no default body, no default disclaimer, no default emergency
 number, no threshold and no default reassurance, because opsinjs does not know which product
-it is in, what that product is regulated as, or where its reader is. The only two strings in
-the file are admissions: an EmptyState given no body renders a plain line saying that no
-explanation has been supplied, and one given a blank title says the same about the title. Both
-are unlovely on purpose. An author who sees one fixes it, and a reader who sees one has at
-least not been told something untrue.
+it is in, what that product is regulated as, or where its reader is. The four reader-facing
+strings in the file are admissions or statements about the system, never a sentence about the
+reader: an EmptyState given no body renders a plain line saying there is nothing here and the
+app does not say why, one given a blank title says the screen has no heading, the error state
+carries the words "Could not load", and an error left with no way back says so in a line of
+its own. All of them are written for the reader rather than the developer. An author who sees
+one fixes it, and a reader who sees one has at least not been told something untrue.
 
 The guard behind the body line is wider than a missing prop, because that is not how a body
 actually goes missing. `{rows.length > 0 && "…"}` passes `false` when the list is empty, and
@@ -310,8 +361,9 @@ checked, with the gaps listed rather than left out.
 - **No banned word reaches copy or an identifier.** The static rig reads every string literal
   and every JSX text node in this file against the generated list from `tokens/glossary.json`
   plus the six from [Reference ranges](../health/reference-ranges.mdx), and then reads the
-  identifiers as well. The two sentences this component ships are the missing body and the
-  missing title, both of them admissions. They pass the same gate a product's own copy would.
+  identifiers as well. The four reader-facing strings this component ships are the missing
+  body, the missing title, the "Could not load" marker and the line an error shows when it
+  carries no way back. They pass the same gate a product's own copy would.
 - **No type size in `px`, no raw colour, no numbered ramp step.** Every size is one of the
   eleven semantic steps and every colour is a bridged role, so a reader's own text size
   reaches the whole component and both themes are somebody's measured decision.
@@ -339,9 +391,12 @@ checked, with the gaps listed rather than left out.
   not silently vanish in a project that installed this file without `tokens.generated.css`. An
   action with neither a destination nor a handler renders nothing at all and warns.
 - **Nothing depends on colour**, controls included. The state is carried by the words: no
-  tint, no icon standing in for a sentence, no legend. The quieter alternative is underlined
-  in both of its forms, so it is identifiable as a control without relying on a hover fill
-  that a touch user never sees and a low-vision reader may not resolve.
+  tint, no icon standing in for a sentence, no legend. The recommended action and the quieter
+  alternative differ by the size of the box, a boundary and the step of the type rather than
+  by hue, so both survive greyscale, and no card action is brand-filled on either transport.
+  The quieter alternative is underlined in both of its forms, so it is identifiable as a
+  control without relying on a hover fill that a touch user never sees and a low-vision reader
+  may not resolve.
 - **The layout stacks by construction**, because it is a single column at every width. The
   body is capped at the tight measure so a centred paragraph does not lose the reader's return
   sweep.
@@ -360,37 +415,49 @@ checked, with the gaps listed rather than left out.
 
 **Not yet checked at all, and listed rather than omitted:**
 
-- Contrast for the title, the body and both action treatments against the surfaces they land
-  on, in both themes. `<ContrastReport>` below has no measured pairs for this component, and
-  says so rather than printing a number nobody produced.
-- **The `onSelect` form of `action` cannot be claimed at all yet**, and that is stronger than
-  "unmeasured". [Button](./button.mdx) composes its variant classes and its size classes
-  through `cn()`, and `tailwind-merge` cannot read `text-opsin-headline` as a font size. It
-  therefore classifies it as a text colour, and being later it wins. The variant's own colour
-  class is dropped before it reaches the DOM. On `quiet` that costs nothing, because the class
-  it loses is `text-foreground` and the label inherits the same colour anyway; on `primary`,
-  which is what `action` uses, the label loses `text-primary-foreground` and falls back to the
-  body foreground on top of the primary fill. That is a defect in `button.tsx` rather than in
-  this component and not one this file should work around, and until it is fixed no contrast
-  claim can be made for the button form of `action`. Prefer the `href` form, which is the form
-  to prefer anyway.
+- Contrast for the title, the body and both action treatments against the card surface they
+  land on, in both themes. `<ContrastReport component="empty-state">` below lists the measured
+  neutral token pairs this component draws its colour from, the body text, the secondary text
+  and the hairline boundary against the page in both themes. Those are the token pairs the
+  component uses, not a measurement of the component itself, so the specific pairings against
+  the card surface are argued from the tokens and are not among the rows below.
+- **Both transports of `action` render the same pair.** The `href` form renders
+  [Link](./link.mdx) `emphasis="action"` and the `onSelect` form renders
+  [Button](./button.mdx) `variant="secondary"`, and both take the same neutral pair, `bg-card`
+  with the body foreground, because both resolve to the one card action recipe in
+  `button.tsx`. So the two transports cannot drift, the recommended step reads at one weight
+  whether the caller passed `href` or `onSelect`, and neither form is the one to prefer for a
+  contrast reason. That pair is argued from the tokens rather than measured here: the neutral
+  rows below are text against the page, and the action's pairing against the card surface is
+  not one of them.
 - The 44×44 hit area, survival at 1.3× and usability at 200% are the layout half of the
   accessibility rig. It runs only in the nightly workflow, where a browser is installed at job
   time, and it has not been run against this component.
 - `prefers-contrast` and `forced-colors` are not implemented anywhere in opsinjs yet, so no
   increased-contrast claim can currently be made by anyone, here or elsewhere.
-- **The two rules that need a viewport, not the two that do not.** `aria-hidden` and `inert`
-  are in the rendered DOM and can be read off the preview above. The other two cannot: the
-  illustration is dropped in print, and dropped again once its container is narrower than
-  24rem by a *container* query rather than a media query. The picture should therefore leave
-  inside a narrow card on a wide screen, which is where it is most often in the way. Should.
-  Neither query has been exercised against a browser, and the nightly layout half does not
-  resize a container or print a page, so neither is on a path to being measured by the rig as
-  it stands.
-- Whether the 24rem threshold for dropping the illustration is the right one. It is a
-  judgement about a picture nobody has studied, not a measurement. The threshold is written in
-  `rem` so that it can follow a reader who has raised their root font size, which is behaviour
-  this component expects of a container query and has not measured in any engine.
+- **The print drop needs a printed page, and no capture has produced one.** `aria-hidden`
+  and `inert` are in the rendered DOM and can be read off the preview above, and the container
+  drop has been checked by a one-off browser resize pass but by no standing gate, as the bullet
+  below records. The print rule cannot be read off anything: the
+  illustration carries `print:hidden` so a printed summary shows the title and the body and
+  nothing else, but that is a media query, and the nightly layout half does not print a page,
+  so it is not on a path to being measured by the rig as it stands.
+- **Whether the illustration leaves inside a narrow container.** The picture carries
+  `@max-[17rem]:hidden`, a *container* query rather than a media query, and a container query of
+  type `inline-size` reads the padded content box, so the width it measures is what is left
+  after the root's `px-4`. A one-off browser resize pass reads 308px inside that box at a 390px
+  phone and 278px at a 360px phone, both above 17rem so the picture stays, and 266px inside a
+  300px embedded card, below it so the picture goes. That is a hand check, not a standing gate:
+  the rig runs no container-resize check, so a regression here would pass every commit, which is
+  why this still sits under what a gate does not cover. The earlier 20rem threshold read against
+  the same content box, where a 390px phone already falls to 308px, so its true crossover was a
+  402px viewport and it dropped the picture on every phone.
+- Whether 17rem is the right threshold for dropping the illustration. It is a judgement about a
+  picture nobody has studied, not a measurement of what serves the reader; it is set to clear
+  the padded box on a phone and drop inside a narrow card, and no theme step falls in the band
+  between the two, so it is a bespoke value. The threshold is written in `rem` so that it can
+  follow a reader who has raised their root font size, which is behaviour this component expects
+  of a container query and has not measured in any engine.
 
 <KeyboardTable
   name="empty-state"
@@ -434,7 +501,7 @@ specification rather than a substitute for anything on it: the accessibility req
 for "a real heading at the level the surrounding page needs", and `title: string` on its own
 has no way to say which level that is.
 
-The four reason values are written into `EmptyStateProps` as a union rather than exported as
+The five reason values are written into `EmptyStateProps` as a union rather than exported as
 a named `EmptyReason` type. A registry file has three public exports. They are the props
 interface, the component and the zero-prop demo, so a caller who needs the union names it as
 `EmptyStateProps["reason"]`. The specification writes it as an export; that difference is
@@ -457,17 +524,38 @@ component may not mint one.
 
 - [Skeleton](./skeleton.mdx) is for content that is coming. Showing an empty state while
   loading is the most damaging confusion in this pair.
-- [AlertBanner](./alert-banner.mdx) is for something that went wrong. *Nothing here* and *we
-  could not load this* are different facts and readers act differently on them.
+- [AlertBanner](./alert-banner.mdx) is the page-level surface for something that went wrong: a
+  notice that speaks for the whole view. EmptyState now owns the in-place failure of a single
+  data surface through `reason="could-not-load"`, which reports the failure where the missing
+  thing would have been and offers a way to try again. Reach for the banner when the whole
+  screen is affected, and for `could-not-load` when one surface could not load while the rest
+  of the screen stands.
 - [Callout](./callout.mdx) is a note beside content that exists.
-- [TrendSparkline](./trend-sparkline.mdx) is the component that most often defers to an empty
-  state, when the series is too short to draw honestly.
+- [TrendSparkline](./trend-sparkline.mdx) draws the too-short refusal itself inside a chart
+  card, so it does not defer there. It defers to this component only when the surface has no
+  chart at all, and then `not-enough` carries the refusal in the shared sentence shape.
 
 **Used by**
 
-- [Onboarding screen](../screens/onboarding-screen.mdx)
-- [Trends screen](../screens/trends-screen.mdx)
-- [Empty and first use](../patterns/empty-and-first-use.mdx)
+- [Choose a component](../recipes/choose-a-component.mdx) routes an absence, which is not a
+  zero, to this component from its decision table.
+- [Consent flow](../screens/consent-flow.mdx) reaches for it on the declined branch, to name
+  what still works without the data the reader withheld.
+- [Daily log screen](../screens/daily-log-screen.mdx) shows a day with no reading logged yet
+  as an honest absence rather than a zero.
+- [Daily logging](../patterns/daily-logging.mdx) draws the log before its first entry exists.
+- [Empty and first use](../patterns/empty-and-first-use.mdx) uses it for the first-use
+  surface, shown empty after loading with one action to begin.
+- [Onboarding and first run](../patterns/onboarding-and-first-run.mdx) uses it on first run,
+  before the reader has added anything.
+- [Onboarding screen](../screens/onboarding-screen.mdx) opens on it, before there is any
+  reading to show.
+- [Results screen](../screens/results-screen.mdx) uses it for a results surface with nothing
+  measured yet.
+- [Trend review](../patterns/trend-review.mdx) defers to it when a trend has too few readings
+  to draw honestly.
+- [Trends screen](../screens/trends-screen.mdx) shows it for a window that contains no
+  readings, where a chart would mislead.
 
 **Governed by**
 

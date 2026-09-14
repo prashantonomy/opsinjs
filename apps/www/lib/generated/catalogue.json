@@ -1,11 +1,11 @@
 {
   "$comment": "GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts, projected through lib/catalogue.ts. Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`. Consumed by the /r routes, the llms shards and the generated catalogue reference page. It exists as JSON rather than being imported from the TypeScript because the route handlers, the llms shards and any external tool all need the same rows without loading the app's module graph. `generatedAt` carries the source hash rather than a build time, because this file is guarded by a byte-for-byte drift gate.",
-  "generatedAt": "ab31127bbcef",
-  "sourceHash": "ab31127bbcef",
+  "generatedAt": "42b23fdcd7ae",
+  "sourceHash": "42b23fdcd7ae",
   "counts": {
-    "shipped": 24,
-    "considered": 36,
-    "implemented": 24
+    "shipped": 25,
+    "considered": 35,
+    "implemented": 25
   },
   "categories": [
     {
@@ -93,7 +93,8 @@
         "value",
         "range-bar",
         "relative-time",
-        "button"
+        "button",
+        "link"
       ]
     },
     {
@@ -117,7 +118,8 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "value"
+        "value",
+        "status-pill"
       ]
     },
     {
@@ -142,7 +144,8 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "value"
+        "value",
+        "status-pill"
       ]
     },
     {
@@ -189,6 +192,9 @@
       ],
       "implemented": true,
       "docs": "/docs/components/metric-tile",
+      "dependencies": [
+        "lucide-react"
+      ],
       "registryDependencies": [
         "surface",
         "value",
@@ -239,7 +245,8 @@
       "registryDependencies": [
         "status-pill",
         "button",
-        "relative-time"
+        "relative-time",
+        "link"
       ]
     },
     {
@@ -264,13 +271,14 @@
       "registryDependencies": [
         "card",
         "button",
-        "status-pill"
+        "status-pill",
+        "link"
       ]
     },
     {
       "name": "term",
       "title": "Term",
-      "description": "A clinical word shown in plain English, with the original available on demand.",
+      "description": "A clinical word with its everyday meaning attached, so a sentence can be read without leaving it.",
       "type": "registry:ui",
       "category": "health-communication",
       "status": "alpha",
@@ -330,6 +338,9 @@
       "docs": "/docs/components/disclaimer-note",
       "dependencies": [
         "lucide-react"
+      ],
+      "registryDependencies": [
+        "link"
       ]
     },
     {
@@ -459,6 +470,9 @@
       ],
       "implemented": true,
       "docs": "/docs/components/card",
+      "dependencies": [
+        "lucide-react"
+      ],
       "registryDependencies": [
         "surface"
       ]
@@ -511,7 +525,8 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "surface"
+        "surface",
+        "button"
       ]
     },
     {
@@ -553,7 +568,8 @@
       "implemented": true,
       "docs": "/docs/components/empty-state",
       "registryDependencies": [
-        "button"
+        "button",
+        "link"
       ]
     },
     {
@@ -593,6 +609,24 @@
       "dependencies": [
         "@base-ui/react",
         "lucide-react"
+      ]
+    },
+    {
+      "name": "link",
+      "title": "Link",
+      "description": "Navigation to somewhere else.",
+      "type": "registry:ui",
+      "category": "actions-and-forms",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "anchor",
+        "hyperlink"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/link",
+      "registryDependencies": [
+        "button"
       ]
     },
     {
@@ -920,7 +954,7 @@
       "useInstead": [
         "field"
       ],
-      "why": "Delegated to Base UI. opsinjs adds guidance rather than a component. The guidance is that for short lists a radio group is easier for the reader, and Base UI has one."
+      "why": "Delegated to Base UI. opsinjs adds guidance rather than a component. The guidance is that for short lists a radio group is easier for the reader, and Base UI has one. Inside a Field, render Base UI's Select through Field.Control's render prop. The shipped specimen registry/examples/field-with-another-control.tsx uses a native select on that same prop, and Base UI's Select goes through it the same way."
     },
     {
       "name": "combobox",
@@ -958,7 +992,7 @@
       "useInstead": [
         "consent-sheet"
       ],
-      "why": "Delegated to Base UI. A switch must never be used for consent, because consent is a decision with a record, not a setting. ConsentSheet is therefore the opsinjs answer for that case, and the setting itself stays Base UI's."
+      "why": "Delegated to Base UI. A switch must never be used for consent, because consent is a decision with a record, not a setting. ConsentSheet is therefore the opsinjs answer for that case, and the setting itself stays Base UI's. Inside a Field, render Base UI's Switch through Field.Control's render prop. The shipped specimen registry/examples/field-with-another-control.tsx shows that render route with a native control."
     },
     {
       "name": "checkbox",
@@ -977,7 +1011,7 @@
       "useInstead": [
         "field"
       ],
-      "why": "Delegated to Base UI."
+      "why": "Delegated to Base UI. Inside a Field, render Base UI's Checkbox through Field.Control's render prop. The shipped specimen registry/examples/field-with-another-control.tsx shows that render route with a native control."
     },
     {
       "name": "radio-group",
@@ -1053,7 +1087,7 @@
       "useInstead": [
         "field"
       ],
-      "why": "A native element that needs tokens, not a component."
+      "why": "A native element that needs tokens, not a component. Inside a Field, render a native textarea through Field.Control's render prop; registry/examples/field-with-another-control.tsx is the shipped specimen."
     },
     {
       "name": "progress",
@@ -1249,25 +1283,6 @@
         "button"
       ],
       "why": "A variant of Button rather than a component, and one that needs a visible label far more often than products assume."
-    },
-    {
-      "name": "link",
-      "title": "Link",
-      "description": "Navigation to somewhere else.",
-      "type": "registry:ui",
-      "category": "actions-and-forms",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "anchor",
-        "hyperlink"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "button"
-      ],
-      "why": "An element with tokens and a routing decision the product owns. What opsinjs adds is guidance about link text, and that belongs in Content and language."
     },
     {
       "name": "avatar",
@@ -1467,6 +1482,8 @@
     "action": "button",
     "submit": "button",
     "primary button": "button",
+    "anchor": "link",
+    "hyperlink": "link",
     "form field": "field",
     "input wrapper": "field",
     "form control": "field",
@@ -1553,8 +1570,6 @@
     "overflow menu": "menu",
     "glyph button": "icon-button",
     "round button": "icon-button",
-    "anchor": "link",
-    "hyperlink": "link",
     "profile picture": "avatar",
     "initials": "avatar",
     "user image": "avatar",

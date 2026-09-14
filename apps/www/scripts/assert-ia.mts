@@ -850,6 +850,8 @@ interface CatalogueRow {
   category?: string
   aliases?: string[]
   useInstead?: string[]
+  usedIn?: string[]
+  why?: string
 }
 
 /**
@@ -1925,6 +1927,58 @@ function checkCatalogue(
     }
   }
 
+  /* CAT013 - a considered row a built page points at must carry a `why`.
+
+     A built page's `<WhenToUse>` avoid list sends the reader elsewhere with an
+     `instead:` id, and the catalogue rule at registry/catalogue.ts requires that
+     id to be one of the 24 built components. So a built page that wants to point
+     at something opsinjs deliberately did not build (a toast, a native select, a
+     plain link) points at the considered row instead, and guidance.tsx prints
+     that row's own `why` inline on the page the reader is already on rather than
+     sending them one more hop. That inline sentence is the whole repair: it is
+     the honest answer, stated where the reader stands. If the considered row has
+     no `why`, the renderer falls back to the old redirect and the loop the fix
+     closed reopens. This gate makes the field the fix depends on impossible to
+     drop.
+
+     It deliberately does NOT fail on the two-node cycle itself. The catalogue's
+     own rule forces every `useInstead` to name a built id, so a built page
+     pointing at a considered row that points back is structural and unavoidable,
+     and a gate firing on all fourteen of those on every build would be noise
+     rather than a signal. What matters is not that the pointer loops, but that
+     the page the reader lands on states the reason, so the reason is what is
+     gated. Do not add a cycle check here later.
+
+     Reported against the authored catalogue for the same reason CAT012 is: `why`
+     is authored in registry/catalogue.ts, so that is where the fix goes. */
+  const whyByName = new Map(useInsteadRows.map((row) => [row.name, row]))
+  const blankWhyTargets = new Map<string, Set<string>>()
+  for (const page of componentPages) {
+    const id = page.slug.replace(/^components\//, "")
+    if (builtIds.size > 0 && !builtIds.has(id)) continue
+    const insteadPattern = /instead:\s*"([^"]+)"/g
+    let insteadMatch: RegExpExecArray | null
+    while ((insteadMatch = insteadPattern.exec(page.body)) !== null) {
+      const target = insteadMatch[1] as string
+      if (builtIds.size > 0 && builtIds.has(target)) continue
+      const row = whyByName.get(target)
+      if (!row) continue
+      const why = typeof row.why === "string" ? row.why.trim() : ""
+      if (why.length > 0) continue
+      const pointers = blankWhyTargets.get(target) ?? new Set<string>()
+      pointers.add(id)
+      blankWhyTargets.set(target, pointers)
+    }
+  }
+  for (const [target, pointers] of blankWhyTargets) {
+    const from = [...pointers].sort().join(", ")
+    fail(
+      "CAT013",
+      useInsteadSource,
+      `\`${target}\` is a considered row that the built page${pointers.size === 1 ? "" : "s"} ${from} point${pointers.size === 1 ? "s" : ""} at with \`instead: "${target}"\`, and it carries no \`why\`. The page renders that \`why\` inline as the honest answer for a reader who has just been told to reach for something opsinjs did not build; with the field blank the reader is sent back around the redirect the pointer was meant to end. Give \`${target}\` a \`why\` that names what to reach for.`,
+    )
+  }
+
   /* implements -> a real catalogue id, and the reverse. */
   const implementsByComponent = new Map<string, string[]>()
   for (const page of pages) {
@@ -2005,12 +2059,49 @@ function checkCatalogue(
     }
   }
 
+  /* Reverse-index ids resolve against the whole page tree, not only its top
+     level. A top-level recipe, screen or pattern is named by its bare id
+     (`daily-logging`); a page nested under one of those sections is named by
+     its section-relative path (`forms/error-summaries`,
+     `ask-users-for/symptoms`), which is the spelling the CAT014 loop below
+     derives and the catalogue and the two reference pages, Callout and
+     CareCard, already use. The section-relative form has always resolved,
+     because `patterns/${target}` prepends the section root to the whole
+     remainder. What did not resolve was a bare last segment written without its
+     subdirectory (`error-summaries` for `patterns/forms/error-summaries`): the
+     four candidates below could not reach it, so an id spelled that way failed
+     CAT004 as a dangling reference, and the nested patterns/forms and
+     patterns/ask-users-for relations were left unwritten rather than fail the
+     build. A bare segment now resolves too, but only when exactly one page in
+     the tree carries it, so it unambiguously denotes that page; an ambiguous
+     one still resolves to nothing and is reported, because guessing which page
+     it meant is worse than saying it is unclear. */
+  const REVERSE_INDEX_ROOTS = ["recipes", "screens", "patterns"]
+  const bareToSlugs = new Map<string, string[]>()
+  for (const slug of bySlug.keys()) {
+    if (!REVERSE_INDEX_ROOTS.some((root) => slug.startsWith(`${root}/`))) continue
+    const last = slug.split("/").pop() ?? slug
+    const owners = bareToSlugs.get(last) ?? []
+    owners.push(slug)
+    bareToSlugs.set(last, owners)
+  }
+  const resolveUsedIn = (target: string): string | undefined => {
+    const direct = [
+      target,
+      `recipes/${target}`,
+      `screens/${target}`,
+      `patterns/${target}`,
+    ].find((candidate) => bySlug.has(candidate))
+    if (direct) return direct
+    const owners = bareToSlugs.get(target)
+    return owners && owners.length === 1 ? owners[0] : undefined
+  }
+
   /* usedIn -> a real recipe or screen, and that page must actually mention it. */
   for (const page of componentPages) {
     const id = page.slug.replace(/^components\//, "")
     for (const target of asArray(page.frontmatter.usedIn)) {
-      const candidates = [target, `recipes/${target}`, `screens/${target}`, `patterns/${target}`]
-      const slug = candidates.find((candidate) => bySlug.has(candidate))
+      const slug = resolveUsedIn(target)
       if (!slug) {
         fail(
           "CAT004",
@@ -2046,6 +2137,81 @@ function checkCatalogue(
           rel(target_.file),
           `components/${id} declares \`usedIn: ${target}\`, but this page neither lists \`${id}\` in \`implements:\` nor mentions it. The reverse index should be true in both directions.`,
         )
+      }
+    }
+  }
+
+  /* CAT014 - the reverse of CAT004, and the hole the reverse index went stale
+     through. CAT004 checks that every `usedIn` a component page declares is
+     corroborated by the target screen, recipe or pattern. Nothing checked the
+     other direction, so a screen could add a component to its `implements` and
+     never appear in that component's `usedIn`, which is precisely how the index
+     /r and llms.txt publish to agents drifted out of true. The catalogue's own
+     header comment admitted the gap: "nothing in assert-ia.mts compares the two".
+     Now something does.
+
+     For every screen, recipe or pattern that names a shipped component in
+     `implements`, both halves of the reverse index must record that page: the
+     catalogue row's `usedIn`, which is what /r and llms.txt serve, and the
+     component page's own frontmatter `usedIn`, which is what search reads.
+     Considered rows are exempt on purpose. A considered component has no page of
+     its own to carry the field and no `usedIn` to fill, so its absence from the
+     index is correct rather than stale.
+
+     A warning, not an error, the same split CAT006 and CAT011 use for the
+     catalogue-versus-page alias disagreement: the default gate surfaces the
+     drift for a human to reconcile while the nightly --strict run fails on it.
+     The `usedIn` field lives only in the authored catalogue.ts, never in the
+     generated JSON the rest of checkCatalogue reads, so this reads `authored`
+     the way CAT012 does. With no authored copy there is nothing to compare
+     against and the check stays silent. */
+  if (authored) {
+    const authoredUsedIn = new Map<string, string[]>()
+    const consideredRows = new Set<string>()
+    for (const row of authored) {
+      authoredUsedIn.set(row.name, row.usedIn ?? [])
+      if (row.status === "considered") consideredRows.add(row.name)
+    }
+    const pageUsedIn = new Map<string, string[]>()
+    for (const page of componentPages) {
+      pageUsedIn.set(page.slug.replace(/^components\//, ""), asArray(page.frontmatter.usedIn))
+    }
+    for (const page of pages) {
+      const section = page.slug.match(/^(screens|recipes|patterns)\//)
+      if (!section) continue
+      /* The id `usedIn` records is the slug with only the section segment
+         removed, so a nested page such as patterns/forms/error-summaries is
+         "forms/error-summaries", the section-relative spelling the catalogue and
+         both reference pages use and the one the message below asks for. A row
+         may also record the page by its bare last segment ("error-summaries")
+         when that segment belongs to exactly one page in the tree, matching what
+         resolveUsedIn() accepts, so the two spellings CAT004 resolves are the
+         two spellings this reverse-index check honours. An ambiguous bare
+         segment is not honoured, because it does not name one page. */
+      const usage = page.slug.slice(section[0].length)
+      if (usage === "" || usage === "index" || usage.endsWith("/index")) continue
+      const bareUsage = usage.split("/").pop() ?? usage
+      const bareUnambiguous =
+        bareUsage !== usage && (bareToSlugs.get(bareUsage)?.length ?? 0) === 1
+      const records = (list: string[]): boolean =>
+        list.includes(usage) || (bareUnambiguous && list.includes(bareUsage))
+      for (const id of asArray(page.frontmatter.implements)) {
+        if (!ids.has(id)) continue /* CAT001 has already failed this id. */
+        if (consideredRows.has(id)) continue
+        if (!records(authoredUsedIn.get(id) ?? [])) {
+          warn(
+            "CAT014",
+            "registry/catalogue.ts",
+            `${page.slug} lists \`${id}\` in \`implements\`, but the catalogue row \`${id}\` does not name "${usage}" in \`usedIn\`. The reverse index /r and llms.txt publish is then missing this composition, so an agent asking where \`${id}\` is used never learns about ${page.slug}. Add "${usage}" to that row's \`usedIn\`.`,
+          )
+        }
+        if (pageUsedIn.has(id) && !records(pageUsedIn.get(id) ?? [])) {
+          warn(
+            "CAT014",
+            `content/docs/components/${id}.mdx`,
+            `${page.slug} lists \`${id}\` in \`implements\`, but this component page's \`usedIn\` frontmatter does not name "${usage}". Search reads the page while /r reads the catalogue, so both sides have to record the composition. Add "${usage}" to \`usedIn\`.`,
+          )
+        }
       }
     }
   }

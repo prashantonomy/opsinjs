@@ -6,7 +6,7 @@ kind: component
 since: "unreleased"
 category: surfaces
 aliases: [material, blur, translucency, glass, vibrancy, elevation, layer]
-usedIn: [health-metric-card, results-screen]
+usedIn: [choose-a-component, daily-log-screen, health-metric-card, onboarding-screen, results-screen, trends-screen]
 ---
 
 ## Status
@@ -17,7 +17,7 @@ usedIn: [health-metric-card, results-screen]
   questions={[
     "The translucent case, which is the one this component exists for, has not been measured. Every published materials figure is text against a rung's opaque fallback; nothing measures the tint composited at its published floor over the darkest and the lightest tone the theme can produce, and `minScrimOpacity` is published alongside that measurement rather than derived from it.",
     "Whether `prefers-contrast: more` belongs in this component at all. It is answered here before it is answered in the token layer, which is where Increased contrast says the answer belongs, and what happens to a component that has already shipped its own is unsettled. The colour half is unmeasured as well: the edge widens and keeps its published alpha, and nobody has checked the result against the non-text floor.",
-    "Behaviour under `forced-colors: active`. Nothing in opsinjs answers it, and a material ladder is precisely what a forced-colours environment replaces.",
+    "Behaviour under `forced-colors: active`. The edge is answered: it is drawn with an outline rather than a box-shadow, so a forced-colours palette recolours it to CanvasText instead of deleting it, and the backdrop is removed from the render. What is still lost is the scrim's dimming, because a forced-colours palette replaces the tint with Canvas, and nobody has opened the site under a real Windows contrast theme to confirm any of it.",
     "The composited-surface budget. Three translucent rungs at once is the designed worst case and nothing counts them. A module-scoped counter in a server component would report one reader's screen to another, so review is the only thing enforcing it.",
     "Whether the scrim's floor holds at 200% text. The floor is a colour relationship and does not move with type size, but nobody has looked at a 200% sheet over a hostile backdrop, and the edge widths are fixed pixel values, so the material thins relative to its content as the type grows.",
   ]}
@@ -48,11 +48,16 @@ result.
 
 ## Preview
 
-The whole ladder over a deliberately hostile backdrop: the page's darkest and lightest
-tones side by side under every rung, because a material that only holds its floor over a
-tasteful photograph has not been tested. The sixth rung, `scrim`, is shown doing its real
-job. That job is dimming a page with content on a rung above it, never with text
-on the scrim itself.
+The whole ladder in two strips, because the six rungs do not make the same claim and one
+backdrop cannot show both. The three opaque rungs sit on the page colour they are designed
+for, where a Card is told from the page by its hairline and a Raised by its shadow, both of
+which would vanish over a busy backdrop. The three translucent rungs keep the deliberately
+hostile tiles, because readability over anything is their only claim and it is worth nothing
+demonstrated over a flat grey. The tiles are arranged so the page's darkest tone and its
+lightest pass under every translucent rung at every width, not only on a phone, because a
+material that holds its floor only over a tasteful photograph has not been tested. The sixth
+rung, `scrim`, is shown doing its real job. That job is dimming a page with content on a rung
+above it, never with text on the scrim itself.
 
 <ComponentPreview name="surface" />
 
@@ -130,6 +135,13 @@ are unambiguous, and those are the three the component can name a replacement fo
 warns in development. The rows above are that warning's source of truth; if the two ever
 disagree, the warning is the bug.
 
+One thing the names do not tell you is that in the light theme the three opaque rungs share
+a fill. `canvas`, `card` and `raised` all resolve to `--opsin-neutral-0`, so the lower ladder
+does not lift by colour there. `card` is told from `canvas` by a hairline and `raised` by a
+shadow, and the ladder lifts by fill only in the dark theme, where the three take
+`--opsin-neutral-950`, `--opsin-neutral-900` and `--opsin-neutral-800`. So in the light theme
+the choice between `canvas` and `card` is a choice about a boundary, not about a colour.
+
 For choosing between rungs at all, the decision table on
 [Choosing a layer](../foundations/materials/choosing-a-layer.mdx) asks the questions in the
 order that resolves them fastest, and [The material ladder](../foundations/materials/the-ladder.mdx)
@@ -147,17 +159,16 @@ carries the live specimen.
     },
     {
       name: "Surface.Backdrop",
-      describes: "Blur and saturation over whatever is behind. Rendered only on a translucent rung, and removed from the render on opaque, under reduced transparency, under increased contrast, and where backdrop-filter is unavailable. Five conditions, and the same five are on the composition tree.",
+      describes: "Blur and saturation over whatever is behind. Rendered only on a translucent rung, and removed from the render on opaque, under reduced transparency, under increased contrast, under forced colours, and where backdrop-filter is unavailable. Six conditions, and the same six are on the composition tree.",
       prop: "opaque",
     },
     {
       name: "Surface.Scrim",
-      describes: "The rung's tint at max(tint-alpha, minimum scrim opacity). Present on every rung, reachable by no prop, and the reason a translucent surface can be trusted with text.",
-      prop: "contentWeight",
+      describes: "The rung's tint at max(tint-alpha, minimum scrim opacity). The minimum is published once per rung rather than once per theme, so in dark theme the floor wins on sheet and on overlay and the authored dark alpha does not render. Present on every rung, reachable by no prop, and the reason a translucent surface can be trusted with text.",
     },
     {
       name: "Surface.Edge",
-      describes: "A hairline inset ring in the rung's border colour, thickened under increased contrast. Absent on the two rungs whose border token is the keyword none, without a table saying which those are.",
+      describes: "A hairline outline in the rung's border colour at a negative offset, thickened under increased contrast. It is an outline rather than an inset ring because an outline is the one boundary a forced-colours palette keeps and recolours to CanvasText rather than dropping. Absent on the two rungs whose border token is the keyword none, without a table saying which those are.",
     },
     {
       name: "Surface.Content",
@@ -178,7 +189,7 @@ carries the live specimen.
         {
           part: "Surface.Backdrop",
           cardinality: "0..1",
-          note: 'data-slot="surface-backdrop", aria-hidden; absent on canvas, card and raised; on opaque; under reduced transparency; under increased contrast; and where backdrop-filter is unavailable',
+          note: 'data-slot="surface-backdrop", aria-hidden; absent on canvas, card and raised; on opaque; under reduced transparency; under increased contrast; under forced colours; and where backdrop-filter is unavailable',
         },
         {
           part: "Surface.Scrim",
@@ -221,9 +232,10 @@ is nevertheless still a backdrop root, and the browser still snapshots what is b
 on a rung that has asked not to be composited at all. Removing the element is the half a
 stylesheet cannot do, and it is why this component exists rather than a class. The Edge is
 absent on `canvas` and `scrim` for a different reason: both of those rungs publish the
-keyword `none` as their border, which is invalid inside a `box-shadow` and makes the whole
-declaration fall back to `none`. The CSS engine reaches the right answer, and no table of
-which rungs have an edge has to be kept up to date by hand.
+keyword `none` as their border. Substituted into the `outline` shorthand that keyword is
+invalid at computed-value time, so every longhand takes its unset value and `outline-style`,
+whose initial value is `none`, draws nothing. The CSS engine reaches the right answer, and no
+table of which rungs have an edge has to be kept up to date by hand.
 
 There is one shape of Surface that has no Scrim and no Edge either, and the tree says so
 rather than rounding it off: a rung outside the six is refused, and the refusal renders a
@@ -243,8 +255,13 @@ caller applies.
 ### Chrome that content scrolls beneath
 
 The `overlay` rung doing the job it is named for, which is the one most often given to the
-wrong component. Scroll it: the blur and the scrim are what keep the heading legible while
-a light row and a dark row pass underneath.
+wrong component. The panel opens already scrolled, so a dark row is sitting under the pinned
+header in the frame the page opens on, and the blur and the scrim are visibly holding the
+heading legible over it before you touch anything. A header at a scroll position of zero has
+only the container's own background behind it, which is why the resting frame is scrolled
+rather than left at the top: at the top the depth reads from the drop shadow alone and the
+material has nothing to work over. Scroll the panel and a light row and a dark row pass under
+the header in turn, and the heading stays readable over both.
 
 <ComponentPreview name="surface-over-scrolling-content" kind="example" align="start" />
 
@@ -255,6 +272,16 @@ the same surface, deliberately, so that the fallback is exercised daily by real 
 rather than only by an old engine. `opaque` is the fourth way in and the one a reviewer can
 look at. Note what does not change: the border, the shadow and the geometry stay, because
 they are what carries the layering once the translucency is gone.
+
+Print is a separate path to the same opaque fallback, not an exception folded into the
+other three. The theme layer carries every rung to its opaque tint on paper, and the edge,
+drawn as an outline and not a shadow, prints with it, so the boundary survives. The fill is
+the part that does not follow reliably, because it depends on whether the reader has
+background graphics switched on. So read the panel below as the fallback on a screen, and not
+as a picture of a printout. That the boundary survives is read from the outline behaviour and
+the theme's print block rather than from paper: nobody has run the site to a printer or under
+an operating system's print theme, so like the forced-colours edge it is argued rather than
+measured.
 
 <ComponentPreview name="surface-opaque-fallback" kind="example" align="start" />
 
@@ -325,17 +352,18 @@ only where it has been checked, with the gaps listed rather than left out.
 
 **Measured, and re-verified nightly rather than on every commit:**
 
-- **The contrast floor of each rung's opaque fallback.** `scripts/check-contrast.mts`
-  measures body text against every rung's *opaque fallback* in both themes, and records
-  APCA Lc and WCAG 2.2 into `lib/generated/contrast.json` under the `materials` scope. A
-  regression fails the nightly job. It is not in `pnpm check`, so a change made and merged
-  in a day is measured that night rather than at review time. Read the scope carefully:
-  the opaque fallback is the material as it renders once translucency is gone, so what
-  this measures is the degraded path. The translucent path is the tint composited at the
-  published floor over an arbitrary backdrop, which is the case the scrim exists for.
-  Nothing measures it, and it is in the last list on this page rather than in this one.
-  The job covers the five content rungs in both themes; `scrim` is excluded, because
-  nothing is written on a dimmer.
+- **The contrast floor of each content rung.** `scripts/check-contrast.mts` measures body
+  text against every content rung in both themes and records APCA Lc and WCAG 2.2 into
+  `lib/generated/contrast.json` under the `materials` scope. For the opaque rungs it measures
+  the opaque fallback directly, the material as it renders once translucency is gone. For the
+  two translucent rungs, `sheet` and `overlay`, it composites the tint at its floor over the
+  darkest and the lightest backdrop the product theme can produce and measures body text
+  against both, which is what `tokens/material.json` records as `worstCaseComposite`. A
+  regression fails the nightly job. It is not in `pnpm check`, so a change made and merged in
+  a day is measured that night rather than at review time. The committed
+  `lib/generated/contrast.json` predates that pipeline change, so every materials row this
+  page renders is still text against a rung's opaque fallback. The job covers the five content
+  rungs in both themes; `scrim` is excluded, because nothing is written on a dimmer.
 
 **Argued, and true of the implementation, but not yet measured:**
 
@@ -366,6 +394,14 @@ only where it has been checked, with the gaps listed rather than left out.
   not to have; whether the widened low-alpha edge clears the non-text contrast floor has
   not been measured. That page's "today, nothing" therefore remains true of the token
   layer, which is what it describes.
+- **`forced-colors: active` keeps the edge and drops the material.** The edge is drawn with
+  an outline at a negative offset rather than an inset box-shadow, and a forced-colours
+  palette keeps outlines and recolours them to `CanvasText` while it forces every
+  `box-shadow` to `none`, so the four rungs that publish a border keep a visible boundary
+  and `canvas` and `scrim` keep none. The backdrop is removed from the render, alongside its
+  other five removal conditions. What does not survive is the scrim's dimming, because the
+  palette replaces the rung's tint with `Canvas`. This is read from the CSS Color Adjust
+  property list rather than from a capture, and the capture is in the last list below.
 - **No text is ever placed directly over an unscrimmed backdrop.** There is no code path
   that renders a Backdrop without a Scrim: the Backdrop exists only inside the branch where
   the rung resolves, and the Scrim in that branch is unconditional. The refusal path for an
@@ -375,36 +411,38 @@ only where it has been checked, with the gaps listed rather than left out.
 
 **Not yet checked at all, and listed rather than omitted:**
 
-- **The translucent case, which is the one the component exists for.** Every published
-  materials figure is text against a rung's opaque fallback. What a reader on a modern
-  engine with no preferences set actually sees is the tint composited at the published
-  floor over whatever is behind it, and no job measures that. Measuring it means compositing
-  each translucent rung's tint at its floor over the darkest and the lightest tone the
-  product theme can produce and evaluating both APCA and WCAG on the result. It also means
-  deriving `minScrimOpacity` from that measurement rather than publishing it alongside one.
-  Until then the floor for a translucent surface is argued from the fallback, not measured
-  on the surface that renders.
+- **The translucent case as published, not as it is now measured.** The pipeline has been
+  taught to composite each translucent rung's tint at its floor over the darkest and the
+  lightest tone the product theme can produce and to evaluate both APCA and WCAG on the
+  result, which is the case the scrim exists for. What is still open is that the committed
+  `lib/generated/contrast.json` predates that change, so every published materials figure on
+  this page is still text against a rung's opaque fallback rather than against the composite.
+  Open too is that `minScrimOpacity` is published alongside that measurement rather than
+  derived from it, so the floor a translucent surface runs to is asserted rather than read
+  back off the composited result.
 - **The colour half of increased contrast.** The edge widens under `prefers-contrast: more`
   and keeps its published alpha, and nobody has measured whether the result clears the
   non-text floor. The rule that low-alpha dividers become solid at full token colour is
   the ladder's to answer, not this component's.
 - **The large-text floor.** `tokens/material.json` publishes one minimum scrim opacity per
-  rung and no second, thinner one for large text, so `contentWeight="large"` takes the body
-  floor. Who measures a large-text floor, and against what, is open. This component
-  may not answer it by choosing a number.
+  rung and no second, thinner one for large text. Who measures a large-text floor, and
+  against what, is open. The component carries no weight prop for it, because a prop that
+  records an intention nothing acts on is a knob rather than a promise. This component may
+  not answer it by choosing a number.
 - **Whether `prefers-contrast: more` belongs here at all.** It is answered in this
   component before it is answered in the token layer, which is where
   [Increased contrast](../accessibility/increased-contrast.mdx) says the answer belongs. If
   the degradation moves into `tokens/material.json`, what happens to a component that has
   already shipped its own is unsettled.
-- The rendered contrast figures are not on this page. `<ContrastReport>` takes its rows as a
-  prop and nothing wires `lib/generated/contrast.json` into it yet, and retyping measured
-  numbers into MDX would produce a page that quietly stops being true. This page carries no
-  `<ContrastReport>` for the same reason: given no rows it prints that the report has not
-  been generated, and that is false. It has been generated, and this page cannot reach
-  it. Run `pnpm run contrast` and read the `materials` scope.
-- Behaviour under `forced-colors: active`. Nothing in opsinjs answers it, and a material
-  ladder is precisely what a forced-colours environment replaces.
+- **Whether the edge clears any contrast floor under `forced-colors: active`.** The edge is
+  drawn as an outline, so the mode keeps it and recolours it to `CanvasText` on the four
+  rungs that publish a border, while `canvas` and `scrim` keep none and the backdrop is not
+  rendered. That the boundary survives is a mechanism, not a measurement. A synthetic
+  forced-colours theme does not let anyone check whether the recoloured edge meets a non-text
+  contrast floor, so this is argued in the same way the `contrast-more:` edge-width escalation
+  above it is, and neither has been measured. The scrim's dimming does not survive, because a
+  forced-colours palette replaces the rung's tint with `Canvas`, and nobody has opened the
+  site under a real Windows contrast theme to confirm any of it.
 - The composited-surface budget. Three translucent rungs at once is the designed worst case
   and nothing counts them; a fourth is a screen that needs redesigning rather than tuning.
   Surface declines to count them on purpose: a module-scoped counter in a server component
@@ -415,6 +453,15 @@ only where it has been checked, with the gaps listed rather than left out.
   a hostile backdrop and said so. The one thing that does not scale with type is the edge:
   the hairline and emphasis widths are fixed pixel values, so the material thins out
   relative to its content at 200%.
+- **The dark-theme tint alpha for `sheet` and `overlay`, which never renders.** `minScrimOpacity`
+  is published once per rung while `tintAlpha` is published per theme, and the component takes
+  each theme to `max(tintAlpha, minScrimOpacity)`. The dark `tintAlpha` for `sheet` (0.90) and
+  for `overlay` (0.70) sits below the single floor (0.93 and 0.74), so the floor wins and the
+  authored dark alpha does not render. The direction is safe, because a more opaque surface is
+  a more readable one. The harm is to whoever tunes the dark materials next, who will change a
+  number that does nothing and see no result. Two ways out, and the choice belongs to the token
+  owner rather than to this component: publish `minScrimOpacity` per theme so the dark floor can
+  be lowered, or set the dark `tintAlpha` equal to the floor so the token says what renders.
 
 <KeyboardTable
   name="surface"
@@ -431,6 +478,17 @@ only where it has been checked, with the gaps listed rather than left out.
     },
   ]}
 />
+
+The measured pairs Surface draws its colour from, resolved through the catalogue from the
+`materials` and `neutral` scopes. The rows are body text on each of the five content rungs'
+opaque fallback in both themes, plus the neutral ink and hairline pairs the component's text
+and boundary draw from. `scrim` is excluded, because nothing is written on a dimmer. No row
+measures a rung's own edge, and that gap is the one the "Not yet checked at all" list above
+still owns. It is the token pairs the component uses, not a measurement of the component
+itself, so the composited translucent figures the pipeline now runs have not yet reached the
+rows below.
+
+<ContrastReport component="surface" />
 
 ## API reference
 
@@ -457,17 +515,14 @@ on the root. Surface is the primitive under every tinted container in
 the system to write the violation by accident. This component cannot detect it, because
 merging a class is all it does with what it is handed.
 
-`contentWeight` is the one prop that promises more than it currently delivers, and it is
-worth saying plainly. `tokens/material.json` publishes one minimum scrim opacity per rung,
-measured against that rung's opaque fallback. There is no second, thinner floor for large
-text anywhere in the token source, and this component may not invent one. A number that
-decides whether a person can read their own result is measured or it does not exist. So
-`"large"` is accepted, is recorded as a promise about the content, and takes the body floor
-until a large-text floor is published. A surface that is more readable than it needs to be
-is not a defect; the other direction is. The type forbids a weight that is neither, and a
-JavaScript consumer can still pass one. Such a weight takes the body floor and warns,
-rather than being looked up and thrown on: a mistake in a styling prop must not be able to
-take a surface holding somebody's readings off the screen.
+There is no `contentWeight` prop. `tokens/material.json` publishes one minimum scrim
+opacity per rung, measured against that rung's opaque fallback, and there is no second,
+thinner floor for large text anywhere in the token source. The prop that once fed the
+scrim resolved to the same expression for both of its values, so it recorded an intention
+nothing acted on. It returns only when a large-text floor is measured and published in
+`tokens/material.json`, in the commit that ships the token, so that the prop and its effect
+arrive together. A number that decides whether a person can read their own result is
+measured or it does not exist.
 
 A rung outside the six is refused rather than approximated. In development the component
 warns once per distinct offending value, names the rung the retired vocabulary meant where
@@ -485,14 +540,18 @@ reader's own data off the screen in order to report a styling mistake.
 - [Card](./card.mdx) is a bounded content group with padding and a border. Card sits on
   the page; Surface sits over it.
 - [Sheet](./sheet.mdx) is a Surface at the sheet rung with detents, drag and dismissal.
-- [Dialog](./dialog.mdx) is a Surface at the overlay rung with focus management.
+- [Dialog](./dialog.mdx) is a Surface at the sheet rung, under a scrim, with focus management.
 - [Skeleton](./skeleton.mdx) is often placed on a Surface, and the pair is where reduced
   transparency and reduced motion interact.
 
 **Used by**
 
-- [Build a health metric card](../recipes/health-metric-card.mdx)
-- [Results screen](../screens/results-screen.mdx)
+- [Choose a component](../recipes/choose-a-component.mdx) names Surface as the primitive under every panel while it routes a datum to its component.
+- [Build a health metric card](../recipes/health-metric-card.mdx) builds the card's panel on a Surface rung.
+- [Daily log screen](../screens/daily-log-screen.mdx) rests the day's entries on a Surface.
+- [Onboarding screen](../screens/onboarding-screen.mdx) frames each step on a Surface.
+- [Results screen](../screens/results-screen.mdx) presents each reading on a Surface.
+- [Trends screen](../screens/trends-screen.mdx) sets its chart panels on a Surface.
 
 **Governed by**
 

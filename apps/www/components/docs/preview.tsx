@@ -336,6 +336,20 @@ export interface ComponentPreviewProps {
   align?: "center" | "start"
   /** Minimum height of the surface, and the height of the frame inside it. */
   minHeight?: number
+  /**
+   * An optional line rendered INSIDE the frame, in a band below the surface and
+   * above the meta caption. It exists for the one case a sentence in the page
+   * prose cannot cover: naming a framed specimen as an anti-pattern a reader
+   * must not copy. Prose above the frame is read before the surface and gone by
+   * the time the reader is scanning it, so the warning has to travel with the
+   * frame or it is not there when it is needed.
+   *
+   * It is chrome, never a status surface. It carries no `data-status`, no
+   * `data-category` and no clinical status colour, so a caption on a preview
+   * whose surface holds a Watch reading keeps the two colour axes apart: the
+   * band is neutral and the word in it, not a hue, is what marks the anti-pattern.
+   */
+  caption?: ReactNode
   className?: string
   /**
    * Whether `name` resolves to something that really renders at `/view`.
@@ -377,6 +391,7 @@ export function ComponentPreview({
   children,
   align = "center",
   minHeight = 220,
+  caption,
   className,
   built = false,
   phase,
@@ -536,6 +551,18 @@ export function ComponentPreview({
             <NotBuiltYet name={name} status={phase} className="w-full border-0" />
           ))}
       </div>
+
+      {caption ? (
+        // Inside the frame, on purpose. The band separates from the surface
+        // with a hairline and sits on the neutral `muted` chrome fill, never on
+        // a status tint, so it can name a Watch-carrying specimen as an
+        // anti-pattern without a second status colour meeting the first on one
+        // object. It is not the figure's `figcaption`: that element carries the
+        // machine meta below, and a figure takes one.
+        <div className="border-t border-border/60 bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+          {caption}
+        </div>
+      ) : null}
 
       <figcaption className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 px-3 py-1.5 text-[0.6875rem] text-muted-foreground">
         <span>

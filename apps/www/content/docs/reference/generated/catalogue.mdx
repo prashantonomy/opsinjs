@@ -74,6 +74,7 @@ registry, not here.
 | `empty-state` | feedback | alpha | unreleased | no data, nothing here, zero state, blank slate |
 | `skeleton` | feedback | alpha | unreleased | loading placeholder, shimmer, ghost, loading state, placeholder |
 | `button` | actions-and-forms | alpha | unreleased | cta, action, submit, primary button |
+| `link` | actions-and-forms | alpha | unreleased | anchor, hyperlink |
 | `field` | actions-and-forms | alpha | unreleased | form field, input wrapper, form control, validation message, label, error message, hint |
 
 ## Considered
@@ -94,14 +95,14 @@ registry, not here.
 | `popover` | overlay | Base UI's popover is complete and unopinionated, and opsinjs has nothing to add to it beyond tokens. | sheet, dialog |
 | `tabs` | navigation | Delegated to Base UI unchanged: Base UI's own Tabs is the component, and opsinjs documents it in the handbook rather than re-wrapping it. Nothing on the shipped roster switches between views, so there is no opsinjs component to reach for instead of it. | - |
 | `accordion` | navigation | Delegated to Base UI unchanged. Note that hiding a safety message inside a collapsed section is a defect regardless of the component used. | card |
-| `select` | actions-and-forms | Delegated to Base UI. opsinjs adds guidance rather than a component. The guidance is that for short lists a radio group is easier for the reader, and Base UI has one. | field |
+| `select` | actions-and-forms | Delegated to Base UI. opsinjs adds guidance rather than a component. The guidance is that for short lists a radio group is easier for the reader, and Base UI has one. Inside a Field, render Base UI's Select through Field.Control's render prop. The shipped specimen registry/examples/field-with-another-control.tsx uses a native select on that same prop, and Base UI's Select goes through it the same way. | field |
 | `combobox` | actions-and-forms | Delegated to Base UI. The hard part in a health product is the vocabulary being searched, not the widget. | field |
-| `switch` | actions-and-forms | Delegated to Base UI. A switch must never be used for consent, because consent is a decision with a record, not a setting. ConsentSheet is therefore the opsinjs answer for that case, and the setting itself stays Base UI's. | consent-sheet |
-| `checkbox` | actions-and-forms | Delegated to Base UI. | field |
+| `switch` | actions-and-forms | Delegated to Base UI. A switch must never be used for consent, because consent is a decision with a record, not a setting. ConsentSheet is therefore the opsinjs answer for that case, and the setting itself stays Base UI's. Inside a Field, render Base UI's Switch through Field.Control's render prop. The shipped specimen registry/examples/field-with-another-control.tsx shows that render route with a native control. | consent-sheet |
+| `checkbox` | actions-and-forms | Delegated to Base UI. Inside a Field, render Base UI's Checkbox through Field.Control's render prop. The shipped specimen registry/examples/field-with-another-control.tsx shows that render route with a native control. | field |
 | `radio-group` | actions-and-forms | Delegated to Base UI. Preferred over Select for anything under about seven options. | field |
 | `slider` | actions-and-forms | Delegated to Base UI, and discouraged for entering a measurement: a slider cannot express precision, and a reading typed in is a reading the person meant. A number with no clinical semantics behind it is Base UI's number field, unwrapped. | reading-input |
 | `number-field` | actions-and-forms | Delegated to Base UI. ReadingInput is the health-aware wrapper, and it is on the shipped roster. | reading-input |
-| `textarea` | actions-and-forms | A native element that needs tokens, not a component. | field |
+| `textarea` | actions-and-forms | A native element that needs tokens, not a component. Inside a Field, render a native textarea through Field.Control's render prop; registry/examples/field-with-another-control.tsx is the shipped specimen. | field |
 | `progress` | feedback | Delegated to Base UI. Never use it to show a health value: a progress bar implies a target, and most readings do not have one. | range-bar, score-dial |
 | `spinner` | feedback | Skeletons are preferred throughout: a skeleton says what is arriving, and a spinner says only that something is. | skeleton |
 | `badge` | data-display | Kept off the shipped roster deliberately: a generic badge next to a StatusPill is exactly how the two colour axes get mixed. If you need a badge to carry a health meaning, you need a StatusPill. | status-pill |
@@ -112,7 +113,6 @@ registry, not here.
 | `stepper` | navigation | The pattern that matters is one question per page, and that is documented in Patterns. A stepper component tends to encourage the opposite. | field |
 | `menu` | overlay | Delegated to Base UI. Hiding a destructive or a safety-relevant action in an overflow menu is a defect whatever renders it. | sheet, button |
 | `icon-button` | actions-and-forms | A variant of Button rather than a component, and one that needs a visible label far more often than products assume. | button |
-| `link` | actions-and-forms | An element with tokens and a routing decision the product owns. What opsinjs adds is guidance about link text, and that belongs in Content and language. | button |
 | `avatar` | utility | Straightforward to build and full of representation decisions. Those decisions are default imagery, initials for names that do not have them, and what a clinician's avatar implies about who wrote a message. | card |
 | `table` | data-display | Every chart in this system ships a table twin, so a table is a requirement rather than an option. A responsive, accessible table is nevertheless a project of its own and would be the largest component here by an order of magnitude. | card, metric-tile |
 | `visually-hidden` | utility | Four lines of CSS that every component here uses internally, shipped as a utility class rather than as a component so that it works outside React too. | field |

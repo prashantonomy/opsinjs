@@ -6,7 +6,7 @@ kind: component
 since: "unreleased"
 category: actions-and-forms
 aliases: [cta, action, submit, primary button]
-usedIn: [health-metric-card, daily-log-entry, consent-flow, onboarding-screen]
+usedIn: [consent-and-permissions, consent-flow, daily-log-entry, daily-log-screen, empty-and-first-use, forms/error-summaries, forms/question-pages, health-metric-card, onboarding-and-first-run, onboarding-screen]
 ---
 
 ## Status
@@ -15,11 +15,10 @@ usedIn: [health-metric-card, daily-log-entry, consent-flow, onboarding-screen]
   name="button"
   status="alpha"
   questions={[
-    "opsinjs has no destructive colour role, and Button refuses to borrow one from the clinical status axis. So `destructive` is separated from `secondary` by boundary weight and by its label alone. That boundary has never been measured against the surfaces it sits on. Is a boundary enough, or is a destructive action a confirmation pattern rather than a variant?",
-    "Interaction states are specified as OKLCH derivations of the role a component already uses, and no state token is generated yet. Hover and press are therefore hand-picked approximations, and on three of the four variants they currently resolve to the same fill. That fill has not been measured against the surfaces underneath it either.",
+    "opsinjs has no destructive colour role, and Button refuses to borrow one from the clinical status axis. So `destructive` is separated from `secondary` by the ink of its boundary rather than by weight. That boundary is now drawn in `--foreground`, which measures at least 15.9:1 against both surfaces in both themes, so the outline itself is visible. What nobody has tested is whether a visible outline is warning enough for a destructive action, or whether a destructive action belongs behind a confirmation Dialog rather than in a variant at all.",
+    "Interaction states are specified as OKLCH derivations of the role a component already uses, and no script derives them yet. The four state fills are authored by hand in `app/product.css` rather than emitted by `scripts/build-tokens.mts`, so a consumer who retunes a surface role does not retune its states along with it. The values are measured, and press is a distinct fill from hover on every variant. What stays open is the light neutral pair: press tops out at 1.21:1 against `--background` and 1.26:1 against `--card`, because both surfaces sit so close to white that no opaque step below them can climb higher without reading as a different fill. The question is whether that ceiling means the light theme needs a carrier for press other than a fill.",
     "Neither the target floor nor the 8pt separation between adjacent targets has been measured for this component. The floor is asserted in two places and checked by nobody until the nightly layout job runs.",
-    "The busy indicator takes the icon's seat, so a button with no icon changes width when it becomes busy. Is a permanently reserved slot better than a shifting one, or is the shift the honest signal?",
-    "The busy indicator keeps spinning under `prefers-reduced-motion`, which is an exception to a stable doctrine page rather than a reading of it. Freezing it would communicate nothing; what is missing is a still busy treatment a sighted reader can see, and that is a design decision nobody has taken.",
+    "A busy button is now visibly changed rather than a live one with a glyph added: it takes the opaque press tone, shows a progress cursor, and renders the busy indicator in the icon's seat, with a still hourglass in place of the spinner under reduced motion. Where the caller passes a `busyLabel`, that word sits beside the glyph and reaches the accessibility tree, so the state has a static carrier a reader perceives as a word rather than a shape. The residual is a busy control given no `busyLabel`: under reduced motion its reader sees a still glyph and the unchanged label with no word for what is happening, and whether a glyph alone carries enough there is the open question. A button with no icon also grows by one glyph when it becomes busy unless it is `fullWidth` or its container fixes the width, so whether a permanently reserved slot is better than a shifting one stays open too.",
     "Base UI supplies `type=\"button\"`, so this component reverses the platform default and a form's submit control has to say `type=\"submit\"`. Should the component restore the platform default instead, given that doing so makes every `onClick` inside a form also submit it?",
   ]}
 >
@@ -42,12 +41,15 @@ and generous. See [Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome
 
 ## Preview
 
-Four variants, both sizes, and the busy state, on the product theme. The thing worth
-checking is the emphasis ladder in greyscale: three of the four rungs have only fill and
-boundary to be told apart by, because opsinjs has no destructive colour and this
-component does not invent one. Whether they *can* be told apart that way is an open
-question rather than a claim. Those pairs have not been measured, and the labels are
-carrying more of the distinction than the styling is.
+The four variants on the product theme, arranged as the emphasis ladder they form: one
+primary, then secondary and quiet, with destructive on a row of its own so a delete never
+sits beside a save. Sizes and the busy state each have their own example further down; the
+preview shows the ladder and nothing else. The thing worth checking is whether that ladder
+reads in greyscale, because three of the four rungs have only fill and boundary to be told
+apart by, since opsinjs has no destructive colour and this component does not invent one.
+The destructive boundary is now drawn in `--foreground` ink and measured visible against
+both surfaces, so the open question is no longer whether the styling registers. It is
+whether a reader takes an ink outline as warning enough for a destructive action.
 
 <ComponentPreview name="button" />
 
@@ -97,7 +99,15 @@ way to pretend otherwise. There is no `href` and no `as`; `render` and `nativeBu
 are Base UI props that `ButtonProps` does not declare, and the component pins both after
 it spreads the caller's props, so they cannot be smuggled through by a JavaScript caller
 or by anything forwarding a props object wholesale. It renders a `button` element and
-there is no argument that changes that.
+there is no argument that changes that. When a destination is what you want, reach for
+[Link](./link.mdx), the component that owns the navigation decision and lets a product on
+Next or React Router drop in its own routing element through a `render` slot.
+
+Quiet is the one rung that needs a scope rule of its own. It has no fill and no boundary;
+its whole signal is its ink, the action colour `--primary`. So quiet is a dismiss or an
+escape hatch that sits beside a visible primary, and it is never the only control on a
+surface. A screen whose one affordance is a quiet button has hidden that affordance inside
+a word, which is exactly the reader this system is built for failing to find their way out.
 
 ## Anatomy
 
@@ -120,7 +130,7 @@ there is no argument that changes that.
     },
     {
       name: "Button.Busy",
-      describes: "The in-place loading indicator. Takes the icon's seat and never the label's, and is aria-hidden because the busy state is exposed on the root instead, as aria-busy alongside aria-disabled. Exposed, not announced: aria-busy on a control that is not a live region is a hint to assistive technology rather than something it undertakes to speak, and no screen reader has been run against this.",
+      describes: "The in-place loading indicator: a spinner that becomes a still hourglass under reduced motion, in the icon's seat and never the label's. With no busyLabel it is aria-hidden, because the busy state is exposed on the root instead, as aria-busy alongside aria-disabled. A busyLabel renders its word here beside the glyph and stays in the accessibility tree, so the state has a carrier a reader perceives without the motion. Exposed, not announced: aria-busy on a control that is not a live region is a hint to assistive technology rather than something it undertakes to speak, and no screen reader has been run against this.",
       prop: "busy",
     },
     {
@@ -152,7 +162,7 @@ there is no argument that changes that.
         {
           part: "Button.Busy",
           cardinality: "0..1",
-          note: "data-slot=\"button-busy\", aria-hidden; occupies the icon's position, present only while busy",
+          note: "data-slot=\"button-busy\"; occupies the icon's position, present only while busy; aria-hidden unless a busyLabel gives it a word, in which case that word stays in the accessibility tree",
         },
         {
           part: "Button.Label",
@@ -210,9 +220,13 @@ enforce its neighbours' spacing and the caller has to.
 
 ### Busy, at the foot of a form
 
-The label does not change, the control does not disappear, and the busy glyph takes the
-icon's seat rather than the label's. That is why the primary control here has an icon in
-the first place, so its width does not move when it starts saving.
+The label does not change and the control does not disappear: `Save note` stays, and
+because the primary passes `busyLabel="Saving"`, that word joins the busy glyph in the
+icon's seat rather than replacing the label. A reader who turned rotation off sees a still
+hourglass and the word instead of a spin. The word widens the control on its own whatever
+the icon does, so what holds this one steady while it saves is `fullWidth`, which pins it
+to its row whatever the busy slot carries. A control that is neither `fullWidth` nor in a
+container that fixes its width would grow when the save began.
 
 The example is a real `form` with a real field, because the `type` reversal above is
 invisible in a preview and the only way to show it is to put the submit control where it
@@ -225,18 +239,26 @@ survives somebody swapping it for a plain `button` later.
 ## Content guidelines
 
 Labels are verbs that name the outcome, in sentence case, without terminal punctuation.
-Two or three words. The reader should be able to read the button alone and know what will
-happen.
+A label is as short as it can be while still naming its own outcome, usually two or three
+words, and a destructive label takes the extra word it needs to say what is being
+destroyed. The reader should be able to read the button alone and know what will happen.
 
 Never *OK*, *Submit*, *Yes*, *No*, *Click here*, or *Learn more*. Each of them forces the
 reader back up the page to reconstruct the question, and each of them is useless in a
 screen reader's list of controls.
 
 The destructive variant needs its label more than any other button in the system does.
-opsinjs has no destructive colour, so *Delete* on its own is carried by a boundary weight
-and nothing else. That boundary is unmeasured against both surfaces this button sits on,
-so "carried by a boundary weight" may turn out to mean carried by nothing.
-*Delete this reading* is carried by the words, which every reader gets.
+opsinjs has no destructive colour, so *Delete* on its own is carried by the button's
+boundary and its label. That boundary is now drawn in `--foreground` ink rather than in a
+heavier weight, and it is visible against both surfaces this button sits on, so the
+outline is a real signal rather than a hoped-for one. The label still does the specific
+work: *Delete this reading* names what goes, which every reader gets, and it beats
+*Delete* on its own on every rung.
+
+Quiet carries less shape than any other rung, so its label carries more. With no fill and
+no boundary, its ink is the only cue that it is a control at all, and the words have to
+finish the job the shape does not. *Cancel* beside a visible *Save note* is the case quiet
+is for: a clear escape hatch next to the action it lets you back out of.
 
 <DoDont>
   <DoDont.Do>
@@ -275,9 +297,11 @@ separation is what `alpha` promises.
   destructive question below unavoidable rather than optional: the roles a shadcn button
   reaches for are declared in `app/globals.css` and produce no CSS at all under the
   product theme, and the gate fails on them by name.
-- **No type size in `px`.** Both sizes take a step from the eleven-step ramp, so the
-  label scales with the reader's own text size instead of opting out of it. See
-  [Dynamic type](../foundations/typography/dynamic-type.mdx).
+- **No type size in `px`.** Both sizes take a step from the twelve-step ramp, so the
+  label scales with the reader's own text size instead of opting out of it. The twelfth
+  step exists because a compact control must read as narrower and not as lighter, so `sm`
+  takes subheadline's size at headline's weight rather than subheadline's own lighter one.
+  See [Dynamic type](../foundations/typography/dynamic-type.mdx).
 - **No banned word, in copy or in an identifier.** The ban covers prop names and variable
   names as well as strings.
 
@@ -309,9 +333,13 @@ separation is what `alpha` promises.
   such an ancestor, and so does the preview frame on this page, so a surface that clips
   owes an interactive child at least `--opsin-border-focus` plus
   `--opsin-border-focus-offset` of room. The ring is declared on the component as well as
-  in the product theme so that it survives installation elsewhere, and the cost of that is
-  a literal `2px` and `2px`: it does not follow `--opsin-border-focus` when a consumer
-  retunes the token for a low-vision theme. It is never removed.
+  in the product theme so that it survives installation elsewhere, and its width and offset
+  now read `--opsin-border-focus` and `--opsin-border-focus-offset` with a `2px` fallback
+  each, so the ring draws without the stylesheet and still follows a consumer who retunes
+  the token for a low-vision theme. Button is the only component in the registry that reads
+  these tokens today, so a consumer who raises the focus ring gets the new value on Button
+  and the literal `2px` everywhere else. Closing that is a system-wide change rather than a
+  Button one. The ring is never removed.
 - **At 200% text the label wraps and the button grows.** There is no fixed height and no
   `truncate`; the height floor is a rem, so it grows too. That is a fact about the source
   you can check by reading it. No attributed check at 200% has been recorded against this
@@ -320,31 +348,63 @@ separation is what `alpha` promises.
   on every variant takes `--opsin-duration-fast`, which the product stylesheet collapses
   to 1ms under `prefers-reduced-motion`, so its reduced behaviour arrives from the token
   layer with no code here. The press acknowledgement is an immediate 1px shift with no
-  transition at all. Nothing scales, and nothing fades. The busy spinner is the exception:
-  it is a rotation, it loops, and it is deliberately not stopped, which is a carve-out
-  from [Reduced motion](../accessibility/reduced-motion.mdx) rather than a reading of it.
-  Rotation is named there as one of the things that collapse. The argument for the
-  carve-out is that a frozen spinner communicates nothing and the label and `aria-busy`
-  remain; the hole in the argument is that neither of those is *visible*, and
-  [Motion in health UI](../health/motion-in-health-ui.mdx) rule 5 asks for a reduced
-  behaviour that is an instant, complete and equally informative state. There is no such
-  state here yet. `animate-spin` is Tailwind's own keyframe rather than an opsinjs motion
-  token, so no stylesheet in this repository reaches it.
+  transition at all. Nothing scales, and nothing fades. The busy indicator is where the
+  argument used to be, and it no longer needs one. Under `prefers-reduced-motion: reduce`
+  the rotating `LoaderCircle` is hidden and a still `Hourglass` stands in its place, so the
+  reduce preference gets the instant, complete and equally informative state
+  [Motion in health UI](../health/motion-in-health-ui.mdx) rule 5 asks for rather than a
+  frozen arc that says nothing. That makes the busy indicator a reading of
+  [Reduced motion](../accessibility/reduced-motion.mdx), which names rotation as one of the
+  things that collapse, and not a carve-out from it. Where the caller supplies a
+  `busyLabel`, that word stands beside the glyph and carries the state as text, so a reader
+  who turned motion off perceives it as a word and not only a shape. opsinjs does not supply
+  the word itself, because a component that wrote the product's copy would be writing it in
+  one language. The honest remainder is the token.
+  `animate-spin` is Tailwind's own keyframe rather than an opsinjs motion token, and there
+  is still no `--opsin-motion-busy`, so no stylesheet in this repository reaches it, the
+  doctrine page cannot list this behaviour, and a consumer retuning the motion tokens does
+  not retune this.
 
 **Not checked at all, and listed rather than omitted:**
 
 - **Contrast, for every variant.** Label against fill, boundary against surface, and the
-  focus ring against both the button and the page behind it, in both themes. That includes
-  the destructive variant, which is the one most often tuned for drama rather than
-  legibility. Nothing here is measured, and `<ContrastReport>` below says so rather than
-  guessing. Two pairs are named suspicions rather than a generic gap, because a review by
-  eye will not settle either: **the boundary on `secondary` and `destructive`**, which is
-  the whole of their non-label signal and which sits close to both `--background` and
-  `--card`; and **the `primary` label in dark mode**, which is the one pairing where the
-  APCA and WCAG answers diverge and the numbers this system publishes require both. The
-  figures belong in the generated report, not in this prose. Teaching
-  `scripts/check-contrast.mts` the component scope `<ContrastReport component="button" />`
-  already expects is what closes this, and it has not been done.
+  focus ring against both the button and the page behind it, in both themes. The
+  destructive boundary is no longer an unmeasured suspicion: it is drawn in `--foreground`
+  ink and recomputed with `lib/color` against the current chrome tokens at 17.18:1 on
+  `--background` and 17.96:1 on `--card` in light, and 18.00:1 and 16.32:1 in dark, every
+  figure clear of the 3:1 non-text floor. `secondary`
+  still draws the `--border` hairline, whose figure on each surface is not recorded on this
+  page. Two suspicions are left, and a review by eye will settle neither, because both are
+  pairings where the APCA and WCAG answers diverge and the numbers this system publishes
+  require both floors. The first is **the `primary` label in dark mode**: the white ink
+  `--primary-foreground` on the `--primary` fill reaches WCAG 7.91:1, clear of the 4.5:1
+  body floor, and APCA Lc 55.5, short of the Lc 75 body floor and short even of the Lc 60
+  large-text floor. The second is **the `quiet` label in dark mode**, the `Cancel` control
+  the emphasis ladder above now carries: because a quiet button paints its label in
+  `--primary` itself, the action colour, its `Cancel` sits at WCAG 8.06:1 and APCA Lc 53.7
+  on the page and 7.31:1 and Lc 52.9 on a `--card`, clearing the WCAG body floor and
+  falling the same distance short of the APCA one. The quiet label cannot be brought to
+  floor from this file: its ink is the shared `--primary` chrome token, whose dark step is
+  fixed in the theme rather than in this control, so the repair is a change to that token
+  and not to Button. Both figures are the `md` label at the `headline` step, which is 17px
+  and below the large-text threshold, so the Lc 75 body floor is the one that applies. What
+  is measured above was computed with `lib/color`
+  and named here rather than gated: `scripts/check-contrast.mts` still has no `button`
+  scope, so none of the four boundary and fill pairs on this control is covered.
+  `<ContrastReport component="button" />` below is a separate mechanism and it does render.
+  It resolves the button catalogue row's declared `contrastScopes` and lists the measured
+  pairs for those scopes, which are token pairs Button draws its ink and surfaces from
+  rather than a measurement of the control itself. The row declares the `neutral` scope, so
+  the table shows the neutral ladder's pairs, and the hairline it prints is that ladder's
+  and not the `--border` boundary this button actually paints.
+  Teaching the script the `button` scope is what would close the gate, and it has not been
+  done. The
+  disabled state is measured the same way and gated no better: its label is
+  `--muted-foreground` on a `--muted` fill, 7.05:1 in light and 10.28:1 in dark, inside a
+  `--border` boundary at 4.29:1 light and 3.21:1 dark, every figure clear of the 4.5:1
+  body floor and the 3:1 non-text floor. Nothing in the corpus renders a disabled Button,
+  so that pair has source-and-token evidence and no screenshot, and no `button` scope
+  measures it either.
 - **The 44 by 44 target, and the 8pt separation between adjacent targets.** Both
   `Button.Target` and the product theme's own backstop assert the floor, and neither
   verifies it until the nightly layout job runs, which needs a browser this repository
@@ -356,35 +416,68 @@ separation is what `alpha` promises.
   an SC 2.5.8 problem, and neither has been measured. See
   [Target size and motor](../accessibility/target-size-and-motor.mdx).
 - **Whether `destructive` is distinguishable from `secondary` by anybody.** The difference
-  is a boundary weight of 1px against 2px of the same role. It is not also a fill
-  difference wherever the button sits on a card, because `secondary`'s fill *is* the card
-  and `destructive` has none. Nobody has tested this with a single reader.
+  is no longer a boundary weight of one role at two thicknesses. `destructive` draws its
+  boundary in `--foreground` ink, which is measured and visible, while `secondary` keeps
+  the `--border` hairline. It is still not a fill difference wherever the button sits on a
+  card, because `secondary`'s fill *is* the card and `destructive` has none. What remains
+  untested is a reader, not a number: nobody has sat one person in front of the two and
+  asked which one deletes.
 - **Hover and press as specified.** [Interaction states](../foundations/interaction-states.mdx)
-  defines a state as an OKLCH derivation of the role a component already uses. No state
-  token is generated, so the values here are chosen rather than derived, and on the
-  secondary, quiet and destructive variants press resolves to the same fill as hover. The
-  larger worry is that both may resolve to no perceptible fill at all: those three borrow
-  the muted role, which sits very close to the card and background they are drawn on. If
-  that is right, the only pointer feedback on three of the four variants is the 1px press
-  shift, which is not a hover cue. Measuring it is the same task as the contrast bullet
-  above.
-- **Whether any of this is spoken.** `aria-busy` on a control that is not a live region is
-  a hint rather than an undertaking, so "busy" may reach no reader at all. A busy button
-  and a permanently unavailable one may read identically. Nothing here has been run
-  against a screen reader, and the system-wide matrix in
+  defines a state as an OKLCH derivation of the role a component already uses, and this
+  system does not generate one yet, so the four state fills in `app/product.css` are
+  authored by hand and held to the doctrine by eye rather than by a script. They no longer
+  borrow the muted role. Press is now a distinct fill from hover on all four variants, the
+  neutral three take opaque neutral steps that move away from the surface rather than back
+  towards it, and the primary pair takes opaque tones in place of the alpha fill that
+  inverted the direction in both themes and dropped the pressed label under the body floor.
+  What no gate measures is the figures. The light neutral pair reaches only 1.12:1 on hover
+  against `--background` and 1.17:1 against `--card`, and 1.21:1 and 1.26:1 on press against
+  the same two surfaces, all under the 1.5:1 the audit asked for, because `--background` and
+  `--card` sit so near white. Press is distinct enough to
+  read on its own, so the 1px shift is no longer the only press cue, but the light hover
+  step stays below that floor, and that residual belongs to the theme layer that owns the
+  values. Measuring any of it is the same task as the contrast bullet above.
+- **Whether any of this is spoken, and whether the two audiences hear the same thing.**
+  `aria-busy` on a control that is not a live region is a hint rather than an undertaking,
+  so "busy" may reach no reader at all. A `busyLabel`, where the product supplies one, puts
+  that word in the accessibility tree beside the glyph, so a reader has the word even when
+  `aria-busy` itself says nothing; without one a busy button and a permanently unavailable
+  one may read identically. There is a live tension underneath that: a sighted reader is now shown
+  a busy state, the press tone and a progress cursor, while the control is exposed as
+  `aria-disabled`, so the two audiences are told different stories about the same moment.
+  Swallowing activation in a handler instead, so the exposed state could say "busy" rather
+  than "disabled", would mean merging the caller's own `onClick` and `onKeyDown` with ours,
+  which `registry/bases/base/button.tsx` refuses on purpose because it works until somebody
+  passes a handler the component did not expect. Nothing here has been run against a screen
+  reader, and the system-wide matrix in
   [Screen readers](../accessibility/screen-readers.mdx) is "Not tested" in every cell. If
   the busy state genuinely has to be spoken it needs a live region the caller owns, which
   rule 1 of that page forbids this component from mounting on anybody's behalf.
-- **`forced-colors` and `prefers-contrast`.** Neither is implemented anywhere in the
-  system, and [Increased contrast](../accessibility/increased-contrast.mdx) lists both as
-  known gaps. This component is unusually exposed to the first. The four variants differ
-  only in fill and boundary, and a forced-colors mode replaces author fills and ink
-  on a native button with the system's own, so `primary`, `secondary` and `quiet` would
-  render alike and only `destructive`'s heavier border would survive. The emphasis ladder
-  this component is built around flattens to two rungs, and nobody has opened it under a
-  contrast theme to find out.
-- **SC 2.2.2, looping content.** The busy spinner moves for as long as the save takes,
-  which can exceed five seconds, and the success criterion covering that has not been
+- **`forced-colors` and `prefers-contrast`.** No hand-authored `@media (forced-colors: active)`
+  or `@media (prefers-contrast: more)` block exists in `app/globals.css` or `app/product.css`,
+  and [Increased contrast](../accessibility/increased-contrast.mdx) records both as known
+  gaps. `prefers-contrast` is no longer blank across the system, though:
+  `registry/bases/base/surface.tsx` answers `contrast-more:` in its own utilities and draws
+  its edge as an outline that forced colours keeps. This component is unusually exposed to
+  the first query. Its four variants differ only in fill and boundary, and every boundary is
+  now one hairline width, so the rungs are told apart by ink and fill rather than by weight.
+  A forced-colours palette replaces author fills and ink with the system's own, so left alone
+  all four would flatten: `primary`, `secondary` and `destructive` to one system-coloured
+  hairline box and `quiet` to a borderless one, with `destructive`'s `--foreground` boundary
+  ink and `secondary`'s `--border` reduced to the same system colour. That flattening is not
+  a prediction. It is what a fill-and-ink design produces once no boundary is heavier than
+  another, and a forced-colours capture in the audit showed an earlier version of it. So
+  `primary` alone now takes the platform's own selected pair, `Highlight` fill and
+  `HighlightText` ink under `forced-color-adjust: none`, while the other three are left to
+  the platform. That keeps the recommended action distinct from its alternatives, which is
+  the hierarchy a Save-and-Cancel form relies on, but it does not separate `secondary`,
+  `quiet` and `destructive` from one another under forced colours, and nothing yet does.
+  `prefers-contrast` is still not implemented in this component, and a forced-colours capture
+  of the current variants is not yet part of the visual review recorded against this page.
+- **SC 2.2.2, looping content, at the default motion preference.** Under
+  `prefers-reduced-motion: reduce` the criterion is satisfied, because the still hourglass
+  does not move. At the default preference the busy spinner rotates for as long as the save
+  takes, which can exceed five seconds, and the criterion covering that has not been
   assessed for this component.
 
 Disabled buttons are avoided, and the native attribute is the only way to get one. There
@@ -430,11 +523,19 @@ See [Cognitive accessibility](../accessibility/cognitive-accessibility.mdx).
 
 <PropsTable name="ButtonProps" />
 
-The variant union is declared in the component file but is not exported. A registry file
-ships exactly three public symbols. They are the props interface, the component and its
-zero-prop demo, so a wrapper that needs to name the four values writes
-`ButtonProps["variant"]` rather than importing a fourth. There is no `disabled`
-convenience prop either: the native attribute is the whole of it. `type` is inherited from
+The variant union is declared in the component file but is not exported, so a wrapper that
+needs to name the four values writes `ButtonProps["variant"]` rather than reaching for a
+symbol the file does not publish. The file does publish one symbol beyond the three a
+registry file usually ships, and it is deliberate. Beside the props interface, the component
+and its zero-prop demo sits `cardActionClassName`, the recipe that builds the class list for
+a card's primary action, whether that action renders as an anchor or as a `Button`. It lives
+in this file rather than a module of its own because a card action is one of those two
+transports and the recipe has to share a file with the control to stay in step with it, and
+because the alternative is worse: a new file under `registry/bases/base/` would be counted as
+a built component by `build-registry` and `assert-ia`, and would claim a `/view` route with
+nothing to render. Five other components import it, so the departure from the three-symbol
+rule replaces four byte-identical copies of one control with a single recipe. There is no
+`disabled` convenience prop either: the native attribute is the whole of it. `type` is inherited from
 `button` but is redeclared in the interface so that the props table states its default,
 which is `button` and not `submit`.
 
@@ -462,9 +563,10 @@ its signal apart from the label.
 
 **Easily confused with**
 
-- `link` (considered) is for navigation. The most consequential confusion in the whole
-  set, and the reason this component cannot be made to render an anchor. `link` has no
-  page of its own yet, and the [roster](./index.mdx) is where it is listed.
+- [Link](./link.mdx) is for navigation, and it is the most consequential confusion in the
+  whole set: a button does something, a link goes somewhere. It is the reason this
+  component cannot be made to render an anchor, and it is now a built component with
+  installable code rather than a name on the roster.
 - `icon-button` (considered) is icon-only, with its own naming and target rules.
 - `switch` (considered) covers immediate state change, no confirmation.
 - `segmented-control` (considered) covers choosing among options rather than acting.
@@ -473,10 +575,14 @@ its signal apart from the label.
 
 **Used by**
 
-- [Build a health metric card](../recipes/health-metric-card.mdx)
-- [Capture a daily log entry](../recipes/daily-log-entry.mdx)
-- [Consent flow](../screens/consent-flow.mdx)
-- [Onboarding screen](../screens/onboarding-screen.mdx)
+- [Consent and permissions](../patterns/consent-and-permissions.mdx) renders it as the accept or decline action on a permission request.
+- [Consent flow](../screens/consent-flow.mdx) reaches for it as the accept and continue actions that move consent forward.
+- [Capture a daily log entry](../recipes/daily-log-entry.mdx) uses it as the submit control that saves the entry.
+- [Daily log screen](../screens/daily-log-screen.mdx) places it as the save control at the foot of the log form.
+- [Empty and first use](../patterns/empty-and-first-use.mdx) shows it as the primary call to action that starts the first task.
+- [Build a health metric card](../recipes/health-metric-card.mdx) gives the card its action, the control that opens the reading or starts the next task.
+- [Onboarding and first run](../patterns/onboarding-and-first-run.mdx) uses it for the continue actions that carry a new reader through setup.
+- [Onboarding screen](../screens/onboarding-screen.mdx) uses it as the continue control that steps a new reader through first run.
 
 **Governed by**
 

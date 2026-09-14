@@ -34,12 +34,12 @@
  * two words that divergence has already cost.
  * ────────────────────────────────────────────────────────────────────────────
  *
- * TWENTY-FOUR ROWS ARE BUILT. Each of them carries `status: "alpha"`, has a
+ * TWENTY-FIVE ROWS ARE BUILT. Each of them carries `status: "alpha"`, has a
  * file at `registry/bases/base/<id>.tsx`, renders at
  * `/view/base/base-lyra/component/<id>`, and installs with `shadcn add`. Alpha
  * is not a promise of stability: the API may change in any release without a
  * deprecation cycle, and none of it has been through an accessibility or
- * clinical review. The other thirty-six rows carry `status: "considered"`,
+ * clinical review. The other thirty-five rows carry `status: "considered"`,
  * which is a reserved name and a reason to reach for something else, with no
  * code and no hand-written page. The only page any of them has is a stub that
  * `scripts/build-registry.mts` generates from the row, so the address answers
@@ -135,7 +135,7 @@ export interface CatalogueEntry {
   /**
    * Date of the last accessibility review, ISO 8601. `null` on every row,
    * because no accessibility review has happened. It has not happened for the
-   * twenty-four built components either. Rendering a date here that nobody
+   * twenty-five built components either. Rendering a date here that nobody
    * produced would be the exact dishonesty this file exists to avoid, so the
    * matrix prints "not yet reviewed" rather than a placeholder.
    */
@@ -160,6 +160,29 @@ export interface CatalogueEntry {
    * the same edit that adds the component to the recipe.
    */
   usedIn?: string[]
+  /**
+   * The measured contrast scopes this component renders colour from, declared by
+   * the component's author. `components/docs/a11y.tsx` resolves a
+   * `<ContrastReport component="…">` through this list and shows every measured
+   * row whose scope is named here, so the report resolves to real rows rather
+   * than an empty state. The four scope names are the ones
+   * `lib/generated/contrast.json` measures: `category`, `status`, `materials`
+   * and `neutral`.
+   *
+   * It is NOT a per-component measurement and must never be described as one. The
+   * numbers are per token pair, shared across every component that draws the same
+   * pair. What this field records is which of those shared scopes a component's
+   * own parts paint. A scope owned entirely by a composed child, for example the
+   * status colour a card delegates to an embedded StatusPill, belongs to that
+   * child's row and its own report, not to this one. A material rung the
+   * component names itself, for example a `rung="card"` or `rung="scrim"` this
+   * file hard-codes on a Surface, counts as painted here even though Surface
+   * does the painting: the component chose the rung, so the pair is one a reader
+   * of this component asks about. Every component paints text
+   * or a boundary, so every built row names `neutral` at least. Leave the field
+   * off a `considered` row: it has no code and no page to carry a report.
+   */
+  contrastScopes?: string[]
   /**
    * npm packages this component's source imports, exactly as they appear in a
    * `package.json`. `["@base-ui/react"]` for anything built on a Base UI
@@ -196,7 +219,7 @@ export interface CatalogueEntry {
   why?: string
   /**
    * Considered rows only: what to reach for instead, and EVERY ID HERE MUST BE
-   * ONE OF THE 24 BUILT ONES.
+   * ONE OF THE 25 BUILT ONES.
    *
    * `emitConsideredStub` in `scripts/build-registry.mts` turns each id into a
    * link on the stub page, so naming another `considered` row resolves. It
@@ -216,7 +239,7 @@ export interface CatalogueEntry {
 }
 
 /**
- * THE 24 SHIPPED IDS. Frozen. Every one has a specification page at
+ * THE 25 SHIPPED IDS. Frozen. Every one has a specification page at
  * `/docs/components/<id>` and a row in `/r/index.json`. Order within a category
  * is the order they appear in the sidebar.
  */
@@ -250,8 +273,16 @@ export const SHIPPED: CatalogueEntry[] = [
       "on-screen-privacy",
     ],
     healthCategory: "labs",
-    registryDependencies: ["status-pill", "value", "range-bar", "relative-time", "button"],
-    usedIn: ["value-against-a-range", "health-metric-card", "results-screen"],
+    registryDependencies: ["status-pill", "value", "range-bar", "relative-time", "button", "link"],
+    usedIn: [
+      "choose-a-component",
+      "health-metric-card",
+      "result-disclosure",
+      "results-screen",
+      "sharing-with-a-clinician",
+      "value-against-a-range",
+    ],
+    contrastScopes: ["category", "neutral"],
   },
   {
     name: "range-bar",
@@ -277,8 +308,15 @@ export const SHIPPED: CatalogueEntry[] = [
       "unit-systems",
     ],
     dependencies: ["lucide-react"],
-    registryDependencies: ["value"],
-    usedIn: ["value-against-a-range", "results-screen"],
+    registryDependencies: ["value", "status-pill"],
+    usedIn: [
+      "choose-a-component",
+      "result-disclosure",
+      "results-screen",
+      "trend-review",
+      "value-against-a-range",
+    ],
+    contrastScopes: ["category", "neutral", "status"],
   },
   {
     name: "score-dial",
@@ -300,8 +338,9 @@ export const SHIPPED: CatalogueEntry[] = [
       "category-identity",
     ],
     dependencies: ["lucide-react"],
-    registryDependencies: ["value"],
-    usedIn: ["health-metric-card", "results-screen"],
+    registryDependencies: ["value", "status-pill"],
+    usedIn: ["choose-a-component", "health-metric-card", "results-screen"],
+    contrastScopes: ["category", "neutral", "status"],
   },
   {
     name: "trend-sparkline",
@@ -321,7 +360,14 @@ export const SHIPPED: CatalogueEntry[] = [
       "category-identity",
     ],
     registryDependencies: ["status-pill", "value"],
-    usedIn: ["trend-with-a-caption", "trends-screen"],
+    usedIn: [
+      "choose-a-component",
+      "sharing-with-a-clinician",
+      "trend-review",
+      "trend-with-a-caption",
+      "trends-screen",
+    ],
+    contrastScopes: ["category", "neutral"],
   },
   {
     name: "metric-tile",
@@ -356,8 +402,20 @@ export const SHIPPED: CatalogueEntry[] = [
       "uncertainty-and-staleness",
       "unit-systems",
     ],
+    dependencies: ["lucide-react"],
     registryDependencies: ["surface", "value", "status-pill", "relative-time"],
-    usedIn: ["health-metric-card", "results-screen", "trends-screen"],
+    usedIn: [
+      "alert-escalation",
+      "choose-a-component",
+      "daily-log-screen",
+      "empty-and-first-use",
+      "health-metric-card",
+      "offline-and-stale-data",
+      "results-screen",
+      "trend-review",
+      "trends-screen",
+    ],
+    contrastScopes: ["category", "materials", "neutral"],
   },
   {
     name: "status-pill",
@@ -376,7 +434,18 @@ export const SHIPPED: CatalogueEntry[] = [
       "alarm-fatigue",
       "category-identity",
     ],
-    usedIn: ["value-against-a-range", "health-metric-card", "results-screen"],
+    usedIn: [
+      "alert-escalation",
+      "choose-a-component",
+      "health-metric-card",
+      "offline-and-stale-data",
+      "result-disclosure",
+      "results-screen",
+      "staged-alert",
+      "trend-review",
+      "value-against-a-range",
+    ],
+    contrastScopes: ["neutral", "status"],
     dependencies: ["lucide-react"],
   },
 
@@ -409,8 +478,17 @@ export const SHIPPED: CatalogueEntry[] = [
       "crisis-and-self-harm",
       "delivering-difficult-results",
     ],
-    registryDependencies: ["status-pill", "button", "relative-time"],
-    usedIn: ["staged-alert", "results-screen"],
+    registryDependencies: ["status-pill", "button", "relative-time", "link"],
+    usedIn: [
+      "alert-escalation",
+      "choose-a-component",
+      "forms/error-summaries",
+      "offline-and-stale-data",
+      "result-disclosure",
+      "results-screen",
+      "staged-alert",
+    ],
+    contrastScopes: ["neutral", "status"],
   },
   {
     name: "care-card",
@@ -437,14 +515,29 @@ export const SHIPPED: CatalogueEntry[] = [
       "clinical-interaction-guidelines",
       "emergency-and-escalation",
     ],
-    registryDependencies: ["card", "button", "status-pill"],
-    usedIn: ["staged-alert", "results-screen"],
+    registryDependencies: ["card", "button", "status-pill", "link"],
+    usedIn: [
+      "alert-escalation",
+      "ask-users-for/contact-details",
+      "ask-users-for/symptoms",
+      "choose-a-component",
+      "consent-and-permissions",
+      "empty-and-first-use",
+      "offline-and-stale-data",
+      "onboarding-and-first-run",
+      "onboarding-screen",
+      "result-disclosure",
+      "results-screen",
+      "sharing-with-a-clinician",
+      "staged-alert",
+    ],
+    contrastScopes: ["neutral"],
   },
   {
     name: "term",
     title: "Term",
     description:
-      "A clinical word shown in plain English, with the original available on demand.",
+      "A clinical word with its everyday meaning attached, so a sentence can be read without leaving it.",
     category: "health-communication",
     status: "alpha",
     since: "unreleased",
@@ -452,7 +545,21 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "content",
     a11yDate: null,
     governedBy: ["who-this-is-for", "clinical-interaction-guidelines"],
-    usedIn: ["value-against-a-range", "results-screen"],
+    usedIn: [
+      "ask-users-for/ethnicity",
+      "ask-users-for/medications",
+      "ask-users-for/sex-and-gender",
+      "ask-users-for/symptoms",
+      "choose-a-component",
+      "consent-and-permissions",
+      "consent-flow",
+      "onboarding-screen",
+      "result-disclosure",
+      "results-screen",
+      "trends-screen",
+      "value-against-a-range",
+    ],
+    contrastScopes: ["neutral"],
   },
   {
     name: "consent-sheet",
@@ -468,7 +575,17 @@ export const SHIPPED: CatalogueEntry[] = [
     governedBy: ["consent-and-disclosure", "clinical-interaction-guidelines", "crisis-and-self-harm", "regulatory-context"],
     dependencies: ["lucide-react"],
     registryDependencies: ["sheet", "button"],
-    usedIn: ["consent-before-collection", "consent-flow"],
+    usedIn: [
+      "ask-users-for/contact-details",
+      "consent-and-permissions",
+      "consent-before-collection",
+      "consent-flow",
+      "forms/required-and-optional",
+      "onboarding-and-first-run",
+      "onboarding-screen",
+      "sharing-with-a-clinician",
+    ],
+    contrastScopes: ["neutral"],
   },
   {
     name: "disclaimer-note",
@@ -486,7 +603,24 @@ export const SHIPPED: CatalogueEntry[] = [
       "safety-review-checklist",
     ],
     dependencies: ["lucide-react"],
-    usedIn: ["value-against-a-range", "results-screen", "consent-flow"],
+    registryDependencies: ["link"],
+    usedIn: [
+      "ask-users-for/ethnicity",
+      "ask-users-for/height-and-weight",
+      "ask-users-for/medications",
+      "ask-users-for/sex-and-gender",
+      "ask-users-for/symptoms",
+      "choose-a-component",
+      "consent-and-permissions",
+      "consent-flow",
+      "onboarding-and-first-run",
+      "onboarding-screen",
+      "result-disclosure",
+      "results-screen",
+      "sharing-with-a-clinician",
+      "value-against-a-range",
+    ],
+    contrastScopes: ["neutral"],
   },
 
   {
@@ -506,7 +640,20 @@ export const SHIPPED: CatalogueEntry[] = [
       "consent-and-disclosure",
     ],
     registryDependencies: ["sheet", "field", "button"],
-    usedIn: ["daily-log-entry", "daily-log-screen"],
+    usedIn: [
+      "ask-users-for/height-and-weight",
+      "ask-users-for/medications",
+      "ask-users-for/symptoms",
+      "daily-log-entry",
+      "daily-log-screen",
+      "daily-logging",
+      "forms/autocomplete-and-input-types",
+      "forms/question-pages",
+      "forms/required-and-optional",
+      "forms/units-and-numeric-entry",
+      "forms/validation-timing",
+    ],
+    contrastScopes: ["category", "neutral"],
   },
   {
     name: "reading-input",
@@ -529,7 +676,21 @@ export const SHIPPED: CatalogueEntry[] = [
     governedBy: ["numbers-units-precision", "unit-systems", "uncertainty-and-staleness"],
     dependencies: ["lucide-react"],
     registryDependencies: ["field"],
-    usedIn: ["daily-log-entry", "daily-log-screen"],
+    usedIn: [
+      "ask-users-for/date-of-birth",
+      "ask-users-for/height-and-weight",
+      "ask-users-for/medications",
+      "daily-log-entry",
+      "daily-log-screen",
+      "daily-logging",
+      "forms/autocomplete-and-input-types",
+      "forms/question-pages",
+      "forms/units-and-numeric-entry",
+      "forms/validation-timing",
+      "onboarding-and-first-run",
+      "onboarding-screen",
+    ],
+    contrastScopes: ["neutral"],
   },
 
   {
@@ -555,7 +716,21 @@ export const SHIPPED: CatalogueEntry[] = [
       "uncertainty-and-staleness",
       "who-this-is-for",
     ],
-    usedIn: ["health-metric-card", "value-against-a-range", "results-screen", "trends-screen"],
+    usedIn: [
+      "ask-users-for/height-and-weight",
+      "choose-a-component",
+      "daily-log-screen",
+      "daily-logging",
+      "forms/units-and-numeric-entry",
+      "health-metric-card",
+      "onboarding-screen",
+      "results-screen",
+      "sharing-with-a-clinician",
+      "trend-review",
+      "trends-screen",
+      "value-against-a-range",
+    ],
+    contrastScopes: ["neutral"],
   },
   {
     name: "relative-time",
@@ -569,7 +744,18 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "content",
     a11yDate: null,
     governedBy: ["uncertainty-and-staleness", "numbers-units-precision"],
-    usedIn: ["health-metric-card", "daily-log-screen", "trends-screen"],
+    usedIn: [
+      "choose-a-component",
+      "daily-log-screen",
+      "daily-logging",
+      "health-metric-card",
+      "offline-and-stale-data",
+      "results-screen",
+      "sharing-with-a-clinician",
+      "trend-review",
+      "trends-screen",
+    ],
+    contrastScopes: ["neutral"],
   },
 
   {
@@ -583,7 +769,15 @@ export const SHIPPED: CatalogueEntry[] = [
     aliases: ["material", "glass", "blur", "elevation", "layer", "translucency", "vibrancy"],
     owner: "design",
     a11yDate: null,
-    usedIn: ["health-metric-card", "results-screen"],
+    usedIn: [
+      "choose-a-component",
+      "daily-log-screen",
+      "health-metric-card",
+      "onboarding-screen",
+      "results-screen",
+      "trends-screen",
+    ],
+    contrastScopes: ["materials", "neutral"],
   },
   {
     name: "card",
@@ -595,8 +789,17 @@ export const SHIPPED: CatalogueEntry[] = [
     aliases: ["panel", "container", "content box", "box", "tile group"],
     owner: "design",
     a11yDate: null,
+    dependencies: ["lucide-react"],
     registryDependencies: ["surface"],
-    usedIn: ["health-metric-card", "results-screen", "trends-screen"],
+    usedIn: [
+      "choose-a-component",
+      "daily-log-screen",
+      "health-metric-card",
+      "onboarding-screen",
+      "results-screen",
+      "trends-screen",
+    ],
+    contrastScopes: ["materials", "neutral"],
   },
   {
     name: "sheet",
@@ -611,7 +814,15 @@ export const SHIPPED: CatalogueEntry[] = [
     a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
     registryDependencies: ["surface", "button"],
-    usedIn: ["daily-log-entry", "daily-log-screen"],
+    usedIn: [
+      "alert-escalation",
+      "consent-and-permissions",
+      "consent-flow",
+      "daily-log-entry",
+      "daily-log-screen",
+      "daily-logging",
+    ],
+    contrastScopes: ["materials", "neutral"],
   },
   {
     name: "dialog",
@@ -625,8 +836,9 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "engineering",
     a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
-    registryDependencies: ["surface"],
-    usedIn: ["consent-flow"],
+    registryDependencies: ["surface", "button"],
+    usedIn: ["alert-escalation", "consent-flow"],
+    contrastScopes: ["materials", "neutral"],
   },
 
   {
@@ -640,7 +852,17 @@ export const SHIPPED: CatalogueEntry[] = [
     aliases: ["admonition", "note box", "info box", "tip", "note", "aside"],
     owner: "content",
     a11yDate: null,
-    usedIn: ["choose-a-component", "onboarding-screen"],
+    usedIn: [
+      "alert-escalation",
+      "choose-a-component",
+      "consent-and-permissions",
+      "consent-flow",
+      "empty-and-first-use",
+      "forms/error-summaries",
+      "offline-and-stale-data",
+      "onboarding-screen",
+    ],
+    contrastScopes: ["neutral"],
     dependencies: ["lucide-react"],
   },
   {
@@ -659,8 +881,20 @@ export const SHIPPED: CatalogueEntry[] = [
     ],
     owner: "content",
     a11yDate: null,
-    registryDependencies: ["button"],
-    usedIn: ["onboarding-screen", "trends-screen"],
+    registryDependencies: ["button", "link"],
+    usedIn: [
+      "choose-a-component",
+      "consent-flow",
+      "daily-log-screen",
+      "daily-logging",
+      "empty-and-first-use",
+      "onboarding-and-first-run",
+      "onboarding-screen",
+      "results-screen",
+      "trend-review",
+      "trends-screen",
+    ],
+    contrastScopes: ["neutral"],
   },
   {
     name: "skeleton",
@@ -672,7 +906,15 @@ export const SHIPPED: CatalogueEntry[] = [
     aliases: ["loading placeholder", "shimmer", "ghost", "loading state", "placeholder"],
     owner: "design",
     a11yDate: null,
-    usedIn: ["results-screen", "trends-screen"],
+    usedIn: [
+      "choose-a-component",
+      "daily-log-screen",
+      "empty-and-first-use",
+      "offline-and-stale-data",
+      "results-screen",
+      "trends-screen",
+    ],
+    contrastScopes: ["neutral"],
   },
 
   {
@@ -687,11 +929,31 @@ export const SHIPPED: CatalogueEntry[] = [
     a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
     usedIn: [
-      "health-metric-card",
-      "daily-log-entry",
+      "consent-and-permissions",
       "consent-flow",
+      "daily-log-entry",
+      "daily-log-screen",
+      "empty-and-first-use",
+      "forms/error-summaries",
+      "forms/question-pages",
+      "health-metric-card",
+      "onboarding-and-first-run",
       "onboarding-screen",
     ],
+    contrastScopes: ["neutral"],
+  },
+  {
+    name: "link",
+    title: "Link",
+    description: "Navigation to somewhere else.",
+    category: "actions-and-forms",
+    status: "alpha",
+    since: "unreleased",
+    aliases: ["anchor", "hyperlink"],
+    owner: "engineering",
+    a11yDate: null,
+    registryDependencies: ["button"],
+    contrastScopes: ["neutral"],
   },
   {
     name: "field",
@@ -713,7 +975,29 @@ export const SHIPPED: CatalogueEntry[] = [
     owner: "engineering",
     a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
-    usedIn: ["daily-log-entry", "consent-before-collection", "daily-log-screen"],
+    usedIn: [
+      "ask-users-for/contact-details",
+      "ask-users-for/date-of-birth",
+      "ask-users-for/ethnicity",
+      "ask-users-for/height-and-weight",
+      "ask-users-for/medications",
+      "ask-users-for/name",
+      "ask-users-for/sex-and-gender",
+      "ask-users-for/symptoms",
+      "consent-before-collection",
+      "daily-log-entry",
+      "daily-log-screen",
+      "daily-logging",
+      "forms/autocomplete-and-input-types",
+      "forms/error-summaries",
+      "forms/question-pages",
+      "forms/required-and-optional",
+      "forms/units-and-numeric-entry",
+      "forms/validation-timing",
+      "onboarding-and-first-run",
+      "onboarding-screen",
+    ],
+    contrastScopes: ["neutral"],
   },
 ]
 
@@ -924,7 +1208,7 @@ export const CONSIDERED: CatalogueEntry[] = [
     aliases: ["dropdown", "picker"],
     owner: "engineering",
     a11yDate: null,
-    why: "Delegated to Base UI. opsinjs adds guidance rather than a component. The guidance is that for short lists a radio group is easier for the reader, and Base UI has one.",
+    why: "Delegated to Base UI. opsinjs adds guidance rather than a component. The guidance is that for short lists a radio group is easier for the reader, and Base UI has one. Inside a Field, render Base UI's Select through Field.Control's render prop. The shipped specimen registry/examples/field-with-another-control.tsx uses a native select on that same prop, and Base UI's Select goes through it the same way.",
     useInstead: ["field"],
   },
   {
@@ -950,7 +1234,7 @@ export const CONSIDERED: CatalogueEntry[] = [
     aliases: ["toggle"],
     owner: "engineering",
     a11yDate: null,
-    why: "Delegated to Base UI. A switch must never be used for consent, because consent is a decision with a record, not a setting. ConsentSheet is therefore the opsinjs answer for that case, and the setting itself stays Base UI's.",
+    why: "Delegated to Base UI. A switch must never be used for consent, because consent is a decision with a record, not a setting. ConsentSheet is therefore the opsinjs answer for that case, and the setting itself stays Base UI's. Inside a Field, render Base UI's Switch through Field.Control's render prop. The shipped specimen registry/examples/field-with-another-control.tsx shows that render route with a native control.",
     useInstead: ["consent-sheet"],
   },
   {
@@ -963,7 +1247,7 @@ export const CONSIDERED: CatalogueEntry[] = [
     aliases: ["tick box", "multi select"],
     owner: "engineering",
     a11yDate: null,
-    why: "Delegated to Base UI.",
+    why: "Delegated to Base UI. Inside a Field, render Base UI's Checkbox through Field.Control's render prop. The shipped specimen registry/examples/field-with-another-control.tsx shows that render route with a native control.",
     useInstead: ["field"],
   },
   {
@@ -1015,7 +1299,7 @@ export const CONSIDERED: CatalogueEntry[] = [
     aliases: ["long text", "notes input"],
     owner: "engineering",
     a11yDate: null,
-    why: "A native element that needs tokens, not a component.",
+    why: "A native element that needs tokens, not a component. Inside a Field, render a native textarea through Field.Control's render prop; registry/examples/field-with-another-control.tsx is the shipped specimen.",
     useInstead: ["field"],
   },
   {
@@ -1147,19 +1431,6 @@ export const CONSIDERED: CatalogueEntry[] = [
     owner: "design",
     a11yDate: null,
     why: "A variant of Button rather than a component, and one that needs a visible label far more often than products assume.",
-    useInstead: ["button"],
-  },
-  {
-    name: "link",
-    title: "Link",
-    description: "Navigation to somewhere else.",
-    category: "actions-and-forms",
-    status: "considered",
-    since: "unreleased",
-    aliases: ["anchor", "hyperlink"],
-    owner: "content",
-    a11yDate: null,
-    why: "An element with tokens and a routing decision the product owns. What opsinjs adds is guidance about link text, and that belongs in Content and language.",
     useInstead: ["button"],
   },
   {

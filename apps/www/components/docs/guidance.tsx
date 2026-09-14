@@ -648,8 +648,10 @@ function resolveInstead(entry: WhenToUseAvoid): ResolvedInstead {
  * is more useful than pretending the name is a component. Rendering it as a
  * bare "Use `tooltip` instead" IS a mistake: the reader installs nothing, finds
  * nothing, and concludes the documentation is wrong about its own system. So
- * the status is named, the destination is still linked, and the reader is told
- * what the page at the other end will give them.
+ * the status is named and the destination is still linked. For a considered
+ * row the reason itself is printed inline, taken from the row's own `why`, so
+ * the reader learns why the name was declined and what to reach for without a
+ * round trip to a page that would only point back here.
  */
 function InsteadPointer({
   entry,
@@ -689,6 +691,14 @@ function InsteadPointer({
   }
 
   if (target.status === "considered") {
+    if (target.why) {
+      return (
+        <>
+          The nearest name is {destination}, and it was considered and declined
+          and there is no code behind it today. {target.why}
+        </>
+      )
+    }
     return (
       <>
         The nearest name is {destination}, and it was considered and declined:

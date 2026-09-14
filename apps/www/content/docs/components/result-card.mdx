@@ -7,7 +7,7 @@ since: "unreleased"
 category: health-data-display
 aliases: [results, lab result, test result, report card, blood pressure, a1c]
 governedBy: [two-colour-axes, reference-ranges, numbers-units-precision, uncertainty-and-staleness, clinical-status-semantics, data-provenance-and-device-accuracy, delivering-difficult-results, on-screen-privacy]
-usedIn: [value-against-a-range, health-metric-card, results-screen]
+usedIn: [choose-a-component, health-metric-card, result-disclosure, results-screen, sharing-with-a-clinician, value-against-a-range]
 ---
 
 ## Status
@@ -43,10 +43,10 @@ One card, whole: title, time, level, reading, the comparison, the paragraph and 
 steps. The interval is fictional and cites *Example data rather than a reference range*,
 which is the only source an opsinjs example may name.
 
-Open it under the product theme and turn the text size up. Two claims are meant to be
-checked rather than believed: that the header wraps and the pill drops beneath the title
-instead of the title being clipped, and that in greyscale the level is still legible from
-its word and its glyph rather than from its colour.
+Open it under the product theme, first at a phone width and then wider. Two claims are meant
+to be checked rather than believed: that at a phone width the level already sits beneath the
+timestamp and the card is still read in the order name, time, level, and that in greyscale
+the level is still legible from its word and its glyph rather than from its colour.
 
 <ComponentPreview name="result-card" />
 
@@ -224,7 +224,7 @@ silence is the default no one chose.
     },
     {
       name: "ResultCard.Header",
-      describes: "What was measured and when, with the level beside it. Wraps rather than clipping: at 200% text the title takes three lines and the pill drops beneath it.",
+      describes: "What was measured and when, with the level beside them where the header has room. On a phone the timestamp is long enough that the level wraps beneath it at ordinary text size; at 200% text the title takes several lines and the level sits below them. Nothing is ever clipped, and the reading order holds in both arrangements: name, then time, then level.",
     },
     {
       name: "ResultCard.Title",
@@ -238,7 +238,7 @@ silence is the default no one chose.
     },
     {
       name: "StatusPill",
-      describes: "The only status-coloured element on the card, embedded rather than re-drawn. Rendered only when the product assigned a level: there is no fallback pill, because StatusPill requires a level and a card that invented one would be inventing a verdict. Given the title as its subject, so a listener hears the level attached to the thing it is about.",
+      describes: "The only status-coloured element on the card, embedded rather than re-drawn. Rendered only when the product assigned a level: there is no fallback pill, because StatusPill requires a level and a card that invented one would be inventing a verdict. It is given no subject of its own: announced last in the header, after the title and the time it qualifies, so a listener hears the level attached to a reading whose name and date have just been read, and a subject on the pill would only say the title again.",
       prop: "status",
     },
     {
@@ -248,17 +248,17 @@ silence is the default no one chose.
     },
     {
       name: "RangeBar",
-      describes: "The comparison, embedded whole and drawn only where there is an interval, a unit to read it in, and a single reading to place. It is given no status and no category: a bar handed a level draws its own word and glyph, and two objects for one assertion is a composition error. Its label is announced and not drawn, because the card's own heading is two elements above it.",
+      describes: "The comparison, embedded whole and drawn only where there is an interval, a unit to read it in, and a single reading to place. It is given no status and no category: a bar handed a level draws its own word and glyph, and two objects for one assertion is a composition error. Its label is drawn nowhere and announced nowhere, because the card's own heading two elements above it already names the reading. It is also told whether the header will state the reading's recency, and where the header does it draws no date sentence of its own; and the card forwards its own `summary` so a product can replace the bar's generated position sentence with a shorter one.",
       prop: "range",
     },
     {
       name: "ResultCard.Meaning",
-      describes: "The plain-English paragraph, held to a comfortable measure. When the product supplies none, this part carries the sentence saying so rather than collapsing. This is the part that most result UIs omit, and the one that decides whether the card is useful.",
+      describes: "The plain-English paragraph, held to a comfortable measure. When the product supplies none, this part carries the sentence saying so rather than collapsing. It declares the body type step explicitly, so the card's principal prose does not inherit a smaller size from the page it is placed on and never renders below the machine-generated lines around it. This is the part that most result UIs omit, and the one that decides whether the card is useful.",
       prop: "meaning",
     },
     {
       name: "ResultCard.Actions",
-      describes: "At most two next steps, separated by the target-separation token so the gap does not shrink with density. An action with an href renders as a link carrying data-slot=\"result-card-action\"; one with onSelect renders as a Button, which stamps its own. The recommended one is expected first and is rendered bordered and on a larger target rather than by a fill, which on this card's own ground would be no difference at all.",
+      describes: "At most two next steps, separated by the target-separation token so the gap does not shrink with density. An action with an href renders as a link carrying data-slot=\"result-card-action\"; one with onSelect renders as a Button, which stamps its own. The recommended one is expected first and, whether it navigates or acts, is set apart by a boundary, a wider box and the headline type step rather than by a larger hit target or a fill: both actions sit on the same 44pt floor, the href form is a bordered link and the onSelect form a bordered Button, and a fill on this card's own ground would paint nothing.",
       prop: "actions",
     },
     {
@@ -380,8 +380,10 @@ Two cards, identical in every clinical respect and differing only in when they w
 measured. They carry the same level, and that is the example rather than an oversight: age
 lowers what a reading is worth and does not raise the alarm, so a card the product cannot
 vouch for must not be escalated on its age alone. What tells the reader the difference is
-the timestamp, in words and with the absolute date beside it, on screen and in the
-accessibility tree and on paper.
+the timestamp. A recent reading carries its age in words with the absolute date beside it;
+past a fortnight the phrase gives way to the date on its own, because a count of days that
+large is arithmetic the reader has to do rather than information they can use. That boundary
+belongs to [RelativeTime](./relative-time.mdx), which owns the rule and its fortnight default.
 
 Neither card shows the staleness treatment, and no example here can. Supplying
 `staleAfterHours` in a shipped example means shipping a staleness boundary, which is
@@ -424,8 +426,8 @@ says nothing at all about what the reading means.
 
 <DoDont>
   <DoDont.Do>
-    **"Measured 4 months ago · may be out of date."** Staleness stated as a fact about the
-    data, in words, with the absolute date beside it.
+    **"Measured on 14 November 2025 at 08:12 UTC · may be out of date."** Staleness stated as
+    a fact about the data, in words, with the absolute date beside it.
   </DoDont.Do>
   <DoDont.Dont>
     **"4 months ago" in grey 12px type under the number.** Technically present, practically
@@ -476,8 +478,10 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
 - **The level is announced with its word.** The pill renders the word from
   `CLINICAL_STATUS_META`, a glyph that is one of four distinct shapes, and the colour, in
   that order of reliance. That order is what the measured CVD audit in `tokens/color.json`
-  requires. It is given the title as its subject, so a listener hears *Needs attention,
-  Example measurement* rather than a level floating free. See
+  requires. It carries no subject of its own: announced in its place in the header, after
+  the title and the time, a listener moving through the card hears the heading, then the
+  time, then the status word, then the reading, then one summary sentence, so the level lands on a reading
+  whose name has just been read rather than repeating that name on the pill. See
   [Health glyphs](../foundations/iconography/health-glyphs.mdx).
 - **Units are spoken, not spelled.** Every number goes through [Value](./value.mdx), which
   substitutes the unit's spoken form from `tokens/units.json`. On a compound reading the
@@ -493,15 +497,20 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
 - **Actions are real links and real buttons**, each carrying the 44pt floor on both axes
   from `--opsin-target-minimum`, with `--opsin-target-separation` between them. The floor is
   set in the component rather than inherited from the product stylesheet, because that
-  stylesheet does not travel with the file. The recommended one is bordered and on a larger
-  target and the alternative is neither, so the difference survives greyscale and a
-  black-and-white printout. It is not carried by hue. It is not carried by a fill either,
-  which the page used to claim: the recommended link's surface is `bg-card`, the card's own
-  ground, so on this card it paints nothing. The boundary and the size are the difference.
+  stylesheet does not travel with the file. The recommended one is bordered, sits in a wider
+  box and is set at the headline type step, and the alternative carries none of those, so the
+  difference survives greyscale and a black-and-white printout. It is not carried by hue. It
+  is not carried by a fill either, which the page used to claim: the recommended action's
+  surface is `bg-card`, the card's own ground, so on this card it paints nothing. It is not
+  carried by a larger hit target either: both actions sit on the same 44pt floor, and the
+  boundary, the box width and the type step are the difference.
 - **The card reflows at 200% text.** The header wraps, the reading wraps, the meaning is
   held to a comfortable measure rather than a fixed width, and nothing is truncated: there
-  is no ellipsis and no fixed height anywhere in the file. Reasoned from the source; nobody
-  has looked at it.
+  is no ellipsis and no fixed height anywhere in the file. A measurement name wider than the
+  header column is hyphenated where the language's own rules allow a break, and broken
+  mid-word without a hyphen only as a last resort. Somebody has now looked at this card at
+  200% on a 390px frame, which is what produced the hyphenation; nobody has measured it in
+  both themes, at 320px, or through a reader's own stylesheet.
 - **Nothing animates**, on first paint or afterwards. No count on the number, no growth on
   the bar, no entrance on the card.
 - **The card mounts no live region.** A result whose level changes while it is on screen is
@@ -528,19 +537,25 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
   which is the boundary a printer keeps. Even so, opsinjs has no print stylesheet, nothing
   here has been put on paper, and the specification's requirement that a printed card carry
   the range as an outline is inherited from [RangeBar](./range-bar.mdx) rather than tested.
-- **How often the composite says the same thing.** This was previously described as one
-  repetition and it is larger than that. On the card in the preview above, the measurement's
-  name is announced six times: as the `<article>`'s label, as the heading, as the pill's
-  subject, as the bar's visually-hidden label, and twice more as the opening subject of the
-  bar's `aria-label` and of its visible summary sentence. Those last two are the same
-  twenty-six-word sentence, back to back, with nothing between them, so a listener who has
-  heard the graphic named has no way to tell that the paragraph after it is not new. The
-  reading itself is spoken three times and the measurement date twice, once by the header and
-  once by the bar's footnote. The bar owns the label-and-summary pair and says so on its own
-  page; this card adds the article's name over the identical heading, and the second date.
-  Nobody has listened to any of it, and it should be measured before it is changed: the two
-  candidates worth testing are naming the article by `aria-labelledby` on the heading, which
-  is the same `useId` problem listed above, and not passing `measuredAt` to the embedded bar.
+- **How often the composite says the same thing.** This was once described as a single
+  repetition and it was larger than that; three changes have since brought it down. The pill
+  no longer takes the title as its subject, the bar's label is drawn nowhere and reaches the
+  accessibility tree nowhere, and the bar's track is decorative, so the summary sentence is
+  spoken once by its visible paragraph rather than a second time through a picture's name. On
+  the card in the preview above the measurement's name is now announced three times: as the
+  `<article>`'s label, as the heading, and as the opening subject of the bar's visible summary
+  sentence. Before this run it was announced three more times, as the pill's subject, as the
+  bar's visually-hidden label, and as the opening of the bar's `aria-label`, which set that
+  twenty-six-word sentence back to back with the visible paragraph that repeats it. The
+  reading itself is spoken twice, by the card's own number and by the bar's summary sentence,
+  and drawn a third time as the tick label inside the decorative track, where no listener
+  meets it. The measurement date is spoken once, by the header, because the embedded bar is
+  now told the header states the reading's recency and draws no date sentence of its own where
+  it does. The bar owns the summary paragraph and says so on its own
+  page; this card adds the article's name over the identical heading. Nobody has listened to
+  any of it, and it should be measured before it is changed: the candidate worth testing is
+  naming the article by `aria-labelledby` on the heading, which is the same `useId` problem
+  listed above.
 - **No masking affordance.** The card has no `masked` prop, no fixed-width mask and no
   behaviour on backgrounding, and it renders the number at display size in the position the
   eye lands on first. [On-screen privacy](../health/on-screen-privacy.mdx) names this
@@ -554,11 +569,17 @@ through a review with a disabled user, and `a11yDate` is therefore still empty.
   other claim on the card degrades to a stated absence and this one does not.
   [RelativeTime](./relative-time.mdx) has no absence form either, which is where one would
   belong; inventing a sentence here would put a second copy of that rule in this file.
-- **`prefers-contrast` and `forced-colors`.** `forced-colors` is implemented nowhere in
-  opsinjs. `prefers-contrast: more` is implemented in
-  [Surface](./surface.mdx#accessibility) alone rather than in the token layer, and this card
-  is a bordered `bg-card` rather than a Surface, so nothing on it responds to the mode. No
-  claim about either can currently be made.
+- **`prefers-contrast` and `forced-colors`.** The token layer implements nothing for forced
+  colours. Three marks on this card do respond, all inside the embedded
+  [RangeBar](./range-bar.mdx): the reading's tick keeps a system-coloured fill with a
+  `CanvasText` outline, and the two boundary marks are repainted in `CanvasText`, so under
+  `forced-colors: active` the reading and both bounds stay drawn when ordinary fills are
+  stripped rather than vanishing. That behaviour lives in RangeBar rather than in this
+  card. `prefers-contrast: more` is answered by individual components rather than by the token
+  layer, [Surface](./surface.mdx#accessibility) being the worked example, and this card
+  is a bordered `bg-card` rather than a Surface, so it answers that query nowhere. Nothing
+  here has been opened under a real Windows contrast theme or a `prefers-contrast` setting,
+  so both are reasoned from the source rather than measured.
 
 <KeyboardTable
   name="result-card"
@@ -616,7 +637,18 @@ rendered and pass the same value to every card on it.
 every number on the card goes through [Value](./value.mdx), which takes both. Without them a
 card could not state the decimal places its measurement was reported to, and the bar's two
 boundary labels would be shown to a different precision from the reading they bound.
-`locale` reaches every number and every date, so one card cannot show two conventions.
+`locale` reaches every number and every date, so one card cannot show two conventions. The
+demos and examples on this page pass `en-GB` so their dates read day first, matching the
+order [Numbers, dates and time](../content/numbers-dates-and-time.mdx) mandates, and a
+product passes the tag its own reader uses.
+
+`timeZone` is handed straight through to [RelativeTime](./relative-time.mdx) for the
+absolute date and time. Supply an IANA name such as `Europe/London` and the reading is
+placed on that zone's wall clock with no zone label, because it is then the reader's own
+clock and there is nothing to disambiguate. Omit it and the absolute time keeps the offset
+it was written in, named as `UTC` or `UTC+1`. This card always shows the absolute time, so
+a wrong wall clock is most visible here, and a product that does not know the reader's zone
+omits the prop rather than guess.
 
 `titleLevel` exists because the title is a real heading and the level belongs to the page
 rather than to the component. Appearance does not follow it.
@@ -730,8 +762,10 @@ belongs in `className`.
 
 - [Build a health metric card](../recipes/health-metric-card.mdx)
 - [Show a value against a reference range](../recipes/value-against-a-range.mdx)
+- [Choose a component](../recipes/choose-a-component.mdx) sets the card beside the smaller displays as the worked example a reader compares them against.
 - [Results screen](../screens/results-screen.mdx)
 - [Result disclosure](../patterns/result-disclosure.mdx)
+- [Sharing with a clinician](../patterns/sharing-with-a-clinician.mdx) carries the whole card into the share, so the clinician reads the full result and not a bare number.
 
 **Governed by**
 

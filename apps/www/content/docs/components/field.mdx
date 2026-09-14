@@ -6,7 +6,7 @@ kind: component
 since: "unreleased"
 category: actions-and-forms
 aliases: [form field, label, input wrapper, error message, hint, form control, validation message]
-usedIn: [daily-log-entry, consent-before-collection, daily-log-screen]
+usedIn: [ask-users-for/contact-details, ask-users-for/date-of-birth, ask-users-for/ethnicity, ask-users-for/height-and-weight, ask-users-for/medications, ask-users-for/name, ask-users-for/sex-and-gender, ask-users-for/symptoms, consent-before-collection, daily-log-entry, daily-log-screen, daily-logging, forms/autocomplete-and-input-types, forms/error-summaries, forms/question-pages, forms/required-and-optional, forms/units-and-numeric-entry, forms/validation-timing, onboarding-and-first-run, onboarding-screen]
 ---
 
 ## Status
@@ -18,8 +18,6 @@ usedIn: [daily-log-entry, consent-before-collection, daily-log-screen]
   questions={[
     "The two English words Field ships are “required” and “optional”, and no prop translates them. Every other string in the component comes from the product. Does the marker become a `ReactNode` prop, does it move to a locale object, or does a product override it through the `data-slot`?",
     "An error is added to the control's description and marks it invalid; it is not announced while focus is elsewhere, because Field mounts no live region. A form of ten fields that fails on submit therefore says nothing until the reader arrives at each field. The pattern that closes this is an error summary at the top of the form. Who owns it, and does Field need to expose the ids it generated so a summary can link to them?",
-    "The spec's part tree puts the error after the control. GOV.UK and the NHS put it before, so a software keyboard or an autocomplete list cannot cover it. This implementation follows the spec. Which is right for a phone held one-handed?",
-    "`validateOn` has three values and Base UI has two that fit them, so “submit” and “submit-then-change” resolve to the same mode. Worse, both of those need Base UI's `<Form>` around the fields, because its submit mode is gated on a flag only that primitive sets. So inside a plain `<form>` the default value does nothing but the Enter key, and no example here mounts a `<Form>` to show otherwise. Should the union shrink to what the runtime can actually distinguish, and should Field refuse a submit mode it cannot honour?",
   ]}
 >
   <code className="text-sm">field</code> is implemented and installable. It is{" "}
@@ -37,8 +35,8 @@ input by accident; if it does not, one will appear within a month.
 Three fields, showing the three states that decide whether this component is worth having: a
 field with guidance, a field whose exception is marked in words, and a field with an error.
 The last one is the one to look at, and what matters is what has *not* happened. The hint is
-still underneath the error, because a reader who has just got something wrong still needs the
-sentence that would have prevented it.
+still there under the label, alongside the error, because a reader who has just got something
+wrong still needs the sentence that would have prevented it.
 
 Turn the text size up while you are there. Nothing truncates: the label wraps, the field grows
 and the error takes the lines it needs.
@@ -65,7 +63,7 @@ import { Field } from "@/components/ui/field"
 ```
 
 ```tsx
-<Field label="Example measurement" hint="For example, 14.">
+<Field label="Example measurement" hint="For example, 14">
   <Field.Control name="example-measurement" inputMode="decimal" autoComplete="off" />
 </Field>
 ```
@@ -101,7 +99,7 @@ said at all until they reach each field in turn. See
   parts={[
     {
       name: "Field",
-      describes: "The root. Owns every id relationship, and carries data-invalid, data-touched, data-dirty, data-filled, data-focused and data-disabled so a product can style the states without tracking them.",
+      describes: "The root. Owns every id relationship, and carries data-invalid, data-touched, data-dirty, data-filled, data-focused and data-disabled so a product can style the states without tracking them. When invalid it draws a left rule in the plain foreground role, a border rather than a shadow, so the mark survives forced colours and print.",
       prop: "validateOn",
     },
     {
@@ -121,12 +119,12 @@ said at all until they reach each field in turn. See
     },
     {
       name: "Field.Control",
-      describes: "The control, supplied by the product. The only part of Field that is a real export. Receives the generated id, the description list and aria-invalid; carries the 44px hit-area floor and the emphasis border when invalid.",
+      describes: "The control, supplied by the product. The only part of Field that is a real export. Receives the generated id, the description list and aria-invalid; carries the 44px hit-area floor, and when invalid an inset emphasis shadow of its own, while the root's left rule marks the same state where a shadow cannot survive.",
       prop: "children",
     },
     {
       name: "Field.Error",
-      describes: "The message, with a CircleAlert glyph beside it. Its id joins aria-describedby alongside the hint rather than replacing it, and it is removed from the list when it unmounts. It carries no status colour, deliberately.",
+      describes: "The message, with a CircleAlert glyph set at 1.25em beside it. Its id joins aria-describedby alongside the hint rather than replacing it, and it is removed from the list when it unmounts. It carries no status colour, deliberately, and the invalid state is marked by structure, the left rule on the root, rather than by the error's weight or colour alone.",
       prop: "error",
     },
   ]}
@@ -158,14 +156,14 @@ said at all until they reach each field in turn. See
           note: 'data-slot="field-hint"; renders a <p>, its id joins aria-describedby',
         },
         {
-          part: "Field.Control",
-          cardinality: "1",
-          note: 'data-slot="field-control"; the consumer’s element, passed as children',
-        },
-        {
           part: "Field.Error",
           cardinality: "0..1",
           note: 'data-slot="field-error"; its id joins aria-describedby beside the hint',
+        },
+        {
+          part: "Field.Control",
+          cardinality: "1",
+          note: 'data-slot="field-control"; the consumer’s element, passed as children',
         },
       ],
     },
@@ -175,8 +173,13 @@ said at all until they reach each field in turn. See
 **Label** is always visible and always persistent, with no prop to hide it. **Hint** is guidance
 shown before anything goes wrong. **Control** is the input. **Error** replaces nothing: it
 appears in addition to the hint, because a reader who has made a mistake still needs the
-guidance that would have prevented it. **Optionality** marks whichever of required or optional
-is the exception in this form.
+guidance that would have prevented it. It sits between the hint and the control rather than
+after it, which is the order GOV.UK and the NHS use, so that a software keyboard or an
+autocomplete strip rising over the bottom of a phone cannot cover the sentence saying what to
+fix. The order the control announces does not move with it: a description is placed by the
+order its id registered rather than by where the element sits, and the hint still registers
+before the error, so a screen reader still hears the hint and then the error. **Optionality**
+marks whichever of required or optional is the exception in this form.
 
 Field's own spacing is fixed, and the density control above the preview does not move it. Every
 gap inside a Field is an `--opsin-space-*` step, which is a rem that stays put; density moves
@@ -238,12 +241,31 @@ text input uses.
 
 <ComponentPreview name="field-with-another-control" kind="example" align="start" />
 
+### Validating on submit
+
+The default `validateOn` is `submit-then-change`, and on its own it does almost nothing. Base UI
+gates its submit mode on a flag only its own `<Form>` sets, so inside a plain `<form>` a control
+is checked on Enter in a text input and at no other moment. `Field.Form` is that primitive,
+re-exported with a `data-slot`, and wrapping the fields in it is what makes the default fire when
+the reader presses submit. Leave a field empty, press Save, and the browser's own fallback
+message appears in the error slot, then clears on the next change. A shipped product passes
+`error` with its own words instead, because that marks the control invalid directly and never
+goes through a validation mode at all; this example exists to prove the default is not inert and
+to make the case for reaching past it.
+
+<ComponentPreview name="field-validating-on-submit" kind="example" align="start" />
+
 ## Content guidelines
 
 Labels are nouns naming what goes in the field, in sentence case, with no trailing colon.
-Hints show the shape of a valid answer rather than restating a rule. *For example, 27 3 1985*
-tells a reader what to type; reciting the permitted range only repeats, in prose, the check the
-field is already doing, and leaves the reader to work the shape out from it.
+Hints show the shape of a valid answer rather than restating a rule. *For example, 1985* tells a
+reader what to type; reciting the permitted range only repeats, in prose, the check the field is
+already doing, and leaves the reader to work the shape out from it. A hint is a single sentence
+and takes no full stop. A hint that shows a separator has to sit over a control whose keyboard
+can type that separator, so a hint of the shape *27 3 1985* over an `inputMode="numeric"` control
+asks for a space the number pad has no key for. A whole date is three answers, not one, and
+belongs in three labelled fields rather than a single string. See the
+[date-of-birth pattern](../patterns/ask-users-for/date-of-birth.mdx).
 
 A hint on a health input must not carry a threshold, a plausibility bound, or a number that
 could be read as somebody's result. A figure written into a hint is copied into a screenshot,
@@ -265,8 +287,10 @@ changes them.
 
 <DoDont>
   <DoDont.Do>
-    **"Date of birth · For example, 27 3 1985 · Enter a date of birth in the past."** Label,
-    example, and an error that says what to do.
+    **"Day · Month · Year, three numeric fields under one Date of birth question · Enter a date in
+    the past."** Three answers in three labelled fields, so the keypad each one raises can type
+    every character the field asks for, and an error that says what to do. See
+    [Date of birth](../patterns/ask-users-for/date-of-birth.mdx).
   </DoDont.Do>
   <DoDont.Dont>
     **"DOB* · Invalid input."** An abbreviation, a required marker with no legend, and an
@@ -332,23 +356,35 @@ checked.
   not a clinical status: the red that means *this reading needs a decision* is not available to
   say *check that number*, and lending it out would cost the status axis the meaning the whole
   system is built on. See [The two colour axes](../health/two-colour-axes.mdx). What is left is
-  a glyph, the emphasis weight, an emphasis border on the control and the words. That is what
-  the requirement asked for anyway, reached from the other direction. Count three rather than
-  four on paper: the emphasis border is a `box-shadow`, which forced-colors mode drops, and
-  which the docs site's own print rules in `app/globals.css` set to `none`. A consumer
-  gets no better, because that stylesheet does not travel with `shadcn add` and `field.tsx`
-  sets no `print:` variant, so on paper the shadow is at the mercy of the consuming app. Either
-  way it is the one carrier that cannot be counted on. The glyph and the words can, and they
-  are the two that carry the meaning. It is not an `outline`
+  a glyph, the left rule down the invalid field, an emphasis shadow on the control and the
+  words. That is what the requirement asked for anyway, reached from the other direction. Weight
+  is not one of the carriers against the label: `headline` and `body` are the same 17px step at
+  two weights, and the label already takes the heavier one, so a heavier error reads as heavier
+  than the hint but exactly as heavy as the field name directly above it. Weight tells the error
+  from the hint, never from the label. Count three rather than four on paper: the emphasis
+  shadow on the control is a `box-shadow`, which forced-colors mode drops, and which the docs
+  site's own print rules in `app/globals.css` set to `none`. Under forced colours, where the
+  ring is gone, the control's own border turns dashed to stand in for it, so the control still
+  marks which input failed and not merely that the field did; on paper no such stand-in fires
+  and the shadow is simply absent. The left rule, by contrast, is a
+  real border rather than a shadow, so forced colours recolours it to the system ink and keeps
+  it, and the printer draws it, which is why it stands with the glyph and the words as the three
+  carriers that survive on paper. A consumer gets no better on the shadow, because that
+  stylesheet does not travel with `shadcn add` and `field.tsx` sets no `print:` variant, so on
+  paper the shadow is at the mercy of the consuming app. Either way the shadow is the one
+  carrier that cannot be counted on. The glyph, the rule and the words can, and they are the
+  three that carry the meaning where the shadow is gone. It is not an `outline`
   instead because the control's outline is already spent on `:focus-visible`, and a focused
   invalid field would then show one state or the other. The glyph is deliberately
   not the triangle: that shape belongs to the `attention` level, and four distinct silhouettes
   only work as a vocabulary if nothing else borrows one.
 - **Required and optional are marked in text, inside the label**, so the marker is part of the
   accessible name. No asterisk, and therefore no legend to miss.
-- **The control clears the 44px target floor, on both axes.** The product stylesheet's backstop
-  covers buttons, checkboxes and radios and not a text input, so Field applies
-  `--opsin-target-minimum` to the control itself. That token is a rem value, which grows
+- **The control clears the 44px target floor, on both axes.** The product stylesheet now floors
+  every text entry control, `select` and `textarea` among them, with `--opsin-target-minimum`,
+  so inside an app that has wired the theme a hand-rolled input beside a Field is already
+  protected. Field applies the same token to the control itself so the floor survives `shadcn
+  add` into an app that installed the component and not the theme. That token is a rem value, which grows
   with the reader's text size rather than staying at 44 physical pixels. It reads the token
   rather than declaring it, and the token lives in a stylesheet that `shadcn add` does not
   ship, so the declaration carries the same `2.75rem` fallback the product stylesheet writes;
@@ -365,9 +401,12 @@ checked.
   field grows; there is no fixed height anywhere in the component and no `text-overflow`. The
   error's glyph is aligned to the first line rather than centred, so a three-line message does
   not leave it floating. Checked by eye at 200% in both themes; not yet by a machine.
-- **Focus is never moved and never taken.** Field has no focus management: an error appearing
-  does not pull focus out of the control the reader is typing in, and nothing here fires on a
-  keystroke.
+- **Field itself never moves focus and never takes it.** Field has no focus management: an error
+  appearing does not pull focus out of the control the reader is typing in, and nothing in this
+  file fires on a keystroke. `Field.Form` is the exception, and it is Base UI's Form rather than
+  Field: on submit it moves focus to the first invalid control and selects its text, so the reader
+  is put straight into the field to fix. See the
+  [Validating on submit](#validating-on-submit) example.
 
 **Not yet checked at all, and listed rather than omitted:**
 
@@ -378,11 +417,26 @@ checked.
   exists to prevent. The pattern that closes the gap is an error summary at the top of the form,
   and it is open on this page whether Field should expose its generated ids so a summary can
   link to them.
-- **Contrast has not been measured for this component.** The hint takes the muted foreground
-  role and the error takes the plain one; both are theme roles rather than values, so they
-  inherit whatever the theme's own measurements say, and nothing on this page has measured the
-  pair on this surface. `prefers-contrast` and `forced-colors` are not implemented anywhere in
-  opsinjs yet, so the increased-contrast claim cannot currently be made by anyone.
+- **The hint and error text roles have not been measured on this surface.** The hint takes the
+  muted foreground role and the error takes the plain one; both are theme roles rather than
+  values, so they inherit whatever the theme's own measurements say, and nothing on this page
+  has measured that pair against this control. The control's own boundary is not measured on its
+  own either, but it now resolves to the same neutral ladder step the card hairline resolves to,
+  and that step is measured. The control is filled with the page's own
+  `--background`, so the `border-input` hairline is the only thing that says a box is there.
+  WCAG 2.2 SC 1.4.11 puts a 3:1 floor on the boundary of a control, as
+  [Contrast conformance](../accessibility/contrast-conformance.mdx) records in its non-text
+  section. The input role was raised to `--opsin-chrome-border`'s neutral step, so it inherits
+  the card hairline pair's figures: that pair measures WCAG 4.52 against the page and 4.72
+  against a card in light, and 4.19 in dark. No pair measures `--opsin-chrome-input` on its own
+  yet, so a drift in the input role alone would pass every gate. The dark figure is published in
+  full with its shortfall named rather than hidden. It clears the 3:1 WCAG floor, and it does not reach the APCA Lc 45 non-text floor,
+  where it measures a magnitude of 28.72, because a 1px hairline on a near-black page reaches
+  no neutral ladder step that would. `forced-colors` is no longer unimplemented across opsinjs:
+  Surface answers `contrast-more:` in its own utilities and draws its edge as an outline that
+  forced colours keeps. What nobody has yet done is open the site under a real Windows contrast
+  theme, which is still the substance of the gap, so the increased-contrast claim is not yet
+  one this page can make.
 - **`autocomplete` and `inputmode` are required by the contract and set by nobody.** Field
   cannot supply them: the right token depends on what is being asked for, and a guess would fill
   somebody's postcode into a field asking for something else. Nothing enforces it either, and
@@ -392,7 +446,9 @@ checked.
   the right call for these fields and the wrong thing to copy: they collect nothing real, and a
   token like `bday` on a field called *Example measurement* would be a made-up answer to a
   made-up question. `inputmode` is set on the numeric and decimal inputs, where it means
-  something, and omitted on the free-text note and the `select`, where it changes nothing. So
+  something, and omitted on the free-text note, on the time whose *09:15* needs a colon a number
+  pad has no key for, and on the `select`, where in each case the default keyboard is the right
+  one or there is nothing to opt out of. So
   what a real token looks like is not shown here; it is at
   [Autocomplete and input types](../patterns/forms/autocomplete-and-input-types.mdx).
 - **Field cannot tell whether a control is inside it.** If a caller puts something in `children`
@@ -454,21 +510,26 @@ message is good.
 
 `validateOn` governs when the control's *own* constraints are checked. It does not gate the
 `error` prop, because a message the product passed in is a message the product has already
-decided to show. Two of its three values resolve to the same underlying mode: Base UI's submit
-mode is documented as validating on submit and then re-validating on change, which is exactly
-`"submit-then-change"`, and there is no mode that checks on submit and then refuses to look
-again. So `"submit"` is more forgiving than its name suggests, which is the harmless direction.
-The mode that cannot be expressed is the one that leaves a corrected field still marked
-invalid until the next submit. See [Validation timing](../patterns/forms/validation-timing.mdx).
+decided to show. It takes two values, `"blur"` and `"submit-then-change"`, which are the two Base
+UI can tell apart: blur maps to Base UI's `onBlur`, and the submit value to its `onSubmit`, which
+validates on submit and then re-validates on change. A third value, a bare `"submit"`, was
+removed. Base UI has no mode that checks on submit and then refuses to look again, so `"submit"`
+only ever resolved to the same thing as `"submit-then-change"` and offered a distinction the
+runtime could not keep. The mode that still cannot be expressed is the one that leaves a
+corrected field marked invalid until the next submit. See
+[Validation timing](../patterns/forms/validation-timing.mdx).
 
-**Both submit values need Base UI's `<Form>` around the fields, and neither the examples on this
-page nor the demo mounts one.** Base UI's submit mode is not "the browser submitted the form":
-it is gated on a flag that only Base UI's own form primitive sets, and the default value of that
-flag is permanently false. So in a plain `<form onSubmit={…}>` the control's own constraints are
-checked on Enter in a text input and at no other moment. The default `validateOn` does nothing
-else, and the un-styled fallback error above almost never appears. This is the strongest reason
-to pass `error`: it applies the invalid state directly and goes through no validation mode at
-all. Nothing here has been demonstrated with a `<Form>` on this page, and it should be.
+**The submit value needs Base UI's `<Form>` around the fields, and `Field.Form` is that Form
+re-exported so a product has a documented way to mount it.** Base UI's submit mode is not "the
+browser submitted the form": it is gated on a flag that only Base UI's own form primitive sets,
+and the default value of that flag is permanently false. So in a plain `<form onSubmit={…}>` the
+control's own constraints are checked on Enter in a text input and at no other moment, and the
+un-styled fallback error almost never appears. This is the strongest reason to pass `error`: it
+applies the invalid state directly and goes through no validation mode at all. The
+[Validating on submit](#validating-on-submit) example above mounts `Field.Form` and shows the
+default `validateOn` firing on submit, which no example did before. Field cannot warn a product
+that sets a submit mode without a `Field.Form` ancestor, because it is a server component with no
+hook in which to read the surrounding context.
 
 `optionality` defaults to `"none"`, because marking both required and optional is the same as
 marking neither. It renders one of two English words and there is no prop to translate them;
@@ -480,6 +541,12 @@ that is a real gap and it is open at the top of this page.
 replaces the element while keeping the wiring. It sets no `autocomplete` and no `inputmode` of
 its own, on purpose. There is no `id` prop worth reaching for either: the id is generated and
 matched to the label, and passing one by hand is how the two start to disagree.
+
+`Field.Form` is Base UI's own `<Form>`, re-exported with a `data-slot` and nothing else added. It
+is not one of Field's parts, so the claim above that `Field.Control` is one of only three parts in
+the system shipped as a real export is about Field's parts and stands unchanged. Reach for
+`Field.Form` when the default `validateOn` needs to fire on submit, which is what the
+[Validating on submit](#validating-on-submit) example shows.
 
 Field is a **server component**. Every Base UI part it composes carries its own `"use client"`,
 so the state, the effects and the id generation happen inside the boundary the primitive
@@ -508,6 +575,9 @@ state and handlers, so it is a client component, and importing Field into it wor
 - [Capture a daily log entry](../recipes/daily-log-entry.mdx)
 - [Ask for consent before collecting](../recipes/consent-before-collection.mdx)
 - [Daily log screen](../screens/daily-log-screen.mdx)
+- [Daily logging](../patterns/daily-logging.mdx) captures each reading through a Field, so every entry carries a visible label and its error.
+- [Onboarding and first run](../patterns/onboarding-and-first-run.mdx) collects a person's first details through Fields before any reading is taken.
+- [Onboarding screen](../screens/onboarding-screen.mdx) puts those Fields on the first screen a person sees.
 
 **Governed by**
 
