@@ -32,7 +32,8 @@
  *   This file owns everything that is a JUDGEMENT rather than a mechanism:
  *     - that the label is required, visible and has no way to be hidden;
  *     - that the error appears IN ADDITION to the hint and never replaces it;
- *     - that the error is carried by a word, a glyph and the invalid state, and
+ *     - that the error is carried by a word, a glyph and the invalid state,
+ *       which takes visible form as the left rule down the invalid field, and
  *       by no colour at all (see NO STATUS COLOUR below);
  *     - that optionality is marked in words inside the label, so it is part of
  *       the accessible name rather than a symbol beside it;
@@ -47,10 +48,16 @@
  * chrome. There is also no non-clinical danger role in the product theme at
  * all: the one the docs chrome uses is declared in `app/globals.css` and
  * resolves to nothing under /view, which the accessibility gate fails a
- * component for reaching. So the error is carried by a glyph, a weight change,
- * the border emphasis on the control, and the words. That is what the
- * specification asks for anyway ("text plus an icon plus the invalid state"),
- * arrived at from the other direction.
+ * component for reaching. So the error is carried by a glyph, the left rule
+ * down the invalid field, the emphasis shadow on the control, and the words. It
+ * is NOT carried by a weight change against the label. `text-opsin-headline` is
+ * what both the label and the error use, and `tokens/type.json` sets `headline`
+ * and `body` at the same 17px on purpose, so the error is heavier than the HINT
+ * but exactly as heavy as the LABEL directly above it. Anybody reading this
+ * file should not count weight as the carrier that separates an error from a
+ * field name; what separates them is the rule and the glyph. That is close to
+ * what the specification asks for anyway ("text plus an icon plus the invalid
+ * state"), arrived at from the other direction.
  *
  * The glyph is `CircleAlert` and it is deliberately NOT `TriangleAlert`. The
  * triangle is `attention`'s glyph in CLINICAL_STATUS_META, and four distinct
@@ -68,6 +75,7 @@
 import type { ComponentPropsWithoutRef, CSSProperties, ReactElement, ReactNode } from "react"
 
 import { Field as FieldPrimitive } from "@base-ui/react/field"
+import { Form as FormPrimitive, type FormProps } from "@base-ui/react/form"
 import { CircleAlert } from "lucide-react"
 
 import { isDevelopment } from "@/lib/opsinjs"
@@ -95,28 +103,26 @@ const OPTIONALITY_WORD: Record<"required" | "optional", string> = {
 /**
  * `validateOn` in this system's vocabulary, mapped to Base UI's.
  *
- * TWO OF THE THREE VALUES COLLAPSE ONTO ONE MODE, and pretending otherwise
- * would be the more comfortable lie. Base UI's `onSubmit` is documented as
- * "triggers validation when the form is submitted, and re-validates on change
- * after submission". That behaviour IS this system's `submit-then-change`.
- * There is no mode that validates on submit and then refuses to look again, so
- * `"submit"` takes the same one.
+ * A SUBMIT-ONLY VALUE WAS REMOVED, because the runtime cannot honour it. Base
+ * UI's `onSubmit` is documented as "triggers validation when the form is
+ * submitted, and re-validates on change after submission", which IS this
+ * system's `submit-then-change`. There is no mode that validates on submit and
+ * then refuses to look again, so a bare `"submit"` had nowhere of its own to
+ * map, and a component should not offer a value it cannot keep. The union is
+ * the two the runtime can actually tell apart. The lost mode is one nobody
+ * should want anyway: it would leave a corrected field still marked invalid
+ * until the next submit, which is the cruelty the specification names. Field is
+ * more forgiving than asked, never less.
  *
- * That is the harmless direction of the two. A field that re-checks itself
- * after the reader corrects it clears its error as soon as the correction is
- * typed; the mode this cannot express would leave a corrected field still
- * marked invalid until the next submit, which is the cruelty the specification
- * names. Field is more forgiving than asked, never less.
- *
- * AND BOTH SUBMIT MODES NEED BASE UI'S `<Form>`, WHICH IS NOT SOMETHING THE
- * NAME SUGGESTS. `onSubmit` is not "the browser submitted the form": Base UI
- * gates it on a `submitAttemptedRef` that lives on its own form context
- * (`form/Form.js`), and the context's default value is a ref that is
- * permanently `false`. So inside a plain `<form onSubmit={…}>` with no
- * `<Form>` ancestor, the control's OWN constraints are never checked on submit
- * and never re-checked on change; the only remaining trigger is Base UI's
- * Enter-key commit, and that fires on `<input>` alone. `"blur"` needs no
- * `<Form>` and works as its name reads.
+ * `submit-then-change` NEEDS BASE UI'S `<Form>`, WHICH THE NAME DOES NOT
+ * SUGGEST. `onSubmit` is not "the browser submitted the form": Base UI gates it
+ * on a `submitAttemptedRef` that lives on its own form context (`form/Form.js`),
+ * and the context's default value is a ref that is permanently `false`. So
+ * inside a plain `<form onSubmit={…}>` with no `<Form>` ancestor, the control's
+ * OWN constraints are never checked on submit and never re-checked on change;
+ * the only remaining trigger is Base UI's Enter-key commit, and that fires on
+ * `<input>` alone. `Field.Form` re-exports that `<Form>` so the default value
+ * has a path to working; `"blur"` needs no `<Form>` and works as its name reads.
  *
  * This does not touch the `error` prop, which is the path a product should be
  * on: `invalid` is applied from `error` directly and does not go through a
@@ -124,11 +130,10 @@ const OPTIONALITY_WORD: Record<"required" | "optional", string> = {
  * branch below is really worth without a `<Form>`, and the page says so.
  */
 const VALIDATION_MODE: Record<
-  "blur" | "submit" | "submit-then-change",
-  "onBlur" | "onSubmit" | "onChange"
+  "blur" | "submit-then-change",
+  "onBlur" | "onSubmit"
 > = {
   blur: "onBlur",
-  submit: "onSubmit",
   "submit-then-change": "onSubmit",
 }
 
@@ -139,12 +144,17 @@ const VALIDATION_MODE: Record<
  * Four things here are load-bearing and easy to mistake for taste:
  *
  *   `min-h-` AND `min-w-[var(--opsin-target-minimum,2.75rem)]` set the target
- *   floor on the control. The product stylesheet's 44px backstop covers
- *   `button`, `[role="button"]`, checkboxes and radios, and NOT a text input,
- *   which is why the floor has to be set here or it is not set. The generated
- *   token is a rem, so it grows with the reader's own text size; the shorter
- *   authored spelling in `app/product.css` is a hard 44px that does not, and it
- *   is being retired.
+ *   floor on the control. `app/product.css` now floors every text entry
+ *   control, `select` and `textarea` included, with the same
+ *   `--opsin-target-minimum` token and the same `2.75rem` fallback, so inside
+ *   this repository the floor is not at risk and a hand-rolled input beside a
+ *   Field is protected by the product stylesheet too. The reason to declare it
+ *   again here is `shadcn add`: this file ships to a consumer on its own,
+ *   `app/product.css` does not travel with it, and without the local
+ *   declaration the floor is simply absent in an app that installed the
+ *   component and not the theme. The token is a rem, so wherever it resolves it
+ *   grows with the reader's own text size rather than staying at a fixed pixel
+ *   count.
  *
  *   Both axes, not just the block one, because `w-full` holds the inline axis
  *   only while nobody narrows the control. `FieldControlProps.className` is
@@ -168,23 +178,50 @@ const VALIDATION_MODE: Record<
  *   the first time that rule changes.
  *
  *   `data-[invalid]:` and not a colour. Base UI stamps `data-invalid` on the
- *   control, so the emphasis border tracks the field's real validity rather
+ *   control, so the emphasis shadow tracks the field's real validity rather
  *   than only the half this file knows about. Real validity is the `error` prop
- *   AND a native constraint that failed. It is an inset shadow rather than a
- *   wider border so that nothing moves by a pixel when the error appears. Know
- *   what that costs: a `box-shadow` is dropped by forced-colors mode and by the
- *   docs stylesheet's print rules, so on paper and under Windows High Contrast
- *   this carrier is gone. It is the third of four, and the two that carry the
- *   meaning survive both. Those two are the glyph and the words. It is not
- *   swapped for an `outline` because `app/product.css` already spends the
- *   control's outline on `:focus-visible`, and a focused invalid field would
- *   then show one state or the other rather than both.
- *   `--opsin-border-emphasis` carries its `2px` fallback for the same reason
- *   the two above carry theirs, and the consequence here is worse: an invalid
- *   `box-shadow` is not a short shadow but no shadow at all, so in an app
- *   without the token sheet the whole declaration drops and the third carrier
- *   is gone before forced-colors mode or a printer ever gets to it.
- *   `button.tsx` writes the token the same way.
+ *   AND a native constraint that failed. The shadow is an inset shadow rather
+ *   than a wider border so that the control itself does not move by a pixel when
+ *   the error appears, which is what marks WHICH control failed inside a Field
+ *   that has more than one. Know what the shadow costs on its own: a
+ *   `box-shadow` is dropped by forced-colors mode and by the docs stylesheet's
+ *   print rules, so on paper and under Windows High Contrast that one carrier is
+ *   gone. It is not swapped for an `outline` because `app/product.css` already
+ *   spends the control's outline on `:focus-visible`, and a focused invalid
+ *   field would then show one state or the other rather than both.
+ *   `--opsin-border-emphasis` carries its `2px` fallback for the same reason the
+ *   two above carry theirs, and the consequence for the shadow alone is worse:
+ *   an invalid `box-shadow` built from a token that fails to resolve is not a
+ *   short shadow but no shadow at all, so in an app without the token sheet the
+ *   whole declaration drops. `button.tsx` writes the token the same way.
+ *
+ *   Because a shadow can vanish that way, the invalid state has a fourth carrier
+ *   that does not: a real left rule on the root, `data-[invalid]:border-l-*`
+ *   with the width from `--opsin-border-emphasis` and the colour the `foreground`
+ *   role, set beside the root's `pl-opsin-3` so the copy clears it. A border is a
+ *   real property that forced-colors mode recolours to `CanvasText` and keeps,
+ *   and the printer draws, so the invalid field is marked as invalid on paper
+ *   and under Windows High Contrast where the shadow is not. This is the GOV.UK
+ *   and NHS error-group device. The cost, named rather than hidden: the field
+ *   indents by one space step at the moment it becomes invalid, so its column
+ *   shifts left to right by that step. That shift is accepted because an error
+ *   line appearing already reflows the column beneath it, so the field is moving
+ *   anyway, and the shadow stays precisely because it is the carrier that does
+ *   NOT move the control and so keeps pointing at the one that failed. So there
+ *   are four carriers that are not colour, the glyph, the words, the shadow and
+ *   the rule, and three of the four, the glyph, the words and now the rule,
+ *   survive forced colours and print. Only the shadow does not. That leaves one
+ *   gap the rule alone does not close: the rule sits on the field root, so under
+ *   forced colours it says a field failed without saying which control did, and
+ *   pointing at the offending control is the shadow's own job. The control
+ *   closes that gap in forced-colors mode alone with
+ *   `data-[invalid]:forced-colors:border-dashed`, which switches the control's
+ *   already-repainted system-ink border from solid to dashed. The style change
+ *   moves nothing by a pixel, needs no extra box, and leaves the
+ *   `:focus-visible` outline untouched, so a focused invalid field still shows
+ *   both. It is scoped to forced colours on purpose: outside that mode the
+ *   shadow already marks the control and a second edge would be noise, and print
+ *   stays a gap because the query does not fire on paper.
  *
  * AND ONE TRAP, because this list goes through `cn()` and the parts above do
  * not. `cn` is `twMerge(clsx(...))`, and tailwind-merge is unconfigured. It has
@@ -203,6 +240,7 @@ const CONTROL_CLASS = [
   "px-opsin-3 py-opsin-2",
   "placeholder:text-muted-foreground text-opsin-body",
   "data-[invalid]:shadow-[inset_0_0_0_var(--opsin-border-emphasis,2px)_currentColor]",
+  "data-[invalid]:forced-colors:border-dashed",
   "disabled:opacity-70",
 ].join(" ")
 
@@ -288,13 +326,16 @@ export interface FieldProps {
    * product has already decided to show. Defaults to `"submit-then-change"`:
    * never tell somebody their answer is wrong while they are still typing it.
    *
-   * Both submit values need Base UI's `<Form>` around the fields. Base UI gates
-   * them on a flag that only its own form primitive ever sets, so inside a
-   * plain `<form>` the constraints are checked on Enter in a text input and at
-   * no other moment. `"blur"` needs no `<Form>`. Passing `error` is unaffected
-   * either way, and is the path to be on.
+   * The `submit-then-change` default needs Base UI's `<Form>` around the fields,
+   * which `Field.Form` re-exports. Base UI gates it on a flag that only its own
+   * form primitive ever sets, so inside a plain `<form>` the constraints are
+   * checked on Enter in a text input and at no other moment. `"blur"` needs no
+   * `<Form>`. Field cannot warn you when the `<Form>` is missing, because it is
+   * a server component with no hook to read the form context from, so the
+   * mismatch is documented here rather than reported at runtime. Passing `error`
+   * is unaffected either way, and is the path to be on.
    */
-  validateOn?: "blur" | "submit" | "submit-then-change"
+  validateOn?: "blur" | "submit-then-change"
   /**
    * Merged onto the root. Field lays its own parts out in a column and leaves
    * the space BETWEEN fields to the form, which is the only place that knows
@@ -356,7 +397,10 @@ export function Field({
          a form library's verdict win over the browser's. */
       invalid={message !== undefined}
       validationMode={VALIDATION_MODE[validateOn]}
-      className={cn("flex w-full flex-col gap-opsin-2", className)}
+      className={cn(
+        "flex w-full flex-col gap-opsin-2 data-[invalid]:border-l-[length:var(--opsin-border-emphasis,2px)] data-[invalid]:border-l-foreground data-[invalid]:pl-opsin-3",
+        className,
+      )}
     >
       {/* `text-opsin-headline` is body size at the emphasis weight. It is the
           same size, leading and tracking as the answer the reader is about to
@@ -396,8 +440,6 @@ export function Field({
         </FieldPrimitive.Description>
       )}
 
-      {children}
-
       {/* ONE ELEMENT, TWO SOURCES OF WORDS.
           With `error`, `match` is forced on and the product's sentence is the
           content. That is the branch that should be taken in a shipped product.
@@ -413,7 +455,23 @@ export function Field({
 
           Both branches render the same element type in the same position, so
           React reuses the node and the id registered on the description
-          context does not churn. */}
+          context does not churn.
+
+          THE ERROR SITS ABOVE THE CONTROL, not below it, and the order is
+          label, hint, error, control. GOV.UK and the NHS put the message
+          before the control so a software keyboard or an autocomplete strip
+          cannot cover it, and on a phone held one-handed the line under the
+          control is the first thing the keyboard hides. This system already
+          answers the same question for the hint at
+          `../patterns/forms/question-pages.mdx`, and the flow in
+          `../patterns/forms/validation-timing.mdx` depends on the reader
+          watching the error clear while they type, which only works when the
+          message is above the caret rather than under the keyboard. What the
+          position does NOT change is what a screen reader announces: the hint
+          still registers before the error, so the control's `aria-describedby`
+          still reads hint then error, and no announcement moves. The spacing is
+          also unchanged, because the root's own `gap-opsin-2` sits the error
+          one gap above the control now rather than one gap below it. */}
       {message === undefined ? (
         <FieldPrimitive.Error data-slot="field-error" className={ERROR_CLASS} />
       ) : (
@@ -422,11 +480,15 @@ export function Field({
               em so it grows with the text rather than staying put while the
               words around it get bigger, and pushed down by a fraction of a
               line so it sits on the first line's baseline rather than at the
-              top of a two-line message. */}
-          <CircleAlert aria-hidden="true" className="mt-[0.2em] size-[1em] shrink-0" />
+              top of a two-line message. Set at 1.25em rather than 1em because a
+              monochrome glyph the same height as the type beside it reads as a
+              bullet, and this one has to read as a signal. */}
+          <CircleAlert aria-hidden="true" className="mt-[0.1em] size-[1.25em] shrink-0" />
           <span>{message}</span>
         </FieldPrimitive.Error>
       )}
+
+      {children}
     </FieldPrimitive.Root>
   )
 }
@@ -488,6 +550,34 @@ export function FieldControl({ className, ...props }: FieldControlProps) {
    function keeps its name in a stack trace and in React devtools. */
 Field.Control = FieldControl
 
+/** Props for `Field.Form`: Base UI Form's own props, re-exported unchanged. */
+export type FieldFormProps = FormProps
+
+/**
+ * Base UI's `<Form>`, re-exported with a `data-slot`.
+ *
+ * It is Base UI's Form and not a part of Field. The "one of three exceptions"
+ * note above is about Field's PARTS, and a Form is not one of them, so that
+ * claim stays true and needs no edit. What this export is for is narrower: the
+ * default `validateOn` does nothing without a `<Form>` ancestor, because Base
+ * UI's submit mode reads a flag only its own Form sets, so wrapping the fields
+ * in `<Field.Form>` is what makes `submit-then-change` fire on submit at all. A
+ * product that already runs a form library should keep that library and pass
+ * `error` instead, which never goes through a validation mode.
+ */
+export function FieldForm(props: FieldFormProps) {
+  /* No base class to merge, and Base UI's `className` can be a callback rather
+     than a string, which `cn()` does not take, so `className` passes straight
+     through in `props` rather than through `cn` the way `Field.Control`'s does.
+     Only `data-slot` is added, and it is placed after the spread so the wrapper
+     name wins over anything a caller passes. */
+  return <FormPrimitive {...props} data-slot="field-form" />
+}
+
+/* Assigned the same way as `Field.Control`, so the function keeps its name in a
+   stack trace and in React devtools. */
+Field.Form = FieldForm
+
 /**
  * The zero-prop default export (ADR 0009).
  *
@@ -499,20 +589,28 @@ Field.Control = FieldControl
  * it.
  *
  * The labels are deliberately unreal (ADR 0012). Nothing here is a measurement
- * anybody could mistake for their own, and the date is one nobody has.
+ * anybody could mistake for their own. The third field ships filled and invalid
+ * on purpose: it holds a year nobody has lived in, so no reader mistakes it for
+ * real data, and it carries a standing error precisely so the page can show the
+ * hint holding its place underneath rather than being swapped out for the
+ * message.
  *
  * `autoComplete="off"` is the one thing here NOT to copy. The accessibility
  * contract wants the reader's own stored details to be able to fill the field,
  * and `off` is the opt-out; it is used here because these fields collect
  * nothing real and a token like `bday` on "Example measurement" would be a
  * made-up answer to a made-up question. Replace it with the token for whatever
- * you are actually asking for. `inputMode` is set where it changes the keyboard
- * and omitted on the free-text note, where it does not.
+ * you are actually asking for. `inputMode` raises the number pad only where the
+ * answer is digits, or digits and a single separator: `decimal` for a
+ * measurement, which allows one separator, and `numeric` for a four-digit year,
+ * which is digits alone. It is omitted on the free-text note, where the default
+ * keyboard is the right one. A whole date is never asked for in one control here,
+ * because a numeric pad cannot type the separators a date needs.
  */
 export default function FieldDemo() {
   return (
     <div className="flex w-full max-w-md flex-col gap-opsin-6">
-      <Field label="Example measurement" hint="For example, 14.">
+      <Field label="Example measurement" hint="For example, 14">
         <Field.Control
           name="example-measurement"
           inputMode="decimal"
@@ -523,21 +621,21 @@ export default function FieldDemo() {
       <Field
         label="Example note"
         optionality="optional"
-        hint="Anything you want to remember about this entry."
+        hint="Anything you want to remember about this entry"
       >
         <Field.Control name="example-note" autoComplete="off" />
       </Field>
 
       <Field
-        label="Example date"
-        hint="For example, 27 3 1985."
-        error="Enter a date in the past."
+        label="Example year"
+        hint="For example, 1985"
+        error="Enter a year in the past."
       >
         <Field.Control
-          name="example-date"
+          name="example-year"
           inputMode="numeric"
           autoComplete="off"
-          defaultValue="27 3 3985"
+          defaultValue="2087"
         />
       </Field>
     </div>

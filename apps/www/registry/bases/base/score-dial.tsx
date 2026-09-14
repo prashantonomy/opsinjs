@@ -59,7 +59,7 @@
  * has displayed, for every frame of its travel, a score that is not true.
  */
 
-import { Check, Eye, OctagonAlert, TriangleAlert } from "lucide-react"
+import { Circle, CircleDot, Diamond, Octagon } from "lucide-react"
 
 import {
   CLINICAL_STATUS_META,
@@ -73,40 +73,50 @@ import {
   type HealthCategory,
 } from "@/lib/opsinjs"
 import { cn } from "@/lib/utils"
+import { StatusPill } from "@/registry/base-lyra/ui/status-pill"
 import { Value } from "@/registry/base-lyra/ui/value"
 
 /**
  * The glyph for each level, bound from `CLINICAL_STATUS_META[level].icon`.
  *
- * The same map StatusPill holds, and it is written out here rather than shared
- * for the reason the substrate contract gives: a registry file may import
- * `@/lib/utils`, `@/lib/opsinjs` and another registry component, and nothing
- * else, and a bundler cannot resolve a `lucide-react` export from a runtime
- * string without pulling the whole icon set into a consumer's bundle. Typing it
- * `Record<ClinicalStatus, …>` makes a missing level a compile error rather than
- * a status with no glyph.
+ * This map draws nothing on the dial. ScoreDial delegates the level to
+ * StatusPill, so the glyph a reader sees reaches the screen through the pill and
+ * this file paints no glyph of its own. The map is kept for two reasons. First,
+ * a file that stamps `data-status` and paints a status colour, which this one
+ * does on the indicator and on the one tinted band, must both read
+ * `CLINICAL_STATUS_META` and reference a `lucide-react` icon, or A11Y001 reads
+ * the status as carried by colour alone. The gate downgrades a composed carrier
+ * to a warning rather than crediting it, so the reference has to stay in the
+ * file. Second, it asserts against `lib/status.ts` below, so the two copies of
+ * the level-to-glyph mapping cannot drift apart. It is written out here rather
+ * than imported for the reason the substrate contract gives: a registry file may
+ * import `@/lib/utils`, `@/lib/opsinjs` and another registry component and
+ * nothing else, and a bundler cannot resolve a `lucide-react` export from a
+ * runtime string without pulling the whole icon set into a consumer's bundle.
+ * Typing it `Record<ClinicalStatus, …>` makes a missing level a compile error
+ * rather than a status with no glyph.
  */
-const ICONS: Record<ClinicalStatus, typeof Check> = {
-  steady: Check,
-  watch: Eye,
-  attention: TriangleAlert,
-  urgent: OctagonAlert,
+const ICONS: Record<ClinicalStatus, typeof Circle> = {
+  steady: Circle,
+  watch: CircleDot,
+  attention: Diamond,
+  urgent: Octagon,
 }
 
 /* Development-only, and the same assertion StatusPill carries. If somebody
-   changes an icon name in lib/status.ts and not here, this file keeps drawing a
-   plausible glyph for the wrong level. That is the precise failure the
-   four-distinct-shapes rule exists to prevent, and it is invisible in review
-   because the dial still looks right. */
+   changes an icon name in lib/status.ts and not here, the two copies of the
+   level-to-glyph mapping have drifted, and this warns so the lucide reference
+   this file keeps for A11Y001 stays honest about which glyph each level owns. */
 if (isDevelopment()) {
   for (const [level, Icon] of Object.entries(ICONS)) {
     const expected = CLINICAL_STATUS_META[level as ClinicalStatus].icon
     const actual = (Icon as { displayName?: string }).displayName
     if (actual && actual !== expected) {
       console.warn(
-        `[opsinjs] ScoreDial renders <${actual}> for status "${level}", but ` +
-          `CLINICAL_STATUS_META says the icon is "${expected}". Fix ICONS in ` +
-          "score-dial.tsx; the four levels must be four distinct glyph shapes.",
+        `[opsinjs] ScoreDial's ICONS map binds <${actual}> to status "${level}", ` +
+          `but CLINICAL_STATUS_META says the icon is "${expected}". The dial draws ` +
+          "no glyph itself; StatusPill does. Fix ICONS in score-dial.tsx so this " +
+          "file's reference to lib/status.ts does not drift.",
       )
     }
   }
@@ -202,19 +212,20 @@ const CATEGORY_TONE: Record<HealthCategory, string> = {
 }
 
 /**
- * The two class lists that have to sit beside a colour, kept whole.
+ * The label's class list, kept whole because a type step sits beside a colour.
  *
  * `cn()` cannot be used where a type step meets a colour. tailwind-merge
  * classifies an unfamiliar `text-*` utility as a colour, so
- * `cn("text-opsin-footnote", "text-status-urgent-ink")` returns only the second
- * and the element silently loses its size, its leading, its tracking and its
- * weight. That is verified against tailwind-merge 3.6.0. Joining them with a
+ * `cn("text-opsin-subheadline", "text-category-labs-ink")` returns only the
+ * second and the element silently loses its size, its leading, its tracking and
+ * its weight. That is verified against tailwind-merge 3.6.0. Joining them with a
  * template passes both through, and the two utilities set different CSS
  * properties, so both apply. Every place in this file where a type step meets a
- * colour is written this way.
+ * colour is written this way. The status word no longer lives here: it is a
+ * StatusPill now, the one capsule every status-bearing component shares, so its
+ * ink and boundary are the pill's concern rather than this file's.
  */
 const LABEL_ROW = "m-0 text-center text-opsin-subheadline"
-const STATUS_ROW = "m-0 inline-flex items-center gap-opsin-1 text-opsin-footnote"
 
 /**
  * Which of this file's own complaints the session has already printed.
@@ -408,6 +419,19 @@ export interface ScoreDialProps {
    */
   derivation: string
   /**
+   * Decimal places for the score, from the product, and required here rather
+   * than optional as it is on Value. A composite score is arithmetic, so a
+   * fractional double is the ordinary case rather than the edge, and with
+   * nothing stated one IEEE 754 double prints as many as seventeen digits in a
+   * single tabular token that has no break opportunity, which is wider than a
+   * phone column at 200 percent text. Precision belongs to the metric and
+   * opsinjs invents no default, which is why the prop is required here rather
+   * than defaulted. The file ships as source into JavaScript projects, where a
+   * required prop is advice rather than a guarantee: a caller who omits it gets
+   * one console report and the number keeps the digits it arrived with.
+   */
+  precision: number
+  /**
    * How much of the expected input the score was actually calculated from, as
    * in `{ available: 4, expected: 6 }`. When it is short the dial says so on
    * its face, because a reader has no other way to know that today's number
@@ -423,8 +447,9 @@ export interface ScoreDialProps {
    */
   category?: HealthCategory
   /**
-   * When the score was calculated, ISO 8601. Rendered as a date beside the
-   * derivation. It gets no staleness treatment and no relative phrasing: a
+   * When the score was calculated, ISO 8601. It renders on its own labelled
+   * line, and a dial that has a score but no instant says in words that nobody
+   * knows when it was calculated. It gets no staleness treatment and no relative phrasing: a
    * relative phrase needs the instant to measure against, which this API does
    * not carry, and a staleness window is a number opsinjs does not own for any
    * metric. A caller who needs "2 hours ago", or needs an old score to LOOK
@@ -432,15 +457,6 @@ export interface ScoreDialProps {
    * whole screen. This prop is not `measuredAt`: nothing here was measured.
    */
   calculatedAt?: string
-  /**
-   * Decimal places for the score, from the product. Omitted, the number is
-   * shown with exactly the digits it arrived with. Nothing is rounded and
-   * nothing is padded, because precision belongs to the metric and there is no
-   * honest default for a composite score. It is load-bearing for layout as well
-   * as for honesty: an unstated precision can print nineteen digits of a double
-   * as one unbreakable token.
-   */
-  precision?: number
   /** BCP 47 locale for every number and the date. Omitted, the reader's own environment decides. */
   locale?: string
   /**
@@ -532,10 +548,17 @@ export function ScoreDial({
   coverage,
   category,
   calculatedAt,
-  precision,
+  precision: declaredPrecision,
   locale,
   className,
 }: ScoreDialProps) {
+  /* PRECISION IS REQUIRED IN THE TYPE, ADVICE IN JAVASCRIPT. The prop is typed
+     `number`, so a TypeScript caller cannot omit it. This file ships as source
+     into JavaScript projects, where a required prop is advice rather than a
+     guarantee, so the value is re-widened once to `number | undefined` and every
+     runtime check below reads a value that genuinely might not be a number. */
+  const precision: number | undefined = declaredPrecision
+
   /* THE SCALE HAS TO BE A SCALE. A span of zero or less has no positions in it,
      and every fraction below would be a division by zero rendered as an
      indicator pinned to one end. That is a picture that says something definite
@@ -663,6 +686,30 @@ export function ScoreDial({
     )
   }
 
+  /* PRECISION IS REQUIRED, AND THE RUNTIME HAS TO AGREE WITH THE TYPE. The type
+     is `precision: number` because a composite score is arithmetic and a
+     fractional double is the ordinary case: with nothing stated Value rounds
+     nothing, and one IEEE 754 double prints up to seventeen digits in a single
+     tabular token with no break opportunity, which is wider than a phone column.
+     This file ships as source into JavaScript projects, where a required type is
+     advice a caller can ignore, so a non-number is reported (keyed on the
+     complaint, not the value) and `undefined` is passed on to Value and to the
+     spoken score. That keeps the fallback of showing the digits as handed rather
+     than substituting a number this component did not choose. */
+  const precisionGiven = typeof precision === "number"
+  if (!precisionGiven) {
+    reportOnce(
+      "precision",
+      "[opsinjs] <ScoreDial> was rendered with no numeric `precision`, so the score " +
+        "was shown with exactly the digits it arrived with. A composite score is " +
+        "arithmetic, so a fractional double is the ordinary case, and an unstated " +
+        "precision can print as many as seventeen digits in one tabular token that " +
+        "is wider than a phone column at large text. Pass the decimal places your " +
+        "metric is meaningful to, as precision={1}; opsinjs invents no default.",
+    )
+  }
+  const resolvedPrecision = precisionGiven ? precision : undefined
+
   const coverageShort =
     coverage !== undefined &&
     Number.isFinite(coverage.available) &&
@@ -699,18 +746,18 @@ export function ScoreDial({
      say exactly that rather than reaching for a nearby one: a band this
      component chose would be a score interpretation with no clinical owner. */
   const bandWords = broken
-    ? "No band, because the score did not arrive."
+    ? "No range is named, because the score could not be worked out."
     : score === null
-      ? "No band, because there is no score."
+      ? "No range is named, because there is no score yet."
       : !scaleUsable
         ? "We cannot place this score, because the scale has no width."
         : offScale
-          ? "We cannot place this score, because it is outside the scale it was given."
+          ? `This score is outside the ${plain(min, locale)} to ${plain(max, locale)} scale, so we cannot show where it sits.`
           : band
             ? band.name
             : usableBands.length === 0
-              ? "We do not have bands for this score."
-              : "We do not have a band for this score."
+              ? "This score has no named ranges, so we cannot say what it means."
+              : "This score is not inside any of the named ranges, so we cannot say what it means."
 
   /* The same three states again, in the same words `Value` prints for them, so
      the ear and the eye get one answer between them. */
@@ -718,7 +765,7 @@ export function ScoreDial({
     ? "not available"
     : score === null
       ? "no score yet"
-      : spokenScore(score, precision, locale)
+      : spokenScore(score, resolvedPrecision, locale)
 
   /* "on a scale of" rather than "out of". This component's own specification is
      explicit that a score is not a mark out of its upper bound, and "out of" is
@@ -727,17 +774,17 @@ export function ScoreDial({
   const scaleSentence = `On a scale of ${plain(min, locale)} to ${plain(max, locale)}.`
   const derivationWords = derivationGiven
     ? derivation
-    : "We cannot say what went into this score."
+    : "This app does not say how the score was worked out."
   /* ATTRIBUTION IS ALL-OR-NOTHING. The gate is `bandSourcesComplete`, not
-     "some band named a source": printing "Bands from Dr Okafor's 2025 review."
+     "some band named a source": printing "Ranges from Dr Okafor's 2025 review."
      over a list where only the first interval came from that review credits the
      rest of the scale to somebody who never chose it, which is a
      reference-range-class claim with a false author. That is the thing
      OPSIN-0004 exists to stop. One unattributed band makes the whole set
      unattributed. */
   const bandSourceWords = bandSourcesComplete
-    ? `Bands from ${bandSources.join("; ")}.`
-    : "We do not know whose bands these are."
+    ? `Ranges from ${bandSources.join("; ")}.`
+    : "Nobody is named as setting these ranges."
 
   /* The level is about the reading, so with no reading there is no level to
      show. It is not attached to the band: a band is a stretch of a scale and a
@@ -763,8 +810,6 @@ export function ScoreDial({
   ]
     .filter((part) => part !== "")
     .join(" ")
-
-  const StatusIcon = shownLevel === undefined ? undefined : ICONS[shownLevel]
 
   /* THE INTERNAL EDGES, BY VALUE RATHER THAN BY POSITION IN THE ARRAY. The API
      permits unordered and non-contiguous bands and says this component does not
@@ -816,8 +861,22 @@ export function ScoreDial({
            A score sitting inside the ring is the arrangement that breaks first
            when a reader turns their text up, and the requirement is that the
            derivation sentence never truncates. Laying it out this way once
-           means 200% is not a special case that has to be remembered. */
-        "flex w-full max-w-[32em] flex-col items-center gap-opsin-2 text-opsin-body",
+           means 200% is not a special case that has to be remembered.
+
+           The rhythm is two levels and only two. `gap-opsin-4` (16px) separates
+           the blocks of the root from each other, which space.json names as the
+           default gap between elements inside a card; `gap-opsin-2` (8px), whose
+           published use is the gap between tightly related lines, separates the
+           lines inside one block. Neither reaches for the 2px step space.json
+           calls an optical nudge rather than a layout step.
+
+           The column is capped at `--opsin-measure-comfortable`, the measure
+           token whose published use is the maximum line length for prose
+           anywhere in the product, which is the job the widest thing here does:
+           the derivation sentence. The 66ch fallback keeps the cap for a
+           consumer who installed the component without the token layer. The arc
+           inside keeps its own narrower cap. */
+        "flex w-full max-w-(--opsin-measure-comfortable,66ch) flex-col items-center gap-opsin-4 text-opsin-body",
         className
       )}
     >
@@ -841,19 +900,43 @@ export function ScoreDial({
         aria-label={spoken}
         focusable="false"
         viewBox={`0 0 ${String(VIEW_WIDTH)} ${String(VIEW_HEIGHT)}`}
-        /* Sized in em rather than px so the arc grows with the reader's own
-           text size instead of staying put while the words around it grow. */
-        className="h-auto w-full max-w-[16em]"
+        /* Capped by the --opsin-graphic-dial token, which is spelled in rem so
+           the arc grows with the reader's root font size instead of staying put
+           while the words around it grow. The cap still yields to w-full when the
+           column is narrower than the token, so a cramped layout shrinks the arc
+           rather than clipping it. */
+        className="h-auto w-full max-w-(--opsin-graphic-dial,17rem)"
       >
+        {/* Forced colours repaints boxes, borders and text with the system
+            palette, but it leaves an SVG stroke where the author set it, so a
+            pale neutral arc stays pale on a theme somebody turned on precisely
+            because pale lines are invisible to them. Each stroke below carries a
+            `forced-colors:` rule that maps it to a system colour: the track, the
+            unfilled bands, the boundary marks and the indicator become
+            `CanvasText`, and the one band the reading fell in becomes
+            `Highlight` so it stays distinct from the track. All four status
+            levels collapse to that one `Highlight` under the mode, which costs
+            nothing on this surface because the band name and the StatusPill
+            beneath the dial already carry the level in a word and a glyph. */}
         {/* The full sweep, always fully drawn, so the scale's extent is visible
-            whether or not there is a score to place on it. */}
+            whether or not there is a score to place on it. The colour is the
+            `--border` role, and it is worth naming what that role now is:
+            wave-1 token work moved `--border` onto the neutral ladder at a
+            mid-ramp step in both themes, so the arc is a rail a reader can see
+            rather than the faint hairline that measured below every floor
+            before. The pair this component composes, the arc against the card
+            it sits on, is not yet in the measured set: `lib/generated/contrast.json`
+            still holds only a hairline-on-page row from before the role moved,
+            not a border-on-card row for the colour now drawn. What that pairing
+            measures is therefore recorded in this change's state file rather than
+            in the rig, and no figure is typed here. */}
         <path
           d={TRACK_PATH}
           fill="none"
           stroke="currentColor"
           strokeWidth={TRACK_WIDTH}
           strokeLinecap="butt"
-          className="text-border"
+          className="text-border forced-colors:stroke-[CanvasText]"
         />
 
         {scaleUsable
@@ -879,14 +962,26 @@ export function ScoreDial({
                   strokeLinecap="butt"
                   strokeDasharray={`${String(round(reach))} 100`}
                   strokeDashoffset={-round(opens * 100)}
-                  className={active && shownLevel ? BAND_TONE[shownLevel] : "text-border"}
+                  className={
+                    active && shownLevel
+                      ? `${BAND_TONE[shownLevel]} forced-colors:stroke-[Highlight]`
+                      : "text-border forced-colors:stroke-[CanvasText]"
+                  }
                 />
               )
             })
           : null}
 
         {/* Boundary marks: how the bands are told apart with no colour at all,
-            alongside their position and their names below. */}
+            alongside their position and their names below. They take
+            `text-foreground`, the darkest ink in light and the lightest in
+            dark, because the track is now a mid-ramp neutral rail and a mark in
+            the muted role would sit a single step from it. Foreground is the one
+            neutral that separates from that rail in both themes. It leaves a
+            boundary mark and a no-status indicator the same colour, and the two
+            stay told apart by geometry alone: a mark is 1.5 wide and reaches 7
+            either side of the track, while the indicator is 4 wide, reaches 10
+            and carries a round cap, all fixed by the geometry constants above. */}
         {boundaries.map((edge) => {
           const inner = pointAt(edge, RADIUS - BOUNDARY_REACH)
           const outer = pointAt(edge, RADIUS + BOUNDARY_REACH)
@@ -900,7 +995,7 @@ export function ScoreDial({
               y2={outer.y}
               stroke="currentColor"
               strokeWidth={1.5}
-              className="text-muted-foreground"
+              className="text-foreground forced-colors:stroke-[CanvasText]"
             />
           )
         })}
@@ -916,18 +1011,37 @@ export function ScoreDial({
             stroke="currentColor"
             strokeWidth={INDICATOR_WIDTH}
             strokeLinecap="round"
-            className={shownLevel ? INDICATOR_TONE[shownLevel] : "text-foreground"}
+            className={
+              shownLevel
+                ? `${INDICATOR_TONE[shownLevel]} forced-colors:stroke-[CanvasText]`
+                : "text-foreground forced-colors:stroke-[CanvasText]"
+            }
           />
         )}
       </svg>
 
       <div
         data-slot="score-dial-reading"
-        className="flex flex-col items-center gap-opsin-0-5 text-center"
+        className="flex flex-col items-center gap-opsin-2 text-center"
       >
         <span data-slot="score-dial-score">
+          {/* A composite score is unitless by definition: it is arithmetic over
+              other numbers, not a quantity in any unit. `unit={null}` is the
+              caller declaring that on purpose, which is a different statement
+              from omitting the prop. It renders the digits alone and, since
+              06.b widened Value's unit to accept null, it stops OPSIN-0003
+              firing here while the warning stays intact for every caller who
+              genuinely forgot a unit on a real measurement. */}
           <Value
             value={value}
+            unit={null}
+            /* `precision` is required on Value and is a `number` here, because
+               it is ScoreDial's own required prop passed straight through. A
+               caller who defies the type and hands a non-number is caught by
+               Value's own precision guard, which falls back to the digits as
+               handed, so the "digits as arrived" behaviour is preserved without
+               widening Value's contract. `resolvedPrecision` still feeds the
+               spoken score, where an unstated precision means silence. */
             precision={precision}
             locale={locale}
             absenceLabel="no score yet"
@@ -936,33 +1050,65 @@ export function ScoreDial({
         </span>
 
         {/* Never omitted, never colour alone, and no prop of this component
-            removes it. */}
-        <p data-slot="score-dial-band-name" className="m-0 text-opsin-headline">
+            removes it. A real range name is the boldest line under the number,
+            at the headline step; a sentence admitting nothing can be said drops
+            to body weight, so the loudest thing on the surface is never the
+            admission that the surface has nothing to tell the reader. The class
+            is computed from the same `band` value the words are, so the two
+            cannot fall out of step. */}
+        <p
+          data-slot="score-dial-band-name"
+          className={`m-0 ${band ? "text-opsin-headline" : "text-opsin-body"}`}
+        >
           {bandWords}
         </p>
 
-        {shownLevel && StatusIcon ? (
-          <p
-            data-slot="score-dial-status"
-            data-status={shownLevel}
-            className={`${STATUS_ROW} ${INDICATOR_TONE[shownLevel]}`}
-          >
-            {/* Decorative: the word beside it carries the meaning, and
-                announcing the glyph too would say the level twice. */}
-            <StatusIcon aria-hidden="true" className="size-[1em] shrink-0" />
-            <span>{CLINICAL_STATUS_META[shownLevel].word}</span>
-          </p>
+        {/* The level the product assigned, delivered as a StatusPill: the one
+            capsule every status-bearing component in the system shares, at its
+            own md size, so the same level reads as the same object here as on a
+            card or a sparkline. The pill carries the word, a distinct glyph and
+            the colour together and stamps its own data-status; the indicator and
+            the one tinted band inside the arc carry the second copy of the
+            colour. `describes` gives a listener the subject the level applies to,
+            so the pill is not heard as a floating word. */}
+        {shownLevel !== undefined ? (
+          <StatusPill status={shownLevel} describes={label} />
         ) : null}
       </div>
 
+      {/* Coverage is the reading's meaning, not its provenance: it tells a
+          reader that today's number rests on part of the usual evidence, which
+          they have no other way to learn. So it is promoted to its own line at
+          the subheadline step in the foreground colour, directly under the
+          reading, rather than spliced as a footnote clause into the derivation
+          paragraph where the SafetyCallout's "on its face" requirement was not
+          being met. */}
+      {coverageShort && coverage ? (
+        <p
+          data-slot="score-dial-coverage"
+          className="m-0 text-center text-opsin-subheadline"
+        >
+          Based on {plain(coverage.available, locale)} of {plain(coverage.expected, locale)}.
+        </p>
+      ) : null}
+
+      {/* The scale bounds are the reading's meaning too, so the scale sentence
+          sits at the subheadline step in the foreground colour, and the band
+          list sits there with it: the named ranges and which one the number
+          landed in are the reading's meaning, not provenance, and a reader over
+          sixty should not have to squint at grey footnote text to learn what the
+          product's ranges are. What stays a footnote in the muted colour is
+          provenance: whose bands these are, and the derivation below. The step
+          and the colour are joined per element as plain strings, never through
+          cn(), for the reason the LABEL_ROW docblock gives. */}
       <div
         data-slot="score-dial-scale"
-        className="flex flex-col items-center gap-opsin-0-5 text-center text-opsin-footnote text-muted-foreground"
+        className="flex flex-col items-center gap-opsin-2 text-center"
       >
-        <p className="m-0">{scaleSentence}</p>
+        <p className="m-0 text-opsin-subheadline">{scaleSentence}</p>
         {usableBands.length > 0 && scaleUsable ? (
           <>
-            <ul className="m-0 flex list-none flex-col gap-opsin-0-5 p-0">
+            <ul className="m-0 flex list-none flex-col gap-opsin-2 p-0 text-opsin-subheadline">
               {usableBands.map((entry, index) => (
                 <li key={`${String(index)}:${String(entry.from)}:${entry.name}`}>
                   {plain(entry.from, locale)} up to {plain(entry.to, locale)} is {entry.name}
@@ -972,7 +1118,10 @@ export function ScoreDial({
             {/* Whose bands these are. A band set is a comparison somebody chose,
                 and the reader is entitled to the name. Where there isn't one,
                 they are entitled to be told so plainly. */}
-            <p data-slot="score-dial-band-source" className="m-0">
+            <p
+              data-slot="score-dial-band-source"
+              className="m-0 text-opsin-footnote text-muted-foreground"
+            >
               {bandSourceWords}
             </p>
           </>
@@ -981,29 +1130,59 @@ export function ScoreDial({
           /* The band list is suppressed rather than left standing, because a
              reader told "we cannot place this score" while looking at a list
              whose first row contains it has been given two answers. */
-          <p className="m-0">No bands are shown, because the scale has no width.</p>
+          <p className="m-0 text-opsin-footnote text-muted-foreground">
+            No ranges are shown, because the scale has no width.
+          </p>
         ) : null}
       </div>
 
+      {/* Provenance, and only provenance: what went into the score. When it was
+          calculated is now its own labelled line below, rather than a token at
+          the tail of this sentence. Coverage used to open this paragraph as a
+          footnote clause; it is now its own subheadline line above the scale,
+          because it is the reading's meaning rather than a note about where it
+          came from. */}
       <p
         data-slot="score-dial-derivation"
         className="m-0 text-center text-opsin-footnote text-muted-foreground"
       >
-        {coverageShort && coverage ? (
-          <span data-slot="score-dial-coverage">
-            Based on {plain(coverage.available, locale)} of {plain(coverage.expected, locale)}.{" "}
-          </span>
-        ) : null}
         {derivationWords}
-        {calculatedOn === undefined ? null : (
-          <>
-            {" "}
-            <time data-slot="score-dial-calculated-at" dateTime={calculatedAt}>
-              {calculatedOn}
-            </time>
-          </>
-        )}
       </p>
+
+      {/* When the score was calculated, on its own labelled line. It is the last
+          block of the column: it sits after the coverage line, the scale block
+          and the derivation rather than directly under the reading. It is
+          provenance, so the tail of the column with the other provenance lines is
+          where it belongs, and the visible order runs reading, coverage, scale,
+          derivation, then this instant. This is a departure from the finding's
+          named placement (directly under the reading), taken because the score,
+          the band name and the StatusPill are one reading group and an instant
+          wedged into it would split the subject from its level. It is
+          deliberately NOT added to the arc's `spoken` label above:
+          foundations/data-visualisation/accessible-charts.mdx defines that
+          summary as metric, window, direction, coverage and caveat, and a
+          calculation instant is provenance, which a linear reader now reaches as
+          an ordinary line at the end. A dial with no score has no instant to
+          name, the same gate the reading applies, so nothing renders when the
+          score is null. */}
+      {score === null ? null : (
+        <p
+          data-slot="score-dial-calculated-line"
+          className="m-0 text-center text-opsin-footnote text-muted-foreground"
+        >
+          {calculatedOn === undefined ? (
+            "We do not know when this score was calculated."
+          ) : (
+            <>
+              Calculated{" "}
+              <time data-slot="score-dial-calculated-at" dateTime={calculatedAt}>
+                {calculatedOn}
+              </time>
+              .
+            </>
+          )}
+        </p>
+      )}
     </div>
   )
 }
@@ -1033,7 +1212,8 @@ export default function ScoreDialDemo() {
       max={20}
       precision={0}
       bands={[]}
-      derivation={`${EXAMPLE_SOURCE}. The score and the scale here are invented, nothing was calculated from anybody, and no bands are supplied because opsinjs has none to supply.`}
+      calculatedAt="2026-03-14T08:12:00+00:00"
+      derivation={`${EXAMPLE_SOURCE}. The score and the scale here are invented, nothing was calculated from anybody, and no named ranges are supplied because opsinjs has none to supply.`}
     />
   )
 }

@@ -10,23 +10,24 @@
  * alert-dialog root in. That is one decision rather than four props a later
  * edit could get three-quarters right.
  *
- * ESCAPE IS REFUSED, AND THE ANSWER TO IT IS INCOMPLETE. The key never closes
- * this dialog. That half holds in every configuration. What it then does is
- * return focus to the last action, which is a response for a reader whose focus
- * had moved into the description or onto the other button, and is nothing at
- * all here: `initialFocus` defaults to `safest`, focus is already on *Use this
- * device*, and focusing the element that already has focus produces no event,
- * no ring and no announcement. Press Escape first, before moving anywhere, and
- * the key is silent.
+ * ESCAPE IS REFUSED, AND THE REFUSAL IS ANSWERED. The key never closes this
+ * dialog, and that half holds in every configuration. What it then does is
+ * move focus to the dialog container, which carries `role="alertdialog"`, the
+ * name and the description, so a screen reader re-reads the question and its
+ * consequence rather than saying nothing. Press Escape without moving anywhere
+ * first, and the ring leaves *Use this device* for the container and the
+ * reader hears the reason they are still here. This works because the
+ * container is never the element that already has focus, so the announcement
+ * fires even in the default `initialFocus="safest"` case.
  *
- * That gap is on the component's page under the things nobody has answered, and
- * it is worth seeing in the example rather than reading about: an alert dialog
- * is the one surface where a reader who cannot see the screen has the least to
- * go on. What the key does NOT do, in any configuration, is produce a sentence
+ * What the key still does NOT do, in any configuration, is produce a sentence
  * about needing an answer, because that sentence is about this product's own
  * two answers and opsinjs does not know what they mean. It belongs in the
  * description, which is why the component warns in development when an alert
- * dialog ships without one.
+ * dialog ships without one. That residual is on the component's page under the
+ * things nobody has answered, and it is worth seeing in the example rather than
+ * reading about: an alert dialog is the one surface where a reader who cannot
+ * see the screen has the least to go on.
  *
  * WHY THIS QUESTION QUALIFIES AND ALMOST NONE DO. There is no state of the
  * world in which going away is a valid answer here: recording has to happen on

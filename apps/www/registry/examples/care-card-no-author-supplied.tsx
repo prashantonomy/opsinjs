@@ -37,7 +37,7 @@ export default function CareCardNoAuthorSupplied() {
           With nobody named as asking
         </p>
         <CareCard
-          heading="Repeat the example measurement in three months"
+          heading="Repeat the example measurement in 3 months"
           urgency="when-convenient"
           /* Empty, deliberately. This is the state the component is refusing to
              make invisible, and it is one console warning as well as one line on
@@ -51,7 +51,7 @@ export default function CareCardNoAuthorSupplied() {
           With the author named
         </p>
         <CareCard
-          heading="Repeat the example measurement in three months"
+          heading="Repeat the example measurement in 3 months"
           urgency="when-convenient"
           attribution="An automatic reminder from this example app, not a message from your clinic"
           reason="A repeat of this example measurement is due."

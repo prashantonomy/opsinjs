@@ -12,10 +12,19 @@
  *
  *   steady    no role, no live region. Ordinary content in the reading order.
  *   watch     the same.
- *   attention `aria-live="polite"` and `aria-atomic="true"` on the root. It
- *             waits for a gap in whatever the reader is listening to.
- *   urgent    `role="alert"`, which implies assertive and atomic, with
- *             `aria-atomic="true"` written out anyway. It interrupts.
+ *   attention `aria-live="polite"` and `aria-atomic="true"` on an inner
+ *             wrapper. It waits for a gap in whatever the reader is listening
+ *             to.
+ *   urgent    `role="alert"` on that same wrapper, which implies assertive and
+ *             atomic, with `aria-atomic="true"` written out anyway. It
+ *             interrupts.
+ *
+ * THE LIVE REGION IS AN INNER WRAPPER, NOT THE ROOT. It holds only the heading
+ * and the body, so an announcement carries the level and the sentence and
+ * nothing else. The actions, the dismiss control and any timestamp are direct
+ * children of the section after it and sit outside the region, so a reader
+ * reaches them as controls rather than hearing them read out inside an atomic
+ * string, and a control or a timestamp that changes re-announces nothing.
  *
  * A BANNER PRESENT WHEN THE PAGE LOADS SHOULD NOT BE ANNOUNCED AS A CHANGE, and
  * this file implements exactly none of that. Screen readers do not announce
@@ -72,8 +81,8 @@ import {
   type ClinicalStatus,
 } from "@/lib/opsinjs"
 import { cn } from "@/lib/utils"
-import { Button } from "@/registry/base-lyra/ui/button"
-import { RelativeTime } from "@/registry/base-lyra/ui/relative-time"
+import { Button, cardActionClassName } from "@/registry/base-lyra/ui/button"
+import { Link } from "@/registry/base-lyra/ui/link"
 import { StatusPill } from "@/registry/base-lyra/ui/status-pill"
 
 /**
@@ -162,16 +171,39 @@ const TONE: Record<ClinicalStatus, string> = {
 }
 
 /**
- * The ink for a composed Button with no opaque fill of its own. The dismiss
- * control at every level takes it, and so does a second action supplied as
- * `onSelect`.
+ * The boundary role per level, for a control that draws its own edge on the
+ * banner. It is the bare `-<level>` LINE role, written out as literals because
+ * Tailwind reads class names as literal strings and `border-status-${status}`
+ * generates no CSS at all.
  *
- * `Button variant="quiet"` is transparent with `text-foreground`, and
- * `--foreground` is the page's ink rather than this surface's. On a tinted fill
- * that pair is unmeasured in both themes; `-ink` on `-surface` is the pair the
- * ramps are built to guarantee. A control that DOES bring an opaque fill keeps
- * the neutral ink that belongs with that fill, and is left alone. Those
- * controls are ACTION_LINK and `Button variant="secondary"`.
+ * `lib/generated/contrast.json` records line-on-surface at WCAG 4.45 to 5.09 in
+ * light and 7.99 to 8.17 in dark for the four levels, all above the 3:1
+ * non-text floor, so a control drawn with it needs no new measurement. It is
+ * the same role `TONE` already uses for the banner's own edge; here it is
+ * handed to a control that is not the banner.
+ */
+const LINE_EDGE: Record<ClinicalStatus, string> = {
+  steady: "border-status-steady",
+  watch: "border-status-watch",
+  attention: "border-status-attention",
+  urgent: "border-status-urgent",
+}
+
+/**
+ * The ink for a composed Button, addressed at the wrapper as a `[&_button]`
+ * selector so it reaches every Button the banner draws: the `onSelect` form of
+ * an action and the dismiss control. The `href` form is an anchor rather than a
+ * Button, so the selector leaves it alone and it takes the same level ink
+ * straight from the surface's inherited TONE. No control on this surface brings
+ * an opaque fill of its own any more, so each one inherits whatever colour
+ * cascades in, and on a status tint that has to be the level's own `-ink`.
+ *
+ * The override is load-bearing because `Button variant="quiet"` now asserts
+ * `[color:var(--primary)]` rather than inheriting. Left alone a quiet Button
+ * would paint the brand action colour on a clinical tint, a cross-axis pair
+ * nothing has measured. `-ink` on `-surface` is the pair the ramps are built to
+ * guarantee, recorded at WCAG 9.62 to 12.74 in `lib/generated/contrast.json`,
+ * so the wrapper hands the level's ink down and the quiet default never shows.
  *
  * IT IS ADDRESSED AT THE WRAPPER AS A DESCENDANT SELECTOR, AND THAT IS A
  * REPAIR RATHER THAN A PREFERENCE. Passed through Button's own `className`,
@@ -223,61 +255,6 @@ const HEADING_TAGS: Record<AlertHeadingLevel, "h2" | "h3" | "h4" | "h5" | "h6"> 
 function isAlertHeadingLevel(value: unknown): value is AlertHeadingLevel {
   return value === 2 || value === 3 || value === 4 || value === 5 || value === 6
 }
-
-/**
- * The 44pt floor, in rem so it grows with the reader's text size.
- *
- * Both axes, because SC 2.5.8 is a 44×44 region rather than a 44-tall strip.
- * The fallback inside the `var()` is the load-bearing part: written without one
- * the declaration is invalid at computed-value time in a project that installed
- * this file without `tokens.generated.css`, and the floor vanishes with no
- * error anywhere. Button spells the same floor the same way.
- */
-const TARGET_FLOOR =
-  "min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem)"
-
-/**
- * A navigating action, which is an anchor and does not pretend to be a button.
- *
- * `Button` is always a real `<button>`, because it has no `href` and refuses to
- * grow one. So rather than copy its emphasis ladder into a second file where
- * the two can drift, the anchor takes its prominence from an opaque fill, a
- * boundary and a target, and keeps its underline so it is announced and read as
- * a link.
- *
- * THE FILL IS NEUTRAL AND OPAQUE ON PURPOSE. The banner's own fill changes with
- * the level, and a control that inherited it would need four measured contrast
- * pairs instead of one. In two themes, that is eight. `bg-card` with
- * `text-foreground` is the pair the rest of the system already uses for a
- * control, and it reads as a control against every one of the four tints.
- */
-const ACTION_LINK =
-  `inline-flex ${TARGET_FLOOR} max-w-full items-center justify-center ` +
-  "rounded-opsin-md border border-border bg-card px-opsin-5 py-opsin-2 " +
-  "text-center text-opsin-headline text-foreground underline underline-offset-4 " +
-  "hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-
-/**
- * The quieter alternative, navigating. Same floor, no fill, smaller step.
- *
- * It sets no text colour, so it inherits the level's `-ink` from the root,
- * which is the rule every control on this surface follows: one that brings an
- * opaque fill of its own takes the neutral ink that belongs with that fill, and
- * one with no fill takes the level's.
- *
- * `hover:bg-muted` is the same pointer feedback the filled link and the dismiss
- * control already give. Without it this was the one control on the banner that
- * answered a pointer with nothing at all. It puts a neutral fill under status
- * ink for the duration of the hover, which is a cross-scope pair nothing has
- * measured. It is listed on the page with the others rather than left to be
- * found.
- */
-const SECONDARY_LINK =
-  `inline-flex ${TARGET_FLOOR} max-w-full items-center justify-center ` +
-  "rounded-opsin-md border border-border px-opsin-4 py-opsin-2 " +
-  "text-center text-opsin-subheadline underline underline-offset-4 " +
-  "hover:bg-muted " +
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
 
 /**
  * The heading levels a banner may take. There is no `h1`: a banner is never a
@@ -394,40 +371,33 @@ export interface AlertBannerProps {
    * banner stamped with its own render time tells the reader something that is
    * true of the page and false of their data.
    *
-   * It renders through RelativeTime, which needs `now` as well; without one the
-   * timestamp is omitted and a warning says why.
-   *
-   * IT IS LABELLED *Recorded*, AND THAT WORD IS NEAR RATHER THAN EXACT.
-   * RelativeTime's five event words contain no `detected`, a sixth member of
-   * that union is that component's decision rather than this one's, and drawing
-   * a second timestamp here would be a copy of formatting, rounding and
-   * absolute-date behaviour that would drift from the original. So read the
-   * phrase precisely: it is the age of the DETECTION, never the age of the
-   * reading. A rule that ran an hour ago may have found a reading taken days
-   * before it, and "Recorded 1 hour ago" over a sentence about a reading is
-   * exactly the pair of separately-true statements RelativeTime's own file
-   * calls the most consequential error in health dashboards. If the reader
-   * needs to know how old the reading is, show that where the reading is.
+   * IT IS CARRIED AS `data-detected-at` ON THE ROOT AND IS NOT RENDERED AS A
+   * PHRASE. RelativeTime has no word for an instant a product's rules produced,
+   * and the three obvious candidates, 'detected', 'flagged' and 'triggered',
+   * are banned as machine register by the content doctrine. Built from one of
+   * RelativeTime's five near words, "Recorded 1 hour ago" over a sentence about
+   * a reading would be taken for the age of the reading, which it is not: a rule
+   * that ran an hour ago may have found a reading taken days before it, and that
+   * pair of separately-true statements is what RelativeTime's own file calls
+   * the most consequential error in health dashboards. So the instant stays in
+   * the DOM for a stylesheet, a test and an export, and the banner asserts
+   * nothing about it in words. If the reader needs to know how old the reading
+   * is, show that where the reading is.
    */
   detectedAt?: string
   /**
-   * The instant `detectedAt` is measured against, in the same form. Required
-   * alongside it, because a component that read the clock itself would be
-   * impure and would make two timestamps on one screen disagree across a minute
-   * boundary. Read it once where the screen is rendered, and pass the same
-   * value to every timestamp on it. The single read is
-   * `new Date().toISOString()`.
-   *
-   * DO NOT REFRESH IT UNDER A MOUNTED `attention` OR `urgent` BANNER. Those two
-   * levels carry an atomic live region, so any change inside the banner
-   * re-announces the whole of it, and at `urgent` it does so assertively. The
-   * whole of it is the heading, the body, the timestamp and every action label.
-   * The timestamp's visible phrase is a function of this prop, so a screen
-   * that ticks `now` on a minute boundary interrupts a listening reader in
-   * full, once a minute, for as long as the banner is up. `alarm-fatigue` is
-   * explicit that repetition is not escalation and that a re-raise belongs to a
-   * change of state rather than to a timer. Hold `now` still while the banner
-   * is mounted, and refresh it when something about the alert actually changes.
+   * The instant `detectedAt` would be measured against, in the same form. It
+   * renders no phrase today, because RelativeTime has no word for an instant a
+   * product's rules produced and the obvious candidates are banned as machine
+   * register. The one thing it drives is a development warning: passing it says
+   * you expected a rendered relative phrase, so the component tells you none is
+   * rendered rather than swallowing the prop in silence. The prop is retained
+   * for the day that grammar gains such a word, so a caller already passing the
+   * pair does not have to change when the phrase returns. A component that read the
+   * clock itself would be impure and would make two timestamps on one screen
+   * disagree across a minute boundary, so where it is passed, read it once where
+   * the screen is rendered as `new Date().toISOString()` and pass the same value
+   * to every timestamp on it.
    */
   now?: string
   /**
@@ -460,13 +430,31 @@ export interface AlertBannerProps {
    */
   dismissLabel?: string
   /**
-   * BCP 47 language tag for the timestamp, which is the one formatted thing on
-   * the banner. Omitted, the reader's own environment decides. It does not
-   * translate the event word or the dismiss control; `dismissLabel` is the
-   * override for the second, and the first is a gap this component cannot close
-   * from here.
+   * BCP 47 language tag for a formatted value. The banner has none to format
+   * today: the timestamp was the one formatted thing on the surface and it is
+   * withdrawn, because RelativeTime has no word for an instant a product's rules
+   * produced. Like `now`, passing it beside `detectedAt` raises the development
+   * warning that no phrase is rendered. The prop is retained for the day a
+   * formatted value returns, and when one does, omitted, the reader's own
+   * environment decides. It does not translate the dismiss control;
+   * `dismissLabel` is the override for that word.
    */
   locale?: string
+  /**
+   * IANA time zone name (for example `Europe/London`) for a formatted absolute
+   * time. The banner has none to format today, for the reason `locale` gives:
+   * the timestamp was the one formatted thing on the surface and it is
+   * withdrawn. It is retained beside `now` and `locale` so a caller who is
+   * already forwarding the reading's zone does not have to change on the day a
+   * formatted value returns, and when one does return this is the prop that
+   * decides the reader's wall clock rather than the instant's stored offset.
+   * Like `now` and `locale`, passing it beside `detectedAt` raises the
+   * development warning that no phrase is rendered. Pass an IANA name rather
+   * than an offset such as `+01:00`: an offset cannot name a place and does not
+   * survive a daylight-saving boundary, which is the trap RelativeTime's own
+   * `timeZone` guard rejects.
+   */
+  timeZone?: string
   /**
    * Merged onto the root, and a class passed here WINS over the component's own
    * where the two conflict. A banner sets no width and no margin, because both
@@ -542,41 +530,70 @@ function actionControl(
      is one slot name on the link branch and another on the button branch, which
      is a DOM contract that describes two different components depending on
      which prop the caller passed. */
-  /* NO BRAND FILL ON A STATUS SURFACE, IN EITHER BRANCH. `Button
-     variant="primary"` is `bg-primary` on `text-primary-foreground`, and the
-     link branch below was deliberately given a neutral opaque fill instead so
-     that the banner's four tints would not each need their own measured control
-     pair in two themes. That is eight measurements for one control. The button
-     branch was reaching for the brand fill anyway, which meant the same action
-     carried a different emphasis depending on which prop the caller passed, and
-     put an unmeasured brand pair on four clinical surfaces. `secondary` is
-     `bg-card` with `text-foreground`, which is the pair ACTION_LINK spells by
-     hand; `quiet` is the unfilled step and takes the level's ink from
-     ON_SURFACE_INK, for the same reason the dismiss control does. The size
-     follows for the same motive: SECONDARY_LINK already takes the smaller type
-     step, so a second action rendered as a Button takes `sm` and the two forms
-     of the same action stop reading as different amounts of emphasis. */
-  const variant = emphasis === "primary" ? "secondary" : "quiet"
+  /* ONE LADDER FOR BOTH TRANSPORTS, AND NO NEUTRAL ROLE ON A STATUS SURFACE.
+     `Button variant="primary"` is a brand fill and `variant="secondary"` is a
+     neutral `bg-card` island; both would sit on the four tints unmeasured, and
+     the neutral island in particular is no boundary against them, measuring 1.07
+     to 1.22 in both themes. Using secondary would also make the way out read as
+     the same weight as the action. So a handler-form action is `variant="quiet"`,
+     which brings no fill of its own and takes the level's ink from
+     ON_SURFACE_INK on the wrapper, for the same reason the dismiss control does.
+     The recommended arm adds the tinted recommended delta, which is a radius, a
+     2px boundary and the underline, plus the level's line colour, so the href
+     and onSelect forms of one action look alike; the quiet arm adds the
+     underline alone. Both arms carry the underline, because D2's button table
+     keeps it on every card action so that neither transport of an action reads
+     as a paragraph. Both deltas come from
+     `cardActionClassName({..., ground: "tinted", as: "button"})` in `button.tsx`,
+     the same recipe the `href` form takes through `Link`, so the two transports
+     of one action are drawn from one source and cannot drift. The size follows
+     the weight: recommended takes `md` at the headline step and the second takes
+     `sm`, so the two forms of one action stop
+     reading as different amounts of emphasis. Button renders its own boundary
+     width as an inline style, so the recommended button's edge lands at the
+     hairline rather than the anchor's 2px, and the boundary is present and
+     level-coloured on both. */
   const size = emphasis === "primary" ? "md" : "sm"
+  const buttonDelta =
+    emphasis === "primary"
+      ? cn(
+          cardActionClassName({ weight: "recommended", ground: "tinted", as: "button" }),
+          LINE_EDGE[status],
+        )
+      : cardActionClassName({ weight: "quiet", ground: "tinted", as: "button" })
 
   return (
     <div
       key={id}
       data-slot="alert-banner-action"
-      className={cn(
-        "min-w-0",
-        !navigates && variant === "quiet" && ON_SURFACE_INK[status],
-      )}
+      className={cn("min-w-0", !navigates && ON_SURFACE_INK[status])}
     >
       {navigates ? (
-        <a
-          href={action.href}
-          className={emphasis === "primary" ? ACTION_LINK : SECONDARY_LINK}
+        /* The `href` form is the shared `Link`, so the anchor and the
+           handler-form Button above are the same control drawn from one recipe.
+           `ground="tinted"` selects the arm that brings no neutral fill: on the
+           banner's status tint the label inherits the level's own `-ink` from
+           TONE, and the recommended arm's 2px boundary takes the level's line
+           colour, passed here as `LINE_EDGE[status]` beside the recipe. The
+           quiet arm keeps `hover:bg-muted`, which puts a neutral fill under
+           status ink for the duration of a hover; that is a cross-scope pair
+           nothing has measured, and it is disclosed on the page beside the focus
+           ring rather than left to be found. */
+        <Link
+          href={action.href!}
+          emphasis={emphasis === "primary" ? "action" : "secondary"}
+          ground="tinted"
+          className={emphasis === "primary" ? LINE_EDGE[status] : undefined}
         >
           {label}
-        </a>
+        </Link>
       ) : (
-        <Button variant={variant} size={size} onClick={action.onSelect}>
+        <Button
+          variant="quiet"
+          size={size}
+          className={buttonDelta}
+          onClick={action.onSelect}
+        >
           {label}
         </Button>
       )}
@@ -591,11 +608,12 @@ export function AlertBanner({
   headingLevel = 2,
   detectedAt,
   now,
+  locale,
+  timeZone,
   actions,
   dismissible = false,
   onAcknowledge,
   dismissLabel,
-  locale,
   className,
 }: AlertBannerProps) {
   /* THE FIFTH LEVEL IS REFUSED, NOT APPROXIMATED, and here the refusal costs
@@ -735,17 +753,28 @@ export function AlertBanner({
 
   const hasDetected =
     typeof detectedAt === "string" && detectedAt.trim() !== ""
-  const hasNow = typeof now === "string" && now.trim() !== ""
 
-  if (hasDetected && !hasNow) {
+  /* The warning fires on the intent, not on `detectedAt` alone. Carrying the
+     instant as `data-detected-at` for a stylesheet, a test or an export is the
+     endorsed use and never warns. Passing `now`, `locale` or `timeZone` is the
+     signal that a caller expected a rendered relative phrase, because those
+     three props do nothing else on this surface, so that is the only case worth
+     a word. */
+  if (
+    hasDetected &&
+    (now !== undefined || locale !== undefined || timeZone !== undefined)
+  ) {
     warnDev(
-      `detected-without-now:${owner}`,
-      "[opsinjs] <AlertBanner> has `detectedAt` and no `now`. A relative phrase " +
-        "needs an instant to measure against, and this component does not read " +
-        "the clock: one that did would give two timestamps on one screen " +
-        "different answers across a minute boundary. Read the time once where " +
-        "the screen is rendered and pass it to every timestamp on it. No " +
-        "timestamp was rendered.",
+      `time-props-not-rendered:${owner}`,
+      "[opsinjs] <AlertBanner> was given `now`, `locale` or `timeZone` beside " +
+        "`detectedAt`, which reads as expecting a rendered relative phrase. " +
+        "None is rendered, because RelativeTime has no word for an instant a " +
+        "product's rules produced and the three obvious candidates, " +
+        "'detected', 'flagged' and 'triggered', are banned as machine " +
+        "register. The instant is still carried on the root as " +
+        "`data-detected-at` for a stylesheet, a test or an export, so drop " +
+        "`now`, `locale` and `timeZone` until the phrase returns. The age of " +
+        "the READING belongs where the reading is, not on the banner.",
     )
   }
 
@@ -778,6 +807,15 @@ export function AlertBanner({
        across assistive-technology and browser pairs. Nobody has listened to
        this component, so the level that can least afford a partial announcement
        is the level that should carry the fewest untested assumptions.
+
+       THE REGION IS AN INNER WRAPPER, AND THE CONTROLS AND THE TIMESTAMP SIT
+       OUTSIDE IT. An atomic region announces its whole subtree as one string,
+       so a link inside one is read as prose rather than offered as a link, and
+       any part of it that re-renders, a ticking timestamp most of all, re-runs
+       the whole announcement, assertively at `urgent`. The wrapper holds only
+       the heading and the body. The actions row, the dismiss control and any
+       timestamp are direct children of the section after it, so they stay
+       navigable controls and their changes announce nothing.
 
        AT `steady` AND `watch` THE ELEMENT HAS NO ROLE AT ALL, and that is a
        departure from doctrine rather than an implementation of it.
@@ -823,11 +861,7 @@ export function AlertBanner({
     <section
       data-slot="alert-banner"
       data-status={status}
-      role={status === "urgent" ? "alert" : undefined}
-      aria-live={status === "attention" ? "polite" : undefined}
-      aria-atomic={
-        status === "attention" || status === "urgent" ? true : undefined
-      }
+      data-detected-at={hasDetected ? detectedAt : undefined}
       className={cn(
         /* A stacked column at every width. There is no side-by-side arrangement
            to reflow away from, so 200% text grows the banner rather than
@@ -852,20 +886,37 @@ export function AlertBanner({
         className,
       )}
     >
-      <Heading
-        data-slot="alert-banner-heading"
-        className="m-0 flex flex-wrap items-center gap-opsin-2 text-opsin-headline"
+      <div
+        data-slot="alert-banner-announcement"
+        role={status === "urgent" ? "alert" : undefined}
+        aria-live={status === "attention" ? "polite" : undefined}
+        aria-atomic={
+          status === "attention" || status === "urgent" ? true : undefined
+        }
+        className="flex flex-col gap-opsin-3 min-w-0"
       >
-        {/* The level, delegated. StatusPill renders the word from
+        <Heading
+          data-slot="alert-banner-heading"
+          className="m-0 flex flex-col items-start gap-opsin-2 text-opsin-headline"
+        >
+          {/* The level, delegated. StatusPill renders the word from
             CLINICAL_STATUS_META, one of four distinct glyph silhouettes, the
             level's own colours and `data-status`. Those are the four carriers,
             none of them restated here. No `describes`: the subject is the rest
             of this heading, immediately after it, so passing it would make a
-            screen reader say the subject twice. */}
-        <StatusPill status={status} />
-        {headingText === "" ? null : (
-          <>
-            {/* THE SEPARATOR IS A CHARACTER, NOT A GAP, AND THE DIFFERENCE IS
+            screen reader say the subject twice.
+
+            THE PILL TAKES `size="lg"`, THE HEADING'S OWN `headline` STEP. The
+            specification's whole argument for putting the level inside the
+            heading is that the word must survive greyscale and colour-vision
+            deficiency, where it cannot be lost. A word set a step below the
+            sentence it qualifies loses that argument on screen: it becomes the
+            smallest, lightest thing on the banner and is read last, so `lg`
+            makes the level read at least as loudly as the subject. */}
+          <StatusPill status={status} size="lg" />
+          {headingText === "" ? null : (
+            <>
+              {/* THE SEPARATOR IS A CHARACTER, NOT A GAP, AND THE DIFFERENCE IS
                 ONLY VISIBLE IN RENDERED MARKUP. The pill and the heading text
                 are two flex items with `gap-opsin-2` between them, which is a
                 visual space and nothing at all in the accessibility tree: the
@@ -877,55 +928,39 @@ export function AlertBanner({
                 exactly this span where `describes` is passed; here the subject
                 is the next element rather than a string, so the separator is
                 all that is borrowed. It is absolutely positioned by `sr-only`,
-                so it is not a flex item and adds no second gap. */}
-            <span className="sr-only">, </span>
-            <span data-slot="alert-banner-heading-text" className="min-w-0">
-              {headingText}
-            </span>
-          </>
-        )}
-      </Heading>
+                so it is not a flex item and adds no second gap.
 
-      {/* `min-w-0 wrap-break-word` is the reflow repair. A flex item's floor is
+                THE HEADING IS A COLUMN, `flex-col items-start`, so the pill is
+                always its own line above the subject at every width and every
+                heading length. A row would put the pill inline beside a short
+                subject and above a long one, so two banners on one screen would
+                present the level in two different places. `basis-full` is
+                refused because it leaves `flex-wrap` in place and makes the
+                arrangement depend on a rule set from outside StatusPill. The
+                separator stays correct because it is not a flex item and so adds
+                no third row. */}
+              <span className="sr-only">, </span>
+              <span data-slot="alert-banner-heading-text" className="min-w-0">
+                {headingText}
+              </span>
+            </>
+          )}
+        </Heading>
+
+        {/* `min-w-0 wrap-break-word` is the reflow repair. A flex item's floor is
           its own min-content width. That width is the longest unbreakable token
           in the body. At 200% text on a phone one long word or a bare URL would
           push the banner past the viewport, which is horizontal scroll on the
           document. The two child rules trim the outer margins off a caller's
           paragraph, so the padding above stays the padding whether the body
           arrives as a string or as a <p>. */}
-      <div
-        data-slot="alert-banner-body"
-        className="min-w-0 wrap-break-word text-opsin-body *:first:mt-0 *:last:mb-0"
-      >
-        {children}
+        <div
+          data-slot="alert-banner-body"
+          className="min-w-0 wrap-break-word text-opsin-body *:first:mt-0 *:last:mb-0"
+        >
+          {children}
+        </div>
       </div>
-
-      {hasDetected && hasNow ? (
-        <p data-slot="alert-banner-timestamp" className="m-0 text-opsin-footnote">
-          {/* `recorded` is the nearest of RelativeTime's five event words and
-              it is not an exact fit: none of them is `detected`. The instant is
-              when the product's rules found the condition and wrote it down, so
-              "Recorded 20 minutes ago" is true of the detection. A reader
-              looking at a sentence about a reading will take it for the age of
-              the reading, which it is not. The word belongs to relative-time; a
-              sixth member of that union is that component's decision rather
-              than this one's, and drawing our own timestamp instead would be a
-              second copy of formatting, rounding and the absolute-date contract
-              that would drift from the first. So it is raised upward, stated in
-              the `detectedAt` prop doc where a caller reads it, and named on the
-              page rather than worked around here or quietly left.
-
-              The absolute date is in the accessibility tree and in print
-              whatever the phrase says, which is RelativeTime's own contract:
-              "20 minutes ago" on a printed page has no date on it at all. */}
-          <RelativeTime
-            at={detectedAt as string}
-            event="recorded"
-            now={now as string}
-            locale={locale}
-          />
-        </p>
-      ) : null}
 
       {controls.length > 0 ? (
         /* The separation between two targets is the token that names the rule
@@ -945,30 +980,47 @@ export function AlertBanner({
            the top corner is the usual arrangement and it puts the way out ahead
            of the message in the reading order, for the reader least able to
            skip back. Nothing here is re-arranged by CSS against the DOM, so the
-           order announced is the order seen: heading, body, timestamp, actions,
-           then the way out. */
+           order announced is the order seen: heading, body, actions, then the
+           way out.
+
+           THE BOUNDARY IS THE LEVEL'S LINE ROLE, PASSED TO THE BUTTON AS
+           `LINE_EDGE[status]`. Left as a bare quiet Button the control has no
+           border, no fill and no underline, so beneath a boxed action it reads
+           as a stray sentence rather than the one control whose press is the
+           record. `Button variant="secondary"` was refused because it is a
+           neutral `bg-card` island whose fill measures 1.07 to 1.22 against the
+           four tints in both themes, which is no boundary in either direction,
+           and it would make the way out look like the one action. The line role
+           is a boundary `lib/generated/contrast.json` already records as
+           passing, so it needs no new measurement, and the caller's className
+           lands last in Button's `cn`, so it wins over the quiet variant's own
+           `border-transparent` in the border-colour group while the width stays
+           the inline `borderWidth` style Button always renders. */
         <div
           data-slot="alert-banner-dismiss"
           className={cn("self-start", ON_SURFACE_INK[status])}
         >
-          <Button variant="quiet" size="sm" onClick={onAcknowledge}>
+          <Button
+            variant="quiet"
+            size="sm"
+            className={LINE_EDGE[status]}
+            onClick={onAcknowledge}
+          >
             {dismissLabel?.trim() ? dismissLabel.trim() : "Dismiss"}
             {/* What it dismisses, for the accessible name only. A control
                 called "Close" in a list of controls is one a screen-reader user
                 has to go and find the context for; "Dismiss, your example
                 measurement is outside the range your clinic set" needs none.
 
-                IT IS THE RIGHT CALL OUT OF CONTEXT AND THE WRONG ONE INSIDE
-                ONE, and this component cannot have it both ways from a server
-                component. At `attention` and `urgent` the root is atomic, so
-                the whole subtree is a single announcement and the heading is
-                spoken twice in it. The announcement opens with it and closes
-                with it after the actions, which is past the point a reader in
-                a hurry is still listening. Hiding the suffix from the region
-                while keeping it on the control needs an id, which needs
-                `useId`, which would make every banner in every product a client
-                component. The repeat is the lesser of the two, and it is named
-                on the page rather than left to be discovered. */}
+                THE SUFFIX NO LONGER DOUBLES INSIDE AN ANNOUNCEMENT. The live
+                region is an inner wrapper around the heading and the body, and
+                this control is a direct child of the section after that
+                wrapper, so it sits outside the region. Nothing reads the whole
+                subtree as one atomic string any more, so naming what the
+                control dismisses costs no repeated heading: a screen-reader
+                user meets the control on its own and hears "Dismiss, your
+                example measurement is outside the range your clinic set" once,
+                where they meet it. */}
             {headingText === "" ? null : (
               <span className="sr-only">, {headingText}</span>
             )}
@@ -999,8 +1051,8 @@ export function AlertBanner({
  *
  * THE BODY OPENS WITH THE ACTION, which is `clinical-status-semantics` on
  * `attention`: "direct and calm, action first". The DOM order on this surface
- * is fixed at heading, body, timestamp, actions, so the only place an action
- * can come first is the first sentence of the body. At `steady` and `watch` the
+ * is fixed at heading, body, actions, so the only place an action can come
+ * first is the first sentence of the body. At `steady` and `watch` the
  * order is the other way round, and the two-banner example shows that half.
  *
  * THE SECOND ACTION IS A RULE RATHER THAN A GARNISH. The body reports a
@@ -1016,21 +1068,17 @@ export function AlertBanner({
  * nothing and pressing either changes the address and nothing else. A product
  * replaces them with two real destinations.
  *
- * The subject is fictional and carries no number, and the timestamps are fixed
- * (ADR 0012): a demo whose text depends on when the page was built cannot be
+ * The subject is fictional and carries no number, and the detection instant is
+ * fixed (ADR 0012): a demo whose text depends on when the page was built cannot be
  * reviewed twice, and a screenshot of an opsinjs example must never be
  * mistakable for somebody's result.
  */
-const DEMO_NOW = "2026-03-14T11:12:00+00:00"
-
 export default function AlertBannerDemo() {
   return (
     <AlertBanner
       status="attention"
       heading="Your example measurement is outside the range your clinic set"
       detectedAt="2026-03-14T09:40:00+00:00"
-      now={DEMO_NOW}
-      locale="en-GB"
       actions={[
         { label: "Contact your clinic", href: "#example-clinic" },
         { label: "See the reading and the range", href: "#example-reading" },
@@ -1038,8 +1086,7 @@ export default function AlertBannerDemo() {
       className="w-full max-w-xl"
     >
       Contact your clinic before your next appointment. This reading is outside
-      the range they asked us to tell you about; you can see the reading and
-      that range together.
+      the range they asked us to tell you about.
     </AlertBanner>
   )
 }

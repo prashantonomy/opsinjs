@@ -34,6 +34,7 @@ export default function ResultCardNoExplanationSupplied() {
         value={14}
         unit="mg/dL"
         precision={0}
+        locale="en-GB"
         measuredAt="2026-03-14T09:05:00+00:00"
         now={EXAMPLE_NOW}
       />

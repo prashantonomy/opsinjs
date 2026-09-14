@@ -32,12 +32,19 @@
  * reader in the caption that the whole band came from their laboratory credits
  * that laboratory with a number it never gave.
  *
- * THE STATUS AXIS IS NOT DRAWN. `TrendPoint.status` decides which reading is
- * emphasised and what the caption says about it; it never tints the marker. The
- * rule that forces this is the four-carrier rule. A status is colour AND a
- * glyph AND the word AND `data-status`, never fewer. A six-pixel dot can hold
- * exactly one of the four. So the verdict is rendered where all four fit,
+ * THE VISIBLE STATUS AXIS IS NOT DRAWN. `TrendPoint.status` decides which
+ * reading is emphasised and what the caption says about it. It puts no status
+ * colour on the marker, no status glyph on the plot and no status word there.
+ * The rule that forces this is the four-carrier rule. A visible status is
+ * colour AND a glyph AND the word, and a six-pixel dot can hold none of the
+ * three legibly, so the whole visible verdict is rendered where all three fit,
  * as a StatusPill inside the caption, and the plot stays a picture of numbers.
+ * The fourth carrier, `data-status`, is different in kind because it draws
+ * nothing: it is the DOM contract the print stylesheet, the greyscale audit and
+ * every product test read the level from. That one is stamped on the flagged
+ * dot, since a status surface has to be findable where the flagged reading is,
+ * and to keep the two colour axes off one element the dot gives up the category
+ * tint the line already carries and is drawn in the neutral foreground instead.
  * See the comment on `flagged` below, which is where that decision lives.
  *
  * NOTHING ANIMATES. Not the path, not the marker, not on first paint and not on
@@ -47,6 +54,7 @@
  */
 
 import {
+  CLINICAL_STATUS_META,
   HEALTH_CATEGORIES,
   isClinicalStatus,
   isDevelopment,
@@ -160,22 +168,26 @@ function warnDevOnce(key: string, message: string): void {
 }
 
 /**
- * The formatter's ceiling, and the same one `Value` uses.
- *
- * Opened all the way rather than left at `Intl`'s default of three, because
- * rounding a reader's measurement to a precision nobody stated is a display
- * decision this component is not entitled to make.
+ * The formatter's ceiling, and the same one `Value` uses. It applies only when
+ * a JavaScript caller passed a `precision` that is not a usable count of decimal
+ * places; a TypeScript caller cannot, because the prop is required and typed as
+ * a number. In every ordinary render this component takes the stated precision
+ * and formats both the caption and this accessible name to it, so a rounding
+ * decision the component was once not entitled to make is now the caller's,
+ * carried by the prop and forwarded rather than guessed.
  */
 const MAX_FRACTION_DIGITS = 20
 
 /**
  * A number for the accessible name, written the way `Value` writes the same
- * number in the caption below it.
+ * number in the caption below it, and to the same stated precision.
  *
- * The spoken name and the printed sentence have to say one number one way. A
- * bare `String(…)` prints a full stop where a de-DE reader's locale writes a
- * comma, and prints an arithmetic result as seventeen digits, which asserts an
- * accuracy no instrument has. Separators and grouping are never hand-rolled.
+ * The spoken name and the printed sentence have to say one number one way, so
+ * this takes the component's `precision` and formats to that many decimal
+ * places, exactly as the caption's `Value` does. A reader who cannot see the
+ * caption is owed the reading it shows, not the seventeen digits an arithmetic
+ * result carries. A bare `String()` would also print a full stop where a de-DE
+ * reader's locale writes a comma. Separators and grouping are never hand-rolled.
  *
  * Rounding is `halfExpand`, the round-half-away-from-zero that
  * `numbers-units-precision` rule 3 specifies, and it is INHERITED rather than
@@ -186,9 +198,20 @@ const MAX_FRACTION_DIGITS = 20
  * default, so the behaviour is identical either way; see the longer note in
  * `value.tsx`, which records where the regression was found. Do not put it back.
  */
-function formatNumber(value: number, locale: string | undefined): string {
+function formatNumber(value: number, locale: string | undefined, precision: number): string {
+  /* Fixed decimal places, both bounds set to the stated precision, so the spoken
+     name pads and rounds exactly as the caption's `Value` does. `places` falls
+     back to `undefined` only for a precision a JavaScript caller passed that is
+     not a whole count from 0 to the ceiling, in which case the formatter is
+     opened all the way rather than throwing, and `Value` raises the warning in
+     the caption below. This mirrors `value.tsx` so the two cannot drift. */
+  const places =
+    Number.isInteger(precision) && precision >= 0 && precision <= MAX_FRACTION_DIGITS
+      ? precision
+      : undefined
   return new Intl.NumberFormat(locale, {
-    maximumFractionDigits: MAX_FRACTION_DIGITS,
+    minimumFractionDigits: places,
+    maximumFractionDigits: places ?? MAX_FRACTION_DIGITS,
   }).format(value)
 }
 
@@ -304,6 +327,23 @@ export interface TrendSparklineProps {
    */
   unit: string
   /**
+   * Decimal places, from the precision of the measurement. That is the
+   * resolution of the device, or the number of places the laboratory reported,
+   * and never a number chosen at render time. Required, so a TypeScript caller
+   * cannot omit it: a reading that arrived from arithmetic can carry seventeen
+   * digits, and a caption is exactly where those show. Forwarded untouched to
+   * every `Value` this component renders. A JavaScript caller who omits it gets
+   * the digits it was handed plus a development warning from `Value`.
+   *
+   * The caption also prints the band bounds the caller supplied on `range`,
+   * and this same precision is applied to them as well as to the readings. A
+   * bound stated to more places than the measurement carries is therefore shown
+   * rounded to this precision rather than to its own, so a product whose source
+   * range is finer than its reading precision should state that range in the
+   * precision it was given.
+   */
+  precision: number
+  /**
    * The readings, in chronological order. A gap is an explicit entry with
    * `value: null`, never an omitted one: an entry missing from the array is one
    * this component cannot know about, and a line drawn straight through it
@@ -395,6 +435,7 @@ export interface TrendSparklineProps {
 export function TrendSparkline({
   label,
   unit,
+  precision,
   series,
   minimumPoints,
   window: windowLabel,
@@ -625,30 +666,78 @@ export function TrendSparkline({
      between two gaps did happen, and drawing nothing for it would lose a
      measurement rather than decline to invent one. */
   const subpaths: string[] = []
+  const gapEdges: PlottedReading[] = []
   let run: PlottedReading[] = []
   let cursor = 0
+  let sawGap = false
   for (const point of points) {
     if (isReading(point)) {
       const reading = plotted.at(cursor)
       cursor += 1
-      if (reading !== undefined) run.push(reading)
+      if (reading !== undefined) {
+        /* A run opened straight after a non-reading entry: its first reading is
+           the near side of a hole, so it earns a gap-edge dot. */
+        if (run.length === 0 && sawGap) gapEdges.push(reading)
+        run.push(reading)
+      }
       continue
     }
-    if (run.length > 0) subpaths.push(pathFor(run))
+    if (run.length > 0) {
+      subpaths.push(pathFor(run))
+      /* A run closed by a non-reading entry: its last reading is the far side of
+         a hole, so it earns a gap-edge dot too. */
+      const tail = run.at(-1)
+      if (tail !== undefined) gapEdges.push(tail)
+    }
     run = []
+    sawGap = true
   }
   if (run.length > 0) subpaths.push(pathFor(run))
 
-  /* THE MARKED READING, AND WHY THE PLOT DOES NOT COLOUR IT.
-     A status is carried by colour AND a glyph AND the word AND `data-status`,
-     four carriers and never fewer, because the measured colour-vision audit in
+  /* GAP-EDGE DOTS, so a hole reads 'reading, nothing, reading' rather than
+     'line, hole, line'. A gap has no position, so no segment is drawn into or
+     out of it: one null in six entries removes two of five intervals, and the
+     absence draws larger than it is. A small dot on the reading each side of a
+     hole restores the count the caption states, without asserting a value the
+     line cannot span. The series' own first and last readings are the ends of
+     the picture rather than the edges of a hole, so they are dropped; a single
+     reading marooned between two holes is pushed from both sides, so it is
+     deduped to one dot. These dots carry the line's category tint and never a
+     status: they say a reading was taken here, which is a fact about coverage
+     and not a verdict (the rule by the marked reading above). */
+  const firstPlottedIndex = plotted.at(0)?.index
+  const lastPlottedIndex = plotted.at(-1)?.index
+  const seenGapEdge = new Set<number>()
+  const gapEdgeMarks = gapEdges.filter((reading) => {
+    if (reading.index === firstPlottedIndex || reading.index === lastPlottedIndex) {
+      return false
+    }
+    if (seenGapEdge.has(reading.index)) return false
+    seenGapEdge.add(reading.index)
+    return true
+  })
+
+  /* THE MARKED READING, AND WHAT THE PLOT DOES AND DOES NOT PUT ON IT.
+     A visible status is carried by colour AND a glyph AND the word, three
+     carriers and never fewer, because the measured colour-vision audit in
      tokens/color.json finds two of the four levels indistinguishable under
      deuteranopia and in greyscale. A marker on a sparkline can hold the colour
-     and nothing else. So the marker is drawn in the line's own tint, heavier and
-     ringed, and the verdict is rendered as a StatusPill inside the caption where
-     all four carriers fit. The specification permits status on the point; it
-     does not require it, and taking the permission would be shipping a red dot
-     that a substantial minority of readers cannot tell from an amber one.
+     and nothing else, so it holds none of the three: the visible verdict is
+     rendered as a StatusPill inside the caption, where all three fit, and the
+     plot draws no status colour, no status glyph and no status word. The
+     specification permits a status colour on the point and does not require it,
+     and taking that permission would be shipping a red dot that a substantial
+     minority of readers cannot tell from an amber one.
+
+     THE FOURTH CARRIER IS STAMPED, NOT DRAWN. `data-status` is the DOM contract
+     the print stylesheet, the greyscale audit and every product-side test read
+     the level from, and it draws nothing, so it does belong on the plot. It is
+     stamped on the flagged value dot below, which is the one element that
+     genuinely is the flagged reading. Because the two colour axes may never
+     share an element and `data-status` is the status axis, the flagged dot gives
+     up the category tint it used to borrow from the line and is drawn in the
+     neutral foreground, heavier and ringed so it still reads as the emphasised
+     point. The category axis stays on the line, where it always was.
 
      A LEVEL OUTSIDE THE FOUR MARKS NOTHING. `unknown` is the likeliest wrong
      answer and it is the absence of an assertion rather than a fifth level, so a
@@ -691,6 +780,21 @@ export function TrendSparkline({
   const first = plotted.at(0)
   const last = plotted.at(-1)
   const drawn = enoughReadings && first !== undefined && last !== undefined
+
+  /* WHICH READING WAS MARKED, so the words carry what the marker carries. The
+     caption and the plot's accessible name both say it, built from the same
+     three facts here so the two cannot drift. The date is read straight from the
+     marked reading's own `at` and never invented: when it will not parse,
+     `markedOn` is undefined and the sentence names no date rather than a wrong
+     one. `markedIsLast` lets "the most recent reading" stand in for a date the
+     reader would otherwise have to place by counting back through the series. */
+  const markedIsLast =
+    flagged !== undefined && last !== undefined && flagged.index === last.index
+  const markedOn =
+    flagged === undefined
+      ? undefined
+      : formatDate(String(points.at(flagged.index)?.at), locale)
+
   const direction =
     first === undefined || last === undefined || smallestChange === undefined
       ? undefined
@@ -722,19 +826,22 @@ export function TrendSparkline({
 
   /* The plot's accessible name, which is the picture described as a picture:
      what was measured, over what period, how many readings there are, what they
-     range between, which way they went, and what is missing. The pattern is the
-     one in content/alt-text-and-descriptions: measure, period, coverage,
-     extent, direction. It includes its own wording for a series whose direction
-     nobody has told us how to judge. Its final element, a pointer to the table
-     twin, is absent because there is no table twin to point at; that gap is
-     recorded on the page rather than papered over here. It never says "chart
-     of", "the red zone", or "trending up". */
+     range between, which way they went, which reading was marked, and what is
+     missing. The pattern is the one in content/alt-text-and-descriptions:
+     measure, period, coverage, extent, direction. It includes its own wording
+     for a series whose direction nobody has told us how to judge. Its final
+     element, a pointer to the table twin, is absent because there is no table
+     twin to point at; that gap is recorded on the page rather than papered over
+     here. It never says "chart of", "the red zone", or "trending up". The
+     marked-reading clause names the reading the plot emphasises, by recency when
+     it is the last reading and by its own date otherwise, so a reader who cannot
+     see the marker still knows which reading carries the verdict. */
   const extent =
     lowest === undefined || highest === undefined
       ? ""
       : lowest === highest
-        ? `every one of them ${formatNumber(lowest, locale)} ${spoken}`
-        : `between ${formatNumber(lowest, locale)} and ${formatNumber(highest, locale)} ${spoken}`
+        ? `every one of them ${formatNumber(lowest, locale, precision)} ${spoken}`
+        : `between ${formatNumber(lowest, locale, precision)} and ${formatNumber(highest, locale, precision)} ${spoken}`
 
   const directionPhrase =
     direction === undefined
@@ -759,14 +866,28 @@ export function TrendSparkline({
 
   const bandSentence =
     bandDrawn && bandLow !== undefined && bandHigh !== undefined
-      ? ` A shaded band, ${formatNumber(bandLow, locale)} to ${formatNumber(bandHigh, locale)} ${spoken}, from ${String(rangeOwner)}.`
+      ? ` A shaded band, ${formatNumber(bandLow, locale, precision)} to ${formatNumber(bandHigh, locale, precision)} ${spoken}, from ${String(rangeOwner)}.`
       : ""
+
+  /* The marked reading, named by recency or by its own date, in the same words
+     the caption uses below so the picture and its name cannot disagree. Empty
+     when nothing carries a status. The number is `formatNumber` and `spoken`,
+     exactly as `extent` above, and the verdict word comes from
+     CLINICAL_STATUS_META rather than being spelled a second time here. */
+  const markedSentence =
+    flaggedStatus === undefined || flagged === undefined
+      ? ""
+      : markedIsLast
+        ? ` The most recent reading, ${formatNumber(flagged.value, locale, precision)} ${spoken}, is marked ${CLINICAL_STATUS_META[flaggedStatus].word}.`
+        : markedOn !== undefined
+          ? ` The reading taken on ${markedOn}, ${formatNumber(flagged.value, locale, precision)} ${spoken}, is marked ${CLINICAL_STATUS_META[flaggedStatus].word}.`
+          : ` One reading, ${formatNumber(flagged.value, locale, precision)} ${spoken}, is marked ${CLINICAL_STATUS_META[flaggedStatus].word}.`
 
   const plotName =
     extent === ""
       ? `${label} over ${windowLabel}. No readings to draw.`
       : `${label} over ${windowLabel}: ${String(readings.length)} readings, ${extent}, ` +
-        `${directionPhrase}.${bandSentence}${missingSentence}${whenSentence}`
+        `${directionPhrase}.${bandSentence}${markedSentence}${missingSentence}${whenSentence}`
 
   /* The same two facts as the accessible name's missing sentence, in the
      caption's own grammar, and the one clause a caller's own sentence does not
@@ -796,16 +917,16 @@ export function TrendSparkline({
   const rangeInterval =
     bandLow !== undefined && bandHigh !== undefined ? (
       <>
-        <Value value={bandLow} unit={unit} locale={locale} /> to{" "}
-        <Value value={bandHigh} unit={unit} locale={locale} />
+        <Value value={bandLow} unit={unit} precision={precision} locale={locale} /> to{" "}
+        <Value value={bandHigh} unit={unit} precision={precision} locale={locale} />
       </>
     ) : bandLow !== undefined ? (
       <>
-        <Value value={bandLow} unit={unit} locale={locale} /> and upwards
+        <Value value={bandLow} unit={unit} precision={precision} locale={locale} /> and upwards
       </>
     ) : bandHigh !== undefined ? (
       <>
-        up to <Value value={bandHigh} unit={unit} locale={locale} />
+        up to <Value value={bandHigh} unit={unit} precision={precision} locale={locale} />
       </>
     ) : undefined
 
@@ -818,21 +939,48 @@ export function TrendSparkline({
   return (
     <div
       data-slot="trend-sparkline"
-      className={cn("flex w-full flex-col gap-opsin-2 text-opsin-footnote", className)}
+      /* The caption sits at `body`, not at `footnote`. The caption is the
+         component (see the file header), and body is the scale's anchor for
+         prose, so the one sentence that says what changed, how much is missing
+         and which reading needs watching is set at the step a reader reads prose
+         at. Footnote is reserved for provenance, which here is the window label
+         and the freshness clause, not the caption. The size lives on the root so
+         a caller who passes a smaller step in `className`, `text-opsin-callout`
+         for a dense tile, can still shrink the whole sentence: tailwind-merge
+         only lets them win when the size is on the element they are merging
+         into. Do not optimise this back down. */
+      className={cn("flex w-full flex-col gap-opsin-2 text-opsin-body", className)}
     >
-      {/* The period, as a visible label above the plot, because a line with no
-          period is unreadable. Hidden from assistive technology only when this
-          component composed the caption, because the composed sentence names the
-          period in words and hearing "the last 14 days" twice in a row is noise.
-          When the caller supplied the caption, their sentence may not name the
-          period at all, so this stays in the accessibility tree. */}
-      <p
-        data-slot="trend-sparkline-window"
-        aria-hidden={ownCaption === undefined ? "true" : undefined}
-        className="m-0 text-opsin-caption1 text-muted-foreground"
-      >
-        {windowLabel}
-      </p>
+      {/* The period, as a standalone label above the plot, but only when the
+          caller composed their own caption AND a plot was drawn. When this
+          component composed the caption it already names the period in words
+          ("over the last 14 days"), so a standalone label above it repeats the
+          phrase within a line or two, reads as a lowercase fragment under the
+          title-case headline, and adds no information. When no plot is drawn the
+          refusal sentence below names the period itself ("to draw a trend over
+          the last 4 entries"), so a label above it repeats that phrase too. In
+          both of those cases there is no separate label at all. The label
+          renders only when the caller supplied the caption and the plot drew,
+          because then it is the one place the period is named, so it stays in the
+          accessibility tree rather than being hidden from it. The prop's own
+          value is printed as given: `window` is documented as a display string
+          written for a sentence, and upper-casing somebody else's string is a
+          transformation this component cannot do safely across locales. */}
+      {ownCaption !== undefined && drawn ? (
+        <p
+          data-slot="trend-sparkline-window"
+          /* The window is a provenance line, the period the plot covers, so it
+             sits at `footnote`, the step D10 assigns to provenance, timestamps
+             and the freshness line, naming TrendSparkline among the components
+             that come up to it from caption1. It carries its own step rather
+             than inheriting the caption's, because a class on the element beats
+             the one inherited from the root, so raising the caption to body
+             leaves this label at footnote. */
+          className="m-0 text-opsin-footnote text-muted-foreground"
+        >
+          {windowLabel}
+        </p>
+      ) : null}
 
       {drawn ? (
         <svg
@@ -856,10 +1004,45 @@ export function TrendSparkline({
              `vectorEffect` so that the uneven scale does not thin the line at
              one width and thicken it at another, and every marker is a
              zero-length round-capped segment rather than a circle, because a
-             circle in a stretched viewBox is an ellipse. */
+             circle in a stretched viewBox is an ellipse.
+
+             That is now only half the story. With `vectorEffect` the used
+             stroke width is a CSS length rather than a user-unit length, so each
+             width below is stated in `rem` through an arbitrary-property class
+             rather than as a unitless `strokeWidth` attribute. A rem resolves
+             against the root font size, so when the reader doubles their text
+             size and `h-opsin-12` doubles the plot's height the strokes double
+             with it, and the graphic no longer thins relative to the type at the
+             very setting a reader chose because thin things are hard to see. A
+             width takes the space token that equals it exactly, and a literal
+             rem only where no token holds that value: 6px and 9px have no token,
+             1px is `--opsin-space-px`, 2px `--opsin-space-0-5`, 4px
+             `--opsin-space-1`. */
           preserveAspectRatio="none"
           className="h-opsin-12 w-full overflow-visible"
         >
+          {/* The zero baseline, drawn first so the band, the line, the halo and
+              the marker all paint over it. The y-axis includes zero always (see
+              the note by `low` and `high` above), but until this line was drawn
+              the reader had no way to see that the picture was anchored at zero
+              rather than cropped, so the space below a nearly flat line looked
+              like a layout mistake rather than the honest distance from zero. It
+              spans the same inset width the band uses, so the two agree. It
+              carries neither category nor status: it is the axis, not a reading,
+              and a tinted or status-coloured baseline would put a second meaning
+              on the one element the two-axis rule forbids. `--muted-foreground`
+              is the neutral scripts/check-contrast.mts measures past the
+              non-text floor in both themes. When the series holds negative
+              readings `low` sits below zero and this line falls inside the plot
+              rather than near its floor, which is correct and is the case that
+              makes it most useful. */}
+          <path
+            data-slot="trend-sparkline-baseline"
+            d={`M ${String(PLOT_INSET)} ${String(yAt(0))} L ${String(PLOT_WIDTH - PLOT_INSET)} ${String(yAt(0))}`}
+            vectorEffect="non-scaling-stroke"
+            className="[stroke-width:var(--opsin-space-px)] stroke-muted-foreground forced-colors:stroke-[CanvasText]"
+          />
+
           {bandDrawn && bandLow !== undefined && bandHigh !== undefined ? (
             <rect
               data-slot="trend-sparkline-band"
@@ -869,16 +1052,32 @@ export function TrendSparkline({
                  verdict about the readings sitting inside it, which is a
                  comparison this component was never given. The dashed edge is
                  what distinguishes the band from the line without colour, in
-                 greyscale and in print. Whether either neutral clears the
-                 non-text contrast floor has not been measured for this
-                 component, which the page says rather than assumes. */
+                 greyscale and in print. The edge is drawn in the role that
+                 scripts/check-contrast.mts measures against both the page and
+                 the band fill, and it clears the non-text contrast floor in
+                 both themes. The fill does not clear that floor and is not asked
+                 to, because the band is identified by its edge and by the
+                 caption's sentence rather than by the tint. */
               x={PLOT_INSET}
               width={PLOT_WIDTH - PLOT_INSET * 2}
               y={yAt(bandHigh)}
               height={Math.max(0, yAt(bandLow) - yAt(bandHigh))}
-              strokeDasharray="2 2"
               vectorEffect="non-scaling-stroke"
-              className="fill-muted stroke-border"
+              /* Under forced colours an SVG stroke keeps its author colour while
+                 the boxes and text around it switch to system colours, so a
+                 neutral hairline that already sits near the contrast floor
+                 disappears for the reader who turned the mode on to see it. Every
+                 stroke in this graphic takes a system colour so the whole picture
+                 switches together rather than half of it. The band edge is ink.
+
+                 The dash is a screen-space length, not a user-unit one: with
+                 `vectorEffect` the stroke and its dash are measured in the space
+                 in effect at render time rather than in viewBox units, so the
+                 pattern is isotropic and no longer stretches with the column the
+                 way a unitless `strokeDasharray` did. 0.25rem on and 0.25rem off
+                 is 4px each at a 16px root, which still reads as a dash on a
+                 hairline where a 2px pattern flattened toward solid. */
+              className="[stroke-width:var(--opsin-space-px)] [stroke-dasharray:0.25rem_0.25rem] fill-muted stroke-muted-foreground forced-colors:stroke-[CanvasText]"
             />
           ) : null}
 
@@ -886,47 +1085,115 @@ export function TrendSparkline({
             data-slot="trend-sparkline-line"
             /* The one element the category axis touches, and `data-category` is
                the DOM contract for it. See the note above the marked reading for
-               why the other axis is not stamped anywhere in this file, which is
-               what makes it impossible for the two to meet on one element.
+               why the status axis is stamped only on the flagged dot and never
+               here, which is what keeps the two from meeting on one element.
 
                Written without naming the other attribute here, because
                scripts/check-a11y.mts reads a JSX element as raw text and a
                comment inside the tag that mentions it counts as the tag carrying
                it. That would be a false OPSIN-0001 raised by the sentence
-               explaining why there is no OPSIN-0001. */
+               explaining why there is no OPSIN-0001.
+
+               Under forced colours the line drops its category tint for the ink
+               the theme itself supplies. Category identity is a colour, and
+               forced colours has no colour to spare for it, so the honest move is
+               to draw the line in ink and let the label beside the sparkline say
+               which measurement it is. No dash pattern is invented to carry
+               category, because that would be a second encoding nobody asked to
+               read, and forced-color-adjust is left alone so the mode keeps its
+               override.
+
+               This comment carries no apostrophe and names the other axis
+               attribute nowhere, both on purpose. scripts/check-a11y.mts reads a
+               tag as raw text and stops the tag at its first close bracket that
+               is not inside a string, and it counts a single quote as opening a
+               string. A possessive apostrophe here would leave that string open,
+               run the tag past its own close bracket into the neighbouring
+               comment, and raise a false OPSIN-0001 from the words that comment
+               spends explaining why this element is on one axis alone. */
             data-category={tinted}
             d={subpaths.join(" ")}
             fill="none"
-            strokeWidth={2}
             strokeLinecap="round"
             strokeLinejoin="round"
             vectorEffect="non-scaling-stroke"
-            className={cn("stroke-foreground", tint)}
+            className={cn(
+              "[stroke-width:var(--opsin-space-0-5)] stroke-foreground",
+              tint,
+              "forced-colors:stroke-[CanvasText]",
+            )}
           />
+
+          {/* The readings on the near and far side of every hole, drawn as
+              zero-length round-capped dots so a gap reads 'reading, nothing,
+              reading'. 0.25rem, heavier than the line's 0.125rem and lighter
+              than the flagged marker's 0.375rem, so a gap edge is plainly a
+              point without competing with the one reading the product flagged. The
+              line's own tint and nothing else: no status, no `data-status`, and
+              no `data-opsinjs-value`, which is the flagged reading's contract and
+              must stay unique in the DOM. */}
+          {gapEdgeMarks.map((reading) => (
+            <path
+              key={reading.index}
+              data-slot="trend-sparkline-gap-edge"
+              d={`M ${String(reading.x)} ${String(reading.y)} L ${String(reading.x)} ${String(reading.y)}`}
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+              className={cn(
+                "[stroke-width:var(--opsin-space-1)] stroke-foreground",
+                tint,
+                "forced-colors:stroke-[CanvasText]",
+              )}
+            />
+          ))}
 
           {flagged === undefined ? null : (
             <>
               {/* A halo in the surface colour, so the marker reads as a marker
                   rather than as a thicker piece of line when it sits on top of
-                  the band. */}
+                  the band. Under forced colours it takes Canvas rather than
+                  CanvasText: this ring is the gap around the mark, not the mark,
+                  so it is drawn in the page colour every other stroke is drawn
+                  against, and the CanvasText dot still reads as a break in the
+                  line. */}
               <path
                 d={`M ${String(flagged.x)} ${String(flagged.y)} L ${String(flagged.x)} ${String(flagged.y)}`}
-                strokeWidth={9}
                 strokeLinecap="round"
                 vectorEffect="non-scaling-stroke"
-                className="stroke-background"
+                /* 0.5625rem is 9px at a 16px root. A literal rem because no
+                   space token holds this value, unlike the widths that name
+                   `--opsin-space-*` above. */
+                className="[stroke-width:0.5625rem] stroke-background forced-colors:stroke-[Canvas]"
               />
               <path
                 data-slot="trend-sparkline-point"
+                /* The status DOM contract, and the only place on the plot it
+                   lives. It draws nothing: the print stylesheet, the greyscale
+                   audit and every product-side test read the level from here,
+                   while the visible verdict stays in the caption StatusPill.
+                   This dot is drawn in the neutral foreground and not in the
+                   category tint precisely because it carries this contract: the
+                   status axis and the category axis may never meet on one
+                   element, and the category axis is already on the line. */
+                data-status={flaggedStatus}
                 /* The reading itself, machine-readable and unrounded, because
                    rounding is a display decision and whatever reads this wants
                    the datum. */
                 data-opsinjs-value={String(flagged.value)}
                 d={`M ${String(flagged.x)} ${String(flagged.y)} L ${String(flagged.x)} ${String(flagged.y)}`}
-                strokeWidth={6}
                 strokeLinecap="round"
                 vectorEffect="non-scaling-stroke"
-                className={cn("stroke-foreground", tint)}
+                /* 0.375rem is 6px at a 16px root, a literal rem because no space
+                   token holds this value. Heavier than the line at 0.125rem and
+                   lighter than the halo at 0.5625rem, and the three keep that
+                   ordering at every text size because all three now scale. Drawn
+                   in the neutral foreground, so its weight and its halo, not a
+                   colour, are what set it apart from the line: this dot carries
+                   the status contract and must stay off the category axis. */
+                className={cn(
+                  "[stroke-width:0.375rem] stroke-foreground",
+                  "forced-colors:stroke-[CanvasText]",
+                )}
               />
             </>
           )}
@@ -936,49 +1203,81 @@ export function TrendSparkline({
       {/* THE TEXT TWIN. Visible, in the DOM, and read by everybody. It is not
           `sr-only`, not a `title`, and not an `aria-label` hung on something
           else.
+          The clauses render in the order a scanning reader needs them: the lead
+          sentence, then the marked reading with its pill, then the coverage
+          count, then the date, then the range. The one fact the product chose to
+          flag is the second sentence rather than the fourth, so a reader looking
+          for "is anything wrong" meets the verdict before the housekeeping. The
+          plot's accessible name above keeps the picture-describing order
+          (coverage, extent, direction) on purpose; this is the reading order for
+          the eye, that is the order for a description.
           The caller's own sentence stands in for the direction-and-magnitude
-          clause and for nothing else: what is missing, which reading was marked,
-          when the last one was taken and whose the range is are appended either
-          way, because a count of absent measurements, a status, a date and an
-          attribution are each somebody's own record rather than decoration. */}
+          clause and for nothing else: which reading was marked, what is missing,
+          when the last one was taken and whose the range is are all still added
+          either way, because a status, a count of absent measurements, a date
+          and an attribution are each somebody's own record rather than
+          decoration. */}
       <p data-slot="trend-sparkline-caption" className="m-0 text-pretty">
+        {/* LEAD */}
         {drawn && first !== undefined && last !== undefined ? (
-          <>
-            {ownCaption ?? (
-              <>
-                {direction === undefined ? "From" : `${DIRECTION_WORD[direction]}, from`}{" "}
-                <Value value={first.value} unit={unit} locale={locale} /> to{" "}
-                <Value value={last.value} unit={unit} locale={locale} />, over {windowLabel}.
-              </>
-            )}{" "}
-            {String(readings.length)} readings, {missingClause}
-          </>
+          ownCaption ?? (
+            <>
+              {direction === undefined ? "From" : `${DIRECTION_WORD[direction]}, from`}{" "}
+              <Value value={first.value} unit={unit} precision={precision} locale={locale} /> to{" "}
+              <Value value={last.value} unit={unit} precision={precision} locale={locale} />, over {windowLabel}.
+            </>
+          )
         ) : (
           <>
             Not enough readings to draw a trend over {windowLabel}: there{" "}
             {readings.length === 1 ? "is only 1" : `are ${String(readings.length)}`}
             {ruleIsUsable
-              ? `, and this needs ${String(minimumPoints)}.`
+              ? `, and a trend needs ${String(minimumPoints)}.`
               : ", and the number this needs is not a whole number above zero."}
-            {missingSentence}
             {ownCaption === undefined ? null : ` ${ownCaption}`}
           </>
         )}
 
-        {whenSentence}
-
+        {/* MARKED */}
         {flaggedStatus === undefined || flagged === undefined ? null : (
+          /* Names the marked reading, not just its value and verdict: by recency
+             when it is the last reading, by its own date otherwise, and by
+             neither when that date will not parse. Built from the same
+             `markedIsLast` and `markedOn` as the plot's name above, so the two
+             read alike. `<Value>` carries the number and `<StatusPill>` the
+             word, so the value, the unit, the status word and its icon are all
+             still separate carriers. The clause closes with a full stop after
+             the pill, so the range attribution that follows begins its own
+             sentence rather than running on: StatusPill is inline-flex and
+             baseline-aligned, so the stop sits on the text baseline. It renders
+             in both branches, because a verdict the product assigned is not
+             withdrawn just because too few readings arrived to draw a line. */
           <>
             {" "}
-            One reading is marked: <Value
-              value={flagged.value}
-              unit={unit}
-              locale={locale}
-            />{" "}
-            <StatusPill status={flaggedStatus} describes={label} size="sm" />
+            {markedIsLast
+              ? "The most recent reading, "
+              : markedOn !== undefined
+                ? `The reading taken on ${markedOn}, `
+                : "One reading, "}
+            <Value value={flagged.value} unit={unit} precision={precision} locale={locale} />, is marked{" "}
+            <StatusPill status={flaggedStatus} describes={label} />.
           </>
         )}
 
+        {/* COVERAGE */}
+        {drawn && first !== undefined && last !== undefined ? (
+          <>
+            {" "}
+            {String(readings.length)} readings, {missingClause}
+          </>
+        ) : (
+          missingSentence
+        )}
+
+        {/* WHEN */}
+        {whenSentence}
+
+        {/* RANGE */}
         {!rangeIsOwned || rangeInterval === undefined ? null : bandDrawn ? (
           <> The shaded band, {rangeInterval}, comes from {rangeOwner}.</>
         ) : (
@@ -1011,31 +1310,57 @@ export function TrendSparkline({
 const EXAMPLE_READINGS_A_TREND_NEEDS = 4
 
 /**
- * Six entries with one gap in the middle, so the break in the line is visible
- * and the caption has something to disclose. The last reading carries a status,
- * which is what puts the pill in the caption.
+ * Thirteen entries at one-day spacing with exactly one gap, so the break in the
+ * line is visible and the caption has something to disclose. The last reading
+ * carries a status, which is what puts the pill in the caption.
+ *
+ * THE COUNT IS THE POINT. A gap has no position, so no segment is drawn into or
+ * out of it, and one null removes the two intervals on either side of it. In a
+ * six-entry series that was two of five intervals, about two-fifths of the plot,
+ * beside a caption that says "1 gap": the picture overstated the absence. With
+ * thirteen entries one null removes two of twelve intervals, roughly a sixth,
+ * which is what "1 gap" describes. The gap-edge dots draw a reading on each side
+ * of the hole, so it reads "reading, nothing, reading".
+ *
+ * The values move up and down rather than ramping, so the line has a shape, and
+ * they are obviously unreal round numbers of steps (ADR 0012) well clear of
+ * anything a reader could take for their own record.
  */
 const DEMO_SERIES: TrendPoint[] = [
-  { at: "2026-01-01T09:00:00Z", value: 12 },
-  { at: "2026-01-02T09:00:00Z", value: 14 },
-  { at: "2026-01-03T09:00:00Z", value: null },
-  { at: "2026-01-04T09:00:00Z", value: 16 },
-  { at: "2026-01-05T09:00:00Z", value: 15 },
-  { at: "2026-01-06T09:00:00Z", value: 20, status: "watch" },
+  { at: "2026-01-01T09:00:00Z", value: 10 },
+  { at: "2026-01-02T09:00:00Z", value: 20 },
+  { at: "2026-01-03T09:00:00Z", value: 30 },
+  { at: "2026-01-04T09:00:00Z", value: 20 },
+  { at: "2026-01-05T09:00:00Z", value: 40 },
+  { at: "2026-01-06T09:00:00Z", value: 30 },
+  { at: "2026-01-07T09:00:00Z", value: null },
+  { at: "2026-01-08T09:00:00Z", value: 50 },
+  { at: "2026-01-09T09:00:00Z", value: 30 },
+  { at: "2026-01-10T09:00:00Z", value: 40 },
+  { at: "2026-01-11T09:00:00Z", value: 60 },
+  { at: "2026-01-12T09:00:00Z", value: 40 },
+  { at: "2026-01-13T09:00:00Z", value: 50, status: "watch" },
 ]
 
 /**
  * The zero-prop default export (ADR 0009).
  *
  * `/view` renders this with no props and `shadcn add` ships it, so it is public,
- * reviewed code rather than a scratch demo. It shows the two states that decide
- * whether this component is doing its job: a series long enough to draw, with a
- * gap in it and one reading marked; and a series that is not long enough, which
- * draws nothing at all and says why.
+ * reviewed code rather than a scratch demo. It shows one drawn sparkline, with a
+ * gap in it and one reading marked, so the caption has a break and a status to
+ * disclose. It draws a line and emits no runtime warning, because a demo is held
+ * to the component's own standard (ADR 0009).
  *
- * Neither passes a `changeThreshold`, so neither caption names a direction.
- * That is the state opsinjs can render honestly without being told anything
- * about the metric, and is what a reader should see here.
+ * ONE STATE, BY THE RULE. ADR 0009 says a second state is a file under
+ * registry/examples/, not a second instance in the demo. The refusal, which is
+ * the state this component exists for, is owned by
+ * registry/examples/trend-sparkline-not-enough-readings.tsx, which shows it
+ * better than a shrunk demo could, and the drawn variations live in the other
+ * two example files. So the demo renders the one best state and stops.
+ *
+ * It passes no `changeThreshold`, so the caption names no direction. That is the
+ * state opsinjs can render honestly without being told anything about the
+ * metric, and is what a reader should see here.
  *
  * The readings are obviously unreal (ADR 0012), because they are round numbers
  * of steps nobody would take for their own. There is no reference range
@@ -1047,23 +1372,18 @@ export default function TrendSparklineDemo() {
     <div className="flex w-full max-w-md flex-col gap-opsin-6 text-opsin-body">
       <div className="flex flex-col gap-opsin-1">
         <span className="text-opsin-headline">Example measurement</span>
+        {/* The caption's "last reading taken on" date is formatted by this
+            component from the last point's `at`, so the demo pins `locale` to
+            render the day-first order numbers-dates-and-time mandates. A product
+            passes the tag its own reader uses. */}
         <TrendSparkline
           label="Example measurement"
           unit="steps"
+          precision={0}
           category="activity"
-          window="the last six entries"
+          locale="en-GB"
+          window="the last 13 entries"
           series={DEMO_SERIES}
-          minimumPoints={EXAMPLE_READINGS_A_TREND_NEEDS}
-        />
-      </div>
-      <div className="flex flex-col gap-opsin-1">
-        <span className="text-opsin-headline">Second example measurement</span>
-        <TrendSparkline
-          label="Second example measurement"
-          unit="steps"
-          category="activity"
-          window="the last six entries"
-          series={DEMO_SERIES.slice(0, 2)}
           minimumPoints={EXAMPLE_READINGS_A_TREND_NEEDS}
         />
       </div>

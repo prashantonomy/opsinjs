@@ -35,13 +35,11 @@
  * reach nothing.
  *
  * Nothing here is a measurement. The subject is fictional, there is no number
- * anywhere in it, and the two instants are fixed so the example says the same
- * thing every time it renders.
+ * anywhere in it, and the detection instants are fixed so the example says the
+ * same thing every time it renders.
  */
 
 import { AlertBanner } from "@/registry/base-lyra/ui/alert-banner"
-
-const NOW = "2026-03-14T11:12:00+00:00"
 
 export default function AlertBannerTwoIsTheCeiling() {
   return (
@@ -50,24 +48,19 @@ export default function AlertBannerTwoIsTheCeiling() {
         status="attention"
         heading="Your example measurement is outside the range your clinic set"
         detectedAt="2026-03-14T09:40:00+00:00"
-        now={NOW}
-        locale="en-GB"
         actions={[
           { label: "Contact your clinic", href: "#example-clinic" },
-          { label: "See the reading", href: "#example-reading" },
+          { label: "See the reading and the range", href: "#example-reading" },
         ]}
       >
         Contact your clinic before your next appointment. This reading is
-        outside the range they asked us to tell you about; you can see the
-        reading and that range together.
+        outside the range they asked us to tell you about.
       </AlertBanner>
 
       <AlertBanner
         status="watch"
         heading="Your device has not sent anything since Tuesday"
         detectedAt="2026-03-14T07:05:00+00:00"
-        now={NOW}
-        locale="en-GB"
         actions={[{ label: "Check the connection", href: "#example-device" }]}
       >
         Readings taken after Tuesday may be missing from this screen. Nothing

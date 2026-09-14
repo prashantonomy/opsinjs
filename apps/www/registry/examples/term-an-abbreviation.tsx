@@ -9,19 +9,19 @@
  * The third field on show is `speech`. `SpO2` written down is read aloud as the
  * word *spoh-two* by speech synthesis, and a reader who hears that has been
  * given a different word from the one on their paperwork. Writing the letters
- * out ADDS them to the control's accessible name, after the written form rather
- * than in place of it, so the name is *SpO2 S P O 2*: the sentence still shows
- * `SpO2`, a speech reader gets the letters, and a braille reader still gets the
- * spelling that is on their paperwork. Added rather than substituted on two
- * counts. Swapping the letters in for the written word would hide that spelling
- * from exactly the readers who cannot see the screen; and keeping the visible
- * word inside the accessible name is what SC 2.5.3 Label in Name asks for, and
- * what a Voice Control user saying "click SpO2" needs in order to hit anything.
+ * out ADDS them after the written form rather than replacing it: the sentence
+ * still shows `SpO2`, a speech reader also hears the letters, and a braille
+ * reader still gets the spelling that is on their paperwork. The `speech` span
+ * sits inside the trigger content on both presentation paths, so the letters
+ * follow the word whether the definition arrives inline or behind a control.
+ * Swapping the letters in for the written word would hide that paperwork
+ * spelling from exactly the readers who cannot see the screen, which is why they
+ * are added and not substituted.
  *
- * The second entry has no expansion at all, because `benign` is not an
- * abbreviation. It is here as the counterweight: a term with a two-word
- * definition goes inline under `auto`, and no control is drawn for something
- * that is already on the screen.
+ * Both entries arrive inline under `auto`, in parentheses, with nothing behind a
+ * press. `SpO2` shows its expansion, its definition and its spoken form
+ * together; `benign` shows a two-word definition and no expansion, because it is
+ * not an abbreviation.
  *
  * The sentence around it is third person and general on purpose. *benign means
  * not cancer* is a definition where it stands; the identical component call
@@ -49,11 +49,13 @@ const GLOSSARY: readonly GlossaryEntry[] = [
     expansion: "oxygen saturation",
     plain: "an estimate of how much oxygen your blood is carrying",
     speech: "S P O 2",
+    showBoth: "always",
   },
   {
     id: "benign",
     word: "benign",
     plain: "not cancer",
+    showBoth: "always",
   },
 ]
 

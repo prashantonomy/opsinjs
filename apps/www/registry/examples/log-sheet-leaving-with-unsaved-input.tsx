@@ -19,8 +19,9 @@
  * the entry is still there behind it.
  *
  * WHILE THE QUESTION IS UP, escape and a background tap answer it with "keep
- * editing". That is the safe one. The way out is the Discard control, which is
- * a real button two tab stops away, so the sheet is never a trap.
+ * editing". That is the safe one. The way out is the Discard entry control,
+ * one Shift+Tab back from the focused safe answer, so the sheet is never a
+ * trap.
  *
  * `onDiscard` RECEIVES THE ENTRY that was about to be lost, which is what makes
  * "the product decides whether to keep a draft" possible rather than merely
@@ -41,6 +42,25 @@ import { LogSheet, type LogEntry } from "@/registry/base-lyra/ui/log-sheet"
 
 const EMPTY: Record<string, number | string | null> = {
   "example-measurement": null,
+}
+
+/* The record stores an instant; a reader reads a time. `occurredAt` is
+   `toISOString()` output, so printing it raw shows a reader who just picked
+   12:29 the string 2026-09-05T11:29:00.000Z, which is a machine string, in
+   UTC, and an hour wrong everywhere outside Greenwich. The formatter is built
+   inside the function rather than at module scope so it resolves the reader's
+   locale in the browser rather than the server's during a render. This example
+   ships on its own through `shadcn add`, so it carries its own copy rather
+   than importing one. */
+function readableTime(instant: string): string {
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+    /* 24-hour with a colon, per content/numbers-dates-and-time, which bans
+       am/pm outright: LogSheet is the surface whose capture format reaches an
+       export, so the demo must not teach the banned clock. */
+    hourCycle: "h23",
+  }).format(new Date(instant))
 }
 
 export default function LogSheetLeavingWithUnsavedInput() {
@@ -68,8 +88,8 @@ export default function LogSheetLeavingWithUnsavedInput() {
 
       {draft ? (
         <p className="m-0 max-w-sm text-center text-opsin-footnote">
-          A draft was kept: the entry was dated {draft.occurredAt} and its note
-          was {draft.note ?? "left empty"}.
+          A draft was kept: the entry was dated {readableTime(draft.occurredAt)}{" "}
+          and its note was {draft.note ?? "left empty"}.
         </p>
       ) : null}
 

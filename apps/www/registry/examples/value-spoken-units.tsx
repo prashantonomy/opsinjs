@@ -13,7 +13,7 @@
  * could derive. All three have to be written down somewhere, once, and that
  * somewhere is a token file rather than twenty component files.
  *
- * The number is the same on every row, and it is 8888 because 8888 is out of
+ * The number is the same on every row, and it is 888 because 888 is out of
  * scale for every unit in the set: no weight, no concentration, no pressure, no
  * rate, no temperature and no proportion in this table lands anywhere a reader
  * could take for their own. That is the whole reason it is not a smaller,
@@ -36,7 +36,7 @@ import { Value } from "@/registry/base-lyra/ui/value"
    true. */
 const SYMBOLS = ["kg", "mmol/L", "mmHg", "bpm", "°C", "%"]
 
-const SAMPLE = 8888
+const SAMPLE = 888
 
 export default function ValueSpokenUnits() {
   return (

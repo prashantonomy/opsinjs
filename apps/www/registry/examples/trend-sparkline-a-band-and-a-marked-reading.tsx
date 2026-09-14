@@ -62,8 +62,10 @@ export default function TrendSparklineABandAndAMarkedReading() {
         <TrendSparkline
           label="Example measurement"
           unit="steps"
+          precision={0}
           category="activity"
-          window="the last six entries"
+          locale="en-GB"
+          window="the last 6 entries"
           series={SERIES}
           minimumPoints={EXAMPLE_READINGS_A_TREND_NEEDS}
           range={{ low: 10, high: 20, source: EXAMPLE_SOURCE }}
@@ -74,8 +76,10 @@ export default function TrendSparklineABandAndAMarkedReading() {
         <TrendSparkline
           label="Second example measurement"
           unit="steps"
+          precision={0}
           category="activity"
-          window="the last six entries"
+          locale="en-GB"
+          window="the last 6 entries"
           series={SERIES}
           minimumPoints={EXAMPLE_READINGS_A_TREND_NEEDS}
           range={{ high: 20, source: EXAMPLE_SOURCE }}

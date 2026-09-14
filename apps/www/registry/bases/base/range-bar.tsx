@@ -49,7 +49,9 @@
  * not true.
  */
 
-import { Check, Eye, OctagonAlert, TriangleAlert } from "lucide-react"
+import type { CSSProperties } from "react"
+
+import { Circle, CircleDot, Diamond, Octagon } from "lucide-react"
 
 import {
   CLINICAL_STATUS_META,
@@ -58,13 +60,13 @@ import {
   isClinicalStatus,
   isDevelopment,
   isHealthCategory,
-  spokenUnit,
   warnOnce,
   type ClinicalStatus,
   type HealthCategory,
   type ReferenceRange,
 } from "@/lib/opsinjs"
 import { cn } from "@/lib/utils"
+import { StatusPill } from "@/registry/base-lyra/ui/status-pill"
 import { Value } from "@/registry/base-lyra/ui/value"
 
 /**
@@ -77,19 +79,21 @@ import { Value } from "@/registry/base-lyra/ui/value"
  * a missing level a compile error, and the assertion below is what catches this
  * copy drifting away from `lib/status.ts`.
  *
- * WHY THIS FILE DRAWS ITS OWN WORD AND GLYPH RATHER THAN EMBEDDING A PILL. The
- * status word here must survive a caller replacing `summary` with their own
- * sentence, so it cannot live inside the summary; and the level belongs beside
- * the label rather than in a chip of its own, because a bar that also carried a
- * pill would show a reader two competing objects for one assertion. The
- * vocabulary is still read from `CLINICAL_STATUS_META` and never restated, so
- * the two components cannot say different words for the same level.
+ * THIS MAP NO LONGER FEEDS A GLYPH THIS FILE DRAWS. The level beside the label
+ * is now a StatusPill, so one capsule carries the word, the glyph and the
+ * colour, and a reader learns to scan for a single shape wherever a level
+ * appears in the system. The status word still lives outside the summary, where
+ * a caller who replaces the sentence cannot take it away, because the pill sits
+ * in the label row rather than inside the sentence. What remains here is the
+ * development-only drift guard below, kept in step with the copy StatusPill runs
+ * on itself, and the vocabulary is read from `CLINICAL_STATUS_META` so the two
+ * can never say different words for one level.
  */
-const ICONS: Record<ClinicalStatus, typeof Check> = {
-  steady: Check,
-  watch: Eye,
-  attention: TriangleAlert,
-  urgent: OctagonAlert,
+const ICONS: Record<ClinicalStatus, typeof Circle> = {
+  steady: Circle,
+  watch: CircleDot,
+  attention: Diamond,
+  urgent: Octagon,
 }
 
 /* Development-only. If somebody changes an icon name in lib/status.ts and not
@@ -160,40 +164,6 @@ const TICK_TONE: Record<ClinicalStatus, string> = {
 }
 
 /**
- * The status word and glyph beside the label.
- *
- * `-ink` rather than the line role, because this is text on the surface behind
- * the component rather than a stroke: the ink roles are the ones tuned to be
- * read, and they flip with the theme.
- *
- * WHAT HAS AND HAS NOT BEEN ESTABLISHED IS THE GROUND, and the two halves are
- * worth separating. `tokens/color.json` defines `ink` as text on the matching
- * `-surface` and tunes it to clear the text floor against that surface; this
- * component sets no surface of its own, so the word lands on whatever
- * background the host provides, which is a different pairing from the one the
- * token contract guarantees.
- *
- * The rig has nonetheless measured the pairing this component most often lands
- * on. `lib/generated/contrast.json` carries `status.<level>.ink-on-page` for
- * all four levels in both themes, and every one of them passes the text floor.
- * The ground it measures against is `--opsin-neutral-0` in light and
- * `--opsin-neutral-950` in dark. In light that is exactly `--card`, so a bar on
- * a card is on precisely the measured ground; in dark `--card` is one step
- * lighter than `--opsin-neutral-950`, so the recorded figure is close to but
- * not the pairing on a card, and no number for that pairing has been produced.
- * This file therefore claims what was measured and no more. See
- * `score-dial.tsx`, which reads the same rows for the same roles. `CATEGORY_INK`
- * below stands on the same ground, and `category.<name>.ink-on-page` is
- * measured and passing in the same way.
- */
-const STATUS_INK: Record<ClinicalStatus, string> = {
-  steady: "text-status-steady-ink",
-  watch: "text-status-watch-ink",
-  attention: "text-status-attention-ink",
-  urgent: "text-status-urgent-ink",
-}
-
-/**
  * The category tint, on the label and on nothing else.
  *
  * Category colour is IDENTITY. It says what this reading is about, and never a
@@ -228,8 +198,19 @@ const EDGE_ROOM = 0.08
  */
 const MAX_FRACTION_DIGITS = 20
 
-/** One piece of the summary sentence: words, or a reading Value renders. */
-type SummaryPiece = string | { reading: number | null; unit: string }
+/**
+ * One piece of the summary sentence: words, or a reading Value renders.
+ *
+ * `unitDisplay` rides along so a piece can ask Value to keep the unit in the
+ * accessibility tree and take it off the screen. A pair of bounds in one unit is
+ * one measurement written twice, so the visible sentence prints the unit once,
+ * on the second bound, and the first bound carries `unitDisplay: "spoken"`. A
+ * listener has no column to carry the unit across from one bound to the next, so
+ * the spoken form stays on both and nobody hears a bound read bare.
+ */
+type SummaryPiece =
+  | string
+  | { reading: number | null; unit: string; unitDisplay?: "symbol" | "spoken" }
 
 /** Where the reading falls against the product's own bounds. Arithmetic only. */
 type Position = "within" | "above" | "below"
@@ -284,25 +265,51 @@ export interface RangeBarProps {
    * which is what `health/numbers-units-precision` rule 2 forbids.
    *
    * It applies to the reading and to the two boundary labels alike, because a
-   * value and the bound it is being compared with are the same metric. Omitted,
-   * nothing is rounded and nothing is padded.
+   * value and the bound it is being compared with are the same metric. It is
+   * required, so a TypeScript caller cannot ship a reading with no stated
+   * precision: an unstated precision is default float rendering, which
+   * `health/numbers-units-precision` rule 1 forbids anywhere. Required is not the
+   * same as defaulted. This component still invents no number of its own, because
+   * precision belongs to the metric rather than to the unit and nothing here
+   * could supply an honest one. The file ships as source into JavaScript
+   * projects, where a required prop is advice rather than a guarantee, so a
+   * caller who omits it there still gets the honest fallback, with nothing
+   * rounded and nothing padded.
    */
-  precision?: number
+  precision: number
   /**
    * When the measurement was taken, ISO 8601. Rendered as a date in the
    * footnote so that a number on a screen is not read as "now". Omitted, the
    * footnote says that nobody knows when the reading was taken rather than
-   * saying nothing. That is the same answer this component gives for a range
-   * nobody has dated, and for the same reason: silence about a time is read as
-   * now.
+   * saying nothing, because silence about a time is read as now.
    *
    * That is a recency signal, and it is not a staleness treatment. There is no
    * `staleAfterHours` here and there will not be one: how old is too old is
    * clinical, differs by metric, and opsinjs does not own it. A surface that
    * needs a boundary wraps the reading in `RelativeTime`, which takes the
    * boundary from you.
+   *
+   * A container that already states the instant itself can suppress this
+   * footnote sentence with `readingRecency="delegated"`. See that prop.
    */
   measuredAt?: string
+  /**
+   * Who states when the reading was taken. Defaults to `"state"`, which is
+   * every existing caller's behaviour without exception: the footnote prints
+   * the reading's date, or prints that nobody knows when it was taken.
+   *
+   * `"delegated"` means the surrounding component states that instant itself,
+   * in view and in the accessibility tree, and takes responsibility for doing
+   * so; the bar then prints neither reading sentence. This exists to stop one
+   * card saying the same thing twice, not to make a number quieter about its
+   * age. A caller that passes `"delegated"` and then states nothing has removed
+   * a fact from the screen, which is the failure `measuredAt` exists to
+   * prevent. The one caller entitled to it is `ResultCard`, whose header
+   * carries the instant through `RelativeTime` with the absolute date always on
+   * screen. `measuredAt` is still passed under delegation, because it can feed
+   * an accessible name a container builds; it simply stops printing here.
+   */
+  readingRecency?: "state" | "delegated"
   /**
    * Replaces the generated sentence. Use it for a unit whose phrasing does not
    * fit the template, or for a reader whose language is not English. It cannot
@@ -313,7 +320,15 @@ export interface RangeBarProps {
   /**
    * BCP 47 locale for number separators, digit shapes and the dates in the
    * footnote. Passed through to every `Value` this component renders, so one
-   * bar cannot show two conventions. Omitted, the reader's environment decides.
+   * bar cannot show two conventions.
+   *
+   * This component renders on a server and again in a browser. With no locale
+   * the server formats with the host process's locale and the browser formats
+   * with the reader's, so where the two differ the number separators and the
+   * footnote date change under the reader on hydration and React reports a
+   * mismatch. Pass the locale the surface is rendered in, taken from wherever
+   * that surface already knows it. Omitting it does not hand formatting to the
+   * reader's own environment on the server; it hands it to the server's.
    */
   locale?: string
   /** Merged onto the root. A class passed here wins where the two conflict. */
@@ -378,11 +393,25 @@ function positionOf(value: number, range: ReferenceRange): Position {
  * empty return is what keeps this function total, and it is not a state the
  * sentence is ever built from. An empty phrase spliced into "within the range
  * …, from …" is a comparison with nothing in it.
+ *
+ * The low bound of a two-bound pair carries `unitDisplay: "spoken"`, so the
+ * phrase reads "10 to 20 mg/dL" on the screen rather than "10 mg/dL to 20 mg/dL":
+ * one unit for one measurement written at both its ends. The unit stays spoken
+ * on both, because a listener meets the bounds one after the other and has no
+ * column heading to carry the unit across from the first to the second.
+ *
+ * IT NOW SERVES THE NO-READING BRANCH ALONE. The has-reading sentence takes its
+ * comparison clause from `comparisonPieces`, which templates the phrasing per
+ * range shape. This function is the range as a bare noun phrase, which is what
+ * "The range is 10 to 20 mg/dL, from X." and "The range is up to 20 mg/dL, from
+ * X." both need, because there is no position word beside it for an open-ended
+ * phrase to collide with. Do not reuse it inside a comparison; that is the
+ * collision `comparisonPieces` exists to prevent.
  */
 function rangePieces(range: ReferenceRange, unit: string): SummaryPiece[] {
   const { low, high } = range
   if (low !== undefined && high !== undefined) {
-    return [{ reading: low, unit }, " to ", { reading: high, unit }]
+    return [{ reading: low, unit, unitDisplay: "spoken" }, " to ", { reading: high, unit }]
   }
   if (high !== undefined) return ["up to ", { reading: high, unit }]
   if (low !== undefined) return [{ reading: low, unit }, " and upwards"]
@@ -390,12 +419,65 @@ function rangePieces(range: ReferenceRange, unit: string): SummaryPiece[] {
 }
 
 /**
- * The sentence, in pieces, so that it can be both rendered and spoken.
+ * The comparison clause, templated per range shape, comma and space included.
  *
- * It is built once and used twice: as JSX, where each reading is a `Value` that
- * carries the unit's spoken form, and as a string for the graphic's accessible
- * name. Two hand-written copies of one sentence would be two sentences the
- * moment somebody edited one of them.
+ * The clause carries its own leading ", " so the caller concatenates it rather
+ * than interpolating a position word into a fixed frame. A two-bound range keeps
+ * the frame it always had, "within/above/below the range X to Y", which is the
+ * sentence the has-reading branch produced before this function existed. A
+ * one-bound range does not: splicing an open-ended noun phrase into that frame
+ * gives "within the range up to 20", two prepositions fighting over one number,
+ * so each open shape gets a clause written for it that names the bound and never
+ * the reader. The words are the direction-based lay phrasing
+ * `content/docs/health/reference-ranges.mdx` prefers, and none of them is on the
+ * banned list in `tokens/glossary.json`.
+ *
+ * `positionOf` decides the direction, and it cannot return every direction for
+ * every shape. With only `high` it returns "above" or "within" and never
+ * "below"; with only `low` it returns "below" or "within" and never "above". The
+ * unreachable direction falls through to the within-side wording rather than
+ * throwing, so the function is total whatever a caller's pipeline hands it. The
+ * within-side clause says "at or under" and "at or above" rather than the bare
+ * preposition because `positionOf` tests the bounds strictly, so a reading equal
+ * to its only bound comes back "within" and lands here. A reading on the cutoff
+ * is neither under nor above it, and "at or under 20" stays true when the
+ * reading is 20 where "under 20" would be false. The
+ * boundless range, which carries neither bound, is discarded upstream and never
+ * reaches here; its empty return mirrors `rangePieces` and keeps this function
+ * honest read on its own.
+ */
+function comparisonPieces(value: number, range: ReferenceRange, unit: string): SummaryPiece[] {
+  const { low, high } = range
+  if (low !== undefined && high !== undefined) {
+    return [
+      `, ${positionOf(value, range)} the range `,
+      { reading: low, unit, unitDisplay: "spoken" },
+      " to ",
+      { reading: high, unit },
+    ]
+  }
+  if (high !== undefined) {
+    return positionOf(value, range) === "above"
+      ? [", higher than the upper limit of ", { reading: high, unit }]
+      : [", at or under the upper limit of ", { reading: high, unit }]
+  }
+  if (low !== undefined) {
+    return positionOf(value, range) === "below"
+      ? [", lower than the lower limit of ", { reading: low, unit }]
+      : [", at or above the lower limit of ", { reading: low, unit }]
+  }
+  return []
+}
+
+/**
+ * The sentence, in pieces, so that each reading renders as a `Value`.
+ *
+ * It is built once and rendered once, in the visible summary paragraph, where
+ * each reading is a `Value` that carries the unit's spoken form. That paragraph
+ * is plain text in the accessibility tree, so it is also what a screen reader
+ * reads: the sentence is heard from the paragraph itself rather than from a
+ * separate accessible name, and the track above it is now decorative and
+ * hidden, so no reader hears the sentence twice.
  *
  * It always states the reading, the range and the position, in that order, so
  * that it stands alone when it is read out of context, whether in a screen
@@ -422,14 +504,13 @@ function summaryPieces(
     return [
       `${label} is `,
       { reading: value, unit },
-      ". We do not have a range to compare it with, so nothing here shows where it sits.",
+      ". We do not have a reference range for this test, so we cannot show where this result sits.",
     ]
   }
   return [
     `${label} is `,
     { reading: value, unit },
-    `, ${positionOf(value, range)} the range `,
-    ...rangePieces(range, unit),
+    ...comparisonPieces(value, range, unit),
     `, from ${range.source}.`,
   ]
 }
@@ -453,53 +534,20 @@ function digitsOf(reading: number, precision: number | undefined, locale: string
 }
 
 /**
- * The sentence as one string, for the graphic's accessible name.
- *
- * Units are SPOKEN here rather than written: the accessible name is heard, and
- * "mmol/L" read out character by character is the failure `Value` exists to
- * prevent. A unit the table does not hold falls back to the symbol as written.
- * That is awkward to listen to, and true.
- */
-function summaryText(
-  pieces: SummaryPiece[],
-  precision: number | undefined,
-  locale: string | undefined,
-): string {
-  return pieces
-    .map((piece) => {
-      if (typeof piece === "string") return piece
-      /* THREE STATES, KEPT THREE, in `Value`'s own words rather than in a
-         second set. A reading is a reading, `null` is an absence, and a number
-         that arrived broken is a failure: a reader told "no reading yet" about
-         a number that DID exist and arrived broken has been told something
-         untrue about their own record, which is
-         `health/numbers-units-precision` rule 13. Both branches are reached
-         only in a state that draws no graphic and therefore has no accessible
-         name. But they agree with what `Value` renders, so the sentence and
-         its picture cannot start disagreeing if the drawing rules change. */
-      if (piece.reading === null) return "no reading yet"
-      if (!Number.isFinite(piece.reading)) return "not available"
-      const digits = digitsOf(piece.reading, precision, locale)
-      /* THE PLURAL FOLLOWS WHAT IS ON THE SCREEN, decided the way `Value`
-         decides it: by asking the same formatter what one looks like, rather
-         than by inspecting the raw number. A reading of 1.4 shown to no decimal
-         places is "1" in the picture and was "1 milligrams" in the picture's
-         name. That was the two halves of one sentence disagreeing about a
-         number they had both got right. */
-      const singular =
-        digits === digitsOf(1, precision, locale) || digits === digitsOf(-1, precision, locale)
-      return `${digits} ${spokenUnit(piece.unit, singular ? 1 : piece.reading) ?? piece.unit}`
-    })
-    .join("")
-}
-
-/**
  * A date, or the string as supplied when it is not one.
  *
  * `timeZone: "UTC"` rather than the reader's zone, because this renders on a
  * server and again in a browser: a date that resolved differently in the two
  * places would hydrate into a mismatch, and a provenance date that changes
  * under the reader is worse than one that is a few hours out.
+ *
+ * The locale is the other half of that same hydration problem, and it is not
+ * fixed here. With `locale` undefined the server formats this date with the host
+ * process's locale and the browser reformats it with the reader's, so the
+ * footnote can flip its date order on load. One component cannot resolve that on
+ * its own: the only document-level source of a locale is client-only and would
+ * itself differ between the server pass and the first client pass, which is the
+ * bug rather than the fix. The caller passes the locale the surface renders in.
  */
 function formatDate(iso: string, locale: string | undefined): string {
   const instant = new Date(iso)
@@ -519,6 +567,7 @@ export function RangeBar({
   category,
   precision,
   measuredAt,
+  readingRecency = "state",
   summary,
   locale,
   className,
@@ -649,49 +698,46 @@ export function RangeBar({
     )
   }
   const sentence = summary !== undefined && !blankSummary ? summary : undefined
-  const spokenSummary = sentence ?? summaryText(pieces, precision, locale)
-
-  const StatusGlyph = level === undefined ? null : ICONS[level]
-
-  /* THE PICTURE'S NAME CARRIES THE LEVEL AS WELL AS THE POSITION. The tick is
-     the element that takes the status colour, and it lives inside the
-     `role="img"`, whose children are pruned from the accessibility tree. So
-     without this, a reader who reaches the graphic through a rotor, or who is
-     magnified into it, meets a coloured mark and no word.
-     `accessibility/screen-readers` rule 4 is that the status word is in the
-     accessible name and not only in the colour, and a screen reader is a
-     permanently greyscale device. It goes on the NAME and never inside the
-     visible sentence, because a caller who replaces `summary` must not be able
-     to take the word away with it. */
-  const graphicName =
-    level === undefined
-      ? spokenSummary
-      : `${spokenSummary} ${CLINICAL_STATUS_META[level].word}.`
 
   const at = (point: number) =>
     extent === null ? 0 : ((point - extent.start) / (extent.end - extent.start)) * 100
 
-  /* NEVER SILENT ABOUT WHEN. A number on a screen with no time beside it is
-     read as "now", so an absent `measuredAt` is STATED. That is the same answer
-     this component already gives for a range nobody has dated, and the reader
-     is the person entitled to know that nobody knows. It is a recency signal
-     and not a staleness treatment: there is no boundary here and there will not
-     be one, because how old is too old is clinical, differs by metric, and
-     belongs to whoever owns the range. */
+  /* NEVER SILENT ABOUT WHEN THE READING WAS TAKEN, UNLESS A CONTAINER TAKES IT
+     OVER. A number on a screen with no time beside it is read as "now", so a
+     standalone bar STATES an absent `measuredAt` rather than saying nothing. It
+     is a recency signal and not a staleness treatment: there is no boundary
+     here and there will not be one, because how old is too old is clinical,
+     differs by metric, and belongs to whoever owns the range.
+
+     The one exception is `readingRecency === "delegated"`, which a surrounding
+     component sets when it already states the instant itself, in view and in
+     the accessibility tree. Then the bar prints neither reading sentence,
+     because the fact is on the screen once already and printing it twice is
+     what this exception exists to stop. It never makes the fact disappear: the
+     container has promised to carry it. `ResultCard` is the caller that does,
+     through the `RelativeTime` in its header.
+
+     The range is different, and neither rule carries across to it. The range's
+     author is already named in the summary sentence one line up, on every bar
+     without exception, because `ReferenceRange.source` is required and
+     OPSIN-0004 is enforced above, so a reader always knows whose comparison
+     they are reading. A confirmation date is added when somebody supplies one.
+     A line per row saying nobody knows a date the reader could not act on
+     anyway reads as the product disowning its own ranges, and none of the
+     health rules in content/docs/health/uncertainty-and-staleness.mdx asks an
+     undated range to announce itself. So the undated range says nothing. */
   const asOf = compared?.asOf
   const hasReading = value !== null && Number.isFinite(value)
   const provenance: string[] = []
-  if (compared !== undefined) {
-    provenance.push(
-      asOf === undefined
-        ? "We do not know when this range was last confirmed."
-        : `This range was last confirmed on ${formatDate(asOf, locale)}.`,
-    )
+  if (asOf !== undefined) {
+    provenance.push(`This range was last confirmed on ${formatDate(asOf, locale)}.`)
   }
-  if (measuredAt !== undefined) {
-    provenance.push(`This reading was taken on ${formatDate(measuredAt, locale)}.`)
-  } else if (hasReading) {
-    provenance.push("We do not know when this reading was taken.")
+  if (readingRecency === "state") {
+    if (measuredAt !== undefined) {
+      provenance.push(`This reading was taken on ${formatDate(measuredAt, locale)}.`)
+    } else if (hasReading) {
+      provenance.push("We do not know when this reading was taken.")
+    }
   }
 
   return (
@@ -733,21 +779,16 @@ export function RangeBar({
             because the measured CVD audit in tokens/color.json finds steady and
             attention identical under deuteranopia and in greyscale, and steady
             and urgent identical under tritanopia. The word is the carrier the
-            colour is redundant to, and not the other way round. */}
-        {level !== undefined && StatusGlyph !== null ? (
-          <span
-            data-slot="range-bar-status"
-            data-status={level}
-            className={
-              "inline-flex items-center gap-opsin-1 whitespace-normal text-opsin-footnote " +
-              STATUS_INK[level]
-            }
-          >
-            {/* Decorative. The word beside it carries the level, so announcing
-                the glyph as well would say it twice. */}
-            <StatusGlyph aria-hidden="true" className="size-[1em] shrink-0" />
-            {CLINICAL_STATUS_META[level].word}
-          </span>
+            colour is redundant to, and not the other way round. It is now
+            delivered as a StatusPill, the one capsule every status-bearing
+            component in the system shares, at StatusPill's own md size, so the
+            same level reads as the same object here as on a card or a
+            sparkline. The pill stamps its own data-status, and the tick inside
+            the picture carries the second copy. `describes` gives a listener the
+            subject the level applies to, so the pill is not heard as a floating
+            word. */}
+        {level !== undefined ? (
+          <StatusPill status={level} describes={label} />
         ) : null}
       </div>
 
@@ -755,23 +796,48 @@ export function RangeBar({
         /* Padded in `em` rather than in a fixed measure, because what has to fit
            in it is text: the reading above the track and the two boundary
            labels below it, both of which grow with the reader's own type size.
-           A rem here would hold its ground while the labels grew through it. */
-        <div className="relative py-[1.75em] text-opsin-footnote">
+           A rem here would hold its ground while the labels grew through it.
+
+           The padding is asymmetric on purpose. Above the track sits the
+           reading, which is a health value and so is drawn at the `body` step
+           tokens/type.json rules[1] fixes as the floor, one step larger than the
+           wrapper's own footnote em. Below it sit the two boundary numbers,
+           which are axis labels and stay at caption1, a step smaller. The top
+           therefore needs more room than the bottom, so `pt` is `2.5em` to clear
+           a body line plus the `mb-opsin-2` gap while `pb` stays at `1.75em` for
+           the caption labels that did not grow. */
+        <div
+          className="relative pt-[2.5em] pb-[1.75em] text-opsin-footnote"
+          style={{ "--rb-label-half": "3.5em" } as CSSProperties}
+        >
           <div
             data-slot="range-bar-track"
-            /* ONE LABELLED PICTURE, NOT A TREE OF SHAPES, and never a `slider`,
+            /* A DECORATIVE PICTURE, NOT A TREE OF SHAPES, and never a `slider`,
                a `meter` or a `progressbar`: all three announce a value a reader
                can inspect or move, and this is a drawing of a reading somebody
                else assigned. It is not focusable and it is not in the tab order,
                because a stop that does nothing is a stop every keyboard user
-               pays for on every row of a list. The name is the summary
-               sentence, plus the status word. The reader also has the sentence
-               in full underneath, so the repetition is the cost of the picture
-               having a name at all. The status word is inside the picture as a
-               colour and nowhere inside it as a word. */
-            role="img"
-            aria-label={graphicName}
-            className="relative h-[0.9em] rounded-full border border-border bg-muted"
+               pays for on every row of a list. The picture now has no
+               accessible name and is hidden from the tree with `aria-hidden`,
+               because the same words sit underneath it in the summary
+               paragraph, which is unconditional and never behind a prop, and a
+               named picture made every reader hear that sentence twice on every
+               row of a list. The level is not lost with the name: the product's
+               status word travels on the visible StatusPill above the bar,
+               which is in the tree whenever `level` is set. The status word is
+               inside the picture as a colour and nowhere inside it as a word. */
+            aria-hidden="true"
+            /* THE TRACK IS A GROOVE, SO IT READS THE INSET RUNG. `bg-muted` sat
+               ABOVE the card fill in dark, which drew the track as a raised
+               strip inside the card it belongs to rather than a recess cut into
+               it, the opposite of the light layout. The token-only `inset` rung
+               in tokens/material.json is authored to sit between the card and
+               the page in both themes, so the track reads
+               --opsin-material-inset-tint directly, the way Surface reads a
+               rung's tint. The rung is opaque by design (tint-alpha 1, no blur),
+               so a flat background colour is the whole of the treatment and no
+               backdrop layer is needed here. */
+            className="relative h-[0.9em] rounded-full border border-border bg-(--opsin-material-inset-tint)"
           >
             {/* THE BAND IS NEVER STATUS-COLOURED. It is the range, which is a
                 fact about a laboratory rather than about the reader, and a
@@ -796,56 +862,97 @@ export function RangeBar({
               className="absolute inset-y-0 rounded-full border border-muted-foreground bg-background"
             />
 
-            {[extent.low, extent.high].map((bound, index) => (
+            {[extent.low, extent.high].map((bound) => (
               <div
                 key={bound}
                 data-slot="range-bar-mark"
                 style={{ insetInlineStart: `${at(bound).toFixed(3)}%` }}
-                className="absolute -top-opsin-1 -bottom-opsin-1 w-px -translate-x-1/2 bg-muted-foreground rtl:translate-x-1/2"
-              >
-                {/* THE TWO BOUND LABELS GROW OUTWARDS, AND THAT IS WHAT STOPS
-                    THEM COLLIDING. Centred on their marks they overlapped at
-                    200% text on a phone. The overlap was 20px at 390px and 42px
-                    at 320px, which prints the reference range as "10 mg/d20
-                    mg/dL" and is invisible to an overflow check because the
-                    document never widens. They cannot wrap out of it either:
-                    the mark is a 1px containing block, so dropping
-                    `whitespace-nowrap` would break the label after every
-                    character.
+                className="absolute -top-opsin-1 -bottom-opsin-1 w-px -translate-x-1/2 bg-muted-foreground rtl:translate-x-1/2 forced-colors:bg-[CanvasText]"
+              />
+            ))}
 
-                    So the lower bound's label ends on its mark and the upper
-                    bound's label starts on its mark. Each still points at the
-                    position it names. The tick anchoring is untouched, which
-                    matters because these marks sit at computed positions inside
-                    the track and are not its ends. The low label occupies only
-                    the space before its mark while the high label occupies only
-                    the space after its, so at any type size there is a whole
-                    band between them. `end-1/2` and `start-1/2` are
-                    logical properties and flip on their own in a
-                    right-to-left locale, which is why the translate pair the
-                    centring needed is gone rather than mirrored.
+            {/* THE TWO BOUND LABELS GROW OUTWARDS FROM THEIR MARKS, AND THE
+                TRACK IS WHAT BOUNDS THEM. Each label is a direct child of the
+                track rather than of its 1px mark, so the track is the label's
+                containing block and its position is held inside the track's own
+                inline box. The low label lives in a box that runs from the
+                track's start to the low mark; the high label lives in a box that
+                runs from the high mark to the track's end. Each label ends on
+                its mark while it fits and, once the reader's type size makes it
+                wider than its box, falls back to the near track edge rather than
+                hanging past it. Two failures are gone with this. Centred on
+                their marks the labels overlapped at 200% text on a phone.
+                Anchored to a 1px mark a label could hang off the component and
+                scroll the page sideways once a rising reading pushed a mark
+                towards the edge, which was the P1 the layout gate now measures.
+                What it costs: near an end of the extent a label stops being
+                flush with its mark, and the mark keeps the true position.
 
-                    JOINED RATHER THAN MERGED, for the reason `disclaimer-note`
-                    sets out at length: `cn` is `twMerge(clsx(…))` and
-                    tailwind-merge has never been told that `--text-opsin-*` is a
-                    font-size namespace, so it files `text-opsin-caption1` with
-                    `text-muted-foreground` and drops one of them. Both lists here
-                    are written in this file and set different properties, so
-                    there is nothing to reconcile. */}
-                <span
-                  className={`absolute top-full mt-opsin-1 whitespace-nowrap text-opsin-caption1 text-muted-foreground ${
-                    index === 0 ? "end-1/2 pe-opsin-1" : "start-1/2 ps-opsin-1"
-                  }`}
-                >
+                THE FALLBACK EDGE IS WHY THE TWO BOXES ARE NOT SPELLED THE SAME.
+                `justify-end-safe` aligns the label to the box's inline-end,
+                which is the mark, and its `safe` keyword does one thing only:
+                when the label no longer fits, it pins the label to the box's
+                inline-START edge. For the low box that start edge is the track's
+                own inline-start, so a low label that outgrows its box slides
+                inward across the track and stays inside. For the high box the
+                edge that must not be crossed is the track's inline-END, and
+                `safe` never protects that edge; it would pin the high label to
+                the box's inline-start, which is the high mark, and let the label
+                overflow past the track's end and across the card border. That
+                was resultcard-08. So the high label sits in an inner flex whose
+                inline flow is reversed relative to the component, which makes the
+                track's inline-end the start edge that flow's `safe` protects.
+                `justify-end-safe` then hugs the high mark while the label fits
+                and, on overflow, falls back to the track's inline-end and grows
+                inward across the track, the mirror of the low label. The
+                reversal is written relative to the ambient direction, not as a
+                fixed `rtl`, so the pair still mirror correctly when a product
+                renders the whole bar right to left, and the label span restores
+                the ambient direction so the number and its unit keep their
+                reading order.
+
+                `whitespace-nowrap` stays, for a different reason than it did on
+                the mark. `Value` joins the number and its unit with a no-break
+                space, and each box is wide enough that wrapping would only ever
+                split that phrase from the rest of the row. The class lists are
+                written out and joined rather than run through `cn`, because
+                tailwind-merge has never been told that `--text-opsin-*` is a
+                font-size namespace and would file `text-opsin-caption1` with
+                `text-muted-foreground` and drop one of them. */}
+            <div
+              className="absolute top-full mt-opsin-2 flex justify-end-safe"
+              style={{
+                insetInlineStart: 0,
+                inlineSize: `${at(extent.low).toFixed(3)}%`,
+              }}
+            >
+              <span className="whitespace-nowrap pe-opsin-1 text-opsin-caption1 text-muted-foreground">
+                <Value
+                  value={extent.low}
+                  unit={unit}
+                  precision={precision}
+                  locale={locale}
+                />
+              </span>
+            </div>
+            <div
+              className="absolute top-full mt-opsin-2"
+              style={{
+                insetInlineEnd: 0,
+                inlineSize: `calc(100% - ${at(extent.high).toFixed(3)}%)`,
+              }}
+            >
+              <div className="flex w-full justify-end-safe [direction:rtl] rtl:[direction:ltr]">
+                <span className="whitespace-nowrap ps-opsin-1 text-opsin-caption1 text-muted-foreground [direction:ltr] rtl:[direction:rtl]">
                   <Value
-                    value={bound}
+                    value={extent.high}
                     unit={unit}
                     precision={precision}
                     locale={locale}
                   />
                 </span>
               </div>
-            ))}
+            </div>
 
             {/* The tick is the only part of the RAIL that may carry status
                 colour. The band, the track and the boundary marks stay
@@ -856,28 +963,62 @@ export function RangeBar({
                 is thicker and rounder than a boundary mark so the two are told
                 apart by shape before colour. `data-status` is the DOM contract
                 the print stylesheet and every product-side test key on, and it
-                is stamped here and on the status word alike. */}
+                is stamped here and on the status word alike.
+
+                UNDER FORCED COLOURS THE FILL IS STRIPPED, so a background alone
+                would erase the reading's position on the track, which is the one
+                thing the picture exists to show. The tick keeps a fill by asking
+                for the system `Highlight` colour, which a forced-colours palette
+                honours, and carries an `outline` of `CanvasText` on top of it.
+                The outline is a shape carrier and not a second colour, the same
+                rule the status axis follows everywhere else, and it survives
+                because forced colours keeps `outline` while it drops a fill. All
+                four levels collapse to `Highlight` here, which costs nothing: the
+                level travels in words on the StatusPill above the bar, and the
+                summary sentence states the position in prose. The boundary marks
+                take `CanvasText` by the same route, so both bounds and the
+                reading stay drawn. */}
             <div
               data-slot="range-bar-tick"
               data-status={level}
               style={{ insetInlineStart: `${at(extent.reading).toFixed(3)}%` }}
               className={
-                "absolute -top-opsin-1 -bottom-opsin-1 w-opsin-1 -translate-x-1/2 rounded-full rtl:translate-x-1/2 " +
+                "absolute -top-opsin-1 -bottom-opsin-1 w-opsin-1 -translate-x-1/2 rounded-full rtl:translate-x-1/2 forced-colors:bg-[Highlight] forced-colors:[outline:1px_solid_CanvasText] " +
                 (level === undefined ? "bg-foreground" : TICK_TONE[level])
               }
+            />
+
+            {/* THE READING LABEL IS A CHILD OF THE TRACK, NOT OF THE TICK, so
+                the track bounds it the way it bounds the two boundary labels. It
+                is a health value, so it is drawn at the `body` step
+                tokens/type.json rules[1] fixes as the floor, a step larger than
+                the boundary numbers below the track, which are axis labels and
+                stay at caption1. It is centred on the tick, then clamped so its
+                centre stays at least half a label from either track edge.
+                `--rb-label-half` is declared on the wrapper as 3.5em, half a
+                label plus a margin. Its em is resolved on this span rather than
+                on the wrapper, because a custom property's relative unit is
+                resolved where the `var()` is used, so the allowance sits at the
+                reading's own `body` step and scales with it rather than being
+                pinned to the wrapper's footnote em. It is a declared allowance
+                and not a live measurement. A label up to 7em wide never leaves
+                the track; a unit wider than that overhangs by the excess alone
+                rather than by a whole label, and the tick keeps the true
+                position underneath it. */}
+            <span
+              data-slot="range-bar-value"
+              className="absolute bottom-full mb-opsin-2 -translate-x-1/2 whitespace-nowrap text-opsin-body rtl:translate-x-1/2"
+              style={{
+                insetInlineStart: `clamp(var(--rb-label-half), ${at(extent.reading).toFixed(3)}%, calc(100% - var(--rb-label-half)))`,
+              }}
             >
-              <span
-                data-slot="range-bar-value"
-                className="absolute bottom-full mb-opsin-1 start-1/2 -translate-x-1/2 whitespace-nowrap rtl:translate-x-1/2"
-              >
-                <Value
-                  value={value}
-                  unit={unit}
-                  precision={precision}
-                  locale={locale}
-                />
-              </span>
-            </div>
+              <Value
+                value={value}
+                unit={unit}
+                precision={precision}
+                locale={locale}
+              />
+            </span>
           </div>
         </div>
       )}
@@ -894,6 +1035,7 @@ export function RangeBar({
                 key={index}
                 value={piece.reading}
                 unit={piece.unit}
+                unitDisplay={piece.unitDisplay}
                 precision={precision}
                 locale={locale}
               />
@@ -902,9 +1044,16 @@ export function RangeBar({
       </p>
 
       {provenance.length === 0 ? null : (
+        /* FOOTNOTE, NOT CAPTION1. The type scale puts provenance lines and
+           timestamps on the footnote step and reserves caption1 as the floor
+           for axis labels, legends and legal text. This sentence is provenance,
+           so it takes footnote and reads a step larger than the tick and
+           boundary labels under the track, which are axis text and stay at
+           caption1. The reader over sixty meets the least legible size only on
+           the axis, never on the "when was this measured" line. */
         <p
           data-slot="range-bar-footnote"
-          className="m-0 text-opsin-caption1 text-muted-foreground"
+          className="m-0 text-opsin-footnote text-muted-foreground"
         >
           {provenance.join(" ")}
         </p>
@@ -924,10 +1073,12 @@ export function RangeBar({
  * small asterisk.
  *
  * The numbers are obviously unreal (ADR 0012) and the range cites the one string
- * an opsinjs example may cite. No date is given for the range, so the demo also
- * shows what the footnote says when nobody knows: this file is one `shadcn add`
- * away from somebody else's project, and a plausible confirmation date is a
- * claim that would travel with it.
+ * an opsinjs example may cite. The demo gives the range no confirmation date, and
+ * an undated range now says nothing about one in the footnote, because the sentence
+ * above the bar already names who set the range. A plausible confirmation date is a
+ * claim that would travel one `shadcn add` into somebody else's project, so the demo
+ * invents none. A missing reading time is a different case and is still stated out
+ * loud, which is what the second bar shows.
  *
  * The first reading carries the time it was taken and the second deliberately
  * does not, so both halves of the recency rule are on screen: a dated reading,
@@ -937,6 +1088,12 @@ export function RangeBar({
 export default function RangeBarDemo() {
   return (
     <div className="flex w-full max-w-md flex-col gap-opsin-8">
+      {/* Both bars fix locale="en-GB" so the reference capture reads the date
+          day first, "14 March 2026", the order numbers-dates-and-time mandates,
+          rather than the deploying server's default. A product passes its own
+          locale; the demo pins one so the screenshot cannot teach the wrong
+          order. Both carry it, not only the dated bar, so the reading's number
+          separators are formatted by the same convention across the pair. */}
       <RangeBar
         label="Example measurement"
         value={14}
@@ -946,12 +1103,14 @@ export default function RangeBarDemo() {
         status="watch"
         category="labs"
         measuredAt="2026-03-14T08:12:00+00:00"
+        locale="en-GB"
       />
       <RangeBar
         label="Second example measurement"
         value={14}
         unit="mg/dL"
         precision={0}
+        locale="en-GB"
       />
     </div>
   )

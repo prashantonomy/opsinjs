@@ -10,6 +10,12 @@
  * The measurements are deliberately fictional and carry no numbers at all. A
  * screenshot of an opsinjs example must never be mistakable for somebody's
  * result.
+ *
+ * No pill here passes `describes`. Each row's subject is the visible text right
+ * beside the pill in the same list item, so the accessible name needs no repeat
+ * of it, and passing the prop would make a screen reader read every row's
+ * subject twice. The sizes example passes it instead, because those pills float
+ * free of any adjacent subject.
  */
 
 import { StatusPill } from "@/registry/base-lyra/ui/status-pill"
@@ -27,10 +33,10 @@ export default function StatusPillInAList() {
       {ROWS.map((row) => (
         <li
           key={row.subject}
-          className="flex items-center justify-between gap-opsin-4 border-b border-border py-opsin-2 text-opsin-body"
+          className="flex flex-wrap items-center justify-between gap-opsin-4 border-b border-border py-opsin-2 text-opsin-body"
         >
-          <span>{row.subject}</span>
-          <StatusPill status={row.status} describes={row.subject} />
+          <span className="min-w-0">{row.subject}</span>
+          <StatusPill status={row.status} />
         </li>
       ))}
     </ul>

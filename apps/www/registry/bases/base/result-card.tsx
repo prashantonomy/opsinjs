@@ -6,7 +6,8 @@
  * THIS FILE COMPOSES AND IT DOES NOT RE-IMPLEMENT. Every number goes through
  * `Value`, every level goes through `StatusPill`, every comparison against an
  * interval goes through `RangeBar`, every instant goes through `RelativeTime`,
- * and every control that acts rather than navigates goes through `Button`.
+ * every control that acts goes through `Button`, and every control that
+ * navigates goes through `Link`.
  * Nothing here formats a number, draws a level, positions a tick or decides
  * when a reading is old. A composite that re-implemented any of those would be
  * a second copy of a rule, and the two colour axes are the one thing in this
@@ -65,7 +66,8 @@ import {
   type ReferenceRange,
 } from "@/lib/opsinjs"
 import { cn } from "@/lib/utils"
-import { Button } from "@/registry/base-lyra/ui/button"
+import { Button, cardActionClassName } from "@/registry/base-lyra/ui/button"
+import { Link } from "@/registry/base-lyra/ui/link"
 import { RangeBar } from "@/registry/base-lyra/ui/range-bar"
 import { RelativeTime } from "@/registry/base-lyra/ui/relative-time"
 import { StatusPill } from "@/registry/base-lyra/ui/status-pill"
@@ -98,6 +100,60 @@ function warnDev(key: string, message: string): void {
 }
 
 /**
+ * The one form of a timestamp `RelativeTime` will actually render: an RFC 3339
+ * instant that carries an offset, `Z` included. It is a verbatim copy of the
+ * pattern `relative-time.tsx` enforces, kept local on purpose. That file
+ * refuses a floating local time because `new Date("2026-03-14T08:12")` is read
+ * in whichever zone the code runs in, so one reading becomes two different ages
+ * on a server and on a phone, and it renders nothing rather than a plausible
+ * wrong instant.
+ *
+ * Lifting the parser into the shared substrate is a larger change than this card
+ * should make, and two other files already carry a local copy of a guard for
+ * the same reason, so a third is the established pattern rather than a new
+ * inconsistency.
+ */
+const RFC_3339_WITH_OFFSET =
+  /^(\d{4})-(\d{2})-(\d{2})[Tt ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?(?:([Zz])|([+-])(\d{2}):?(\d{2}))$/
+
+/**
+ * Whether the header will actually put this instant on the screen. The card may
+ * delegate the reading's recency to the bar only when this holds, because the
+ * header renders nothing for a timestamp `RelativeTime` cannot locate, and a
+ * delegated bar prints nothing either. An offset-less `measuredAt` that passed
+ * unguarded would leave a number on a health surface with no time beside it,
+ * which every reader takes as now, and that is the exact failure delegation
+ * must not cause. The numeric checks mirror `parseInstant` so this answers the
+ * same question the header does rather than a looser one.
+ */
+function statesInstant(measuredAt: string): boolean {
+  const match = RFC_3339_WITH_OFFSET.exec(measuredAt)
+  if (match === null) return false
+  const fields: (string | undefined)[] = match
+  const year = Number(fields[1])
+  const month = Number(fields[2])
+  const day = Number(fields[3])
+  const hour = Number(fields[4])
+  const minute = Number(fields[5])
+  const second = fields[6] === undefined ? 0 : Number(fields[6])
+  if (month < 1 || month > 12 || day < 1 || day > 31) return false
+  if (hour > 23 || minute > 59 || second > 59) return false
+  if (fields[8] === undefined) {
+    const offsetHours = Number(fields[10])
+    const offsetRest = Number(fields[11])
+    if (offsetHours > 23 || offsetRest > 59) return false
+  }
+  const wallClock = Date.UTC(year, month - 1, day, hour, minute, second)
+  if (!Number.isFinite(wallClock)) return false
+  const check = new Date(wallClock)
+  return (
+    check.getUTCFullYear() === year &&
+    check.getUTCMonth() === month - 1 &&
+    check.getUTCDate() === day
+  )
+}
+
+/**
  * The category tint, on the title and on nothing else.
  *
  * Written out as literal class strings because Tailwind reads class names out
@@ -124,61 +180,6 @@ const CATEGORY_INK: Record<HealthCategory, string> = {
   mind: "text-category-mind-ink",
   labs: "text-category-labs-ink",
 }
-
-/**
- * The hit-area floor, carried in the component rather than in the theme.
- *
- * `app/product.css` has a backstop for this and it does not travel with the
- * file: `shadcn add` copies this component into a project whose stylesheet
- * opsinjs has never seen. Both axes, because a card in a narrow column is not
- * wide, and a floor that holds on one axis is not a floor. The token is a rem,
- * so it grows with the reader's own text size instead of pinning at 44 device
- * pixels. The literal fallback is what keeps it a floor in a project that
- * has not imported the token sheet.
- */
-const TARGET_FLOOR =
-  "min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem)"
-
-/**
- * An action that navigates, in its two weights.
- *
- * A link rather than a `Button`, because `Button` is a real `<button>` and
- * refuses `href` on purpose: a control that produces a new url can be opened in
- * a new tab, copied, and found in a screen reader's list of links, and none of
- * that survives being re-implemented as a button with a click handler.
- *
- * The recommended one is bordered, on a larger target, and set on its own
- * surface; the other has none of those. The two therefore differ by a boundary
- * and a size rather than by hue, which is what "not distinguished by colour
- * alone" has to mean on a surface where the only colours available are neutral:
- * a border and a bigger box survive greyscale and a black-and-white printout.
- *
- * BE PRECISE ABOUT THE FILL, because the page used to claim one. `bg-card` is
- * the card's own ground, so on a ResultCard it paints no visible fill at all.
- * It is the explicit surface that keeps the link readable if a caller gives the
- * card a different ground, and nothing more. The boundary and the target are
- * the difference a reader can see. All of it is argued rather than measured.
- */
-const ACTION_LINK =
-  `inline-flex ${TARGET_FLOOR} max-w-full items-center justify-center ` +
-  "rounded-opsin-md border border-border bg-card px-opsin-5 py-opsin-2 " +
-  "text-center text-opsin-headline text-foreground underline underline-offset-4 " +
-  "hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-
-const ALTERNATIVE_LINK =
-  `inline-flex ${TARGET_FLOOR} max-w-full items-center justify-center ` +
-  "px-opsin-2 py-opsin-1 text-center text-opsin-headline " +
-  "text-foreground underline underline-offset-4 " +
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-
-/**
- * `Button variant="quiet"` has no border, no fill and no underline: a label
- * with a hover fill, which a touch reader never sees. The underline is what
- * makes the handler form of an alternative action look like the link form of
- * one, so the same prop does not render an obvious control in one card and
- * something indistinguishable from a paragraph in the next.
- */
-const ALTERNATIVE_BUTTON = "underline underline-offset-4"
 
 /**
  * One part of a compound reading. A compound reading is the two numbers that
@@ -297,16 +298,34 @@ export interface ResultCardProps {
    *
    * It reaches the reading, every segment of a compound one, and both boundary
    * labels on the bar, because a reading and the bound it is compared with are
-   * the same metric. Omitted, nothing is rounded and nothing is padded, and the
-   * digits the caller was handed are the digits that show.
+   * the same metric. It is required, so a TypeScript caller cannot omit it and
+   * the omission that once printed a raw double is a compile error rather than a
+   * development warning. This file ships as source into JavaScript projects,
+   * where a required prop is advice and not a guarantee, so a value that still
+   * arrives without one is forwarded to `Value` unchanged and `Value` decides
+   * what an unstated precision does.
    */
-  precision?: number
+  precision: number
   /**
    * BCP 47 locale for separators, digit shaping and the dates. It reaches every
    * number and every instant on the card, so one card cannot show two
    * conventions. Omitted, the reader's own environment decides.
    */
   locale?: string
+  /**
+   * IANA time zone name, as in `Europe/London`, handed straight through to
+   * `RelativeTime` for the absolute date and time. Supply it and the reading is
+   * put on that zone's wall clock with no zone label, because it is then the
+   * reader's own clock and there is nothing to disambiguate. Omit it and the
+   * absolute time is the wall clock the reading was written in, with its offset
+   * named. This card always shows the absolute time, so a wrong wall clock is
+   * most visible here: a product that knows the reader's zone should pass it,
+   * and one that does not must omit it rather than guess, because a guessed zone
+   * is a wrong time carrying a confident label. An offset such as `+01:00` is
+   * not accepted, and an unrecognised or ambiguous name falls back to the offset
+   * form; `RelativeTime` owns that guard and this prop only forwards.
+   */
+  timeZone?: string
   /**
    * When the measurement was taken, ISO 8601 with an offset. The time of
    * MEASUREMENT, never of retrieval, of sync or of render: a fetch timestamp
@@ -373,6 +392,30 @@ export interface ResultCardProps {
    */
   meaning?: ReactNode
   /**
+   * The one-line position sentence for the bar, handed straight through to
+   * `RangeBar`. It replaces the sentence the bar would generate from the reading
+   * and its interval, for a unit whose phrasing the template does not fit or a
+   * reader whose language is not English. It cannot remove the sentence: an
+   * empty string is refused by `RangeBar`, which renders its own line and reports
+   * the misuse rather than drawing a bar with no words.
+   *
+   * This is the BAR'S sentence, not the card's `meaning`. A product that wants
+   * the card to say less about the position says less here; deleting the
+   * explanation the reader came for is not what this prop is for, and it cannot
+   * do it. Omitted, the bar writes its own sentence, which is the default nobody
+   * has to choose.
+   *
+   * A replacement sentence replaces the attribution along with everything else.
+   * The generated sentence ends by naming whose interval this is, taken from
+   * `ReferenceRange.source`, and a supplied `summary` prints in its place and
+   * carries no attribution unless you write one into it. The card shows the
+   * source nowhere else, so a `summary` that omits it leaves a reading compared
+   * against an interval whose owner is named nowhere, which is the case
+   * `ReferenceRange.source` is required to prevent. State whose range it is
+   * inside the sentence you pass, or carry it in `provenance`.
+   */
+  summary?: string
+  /**
    * The next steps, at most two. More than two is a screen rather than a card,
    * and a third is dropped with a warning rather than rendered.
    */
@@ -410,6 +453,7 @@ export function ResultCard({
   unit,
   precision,
   locale,
+  timeZone,
   measuredAt,
   now,
   staleAfterHours,
@@ -417,6 +461,7 @@ export function ResultCard({
   status,
   category,
   meaning,
+  summary,
   actions,
   provenance,
   className,
@@ -491,6 +536,10 @@ export function ResultCard({
      ambiguity OPSIN-0003 exists for; and RangeBar refuses an unattributed range
      itself, which is where OPSIN-0004 is reported rather than here. */
   const barReadable = range !== undefined && unit !== undefined && !compound
+  /* Whether the header actually puts the reading's instant on the screen. Only
+     then may the bar be told the recency is already stated; otherwise the bar
+     keeps stating it, so the fact is never lost. */
+  const instantStated = statesInstant(measuredAt)
   if (range !== undefined && unit === undefined) {
     warnDev(
       `range-no-unit:${heading}`,
@@ -611,7 +660,16 @@ export function ResultCard({
            printer keeps. A rung paints its edge with an inset shadow, which
            a browser drops when it prints unless the reader has gone looking for
            the setting that keeps it, and a card is how a reading most often
-           reaches an appointment. */
+           reaches an appointment.
+
+           In dark these are two different fills. `bg-card` measures lab L 8.57
+           while the material card rung a Surface paints measures 7.78, so today
+           choosing a border over a Surface also shifts the colour a little. The
+           chrome-role tokens in tokens/color.json and app/product.css are where
+           that difference closes: they bring both fills to one neutral step, so
+           the border becomes the only difference between the two treatments and
+           it costs no colour. That unification lives in those token files, not
+           in this class list. */
         "flex w-full flex-col gap-opsin-4 rounded-opsin-md border border-border",
         "bg-card p-5 text-card-foreground [corner-shape:var(--opsin-corner-shape)]",
         className,
@@ -651,7 +709,7 @@ export function ResultCard({
                  WHICH IS WHY THIS IS JOINED AND NOT `cn`. `cn` is
                  `twMerge(clsx(…))` and tailwind-merge is unconfigured: it has
                  never been told that `--text-opsin-*` is a font-size namespace,
-                 so it filed `text-opsin-title3` and `text-category-<name>-ink`
+                 so it filed `text-opsin-headline` and `text-category-<name>-ink`
                  in one conflict group and kept the later. A tinted title
                  therefore lost the exact type step the paragraph above insists
                  on, and only when a category was supplied. That was right in
@@ -678,10 +736,30 @@ export function ResultCard({
                  only when it does not otherwise fit, so a title with spaces in it
                  still wraps at them and nothing changes below 200%. Not
                  `wrap-anywhere`, which would break mid-word while a usable space
-                 was still available; not `hyphens`, which invents a hyphen inside
-                 a name somebody has to read back to a clinician. */
+                 was still available.
+
+                 `hyphens-auto` IS THE OTHER HALF, and the choice it settles is
+                 not between a hyphen and no break, it is between a hyphen and a
+                 word cut at an arbitrary character. "Haemoglo-bin" is readable
+                 back to a clinician where "Haemoglob / in" is not. `hyphens:
+                 auto` inserts a hyphen only where the language's own rules allow
+                 one and only at a break that was going to happen anyway, so
+                 `wrap-break-word` stays as the last resort for a word the
+                 hyphenation dictionary cannot break. It needs the document's
+                 `lang`, which the typography foundation already mandates and both
+                 root layouts set. In a consuming project with no `lang` the
+                 utility is inert and `wrap-break-word` still catches the
+                 overflow, so it can never make a project worse than it is today.
+
+                 THE STEP IS `headline`, NOT `title3`. At 200% text the title3
+                 step rendered about 40px inside a 336px card and `wrap-break-word`
+                 had to split the lead word mid-character to keep the line inside
+                 the viewport. `headline` is the step `type-scale.mdx` assigns to
+                 the emphasised lead line inside a card, so the title comes down
+                 one step to sit with Card, CareCard and Callout and wraps at a
+                 space rather than mid-word. */
               className={
-                "m-0 wrap-break-word text-opsin-title3" +
+                "m-0 hyphens-auto wrap-break-word text-opsin-headline" +
                 (tint === undefined ? "" : ` ${CATEGORY_INK[tint]}`)
               }
             >
@@ -717,6 +795,7 @@ export function ResultCard({
               staleAfterHours={staleAfterHours}
               showAbsolute
               locale={locale}
+              timeZone={timeZone}
             />
           </span>
         </div>
@@ -726,11 +805,16 @@ export function ResultCard({
             `StatusPillProps.status` is required with no neutral default, and a
             card that drew one anyway would be inventing a verdict. `unknown`
             most of all, because a reader who meets it reads it as "probably
-            fine". `describes` is what stops a listener hearing a level floating
-            free of the thing it applies to. */}
-        {status === undefined ? null : (
-          <StatusPill status={status} describes={heading || undefined} />
-        )}
+            fine". No `describes` suffix is passed, and the reason is the reading
+            order this component keeps rather than any DOM adjacency: the pill is
+            last in the group it qualifies, after the subject and after the
+            timestamp for that subject, so a listener hears the level attached to
+            a reading they have just been given the name and the date of. A
+            `describes` suffix would only speak the title a second time. The pill
+            is not the heading's immediate sibling in the tree, the timestamp
+            wrapper sits between them, so the placement is what makes this true,
+            not proximity. */}
+        {status === undefined ? null : <StatusPill status={status} />}
       </div>
 
       <div
@@ -748,7 +832,14 @@ export function ResultCard({
                 {index === 0 ? null : (
                   /* A sibling of the numbers rather than a child of one, so the
                      row's own gap falls on both sides of it and the pair is not
-                     spaced asymmetrically. Same type step and same family as the
+                     spaced asymmetrically. That evenness holds only because
+                     `Value` keeps its no-break space inside the
+                     `data-slot="value-unit"` span: the class list below
+                     suppresses that slot on every part but the last, so a
+                     separator character living outside it would print against
+                     the first number and not the second and the space before the
+                     solidus would come back. Anyone who moves the space out of
+                     the span re-opens this. Same type step and same family as the
                      digits, because the solidus is part of how the measurement
                      is written rather than punctuation between two of them. */
                   <span aria-hidden="true" className="font-opsin-numeric text-opsin-title1">
@@ -813,11 +904,31 @@ export function ResultCard({
           `status` and no `category` on purpose: a bar handed a status draws its
           own word and glyph beside its label, and two objects for one assertion
           is the composition error the specification names. The label is
-          announced and not drawn. The card's own heading is two elements above
-          it, and a bar that repeated it would put the same words on screen
-          twice. `measuredAt` is passed so the bar's footnote states the date
-          rather than saying nobody knows when the reading was taken, which
-          would be untrue on a card whose header says exactly that. */}
+          neither drawn nor announced: the className hides it with
+          `display:none`, which takes it off the screen and out of the
+          accessibility tree together. The card's own heading is two elements
+          above it, and a bar that either drew or spoke the label would put the
+          same words in front of the reader twice. The card's header already
+          states the measurement instant two elements above the bar, through
+          `RelativeTime`, when the reading carries an instant it can render. So
+          the bar is told the recency is already stated, with
+          `readingRecency="delegated"`, and it prints neither its own date
+          footnote nor the sentence confessing that nobody dated the reading.
+
+          THE DELEGATION IS CONDITIONAL, and that condition is the whole of the
+          honesty. `measuredAt` is a required prop, but this file ships as source
+          into JavaScript projects where a required prop is advice rather than a
+          guarantee, and `RelativeTime` renders NOTHING for a timestamp with no
+          offset because it cannot locate the instant. On such a card the header
+          is silent, and a delegated bar is silent too, which would leave a
+          number on a health surface with no time beside it, read as now. So the
+          bar delegates only when `statesInstant(measuredAt)` confirms the header
+          will render the date, and otherwise the recency stays with the bar, so
+          the fact reaches the reader from one place or the other and never from
+          neither. `measuredAt` is passed either way, because RangeBar's own
+          contract keeps it for an accessible name a container may build, and
+          because it is the value the bar's own footnote states when the card
+          hands the recency back. */}
       {barReadable ? (
         <RangeBar
           label={heading}
@@ -827,11 +938,44 @@ export function ResultCard({
           locale={locale}
           range={range}
           measuredAt={measuredAt}
-          className="[&_[data-slot=range-bar-label]]:sr-only"
+          readingRecency={instantStated ? "delegated" : "state"}
+          /* Undefined leaves RangeBar generating its own position sentence;
+             a non-empty string replaces that sentence. Never defaulted, because
+             a default would take the generated sentence away from every card
+             that did not ask to. */
+          summary={summary}
+          /* Mute the bar's own summary sentence so it reads as a caption to the
+             picture rather than as a peer of the `meaning` paragraph beneath it.
+             A descendant variant belongs to no tailwind-merge conflict group,
+             which is why it is spelled here rather than passed as a colour to the
+             bar, exactly as the label is suppressed one class over. The bar's
+             sentence is the component's own body copy on its own page and on the
+             MetricTile surface, so it is not muted globally in range-bar.tsx: the
+             competition with `meaning` exists only inside this card. The
+             `--muted-foreground` on `--card` pair is the one the footnote below
+             already uses at 13px, so a 17px line in it is a smaller ask. */
+          className={
+            "[&_[data-slot=range-bar-label]]:hidden " +
+            "[&_[data-slot=range-bar-summary]]:text-muted-foreground"
+          }
         />
       ) : null}
 
-      <div data-slot="result-card-meaning" className="max-w-(--opsin-measure-comfortable,66ch)">
+      {/* THIS IS THE CARD'S PRINCIPAL PROSE, SO IT DECLARES ITS OWN TYPE STEP.
+          The wrapper carried no `text-*` class and inherited 16px from the host,
+          while the bar's summary sentence above it and the absence sentence
+          below it both sit at `text-opsin-body` (17px). A real explanation was
+          therefore smaller than the machine-generated line that restates the
+          picture and smaller than the sentence saying no explanation exists, and
+          in a `shadcn add` project it took whatever the host's base happened to
+          be. Declaring the step here makes the product's own paragraph at least
+          the size of every generated sentence above it, on whatever page the
+          card is dropped into. A plain literal and not `cn`, for the
+          tailwind-merge reason argued on the title above. */}
+      <div
+        data-slot="result-card-meaning"
+        className="max-w-(--opsin-measure-comfortable,66ch) text-opsin-body"
+      >
         {explained ? (
           meaning
         ) : (
@@ -907,7 +1051,14 @@ function ResultCardAction({
   owner: string
 }): ReactNode {
   const label = action.label?.trim() ? action.label.trim() : ""
-  const navigates = typeof action.href === "string" && action.href.trim() !== ""
+  /* The destination is captured rather than tested, because a boolean does not
+     narrow the optional `href` for the compiler and the link form needs the
+     string itself. `navigates` stays the name the two warnings below read. */
+  const destination =
+    typeof action.href === "string" && action.href.trim() !== ""
+      ? action.href
+      : null
+  const navigates = destination !== null
   const acts = typeof action.onSelect === "function"
 
   if (label === "") {
@@ -939,27 +1090,102 @@ function ResultCardAction({
     )
   }
 
-  if (navigates) {
+  if (destination !== null) {
     return (
-      /* STAMPED, BECAUSE THE OTHER FORM IS. `Button` puts `data-slot="button"`
-         on the handler form, and an anchor carrying nothing left the two forms
-         of one prop selectable by different means. So a print stylesheet or a
-         test written against the published attribute table could not reach half
-         of them. */
-      <a
+      /* THE LINK FORM GOES THROUGH THE SHARED `Link`. The anchor used to carry a
+         private class string of its own, byte-identical to the one in
+         `alert-banner.tsx` and `empty-state.tsx`. The treatment now lives once
+         in `Link` and the card action recipe it calls, so a banner's action and
+         a card's action are the same control on one screen. `recommended` maps
+         to Link's `action` emphasis and `alternative` to its `secondary` one,
+         and the ground is neutral, which is this card's own at every level.
+
+         STAMPED, BECAUSE THE OTHER FORM IS. `Button` puts `data-slot="button"`
+         on the handler form, and an anchor carrying nothing would leave the two
+         forms of one prop selectable by different means, so a print stylesheet
+         or a test written against the published attribute table could not reach
+         half of them. `data-slot="result-card-action"` rides through `Link` and
+         wins over its own `link` slot, which the anatomy block and every
+         consumer selector depend on.
+
+         BE PRECISE ABOUT THE FILL. The recipe's recommended arm carries
+         `bg-card`, which on a ResultCard is the card's own ground and so paints
+         no visible fill at all. It is the explicit surface that keeps the link
+         readable only if a caller gives the card a different ground. The
+         boundary, the box and the type step are the difference a reader can
+         see, and all of it is argued rather than measured. */
+      <Link
+        href={destination}
+        emphasis={emphasis === "recommended" ? "action" : "secondary"}
         data-slot="result-card-action"
-        href={action.href}
-        className={emphasis === "recommended" ? ACTION_LINK : ALTERNATIVE_LINK}
+        /* THE QUIET ACTION IS PULLED FLUSH WITH THE CARD CONTENT EDGE, AND THE
+           PULL LIVES HERE RATHER THAN IN THE RECIPE. The shared quiet arm of
+           `cardActionClassName` carries `px-opsin-2` so the bare label keeps a
+           hit area on both inline sides, which is right on every surface the
+           recipe serves: on a tinted card that same arm sits against a boundary,
+           and on a handler-form action it is a Button with padding of its own.
+           On this neutral card the quiet action draws no boundary, so that
+           leading padding reads as an eight-pixel indent of the label from the
+           card's content box, out of line with the reading, the meaning and the
+           recommended action above it. The compensation cannot move into the
+           recipe without breaking the surfaces where the padding is correct, so
+           it belongs at the call site that knows the label is bare on a neutral
+           ground. This is the handoff the earlier private-anchor fix recorded:
+           when the shared recipe replaced the local ALTERNATIVE_LINK constant,
+           the negative inline-start margin that constant carried had to move
+           onto the anchor here. `-ms-opsin-2` is the exact negative of the arm's
+           `px-opsin-2`, so it cancels the leading padding at every text size and
+           leaves the trailing hit area intact, and margin and padding sit in
+           different tailwind-merge groups, so Link's `cn` keeps both. The
+           recommended action keeps its padding, because its boundary is what the
+           reader aligns to and its box edge is already flush. */
+        className={emphasis === "recommended" ? undefined : "-ms-opsin-2"}
       >
         {label}
-      </a>
+      </Link>
     )
   }
 
   return (
+    /* NO BRAND FILL FOR THE RECOMMENDED ACTION, SO THE TWO TRANSPORTS MATCH.
+       `Button variant="primary"` is `bg-primary` on `text-primary-foreground`:
+       the biggest control on the screen. The `href` form of the same
+       recommended action is the recipe's neutral bordered underlined link on
+       `bg-card`. So one semantic step would read as a faint link or as a loud
+       blue button purely by which prop the product happened to pass, a
+       difference the reader cannot see. `secondary` is `border-border bg-card
+       text-foreground` (button.tsx TONE), which is the same neutral bordered
+       pair the link form draws, so the recommended action renders at one weight
+       on both transports. This is also what the page already promises:
+       result-card.mdx says the recommended action is bordered and on a larger
+       target, and is not carried by a fill.
+
+       THE CLASS DELTA COMES FROM THE SHARED RECIPE, NOT A LOCAL STRING. Button
+       already brings the box, the fill and the type step through its TONE and
+       SIZE, so `cardActionClassName(..., { as: "button" })` returns only what is
+       left: nothing for the recommended weight, and `underline underline-offset-4`
+       for the quiet one. Routing it through the recipe is what keeps the handler
+       form and the link form from drifting, and it is why this file now holds no
+       private action class string of its own. The underline follows D3 rule 2,
+       not the transport: an anchor carries it because it is an anchor, the
+       `secondary` Button does not because its boundary already says it is a
+       control, and the quiet handler draws neither border nor fill, so the
+       recipe hands it the underline to keep it from reading as a paragraph. */
     <Button
-      variant={emphasis === "recommended" ? "primary" : "quiet"}
-      className={emphasis === "recommended" ? undefined : ALTERNATIVE_BUTTON}
+      variant={emphasis === "recommended" ? "secondary" : "quiet"}
+      /* THE SIZE FOLLOWS THE WEIGHT ON BOTH TRANSPORTS. Button with no size
+         defaults to `md`, whose SIZE step is `text-opsin-headline` (17px), while
+         the quiet link arm takes the `subheadline` step (15px). Leaving the
+         default here would make the same alternative action 15px as a link and
+         17px as a handler control. `sm` puts the handler form back at the
+         subheadline step, so the quiet action reads at one size whichever prop
+         the product passed. AlertBanner passes size for exactly this reason. */
+      size={emphasis === "recommended" ? "md" : "sm"}
+      className={cardActionClassName({
+        weight: emphasis === "recommended" ? "recommended" : "quiet",
+        ground: "neutral",
+        as: "button",
+      })}
       onClick={action.onSelect}
     >
       {label}
@@ -992,6 +1218,11 @@ const DEMO_NOW = "2026-03-14T11:12:00+00:00"
  * body or a study. `EXAMPLE_SOURCE` is the one string an opsinjs example may
  * name as its source. This file is one `shadcn add` away from somebody else's
  * project and one screenshot away from outliving the page it was written for.
+ * The range also carries a confirmation date, `asOf`, which is example data in
+ * exactly the sense the numbers are and is not a clinical fact opsinjs owns. It
+ * is here so the canonical preview shows a bar that can say when its yardstick
+ * was last checked, rather than a bar that says nothing about it. opsinjs
+ * confirmed nothing; the date is a stand-in for the one a product supplies.
  *
  * IT CARRIES NO STALENESS BOUNDARY, so it demonstrates no staleness treatment.
  * A number here would be a clinical boundary shipped verbatim into every
@@ -1006,6 +1237,10 @@ const DEMO_NOW = "2026-03-14T11:12:00+00:00"
  * fictional interval, so the level beside it is the one whose shipped meaning
  * is "this reading is where it is expected to be". A product supplies its own,
  * from a range it owns.
+ *
+ * IT FIXES A LOCALE. The demo passes `locale="en-GB"` so the reference capture
+ * teaches the day-first order numbers-dates-and-time mandates. A product passes
+ * the tag its own reader uses.
  */
 export default function ResultCardDemo() {
   return (
@@ -1015,9 +1250,15 @@ export default function ResultCardDemo() {
         value={14}
         unit="mg/dL"
         precision={0}
+        locale="en-GB"
         measuredAt="2026-03-14T08:12:00+00:00"
         now={DEMO_NOW}
-        range={{ low: 10, high: 20, source: EXAMPLE_SOURCE }}
+        range={{
+          low: 10,
+          high: 20,
+          source: EXAMPLE_SOURCE,
+          asOf: "2026-01-05T00:00:00+00:00",
+        }}
         status="steady"
         category="labs"
         meaning="This example stands in for the plain-English paragraph a product writes: what the measurement looks at, what this reading means in context, and what usually happens next. It is two or three short sentences, in the second person, and it is the part most result screens leave out."

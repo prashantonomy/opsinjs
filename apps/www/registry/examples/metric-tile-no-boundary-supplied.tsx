@@ -47,6 +47,7 @@ export default function MetricTileNoBoundarySupplied() {
         status="watch"
         measuredAt="2026-04-06T06:00:00+00:00"
         now={NOW}
+        locale="en-GB"
         href="#example"
       />
       <MetricTile
@@ -58,6 +59,7 @@ export default function MetricTileNoBoundarySupplied() {
         status="watch"
         measuredAt="2026-03-01T06:00:00+00:00"
         now={NOW}
+        locale="en-GB"
         href="#example"
       />
     </div>

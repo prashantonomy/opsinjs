@@ -14,16 +14,21 @@
  * indistinguishable under tritanopia. Four ordered levels cannot be made mutually
  * distinguishable by hue alone. So the order of reliance is word, then glyph
  * shape, then colour. The glyphs are four distinct silhouettes rather than one
- * glyph in four colours, for the same reason.
+ * glyph in four colours, for the same reason. Those silhouettes are abstract
+ * rather than pictorial: a tick beside a reading is a verdict a presentation
+ * layer is not entitled to give, and a warning triangle spent below the top
+ * level leaves no louder shape for the one that most needs it. See
+ * `content/docs/foundations/iconography/health-glyphs.mdx`.
  *
  * StatusPill derives nothing. It has no thresholds, no ranges and no opinions:
  * `status` is assigned by the consuming product from a reference range or a
  * clinically reviewed threshold that the product owns.
  */
 
-import { Check, Eye, OctagonAlert, TriangleAlert } from "lucide-react"
+import { Circle, CircleDot, Diamond, Octagon } from "lucide-react"
 
 import {
+  BANNED_WORDS,
   CLINICAL_STATUS_META,
   isClinicalStatus,
   isDevelopment,
@@ -43,11 +48,11 @@ import { cn } from "@/lib/utils"
  * error rather than a pill with no icon, and the assertion below is what catches
  * the two drifting apart.
  */
-const ICONS: Record<ClinicalStatus, typeof Check> = {
-  steady: Check,
-  watch: Eye,
-  attention: TriangleAlert,
-  urgent: OctagonAlert,
+const ICONS: Record<ClinicalStatus, typeof Circle> = {
+  steady: Circle,
+  watch: CircleDot,
+  attention: Diamond,
+  urgent: Octagon,
 }
 
 /* Development-only. If somebody changes an icon name in lib/status.ts and not
@@ -87,7 +92,7 @@ if (isDevelopment()) {
  * `text-opsin-caption1` and `text-status-watch-ink` in the SAME conflict group
  * and keeps whichever comes last. Spelled `text-status-<level>-ink`, the ink was
  * deleted by `SIZE[size]` on the line after it in the `cn()` call below, at
- * both sizes and for all four levels. The word took its colour from whatever
+ * every size and for all four levels. The word took its colour from whatever
  * ancestor happened to supply one, on a status-tinted surface, in a pairing
  * nothing has measured. Reordering rescues nothing: `TONE` last keeps
  * the ink and drops the type step and its weight instead, which is the
@@ -142,9 +147,16 @@ const TONE: Record<ClinicalStatus, string> = {
     "border-status-urgent bg-status-urgent-surface [color:var(--opsin-status-urgent-ink)]",
 }
 
+/* The ladder is the type step the word and its glyph sit at: sm at footnote,
+   md at subheadline, lg at headline. md stops at subheadline rather than
+   headline on purpose. A 17px weight-600 status word on every row of a results
+   list would spend the urgency budget the system keeps scarce, whereas 15px at
+   weight 400 lifts the label off the caption floor and out of the provenance
+   step without turning a label into an alarm. */
 const SIZE = {
-  sm: "gap-opsin-1 px-opsin-2 py-opsin-0-5 text-opsin-caption1",
-  md: "gap-opsin-1 px-opsin-3 py-opsin-1 text-opsin-footnote",
+  sm: "gap-opsin-1 px-opsin-2 py-opsin-0-5 text-opsin-footnote",
+  md: "gap-opsin-1 px-opsin-3 py-opsin-1 text-opsin-subheadline",
+  lg: "gap-opsin-1 px-opsin-3 py-opsin-1 text-opsin-headline",
 } as const
 
 export interface StatusPillProps {
@@ -154,16 +166,33 @@ export interface StatusPillProps {
    * Overrides the default word for this level. Use it for translation, or for
    * a product whose readers use different language. It may not change the
    * meaning, and it may not be an empty string.
+   *
+   * A banned word in `label` raises OPSIN-0006 once in development. The list is
+   * `BANNED_WORDS` in the substrate ("normal", "healthy", "good" and the rest),
+   * matched case-insensitively on word boundaries. The component renders the
+   * label anyway, because the product owns its copy; the warning names the word
+   * and its replacement so the copy can be fixed at source.
    */
   label?: string
   /**
-   * Visual weight only. Both sizes render icon, word and colour; neither drops
-   * the word.
+   * Visual weight only, and it changes exactly two things: the type step the
+   * word and its glyph are set at, and the padding around them. Every size
+   * renders icon, word and colour, and none of them drops the word. `lg` exists
+   * so a pill composed inside a heading can carry the heading's own step rather
+   * than sitting a step below the sentence it qualifies.
    */
-  size?: "sm" | "md"
+  size?: "sm" | "md" | "lg"
   /**
    * What the pill applies to, for the accessible name: "HbA1c result". Without
    * it a screen-reader user hears a level with no subject.
+   *
+   * Pass it when the pill is read on its own: a table cell reached by column
+   * navigation, a card corner, or any pill that floats free of its subject. Do
+   * not pass it when the subject is visible text in the same reading unit, such
+   * as a list item whose row already names the measurement. The subject rides
+   * an sr-only span appended inside the pill, so there a screen reader would
+   * read the subject once as visible text and then a second time inside the
+   * pill.
    */
   describes?: string
   /**
@@ -228,6 +257,30 @@ export function StatusPill({
   if (label !== undefined && label.trim() === "") {
     warnOnce("OPSIN-0002", { component: "StatusPill", status })
   }
+
+  /* OPSIN-0006, in development only. The product owns its copy, so a banned
+     word still renders: this is a presentation layer, and warning is the whole
+     of what it is entitled to do about the caller's own words. But
+     `<StatusPill status="steady" label="Normal" />` renders reference-ranges.mdx's
+     own Don't verbatim, and a reader who sees "Normal" on three rows and nothing
+     on the fourth has been told they are abnormal. The test is case-insensitive
+     and on word boundaries so "Normalise" is left alone, `warnOnce` deduplicates
+     so a column of fifty pills warns once, and the whole block is dead code in
+     production. */
+  if (isDevelopment() && label !== undefined && label.trim() !== "") {
+    for (const row of BANNED_WORDS) {
+      const escaped = row.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+      if (new RegExp(`\\b${escaped}\\b`, "i").test(label)) {
+        warnOnce("OPSIN-0006", {
+          text: label,
+          word: row.word,
+          replacement: row.instead,
+        })
+        break
+      }
+    }
+  }
+
   const word = label?.trim() ? label : meta.word
 
   return (
@@ -236,11 +289,20 @@ export function StatusPill({
       data-status={status}
       className={cn(
         /* `inline-flex` with `items-center` rather than a fixed height: at 200%
-           text the pill has to grow and wrap with the word, and a height would
-           truncate it. `whitespace-normal` is explicit for the same reason. The
-           word is never shortened to an ellipsis and never replaced by the icon
-           alone. */
-        "inline-flex max-w-full items-center whitespace-normal rounded-full border align-middle",
+           text the pill has to grow with the word, and a height would truncate
+           it. `whitespace-normal` is explicit for the same reason, so the word
+           is never shortened to an ellipsis and never replaced by the icon
+           alone. `shrink-0` holds the pill's own width in a flex row, so the
+           flex algorithm cannot squeeze it below its content and break the
+           status word across two lines, which is slower to read at exactly the
+           level that asks for an action. Holding that width means a row too
+           narrow for both the pill and its subject has to wrap, and D8 makes the
+           pill the element that moves to its own line: a container placing a
+           pill beside prose sets `flex-wrap` so the subject keeps the full width
+           and the pill drops below it, which is what `status-pill-in-a-list`
+           does. `max-w-full` caps the pill at its containing block so it never
+           overflows the column. */
+        "inline-flex max-w-full shrink-0 items-center whitespace-normal rounded-full border align-middle",
         TONE[status],
         SIZE[size],
         className
@@ -272,6 +334,12 @@ export function StatusPill({
  * distinguishable without colour. That is also why the page's preview is worth
  * looking at in greyscale.
  *
+ * It shows the four levels and nothing else. Size is demonstrated in the
+ * labelled sizes example embedded on the component page, not here: a demo that
+ * ships through `shadcn add` should not carry an unlabelled sample a reader has
+ * to decode, and a lone smaller pill beside the four reads as a stray repeat
+ * rather than a size sample.
+ *
  * The subjects are deliberately unreal (ADR 0012). No number, no unit, no
  * measurement anybody could mistake for their own.
  */
@@ -282,7 +350,6 @@ export default function StatusPillDemo() {
       <StatusPill status="watch" describes="example measurement" />
       <StatusPill status="attention" describes="example measurement" />
       <StatusPill status="urgent" describes="example measurement" />
-      <StatusPill status="watch" size="sm" describes="example measurement" />
     </div>
   )
 }

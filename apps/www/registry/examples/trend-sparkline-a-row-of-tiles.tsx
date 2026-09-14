@@ -81,8 +81,10 @@ export default function TrendSparklineARowOfTiles() {
           <TrendSparkline
             label={tile.label}
             unit="steps"
+            precision={0}
             category={tile.category}
-            window="the last six entries"
+            locale="en-GB"
+            window="the last 6 entries"
             series={series([...tile.values])}
             minimumPoints={EXAMPLE_READINGS_A_TREND_NEEDS}
           />

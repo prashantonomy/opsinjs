@@ -18,10 +18,12 @@
  * threshold. The two event words carry it on their own, and the eleven-day gap
  * between the lines is visible in the phrases themselves.
  *
- * The de-emphasis of the synced line sits on a wrapper rather than on the
- * component's own `className`. `cn()` is tailwind-merge, which files
- * `text-opsin-footnote` and `text-muted-foreground` in one conflict group, so
- * passing both to the component deletes the size and leaves the colour.
+ * The synced line carries no colour de-emphasis at all, and that is the point.
+ * `text-muted-foreground` is the one tone this component reserves for a reading
+ * it has been told may be out of date, so spending it on the freshest line on
+ * the surface would teach the opposite of the contract this example exists to
+ * teach. The line is already subordinate by position and by footnote size, so
+ * both timestamps carry the same `text-opsin-footnote` and nothing more.
  */
 
 import { RelativeTime } from "@/registry/base-lyra/ui/relative-time"
@@ -38,18 +40,16 @@ export default function RelativeTimeMeasuredAndSynced() {
           event="measured"
           now={NOW}
           locale="en-GB"
-          showAbsolute
           className="text-opsin-footnote"
         />
       </div>
-      <span className="text-opsin-footnote text-muted-foreground">
-        <RelativeTime
-          at="2026-03-14T11:09:00+00:00"
-          event="synced"
-          now={NOW}
-          locale="en-GB"
-        />
-      </span>
+      <RelativeTime
+        at="2026-03-14T11:09:00+00:00"
+        event="synced"
+        now={NOW}
+        locale="en-GB"
+        className="text-opsin-footnote"
+      />
     </div>
   )
 }

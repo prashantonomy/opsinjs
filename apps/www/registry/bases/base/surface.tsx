@@ -33,13 +33,15 @@
  * rung that has asked not to be composited at all. That is the part this
  * component owns, and it is why `Surface.Backdrop` is not rendered on an opaque
  * rung and is removed from the render under reduced transparency, under
- * increased contrast, and where `backdrop-filter` is unavailable.
+ * increased contrast, under forced colours, and where `backdrop-filter` is
+ * unavailable.
  *
  * IT IS A SERVER COMPONENT, and that is a requirement rather than an
  * optimisation. Every state it has is a user preference or an engine
  * capability, and each one is answered by a media or support query in CSS.
- * Those states are reduced transparency, increased contrast and the absence of
- * `backdrop-filter`. Reading any of them in JavaScript would mean rendering the
+ * Those states are reduced transparency, increased contrast, forced colours and
+ * the absence of `backdrop-filter`. Reading any of them in JavaScript would mean
+ * rendering the
  * wrong material on the server and correcting it after hydration, which is a
  * visible flash of the wrong depth on the surface a health value is sitting on.
  */
@@ -125,7 +127,7 @@ function isMaterialRung(value: unknown): value is MaterialRung {
  * Module scope in a server component is shared between requests. For anything
  * that touches a reader's screen that is a disqualifying property, and it is
  * the reason this file refuses to count composited surfaces. Here it is
- * harmless. The only thing this set ever holds is a rung or weight string a
+ * harmless. The only thing this set ever holds is a rung string a
  * developer typed into a prop, nothing is written to it outside a development
  * build, and one request silencing a repeat of the same complaint in the next
  * is the behaviour `warnOnce` already has.
@@ -172,72 +174,20 @@ function warnOncePerSession(key: string, message: string): void {
  * removable, and whether `minScrimOpacity` should be published per theme the
  * way `tintAlpha` is, is a question for the token owner rather than for this
  * file.
+ *
+ * There is one floor per rung and no content-weight prop, on purpose.
+ * `tokens/material.json` publishes a single `minScrimOpacity` per rung, measured
+ * against that rung's opaque fallback, and there is no second, thinner floor for
+ * large text anywhere in the token source. A prop that let a caller ask for a
+ * thinner large-text floor would record an intention nothing acts on, which is a
+ * knob a caller can misunderstand, and it would be a latent behaviour change: a
+ * thinner large-text floor published later would silently thin the scrim under
+ * every existing large caller in the less readable direction. So the prop
+ * returns in the same commit as the token that gives it an effect, never before
+ * it.
  */
 function publishedScrimFloor(rung: MaterialRung): string {
   return `max(var(--opsin-material-${rung}-tint-alpha), var(--opsin-material-${rung}-scrim))`
-}
-
-/**
- * The weights a scrim floor is published for.
- *
- * Written out again in `SurfaceProps.contentWeight` rather than referred to by
- * name, deliberately: `lib/generated/props.ts` records a prop's type as the
- * source text of its annotation, so a local alias would publish an API-reference
- * row naming a type a consumer cannot import. This alias is for the record and
- * the guard below, which are internal.
- */
-type ContentWeight = "body" | "large"
-
-/**
- * The floor each content weight has to clear.
- *
- * BOTH ENTRIES ARE THE SAME EXPRESSION, and that is the finding rather than an
- * oversight. `tokens/material.json` publishes one `minScrimOpacity` per rung,
- * and the figures published beside it are measured against that rung's OPAQUE
- * FALLBACK. That fallback is the material as it renders once translucency is
- * gone, which is the degraded path rather than the translucent one. There is
- * no second, thinner floor for large text anywhere in the token source, and a
- * component is not allowed to invent one: a number that decides whether
- * somebody can read their own result is measured or it does not exist. So
- * `contentWeight="large"` is accepted, is honoured as a promise about the
- * content, and takes the body floor until a large-text floor is published. A
- * surface that is more readable than it needs to be is not a defect; the other
- * direction is.
- */
-const SCRIM_FLOOR: Record<ContentWeight, (rung: MaterialRung) => string> = {
-  body: publishedScrimFloor,
-  large: publishedScrimFloor,
-}
-
-/**
- * The weight to resolve a floor for, defaulting to `body` for anything outside
- * the union.
- *
- * `SCRIM_FLOOR[contentWeight](rung)` on an unchecked value is a TypeError, not a
- * styling mistake: `undefined(rung)` throws during render and takes the nearest
- * error boundary's whole subtree with it. A Surface's subtree is, by design,
- * somebody's readings. That is a strictly worse outcome than the one
- * the `rung` guard exists to prevent, and the default parameter does not cover
- * it, because a default fires on `undefined` alone and not on `null`, `"Body"`
- * or a weight that was renamed upstream.
- *
- * Falling back to `body` changes nothing rendered while both entries resolve to
- * the same expression, and it is the stricter of the two if they ever diverge,
- * so the repair is always in the readable direction. It is a warning rather
- * than a refusal for the same reason the unrecognised rung is: the mistake is
- * in a styling prop, and taking a reader's own data off the screen to report
- * one is the worse of the two outcomes.
- */
-function resolveContentWeight(value: unknown): ContentWeight {
-  if (value === "body" || value === "large") return value
-  warnOncePerSession(
-    `contentWeight:${String(value)}`,
-    `<Surface> received contentWeight="${String(value)}", which is not "body" ` +
-      'or "large". The body floor was used, which is the stricter of the two, ' +
-      "so nothing on this surface is less readable than it should be. The " +
-      "prop is nevertheless not recording what you meant.",
-  )
-  return "body"
 }
 
 /**
@@ -283,16 +233,20 @@ export interface SurfaceProps {
    */
   rung: MaterialRung
   /**
-   * Whether content on this surface has to clear the floor for body text or
-   * only for large text. Defaults to `"body"`, which is the stricter of the
-   * two. Both take the published floor today, because the token source measures
-   * one floor per rung.
-   */
-  contentWeight?: "body" | "large"
-  /**
-   * Renders the rung's opaque fallback regardless of engine or preference. This
-   * is the path for print and export, where there is no backdrop to see through
-   * and a translucent tint composites against paper.
+   * Renders the rung's opaque fallback regardless of engine or preference. A
+   * reviewer needs this to see the degraded path without changing an operating
+   * system setting, and print and export need it so that a translucent tint is
+   * never composited against paper. The exception to name is its reach: the
+   * prop changes the tint and the alpha and nothing else. On paper the boundary
+   * reaches paper whatever the settings, because the edge is drawn as an outline
+   * rather than a box-shadow and a printer keeps an outline, and the rounded
+   * geometry reaches it with the boundary. The fill is a separate question with
+   * two owners. The theme layer's print block in `app/product.css` decides what
+   * colour the fill would be on paper, carrying the rung to its opaque tint;
+   * whether the fill prints at all is the reader's own background-graphics
+   * setting, which a browser leaves off by default. Setting this prop is
+   * therefore not by itself the whole print path: this component owns only
+   * whether its own boundary is drawn with a property a printer keeps.
    */
   opaque?: boolean
   /**
@@ -313,7 +267,6 @@ export interface SurfaceProps {
 
 export function Surface({
   rung,
-  contentWeight = "body",
   opaque = false,
   className,
   children,
@@ -352,18 +305,12 @@ export function Surface({
     )
   }
 
-  /* Checked, not indexed. `tokens/errors.json` is explicit that a
-     documentation-quality complaint must not be allowed to crash a health
-     product, and an unchecked `SCRIM_FLOOR[contentWeight](rung)` does exactly
-     that by calling `undefined`. */
-  const weight = resolveContentWeight(contentWeight)
-
   const style: SurfaceStyle = {
     "--opsinjs-surface-tint": opaque
       ? `var(--opsin-material-${rung}-opaque)`
       : `var(--opsin-material-${rung}-tint)`,
     "--opsinjs-surface-opaque": `var(--opsin-material-${rung}-opaque)`,
-    "--opsinjs-surface-alpha": opaque ? "1" : SCRIM_FLOOR[weight](rung),
+    "--opsinjs-surface-alpha": opaque ? "1" : publishedScrimFloor(rung),
     "--opsinjs-surface-blur": `var(--opsin-material-${rung}-blur)`,
     "--opsinjs-surface-saturation": `var(--opsin-material-${rung}-saturation)`,
     "--opsinjs-surface-edge": `var(--opsin-material-${rung}-border)`,
@@ -406,6 +353,13 @@ export function Surface({
                degradation". This is that, for this component. High contrast and
                frosted glass are incompatible requests. */
             "contrast-more:hidden",
+            /* A forced-colours palette has already replaced the material with
+               system colours, so a composited blur over a system-coloured page
+               is cost with no information in it. This is the fourth condition
+               that takes the backdrop out of the render, beside reduced
+               transparency, increased contrast and the absence of
+               `backdrop-filter`. */
+            "forced-colors:hidden",
             /* The `@supports` fallback and the reduced-transparency fallback are
                the same fallback on purpose (tokens/material.json), which is what
                makes the degraded path the one that gets exercised by real
@@ -441,17 +395,58 @@ export function Surface({
           opacity: "var(--opsinjs-surface-alpha)",
         }}
       />
-      {/* An inset ring rather than a border, and the reason is a feature of the
-          token layer rather than a preference. `--opsin-material-canvas-border`
-          and `--opsin-material-scrim-border` are the keyword `none`, because
-          those two rungs have no edge. Substituted into `border-color` that is
-          invalid at computed-value time and the property falls back to
-          `currentColor`, which draws a hairline in the text colour around the
-          page background. Substituted into `box-shadow` it is invalid in the
-          same way, and `box-shadow` falls back to its initial value, which is
-          `none`. That is the right answer, arrived at by the CSS engine,
-          with no table of which rungs have an edge for anybody to keep up to
-          date. */}
+      {/* An outline rather than a border or an inset ring, and the reason is a
+          feature of the token layer rather than a preference.
+          `--opsin-material-canvas-border` and `--opsin-material-scrim-border`
+          are the keyword `none`, because those two rungs have no edge.
+          Substituted into `border-color` that is invalid at computed-value time
+          and the property falls back to `currentColor`, which draws a hairline
+          in the text colour around the page background. Substituted into the
+          `outline` shorthand it is invalid in the same way, so every longhand
+          takes its unset value, and `outline-style`, whose initial value is
+          `none` and which does not inherit, draws nothing. That is the right
+          answer, arrived at by the CSS engine, with no table of which rungs have
+          an edge for anybody to keep up to date.
+
+          Why an outline and not the inset box-shadow this once was. Under
+          `forced-colors: active` the browser forces `box-shadow` to `none` on
+          every element while it keeps `outline` and recolours it to CanvasText,
+          so the boundary survives the one environment that removes every other
+          cue. An inline card losing its edge there is cosmetic; a modal panel
+          losing its edge is load-bearing, because nothing else separates it from
+          the page behind it. The exception to name is the offset:
+          `outline-offset` has to be negative, at minus the edge width, or the
+          ring sits outside the layer it belongs to instead of flush inside the
+          rounded corner where the inset ring sat. Outlines follow
+          `border-radius` from Safari 16.4, which is this system's tested floor,
+          so `rounded-[inherit]` still shapes it. */}
+      {/* The print policy for the whole system lives here, once, because every
+          bounded surface is built on this edge.
+
+          A rung paints its fill with a background colour, and a browser drops
+          background colours when it prints unless the reader has gone looking
+          for the setting that keeps them. The edge just above is drawn as an
+          outline rather than an inset box-shadow, and a printer keeps an outline
+          while it drops a box-shadow, so the boundary reaches paper on its own.
+          The ink and the opaque fallback are the theme layer's half:
+          `app/product.css` redeclares the palette as ink for print and carries
+          each rung to its opaque tint, which is the colour the fill takes if the
+          reader has background graphics switched on. A browser leaves that
+          setting off by default, so the fill is the reader's to print and the
+          boundary above is what reaches paper on its own.
+
+          A component built on Surface therefore inherits a printed boundary and
+          must not grow one of its own. That closes the two surfaces that had
+          none: the Dialog popup and the Sheet panel are each a bare
+          `Surface rung="sheet"`, and both now print with a boundary and no
+          `print:` rule of their own. Card and MetricTile keep their
+          `print:border`, which is now belt and braces rather than the only thing
+          standing between a reading and a boundaryless printout.
+
+          The boundary surviving is read from the outline behaviour and the theme
+          block rather than from a real printout: nobody has run the site to a
+          printer or under an operating system's print theme, so it is argued the
+          way the forced-colours edge is, not measured. */}
       <div
         data-slot="surface-edge"
         aria-hidden="true"
@@ -459,12 +454,15 @@ export function Surface({
           "pointer-events-none absolute inset-0 rounded-[inherit]",
           /* WIDTH ONLY, AND THAT IS NOT THE SECOND REQUIREMENT. Increased
              contrast asks for hairline dividers at low alpha to "become solid
-             at full token colour"; this line takes the hairline width to the
-             emphasis width and leaves `--opsinjs-surface-edge` at
-             `--opsin-material-<rung>-border`, which several rungs publish at a
-             low alpha. A wider edge at the same alpha is more visible than a
-             thinner one and is not the same as an explicit one, and whether the
-             result clears the non-text contrast floor has not been measured.
+             at full token colour"; this line takes the outline width from the
+             hairline width to the emphasis width and leaves
+             `--opsinjs-surface-edge` at `--opsin-material-<rung>-border`, which
+             several rungs publish at a low alpha. The negative
+             `outline-offset` reads the same width variable, so it widens with
+             the edge and the thicker outline still sits inside the box. A wider
+             edge at the same alpha is more visible than a thinner one and is not
+             the same as an explicit one, and whether the result clears the
+             non-text contrast floor has not been measured.
 
              It stops at the width on purpose. Substituting a solid colour here
              would be this component choosing a border colour the ladder did not
@@ -475,8 +473,9 @@ export function Surface({
           "contrast-more:[--opsinjs-surface-edge-width:var(--opsin-border-emphasis)]",
         )}
         style={{
-          boxShadow:
-            "inset 0 0 0 var(--opsinjs-surface-edge-width) var(--opsinjs-surface-edge)",
+          outline:
+            "var(--opsinjs-surface-edge-width) solid var(--opsinjs-surface-edge)",
+          outlineOffset: "calc(-1 * var(--opsinjs-surface-edge-width))",
         }}
       />
       {/* `relative` so the content joins the other three in the positioned
@@ -491,13 +490,24 @@ export function Surface({
 }
 
 /**
- * The five content rungs, in ladder order. `scrim` is handled separately below
- * because it is the one rung that is not a place to put anything.
+ * The three opaque rungs, in ladder order. They are separated from each other
+ * only by a hairline edge and a drop shadow, both of which are invisible over
+ * the hostile tiles, so the demo shows them on the page colour they are designed
+ * to sit on rather than over the backdrop.
  */
-const CONTENT_RUNGS = [
+const OPAQUE_RUNGS = [
   { rung: "canvas", label: "Canvas", job: "The page itself." },
   { rung: "card", label: "Card", job: "A distinct block of content on the page." },
   { rung: "raised", label: "Raised", job: "Above the page, but not covering it." },
+] as const
+
+/**
+ * The two translucent content rungs, in ladder order. These make the
+ * readability claim, so they are the ones shown over the hostile tiles. `scrim`
+ * is handled separately below because it is the one rung that is not a place to
+ * put anything.
+ */
+const TRANSLUCENT_RUNGS = [
   { rung: "sheet", label: "Sheet", job: "Covering the page, which stays recognisable." },
   { rung: "overlay", label: "Overlay", job: "Chrome that content scrolls beneath." },
 ] as const
@@ -505,25 +515,31 @@ const CONTENT_RUNGS = [
 /**
  * A backdrop chosen to be hard on a translucent surface rather than kind to it.
  *
- * Four tones with the page's darkest and lightest among them, so a rung that
- * only holds its floor over a tasteful photograph fails here in review instead
- * of on somebody's phone. It is decorative and carries no meaning, which is why
- * it takes surface roles and never a category or status colour: those two axes
- * say what a reading is about and how urgent it is, and neither is available
- * for wallpaper.
+ * The order is the point. Every half-row of three tiles and every full row of
+ * six carries both the page's darkest tone and its lightest, so a rung passes
+ * over both no matter how the cards fall. The grid is six columns rather than
+ * four because at `sm:` a card spans half of them: four columns would force
+ * each half to be exactly one dark tile beside one light one and push the two
+ * mid tones out of the demo, whereas six keeps `bg-primary` and `bg-muted` in
+ * the picture while still putting black and white under every rung at both
+ * widths. Shorten this array and the pairing goes back to holding only on a
+ * phone, which is the defect it was written to close. It is decorative and
+ * carries no meaning, which is why it takes surface roles and never a category
+ * or status colour: those two axes say what a reading is about and how urgent
+ * it is, and neither is available for wallpaper.
  */
 const BACKDROP_TILES = [
   "bg-foreground",
+  "bg-primary",
   "bg-background",
-  "bg-primary",
-  "bg-muted",
   "bg-background",
-  "bg-foreground",
-  "bg-muted",
-  "bg-primary",
-  "bg-primary",
   "bg-muted",
   "bg-foreground",
+  "bg-background",
+  "bg-muted",
+  "bg-foreground",
+  "bg-foreground",
+  "bg-primary",
   "bg-background",
 ] as const
 
@@ -531,64 +547,106 @@ const BACKDROP_TILES = [
  * The zero-prop default export (ADR 0009).
  *
  * `/view` renders this with no props and `shadcn add` ships it, so it is public,
- * reviewed code. It shows the whole ladder over a deliberately hostile backdrop
- * because the only claim this component makes is that content on it stays
- * readable, and that claim is worth nothing demonstrated over a flat grey.
+ * reviewed code. It shows the whole ladder in two regions, because the six rungs
+ * do not make the same claim and one backdrop cannot demonstrate both. The three
+ * opaque rungs are told apart only by a hairline and a shadow, which vanish over
+ * black and blue, so they sit on `bg-background`, the page colour they are
+ * designed for, where a Card differs from the page by its edge and a Raised by
+ * its shadow. The three translucent rungs are the ones whose only claim is that
+ * content stays readable over anything, so they keep the deliberately hostile
+ * tiles: a rung that holds its floor only over a tasteful photograph fails here
+ * in review rather than on somebody's phone.
  *
  * There is not a number anywhere in it. Surface renders no measurement, so
  * there is no reading here for anybody to mistake for their own.
  *
  * Every line of text in it takes the plain foreground role rather than the
- * muted one, deliberately: this page's own guidance says not to put small grey
- * captions on a blurred surface, and a demo that broke its own rule would be
- * the more persuasive of the two documents.
+ * muted one, and every line is set at body rather than at footnote. Both are
+ * deliberate, and both answer the same Don't: this page's own guidance names
+ * small grey caption text on a heavily blurred surface, so a demo that obeyed
+ * only the colour half of its own rule would be the more persuasive of the two
+ * documents. The type token carries its own reason as well. Footnote's
+ * published use is provenance, meaning who measured a thing and when, whereas a
+ * rung's job is prose a reader reads, which is what body is for.
  */
 export default function SurfaceDemo() {
   return (
-    <div className="relative w-full max-w-lg overflow-hidden rounded-opsin-lg">
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 grid grid-cols-4 grid-rows-3"
-      >
-        {BACKDROP_TILES.map((tone, index) => (
-          <div key={`${tone}-${index}`} className={tone} />
-        ))}
-      </div>
-
-      <div className="relative grid gap-opsin-3 p-opsin-4 sm:grid-cols-2">
-        {CONTENT_RUNGS.map((entry) => (
-          <Surface
-            key={entry.rung}
-            rung={entry.rung}
-            className="rounded-opsin-md"
-          >
+    <div className="flex w-full max-w-lg flex-col gap-opsin-3">
+      {/* Region A: the three opaque rungs on the page colour they are designed
+          to sit on. Here a Card is told from the page by its hairline and a
+          Raised by its shadow; over the hostile tiles below neither would
+          read. */}
+      <div className="grid gap-opsin-3 rounded-opsin-lg bg-background p-opsin-4 sm:grid-cols-3">
+        {OPAQUE_RUNGS.map((entry) => (
+          // Concentric radius: the wrapper is rounded-opsin-lg (21px) with
+          // p-opsin-4 (16px) between it and each card, so a card's radius is 21
+          // minus 16, which is 5px, floored to the published floor radius-xs
+          // (4px). The rule and this shape of arithmetic are in
+          // tokens/shape.json rules[2].
+          <Surface key={entry.rung} rung={entry.rung} className="rounded-opsin-xs">
             {/* A description list rather than two paragraphs, because that is
-                what these are: six name/job pairs. Sibling `<p>`s look the same
-                and reach a screen reader as twelve unrelated blocks of text,
-                with nothing saying which job belongs to which rung. */}
+                what these are: name/job pairs. Sibling `<p>`s look the same and
+                reach a screen reader as unrelated blocks of text, with nothing
+                saying which job belongs to which rung. */}
             <dl className="m-0 p-opsin-3">
               <dt className="m-0 text-opsin-headline">{entry.label}</dt>
-              <dd className="m-0 text-opsin-footnote">{entry.job}</dd>
+              <dd className="m-0 text-opsin-body">{entry.job}</dd>
             </dl>
           </Surface>
         ))}
+      </div>
 
-        {/* The scrim doing its actual job. Its use is to take the page out of
-            consideration, so the honest way to show it is with something on a
-            rung above it. Never show it with text on the scrim itself. */}
-        <Surface rung="scrim" className="rounded-opsin-md">
-          <div className="p-opsin-3">
-            <Surface rung="card" className="rounded-opsin-sm">
-              <dl className="m-0 p-opsin-2">
-                <dt className="m-0 text-opsin-headline">Scrim</dt>
-                <dd className="m-0 text-opsin-footnote">
-                  The dimming layer behind a modal. Content sits on a rung above
-                  it.
-                </dd>
+      {/* Region B: the three translucent rungs over the deliberately hostile
+          tiles, because readability over anything is the only claim they make
+          and it is worth nothing demonstrated over a flat grey. */}
+      <div className="relative overflow-hidden rounded-opsin-lg">
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 grid grid-cols-6 grid-rows-2"
+        >
+          {BACKDROP_TILES.map((tone, index) => (
+            <div key={`${tone}-${index}`} className={tone} />
+          ))}
+        </div>
+
+        <div className="relative grid gap-opsin-3 p-opsin-4 sm:grid-cols-2">
+          {TRANSLUCENT_RUNGS.map((entry) => (
+            <Surface key={entry.rung} rung={entry.rung} className="rounded-opsin-xs">
+              <dl className="m-0 p-opsin-3">
+                <dt className="m-0 text-opsin-headline">{entry.label}</dt>
+                <dd className="m-0 text-opsin-body">{entry.job}</dd>
               </dl>
             </Surface>
-          </div>
-        </Surface>
+          ))}
+
+          {/* The scrim doing its actual job. Its use is to take the page out of
+              consideration, so the honest way to show it is with something on a
+              rung above it. Never show it with text on the scrim itself. */}
+          <Surface rung="scrim" className="rounded-opsin-xs sm:col-span-2">
+            {/* This is the one card in the demo with a card nested inside it, so
+                at the sm breakpoint it spans the full row rather than sharing
+                one, which keeps it from being the narrowest rung in the ladder.
+                Its paddings still stack, and the space tokens are rem, so every
+                nested level doubles at 200% text. The inset here is p-opsin-1
+                and not p-opsin-3 for that reason: kept this tight, the two
+                levels that remain, this inset and the dl below, leave the nested
+                card's text column about as wide as the other cards' rather than
+                collapsing it into a two-word ribbon at the setting this system's
+                readers most often use. Two nested levels are still enough to
+                show the scrim carrying something on a rung above it. */}
+            <div className="p-opsin-1">
+              <Surface rung="card" className="rounded-opsin-xs">
+                <dl className="m-0 p-opsin-2">
+                  <dt className="m-0 text-opsin-headline">Scrim</dt>
+                  <dd className="m-0 text-opsin-body">
+                    The dimming layer behind a modal. Content sits on a rung
+                    above it.
+                  </dd>
+                </dl>
+              </Surface>
+            </div>
+          </Surface>
+        </div>
       </div>
     </div>
   )

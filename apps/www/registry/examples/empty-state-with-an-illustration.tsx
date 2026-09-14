@@ -8,12 +8,16 @@
  * using speech, a reader who has turned images off, or a reader holding a
  * printout.
  *
- * So the component hides it three ways. `aria-hidden` keeps it out of the
- * accessibility tree; `print:hidden` keeps it off paper, where the title and
- * the body are the whole point; and a container query drops it once the
- * surface this component was handed is narrower than 24rem, so the picture
- * goes before any word does. That last one is worth trying: narrow the preview
- * and watch the illustration leave first, inside a card that has not moved.
+ * So the component hides it four ways. `aria-hidden` keeps it out of the
+ * accessibility tree; `inert` keeps a stray control inside a decorative node
+ * out of the tab order, which `aria-hidden` alone would strand; `print:hidden`
+ * keeps it off paper, where the title and the body are the whole point; and a
+ * container query drops it once the content area this component is left with is
+ * genuinely narrow, below 17rem, so the picture goes before any word does. A
+ * padded phone card stays well above that width and keeps the picture; a narrow
+ * embedded card falls under it and loses it. That last one is worth trying:
+ * narrow the preview and watch the illustration leave first, inside a card that
+ * has not moved.
  *
  * The drawing itself paints with `currentColor` and has no colour of its own.
  * A graphic that carried meaning would owe the non-text contrast floor, and a

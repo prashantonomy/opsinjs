@@ -3,15 +3,17 @@
  *
  * Three things are on show, and the third is the one worth watching for.
  *
- *   1. `auto` sends a three-word definition inline and a longer one behind a
- *      control. Nothing on the page chose that; it fell out of how long the
- *      definitions are.
+ *   1. `auto` sends the short definition inline, and it sends `eGFR` inline too,
+ *      not for its length but because the glossary marks it `showBoth: "always"`,
+ *      so a reader holding a printout meets the clinical word and the plain
+ *      wording beside it. Nothing at the call site chose either.
  *   2. Two terms in one paragraph is already close to the ceiling. Term is not a
  *      licence to keep the jargon: the question is always whether the reader
  *      will meet the word somewhere the product does not control, and if the
  *      answer is no, the fix is to write it plainly and delete the component.
- *   3. The second appearance of `eGFR` carries `once`. The word is still marked
- *      and the definition is still one press away and still in the
+ *   3. The second appearance of `eGFR` carries `once`, which sends it behind a
+ *      control even though the glossary asks for both every time. The word is
+ *      still marked and the definition is still one press away and still in the
  *      accessibility tree; it is simply not printed a second time.
  *
  * The definitions are copied verbatim from this repository's own
@@ -34,6 +36,7 @@ const GLOSSARY: readonly GlossaryEntry[] = [
     id: "acute",
     word: "acute",
     plain: "sudden, or short-lasting",
+    showBoth: "first-use",
   },
   {
     id: "egfr",
@@ -41,6 +44,7 @@ const GLOSSARY: readonly GlossaryEntry[] = [
     expansion: "estimated glomerular filtration rate",
     plain: "an estimate of how well your kidneys are filtering",
     speech: "e G F R",
+    showBoth: "always",
   },
 ]
 

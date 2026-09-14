@@ -165,7 +165,7 @@ function toText(value: number | null): string {
  * field promised.
  *
  * `roundTo` returns a Number and `String()` drops a trailing zero, so a field
- * carrying `precision={1}` and the hint "To one decimal place." converted 12.5 kg
+ * carrying `precision={1}` and the hint "To one decimal place" converted 12.5 kg
  * to stone and printed "2". That is one significant figure fewer than the
  * sentence above the box had just guaranteed. A reader cannot tell a rounded
  * 1.97 from an exact 2, which is the whole point of stating a precision.
@@ -221,6 +221,43 @@ function refusalReason(from: string, to: string): string | undefined {
 }
 
 /**
+ * What a unit switch did to the entry, held in one place so the sentence on
+ * screen and the sentence in the change payload are the same string.
+ *
+ * `was` is reader-facing: the parsed numbers as a phrase, which is what the
+ * sentence shows. `wasText` is the raw box buffer, kept only so a later switch
+ * back can put the reader's own keystrokes into the boxes again; it is never
+ * shown to a reader, and it is a separate field precisely because `was` is now a
+ * rendered phrase rather than the buffer.
+ *
+ * `restored` is the fourth thing a switch can do: the reader went back to the
+ * unit they had typed in after a refusal cleared their entry, and `wasText` has
+ * put the digits back in the boxes.
+ */
+type ReadingEffect = {
+  kind: "converted" | "cleared" | "restored"
+  from: string
+  to: string
+  was: string
+  wasText: string[]
+}
+
+/**
+ * The one sentence a unit switch draws, built once. Both the paragraph under the
+ * boxes and `ReadingInputChange.effectText` come from here, so the copy the
+ * reader sees and the copy a product routes through its announcer cannot drift.
+ */
+function effectSentence(effect: ReadingEffect): string {
+  if (effect.kind === "converted") {
+    return `Converted from ${effect.was} ${effect.from}.`
+  }
+  if (effect.kind === "restored") {
+    return `Restored your entry in ${effect.to}.`
+  }
+  return `Cleared. Enter the reading again in ${effect.to}.`
+}
+
+/**
  * One part of a reading, and the same shape `ResultCard` and `MetricTile`
  * already take.
  *
@@ -271,14 +308,37 @@ export interface ReadingInputChange {
   /**
    * On a unit switch, what happened to the numbers: `"converted"` by an exact
    * definitional factor, `"cleared"` because this system does not own that
-   * factor, or `"unchanged"` because no number had been typed. `null` when the
-   * reader was typing.
+   * factor, `"restored"` because the reader went back to the unit they had typed
+   * in after a refusal so the digits they typed are in the boxes again, or
+   * `"unchanged"` in either of two cases: no number had been typed, or the boxes
+   * are still empty from an earlier refusal and the cleared instruction has just
+   * been retargeted to name the unit now selected. Nothing changed in the boxes
+   * in either case, though in the second `effectText` still carries the
+   * retargeted instruction so the reader is told which unit to enter the reading
+   * in. `null` when the reader was typing.
    *
    * A `"cleared"` change is the one to intercept. It is the component saying it
    * cannot do this arithmetic and will not guess: re-render with your own
    * converted value and the reader keeps their entry.
    */
-  unitEffect: "converted" | "cleared" | "unchanged" | null
+  unitEffect: "converted" | "cleared" | "restored" | "unchanged" | null
+  /**
+   * The exact sentence drawn beneath the boxes for this change, or `null` when
+   * there is none. It is character-for-character what a sighted reader sees,
+   * because both come from one builder.
+   *
+   * This component mounts NO live region, by the contract in
+   * `accessibility/screen-readers` rule 1: no opsinjs component announces on the
+   * caller's behalf, because a library that guesses is either silent where it
+   * mattered or will not stop talking. A unit switch converts the number under a
+   * focus that stays on the select, and a select's description is not re-read
+   * when its value changes, so nothing reaches a reader who cannot see the
+   * boxes. Therefore a product that offers a unit switch MUST route this string
+   * through its own polite announcer (rule 2: a value change is `polite`), or a
+   * blind reader switches units, hears only the new unit, and saves a number
+   * they were never told had changed.
+   */
+  effectText: string | null
 }
 
 export interface ReadingInputProps {
@@ -417,9 +477,11 @@ export interface ReadingInputProps {
  * `flex-wrap` on the control row is the whole of the 200%-text requirement for
  * this component. At the reader's largest text size the unit has to wrap
  * BENEATH the number rather than overlapping it or pushing the page sideways,
- * and a row that cannot wrap does one of those two things. `items-end` keeps the
- * unit on the boxes' bottom edge while a compound reading's per-box labels sit
- * above them at different heights.
+ * and a row that cannot wrap does one of those two things. `items-end` aligns
+ * the row's items to their bottom edge, which is what a compound reading needs
+ * because its per-box labels sit above boxes of different heights. The unit
+ * block now sets its own 44px floor and centres its symbol within it, so the
+ * symbol lines up with the digits rather than hanging off the box's bottom edge.
  */
 const CONTROL_ROW = "flex flex-wrap items-end gap-opsin-2"
 
@@ -580,7 +642,7 @@ export function ReadingInput({
   const [entry, setEntry] = useState<{
     text: string[]
     reported: (number | null)[]
-    effect: { kind: "converted" | "cleared"; from: string; to: string; was: string } | null
+    effect: ReadingEffect | null
   }>(() => ({
     text: incoming.map(toText),
     reported: incoming,
@@ -644,6 +706,7 @@ export function ReadingInput({
     nextUnit: string,
     cause: "value" | "unit",
     unitEffect: ReadingInputChange["unitEffect"],
+    effectText: string | null,
   ): void {
     const values = nextText.map(parseReading)
     const nextSegments = parts.map((part, index) => ({
@@ -657,6 +720,7 @@ export function ReadingInput({
       text: nextText,
       cause,
       unitEffect,
+      effectText,
     })
   }
 
@@ -665,7 +729,7 @@ export function ReadingInput({
     /* The effect line is cleared the moment the reader touches a box. It
        describes what happened to an entry that no longer exists. */
     setEntry({ text: nextText, reported: nextText.map(parseReading), effect: null })
-    emit(nextText, unit, "value", null)
+    emit(nextText, unit, "value", null, null)
   }
 
   function handleUnit(next: string): void {
@@ -674,12 +738,60 @@ export function ReadingInput({
     const current = text.map(parseReading)
     const anyTyped = current.some((reading) => reading !== null)
 
-    /* Nothing has been typed, so nothing can have happened to it. The switch is
-       reported and no sentence is drawn. A line saying an empty field stayed
-       empty is noise in the description of every control on the row. */
+    /* The reader-facing echo of what they had typed, built from the PARSED
+       numbers rather than the raw buffer. `toText` returns "" for null, so a box
+       holding nothing and a box holding something that is not a number both drop
+       out rather than leaving an empty slot, and the anyTyped guard above
+       guarantees at least one survivor. The parts join with the word "and": a
+       solidus in a sentence reads as arithmetic, and the solidus is the display
+       convention for a compound reading that belongs to ResultCard, not to a
+       sentence this component writes. */
+    const wasPhrase = current
+      .map(toText)
+      .filter((digits) => digits !== "")
+      .join(" and ")
+
+    /* The boxes are empty, but they may be empty because a refusal cleared them,
+       and the buffer the reader typed survives in the cleared effect's wasText. */
     if (!anyTyped) {
+      /* Back to the unit they typed in: put the digits back and say so. A switch
+         that changes what is in the boxes has to say on screen what it did, the
+         same rule that governs a conversion and a clearance, so the entry does
+         not reappear silently. The loss was a choice this branch used to make;
+         the component held the buffer all along. */
+      if (effect?.kind === "cleared" && next === effect.from) {
+        const restored = effect.wasText
+        const restoredEffect: ReadingEffect = {
+          kind: "restored",
+          from: effect.to,
+          to: next,
+          was: effect.was,
+          wasText: restored,
+        }
+        setEntry({
+          text: restored,
+          reported: restored.map(parseReading),
+          effect: restoredEffect,
+        })
+        emit(restored, next, "unit", "restored", effectSentence(restoredEffect))
+        return
+      }
+      /* Still empty from a refusal, but the reader has moved to a third unit
+         rather than back. Keep the cleared effect and retarget it, so the
+         instruction beneath names the unit now selected and wasText survives for
+         a later switch back to the one they typed in. */
+      if (effect?.kind === "cleared") {
+        const retargeted: ReadingEffect = { ...effect, to: next }
+        setEntry({ text, reported: current, effect: retargeted })
+        emit(text, next, "unit", "unchanged", effectSentence(retargeted))
+        return
+      }
+      /* Nothing was typed and nothing was cleared, so nothing can have happened
+         to it. The switch is reported and no sentence is drawn. A line saying an
+         empty field stayed empty is noise in the description of every control on
+         the row. */
       setEntry({ text, reported: current, effect: null })
-      emit(text, next, "unit", "unchanged")
+      emit(text, next, "unit", "unchanged", null)
       return
     }
 
@@ -713,12 +825,19 @@ export function ReadingInput({
           '`unitEffect: "cleared"`, or do not offer this pair in `units`.',
       )
       const cleared = text.map(() => "")
+      const clearedEffect: ReadingEffect = {
+        kind: "cleared",
+        from: unit,
+        to: next,
+        was: wasPhrase,
+        wasText: text,
+      }
       setEntry({
         text: cleared,
         reported: cleared.map(() => null),
-        effect: { kind: "cleared", from: unit, to: next, was: text.join(" / ") },
+        effect: clearedEffect,
       })
-      emit(cleared, next, "unit", "cleared")
+      emit(cleared, next, "unit", "cleared", effectSentence(clearedEffect))
       return
     }
 
@@ -740,12 +859,19 @@ export function ReadingInput({
       result === undefined || result === null ? null : roundTo(result, precision),
     )
     const nextText = rounded.map((result) => toConvertedText(result, precision))
+    const convertedEffect: ReadingEffect = {
+      kind: "converted",
+      from: unit,
+      to: next,
+      was: wasPhrase,
+      wasText: text,
+    }
     setEntry({
       text: nextText,
       reported: rounded,
-      effect: { kind: "converted", from: unit, to: next, was: text.join(" / ") },
+      effect: convertedEffect,
     })
-    emit(nextText, next, "unit", "converted")
+    emit(nextText, next, "unit", "converted", effectSentence(convertedEffect))
   }
 
   /* THE DESCRIPTION LIST, ASSEMBLED HERE AND MERGED BY BASE UI.
@@ -760,17 +886,33 @@ export function ReadingInput({
      still available to somebody who arrived by touch exploration. In a compound
      reading the hint is here too, because the group's guidance belongs to every
      box in it rather than to the first. */
-  const describedBy = [
+  const descriptionIds: string[] = [
     unit.trim() === "" ? undefined : unitId,
     compound && hint !== undefined && hint.trim() !== "" ? hintId : undefined,
     warning !== undefined && warning.trim() !== "" ? warningId : undefined,
     effect === null ? undefined : effectId,
-  ]
-    .filter((id): id is string => id !== undefined)
-    .join(" ")
+  ].filter((id): id is string => id !== undefined)
+
+  const describedBy = descriptionIds.join(" ")
+
+  /* The select names the effect line FIRST, so the sentence is the first thing
+     heard the next time the select is announced after a switch. This does not
+     announce anything on change: focus stays on the select, and a select's
+     description is not re-read when its value changes. Telling the reader that
+     the number changed is the product's job through `onChange`'s `effectText`,
+     routed to a polite announcer. This only improves what a reader hears when
+     they next move within or re-focus the select. */
+  const unitDescribedBy = (
+    effect === null
+      ? descriptionIds
+      : [effectId, ...descriptionIds.filter((id) => id !== effectId)]
+  ).join(" ")
 
   const unitBlock = (
-    <div className="flex shrink-0 items-center" data-slot="reading-input-unit">
+    <div
+      className="flex min-h-[var(--opsin-target-minimum,2.75rem)] shrink-0 items-center"
+      data-slot="reading-input-unit"
+    >
       {switchable ? (
         <span className="relative inline-flex items-center">
           <select
@@ -780,17 +922,45 @@ export function ReadingInput({
                the visible label. That label is the symbol, on screen, beside
                the number. */
             aria-label={`Unit for ${label}`}
-            aria-describedby={describedBy === "" ? undefined : describedBy}
+            aria-describedby={unitDescribedBy === "" ? undefined : unitDescribedBy}
             className={UNIT_SELECT}
             disabled={disabled}
             onChange={(event) => handleUnit(event.currentTarget.value)}
             value={unit}
           >
-            {(units ?? []).map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
+            {/* The VISIBLE option text stays the bare symbol, and that part is
+                deliberate. A native <select> paints the selected option's own
+                text in the closed control and takes its intrinsic width from the
+                widest option, so a spoken plural folded into the visible text
+                would read "kg kilograms" beside the number and stretch the 66px
+                control to the width of the longest phrase, squeezing the typing
+                area next to it. The spoken name rides `aria-label` instead: the
+                browser's accessible-name computation honours it on an <option>
+                without changing a pixel of the glyph or the control's width,
+                confirmed by reading Chromium's accessibility tree, where each
+                option resolves to its plural ("kilograms", "pounds", "stone")
+                rather than to the letters. So a reader arrowing the open list
+                now hears the unit named instead of a synthesiser improvising
+                "kay gee". The `label` attribute is not used for this, because it
+                feeds the closed display too and would show on screen. A symbol
+                the unit table does not hold gets no `aria-label` and falls back
+                to its visible text, which a synthesiser reads as written rather
+                than by a pronunciation this component invented. The selected
+                unit's sr-only description below still carries the spoken form for
+                the closed control, where the open list is not in play. See
+                tokens/units.json policy.whyThisExists. */}
+            {(units ?? []).map((option) => {
+              const spokenOption = findUnit(option)
+              return (
+                <option
+                  aria-label={spokenOption === undefined ? undefined : spokenOption.plural}
+                  key={option}
+                  value={option}
+                >
+                  {option}
+                </option>
+              )
+            })}
           </select>
           {/* Decorative: the select announces itself as a control without it.
               Sized in em so it grows with the reader's own text size rather
@@ -872,8 +1042,17 @@ export function ReadingInput({
          mistake, and it might equally be a true reading that matters precisely
          because it is unusual. So it is a description, in the ordinary
          foreground colour, with no glyph, no status colour and no aria-invalid
-         anywhere near it. Nothing here moves focus and nothing here blocks. */
-      <p className="m-0 text-opsin-body text-foreground" data-slot="reading-input-warning" id={warningId}>
+         anywhere near it. Nothing here moves focus and nothing here blocks.
+
+         It is set at `text-opsin-headline`, the emphasis weight, because it is
+         the one sentence the product most wants read and weight is the only axis
+         left once colour and a glyph are ruled out. That is body size at weight
+         600, so the size, leading, tracking and colour are unchanged and only
+         the weight moves. The hint above the box stays at body weight, so the
+         two remain distinguishable. `text-opsin-body` is replaced rather than
+         joined: both resolve to a font-size utility carrying its own weight
+         sub-key, and two on one element is a specificity race. */
+      <p className="m-0 text-opsin-headline text-foreground" data-slot="reading-input-warning" id={warningId}>
         {warning}
       </p>
     )
@@ -883,22 +1062,36 @@ export function ReadingInput({
       /* WHAT HAPPENED TO THE TYPED VALUE, ON SCREEN. The specification is
          explicit that a unit switch must never silently convert and never
          silently keep the digits, and that whichever it does it has to say so.
-         These two sentences are the only reader-facing copy this component owns,
-         and there is no prop to translate them. That is a real gap, listed on
-         the page rather than hidden here.
+         These three sentences are the only reader-facing copy this component
+         owns, and there is no prop to translate them. That is a real gap, listed
+         on the page rather than hidden here.
 
          It is NOT a live region. The substrate contract forbids a component
          mounting one on the caller's behalf, so this joins the description of
          every control on the row and is read when focus reaches one, rather than
-         interrupting. What that costs is on the page too. */
+         interrupting. What that costs is on the page too.
+
+         The colour splits by what the sentence asks of the reader. 'converted'
+         and 'restored' are reassurance about a change already made safely, so
+         they stay muted body. 'cleared' takes the full foreground at the
+         emphasis weight, because the boxes are empty and this sentence is the
+         only thing telling the reader why and what to do; information a reader
+         acts on does not go in the colour reserved for things that can be
+         skipped, which is field.tsx's own rule for the same colour. The weight
+         matches the advisory above, so the two sentences a reader must act on
+         look like each other. The two size utilities are mutually exclusive
+         because each carries its own weight sub-key. */
       <p
-        className="m-0 text-opsin-body text-muted-foreground"
+        className={cn(
+          "m-0",
+          effect.kind === "cleared"
+            ? "text-opsin-headline text-foreground"
+            : "text-opsin-body text-muted-foreground",
+        )}
         data-slot="reading-input-effect"
         id={effectId}
       >
-        {effect.kind === "converted"
-          ? `Converted from ${effect.was} ${effect.from}.`
-          : `Cleared. Enter the reading again in ${effect.to}.`}
+        {effectSentence(effect)}
       </p>
     )
 
@@ -922,14 +1115,18 @@ export function ReadingInput({
        one measurement made of separately-typable parts and that is the only
        native construct that says so. The browser resets are explicit: a fieldset
        ships with a border, padding and a `min-inline-size: min-content` that
-       stops it shrinking inside a flex column. */
+       stops it shrinking inside a flex column. The legend sits one type step
+       above its parts, at `title3` over the parts' `headline`, because three
+       identical bold lines force the reader to work out which one names the
+       pair and which two are its halves. This is the only place in the
+       component where a type step carries structure. */
     <fieldset
       className={cn("m-0 w-full min-w-0 border-0 p-0", className)}
       data-slot="reading-input"
       disabled={disabled}
     >
       <legend
-        className="mb-opsin-2 p-0 text-opsin-headline text-foreground"
+        className="mb-opsin-2 p-0 text-opsin-title3 text-foreground"
         data-slot="reading-input-legend"
       >
         {label}
@@ -980,7 +1177,7 @@ export default function ReadingInputDemo() {
   return (
     <div className="w-full max-w-md">
       <ReadingInput
-        hint="Whole numbers or one decimal place."
+        hint="Whole numbers or one decimal place"
         label="Example measurement"
         name="example-measurement"
         onChange={(next) => {

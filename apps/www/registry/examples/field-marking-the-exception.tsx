@@ -21,8 +21,10 @@
  * filling the field. It is used here only because these fields collect
  * nothing real, so any genuine token would be a made-up answer to a made-up
  * question. A real form names a real token. `inputMode` is omitted on the
- * note for a different reason: it is free text, and the default keyboard is
- * the right one.
+ * note and on the time for the same reason: neither answer is a plain run of
+ * digits, so the default keyboard is the right one and a number pad that cannot
+ * type a colon or a space would be the wrong one. Only the year takes
+ * `inputMode="numeric"`, because every character of a four-digit year is a digit.
  */
 
 import { Field } from "@/registry/base-lyra/ui/field"
@@ -34,7 +36,7 @@ export default function FieldMarkingTheException() {
         We need all of these unless the field says otherwise.
       </p>
 
-      <Field label="Example measurement" hint="For example, 14.">
+      <Field label="Example measurement" hint="For example, 14">
         <Field.Control
           name="example-measurement"
           inputMode="decimal"
@@ -42,22 +44,22 @@ export default function FieldMarkingTheException() {
         />
       </Field>
 
-      <Field label="Example date" hint="For example, 27 3 1985.">
+      <Field label="Example year" hint="For example, 1985">
         <Field.Control
-          name="example-date"
+          name="example-year"
           inputMode="numeric"
           autoComplete="off"
         />
       </Field>
 
-      <Field label="Example time" hint="For example, 9 15 in the morning.">
-        <Field.Control name="example-time" inputMode="numeric" autoComplete="off" />
+      <Field label="Example time" hint="For example, 09:15">
+        <Field.Control name="example-time" autoComplete="off" />
       </Field>
 
       <Field
         label="Example note"
         optionality="optional"
-        hint="Anything you want to remember about this entry."
+        hint="Anything you want to remember about this entry"
       >
         <Field.Control name="example-note" autoComplete="off" />
       </Field>

@@ -52,6 +52,7 @@ import { Children, type ReactNode } from "react"
 
 import { isDevelopment } from "@/lib/opsinjs"
 import { cn } from "@/lib/utils"
+import { Link } from "@/registry/base-lyra/ui/link"
 
 /**
  * Development warnings, said once per distinct offender.
@@ -220,17 +221,41 @@ const CONTENT_COLUMN = {
 } as const
 
 /**
- * The link to the fuller statement.
+ * The grid-item floor for the link to the fuller statement.
+ *
+ * THE LINK TREATMENT ITSELF NOW LIVES IN `Link`, NOT HERE. The underline, the
+ * `0.25em` offset, the one-pixel press, the focus ring and `wrap-anywhere` were
+ * this file's own class string once, one of the five private anchors the roster
+ * finding names. `Link` is now the single place the underline, the `0.25em`
+ * offset, the press and the focus ring are decided, so this note and any future
+ * inline link cannot drift apart again. The offset stays `0.25em` rather than
+ * the `underline-offset-4` step, and the focus ring travels with the link
+ * rather than the theme, both for reasons `link.tsx` now carries. Two choices
+ * are this control's own rather than the theme's. The press is a transform and
+ * not one of the D6 `--state-*` fills, because a fill is wrong on a text link.
+ * Hover adds nothing, because the underline is already the rest state and there
+ * is no quieter state for hover to lift from; disabled, selected and loading do
+ * not apply, because a note's link is never turned off, chosen or pending. What
+ * is left in this file is the part that was never about the link and always
+ * about the note: where the anchor sits in the note's grid, and how large a
+ * target it must be there.
  *
  * IT IS A REAL ANCHOR AND IT IS NOT A BUTTON. A control that produces a new URL
  * is a link however it is styled, and rebuilding it as a button loses the new
- * tab, the copied address and the screen reader's list of links. That is the
- * one place a label naming its destination pays for itself.
+ * tab, the copied address and the screen reader's list of links. `Link` refuses
+ * to be a button for that reason, which is why the note reaches for `Link`
+ * rather than for `Button`.
  *
- * The floor is `--opsin-target-minimum` in rem rather than 44px, so it grows
- * when a reader raises their text size instead of pinning while the label
- * doubles. THE FALLBACK INSIDE THE `var()` IS LOAD-BEARING: written without
- * one, `min-h-(--opsin-target-minimum)` compiles to a bare reference, and in a
+ * THE FLOOR STAYS HERE BECAUSE `emphasis="inline"` DROPS IT. `Link`'s inline
+ * form is a link inside a sentence, and SC 2.5.8 exempts an inline target, so
+ * it carries no floor: a 2.75rem minimum would inflate the line box of any
+ * paragraph the link sat in. This anchor is not inside a sentence. It is a grid
+ * item of its own, the standing "read the full statement" control a reader
+ * taps, so it keeps the floor the inline form sheds. The floor is
+ * `--opsin-target-minimum` in rem rather than 44px, so it grows when a reader
+ * raises their text size instead of pinning while the label doubles. THE
+ * FALLBACK INSIDE THE `var()` IS LOAD-BEARING: written without one,
+ * `min-h-(--opsin-target-minimum)` compiles to a bare reference, and in a
  * project that installed this file without `tokens.generated.css` that
  * declaration is invalid at computed-value time. `min-height` reverts to
  * `auto` and the floor vanishes with no error anywhere. Both axes, because
@@ -242,31 +267,17 @@ const CONTENT_COLUMN = {
  * grid track. Without it the whole line is clickable, and a reader who taps the
  * empty space beside a short label is navigated somewhere they did not aim at.
  *
- * The focus ring is declared here as well as in the product theme because a
- * consumer installs this file without that stylesheet.
- *
- * `wrap-anywhere` RATHER THAN THE `wrap-break-word` THE OTHER TWO PARTS USE,
- * and the difference is the whole repair. This anchor is a grid item, so its
- * `inline-flex` blockifies to `flex`, and the label inside becomes an anonymous
- * flex item. `min-w-0` sets the anchor's own minimum and never reaches that
- * anonymous item, and `overflow-wrap: break-word` deliberately does not reduce
- * a box's min-content size. So with either of those the anchor stays inside
- * its track while the label paints past it and widens the document. `anywhere`
- * is the one value that does reduce min-content size, which is what makes the
- * link reflow with the paragraph instead of being the one part exempt from it.
- * Failure case if this is removed: a compound label in a language that builds
- * them, at 200% text on a narrow viewport, scrolls the page sideways.
- *
- * The underline offset is `0.25em` rather than the `underline-offset-4` step,
- * because that step compiles to a flat `4px` while everything else in this file
- * is relative. At 200% text the type doubles and a fixed offset does not, which
- * walks the rule up into the descenders of any language that has them.
+ * `inline-flex` is what `Link`'s `wrap-anywhere` needs to bite. The anchor is a
+ * grid item, so `inline-flex` blockifies to `flex` and the label becomes an
+ * anonymous flex item; `overflow-wrap: break-word` does not reduce a box's
+ * min-content size, so only `wrap-anywhere`, which `Link` carries, keeps a long
+ * compound label reflowing with the note rather than widening the document at
+ * 200% text on a narrow viewport.
  */
-const LINK =
+const LINK_FLOOR =
   "inline-flex min-h-(--opsin-target-minimum,2.75rem) " +
   "min-w-(--opsin-target-minimum,2.75rem) max-w-full items-center " +
-  "justify-self-start wrap-anywhere underline underline-offset-[0.25em] " +
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+  "justify-self-start"
 
 export interface DisclaimerNoteProps {
   /**
@@ -325,6 +336,11 @@ export interface DisclaimerNoteProps {
    * write something a reader could quote back in a support conversation rather
    * than an internal identifier, and write it in their language: no word is
    * added around it, because any word added here would be English.
+   *
+   * It renders one step down in the secondary ink, at the footnote size, so a
+   * reader can tell it apart from the statement rather than parse it as a third
+   * sentence about their health. It is still rendered exactly as written, with
+   * no word added around it.
    */
   textVersion?: string
   /**
@@ -430,13 +446,14 @@ function statementLink(
   }
 
   return (
-    <a
-      data-slot="disclaimer-note-link"
+    <Link
       href={href}
-      className={cn(column, LINK)}
+      emphasis="inline"
+      data-slot="disclaimer-note-link"
+      className={cn(column, LINK_FLOOR)}
     >
       {label}
-    </a>
+    </Link>
   )
 }
 
@@ -498,13 +515,31 @@ export function DisclaimerNote({
     <div
       data-slot="disclaimer-note"
       className={cn(
-        /* BODY SIZE AND BODY INK, AND NEITHER IS NEGOTIABLE. Legal text set one
-           step down in pale grey complies with the letter of a requirement and
-           none of its purpose, and it is the single most common way this
-           component is got wrong. There is no muted role and no footnote step
-           anywhere in this file: everything in the note, the link and the
-           version marker included, is body size in body ink, and both are set
-           here so that all three inherit them.
+        /* BODY SIZE AND BODY INK FOR THE STATEMENT AND THE LINK, AND NEITHER IS
+           NEGOTIABLE. Legal text set one step down in pale grey complies with
+           the letter of a requirement and none of its purpose, and it is the
+           single most common way this component is got wrong. So the statement
+           and the link are body size in body ink, and both are set here on the
+           root so that both inherit them.
+
+           The version marker is the one exception, and it is not the same thing.
+           It is an identifier beside the statement rather than a part of it, and
+           a reader who parses it as a third sentence about their own health is
+           the failure this exception prevents. It takes the footnote step in the
+           secondary ink that `Card.Description` already uses for exactly this
+           role, set on its own span rather than here. That ink is
+           `--muted-foreground`, a chrome role the theme layer owns, and both
+           themes clear the 4.5:1 body floor at the 0.8125rem footnote size on
+           the page and on a card. The four measured pairs are not typed here,
+           because a token move would silently falsify them: the theme
+           layer owns the colour, and the page's `<ContrastReport
+           component="disclaimer-note">` is where the measured pairs are
+           published instead. The next editor's instinct will be to write that
+           ink as
+           `text-muted-foreground`; do not, for the tailwind-merge reason set out
+           below, which silently drops the footnote size. The escape is the same:
+           `[color:var(--muted-foreground)]` is an arbitrary property in its own
+           conflict group and keeps both the size and the ink.
 
            THE COLOUR IS AN ARBITRARY PROPERTY AND THAT IS NOT A STYLE CHOICE.
            `cn` is `twMerge(clsx(…))`, tailwind-merge is unconfigured, and it has
@@ -531,15 +566,33 @@ export function DisclaimerNote({
            has gone looking for the setting that keeps them, and a component
            with no fill has nothing to lose. Nothing here is `print:hidden`.
 
+           Under `prefers-contrast: more` the treatment does not change its
+           kind, only its weight: the same top hairline is drawn at
+           `--opsin-border-emphasis`, which is 2px. The comma fallback is
+           load-bearing for the reason the two `var()` fallbacks above
+           already give. A consumer who installs this file without
+           `tokens.generated.css` gets a bare `var(--opsin-border-emphasis)`,
+           the `border-top-width` declaration is then invalid at
+           computed-value time, and the rule is dropped with no error
+           anywhere. This is a WIDTH change and not a colour change. A wider
+           line at the same colour is easier to find, but it does not move
+           the measured contrast ratio. That ratio is a property of the
+           `--border` colour, which the theme layer owns and this file does
+           not, so the measured hairline pairs are not typed here, because a token
+           move would silently falsify them: the page's `<ContrastReport
+           component="disclaimer-note">` is where they are published
+           instead. This line answers the width and leaves the colour to the
+           layer that owns it.
+
            `wrap-break-word` with `min-w-0` on the content cells is the reflow
            repair. `1fr` is `minmax(auto, 1fr)`, so the text track's floor is the
            longest unbreakable token in `children`; at 200% text on a phone one
            long word or a bare URL would widen the grid past the viewport, which
            is horizontal scroll on the document and an SC 1.4.10 failure. The
-           link needs `wrap-anywhere` instead, for the reason set out on `LINK`:
-           its label is an anonymous flex item that neither of those two
-           reaches. */
-        "gap-y-opsin-2 border-t border-border text-opsin-body [color:var(--foreground)]",
+           link needs `wrap-anywhere` instead, which `Link` carries and
+           `LINK_FLOOR` explains: its label is an anonymous flex item that
+           neither of those two reaches. */
+        "gap-y-opsin-2 border-t border-border text-opsin-body [color:var(--foreground)] contrast-more:[border-top-width:var(--opsin-border-emphasis,2px)]",
         LAYOUT[key],
         PLACEMENT[placement],
         className,
@@ -559,9 +612,14 @@ export function DisclaimerNote({
            information about what you are reading" and carries no level; it is
            deliberately the same glyph `Callout` uses for a note, because the
            two say the same thing about themselves and a distinct silhouette
-           here would only be a claim to more attention. `Check`, `Eye`,
-           `TriangleAlert` and `OctagonAlert` belong to the status axis and
-           appear on this component under no circumstances. */
+           here would only be a claim to more attention. The status axis carries
+           `Circle`, `CircleDot`, `Diamond` and `Octagon`, an abstract ordinal
+           set whose implied weight rises with the level, and `Minus` for an
+           absence; none of them is this note's glyph, because a note carries no
+           level. The never-a-warning-triangle rule above does not rest on that
+           roster: a triangle raises an alarm register the moment its shape is
+           read, and this component raises no alarm, so a triangle would be wrong
+           here even if it belonged to no set at all. */
         <Info
           data-slot="disclaimer-note-icon"
           aria-hidden="true"
@@ -585,10 +643,26 @@ export function DisclaimerNote({
           "m-0 min-w-0 max-w-(--opsin-measure-comfortable,66ch) wrap-break-word",
         )}
       >
-        {/* Unlovely on purpose. An author who sees this line writes the
-            product's own sentences; a reader who sees it has been told that
-            something is missing rather than told something untrue. */}
-        {supplied ? children : "No disclaimer text has been supplied for this note."}
+        {/* Unlovely on purpose, and in the reader's own words rather than the
+            component's: it names no part a reader cannot see and it makes its
+            plain admission in the active voice, about the app rather than about
+            this component. An author who sees this line writes the product's own
+            sentences; a reader who sees it has been told that something is
+            missing rather than told something untrue.
+
+            This one sentence is English, and there is no prop through which a
+            product can translate it, so a Welsh, Urdu or Spanish product renders
+            an English line on precisely the day it is meant to be read. That is
+            deliberate rather than an oversight. ADR 0005 (no [lang] segment yet)
+            is why there is no language seam to hang a translation on, and a
+            `missingTextLabel` prop was NOT added to make one: a prop that accepts
+            the missing-words line is one keystroke from a prop that accepts the
+            disclaimer, which is the thing this file exists to refuse. A product
+            guards the missing case upstream instead, and never lets the component
+            be the one that speaks. */}
+        {supplied
+          ? children
+          : "This app has not added its notice about what it can and cannot do."}
       </p>
 
       {link}
@@ -596,7 +670,10 @@ export function DisclaimerNote({
       {version === "" ? null : (
         <span
           data-slot="disclaimer-note-version"
-          className={cn(column, "min-w-0 wrap-break-word")}
+          className={cn(
+            column,
+            "min-w-0 text-opsin-footnote wrap-break-word [color:var(--muted-foreground)]",
+          )}
         >
           {version}
         </span>
@@ -609,11 +686,16 @@ export function DisclaimerNote({
  * The zero-prop default export (ADR 0009).
  *
  * `/view` renders this with no props and `shadcn add` ships it, so it is
- * public, reviewed code rather than a scratch demo. It shows the two things
- * worth seeing about this component: a note in place with everything it can
- * carry, and what happens when the words are missing. That is the state a
- * product is most likely to ship by accident and the one this component exists
- * to make visible.
+ * public, reviewed code rather than a scratch demo. It shows the note in its
+ * two placements: inline under the block it qualifies, carrying everything it
+ * can hold, and footer ending a surface. Both instances carry synthetic words,
+ * so the demo renders warning-free, which is the standard ADR 0009 holds the
+ * shipped demo to and the state a developer told to copy it should meet. The
+ * missing-words case, which is what a product is most likely to ship by
+ * accident, is still made visible at runtime: the component warns and prints
+ * that none were supplied whenever a real caller omits them. The demo no longer
+ * renders that case, because a demo is the happy case and the absence belongs
+ * in an example rather than in the code `/view` renders.
  *
  * THE WORDS ARE OBVIOUSLY SYNTHETIC AND SAY SO OF THEMSELVES. They are not a
  * disclaimer, they are not a draft of one, and they are not a starting point:
@@ -642,7 +724,12 @@ export default function DisclaimerNoteDemo() {
         none of them.
       </DisclaimerNote>
 
-      <DisclaimerNote placement="footer" />
+      <DisclaimerNote placement="footer">
+        Placeholder wording again, for layout only. This is the footer
+        placement, which ends a surface rather than sitting under a single block
+        of it. The product still writes the sentence that belongs here, and
+        opsinjs ships none of it.
+      </DisclaimerNote>
     </div>
   )
 }

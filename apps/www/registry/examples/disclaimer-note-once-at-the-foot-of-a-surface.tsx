@@ -47,9 +47,17 @@ export default function DisclaimerNoteOnceAtTheFootOfASurface() {
         <Card.Body>
           <ul className="m-0 flex list-none flex-col gap-opsin-2 p-0">
             {ROWS.map((row) => (
+              /* The last row gives up its bottom rule with `last:border-b-0`.
+                 The note below closes the list with its own `border-t`, so
+                 without this the last row's rule and the note's rule would be
+                 two parallel hairlines about 18px apart with nothing between
+                 them (the `mt-4` gap), which reads as a fourth row that failed
+                 to load; any product copying this example would ship the same
+                 stray rule. The surface is then left with exactly three
+                 rules: two between the three rows and the note's own top edge. */
               <li
                 key={row}
-                className="border-b border-border py-opsin-2 text-opsin-body"
+                className="border-b border-border py-opsin-2 text-opsin-body last:border-b-0"
               >
                 {row}
               </li>

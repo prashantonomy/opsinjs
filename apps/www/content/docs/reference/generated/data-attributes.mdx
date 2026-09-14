@@ -47,7 +47,7 @@ documentation site's own chrome are not part of the system.
 
 **The table below is empty, and the components are not.** The implemented
 components under `registry/bases/base` carry `data-slot` on every part, plus
-`data-status`, `data-category`, `data-opsin-shape` and `data-opsinjs-value` where
+`data-status`, `data-category` and `data-opsinjs-value` where
 those apply, and they inherit Base UI's `data-open`, `data-starting-style` and
 `data-ending-style`. What is missing is the extraction: the generator does not
 read the component sources for `data-*` yet, and a table filled by guessing the
@@ -62,6 +62,6 @@ from a component without parsing prose.
 
 <NoDataYet script="scripts/build-reference.mts" />
 
-This script does not read the component sources for `data-*` attributes yet, so the table below has no rows - not because no attribute is emitted. The base layer under `registry/bases/base` emits `data-slot` on every part, plus opsinjs's `data-status`, `data-category`, `data-opsinjs-value` and `data-opsin-shape`, and inherits Base UI's `data-open`, `data-starting-style` and `data-ending-style`. Filling this table needs the attribute, the part, the condition and the value set together; the vocabulary itself is specified in the Handbook under Data attributes.
+This script does not read the component sources for `data-*` attributes yet, so the table below has no rows, which is not the same as no attribute being emitted. The base layer under `registry/bases/base` emits `data-slot` on every part, plus opsinjs's `data-status`, `data-category` and `data-opsinjs-value`, and inherits Base UI's `data-open`, `data-starting-style` and `data-ending-style`. That is the whole component contract, and the Handbook states it is closed at those four. The squircle is not among them: Card, Callout and Dialog deliver it with an inline `corner-shape` property, `[corner-shape:var(--opsin-corner-shape)]`, rather than stamping a `data-opsin-shape` attribute, so no component emits one. `data-opsinjs-not-implemented` is not a component attribute either. It is a documentation-site marker that this site's not-built-yet chrome stamps so a program can tell a specification from a shipped component. Filling this table needs the attribute, the part, the condition and the value set together; the vocabulary itself is specified in the Handbook under Data attributes.
 
 {/* opsinjs:generated:end */}

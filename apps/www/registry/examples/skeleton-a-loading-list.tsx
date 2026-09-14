@@ -78,7 +78,7 @@ export default function SkeletonALoadingList() {
               appearAfterMs={APPEAR_AFTER_MS}
               className="shrink-0"
             />
-            <div className="flex min-w-0 grow flex-col gap-opsin-2">
+            <div className="flex min-w-0 grow flex-col gap-opsin-2 text-opsin-body">
               {/* The title: one line, full width, never shortened. */}
               <Skeleton
                 shape="line"
@@ -86,10 +86,12 @@ export default function SkeletonALoadingList() {
                 className="w-1/2"
               />
               {/* The description: two lines of body text, the last one short.
-                  The reservation is two lines exactly where the row is at the
-                  body step; this row inherits whatever the surrounding surface
-                  sets, so put `text-opsin-body` on the row when the reservation
-                  has to be exact. */}
+                  The bars now reserve one inherited line box each, so the row
+                  declares its type step with `text-opsin-body` above. That is
+                  the part worth copying: the placeholder and the text that lands
+                  are demonstrably the same size because both read the same step,
+                  rather than the reservation happening to match at the body
+                  step and drifting everywhere else. */}
               <Skeleton shape="text" lines={2} appearAfterMs={APPEAR_AFTER_MS} />
             </div>
           </div>

@@ -41,7 +41,9 @@
  * CSS custom property on the document, not as a value this component reads.
  */
 
-import type { ReactNode } from "react"
+import { cloneElement, isValidElement, type ReactElement, type ReactNode } from "react"
+
+import { ChevronRight } from "lucide-react"
 
 import { isDevelopment, type MaterialRung } from "@/lib/opsinjs"
 import { cn } from "@/lib/utils"
@@ -92,20 +94,28 @@ function warnDev(key: string, message: string): void {
  * Padding, as literal class strings.
  *
  * Tailwind reads class names out of source as text, so this cannot be built
- * from the density at runtime: `p-${density === "compact" ? 4 : 5}` generates
- * no CSS and renders a card with no padding at all.
+ * from the density at runtime: `p-${density === "compact" ? "4.375" : "5"}`
+ * generates no CSS and renders a card with no padding at all.
  *
- * WHERE THE 5 AND THE 4 COME FROM, AND WHICH SCALE THEY ARE ON. The two
- * numbers are borrowed from `tokens/space.json`, which publishes step 5 as
- * "card inner padding on a phone" and step 4 as the step below it. What ships
- * is not those steps. `p-5` and `p-4` are five and four multiples of Tailwind's
- * `--spacing`, which `app/product.css` sets to 0.28rem and the document's
- * `[data-density]` attribute moves to 0.24rem or 0.32rem; `p-opsin-5` and
- * `p-opsin-4` are the utilities that read the fixed tokens instead. So neither
- * rendered value is a published step and neither sits on the 4px grid, and this
- * file claims neither. The numbers carry the intent; the scale carries the
- * response to density.
+ * WHERE THE NUMBERS COME FROM, AND WHICH SCALE THEY ARE ON. Comfortable is
+ * `p-5`, five multiples of Tailwind's `--spacing`. The 5 is borrowed from
+ * `tokens/space.json`, which publishes step 5 as "card inner padding on a
+ * phone". Compact is `calc(var(--spacing) * 4.375)`, which is 0.875 of the
+ * comfortable padding. That 0.875 is the multiplier `tokens/space.json`
+ * publishes for the compact density, so the card's own `density` prop and the
+ * document's `[data-density]` attribute now tighten a card by the same fraction
+ * rather than by two different ones. Both values ride `--spacing`, which
+ * `app/product.css` sets to 0.25rem at the default density and scales by
+ * `--opsin-density-scale` when the document asks for a denser interface;
+ * `p-opsin-5` reads the fixed token step instead.
  *
+ * At the default density comfortable renders 20px, which coincides with the
+ * fixed step 5 and sits on the 4px grid; a denser document density shrinks
+ * `--spacing` and both values fall off it. Compact is off the 4px grid at every
+ * density: at the default density it is 17.5px, and 0.875 of `--spacing` is
+ * never a whole multiple of 4px. That is the density-scaled scale, the one
+ * exception `tokens/space.json` rules[0] names to the 4px guarantee, which
+ * otherwise covers the fixed `--opsin-space-*` steps that density never moves.
  * The scaled scale is the choice rather than an oversight, and it is the one
  * place this component follows `app/product.css` rather than the token steps
  * directly: that file names "the inside of a card" as the canonical use of the
@@ -116,7 +126,7 @@ function warnDev(key: string, message: string): void {
  */
 const PADDING: Record<"comfortable" | "compact", string> = {
   comfortable: "p-5",
-  compact: "p-4",
+  compact: "p-[calc(var(--spacing)*4.375)]",
 }
 
 /**
@@ -139,16 +149,46 @@ const PADDING: Record<"comfortable" | "compact", string> = {
 const SHAPE = "rounded-opsin-md [corner-shape:var(--opsin-corner-shape)]"
 
 /**
- * The boundary, for print.
+ * The boundary, for print and for forced colours.
  *
- * The rung paints its fill with a background and its edge with an inset
- * box-shadow, and a browser drops both when it prints unless the reader has
- * gone looking for the setting that keeps them. Left alone, every card on a
- * printed page loses its boundary. A printout is how a reading most often
- * reaches a clinician. A real border is the one boundary a printer keeps, so
- * the card grows one at print time and only at print time.
+ * Surface draws the card's edge as an outline, and `forced-colors: active`
+ * keeps an outline while recolouring it to CanvasText, so the card's boundary
+ * survives forced colours on its own and this file adds nothing to carry it
+ * there. No forced-colours border is added here for exactly that reason: D11
+ * puts that boundary on the outline in Surface, where an outline is the
+ * mechanism forced colours keeps and a border would be the wrong one.
+ *
+ * Print is not the same story, and the outline does not close it. A printer
+ * keeps the outline as a mechanism, but draws it in the rung's own edge colour,
+ * and for the default `card` rung that colour is `--opsin-material-card-border`,
+ * a near-white hairline in the light theme that measures about 1.23:1 on white
+ * paper and so is no boundary a reader can see. The theme's `@media print`
+ * block inks the chrome roles and carries every rung to its opaque fill, but it
+ * leaves `--opsin-material-*-border` at its screen value, so the outline never
+ * reaches paper as a line. The boundary a reader on paper actually sees is
+ * `print:border print:border-border`, whose `--border` the same print block
+ * redeclares as printable ink. That makes this the primary print rule rather
+ * than a second answer for the fill, and removing it on the theory that Surface
+ * already carries the edge would return the card to a boundaryless printout.
  */
 const PRINT_BOUNDARY = "print:border print:border-border"
+
+/**
+ * The class list for the link-card root, whether it is the plain anchor or the
+ * product's router element rendered through `render`. It is lifted here so both
+ * branches carry byte-identical classes: the whole card is one control, so the
+ * `group/card` hover relationship, the target floor on both axes, the shape and
+ * the print boundary must be the same regardless of which element navigates.
+ * The reasoning behind each fragment is on the return branch below.
+ */
+const LINK_ROOT_CLASS = cn(
+  "group/card grid min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem)",
+  "text-inherit no-underline",
+  "active:translate-y-px",
+  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+  SHAPE,
+  PRINT_BOUNDARY,
+)
 
 export interface CardProps {
   /**
@@ -163,9 +203,10 @@ export interface CardProps {
   rung?: MaterialRung
   /**
    * Padding scale. Affects space only, never type size. `"compact"` drops the
-   * padding to four times `--spacing` rather than five, one multiplier down the
-   * density-scaled spacing scale. It does not shrink the type, the separation
-   * between two controls in the footer, or the card's touch target.
+   * padding to 0.875 of the comfortable padding, the same fraction
+   * `tokens/space.json` publishes for the compact density, on the density-scaled
+   * spacing scale. It does not shrink the type, the separation between two
+   * controls in the footer, or the card's touch target.
    *
    * @default "comfortable"
    */
@@ -177,8 +218,37 @@ export interface CardProps {
    * inside a control. TypeScript cannot express that exclusion, because
    * `children` is a `ReactNode` and an element's interactivity is not in its
    * type. So it is a rule this component states and does not enforce.
+   *
+   * A link card carries a resting cue the whole audience can read: a trailing
+   * chevron in the material's content row, visible with no pointer and no
+   * focus. It is `aria-hidden`, because the anchor's accessible name is already
+   * its whole text content. The hover, focus-visible and press title underline
+   * stays as well, now an addition rather than the only signal. `group-active`
+   * is what holds it through the press instead of dropping when an engine stops
+   * matching `:hover` on pointerdown.
    */
   href?: string
+  /**
+   * The product's own router link element, rendered in place of the plain
+   * anchor while the card keeps its `data-slot`, its shape, the target floor and
+   * the `group/card` hover relationship on it. Pass a Next or React Router link
+   * here so a linked card navigates client-side rather than reloading the whole
+   * page. It takes the element itself and not the function form Base UI parts
+   * accept, and it is only meaningful alongside `href`. In development a
+   * `render` passed without `href`, or one that is not a React element, warns
+   * once and the card falls back to the plain anchor.
+   *
+   * This is the escape hatch `Link` offers, and it is the only half of that
+   * component a card takes. Five components that shipped a private anchor moved
+   * to `Link` outright, because their anchor was a control inside the card: an
+   * action a reader chooses among others. A card's anchor is not that. The
+   * whole card is the target, so the element is the card rather than a control
+   * inside it, and it carries `data-slot="card"`. Wrapping it in a `Link` would
+   * move `data-slot` onto a foreign root and put an action link's box and
+   * underline around a whole card, which is why this file keeps its own anchor
+   * and borrows only the `render` slot.
+   */
+  render?: ReactElement
   /**
    * Merged onto the root. Layout belongs here: a card sets no width, no
    * position and no place in a grid, because those are decisions of the screen
@@ -196,6 +266,7 @@ export function Card({
   rung = "card",
   density = "comfortable",
   href,
+  render,
   className,
   children,
 }: CardProps) {
@@ -225,6 +296,38 @@ export function Card({
     )
   }
 
+  /* `render` is consulted only on the link branch, and only when it is a real
+     element. A value that misses either condition is otherwise discarded in
+     silence: a `render` without `href` never reaches the static branch's
+     return, and a `render` that is not an element falls through to the plain
+     `<a>`. Both leave a product shipping a full page load from a card it meant
+     to route client-side, with nothing in the console. The likely mistake is
+     the function form, because the composition-and-render handbook shows every
+     Base UI part taking `render={(props) => <MyLink {...props} />}`, and Card's
+     slot takes the element itself. These are the same one-prop mistakes the rung
+     warning above catches, so they take the same dev-only channel and key. */
+  if (render !== undefined) {
+    if (href === undefined) {
+      warnDev(
+        "render-without-href",
+        "[opsinjs] <Card render={...}> was passed without `href`. The render " +
+          "slot replaces the card's own anchor, so a card that is not a link " +
+          "has no element for the router link to become and the slot does " +
+          "nothing. Add `href` to make the card a link, or drop `render`.",
+      )
+    } else if (!isValidElement(render)) {
+      warnDev(
+        "render-not-element",
+        "[opsinjs] <Card render={...}> was given a value that is not a React " +
+          "element. Card's slot takes an element, for example " +
+          "<NextLink href={href} />, and not the function form that Base UI " +
+          "parts accept. The card has fallen back to a plain anchor and will " +
+          "navigate with a full page load. " +
+          "See /docs/handbook/composition-and-render.",
+      )
+    }
+  }
+
   /* The material is a child rather than the root, which is what Surface's own
      page asks for: a component that needs a different element wraps a Surface
      instead of becoming one. It also has to be, because the root carries
@@ -245,12 +348,44 @@ export function Card({
      theoretical: the fill and the edge are `inset-0` OF THE SURFACE, so a root
      held open by the 44px floor would draw its boundary short of its own
      bottom edge. */
+  /* When the card is a link, the material's content is laid out as a two-column
+     row so a resting chevron sits at the trailing edge. Surface's content layer
+     is a bare `relative` div with no layout of its own, so the card lays its own
+     content out inside it. The chevron is the resting affordance a link card
+     needs: it is visible with no pointer and no focus, so a person scanning a
+     list on a phone can tell a tappable card from a static one before touching
+     anything, and it survives touch, dark theme, greyscale and print. It is the
+     trailing-glyph convention this audience already knows from iOS lists. It is
+     `aria-hidden` because the anchor's accessible name is already its whole text
+     content, so the glyph would only repeat that name to a screen reader.
+     `gap-opsin-3` is the fixed spacing step rather than the density-scaled one,
+     so the glyph never collides with a title when a reader asks for a denser
+     interface; `size-[1.25em]` grows with the reader's text size; `min-w-0` on
+     the content cell is what stops a long title from pushing the glyph off the
+     card. The hover, focus-visible and press underline on the title stays as
+     an addition, no longer the only signal that the card leads somewhere. */
+  const surfaceChildren =
+    href === undefined ? (
+      children
+    ) : (
+      <div
+        data-slot="card-link-row"
+        className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-opsin-3"
+      >
+        <div className="min-w-0">{children}</div>
+        <ChevronRight
+          aria-hidden="true"
+          className="size-[1.25em] shrink-0 text-muted-foreground"
+        />
+      </div>
+    )
+
   const material = (
     <Surface
       rung={rung}
       className={cn("h-full rounded-[inherit]", PADDING[density])}
     >
-      {children}
+      {surfaceChildren}
     </Surface>
   )
 
@@ -299,23 +434,68 @@ export function Card({
        stylesheet may not; a card whose focus ring depends on a file it was not
        installed with is a card that loses it silently.
 
-       `group` is what lets the title underline on hover without knowing it is
-       inside a link. It is a CSS ancestor relationship, so `Card.Title` needs
-       no prop, no context and no client boundary to respond to it. */
-    <a
-      href={href}
-      data-slot="card"
-      className={cn(
-        "group grid min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem)",
-        "text-inherit no-underline",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-        SHAPE,
-        PRINT_BOUNDARY,
-        className,
-      )}
-    >
-      {material}
-    </a>
+       `group/card` is what lets the title underline on hover, on focus-visible
+       and through a press without knowing it is inside a link. It is a CSS ancestor relationship, so `Card.Title`
+       needs no prop, no context and no client boundary to respond to it. The
+       group is NAMED rather than the bare `group`, and that is not cosmetic: an
+       unnamed `group-*` variant matches any ancestor carrying `.group`, and
+       `group` is one of the most common class names in a consumer's layout, so
+       a static card dropped inside a hovered list row or table cell would
+       underline its title from a stylesheet Card never saw, wearing link
+       affordance it does not have. `group/card` matches only this anchor. That
+       underline is no longer the only cue: the material lays a trailing chevron
+       into its content row so the link is legible at rest and on touch, where
+       there is no hover, and the underline is now the pointer-and-keyboard
+       addition on top of it.
+
+       `active:translate-y-px` is the press acknowledgement, the same one-pixel
+       shift Button ships and for the same reason: a transform is instantaneous,
+       which is the timing interaction-states asks of a press, so it carries no
+       transition. The press does NOT tint the fill. The obvious move, an
+       `:active` background on this anchor, cannot reach the fill a Card shows,
+       because that fill is Surface's `--opsinjs-surface-tint` written as an
+       inline style on Surface's own root, and an inline style beats any custom
+       property an ancestor sets. So the derived state fills the system defines
+       are unreachable from here, and the transform is the honest cue. The
+       static `div` branch above takes none of this: a card that is not a
+       control has no press state.
+
+       The `render` slot rides on this branch and nowhere else. When a product
+       passes its router's link element, that element takes the whole
+       `LINK_ROOT_CLASS` list this comment describes, the `data-slot`, the
+       target floor and the `group/card` hover relationship, exactly as the
+       plain `<a>` would, so a linked card renders
+       identically whether it navigates client-side or reloads the page. The
+       merge is `cloneElement` rather than a Base UI primitive for the reason
+       `Link` gives: there is no link primitive to delegate to, `cloneElement`
+       is a plain function that keeps the card renderable on the server, and
+       Card's own attributes win over the router element's while the two class
+       lists are joined so neither deletes the other. It stays on this anchor
+       branch because only a link card has an anchor to replace; the static
+       `div` has nothing for a router element to become. */
+    render && isValidElement(render) ? (
+      cloneElement(
+        render as ReactElement<Record<string, unknown>>,
+        {
+          href,
+          "data-slot": "card",
+          className: cn(
+            (render.props as { className?: string }).className,
+            LINK_ROOT_CLASS,
+            className,
+          ),
+        },
+        material,
+      )
+    ) : (
+      <a
+        href={href}
+        data-slot="card"
+        className={cn(LINK_ROOT_CLASS, className)}
+      >
+        {material}
+      </a>
+    )
   )
 }
 
@@ -373,7 +553,7 @@ export function CardHeader({
           the element the caller passed. */}
       <div
         data-slot="card-title"
-        className="text-opsin-headline *:m-0 *:[font:inherit] group-hover:underline group-focus-visible:underline"
+        className="text-opsin-headline *:m-0 *:[font:inherit] group-hover/card:underline group-focus-visible/card:underline group-active/card:underline"
       >
         {title}
       </div>
@@ -455,13 +635,48 @@ Card.Body = CardBody
 Card.Footer = CardFooter
 
 /**
+ * The content both demo cards show, lifted out so density is the only variable.
+ *
+ * The finding this answers is that two cards which differ in content as well as
+ * in density teach nothing about the prop: a reader cannot tell which of the
+ * two changes moved the text. So the header, body and footer live here once and
+ * render into both cards below, and the only thing that differs between the two
+ * is the `density` prop. The heading stays an `<h3>` the demo supplies, because
+ * a card takes its level from the page's outline rather than owning one.
+ */
+function DemoCardContent() {
+  return (
+    <>
+      <Card.Header
+        title={<h3>Example section</h3>}
+        description="One supporting line, which stays when the card is tight."
+      />
+      <Card.Body>
+        <p className="m-0 text-opsin-body">
+          The body is whatever the card is for. It has no contract of its own,
+          which is the point: a card that knew what was inside it would be a
+          different component.
+        </p>
+      </Card.Body>
+      <Card.Footer>
+        <span className="text-opsin-footnote text-muted-foreground">
+          Example metadata
+        </span>
+      </Card.Footer>
+    </>
+  )
+}
+
+/**
  * The zero-prop default export (ADR 0009).
  *
  * `/view` renders this with no props and `shadcn add` ships it, so it is public,
- * reviewed code rather than a scratch demo. It shows the two things worth
- * seeing: the full anatomy with the page supplying its own heading level, and
- * the same card at the other density beside it, so the prop's effect is visible
- * as a difference rather than described as a percentage.
+ * reviewed code rather than a scratch demo. It shows one thing worth seeing: the
+ * same card, full anatomy and all, at both densities side by side. Nothing else
+ * differs between the two cards, so the `density` prop reads as a difference a
+ * reader can point at rather than as a percentage described in prose. The
+ * shared content is lifted into `DemoCardContent` and rendered into both, which
+ * is what keeps density the only variable.
  *
  * There is not a number anywhere in it, and there is no status pill and no
  * category tint (ADR 0012). A Card holding a value, a coloured pill and a
@@ -471,33 +686,39 @@ Card.Footer = CardFooter
  */
 export default function CardDemo() {
   return (
-    <div className="grid w-full max-w-lg gap-opsin-6 sm:grid-cols-2">
-      <Card>
-        <Card.Header
-          title={<h3>Example section</h3>}
-          description="One supporting line, which stays when the card is tight."
-        />
-        <Card.Body>
-          <p className="m-0 text-opsin-body">
-            The body is whatever the card is for. It has no contract of its own,
-            which is the point: a card that knew what was inside it would be a
-            different component.
-          </p>
-        </Card.Body>
-        <Card.Footer>
-          <span className="text-opsin-footnote text-muted-foreground">
-            Example metadata
-          </span>
-        </Card.Footer>
+    /* `items-start` rather than the grid's default `align-items: stretch`. The
+       two cards are a density comparison, so their difference is height: the
+       compact card has less padding and is the shorter of the two. A stretched
+       grid item would grow the shorter card to its neighbour's height, filling
+       it with empty space and erasing the very difference this demo exists to
+       show. Do not swap this for `h-full` on either card: that is the opposite
+       instruction, and the `h-full` on the Surface inside Card is a different
+       mechanism that stays. */
+    <div className="grid w-full max-w-lg items-start gap-opsin-6 sm:grid-cols-2">
+      {/* The corner is the layout's decision rather than the card's, which is
+          why it rides on `className` and is not a prop. `tokens/shape.json` gives
+          `radius-lg` the use "cards on a phone, where the card is nearly the
+          width of the screen", and below the `sm` breakpoint this demo is a
+          single full-width column, so each card is exactly that case and takes
+          `radius-lg`. At `sm` it becomes a two-column grid, each card is no
+          longer near the screen's width, and it falls back to Card's own
+          `radius-md` default. So the demo models the phone-width rung of the
+          ladder rather than silently taking the one radius the component ships.
+
+          The override is important because `cn()` merges through
+          `tailwind-merge`, which is not taught the `opsin-radius` scale and so
+          keeps both this class and `SHAPE`'s `rounded-opsin-md`. The two then
+          reach the element at equal weight, and named radii are emitted in
+          alphabetical order, so `md` lands after `lg` and would win by source
+          order, leaving a plain `rounded-opsin-lg` inert. The important flag is
+          how the caller's radius takes the corner back. The root cause is in
+          `lib/utils.ts`. */}
+      <Card className="max-sm:rounded-opsin-lg!">
+        <DemoCardContent />
       </Card>
 
-      <Card density="compact">
-        <Card.Body>
-          <p className="m-0 text-opsin-body">
-            A card with only a body, at the compact density. One idea, one
-            boundary, no ceremony.
-          </p>
-        </Card.Body>
+      <Card density="compact" className="max-sm:rounded-opsin-lg!">
+        <DemoCardContent />
       </Card>
     </div>
   )

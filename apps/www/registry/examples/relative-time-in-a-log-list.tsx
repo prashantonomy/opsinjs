@@ -6,6 +6,15 @@
  * never left as a fragment the reader completes for themselves. An age is
  * also read far faster down a column than four dates side by side are.
  *
+ * The exact date sits beside the phrase once a reading is older than a day, so
+ * the two most recent rows show the phrase on its own, because within a day
+ * recency is the point, and the two older rows carry the date as well. The date
+ * is in the accessibility tree and in print for every row regardless, and none
+ * of these rows has a date anywhere else on screen. A row that pairs wraps the
+ * date to a second line at a narrow width rather than overflowing. A caller
+ * whose date is already visible in the surrounding row is the one that passes
+ * showAbsolute={false}, and no row here is that case.
+ *
  * NO ROW PASSES A STALENESS THRESHOLD, and the example is poorer for it. The
  * version that showed one row past a boundary was better teaching and shipped a
  * number opsinjs does not own: what counts as old differs completely between one

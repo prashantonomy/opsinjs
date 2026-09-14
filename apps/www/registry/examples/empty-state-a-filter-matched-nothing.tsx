@@ -45,6 +45,7 @@
  */
 
 import { useEffect, useRef, useState } from "react"
+import { Check } from "lucide-react"
 
 import { EmptyState } from "@/registry/base-lyra/ui/empty-state"
 
@@ -95,6 +96,15 @@ export default function EmptyStateAFilterMatchedNothing() {
 
   return (
     <div className="flex w-full max-w-md flex-col gap-opsin-4">
+      {/* The active chip needs a cue that survives greyscale and low vision.
+          `aria-pressed` is correct for assistive technology and says nothing to
+          a sighted reader; the tint between `--card` and `--muted` is under 4%
+          in the light theme and fainter still in the dark. A filter example
+          whose active filter cannot be told apart is teaching the confusion it
+          exists to prevent, so the pressed chip earns a leading tick and a
+          `--foreground` boundary as well as the tint. The tick sits in a slot
+          that is always the same width, so the row does not reflow under the
+          thumb as the reader moves between chips. */}
       <div className="flex flex-wrap gap-opsin-2">
         {TAGS.map((option) => (
           <button
@@ -102,8 +112,14 @@ export default function EmptyStateAFilterMatchedNothing() {
             type="button"
             onClick={() => applyTag(option)}
             aria-pressed={tag === option}
-            className="min-h-(--opsin-target-minimum,2.75rem) rounded-opsin-md border border-border bg-card px-opsin-3 text-opsin-subheadline aria-pressed:bg-muted"
+            className="inline-flex min-h-(--opsin-target-minimum,2.75rem) items-center justify-center gap-opsin-1 rounded-opsin-md border border-border bg-card px-opsin-3 text-opsin-subheadline aria-pressed:border-foreground aria-pressed:bg-muted"
           >
+            <Check
+              aria-hidden="true"
+              className={
+                tag === option ? "size-[1em]" : "size-[1em] invisible"
+              }
+            />
             {option}
           </button>
         ))}

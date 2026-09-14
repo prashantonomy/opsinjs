@@ -52,7 +52,7 @@ export default function ReadingInputAWarningTheProductOwns() {
   return (
     <div className="w-full max-w-md">
       <ReadingInput
-        hint="To one decimal place."
+        hint="To one decimal place"
         label="Example measurement"
         name="example-measurement"
         onChange={(next) => setReading(next.value)}

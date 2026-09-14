@@ -23,8 +23,9 @@
  *
  * NO TILE CARRIES A STALENESS NUMBER. `staleAfterHours` is absent from all six,
  * so none of them shows a stale treatment: these tiles have been told nothing
- * about when their measurements go out of date, and they say nothing. What it
- * looks like when a product does supply that number is the next example.
+ * about when their measurements go out of date, and they say nothing. No
+ * preview opsinjs ships supplies that number, because opsinjs holds none, and
+ * the muted state it would produce is described on the component's page only.
  *
  * The readings are fictional, in a unit nobody holds a reference range for, and
  * every timestamp is fixed so the grid says the same thing every time it is
@@ -110,6 +111,7 @@ export default function MetricTileASummaryGrid() {
           status={tile.status}
           measuredAt={tile.at}
           now={NOW}
+          locale="en-GB"
           href="#example"
         />
       ))}

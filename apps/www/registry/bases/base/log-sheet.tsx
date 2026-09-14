@@ -58,7 +58,7 @@
  * fields: see the note on `children`.
  */
 
-import { useState, type ReactNode } from "react"
+import { useId, useRef, useState, type ReactNode } from "react"
 
 import {
   HEALTH_CATEGORIES,
@@ -143,6 +143,23 @@ function toDateTimeLocal(date: Date): string {
   )
 }
 
+/* The record stores an instant; a reader reads a time. `occurredAt` is
+   `toISOString()` output, so printing it raw shows a reader who just picked
+   12:29 the string 2026-09-05T11:29:00.000Z, which is a machine string, in
+   UTC, and an hour wrong everywhere outside Greenwich. The formatter is built
+   inside the function rather than at module scope so it resolves the reader's
+   locale in the browser rather than the server's during a render. */
+function readableTime(instant: string): string {
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+    /* 24-hour with a colon, per content/numbers-dates-and-time, which bans
+       am/pm outright: LogSheet is the surface whose capture format reaches an
+       export, so the demo must not teach the banned clock. */
+    hourCycle: "h23",
+  }).format(new Date(instant))
+}
+
 /**
  * Whether two value records hold the same answers.
  *
@@ -186,6 +203,12 @@ export interface LogEntry {
   /**
    * The time the entry is ABOUT, as an ISO 8601 instant. Defaults to the moment
    * the sheet opened and is editable throughout.
+   *
+   * When the control is empty at the moment of the save this is the save time,
+   * equal to `recordedAt`, and `backdated` is false. So a reader of the record
+   * tells a chosen time from a substituted one by the pair rather than by
+   * guessing, and the field's own guidance says this will happen before the
+   * save rather than after.
    */
   occurredAt: string
   /**
@@ -202,7 +225,8 @@ export interface LogEntry {
    * which was the obvious implementation and is wrong: those two always differ
    * by however long the reader spent typing, so every entry would come back
    * marked. There is no tolerance window here because there does not need to be
-   * one. The reader either touched the control or did not.
+   * one. The reader either touched the control or did not. Clearing the control
+   * is not moving it, so an emptied time is false here.
    */
   backdated: boolean
   /**
@@ -313,9 +337,19 @@ export interface LogSheetProps
    *
    * What it does: it sets the time control's `min`, which is what the platform
    * date picker reads, and it names the earliest date in the field's guidance.
-   * What it does NOT do is block: a time typed outside the window still saves,
-   * and `onSave` still fires. A log that refuses an entry is a log with a hole
-   * in it exactly where the interesting record was.
+   * The window opens at the START of the day that many days before the sheet
+   * opened, so a seven-day window reaches the beginning of that seventh day
+   * rather than the clock time the sheet happened to open at, and the picker
+   * offers the whole of the earliest day the guidance names.
+   *
+   * What it does NOT do is refuse a save. This component never blocks a save
+   * for any reason, so a time the reader types outside the window still saves
+   * and `onSave` still fires. The platform's own picker is a separate matter:
+   * on a touch device the picker is the only way to change a datetime-local
+   * and it will not offer a time below `min`, so there the window is enforced
+   * by the platform even though the sheet enforces nothing. A product that
+   * must accept entries older than its window should not set `maxBackdateDays`
+   * at all.
    */
   maxBackdateDays?: number
   /**
@@ -385,6 +419,16 @@ export function LogSheet({
   const [note, setNote] = useState("")
   const [confirming, setConfirming] = useState(false)
   const [route, setRoute] = useState<DismissRoute>("other")
+  /* Where focus was when the question went up, so it can go back. Null when
+     focus was outside the sheet, which is what a scrim tap usually leaves. */
+  const focusBeforeConfirm = useRef<HTMLElement | null>(null)
+  /* The keep answer's wrapper, so its Button can be focused without a ref on
+     Button, whose props type does not carry one. */
+  const keepRef = useRef<HTMLDivElement | null>(null)
+  /* One id for the discard question, so both answers can point at it with
+     aria-describedby. Without it focus lands on a button announced as its label
+     alone and the sentence that says what is at stake is voiced by nothing. */
+  const questionId = useId()
   /* WHAT "UNSAVED" IS MEASURED AGAINST. Set when the sheet opens, and set again
      the moment `onSave` fires. That matters because a sheet the product keeps
      open after a save is one where the question "you have not saved this entry"
@@ -411,6 +455,8 @@ export function LogSheet({
       setTypedAt(null)
       setNote("")
       setConfirming(false)
+      /* No question is up on a fresh open, so nothing is owed a focus return. */
+      focusBeforeConfirm.current = null
       setRoute("other")
       setBaseline({ values, typedAt: null, note: "" })
     }
@@ -423,8 +469,16 @@ export function LogSheet({
      wrong: those two always differ by however long the entry took to type, so
      every record would come back marked and the flag would mean nothing. There
      is no tolerance window here because none is needed. The reader either
-     moved the control away from the time it opened at, or they did not. */
-  const timeEdited = typedAt !== null && typedAt !== openedValue
+     moved the control away from the time it opened at, or they did not.
+
+     An emptied control is not a re-dating. A reader who clears the field has
+     said "I do not know when", which is the same class of fact as a null in
+     `values`, and flagging it as a deliberate re-dating puts a claim in
+     somebody's record that they never made. So `""` is excluded here, the same
+     refusal this file makes for `FormData` above and that the demo makes for
+     its own control below. */
+  const timeEdited =
+    typedAt !== null && typedAt !== "" && typedAt !== openedValue
 
   if (typeof saveLabel !== "string" || saveLabel.trim() === "") {
     warnDevelopmentOnce(
@@ -458,8 +512,17 @@ export function LogSheet({
     const date = new Date(openedAt)
     /* Day arithmetic through the Date object rather than a subtraction in
        milliseconds, so a window that spans a daylight-saving change lands on
-       the date a reader would name rather than an hour either side of it. */
+       the date a reader would name rather than an hour either side of it.
+
+       Then floored to the start of that day, because the hint beside the
+       control names a DATE and `min` carries a TIME. Without the floor a
+       sheet opened at 12:29 emits min="2026-08-29T12:29" under a sentence
+       that says entries can be dated back to 29 August, and a reader
+       backdating a morning reading to the day the copy just offered them is
+       refused by the control. The window is a number of days, so its edge is
+       the start of a day. */
     date.setDate(date.getDate() - maxBackdateDays)
+    date.setHours(0, 0, 0, 0)
     return date
   })()
 
@@ -471,6 +534,35 @@ export function LogSheet({
     !sameEntries(values, baseline.values) ||
     typedAt !== baseline.typedAt ||
     note !== baseline.note
+
+  /* The time field's guidance, computed as a list of sentences so a second one
+     can appear only when it is about something. The second sentence is shown
+     just while the control is empty, which is the only moment it is about
+     anything, because `buildEntry` then substitutes the save time and a reader
+     who cleared the field on purpose should see that coming rather than find it
+     afterwards.
+
+     The punctuation is computed rather than written because
+     content/docs/content/grammar-and-mechanics.mdx takes no full stop on a
+     single-sentence hint and full stops on full sentences, so one sentence
+     ends bare and two are both stopped. The sentences in the array carry no
+     stops for exactly that reason. */
+  const timeHints = [
+    earliest
+      ? `Entries can be dated back to ${new Intl.DateTimeFormat(undefined, {
+          dateStyle: "long",
+        }).format(earliest)}`
+      : null,
+    occurredAt === ""
+      ? "If you leave this empty, the time you save is used"
+      : null,
+  ].filter((line): line is string => line !== null)
+  const timeHint =
+    timeHints.length === 0
+      ? undefined
+      : timeHints.length === 1
+        ? timeHints[0]
+        : timeHints.map((line) => `${line}.`).join(" ")
 
   function buildEntry(): LogEntry {
     const recordedAt = new Date()
@@ -501,7 +593,9 @@ export function LogSheet({
      including the close control in the header: the specification says Cancel
      "never discards without asking", and a reader who taps the scrim by
      accident and one who reaches for Close deliberately both lose the same
-     typing.
+     typing. Every route asks the same question once. After it is up the ambient
+     routes answer it with the safe answer while the close control leaves it
+     standing, because one of those is a gesture and the other is an act.
 
      The question is asked IN PLACE, in the footer, rather than in a second
      modal surface. A Dialog opening from a Sheet is a composition error by
@@ -513,22 +607,69 @@ export function LogSheet({
       return
     }
 
-    /* While the question is on screen it is what a dismissal answers, and the
-       answer it gets is the safe one. Escape and a scrim tap take the reader
-       back to what they were typing; the way out is the Discard control, which
-       is a real button, in the tab order, two stops away. */
+    /* While the question is on screen a dismissal answers it, and the answer is
+       the safe one for every route except the header close control. Escape, a
+       scrim tap and a drag are gestures a reader can make by accident, so they
+       take the reader back to what they were typing, with the Discard entry
+       control one Shift+Tab away. The close control is different: a reader who
+       taps Close, reads "Discard it?" and taps Close again is repeating a
+       deliberate act, and withdrawing the question in reply would make the same
+       gesture flip the sheet between two states for ever and never close it. So
+       for that one route the question stays up and focus goes back to the
+       answers, where the reader has to choose one of two words. It does not
+       close, does not discard and sets no state: this handler owns the decision,
+       and returning without propagating the close to the product's onOpenChange
+       leaves `open` true, so the sheet stays open behind the question. */
     if (confirming) {
-      setConfirming(false)
+      if (taken === "close-control") {
+        keepRef.current
+          ?.querySelector<HTMLElement>('[data-slot="button"]')
+          ?.focus()
+        return
+      }
+      keepEditing()
       return
     }
 
     if (dirty) {
+      /* Remember where focus was before the question replaces the footer, so
+         Keep editing can put it back. The containment test keeps it honest: a
+         scrim tap usually leaves focus on the body or the scrim, and restoring
+         focus to the body is worse than leaving it alone, so that case captures
+         null. `sheet-container` is the popup's slot. `document` is safe here
+         because this runs in an event handler, never in a render. */
+      const active = document.activeElement
+      focusBeforeConfirm.current =
+        active instanceof HTMLElement &&
+        active.closest('[data-slot="sheet-container"]') !== null
+          ? active
+          : null
       setRoute(taken)
       setConfirming(true)
       return
     }
 
     onOpenChange(false, taken)
+  }
+
+  /* Focus moves BEFORE the state change, and that ordering is the whole trick.
+     The answers are still mounted at this point, so moving focus out of the row
+     and then removing the row leaves focus where it was put. The other order
+     removes the focused element first, which drops focus on the document body
+     and is the defect this repairs. It is also why there is no effect and no
+     flushSync here. The fallback is Sheet's close control, for a question that
+     went up over a scrim tap where there was no in-sheet control to return to. */
+  function keepEditing(): void {
+    const previous = focusBeforeConfirm.current
+    focusBeforeConfirm.current = null
+    const fallback =
+      keepRef.current
+        ?.closest('[data-slot="sheet-container"]')
+        ?.querySelector<HTMLElement>('[data-slot="sheet-close"]') ?? null
+    const target =
+      previous !== null && previous.isConnected ? previous : fallback
+    target?.focus()
+    setConfirming(false)
   }
 
   /* EVERY CONTROL BELOW SITS IN A WRAPPER THAT CARRIES THE SLOT, and that is
@@ -543,10 +684,61 @@ export function LogSheet({
       data-slot="log-sheet-confirm"
       className="flex w-full flex-col gap-opsin-3"
     >
-      <p className="m-0 text-opsin-footnote">
+      {/* THE QUESTION IS SET AT THE SAME STEP AND WEIGHT AS THE FIELD LABELS
+          above it, headline at 1.0625rem and weight 600, and never at the
+          footnote step. The footnote step is the caption role in this file: the
+          demo caption and the example captions use it, and this is not a
+          caption. It is the most consequential sentence on the surface, the one
+          deciding whether the reader's typing survives, so a reader who
+          triggered it by accident should not have to squint to read it. This is
+          the same argument field.tsx makes for its own hints. `text-foreground`
+          makes the role explicit rather than inheriting the muted caption
+          colour. */}
+      <p id={questionId} className="m-0 text-opsin-headline text-foreground">
         You have not saved this entry. Discard it?
       </p>
-      <div className="flex flex-wrap items-center gap-opsin-2">
+      {/* THE TWO ANSWERS ARE STACKED, NOT PLACED SIDE BY SIDE, and the safe one
+          is at the bottom. A destructive answer eight pixels from a constructive
+          one is the defect; stacking removes the adjacency rather than widening
+          it. The gap is `--opsin-space-4` (16px), which is deliberately larger
+          than `--opsin-target-separation` (0.5rem), with a literal `1rem`
+          fallback in the class: the variable is declared in this repository's
+          product stylesheet, a consumer who copies this file in with `shadcn
+          add` does not get that stylesheet, a bare read would resolve to nothing
+          and collapse the gap to zero, and two answers touching is exactly where
+          a mis-tap costs the most. */}
+      <div
+        data-slot="log-sheet-answers"
+        className="flex w-full flex-col gap-(--opsin-space-4,1rem)"
+      >
+        {/* DISCARD IS FIRST IN THE DOM AND SO FIRST IN THE TAB ORDER, which is
+            this repository's house order for a pinned action row: least
+            destructive last (Dialog states it in one line, and ConsentSheet
+            refuses an `order` prop for the same reason). It is natural width,
+            never `fullWidth`: two stacked full-width buttons read as two primary
+            actions, so a natural-width destructive above a full-width primary is
+            what keeps the hierarchy legible and keeps discarding a deliberate
+            aim rather than a wide landing strip. Its own minimum target still
+            holds it at or above 44px. The label says what it discards, the same
+            rule that makes `saveLabel` required. */}
+        <div data-slot="log-sheet-discard">
+          <Button
+            variant="destructive"
+            aria-describedby={questionId}
+            onClick={() => {
+              const entry = buildEntry()
+              setConfirming(false)
+              /* The sheet is leaving, so a captured element must not be focused
+                 after it has gone and Sheet's own return-to-trigger must not be
+                 fought. */
+              focusBeforeConfirm.current = null
+              onDiscard?.(entry)
+              onOpenChange(false, route)
+            }}
+          >
+            Discard entry
+          </Button>
+        </div>
         {/* The safe answer, and the one focus lands on. `autoFocus` moves focus
             here as the row mounts, which is the whole reason a keyboard reader
             knows anything has happened: the component mounts no live region,
@@ -555,26 +747,28 @@ export function LogSheet({
             reader asking to leave, so this is an answer rather than a component
             taking focus on appearance.
 
+            It is the full-width primary at the very foot of the footer, in the
+            exact horizontal band the save action occupied a moment before. That
+            placement is the safety, not an accident of layout: the pixel under a
+            one-handed thumb was Save an instant ago and is now Keep editing, so
+            a thumb already travelling to the bottom of the sheet lands on the
+            answer that loses nothing. Putting Discard there would hand a
+            mid-reach thumb the destructive answer, which is the harm the finding
+            names.
+
             Not measured in a browser. `autoFocus` inside a portal that is
             itself taking focus is the kind of thing that works until it does
             not, and the claim is argued from React's own behaviour rather than
             observed. The page says so. */}
-        <div data-slot="log-sheet-keep">
-          <Button variant="primary" autoFocus onClick={() => setConfirming(false)}>
-            Keep editing
-          </Button>
-        </div>
-        <div data-slot="log-sheet-discard">
+        <div data-slot="log-sheet-keep" ref={keepRef} className="w-full">
           <Button
-            variant="destructive"
-            onClick={() => {
-              const entry = buildEntry()
-              setConfirming(false)
-              onDiscard?.(entry)
-              onOpenChange(false, route)
-            }}
+            variant="primary"
+            fullWidth
+            autoFocus
+            aria-describedby={questionId}
+            onClick={keepEditing}
           >
-            Discard
+            Keep editing
           </Button>
         </div>
       </div>
@@ -648,22 +842,18 @@ export function LogSheet({
                  this component exists not to hand-roll. An `aria-describedby`
                  written here would be merged with, or replaced by, the one that
                  context maintains. */
-              hint={
-                earliest
-                  ? `Entries can be dated back to ${new Intl.DateTimeFormat(
-                      undefined,
-                      { dateStyle: "long" },
-                    ).format(earliest)}.`
-                  : undefined
-              }
+              hint={timeHint}
             >
               <Field.Control
                 type="datetime-local"
                 value={occurredAt}
                 /* The window the product owns, handed to the platform's own
-                   picker. It constrains what the picker offers; it does not
-                   constrain what can be typed and it never blocks the save. The
-                   earliest date is a statement, not a wall. */
+                   picker. On a platform with a keyboard a reader can still
+                   type a time outside it and the save still goes through,
+                   because nothing in this component blocks a save. On a touch
+                   platform the picker is the only way to change a
+                   datetime-local, so there the window is a floor rather than a
+                   statement. Both are true and the page says which is which. */
                 min={earliest ? toDateTimeLocal(earliest) : undefined}
                 onChange={(event) => setTypedAt(event.target.value)}
               />
@@ -677,9 +867,25 @@ export function LogSheet({
                     while swapping the element, which is the escape hatch that
                     makes the wiring guarantee survive a control opsinjs does not
                     ship. A note is prose and wraps; a single-line input for it
-                    hides everything past the first phrase. */}
+                    hides everything past the first phrase.
+
+                    `resize-none` turns off the native corner grip. A drag
+                    handle in the bottom-right of a control that lives inside a
+                    sheet which itself listens for a downward drag and scrolls
+                    internally is a third meaning for one gesture, and a thumb
+                    that lands on the corner while trying to scroll or dismiss
+                    stretches the box instead of moving the sheet. The note
+                    still wraps and still scrolls inside its three rows, so
+                    nothing is unreachable. `resize-y` is refused because it
+                    still draws the grip and still competes with the sheet's
+                    drag. `field-sizing: content` is the nicer behaviour in the
+                    abstract and is wrong here today: with an empty note it would
+                    collapse the box from three rows to one, which shrinks the
+                    visible target and drops the floor to Field's own target
+                    minimum rather than a note-shaped box. */}
                 <Field.Control
                   render={<textarea rows={3} />}
+                  className="resize-none"
                   value={note}
                   onChange={(event) => setNote(event.target.value)}
                 />
@@ -722,16 +928,15 @@ export default function LogSheetDemo() {
   return (
     <div className="flex w-full flex-col items-center gap-opsin-4 p-opsin-4">
       <p className="m-0 max-w-sm text-center text-opsin-footnote text-muted-foreground">
-        The sheet portals to the end of the document, so it covers the whole
-        page rather than this frame. Type something and then try to close it
-        with the escape key.
+        Opens over the whole page. Type something, then try to close it. It
+        asks before anything is lost.
       </p>
 
       <Button onClick={() => setOpen(true)}>Open the example log sheet</Button>
 
       {saved ? (
         <p className="m-0 max-w-sm text-center text-opsin-footnote">
-          Saved an entry dated {saved.occurredAt}
+          Saved an entry dated {readableTime(saved.occurredAt)}
           {saved.backdated ? ", which the reader re-dated." : "."}
         </p>
       ) : null}

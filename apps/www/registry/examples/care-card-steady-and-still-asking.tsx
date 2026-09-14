@@ -22,6 +22,12 @@
  * outside one asks the reader to take an invisible rule on trust. The range
  * belongs on the ResultCard or RangeBar beside the card, not in a sentence
  * here.
+ *
+ * THE `locale` IS EXPLICIT. Without it the date is written in the runtime's
+ * default locale, and on a server-rendered card that default is the server's
+ * locale rather than the reader's. A date such as 05/01 is genuinely ambiguous
+ * between the day-first and month-first orders, so this example names en-GB and
+ * leaves nothing about the due date to the machine that happens to render it.
  */
 
 import { CareCard } from "@/registry/base-lyra/ui/care-card"
@@ -37,6 +43,7 @@ export default function CareCardSteadyAndStillAsking() {
         status="steady"
         statusOf="your last example reading"
         dueBy="2027-03-01"
+        locale="en-GB"
         actions={[{ label: "Book a check", href: "#example-booking" }]}
       />
     </div>

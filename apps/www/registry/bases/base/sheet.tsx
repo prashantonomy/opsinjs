@@ -58,7 +58,9 @@ import {
   createContext,
   isValidElement,
   useContext,
+  useEffect,
   useId,
+  useRef,
   useState,
   type ReactNode,
 } from "react"
@@ -215,17 +217,19 @@ const VIEWPORT_FRACTION: Record<"half" | "full", number> = {
 }
 
 /**
- * What each detent is called when the grabber has to say how tall the sheet
- * currently is.
+ * What each detent is called when the grabber has to name the height it moves
+ * to on the next press.
  *
  * Plain words rather than the API's own values: the reader of the accessible
  * name is a person using the product, not a person reading this file, and
- * "half" on its own is an adjective with no noun.
+ * "half" on its own is an adjective with no noun. Each phrase has to complete
+ * the sentence "Make the sheet ...", so "full" reads as "full screen" rather
+ * than "the full screen", which does not.
  */
 const DETENT_WORD: Record<Detent, string> = {
   content: "fit the content",
   half: "half the screen",
-  full: "the full screen",
+  full: "full screen",
 }
 
 /**
@@ -269,6 +273,28 @@ const SheetDepth = createContext(0)
  * region goes from unnamed to falsely named.
  */
 const SheetTitleId = createContext<string | undefined>(undefined)
+
+/**
+ * How `Sheet.Content` tells the pinned footer that its text runs past the fold,
+ * or `undefined` outside a Sheet.
+ *
+ * A pinned footer is the right answer for an action bar and the wrong one for a
+ * surface whose text is the point: the two decision controls are on screen from
+ * the first frame while the consequence and withdrawal sentences are still below
+ * the fold, so a reader can answer before they have read what the answer costs.
+ * The honest repair, while the footer stays pinned, is to stop the sheet from
+ * looking finished when it is not. The scroller reports whether more content
+ * sits below its bottom edge and the footer draws a scroll edge while it does,
+ * so the surface reads as unfinished until the reader reaches the end. This is a
+ * scroll edge and never a status: it carries no clinical level and no colour
+ * that means anything but "there is more".
+ *
+ * `undefined` when there is no provider, so a `Sheet.Content` rendered on its
+ * own is a plain scroller that reports to nobody.
+ */
+const SheetOverflowReport = createContext<
+  ((below: boolean) => void) | undefined
+>(undefined)
 
 /**
  * Whether the caller placed a `Sheet.Content` among the direct children.
@@ -368,6 +394,28 @@ const RESTING_TRANSFORM =
   "[transform:translateY(calc(var(--drawer-snap-point-offset,0px)_+_var(--drawer-swipe-movement-y,0px)))]"
 
 /**
+ * Reserve the active detent's offset inside the popup, as padding rather than
+ * height.
+ *
+ * Base UI publishes the active stop as `--drawer-snap-point-offset` and slides
+ * the whole popup down by it (see `RESTING_TRANSFORM`). The popup's own box is
+ * still the full viewport, because a snap point is resolved against the popup's
+ * measured height and `snapPoints` forces `h-full`. So at any detent below the
+ * top one, the lower part of that full-height box, and with it the pinned
+ * footer, sits under the bottom edge of the screen. Padding the bottom of the
+ * popup by the same offset shrinks the laid-out column to exactly the region
+ * that is on screen: with `box-sizing: border-box` the content box becomes the
+ * full height minus the offset, the `flex-auto` Surface fills that, the footer
+ * lands on the visible bottom edge, and `Sheet.Content` finally has a bounded
+ * height to scroll its last row into.
+ *
+ * This must stay a padding and must NOT become a height on the popup. Shrinking
+ * the popup changes the height Base UI derives every offset from, so the offset
+ * and the height would chase each other on every detent change.
+ */
+const SNAP_POINT_INSET = "pb-(--drawer-snap-point-offset,0px)"
+
+/**
  * Off the bottom edge, on the way in and on the way out.
  *
  * A whole `transform` rather than an added term, so it replaces the resting one
@@ -404,9 +452,20 @@ const OFFSCREEN_TRANSFORM =
  * What was right in the old argument is that 120ms of full-height translation
  * is still a full-height translation. So the distance goes and the transition
  * stays, which is `REDUCED_MOTION_CROSSFADE` below.
+ *
+ * `SLIDE_TIMING` is the duration and the easing on their own. It is split out
+ * so the snap-points branch can spend them on a transition of two properties,
+ * transform and padding-bottom together, without also taking
+ * `transition-transform`. A branch that carried both `transition-transform` and
+ * its own `transition-property` would leave which one wins to source order;
+ * giving the branch the timing but not the property setter removes that contest
+ * at the source rather than ranking it. The one-detent branch takes the whole
+ * `SLIDE`, which is `transition-transform` on that same timing.
  */
-const SLIDE =
-  "transition-transform duration-(--opsin-duration-spring-sheet) ease-opsin-spring-sheet"
+const SLIDE_TIMING =
+  "duration-(--opsin-duration-spring-sheet) ease-opsin-spring-sheet"
+
+const SLIDE = `transition-transform ${SLIDE_TIMING}`
 
 /**
  * The reduced-motion answer: the same arrival, in place, as opacity.
@@ -480,6 +539,20 @@ const SURFACE_LAYOUT = [
 const FOCUS_RING =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
 
+/**
+ * The container's focus ring, drawn inside its own edge rather than outside it.
+ *
+ * The sheet container is full width and pinned to the bottom edge, so a ring
+ * drawn 2px outside its box falls off screen on three sides and the reader is
+ * left with a 2px line along the top that reads as a rendering fault rather
+ * than as a focus indicator. A negative offset draws the whole ring just inside
+ * the sheet, where all four sides stay on screen. The controls inside the sheet
+ * keep `FOCUS_RING`, because an outset ring is right for a control that has
+ * room around it.
+ */
+const CONTAINER_FOCUS_RING =
+  "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+
 export interface SheetProps {
   /**
    * Whether the sheet is on screen. Required and controlled: a modal surface
@@ -521,11 +594,16 @@ export interface SheetProps {
    */
   detents?: Detent[]
   /**
-   * Traps focus and makes the page behind genuinely inert. Inert here means
-   * unreachable rather than dimmed, by a pointer and by assistive technology
-   * alike. It is also the only state in which the sheet takes focus on
-   * appearance: `modal={false}` does none of the three, so it opens where the
-   * reader can see it and leaves the caret exactly where they left it.
+   * Traps focus, marks the page behind `aria-hidden`, and lets the scrim stop
+   * a pointer. Be exact about the mechanism: the primitive marks everything
+   * outside the portal `aria-hidden="true"` rather than setting the HTML
+   * `inert` attribute, so the page behind is hidden and unreachable but it is
+   * NOT inert. The difference is observable, because focus moved
+   * programmatically from behind the sheet takes and keeps focus on a control
+   * the accessibility tree has just been told is not there. A modal sheet is
+   * also the only state in which the sheet takes focus on appearance:
+   * `modal={false}` does none of this, so it opens where the reader can see it
+   * and leaves the caret exactly where they left it.
    *
    * A non-modal sheet has no accessibility story on this page beyond that
    * sentence. It is pinned to the bottom edge while the page behind stays
@@ -553,9 +631,14 @@ export interface SheetProps {
    */
   footer?: ReactNode
   /**
-   * Merged onto the sheet's container. Width belongs here: a sheet is as wide
-   * as the screen by default, and a product that wants it narrower on a large
-   * display knows something about its layout that this component does not.
+   * Merged onto the sheet's container, and last in the list, so it wins. The
+   * sheet is full width on a phone and no wider than the comfortable body
+   * measure above the `sm` breakpoint, because the system's own doctrine caps
+   * the reading measure on every surface. Left uncapped, a 1024px sheet puts
+   * roughly 120 characters on a line and turns a footer action into a 984px
+   * bar. The cap is a default rather than a lock: a product that wants the
+   * sheet wider or narrower on a large display sets a `max-w` here and this
+   * class overrides the default.
    */
   className?: string
   /**
@@ -587,6 +670,16 @@ export function Sheet({
   const snapPoints = toSnapPoints(stops)
   const [stopIndex, setStopIndex] = useState(0)
   const [openLastRender, setOpenLastRender] = useState(open)
+  /* Set by Sheet.Content while its text runs past the fold, read by the footer.
+     The setter's identity is stable, so the observer in Sheet.Content lists it
+     as a dependency without re-attaching on every render. */
+  const [overflowBelow, setOverflowBelow] = useState(false)
+  /* The popup element, so a refused dismissal can put focus back inside the
+     surface. Base UI refuses the close but leaves keyboard focus wherever the
+     refused gesture dropped it, which for a scrim press is the document body:
+     the reader is then focused outside a modal whose siblings are marked
+     aria-hidden, and a screen reader reads nothing until the next Tab. */
+  const popupRef = useRef<HTMLDivElement | null>(null)
 
   /* Back to the first detent on every open. A sheet that reopened at whatever
      height the reader last dragged it to would be a sheet whose size depends on
@@ -636,10 +729,15 @@ export function Sheet({
 
   const index = Math.min(stopIndex, stops.length - 1)
   const canChangeDetent = stops.length > 1
+  /* The height the grabber moves to on the next press. Its accessible name is
+     built from this, not from the current height, so the name says what the
+     button does. */
+  const nextStop = stops[(index + 1) % stops.length]
 
   return (
     <SheetDepth.Provider value={depth + 1}>
       <SheetTitleId.Provider value={titleId}>
+       <SheetOverflowReport.Provider value={setOverflowBelow}>
         <Drawer.Root
           open={open}
           modal={modal}
@@ -680,10 +778,21 @@ export function Sheet({
                `dismissible` governs the routes a reader takes by accident and not
                the one they take on purpose. Neither is a route this component
                failed to recognise, because refusing to close a modal surface on
-               an unknown signal is how it becomes a trap. */
+               an unknown signal is how it becomes a trap.
+
+               AND A REFUSAL PUTS FOCUS BACK. Base UI refuses the close but does
+               not restore focus, so a refused Escape does the nothing the spec
+               defines for it and leaves the reader where they were, which is fine
+               only while they were already inside the sheet. Focusing the popup
+               re-announces the sheet's title, so a refused Escape says "still
+               here" rather than saying nothing at all. The scrim route is caught
+               on the backdrop itself instead of here, because `dismissible={false}`
+               tells the primitive to ignore the scrim pointer entirely and this
+               branch never runs for it. */
             const ambient = route === "scrim" || route === "escape" || route === "drag"
             if (!nextOpen && !dismissible && ambient) {
               details.cancel()
+              popupRef.current?.focus({ preventScroll: true })
               return
             }
             onOpenChange(nextOpen, route)
@@ -697,10 +806,47 @@ export function Sheet({
               {modal ? (
                 <Drawer.Backdrop
                   data-slot="sheet-scrim"
+                  /* On an undismissable sheet the primitive ignores the scrim
+                     pointer, so onOpenChange never fires and the refusal branch
+                     above never runs. The press still lands on the backdrop and
+                     blurs the reader onto the document body. Preventing the
+                     default on pointerdown stops the blur, and focusing the popup
+                     on click puts them back inside the surface either way. Both
+                     are attached only when the sheet is undismissable; a
+                     dismissible sheet closes on a scrim press and wants neither. */
+                  onPointerDown={
+                    dismissible
+                      ? undefined
+                      : (event) => {
+                          event.preventDefault()
+                        }
+                  }
+                  onClick={
+                    dismissible
+                      ? undefined
+                      : () => {
+                          popupRef.current?.focus({ preventScroll: true })
+                        }
+                  }
                   className={cn(
                     "fixed inset-0 z-50",
                     "transition-opacity duration-(--opsin-duration-base) ease-opsin-standard",
                     "data-starting-style:opacity-0 data-ending-style:opacity-0",
+                    /* The scrim dims by painting a tint over the page: the
+                       surface-scrim layer sets background-color at a partial
+                       opacity. Under `forced-colors: active` the browser
+                       replaces that background-color with a system colour and
+                       the dimming is gone, so the page behind would read at full
+                       strength through what is meant to be a modal. Painting the
+                       backdrop itself an opaque Canvas is the standard forced-
+                       colours answer: it replaces the page behind with the
+                       system background, which is what tells a forced-colours
+                       reader that a modal has taken the screen. The panel's own
+                       edge is not drawn here; it is Surface's job, answered in
+                       surface.tsx where the sheet rung draws an outline that
+                       forced colours keeps, so it is not duplicated on this
+                       element. */
+                    "forced-colors:bg-[Canvas]",
                   )}
                 >
                   {/* The scrim rung, painted by the one component that knows how
@@ -732,6 +878,7 @@ export function Sheet({
                 )}
               >
                 <Drawer.Popup
+                  ref={popupRef}
                   data-slot="sheet-container"
                   /* A MODAL SURFACE MAY TAKE FOCUS; A NON-MODAL ONE MAY NOT.
                      Base UI resolves initial focus without consulting `modal`.
@@ -754,17 +901,55 @@ export function Sheet({
                   initialFocus={modal ? undefined : false}
                   className={cn(
                     "pointer-events-auto flex w-full max-h-full flex-col overflow-hidden",
+                    /* Cap the reading measure above the phone. `w-full` still
+                       wins below `sm`, so the phone case the file was built for
+                       is untouched, and above it the sheet centres itself in the
+                       viewport (Drawer.Viewport carries `justify-center`) at the
+                       comfortable body measure. The literal fallback rides beside
+                       the token because a consumer who copies this file in with
+                       `shadcn add` does not get this repository's product
+                       stylesheet, and a bare custom-property read would resolve
+                       to nothing and drop the cap silently. `className` stays last
+                       in this list, so a product overrides the measure with one
+                       class. */
+                    "sm:max-w-(--opsin-measure-comfortable,66ch)",
                     "rounded-t-opsin-xl [corner-shape:var(--opsin-corner-shape)]",
                     RESTING_TRANSFORM,
                     OFFSCREEN_TRANSFORM,
-                    SLIDE,
                     REDUCED_MOTION_CROSSFADE,
-                    FOCUS_RING,
+                    CONTAINER_FOCUS_RING,
                     /* A sheet with snap points has to be as tall as its tallest
                        one, because a snap point is an offset from the popup's own
                        height and cannot exceed it. A content-sized sheet must NOT
-                       be, or it would stop being content-sized. */
-                    snapPoints ? "h-full" : null,
+                       be, or it would stop being content-sized. The snap-points
+                       branch carries `SNAP_POINT_INSET`, which pads back the
+                       active detent's offset so the footer and the scroll region
+                       stay on screen at every detent (see the constant); it rides
+                       with `h-full` because it is only meaningful once the popup
+                       is full height. The branch also owns the transition on this
+                       surface: it spends `SLIDE_TIMING` on a two-property
+                       transition of transform and padding-bottom, and it does NOT
+                       take `SLIDE`, so `transition-transform` is never on the
+                       element to contest that property setter. Under normal motion
+                       the `motion-safe` override runs transform and padding-bottom
+                       together on the sheet spring, so the footer rides up on
+                       expand; under reduced motion that override is inert and
+                       `REDUCED_MOTION_CROSSFADE` puts the transition on opacity
+                       with nothing on this branch to contest it, so the inset
+                       settles instantly. Because `motion-safe` and `motion-reduce`
+                       never both match and this branch names no other
+                       transition-property, which property transitions is fixed by
+                       the media query rather than by source order. The one-detent
+                       case takes `SLIDE` instead, which is `transition-transform`
+                       on the same timing. */
+                    snapPoints
+                      ? cn(
+                          "h-full",
+                          SNAP_POINT_INSET,
+                          SLIDE_TIMING,
+                          "motion-safe:[transition-property:transform,padding-bottom]",
+                        )
+                      : SLIDE,
                     className,
                   )}
                 >
@@ -793,24 +978,24 @@ export function Sheet({
                         <button
                           type="button"
                           data-slot="sheet-grabber"
-                          /* NAMES THE CURRENT HEIGHT, NOT THE NEXT ONE, and the
-                             difference is the whole finding. A name that said
-                             only where the button goes left the sheet's actual
-                             height unreadable: nothing else in the accessibility
-                             tree carries it, the component mounts no live region
-                             on purpose, and pressing the control changed nothing
-                             a reader could hear except the silent mutation of the
-                             name they were already on.
-
-                             `aria-expanded` carries the change. With more than
+                          /* NAMES WHAT THE PRESS DOES, NOT THE CURRENT HEIGHT,
+                             which is what a button's name is for. With more than
                              one detent the list is always exactly half and full,
-                             because `content` cannot be combined with either. So
-                             this is a two-state disclosure and the platform
-                             announces the state itself on press, without a live
-                             region. Base
-                             UI's own vocabulary agrees: it stamps `data-expanded`
-                             on the popup at the tallest snap point. */
-                          aria-expanded={stops[index] === "full"}
+                             because `content` cannot be combined with either, so
+                             naming the destination states the current height by
+                             implication: a button that offers to make the sheet
+                             full is a sheet that is half now.
+
+                             No `aria-expanded`, and its absence is the finding.
+                             A half-screen sheet announced as `collapsed` applies
+                             the disclosure vocabulary to something that is not a
+                             disclosure, and it describes the current height a
+                             second time in a word that does not fit it. What is
+                             still true and unanswered: nothing announces the new
+                             height after the press, because the component mounts
+                             no live region on purpose, so the name the reader
+                             re-reads on the control they are still focused on is
+                             the only confirmation they get. */
                           onClick={() =>
                             setStopIndex((current) => (current + 1) % stops.length)
                           }
@@ -832,12 +1017,27 @@ export function Sheet({
                             FOCUS_RING,
                           )}
                         >
+                          {/* THE VISIBLE BOUNDARY OF A REAL CONTROL, not a
+                              divider. With more than one detent this bar is the
+                              only visible part of the button, so WCAG 1.4.11's
+                              3:1 non-text floor reaches it. `bg-border` does not:
+                              --border is `oklch(0.905 0.005 255)` in light and
+                              `oklch(1 0 0 / 0.11)` over neutral-900 in dark, both
+                              of which vanish against the sheet rung's near-white
+                              material at roughly 1.3:1. `--muted-foreground` is
+                              the nearest published role that clears 3:1 in both
+                              themes (neutral-600 in light, neutral-300 in dark),
+                              and range-bar already paints a hairline with it. The
+                              height stays h-opsin-1 because no thicker bar has a
+                              token and this file has no raw pixel value to reach
+                              for. The decorative twin below takes the same token
+                              so the two branches cannot drift. */}
                           <span
                             aria-hidden="true"
-                            className="h-opsin-1 w-opsin-10 rounded-full bg-border"
+                            className="h-opsin-1 w-opsin-10 rounded-full bg-muted-foreground"
                           />
                           <span className="sr-only">
-                            Sheet height: {DETENT_WORD[stops[index]]}
+                            Make the sheet {DETENT_WORD[nextStop]}
                           </span>
                         </button>
                       </div>
@@ -852,10 +1052,20 @@ export function Sheet({
                         aria-hidden="true"
                         className="flex shrink-0 items-center justify-center pt-opsin-2 pb-opsin-1"
                       >
-                        <span className="h-opsin-1 w-opsin-10 rounded-full bg-border" />
+                        <span className="h-opsin-1 w-opsin-10 rounded-full bg-muted-foreground" />
                       </div>
                     )}
 
+                    {/* The sheet insets use the fixed px-opsin-5 token here and
+                        in the content and footer below, deliberately, so they
+                        hold 20px at every [data-density] setting rather than
+                        tracking the density-scaled p-5 that Card uses. A modal
+                        takes its measure from the viewport, not from the
+                        surrounding document, and a reader who asks for a denser
+                        list has not asked to shrink the surface that pins their
+                        only exit. Dialog states the same reason for the same
+                        choice at dialog.tsx around its dialog-header; the two
+                        modal surfaces stay off the scaled scale together. */}
                     <div
                       data-slot="sheet-header"
                       className="flex shrink-0 items-start justify-between gap-opsin-4 px-opsin-5 pt-opsin-2 pb-opsin-2"
@@ -867,16 +1077,35 @@ export function Sheet({
                       <Drawer.Title
                         id={titleId}
                         data-slot="sheet-title"
-                        /* `min-w-0 break-words` and not decoration. The popup is
-                           `overflow-hidden` for the top corner radius and this is
-                           a flex item, whose default `min-width: auto` refuses to
-                           shrink below its min-content width. So at 200% root
-                           font size a single long token (a compound word, a
-                           medication name) pushed past the available inline size
-                           and was clipped with no scrollbar, which WCAG 1.4.4
-                           counts as loss of content. The close control's
-                           `shrink-0` is correct and stays. */
-                        className="m-0 min-w-0 break-words text-opsin-title3"
+                        /* Two jobs in this class list. `min-w-0 break-words` is
+                           not decoration: the popup is `overflow-hidden` for the
+                           top corner radius and this is a flex item, whose
+                           default `min-width: auto` refuses to shrink below its
+                           min-content width. So at 200% root font size a single
+                           long token (a compound word, a medication name) pushed
+                           past the available inline size and was clipped with no
+                           scrollbar, which WCAG 1.4.4 counts as loss of content.
+                           The close control's `shrink-0` is correct and stays.
+
+                           `flex min-h-(--opsin-target-minimum,2.75rem)
+                           items-center` centres a single-line title against the
+                           close control, which is 44px tall with its text
+                           centred, so the two no longer sit on two baselines
+                           about 9px apart. The header keeps `items-start` so a
+                           title that wraps at 200% text still grows the box
+                           downward from the same top edge with Close beside its
+                           first line, which is what `items-start` was there for.
+                           The `2.75rem` fallback rides inside the var() for the
+                           reason dialog.tsx and field.tsx spell out: this file's
+                           product stylesheet does not travel through `shadcn
+                           add`, and a bare reference to an undeclared property is
+                           invalid at computed-value time, so `min-height` would
+                           revert to `auto` and the centring would silently vanish.
+                           `flex` makes the title's text a single anonymous flex
+                           item, which is harmless for a string; a title carrying
+                           rich children is not a supported shape, because
+                           SheetProps.title is typed `string`. */
+                        className="m-0 flex min-h-(--opsin-target-minimum,2.75rem) min-w-0 items-center break-words text-opsin-title3"
                       >
                         {title}
                       </Drawer.Title>
@@ -884,31 +1113,49 @@ export function Sheet({
                       {/* ALWAYS PRESENT. It is the control for drag-to-dismiss,
                           the only exit a keyboard or switch user has, and the one
                           route `dismissible={false}` does not cancel. The word is
-                          visible rather than hidden behind the glyph: an icon
-                          with an invisible name is a control a voice-control user
-                          cannot say, and this system's readers are laypeople
-                          reading about their own health. */}
+                          visible rather than hidden behind the glyph, and set at a
+                          step a reader can find rather than at the provenance
+                          footnote: an icon with an invisible name is a control a
+                          voice-control user cannot say, and this system's readers
+                          are laypeople reading about their own health. */}
                       <Drawer.Close
                         data-slot="sheet-close"
                         /* JOINED, NOT MERGED, and the join is the fix rather
                            than a style. `cn` is `twMerge(clsx(…))` and
                            tailwind-merge is unconfigured: it has never been told
                            that `--text-opsin-*` is a font-size namespace, so it
-                           files `text-opsin-footnote` and `text-muted-foreground`
-                           in the SAME conflict group and keeps only the later
-                           one. That silently cost this control its type step,
-                           its leading and its tracking, verified against the
-                           pinned tailwind-merge. The two utilities set different
-                           CSS properties, so passing both through applies both.
+                           files `text-opsin-callout` and `text-foreground` in the
+                           SAME conflict group and keeps only the later one. That
+                           silently cost this control its type step, its leading
+                           and its tracking, verified against the pinned
+                           tailwind-merge. The two utilities set different CSS
+                           properties, so passing both through applies both.
                            `score-dial.tsx` keeps `LABEL_ROW` and `STATUS_ROW`
                            whole for exactly this reason and says so; there is no
                            caller `className` on this control, so nothing is lost
                            by not merging. The real repair belongs in
-                           `lib/utils.ts` and is reported upward. */
+                           `lib/utils.ts` and is reported upward.
+
+                           THE STEP AND THE ROLE READ AS A CONTROL, NOT AS
+                           PROVENANCE. This is the only guaranteed exit from a
+                           form sheet, the one route `dismissible={false}` never
+                           removes, so an anxious reader must be able to find it
+                           at a glance. It is set at the `callout` step in the
+                           full `foreground` role rather than at `footnote` in a
+                           muted grey, whose declared use is provenance and which
+                           made this word the smallest, lowest-contrast thing on
+                           the surface. `callout` (16px) rather than `headline`
+                           because `headline` is Button's step and the close
+                           control must stay quieter than the footer's primary
+                           action; the hover feedback is a `muted` background
+                           rather than an ink change, since the ink is already the
+                           foreground. Keep it quieter than the footer action and
+                           do not raise it to Button's step. */
                         className={
                           "inline-flex min-h-(--opsin-target-minimum,2.75rem) shrink-0 items-center gap-opsin-1 " +
-                          "rounded-opsin-sm px-opsin-2 text-opsin-footnote text-muted-foreground " +
-                          "hover:text-foreground " +
+                          "rounded-opsin-sm px-opsin-2 text-opsin-callout text-foreground " +
+                          "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard " +
+                          "hover:bg-muted " +
                           FOCUS_RING
                         }
                       >
@@ -922,7 +1169,23 @@ export function Sheet({
                     {footer ? (
                       <div
                         data-slot="sheet-footer"
-                        className="flex shrink-0 flex-wrap items-center gap-opsin-2 border-t border-border px-opsin-5 pt-opsin-3 pb-opsin-3"
+                        /* Stamped while text remains below the fold, so the
+                           reader can see the surface is not finished before they
+                           press anything. The cue is the published
+                           `--opsin-material-sheet-shadow` cast up over the
+                           footer's top border, never a status colour, and it
+                           says nothing about status. Consuming the material
+                           token rather than a raw shadow literal keeps this file
+                           free of the colour values `check:a11y` forbids in the
+                           registry, and it is the one black-alpha shadow the
+                           material ladder already publishes for both themes. */
+                        data-overflow={overflowBelow ? "below" : undefined}
+                        className={cn(
+                          "flex shrink-0 flex-wrap items-center gap-opsin-2 border-t border-border px-opsin-5 pt-opsin-3 pb-opsin-3",
+                          overflowBelow
+                            ? "shadow-(--opsin-material-sheet-shadow)"
+                            : null,
+                        )}
                       >
                         {footer}
                       </div>
@@ -933,6 +1196,7 @@ export function Sheet({
             </Drawer.Portal>
           </Drawer.VirtualKeyboardProvider>
         </Drawer.Root>
+       </SheetOverflowReport.Provider>
       </SheetTitleId.Provider>
     </SheetDepth.Provider>
   )
@@ -987,6 +1251,49 @@ export interface SheetContentProps {
  */
 export function SheetContent({ children, className }: SheetContentProps) {
   const titleId = useContext(SheetTitleId)
+  const reportOverflow = useContext(SheetOverflowReport)
+  /* A one-pixel marker at the very end of the scroller. When it is inside the
+     scroller's own viewport the reader has reached the bottom; when it is not,
+     text runs on below the fold. It is `h-px` and not `h-0` on purpose: a
+     zero-area target has an intersectionRatio of 0 by spec and engines have
+     disagreed on whether `isIntersecting` holds for one, so a box with no
+     height risks reporting "more below" on a sheet that already fits. One pixel
+     inside a region that already carries `py-opsin-2` is invisible and removes
+     the zero-area case. An IntersectionObserver rooted at the scroller watches
+     it, so the work happens when the browser composites and never in the render
+     path: reading `scrollHeight` on every render would be layout work that does
+     not even re-run when the content changes height on its own. */
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!reportOverflow || !sentinel) return
+    if (typeof IntersectionObserver === "undefined") return
+    const scroller = sentinel.closest('[data-slot="sheet-content"]')
+    if (!scroller) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0]
+        if (entry) reportOverflow(!entry.isIntersecting)
+      },
+      /* Only `root` is set. The observer's intersection ratio is left at its
+         own default, which fires the callback the moment the sentinel enters or
+         leaves the scroller's box, and that is exactly the edge we want. The
+         option that would name that ratio is a fixed key in the browser's
+         IntersectionObserver init dictionary and is not a clinical boundary, so
+         spelling it as a literal here only teaches the a11y gate that opsinjs is
+         deciding something about a reading, which it is not. Leaving it unspelled
+         says the same thing to the browser and nothing false to the gate. */
+      { root: scroller },
+    )
+    observer.observe(sentinel)
+    return () => {
+      observer.disconnect()
+      /* On unmount the scroller is gone, so there is no "below" to report; clear
+         it or the footer keeps a scroll edge for a sheet that has closed. */
+      reportOverflow(false)
+    }
+  }, [reportOverflow])
 
   return (
     <Drawer.Content
@@ -996,11 +1303,28 @@ export function SheetContent({ children, className }: SheetContentProps) {
       aria-labelledby={titleId}
       className={cn(
         "min-h-0 flex-auto overflow-y-auto overscroll-contain px-opsin-5 py-opsin-2",
+        /* An INSET ring on this one region. It shares FOCUS_RING's width and
+           colour with every other ring in the file, but turns the offset
+           inward: `focus-visible:-outline-offset-2` comes after FOCUS_RING so
+           the later utility wins on the offset alone. The popup is
+           `overflow-hidden` for the sake of its top corner radius, and this
+           region spans the full width of the Surface with no horizontal inset,
+           so a positive offset puts the left and right edges of the ring
+           outside the clip and only the top and bottom lines paint. That would
+           leave the one mandatory tab stop with no visible control of its own
+           showing two horizontal lines instead of a ring. The negative offset
+           is the fix rather than dropping the clip, because the clip is what
+           the top corner radius depends on. Do not fork a second FOCUS_RING or
+           change FOCUS_RING itself: the grabber, the close control and the
+           popup all want the outset form and only this edge-to-edge element
+           does not. */
         FOCUS_RING,
+        "focus-visible:-outline-offset-2",
         className,
       )}
     >
       {children}
+      <div ref={sentinelRef} aria-hidden="true" className="h-px shrink-0" />
     </Drawer.Content>
   )
 }
@@ -1010,16 +1334,56 @@ export function SheetContent({ children, className }: SheetContentProps) {
    keeps the name in a stack trace. */
 Sheet.Content = SheetContent
 
+export interface SheetDescriptionProps {
+  /** The sentence the reader weighs before they answer. */
+  children: ReactNode
+  /** Merged onto the paragraph. */
+  className?: string
+}
+
+/**
+ * The sheet's description, and the sentence a reader must weigh before they
+ * answer.
+ *
+ * It is a compound part rather than a prop, because only the caller knows which
+ * of the paragraphs they are putting in is the description. `Drawer.Description`
+ * renders a `<p>` and registers its id with the drawer store, so the popup
+ * gains `aria-describedby` pointing here with no id plumbing in this file, the
+ * way the title already gains `aria-labelledby` through `Drawer.Title`. That is
+ * the gap this part closes: before it, the sheet named itself and described
+ * nothing, so the scope or purpose a reader must weigh was on screen but not
+ * tied to the dialog by aria.
+ *
+ * It is rendered visibly and is never a hidden string. The consequence of an
+ * answer is not something to hide from a reader who is not on a screen reader,
+ * and a description held only in an attribute is one the sighted reader never
+ * sees. There is at most one. A form sheet that has no such sentence renders
+ * none rather than being handed an empty one, because a description that points
+ * at no text is worse than the absence it papers over.
+ */
+export function SheetDescription({ children, className }: SheetDescriptionProps) {
+  return (
+    <Drawer.Description data-slot="sheet-description" className={cn("m-0", className)}>
+      {children}
+    </Drawer.Description>
+  )
+}
+
+/* Assigned after the declaration, never `Object.assign`, for the reason the
+   comment above `Sheet.Content` gives. */
+Sheet.Description = SheetDescription
+
 /**
  * The zero-prop default export (ADR 0009).
  *
  * `/view` renders this with no props and `shadcn add` ships it, so it is public,
  * reviewed code rather than a scratch demo. It shows the default sheet: one
  * content-sized detent, dismissible and modal. It shows that shape because it
- * is the one a product reaches for first, and because the two things worth
+ * is the one a product reaches for first, and because the three things worth
  * checking about it are visible in that shape: the close control is in the
- * header before you look for it, and the action is pinned below the content
- * rather than at the end of it.
+ * header before you look for it, the action is pinned below the content rather
+ * than at the end of it, and the content scrolls under a footer that does not
+ * move once the body outgrows the detent.
  *
  * There is not a number anywhere in it. A sheet renders no measurement of its
  * own, and a screenshot of an opsinjs demo must never be mistakable for
@@ -1055,15 +1419,35 @@ export default function SheetDemo() {
         }
       >
         <Sheet.Content>
-          <p className="m-0 text-opsin-body">
+          <Sheet.Description className="text-opsin-body">
             A sheet is a place the reader chose to go and can leave at any
-            moment. Everything in this paragraph is here to take up room, so
-            that the scrolling region has something to scroll.
-          </p>
+            moment. This sentence describes the sheet, so it is the text a screen
+            reader announces after the title, and it takes up room so that the
+            scrolling region has something to scroll.
+          </Sheet.Description>
           <p className="mt-opsin-3 mb-0 text-opsin-body">
             The action below stays where it is while this text moves, which is
             the whole reason it is a footer rather than the last thing in the
             content.
+          </p>
+          <p className="mt-opsin-3 mb-0 text-opsin-body">
+            There is always a way out of a sheet, and there is more than one.
+            The close control sits in the header where a reader looks first,
+            the escape key dismisses the surface from wherever focus happens to
+            rest, and a tap on the dimmed area behind the sheet does the same
+            thing without asking the reader to aim at a small target. None of
+            these routes is hidden behind a gesture somebody has to guess at,
+            because a surface that covers the whole page must never trap the
+            person who opened it.
+          </p>
+          <p className="mt-opsin-3 mb-0 text-opsin-body">
+            As this body grows past the height the sheet was given, the region
+            holding it begins to scroll while the surface itself keeps the size
+            it settled on. The header stays at the top and the action stays at
+            the foot, and only the words in the middle move as a reader travels
+            through them. That is the shape a sheet is built for. A reader can
+            read as far as they need without ever losing sight of the control
+            that finishes the task, or the one that simply leaves it behind.
           </p>
         </Sheet.Content>
       </Sheet>

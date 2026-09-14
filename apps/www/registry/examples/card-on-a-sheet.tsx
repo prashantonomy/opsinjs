@@ -19,6 +19,23 @@
  * chosen to be hard on the material rather than kind to it: a light tile and a
  * dark tile meet under the sheet, which is where a blur that only holds over a
  * flattering background gives itself away.
+ *
+ * The cards take the sheet's corner rather than fighting it. `tokens/shape.json`
+ * states the concentricity rule: a card inside a rounded container has a radius
+ * of the container's radius minus the padding between them, floored at
+ * `radius-xs`. The sheet is `rounded-t-opsin-xl` at 28px and its content is
+ * inset by `p-opsin-5` at 20px, so the rule gives the cards max(28 - 20, 4),
+ * which is 8px. Each card carries that radius built from `--opsin-radius-xl`
+ * minus `--opsin-space-5` rather than typed as a literal 8px, so a corner stays
+ * concentric with the sheet's own if either token moves.
+ *
+ * The radius is marked important. Card sets its own default corner in `SHAPE`,
+ * and `cn()` merges class strings through `tailwind-merge`, which is not taught
+ * the `opsin-radius` scale and so keeps both the default `rounded-opsin-md` and
+ * this override rather than dropping the loser. Both then reach the element at
+ * equal weight, and the one the stylesheet emits last wins, which is the
+ * default. The important flag is how the caller's radius takes the corner back
+ * without reaching into Card. The root cause sits in `lib/utils.ts`.
  */
 
 import { Card } from "@/registry/base-lyra/ui/card"
@@ -64,7 +81,10 @@ export default function CardOnASheet() {
       <Surface rung="sheet" className="relative mt-opsin-16 rounded-t-opsin-xl">
         <div className="flex flex-col gap-opsin-4 p-opsin-5">
           {SECTIONS.map((section) => (
-            <Card key={section.title}>
+            <Card
+              key={section.title}
+              className="rounded-[calc(var(--opsin-radius-xl)-var(--opsin-space-5))]!"
+            >
               <Card.Header title={<h3>{section.title}</h3>} />
               <Card.Body>
                 <p className="m-0 text-opsin-body">{section.body}</p>

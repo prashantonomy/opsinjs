@@ -36,7 +36,7 @@
  */
 
 import { Asterisk, Info, Lightbulb } from "lucide-react"
-import type { ReactNode } from "react"
+import { Children, type ReactNode } from "react"
 
 import { isDevelopment } from "@/lib/opsinjs"
 import { cn } from "@/lib/utils"
@@ -67,12 +67,15 @@ type CalloutVariant = "note" | "tip" | "caveat"
  * same reason the four status levels are four distinct shapes: colour is the
  * carrier that fails first, and here it is not carrying anything at all.
  *
- * None of the three is a status glyph. `Check`, `Eye`, `TriangleAlert` and
- * `OctagonAlert` belong to the status axis and appear on this component under
- * no circumstances. A triangle in a Callout is the axis leaking back in
- * through the icon set after it has been kept out of the palette. `Asterisk` is
- * the printer's mark for a footnote, which is exactly what a caveat is, and it
- * carries no alarm.
+ * None of the three is a status glyph. The status axis owns its own four
+ * shapes, `Circle`, `CircleDot`, `Diamond` and `Octagon`, one per clinical
+ * level as `lib/status.ts` binds them, with `Minus` for the unknown case, and
+ * not one of them appears on this component. A warning triangle is refused on
+ * its own separate ground, which stands whatever the status set happens to
+ * name: a triangle sets an alarm register before a word is read, so it can
+ * never sit on a component that carries no level. `Asterisk` is the printer's
+ * mark for a footnote, which is exactly what a caveat is, and it carries no
+ * alarm.
  *
  * Typed `Record<CalloutVariant, …>` so that adding a fourth variant without a
  * glyph is a compile error rather than a callout with an empty gutter.
@@ -86,11 +89,21 @@ const VARIANT_ICONS: Record<CalloutVariant, typeof Info> = {
 /**
  * The one treatment, written out rather than built per variant.
  *
- * `bg-muted` is the fill and `text-foreground` is the body ink, both from the
- * eleven neutral roles `app/product.css` bridges. The boundary is
- * `border-border`, and it is never the only thing setting the callout apart on
- * screen, because it is a hairline. The fill does the work; the border draws
- * the edge.
+ * The fill is `--opsin-material-inset-tint` and `text-foreground` is the body
+ * ink. The fill reads the token-only `inset` rung in `tokens/material.json`
+ * directly rather than the `bg-muted` chrome role it used to take, and that
+ * choice is a requirement rather than a coincidence: a Callout is a recess, so
+ * its fill must sit below the card fill in both themes. `bg-muted` held that
+ * order in the light theme but inverted it in the dark one, where it resolved
+ * above the card and drew the note as the most raised box on the page, the
+ * opposite of the light layout. What the `inset` rung actually guarantees, and
+ * all the code needs, is narrower than "between the card and the page": the fill
+ * sits below the card fill in both themes, and in the light theme it sits below
+ * the page as well, because there the page and the card fall within 0.01 L of
+ * each other. Reading the rung directly means a later change to `--muted` cannot
+ * silently raise the callout again. The boundary is `border-border`, and it is
+ * never the only thing setting the callout apart on screen, because it is a
+ * hairline. The fill does the work; the border draws the edge.
  *
  * NO CONTRAST FIGURE IS QUOTED HERE, AND THAT IS DELIBERATE. `tokens/color.json`
  * says the measured numbers "are never written by hand and never quoted in
@@ -100,8 +113,8 @@ const VARIANT_ICONS: Record<CalloutVariant, typeof Info> = {
  * the fill against the page, and the hairline against the fill.
  * The nearest measured neighbour is `neutral.hairline-on-page`, which is
  * advisory-failing in both themes; it measures the neutral ramp against the
- * neutral page rather than `--border` against `--muted`, so it is a different
- * pair and its figures are not this component's to borrow. The measured set
+ * neutral page rather than `--border` against `--opsin-material-inset-tint`, so
+ * it is a different pair and its figures are not this component's to borrow. The measured set
  * for this component is what `<ContrastReport component="callout" />` prints on
  * the specification page, and today that is empty.
  *
@@ -115,7 +128,7 @@ const VARIANT_ICONS: Record<CalloutVariant, typeof Info> = {
  * file into a consumer's project.
  */
 const SURFACE =
-  "bg-muted text-foreground border border-border rounded-opsin-md " +
+  "bg-(--opsin-material-inset-tint) text-foreground border border-border rounded-opsin-md " +
   "[corner-shape:var(--opsin-corner-shape)]"
 
 /**
@@ -129,18 +142,22 @@ const SURFACE =
  * explicitly rather than left to the browser, so the page looks the same
  * whichever way that setting is left.
  *
- * THIS WORKS IN THE LIGHT THEME AND NOT IN THE DARK ONE, AND NOTHING IN THIS
- * FILE CAN CLOSE THE GAP. `--foreground` is near-black in the light theme and
- * near-white in the dark one. `app/product.css` is the only stylesheet a
- * component renders under at `/view`, and it carries no `@media print` block,
- * so nothing forces ink to black on paper. A reader printing from the dark
- * theme therefore gets a near-white boundary, near-white body text and a
- * near-white glyph on white paper. The repair is a print block in the theme
- * layer, which belongs to every component rather than to this one; a component
- * could only do it here by writing a raw colour literal, which this system
- * forbids in `registry/**`. Recorded on the specification page among the
- * things nobody has checked, rather than left for a reader to discover at the
- * printer.
+ * THE PRINTED PALETTE IS THE THEME'S, AND IT NOW REACHES THE DARK THEME TOO.
+ * `--foreground` is near-black in the light theme and near-white in the dark
+ * one, so `print:border-foreground` on its own would draw a near-white boundary
+ * on white paper for a reader printing from the dark theme. `app/product.css`
+ * closes that for every component at once. Its `@media print` block redeclares
+ * `--foreground` and `--border` as ink on paper in all four theme selectors,
+ * the two dark ones included, so this constant resolves to a line a printer can
+ * draw whichever theme the reader started from. The division of labour is the
+ * point. The theme layer owns the printed palette, because forcing ink to black
+ * needs a raw colour literal that `registry/**` forbids a component from
+ * writing; a component owns only whether its own boundary is drawn with a
+ * property a printer keeps, which is what stepping from the hairline role up to
+ * the ink role does. What stays open is physical rather than a matter of code:
+ * nobody has sent either theme to a real printer, so the dark case is right by
+ * construction rather than confirmed on a printed sheet. That residual is
+ * recorded on the specification page.
  */
 const PRINT = "print:bg-transparent print:border-foreground"
 
@@ -176,10 +193,12 @@ export interface CalloutProps {
    * Merged onto the root. Layout belongs here. A callout sets no width and no
    * margin, because both are decisions of the content it sits in.
    *
-   * It is also the one hole in this component's refusal to carry a status, and
-   * the component says so rather than pretending otherwise: a colour utility
-   * from either axis passed through here reaches the root, and in development
-   * it raises a warning that names what to use instead.
+   * A colour from either axis is the one thing it will not pass through. Such a
+   * utility is removed from the list before it reaches the root, in every
+   * environment, so a callout can never be drawn in a status fill; development
+   * additionally warns once per distinct offending class list, naming the
+   * component to use instead. Every other class the caller writes is passed
+   * through untouched.
    */
   className?: string
 }
@@ -203,7 +222,7 @@ const AXIS_TINT = new RegExp(
 )
 
 /**
- * The escape hatch, reported rather than closed.
+ * The escape hatch, closed for colour and open for everything else.
  *
  * Not an OPSIN code: `tokens/errors.json` has no entry for a component outside
  * both axes being handed a colour from one of them, and a component may not
@@ -227,28 +246,43 @@ const AXIS_TINT = new RegExp(
  * offending class lists are two different mistakes in two different places and
  * an author fixing the first still needs to be told about the second.
  *
- * It warns and renders. The class list is the caller's and the content is the
- * reader's; taking a paragraph off the screen over a styling mistake would be
- * the larger error, and a Callout with the wrong fill still says what it says.
+ * It strips and renders. The axis tint is dropped from the class list in every
+ * environment, so twMerge never sees it and the component's own inset fill
+ * survives; the rest of the caller's classes pass through untouched and still
+ * win where they collide with the component's own. Development additionally
+ * warns once per distinct offending class list. The content stays on the
+ * screen, because taking a paragraph off it over a styling mistake would be the
+ * larger error, and a Callout drawn in its own neutral clothes still says what
+ * it says.
  */
 const warnedAxisTints = new Set<string>()
 
-function warnIfTintedFromAnAxis(className: string | undefined): void {
-  if (!isDevelopment() || className === undefined) return
-  if (!AXIS_TINT.test(className)) return
-  if (warnedAxisTints.has(className)) return
-  warnedAxisTints.add(className)
-  console.warn(
-    `[opsinjs] <Callout className="${className}"> takes a colour from one of the ` +
-      "two axes. Callout sits outside both, and that is the component: a callout " +
-      "that can be tinted from the status ramps hands a product a second, " +
-      "ungoverned way to raise the level of a reading, and a reader has no way to " +
-      "tell it apart from the component that is answerable for saying so. If the " +
-      "message is about this reader's own data and carries a level, the component " +
-      "is <AlertBanner> or <StatusPill>. If it is about the category a reading " +
-      "belongs to, the tint goes on the surface around the callout and not on the " +
-      "callout. See /docs/health/two-colour-axes.",
-  )
+function withoutAxisTints(className: string | undefined): string | undefined {
+  if (className === undefined) return undefined
+  if (!AXIS_TINT.test(className)) return className
+  /* Tailwind spells a space inside brackets as an underscore, so no token
+     contains whitespace and splitting on runs of it is safe against arbitrary
+     values. The per-token test reuses AXIS_TINT: its `(?:^|[\s:-])` prefix
+     anchors a bare `status-urgent-surface` at the start of the token and still
+     matches the hyphen in a `bg-` prefix and the colon in a `dark:` variant. */
+  const kept = className
+    .split(/\s+/)
+    .filter((token) => token !== "" && !AXIS_TINT.test(token))
+  if (isDevelopment() && !warnedAxisTints.has(className)) {
+    warnedAxisTints.add(className)
+    console.warn(
+      `[opsinjs] <Callout className="${className}"> takes a colour from one of the ` +
+        "two axes. Callout sits outside both, and that is the component: a callout " +
+        "that can be tinted from the status ramps hands a product a second, " +
+        "ungoverned way to raise the level of a reading, and a reader has no way to " +
+        "tell it apart from the component that is answerable for saying so. If the " +
+        "message is about this reader's own data and carries a level, the component " +
+        "is <AlertBanner> or <StatusPill>. If it is about the category a reading " +
+        "belongs to, the tint goes on the surface around the callout and not on the " +
+        "callout. See /docs/health/two-colour-axes.",
+    )
+  }
+  return kept.length === 0 ? undefined : kept.join(" ")
 }
 
 export function Callout({
@@ -257,7 +291,7 @@ export function Callout({
   children,
   className,
 }: CalloutProps) {
-  warnIfTintedFromAnAxis(className)
+  const safeClassName = withoutAxisTints(className)
 
   const Icon = VARIANT_ICONS[variant]
 
@@ -270,6 +304,18 @@ export function Callout({
      `0..1` cardinality the anatomy publishes. */
   const hasTitle = title !== undefined && title.trim() !== ""
 
+  /* A text body is a paragraph so that two adjacent callouts do not fuse into
+     one text run for a screen reader; an element body keeps the div so a
+     caller's own `<p>` is not nested inside a paragraph, which is invalid HTML
+     that browsers silently unnest. The everyday form `<Callout>text {value}
+     text</Callout>` arrives as an array of strings, so the test is over the
+     array rather than `typeof children`, which would keep the div and keep the
+     defect. */
+  const bodyIsText = Children.toArray(children).every(
+    (child) => typeof child === "string" || typeof child === "number",
+  )
+  const Body = bodyIsText ? "p" : "div"
+
   return (
     /* A grid rather than a flex row with a wrapper around the text, because the
        anatomy has Icon, Title and Body as three siblings under the root and a
@@ -279,39 +325,54 @@ export function Callout({
        no title puts its body on row 1 beside the glyph and needs no second
        layout.
 
-       `p-4` is the density-scaled step and not `p-opsin-4`. app/product.css
+       `px-3 py-4` is the density-scaled step and not `p-opsin-*`. app/product.css
        names the inside of a box as the canonical use of the scaled scale, so a
        reader who has asked for a denser interface gets one here. Padding
-       is the measurement that may tighten, unlike the gutter below.
+       is the measurement that may tighten, unlike the gutter below. The two axes
+       differ on purpose: at 200% text on a phone the horizontal axis is the one
+       competing with the reader's text column, so it comes down a step to `px-3`,
+       while the vertical axis is under no such pressure and stays at `py-4`, so
+       the vertical rhythm the reader feels is unchanged.
 
-       No role, and the cost of that is real rather than nil. "Ordinary content
-       in the reading order" is a plain element, so nothing is announced over
-       what the reader is doing and nothing is announced twice. `role="alert"`
-       is the thing this component exists not to be. What a plain element also
-       means is that a screen-reader user gets no boundary: no start, no end,
-       no accessible name, and no programmatic link between the title and the
-       body it belongs to. The fill, the hairline, the gutter glyph and the
-       heavier title are presentation with no equivalent anywhere in the tree.
-       `role="note"`, or `role="group"` with `aria-labelledby` pointing at the
-       title, would supply that boundary. Neither says anything about the
-       variant either way, so "the variant loses nothing when it is lost" is
-       not an argument against them. Neither is adopted here because nobody has
-       listened to this component in a screen reader, and picking one on a
-       guess is how a container that announces itself four times down a screen
-       gets shipped. It is an open question on the specification page rather
-       than a settled decision. */
+       `role="note"`, and the cost of that is real rather than nil. Note is the
+       WAI-ARIA role for content parenthetic or ancillary to the main content,
+       which is exactly this component's definition. It is not `role="alert"`,
+       it adds no `aria-live`, it publishes no landmark and it adds no tab stop,
+       so none of the restraint this file keeps is spent. `role="alert"` is the
+       thing this component exists not to be. What the role buys is the boundary
+       a plain element withheld: a start, an end, and an accessible name, so two
+       adjacent callouts no longer read as one continuous text run and a titled
+       callout announces what it is a note about.
+
+       The name is the title, supplied through `aria-label` rather than
+       `aria-labelledby`. Pointing at the title needs an id this component
+       cannot mint, and `useId` is a hook that would put every callout in the
+       system into the client bundle to buy one string. That is the trade
+       `result-card.tsx` and `care-card.tsx` both refuse for this same
+       attribute, and this file's header records that its lack of a client
+       boundary is the point. `aria-label` buys the same linkage with no hook,
+       and because a note is not a live region the name cannot displace the
+       content the way a live region's would. The cost to state plainly: the
+       title is announced as the note's name and then read again as the title
+       paragraph, and a screen a product fills with callouts now announces a
+       container per callout. */
     <div
       data-slot="callout"
+      role="note"
+      aria-label={hasTitle ? title : undefined}
       className={cn(
-        "grid grid-cols-[auto_1fr] items-start p-4",
+        "grid grid-cols-[auto_1fr] items-start px-3 py-4",
         /* The gutter and the line gap are FIXED steps, not scaled ones. Their
            job is to keep the glyph out of the text and the title off the body,
            and neither should close up because somebody asked for a denser list.
-           Step 2 is the tightly-related step in tokens/space.json. */
-        "gap-x-opsin-2 gap-y-opsin-2",
+           The gutter is step 1, the step tokens/space.json names for an icon
+           beside its label, so the text column keeps that much more width at
+           200% text; the line gap is step 2, the step it names for tightly
+           related lines. */
+        "gap-x-opsin-1 gap-y-opsin-2",
         SURFACE,
         PRINT,
-        className,
+        safeClassName,
       )}
     >
       {/* Decorative, and hidden because it is a duplicate rather than because
@@ -349,6 +410,17 @@ export function Callout({
           margins off a caller's paragraph so the padding above stays the
           padding, whether the body arrives as a string or as a <p>.
 
+          The element is a `p` when the body is text and a `div` when it is not.
+          A text body must be a paragraph so that two adjacent callouts do not
+          fuse into one text run in the accessibility tree, which is the concrete
+          harm a bare `div` around raw text caused. An element body keeps the
+          `div` so a caller who passes their own `<p>` is not wrapped in a
+          paragraph inside a paragraph. `m-0` leads the class list so a
+          paragraph's user-agent margin does not reopen the padding this
+          component just set, the same reason the title carries it; the
+          `*:first:mt-0 *:last:mb-0` rules trim only element children and do
+          nothing when the body is a bare string.
+
           `min-w-0 wrap-break-word` is the reflow repair, and it is here
           because "no fixed height and no overflow container" is not the whole
           story. `1fr` is `minmax(auto, 1fr)`, so the text track's floor is its
@@ -360,12 +432,12 @@ export function Callout({
           the token instead of the layout. The title cell carries `min-w-0` for
           the same reason. Reasoned from the CSS and not yet measured in a
           browser; the measurement is the nightly layout job's. */}
-      <div
+      <Body
         data-slot="callout-body"
-        className="col-start-2 min-w-0 wrap-break-word text-opsin-body *:first:mt-0 *:last:mb-0"
+        className="col-start-2 m-0 min-w-0 wrap-break-word text-opsin-body *:first:mt-0 *:last:mb-0"
       >
         {children}
-      </div>
+      </Body>
     </div>
   )
 }

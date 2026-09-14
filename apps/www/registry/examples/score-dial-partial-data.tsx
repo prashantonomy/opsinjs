@@ -23,13 +23,13 @@
  * a field on a band: the product looked at this reading and said what it means.
  * Nothing in the component compares fourteen with anything and decides.
  *
- * There is no `calculatedAt` here, and its absence is the point rather than an
- * oversight. This example used to pass an instant six months before the day it
- * was reviewed, and the dial rendered a full-size score beside an undecorated
- * date at footnote size. That was a stale number drawn exactly like a fresh
- * one. The component gives a date no staleness treatment by design, because a
- * staleness window is a number opsinjs does not own; the caller who needs an
- * old score to look old renders a RelativeTime beside the dial.
+ * There is a `calculatedAt` here, and it is drawn as its own labelled line,
+ * "Calculated 14 Mar 2026", directly under the reading rather than as an
+ * undecorated token at the tail of the derivation sentence, which is what made
+ * an earlier version of this example read the date as decoration. The component
+ * gives a date no staleness treatment by design, because a staleness window is
+ * a number opsinjs does not own; the caller who needs an old score to look old
+ * renders a RelativeTime beside the dial.
  *
  * EVERY NUMBER HERE IS INVENTED. The bands carry `EXAMPLE_SOURCE` for the same
  * reason a `ReferenceRange` does. Two numbers that define an interval somebody
@@ -57,6 +57,7 @@ export default function ScoreDialPartialData() {
         { from: 17, to: 20, name: "Third example band", source: EXAMPLE_SOURCE },
       ]}
       status="watch"
+      calculatedAt="2026-03-14T08:12:00+00:00"
       coverage={{ available: 4, expected: 6 }}
       derivation={`${EXAMPLE_SOURCE}. The score, the scale and the bands here are invented, and nothing was calculated from anybody.`}
     />

@@ -55,8 +55,9 @@ import type { ReactNode } from "react"
 
 import { isDevelopment, type ClinicalStatus } from "@/lib/opsinjs"
 import { cn } from "@/lib/utils"
-import { Button } from "@/registry/base-lyra/ui/button"
+import { Button, cardActionClassName } from "@/registry/base-lyra/ui/button"
 import { Card } from "@/registry/base-lyra/ui/card"
+import { Link } from "@/registry/base-lyra/ui/link"
 import { StatusPill } from "@/registry/base-lyra/ui/status-pill"
 
 /**
@@ -79,7 +80,9 @@ export type CareUrgency = "when-convenient" | "this-week" | "today"
  * THE THREE RENDER IDENTICALLY EXCEPT FOR THEIR WORDS. Same type step, same
  * ink, same position, no glyph, no rule, no weight change. That is what makes
  * the claim "urgency lives in the text" checkable rather than asserted: put the
- * three side by side in greyscale and the only difference is the sentence.
+ * three side by side in greyscale and the only difference is the sentence. The
+ * step is body rather than subheadline because the timing is the claim the card
+ * exists to make, and it may not be set below the reason that qualifies it.
  */
 const TIMING_PHRASE: Record<CareUrgency, string> = {
   "when-convenient": "When you next get a chance",
@@ -129,90 +132,61 @@ const DEADLINE_PASSED = "This date has passed."
 const PART_RHYTHM = "[&:not(:first-child)]:mt-4"
 
 /**
- * The hit-area floor, in the token rather than in pixels.
+ * THE ACTION LOOK IS THE SHARED RECIPE NOW, NOT A COPY OF BUTTON'S TONES.
  *
- * `--opsin-target-minimum` is rem, so it grows when a reader raises their text
- * size instead of pinning at 44 device pixels. The fallback is there because
- * this file ships into projects that may not have imported the token sheet, and
- * a control with no floor at all is worse than one with a hard-coded floor.
+ * This file once carried two class lists that re-spelled Button's `primary` and
+ * `secondary` fills by hand, with a comment declaring the drift a defect it
+ * could not close from inside itself because Button's `TONE` was private. Both
+ * halves of that sentence are false after this run. The recipe now lives in
+ * `button.tsx` as `cardActionClassName`, the navigating transport reaches it
+ * through `Link`'s `action` and `secondary` emphasis and the acting transport
+ * through Button's own variants, so a change to how a card action looks reaches
+ * the anchor and the button together rather than in two places that disagree.
+ *
+ * CareCard asks for the same weight ResultCard asks for, and no card action is
+ * brand-filled any more. The recommended action is a neutral bordered control,
+ * because a brand fill on the card's own ground marks nothing and a status
+ * surface has no measured contrast pair for it. `Button variant="primary"` is
+ * still there for a form submit inside a Dialog or a Sheet; it is the card
+ * action, not Button, that the neutral rule binds. The underline is the one
+ * sanctioned difference between the two transports, under D3 rule 2: an anchor
+ * is underlined so it reads and announces as a link, a Button carrying a fill
+ * or a boundary is not, and a quiet Button with neither takes the underline so
+ * a handler-form action never reads as a paragraph.
  */
-const TARGET_FLOOR =
-  "min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem)"
 
 /**
- * A navigating action, dressed to match the acting one.
- *
- * Button is a native `<button>` and pins its own `render`, so an action with an
- * `href` cannot be one. It must not be one either, because a destination
- * survives a new tab, a copied address and a screen reader's list of links
- * where a click handler does not. That leaves an anchor styled to read as the
- * same control, and these two class lists are that styling. They deliberately
- * mirror Button's `primary` and `secondary` tones rather than inventing a
- * third look: two actions on one card that differ because one of them
- * navigates would be a distinction the reader has no way to interpret.
- */
-const LINK_BASE =
-  `inline-flex ${TARGET_FLOOR} max-w-full items-center justify-center ` +
-  "gap-opsin-2 text-wrap rounded-opsin-md px-opsin-5 py-opsin-2 " +
-  /* `text-wrap`, a few tokens up, is doing the job Button spells out with an
-     explicit wrapping utility, and it is the half that matters: a consumer
-     reset that stops an anchor wrapping stops it at the wrapping property, and
-     that utility sets the property back. At 200% text the label has to wrap and
-     the control has to grow with it, because a clipped label is unreadable and
-     unspeakable. */
-  "text-center text-opsin-headline no-underline " +
-  /* The press acknowledgement, and the only state signal on this control that
-     does not depend on colour. It is instantaneous rather than animated,
-     because `transition-colors` deliberately excludes transform. So it is what
-     `prefers-reduced-motion` asks a press cue to be and needs no branch. Both
-     of these were on Button and not here, which meant an `href` action
-     acknowledged a press and an `onSelect` action did not. */
-  "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard " +
-  "active:translate-y-px " +
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-
-/**
- * THESE TWO STRINGS ARE A SECOND COPY OF BUTTON'S `primary` AND `secondary`
- * TONES, character for character, and that is a defect this file cannot close
- * on its own.
- *
- * Button is always a real `<button>`, because it pins `render` and
- * `nativeButton` and refuses to become an anchor. So an action with a
- * destination cannot be one, and the two controls have to be made to look
- * alike by two class lists rather than by one. Button's `TONE` is private, so
- * there is nothing to import. Until it is exported, a change to Button's fills
- * reaches the acting control and not the navigating one, and the two drift
- * apart in the one place the page says they must not. Recorded in this
- * component's review rather than fixed here, because button.tsx belongs to
- * another component.
- */
-const LINK_TONE: Record<"recommended" | "alternative", string> = {
-  recommended:
-    "border-transparent bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80",
-  alternative:
-    "border-border bg-card text-foreground hover:bg-muted active:bg-muted",
-}
-
-/**
- * What the card says when it was given a next step and could not render one.
+ * What the reader is told when a next step was supplied and none could render.
  *
  * The same discipline as `MISSING_AUTHOR`, applied to the other input whose
  * absence the reader can act on. An action with no label, or with neither a
  * destination nor a handler, is dropped. Dropping it in silence leaves a
  * demand on the screen with nothing to press, which is the harm this component
- * is least able to afford. The warning beside it is development-only; this
- * sentence is what a reader gets in production.
+ * is least able to afford.
+ *
+ * This sentence is for the reader, so it says what is true and what to do and
+ * names no cause it cannot know. It points at the attribution line, which is
+ * the card's own vocabulary for whoever is asking. The developer-facing account
+ * of the failure lives in the console, in the "no label" warning and the
+ * "neither `href` nor `onSelect`" warning that `actionControl` raises in
+ * development; this string carries none of that and says only what the reader
+ * can act on.
  */
-const ACTION_UNAVAILABLE = "This card was given a next step it cannot show."
+const ACTION_UNAVAILABLE =
+  "The next step for this is not available in this app. Contact whoever is asking instead."
 
 /**
- * The spoken half of "recommended", for a reader who cannot see a fill.
+ * The spoken half of "recommended", for a reader who meets neither the box nor
+ * the boundary that mark it.
  *
- * Emphasis on the leading action is carried by the fill and by nothing else,
- * and the flag deliberately does not reorder the controls. So with the flag on
- * the second action even the position signal points at the wrong one. Colour is
- * the third carrier everywhere else in this system and it may not be the only
- * one here either. Appended to the visible label rather than replacing it, so
+ * Emphasis on the leading action is carried by shape now that the brand fill has
+ * gone: the recommended control is the larger bordered box at the headline step,
+ * the alternative the smaller unbordered one beside it, and the flag
+ * deliberately does not reorder the two. So with the flag on the second action
+ * even the position signal points at the wrong one. That shape difference
+ * survives greyscale, but it reaches nobody listening rather than looking, and
+ * with the fill gone the qualifier is carrying more of the distinction than
+ * before, not less. Appended to the visible label rather than replacing it, so
  * the visible name is still contained in the accessible name (SC 2.5.3) and
  * voice control still matches what is written on the control.
  *
@@ -297,6 +271,12 @@ function usableLocale(locale: string | undefined): string | undefined {
  * 31 February. `Date.UTC` rolls an impossible date forward without complaint,
  * and a deadline silently moved to 3 March is worse than one that did not
  * render.
+ *
+ * The time zone is pinned to UTC deliberately, and the locale is pinned to
+ * nothing. So an absent `locale` is the one remaining way this function can
+ * produce a date the reader reads wrongly: it falls to the runtime's default,
+ * which on a server is the server's language and not the reader's. The card
+ * warns in development when that happens.
  */
 function writtenDate(dueBy: string, locale: string | undefined): string | null {
   const match = CALENDAR_DATE.exec(dueBy)
@@ -359,11 +339,15 @@ export interface CareCardProps {
   heading: string
   /**
    * When the reader should do it, rendered as one of three fixed phrases inside
-   * the heading. Required, and never derived from `status`: a card with no
-   * timing is a demand with no deadline, and the reader supplies the missing
-   * urgency themselves. It is usually the wrong one.
+   * the heading. Never derived from `status`: a card with no timing is a demand
+   * with no deadline, and the reader supplies the missing urgency themselves. It
+   * is usually the wrong one. The one exception to needing it is a readable
+   * `dueBy`: a written date is itself a timing, so a card may omit the phrase
+   * when it supplies a date. A card that carries both is carrying two timings
+   * that this file never compares, and where both are supplied the product owns
+   * keeping them coherent.
    */
-  urgency: CareUrgency
+  urgency?: CareUrgency
   /**
    * Who is asking. Required, and free text rather than an enum, because "your
    * GP surgery" and "an automatic reminder from this app" are both true answers
@@ -395,7 +379,10 @@ export interface CareCardProps {
    * BCP 47 language tag for the deadline date. It does not translate the three
    * timing phrases or the two admissions: those are English, and the gap is
    * recorded on the page rather than hidden behind a prop that would also let a
-   * caller relabel "Do this today" as something more insistent.
+   * caller relabel "Do this today" as something more insistent. When it is
+   * omitted the date is written with the runtime's default, which on a card
+   * rendered on a server is the server's language and not the reader's, and
+   * development says so.
    */
   locale?: string
   /**
@@ -449,7 +436,17 @@ function hasLabel(action: CareAction): boolean {
   return typeof action.label === "string" && action.label.trim() !== ""
 }
 
-function navigates(action: CareAction): boolean {
+/* A type predicate, not a plain `boolean`, so that `const destination =
+   navigates(action)` narrows `action.href` from `string | undefined` to
+   `string` in the branch that renders the Link. `LinkProps.href` is required
+   because a link with no destination is a button, so an optional href flowing
+   into it would not compile; the guard that already rejects an empty or
+   missing href is the right place to carry that fact into the type. An empty
+   href is a link to the current page, which is the failure the trim guards
+   against, so `?? ""` would defeat the check rather than satisfy it. */
+function navigates(
+  action: CareAction
+): action is CareAction & { href: string } {
   return typeof action.href === "string" && action.href.trim() !== ""
 }
 
@@ -504,8 +501,9 @@ function actionControl(
   }
 
   /* The spoken half of the emphasis, on the control the card is leading with.
-     A sighted reader gets the fill; this is what a listener gets, and without it
-     the two controls announce identically and the flag reaches nobody. */
+     A sighted reader gets the larger bordered box; this is what a listener gets,
+     and without it the two controls announce identically and the flag reaches
+     nobody. */
   const qualifier =
     qualify && emphasis === "recommended" ? (
       <span className="sr-only">, {RECOMMENDED_QUALIFIER}</span>
@@ -513,43 +511,46 @@ function actionControl(
 
   if (destination) {
     return (
-      /* NO `data-slot` OF ITS OWN, and the asymmetry below is why. The acting
-         form is a Button, and Button pins `data-slot="button"` after its own
-         prop spread. A slot set here would therefore survive on the link and
-         vanish on the button, and a selector written against it would style
-         one of two controls that are meant to read alike. The anatomy names
-         the group rather than the control for the same reason: address a card's
-         actions through `[data-slot="care-card-actions"]`. */
-      <a
+      /* The navigating transport is the shared Link. Its `action` and
+         `secondary` emphasis draw from `cardActionClassName` in button.tsx, the
+         same recipe the acting Button's variants draw from, so the two controls
+         cannot drift: a change to how a card action looks reaches the anchor and
+         the button in one place. `action` is the recommended weight, a neutral
+         bordered control at the headline step; `secondary` is the quiet weight
+         beside it. No brand fill, on either transport.
+
+         Two classes ride beside the recipe because they are about this card
+         rather than about the shared look. `text-wrap` sets the wrapping
+         property back where a consumer reset may have cleared it, so a label
+         that has to wrap at 200% text still can. `active:translate-y-px` is the
+         one-pixel press cue: instantaneous rather than animated, which is what
+         `prefers-reduced-motion` asks a press feedback to be, so it needs no
+         branch. The acting Button carries the same cue, so the two transports
+         acknowledge a press alike.
+
+         THESE CLASSES RIDE THROUGH LINK'S `cn()`, SO THEY MAY SET ONLY WHAT THE
+         RECIPE DOES NOT. `cn` is `twMerge(clsx(...))` with `tailwind-merge`
+         left unconfigured, so a colour or a type step added here lands in the
+         same `text-*` conflict group as the recipe's own `text-opsin-headline`
+         and one of the two is silently dropped with no error. The two classes
+         above are safe because neither touches that group. Anything that needs
+         to change the shared ink or type step belongs in `cardActionClassName`
+         in button.tsx, where the whole class list is built by concatenation for
+         exactly this reason, not beside the recipe here.
+
+         No `data-slot` is passed here. Link emits `data-slot="link"` and the
+         acting Button emits `data-slot="button"`; the anatomy addresses the pair
+         through `[data-slot="care-card-actions"]` on the group rather than
+         either control, so a selector written against the group reaches both. */
+      <Link
         key={key}
         href={action.href}
-        /* The width is declared here rather than as a class for the reason
-           Button declares its own: Tailwind can take a border width from a
-           custom property, and a spelling that fails to compile produces no
-           declaration and no error. The failure mode is an action that silently
-           loses its only boundary, which is what keeps it visible in greyscale
-           and under a reader stylesheet that strips backgrounds. */
-        style={{
-          borderStyle: "solid",
-          borderWidth: "var(--opsin-border-hairline, 1px)",
-        }}
-        /* NOT `cn()`, AND THIS IS NOT A STYLE CHOICE. `cn` is
-           `twMerge(clsx(...))`, and tailwind-merge has no way to know that
-           `text-opsin-headline` is a step on the type scale rather than a
-           colour: it sorts it into the same conflict group as
-           `text-primary-foreground` and keeps whichever comes last. Merged, this
-           control silently lost both its type step and its weight, because the
-           token carries a `--font-weight` sub-key. It rendered at body size
-           beside a Button rendering at headline, which is exactly the
-           difference the page says these two must not have. There is nothing
-           here to merge: both lists are declared in this file and they set
-           different CSS properties, so they are joined rather than
-           reconciled. */
-        className={`${LINK_BASE} ${LINK_TONE[emphasis]}`}
+        emphasis={emphasis === "recommended" ? "action" : "secondary"}
+        className="text-wrap active:translate-y-px"
       >
         {label}
         {qualifier}
-      </a>
+      </Link>
     )
   }
 
@@ -564,10 +565,33 @@ function actionControl(
     return null
   }
 
+  /* The acting transport, on D3's neutral ladder, which is the one ResultCard
+     renders. The recommended action is `secondary`, a bordered neutral control
+     at the md size; the alternative is `quiet` at sm, taking the underline a
+     Button with neither fill nor boundary needs so it cannot read as a
+     paragraph. Neither is `primary`: a card action is never brand-filled, and
+     the recommended anchor above is the same neutral bordered control.
+
+     THE CLASS DELTA COMES FROM THE SHARED RECIPE, NOT A LOCAL STRING. Button
+     already brings the box, the fill and the type step through its own TONE and
+     SIZE, so `cardActionClassName({ as: "button" })` returns only what is left:
+     the empty string for the recommended weight, and `underline
+     underline-offset-4` for the quiet one. Routing it through the recipe is what
+     keeps this handler form and the Link form above from drifting, and it is
+     why this file now holds no private action class string of its own. Button
+     carries the `active:translate-y-px` press cue in its own base class, so the
+     two transports still acknowledge a press alike without this file adding it
+     here. */
   return (
     <Button
       key={key}
-      variant={emphasis === "recommended" ? "primary" : "secondary"}
+      variant={emphasis === "recommended" ? "secondary" : "quiet"}
+      size={emphasis === "recommended" ? "md" : "sm"}
+      className={cardActionClassName({
+        weight: emphasis === "recommended" ? "recommended" : "quiet",
+        ground: "neutral",
+        as: "button",
+      })}
       onClick={action.onSelect}
     >
       {label}
@@ -628,16 +652,6 @@ export function CareCard({
      renders without a timing line and says so, which is visible on the screen
      rather than only in a console. */
   const timing = isCareUrgency(urgency) ? TIMING_PHRASE[urgency] : null
-  if (timing === null) {
-    warnDev(
-      `urgency:${String(urgency)}:${owner}`,
-      `[opsinjs] <CareCard> headed "${owner}" was given urgency="${String(urgency)}", ` +
-        'which is not one of "when-convenient", "this-week" or "today". No timing ' +
-        "phrase was rendered, because substituting one would be this component " +
-        "deciding when somebody should act. Put the timing back, or write it into " +
-        "the heading yourself."
-    )
-  }
 
   if (
     status !== undefined &&
@@ -656,6 +670,34 @@ export function CareCard({
   const language = usableLocale(locale)
   const written = dueBy === undefined ? null : writtenDate(dueBy, language)
 
+  /* A CARD HAS A TIMING, AND A WRITTEN DATE IS ONE. `urgency` is now optional,
+     because a readable `dueBy` is itself a timing and a card carrying both is
+     carrying two timings this file never compares. So the complaint splits by
+     cause. An out-of-vocabulary `urgency` still warns exactly as before, because
+     substituting a phrase for it would be opsinjs deciding when somebody should
+     act. A card with neither a phrase nor a readable date is a demand with no
+     timing at all, and it warns and names both remedies. A card with a date and
+     no phrase is complete, so it says nothing. */
+  if (urgency !== undefined && timing === null) {
+    warnDev(
+      `urgency:${String(urgency)}:${owner}`,
+      `[opsinjs] <CareCard> headed "${owner}" was given urgency="${String(urgency)}", ` +
+        'which is not one of "when-convenient", "this-week" or "today". No timing ' +
+        "phrase was rendered, because substituting one would be this component " +
+        "deciding when somebody should act. Put the timing back, or write it into " +
+        "the heading yourself."
+    )
+  } else if (urgency === undefined && written === null) {
+    warnDev(
+      `no-timing:${owner}`,
+      `[opsinjs] <CareCard> headed "${owner}" has neither an \`urgency\` phrase ` +
+        "nor a readable `dueBy`, so it is a demand with no timing at all and the " +
+        "reader is left to supply the missing urgency themselves. Give it a " +
+        'timing: set `urgency` to "when-convenient", "this-week" or "today", or ' +
+        'set `dueBy` to a calendar date in the form "2026-10-12".'
+    )
+  }
+
   if (dueBy !== undefined && written === null) {
     warnDev(
       `due-by:${dueBy}`,
@@ -663,6 +705,27 @@ export function CareCard({
         'date. The form is "2026-10-12": four digits, then two, then two. That ' +
         "is because a deadline is a day in the reader's own calendar rather than " +
         "an instant in somebody's time zone. No deadline was rendered."
+    )
+  }
+
+  /* A READABLE DATE STILL NEEDS A LANGUAGE. The order matters: this sits after
+     `written` is computed so an unreadable date does not also draw a locale
+     complaint. When a date renders and no `locale` was given, `writtenDate`
+     formats it with the runtime's own default, which on a server-rendered card
+     is the server's rather than the reader's and is typically en-US. So a
+     British or European reader sees a month-first date on the very line that
+     decides when they act. This is a warning rather than a refusal because a
+     card rendered entirely in the reader's own browser may legitimately want
+     that default. */
+  if (written !== null && locale === undefined) {
+    warnDev(
+      `due-by-no-locale:${owner}`,
+      `[opsinjs] <CareCard> headed "${owner}" wrote its \`dueBy\` with no ` +
+        "`locale`, so the date was formatted with the runtime's own default " +
+        "rather than the reader's language. On a card rendered on a server that " +
+        "default is the server's locale and is typically en-US, so a British or " +
+        "European reader sees a month-first date on the line that decides when " +
+        'they act. Pass the reader\'s own BCP 47 tag, for example locale="en-GB".'
     )
   }
 
@@ -811,11 +874,30 @@ export function CareCard({
             className="text-opsin-headline m-0"
           >
             {title}
-            {/* An explicit space rather than the whitespace JSX strips. The timing
-              span is `block`, so a browser breaks the line for both the reading
-              order and the accessible-name computation. But that is a property
-              of one class, and without a text node between them one class edit
-              turns the name into "…asked forDo this today". */}{" "}
+            {/* A SENTENCE BOUNDARY, THEN AN EXPLICIT SPACE. The instruction and
+              the timing are two whole sentences, so a full stop terminates the
+              first. The timing span is `block`, so a browser breaks the line for
+              both the reading order and the accessible-name computation, but a
+              screen reader that does not pause at a block boundary would
+              otherwise hear "…asked for Do this today" as one clause. The stop
+              is `sr-only`, so nothing is visible. It is skipped when the trimmed
+              instruction already ends in a full stop, an exclamation mark or a
+              question mark, because two terminators in a row are read aloud by
+              some synthesisers, and skipped when there is no timing to separate
+              from. The explicit space stays either way: name computation joins
+              text nodes with no separator of its own, so without it the name
+              becomes "…asked forDo this today" the moment the block class
+              changes. One accepted oddity comes with that join: it also puts a
+              space before the stop, so the name reads "…measurement . Do this
+              today". A full stop is a pause rather than a word, so it is heard
+              correctly even though it looks slightly odd written out. */}
+            {timing === null || /[.!?]$/.test(title) ? (
+              " "
+            ) : (
+              <>
+                <span className="sr-only">.</span>{" "}
+              </>
+            )}
             {/* THE TIMING LIVES INSIDE THE HEADING, which is what the anatomy asks
               for and what makes the claim survive a text-only rendering: a
               reader who scans only the headings comes away with the right
@@ -827,13 +909,30 @@ export function CareCard({
             {timing === null ? null : (
               <span
                 data-slot="care-card-timing"
-                className="mt-opsin-1 text-opsin-subheadline block"
+                className="mt-opsin-1 text-opsin-body block"
               >
                 {timing}
               </span>
             )}
           </Heading>
         )}
+
+        {/* NOT A FOOTNOTE, AND DIRECTLY UNDER THE INSTRUCTION. The
+            specification says attribution is a required part rather than a
+            footnote, and a line set in caption type under a headline is a
+            footnote whatever the documentation calls it. So it takes the same
+            step as the deadline and sits in the same ink as the rest of the
+            card. It sits here, right beneath the instruction and its timing and
+            above everything else, because who is asking is the claim a reader
+            has to be able to make at a glance. It is told apart from the timing
+            above it and the deadline below it by its position alone, never by a
+            smaller size, a lighter weight or a colour. */}
+        <p
+          data-slot="care-card-attribution"
+          className={cn("text-opsin-subheadline m-0", PART_RHYTHM)}
+        >
+          {named ? attribution : MISSING_AUTHOR}
+        </p>
 
         {/* The only status-coloured element on the card, and the only element
             here carrying `data-status`, is the pill. It carries that
@@ -855,18 +954,6 @@ export function CareCard({
             {reason}
           </p>
         )}
-
-        {/* NOT A FOOTNOTE, and the type step is the argument. The specification
-            says attribution is a required part rather than a footnote, and a
-            line set in caption type under a headline is a footnote whatever the
-            documentation calls it. It takes the same step as the deadline and
-            sits in the same ink as the rest of the card. */}
-        <p
-          data-slot="care-card-attribution"
-          className={cn("text-opsin-subheadline m-0", PART_RHYTHM)}
-        >
-          {named ? attribution : MISSING_AUTHOR}
-        </p>
 
         {/* THE DEADLINE LINE NEVER CHANGES ITS TREATMENT. Same step, same ink,
             same position whether the date is ahead of the reader or behind
@@ -902,9 +989,11 @@ export function CareCard({
           </p>
         )}
 
-        {/* The card was given a next step and has none to show. Same step, same
-            ink and same place as the controls it stands in for, because it is
-            saying what would have been there rather than commenting on it. */}
+        {/* A next step was supplied and none could render. The sentence sits in
+            the place the controls would have taken, so the reader finds it where
+            the thing to press should have been. It is set as prose at the
+            supporting step, not at the control's, because a sentence set at
+            control weight reads as something to press. */}
         {controls.length === 0 && askedForAction ? (
           <p
             data-slot="care-card-actions"

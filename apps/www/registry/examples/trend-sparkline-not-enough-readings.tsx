@@ -12,7 +12,7 @@
  * THE NUMBER IN THE SENTENCE IS THE PRODUCT'S, NOT OURS. The refusal names the
  * count the caller set and the count they actually have, because a reader who
  * is told there is not enough data is entitled to know how much would be
- * enough. In this example it reads "there are 3, and this needs 4". opsinjs
+ * enough. In this example it reads "there are 3, and a trend needs 4". opsinjs
  * has no view about what that number should be, which is why `minimumPoints`
  * is required and has no default.
  *
@@ -50,8 +50,10 @@ export default function TrendSparklineNotEnoughReadings() {
         <TrendSparkline
           label="Example measurement"
           unit="steps"
+          precision={0}
           category="activity"
-          window="the last four entries"
+          locale="en-GB"
+          window="the last 4 entries"
           series={ENOUGH}
           minimumPoints={EXAMPLE_READINGS_A_TREND_NEEDS}
         />
@@ -61,11 +63,13 @@ export default function TrendSparklineNotEnoughReadings() {
         <TrendSparkline
           label="Second example measurement"
           unit="steps"
+          precision={0}
           category="activity"
-          window="the last four entries"
+          locale="en-GB"
+          window="the last 4 entries"
           series={TOO_FEW}
           minimumPoints={EXAMPLE_READINGS_A_TREND_NEEDS}
-          caption="Add one more entry and this example will draw a line."
+          caption="Add 1 more entry and this example will draw a line."
         />
       </div>
     </div>

@@ -52,8 +52,8 @@
  * readers to learn?* and get an answer. So the glossary arrives once, through
  * <TermGlossaryProvider>, and `id` is a key into it.
  *
- * AN UNRESOLVED CONFLICT WITH THE AUTHORED GLOSSARY, RECORDED RATHER THAN
- * SETTLED. `tokens/glossary.json`'s `policy.rule` reads: "Plain wording is the
+ * A CONFLICT WITH THE AUTHORED GLOSSARY, PART NOW SETTLED AND PART STILL OPEN.
+ * `tokens/glossary.json`'s `policy.rule` reads: "Plain wording is the
  * default and the clinical term is the annotation, never the other way around.
  * `<Term>` renders the plain wording as the visible text and exposes the
  * clinical term on demand; it must not render a clinical term with a tooltip
@@ -64,8 +64,14 @@
  * it explains why `showBoth: "always"` exists. A reader holding a printout has
  * to be able to match it to the screen. Both statements are in the same file and
  * they contradict each other, and neither this component nor the glossary may
- * settle it alone. It is stated on `term.mdx` and it is open. Nothing here is a
- * decision; read it as a conflict that has been written down.
+ * settle the whole of it alone. The narrower half is now settled: where a call
+ * site expresses no preference and leaves the presentation to `auto`, the
+ * glossary's `always` governs, so both readings go on the screen inline rather
+ * than the plain wording being hidden behind a press. What stays open is the
+ * shape itself, whether the visible text should be the plain wording with the
+ * clinical spelling as the annotation rather than the other way around. That is
+ * a change to this component and to `policy.rule` together, so it is recorded
+ * here and on `term.mdx` rather than settled quietly.
  */
 
 import {
@@ -126,28 +132,32 @@ export interface GlossaryEntry {
    *
    * `plain-only` is the one that changes what is rendered, and it changes it
    * completely: that value means the clinical word is never shown to the reader
-   * and the entry exists so an author can look up what to write instead. Term
-   * honours it by rendering the plain wording as ordinary text and marking
-   * nothing, because there is no clinical word on the screen to explain.
-   * `children` is discarded on that path. See `TermProps.children`.
+   * and the entry exists so an author can look up what to write instead. With no
+   * children, Term honours it by rendering the plain wording as ordinary text
+   * and marking nothing, because there is no clinical word on the screen to
+   * explain. When a call site does supply `children`, Term renders them, because
+   * a runtime cannot rewrite a sentence, and it warns in development that the
+   * entry says the clinical word should not reach a reader. See
+   * `TermProps.children`.
    *
-   * `always` IS NOT IMPLEMENTED HERE, and the type accepts it so that a glossary
-   * can be handed over unaltered rather than so that this component obeys it.
-   * The glossary defines it as showing the clinical word and the plain wording
-   * together every time, for matching a printout; Term chooses its presentation
-   * from `present`, `once` and the length of the definition, so an `always` entry
-   * with a long definition still lands behind a control. Honouring it would mean
-   * overriding the call site's own `present` and `once`, and a component does not
-   * get to overrule the surface it is standing on. An entry that declares
-   * `always` and resolves to a disclosure warns in development, and the call site
-   * can pass `present="inline"` to get what the glossary asked for.
+   * `always` GOVERNS THE `auto` PATH. The glossary defines it as showing the
+   * clinical word and the plain wording together every time, for matching a
+   * printout, and where a call site leaves the presentation to `auto` that is
+   * what it gets: the definition is shown inline whatever its length. What
+   * `always` does not do is overrule the call site. An explicit `present` and
+   * `once` still win over it, because they are the surface's own statements about
+   * this occurrence and a component does not overrule the surface it stands on.
+   * An `always` entry that a call site puts behind a press by naming
+   * `present="disclosure"` on a first appearance warns in development.
    *
    * `first-use` is likewise the caller's to express, through `once`: opsinjs
    * cannot see where one surface ends and the next begins, which is the same
    * reason `once` is a prop rather than a count.
    *
-   * There is no default. An entry that omits the field is presented exactly as
-   * one that declares `always`, minus the warning.
+   * There is no default. An entry that omits the field takes the budget path: it
+   * is shown inline when it is short enough to share the line and behind a
+   * control when it is not, which is not the same as `always`, since `always` is
+   * shown inline whatever its length.
    */
   showBoth?: "always" | "first-use" | "plain-only"
 }
@@ -296,14 +306,35 @@ function filled(field: string | undefined): string | undefined {
 /**
  * How long an attached definition may be before it stops being a parenthetical.
  *
- * A typographic budget, not a clinical threshold. `--opsin-measure-tight` is
- * 45ch, so a whole line of this system's narrowest column is about 45
- * characters; a parenthetical has to share that line with the sentence it
- * interrupts, and past roughly 40 characters it stops interrupting and starts
- * replacing. Counted rather than measured on purpose. See `resolvePresentation`
- * below.
+ * A typographic budget, not a clinical threshold. The surface a definition
+ * actually lands on is the comfortable measure, `--opsin-measure-comfortable` at
+ * 66ch, which the demo and both examples set; the tight measure is for narrower
+ * columns this component does not sit in. A parenthetical that occupies up to
+ * about one and a quarter lines of that measure still interrupts the sentence it
+ * sits in, and past that it replaces it, which is why the budget is 80 rather
+ * than the 40 it once was.
+ *
+ * The number is derived out loud because it is checkable against this
+ * repository's own glossary, so read it against the code as it stands rather
+ * than against an earlier version of this file. 80 is the threshold on the
+ * budget path only, which is an entry the glossary has not marked `always`,
+ * because an `always` entry is shown inline whatever its length before the
+ * budget is ever consulted (see `resolvePresentation`). Three entries in
+ * `tokens/glossary.json` run past 80 counting plain plus expansion: systolic at
+ * 90, blood pressure at 88 and diastolic at 85. Of those only blood pressure
+ * reaches the budget at all, because systolic and diastolic are `always` and go
+ * inline regardless, so run over the whole glossary the auto path puts 35 of the
+ * 36 entries inline and leaves exactly one behind a control, blood pressure. The
+ * number an author should act on is therefore the budget for an entry the
+ * glossary has not marked `always`: keep such a definition inside 80 characters
+ * and the reader gets it without pressing anything.
+ *
+ * It is still counted rather than measured, for the hydration reason argued at
+ * `resolvePresentation` below: a width is knowable only in the browser, and
+ * measuring after the server has already rendered the other branch is a flash on
+ * every phone, while a character count is knowable identically on both sides.
  */
-const INLINE_BUDGET = 40
+const INLINE_BUDGET = 80
 
 /**
  * The mark that says an explanation exists.
@@ -322,44 +353,120 @@ const INLINE_BUDGET = 40
  * matters most to. There is no token for an underline offset, so this is a
  * judgement rather than a token lookup.
  *
+ * The thickness is in `em` too, and for the same reason. The mark is the sole
+ * affordance and the sole non-colour carrier, so it has to stay legible to a
+ * reader who has enlarged their type, and the default `auto` thickness pins at
+ * roughly one device pixel and barely grows when they do. `decoration-[0.12em]`
+ * is about 2px at the 1.0625rem body size and about 4px at 200%, so the rule
+ * thickens with the word rather than staying a hairline a phone reader may never
+ * notice. There is no token for an underline thickness, so this is a judgement
+ * stated as one, the same judgement the `em` offset makes two lines above.
+ *
+ * The 2026-09-05 audit also asked for a resting `bg-muted` tint on every
+ * clinical word, and this file departs from that half of the proposal and says
+ * why. A resting tint on every clinical word would stripe a paragraph that holds
+ * three of them, which is a worse read for the older reader this finding is
+ * about, and a running text peppered with filled boxes is harder to follow than
+ * one marked only where the eye needs to stop. The tint is also already
+ * spoken for: `TRIGGER_BUTTON` spends three theme fills on hover, press and open,
+ * so a fourth fill sitting under the word at rest would compete with the states
+ * rather than rest beneath them. So the resting cue is thickness and the tint
+ * means state.
+ *
+ * A press moves the word down by one pixel. The dotted underline is the resting
+ * mark, the ring is focus, and `active:translate-y-px` is the press: it is the
+ * same one-pixel shift `button.tsx` uses, and it is the only state a thumb can
+ * see, because a term sitting inside a paragraph has no hover on a phone. It is a
+ * transform and not a fill, so it adds no colour to a word that is deliberately
+ * outside both axes.
+ *
  * It is dropped in print, where the definition is expanded beside the word and a
  * mark promising something further would be promising nothing.
+ *
+ * The rule is dotted while the definition is hidden and solid while it is
+ * showing: `aria-expanded:decoration-solid` turns the dots into a continuous
+ * line the moment the word is opened. The dotted rule is a promise that
+ * something further exists, and while the definition is on the screen beside the
+ * word that promise has been kept, so the mark stops hinting and settles. This
+ * is a change of form and not of colour, so it survives greyscale exactly as the
+ * resting mark does, and it never carries the open state alone: `aria-expanded`
+ * carries it to assistive technology and the definition appearing beside the
+ * word is the primary signal to everyone.
  */
 const TRIGGER_MARK =
-  "underline decoration-dotted underline-offset-[0.25em] print:no-underline"
+  "underline decoration-dotted decoration-[0.12em] underline-offset-[0.25em] aria-expanded:decoration-solid active:translate-y-px print:no-underline"
 
 /**
  * The button, stripped back to the word it contains.
  *
- * `inline` rather than a button's own `inline-block` is load-bearing. On an
- * inline box, vertical padding enlarges the hit area without enlarging the line
- * box, so the target grows and the paragraph's leading does not change wherever
- * a term appears. An equal margin in the opposite direction cancels the
- * horizontal padding for the same reason: the target grows, and the words either
- * side of it do not move.
+ * A `<button>` does not reliably honour `display: inline`. The engine computes
+ * it as an inline-block whatever the class asks for, and the 2026-09-05 layout
+ * audit is the proof: the trigger measured 45 by 44 on a 22px line. So vertical
+ * padding on it is not free, and none is carried. An earlier version paid that
+ * padding in the belief that the box was inline and that the padding left the
+ * line box alone; the measurement disproved both, and every line that held a
+ * term was taller than its neighbours.
  *
- * What this does NOT do is reach 44x44, and the exception is named out loud as
- * `accessibility/target-size-and-motor` asks. An inline target inside running
- * text cannot reach the floor without overlapping the line above it, which
- * trades one motor problem for a worse one; SC 2.5.8 exempts inline targets, and
- * this is that exemption being relied on rather than an oversight. The padding
- * is in rem, so the target grows with the reader's own text size.
+ * The product theme floors every `button` at `--opsin-target-minimum`, and this
+ * one is opted out of that floor by name with `[min-block-size:0]` and
+ * `[min-inline-size:0]`. It relies on SC 2.5.8's exemption for a target that is
+ * inline in a sentence, which `accessibility/target-size-and-motor` asks to be
+ * named out loud rather than assumed. The arbitrary-property spelling is
+ * deliberate: `[min-block-size:0]` names the very property `product.css` sets,
+ * and a Tailwind utility sits in the utilities layer while the floor sits in
+ * `@layer base`, so the opt-out wins on layer order rather than on specificity.
+ * `min-h-0 min-w-0` is the fallback spelling if the arbitrary form is ever
+ * rejected; do not carry both.
  *
- * The second-order effect is the one that is easy to miss, so it is written
- * down. Vertical padding on an inline box leaves the line box alone but not the
- * hit test: the padding box reaches past the line box above and below, so two
- * terms on adjacent wrapped lines that happen to sit over one another have
- * targets that overlap, and the reader with a tremor lands on the wrong
+ * The hit area therefore does not come from the box. It comes from an absolutely
+ * positioned `::before` that takes no part in layout. `before:-inset-y-[0.5em]`
+ * grows the target from roughly 20px to roughly 37px tall, in `em` so it scales
+ * with the reader's own text against a 1.0625rem body, and because the
+ * pseudo-element is out of flow the paragraph's leading is identical on a line
+ * that carries a term and a line that does not. The pseudo-element takes pointer
+ * events because it is part of the button's own rendering, which is the
+ * distinction `accessibility/target-size-and-motor` draws between a real
+ * enlarged target and a decorative halo. `px-opsin-0-5` with a cancelling
+ * `-mx-opsin-0-5` stays: the 2px of horizontal room is what the tint and the
+ * press state paint into so they do not sit flush against the neighbouring
+ * glyphs, and the negative margin means the words either side do not move.
+ *
+ * The second-order effect survives the change, because only its mechanism moved,
+ * from padding to pseudo-element. The `::before` reaches past the line box above
+ * and below, so two terms on adjacent wrapped lines that sit over one another
+ * have targets that overlap, and a reader with a tremor can land on the wrong
  * definition rather than on nothing. SC 2.5.8's inline exemption covers the SIZE
  * of a target and says nothing about two of them meeting. The nightly layout run
  * measures each box and does not measure overlap, so nothing will surface this;
  * it is named on `term.mdx` instead.
+ *
+ * Hover, press and open each take a neutral fill from the theme, and they take
+ * different ones. `hover:bg-state-hover` and `active:bg-state-press` come from
+ * the interaction-state roles `product.css` bridges (`--state-hover` and
+ * `--state-press`), which is the same source `button.tsx` draws its hover and
+ * press from, and press is a darker step than hover in light and a lighter one
+ * in dark, so a tap changes the fill rather than repeating it. The accent and
+ * secondary chrome roles live only in the docs stylesheet, so under the product
+ * theme they resolve to nothing and this control does not reach for them. The
+ * open state keeps the chrome
+ * `bg-muted`, a third fill distinct from either transient state, so a word held
+ * open never wears the same value as a word merely being pressed. The states are
+ * therefore told apart by value as well as by when they happen. `hover:` costs a
+ * phone reader nothing, because Tailwind wraps it in a hover-capable query;
+ * `active:` is the press feedback a thumb gets on a term sitting in a paragraph;
+ * `aria-expanded:bg-muted` holds the word on the open tint for as long as its
+ * definition is showing. The tint never carries a state alone: `aria-expanded`
+ * carries the open state to assistive technology, the solid rule (see
+ * `TRIGGER_MARK`) carries it to a sighted reader, and the definition beside the
+ * word is the primary signal.
  */
 const TRIGGER_BUTTON =
-  "inline cursor-pointer appearance-none border-0 bg-transparent " +
-  "px-opsin-0-5 -mx-opsin-0-5 py-opsin-2 text-left [font:inherit] text-inherit " +
-  "rounded-opsin-xs focus-visible:outline-2 focus-visible:outline-offset-2 " +
-  "focus-visible:outline-ring"
+  "relative inline cursor-pointer appearance-none border-0 bg-transparent " +
+  "[min-block-size:0] [min-inline-size:0] px-opsin-0-5 -mx-opsin-0-5 " +
+  "[font:inherit] text-inherit rounded-opsin-xs " +
+  "hover:bg-state-hover active:bg-state-press aria-expanded:bg-muted " +
+  "before:absolute before:content-[''] before:-inset-y-[0.5em] before:-inset-x-opsin-1 " +
+  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
 
 /** The definition itself: quieter than the sentence, never smaller than it. */
 const DEFINITION = "text-muted-foreground"
@@ -386,13 +493,17 @@ export interface TermProps {
    * is appended to the control's name rather than replacing what is written
    * there.
    *
-   * Two paths do not print it, and both are cases where printing it would be
-   * worse. A `plain-only` entry discards it, because `children` is where a call
-   * site writes the clinical word inflected for its sentence and that entry's
-   * whole content is that the clinical word is never shown; the discard warns in
-   * development. An `id` that is not in the glossary prints it and prints it
-   * gratefully. There it is the only real word available, and without it the raw
-   * key appears in the sentence instead.
+   * Every path that can render prints it when a call site supplied it, because
+   * the author's sentence is the only grammatical one available and a runtime
+   * cannot rewrite it. A `plain-only` entry is the case where doing so is a
+   * contradiction rather than a convenience: `children` is where a call site
+   * writes the clinical word inflected for its sentence, and that entry's whole
+   * content is that the clinical word is never shown, so the component renders
+   * the children and warns loudly in development that the two disagree. Only
+   * when no children are supplied does that path fall back to the entry's plain
+   * wording. An `id` that is not in the glossary prints children gratefully,
+   * because there it is the only real word available and without it the raw key
+   * appears in the sentence instead.
    */
   children?: ReactNode
   /**
@@ -429,21 +540,32 @@ export interface TermProps {
 }
 
 /**
- * Which presentation this occurrence gets.
+ * Which presentation this occurrence gets, and the order is the whole argument.
  *
- * `auto` chooses by the LENGTH of what would be attached, not by the width
- * available. Width is only knowable by measuring, measuring only happens in the
+ * `once` and an explicit `present` come first, because they are the call site's
+ * statements about this occurrence and a component does not overrule the surface
+ * it stands on. `once` says the reader has already met both readings here, so the
+ * repeat goes behind a control; an explicit `present` is a deliberate choice and
+ * is returned unchanged.
+ *
+ * `auto` is the call site expressing no opinion, and that is where the authored
+ * glossary gets to govern. An entry the glossary marks `showBoth: "always"` is
+ * shown inline whatever its length, both the clinical word and the plain wording
+ * together, because that is what the glossary asked for and where nobody at the
+ * call site has an opinion the glossary's own policy is a better authority than a
+ * character count. Only when the glossary is silent too does the budget decide.
+ *
+ * The budget chooses by the LENGTH of what would be attached, never by the width
+ * available. Width is knowable only by measuring, measuring only happens in the
  * browser, and a component that measures after the server has already rendered
  * the other branch produces a hydration mismatch by construction and a visible
  * flash on every phone. Length is knowable identically on both sides, so `auto`
  * resolves to the same answer in both and there is nothing to reconcile.
- *
- * It is a weaker rule than the specification's, and it is a rule that keeps its
- * promise. The stronger one could not.
  */
 function resolvePresentation(
   present: "auto" | "inline" | "disclosure",
   once: boolean,
+  showBoth: GlossaryEntry["showBoth"],
   attached: number,
 ): "inline" | "disclosure" {
   /* `once` outranks an explicit `inline`, because it is a statement about this
@@ -452,6 +574,9 @@ function resolvePresentation(
      that is the one of the two that carries information. */
   if (once) return "disclosure"
   if (present !== "auto") return present
+  /* `auto` with no call-site opinion: the glossary's own policy governs before
+     the budget. An `always` entry is shown inline whatever its length. */
+  if (showBoth === "always") return "inline"
   return attached <= INLINE_BUDGET ? "inline" : "disclosure"
 }
 
@@ -511,46 +636,57 @@ export function Term({
      is that plain wording is the default and the clinical term is the
      annotation; a `plain-only` entry says the clinical word is never shown to
      this reader at all and exists so an author can look up what to write
-     instead. So there is nothing to explain, nothing to mark, and the honest
-     render is the plain wording as ordinary text. */
+     instead. So there is nothing to explain and nothing to mark. When a call
+     site has already written a sentence into `children`, that sentence is what
+     renders, because a runtime cannot rewrite a sentence and a gloss dropped
+     into a word's slot reads as broken grammar. When there are no children the
+     plain wording renders as ordinary text. Either way the contradiction is
+     reported rather than hidden. */
   if (entry.showBoth === "plain-only") {
     warn(
       `plain-only:${id}`,
       `id="${id}" is marked showBoth: "plain-only", which means its clinical ` +
-        "word is never shown to a reader. Its plain wording is rendered as " +
-        "ordinary text and nothing is marked. Write the plain wording directly " +
-        "and drop the <Term>.",
+        "word should never be shown to a reader. Nothing is marked here. Write " +
+        "the plain wording directly and drop the <Term>.",
     )
-    /* `children` is DISCARDED here rather than honoured, and the warning is the
-       whole of the remedy. `TermProps.children` is where a call site writes the
-       clinical word inflected for its own sentence, and this entry's entire
-       content is that the clinical word never reaches a reader; printing it
-       would be the component overruling the refusal it is implementing. The
-       cost is real and belongs on the record: the sentence a reader gets is not
-       the sentence the author wrote. */
+    /* `children` is HONOURED here, not discarded, and the warning is what
+       carries the contradiction. `TermProps.children` is where a call site
+       writes the clinical word inflected for its own sentence, and this entry's
+       entire content is that the clinical word never reaches a reader. The two
+       cannot both be satisfied. A runtime cannot rewrite a sentence, and
+       printing the gloss where the word belongs produces an ungrammatical
+       sentence a reader meets with no signal in the build they use, so the
+       component renders what the author actually wrote and reports the conflict
+       loudly instead. The cost is real and stays on the record: a reader now
+       meets a clinical word the glossary said to keep away from them, but that
+       word is visible and reviewable in the source, where a silently garbled
+       sentence was neither. The repair is to write the plain wording directly
+       and drop the <Term>. */
     if (children !== undefined) {
       warn(
         `plain-only-children:${id}`,
-        `id="${id}" is marked showBoth: "plain-only" and was given children. ` +
-          "They are discarded and the glossary's plain wording is printed " +
-          "instead, so the sentence on the screen is not the one written at " +
-          "the call site. Honouring them would put the clinical word in front " +
-          "of a reader, which is the one thing this entry refuses. Write the " +
-          "plain wording directly and drop the <Term>.",
+        `id="${id}" is marked showBoth: "plain-only", which declares that its ` +
+          "clinical word never reaches a reader, and it was given children " +
+          "that write the clinical word into a sentence anyway. The component " +
+          "cannot rewrite the sentence and will not print a gloss where a word " +
+          "belongs, so it renders the children as written and reports this " +
+          "contradiction. Write the plain wording directly and drop the " +
+          "<Term>.",
       )
     }
-    if (plain === undefined) {
+    if (children === undefined && plain === undefined) {
       warn(
         `plain-only-empty:${id}`,
-        `id="${id}" is marked showBoth: "plain-only" and has no plain wording. ` +
-          "There is nothing this component may render. The clinical word is " +
-          "refused by the entry and its replacement does not exist, so nothing " +
-          "is printed. Fill the definition in.",
+        `id="${id}" is marked showBoth: "plain-only", has no plain wording, ` +
+          "and was given no children. There is nothing this component may " +
+          "render: the clinical word is refused by the entry, its replacement " +
+          "does not exist, and the call site wrote nothing. Fill the " +
+          "definition in.",
       )
     }
     return (
       <span data-slot="term" className={className}>
-        {plain}
+        {children ?? plain}
       </span>
     )
   }
@@ -580,24 +716,29 @@ export function Term({
   const presentation = resolvePresentation(
     present,
     once,
+    entry.showBoth,
     plain.length + (expansion?.length ?? 0),
   )
   const visible = children ?? entry.word
 
-  /* `showBoth: "always"` IS RECORDED AND NOT IMPLEMENTED, and saying so out
-     loud is the whole of what this component can honestly do about it. See
-     `GlossaryEntry.showBoth` for why obeying it would mean overruling the call
-     site. The warning fires only where the value actually cost something. An
-     `always` entry that resolved to inline already shows both. */
-  if (entry.showBoth === "always" && presentation === "disclosure") {
+  /* `showBoth: "always"` NOW GOVERNS THE `auto` PATH, so the only way an
+     `always` entry lands behind a press is a call site that named
+     `present="disclosure"` on a first appearance. That is the one case worth a
+     warning: the author asked for a disclosure and the glossary asked for both
+     on the screen, and the call site is allowed to win, but it is probably a
+     mistake. `once` does not warn, because it means the reader has already met
+     both readings on this surface, so the glossary's matching argument was
+     served by the first occurrence and the repeat going behind a control is not
+     a violation. */
+  if (!once && present === "disclosure" && entry.showBoth === "always") {
     warn(
       `always:${id}`,
       `id="${id}" is marked showBoth: "always", which the glossary defines as ` +
         "showing the clinical word and the plain wording together every time, " +
         "so that a reader holding a printout can match it to the screen. This " +
-        "occurrence resolved to a disclosure, so the plain wording is behind a " +
-        "press. <Term> does not implement `always`. Pass `present=\"inline\"` " +
-        "here, without `once`, if both have to be on the screen.",
+        'occurrence set present="disclosure", so the plain wording is behind a ' +
+        "press against the glossary's policy. Drop the explicit present here, or " +
+        'pass present="inline", if both have to be on the screen.',
     )
   }
 
@@ -755,11 +896,15 @@ export function Term({
  * that `auto` sends a three-word definition inline and a longer one behind a
  * control, and that both of them are readable without a pointer.
  *
- * The two entries are copied verbatim from this repository's own
- * `tokens/glossary.json`, which is authored opsinjs prose written for exactly
- * this audience. Nothing here is invented and nothing here is a number: a
- * definition explains a word, and a demo that put a reading on the screen would
- * be showing somebody a result (ADR 0012).
+ * The two entries are copied from this repository's own `tokens/glossary.json`,
+ * which is authored opsinjs prose written for exactly this audience, with one
+ * field left off on purpose: `showBoth`. The glossary marks eGFR `"always"`,
+ * which would send its definition inline, and the whole job of this demo is to
+ * show both presentations in one sentence, so the field is omitted and eGFR's
+ * length sends it behind a control instead. Nothing else is changed, nothing is
+ * invented and nothing here is a number: a definition explains a word, and a
+ * demo that put a reading on the screen would be showing somebody a result (ADR
+ * 0012).
  *
  * They are the exception to the sentence at the top of `GlossaryEntry`, and the
  * exception is worth stating rather than hoping nobody notices. This file

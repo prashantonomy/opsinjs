@@ -10,13 +10,18 @@
  * two paragraphs and one control makes it impossible, because the person who
  * would have said yes to one of them has been given no way to say so.
  *
- * The second sheet opens after the first closes rather than on top of it. A
- * Sheet inside a Sheet is a composition error with its own development warning:
- * two stacked modal surfaces produce a focus order nobody can predict and an
- * escape key with two plausible meanings. In a real product the two would be
- * further apart than this. Each would be asked at the moment it becomes
- * relevant, which is what makes the question answerable at all. This example
- * puts them on one surface only because a documentation page has one surface.
+ * The second sheet opens after the first is answered, not on top of it and not
+ * when the first is dismissed. Leaving question one, by escape, by the scrim or
+ * by its close control, returns the reader to the page rather than to another
+ * request. That is the shape the component exists to hold: a reader who taps
+ * the dim area to get away from a permission request must get away from it, and
+ * an example that raised the next question on a dismissal would teach the "you
+ * cannot get out" pattern the component was built to refuse. A Sheet inside a
+ * Sheet is a composition error with its own development warning, so the two are
+ * never stacked. In a real product they would be further apart than this, each
+ * asked at the moment it becomes relevant, which is what makes the question
+ * answerable at all. This example puts them on one surface only because a
+ * documentation page has one surface.
  *
  * The second question also shows `consequenceOfDeclining`, which is stated
  * before the reader chooses rather than raised as a confirmation after they
@@ -27,7 +32,7 @@
  * Every word in both sheets is placeholder text that says so of itself.
  */
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 import { Button } from "@/registry/base-lyra/ui/button"
 import { ConsentSheet } from "@/registry/base-lyra/ui/consent-sheet"
@@ -47,6 +52,25 @@ const SECOND_SCOPE = {
 export default function ConsentSheetTwoQuestionsTwoSheets() {
   const [asking, setAsking] = useState<"none" | "first" | "second">("none")
   const [answers, setAnswers] = useState<Record<string, string>>({})
+  /* A sheet opened by a control returns focus to that control on its own. This
+     one cannot, because by the time the last sheet closes the reader may have
+     been through two of them and nothing they focused opened the second. So the
+     return is written out. A counter rather than a boolean, because the reader
+     can go through this more than once and a flag already `true` would not
+     re-run the effect. */
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const [returns, setReturns] = useState(0)
+  /* Whether the first sheet closed because it was answered rather than because
+     the reader left. It is a ref and not state, because the only reader of it is
+     the first sheet's `onOpenChange`, which must not trigger a render of its own,
+     and because it has to be set inside an event handler and read in the same
+     handler without a re-render between the two. */
+  const answeredRef = useRef(false)
+
+  useEffect(() => {
+    if (returns === 0) return
+    triggerRef.current?.querySelector("button")?.focus()
+  }, [returns])
 
   return (
     <div className="flex w-full flex-col items-center gap-opsin-4 p-opsin-4">
@@ -56,7 +80,13 @@ export default function ConsentSheetTwoQuestionsTwoSheets() {
         have to match.
       </p>
 
-      <Button onClick={() => setAsking("first")}>Ask both example questions</Button>
+      {/* The trigger is read out of a wrapper rather than through a `ref` on
+          Button, because `ButtonProps` omits `ref`: it extends the element's
+          HTML attributes, and `ref` lives on `RefAttributes`. ConsentSheet
+          reads its decision controls out of a wrapper for the same reason. */}
+      <div ref={triggerRef}>
+        <Button onClick={() => setAsking("first")}>Ask both example questions</Button>
+      </div>
 
       <ul className="m-0 flex w-full max-w-md list-none flex-col gap-opsin-1 p-0 text-opsin-caption1 text-muted-foreground">
         {Object.keys(answers).length === 0 ? (
@@ -73,11 +103,27 @@ export default function ConsentSheetTwoQuestionsTwoSheets() {
       <ConsentSheet
         open={asking === "first"}
         onOpenChange={(nextOpen) => {
-          /* A close without an answer is not an answer, so nothing is recorded
-             for it. The second question is still asked, because refusing
-             or ignoring the first has no bearing on whether the reader wants to
-             be asked the second. */
-          if (!nextOpen) setAsking("second")
+          if (nextOpen) return
+          /* A close without an answer is not an answer, and it is not
+             permission to ask the next thing either, so the reader is returned
+             to the page. Telling "closed because it was answered" from "closed
+             because the reader left" must not go through a state updater:
+             React runs an updater twice in development StrictMode, so a
+             `setReturns` called from inside one would count every dismissal
+             twice. The answered case is recorded in a ref instead. Pressing a
+             control runs `onDecision` first, which sets `answeredRef` and then
+             `asking` to "second", thereby closing this sheet and firing
+             `onOpenChange(false)` with the ref already true, so this handler
+             consumes the flag and skips the return. A close the reader drove
+             leaves the ref false and returns them to the page. A reader who
+             wants question two can press the trigger again; in a real product
+             it would be asked at the moment it became relevant. */
+          if (answeredRef.current) {
+            answeredRef.current = false
+            return
+          }
+          setAsking("none")
+          setReturns((count) => count + 1)
         }}
         consentId="example-consent-first"
         textVersion="example-wording-0"
@@ -92,6 +138,10 @@ export default function ConsentSheetTwoQuestionsTwoSheets() {
             ...current,
             [decision.consentId]: decision.granted ? "granted" : "declined",
           }))
+          /* Record that this close is an answer before opening the next sheet,
+             so the `onOpenChange` this triggers does not treat it as the reader
+             leaving and does not return focus while the second sheet is opening. */
+          answeredRef.current = true
           setAsking("second")
         }}
       />
@@ -99,7 +149,9 @@ export default function ConsentSheetTwoQuestionsTwoSheets() {
       <ConsentSheet
         open={asking === "second"}
         onOpenChange={(nextOpen) => {
-          if (!nextOpen) setAsking("none")
+          if (nextOpen) return
+          setAsking("none")
+          setReturns((count) => count + 1)
         }}
         consentId="example-consent-second"
         textVersion="example-wording-0"
@@ -116,6 +168,7 @@ export default function ConsentSheetTwoQuestionsTwoSheets() {
             [decision.consentId]: decision.granted ? "granted" : "declined",
           }))
           setAsking("none")
+          setReturns((count) => count + 1)
         }}
       />
     </div>

@@ -6,7 +6,8 @@
  * card is a single control rather than a container full of them. Hover: the
  * title underlines, because a whole-card link with no affordance on its text
  * leaves a reader guessing which part of it is the link. The underline comes
- * from the root's `group` class and needs no prop. Focus: the ring is drawn
+ * from the root's `group/card` class and needs no prop, and it now holds on
+ * hover, on focus-visible and through a press. Focus: the ring is drawn
  * around the card's own corner, outside the material, so it stays visible on
  * every rung.
  *
@@ -23,13 +24,14 @@
  * control. That nesting is a DOM the browser is entitled to flatten in
  * whatever way it likes. If a card needs two actions, it is not a link.
  *
- * The rung is `raised` rather than the default `card`, following the decision
- * table on `choosing-a-layer`: a tappable card is an object, and an object may
- * look lifted. A card that is not tappable stays on the `card` rung, where
- * nothing is lifted and nothing looks it. The shadow is not the affordance,
- * though. `rung` is a free prop that any resting card may also take, so at
- * rest a link card and a static card can look the same. That gap is named on
- * the component's Accessibility section rather than papered over here.
+ * These cards stay on the default `card` rung. The decision table on
+ * `choosing-a-layer` gives a tappable card and an untappable card the same
+ * rung, because tapping is an affordance rather than a depth, so a link card is
+ * not lifted for being a link. `tokens/material.json` adds the reason it must
+ * not be: a grid of shadowed cards on a phone reads as clutter. The shadow was
+ * never the affordance in any case. What marks these as links at rest is the
+ * trailing chevron the component draws when `href` is set, which survives touch,
+ * where there is no hover, and greyscale and print.
  *
  * WHERE ENTER GOES. A preview has nowhere to navigate to: a link that left the
  * example would take the reader out of the thing they are trying to try. So
@@ -74,7 +76,7 @@ export default function CardAsALink() {
     >
       {SECTIONS.map((section) => (
         <li key={section.href} id={section.href.slice(1)} role="listitem">
-          <Card rung="raised" href={section.href}>
+          <Card href={section.href}>
             <Card.Header
               title={<h3>{section.title}</h3>}
               description={section.description}

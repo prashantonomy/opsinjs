@@ -9,16 +9,25 @@
  *
  * It is also the honest place to look at `destructive`, because opsinjs has no
  * destructive colour and does not borrow one from the clinical status axis. The
- * only differences between the outlined destructive control and the soft-filled
- * secondary one are the boundary weight and the words. The boundary has not
- * been measured against either surface it sits on, so on the evidence so far
- * the words are carrying this alone. Which is why the label here says what
- * will be deleted rather than saying "Delete" and stopping.
+ * outlined destructive control and the soft-filled secondary one share one
+ * boundary width, the hairline every rung in this file now carries, and they
+ * are told apart by the ink of that boundary rather than by its weight, because
+ * the emphasis width belongs to the status axis and cannot also be the whole of
+ * a delete signal. That ink is `--foreground`, the page's own near-black, and
+ * it has been measured by hand against both surfaces this control sits on: it
+ * reaches 18.12:1 on `--background` and 18.61:1 on `--card` in light, and
+ * 17.53:1 and 15.96:1 on the same two surfaces in dark, so the boundary clears
+ * the 3:1 non-text floor everywhere. The words still carry the heavier part of
+ * the signal, which is why the label here says what will be deleted rather than
+ * saying "Delete" and stopping.
  *
  * The row is spaced by `gap-opsin-2`, which is 0.5rem, which is exactly
  * `--opsin-target-separation`. Adjacent targets need that gap and a component
  * cannot enforce its neighbours' spacing, so the caller owns it. This is what
- * owning it looks like.
+ * owning it looks like. The container is `max-w-lg` rather than `max-w-md`
+ * because at 448px the first row wrapped one control to its own line and the
+ * ladder read as three rows instead of one row plus a separated destructive,
+ * which is the opposite of what this file demonstrates.
  *
  * The reading is fictional and carries no number at all.
  */
@@ -29,7 +38,7 @@ import { Button } from "@/registry/base-lyra/ui/button"
 
 export default function ButtonOnePrimaryPerSurface() {
   return (
-    <div className="flex w-full max-w-md flex-col gap-opsin-4">
+    <div className="flex w-full max-w-lg flex-col gap-opsin-4">
       <p className="m-0 text-opsin-body text-muted-foreground">
         Example measurement, taken this morning.
       </p>

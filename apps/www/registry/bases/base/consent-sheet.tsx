@@ -7,8 +7,11 @@
  * THERE IS NO CONSENT WORDING IN THIS FILE AND THERE NEVER WILL BE. Not a
  * default heading, not a purpose sentence, not a data category, not a retention
  * period, not a jurisdiction, not a regulator, not a lawful basis, and not the
- * words on the two controls. Every string a reader sees here arrives as a prop.
- * A consent sentence is a legal statement with somebody's name behind it, and a
+ * words on the two controls. Every consent string a reader sees here arrives as
+ * a prop. One sentence does not, and it is the one that says nothing was asked:
+ * it is interface copy with no legal content, it carries its own prop so a
+ * product can translate it, and it is the only string this file will ever put on
+ * screen. A consent sentence is a legal statement with somebody's name behind it, and a
  * design system has neither a legal owner nor a reader; a sentence shipped from
  * here would arrive in a product whose author never read it, describing a use
  * that product may not have and omitting one it does. It would arrive
@@ -122,6 +125,34 @@ const FOCUS_RING =
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
 
 /**
+ * The class both decision controls carry, identical, so they cannot drift apart.
+ *
+ * `wrap-anywhere` is the last-resort guard against a clipped answer. A label is
+ * one string the product wrote, it may be one long compound word in German or
+ * Finnish, and a cell that is 171px wide at a 390 viewport gives it nowhere to
+ * break. The same utility for the same reason is in `disclaimer-note.tsx`, and
+ * it is argued against `wrap-break-word` in `result-card.tsx`, so this is the
+ * house answer rather than a new one: a word with no break opportunity breaks
+ * mid-word rather than being clipped, and a clipped answer on a consent sheet
+ * is the one word that tells yes from no.
+ *
+ * `px-opsin-3!` replaces Button's own `px-opsin-5` on this surface only, because
+ * the padding is rem-based and doubles at 200% text. Twenty pixels a side
+ * becomes forty, which leaves 91px of a 171px cell for text set at 34px, and no
+ * word fits that. Twelve pixels a side leaves 123px. The important suffix earns
+ * its place. `cn()` is `twMerge(clsx(...))` with `tailwind-merge` unconfigured,
+ * so it does not know the `opsin` spacing scale and keeps both `px-opsin-5` from
+ * `SIZE.md` and this override in the class list rather than collapsing them to
+ * one. Two single-class rules of equal specificity then fall to source order,
+ * and the stylesheet emits `px-opsin-5` after `px-opsin-3`, so a plain
+ * `px-opsin-3` would never take effect. `px-opsin-3!` compiles to an
+ * `!important` declaration that wins by the cascade whatever the emission order.
+ * The two controls carry one constant so a later edit cannot tighten one and not
+ * the other, which is the thing this whole component is about.
+ */
+const DECISION_BUTTON = "h-full wrap-anywhere px-opsin-3!"
+
+/**
  * How far apart the two decision controls may measure before this file says so.
  *
  * One CSS pixel of slack, because `getBoundingClientRect` returns fractions and
@@ -131,6 +162,21 @@ const FOCUS_RING =
  * than this.
  */
 const SAME_SIZE_SLACK = 1
+
+/**
+ * What stands where the two controls would have been when the sheet cannot ask.
+ *
+ * This is interface copy and not consent wording, which is why the file's
+ * opening refusal does not reach it. It names the state of the interface, it
+ * agrees to nothing, and it describes no purpose, no recipient, no retention
+ * period and no jurisdiction. It is therefore not the class of sentence the
+ * opening paragraph refuses to ship. It is a last-resort default in English,
+ * and a product that ships more than one language replaces it wholesale through
+ * the `notAskedMessage` prop.
+ */
+const NOT_ASKED_FALLBACK =
+  "This question cannot be answered right now. Nothing has been recorded. " +
+  "You can close this."
 
 /**
  * Decline labels that name no outcome.
@@ -342,6 +388,18 @@ export interface ConsentSheetProps
    */
   consequenceOfDeclining?: string
   /**
+   * What stands where the two controls would have been when the sheet cannot
+   * ask. Optional, and the default is English, which is the one string in this
+   * file a reader can see that opsinjs wrote. It is interface copy rather than
+   * consent wording: it names the state of the interface, it agrees to nothing
+   * and it describes no purpose, no recipient and no retention period. The
+   * scenario that produces it is a translation row nobody filled in, which is
+   * exactly the reader who will not read the default, so a product that ships
+   * more than one language passes its own sentence here. It never becomes a
+   * question and it never draws a control.
+   */
+  notAskedMessage?: string
+  /**
    * The word on the accept control. Required, with no default anywhere in this
    * file, and there is no fallback if it is blank.
    *
@@ -385,6 +443,7 @@ export function ConsentSheet({
   withdrawalPath,
   details,
   consequenceOfDeclining,
+  notAskedMessage,
   acceptLabel,
   declineLabel,
   onDecision,
@@ -559,6 +618,17 @@ export function ConsentSheet({
          Sheet moves focus to the popup, the popup is named by this element,
          and the heading is what a screen reader reads on arrival. */
       title={heading}
+      /* THE DECISION CONTROLS ARE PINNED, AND THAT IS A TRADE, NOT A FREE WIN.
+         A decision control that scrolls out of reach on a long sheet is its own
+         failure, so the two answers live in Sheet's pinned footer and stay
+         reachable whatever the body's height. The cost is that on a short
+         viewport the answers are on screen before the last two sentences, the
+         withdrawal path and the consequence of declining, have necessarily been
+         read. Two things hold the line against a reader deciding blind. The DOM
+         order puts the consequence last in the scrolling column, at the
+         consequence block below, so a screen reader reaches it before these
+         controls. And Sheet draws a scroll edge above this footer while any text
+         remains below the fold, so the surface does not read as finished. */
       footer={
         askable ? (
           <div
@@ -571,9 +641,13 @@ export function ConsentSheet({
                layout rather than by a rule somebody has to remember. A wrapping
                flex row would have given them different heights on the line they
                wrapped, and stacking them would have made one of them the one
-               under the thumb: at 200% text the labels wrap and both controls
-               grow taller together, which is the trade this takes and the page
-               states.
+               under the thumb. The pair still never stacks. At 200% text the
+               labels wrap and both controls grow taller together, and the
+               horizontal padding is reduced from Button's default on both cells
+               identically through `DECISION_BUTTON`, so the text keeps a usable
+               width once the padding doubles. A word with no break opportunity
+               breaks mid-word rather than being clipped, because a clipped
+               answer on a consent sheet is the one word that tells yes from no.
 
                The gap is the target-separation token rather than a space step.
                They are the same 0.5rem today; the token is the one that means
@@ -598,7 +672,7 @@ export function ConsentSheet({
                 variant="secondary"
                 size="md"
                 fullWidth
-                className="h-full"
+                className={DECISION_BUTTON}
                 onClick={() => decide(false)}
               >
                 {declineLabel}
@@ -615,7 +689,7 @@ export function ConsentSheet({
                 variant="secondary"
                 size="md"
                 fullWidth
-                className="h-full"
+                className={DECISION_BUTTON}
                 onClick={() => decide(true)}
               >
                 {acceptLabel}
@@ -624,16 +698,16 @@ export function ConsentSheet({
           </div>
         ) : (
           /* Unlovely on purpose, and in the place the controls would have been.
-             An author who sees this line supplies the wording; a reader who
-             sees it has been told that nothing was asked, rather than being
-             asked a question with pieces of it missing. */
+             It is addressed to the reader and not the author: it tells them that
+             nothing was asked and nothing recorded, rather than asking a question
+             with pieces of it missing. It is replaceable because the case that
+             produces it is a missing locale, so a product with more than one
+             language passes its own sentence through `notAskedMessage`. */
           <p
             data-slot="consent-sheet-decisions-missing"
             className="m-0 text-opsin-body"
           >
-            Nothing has been asked here. Some of the wording this sheet needs was
-            not supplied, so there is nothing to decide and nothing has been
-            recorded.
+            {isSupplied(notAskedMessage) ? notAskedMessage : NOT_ASKED_FALLBACK}
           </p>
         )
       }
@@ -642,25 +716,36 @@ export function ConsentSheet({
         <div
           data-slot="consent-sheet"
           /* ONE TYPE STEP FOR EVERYTHING BELOW THE HEADING, AND NO MUTED INK
-             ANYWHERE ON THE SHEET. Nothing on a consent sheet is small print:
+             ANYWHERE IN THIS COLUMN. Nothing on a consent sheet is small print:
              the retention period set one step down in pale grey satisfies the
              letter of a requirement and none of its purpose, and it is the most
-             common way this surface is got wrong. The colour is inherited
+             common way this surface is got wrong. Sheet's header Close control
+             above this column is quieter than everything here and stays that
+             way, because a consent surface that offers three loud controls has
+             three answers. The colour is inherited
              rather than set, which also sidesteps the tailwind-merge collision
              `disclaimer-note.tsx` documents. `text-opsin-body` and
              `text-foreground` land in one conflict group and one of them is
              silently dropped. */
           className="flex flex-col gap-opsin-4 py-opsin-2 text-opsin-body"
         >
-          {/* The explanation precedes the controls in the DOM, which is what a
-              screen reader reads first and what the consent pattern asks for.
-              It is NOT wired as the sheet's accessible description: Sheet
-              exposes no description slot, adding one is a change to Sheet
-              rather than to this component, and the page says so rather than
-              claiming a relationship that is not in the markup. */}
-          <p data-slot="consent-sheet-purpose" className="m-0">
-            {purpose}
-          </p>
+          {/* THE PURPOSE IS THE SHEET'S ACCESSIBLE DESCRIPTION, AND IT IS THE
+              RIGHT PARAGRAPH FOR THE JOB. It is the sentence the reader must
+              weigh before answering, it precedes the controls in the DOM, and
+              rendering it through Sheet.Description registers its id with the
+              drawer store so the popup gains aria-describedby pointing here, the
+              way the heading already gains aria-labelledby through the title. A
+              screen reader then announces the purpose with the sheet on open,
+              rather than only once the reader reaches it. The scope list is
+              deliberately not wired the same way: aria-describedby reads its
+              target in full, and three facts plus a retention period would be
+              announced as one long string. One consequence of leaning on the
+              shared part: the paragraph now carries Sheet.Description's own
+              data-slot of "sheet-description" instead of "consent-sheet-purpose",
+              because the part fixes that slot when it registers with the store. */}
+          {isSupplied(purpose) ? (
+            <Sheet.Description className="m-0">{purpose}</Sheet.Description>
+          ) : null}
 
           {/* A REAL LIST, WITH REAL MARKERS. The scope facts are three separate
               answers and a screen reader announces them as "list, three items"
@@ -678,15 +763,26 @@ export function ConsentSheet({
               an `<li>` inside one computes to `display: block` rather than
               `display: list-item`, and the markers this list depends on stop
               being drawn at all. `gap` would have been tidier and would have
-              silently produced three unmarked lines. */}
-          <ul
-            data-slot="consent-sheet-scope"
-            className="m-0 list-disc pl-opsin-5 [&>li+li]:mt-opsin-2"
-          >
-            <li data-slot="consent-sheet-scope-collected">{scope?.collected}</li>
-            <li data-slot="consent-sheet-scope-shared-with">{scope?.sharedWith}</li>
-            <li data-slot="consent-sheet-scope-retention">{scope?.retention}</li>
-          </ul>
+              silently produced three unmarked lines.
+
+              THE LIST IS DRAWN ONLY WHEN THE SHEET IS ASKABLE, which is to say
+              only when all three scope facts arrived. A marker with nothing
+              after it reads as content that failed to load rather than as a
+              refusal, and a screen reader announcing "list, three items" over
+              three empty items says the same thing louder. `askable` gates the
+              whole `<ul>` rather than each `<li>`, because a list of two facts
+              where three were promised misrepresents what the reader was told
+              as surely as an empty one does. */}
+          {askable ? (
+            <ul
+              data-slot="consent-sheet-scope"
+              className="m-0 list-disc pl-opsin-5 [&>li+li]:mt-opsin-2"
+            >
+              <li data-slot="consent-sheet-scope-collected">{scope?.collected}</li>
+              <li data-slot="consent-sheet-scope-shared-with">{scope?.sharedWith}</li>
+              <li data-slot="consent-sheet-scope-retention">{scope?.retention}</li>
+            </ul>
+          ) : null}
 
           {details && isSupplied(details.label) ? (
             <div data-slot="consent-sheet-details" className="flex flex-col">
@@ -768,10 +864,14 @@ export function ConsentSheet({
               one. It is text and not a link: a string is not a destination, and
               the doctrine's answer is that the control to withdraw belongs on
               the screen showing the data rather than inside the sheet that
-              asked for it. */}
-          <p data-slot="consent-sheet-withdrawal" className="m-0">
-            {withdrawalPath}
-          </p>
+              asked for it. When it is absent the sheet is already refusing to
+              ask, so an empty paragraph here would be a gap step spent saying
+              nothing, which is why it is guarded rather than drawn blank. */}
+          {isSupplied(withdrawalPath) ? (
+            <p data-slot="consent-sheet-withdrawal" className="m-0">
+              {withdrawalPath}
+            </p>
+          ) : null}
 
           {/* LAST BEFORE THE CONTROLS, WHICH IS "BEFORE THEY CHOOSE, NOT
               AFTER". A product that cannot function after a refusal says so

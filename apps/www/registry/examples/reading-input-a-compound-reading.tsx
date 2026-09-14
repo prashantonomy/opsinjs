@@ -46,7 +46,7 @@ export default function ReadingInputACompoundReading() {
   return (
     <div className="w-full max-w-md">
       <ReadingInput
-        hint="Both parts, in whole numbers."
+        hint="Both parts, in whole numbers"
         label="Example measurement"
         name="example-measurement"
         onChange={(next) => setParts(next.segments)}

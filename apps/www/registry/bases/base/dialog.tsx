@@ -17,13 +17,13 @@
  *
  * What the sentence under it was complaining about is kept. "A modal window on
  * a 360px screen is a sheet wearing the wrong clothes" is a complaint about
- * SHAPE, and shape is free: below the `sm` breakpoint this dialog meets the
- * bottom edge of the screen, takes the full width and rounds only its top
- * corners, which is what `tokens/shape.json` publishes `radius-xl` for. It does
- * that in CSS, at every width, with no prop, no measurement and no change of
- * component. So the role, the focus trap, the treatment of the background and
- * the dismissal rules are identical on a phone and on a desktop. A dialog never
- * becomes something else.
+ * SHAPE, and shape is free: at every width this dialog floats inset from all
+ * four edges of the screen and rounds all four of its corners, which is what
+ * `tokens/shape.json` publishes `radius-xl` for. It does that in CSS, with no
+ * prop, no measurement and no change of component, so a modal never wears a
+ * docked sheet's silhouette on a phone. The role, the focus trap, the treatment
+ * of the background and the dismissal rules are identical on a phone and on a
+ * desktop. A dialog never becomes something else.
  *
  * TWO ROOTS, NOT A FLAG. `severity` swaps `AlertDialog.Root` for `Dialog.Root`
  * rather than toggling props on one of them. Base UI's alert-dialog root is the
@@ -35,39 +35,41 @@
  * non-dismissing surface still announced as a plain dialog, which is the
  * failure that looks correct in review.
  *
- * ESCAPE IS THE ONE PART BASE UI DOES NOT DO FOR US, AND THE ANSWER IS
- * INCOMPLETE. `useDialogRoot` passes `escapeKey: isTopmost` to `useDismiss` in
- * every mode, alert-dialog included, so an untouched alert dialog closes on
- * Escape and the whole contract is lost on the keyboard. This file cancels that
- * close through the change event's own `cancel()`, which is the half that
- * works: the dialog stays, in every configuration.
+ * ESCAPE IS THE ONE PART BASE UI DOES NOT DO FOR US, AND THIS FILE ANSWERS IT.
+ * `useDialogRoot` passes `escapeKey: isTopmost` to `useDismiss` in every mode,
+ * alert-dialog included, so an untouched alert dialog closes on Escape and the
+ * whole contract is lost on the keyboard. This file cancels that close through
+ * the change event's own `cancel()`, so the dialog stays in every
+ * configuration, and then moves focus to the popup element itself.
  *
- * The response is the half that does not. Focus returns to the safest action.
- * That answers the key for a reader whose focus had moved into the body or
- * onto the other control, and does nothing at all in the default one, because
- * `initialFocus="safest"` has already put focus on that same element and
- * calling `focus()` on `document.activeElement` is a specification no-op: no
- * focus event, no change of ring, nothing for a screen reader to announce. A
- * reader who presses Escape first, before moving anywhere, gets silence.
+ * Moving focus to the popup is what makes the refusal audible. The popup
+ * carries `tabindex=-1`, `role="alertdialog"`, `aria-labelledby` the title and
+ * `aria-describedby` the description, so landing focus on it re-announces the
+ * question and its consequence on every screen reader, with no live region
+ * mounted on the caller's behalf. It fires in the default configuration too,
+ * where `initialFocus="safest"` has already put focus on the safest action:
+ * the popup is never the element that already has focus, so the announcement
+ * happens rather than being the specification no-op that focusing the already
+ * focused action would be.
  *
- * That is a known limitation rather than a subtlety, and it is written down on
- * the page in the gap list rather than described as a feature here. The three
- * candidate repairs were all worse: focusing the FIRST action points the key at
- * the control that changes something; focusing the container relies on an
- * announcement nobody in this repository has verified with a screen reader; and
- * a live region is banned outright, because a component never mounts one on the
- * caller's behalf. `patterns/alert-escalation.mdx` asks for the reason to be
- * announced, and the honest position is that this component does not do that
- * yet. It does not write the sentence either: those are the product's words,
- * they belong in `description`, and a development warning asks for them.
+ * Two candidate repairs stay rejected. Focusing the FIRST action points the
+ * key at the control that changes something, and a live region is banned
+ * outright, because a component never mounts one on the caller's behalf.
+ * `patterns/alert-escalation.mdx` asks for the reason to be announced, and the
+ * popup's own role and labelling are how that is done here. What the component
+ * still does not do is write the product's own sentence about why an answer is
+ * needed: those are the product's words, they belong in `description`, and a
+ * development warning asks for them.
  *
- * IT IS A CLIENT COMPONENT, and the two refs are why. `initialFocus="safest"`
- * has to resolve to an ELEMENT, because Base UI takes a ref or a function,
- * never a string. The element it means is the last control in the actions
- * slot, which only a ref can find. The Escape handler needs the same ref.
- * Nothing else here is stateful: there is no width observation, no media query
- * listener and no measurement, because the responsive behaviour is a
- * stylesheet's job.
+ * IT IS A CLIENT COMPONENT, and three refs are why. `initialFocus` has to
+ * resolve to an ELEMENT, because Base UI takes a ref or a function, never a
+ * string: `actionsRef` finds the last control in the actions slot, which is
+ * what `initialFocus="safest"` means, and `contentRef` finds the first
+ * focusable in the body, which is what `initialFocus="content"` means.
+ * `popupRef` is the third, and it is what a refused Escape and a refused scrim
+ * press move focus to. Nothing else here is stateful: there is no width
+ * observation, no media query listener and no measurement, because the
+ * responsive behaviour is a stylesheet's job.
  *
  * WHAT IT DOES NOT DO. It does not move focus on appearance beyond the one
  * placement Base UI performs on open, does not mount a live region, does not
@@ -86,6 +88,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react"
 
 import { isDevelopment } from "@/lib/opsinjs"
 import { cn } from "@/lib/utils"
+import { Button } from "@/registry/base-lyra/ui/button"
 import { Surface } from "@/registry/base-lyra/ui/surface"
 
 /**
@@ -154,13 +157,19 @@ function focusableIn(
 }
 
 /**
- * The shape, and the one place it changes with the viewport.
+ * The shape, and why it no longer changes with the viewport.
  *
  * `tokens/shape.json` publishes `radius-xl` as "sheets and dialogs", with the
  * qualifier that it is "applied to the leading edge only when the surface meets
- * a screen edge on the other side". That is exactly the phone case below the
- * `sm` breakpoint, where the dialog sits on the bottom edge. Above it the
- * dialog floats and takes the radius on all four corners.
+ * a screen edge on the other side". A sheet meets that edge and takes the
+ * radius on its leading edge alone. A dialog does not. It floats inset from all
+ * four screen edges at every width, phone included, so it takes the radius on
+ * all four corners everywhere. That inset is the point. The family doctrine
+ * holds that a dialog and a sheet differ by obligation rather than by size, and
+ * the four-sided margin together with the four-sided radius is what a reader
+ * sees that difference in. A dialog that docked to the bottom edge would wear a
+ * sheet's silhouette and lose the one cue that tells a question you must answer
+ * apart from a place you may leave.
  *
  * `corner-shape` is a property here rather than the product theme's
  * `data-opsin-shape="squircle"` attribute, for the reason Card gives: the
@@ -170,32 +179,75 @@ function focusableIn(
  * rounded corner, which every radius on the ladder is chosen to survive.
  */
 const SHAPE =
-  "rounded-t-opsin-xl sm:rounded-opsin-xl [corner-shape:var(--opsin-corner-shape)]"
+  "rounded-opsin-xl [corner-shape:var(--opsin-corner-shape)]"
 
 /**
- * The entrance and the exit, and the two independent reasons a reader who asked
- * for less motion gets it.
+ * The entrance and the exit, and what a reader who asked for less motion gets
+ * instead of nothing.
  *
- * `--opsin-duration-base` is one of the five standalone durations that
- * `app/product.css` collapses to 1ms under `prefers-reduced-motion: reduce`, so
- * the transition is over before it is visible without this file branching on
- * anything. `motion-reduce:transition-none` is the second answer and it is not
- * redundant: a consumer who installs this component without that stylesheet
- * gets the same result from the component alone.
+ * The entrance is the dialog's own token pair: `spring-sheet` on its own
+ * duration, which is the overdamped curve `tokens/motion.json` publishes for
+ * "sheets, dialogs, full-screen pushes". A spring's `linear()` stop list runs
+ * from 0 to 1 whatever the spring, so its curve is never crossed with another
+ * duration, because that makes a different spring rather than a faster one. The
+ * exit takes `ease-exit` on `--opsin-duration-base`, because something leaving
+ * accelerates and is shorter than its arrival. The `data-[ending-style]:` pair
+ * outranks the base pair on specificity, and both halves move together so the
+ * easing is never left behind on the 483ms spring duration.
  *
- * The dialog rises from the bottom edge on a phone, where that is the direction
- * it comes from, and scales on a wider screen, where it does not. Under reduced
- * motion neither happens and the dialog appears in place. Depth is then carried
- * by the scrim and by the surface's edge, which is why the
- * specification says neither of those is optional and why no prop removes them.
+ * Under reduced motion the transition is NOT removed, and that is a correction
+ * of an earlier version that removed it and argued the case in a comment.
+ * `health/motion-in-health-ui.mdx` lists this surface's family by name, and its
+ * rule 5 says the reduced-motion fallback "is not 'no animation' by default. It
+ * is an instant, complete, equally informative state", with a Do of "show the
+ * sheet in place with a crossfade of opacity only". So the distance goes and
+ * the transition stays: `motion-reduce:transition-opacity` switches the
+ * transitioned property to opacity alone, and the phone's travel and the wide
+ * screen's scale are pinned to their resting values under the query. A modal
+ * that appears between frames trades a vestibular problem for a comprehension
+ * one, and the reader most likely to have reduced motion on is the one least
+ * able to afford a surface arriving from nowhere.
+ *
+ * The 120ms of the crossfade is the token layer's, not this file's.
+ * `app/tokens.generated.css` collapses `--opsin-duration-spring-sheet` to 120ms
+ * and `--opsin-ease-spring-sheet` to `linear` under the query, so the duration
+ * and the easing are deliberately not restated here. A consumer who installs
+ * this file without that stylesheet loses only the 120ms figure, because the
+ * duration is a token; the crossfade itself still happens, because the
+ * transition is no longer removed. Depth is then carried by the scrim and by
+ * the surface's edge, which is why the specification makes neither optional and
+ * why no prop removes them.
+ *
+ * THE TRAVEL IS A FIXED DISTANCE AND THE SCALE IS A BARE NUMBER, ON PURPOSE.
+ * The phone entrance moves the panel by `--opsin-space-4`, a fixed 1rem,
+ * written as an arbitrary `translate-y-[var(--opsin-space-4,1rem)]` rather than
+ * as `translate-y-4`. The utility form resolved through `--spacing`, which the
+ * density attribute scales, so a reader on a denser setting got a shorter
+ * entrance for no reason a reader could name: how far a surface travels to
+ * arrive is not a function of how tightly that reader packs their lists, and
+ * the travel is now identical at every density. The literal fallback rides
+ * along because a consumer who runs `shadcn add dialog` gets no token sheet.
+ *
+ * The wide-screen `scale-95` stays a bare number and is NOT promoted to a
+ * token, which is a deliberate departure from the audit's proposed
+ * entrance-distance token. `sheet.tsx` settled this in argued prose: the token
+ * layer cannot know the DISTANCE or the scale a particular surface should
+ * enter by, because that is not a token but the component's own answer. And the
+ * scale was never the defect the raw-value finding was really about: Tailwind's
+ * scale utilities emit a percentage rather than a multiple of `--spacing`, so
+ * `scale-95` is already density-independent and needs no repair. Only the
+ * travel was density-coupled, and only the travel changed.
  */
 const MOTION = cn(
-  "transition-[opacity,transform] duration-(--opsin-duration-base) ease-opsin-standard",
-  "motion-reduce:transition-none",
+  "transition-[opacity,translate,scale] duration-(--opsin-duration-spring-sheet) ease-opsin-spring-sheet",
+  "data-[ending-style]:ease-opsin-exit data-[ending-style]:duration-(--opsin-duration-base)",
+  "motion-reduce:transition-opacity",
   "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
-  "data-[starting-style]:translate-y-4 data-[ending-style]:translate-y-4",
+  "data-[starting-style]:translate-y-[var(--opsin-space-4,1rem)] data-[ending-style]:translate-y-[var(--opsin-space-4,1rem)]",
+  "motion-reduce:data-[starting-style]:translate-y-0 motion-reduce:data-[ending-style]:translate-y-0",
   "sm:data-[starting-style]:translate-y-0 sm:data-[ending-style]:translate-y-0",
   "sm:data-[starting-style]:scale-95 sm:data-[ending-style]:scale-95",
+  "motion-reduce:sm:data-[starting-style]:scale-100 motion-reduce:sm:data-[ending-style]:scale-100",
 )
 
 export interface DialogProps {
@@ -318,6 +370,7 @@ export function Dialog({
 }: DialogProps) {
   const contentRef = useRef<HTMLDivElement | null>(null)
   const actionsRef = useRef<HTMLDivElement | null>(null)
+  const popupRef = useRef<HTMLDivElement | null>(null)
 
   const nonDismissing = severity === "alert"
 
@@ -472,21 +525,31 @@ export function Dialog({
    *
    * Cancelling on its own would make the key do nothing at all, and the
    * specification is explicit that the dialog "does not simply swallow the
-   * key". So focus moves to the safest action. That move is only a
-   * response when focus was somewhere else. In the default configuration it is
-   * not: `initialFocus="safest"` has already put focus on the last action, so
-   * this line focuses the element that already has focus, which the DOM
-   * specification defines as doing nothing. No focus event, no ring, no
-   * announcement.
+   * key". So focus moves to the popup element itself. The popup carries
+   * `tabindex=-1`, `role="alertdialog"`, `aria-labelledby` the title and
+   * `aria-describedby` the description, so moving focus onto it makes every
+   * screen reader re-announce the title and the description without this
+   * component mounting a live region of its own. That is the response the
+   * pattern page asks for: the reason the dialog is still here is spoken
+   * again, rather than the key silently doing nothing.
    *
-   * The line stays because it is right for the reader whose focus HAD moved,
-   * and because every alternative is worse (the file header sets out which and
-   * why). What does not stay is the claim: the page lists Escape-on-an-alert-
-   * dialog as answered-in-part, names the case where it is silent, and cites
-   * the pattern page whose requirement this does not yet meet.
+   * Focusing the safest action was the old move, and in the default
+   * configuration it was silent: `initialFocus="safest"` has already put focus
+   * on the last action, so focusing it again focuses the element that already
+   * has focus, which the DOM specification defines as doing nothing. The popup
+   * is never the element that already has focus, so the announcement fires in
+   * every configuration.
+   *
+   * The cost is named rather than hidden. Focus leaves the safest action and
+   * lands on the container, so a reader who then presses Return activates
+   * nothing, and one Tab returns them to the first action. The safest action
+   * stays the INITIAL focus: `initialFocus={resolveInitialFocus}` is
+   * unchanged, so opening the dialog still lands on the answer that changes
+   * nothing. Only a refused Escape moves focus to the container.
    *
    * It is not a sentence, and it was never meant to be one. The sentence
-   * lives in `description`, in the product's own words.
+   * lives in `description`, in the product's own words, and the popup's
+   * `aria-describedby` is what points a screen reader back at it.
    */
   function handleOpenChange(
     next: boolean,
@@ -494,7 +557,7 @@ export function Dialog({
   ): void {
     if (!next && nonDismissing && details.reason === "escape-key") {
       details.cancel()
-      focusableIn(actionsRef.current, "last")?.focus()
+      popupRef.current?.focus({ preventScroll: true })
       return
     }
     onOpenChange(next)
@@ -539,6 +602,37 @@ export function Dialog({
           "motion-reduce:transition-none",
           "data-[starting-style]:opacity-0 data-[ending-style]:opacity-0",
         )}
+        /* A REFUSED SCRIM PRESS KEEPS FOCUS INSIDE THE ALERT DIALOG, and this
+           is handled here rather than in `handleOpenChange` because there is no
+           change event to answer. `useDialogRoot.mjs:34-69` gates `outsidePress`
+           on `isTopmost && !disablePointerDismissal`, and the alert-dialog root
+           forces `disablePointerDismissal`, so the predicate returns false, Base
+           UI raises no `open` change for a scrim press and there is no refusal
+           branch to hook. What the press still does is blur the focused control
+           to `body`, leaving the reader's focus outside a modal whose siblings
+           are `aria-hidden`, so a screen reader's cursor is on an element the
+           tree says is gone. `preventDefault` on `pointerdown` is what stops
+           that blur in the first place; the click handler then puts focus back
+           on the popup for an engine that focuses on click regardless. The
+           popup carries `tabindex=-1`, `role=alertdialog` and its labelling, so
+           landing focus on it re-announces the reason the dialog is still here,
+           the same recovery the escape-key refusal makes. Both handlers are
+           `undefined` on an ordinary dialog, whose scrim press is a valid
+           dismissal that closes it and returns focus to its trigger. */
+        onPointerDown={
+          nonDismissing
+            ? (event) => {
+                event.preventDefault()
+              }
+            : undefined
+        }
+        onClick={
+          nonDismissing
+            ? () => {
+                popupRef.current?.focus({ preventScroll: true })
+              }
+            : undefined
+        }
       >
         <Surface rung="scrim" className="absolute inset-0">
           {null}
@@ -548,17 +642,32 @@ export function Dialog({
       {/* Dialog.Viewport. Not in the specification's part tree and added on
           purpose: it is the fixed, full-screen box the container is placed
           inside, and having a real element to place against is what lets the
-          dialog sit on the bottom edge of a phone and in the middle of a laptop
-          with no transform, no measurement and no JavaScript.
+          dialog float inset from the bottom of a phone and sit in the middle of
+          a laptop with no transform, no measurement and no JavaScript.
 
-          `pt-opsin-16` is the one deliberate gap at phone width. A surface that
-          covers the entire screen is not covering the page "while leaving it
-          recognisable", which is the whole job of the rung it is on, and a
-          reader needs to see where they will return to. */}
+          The phone dialog is inset on all four sides, which is the silhouette
+          that tells it apart from a sheet docked to the edge. `pt-opsin-16`
+          keeps the largest gap at the top, so a reader sees where they will
+          return to and the surface covers the page "while leaving it
+          recognisable", which is the whole job of the rung it is on. `px-opsin-4`
+          holds it clear of the side edges, and it still rises from the bottom
+          where the thumb is, because `items-end` is kept. The bottom inset is
+          the larger of `space-4` and the device's safe-area bottom, so the
+          floating card clears the home indicator that a docked sheet instead
+          covers with its own material.
+
+          `pointer-events-none` is on this box and `pointer-events-auto` on the
+          popup inside it, so a press on the dimmed area passes through this
+          full-screen sibling to the scrim beneath rather than being swallowed
+          here. Without the pair this later, painted-on-top box hit-tests every
+          press over the dim, the scrim's own handlers never fire, and a refused
+          scrim press on an alert dialog blurs focus to `body`. It is the same
+          pairing `sheet.tsx` uses to make tap-to-dismiss work at all. */}
       <DialogPrimitive.Viewport
         data-slot="dialog-viewport"
         className={cn(
-          "fixed inset-0 flex items-end justify-center pt-opsin-16",
+          "pointer-events-none fixed inset-0 flex items-end justify-center px-opsin-4 pt-opsin-16",
+          "pb-[max(var(--opsin-space-4,1rem),var(--opsin-safe-bottom,0px))]",
           "sm:items-center sm:p-opsin-6",
         )}
       >
@@ -574,9 +683,10 @@ export function Dialog({
             below the fold. */}
         <DialogPrimitive.Popup
           data-slot="dialog-container"
+          ref={popupRef}
           initialFocus={resolveInitialFocus}
           className={cn(
-            "flex max-h-full w-full flex-col overflow-hidden",
+            "pointer-events-auto flex max-h-full w-full flex-col overflow-hidden",
             "sm:max-w-(--opsin-measure-tight,45ch)",
             SHAPE,
             MOTION,
@@ -586,7 +696,8 @@ export function Dialog({
           <Surface
             rung="sheet"
             className={cn(
-              /* THE RUNG IS `sheet` AND THE PAGE SAYS `overlay`. ADR 0014 made
+              /* THE RUNG IS `sheet`, AND `overlay` IS WHAT A READER OF AN OLDER
+                 DESIGN FILE WILL EXPECT HERE. ADR 0014 made
                  the six rung names the token names, and the retired vocabulary
                  the specification was written in put `overlay` on the rung that
                  covers the page while leaving it recognisable. That rung is now
@@ -596,12 +707,14 @@ export function Dialog({
                  job would put a modal dialog on the rung built for a tab bar,
                  and it would compile. */
               "flex min-h-0 flex-col rounded-[inherit]",
-              /* The safe-area inset goes on the Surface rather than on the
-                 popup so the material covers it. Surface's three decorative
-                 layers are positioned to `inset-0`, whose containing block is
-                 the padding box, so the fill and the edge reach the bottom of
-                 the screen instead of stopping above the home indicator. */
-              "pb-(--opsin-safe-bottom) sm:pb-0",
+              /* No safe-area inset on the Surface any more. It was there to make
+                 a docked surface's material reach under the home indicator,
+                 because Surface's three decorative layers are positioned to
+                 `inset-0` so the fill and the edge stopped above the indicator
+                 otherwise. This dialog floats inset from every screen edge, so
+                 it never meets the bottom edge and never covers the home
+                 indicator in the first place. The viewport's bottom inset holds
+                 the whole card clear of it instead. */
               /* Surface owns its content wrapper, so the column that holds the
                  three regions has to be declared from out here. Without the
                  `min-h-0` the wrapper refuses to shrink below its content and
@@ -618,7 +731,36 @@ export function Dialog({
             <div
               data-slot="dialog-header"
               className={cn(
+                /* The dialog insets use the fixed px-opsin-5 token here and in
+                   the body and footer below, deliberately, so they hold 20px at
+                   every [data-density] setting rather than tracking the
+                   density-scaled p-5 that Card uses. A modal takes its measure
+                   from the viewport, not from the surrounding document, and a
+                   reader who asks for a denser list has not asked to shrink the
+                   only exit from a destructive confirmation. This is why Dialog
+                   is not among the surfaces moved onto the scaled scale. */
                 "flex shrink-0 items-start gap-opsin-3 px-opsin-5 pt-opsin-5",
+                /* THE HEADER RESERVES ONE HEIGHT FOR BOTH SEVERITIES, so the
+                   description starts at the same offset whether or not a close
+                   control is rendered. Without this floor an ordinary dialog's
+                   header was the close control's target height plus the top
+                   inset while an alert dialog's was only its title, so the same
+                   component looked looser or tighter by the height of the
+                   control the reader could not even see, which is a difference
+                   they have no reason to meet. The floor is the top inset
+                   (`space-5`) plus one close target (`target-minimum`) less the
+                   `space-2` the control overhangs upward, which is exactly the
+                   room the lifted control below occupies, so the two numbers
+                   move together and must stay in step: change the control's
+                   `-mt-opsin-2` and this term follows it. The calc is spelled
+                   in tokens rather than in one measured constant so a later
+                   change to any of the three tracks the header, and each `var`
+                   carries its own literal fallback for the reason the close
+                   control's floor argues, because the properties live only in
+                   `app/tokens.generated.css`, which a `shadcn add` consumer does
+                   not get, and a bare reference to an undeclared one is invalid
+                   at computed-value time. */
+                "min-h-[calc(var(--opsin-space-5,1.25rem)_+_var(--opsin-target-minimum,2.75rem)_-_var(--opsin-space-2,0.5rem))]",
                 /* Every region below this one pads its own foot, so the header
                    only pads its own when it is the last thing in the dialog.
                    That is a title with no consequence, no content and no
@@ -656,8 +798,46 @@ export function Dialog({
               {nonDismissing ? null : (
                 <DialogPrimitive.Close
                   data-slot="dialog-close"
-                  className={cn(
-                    "inline-flex shrink-0 items-center justify-center rounded-opsin-md",
+                  /* JOINED, NOT run through cn, and the join is the fix rather
+                     than a style, the same one sheet.tsx makes and for the same
+                     reason. `cn` is `twMerge(clsx(…))` and tailwind-merge is
+                     unconfigured: it has never been told that `--text-opsin-*`
+                     is a font-size namespace, so it files `text-opsin-callout`
+                     and `text-foreground` in the SAME conflict group and
+                     keeps only the later one, which silently costs this control
+                     its type step. The two utilities set different CSS
+                     properties, so passing both through applies both. There is
+                     no caller `className` on this control, so nothing is lost by
+                     not merging. */
+                  className={
+                    /* THE LIFT AND THE PULL align the control's ink to the
+                       title rather than to the corner of its own hit box. The
+                       control is a 44px target with its content centred, so
+                       top-aligned in the header its word and glyph sit below the
+                       title's first line by half the difference between the
+                       target and the title's line box. `-mt-opsin-2` raises the
+                       hit box into the top inset so the centred ink shares the
+                       title's first-line band, and the header's own floor above
+                       is written to expect exactly this overhang. `-mr-opsin-2`
+                       cancels the control's own `px-opsin-2`, so the ink meets
+                       the same inset from the panel edge that the title keeps on
+                       the other side rather than sitting a control's padding
+                       further in. The 44px hit area is unchanged: the negative
+                       margins move the box, not its size. */
+                    "-mt-opsin-2 -mr-opsin-2 " +
+                    "inline-flex shrink-0 items-center justify-center gap-opsin-1 rounded-opsin-sm px-opsin-2 " +
+                    /* The word rides beside the glyph at the `callout` step in
+                       the full foreground role, which is the recipe Sheet moved
+                       to. Footnote in a muted grey made this word the smallest,
+                       lowest-contrast thing on the surface, and that role's
+                       declared use is provenance rather than a control. It stays
+                       quieter than the footer's primary action and is not raised
+                       to Button's `headline` step, so a reader who learned Close
+                       on a sheet meets the same weight on the one surface that
+                       decides whether a reading is deleted. The hover feedback is
+                       a muted background rather than an ink change, because the
+                       ink is already the foreground. */
+                    "text-opsin-callout text-foreground " +
                     /* The floor is carried by the control rather than by the
                        product stylesheet's backstop, because that stylesheet
                        does not travel with this file. It is a rem, so at 200%
@@ -671,20 +851,23 @@ export function Dialog({
                        invalid at computed-value time. `min-height` would revert
                        to `auto` and this control, the only exit from a modal
                        surface, would lose its floor with no error anywhere. */
-                    "min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem)",
-                    "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard",
-                    "hover:bg-muted",
-                    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-                  )}
+                    "min-h-(--opsin-target-minimum,2.75rem) min-w-(--opsin-target-minimum,2.75rem) " +
+                    "transition-colors duration-(--opsin-duration-fast) ease-opsin-standard " +
+                    "hover:bg-muted " +
+                    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                  }
                 >
-                  <X aria-hidden="true" className="size-[1.25em]" />
-                  {/* The only reader-facing word this component owns. It takes
-                      a prop, for the reason `StatusPill.label` does: a word a
-                      product cannot translate is a word some readers cannot
-                      read, and this one is the label on their way out. The
-                      DEFAULT is still English, which is the gap that remains
-                      and is listed on the page rather than settled here. */}
-                  <span className="sr-only">{closeLabel}</span>
+                  <X aria-hidden="true" className="size-[1em] shrink-0" />
+                  {/* The reader-facing word this component owns, now visible
+                      rather than hidden behind the glyph. It takes a prop, for
+                      the reason `StatusPill.label` does: a word a product cannot
+                      translate is a word some readers cannot read, and this one
+                      is the label on their way out. A reader who mis-taps on the
+                      one modal that decides whether a reading is deleted has to
+                      be able to see, and to say, what the control does. The
+                      DEFAULT is still English, which is the gap that remains and
+                      is listed on the page rather than settled here. */}
+                  {closeLabel}
                 </DialogPrimitive.Close>
               )}
             </div>
@@ -731,17 +914,69 @@ export function Dialog({
             </div>
 
             {/* Dialog.Actions is pinned, in DOM order, least destructive last.
-                The gap is `opsin-2`, which is 0.5rem, which is exactly
-                `--opsin-target-separation`: two adjacent targets need that much
-                between them and this is the one row in the component where it
-                is this file's job rather than the caller's. */}
+                The gap is `--opsin-space-4`, which is 1rem, and it is
+                deliberately twice the published separation floor. That floor is
+                0.5rem, and tokens/space.json scopes it to two adjacent targets
+                whose visible boxes are smaller than 44px, which these are not.
+                This row takes double it anyway, because the component's own
+                ordering rule sets the answer that changes something immediately
+                before the answer that changes nothing, and a reader aiming for
+                the safe one must not land on the irreversible one instead. The
+                literal `1rem` fallback rides along because the token sheet does
+                not travel with this file: a consumer who runs `shadcn add
+                dialog` gets no `--spacing-opsin-*`, so a Tailwind space-step
+                gap utility would have resolved to zero on install and set the
+                two answers touching.
+
+                Below `sm` the row becomes a column and each answer fills the
+                panel's content box, so on the phone most readers hold neither
+                action is a narrow pill stranded mid panel and both are a thumb
+                width target. Above `sm` it is a right aligned row again, and
+                `flex-wrap` moves behind the `sm:` prefix rather than being
+                deleted, so two long labels still wrap instead of overflowing a
+                45ch panel. button.tsx warns that two full width buttons stacked
+                read as two primary actions, and that warning does not apply
+                here: the two answers are separated by variant weight, not by
+                width, because primary carries an opaque fill while secondary
+                and destructive carry a boundary and no fill, and the ordering
+                rule above fixes which answer is which. Width is therefore free
+                to carry reachability rather than hierarchy. `[&>*]:w-full` does
+                not fight a caller who passed `<Button fullWidth>`: fullWidth
+                emits the same `w-full` on the element itself.
+
+                THE ROW CARRIES ITS OWN SIZE FLOOR, and it is the first thing in
+                the system to render `--opsin-target-comfortable`. The component
+                asserted no floor on its answers, so a caller who passed an
+                undersized control set the target size on the one surface where a
+                mis-tap is irreversible. `[&>*]:min-h-(...)` floors every child at
+                48px, which is what tokens/space.json calls the default for a
+                primary action, rather than the 44px minimum the product backstop
+                applies to any tappable box. Not `generous` at 56px: space.json
+                reserves that for a SINGLE primary action, and a dialog has two
+                answers, so `comfortable` is the reading the token actually
+                licenses. The `3rem` fallback rides along for the reason the
+                close control's own floor argues about `--opsin-target-minimum`:
+                the property is declared only in app/tokens.generated.css, which a
+                `shadcn add` consumer does not get, and a bare reference to an
+                undeclared property is invalid at computed-value time, so
+                `min-height` would revert to `auto` and the floor would vanish
+                with no error. Its specificity is a class plus the universal
+                selector, which outranks the element-selector backstop in
+                product.css. The row floors every answer at 48px and a caller
+                cannot render one shorter, which is the whole point on this
+                surface: `min-height` beats a smaller `height` by definition, so
+                an undersized control is lifted to the floor rather than left
+                below it. A caller who wants a TALLER control still gets it,
+                because the row sets a minimum and not a height. */}
             {actions === undefined ? null : (
               <div
                 data-slot="dialog-actions"
                 ref={actionsRef}
                 className={cn(
-                  "flex shrink-0 flex-wrap items-center gap-opsin-2",
-                  "px-opsin-5 pt-opsin-2 pb-opsin-5 sm:justify-end",
+                  "flex shrink-0 flex-col items-stretch gap-(--opsin-space-4,1rem)",
+                  "sm:flex-row sm:flex-wrap sm:items-center sm:justify-end px-opsin-5 pt-opsin-2 pb-opsin-5",
+                  "[&>*]:w-full sm:[&>*]:w-auto",
+                  "[&>*]:min-h-(--opsin-target-comfortable,3rem)",
                 )}
               >
                 {actions}
@@ -776,9 +1011,15 @@ export function Dialog({
  * an ordinary dialog is what almost every product actually needs and the demo
  * should not teach the exception first.
  *
- * The trigger is a plain `button` rather than this system's Button, so that the
- * file a consumer installs depends on Surface and nothing else. It carries the
- * target floor and a focus ring of its own for the same reason.
+ * IT USES THE REAL `Button` for the trigger and both actions, which is why
+ * `button` sits in this component's `registryDependencies` even though `Dialog`
+ * itself never imports it. An earlier version hand-rolled all three controls so
+ * the file a consumer installs would depend on Surface and nothing else. That
+ * argument lost, and it lost the way it did for `sheet.tsx`: a demo that styles
+ * its own `button` teaches, in the one file a consumer reads first, that an
+ * action is a styled element rendered a weight lighter than any real Button, and
+ * it teaches it on the surface that decides whether a reading is deleted. The
+ * extra dependency is cheaper than that lesson.
  *
  * There is not a number anywhere in it. Dialog renders no measurement, so there
  * is no reading here for anybody to mistake for their own.
@@ -788,24 +1029,15 @@ export default function DialogDemo() {
 
   return (
     <div className="flex w-full max-w-sm flex-col items-start gap-opsin-4">
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        /* JOINED RATHER THAN MERGED. `cn` is `twMerge(clsx(…))` and
-           tailwind-merge is unconfigured, so it files `text-opsin-body` and
-           `text-card-foreground` in one conflict group and keeps only the
-           later. That cost this button its type step every time it rendered.
-           The two utilities set different CSS properties and both should apply.
-           Nothing here needs merging: there is no caller `className` on a demo.
-           `sheet.tsx` carries the same note at its close control. */
-        className={
-          "inline-flex min-h-(--opsin-target-minimum,2.75rem) items-center rounded-opsin-md " +
-          "border border-border bg-card px-opsin-4 text-opsin-body text-card-foreground " +
-          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-        }
-      >
+      <p className="m-0 text-opsin-footnote text-muted-foreground">
+        The dialog portals to the end of the document, so it covers the whole
+        page rather than this frame. Close it with the close control in its
+        header, with the escape key, or by tapping the dimmed area.
+      </p>
+
+      <Button variant="secondary" onClick={() => setOpen(true)}>
         Delete this reading
-      </button>
+      </Button>
 
       <Dialog
         open={open}
@@ -814,32 +1046,12 @@ export default function DialogDemo() {
         description="It will be removed from your history and from any trends it appears in. This cannot be undone."
         actions={
           <>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className={cn(
-                "inline-flex min-h-(--opsin-target-minimum,2.75rem) items-center rounded-opsin-md",
-                "border-2 border-border px-opsin-4 text-opsin-body",
-                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-              )}
-            >
+            <Button variant="secondary" onClick={() => setOpen(false)}>
               Delete reading
-            </button>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              /* Joined rather than merged, for the reason the first button in
-                 this demo gives: `text-opsin-body` and `text-primary-foreground`
-                 are one conflict group to an unconfigured tailwind-merge, and
-                 only the later of the two survived. */
-              className={
-                "inline-flex min-h-(--opsin-target-minimum,2.75rem) items-center rounded-opsin-md " +
-                "bg-primary px-opsin-4 text-opsin-body text-primary-foreground " +
-                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-              }
-            >
+            </Button>
+            <Button variant="primary" onClick={() => setOpen(false)}>
               Keep it
-            </button>
+            </Button>
           </>
         }
       />

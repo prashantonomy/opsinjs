@@ -38,6 +38,7 @@ export default function ResultCardACompoundReading() {
         ]}
         unit="mmHg"
         precision={0}
+        locale="en-GB"
         measuredAt="2026-03-14T07:40:00+00:00"
         now={EXAMPLE_NOW}
         category="heart"
