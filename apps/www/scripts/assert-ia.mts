@@ -30,7 +30,10 @@
 /* ------------------------------------------------------------------ *
  * Node version guard (addendum A5).                                   *
  * ------------------------------------------------------------------ */
-const NODE_MAJOR = Number.parseInt(process.versions.node.split(".")[0] ?? "0", 10)
+const NODE_MAJOR = Number.parseInt(
+  process.versions.node.split(".")[0] ?? "0",
+  10
+)
 if (!Number.isFinite(NODE_MAJOR) || NODE_MAJOR < 24) {
   console.error(
     [
@@ -43,7 +46,7 @@ if (!Number.isFinite(NODE_MAJOR) || NODE_MAJOR < 24) {
       "  baseline, and it is why engines.node is >=24.0.0 in both package.json",
       "  files. Install Node 24 (nvm install 24) and run this again.",
       "",
-    ].join("\n"),
+    ].join("\n")
   )
   process.exit(1)
 }
@@ -99,9 +102,9 @@ const TEMPLATES_DIR = join(APP_DIR, "content", "_templates")
 const CONSIDERED_COMPONENT_HEADINGS = componentSections("considered", "")
 if (CONSIDERED_COMPONENT_HEADINGS.length === 0) {
   throw new Error(
-    "assert-ia: componentSections(\"considered\", …) returned no sections, so the " +
+    'assert-ia: componentSections("considered", …) returned no sections, so the ' +
       "considered-component outline check would pass every page without reading it. " +
-      "COMPONENT_SECTIONS_BY_STATUS.considered in lib/status.ts is the source; see ADR 0008.",
+      "COMPONENT_SECTIONS_BY_STATUS.considered in lib/status.ts is the source; see ADR 0008."
   )
 }
 
@@ -330,10 +333,14 @@ const DOCS_PATH_ALLOWLIST = [
  * here is an orphan: it exists, it renders, and nobody will ever see it.
  */
 const ROUTE_ALLOWLIST: Array<{ route: string; reason: string }> = [
-  { route: "/", reason: "the home page; the wordmark links to it from every layout" },
+  {
+    route: "/",
+    reason: "the home page; the wordmark links to it from every layout",
+  },
   {
     route: "/docs/[[...slug]]",
-    reason: "the docs corpus itself, reached through the Docs nav item and the sidebar",
+    reason:
+      "the docs corpus itself, reached through the Docs nav item and the sidebar",
   },
   {
     route: "/view/[base]/[style]/[kind]/[name]",
@@ -376,11 +383,21 @@ interface Finding {
 
 const findings: Finding[] = []
 
-function fail(rule: string, file: string, message: string, line?: number): void {
+function fail(
+  rule: string,
+  file: string,
+  message: string,
+  line?: number
+): void {
   findings.push({ level: "error", rule, file, message, line })
 }
 
-function warn(rule: string, file: string, message: string, line?: number): void {
+function warn(
+  rule: string,
+  file: string,
+  message: string,
+  line?: number
+): void {
   findings.push({ level: "warn", rule, file, message, line })
 }
 
@@ -413,7 +430,11 @@ function readMaybe(file: string): string | undefined {
   }
 }
 
-function walk(dir: string, predicate: (name: string) => boolean, out: string[]): void {
+function walk(
+  dir: string,
+  predicate: (name: string) => boolean,
+  out: string[]
+): void {
   let entries: Dirent[]
   try {
     entries = readdirSync(dir, { withFileTypes: true })
@@ -503,7 +524,10 @@ interface ParsedPage {
 
 function parsePage(file: string): ParsedPage {
   const contents = readMaybe(file) ?? ""
-  const slug = relative(DOCS_DIR, file).replace(/\.mdx$/, "").split(sep).join("/")
+  const slug = relative(DOCS_DIR, file)
+    .replace(/\.mdx$/, "")
+    .split(sep)
+    .join("/")
   const lines = contents.split("\n")
 
   if ((lines[0] ?? "").trim() !== "---") {
@@ -514,7 +538,8 @@ function parsePage(file: string): ParsedPage {
       body: contents,
       bodyOffset: 1,
       headings: collectHeadings(contents),
-      frontmatterError: "no frontmatter block: the file does not begin with ---",
+      frontmatterError:
+        "no frontmatter block: the file does not begin with ---",
     }
   }
 
@@ -616,9 +641,10 @@ function parsePage(file: string): ParsedPage {
       continue
     }
 
-    frontmatter[key] = raw.startsWith("[") && raw.endsWith("]")
-      ? parseInlineArray(raw)
-      : parseScalar(raw)
+    frontmatter[key] =
+      raw.startsWith("[") && raw.endsWith("]")
+        ? parseInlineArray(raw)
+        : parseScalar(raw)
   }
 
   const body = lines.slice(end + 1).join("\n")
@@ -669,7 +695,12 @@ function stripCode(text: string): string {
 
     // A closing fence carries the same delimiter, is at least as long, and
     // carries nothing else on the line. Anything else is still block content.
-    if (run && run[0] === delimiter && run.length >= width && line.trim() === run) {
+    if (
+      run &&
+      run[0] === delimiter &&
+      run.length >= width &&
+      line.trim() === run
+    ) {
       delimiter = null
     }
     out.push("")
@@ -695,7 +726,8 @@ function asArray(value: FrontmatterValue | undefined): string[] {
 }
 
 function asText(value: FrontmatterValue | undefined): string | undefined {
-  if (value === undefined || Array.isArray(value) || typeof value === "object") return undefined
+  if (value === undefined || Array.isArray(value) || typeof value === "object")
+    return undefined
   return String(value)
 }
 
@@ -823,7 +855,7 @@ function checkTemplateOutlines(): void {
       warn(
         "OUT004",
         relative(APP_DIR, file),
-        `content/_templates/${kind}.mdx is missing, so nothing checks that the template still implements the outline in lib/status.ts.`,
+        `content/_templates/${kind}.mdx is missing, so nothing checks that the template still implements the outline in lib/status.ts.`
       )
       continue
     }
@@ -834,8 +866,10 @@ function checkTemplateOutlines(): void {
       relative(APP_DIR, file),
       `the template no longer implements the outline in lib/status.ts. Expected ${expected
         .map((heading) => `"${heading}"`)
-        .join(" -> ")}, found ${found.map((heading) => `"${heading}"`).join(" -> ")}. Change lib/status.ts and the template together, never one alone.`,
-      1,
+        .join(
+          " -> "
+        )}, found ${found.map((heading) => `"${heading}"`).join(" -> ")}. Change lib/status.ts and the template together, never one alone.`,
+      1
     )
   }
 }
@@ -867,7 +901,10 @@ async function importAuthoredCatalogue(): Promise<CatalogueRow[] | null> {
   const file = join(APP_DIR, "registry", "catalogue.ts")
   if (!exists(file)) return null
   try {
-    const mod = (await import(pathToFileURL(file).href)) as Record<string, unknown>
+    const mod = (await import(pathToFileURL(file).href)) as Record<
+      string,
+      unknown
+    >
     /* `CATALOGUE` first, and it was missing. registry/catalogue.ts exports
        `CATALOGUE` (uppercase), `SHIPPED`, `CONSIDERED` and `RESERVED_ALIASES`,
        and none of the names below matched. This branch therefore silently found
@@ -879,9 +916,17 @@ async function importAuthoredCatalogue(): Promise<CatalogueRow[] | null> {
        already had it right, and naming the function rather than its line
        number is deliberate: the line this comment used to cite has since
        moved seventy lines and pointed at an unrelated helper. */
-    for (const key of ["CATALOGUE", "catalogue", "components", "entries", "items", "default"]) {
+    for (const key of [
+      "CATALOGUE",
+      "catalogue",
+      "components",
+      "entries",
+      "items",
+      "default",
+    ]) {
       const value = mod[key]
-      if (Array.isArray(value) && value.length > 0) return value as CatalogueRow[]
+      if (Array.isArray(value) && value.length > 0)
+        return value as CatalogueRow[]
     }
   } catch {
     return null
@@ -905,15 +950,20 @@ function builtComponentIds(): Set<string> {
     return new Set(
       readdirSync(dir)
         .filter((name) => name.endsWith(".tsx") || name.endsWith(".ts"))
-        .map((name) => name.replace(/\.tsx?$/, "")),
+        .map((name) => name.replace(/\.tsx?$/, ""))
     )
   } catch {
     return new Set()
   }
 }
 
-async function loadCatalogue(): Promise<{ rows: CatalogueRow[]; source: string }> {
-  const generated = readMaybe(join(APP_DIR, "lib", "generated", "catalogue.json"))
+async function loadCatalogue(): Promise<{
+  rows: CatalogueRow[]
+  source: string
+}> {
+  const generated = readMaybe(
+    join(APP_DIR, "lib", "generated", "catalogue.json")
+  )
   if (generated) {
     try {
       const parsed = JSON.parse(generated) as { items?: CatalogueRow[] }
@@ -941,7 +991,10 @@ async function loadCatalogue(): Promise<{ rows: CatalogueRow[]; source: string }
  * Checks                                                              *
  * ================================================================== */
 
-function checkFrontmatter(page: ParsedPage, schema: FrontmatterSchema | undefined): void {
+function checkFrontmatter(
+  page: ParsedPage,
+  schema: FrontmatterSchema | undefined
+): void {
   const file = rel(page.file)
   if (page.frontmatterError) {
     fail("FM001", file, page.frontmatterError, 1)
@@ -960,8 +1013,17 @@ function checkFrontmatter(page: ParsedPage, schema: FrontmatterSchema | undefine
 
   for (const required of schema.required) {
     const value = front[required]
-    if (value === undefined || value === "" || (Array.isArray(value) && value.length === 0)) {
-      fail("FM002", file, `frontmatter is missing \`${required}\` (required by the schema)`, 1)
+    if (
+      value === undefined ||
+      value === "" ||
+      (Array.isArray(value) && value.length === 0)
+    ) {
+      fail(
+        "FM002",
+        file,
+        `frontmatter is missing \`${required}\` (required by the schema)`,
+        1
+      )
     }
   }
 
@@ -973,7 +1035,7 @@ function checkFrontmatter(page: ParsedPage, schema: FrontmatterSchema | undefine
           "FM004",
           file,
           `\`${key}\` is not in the frontmatter contract. Add it to content/_templates/frontmatter.schema.json and source.config.ts, or remove it.`,
-          1,
+          1
         )
       }
       continue
@@ -982,7 +1044,10 @@ function checkFrontmatter(page: ParsedPage, schema: FrontmatterSchema | undefine
       fail("FM005", file, `\`${key}\` must be a list`, 1)
       continue
     }
-    if (property.type === "string" && (Array.isArray(value) || typeof value === "object")) {
+    if (
+      property.type === "string" &&
+      (Array.isArray(value) || typeof value === "object")
+    ) {
       fail("FM005", file, `\`${key}\` must be a single string`, 1)
       continue
     }
@@ -997,7 +1062,7 @@ function checkFrontmatter(page: ParsedPage, schema: FrontmatterSchema | undefine
           "FM003",
           file,
           `\`${key}: ${text}\` is not one of ${property.enum.join(" | ")}`,
-          1,
+          1
         )
       }
     }
@@ -1006,7 +1071,12 @@ function checkFrontmatter(page: ParsedPage, schema: FrontmatterSchema | undefine
   for (const dateField of ["reviewed", "a11yDate"]) {
     const value = asText(front[dateField])
     if (value !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-      fail("FM012", file, `\`${dateField}: ${value}\` is not an ISO date (YYYY-MM-DD)`, 1)
+      fail(
+        "FM012",
+        file,
+        `\`${dateField}: ${value}\` is not an ISO date (YYYY-MM-DD)`,
+        1
+      )
     }
   }
 
@@ -1016,7 +1086,7 @@ function checkFrontmatter(page: ParsedPage, schema: FrontmatterSchema | undefine
       "FM013",
       file,
       `the description is ${description.length} characters. It is the search snippet and the card subtitle - one sentence.`,
-      1,
+      1
     )
   }
 
@@ -1026,22 +1096,30 @@ function checkFrontmatter(page: ParsedPage, schema: FrontmatterSchema | undefine
         "FM010",
         file,
         "a health page must declare `evidence: cited | opinion | mixed`. An honest `opinion` is always better than a plausible-looking reference.",
-        1,
+        1
       )
     }
     if (asText(front.reviewed) === undefined) {
-      fail("FM010", file, "a health page must carry `reviewed:` with the date it was last reviewed", 1)
+      fail(
+        "FM010",
+        file,
+        "a health page must carry `reviewed:` with the date it was last reviewed",
+        1
+      )
     }
   }
 
   if (kind === "component" && asText(front.status) !== "considered") {
     const category = asText(front.category) ?? ""
-    if (category.startsWith("health-") && asArray(front.governedBy).length === 0) {
+    if (
+      category.startsWith("health-") &&
+      asArray(front.governedBy).length === 0
+    ) {
       fail(
         "FM011",
         file,
         `category \`${category}\` begins with health-, so \`governedBy\` is mandatory: name the doctrine pages that decide what this component may assert.`,
-        1,
+        1
       )
     }
   }
@@ -1083,7 +1161,10 @@ function headingCandidates(heading: string): string[] {
   return [key, ...(HEADING_ALIASES[key] ?? []).map(normaliseHeading)]
 }
 
-function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): void {
+function checkOutline(
+  page: ParsedPage,
+  outlines: Record<string, string[]>
+): void {
   const file = rel(page.file)
   const kind = asText(page.frontmatter.kind)
   if (!kind) return
@@ -1120,7 +1201,7 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
         fail(
           "OUT001",
           file,
-          `missing "## ${heading}". A considered component page carries exactly ${CONSIDERED_COMPONENT_HEADINGS.map((h) => `"${h}"`).join(", ")} - see ADR 0008.`,
+          `missing "## ${heading}". A considered component page carries exactly ${CONSIDERED_COMPONENT_HEADINGS.map((h) => `"${h}"`).join(", ")} - see ADR 0008.`
         )
       }
     }
@@ -1130,7 +1211,7 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
         fail(
           "OUT002",
           file,
-          `"## ${heading}" is not part of a considered component page. These pages are thin by design - see ADR 0008.`,
+          `"## ${heading}" is not part of a considered component page. These pages are thin by design - see ADR 0008.`
         )
       }
     }
@@ -1152,7 +1233,10 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
          headings against an outline we cannot resolve would only add noise. */
       return
     }
-    outline = componentSections(status as Status, asText(page.frontmatter.category) ?? "")
+    outline = componentSections(
+      status as Status,
+      asText(page.frontmatter.category) ?? ""
+    )
     outlineSource = `componentSections("${status}", …) in lib/status.ts`
   } else {
     outline = outlines[kind]
@@ -1163,7 +1247,7 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
     warn(
       "OUT004",
       file,
-      `content/_templates/${kind}.mdx is missing, so this page's headings could not be checked against its kind.`,
+      `content/_templates/${kind}.mdx is missing, so this page's headings could not be checked against its kind.`
     )
     return
   }
@@ -1173,7 +1257,11 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
   if (policy === "header") {
     const first = outline[0]
     if (first && !presentSet.has(first)) {
-      fail("OUT001", file, `a ${kind} page must carry the "## ${first}" section`)
+      fail(
+        "OUT001",
+        file,
+        `a ${kind} page must carry the "## ${first}" section`
+      )
     }
     return
   }
@@ -1192,17 +1280,22 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
   const canonicalOf = new Map<string, string>()
   if (kind === "component") {
     for (const section of outline) {
-      for (const candidate of headingCandidates(section)) canonicalOf.set(candidate, section)
+      for (const candidate of headingCandidates(section))
+        canonicalOf.set(candidate, section)
     }
     /* Both spellings of section 14 resolve at every status; the canonical one
        for THIS status is the one the outline already asked for. */
     const a11y = normaliseHeading(accessibilitySectionFor(status as Status))
-    const a11ySection = outline.find((section) => headingCandidates(section).includes(a11y))
+    const a11ySection = outline.find((section) =>
+      headingCandidates(section).includes(a11y)
+    )
     if (a11ySection) canonicalOf.set(a11y, a11ySection)
   }
   const folded =
     kind === "component"
-      ? present.map((heading) => canonicalOf.get(normaliseHeading(heading)) ?? heading)
+      ? present.map(
+          (heading) => canonicalOf.get(normaliseHeading(heading)) ?? heading
+        )
       : present
   const foldedSet = new Set(folded)
 
@@ -1226,19 +1319,20 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
       fail(
         "OUT013",
         file,
-        `"## ${heading}" carries this component's accessibility contract, but at status: ${status} that section is spelled "## ${canonicalA11y}". accessibilitySectionFor() in lib/status.ts owns the name - "Accessibility requirements" at planned, "Accessibility" from alpha onwards - because at planned it is a bar to clear and afterwards it is a result to report.`,
+        `"## ${heading}" carries this component's accessibility contract, but at status: ${status} that section is spelled "## ${canonicalA11y}". accessibilitySectionFor() in lib/status.ts owns the name - "Accessibility requirements" at planned, "Accessibility" from alpha onwards - because at planned it is a bar to clear and afterwards it is a result to report.`
       )
     }
   }
 
   const required =
-    REQUIRED_HEADINGS[kind] ?? outline.filter((heading) => !conditional.has(heading))
+    REQUIRED_HEADINGS[kind] ??
+    outline.filter((heading) => !conditional.has(heading))
   for (const heading of required) {
     if (!foldedSet.has(heading)) {
       fail(
         "OUT001",
         file,
-        `missing "## ${heading}". The outline for kind: ${kind} is fixed - see ${outlineSource}.`,
+        `missing "## ${heading}". The outline for kind: ${kind} is fixed - see ${outlineSource}.`
       )
     }
   }
@@ -1256,7 +1350,7 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
           file,
           kind === "component"
             ? `"## ${heading}" is not part of the outline for a component at status: ${status}. The outline is ${outline.map((section) => `"${section}"`).join(" -> ")}. Use an H3 inside an existing section, or move the page to the status whose outline has it.`
-            : `"## ${heading}" is not part of the outline for kind: ${kind}. Use an H3 inside an existing section, or change the page's kind.`,
+            : `"## ${heading}" is not part of the outline for kind: ${kind}. Use an H3 inside an existing section, or change the page's kind.`
         )
       }
     }
@@ -1271,7 +1365,7 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
     fail(
       "OUT003",
       file,
-      `the sections are out of order. Expected ${expected.map((heading) => `"${heading}"`).join(" -> ")}.`,
+      `the sections are out of order. Expected ${expected.map((heading) => `"${heading}"`).join(" -> ")}.`
     )
   }
 
@@ -1298,7 +1392,7 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
         file,
         status === "planned"
           ? "a component page at status: planned must render <StubNotice> under ## Status. Without it the page reads as documentation for something that exists."
-          : 'a component page at status: alpha must render <StubNotice status="alpha"> under ## Status. Promotion sheds <NotBuiltYet> and <Todo>; <StubNotice> stays and carries the phase and the open safety questions, which are still open at alpha.',
+          : 'a component page at status: alpha must render <StubNotice status="alpha"> under ## Status. Promotion sheds <NotBuiltYet> and <Todo>; <StubNotice> stays and carries the phase and the open safety questions, which are still open at alpha.'
       )
     }
   }
@@ -1310,7 +1404,7 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
       warn(
         "OUT011",
         file,
-        "a project page ends with <LastUpdated /> and <Reviewed />. These pages are the ones readers check for currency, and an undated one is worse than an absent one.",
+        "a project page ends with <LastUpdated /> and <Reviewed />. These pages are the ones readers check for currency, and an undated one is worse than an absent one."
       )
     }
   }
@@ -1323,14 +1417,14 @@ function checkOutline(page: ParsedPage, outlines: Record<string, string[]>): voi
       fail(
         "OUT010",
         file,
-        'category begins with health-, so "## Clinical meaning" is mandatory: say what this component asserts about a person\'s health and what it must never be read as.',
+        'category begins with health-, so "## Clinical meaning" is mandatory: say what this component asserts about a person\'s health and what it must never be read as.'
       )
     }
     if (!category.startsWith("health-") && hasClinical) {
       fail(
         "OUT010",
         file,
-        '"## Clinical meaning" is only for components whose category begins with health-. Remove the section or fix the category.',
+        '"## Clinical meaning" is only for components whose category begins with health-. Remove the section or fix the category.'
       )
     }
   }
@@ -1346,7 +1440,9 @@ function knownMdxTags(): { known: Set<string>; drift: string[] } {
   for (const line of source.split("\n")) {
     const entry = /^\s{2,}([A-Z][A-Za-z0-9]*)\s*[,:]/.exec(line)
     if (entry && entry[1]) exported.add(entry[1])
-    const declared = /^export\s+(?:const|function)\s+([A-Z][A-Za-z0-9]*)/.exec(line)
+    const declared = /^export\s+(?:const|function)\s+([A-Z][A-Za-z0-9]*)/.exec(
+      line
+    )
     if (declared && declared[1]) exported.add(declared[1])
   }
   for (const name of exported) {
@@ -1372,7 +1468,7 @@ function checkMdxTags(page: ParsedPage, known: Set<string>): void {
       fail(
         "MDX001",
         file,
-        `<${tag}> is not in the MDX vocabulary. The vocabulary is closed: content pages use the documented tags and never define one. If <${tag}> should exist, it belongs in components/mdx.tsx and in the anatomy contract first.`,
+        `<${tag}> is not in the MDX vocabulary. The vocabulary is closed: content pages use the documented tags and never define one. If <${tag}> should exist, it belongs in components/mdx.tsx and in the anatomy contract first.`
       )
     }
   }
@@ -1383,12 +1479,15 @@ function checkMdxLinks(page: ParsedPage): void {
   const lines = page.body.split("\n")
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index] ?? ""
-    if (/\]\(\/docs(\/|\))/.test(line) || /href=["']\/docs(\/|["'])/.test(line)) {
+    if (
+      /\]\(\/docs(\/|\))/.test(line) ||
+      /href=["']\/docs(\/|["'])/.test(line)
+    ) {
       fail(
         "MDX002",
         file,
         "absolute /docs link. MDX uses relative file links resolved by createRelativeLink - `[Two colour axes](../health/two-colour-axes.mdx)` - so the corpus survives a base-path or locale change.",
-        page.bodyOffset + index,
+        page.bodyOffset + index
       )
     }
   }
@@ -1418,24 +1517,51 @@ function stripTsComments(source: string): string {
     const next = source[i + 1]
 
     if (block) {
-      if (ch === "*" && next === "/") { block = false; i += 1; out += "  "; continue }
+      if (ch === "*" && next === "/") {
+        block = false
+        i += 1
+        out += "  "
+        continue
+      }
       out += ch === "\n" ? "\n" : " "
       continue
     }
     if (line) {
-      if (ch === "\n") { line = false; out += "\n"; continue }
+      if (ch === "\n") {
+        line = false
+        out += "\n"
+        continue
+      }
       out += " "
       continue
     }
     if (quote) {
       out += ch
-      if (ch === "\\") { out += source[i + 1] ?? ""; i += 1; continue }
+      if (ch === "\\") {
+        out += source[i + 1] ?? ""
+        i += 1
+        continue
+      }
       if (ch === quote) quote = null
       continue
     }
-    if (ch === '"' || ch === "'" || ch === "`") { quote = ch; out += ch; continue }
-    if (ch === "/" && next === "*") { block = true; i += 1; out += "  "; continue }
-    if (ch === "/" && next === "/") { line = true; i += 1; out += "  "; continue }
+    if (ch === '"' || ch === "'" || ch === "`") {
+      quote = ch
+      out += ch
+      continue
+    }
+    if (ch === "/" && next === "*") {
+      block = true
+      i += 1
+      out += "  "
+      continue
+    }
+    if (ch === "/" && next === "/") {
+      line = true
+      i += 1
+      out += "  "
+      continue
+    }
     out += ch
   }
   return out
@@ -1479,13 +1605,25 @@ function stringLiteralsOnly(source: string): string {
     const frame = interpolations[interpolations.length - 1]
     if (frame) {
       if (frame.quote) {
-        if (ch === "\\") { out += blank(ch) + blank(source[i + 1] ?? " "); i += 1; continue }
+        if (ch === "\\") {
+          out += blank(ch) + blank(source[i + 1] ?? " ")
+          i += 1
+          continue
+        }
         if (ch === frame.quote) frame.quote = null
         out += blank(ch)
         continue
       }
-      if (ch === '"' || ch === "'" || ch === "`") { frame.quote = ch; out += blank(ch); continue }
-      if (ch === "{") { frame.depth += 1; out += blank(ch); continue }
+      if (ch === '"' || ch === "'" || ch === "`") {
+        frame.quote = ch
+        out += blank(ch)
+        continue
+      }
+      if (ch === "{") {
+        frame.depth += 1
+        out += blank(ch)
+        continue
+      }
       if (ch === "}") {
         frame.depth -= 1
         out += blank(ch)
@@ -1497,7 +1635,11 @@ function stringLiteralsOnly(source: string): string {
     }
 
     if (quote) {
-      if (ch === "\\") { out += ch + (source[i + 1] ?? ""); i += 1; continue }
+      if (ch === "\\") {
+        out += ch + (source[i + 1] ?? "")
+        i += 1
+        continue
+      }
       if (quote === "`" && ch === "$" && next === "{") {
         interpolations.push({ depth: 1, quote: null })
         out += blank(ch) + blank(next)
@@ -1509,7 +1651,11 @@ function stringLiteralsOnly(source: string): string {
       continue
     }
 
-    if (ch === '"' || ch === "'" || ch === "`") { quote = ch; out += ch; continue }
+    if (ch === '"' || ch === "'" || ch === "`") {
+      quote = ch
+      out += ch
+      continue
+    }
     out += blank(ch)
   }
   return out
@@ -1518,7 +1664,11 @@ function stringLiteralsOnly(source: string): string {
 function checkHardcodedDocsPaths(): void {
   const files: string[] = []
   for (const dir of ["app", "components", "lib"]) {
-    walk(join(APP_DIR, dir), (name) => name.endsWith(".ts") || name.endsWith(".tsx"), files)
+    walk(
+      join(APP_DIR, dir),
+      (name) => name.endsWith(".ts") || name.endsWith(".tsx"),
+      files
+    )
   }
   const configFile = join(APP_DIR, "next.config.mjs")
   if (exists(configFile)) files.push(configFile)
@@ -1555,7 +1705,7 @@ function checkHardcodedDocsPaths(): void {
        one line, so that every offset below still names the line it came from. */
     const executable = stripTsComments(contents).replace(
       /\b(?:PageProps|LayoutProps|RouteContext|LayoutSlots)<[^>\n]*>/g,
-      (matched) => " ".repeat(matched.length),
+      (matched) => " ".repeat(matched.length)
     )
     const lines = stringLiteralsOnly(executable).split("\n")
     for (let index = 0; index < lines.length; index += 1) {
@@ -1565,7 +1715,7 @@ function checkHardcodedDocsPaths(): void {
           "TS001",
           relative_,
           "hardcoded /docs path. Build it through lib/routes.ts - that module is the single seam the deferred [lang] retrofit needs, and this rule is what keeps it single.",
-          index + 1,
+          index + 1
         )
         break
       }
@@ -1585,9 +1735,15 @@ function checkMetaTrees(pages: ParsedPage[]): void {
       .filter(
         (page) =>
           asText(page.frontmatter.kind) === "component" &&
-          asText(page.frontmatter.status) === "considered",
+          asText(page.frontmatter.status) === "considered"
       )
-      .map((page) => page.file.replace(/\.mdx$/, "").split(sep).pop() ?? ""),
+      .map(
+        (page) =>
+          page.file
+            .replace(/\.mdx$/, "")
+            .split(sep)
+            .pop() ?? ""
+      )
   )
 
   const bySlug = new Map(pages.map((page) => [page.slug, page]))
@@ -1607,7 +1763,9 @@ function checkMetaTrees(pages: ParsedPage[]): void {
     const children = entries
       .filter((entry) => !entry.name.startsWith("."))
       .map((entry) => ({
-        name: entry.isDirectory() ? entry.name : entry.name.replace(/\.mdx$/, ""),
+        name: entry.isDirectory()
+          ? entry.name
+          : entry.name.replace(/\.mdx$/, ""),
         isDirectory: entry.isDirectory(),
         raw: entry.name,
       }))
@@ -1618,11 +1776,17 @@ function checkMetaTrees(pages: ParsedPage[]): void {
       try {
         parsed = JSON.parse(meta) as { pages?: unknown[] }
       } catch (error) {
-        fail("IA004", rel(metaFile), `not valid JSON - ${(error as Error).message}`)
+        fail(
+          "IA004",
+          rel(metaFile),
+          `not valid JSON - ${(error as Error).message}`
+        )
         parsed = undefined
       }
 
-      const listed = Array.isArray(parsed?.pages) ? parsed.pages.map((entry) => String(entry)) : []
+      const listed = Array.isArray(parsed?.pages)
+        ? parsed.pages.map((entry) => String(entry))
+        : []
       /* fumadocs has three rest forms and none of them names a file.
          "..."   sweeps everything else in source order;
          "z...a" sweeps everything else in DESCENDING order, which is what a
@@ -1638,9 +1802,11 @@ function checkMetaTrees(pages: ParsedPage[]): void {
         listed
           .filter(
             (entry) =>
-              !entry.startsWith("---") && !entry.startsWith("[") && !REST.has(entry),
+              !entry.startsWith("---") &&
+              !entry.startsWith("[") &&
+              !REST.has(entry)
           )
-          .map((entry) => entry.replace(/^!/, "").replace(/^\.\.\./, "")),
+          .map((entry) => entry.replace(/^!/, "").replace(/^\.\.\./, ""))
       )
 
       for (const name of names) {
@@ -1650,7 +1816,7 @@ function checkMetaTrees(pages: ParsedPage[]): void {
           fail(
             "IA002",
             rel(metaFile),
-            `lists "${name}", but neither ${name}.mdx nor ${name}/ exists in this folder.`,
+            `lists "${name}", but neither ${name}.mdx nor ${name}/ exists in this folder.`
           )
         }
       }
@@ -1666,12 +1832,15 @@ function checkMetaTrees(pages: ParsedPage[]): void {
              still resolve, so it is a real page at a guessable URL, reachable
              through search, the .md twins and /r/index.json. Listing one is the
              error here; omitting one is correct. */
-          if (consideredComponentPages.has(child.name) && dirSlug === "components") {
+          if (
+            consideredComponentPages.has(child.name) &&
+            dirSlug === "components"
+          ) {
             if (names.has(child.name)) {
               fail(
                 "IA001",
                 rel(join(dir, child.raw)),
-                `is listed in components/meta.json, but a considered component page is deliberately absent from the sidebar - see ADR 0008. Remove it from meta.json; it stays resolvable without being listed.`,
+                `is listed in components/meta.json, but a considered component page is deliberately absent from the sidebar - see ADR 0008. Remove it from meta.json; it stays resolvable without being listed.`
               )
             }
             continue
@@ -1681,14 +1850,15 @@ function checkMetaTrees(pages: ParsedPage[]): void {
           fail(
             "IA001",
             rel(join(dir, child.raw)),
-            `not listed in ${dirSlug === "" ? "content/docs/meta.json" : `${dirSlug}/meta.json`} and that file has no "..." entry, so this page exists at a URL nothing in the sidebar links to.`,
+            `not listed in ${dirSlug === "" ? "content/docs/meta.json" : `${dirSlug}/meta.json`} and that file has no "..." entry, so this page exists at a URL nothing in the sidebar links to.`
           )
         }
       }
     }
 
     for (const entry of entries) {
-      if (entry.isDirectory() && !entry.name.startsWith(".")) visit(join(dir, entry.name))
+      if (entry.isDirectory() && !entry.name.startsWith("."))
+        visit(join(dir, entry.name))
     }
   }
 
@@ -1708,7 +1878,7 @@ function checkMetaTrees(pages: ParsedPage[]): void {
         fail(
           "IA005",
           "content/docs/meta.json",
-          `the Sections rail links to /docs/${href}, which is not a page in the corpus.`,
+          `the Sections rail links to /docs/${href}, which is not a page in the corpus.`
         )
       }
     }
@@ -1722,7 +1892,9 @@ function checkMetaTrees(pages: ParsedPage[]): void {
 function routeForPageFile(file: string): string {
   const parts = relative(join(APP_DIR, "app"), file).split(sep)
   parts.pop()
-  const segments = parts.filter((part) => !(part.startsWith("(") && part.endsWith(")")))
+  const segments = parts.filter(
+    (part) => !(part.startsWith("(") && part.endsWith(")"))
+  )
   return `/${segments.join("/")}`.replace(/\/$/, "") || "/"
 }
 
@@ -1738,7 +1910,11 @@ function checkRouteReachability(pages: ParsedPage[]): void {
      a route no file mentions is not. */
   const sourceFiles: string[] = []
   for (const dir of ["app", "components", "lib"]) {
-    walk(join(APP_DIR, dir), (name) => name.endsWith(".ts") || name.endsWith(".tsx"), sourceFiles)
+    walk(
+      join(APP_DIR, dir),
+      (name) => name.endsWith(".ts") || name.endsWith(".tsx"),
+      sourceFiles
+    )
   }
   const corpus = new Map<string, string>()
   for (const file of sourceFiles) {
@@ -1746,7 +1922,9 @@ function checkRouteReachability(pages: ParsedPage[]): void {
     if (contents !== undefined) corpus.set(file, contents)
   }
 
-  const allowed = new Map(ROUTE_ALLOWLIST.map((entry) => [entry.route, entry.reason]))
+  const allowed = new Map(
+    ROUTE_ALLOWLIST.map((entry) => [entry.route, entry.reason])
+  )
   const navSet = new Set(TOP_NAV)
   const docsSlugs = new Set(pages.map((page) => page.slug))
 
@@ -1764,7 +1942,11 @@ function checkRouteReachability(pages: ParsedPage[]): void {
     let linkedFrom: string | undefined
     for (const [source, contents] of corpus) {
       if (source === file) continue
-      if (contents.includes(`"${route}"`) || contents.includes(`'${route}'`) || contents.includes(`\`${route}\``)) {
+      if (
+        contents.includes(`"${route}"`) ||
+        contents.includes(`'${route}'`) ||
+        contents.includes(`\`${route}\``)
+      ) {
         linkedFrom = source
         break
       }
@@ -1774,7 +1956,7 @@ function checkRouteReachability(pages: ParsedPage[]): void {
     fail(
       "IA003",
       rel(file),
-      `nothing links to ${route}. Every page under app/ must be reachable from the top navigation, from a page that links to it, or from the allowlist in assert-ia.mts with a stated reason - otherwise it renders for nobody.`,
+      `nothing links to ${route}. Every page under app/ must be reachable from the top navigation, from a page that links to it, or from the allowlist in assert-ia.mts with a stated reason - otherwise it renders for nobody.`
     )
   }
 
@@ -1782,11 +1964,14 @@ function checkRouteReachability(pages: ParsedPage[]): void {
   const layout = readMaybe(join(APP_DIR, "lib", "layout.shared.tsx"))
   if (layout) {
     for (const href of TOP_NAV) {
-      if (!layout.includes(href) && !layout.includes(href.replace("/docs", ""))) {
+      if (
+        !layout.includes(href) &&
+        !layout.includes(href.replace("/docs", ""))
+      ) {
         warn(
           "IA006",
           "lib/layout.shared.tsx",
-          `the frozen top navigation includes ${href}, which this file does not appear to declare. The nav is frozen by addendum A10 and this is the only file allowed to define it.`,
+          `the frozen top navigation includes ${href}, which this file does not appear to declare. The nav is frozen by addendum A10 and this is the only file allowed to define it.`
         )
       }
     }
@@ -1801,7 +1986,7 @@ function checkCatalogue(
   pages: ParsedPage[],
   catalogue: CatalogueRow[],
   source: string,
-  authored: CatalogueRow[] | null,
+  authored: CatalogueRow[] | null
 ): void {
   const ids = new Set(catalogue.map((row) => row.name))
   const bySlug = new Map(pages.map((page) => [page.slug, page]))
@@ -1814,11 +1999,11 @@ function checkCatalogue(
       "registry/catalogue.ts",
       `the frozen roster of 24 specified components names ${missingFromCatalogue.length} id${
         missingFromCatalogue.length === 1 ? "" : "s"
-      } the catalogue read from ${source} does not contain: ${missingFromCatalogue.join(", ")}.`,
+      } the catalogue read from ${source} does not contain: ${missingFromCatalogue.join(", ")}.`
     )
   }
   const unexpected = [...ids].filter(
-    (id) => !SHIPPED_IDS.includes(id) && !CONSIDERED_IDS.includes(id),
+    (id) => !SHIPPED_IDS.includes(id) && !CONSIDERED_IDS.includes(id)
   )
   if (unexpected.length > 0) {
     warn(
@@ -1826,11 +2011,13 @@ function checkCatalogue(
       "registry/catalogue.ts",
       `the catalogue contains ${unexpected.length} id${
         unexpected.length === 1 ? "" : "s"
-      } that are in neither frozen roster: ${unexpected.join(", ")}. The rosters are contracts C1 and C2; growing them is a decision, not an edit.`,
+      } that are in neither frozen roster: ${unexpected.join(", ")}. The rosters are contracts C1 and C2; growing them is a decision, not an edit.`
     )
   }
 
-  const componentPages = pages.filter((page) => asText(page.frontmatter.kind) === "component")
+  const componentPages = pages.filter(
+    (page) => asText(page.frontmatter.kind) === "component"
+  )
   const componentSlugs = new Set(componentPages.map((page) => page.slug))
 
   /* Every shipped id must have a page. */
@@ -1840,14 +2027,23 @@ function checkCatalogue(
       fail(
         "CAT007",
         "registry/catalogue.ts",
-        `\`${row.name}\` is in the catalogue as ${row.status ?? "planned"} but content/docs/components/${row.name}.mdx does not exist. A component only exists if it carries a specification.`,
+        `\`${row.name}\` is in the catalogue as ${row.status ?? "planned"} but content/docs/components/${row.name}.mdx does not exist. A component only exists if it carries a specification.`
       )
     }
   }
 
   /* Considered ids must resolve to something. */
   const catchAll = [
-    join(APP_DIR, "app", "(chrome)", "(docs)", "docs", "components", "[id]", "page.tsx"),
+    join(
+      APP_DIR,
+      "app",
+      "(chrome)",
+      "(docs)",
+      "docs",
+      "components",
+      "[id]",
+      "page.tsx"
+    ),
     join(APP_DIR, "app", "(docs)", "docs", "components", "[id]", "page.tsx"),
   ].some((file) => exists(file))
   const unaddressed = catalogue
@@ -1858,7 +2054,7 @@ function checkCatalogue(
     warn(
       "CAT008",
       "registry/catalogue.ts",
-      `${unaddressed.length} considered component${unaddressed.length === 1 ? " has" : "s have"} no address of ${unaddressed.length === 1 ? "its" : "their"} own: neither a components/<id>.mdx page nor a catch-all route resolves ${unaddressed.join(", ")}. They are listed in the generated catalogue page and in /r, so an agent that reads either gets an answer; a reader who guesses the URL gets a 404. Addendum B19 asks for one mechanism to be chosen and recorded in an ADR.`,
+      `${unaddressed.length} considered component${unaddressed.length === 1 ? " has" : "s have"} no address of ${unaddressed.length === 1 ? "its" : "their"} own: neither a components/<id>.mdx page nor a catch-all route resolves ${unaddressed.join(", ")}. They are listed in the generated catalogue page and in /r, so an agent that reads either gets an answer; a reader who guesses the URL gets a 404. Addendum B19 asks for one mechanism to be chosen and recorded in an ADR.`
     )
   }
 
@@ -1905,7 +2101,7 @@ function checkCatalogue(
         fail(
           "CAT012",
           useInsteadSource,
-          `\`${row.name}\` names itself in \`useInstead\`. A reader told to use \`${row.name}\` instead of \`${row.name}\` has been sent back to the page that just refused them.`,
+          `\`${row.name}\` names itself in \`useInstead\`. A reader told to use \`${row.name}\` instead of \`${row.name}\` has been sent back to the page that just refused them.`
         )
         continue
       }
@@ -1913,7 +2109,7 @@ function checkCatalogue(
         fail(
           "CAT012",
           useInsteadSource,
-          `\`${row.name}\` says \`useInstead: ${target}\`, and \`${target}\` is not a catalogue id. The alternative offered to somebody who has just been told no must be a component this system actually names - the catalogue is the only namespace.`,
+          `\`${row.name}\` says \`useInstead: ${target}\`, and \`${target}\` is not a catalogue id. The alternative offered to somebody who has just been told no must be a component this system actually names - the catalogue is the only namespace.`
         )
         continue
       }
@@ -1921,7 +2117,7 @@ function checkCatalogue(
         warn(
           "CAT012",
           useInsteadSource,
-          `\`${row.name}\` says \`useInstead: ${target}\`, and \`${target}\` has no file under registry/bases/base/. The redirect points from one specification to another, so a reader who follows it still has nothing to install. Name a built component, or say in \`why\` what to reach for outside opsinjs.`,
+          `\`${row.name}\` says \`useInstead: ${target}\`, and \`${target}\` has no file under registry/bases/base/. The redirect points from one specification to another, so a reader who follows it still has nothing to install. Name a built component, or say in \`why\` what to reach for outside opsinjs.`
         )
       }
     }
@@ -1975,7 +2171,7 @@ function checkCatalogue(
     fail(
       "CAT013",
       useInsteadSource,
-      `\`${target}\` is a considered row that the built page${pointers.size === 1 ? "" : "s"} ${from} point${pointers.size === 1 ? "s" : ""} at with \`instead: "${target}"\`, and it carries no \`why\`. The page renders that \`why\` inline as the honest answer for a reader who has just been told to reach for something opsinjs did not build; with the field blank the reader is sent back around the redirect the pointer was meant to end. Give \`${target}\` a \`why\` that names what to reach for.`,
+      `\`${target}\` is a considered row that the built page${pointers.size === 1 ? "" : "s"} ${from} point${pointers.size === 1 ? "s" : ""} at with \`instead: "${target}"\`, and it carries no \`why\`. The page renders that \`why\` inline as the honest answer for a reader who has just been told to reach for something opsinjs did not build; with the field blank the reader is sent back around the redirect the pointer was meant to end. Give \`${target}\` a \`why\` that names what to reach for.`
     )
   }
 
@@ -1984,11 +2180,14 @@ function checkCatalogue(
   for (const page of pages) {
     const implemented = asArray(page.frontmatter.implements)
     if (implemented.length === 0) {
-      if (asText(page.frontmatter.kind) === "health" && page.slug !== "health/index") {
+      if (
+        asText(page.frontmatter.kind) === "health" &&
+        page.slug !== "health/index"
+      ) {
         warn(
           "CAT010",
           rel(page.file),
-          "a health rule with no `implements` names no component it governs, so nothing on a component page links back to it.",
+          "a health rule with no `implements` names no component it governs, so nothing on a component page links back to it."
         )
       }
       continue
@@ -1998,7 +2197,7 @@ function checkCatalogue(
         fail(
           "CAT001",
           rel(page.file),
-          `\`implements: ${id}\` is not a catalogue id. Every entry must name a real component, shipped or considered - the catalogue is the only namespace.`,
+          `\`implements: ${id}\` is not a catalogue id. Every entry must name a real component, shipped or considered - the catalogue is the only namespace.`
         )
         continue
       }
@@ -2013,13 +2212,18 @@ function checkCatalogue(
     const governedBy = asArray(page.frontmatter.governedBy)
 
     for (const doctrine of governedBy) {
-      const candidates = [doctrine, `health/${doctrine}`, `foundations/${doctrine}`, `accessibility/${doctrine}`]
+      const candidates = [
+        doctrine,
+        `health/${doctrine}`,
+        `foundations/${doctrine}`,
+        `accessibility/${doctrine}`,
+      ]
       const target = candidates.find((slug) => bySlug.has(slug))
       if (!target) {
         fail(
           "CAT002",
           rel(page.file),
-          `\`governedBy: ${doctrine}\` does not resolve to a page. Name the doctrine page's slug, for example \`two-colour-axes\` for health/two-colour-axes.`,
+          `\`governedBy: ${doctrine}\` does not resolve to a page. Name the doctrine page's slug, for example \`two-colour-axes\` for health/two-colour-axes.`
         )
         continue
       }
@@ -2028,7 +2232,7 @@ function checkCatalogue(
         fail(
           "CAT003",
           rel(page.file),
-          `this page says it is governed by ${target}, but that page's \`implements\` does not name \`${id}\`. The relationship is enforced in both directions so neither side can quietly stop being true.`,
+          `this page says it is governed by ${target}, but that page's \`implements\` does not name \`${id}\`. The relationship is enforced in both directions so neither side can quietly stop being true.`
         )
       }
     }
@@ -2045,16 +2249,21 @@ function checkCatalogue(
      * force a frontmatter list nobody reads. Reported, not enforced, so the
      * asymmetry is visible rather than silent.
      */
-    const unlisted = (implementsByComponent.get(id) ?? []).filter((doctrineSlug) => {
-      if (doctrineSlug.endsWith("/index") || doctrineSlug === "index") return false
-      const shortForm = doctrineSlug.split("/").pop() ?? doctrineSlug
-      return !governedBy.includes(shortForm) && !governedBy.includes(doctrineSlug)
-    })
+    const unlisted = (implementsByComponent.get(id) ?? []).filter(
+      (doctrineSlug) => {
+        if (doctrineSlug.endsWith("/index") || doctrineSlug === "index")
+          return false
+        const shortForm = doctrineSlug.split("/").pop() ?? doctrineSlug
+        return (
+          !governedBy.includes(shortForm) && !governedBy.includes(doctrineSlug)
+        )
+      }
+    )
     if (unlisted.length > 0) {
       warn(
         "CAT003",
         rel(page.file),
-        `${unlisted.length} doctrine page${unlisted.length === 1 ? "" : "s"} claim to govern \`${id}\` without being named in its \`governedBy\`: ${unlisted.join(", ")}. Either list them or accept that the doctrine governs more than this page advertises.`,
+        `${unlisted.length} doctrine page${unlisted.length === 1 ? "" : "s"} claim to govern \`${id}\` without being named in its \`governedBy\`: ${unlisted.join(", ")}. Either list them or accept that the doctrine governs more than this page advertises.`
       )
     }
   }
@@ -2079,7 +2288,8 @@ function checkCatalogue(
   const REVERSE_INDEX_ROOTS = ["recipes", "screens", "patterns"]
   const bareToSlugs = new Map<string, string[]>()
   for (const slug of bySlug.keys()) {
-    if (!REVERSE_INDEX_ROOTS.some((root) => slug.startsWith(`${root}/`))) continue
+    if (!REVERSE_INDEX_ROOTS.some((root) => slug.startsWith(`${root}/`)))
+      continue
     const last = slug.split("/").pop() ?? slug
     const owners = bareToSlugs.get(last) ?? []
     owners.push(slug)
@@ -2106,7 +2316,7 @@ function checkCatalogue(
         fail(
           "CAT004",
           rel(page.file),
-          `\`usedIn: ${target}\` does not resolve to a recipe, screen or pattern page.`,
+          `\`usedIn: ${target}\` does not resolve to a recipe, screen or pattern page.`
         )
         continue
       }
@@ -2135,7 +2345,7 @@ function checkCatalogue(
         warn(
           "CAT004",
           rel(target_.file),
-          `components/${id} declares \`usedIn: ${target}\`, but this page neither lists \`${id}\` in \`implements:\` nor mentions it. The reverse index should be true in both directions.`,
+          `components/${id} declares \`usedIn: ${target}\`, but this page neither lists \`${id}\` in \`implements:\` nor mentions it. The reverse index should be true in both directions.`
         )
       }
     }
@@ -2174,7 +2384,10 @@ function checkCatalogue(
     }
     const pageUsedIn = new Map<string, string[]>()
     for (const page of componentPages) {
-      pageUsedIn.set(page.slug.replace(/^components\//, ""), asArray(page.frontmatter.usedIn))
+      pageUsedIn.set(
+        page.slug.replace(/^components\//, ""),
+        asArray(page.frontmatter.usedIn)
+      )
     }
     for (const page of pages) {
       const section = page.slug.match(/^(screens|recipes|patterns)\//)
@@ -2189,7 +2402,8 @@ function checkCatalogue(
          two spellings this reverse-index check honours. An ambiguous bare
          segment is not honoured, because it does not name one page. */
       const usage = page.slug.slice(section[0].length)
-      if (usage === "" || usage === "index" || usage.endsWith("/index")) continue
+      if (usage === "" || usage === "index" || usage.endsWith("/index"))
+        continue
       const bareUsage = usage.split("/").pop() ?? usage
       const bareUnambiguous =
         bareUsage !== usage && (bareToSlugs.get(bareUsage)?.length ?? 0) === 1
@@ -2202,14 +2416,14 @@ function checkCatalogue(
           warn(
             "CAT014",
             "registry/catalogue.ts",
-            `${page.slug} lists \`${id}\` in \`implements\`, but the catalogue row \`${id}\` does not name "${usage}" in \`usedIn\`. The reverse index /r and llms.txt publish is then missing this composition, so an agent asking where \`${id}\` is used never learns about ${page.slug}. Add "${usage}" to that row's \`usedIn\`.`,
+            `${page.slug} lists \`${id}\` in \`implements\`, but the catalogue row \`${id}\` does not name "${usage}" in \`usedIn\`. The reverse index /r and llms.txt publish is then missing this composition, so an agent asking where \`${id}\` is used never learns about ${page.slug}. Add "${usage}" to that row's \`usedIn\`.`
           )
         }
         if (pageUsedIn.has(id) && !records(pageUsedIn.get(id) ?? [])) {
           warn(
             "CAT014",
             `content/docs/components/${id}.mdx`,
-            `${page.slug} lists \`${id}\` in \`implements\`, but this component page's \`usedIn\` frontmatter does not name "${usage}". Search reads the page while /r reads the catalogue, so both sides have to record the composition. Add "${usage}" to \`usedIn\`.`,
+            `${page.slug} lists \`${id}\` in \`implements\`, but this component page's \`usedIn\` frontmatter does not name "${usage}". Search reads the page while /r reads the catalogue, so both sides have to record the composition. Add "${usage}" to \`usedIn\`.`
           )
         }
       }
@@ -2233,7 +2447,7 @@ function checkCatalogue(
       fail(
         "CAT005",
         `content/docs/${owners[0]}.mdx`,
-        `the alias "${alias}" is claimed by ${owners.length} pages: ${owners.join(", ")}. Aliases are a single global namespace declared in registry/catalogue.ts; a synonym may point at exactly one page.`,
+        `the alias "${alias}" is claimed by ${owners.length} pages: ${owners.join(", ")}. Aliases are a single global namespace declared in registry/catalogue.ts; a synonym may point at exactly one page.`
       )
     }
   }
@@ -2252,7 +2466,7 @@ function checkCatalogue(
     fail(
       "CAT007",
       `content/docs/${owner}.mdx`,
-      `the alias "${alias}" is also a catalogue id. A synonym that is somebody else's name resolves to two things and therefore to neither: a reader searching for "${alias}" is sent to ${owner} rather than to components/${alias}. Drop it from the aliases, or rename the component.`,
+      `the alias "${alias}" is also a catalogue id. A synonym that is somebody else's name resolves to two things and therefore to neither: a reader searching for "${alias}" is sent to ${owner} rather than to components/${alias}. Drop it from the aliases, or rename the component.`
     )
   }
   for (const row of catalogue) {
@@ -2262,7 +2476,7 @@ function checkCatalogue(
       fail(
         "CAT007",
         "registry/catalogue.ts",
-        `the catalogue row "${row.name}" claims "${key}" as an alias, and "${key}" is itself a catalogue id. The alias namespace and the id namespace are one namespace.`,
+        `the catalogue row "${row.name}" claims "${key}" as an alias, and "${key}" is itself a catalogue id. The alias namespace and the id namespace are one namespace.`
       )
     }
   }
@@ -2277,7 +2491,9 @@ function checkCatalogue(
      `componentPages` includes components/index.mdx and the anatomy page, which
      have no catalogue row; those have nothing to disagree with, so they are the
      one case that is still skipped. */
-  const catalogueAliases = new Map(catalogue.map((row) => [row.name, row.aliases ?? []]))
+  const catalogueAliases = new Map(
+    catalogue.map((row) => [row.name, row.aliases ?? []])
+  )
   for (const page of componentPages) {
     const id = page.slug.replace(/^components\//, "")
     const fromCatalogue = catalogueAliases.get(id)
@@ -2288,7 +2504,7 @@ function checkCatalogue(
       warn(
         "CAT006",
         rel(page.file),
-        `the catalogue gives \`${id}\` the synonyms ${missing.map((alias) => `"${alias}"`).join(", ")}, which this page does not carry. Search reads the page; /r and llms.txt read the catalogue - a reader and an agent should not get different answers.`,
+        `the catalogue gives \`${id}\` the synonyms ${missing.map((alias) => `"${alias}"`).join(", ")}, which this page does not carry. Search reads the page; /r and llms.txt read the catalogue - a reader and an agent should not get different answers.`
       )
     }
     const extra = fromPage.filter((alias) => !fromCatalogue.includes(alias))
@@ -2296,7 +2512,7 @@ function checkCatalogue(
       warn(
         "CAT011",
         rel(page.file),
-        `this page claims the synonyms ${extra.map((alias) => `"${alias}"`).join(", ")}, which the catalogue row \`${id}\` does not. Search would find the page by a word that /r and llms.txt have never heard of. Add them to the row in registry/catalogue.ts, or drop them here.`,
+        `this page claims the synonyms ${extra.map((alias) => `"${alias}"`).join(", ")}, which the catalogue row \`${id}\` does not. Search would find the page by a word that /r and llms.txt have never heard of. Add them to the row in registry/catalogue.ts, or drop them here.`
       )
     }
   }
@@ -2314,11 +2530,14 @@ function checkCanonicality(pages: ParsedPage[]): void {
     for (const page of pages) {
       if (page.slug === topic.canonical) continue
 
-      if (topic.widget && new RegExp(`<${topic.widget}[\\s/>]`).test(stripCode(page.body))) {
+      if (
+        topic.widget &&
+        new RegExp(`<${topic.widget}[\\s/>]`).test(stripCode(page.body))
+      ) {
         fail(
           "DUP001",
           rel(page.file),
-          `<${topic.widget}> belongs to ${topic.canonical} only - ${topic.reason}. Link to it instead.`,
+          `<${topic.widget}> belongs to ${topic.canonical} only - ${topic.reason}. Link to it instead.`
         )
       }
 
@@ -2333,7 +2552,7 @@ function checkCanonicality(pages: ParsedPage[]): void {
           warn(
             "DUP002",
             rel(page.file),
-            `this page discusses ${hits.join(" and ")} without linking to ${topic.canonical}, which is canonical for it - ${topic.reason}.`,
+            `this page discusses ${hits.join(" and ")} without linking to ${topic.canonical}, which is canonical for it - ${topic.reason}.`
           )
         }
       }
@@ -2346,7 +2565,9 @@ function checkCanonicality(pages: ParsedPage[]): void {
  * ------------------------------------------------------------------ */
 
 function coverageReport(pages: ParsedPage[]): string[] {
-  const withTodo = pages.filter((page) => /<Todo[\s/>]/.test(stripCode(page.body)))
+  const withTodo = pages.filter((page) =>
+    /<Todo[\s/>]/.test(stripCode(page.body))
+  )
   const byStatus = new Map<string, number>()
   const byKind = new Map<string, number>()
   for (const page of pages) {
@@ -2367,7 +2588,9 @@ function coverageReport(pages: ParsedPage[]): string[] {
     `  kind     ${format(byKind)}`,
     `  todo     ${withTodo.length} page${withTodo.length === 1 ? "" : "s"} carry a <Todo> marker`,
     ...withTodo.slice(0, 10).map((page) => `             ${page.slug}`),
-    withTodo.length > 10 ? `             ... and ${withTodo.length - 10} more` : "",
+    withTodo.length > 10
+      ? `             ... and ${withTodo.length - 10} more`
+      : "",
   ].filter((line) => line !== "")
 }
 
@@ -2385,7 +2608,7 @@ async function main(): Promise<void> {
         "assert-ia: content/docs does not exist yet, so there is nothing to check.",
         "  Exiting 0. Once the corpus exists this gate is the thing that keeps it",
         "  coherent; before it exists there is nothing to be incoherent about.",
-      ].join("\n"),
+      ].join("\n")
     )
     return
   }
@@ -2399,7 +2622,7 @@ async function main(): Promise<void> {
     warn(
       "FM000",
       "content/_templates/frontmatter.schema.json",
-      "missing, so frontmatter was checked only for `status` and `kind`. That file is the machine-readable contract this gate reads instead of restating.",
+      "missing, so frontmatter was checked only for `status` and `kind`. That file is the machine-readable contract this gate reads instead of restating."
     )
   }
   const outlines = loadOutlines()
@@ -2409,7 +2632,7 @@ async function main(): Promise<void> {
     warn(
       "MDX003",
       "components/mdx.tsx",
-      `<${tag}> is provided to MDX but is not in the vocabulary list in assert-ia.mts. Either add it to the anatomy contract or stop exporting it - a tag that exists but is undocumented is a tag content authors will use inconsistently.`,
+      `<${tag}> is provided to MDX but is not in the vocabulary list in assert-ia.mts. Either add it to the anatomy contract or stop exporting it - a tag that exists but is undocumented is a tag content authors will use inconsistently.`
     )
   }
 
@@ -2433,9 +2656,12 @@ async function main(): Promise<void> {
   const warnings = findings.filter((finding) => finding.level === "warn")
 
   const print = (finding: Finding) => {
-    const where = finding.line === undefined ? finding.file : `${finding.file}:${finding.line}`
+    const where =
+      finding.line === undefined
+        ? finding.file
+        : `${finding.file}:${finding.line}`
     console.log(
-      `${finding.level === "error" ? "ERROR" : "warn "}  ${finding.rule}  ${where}\n        ${finding.message}`,
+      `${finding.level === "error" ? "ERROR" : "warn "}  ${finding.rule}  ${where}\n        ${finding.message}`
     )
   }
 
@@ -2455,7 +2681,7 @@ async function main(): Promise<void> {
 
   console.log(
     `assert-ia: ${pages.length} pages checked - ${errors.length} error${errors.length === 1 ? "" : "s"}, ` +
-      `${warnings.length} warning${warnings.length === 1 ? "" : "s"}.`,
+      `${warnings.length} warning${warnings.length === 1 ? "" : "s"}.`
   )
 
   if (errors.length > 0 || (strict && warnings.length > 0)) process.exit(1)
