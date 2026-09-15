@@ -8,7 +8,7 @@ import { routes } from "@/lib/routes"
 export const metadata: Metadata = {
   title: "Colours",
   description:
-    "Every colour token in opsinjs, read live from the running stylesheet: the four clinical status levels, the six measurement categories, and the neutral roles this documentation site is drawn with.",
+    "Every colour token in opsinjs, read live from the stylesheet: four status levels, six measurement categories, and the neutral roles.",
 }
 
 /**
@@ -37,27 +37,17 @@ export default function ColorsPage() {
         <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
           <Prose>
             <p>
-              Health data has two independent colour dimensions and most systems
-              have one. <strong>Category</strong> says what kind of measurement
-              this is, such as a heart rate, a blood sugar or a night&rsquo;s
-              sleep. It is identity, it is deliberately low-chroma, and it
-              carries no verdict whatsoever. <strong>Status</strong> says how
-              urgent this is, on four ordinal levels, and it is always
-              high-chroma because it is a verdict somebody has to act on.
+              <strong>Category</strong> says what kind of measurement this is: a
+              heart rate, a blood sugar, a night&rsquo;s sleep. It is low-chroma
+              and it never means anything is wrong. <strong>Status</strong> says
+              how urgent this is, on four levels, and it is high-chroma because
+              somebody has to act on it. An element takes its colour from one of
+              them, never both.
             </p>
             <p>
-              An element takes its colour from exactly one of them. That is the
-              rule the whole system is built around, and it is not a stylistic
-              preference: a tile that is simultaneously &ldquo;cardio&rdquo; and
-              &ldquo;urgent&rdquo; in two competing reds is a tile whose reader
-              cannot tell which red means <em>phone somebody</em>.
-            </p>
-            <p>
-              Nothing on this page is written down in a page. Every swatch is a
-              CSS custom property resolved by your browser, so what you are
-              reading is the value in effect on this display. The Display-P3
-              escalation, dark mode and your operating system&rsquo;s
-              accessibility preferences have already been applied.
+              Every swatch below is a CSS custom property read from your
+              browser, so it is the value in effect on this screen. Dark mode,
+              Display-P3 and your accessibility settings are already applied.
             </p>
           </Prose>
 
@@ -77,8 +67,7 @@ export default function ColorsPage() {
                 >
                   Contrast and APCA
                 </Link>{" "}
-                explains why both APCA Lc and WCAG 2.2 are published side by
-                side, and which one this system treats as the floor.
+                explains which measure is the floor here.
               </li>
               <li>
                 <Link
@@ -87,8 +76,7 @@ export default function ColorsPage() {
                 >
                   Measured conformance
                 </Link>{" "}
-                covers every token pair, both themes, generated and dated. No
-                figure on this site is typed by a human.
+                covers every token pair in both themes, generated and dated.
               </li>
               <li>
                 <Link
@@ -97,8 +85,7 @@ export default function ColorsPage() {
                 >
                   Contrast oracle
                 </Link>{" "}
-                checks any pair of your own against the same implementation CI
-                uses.
+                checks any pair of your own.
               </li>
               <li>
                 <Link
@@ -107,7 +94,7 @@ export default function ColorsPage() {
                 >
                   Theme generator
                 </Link>{" "}
-                takes a brand colour through the ramp and shows where it fails.
+                runs a brand colour through the ramp and shows where it fails.
               </li>
             </ul>
           </Panel>
@@ -119,33 +106,22 @@ export default function ColorsPage() {
 
         <section className="mt-14">
           <h2 className="text-lg font-semibold tracking-tight">
-            Using these values in your own code
+            Using these values
           </h2>
           <Prose className="mt-3">
             <p>
-              Copy the <Mono>var()</Mono> form wherever you can. A custom
-              property follows the theme, the gamut escalation and every
-              accessibility media query for free; a hex value pinned into a
-              component follows none of them, and it is the single most common
-              way a themed system stops being themed.
+              Copy the <Mono>var()</Mono> form wherever you can. It follows the
+              theme, the gamut and the accessibility media queries. A hex value
+              pasted into a component follows none of them, and that is the
+              usual way a themed system stops being themed.
             </p>
             <p>
-              The authored form is currently an <Mono>oklch()</Mono> triple.
-              That form is what you want when you are generating a stylesheet,
-              exporting to a design tool, or explaining to somebody why the ramp
-              is perceptually even. The hex form is an sRGB clamp: correct on an
-              sRGB display, lossy on a wide-gamut one, and never the definition.
-            </p>
-            <p>
-              Tailwind utilities exist for every token on this page.{" "}
-              <Mono>bg-status-urgent-surface</Mono> and{" "}
-              <Mono>text-category-heart</Mono> are two of them. The utilities
-              are declared with <Mono>@theme inline</Mono> so they resolve the
-              custom property at use time rather than baking a value.{" "}
+              Every token here also has a Tailwind utility, such as{" "}
+              <Mono>bg-status-urgent-surface</Mono>.{" "}
               <Link href={routes.docs("theming", "tailwind-v4")}>
                 Tailwind v4 and the order that silently breaks
               </Link>{" "}
-              explains why that distinction matters.
+              explains how they are wired.
             </p>
           </Prose>
         </section>

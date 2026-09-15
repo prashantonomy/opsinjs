@@ -90,36 +90,12 @@ const CATEGORY_ROLES: Array<{ role: string; suffix: string; use: string }> = [
   },
 ]
 
-/** Docs-chrome surface roles. Named so nobody mistakes them for product tokens. */
-const CHROME_ROLES: TokenRow[] = [
-  { property: "--background", role: "background", use: "The page." },
-  { property: "--foreground", role: "foreground", use: "Body text." },
-  { property: "--card", role: "card", use: "A raised opaque surface." },
-  {
-    property: "--muted",
-    role: "muted",
-    use: "Quiet fills and inactive states.",
-  },
-  {
-    property: "--muted-foreground",
-    role: "muted-foreground",
-    use: "Secondary text. Still has to clear the floor.",
-  },
-  { property: "--border", role: "border", use: "Hairlines and separators." },
-  {
-    property: "--primary",
-    role: "primary",
-    use: "The chrome's action colour.",
-  },
-  { property: "--ring", role: "ring", use: "The focus indicator." },
-]
-
 const GROUPS: TokenGroup[] = [
   {
     id: "status",
-    title: "Status is the verdict axis",
+    title: "Status: how urgent it is",
     description:
-      "Four ordinal levels. High chroma, because a verdict has to survive a bright corridor and a cheap screen. Never the only carrier of the verdict: every status ships with a word, and with a shape wherever the layout allows one.",
+      "Four levels, from steady to urgent. Bright colours, so they still read on a cheap screen in a bright room. Colour is never the only clue: a status always comes with a word, and an icon if there is room for one.",
     keywords: "urgency severity triage alert warning verdict clinical",
     rows: statusLevels.flatMap((level) =>
       STATUS_ROLES.map((role) => ({
@@ -131,9 +107,9 @@ const GROUPS: TokenGroup[] = [
   },
   {
     id: "category",
-    title: "Category is the identity axis",
+    title: "Category: what is being measured",
     description:
-      "What kind of measurement this is. Low chroma on purpose: a category swatch that reads as urgency has collapsed the two axes into one, which is the failure the whole colour system exists to prevent.",
+      "Heart, glucose, sleep, and the rest. These colours are dull on purpose. A category colour bright enough to look like an alert tells the reader something is wrong when nothing is, and that is the one mistake this colour system exists to stop.",
     keywords: "identity kind measurement heart glucose sleep steps weight",
     rows: categories.flatMap((category) =>
       CATEGORY_ROLES.map((role) => ({
@@ -142,14 +118,6 @@ const GROUPS: TokenGroup[] = [
         use: role.use,
       }))
     ),
-  },
-  {
-    id: "chrome",
-    title: "Surface roles for this documentation site",
-    description:
-      "The neutral roles the docs chrome is drawn with. They belong to the lyra style, not to opsinjs: the product theme redefines every one of them in product.css, which is why a preview embedded in a documentation page looks nothing like the page around it.",
-    keywords: "neutral grey gray surface shadcn lyra chrome background",
-    rows: CHROME_ROLES,
   },
 ]
 

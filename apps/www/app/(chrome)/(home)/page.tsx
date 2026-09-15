@@ -56,16 +56,17 @@ export default function HomePage() {
       <section className="py-16 sm:py-24">
         <Container>
           <p className="mb-4 font-mono text-xs tracking-[0.16em] text-muted-foreground uppercase">
-            React · Next.js · consumer and patient-facing health
+            Design system · React and Next.js
           </p>
           <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
             A design system for consumer and patient-facing health products
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-pretty text-muted-foreground">
-            Components, tokens and rules for the screen where a patient reads
-            their own result: a blood pressure of 148 over 96, or an HbA1c that
-            has moved from 41 to 46. The reader is not a clinician, and has to
-            decide whether that is nothing or a reason to phone somebody.
+            The components, tokens and writing rules for showing someone their
+            own health readings. The people reading them are not doctors. They
+            have to work out on their own whether a blood pressure of 148 over
+            96, or an HbA1c that has gone from 41 to 46, means they should do
+            something.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -79,11 +80,12 @@ export default function HomePage() {
             <ImplementationStatusNotice
               href={routes.docs("project", "state-of-the-system")}
             >
-              Nothing is published to npm. opsinjs is distributed the shadcn
-              way, and {builtComponentCount()} components are installable as
-              source. All are alpha: the API may change in any release without a
-              deprecation cycle, none has had an independent accessibility or
-              clinical review, and none is production-ready.
+              opsinjs is not on npm. You install its {builtComponentCount()}{" "}
+              components as source from the shadcn registry this site serves.
+              All of them are alpha. The API can change in any release with no
+              warning, none of them has had an independent accessibility or
+              clinical review, and none of them is ready for a real health
+              product.
             </ImplementationStatusNotice>
           </div>
         </Container>
@@ -95,14 +97,14 @@ export default function HomePage() {
       <section className="border-t border-border py-16">
         <Container>
           <h2 className="text-2xl font-semibold tracking-tight">
-            Status is never colour alone
+            Status is never carried by colour alone
           </h2>
           <p className="mt-3 max-w-2xl leading-relaxed text-muted-foreground">
-            Every level renders a colour, a shape and a word. The vocabulary is{" "}
-            <Mono>steady / watch / attention / urgent</Mono>, not{" "}
-            <Mono>ok / info / warning / error</Mono>, because
-            &ldquo;error&rdquo; is the wrong frame for a blood pressure. Status
-            and category are separate axes and never meet on one element.
+            Every level shows a colour, a shape and a word at the same time. The
+            four words are <Mono>steady / watch / attention / urgent</Mono>, not{" "}
+            <Mono>ok / info / warning / error</Mono>. A reading outside its
+            range is not an error to fix. Status and category are two separate
+            things, and they never share an element.
           </p>
 
           <div className="mt-8">
@@ -128,21 +130,21 @@ export default function HomePage() {
           <dl className="flex flex-wrap gap-x-12 gap-y-6">
             <Count label="Components built" value={builtComponentCount()} />
             <Count
-              label="Considered and refused"
+              label="Considered, not built"
               value={getConsidered().length}
             />
             <Count label="Token layers" value={6} />
           </dl>
           <p className="mt-8 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            The first two are read from the registry and the catalogue at build
-            time.{" "}
+            The first two numbers come from the registry and the catalogue at
+            build time.{" "}
             <Link
               className="text-foreground underline underline-offset-4"
               href={routes.docs("start", "safety-scope-and-limitations")}
             >
               opsinjs is not a medical device
             </Link>{" "}
-            and confers no regulatory status on anything built with it.
+            and gives no regulatory status to anything you build with it.
           </p>
         </Container>
       </section>
