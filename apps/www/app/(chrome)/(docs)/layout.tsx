@@ -56,8 +56,8 @@ export default function DocsGroupLayout({ children }: { children: ReactNode }) {
       {...baseOptions()}
       tabs={false}
       sidebar={{
-        banner: <SectionsRail />,
-        footer: <StatusLegend />,
+        banner: <SectionsRail key="sections-rail" />,
+        footer: <StatusLegend key="status-legend" />,
         collapsible: true,
         defaultOpenLevel: 1,
       }}
