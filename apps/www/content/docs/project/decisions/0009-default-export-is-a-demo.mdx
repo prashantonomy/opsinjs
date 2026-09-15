@@ -35,12 +35,12 @@ documents `status` as "Required. There is no neutral default and no 'unknown'
 level". That is not an oversight to be tidied away with a default value. A
 component that defaults a clinical status has asserted something about a reader
 that nobody decided to say, which is the failure
-[ADR 0003](0003-two-colour-axes.mdx) and
+[ADR 0003](./0003-two-colour-axes.mdx) and
 [Clinical status semantics](../../health/clinical-status-semantics.mdx) exist to
 prevent. `RangeBar`, `ResultCard` and `Value` are the same shape: the required
 props are required because the product owns the answer.
 
-**The consumer wants the file.** Under [ADR 0002](0002-shadcn-registry-distribution.mdx)
+**The consumer wants the file.** Under [ADR 0002](./0002-shadcn-registry-distribution.mdx)
 the unit of distribution is the source text, so whatever this file contains is
 what `npx shadcn add` writes into somebody's repository. The page shows the same
 text: `<ComponentSource>` resolves a name against the registry and has no `code`
@@ -82,7 +82,7 @@ export default function StatusPillDemo() {
   shows the whole file and `shadcn add` writes the whole file, so the demo is
   held to the same standard as the component beside it: no placeholder strings,
   no invented measurements, and only the synthetic example data of
-  [ADR 0012](0012-synthetic-example-data.mdx).
+  [ADR 0012](./0012-synthetic-example-data.mdx).
 - **The generated index typechecks.** A zero-argument function is assignable to
   `ComponentType<Record<string, unknown>>`, so the emitted
   `component: () => import(…)` compiles without widening the type in
@@ -120,7 +120,7 @@ standard across the registry.
    ever sits on a gentle ground has not been shown doing its job. There is one
    true exception to the no-warning half, and it is `ScoreDial`. Its demo passes
    `bands={[]}` and so trips the "was given no bands" warning in `score-dial.tsx`
-   on purpose, because [ADR 0012](0012-synthetic-example-data.mdx) forbids a
+   on purpose, because [ADR 0012](./0012-synthetic-example-data.mdx) forbids a
    shipped default export from distributing invented band geometry into
    `/r/score-dial.json` and into every `shadcn add` copy. The absence warning is
    the honest output there, so the demo keeps it, and the supplied-band case

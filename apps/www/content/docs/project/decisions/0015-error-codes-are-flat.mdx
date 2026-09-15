@@ -66,7 +66,7 @@ authored, and one script emits it everywhere it is needed.**
   `lib/generated/tokens.ts` for the site, the `OPSIN_ERRORS` table inside
   `lib/opsinjs.ts` for the runtime, and the whole table on
   [Error codes](../../handbook/error-codes.mdx). Per
-  [ADR 0006](0006-generated-not-authored.mdx), not one row of any of them is
+  [ADR 0006](./0006-generated-not-authored.mdx), not one row of any of them is
   authored twice.
 
 Banded numbering was rejected on its own merits as well as on the evidence. A
@@ -90,7 +90,7 @@ came with, and that message already names the page.
   code links to.
 - **The runtime carries its own copy of the table, and that copy is generated
   into `lib/opsinjs.ts` rather than into `lib/generated/`.** Components ship as
-  source ([ADR 0002](0002-shadcn-registry-distribution.mdx)), and the two files
+  source ([ADR 0002](./0002-shadcn-registry-distribution.mdx)), and the two files
   that travel with them are `lib/opsinjs.ts` and `lib/status.ts`. A `warnOnce()`
   that imported its messages from `lib/generated/tokens.ts` would compile in
   this repository and fail in every project that installed a component, which is

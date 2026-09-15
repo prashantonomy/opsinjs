@@ -21,7 +21,7 @@ and all of which drift the moment somebody themes the product. In opsinjs a stat
 is a *derivation*: a deterministic transformation in OKLCH applied to whichever
 role the component already uses. Pick the role once, and every state follows.
 
-The thing this is most often confused with is [data states](data-states.mdx).
+The thing this is most often confused with is [data states](./data-states.mdx).
 Interaction states describe what *you* are doing to a control. Data states
 describe what the *system knows* about the value inside it. A button can be
 hovered; it cannot be stale. A reading can be stale; it cannot be hovered into
@@ -42,7 +42,7 @@ phone.
 **Press** is the acknowledgement, and the state with the tightest timing budget.
 It applies on pointer-down rather than on click, so a slow network never makes
 the interface feel broken, and it uses the `instant` duration from
-[Motion](motion/index.mdx). A press that animates in over 200 ms reads as lag.
+[Motion](./motion/index.mdx). A press that animates in over 200 ms reads as lag.
 
 **Focus** is always `:focus-visible`, never bare `:focus`, so a mouse click on a
 button does not leave a ring behind it while a keyboard tab does. The ring is
@@ -104,7 +104,7 @@ close controls above are the ones that have not yet.
 
 **Do not author a state colour.** If you find yourself choosing a hover colour,
 the component is reaching past the semantic tier. See
-[Token architecture](token-architecture.mdx). Choose the role; the state follows.
+[Token architecture](./token-architecture.mdx). Choose the role; the state follows.
 
 **States compose, and the order is fixed.** A control can be focused *and*
 hovered *and* pressed. The resolution order is disabled → loading → pressed →
@@ -166,9 +166,9 @@ contract itself is on
 
 ## Related
 
-- [Data states](data-states.mdx) is the other half of "what state is this in",
+- [Data states](./data-states.mdx) is the other half of "what state is this in",
   and the one that matters more on a health screen.
-- [Motion → Using motion](motion/using-motion.mdx) says which duration and easing
+- [Motion → Using motion](./motion/using-motion.mdx) says which duration and easing
   each of these six states is allowed to use, and why press is the tightest.
 - [Handbook → Data attributes](../handbook/data-attributes.mdx) has the `data-*`
   vocabulary these states are exposed through, so you can style them yourself.

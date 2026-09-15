@@ -23,11 +23,11 @@ than a component's implementation detail. Three rules carry most of the weight,
 and each has its own page:
 
 - **Category colours are not chart colours.** The identity palette and the status
-  palette are both unavailable to a chart series. [Chart colour](chart-colour.mdx).
+  palette are both unavailable to a chart series. [Chart colour](./chart-colour.mdx).
 - **Never truncate a health y-axis to make a change look bigger.** The axis is
-  chosen once per metric and held. [Chart anatomy](chart-anatomy.mdx).
+  chosen once per metric and held. [Chart anatomy](./chart-anatomy.mdx).
 - **Every chart ships a table twin.** The same data, in a real table, reachable
-  by everyone. [Accessible charts](accessible-charts.mdx).
+  by everyone. [Accessible charts](./accessible-charts.mdx).
 
 The three components these rules govern are built and at `alpha`. They are
 [TrendSparkline](../../components/trend-sparkline.mdx),
@@ -111,7 +111,7 @@ data. The rules are on [Using motion](../motion/using-motion.mdx).
 Data visualisation is specified to consume a chart ramp of its own, plus the
 neutral roles for axes and gridlines and the space scale. That chart ramp is
 deliberately separate from both the category and status ramps, and the argument
-for the separation is on [Chart colour](chart-colour.mdx). The neutral roles and
+for the separation is on [Chart colour](./chart-colour.mdx). The neutral roles and
 the space scale exist today. The chart ramp does not: `tokens/color.json`
 declares no chart family, so `scripts/build-tokens.mts` emits none and there is
 nothing to tabulate.
@@ -120,7 +120,7 @@ nothing to tabulate.
 The ramp is specified but not authored. Until a chart family is added to
 `tokens/color.json` the generator has nothing to emit, so running it changes
 nothing here; the ramp's discriminability requirements are prose on
-[Chart colour](chart-colour.mdx) rather than measured values.
+[Chart colour](./chart-colour.mdx) rather than measured values.
 </NoDataYet>
 
 ## Accessibility impact
@@ -129,7 +129,7 @@ nothing here; the ramp's discriminability requirements are prose on
   readers**, and no amount of alt text fixes it, because the useful content is
   the numbers rather than a description of a picture. The requirement, the
   markup and the summary sentence are on
-  [Accessible charts](accessible-charts.mdx).
+  [Accessible charts](./accessible-charts.mdx).
 - **Series must be distinguishable without colour.** Direct labels, dash
   patterns and marker shapes, verified under the CVD audit on
   [Colour independence](../../accessibility/colour-independence.mdx).
@@ -148,7 +148,7 @@ nothing here; the ramp's discriminability requirements are prose on
 - [Trends and change](../../health/trends-and-change.mdx) has the clinical
   doctrine on when a change may be drawn at all, and how direction and valence
   separate.
-- [Chart colour](chart-colour.mdx) explains why neither existing palette may be
+- [Chart colour](./chart-colour.mdx) explains why neither existing palette may be
   used here.
-- [Accessible charts](accessible-charts.mdx) has the table twin, the summary
+- [Accessible charts](./accessible-charts.mdx) has the table twin, the summary
   sentence and the markup contract.

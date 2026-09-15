@@ -20,9 +20,9 @@ aliases: [preview iframe, inline preview, preview isolation]
 
 ## Context
 
-[ADR 0004](0004-lyra-docs-chrome.mdx) requires that a preview render under the
+[ADR 0004](./0004-lyra-docs-chrome.mdx) requires that a preview render under the
 product theme with none of the documentation site's CSS reaching it, and
-[ADR 0007](0007-two-root-layouts.mdx) built the mechanism: a second root layout,
+[ADR 0007](./0007-two-root-layouts.mdx) built the mechanism: a second root layout,
 its own document, and only `app/product.css`. Three pages already tell readers
 that this is what happens.
 [lyra and the docs chrome](../../theming/lyra-and-the-docs-chrome.mdx) says every
@@ -60,7 +60,7 @@ preview hides layout consequences the product will have and silently accepts
 utilities that will not resolve.
 
 That is not an approximation. It is the specific failure the two previous records
-exist to prevent, and [ADR 0004](0004-lyra-docs-chrome.mdx) already named the
+exist to prevent, and [ADR 0004](./0004-lyra-docs-chrome.mdx) already named the
 cost: a lying preview in a health design system is worse than no preview.
 
 ## Decision
@@ -111,7 +111,7 @@ need the isolation and should not pay for it.
 ## Alternatives considered
 
 **Render inline inside a scoping class.** Already rejected in
-[ADR 0004](0004-lyra-docs-chrome.mdx); the token audit says why concretely. The
+[ADR 0004](./0004-lyra-docs-chrome.mdx); the token audit says why concretely. The
 documentation stylesheet sets custom properties on the document element and on
 `body`, and a class on a wrapper cannot un-set an inherited property. The
 component would still resolve `--secondary` because the ancestor still declares

@@ -51,8 +51,14 @@ if (!Number.isFinite(NODE_MAJOR) || NODE_MAJOR < 24) {
   process.exit(1)
 }
 
-import { type Dirent, readdirSync, readFileSync, statSync } from "node:fs"
-import { join, relative, sep } from "node:path"
+import {
+  type Dirent,
+  existsSync,
+  readdirSync,
+  readFileSync,
+  statSync,
+} from "node:fs"
+import { dirname, join, relative, resolve, sep } from "node:path"
 import { fileURLToPath, pathToFileURL } from "node:url"
 
 /* THE OUTLINE TABLE, READ FROM THE SAME PLACE <PageTemplate> READS IT.
@@ -1474,8 +1480,29 @@ function checkMdxTags(page: ParsedPage, known: Set<string>): void {
   }
 }
 
+/**
+ * A relative link that `createRelativeLink` will not resolve, and a relative
+ * link that resolves to nothing.
+ *
+ * fumadocs resolves an href ONLY when it starts with `./` or `../`. Its
+ * `resolveHref` is four lines and the prefix test is the first of them:
+ * anything else is handed back untouched. So `[colour](colour/tokens.mdx)`
+ * never becomes a URL. It reaches the browser as written, the browser resolves
+ * it against the CURRENT page rather than against the file, and
+ * `/docs/foundations` plus `colour/tokens.mdx` is `/docs/colour/tokens.mdx`,
+ * which is a 404 with no build error behind it. 353 links in the corpus were
+ * written that way, including the six token-family links on the Foundations
+ * index, which is why Colour looked missing from a pillar that has always
+ * contained it.
+ *
+ * MDX005 is the other half. A prefix is what makes a link resolvable, not what
+ * makes it correct, and a `./` in front of a filename that does not exist fails
+ * exactly as quietly. Both are errors rather than warnings because neither has
+ * a legitimate form: there is no page for which an unresolvable link is right.
+ */
 function checkMdxLinks(page: ParsedPage): void {
   const file = rel(page.file)
+  const dir = dirname(page.file)
   const lines = page.body.split("\n")
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index] ?? ""
@@ -1489,6 +1516,32 @@ function checkMdxLinks(page: ParsedPage): void {
         "absolute /docs link. MDX uses relative file links resolved by createRelativeLink - `[Two colour axes](../health/two-colour-axes.mdx)` - so the corpus survives a base-path or locale change.",
         page.bodyOffset + index
       )
+    }
+
+    const bare =
+      /\]\((?!https?:|mailto:|#|\/|\.\/|\.\.\/)([A-Za-z0-9][A-Za-z0-9._/-]*\.mdx)/g
+    let match: RegExpExecArray | null
+    while ((match = bare.exec(line)) !== null) {
+      fail(
+        "MDX004",
+        file,
+        `relative link \`${match[1] as string}\` has no \`./\` prefix, so createRelativeLink hands it to the browser unresolved and it 404s against whatever URL the reader is on. Write \`./${match[1] as string}\`.`,
+        page.bodyOffset + index
+      )
+    }
+
+    const target =
+      /\]\((\.{1,2}\/[A-Za-z0-9._/-]*\.mdx)(?:#[A-Za-z0-9._-]+)?\)/g
+    while ((match = target.exec(line)) !== null) {
+      const href = match[1] as string
+      if (!existsSync(resolve(dir, href))) {
+        fail(
+          "MDX005",
+          file,
+          `relative link \`${href}\` resolves to no file, so the page it points at does not exist.`,
+          page.bodyOffset + index
+        )
+      }
     }
   }
 }

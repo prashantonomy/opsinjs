@@ -39,11 +39,11 @@ proximity is one of the only grouping tools left.
 
 ## How it works
 
-Four pages sit under this one: [the spacing scale](spacing-scale.mdx) and the
-named role of each step; [Density and touch](density-and-touch.mdx), which is the
-44pt floor and target separation; [Responsive modes](responsive-modes.mdx), which
+Four pages sit under this one: [the spacing scale](./spacing-scale.mdx) and the
+named role of each step; [Density and touch](./density-and-touch.mdx), which is the
+44pt floor and target separation; [Responsive modes](./responsive-modes.mdx), which
 is the four-mode system and the container-query rule; and
-[the generated tokens](tokens.mdx).
+[the generated tokens](./tokens.mdx).
 
 Three rules run across all four.
 
@@ -60,7 +60,7 @@ matters most for the minimum gap between touch targets.
 
 **3. Wide screens get more of the story, not bigger type.** This is the rule most
 often broken and the one with the largest effect on how a health product feels on
-a tablet. It has its own page: [Responsive modes](responsive-modes.mdx).
+a tablet. It has its own page: [Responsive modes](./responsive-modes.mdx).
 
 ## Using it
 
@@ -100,7 +100,7 @@ fixed in pixels breaks for exactly the readers who most need it not to. See
 
 The root value, the scale steps and their named roles are generated from
 `tokens/space.json` by `scripts/build-tokens.mts`. The full table with rendered
-specimens is on [Space tokens](tokens.mdx).
+specimens is on [Space tokens](./tokens.mdx).
 
 <TokenTable scope="space" />
 
@@ -109,7 +109,7 @@ specimens is on [Space tokens](tokens.mdx).
 - **Target size and target separation are both WCAG matters.** SC 2.5.8 *Target
   Size (Minimum)* sets a floor and offers a spacing exception; opsinjs sets a
   higher floor and does not rely on the exception. The numbers and the reasoning
-  are on [Density and touch](density-and-touch.mdx).
+  are on [Density and touch](./density-and-touch.mdx).
 - **Space is the grouping channel that survives everything.** It works in
   greyscale, in a screenshot, at 200% zoom and under every colour-vision
   difference. It does not survive a screen reader. That is why proximity is
@@ -130,9 +130,9 @@ specimens is on [Space tokens](tokens.mdx).
 
 ## Related
 
-- [Density and touch](density-and-touch.mdx) covers the 44pt floor, separation
+- [Density and touch](./density-and-touch.mdx) covers the 44pt floor, separation
   and thumb reach.
-- [Responsive modes](responsive-modes.mdx) says what happens as the container
+- [Responsive modes](./responsive-modes.mdx) says what happens as the container
   grows, and why the answer is not "everything gets bigger".
 - [Layout](../layout.mdx) is the shell all of this space sits inside, and holds
   the safe-area contract.

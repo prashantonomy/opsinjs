@@ -41,7 +41,7 @@ six describe our software. The collision is unfortunate and it is why the
 | `planned` | A written specification | None. The proposed API is a sketch | Design against it. Do not code against it |
 | `alpha` | Working code, incomplete | Breaks in any release | Only in a prototype |
 | `beta` | Working code, complete surface | Breaks only in a minor, with a note | Yes, if you can take a documented migration |
-| `stable` | Working code under the full policy | [Semver](versioning-policy.mdx) | Yes |
+| `stable` | Working code under the full policy | [Semver](./versioning-policy.mdx) | Yes |
 | `deprecated` | Working code, on its way out | Frozen; removal announced | No, for anything new |
 
 ### `considered`
@@ -50,7 +50,7 @@ A name in [the catalogue](../reference/generated/catalogue.mdx) and nothing else
 It exists so that asking "does opsinjs have a Tooltip" returns a definite answer
 with a pointer at what to use instead, rather than a 404 that invites a program
 to invent one. There is no specification, no clinical contract and no commitment
-that it will ever be built. [ADR 0008](decisions/0008-considered-components-resolve.mdx)
+that it will ever be built. [ADR 0008](./decisions/0008-considered-components-resolve.mdx)
 records how these ids resolve.
 
 **To reach `planned`:** somebody writes the specification, and it survives review.
@@ -95,7 +95,7 @@ is generated, and it has shipped in at least one real product.
 ### `stable`
 
 All twenty-two sections of the component page render, every generated table has
-real data behind it, and the full [versioning policy](versioning-policy.mdx)
+real data behind it, and the full [versioning policy](./versioning-policy.mdx)
 applies. That policy covers the DOM it renders, the `data-*` attributes it emits
 and the CSS custom properties it exposes.
 
@@ -103,7 +103,7 @@ and the CSS custom properties it exposes.
 
 Still works, still documented, no longer recommended. A deprecated page names its
 replacement, the version that deprecated it and the version that will remove it,
-and it appears on the [deprecations](deprecations.mdx) list from the day it is
+and it appears on the [deprecations](./deprecations.mdx) list from the day it is
 marked. Nothing is removed without at least one release carrying the deprecation.
 
 ## Why the page gates on the status
@@ -122,7 +122,7 @@ cadence its kind sets. `planned` describes the page's *subject*, not the state o
 its writing. A recipe, a pattern or a screen specimen sits at `planned` while
 nobody has assembled the thing it describes, however finished the prose is, and
 it carries a `<Todo>` for each gap it knows about rather than implying there are
-none. [Docs freshness](docs-freshness.mdx) covers the other half of the
+none. [Docs freshness](./docs-freshness.mdx) covers the other half of the
 question, which is how recently a `stable` page was actually re-read.
 
 <LastUpdated />

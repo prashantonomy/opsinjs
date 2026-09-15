@@ -22,7 +22,7 @@ alongside, and `tsc --noEmit` on the result exited 0.
 
 ## Context
 
-[ADR 0002](0002-shadcn-registry-distribution.mdx) makes the unit of distribution
+[ADR 0002](./0002-shadcn-registry-distribution.mdx) makes the unit of distribution
 a file of source text rather than a package. That works cleanly for a component
 that imports nothing but React. It does not work at all for twenty-four
 components that have to agree with each other about what `watch` means.
@@ -57,7 +57,7 @@ component's registry item.**
 - The module **re-exports `lib/status.ts` and never re-declares it**. The
   vocabulary is declared once, in the file the scripts and the site already read.
   A reference range, a trend point, a material rung, the warning channel and the
-  example-data literal of [ADR 0012](0012-synthetic-example-data.mdx) are needed
+  example-data literal of [ADR 0012](./0012-synthetic-example-data.mdx) are needed
   only by components, and the substrate module declares them itself, once.
 - **A component imports from `@/lib/opsinjs`, from `@/lib/utils`, from
   `@/registry/base-lyra/ui/<id>` when it composes another opsinjs component, and
@@ -111,7 +111,7 @@ and does not need to be.
   `target` is set explicitly so shadcn resolves a real path and prompts before
   overwriting, but a consumer who accepts the prompt without reading it loses
   their file. That is a permanent cost of copy-in distribution, it is the same
-  cost [ADR 0002](0002-shadcn-registry-distribution.mdx) accepted for
+  cost [ADR 0002](./0002-shadcn-registry-distribution.mdx) accepted for
   components, and the mitigation is documentation rather than machinery. See
   [Upgrades and diffs](../../registry/upgrades-and-diffs.mdx).
 - **The substrate must never re-declare what it re-exports.** Two live
@@ -140,7 +140,7 @@ not exist on disk. Rejected on the deeper ground rather than that one: a package
 cannot travel through `/r/*.json`, because a registry item carries file contents
 and not a dependency resolver. Adopting one would mean a consumer runs an install
 command *and* adds an npm dependency, and the npm half reintroduces exactly the
-version coupling that [ADR 0002](0002-shadcn-registry-distribution.mdx) exists
+version coupling that [ADR 0002](./0002-shadcn-registry-distribution.mdx) exists
 to avoid. That record draws a split where the registry is for components and the
 packages are for functions, and it puts a vocabulary of unions and words firmly
 on the registry side.
@@ -171,7 +171,7 @@ is that a vocabulary with twenty-four copies is a vocabulary with no owner.
 
 Revisit when the substrate grows past what a consumer would sit down and read, or
 when it acquires something algorithmic rather than declarative. The line is the
-one [ADR 0002](0002-shadcn-registry-distribution.mdx) already drew: deriving a
+one [ADR 0002](./0002-shadcn-registry-distribution.mdx) already drew: deriving a
 ramp, converting between unit systems and scoring a questionnaire are all
 computing, and a module that computes belongs in a package that is imported, not
 in a file that is copied. A module that declares belongs here.

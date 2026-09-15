@@ -55,10 +55,10 @@ time.
   the generated API pages so that it is never mistaken for surface.
 - **The documentation site's own chrome.** Its lyra, shadcn and fumadocs
   variables share a cascade with ours on this site and are not part of the
-  system. [ADR 0004](decisions/0004-lyra-docs-chrome.mdx) explains why they
+  system. [ADR 0004](./decisions/0004-lyra-docs-chrome.mdx) explains why they
   look different on purpose.
 - **Alpha components**, which are exempt by definition. See
-  [Release phases](release-phases.mdx).
+  [Release phases](./release-phases.mdx).
 
 ## Before 1.0
 
@@ -66,14 +66,14 @@ This project is at 0.x, and 0.x means what it says:
 
 - A **minor** release (`0.4.0` → `0.5.0`) may contain a breaking change. It will
   be in the changelog, with a migration note, and on the
-  [deprecations](deprecations.mdx) list if something was removed.
+  [deprecations](./deprecations.mdx) list if something was removed.
 - A **patch** release (`0.4.1` → `0.4.2`) never contains a deliberate breaking
   change to the five surfaces above.
 - Token *names* are not yet stable. Token *meanings* are, and have been since
   they were written.
 
 Pin an exact version if a broken upgrade would be expensive for you. The
-[state of the system](state-of-the-system.mdx) page names what is currently most
+[state of the system](./state-of-the-system.mdx) page names what is currently most
 likely to move.
 
 ## Deprecation, and how you find out
@@ -86,7 +86,7 @@ Nothing is removed without passing through deprecation first.
 
 The component or export is marked `deprecated`, its documentation page states the
 replacement and the reason, and it appears on
-[Deprecations](deprecations.mdx) with the version that deprecated it and the
+[Deprecations](./deprecations.mdx) with the version that deprecated it and the
 version that will remove it.
 
 ### It keeps working
@@ -99,7 +99,7 @@ deprecation.
 
 In the release named when it was deprecated, with a changelog entry and, where
 the change is more than a rename, a
-[migration guide](migration/index.mdx).
+[migration guide](./migration/index.mdx).
 
 </Steps>
 
@@ -120,7 +120,7 @@ notice. Changing the URL of a page is treated as a breaking change to the
 documentation and is handled with a redirect rather than a broken link, because
 the `.md` twins and `/llms.txt` are addresses that programs have already stored.
 
-**In the changelog.** [Every release](changelog/index.mdx) has an entry, written
+**In the changelog.** [Every release](./changelog/index.mdx) has an entry, written
 as prose rather than as a list of commit subjects, and the breaking parts are at
 the top rather than at the bottom.
 

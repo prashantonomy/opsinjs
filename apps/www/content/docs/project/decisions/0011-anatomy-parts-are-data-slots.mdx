@@ -77,7 +77,7 @@ to this record.**
 | `data-category` | every element tinted from the category axis | the six health categories |
 
 Attributes Base UI puts on its own primitives pass through untouched and are
-delegated rather than re-documented, as [ADR 0001](0001-base-ui-not-radix.mdx)
+delegated rather than re-documented, as [ADR 0001](./0001-base-ui-not-radix.mdx)
 requires. Those attributes are `data-open`, `data-closed`, `data-starting-style`
 and `data-ending-style`, and they do not count against this list.
 
@@ -99,7 +99,7 @@ and `data-ending-style`, and they do not count against this list.
 - **`data-status` and `data-category` never appear on the same element.** Putting
   the two axes in one vocabulary is what makes that statement checkable from
   source rather than by eye; it is the same rule
-  [ADR 0003](0003-two-colour-axes.mdx) states and the error `OPSIN-0001`
+  [ADR 0003](./0003-two-colour-axes.mdx) states and the error `OPSIN-0001`
   reports, at the level where a static check can see it.
 - **A part with no `data-slot` does not exist as far as the documentation is
   concerned.** The tables are generated from the source, so an unstamped part is

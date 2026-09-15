@@ -164,7 +164,7 @@ the boundary between them is a safety rule, not a taste one.
 - **Damped springs** (`ζ ≥ 1`, no overshoot) are the only curves permitted on
   anything whose content is a measurement, a range position, a status or a
   count. A value that overshoots has drawn a number the person never had. This
-  is health rule 2 from [Motion](index.mdx) and it is enforced by review, not by
+  is health rule 2 from [Motion](./index.mdx) and it is enforced by review, not by
   the compiler, because the tokens themselves cannot know what they are
   animating.
 - **Overshooting springs** (`ζ < 1`) are for chrome: a sheet arriving, a toggle
@@ -204,7 +204,7 @@ must; do not change one curve by hand to match a different count.
 
 The spring parameters, the derived `linear()` easings and the computed settling
 durations are all generated from `tokens/motion.json`. The full table with live
-curve plots is on [Motion tokens](tokens.mdx).
+curve plots is on [Motion tokens](./tokens.mdx).
 
 <TokenTable scope="motion" />
 
@@ -236,7 +236,7 @@ curve plots is on [Motion tokens](tokens.mdx).
   and for the one that carries a health value, and a cross-fade of about a tenth
   of a second for the two that announce something arriving. Nothing is switched
   off wholesale; the per-token contract is on
-  [Reduced motion](reduced-motion.mdx).
+  [Reduced motion](./reduced-motion.mdx).
 - **A spring's settling time is part of its accessibility budget.** A long settle
   means a control is still moving when a reader tries to hit it. Every token's
   computed duration is published, and the ones used for anything interactive sit
@@ -244,9 +244,9 @@ curve plots is on [Motion tokens](tokens.mdx).
 
 ## Related
 
-- [Using motion](using-motion.mdx) says which of these curves each job gets, and
+- [Using motion](./using-motion.mdx) says which of these curves each job gets, and
   how duration relates to distance.
-- [Reduced motion](reduced-motion.mdx) says what every spring token becomes when
+- [Reduced motion](./reduced-motion.mdx) says what every spring token becomes when
   a reader has asked for less movement.
-- [Motion tokens](tokens.mdx) is the generated table, with each curve plotted
+- [Motion tokens](./tokens.mdx) is the generated table, with each curve plotted
   from its own parameters.

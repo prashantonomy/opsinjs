@@ -29,7 +29,7 @@ clinician". opsinjs ships no reference ranges for any metric, for any population
 because they belong to the product's laboratory and clinical team and not to a
 component library. And nobody in this project invents a citation, ever.
 
-The line where they meet is the demo of [ADR 0009](0009-default-export-is-a-demo.mdx).
+The line where they meet is the demo of [ADR 0009](./0009-default-export-is-a-demo.mdx).
 A `RangeBar` demo has to render a band or it demonstrates nothing, a band needs a
 source, and the implementer writing it has a deadline. The answer that arrives
 unbidden is `source: "NHS"`. That is a fabricated citation attached to a
@@ -51,7 +51,7 @@ export const EXAMPLE_SOURCE = "Example data rather than a reference range"
 ```
 
 It is exported from the substrate module of
-[ADR 0010](0010-shared-code-ships-with-every-item.mdx), so all twenty-four
+[ADR 0010](./0010-shared-code-ships-with-every-item.mdx), so all twenty-four
 components use the same string and a single search finds every example range in
 the repository.
 

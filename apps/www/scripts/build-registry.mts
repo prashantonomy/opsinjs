@@ -764,10 +764,10 @@ function emitConsideredStub(
 
   const instead =
     alternatives.length === 0
-      ? "There is no direct replacement. The [component catalogue](index.mdx) is the definitive list of what does exist."
+      ? "There is no direct replacement. The [component catalogue](./index.mdx) is the definitive list of what does exist."
       : `Use ${alternatives
           .map((id, index) => {
-            const link = `[${titleOf(id)}](${id}.mdx)`
+            const link = `[${titleOf(id)}](./${id}.mdx)`
             if (index === 0) return link
             if (index === alternatives.length - 1) return ` or ${link}`
             return `, ${link}`
@@ -805,7 +805,7 @@ function emitConsideredStub(
     "",
     "Do not generate code against this page. It documents an absence. The",
     "machine-readable list of every component id and its status is at",
-    "`/r/index.json`, and the [status matrix](index.mdx) shows the same rows for",
+    "`/r/index.json`, and the [status matrix](./index.mdx) shows the same rows for",
     "a human reader.",
     "",
   ].join("\n")

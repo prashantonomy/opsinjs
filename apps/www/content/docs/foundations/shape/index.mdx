@@ -38,10 +38,10 @@ Depth is [material and layer](../materials/index.mdx); shape is geometry.
 
 ## How it works
 
-Three pages sit under this one: [the radius scale](radius-scale.mdx), which is a
+Three pages sit under this one: [the radius scale](./radius-scale.mdx), which is a
 ladder derived from a single value plus the rule for nesting one radius inside
-another; [Squircle](squircle.mdx), which is the `corner-shape` mechanism and its
-degradation; and [the generated tokens](tokens.mdx).
+another; [Squircle](./squircle.mdx), which is the `corner-shape` mechanism and its
+degradation; and [the generated tokens](./tokens.mdx).
 
 Two rules run across all three.
 
@@ -72,7 +72,7 @@ right.
 **Nest concentrically.** An inner radius equals the outer radius minus the
 padding between them. Get this wrong in either direction and the gap between the
 two curves visibly varies around the corner. The full rule and the failure
-cases are on [Radius scale](radius-scale.mdx).
+cases are on [Radius scale](./radius-scale.mdx).
 
 <DoDont>
   <DoDont.Do>
@@ -108,7 +108,7 @@ browser without support simply keeps the ordinary rounded rectangle.
 The root radius, the ladder multipliers, the named rungs and the corner shape
 itself are generated from `tokens/shape.json` by `scripts/build-tokens.mts`. The
 full table with a rendered specimen per rung is on
-[Shape tokens](tokens.mdx).
+[Shape tokens](./tokens.mdx).
 
 <TokenTable scope="shape" />
 
@@ -133,13 +133,13 @@ things on it matter.
 
 Radius does not affect contrast, so nothing on this page is measured; the
 `corner-shape` support matrix is published by `<BrowserSupport>` on
-[Squircle](squircle.mdx).
+[Squircle](./squircle.mdx).
 
 ## Related
 
-- [Radius scale](radius-scale.mdx) has the ladder, the rung names and the
+- [Radius scale](./radius-scale.mdx) has the ladder, the rung names and the
   nesting rule.
-- [Squircle](squircle.mdx) covers `corner-shape`, the superellipse parameter
+- [Squircle](./squircle.mdx) covers `corner-shape`, the superellipse parameter
   and the documented degradation.
 - [Materials](../materials/index.mdx) is the foundation that shape is most
   often confused with, and the one that actually carries depth.

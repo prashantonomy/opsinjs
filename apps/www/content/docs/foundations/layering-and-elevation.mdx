@@ -21,7 +21,7 @@ never chooses a number; it declares which layer it belongs to, and the layer
 decides. The set is deliberately short, because every additional layer is a new
 pair of things whose relative order somebody will get wrong.
 
-This is not the same thing as [Materials](materials/index.mdx), and the two are
+This is not the same thing as [Materials](./materials/index.mdx), and the two are
 constantly confused. Materials decides what a surface is made of. That is a
 question of how translucent it is, how blurred, and how it reads over a busy
 backdrop. Layering decides where it sits in the stack. A dialog and a popover
@@ -51,7 +51,7 @@ clipped by it, and why the layer order is the same on every screen.
 
 **The scrim belongs to the layer above it.** A scrim is not a background; it is
 the lower half of a modal surface. It is rung 5 of the
-[material ladder](materials/the-ladder.mdx), and it is the component's
+[material ladder](./materials/the-ladder.mdx), and it is the component's
 responsibility to render it, so a modal cannot exist without one and a scrim
 cannot be left behind when a modal closes.
 
@@ -128,15 +128,15 @@ one. Three consequences follow, and all three are checkable:
 - **Nothing on any layer may sit under the safe area.** Notches, home indicators
   and on-screen keyboards remove usable space; a dismiss control that ends up
   beneath one is not merely awkward, it is unreachable. Safe-area handling is
-  specified on [Layout](layout.mdx) and measured against the 44pt floor on
-  [Density and touch](space/density-and-touch.mdx).
+  specified on [Layout](./layout.mdx) and measured against the 44pt floor on
+  [Density and touch](./space/density-and-touch.mdx).
 
 ## Related
 
-- [Materials → Choosing a layer](materials/choosing-a-layer.mdx) says which
+- [Materials → Choosing a layer](./materials/choosing-a-layer.mdx) says which
   ladder rung each of these layers is made from, and the nesting rules between
   them.
-- [Layout](layout.mdx) covers safe areas, keyboard insets and the two canonical
+- [Layout](./layout.mdx) covers safe areas, keyboard insets and the two canonical
   health screen shells the layers sit inside.
-- [Interaction states](interaction-states.mdx) is where the focus-visible
+- [Interaction states](./interaction-states.mdx) is where the focus-visible
   contract lives. Focus is a state and a layer problem at once.
