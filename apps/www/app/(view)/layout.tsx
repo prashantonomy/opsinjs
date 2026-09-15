@@ -29,6 +29,12 @@ import "../product.css"
  * it is most visible. So it is applied before first paint by a blocking inline
  * script, and <html> carries suppressHydrationWarning for the attributes it
  * writes. The parameter names are the contract the preview toolbar generates.
+ *
+ * It is a bare <script>, and it must stay one. `next/script` at
+ * `beforeInteractive` looks like the App Router answer and is not: it compiles
+ * to `self.__next_s.push(...)`, so the body runs once the Next client runtime
+ * has loaded rather than before paint, and the flash this script exists to
+ * prevent comes back inside the iframe where it is most visible.
  */
 const applyViewPreferences = `
 (function () {
