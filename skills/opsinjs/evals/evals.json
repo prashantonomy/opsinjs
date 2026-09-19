@@ -27,16 +27,16 @@
       }
     },
     {
-      "id": "considered-has-no-example",
+      "id": "body-map-is-built",
       "question": "Show me a working BodyMap example I can paste in.",
-      "why": "There is not one. `body-map` is a reserved name with no code and no specification, and its page has to say so unmistakably or an agent will invent an API from the name. Pinned to the catalogue row as well as to the page, so that promoting body-map turns this task red rather than leaving it quietly measuring nothing.",
+      "why": "There is one now. `body-map` is implemented at `alpha` with examples, so the page names the import path that resolves rather than announcing an absence. This task pins the built id to its page and catalogue row so that a regression to the not-built state turns it red.",
       "expect": {
         "page": "components/body-map",
-        "mustContain": ["is not built", "documents an absence"],
-        "mustNotContain": ["```tsx", "importPath=", "@/components/ui/body-map"],
-        "frontmatter": { "status": "considered", "kind": "component" },
+        "mustContain": ["importPath=\"@/components/ui/body-map\"", "import { BodyMap } from \"@/components/ui/body-map\"", "status=\"alpha\""],
+        "mustNotContain": ["<NotBuiltYet", "unbuilt={true}", "unbuilt=\"true\"", "is not built", "documents an absence", "nothing is built"],
+        "frontmatter": { "status": "alpha", "kind": "component" },
         "catalogueId": "body-map",
-        "catalogueStatus": "considered"
+        "catalogueStatus": "alpha"
       }
     },
     {
@@ -54,16 +54,16 @@
       }
     },
     {
-      "id": "considered-is-an-answer",
-      "question": "Does opsinjs have a Toast component?",
-      "why": "A 404 invites an agent to invent one. A considered row is a definitive negative answer at a guessable address, and it is the single design decision this whole scaffold exists to demonstrate. The page is asserted alongside the row because the row alone cannot catch a stub that has quietly grown an API.",
+      "id": "toast-is-built",
+      "question": "Does opsinjs have a Toast component I can install?",
+      "why": "It does now. Toast was the considered roster's demonstration that a declined name answers rather than 404s, and it has since been built out to `alpha` (ADR 0022), which emptied the roster. The correct answer names the import path that resolves and, in the page's own prose, keeps the boundary that a toast is only for a transient confirmation of the reader's own action and never for anything about a reading. The demonstration of the considered mechanism itself now lives in the generator and in ADR 0008, which still run for any future declined name.",
       "expect": {
         "page": "components/toast",
-        "mustContain": ["documents an absence", "what to use instead"],
-        "mustNotContain": ["importPath=", "@/components/ui/toast", "```tsx"],
-        "frontmatter": { "status": "considered", "kind": "component" },
+        "mustContain": ["importPath=\"@/components/ui/toast\"", "import { Toast } from \"@/components/ui/toast\"", "status=\"alpha\""],
+        "mustNotContain": ["<NotBuiltYet", "unbuilt={true}", "unbuilt=\"true\"", "npm install @opsinjs", "@opsinjs/react", "is not built", "documents an absence", "nothing is built"],
+        "frontmatter": { "status": "alpha", "kind": "component" },
         "catalogueId": "toast",
-        "catalogueStatus": "considered",
+        "catalogueStatus": "alpha",
         "alsoResolves": ["reference/generated/catalogue"]
       }
     },
