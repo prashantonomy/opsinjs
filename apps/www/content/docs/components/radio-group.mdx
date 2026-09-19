@@ -1,39 +1,383 @@
 ---
-title: "RadioGroup"
-description: "A set of options where exactly one can be chosen."
-status: considered
+title: RadioGroup
+description: A vertical list of labelled options where exactly one can be chosen, kept to a single tab stop with a roving focus.
+status: alpha
 kind: component
 since: "unreleased"
-category: "actions-and-forms"
+category: actions-and-forms
 aliases: ["radio buttons", "single choice"]
 ---
 
-{/* GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts (status: considered).
-    Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`.
-    Rationale: content/docs/project/decisions/0008-considered-components-resolve.mdx.
-    Source hash d310e86cfa0e. */}
+## Status
 
-<PageTemplate kind="component" status="considered" category="actions-and-forms" />
-
-<StubNotice name="radio-group" status="considered">
-  **RadioGroup is not built, and it has no specification.** The name is recorded in
-  the catalogue so that this address answers instead of returning a 404.
-  The reason is not that the component is coming.
+<StubNotice
+  name="radio-group"
+  status="alpha"
+  questions={[
+    "No contrast pair has been measured. The selected circle is marked by a primary ring and a primary dot against the background, and a disabled option drops to the muted ink; whether each reads at the non-text and text floors rests on the roles it uses rather than on a machine that has looked at the two surfaces this control sits on.",
+    "Nobody has listened to this control in a screen reader. The radiogroup announces its visible legend and then each option as a radio that is checked or not, and where an option carries a description that description is read as part of the option's name. Whether that reads usefully, rather than as a run-on, has been reasoned about rather than heard.",
+    "Home and End are not bound, because the underlying RadioGroup primitive disables them, so a reader who reaches for End to jump to the last option in a long list gets the browser's default instead. Whether a vertical radio group owes Home and End as well as the Arrow keys is unresolved.",
+    "Forced colours and `prefers-contrast: more` are unhandled. The selected circle is lifted by a neutral ring and a neutral dot, and a forced-colours theme replaces both with the platform's own pair, so whether the selection survives that mode has not been tested.",
+  ]}
+>
+  <code className="text-sm">radio-group</code> is implemented and installable. It
+  is <strong className="font-medium">alpha</strong>: it works and it is
+  documented, the API may change in any release without a deprecation cycle, and
+  it is not for a production health surface yet.
 </StubNotice>
 
-## What this name refers to
+RadioGroup is a vertical list of labelled options where exactly one is chosen at a time. Each
+option sits on its own row with a circle, a label and an optional line of helper text, so the
+reader runs their eye down the list before picking one. It is the tall, readable form of a
+single choice, and it is the control to reach for when the options need room to be read rather
+than a tight row that reads at a glance.
 
-A set of options where exactly one can be chosen.
+The design decision that shapes the whole component is that it is one tab stop. A reader
+arrowing down a list of options expects Tab to pass the list, not to stop on each option in it,
+so the control is a radio group: the group takes the single tab stop, and the Arrow keys move a
+roving focus between the options inside it. It is built on Base UI's RadioGroup on its Composite
+primitive, which is where that single tab stop, the roving focus and the Arrow keys come from.
 
-## Why it is not on the roster
+## Preview
 
-Delegated to Base UI. Preferred over Select for anything under about seven options.
+A three-option list with one option chosen. The thing worth checking is whether the options
+read as a stacked set and the chosen one is marked without a colour doing the work, so read it
+in greyscale: the selection is carried by the ring lifting to the primary ink and by the filled
+dot inside the circle, and underneath both by `aria-checked` rather than by any hue at all.
 
-## What to use instead
+<ComponentPreview name="radio-group" />
 
-Use [Field](./field.mdx) instead.
+## Installation
 
-Do not generate code against this page. It documents an absence. The
-machine-readable list of every component id and its status is at
-`/r/index.json`, and the [status matrix](./index.mdx) shows the same rows for
-a human reader.
+<ComponentInstall
+  name="radio-group"
+  unbuilt={false}
+  importPath="@/components/ui/radio-group"
+  dependencies={["@base-ui/react"]}
+/>
+
+The control is built on Base UI's RadioGroup and Radio primitives, which is where the single tab
+stop, the roving focus, the Arrow keys and the `aria-checked` on each option come from, so
+installing it pulls in `@base-ui/react`. It composes no other opsinjs component and renders no
+icon.
+
+## Usage
+
+```tsx
+import { RadioGroup } from "@/components/ui/radio-group"
+```
+
+```tsx
+<RadioGroup
+  label="Reminder style"
+  value={style}
+  onValueChange={setStyle}
+  options={[
+    { value: "standard", label: "Standard" },
+    { value: "quiet", label: "Quiet" },
+    { value: "off", label: "None" },
+  ]}
+/>
+```
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "A settled single choice of two to about seven options, where the reader is choosing one thing from a set rather than toggling a parameter, such as a reminder style or a delivery window.",
+    "A choice whose options each need a line of helper text to be understood, which the vertical row gives room for and a compact one-line control cannot.",
+    "A choice the reader wants laid out in full, every option visible at once, rather than one option hidden behind a control they have to open.",
+  ]}
+  avoid={[
+    { case: "The options are a tight set of one or two words that switch a single parameter of a view, such as a chart's day, week or month window, and belong on one line.", instead: "segmented-control" },
+    { case: "There are more than about seven options, or the labels are long, so the list becomes a scroll rather than a glance and a select that collapses into one control reads more calmly.", instead: "field" },
+    { case: "The choice is one setting inside a larger form and needs a label, a hint and a validation message wired to it.", instead: "field" },
+  ]}
+/>
+
+The first exclusion is the one worth stating plainly, because RadioGroup and
+[SegmentedControl](./segmented-control.mdx) are the same single choice built on the same Base UI
+primitive, and the difference is shape rather than semantics. Reach for a segmented control when
+the options are a tight set of siblings that belong on one line and switch a parameter of a view
+that stays on the surface. Reach for this vertical list when the options need room, when an
+option carries a description, or when the reader is picking a settled choice rather than toggling
+a window. If the options fit on one line and read at a glance, it is a segmented control; if they
+want a stacked list the reader runs their eye down, it is this.
+
+The second exclusion is the honest limit of the form. A radio group lays every option out at
+once, so past about seven options the list stops being something the reader takes in at a glance
+and becomes a column they have to scroll. There a [Field](./field.mdx) with a select, which
+collapses the options into one control and opens them on demand, is the form that still works,
+and reaching for a radio group instead produces a wall of rows nobody scans.
+
+## Anatomy
+
+<Anatomy
+  name="radio-group"
+  parts={[
+    {
+      name: "RadioGroup",
+      describes: "The root. A radiogroup rendered by Base UI's RadioGroup on its Composite primitive, so the whole control is one tab stop with a roving focus. Carries data-slot=\"radio-group\", role=\"radiogroup\" and aria-labelledby pointing at the visible legend. It draws only neutral chrome and carries neither data-status nor data-category.",
+      prop: "options",
+    },
+    {
+      name: "RadioGroup.Label",
+      describes: "The visible legend above the list, a heading in weight rather than in element. It carries data-slot=\"radio-group-label\" and an id, and the root's aria-labelledby points at it, so a sighted reader and a screen-reader user meet the same name for the choice.",
+      prop: "label",
+    },
+    {
+      name: "RadioGroup.Item",
+      describes: "One option, a Base UI Radio rendered as a row with role=\"radio\" and aria-checked. It is the pressable target, so it carries the 44pt floor, the focus ring and the hover, and its label and optional description sit inside it as the option's accessible name. data-slot=\"radio-group-item\", with data-checked or data-unchecked, and data-disabled when it is disabled.",
+      prop: "value",
+    },
+    {
+      name: "RadioGroup.Control",
+      describes: "The circle. A neutral ring on the background whose border lifts to the primary ink when the row is checked. It is aria-hidden, because the selected state is carried by the row's aria-checked and the label. data-slot=\"radio-group-control\".",
+    },
+    {
+      name: "RadioGroup.Indicator",
+      describes: "The dot inside the circle. A Base UI Radio.Indicator rendered only when the option is checked, filled with the primary ink, so an unchecked circle is genuinely empty. data-slot=\"radio-group-indicator\".",
+    },
+    {
+      name: "RadioGroup.ItemLabel",
+      describes: "The option's words. data-slot=\"radio-group-item-label\".",
+    },
+    {
+      name: "RadioGroup.ItemDescription",
+      describes: "The optional helper line under the label, in the muted ink and a step quieter. Rendered only when the option has a description, and read as part of the option. data-slot=\"radio-group-item-description\".",
+      prop: "options",
+    },
+  ]}
+/>
+
+<CompositionTree
+  name="radio-group"
+  tree={[
+    {
+      part: "RadioGroup",
+      cardinality: "1",
+      note: "data-slot=\"radio-group\", role=\"radiogroup\", one roving tab stop",
+      children: [
+        {
+          part: "RadioGroup.Label",
+          cardinality: "1",
+          note: "data-slot=\"radio-group-label\", the visible legend, wired by aria-labelledby",
+        },
+        {
+          part: "RadioGroup.Item",
+          cardinality: "2..n",
+          note: "data-slot=\"radio-group-item\", role=\"radio\", aria-checked; one per option",
+          children: [
+            {
+              part: "RadioGroup.Control",
+              cardinality: "1",
+              note: "data-slot=\"radio-group-control\", the circle, aria-hidden",
+              children: [
+                {
+                  part: "RadioGroup.Indicator",
+                  cardinality: "0..1",
+                  note: "data-slot=\"radio-group-indicator\", the dot, present only when checked",
+                },
+              ],
+            },
+            {
+              part: "RadioGroup.ItemLabel",
+              cardinality: "1",
+              note: "data-slot=\"radio-group-item-label\"",
+            },
+            {
+              part: "RadioGroup.ItemDescription",
+              cardinality: "0..1",
+              note: "data-slot=\"radio-group-item-description\", present only when the option has a description",
+            },
+          ],
+        },
+      ],
+    },
+  ]}
+/>
+
+The parts above are identified by `data-slot` and are styleable from outside; none of them is an
+export, and there is no way to render an option without the group. Each Radio also renders a
+visually hidden `<input type="radio">` beside its span, which Base UI uses to carry a form value.
+This control passes no `name`, so that input submits nothing; it is out of the tab order, so it
+changes nothing a reader meets, and it is named here rather than left for someone to find in the
+DOM.
+
+The description sits inside the option row rather than beside it, so a screen reader reads it as
+part of the option's name. That is the intended trade: the helper line is genuinely part of what
+the option means, so it is read with the option rather than as a separate note the reader has to
+go looking for.
+
+## Examples
+
+### A single choice
+
+The case RadioGroup was built for. Three options, one chosen, no helper lines, the reader running
+their eye down the list before picking one. The options set a fictional appearance preference
+rather than anything measured, because an opsinjs example must never be mistakable for somebody's
+own data.
+
+<ComponentPreview name="radio-group-a-single-choice" kind="example" align="start" />
+
+### Options with descriptions
+
+The same list with a helper line under each label. A description earns its place when the label
+alone cannot say what the option does, and the vertical form is what gives it room. The cadence
+here is a fictional reminder setting with no clinical schedule behind it, so a screenshot of it
+carries no reading and no threshold anybody could mistake for their own.
+
+<ComponentPreview name="radio-group-with-descriptions" kind="example" align="start" />
+
+## Content guidelines
+
+Keep the labels short, parallel and in sentence case, and name the value each option sets rather
+than an instruction to the reader. Order the options the way the reader thinks about them rather
+than the way the data is stored: a cadence that runs from most frequent to least is a list the
+reader can scan, and reversing it to match a database column is the list nobody reads. Do not
+change a label's wording between screens for the same option, because a reader who learnt that
+this choice offers "Weekdays only" should not meet "Mon to Fri" meaning the same option elsewhere.
+
+Use a description only when the label cannot stand alone. A helper line that repeats the label in
+more words is noise, and a helper line under every option when only one of them needs it makes the
+list heavier than it has to be. When a description is there, keep it to a phrase: it is read as
+part of the option, so a paragraph turns one option into a speech.
+
+<DoDont>
+  <DoDont.Do>
+    **"Standard" · "Quiet" · "None"** Three parallel options, each a short word, ordered from most
+    to least, so the set reads as siblings and the choice is obvious. A description is added only
+    where a label genuinely needs one.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Standard reminders" · "Keep it quiet please" · "I would rather have nothing"** Three
+    different lengths and three different grammars, so the list no longer reads as one set and the
+    options compete with each other rather than sitting as siblings.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility
+
+Some of this is enforced by a gate on every pull request and every push to `main`, and the rest
+is argued and labelled as such. At `alpha`, accessibility is claimed only where it has been
+checked, with the gaps listed rather than left out. Nothing here has been through a review with a
+disabled user.
+
+**Checked, by `pnpm run check:a11y`:**
+
+- **No status colour, no colour literal, no ramp step.** The control draws only the neutral chrome
+  roles and the neutral primary ink, so it carries no `data-status`, reads no clinical vocabulary,
+  and cannot mix the two axes. The gate reads every element and would fail the build on a colour
+  drawn from either axis or on a raw colour value, and there is neither here.
+- **No px type size.** The labels are the `body` and `footnote` semantic steps and the circle and
+  the dot are sized in `em`, so a reader who has turned their text size up gets a larger control
+  rather than a pinned one.
+
+**Argued, and true of the implementation, but not yet measured:**
+
+- **It is one tab stop with a roving focus.** Base UI's RadioGroup renders `role="radiogroup"` on
+  its Composite primitive, each option is a Radio rendering `role="radio"` with `aria-checked`,
+  and selection follows focus, which is the WAI-ARIA radio group pattern rather than a bespoke one.
+  The single tab stop is the contract this control keeps, so a keyboard user meets the whole list
+  as one stop rather than one stop per option.
+- **The choice has a visible, wired name.** `label` is required and is rendered as a legend above
+  the list and wired to the radiogroup with `aria-labelledby`, so a screen-reader user hears the
+  name of the choice before its options. A missing or empty `label` raises a development warning
+  rather than rendering an unnamed group.
+- **The selected state is carried three ways.** `aria-checked` for assistive technology, the ring
+  lifting to the primary ink for greyscale, and the filled dot for a sighted reader, so no single
+  carrier stands alone. A disabled option drops to the measured muted ink rather than being faded
+  with opacity, so it stays readable while reading as unavailable, and the Arrow keys skip it.
+- **Each option floors its target.** Every option row floors its hit area at
+  `--opsin-target-minimum` in rem on the vertical axis, so a 44pt pressable region survives and
+  grows with the reader's text size rather than pinning at a device pixel. The focus ring is
+  carried in the row's own class list rather than left to the product stylesheet, so a project
+  installed without that stylesheet does not lose it.
+
+**Not checked at all, and listed rather than omitted:**
+
+- Every contrast pair: the primary ring and dot against the background, the muted ink of a
+  description against its ground, and the disabled ink of a skipped option.
+  `scripts/check-contrast.mts` has not been run for this component, which is why the report below
+  is empty rather than reassuring.
+- What the control draws under `forced-colors: active`, where the ring and the dot are both
+  replaced by the platform's own pair. None of this has been put in front of a machine or a high
+  contrast user, and nobody has listened to the control in a screen reader.
+
+<KeyboardTable
+  name="radio-group"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Moves focus into the control, onto the selected option",
+      notes: "The whole group is one tab stop. If no option is selected, the first enabled option takes the stop; a disabled option never does.",
+    },
+    {
+      keys: "Shift + Tab",
+      action: "Moves focus back out of the control",
+      notes: "The group is a single stop in reverse too, so focus leaves the list rather than stepping back through each option.",
+    },
+    {
+      keys: "Arrow Down, Arrow Right",
+      action: "Moves to the next option and selects it",
+      notes: "Selection follows focus. It wraps from the last option to the first and skips disabled options. Under a right-to-left layout, Arrow Left and Arrow Right swap.",
+    },
+    {
+      keys: "Arrow Up, Arrow Left",
+      action: "Moves to the previous option and selects it",
+      notes: "It wraps from the first option to the last and skips disabled options.",
+    },
+    {
+      keys: "Space",
+      action: "Selects the focused option",
+      notes: "An option is a role=\"radio\", so Space is its activator.",
+    },
+    {
+      keys: "Enter",
+      action: "Does nothing",
+      notes: "The primitive cancels Enter on a radio, so a radio group inside a form does not submit it by accident. An option is chosen with the Arrow keys or Space.",
+    },
+    {
+      keys: "Home, End",
+      action: "Not bound",
+      notes: "The underlying RadioGroup does not enable Home and End, so they keep the browser's default behaviour. Whether the control should bind them is an open question above.",
+    },
+  ]}
+/>
+
+<ContrastReport component="radio-group" />
+
+## API reference
+
+<PropsTable name="RadioGroupProps" />
+
+`value` and `onValueChange` make this a controlled component with no internal selection state: the
+caller stores the chosen value and passes it back, and a `value` that matches no option renders the
+list with nothing chosen and raises a development warning. `label` is required because a radiogroup
+with no accessible name is a defect the type system cannot otherwise prevent, and it is a visible
+legend rather than only an `aria-label`, so the name is on the screen as well as in the
+accessibility tree. Each `options` entry is a value, a visible label, an optional `description`
+line and an optional `disabled` flag, and a disabled option stays in the list, drawn in the muted
+ink and skipped by the Arrow keys, rather than being removed.
+
+## Related
+
+<RelatedComponents name="radio-group" />
+
+**Easily confused with**
+
+- [SegmentedControl](./segmented-control.mdx) is the same single choice built on the same Base UI
+  primitive, drawn as a compact single row. Reach for it when the options are a tight set of
+  siblings on one line that switch a parameter of a view; reach for this vertical list when the
+  options need room or carry a description.
+- [Select](./select.mdx) collapses the options into one control that opens on demand, which is the
+  form for a choice too large or too wordy to lay out in full. Once the options pass about seven, or
+  the labels grow long, a select reads more calmly than a wall of rows.
+- [Field](./field.mdx) wraps a single input with its label, hint and validation message. A radio
+  group inside a form is composed with a field rather than standing on its own, so the choice gets
+  the same label and error wiring as every other control on the form.
+
+**Used by**
+
+- No pattern, recipe or screen composes it yet. It is a single-choice primitive that a product
+  drops into its own settings screens and forms.

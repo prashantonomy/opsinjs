@@ -1,39 +1,202 @@
 ---
-title: "Badge"
-description: "A small label attached to something else."
-status: considered
+title: Badge
+description: A small neutral label attached to something else, such as a count on a tab or a short word on a list row, that takes neither colour axis and never stands in for a status.
+status: alpha
 kind: component
 since: "unreleased"
-category: "data-display"
+category: data-display
 aliases: ["counter", "label chip"]
 ---
 
-{/* GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts (status: considered).
-    Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`.
-    Rationale: content/docs/project/decisions/0008-considered-components-resolve.mdx.
-    Source hash d310e86cfa0e. */}
+## Status
 
-<PageTemplate kind="component" status="considered" category="data-display" />
-
-<StubNotice name="badge" status="considered">
-  **Badge is not built, and it has no specification.** The name is recorded in
-  the catalogue so that this address answers instead of returning a 404.
-  The reason is not that the component is coming.
+<StubNotice
+  name="badge"
+  status="alpha"
+  questions={[
+    "No contrast pair has been measured. The soft chip is the muted surface with muted ink, and the outline chip is the neutral hairline against the ground the host provides; whether each reads at the non-text and text floors has been argued from the roles rather than checked by a machine.",
+    "Nobody has listened to a badge in a screen reader. The srLabel prop is the intended route for naming a bare count and for hiding a decorative one, but whether a labelled count reads usefully in the flow of the thing it is attached to has been reasoned about rather than heard.",
+    "The refusal of both colour axes is a convention the component keeps and the type system cannot enforce on className. Nothing stops a caller passing bg-status-urgent-surface through className, which is the exact axis mixing the roster cited when it declined a generic badge. The page argues it; no lint rule on a consumer's own code catches it.",
+    "Forced colours and prefers-contrast: more are unhandled. The soft chip's fill and the outline chip's hairline are both replaced by the platform's own pair under forced colours, and whether the badge stays legible against its host in that mode has not been tested.",
+  ]}
+>
+  <code className="text-sm">badge</code> is implemented and installable. It is{" "}
+  <strong className="font-medium">alpha</strong>: it works and it is documented,
+  the API may change in any release without a deprecation cycle, and it is not
+  for a production health surface yet.
 </StubNotice>
 
-## What this name refers to
+Badge is the plainest component in the system: a small neutral label attached to something else, such as a count on a tab, a short word marking a list row, or a bare number on an icon. It draws only neutral chrome and carries no meaning of its own beyond the text a caller places inside it.
 
-A small label attached to something else.
+The design decision that shapes the whole component is that it takes neither colour axis. A badge that could be tinted is exactly how the category axis and the status axis get mixed, because a red badge beside a StatusPill reads as a second status and a heart-tinted badge reads as a category the surface has not claimed. So Badge offers no colour prop, carries neither `data-status` nor `data-category`, and when a label has to carry a clinical level the component is [StatusPill](./status-pill.mdx) instead, which carries the colour, the icon and the word together.
 
-## Why it is not on the roster
+## Preview
 
-Kept off the shipped roster deliberately: a generic badge next to a StatusPill is exactly how the two colour axes get mixed. If you need a badge to carry a health meaning, you need a StatusPill.
+Two counts, one in each weight, beside the labels they belong to. The thing worth checking is that the badge reads as quiet chrome rather than as a status beside its host, so read it in greyscale: both weights are neutral, neither competes with a status pill, and the number is a count rather than a verdict.
 
-## What to use instead
+<ComponentPreview name="badge" />
 
-Use [StatusPill](./status-pill.mdx) instead.
+## Installation
 
-Do not generate code against this page. It documents an absence. The
-machine-readable list of every component id and its status is at
-`/r/index.json`, and the [status matrix](./index.mdx) shows the same rows for
-a human reader.
+<ComponentInstall
+  name="badge"
+  unbuilt={false}
+  importPath="@/components/ui/badge"
+/>
+
+Badge has no dependency beyond the shared substrate every component installs. It renders no icon, composes no other component, and is built on no Base UI primitive, because a neutral label needs none of them.
+
+## Usage
+
+```tsx
+import { Badge } from "@/components/ui/badge"
+```
+
+```tsx
+<span className="inline-flex items-center gap-2">
+  Messages
+  <Badge srLabel="3 unread">3</Badge>
+</span>
+```
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Attaching a small neutral count to a label, such as an unread count on a tab or the number of items in a saved list, where the number carries no clinical meaning.",
+    "Marking a list row or a heading with a short neutral word, such as a category name the product owns, that is not a status and not a reading.",
+    "Any place a compact chip of neutral chrome reads more calmly than a full sentence, as long as what it carries is content rather than urgency.",
+  ]}
+  avoid={[
+    { case: "The label has to say what a reading means or how urgent it is. A badge that carried that would carry it as colour alone, which is the failure the status axis exists to prevent.", instead: "status-pill" },
+    { case: "You are showing a measurement and its unit rather than a count or a word.", instead: "value" },
+    { case: "The chip has to be tapped to do something. A badge is content, not a control, and takes no focus.", instead: "button" },
+  ]}
+/>
+
+The exclusion that matters is the first, and it is the reason this component was kept off the roster for so long. A badge that carries a clinical level carries it as a colour with no word and no icon, and the measured colour-vision audit in the system shows that a status told by colour alone is a status some readers cannot read at all. So the moment a label means "steady" or "needs attention", it is a [StatusPill](./status-pill.mdx) and not a Badge, and the type system cannot make that call for you because both render a short chip.
+
+The second exclusion keeps a badge from drifting into a number display. A count of unread items is a badge; a blood pressure reading with its unit is a [Value](./value.mdx), because a Value formats the number the same way everywhere and a badge does not format anything.
+
+## Anatomy
+
+<Anatomy
+  name="badge"
+  parts={[
+    {
+      name: "Badge",
+      describes: "The whole component, a single inline span. It carries data-slot=\"badge\" and draws only the neutral chrome roles: a muted fill in the soft weight, a neutral hairline in the outline weight. It carries neither data-status nor data-category, so it is on neither colour axis, and it takes no focus and captures no key.",
+      prop: "variant",
+    },
+  ]}
+/>
+
+<CompositionTree
+  name="badge"
+  tree={[
+    {
+      part: "Badge",
+      cardinality: "1",
+      note: "data-slot=\"badge\", an inline span. Neither data-status nor data-category. aria-hidden when srLabel is an empty string; aria-label when srLabel names the count.",
+    },
+  ]}
+/>
+
+Badge is a single element, so there is no part tree to nest and no composable slot to fill. What a caller controls is the content between the tags, the weight through `variant`, and how assistive technology hears the badge through `srLabel`. There is deliberately no `Badge.Icon` and no `Badge.Dot`: a coloured dot beside a count is a status told by colour alone, which is the one thing this component refuses to grow.
+
+## Examples
+
+### A count on a label
+
+The case Badge was built for. Each badge attaches a fictional count to the label beside it and names that count for a screen reader through `srLabel`, so a reader hears "5 waiting" rather than a lone "5". The numbers are synthetic and carry no clinical meaning, because an opsinjs example must never be mistakable for a reading.
+
+<ComponentPreview name="badge-a-count-on-a-label" kind="example" align="start" />
+
+### The two weights
+
+The soft and outline weights side by side. Both are neutral, and the point of showing them together is that neither is a colour on either axis: read in greyscale they are two quiet chrome chips, and a status pill dropped beside them would still be the only thing on the surface carrying a level.
+
+<ComponentPreview name="badge-the-two-weights" kind="example" align="start" />
+
+## Content guidelines
+
+Keep a badge to a few characters: a number, or a short neutral word. A badge is a label attached to something else, so it names or counts and then stops, and long content in a pill wraps into a lozenge nobody can read at a glance. Give a bare number a noun through `srLabel` so a screen-reader user hears what it counts, and set `srLabel` to an empty string only when the count is already spoken in full beside the badge.
+
+Never write a clinical status word into a badge. "Steady" and "Needs attention" belong in a [StatusPill](./status-pill.mdx), where the word sits beside the colour and the glyph that let a reader who cannot use the colour still read the level. A status word in a neutral chip is a level told without its carriers, which is precisely the mistake the two axes are kept apart to prevent.
+
+<DoDont>
+  <DoDont.Do>
+    **A neutral count, "3", with an srLabel of "3 unread".** The badge attaches a
+    number to its label, names it for a screen reader, and stays quiet chrome so
+    the count reads as a count rather than as a status.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A red badge reading "High" beside a reading.** It tells a clinical level by
+    colour with no word a colour-blind reader can use, and it puts a second colour
+    axis on a surface that should carry one. That is a StatusPill, and drawing it
+    as a badge loses the word and the glyph that make the level readable.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility
+
+Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. At `alpha`, accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+
+**Checked, by `pnpm run check:a11y`:**
+
+- **No status colour, no colour literal, no ramp step.** The badge draws only the neutral chrome roles, so it carries no `data-status`, reads no clinical vocabulary, and cannot mix the two axes. The gate reads every element and would fail the build on a colour drawn from either axis or on a raw colour value, and there is neither here.
+- **No px type size.** The chip's text is the `caption1` semantic step rather than a pixel size, so a reader who has turned their text size up gets a larger badge instead of a pinned one.
+
+**Argued, and true of the implementation, but not yet measured:**
+
+- **A decorative badge can be removed from the accessibility tree.** Setting `srLabel` to an empty string marks the badge `aria-hidden`, so a count that is already spoken beside it is not read twice. A count that stands alone is named instead, so it is never a lone number with no noun.
+- **The badge is not interactive.** Nothing takes focus, answers a key or a pointer, or animates, so there is no keyboard contract to honour and no motion for `prefers-reduced-motion` to reduce.
+- **At 200% text the chip grows with the text.** The pill is sized from the type step and its padding is in space tokens, so the whole badge scales rather than clipping its content.
+
+**Not checked at all, and listed rather than omitted:**
+
+- Every contrast pair: the muted ink against the muted fill in the soft weight, and the neutral hairline against the host ground in the outline weight. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring.
+- What the chip draws under `forced-colors: active`, where the fill and the hairline are both replaced by the platform's own pair. None of this has been put in front of a machine or a high contrast user.
+
+<KeyboardTable
+  name="badge"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Skips the badge",
+      notes: "A badge is content, not a control. Nothing here is focusable, and a tab stop that does nothing is a stop a keyboard user pays for on every screen it appears on.",
+    },
+    {
+      keys: "Shift + Tab",
+      action: "Skips the badge",
+      notes: "Same in reverse. A badge never appears in the focus order in either direction.",
+    },
+    {
+      keys: "Arrow keys",
+      action: "Nothing",
+      notes: "There is nothing to select, move or expand. The badge is static content attached to whatever it labels.",
+    },
+  ]}
+/>
+
+<ContrastReport component="badge" />
+
+## API reference
+
+<PropsTable name="BadgeProps" />
+
+`variant` chooses between two neutral weights and nothing else: there is no colour prop, because a badge is on neither the category axis nor the status axis. `srLabel` is how a caller names a bare count for a screen reader or hides a decorative one, and it is the only accessibility affordance the component needs, because a badge has no state and no behaviour. `children` is the visible content, and keeping it to a few characters is a content rule the type cannot enforce.
+
+## Related
+
+<RelatedComponents name="badge" />
+
+**Easily confused with**
+
+- [StatusPill](./status-pill.mdx) is the component for a label that carries a clinical level. It draws the colour, the icon and the word together, so the level survives greyscale and colour-vision deficiency, which a neutral badge cannot do.
+- [Value](./value.mdx) formats a measurement and its unit the same way everywhere in the product. A badge counts or names; it formats nothing.
+- [Callout](./callout.mdx) sets a short piece of information apart in a block. A badge is a chip attached inline to something else, not a block of its own.
+
+**Used by**
+
+- No pattern, recipe or screen composes it yet. It is a neutral primitive that a product attaches to its own tabs, list rows and headings.

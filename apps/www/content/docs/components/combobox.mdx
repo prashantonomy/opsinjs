@@ -1,39 +1,289 @@
 ---
-title: "Combobox"
-description: "A text input that filters a list as you type."
-status: considered
+title: Combobox
+description: A text input that narrows a list the product supplies as the reader types, then lets them choose one match.
+status: alpha
 kind: component
 since: "unreleased"
-category: "actions-and-forms"
+category: actions-and-forms
 aliases: ["autocomplete", "typeahead", "search select"]
 ---
 
-{/* GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts (status: considered).
-    Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`.
-    Rationale: content/docs/project/decisions/0008-considered-components-resolve.mdx.
-    Source hash d310e86cfa0e. */}
+## Status
 
-<PageTemplate kind="component" status="considered" category="actions-and-forms" />
-
-<StubNotice name="combobox" status="considered">
-  **Combobox is not built, and it has no specification.** The name is recorded in
-  the catalogue so that this address answers instead of returning a 404.
-  The reason is not that the component is coming.
+<StubNotice
+  name="combobox"
+  status="alpha"
+  questions={[
+    "No contrast pair has been measured. The field's hairline against the background, the popup's raised card against whatever it floats over, the highlighted match's neutral surface and the muted ink of the empty line have all been argued from the roles they use rather than checked by a machine, so the report at the foot of this page is empty rather than reassuring.",
+    "Nobody has listened to this control in a screen reader. The input announces its name and role, the popup announces as a listbox, and Combobox.Empty is meant to announce the empty message politely, but whether a reader hears the list narrow, hears the count of matches, and hears the empty line when everything is filtered away has been reasoned about rather than heard.",
+    "The filtering is Base UI's default contains match on the label, and opsinjs has not decided whether a health product needs diacritic folding, synonym matching or a spelling-tolerant search. A reader who types an accented character, an abbreviation or a near-miss spelling may filter a real item away, and the component offers no answer to that yet.",
+    "Forced colours and prefers-contrast: more are unhandled. The field's border, the popup's fill and shadow, and the highlighted match's surface are all replaced by the platform's own pair under forced colours, and whether the selection and the highlight survive that mode has not been tested.",
+  ]}
+>
+  <code className="text-sm">combobox</code> is implemented and installable. It is{" "}
+  <strong className="font-medium">alpha</strong>: it works and it is documented,
+  the API may change in any release without a deprecation cycle, and it is not for
+  a production health surface yet.
 </StubNotice>
 
-## What this name refers to
+Combobox is a text input that filters a list as the reader types, then lets them choose one match from what is left. Its home is a single choice out of a list too long to scroll comfortably, a country, a city or a medication name being the shape it was built for, where typing a few letters is faster than paging through everything.
 
-A text input that filters a list as you type.
+The design decision that shapes the whole component is that opsinjs ships no vocabulary. The hard part of a searchable list in a health product is never the widget, it is the list: which medicines, which conditions, which units, spelled which way, and kept current against which source. The component takes the items through the `items` prop and filters and renders exactly what the product hands it, because a list that is wrong is a clinical mistake and the presentation layer has no right to own it.
 
-## Why it is not on the roster
+## Preview
 
-Delegated to Base UI. The hard part in a health product is the vocabulary being searched, not the widget.
+A field over a list long enough that typing beats scrolling, with one item chosen at the start. The thing worth checking is that the list narrows as you type and the chosen item is marked without a colour doing the work, so type a letter and read the matches in greyscale: the highlight is a neutral surface, the tick is a lucide Check, and underneath both the carrier is `aria-selected` rather than any pixel at all.
 
-## What to use instead
+<ComponentPreview name="combobox" />
 
-Use [Field](./field.mdx) instead.
+## Installation
 
-Do not generate code against this page. It documents an absence. The
-machine-readable list of every component id and its status is at
-`/r/index.json`, and the [status matrix](./index.mdx) shows the same rows for
-a human reader.
+<ComponentInstall
+  name="combobox"
+  unbuilt={false}
+  importPath="@/components/ui/combobox"
+  dependencies={["@base-ui/react", "lucide-react"]}
+/>
+
+The control is built on Base UI's Combobox primitive, which is where the single tab stop, the default contains filter, the floating popup and the WAI-ARIA combobox keyboard come from, so installing it pulls in `@base-ui/react`. The chevron on the trigger and the tick on the chosen match are lucide icons, so it pulls in `lucide-react` as well.
+
+## Usage
+
+```tsx
+import { Combobox } from "@/components/ui/combobox"
+```
+
+```tsx
+<Combobox
+  label="Medication"
+  placeholder="Search medications"
+  value={medication}
+  onValueChange={setMedication}
+  items={[
+    { value: "amoxicillin", label: "Amoxicillin" },
+    { value: "ibuprofen", label: "Ibuprofen" },
+    { value: "paracetamol", label: "Paracetamol" },
+  ]}
+/>
+```
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Choosing one item from a list long enough that typing a few letters is faster than scrolling it, such as a city, a country or a product-owned medication name.",
+    "Any single choice where the reader knows roughly what they are looking for and would rather type it than hunt for it, and where the list is the product's to supply.",
+    "A field that has to stay compact on the surface until it is used, filtering a long list in place rather than pushing the rest of the form down the page.",
+  ]}
+  avoid={[
+    { case: "The list is a short fixed set of a handful of options that all fit in a closed menu, so typing to filter buys nothing over opening it.", instead: "select" },
+    { case: "The choice is two to about five short options worth showing at once, so the reader compares them at a glance rather than searching.", instead: "radio-group" },
+  ]}
+/>
+
+The exclusion that matters most is not in the table, because it points at no component. A combobox must never carry a clinical vocabulary that opsinjs itself ships. The list of medicines, conditions or units a reader searches is the product's to own, source and keep current, so it arrives through `items` and the component filters whatever it is handed. If you find yourself reaching for a built-in list of drug names, the list is the bug, and it belongs in the product rather than in this component.
+
+The two exclusions in the table are both about the shape of the list. A [Select](./select.mdx) is the honest form for a short fixed set that fits in a closed menu, because filtering a handful of options is effort with no reward. A [RadioGroup](./radio-group.mdx) is the form for a small set worth showing all at once, because a reader comparing two to five options should see them rather than type toward them. A combobox earns its place only once the list grows past what either of those can hold comfortably.
+
+## Anatomy
+
+<Anatomy
+  name="combobox"
+  parts={[
+    {
+      name: "Combobox",
+      describes: "The field box, a neutral hairline box on the background surface that holds the input and the trigger side by side. It carries data-slot=\"combobox\" and draws only the neutral chrome roles, so it is on neither colour axis. The Base UI Combobox.Root that wires it up renders no DOM element of its own; this box is the visible root.",
+      prop: "items",
+    },
+    {
+      name: "Combobox.Input",
+      describes: "The text input, a Base UI Combobox.Input rendering role=\"combobox\". It filters the list with Base UI's default contains match as the reader types, floors its target at 44pt, carries its own focus ring, and takes its accessible name from label. data-slot=\"combobox-input\".",
+      prop: "label",
+    },
+    {
+      name: "Combobox.Trigger",
+      describes: "The button at the trailing edge that opens the popup without typing, carrying a lucide ChevronsUpDown in the muted chrome role. It floors the same 44pt target and carries its own focus ring. data-slot=\"combobox-trigger\".",
+    },
+    {
+      name: "Combobox.Popup",
+      describes: "The floating list, rendered through a portal and positioner so it escapes overflow clipping. A raised material card, bg-card with a border-border hairline and the overlay shadow rung, matched to the input's width and capped at the room below with an internal scroll. data-slot=\"combobox-popup\".",
+    },
+    {
+      name: "Combobox.Item",
+      describes: "One match, a Base UI Combobox.Item rendering role=\"option\" with aria-selected. The active match under the Arrow keys and the pointer takes the neutral state-hover surface, and each row floors a 44pt target. data-slot=\"combobox-item\", with data-highlighted on the active row and data-selected on the chosen one.",
+      prop: "value",
+    },
+    {
+      name: "Combobox.ItemIndicator",
+      describes: "The tick on the chosen match, a lucide Check shown by Combobox.ItemIndicator. It marks the selection rather than a colour doing it, so the chosen match survives greyscale. data-slot=\"combobox-item-indicator\".",
+    },
+    {
+      name: "Combobox.Empty",
+      describes: "The line shown inside the popup when the typed text matches no item, in the muted chrome ink. Base UI keeps it mounted and announces its children politely, so a reader hears the list went empty rather than meeting a silent blank. data-slot=\"combobox-empty\".",
+      prop: "emptyMessage",
+    },
+  ]}
+/>
+
+<CompositionTree
+  name="combobox"
+  tree={[
+    {
+      part: "Combobox",
+      cardinality: "1",
+      note: "data-slot=\"combobox\", the field box; Combobox.Root renders no element of its own",
+      children: [
+        {
+          part: "Combobox.Input",
+          cardinality: "1",
+          note: "data-slot=\"combobox-input\", role=\"combobox\", the one tab stop",
+        },
+        {
+          part: "Combobox.Trigger",
+          cardinality: "1",
+          note: "data-slot=\"combobox-trigger\", opens the popup, lucide ChevronsUpDown",
+        },
+        {
+          part: "Combobox.Popup",
+          cardinality: "1",
+          note: "data-slot=\"combobox-popup\", role=\"listbox\", portalled and positioned",
+          children: [
+            {
+              part: "Combobox.Empty",
+              cardinality: "1",
+              note: "data-slot=\"combobox-empty\", shown only when nothing matches",
+            },
+            {
+              part: "Combobox.Item",
+              cardinality: "0..n",
+              note: "data-slot=\"combobox-item\", role=\"option\", aria-selected; one per match",
+              children: [
+                {
+                  part: "Combobox.ItemIndicator",
+                  cardinality: "1",
+                  note: "data-slot=\"combobox-item-indicator\", the tick on the chosen match",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ]}
+/>
+
+The parts above are identified by `data-slot` and are styleable from outside; none of them is an export, and there is no way to render an item without the root. The number of items in the popup is the number of matches, so it is zero when the typed text filters everything away, and the empty line takes over. The item's label sits in a `combobox-item-label` span beside the indicator, which the anatomy leaves off the part list because it is the item's own text rather than a slot a caller fills.
+
+## Examples
+
+### Filtering a list
+
+The case the control was built for. The list is a fictional set of cities, the kind a product owns rather than a clinical vocabulary opsinjs would have to ship, and typing a letter or two narrows it to the matches. It starts with one city chosen, so the input shows a value and the list marks it with a tick. Read the matches in greyscale to check that the highlight and the tick carry the state without a colour.
+
+<ComponentPreview name="combobox-filtering-a-list" kind="example" align="start" />
+
+### No match
+
+What the reader meets when the typed text matches nothing. The popup shows a short, useful line rather than a blank space, and Base UI announces that line politely so a screen-reader user hears the list went empty. Type something the short list does not contain, such as "xyz", to see it. The items are a fictional set of swatch names, again a list a product owns.
+
+<ComponentPreview name="combobox-no-match" kind="example" align="start" />
+
+## Content guidelines
+
+Name the field for the thing being chosen, not for the act of typing: `label` reads "Medication" or "City", not "Search" or "Type here", because a screen-reader user hears the name before the role and needs to know what the field is for. Keep the placeholder a short instruction such as "Search medications", and let the item labels be the plain names the reader would type, spelled the way the product's own list spells them so the contains filter matches what a reader expects.
+
+Write the empty message to help rather than to scold. "No matches. Check the spelling." tells the reader what to try next; a bare "No results" leaves them stuck. Never let the empty message, or any placeholder, imply that opsinjs knows the vocabulary. The list is the product's, so the words that describe it are the product's too, and the component only shows what it is handed.
+
+<DoDont>
+  <DoDont.Do>
+    **A label of "Medication", a placeholder of "Search medications" and item
+    labels spelled as the product's list spells them.** The field names what it
+    chooses, the prompt says what to do, and the labels match what a reader will
+    type, so the contains filter finds them.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A label of "Search", a placeholder of "Type a drug", and a built-in list
+    of medicine names.** The field names the act rather than the thing, the
+    prompt is vaguer than the label should be, and shipping the list at all is
+    the mistake the whole component exists to avoid: the vocabulary is the
+    product's to own.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility
+
+Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. At `alpha`, accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+
+**Checked, by `pnpm run check:a11y`:**
+
+- **No status colour, no colour literal, no ramp step.** The control draws only the neutral chrome roles, so it carries no `data-status`, reads no clinical vocabulary, and cannot mix the two axes. The gate reads every element and would fail the build on a colour drawn from either axis or on a raw colour value, and there is neither here.
+- **No px type size.** The input, the items and the empty line are all the semantic type steps rather than pixel sizes, so a reader who has turned their text size up gets a larger control instead of a pinned one.
+
+**Argued, and true of the implementation, but not yet measured:**
+
+- **The control is the WAI-ARIA combobox pattern.** Base UI renders `role="combobox"` on the input, `role="listbox"` on the popup and `role="option"` with `aria-selected` on each match, and the input is the single tab stop with the Arrow keys moving a highlight through the popup. This is the primitive's contract rather than a bespoke one, but it has not been heard in a real screen reader.
+- **The chosen match and the active highlight are never colour alone.** The selection is a lucide Check under `aria-selected`, and the highlight is a neutral surface under `data-highlighted`, so both survive greyscale. This is argued from the roles rather than measured against a colour-vision audit.
+- **The input and the trigger floor a 44pt target and carry their own focus ring.** Each is sized from `--opsin-target-minimum` in rem, so the pressable region grows with the reader's text size, and the ring lives in the component's own classes so a project installed without the product stylesheet keeps it.
+
+**Not checked at all, and listed rather than omitted:**
+
+- Every contrast pair: the field hairline against the background, the raised popup against its ground, the highlighted match's surface, and the muted ink of the empty line. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring.
+- What the control draws under `forced-colors: active`, where the border, the fill, the shadow and the highlight are all replaced by the platform's own pair. None of this has been put in front of a machine or a high contrast user.
+
+<KeyboardTable
+  name="combobox"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Moves focus into the control, onto the input",
+      notes: "The input is the one tab stop. The trigger is reachable with a second Tab, and the popup does not add stops of its own.",
+    },
+    {
+      keys: "Typing",
+      action: "Filters the list to the matches",
+      notes: "Base UI's default contains match on each item's label. The popup opens as the reader types, and the matches narrow with every character.",
+    },
+    {
+      keys: "Arrow Down",
+      action: "Opens the popup and moves the highlight into the list",
+      notes: "From the input, the first Arrow Down opens the popup if it is closed and highlights the first match.",
+    },
+    {
+      keys: "Arrow Up, Arrow Down",
+      action: "Moves the highlight between matches",
+      notes: "The highlight rolls through the visible matches. The popup holds the highlight while the input keeps the text caret.",
+    },
+    {
+      keys: "Enter",
+      action: "Chooses the highlighted match and closes the popup",
+      notes: "The chosen label fills the input and the value is reported through onValueChange.",
+    },
+    {
+      keys: "Escape",
+      action: "Closes the popup without choosing",
+      notes: "The input keeps whatever text it held. A second Escape does nothing further.",
+    },
+  ]}
+/>
+
+<ContrastReport component="combobox" />
+
+## API reference
+
+<PropsTable name="ComboboxProps" />
+
+`items`, `value` and `onValueChange` make this a controlled component with no internal selection state: the caller supplies the list, stores the chosen value, and passes it back, and a `value` that matches no item renders with nothing chosen and raises a development warning. `items` is where the whole doctrine of this component lives, because opsinjs ships no list of its own and filters only what the product hands it. `label` is required because a combobox with no accessible name is a defect the type system cannot otherwise prevent, and `emptyMessage` is the one line a reader sees when their search finds nothing, so it is worth writing to help.
+
+## Related
+
+<RelatedComponents name="combobox" />
+
+**Easily confused with**
+
+- [Select](./select.mdx) opens a closed menu of a fixed list without a text filter. It is the form for a short set where typing to narrow buys nothing; a combobox earns its place once the list grows past what a menu holds comfortably.
+- [RadioGroup](./radio-group.mdx) shows a small set of options all at once for a reader to compare. A combobox hides the list behind a search, so it is the wrong reach when the whole point is seeing the two to five choices side by side.
+- [Field](./field.mdx) is the labelled wrapper that gives any input its visible label, description and error. A combobox is the input that goes inside such a field; it names itself for assistive technology through `label` but draws no visible label of its own.
+
+**Used by**
+
+- No pattern, recipe or screen composes it yet. It is a neutral primitive a product wires to its own vocabulary, so the list it searches and the surface it sits on are the product's to bring rather than something the corpus ships today.

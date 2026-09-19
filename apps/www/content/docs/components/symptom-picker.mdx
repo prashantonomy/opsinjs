@@ -1,39 +1,275 @@
 ---
-title: "SymptomPicker"
-description: "A picker for choosing symptoms from a controlled list."
-status: considered
+title: SymptomPicker
+description: A multi-select over a symptom list the product supplies, recording which options a reader ticks and never checking, triaging or interpreting them.
+status: alpha
 kind: component
 since: "unreleased"
-category: "health-input"
+category: health-input
 aliases: ["symptoms", "how are you feeling", "symptom checker"]
+governedBy: ["clinical-interaction-guidelines", "regulatory-context", "who-this-is-for"]
 ---
 
-{/* GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts (status: considered).
-    Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`.
-    Rationale: content/docs/project/decisions/0008-considered-components-resolve.mdx.
-    Source hash d310e86cfa0e. */}
+## Status
 
-<PageTemplate kind="component" status="considered" category="health-input" />
-
-<StubNotice name="symptom-picker" status="considered">
-  **SymptomPicker is not built, and it has no specification.** The name is recorded in
-  the catalogue so that this address answers instead of returning a 404.
-  The reason is not that the component is coming.
+<StubNotice
+  name="symptom-picker"
+  status="alpha"
+  questions={[
+    "No contrast pair has been measured. The tick box hairline and its muted fill, the check glyph inside it, and the search field's border and placeholder ink are all painted on whatever ground the host provides, because this component sets no surface of its own, and whether each reads at the non-text and text floors has been argued from the roles rather than checked by a machine.",
+    "Nobody has listened to this in a screen reader. It renders a group with an accessible name and a set of checkboxes inside it, and whether that is the register a reader expects, and whether the filter input's changing result count is announced usefully as rows appear and disappear beneath it, has been reasoned about rather than heard.",
+    "The boundary this component exists to hold, that it records a selection and never checks, triages or interprets it, is a convention the code keeps and the type system cannot enforce on the product around it. Nothing stops a product wiring the returned values into a checker or a triage flow, which is the exact step the roster feared when it declined a symptom picker. The page argues the line; no lint rule on a consumer's own code holds it.",
+    "No named reviewer has signed this page off, and forced colours and `prefers-contrast: more` are unhandled. Group J of the safety review checklist asks for a reviewer name and a date, and there is neither here; and under forced colours the box fill and the field border are replaced by the platform's own pair, which has not been tested. Read every claim below as unattributed until that changes.",
+  ]}
+>
+  <code className="text-sm">symptom-picker</code> is implemented and
+  installable. It is <strong className="font-medium">alpha</strong>: it works and
+  it is documented, the API may change in any release without a deprecation
+  cycle, and it is not for a production health surface yet.
 </StubNotice>
 
-## What this name refers to
+SymptomPicker is a multi-select over a list of options the product supplies: a reader ticks the ones that apply to them, and the component records that selection. It is the plainest reading of the words "symptom picker", and the plainness is the whole design, because the richer reading is a regulated device this design system has no business shipping.
 
-A picker for choosing symptoms from a controlled list.
+The boundary that shapes every decision here is the line between recording and interpreting. This component records which options were ticked and hands the values back, and it stops there. It runs no check, it performs no triage, it computes no score, and it reaches no conclusion about the reader. A symptom picker sits one step from a symptom checker, and a symptom checker is a regulated device in most of the markets this system targets, so the one step is the one this component refuses to take.
 
-## Why it is not on the roster
+## Preview
 
-A symptom picker is one step from a symptom checker, and a symptom checker is a regulated device in most of the markets this system targets. The controlled vocabulary is also product-specific and cannot be shipped in a design system.
+A short list with one row ticked. The thing worth checking is that the ticked state is carried by the check shape inside the box and a quiet neutral fill rather than by a colour, so read it in greyscale: the ticked row stays legible as ticked, and nothing on the surface reads as a status or a category. Turn the text size up and the rows grow and the targets stay past the 44pt floor.
 
-## What to use instead
+<ComponentPreview name="symptom-picker" />
 
-Use [Field](./field.mdx) or [LogSheet](./log-sheet.mdx) instead.
+## Installation
 
-Do not generate code against this page. It documents an absence. The
-machine-readable list of every component id and its status is at
-`/r/index.json`, and the [status matrix](./index.mdx) shows the same rows for
-a human reader.
+<ComponentInstall
+  name="symptom-picker"
+  unbuilt={false}
+  importPath="@/components/ui/symptom-picker"
+  dependencies={["@base-ui/react", "lucide-react"]}
+/>
+
+The picker is built on Base UI's CheckboxGroup and Checkbox primitives, which is where the shared selection array and each option's checkbox semantics come from, so installing it pulls in `@base-ui/react`. It also pulls in `lucide-react` for the check glyph inside each box and, when the filter is on, the search glyph in the field. It composes no other opsinjs component and ships no symptom list.
+
+## Usage
+
+```tsx
+import { SymptomPicker } from "@/components/ui/symptom-picker"
+```
+
+```tsx
+<SymptomPicker
+  label="Which of these apply to you right now?"
+  value={selected}
+  onValueChange={setSelected}
+  options={[
+    { value: "example-one", label: "Example symptom one" },
+    { value: "example-two", label: "Example symptom two" },
+    { value: "example-three", label: "Example symptom three" },
+  ]}
+/>
+```
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Recording which items from a product-owned list apply to a reader, where more than one can apply at once and the product wants the whole set back as an array.",
+    "A short to medium list the reader scans in place, such as a set of options a product presents before a consultation and stores against the reader's own record.",
+    "A longer product-owned list, with searchable turned on so the reader can filter the rows by typing rather than scrolling, while the ticked values stay ticked as the filter narrows.",
+  ]}
+  avoid={[
+    { case: "There is one thing to confirm, a single yes or no. A whole picker for one option is a control the reader has to read twice.", instead: "checkbox" },
+    { case: "Exactly one option applies and the rest exclude it, so the choice is one-of-many rather than any-of-many.", instead: "radio-group" },
+    { case: "The reader needs to describe something in their own words rather than pick from a list the product wrote.", instead: "textarea" },
+  ]}
+/>
+
+The exclusion that matters most is not in the list above, because it has no component to point at. Anything that interprets the selection, that checks it against a rule, triages it into a level, or reaches a conclusion about the reader, is not a thing opsinjs builds. The product and its regulatory pathway own that, and the value of this component is precisely that it stops at the selection and leaves the meaning where it belongs.
+
+Within what it does do, the honest limit is the length and the source of the list. A picker over three options a product owns is the right control; a picker over a vocabulary opsinjs supplies is a control that does not exist here, because opsinjs supplies no vocabulary. If the reader is describing rather than choosing, the list is the wrong shape and a [Textarea](./textarea.mdx) is the honest form.
+
+## Clinical meaning
+
+**What it asserts.** SymptomPicker asserts exactly one thing: these are the values a reader ticked from the list you gave it. It asserts nothing about what any option means, nothing about how the ticked set should be read together, and nothing about what happens next. It is a record of a selection, and a record is not a reading.
+
+**What it must never be read as.** It is not a symptom checker, not a triage, and not a diagnosis. A ticked row says the reader selected that option from a product's list; it does not say the reader has a condition, that the selection is urgent, or that any action follows. The moment a product treats the returned array as an input to a rule that reaches a clinical conclusion, the meaning has moved onto the regulatory pathway the roster warned about, and that pathway is the product's to own, never this component's to imply.
+
+**Which colour axis it may use.** Neither. A ticked option is a selection, not a clinical level, so the component carries neither `data-status` nor `data-category` and draws only neutral chrome. The ticked state travels as the check shape and a quiet fill rather than as a hue, so it survives greyscale and colour-vision deficiency without ever borrowing the status axis. Putting an urgency colour on a ticked row would say the selection means something the component is not entitled to say, which is the collision [The two colour axes](../health/two-colour-axes.mdx) exists to prevent.
+
+**Who owns the thresholds and the words.** The consuming product, always. SymptomPicker ships no symptom list, no option labels and no default text, because the controlled vocabulary is product specific and shipping it inside a component library would be shipping a clinical decision to every product that installed it. Every option arrives through `options`, the group's question arrives through `label`, and the only thing this component supplies is the neutral chrome that records the choice.
+
+## Anatomy
+
+<Anatomy
+  name="symptom-picker"
+  parts={[
+    {
+      name: "SymptomPicker",
+      describes: "The root, a Base UI CheckboxGroup rendered as a group with the accessible name from label. It holds the shared array of ticked values and draws only neutral chrome, so it carries neither data-status nor data-category. No fixed height: at 200% text every row grows and wraps rather than clipping a word.",
+      prop: "options",
+    },
+    {
+      name: "SymptomPicker.Search",
+      describes: "The optional filter input, shown only when searchable is set. It narrows the visible rows by a case-insensitive match on their label and is kept separate from the selection, so filtering hides no ticked value. Its border, radius and focus ring sit on the wrapper and the input inside is borderless. data-slot=\"symptom-picker-search\".",
+      prop: "searchable",
+    },
+    {
+      name: "SymptomPicker.Option",
+      describes: "One option, a Base UI Checkbox rendered as a role=\"checkbox\" and the pressable element for the row, floored at the 44pt target minimum. Its tick box is a decorative aria-hidden square whose muted fill and check glyph carry the ticked state alongside aria-checked. A disabled option drops to the muted ink and takes no pointer or key. data-slot=\"symptom-picker-option\", with data-checked or data-unchecked, and data-disabled when disabled.",
+      prop: "value",
+    },
+    {
+      name: "SymptomPicker.OptionLabel",
+      describes: "The option's words, the visible label and the accessible name a screen reader reads for the checkbox. data-slot=\"symptom-picker-option-label\".",
+    },
+  ]}
+/>
+
+<CompositionTree
+  name="symptom-picker"
+  tree={[
+    {
+      part: "SymptomPicker",
+      cardinality: "1",
+      note: "data-slot=\"symptom-picker\", role=\"group\" with the accessible name from label. Neither data-status nor data-category.",
+      children: [
+        {
+          part: "SymptomPicker.Search",
+          cardinality: "0..1",
+          note: "data-slot=\"symptom-picker-search\". Present only when searchable is set; a text input labelled for the filter, above the options.",
+        },
+        {
+          part: "SymptomPicker.Option",
+          cardinality: "1..n",
+          note: "data-slot=\"symptom-picker-option\", role=\"checkbox\", aria-checked; one per visible option. Its decorative aria-hidden tick box carries no data-slot.",
+          children: [
+            {
+              part: "SymptomPicker.OptionLabel",
+              cardinality: "1",
+              note: "data-slot=\"symptom-picker-option-label\"; the word, and the option's accessible name.",
+            },
+          ],
+        },
+      ],
+    },
+  ]}
+/>
+
+The parts above are identified by `data-slot` and none of them is an export. There is no `SymptomPicker.Option` you can import and no way to render an option outside the group, because the rows are decided by the `options` array you pass rather than by how a caller nests children. When the filter matches nothing, a short neutral note stands in for the rows and says so; it is a message, not a row, and it carries no tick.
+
+## Examples
+
+### Choosing from a list
+
+The case the picker was built for. A reader ticks the options that apply from a list the product supplies, and the selection is recorded and handed back with nothing checked or interpreted. The options here are fictional placeholders, because opsinjs ships no symptom list and an example must never be mistakable for a real vocabulary; a product replaces them with its own.
+
+<ComponentPreview name="symptom-picker-choosing-from-a-list" kind="example" align="start" />
+
+### Filtering a long list
+
+The same picker with `searchable` on, for a list long enough that scanning it is work. The filter narrows the visible rows by a match on their label and stays separate from the selection: type into it and the ticked rows stay ticked, clear it and every option comes back untouched. The placeholder options use the phonetic alphabet so the filter is easy to try.
+
+<ComponentPreview name="symptom-picker-with-search" kind="example" align="start" />
+
+## Content guidelines
+
+Write every option in the reader's own words, and keep each label short enough to scan: a plain description of the thing, not a sentence and not a clinical register. The group's `label` is the question the list answers, so phrase it as a question the reader would recognise, such as "Which of these apply to you right now?", rather than a heading like "Symptoms".
+
+Never phrase an option as a verdict or a finding. An option names something the reader can recognise and tick; it does not tell them what the selection means, because the component does not know and must not pretend to. Keep the labels stable across screens, so a reader who learnt an option's wording in one place meets the same wording in another, and never change a label to carry urgency the row is not allowed to show.
+
+<DoDont>
+  <DoDont.Do>
+    **Options written as plain, recognisable descriptions the reader ticks, with a question for the group label.** Each row names one thing in the reader's words, the reader chooses the ones that apply, and the picker records the set without adding meaning to it.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **Options that smuggle a severity or a conclusion into the label, such as a row that names an urgent condition rather than a thing the reader recognises.** That reaches a finding the component is not entitled to reach and dresses an interpretation as a plain choice.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **Take the returned array and store it against the reader's own record, or pass it to a person who can interpret it.** The selection is a record, and a record is handed to whoever owns the meaning.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **Feed the returned array into a rule that checks it, triages it into a level, or shows the reader a conclusion.** That is the step from a picker to a checker, and it moves the product onto a regulatory pathway this component was built to stay off.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility
+
+Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. At `alpha`, accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+
+**Checked, by `pnpm run check:a11y`:**
+
+- **No status colour, no colour literal, no ramp step.** The picker draws only the neutral chrome roles, so it carries no `data-status`, reads no clinical vocabulary, and cannot mix the two axes. The gate reads every element and would fail the build on a colour drawn from either axis or on a raw colour value, and there is neither here.
+- **The ticked state is not carried by colour.** A ticked row shows the check shape inside its box, so the state is a shape a reader without the fill can still read, and the gate that fails a status told by colour alone has nothing to catch because the picker paints no status at all.
+- **No px type size.** Every label and the filter field use the semantic type steps rather than a pixel size, so a reader who has turned their text size up gets a larger picker instead of a pinned one.
+
+**Argued, and true of the implementation, but not yet measured:**
+
+- **Each option is a real checkbox in the accessibility tree.** Base UI's Checkbox renders `role="checkbox"` with `aria-checked`, the label inside it is the accessible name, and the decorative box and glyph carry `aria-hidden`. A reader hears the question, then each option as a checkbox that is ticked or not.
+- **The whole row is the target.** The pressable element is the option row, not the small box, and it floors its hit area at `--opsin-target-minimum` in rem, so a 44pt region survives and grows with the reader's text size. The filter field floors at the same minimum.
+- **The filter changes what is shown, not what is chosen.** Narrowing the list unmounts the rows that do not match and leaves their ticked values in the array untouched, so a reader never loses a selection by filtering, and clearing the filter brings every option back ticked as it was.
+
+**Not checked at all, and listed rather than omitted:**
+
+- Every contrast pair: the box hairline and its muted fill against the host ground, the check glyph against the fill, and the filter field's border and placeholder ink against the ground. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring, and this component sets no surface of its own, so each pair is painted on whatever ground the host provides.
+- Whether the group and its checkboxes read usefully in a real screen reader, and whether the filter's changing result count should be announced as rows appear and disappear. It has been reasoned about and not listened to.
+- What the picker draws under `forced-colors: active`, where the box fill and the field border are replaced by the platform's own pair. None of this has been put in front of a machine or a high contrast user.
+
+<KeyboardTable
+  name="symptom-picker"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Moves to the next control, the filter field or an option",
+      notes: "Each checkbox is its own tab stop, and the filter field is one before them, because a set of checkboxes is not a roving group the way a radio group is. A disabled option is skipped.",
+    },
+    {
+      keys: "Shift + Tab",
+      action: "Moves to the previous control",
+      notes: "The same set of stops in reverse: each option, then the filter field, then out of the picker.",
+    },
+    {
+      keys: "Space",
+      action: "Ticks or unticks the focused option",
+      notes: "An option is a role=\"checkbox\", so Space is its activator. Focus stays on the option.",
+    },
+    {
+      keys: "Enter",
+      action: "Does nothing on an option",
+      notes: "The Checkbox primitive cancels Enter so a picker at the foot of a form does not submit it by accident. An option is ticked with Space. In the filter field, Enter is the field's own and submits nothing here.",
+    },
+    {
+      keys: "Typing",
+      action: "Filters the list, in the filter field only",
+      notes: "Present only when searchable is set. It narrows the visible rows and never changes a ticked value. The options themselves capture no typing.",
+    },
+  ]}
+/>
+
+<ContrastReport component="symptom-picker" />
+
+## API reference
+
+<PropsTable name="SymptomPickerProps" />
+
+`options` is the product's controlled vocabulary and the whole of what the picker draws: opsinjs ships none of it, so an empty array renders nothing and raises a development warning rather than an empty group. `value` and `onValueChange` make this a controlled multi-select with no selection state of its own, so the caller holds the array of ticked values and passes it back; a value that matches no option is kept untouched and named by a development warning rather than dropped. `label` is required because a group with no accessible name is a defect the type system cannot otherwise prevent, and `searchable` adds the filter field for a list long enough to need one.
+
+## Related
+
+<RelatedComponents name="symptom-picker" />
+
+**Easily confused with**
+
+- [Checkbox](./checkbox.mdx) is the control for a single option to tick, one box rather than a list. A whole picker for one thing is a control read twice.
+- [RadioGroup](./radio-group.mdx) is the control when exactly one option applies and the rest exclude it, a one-of-many choice where this picker is any-of-many.
+- [Textarea](./textarea.mdx) is where the reader describes something in their own words rather than choosing from a list the product wrote.
+
+**Used by**
+
+- No pattern, recipe or screen composes it yet. It is a health input a product wires to its own controlled list and its own record, and the meaning of the selection is the product's to own.
+
+**Governed by**
+
+- [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx) is why the picker records a selection and never interprets it.
+- [Regulatory context](../health/regulatory-context.mdx) is why a symptom picker must never become a symptom checker, which is a regulated device.
+- [Who this is for](../health/who-this-is-for.mdx) is why the options are written in the reader's own words rather than a clinical register.

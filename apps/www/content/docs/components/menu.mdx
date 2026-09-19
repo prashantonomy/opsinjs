@@ -1,39 +1,256 @@
 ---
-title: "Menu"
-description: "A list of actions opened from a button."
-status: considered
+title: Menu
+description: A list of actions opened from a button, built on Base UI Menu, that draws neutral chrome and keeps every safety-relevant action out on the screen.
+status: alpha
 kind: component
 since: "unreleased"
-category: "overlay"
+category: overlay
 aliases: ["dropdown menu", "context menu", "overflow menu"]
 ---
 
-{/* GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts (status: considered).
-    Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`.
-    Rationale: content/docs/project/decisions/0008-considered-components-resolve.mdx.
-    Source hash d310e86cfa0e. */}
+## Status
 
-<PageTemplate kind="component" status="considered" category="overlay" />
-
-<StubNotice name="menu" status="considered">
-  **Menu is not built, and it has no specification.** The name is recorded in
-  the catalogue so that this address answers instead of returning a 404.
-  The reason is not that the component is coming.
+<StubNotice
+  name="menu"
+  status="alpha"
+  questions={[
+    "No contrast pair has been measured for the popup against the surfaces it floats over, or for the neutral separator hairline. The popup is the card fill with the overlay material shadow, and whether it reads as a raised object at the non-text floor over a busy card has been argued from the material rung rather than checked by a machine.",
+    "Nobody has listened to this menu in a screen reader. The primitive announces the trigger as a menu button and each item as a menuitem, and whether a grouped run set apart by a separator reads as a group, or as a flat list with a line in it, has been reasoned about rather than heard.",
+    "The refusal to hide a safety-relevant action is a convention the page states and the type system cannot enforce. The component cannot read the meaning of a label, so nothing stops a caller passing a destructive command as an item; the doctrine argues it and the demo keeps to it, but no lint rule on a consumer's own code catches it.",
+    "Forced colours and prefers-contrast: more are unhandled. The popup's fill and edge, the highlighted row's surface and the separator hairline are all replaced by the platform's own pair under forced colours, and whether the list stays legible and the highlight stays visible in that mode has not been tested.",
+  ]}
+>
+  <code className="text-sm">menu</code> is implemented and installable. It is{" "}
+  <strong className="font-medium">alpha</strong>: it works and it is documented,
+  the API may change in any release without a deprecation cycle, and it is not
+  for a production health surface yet.
 </StubNotice>
 
-## What this name refers to
+Menu is a list of actions opened from a button. Its home is the small set of commands that act on one thing, an item's Share, Rename and Duplicate being the case it was built for, folded behind a trigger so they do not take the space of showing every command at once. It is built on Base UI's Menu, which is where the single tab stop, the roving highlight and the keyboard come from.
 
-A list of actions opened from a button.
+The design decision that shapes the whole component is that it carries no colour and no destructive tint. A menu runs actions rather than stating a level, so it draws only neutral chrome and takes neither the status axis nor the category axis. There is no red for a removing or a clearing action either, because the only red in this system is the clinical status axis, so a destructive item stays neutral and its word is what tells the reader what it does.
 
-## Why it is not on the roster
+## Preview
 
-Delegated to Base UI. Hiding a destructive or a safety-relevant action in an overflow menu is a defect whatever renders it.
+A trigger and a short list of neutral actions with one group set apart by a separator. The thing worth checking is that the list reads as neutral chrome and that the removing action carries no red, so read it in greyscale: the highlighted row is lifted by a neutral surface rather than a hue, the separator is a plain hairline, and the destructive action is told by its word alone.
 
-## What to use instead
+<ComponentPreview name="menu" />
 
-Use [Sheet](./sheet.mdx) or [Button](./button.mdx) instead.
+## Installation
 
-Do not generate code against this page. It documents an absence. The
-machine-readable list of every component id and its status is at
-`/r/index.json`, and the [status matrix](./index.mdx) shows the same rows for
-a human reader.
+<ComponentInstall
+  name="menu"
+  unbuilt={false}
+  importPath="@/components/ui/menu"
+  dependencies={["@base-ui/react"]}
+/>
+
+The menu is built on Base UI's Menu primitives, which is where the menu button pattern, the roving highlight, the Arrow keys and the portalled popup come from, so installing it pulls in `@base-ui/react`. It composes no other opsinjs component: the trigger is the caller's own button, so a project supplies its Button or IconButton rather than the menu shipping one.
+
+## Usage
+
+```tsx
+import { Menu } from "@/components/ui/menu"
+```
+
+```tsx
+<Menu
+  trigger={<button type="button">Actions</button>}
+  items={[
+    { label: "Share", onClick: onShare },
+    { label: "Rename", onClick: onRename },
+    { label: "Remove from list", separatorBefore: true, onClick: onRemove },
+  ]}
+/>
+```
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Folding a small set of commands that act on one thing behind a trigger, such as an item's Share, Rename and Duplicate, where showing each as its own button would crowd the row.",
+    "An overflow trigger on a dense list or toolbar, where the common actions sit on the screen and the rarer ones move into the menu behind them.",
+    "A grouped set of neutral actions, where a separator marks a related run apart from a command that stands on its own.",
+  ]}
+  avoid={[
+    { case: "The action is safety-relevant or destructive, so hiding it behind a trigger means the reader cannot weigh a command they cannot see. It belongs on the screen, with a confirming step.", instead: "dialog" },
+    { case: "There is a single primary action, so a menu is a button that has not admitted it.", instead: "button" },
+    { case: "You want a bottom-sheet of actions on a phone, where a docked surface with large targets reads better than a floating popup.", instead: "sheet" },
+  ]}
+/>
+
+The exclusion that matters is the first, and it is the reason this component was kept off the roster for so long. Hiding a destructive or a safety-relevant command behind an overflow trigger is a defect whatever draws the overflow, because a reader cannot weigh a command they cannot see, and a menu item runs on a single press with no second step. So a command that clears, deletes or changes something a reader depends on sits on the screen as a [Button](./button.mdx) and confirms itself through a [Dialog](./dialog.mdx), rather than firing straight from a list. The component cannot read the meaning of a label, so it cannot make this call for you.
+
+The second and third exclusions are about reaching for a menu where a plainer control fits. A menu earns its trigger only once there is a set of actions to fold: a single command is a [Button](./button.mdx), and reaching for a menu there asks the reader to open something to find one thing. On a phone, a docked [Sheet](./sheet.mdx) of actions gives each command a thumb-width target that a floating popup does not, so a set of actions the reader reaches often is better docked than hidden behind an overflow trigger.
+
+## Anatomy
+
+<Anatomy
+  name="menu"
+  parts={[
+    {
+      name: "Menu.Trigger",
+      describes: "The button that opens the menu. It is the caller's own element, passed as trigger, and Base UI merges the open behaviour, the aria-haspopup and the aria-expanded state onto it through render, so there is one button rather than a button nested inside another. Its target floor and focus ring are the caller's button's own. Carries data-slot=\"menu-trigger\".",
+      prop: "trigger",
+    },
+    {
+      name: "Menu.Popup",
+      describes: "The floating list, rendered through a portal into a positioner so it escapes the clipping and stacking context of whatever card or toolbar the trigger sits in. It is a raised card, bg-card with a border-border edge and the overlay material shadow, rounded-opsin-lg, capped at the room below the trigger with an internal scroll. It carries neither data-status nor data-category. data-slot=\"menu-popup\".",
+      prop: "className",
+    },
+    {
+      name: "Menu.Item",
+      describes: "One action, a Base UI menuitem rendered as a row with role=\"menuitem\". The active row under the Arrow keys and the pointer is lifted by the neutral state-hover surface read from data-highlighted rather than by a hue, and a disabled row drops to the muted ink and is skipped by the keys. Each row floors its target at 44pt. data-slot=\"menu-item\", with data-highlighted or data-disabled.",
+      prop: "items",
+    },
+    {
+      name: "Menu.Separator",
+      describes: "A neutral hairline drawn above an item whose separatorBefore is set, for grouping a related run of actions apart from the one before it. Decorative chrome, drawing only border-border, ignored on the first item where it would have nothing above it. data-slot=\"menu-separator\".",
+    },
+  ]}
+/>
+
+<CompositionTree
+  name="menu"
+  tree={[
+    {
+      part: "Menu.Trigger",
+      cardinality: "1",
+      note: "data-slot=\"menu-trigger\", the caller's button, one tab stop, aria-haspopup and aria-expanded",
+    },
+    {
+      part: "Menu.Popup",
+      cardinality: "1",
+      note: "data-slot=\"menu-popup\", role=\"menu\", portalled and positioned, holds focus while open",
+      children: [
+        {
+          part: "Menu.Separator",
+          cardinality: "0..n",
+          note: "data-slot=\"menu-separator\"; one above each item with separatorBefore set, never before the first",
+        },
+        {
+          part: "Menu.Item",
+          cardinality: "1..n",
+          note: "data-slot=\"menu-item\", role=\"menuitem\", data-highlighted or data-disabled; one per action",
+        },
+      ],
+    },
+  ]}
+/>
+
+The parts above are identified by `data-slot` and are styleable from outside; none of them is an export, and there is no way to render an item without the popup or a popup without the trigger. The trigger is the one part this component does not draw: it is the caller's button, merged into Base UI's trigger through `render`, so its weight, its target floor and its focus ring travel with the button a product already ships rather than being invented here.
+
+There is no `Menu.Icon` slot and no coloured dot beside a label. A tint on an action would be a colour on one of the two axes, and a destructive command drawn red would borrow the clinical status axis for a thing that is not a clinical status, so the list stays words on neutral chrome and a destructive action is marked by its wording alone.
+
+## Examples
+
+### Actions from a button
+
+The plain case the control was built for. A few neutral commands fold behind one trigger, and the trigger is an ordinary button the example owns, because a menu button is the caller's own button and Base UI merges the open behaviour onto it. None of the actions is destructive, so each runs straight from the list; a command that could not be undone would open a [Dialog](./dialog.mdx) from its `onClick` instead. The labels are fictional and carry no reading.
+
+<ComponentPreview name="menu-actions-from-a-button" kind="example" align="start" />
+
+### A grouped list with a separator
+
+A run of related actions set apart from one that stands on its own by a separator. The separator is `separatorBefore` on the item below it, so it groups by structure rather than by colour, and the last action removes the item without a red tint, told by its word. One action is shown disabled rather than removed, so the reader can still see it is a command that is not available to them. Every label is synthetic, because an opsinjs example must never be mistakable for somebody's own data.
+
+<ComponentPreview name="menu-with-a-separator" kind="example" align="start" />
+
+## Content guidelines
+
+Name each action as an imperative the reader is choosing, "Rename" rather than "Renaming" or "Item settings", and keep the labels short and parallel so the list reads as one set. Order the actions the way the reader reaches for them, common ones first, and let a destructive one carry its object in the word, "Remove from list" rather than a bare "Remove", because the word is the only thing that marks a destructive action apart in a system with no destructive tint.
+
+Do not write a clinical status word into an action, and do not colour an item to mark it as dangerous. A menu is neutral chrome, so a level or an urgency has no carrier here beyond a colour the two axes are kept apart to prevent. When a command is destructive, the wording carries it and the confirmation is a [Dialog](./dialog.mdx); when it is safety-relevant, it does not belong in the menu at all.
+
+<DoDont>
+  <DoDont.Do>
+    **"Share" · "Rename" · "Remove from list"** Three imperative labels, the
+    common ones first, the destructive one named with its object so its word
+    tells the reader what it does without a tint.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A red "Delete" item firing straight from the list.** It borrows the
+    clinical status axis for a thing that is not a status, tells a destructive
+    action by colour a colour-blind reader cannot use, and destroys something on
+    a single press with no confirmation. Confirm it in a Dialog instead.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility
+
+Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. At `alpha`, accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+
+**Checked, by `pnpm run check:a11y`:**
+
+- **No status colour, no colour literal, no ramp step.** The menu draws only the neutral chrome roles, so it carries no `data-status`, reads no clinical vocabulary, and cannot mix the two axes. The gate reads every element and would fail the build on a colour drawn from either axis or on a raw colour value, and there is neither here.
+- **No px type size, and 44pt item targets.** Every item's text is a semantic type step and its row floors its hit area at `--opsin-target-minimum` in rem, so a reader who has turned their text size up gets a larger, taller row rather than a pinned one.
+
+**Argued, and true of the implementation, but not yet measured:**
+
+- **The trigger is the one tab stop and the keyboard is the menu button pattern.** Base UI renders the trigger with `aria-haspopup`, the popup with `role="menu"` and each item with `role="menuitem"`, and moves a roving highlight with the Arrow keys while the popup holds focus, which is the WAI-ARIA pattern rather than a bespoke one.
+- **The highlight and the disabled state do not rest on colour.** The active row is lifted by the neutral `state-hover` surface read from `data-highlighted`, and a disabled row drops to the measured muted ink rather than being faded with opacity, so both read in greyscale and the disabled row stays legible while reading as unavailable.
+- **Focus returns to the trigger on close.** Escape and a choice both close the popup and return focus to the button that opened it, so a keyboard reader is put back where they were rather than at the top of the page.
+
+**Not checked at all, and listed rather than omitted:**
+
+- Every contrast pair: the popup and its edge against the surfaces it floats over, the highlighted row's surface, and the separator hairline. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring.
+- What the popup draws under `forced-colors: active` and `prefers-contrast: more`, where the fill, the edge, the highlight and the hairline are all replaced by the platform's own pair. None of this has been put in front of a machine or a high contrast user, and nobody has listened to the menu in a screen reader.
+
+<KeyboardTable
+  name="menu"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Moves focus onto the trigger",
+      notes: "The trigger is a single tab stop. The popup is not in the tab order: it is reached by opening the menu, not by tabbing into it.",
+    },
+    {
+      keys: "Enter, Space, Arrow Down",
+      action: "Opens the menu and moves the highlight to the first item",
+      notes: "Pressed on the trigger. Arrow Up opens the menu on the last item instead.",
+    },
+    {
+      keys: "Arrow Down, Arrow Up",
+      action: "Moves the highlight between items",
+      notes: "The popup holds focus while open. The highlight wraps from the last item to the first and skips disabled items.",
+    },
+    {
+      keys: "Enter, Space",
+      action: "Runs the highlighted item and closes the menu",
+      notes: "The item's onClick fires and focus returns to the trigger. An item with no onClick runs nothing, which a development warning names.",
+    },
+    {
+      keys: "Escape",
+      action: "Closes the menu without running anything",
+      notes: "Focus returns to the trigger, so a reader who opened the menu by mistake is put back where they were.",
+    },
+    {
+      keys: "A to Z",
+      action: "Highlights the next item whose label starts with that letter",
+      notes: "Base UI's typeahead. It moves the highlight only and never runs an item, so a mistyped letter changes nothing that cannot be undone.",
+    },
+  ]}
+/>
+
+<ContrastReport component="menu" />
+
+## API reference
+
+<PropsTable name="MenuProps" />
+
+`trigger` is the caller's own button rather than an element this component draws, because a menu button is a button and the system already ships one; Base UI merges the open behaviour onto it through `render`, so it must be a single focusable element. `items` is the list of actions, and a menu with none or with only one raises a development warning, because the first has nothing to open and the second is a button that has not admitted it. Each item's `separatorBefore` groups a run of actions by drawing a neutral hairline above it, and `disabled` shows a command as unavailable rather than removing it.
+
+## Related
+
+<RelatedComponents name="menu" />
+
+**Easily confused with**
+
+- [Select](./select.mdx) opens a list to choose one value from, and the chosen value stays shown in the trigger. A menu runs an action and then closes, remembering nothing; if the list sets a value rather than doing something, it is a select.
+- [Button](./button.mdx) performs a single action on the screen. A menu is the wrong reach for one command, and it is the right home for a safety-relevant one only in the sense that it is not: such an action stays a button.
+- [Dialog](./dialog.mdx) confirms a destructive or irreversible action with a second step. A menu item runs on a single press, so a command that cannot be undone opens a dialog rather than firing straight from the list.
+- [Sheet](./sheet.mdx) docks a surface of actions to the edge on a phone, with large targets. Where a floating popup reads poorly under a thumb, a sheet of actions is the better shape.
+
+**Used by**
+
+- No pattern, recipe or screen composes it yet. It is a neutral overlay that a product attaches to its own list rows, cards and toolbars, keeping every safety-relevant action out on the screen where the reader can see it.

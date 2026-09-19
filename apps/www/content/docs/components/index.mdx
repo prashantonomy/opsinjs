@@ -9,34 +9,39 @@ icon: Boxes
 
 <PageTemplate kind="reference" />
 
-**Every component on the shipped roster is implemented and installable.** Each of the
-twenty-four has a file under `registry/bases/base/`, a registry item the shadcn CLI
-copies into a project, and a page that documents the cases it refuses as carefully as
-the ones it serves. Every one of them is `alpha`, and no further: none has been through
-an independent accessibility or clinical review, none is ready for a production health
-surface, and each page lists what has not been measured rather than implying it has
-been. That status is on every page in prose, in a badge, and in a machine-readable
-marker, at a URL you can guess from the component name.
+**Every component on the shipped roster is implemented and installable.** Each has a
+file under `registry/bases/base/`, a registry item the shadcn CLI copies into a project,
+and a page that documents the cases it refuses as carefully as the ones it serves. Every
+one is `alpha` or `beta`, and no further: none has been through an independent
+accessibility or clinical review, none is ready for a production health surface, and each
+page lists what has not been measured rather than implying it has been. That status is on
+every page in prose, in a badge, and in a machine-readable marker, at a URL you can guess
+from the component name.
 
 That is what this page is for. The failure it exists to prevent is an agent, or a
 developer in a hurry, inferring an API from a plausible name and shipping it into a
-product that shows people their own health data. A definitive *considered, not built* at
-`components/toast` is worth more than a 404, and far more than an invented answer.
+product that shows people their own health data. A definitive answer at a guessable URL,
+whether the component is built or a name the catalogue has recorded and declined, is
+worth more than a 404, and far more than an invented answer.
 
 <SectionProgress />
 
 Two rosters, one table. **Shipped** ids have code, a registry item and a hand-written
 page. **Considered** ids are recorded in the catalogue with a category and a reason and
 have neither code nor a specification; their address answers with a generated stub
-carrying that reason rather than a 404, so a question about `toast` or `body-map` gets a
-real answer instead of silence. Filter by category or status, or search the synonyms:
-`normal range`, `kpi`, `gauge`, `not medical advice`, `ago`.
+carrying that reason rather than a 404. The considered roster is empty today: every name
+it once held has been built out to `alpha`, recorded in
+[ADR 0022](../project/decisions/0022-considered-roster-built-out.mdx), and the stub
+mechanism remains for any future declined name. Filter by category or status, or search
+the synonyms: `normal range`, `kpi`, `gauge`, `not medical advice`, `ago`.
 
 <StatusMatrix rosters={["shipped", "considered"]} />
 
 **Status is a promise about change, not a quality score.** `alpha` means the code exists
 and is documented, and the API may move in any release without a deprecation cycle.
-`considered` means even the specification is unwritten.
+`beta` means it breaks only in a minor release with a documented migration. `considered`
+means the catalogue has recorded a name and declined to build it, with the reason written
+down; no id carries that status today.
 [Release phases](../project/release-phases.mdx) has the full ladder, which sets out what
 each phase promises about semver, accessibility and the registry.
 
@@ -56,7 +61,7 @@ it, in both directions, so a rule cannot quietly end up applying to nothing.
 
 If you are choosing a component, the decision table in
 [Choose a component](../recipes/choose-a-component.mdx) maps the shape of your data to the
-component that displays it. Reading that table is faster than reading twenty-four pages.
+component that displays it. Reading that table is faster than reading every page.
 If you are writing or reviewing one of these pages, read
 [Anatomy of a component page](./anatomy-of-a-component-page.mdx); it publishes the
 22-section contract once so you fill in a template instead of inventing a structure. If

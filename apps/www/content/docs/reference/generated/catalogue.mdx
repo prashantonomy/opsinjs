@@ -71,6 +71,7 @@ registry, not here.
 | `value` | health-formatting | beta | unreleased | number, unit, format a number, numeric display, figure, format, formatted number |
 | `relative-time` | health-formatting | beta | unreleased | time ago, timestamp, last updated, date display, ago, freshness, staleness |
 | `table` | data-display | alpha | unreleased | data table, grid, rows and columns |
+| `badge` | data-display | alpha | unreleased | counter, label chip |
 | `surface` | surfaces | beta | unreleased | material, glass, blur, elevation, layer, translucency, vibrancy |
 | `card` | surfaces | beta | unreleased | panel, container, content box, box, tile group |
 | `sheet` | surfaces | beta | unreleased | bottom sheet, drawer, side panel, slide over, modal sheet, detent |
@@ -85,36 +86,34 @@ registry, not here.
 | `link` | actions-and-forms | beta | unreleased | anchor, hyperlink |
 | `field` | actions-and-forms | beta | unreleased | form field, input wrapper, form control, validation message, label, error message, hint |
 | `icon-button` | actions-and-forms | alpha | unreleased | glyph button, round button |
+| `switch` | actions-and-forms | alpha | unreleased | toggle |
+| `checkbox` | actions-and-forms | alpha | unreleased | tick box, multi select |
+| `radio-group` | actions-and-forms | alpha | unreleased | radio buttons, single choice |
+| `select` | actions-and-forms | alpha | unreleased | dropdown, picker |
+| `number-field` | actions-and-forms | alpha | unreleased | stepper input, quantity input |
+| `textarea` | actions-and-forms | alpha | unreleased | long text, notes input |
 | `divider` | layout | alpha | unreleased | separator, rule |
 | `avatar` | utility | alpha | unreleased | profile picture, initials, user image |
 | `visually-hidden` | utility | alpha | unreleased | sr only, screen reader only, clip |
+| `goal-ring` | health-data-display | alpha | unreleased | activity ring, close your rings, daily goal |
+| `scale-input` | health-input | alpha | unreleased | pain scale, rating scale, likert |
+| `dose-tracker` | health-input | alpha | unreleased | medication, pill tracker, dose, adherence tracker |
+| `questionnaire` | health-input | alpha | unreleased | survey, assessment, phq, screening form |
+| `symptom-picker` | health-input | alpha | unreleased | symptoms, how are you feeling, symptom checker |
+| `toast` | feedback | alpha | unreleased | snackbar, transient message, notification toast |
+| `progress` | feedback | alpha | unreleased | progress bar, completion |
+| `spinner` | feedback | alpha | unreleased | loader, busy indicator, activity indicator |
+| `tooltip` | overlay | alpha | unreleased | hover label |
+| `popover` | overlay | alpha | unreleased | anchored panel, flyout |
+| `menu` | overlay | alpha | unreleased | dropdown menu, context menu, overflow menu |
+| `tabs` | navigation | alpha | unreleased | tab list, view switcher |
+| `accordion` | navigation | alpha | unreleased | disclosure, expander, collapsible |
+| `slider` | actions-and-forms | alpha | unreleased | range input, drag to set |
+| `combobox` | actions-and-forms | alpha | unreleased | autocomplete, typeahead, search select |
+| `scroll-area` | layout | alpha | unreleased | scroller, overflow container |
 
 ## Considered
 
-| Component | Category | Why it is not on the roster | Reach for instead |
-| --- | --- | --- | --- |
-| `questionnaire` | health-input | Validated instruments are licensed, scored and interpreted by their publishers, and a component that renders one invites a product to alter its wording or its scoring. That is a clinical-safety problem no amount of API design fixes. | field, log-sheet |
-| `symptom-picker` | health-input | A symptom picker is one step from a symptom checker, and a symptom checker is a regulated device in most of the markets this system targets. The controlled vocabulary is also product-specific and cannot be shipped in a design system. | field, log-sheet |
-| `dose-tracker` | health-input | Dose data drives dosing decisions. A component that displays a missed dose is one product decision away from implying what to do about it, which is prescribing. | log-sheet, care-card |
-| `goal-ring` | health-data-display | Goal rings are strongly associated with one platform's fitness product, and the pattern rewards streaks. That is the wrong incentive for a reader managing a condition rather than training for one. | score-dial, metric-tile |
-| `scale-input` | health-input | The anchors and the number of points on a rating scale are what make it comparable over time, and they belong to whichever instrument the product is using. A fixed set of labelled options is a radio group, and opsinjs delegates that to Base UI rather than wrapping it. | field |
-| `toast` | feedback | A message that removes itself is the wrong shape for anything about someone's health: the reader who most needs it is the one most likely to miss it. Kept on the roster because products use toasts for save confirmations, which is legitimate. | alert-banner, callout |
-| `tooltip` | overlay | There is no hover on a phone, and this is a phone-first system. Anything important enough for a tooltip is important enough to be on the screen. | term, field |
-| `popover` | overlay | Base UI's popover is complete and unopinionated, and opsinjs has nothing to add to it beyond tokens. | sheet, dialog |
-| `tabs` | navigation | Delegated to Base UI unchanged: Base UI's own Tabs is the component, and opsinjs documents it in the handbook rather than re-wrapping it. Nothing on the shipped roster switches between views, so there is no opsinjs component to reach for instead of it. | - |
-| `accordion` | navigation | Delegated to Base UI unchanged. Note that hiding a safety message inside a collapsed section is a defect regardless of the component used. | card |
-| `select` | actions-and-forms | Delegated to Base UI. opsinjs adds guidance rather than a component. The guidance is that for short lists a radio group is easier for the reader, and Base UI has one. Inside a Field, render Base UI's Select through Field.Control's render prop. The shipped specimen registry/examples/field-with-another-control.tsx uses a native select on that same prop, and Base UI's Select goes through it the same way. | field |
-| `combobox` | actions-and-forms | Delegated to Base UI. The hard part in a health product is the vocabulary being searched, not the widget. | field |
-| `switch` | actions-and-forms | Delegated to Base UI. A switch must never be used for consent, because consent is a decision with a record, not a setting. ConsentSheet is therefore the opsinjs answer for that case, and the setting itself stays Base UI's. Inside a Field, render Base UI's Switch through Field.Control's render prop. The shipped specimen registry/examples/field-with-another-control.tsx shows that render route with a native control. | consent-sheet |
-| `checkbox` | actions-and-forms | Delegated to Base UI. Inside a Field, render Base UI's Checkbox through Field.Control's render prop. The shipped specimen registry/examples/field-with-another-control.tsx shows that render route with a native control. | field |
-| `radio-group` | actions-and-forms | Delegated to Base UI. Preferred over Select for anything under about seven options. | field |
-| `slider` | actions-and-forms | Delegated to Base UI, and discouraged for entering a measurement: a slider cannot express precision, and a reading typed in is a reading the person meant. A number with no clinical semantics behind it is Base UI's number field, unwrapped. | reading-input |
-| `number-field` | actions-and-forms | Delegated to Base UI. ReadingInput is the health-aware wrapper, and it is on the shipped roster. | reading-input |
-| `textarea` | actions-and-forms | A native element that needs tokens, not a component. Inside a Field, render a native textarea through Field.Control's render prop; registry/examples/field-with-another-control.tsx is the shipped specimen. | field |
-| `progress` | feedback | Delegated to Base UI. Never use it to show a health value: a progress bar implies a target, and most readings do not have one. | range-bar, score-dial |
-| `spinner` | feedback | Skeletons are preferred throughout: a skeleton says what is arriving, and a spinner says only that something is. | skeleton |
-| `badge` | data-display | Kept off the shipped roster deliberately: a generic badge next to a StatusPill is exactly how the two colour axes get mixed. If you need a badge to carry a health meaning, you need a StatusPill. | status-pill |
-| `scroll-area` | layout | Delegated to Base UI. Custom scrollbars are also a frequent cause of unreachable content at 200% text. | card |
-| `menu` | overlay | Delegated to Base UI. Hiding a destructive or a safety-relevant action in an overflow menu is a defect whatever renders it. | sheet, button |
+<NoDataYet script="scripts/build-registry.mts" />
 
 {/* opsinjs:generated:end */}

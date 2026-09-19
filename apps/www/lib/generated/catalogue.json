@@ -1,11 +1,11 @@
 {
   "$comment": "GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts, projected through lib/catalogue.ts. Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`. Consumed by the /r routes, the llms shards and the generated catalogue reference page. It exists as JSON rather than being imported from the TypeScript because the route handlers, the llms shards and any external tool all need the same rows without loading the app's module graph. `generatedAt` carries the source hash rather than a build time, because this file is guarded by a byte-for-byte drift gate.",
-  "generatedAt": "d310e86cfa0e",
-  "sourceHash": "d310e86cfa0e",
+  "generatedAt": "473f399f9e81",
+  "sourceHash": "473f399f9e81",
   "counts": {
-    "shipped": 37,
-    "considered": 23,
-    "implemented": 37
+    "shipped": 60,
+    "considered": 0,
+    "implemented": 60
   },
   "categories": [
     {
@@ -524,6 +524,21 @@
       "docs": "/docs/components/table"
     },
     {
+      "name": "badge",
+      "title": "Badge",
+      "description": "A small label attached to something else.",
+      "type": "registry:ui",
+      "category": "data-display",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "counter",
+        "label chip"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/badge"
+    },
+    {
       "name": "surface",
       "title": "Surface",
       "description": "The base panel every other surface is built from, at one of six material rungs.",
@@ -823,6 +838,113 @@
       ]
     },
     {
+      "name": "switch",
+      "title": "Switch",
+      "description": "An on-or-off control that takes effect immediately.",
+      "type": "registry:ui",
+      "category": "actions-and-forms",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "toggle"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/switch",
+      "dependencies": [
+        "@base-ui/react"
+      ]
+    },
+    {
+      "name": "checkbox",
+      "title": "Checkbox",
+      "description": "A box for choosing any number of options, including none.",
+      "type": "registry:ui",
+      "category": "actions-and-forms",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "tick box",
+        "multi select"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/checkbox",
+      "dependencies": [
+        "@base-ui/react",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "radio-group",
+      "title": "RadioGroup",
+      "description": "A set of options where exactly one can be chosen.",
+      "type": "registry:ui",
+      "category": "actions-and-forms",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "radio buttons",
+        "single choice"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/radio-group",
+      "dependencies": [
+        "@base-ui/react"
+      ]
+    },
+    {
+      "name": "select",
+      "title": "Select",
+      "description": "Choosing one option from a list.",
+      "type": "registry:ui",
+      "category": "actions-and-forms",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "dropdown",
+        "picker"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/select",
+      "dependencies": [
+        "@base-ui/react",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "number-field",
+      "title": "NumberField",
+      "description": "An input for a number, with steppers.",
+      "type": "registry:ui",
+      "category": "actions-and-forms",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "stepper input",
+        "quantity input"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/number-field",
+      "dependencies": [
+        "@base-ui/react",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "textarea",
+      "title": "Textarea",
+      "description": "A multi-line text input.",
+      "type": "registry:ui",
+      "category": "actions-and-forms",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "long text",
+        "notes input"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/textarea"
+    },
+    {
       "name": "divider",
       "title": "Divider",
       "description": "A line separating two groups of content.",
@@ -873,90 +995,20 @@
       "docs": "/docs/components/visually-hidden"
     },
     {
-      "name": "questionnaire",
-      "title": "Questionnaire",
-      "description": "A multi-question form for a validated instrument such as a symptom score.",
-      "type": "registry:ui",
-      "category": "health-input",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "survey",
-        "assessment",
-        "phq",
-        "screening form"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "field",
-        "log-sheet"
-      ],
-      "why": "Validated instruments are licensed, scored and interpreted by their publishers, and a component that renders one invites a product to alter its wording or its scoring. That is a clinical-safety problem no amount of API design fixes."
-    },
-    {
-      "name": "symptom-picker",
-      "title": "SymptomPicker",
-      "description": "A picker for choosing symptoms from a controlled list.",
-      "type": "registry:ui",
-      "category": "health-input",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "symptoms",
-        "how are you feeling",
-        "symptom checker"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "field",
-        "log-sheet"
-      ],
-      "why": "A symptom picker is one step from a symptom checker, and a symptom checker is a regulated device in most of the markets this system targets. The controlled vocabulary is also product-specific and cannot be shipped in a design system."
-    },
-    {
-      "name": "dose-tracker",
-      "title": "DoseTracker",
-      "description": "A record of medicine doses taken and missed.",
-      "type": "registry:ui",
-      "category": "health-input",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "medication",
-        "pill tracker",
-        "dose",
-        "adherence tracker"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "log-sheet",
-        "care-card"
-      ],
-      "why": "Dose data drives dosing decisions. A component that displays a missed dose is one product decision away from implying what to do about it, which is prescribing."
-    },
-    {
       "name": "goal-ring",
       "title": "GoalRing",
       "description": "Progress towards a daily goal, drawn as a closing ring.",
       "type": "registry:ui",
       "category": "health-data-display",
-      "status": "considered",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
         "activity ring",
         "close your rings",
         "daily goal"
       ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "score-dial",
-        "metric-tile"
-      ],
-      "why": "Goal rings are strongly associated with one platform's fitness product, and the pattern rewards streaks. That is the wrong incentive for a reader managing a condition rather than training for one."
+      "implemented": true,
+      "docs": "/docs/components/goal-ring"
     },
     {
       "name": "scale-input",
@@ -964,19 +1016,78 @@
       "description": "A one-to-ten scale for rating something like pain or mood.",
       "type": "registry:ui",
       "category": "health-input",
-      "status": "considered",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
         "pain scale",
         "rating scale",
         "likert"
       ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "field"
+      "implemented": true,
+      "docs": "/docs/components/scale-input",
+      "dependencies": [
+        "@base-ui/react"
+      ]
+    },
+    {
+      "name": "dose-tracker",
+      "title": "DoseTracker",
+      "description": "A record of medicine doses taken and missed.",
+      "type": "registry:ui",
+      "category": "health-input",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "medication",
+        "pill tracker",
+        "dose",
+        "adherence tracker"
       ],
-      "why": "The anchors and the number of points on a rating scale are what make it comparable over time, and they belong to whichever instrument the product is using. A fixed set of labelled options is a radio group, and opsinjs delegates that to Base UI rather than wrapping it."
+      "implemented": true,
+      "docs": "/docs/components/dose-tracker",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "relative-time"
+      ]
+    },
+    {
+      "name": "questionnaire",
+      "title": "Questionnaire",
+      "description": "A multi-question form for a validated instrument such as a symptom score.",
+      "type": "registry:ui",
+      "category": "health-input",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "survey",
+        "assessment",
+        "phq",
+        "screening form"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/questionnaire"
+    },
+    {
+      "name": "symptom-picker",
+      "title": "SymptomPicker",
+      "description": "A picker for choosing symptoms from a controlled list.",
+      "type": "registry:ui",
+      "category": "health-input",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "symptoms",
+        "how are you feeling",
+        "symptom checker"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/symptom-picker",
+      "dependencies": [
+        "@base-ui/react",
+        "lucide-react"
+      ]
     },
     {
       "name": "toast",
@@ -984,247 +1095,19 @@
       "description": "A brief message that appears and disappears on its own.",
       "type": "registry:ui",
       "category": "feedback",
-      "status": "considered",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
         "snackbar",
         "transient message",
         "notification toast"
       ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "alert-banner",
-        "callout"
-      ],
-      "why": "A message that removes itself is the wrong shape for anything about someone's health: the reader who most needs it is the one most likely to miss it. Kept on the roster because products use toasts for save confirmations, which is legitimate."
-    },
-    {
-      "name": "tooltip",
-      "title": "Tooltip",
-      "description": "A short label that appears on hover or focus.",
-      "type": "registry:ui",
-      "category": "overlay",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "hover label"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "term",
-        "field"
-      ],
-      "why": "There is no hover on a phone, and this is a phone-first system. Anything important enough for a tooltip is important enough to be on the screen."
-    },
-    {
-      "name": "popover",
-      "title": "Popover",
-      "description": "A small panel anchored to the control that opened it.",
-      "type": "registry:ui",
-      "category": "overlay",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "anchored panel",
-        "flyout"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "sheet",
-        "dialog"
-      ],
-      "why": "Base UI's popover is complete and unopinionated, and opsinjs has nothing to add to it beyond tokens."
-    },
-    {
-      "name": "tabs",
-      "title": "Tabs",
-      "description": "Switching between views that occupy the same space.",
-      "type": "registry:ui",
-      "category": "navigation",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "tab list",
-        "view switcher"
-      ],
-      "implemented": false,
-      "docs": null,
-      "why": "Delegated to Base UI unchanged: Base UI's own Tabs is the component, and opsinjs documents it in the handbook rather than re-wrapping it. Nothing on the shipped roster switches between views, so there is no opsinjs component to reach for instead of it."
-    },
-    {
-      "name": "accordion",
-      "title": "Accordion",
-      "description": "Sections that expand one at a time.",
-      "type": "registry:ui",
-      "category": "navigation",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "disclosure",
-        "expander",
-        "collapsible"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "card"
-      ],
-      "why": "Delegated to Base UI unchanged. Note that hiding a safety message inside a collapsed section is a defect regardless of the component used."
-    },
-    {
-      "name": "select",
-      "title": "Select",
-      "description": "Choosing one option from a list.",
-      "type": "registry:ui",
-      "category": "actions-and-forms",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "dropdown",
-        "picker"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "field"
-      ],
-      "why": "Delegated to Base UI. opsinjs adds guidance rather than a component. The guidance is that for short lists a radio group is easier for the reader, and Base UI has one. Inside a Field, render Base UI's Select through Field.Control's render prop. The shipped specimen registry/examples/field-with-another-control.tsx uses a native select on that same prop, and Base UI's Select goes through it the same way."
-    },
-    {
-      "name": "combobox",
-      "title": "Combobox",
-      "description": "A text input that filters a list as you type.",
-      "type": "registry:ui",
-      "category": "actions-and-forms",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "autocomplete",
-        "typeahead",
-        "search select"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "field"
-      ],
-      "why": "Delegated to Base UI. The hard part in a health product is the vocabulary being searched, not the widget."
-    },
-    {
-      "name": "switch",
-      "title": "Switch",
-      "description": "An on-or-off control that takes effect immediately.",
-      "type": "registry:ui",
-      "category": "actions-and-forms",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "toggle"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "consent-sheet"
-      ],
-      "why": "Delegated to Base UI. A switch must never be used for consent, because consent is a decision with a record, not a setting. ConsentSheet is therefore the opsinjs answer for that case, and the setting itself stays Base UI's. Inside a Field, render Base UI's Switch through Field.Control's render prop. The shipped specimen registry/examples/field-with-another-control.tsx shows that render route with a native control."
-    },
-    {
-      "name": "checkbox",
-      "title": "Checkbox",
-      "description": "A box for choosing any number of options, including none.",
-      "type": "registry:ui",
-      "category": "actions-and-forms",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "tick box",
-        "multi select"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "field"
-      ],
-      "why": "Delegated to Base UI. Inside a Field, render Base UI's Checkbox through Field.Control's render prop. The shipped specimen registry/examples/field-with-another-control.tsx shows that render route with a native control."
-    },
-    {
-      "name": "radio-group",
-      "title": "RadioGroup",
-      "description": "A set of options where exactly one can be chosen.",
-      "type": "registry:ui",
-      "category": "actions-and-forms",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "radio buttons",
-        "single choice"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "field"
-      ],
-      "why": "Delegated to Base UI. Preferred over Select for anything under about seven options."
-    },
-    {
-      "name": "slider",
-      "title": "Slider",
-      "description": "Choosing a value by dragging along a track.",
-      "type": "registry:ui",
-      "category": "actions-and-forms",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "range input",
-        "drag to set"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "reading-input"
-      ],
-      "why": "Delegated to Base UI, and discouraged for entering a measurement: a slider cannot express precision, and a reading typed in is a reading the person meant. A number with no clinical semantics behind it is Base UI's number field, unwrapped."
-    },
-    {
-      "name": "number-field",
-      "title": "NumberField",
-      "description": "An input for a number, with steppers.",
-      "type": "registry:ui",
-      "category": "actions-and-forms",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "stepper input",
-        "quantity input"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "reading-input"
-      ],
-      "why": "Delegated to Base UI. ReadingInput is the health-aware wrapper, and it is on the shipped roster."
-    },
-    {
-      "name": "textarea",
-      "title": "Textarea",
-      "description": "A multi-line text input.",
-      "type": "registry:ui",
-      "category": "actions-and-forms",
-      "status": "considered",
-      "since": "unreleased",
-      "aliases": [
-        "long text",
-        "notes input"
-      ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "field"
-      ],
-      "why": "A native element that needs tokens, not a component. Inside a Field, render a native textarea through Field.Control's render prop; registry/examples/field-with-another-control.tsx is the shipped specimen."
+      "implemented": true,
+      "docs": "/docs/components/toast",
+      "dependencies": [
+        "@base-ui/react",
+        "lucide-react"
+      ]
     },
     {
       "name": "progress",
@@ -1232,19 +1115,17 @@
       "description": "How far through something the reader is.",
       "type": "registry:ui",
       "category": "feedback",
-      "status": "considered",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
         "progress bar",
         "completion"
       ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "range-bar",
-        "score-dial"
-      ],
-      "why": "Delegated to Base UI. Never use it to show a health value: a progress bar implies a target, and most readings do not have one."
+      "implemented": true,
+      "docs": "/docs/components/progress",
+      "dependencies": [
+        "@base-ui/react"
+      ]
     },
     {
       "name": "spinner",
@@ -1252,57 +1133,50 @@
       "description": "An indeterminate loading indicator.",
       "type": "registry:ui",
       "category": "feedback",
-      "status": "considered",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
         "loader",
         "busy indicator",
         "activity indicator"
       ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "skeleton"
-      ],
-      "why": "Skeletons are preferred throughout: a skeleton says what is arriving, and a spinner says only that something is."
+      "implemented": true,
+      "docs": "/docs/components/spinner"
     },
     {
-      "name": "badge",
-      "title": "Badge",
-      "description": "A small label attached to something else.",
+      "name": "tooltip",
+      "title": "Tooltip",
+      "description": "A short label that appears on hover or focus.",
       "type": "registry:ui",
-      "category": "data-display",
-      "status": "considered",
+      "category": "overlay",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
-        "counter",
-        "label chip"
+        "hover label"
       ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "status-pill"
-      ],
-      "why": "Kept off the shipped roster deliberately: a generic badge next to a StatusPill is exactly how the two colour axes get mixed. If you need a badge to carry a health meaning, you need a StatusPill."
+      "implemented": true,
+      "docs": "/docs/components/tooltip",
+      "dependencies": [
+        "@base-ui/react"
+      ]
     },
     {
-      "name": "scroll-area",
-      "title": "ScrollArea",
-      "description": "A scrolling region with styled scrollbars.",
+      "name": "popover",
+      "title": "Popover",
+      "description": "A small panel anchored to the control that opened it.",
       "type": "registry:ui",
-      "category": "layout",
-      "status": "considered",
+      "category": "overlay",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
-        "scroller",
-        "overflow container"
+        "anchored panel",
+        "flyout"
       ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "card"
-      ],
-      "why": "Delegated to Base UI. Custom scrollbars are also a frequent cause of unreachable content at 200% text."
+      "implemented": true,
+      "docs": "/docs/components/popover",
+      "dependencies": [
+        "@base-ui/react"
+      ]
     },
     {
       "name": "menu",
@@ -1310,20 +1184,112 @@
       "description": "A list of actions opened from a button.",
       "type": "registry:ui",
       "category": "overlay",
-      "status": "considered",
+      "status": "alpha",
       "since": "unreleased",
       "aliases": [
         "dropdown menu",
         "context menu",
         "overflow menu"
       ],
-      "implemented": false,
-      "docs": null,
-      "useInstead": [
-        "sheet",
-        "button"
+      "implemented": true,
+      "docs": "/docs/components/menu",
+      "dependencies": [
+        "@base-ui/react"
+      ]
+    },
+    {
+      "name": "tabs",
+      "title": "Tabs",
+      "description": "Switching between views that occupy the same space.",
+      "type": "registry:ui",
+      "category": "navigation",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "tab list",
+        "view switcher"
       ],
-      "why": "Delegated to Base UI. Hiding a destructive or a safety-relevant action in an overflow menu is a defect whatever renders it."
+      "implemented": true,
+      "docs": "/docs/components/tabs",
+      "dependencies": [
+        "@base-ui/react"
+      ]
+    },
+    {
+      "name": "accordion",
+      "title": "Accordion",
+      "description": "Sections that expand one at a time.",
+      "type": "registry:ui",
+      "category": "navigation",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "disclosure",
+        "expander",
+        "collapsible"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/accordion",
+      "dependencies": [
+        "@base-ui/react",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "slider",
+      "title": "Slider",
+      "description": "Choosing a value by dragging along a track.",
+      "type": "registry:ui",
+      "category": "actions-and-forms",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "range input",
+        "drag to set"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/slider",
+      "dependencies": [
+        "@base-ui/react"
+      ]
+    },
+    {
+      "name": "combobox",
+      "title": "Combobox",
+      "description": "A text input that filters a list as you type.",
+      "type": "registry:ui",
+      "category": "actions-and-forms",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "autocomplete",
+        "typeahead",
+        "search select"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/combobox",
+      "dependencies": [
+        "@base-ui/react",
+        "lucide-react"
+      ]
+    },
+    {
+      "name": "scroll-area",
+      "title": "ScrollArea",
+      "description": "A scrolling region with styled scrollbars.",
+      "type": "registry:ui",
+      "category": "layout",
+      "status": "alpha",
+      "since": "unreleased",
+      "aliases": [
+        "scroller",
+        "overflow container"
+      ],
+      "implemented": true,
+      "docs": "/docs/components/scroll-area",
+      "dependencies": [
+        "@base-ui/react"
+      ]
     }
   ],
   "aliases": {
@@ -1436,6 +1402,8 @@
     "data table": "table",
     "grid": "table",
     "rows and columns": "table",
+    "counter": "badge",
+    "label chip": "badge",
     "material": "surface",
     "glass": "surface",
     "blur": "surface",
@@ -1495,6 +1463,17 @@
     "hint": "field",
     "glyph button": "icon-button",
     "round button": "icon-button",
+    "toggle": "switch",
+    "tick box": "checkbox",
+    "multi select": "checkbox",
+    "radio buttons": "radio-group",
+    "single choice": "radio-group",
+    "dropdown": "select",
+    "picker": "select",
+    "stepper input": "number-field",
+    "quantity input": "number-field",
+    "long text": "textarea",
+    "notes input": "textarea",
     "separator": "divider",
     "rule": "divider",
     "profile picture": "avatar",
@@ -1503,6 +1482,16 @@
     "sr only": "visually-hidden",
     "screen reader only": "visually-hidden",
     "clip": "visually-hidden",
+    "activity ring": "goal-ring",
+    "close your rings": "goal-ring",
+    "daily goal": "goal-ring",
+    "pain scale": "scale-input",
+    "rating scale": "scale-input",
+    "likert": "scale-input",
+    "medication": "dose-tracker",
+    "pill tracker": "dose-tracker",
+    "dose": "dose-tracker",
+    "adherence tracker": "dose-tracker",
     "survey": "questionnaire",
     "assessment": "questionnaire",
     "phq": "questionnaire",
@@ -1510,54 +1499,31 @@
     "symptoms": "symptom-picker",
     "how are you feeling": "symptom-picker",
     "symptom checker": "symptom-picker",
-    "medication": "dose-tracker",
-    "pill tracker": "dose-tracker",
-    "dose": "dose-tracker",
-    "adherence tracker": "dose-tracker",
-    "activity ring": "goal-ring",
-    "close your rings": "goal-ring",
-    "daily goal": "goal-ring",
-    "pain scale": "scale-input",
-    "rating scale": "scale-input",
-    "likert": "scale-input",
     "snackbar": "toast",
     "transient message": "toast",
     "notification toast": "toast",
-    "hover label": "tooltip",
-    "anchored panel": "popover",
-    "flyout": "popover",
-    "tab list": "tabs",
-    "view switcher": "tabs",
-    "disclosure": "accordion",
-    "expander": "accordion",
-    "collapsible": "accordion",
-    "dropdown": "select",
-    "picker": "select",
-    "autocomplete": "combobox",
-    "typeahead": "combobox",
-    "search select": "combobox",
-    "toggle": "switch",
-    "tick box": "checkbox",
-    "multi select": "checkbox",
-    "radio buttons": "radio-group",
-    "single choice": "radio-group",
-    "range input": "slider",
-    "drag to set": "slider",
-    "stepper input": "number-field",
-    "quantity input": "number-field",
-    "long text": "textarea",
-    "notes input": "textarea",
     "progress bar": "progress",
     "completion": "progress",
     "loader": "spinner",
     "busy indicator": "spinner",
     "activity indicator": "spinner",
-    "counter": "badge",
-    "label chip": "badge",
-    "scroller": "scroll-area",
-    "overflow container": "scroll-area",
+    "hover label": "tooltip",
+    "anchored panel": "popover",
+    "flyout": "popover",
     "dropdown menu": "menu",
     "context menu": "menu",
-    "overflow menu": "menu"
+    "overflow menu": "menu",
+    "tab list": "tabs",
+    "view switcher": "tabs",
+    "disclosure": "accordion",
+    "expander": "accordion",
+    "collapsible": "accordion",
+    "range input": "slider",
+    "drag to set": "slider",
+    "autocomplete": "combobox",
+    "typeahead": "combobox",
+    "search select": "combobox",
+    "scroller": "scroll-area",
+    "overflow container": "scroll-area"
   }
 }

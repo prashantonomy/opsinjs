@@ -1,39 +1,241 @@
 ---
-title: "Progress"
-description: "How far through something the reader is."
-status: considered
+title: Progress
+description: A bar for how far through a task or a set of steps the reader has got, built on Base UI Progress and never used to draw a health value.
+status: alpha
 kind: component
 since: "unreleased"
-category: "feedback"
+category: feedback
 aliases: ["progress bar", "completion"]
 ---
 
-{/* GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts (status: considered).
-    Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`.
-    Rationale: content/docs/project/decisions/0008-considered-components-resolve.mdx.
-    Source hash d310e86cfa0e. */}
+## Status
 
-<PageTemplate kind="component" status="considered" category="feedback" />
-
-<StubNotice name="progress" status="considered">
-  **Progress is not built, and it has no specification.** The name is recorded in
-  the catalogue so that this address answers instead of returning a 404.
-  The reason is not that the component is coming.
+<StubNotice
+  name="progress"
+  status="alpha"
+  questions={[
+    "No contrast pair has been measured for the primary fill against the muted track. Whether the fill reads as distinct from the empty groove at the non-text floor rests on the two roles being the same pair a Button uses, argued from the roles rather than measured on this bar.",
+    "Nobody has listened to the bar in a screen reader. Base UI renders a progressbar that reads the label, then the value, then a busy state when the task is indeterminate, and whether that register lands the way a hearing reader expects has been reasoned about rather than heard.",
+    "The indeterminate state is told apart from a completed bar by movement, by the readout words and by the absent value. Under prefers-reduced-motion the pulse is dropped, so a full static fill carries the state on the words alone, and whether that reads as running rather than done has not been checked with a reader who turns motion off.",
+    "Forced colours and prefers-contrast: more are unhandled. The muted track and the primary fill are both replaced by the platform's own pair under forced colours, and whether the fill stays distinct from the track in that mode has not been tested.",
+  ]}
+>
+  <code className="text-sm">progress</code> is implemented and installable. It is{" "}
+  <strong className="font-medium">alpha</strong>: it works and it is documented,
+  the API may change in any release without a deprecation cycle, and it is not
+  for a production health surface yet.
 </StubNotice>
 
-## What this name refers to
+Progress is a bar that shows how far through a task the reader has got: an upload part way done, a multi-step form on step three of five, an export being prepared. It is built on Base UI's Progress primitive, so it renders a `role="progressbar"` with the value semantics a screen reader reads, and it draws only neutral chrome with the primary action fill.
 
-How far through something the reader is.
+The design decision that shapes the whole component is that it is never a health value. A bar that fills towards a full track reads as a mark out of a maximum, so it implies a target, and a task has one because a task is either finished or not. Most readings do not: a heart rate of 72 is not part of the way to anything, and a bar that fills up would invent a goal the number never had. So Progress is for task or step completion only, and a reading belongs in [RangeBar](./range-bar.mdx) or [ScoreDial](./score-dial.mdx) instead.
 
-## Why it is not on the roster
+## Preview
 
-Delegated to Base UI. Never use it to show a health value: a progress bar implies a target, and most readings do not have one.
+A task part of the way through, with the fill showing how much is done and the readout saying the same amount in words. The thing worth checking is that the fill carries no level and no category: read it in greyscale and it still means "this much is done", because the figure is also written beside the bar rather than left to the colour.
 
-## What to use instead
+<ComponentPreview name="progress" />
 
-Use [RangeBar](./range-bar.mdx) or [ScoreDial](./score-dial.mdx) instead.
+## Installation
 
-Do not generate code against this page. It documents an absence. The
-machine-readable list of every component id and its status is at
-`/r/index.json`, and the [status matrix](./index.mdx) shows the same rows for
-a human reader.
+<ComponentInstall
+  name="progress"
+  unbuilt={false}
+  importPath="@/components/ui/progress"
+  dependencies={["@base-ui/react"]}
+/>
+
+The bar is built on Base UI's Progress primitive, which is where the `role="progressbar"`, the value semantics and the label association come from, so installing it pulls in `@base-ui/react`. It renders no icon and composes no other opsinjs component.
+
+## Usage
+
+```tsx
+import { Progress } from "@/components/ui/progress"
+```
+
+```tsx
+<Progress label="Uploading photos" value={45} />
+```
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Showing how far through a determinate task the reader has got, such as an upload, a file being processed, or a download, where the amount done is a real fraction of a known whole.",
+    "Tracking a multi-step flow, such as step three of five in a form, by passing the step count as value and the total as max, so the bar reads as steps rather than a percentage.",
+    "Signalling that a task with no known shape is running, by passing value={null}, where the honest thing to show is that work is happening rather than a made-up percentage.",
+  ]}
+  avoid={[
+    { case: "You are drawing a health reading placed against a range. A progress bar implies a target the reading does not have, and it carries none of the reference bounds a reading needs.", instead: "range-bar" },
+    { case: "You are showing a composite score somebody's product calculated. A bar reads it as a mark out of its top, which is exactly the reading a score must not invite.", instead: "score-dial" },
+    { case: "The wait has no bar-shaped answer, because you cannot say what is arriving as a fraction. A placeholder of the shape to come says more than a bar that cannot fill.", instead: "skeleton" },
+  ]}
+/>
+
+The exclusion that matters is the first, and it is the reason this component was delegated rather than dressed up. A progress bar is a picture of a fraction of a whole, and it draws that fraction as a fill approaching a full track, which is the same picture as a value approaching a limit. A health reading is not a fraction of a whole and rarely approaches a single limit, so drawing it here would assert a target nobody set. When a reading has to sit against bounds somebody owns, that is a [RangeBar](./range-bar.mdx), whose track is the range and whose marks are the reference values; when a number has to be shown with what it is made of, that is a [ScoreDial](./score-dial.mdx), which says so in words and refuses to be read out of its own top.
+
+The third exclusion is the honest limit of an indeterminate bar. A bar that cannot fill to a real amount still occupies a bar's worth of space and still reads as "part way", so where you genuinely cannot say what is arriving, a [Skeleton](./skeleton.mdx) of the shape to come tells the reader more than a pulsing groove. A bare spinner is the other honest option when even the shape is unknown, and it is a considered component rather than a built one today, so reach for the skeleton where a shape exists and the spinner only once it ships.
+
+## Anatomy
+
+<Anatomy
+  name="progress"
+  parts={[
+    {
+      name: "Progress",
+      describes: "The root, a Base UI Progress.Root rendering role=\"progressbar\" with aria-valuenow, aria-valuemin and aria-valuemax. It groups the label, the readout and the track, carries data-slot=\"progress\", and draws only neutral chrome: it takes neither data-status nor data-category, so it is on neither colour axis, and it is not focusable.",
+      prop: "value",
+    },
+    {
+      name: "Progress.Label",
+      describes: "The visible task name, a Base UI Progress.Label that Base UI wires to the progressbar as its accessible name. data-slot=\"progress-label\". It comes from the required label prop.",
+      prop: "label",
+    },
+    {
+      name: "Progress.Value",
+      describes: "The text readout of the amount done, a Base UI Progress.Value formatted as a percentage. For an indeterminate task it is replaced by a plain phrase, because there is no percentage to print. data-slot=\"progress-value\".",
+    },
+    {
+      name: "Progress.Track",
+      describes: "The groove the fill runs in, a Base UI Progress.Track. It is the neutral muted surface and clips its fill to a pill. data-slot=\"progress-track\".",
+    },
+    {
+      name: "Progress.Indicator",
+      describes: "The fill, a Base UI Progress.Indicator painted in the primary action role. Its width is set from the value for a determinate task, or it spans the track and pulses for an indeterminate one. data-slot=\"progress-indicator\".",
+    },
+  ]}
+/>
+
+<CompositionTree
+  name="progress"
+  tree={[
+    {
+      part: "Progress",
+      cardinality: "1",
+      note: "data-slot=\"progress\", role=\"progressbar\", not focusable. Neither data-status nor data-category.",
+      children: [
+        {
+          part: "Progress.Label",
+          cardinality: "1",
+          note: "data-slot=\"progress-label\", the accessible name",
+        },
+        {
+          part: "Progress.Value",
+          cardinality: "1",
+          note: "data-slot=\"progress-value\", a percentage or an in-progress phrase",
+        },
+        {
+          part: "Progress.Track",
+          cardinality: "1",
+          note: "data-slot=\"progress-track\", the muted groove",
+          children: [
+            {
+              part: "Progress.Indicator",
+              cardinality: "1",
+              note: "data-slot=\"progress-indicator\", the primary fill",
+            },
+          ],
+        },
+      ],
+    },
+  ]}
+/>
+
+The parts above are identified by `data-slot` and are styleable from outside; none of them is an export, and there is no way to render the fill without the group. The value readout is the one part that changes shape between states: for a determinate task it is a Base UI `Progress.Value` printing the formatted percentage, and for an indeterminate task it is a plain phrase, because a percentage no honest number can supply is not printed at all. There is deliberately no icon slot and no colour prop, because a task's progress is neither a status nor a category and adding a hue would put a meaning on the fill it does not carry.
+
+## Examples
+
+### A task completing
+
+The case the bar was built for. The fill shows how much of a fictional upload is done, and the readout writes the same figure beside it, so a reader who cannot use the fill still learns the amount. The number is a count of the task and not a reading, because a progress bar must never carry a health value.
+
+<ComponentPreview name="progress-a-task-completing" kind="example" align="start" />
+
+### An indeterminate task
+
+A task running with no known shape yet, so there is no honest fraction to draw. The value is `null`, the fill spans the track and pulses rather than filling to a guessed amount, and the readout says the work is in progress instead of printing a number. Base UI drops `aria-valuenow` here, so a screen reader announces a busy state rather than a false position.
+
+<ComponentPreview name="progress-indeterminate" kind="example" align="start" />
+
+## Content guidelines
+
+Name the task in the `label`, not the widget. "Uploading photos" and "Step 3 of 5" tell a reader what is happening; "Progress" and "Loading" tell them only that something is. The label is the accessible name Base UI reads before the value, so a vague one leaves a screen-reader user hearing a percentage attached to nothing.
+
+Keep the value truthful, and prefer `null` to a fake number. A bar parked at a made-up ninety while the real work stalls is worse than an indeterminate bar, because it promises an amount the task has not reached. When you can count the fraction done, pass it; when you cannot, pass `null` and let the bar say the work is running rather than inventing a figure. Never reach for this component to draw a reading against a range, because the fill would assert a target the reading does not have.
+
+<DoDont>
+  <DoDont.Do>
+    **A determinate bar labelled "Uploading photos" at a real 45.** The fill and
+    the readout agree, the label names the task, and the figure is the true
+    fraction done, so the bar reads the same by eye and by ear.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A bar drawing a resting heart rate as a fill towards a full track.** It
+    turns a reading into a mark out of a maximum and invents a target the number
+    never had. That is a RangeBar, where the track is a range somebody owns and
+    the marks are the reference bounds.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility
+
+Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. At `alpha`, accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+
+**Checked, by `pnpm run check:a11y`:**
+
+- **No status colour, no colour literal, no ramp step.** The bar draws only the neutral track and the bridged primary fill, so it carries no `data-status`, reads no clinical vocabulary, and cannot mix the two axes. The gate reads every element and would fail the build on a colour drawn from either axis or on a raw colour value, and there is neither here.
+- **No px type size.** The label and the readout are the `subheadline` semantic step and the track height is in `em`, so a reader who has turned their text size up gets a larger bar rather than a pinned one.
+
+**Argued, and true of the implementation, but not yet measured:**
+
+- **The value is carried by more than the fill.** The amount done is written beside the bar as text and read by Base UI as `aria-valuenow`, so a reader who cannot use the fill still gets the figure. The progressbar exposes its label, its minimum and its maximum, which is the WAI-ARIA progressbar pattern rather than a bespoke one.
+- **The bar is not interactive.** Nothing takes focus, answers a key or a pointer. The determinate fill eases its width over the fast duration token and the indeterminate fill pulses, and both are dropped under `prefers-reduced-motion`, so a reader who has asked for less motion gets a static bar and reads the state from the words.
+- **At 200% text the bar grows with the text.** The type steps and the `em` track height scale together, so the whole component grows rather than clipping its readout.
+
+**Not checked at all, and listed rather than omitted:**
+
+- The contrast pair of the primary fill against the muted track. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring.
+- What the bar draws under `forced-colors: active`, where the track and the fill are both replaced by the platform's own pair, and whether the indeterminate state reads as running under `prefers-reduced-motion` with no pulse. None of this has been put in front of a machine or a high contrast user.
+
+<KeyboardTable
+  name="progress"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Skips the bar",
+      notes: "A progress bar is a status readout, not a control. Nothing here is focusable, and a tab stop that does nothing is a stop a keyboard user pays for on every screen it appears on.",
+    },
+    {
+      keys: "Shift + Tab",
+      action: "Skips the bar",
+      notes: "Same in reverse. The bar never appears in the focus order in either direction.",
+    },
+    {
+      keys: "Arrow keys",
+      action: "Nothing",
+      notes: "There is nothing to select, move or change. The value is set by the product and read by the bar; a reader does not edit it.",
+    },
+  ]}
+/>
+
+<ContrastReport component="progress" />
+
+## API reference
+
+<PropsTable name="ProgressProps" />
+
+`label` is required because a progressbar with no accessible name is a percentage attached to nothing, and the type system cannot otherwise prevent it. `value` is the fraction done from 0 to `max`, or `null` for an indeterminate task, and the two are genuinely different states rather than a number and a zero: `null` draws the running state, while 0 draws a task that has not started. `max` defaults to 100 so a value reads as a percentage, and raising it lets the bar count steps instead. There is no colour prop, because the fill means "this much is done" and nothing about urgency or subject.
+
+## Related
+
+<RelatedComponents name="progress" />
+
+**Easily confused with**
+
+- [RangeBar](./range-bar.mdx) draws a reading against a range somebody owns, with the reference bounds marked on the track. A progress bar has no range and no bounds; it fills towards completion. If the number is a reading rather than a fraction of a task, it is a RangeBar.
+- [ScoreDial](./score-dial.mdx) draws a composite score as an arc and says in words what it is made of. A progress bar would read that score as a mark out of its top, which is the one reading a score must not invite.
+- [Skeleton](./skeleton.mdx) is the placeholder for content that is arriving whose shape you can show. Where a wait has no bar-shaped fraction, a skeleton tells the reader more than an indeterminate bar.
+
+**Used by**
+
+- No pattern, recipe or screen composes it yet. It is a neutral primitive that a product drops onto its own upload, export and multi-step flows.

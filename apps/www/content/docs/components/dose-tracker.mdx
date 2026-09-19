@@ -1,39 +1,268 @@
 ---
-title: "DoseTracker"
-description: "A record of medicine doses taken and missed."
-status: considered
+title: DoseTracker
+description: A record of the medicine doses a product has already logged, drawing each one as a fact with a word and a shape, and never computing adherence or saying what to do about a missed dose.
+status: alpha
 kind: component
 since: "unreleased"
-category: "health-input"
+category: health-input
 aliases: ["medication", "pill tracker", "dose", "adherence tracker"]
+governedBy: [clinical-interaction-guidelines, uncertainty-and-staleness, regulatory-context]
 ---
 
-{/* GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts (status: considered).
-    Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`.
-    Rationale: content/docs/project/decisions/0008-considered-components-resolve.mdx.
-    Source hash d310e86cfa0e. */}
+## Status
 
-<PageTemplate kind="component" status="considered" category="health-input" />
-
-<StubNotice name="dose-tracker" status="considered">
-  **DoseTracker is not built, and it has no specification.** The name is recorded in
-  the catalogue so that this address answers instead of returning a 404.
-  The reason is not that the component is coming.
+<StubNotice
+  name="dose-tracker"
+  status="alpha"
+  questions={[
+    "No contrast pair has been measured. Each marker is a neutral hairline chip with the muted ink and a lucide shape, drawn on whatever ground the host provides rather than on a surface this component sets, so whether the chip's border and its word clear the non-text and text floors has been argued from the roles rather than checked by a machine.",
+    "Nobody has listened to this list in a screen reader. Whether a row reads usefully as a name, a state word and a time in that order, whether the optional note is heard as belonging to its entry, and whether the list wants an accessible name pointing at the day it records, have all been reasoned about rather than heard.",
+    "The refusal to compute anything is a convention this component keeps and the type system cannot enforce on the product above it. Nothing in the code stops a product counting the taken rows into an adherence figure and printing it beside the list, or tinting a missed row from the status axis through className, which is the exact step the roster named when it declined a dose tracker. The page argues it; no lint rule on a consumer's own screen catches it.",
+    "No named reviewer has signed this page off, and one choice in particular is unreviewed: each time is rendered through RelativeTime with the event word \"Recorded\", which reads cleanly over a taken dose and less cleanly over a scheduled one. Group J of the safety review checklist asks for a reviewer name and a date, and there is neither here, so read every claim below as unattributed until that changes.",
+  ]}
+>
+  <code className="text-sm">dose-tracker</code> is implemented and installable.
+  It is <strong className="font-medium">alpha</strong>: it works and it is
+  documented, the API may change in any release without a deprecation cycle, and
+  it is not for a production health surface yet.
 </StubNotice>
 
-## What this name refers to
+DoseTracker draws a record of medicine doses a product has already logged: a list of entries, each a medicine name, a time and one of four states, taken, missed, skipped or scheduled. It renders that log and nothing else. It computes no figure across the entries, it holds no schedule and no drug data of its own, and it reaches no verdict about any dose.
 
-A record of medicine doses taken and missed.
+The restraint is the whole component, and it is the reason the roster declined a dose tracker for so long. Dose data drives dosing decisions, so a component that shows a missed dose sits one product decision away from implying what to do about it, and telling a person what to do about a missed medicine is prescribing. The answer here is that the component asserts only the log: it says a dose was missed, and it stops. What a reader should do next, and whether a missed dose matters at all, belong to the product and to a component built to carry advice, never to this one.
 
-## Why it is not on the roster
+## Preview
 
-Dose data drives dosing decisions. A component that displays a missed dose is one product decision away from implying what to do about it, which is prescribing.
+Check that each entry tells its state twice, in a word and in a distinct shape, so the four states stay four states in greyscale. Check that the missed row is drawn in the same neutral chrome as the taken row, with no red and no "act now" anywhere, because a dose state is a fact about the log and not a level of urgency. Turn the text size up: the markers grow with the type, the times wrap beneath their rows rather than overflowing, and nothing is truncated.
 
-## What to use instead
+<ComponentPreview name="dose-tracker" />
 
-Use [LogSheet](./log-sheet.mdx) or [CareCard](./care-card.mdx) instead.
+## Installation
 
-Do not generate code against this page. It documents an absence. The
-machine-readable list of every component id and its status is at
-`/r/index.json`, and the [status matrix](./index.mdx) shows the same rows for
-a human reader.
+<ComponentInstall
+  name="dose-tracker"
+  unbuilt={false}
+  importPath="@/components/ui/dose-tracker"
+  dependencies={["lucide-react"]}
+  registryDependencies={["relative-time"]}
+/>
+
+The one npm dependency is `lucide-react`, for the four state shapes. The one registry dependency is [RelativeTime](./relative-time.mdx), which every instant in this system is rendered through, so `shadcn add dose-tracker` pulls that component in as well. There is no schedule, no drug list and no default text in what installs, because the component ships none of them.
+
+## Usage
+
+```tsx
+import { DoseTracker } from "@/components/ui/dose-tracker"
+```
+
+```tsx
+<DoseTracker
+  label="Today's doses"
+  now={new Date().toISOString()}
+  entries={[
+    { name: "Morning tablet", time: "2026-03-14T08:00:00+00:00", state: "taken" },
+    { name: "Afternoon tablet", time: "2026-03-14T15:00:00+00:00", state: "missed" },
+  ]}
+/>
+```
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Showing a record of medicine doses the product has already logged, taken and missed together, where the reader is reading their own history rather than being told what to do about it.",
+    "Presenting a day's doses as plain facts, each state told by a word and a shape beside the time it happened, with nothing computed across the rows.",
+    "Anywhere the product owns the schedule and the drug data and needs only to render the log it holds, in the product's own medicine names and its own times.",
+  ]}
+  avoid={[
+    { case: "You are logging a general daily entry, such as a symptom or a note, rather than a medicine dose with a taken or missed state.", instead: "log-sheet" },
+    { case: "You need to tell the reader what to do next, about a missed dose or anything else. That is advice, and this component asserts only facts.", instead: "care-card" },
+    { case: "You are showing a single reading or figure rather than a list of dose events.", instead: "metric-tile" },
+  ]}
+/>
+
+The exclusion that matters most is the second, and it is the reason this component exists in the shape it does. The moment a dose log gains a line telling the reader what to do about a missed dose, it has crossed from recording a fact to giving advice, and advice about medicine is the product's to give in a [CareCard](./care-card.mdx) where the guidance and its author are explicit, never a side effect of a list. DoseTracker draws the miss and says nothing about it on purpose.
+
+The first exclusion keeps the component from drifting into a general log. A dose event has a medicine name and a taken or missed state, which is a narrower shape than an arbitrary daily entry; a symptom note, a meal or a mood belongs in a [LogSheet](./log-sheet.mdx), which records entries the product defines rather than doses with a fixed set of states.
+
+## Clinical meaning
+
+**What it asserts.** DoseTracker asserts exactly the log the product handed it: these medicines, at these times, in these states. It asserts nothing about a schedule it does not hold, nothing about whether any dose matters, and nothing about a figure summed across the doses. A "Taken" marker says the product recorded that dose as taken; a "Missed" marker says the product recorded it as missed. Neither says anything further.
+
+**What it must never be read as.** It is not advice, not a diagnosis, not an adherence score and not an instruction. A "Missed" row names a fact, never a fault, and never a next step: it does not say the reader did anything wrong, it does not say what to do now, and it does not imply that a clinician needs to be called. The component computes no adherence percentage, because a percentage is a summary the product may want to act on, and a presentation layer that produced one would be manufacturing a clinical figure nobody authored. The words banned everywhere in opsinjs are banned here too, and [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx) is where the line between recording a fact and prescribing a response is drawn.
+
+**Which colour axis it may use.** Neither, and that is deliberate. A dose state is a fact about a log entry, not a level of urgency, so a missed dose is not therefore an urgent one and no marker carries `data-status` or a status tint. The component names no kind of measurement either, so no marker carries `data-category` or a category tint. Every marker draws only neutral chrome and tells its state with a word and a distinct shape, so the state survives greyscale and colour-vision deficiency without ever borrowing a colour that means urgency. Painting a missed dose the red that means "act now" is precisely the axis mixing [The two colour axes](../health/two-colour-axes.mdx) exists to prevent, because a reader cannot tell that red from the red of a reading that needs attention.
+
+**Who owns the thresholds and the words.** The consuming product, always. DoseTracker ships no schedule, no drug data, no dose, no threshold and no default text of its own. Every medicine name, every time and every state arrives as a prop, because the product owns the medication record those facts come from, and shipping any of it inside a component library would be shipping a clinical decision to every product that installed it. What the component supplies is the neutral layout, the four state shapes and the two shared colour axes read straight from the token layer, of which it uses neither.
+
+## Anatomy
+
+<Anatomy
+  name="dose-tracker"
+  parts={[
+    {
+      name: "DoseTracker",
+      describes: "The root, an unordered list. Takes colour from neither axis and carries no data of its own beyond the entries passed to it. No fixed height: at 200% text every row grows and wraps rather than clipping a name or a time. Carries an optional aria-label naming the log.",
+      prop: "entries",
+    },
+    {
+      name: "DoseTracker.Entry",
+      describes: "One logged dose, a list item. Holds the name, the marker and the time, and an optional note line beneath the name. Carries neither data-status nor data-category, so no entry is ever on a colour axis.",
+      prop: "state",
+    },
+    {
+      name: "DoseTracker.Marker",
+      describes: "The state, told twice: a lucide shape and the word beside it, in neutral chrome. This is a factual log state and not the clinical status axis, so it carries no data-status and no status colour. The shape is aria-hidden and the word carries the meaning, so the four states stay four distinct words and four distinct shapes in greyscale.",
+      prop: "state",
+    },
+    {
+      name: "DoseTracker.Name",
+      describes: "The medicine's name, in the product's own words. A generic placeholder in every example, never a real drug and never a dose.",
+      prop: "name",
+    },
+    {
+      name: "DoseTracker.Time",
+      describes: "When the dose event sits, rendered through RelativeTime, which owns every instant in the system and holds the exact date in its datetime attribute and in the accessibility tree at every age.",
+      prop: "time",
+    },
+  ]}
+/>
+
+<CompositionTree
+  name="dose-tracker"
+  tree={[
+    {
+      part: "DoseTracker",
+      cardinality: "1",
+      note: "data-slot=\"dose-tracker\", a ul. Neither data-status nor data-category. Optional aria-label from the label prop.",
+      children: [
+        {
+          part: "DoseTracker.Entry",
+          cardinality: "1..n",
+          note: "data-slot=\"dose-tracker-entry\", a li. No axis attribute on any entry.",
+          children: [
+            {
+              part: "DoseTracker.Name",
+              cardinality: "1",
+              note: "data-slot=\"dose-tracker-name\". The medicine name. An optional note sits beneath it as a plain muted span with no slot.",
+            },
+            {
+              part: "DoseTracker.Marker",
+              cardinality: "0..1",
+              note: "data-slot=\"dose-tracker-marker\". A lucide shape (aria-hidden) and the state word. Present for a recognised state, absent for one the component does not know.",
+            },
+            {
+              part: "DoseTracker.Time",
+              cardinality: "1",
+              note: "data-slot=\"dose-tracker-time\". Wraps a RelativeTime, which stamps its own data-slot=\"relative-time\" on the inner element.",
+            },
+          ],
+        },
+      ],
+    },
+  ]}
+/>
+
+The parts are `data-slot` attributes rather than exports. There is no `DoseTracker.Entry` you can import, and the list is not composable: the rows are decided by the `entries` array you pass rather than by how a caller nests children, and there is no way to hand it a marker without a state or a state the four shapes do not cover.
+
+## Examples
+
+### A day's doses
+
+The case DoseTracker was built for: a day's medicines as the product logged them, some taken, one missed, one skipped. The states read together as a plain record, with no figure summed across them and no verdict on any row. Read the list in greyscale and the four states are still told apart by their words and their shapes. Every medicine name is a placeholder and every time is synthetic, because an opsinjs example must never be mistakable for a real medication record.
+
+<ComponentPreview name="dose-tracker-a-days-doses" kind="example" align="start" />
+
+### A missed dose
+
+One missed dose, shown as a fact and left there. This is the example the roster's safety objection turns on. The row marks the miss in neutral chrome with a word and a shape, carries the time, and stops: there is no red, no "act now", no next step and no adherence figure, because whether a missed medicine matters and what to do about it are the product's to decide and to state elsewhere.
+
+<ComponentPreview name="dose-tracker-a-missed-dose" kind="example" align="start" />
+
+## Content guidelines
+
+Write each medicine name in the product's own words, the words a reader already knows their medicine by, and keep the note line short and factual: "with food", or who marked the dose, not a paragraph and never an instruction. A note that tells the reader what to do about a dose is advice wearing a note's clothes, and advice belongs in a [CareCard](./care-card.mdx) where its author is explicit.
+
+Never let the log compute a verdict. Do not sum the taken rows into an adherence percentage and print it above the list, and do not tint a missed row to make it look urgent. A missed dose is a fact, and how much it matters is a clinical judgement the product owns and states in its own words, in a component built to carry it. The banned word list at [Reference ranges and normal](../health/reference-ranges.mdx) applies to every name and note here as it does everywhere.
+
+<DoDont>
+  <DoDont.Do>
+    **A missed dose marked "Missed" in neutral chrome, with a shape and a word, and nothing else on the row.** It records the fact the product logged and leaves what to do about it to the product, which is the one thing a presentation layer is entitled to do with a dose.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A missed dose in a red chip reading "Take now" with a running "80% adherence" figure above the list.** It paints a fact in the colour that means urgency, computes a clinical figure nobody authored, and tells the reader what to do about their medicine, which is prescribing and not presentation.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility
+
+Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. At `alpha`, accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+
+**Checked, by `pnpm run check:a11y`:**
+
+- **No status colour, no category colour, no colour literal.** Every marker draws only the neutral chrome roles, so no element carries `data-status` or `data-category`, and the two axes cannot be mixed on a row. The gate reads every element and would fail the build on a colour drawn from either axis or on a raw colour value, and there is neither here.
+- **The state is never colour alone.** Each marker reads a word and a distinct lucide shape from a fixed table, so the four states are four words and four shapes rather than one shape in four colours. There is no colour on the markers at all, which is the strongest form of that rule.
+- **No px type size and no shipped threshold.** The names, markers and times use the semantic type steps, so a reader who has turned their text size up gets a larger log, and no schedule, dose or threshold is written into the component or its examples.
+
+**Argued, and true of the implementation, but not yet measured:**
+
+- **The words are in the accessibility tree; the shapes are not.** Each marker shape carries `aria-hidden`, so a screen reader meets the name, the state word and the time, and skips the decoration. A reader who cannot see the shapes loses them and keeps every word.
+- **The list is not interactive.** Nothing takes focus, answers a key or a pointer, or animates. It is a static list, so there is no keyboard contract to honour and no motion for `prefers-reduced-motion` to reduce.
+- **At 200% text the rows wrap rather than clip.** The markers grow with the type step, the times wrap to a second line at a narrow width, and no name or time is truncated and no ellipsis is set anywhere in the file.
+
+**Not checked at all, and listed rather than omitted:**
+
+- Every contrast pair: each marker's hairline and its muted ink against the host ground. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring. The marker is a `-line` role with the muted ink, and this component sets no surface of its own, so every pair is painted on whatever ground the host provides rather than the matching `-surface` the token contract tunes against.
+- How the list of names, states and times plays for a screen reader user, and whether the optional note is heard as belonging to its entry. It has been reasoned about and not listened to.
+- What the markers draw under `forced-colors: active`, where the hairline is replaced by the platform's own pair. None of this has been put in front of a machine or a high contrast user.
+
+<KeyboardTable
+  name="dose-tracker"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Skips the whole component",
+      notes: "Nothing here is focusable, and that is the contract rather than an omission. The tracker is a record to read, not a control, and a tab stop that does nothing is a stop a keyboard user pays for on every screen it appears on.",
+    },
+    {
+      keys: "Shift + Tab",
+      action: "Skips the whole component",
+      notes: "Same in reverse. A DoseTracker never appears in the focus order in either direction.",
+    },
+    {
+      keys: "Arrow keys",
+      action: "Nothing",
+      notes: "There is nothing to select, move or expand. The entries are static content and the markers are decorative shapes beside their words.",
+    },
+  ]}
+/>
+
+<ContrastReport component="dose-tracker" />
+
+## API reference
+
+<PropsTable name="DoseTrackerProps" />
+
+`entries` is the whole of the log: an array of doses, each a medicine name, an ISO time, one of the four states and an optional note. An empty array renders nothing and warns in development, because a tracker with no entries is a log of a day nobody recorded. A state outside the four renders its row with no marker and warns rather than being approximated into a shape, because a dose log records only the facts it knows and never invents a fifth.
+
+`now` is required and forwarded straight to [RelativeTime](./relative-time.mdx), for the reason RelativeTime requires it of its own callers: a component that read the clock itself would be impure and would make one list of doses disagree with itself across a minute boundary. Read the clock once where the screen is rendered, with `new Date().toISOString()`, and pass the same instant here and to every other timestamp on the screen. Each entry's `time` and this `now` go to RelativeTime unmodified, so it owns what a future, malformed or stale instant renders as. `label` is the optional accessible name for the list, and naming the log, such as "Today's doses", is worth doing wherever the surrounding heading does not already say what the list is.
+
+## Related
+
+<RelatedComponents name="dose-tracker" />
+
+**Easily confused with**
+
+- [LogSheet](./log-sheet.mdx) records general daily entries the product defines, where DoseTracker records medicine doses with a fixed set of states. A symptom, a meal or a mood is a LogSheet entry, not a dose.
+- [CareCard](./care-card.mdx) is where advice about a dose belongs, with its guidance and its author explicit. DoseTracker states the fact and CareCard states what to do about it, and keeping them apart is the whole point.
+- [TimelineEntry](./timeline-entry.mdx) marks one event on a timeline, where DoseTracker is a list of dose events read together as a day's record.
+
+**Used by**
+
+- No pattern, recipe or screen composes it yet. It is a health primitive a product feeds from its own medication record.
+
+**Governed by**
+
+- [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx) is why a missed dose is drawn as a fact and never as an instruction about what to do next.
+- [Uncertainty and staleness](../health/uncertainty-and-staleness.mdx) is why the time is delegated to RelativeTime, which never shows an instant as fresher than it is and never invents a staleness verdict the product did not set.
+- [Regulatory context](../health/regulatory-context.mdx) is why the component computes no adherence figure and ships no schedule, dose or drug data, because each of those would be a clinical claim a presentation layer is not entitled to make.

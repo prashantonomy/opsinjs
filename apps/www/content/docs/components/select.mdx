@@ -1,39 +1,285 @@
 ---
-title: "Select"
-description: "Choosing one option from a list."
-status: considered
+title: Select
+description: A trigger that opens a floating list to choose one option from, built on Base UI Select and drawing only neutral chrome.
+status: alpha
 kind: component
 since: "unreleased"
-category: "actions-and-forms"
+category: actions-and-forms
 aliases: ["dropdown", "picker"]
 ---
 
-{/* GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts (status: considered).
-    Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`.
-    Rationale: content/docs/project/decisions/0008-considered-components-resolve.mdx.
-    Source hash d310e86cfa0e. */}
+## Status
 
-<PageTemplate kind="component" status="considered" category="actions-and-forms" />
-
-<StubNotice name="select" status="considered">
-  **Select is not built, and it has no specification.** The name is recorded in
-  the catalogue so that this address answers instead of returning a 404.
-  The reason is not that the component is coming.
+<StubNotice
+  name="select"
+  status="alpha"
+  questions={[
+    "No contrast pair has been measured. The trigger is foreground ink on the background surface inside a hairline, the popup is foreground ink on the card surface, and the placeholder is the muted ink; whether each reads at the text and non-text floors has been argued from the roles rather than checked by a machine.",
+    "Nobody has listened to this control in a screen reader. Base UI renders the trigger as a combobox and the popup as a listbox with each option carrying aria-selected, and whether the open, move and choose sequence reads cleanly, and whether the trigger's aria-label reaches a reader before its value, has not been checked with real assistive technology.",
+    "The raised popup leans on a single material shadow rung to separate the list from the content beneath it. Whether that separation survives forced colours, where the shadow and both surfaces are replaced by the platform's own pair, has not been tested, and there is no prefers-contrast: more rule.",
+    "The list has no measured ceiling on its own length. It caps its height at the room below the trigger and scrolls inside that, but nobody has checked how a very long list of options reads for a keyboard or a switch user who has to arrow through it, and typeahead has not been verified against a real screen reader's own type-to-find.",
+  ]}
+>
+  <code className="text-sm">select</code> is implemented and installable. It is{" "}
+  <strong className="font-medium">alpha</strong>: it works and it is documented,
+  the API may change in any release without a deprecation cycle, and it is not
+  for a production health surface yet.
 </StubNotice>
 
-## What this name refers to
+Select is a trigger that opens a list to choose one option from. Its home is a single choice out of a list too long to lay out flat, a timezone or a unit system being the case it was built for, where the options are worth having but not worth the vertical space of showing them all at once.
 
-Choosing one option from a list.
+The design decision that shapes the whole component is that it trades the glance of a flat set for the compactness of a closed trigger. A [RadioGroup](./radio-group.mdx) or a [SegmentedControl](./segmented-control.mdx) shows every option at once and is the better answer while the options are few; a select earns its place only once the list grows past what a row can hold, because it keeps a long list from pushing the rest of a form down the page. It sets a value and nothing more, so it carries neither colour axis and draws only neutral chrome.
 
-## Why it is not on the roster
+## Preview
 
-Delegated to Base UI. opsinjs adds guidance rather than a component. The guidance is that for short lists a radio group is easier for the reader, and Base UI has one. Inside a Field, render Base UI's Select through Field.Control's render prop. The shipped specimen registry/examples/field-with-another-control.tsx uses a native select on that same prop, and Base UI's Select goes through it the same way.
+A trigger with one option chosen out of a list longer than a row could hold. The thing worth checking is that the control is neutral chrome and the chosen option is marked in the list by a tick rather than by a colour, so open it and read the list in greyscale: the highlight that moves under the Arrow keys is a neutral surface, and the selected option is told by a Check glyph and `aria-selected` rather than by any hue.
 
-## What to use instead
+<ComponentPreview name="select" />
 
-Use [Field](./field.mdx) instead.
+## Installation
 
-Do not generate code against this page. It documents an absence. The
-machine-readable list of every component id and its status is at
-`/r/index.json`, and the [status matrix](./index.mdx) shows the same rows for
-a human reader.
+<ComponentInstall
+  name="select"
+  unbuilt={false}
+  importPath="@/components/ui/select"
+  dependencies={["@base-ui/react", "lucide-react"]}
+/>
+
+The control is built on Base UI's Select primitive, which is where the single tab stop on the trigger, the listbox keyboard and the portalled popup come from, so installing it pulls in `@base-ui/react`. It draws two glyphs, the open indicator and the selected tick, from `lucide-react`.
+
+## Usage
+
+```tsx
+import { Select } from "@/components/ui/select"
+```
+
+```tsx
+<Select
+  label="Timezone"
+  placeholder="Choose a timezone"
+  value={timezone}
+  onValueChange={setTimezone}
+  options={[
+    { value: "lisbon", label: "Lisbon" },
+    { value: "berlin", label: "Berlin" },
+    { value: "tokyo", label: "Tokyo" },
+  ]}
+/>
+```
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Choosing one value from a list too long to lay out flat, such as a timezone, a country or a unit system, where the options are worth having but not worth the vertical space of showing them all at once.",
+    "A single choice on a dense form, where a closed trigger keeps a long list from pushing the fields below it down the page until the reader opens it.",
+    "A setting the reader changes rarely, so the cost of a click to open the list is paid seldom and the compactness of the closed trigger is worth more than the glance of a flat set.",
+  ]}
+  avoid={[
+    { case: "There are fewer than about seven options, so a flat set the reader can scan at a glance is easier than a list they have to open.", instead: "radio-group" },
+    { case: "The choice is a clinical value with a range and a verdict rather than a plain option, so it needs a control that formats the number and states what it means.", instead: "reading-input" },
+    { case: "The options open different views with their own content, so choosing one swaps what the reader is looking at rather than setting a value.", instead: "tabs" },
+  ]}
+/>
+
+The exclusion that matters is the first, and it is a question about how many options there are. Under roughly seven options a flat set is easier to scan than a list behind a trigger, so a [RadioGroup](./radio-group.mdx) that shows every option at once is the better control, and reaching for a select there hides a short list nobody needed to hide. A select earns its place only once the list is long enough that laying it flat would cost more space than it is worth.
+
+The second exclusion keeps a select off a clinical value. A select chooses a plain option and formats nothing; a blood pressure band or a symptom scale is a measurement with a range and a meaning, and that is a [ReadingInput](./reading-input.mdx), which formats the number the same way everywhere and leaves the verdict to the consuming product rather than to a bare dropdown.
+
+## Anatomy
+
+<Anatomy
+  name="select"
+  parts={[
+    {
+      name: "Select",
+      describes: "The root, a Base UI Select rendered as its trigger button. It is the one tab stop, carries data-slot=\"select\" and the accessible name from label, and looks like a field: a hairline box on the background surface with the value on the left and the open indicator on the right. It draws only neutral chrome and carries neither data-status nor data-category.",
+      prop: "label",
+    },
+    {
+      name: "Select.Value",
+      describes: "The chosen option's label, or the placeholder when nothing is chosen. It carries data-slot=\"select-value\", and drops to the muted ink through its own data-placeholder state so an unfilled trigger reads as unfilled without a colour on either axis.",
+      prop: "placeholder",
+    },
+    {
+      name: "Select.Icon",
+      describes: "The open indicator at the trigger's trailing edge, a lucide ChevronsUpDown. data-slot=\"select-icon\", muted chrome, and aria-hidden because the trigger's role and state are already read.",
+    },
+    {
+      name: "Select.Popup",
+      describes: "The floating list, rendered through a portal so it escapes the overflow clipping of whatever card or scroll area the trigger sits in. A raised card surface with a hairline and the overlay material shadow; it matches the trigger's width and caps its height at the room below, scrolling inside the viewport. data-slot=\"select-popup\".",
+    },
+    {
+      name: "Select.Item",
+      describes: "One option row, a role=\"option\" carrying aria-selected. The highlight that moves under the Arrow keys and the pointer is the neutral state-hover surface on data-highlighted; a disabled option drops to the muted ink and is skipped. data-slot=\"select-item\", with data-highlighted, data-selected and data-disabled.",
+      prop: "options",
+    },
+    {
+      name: "Select.ItemIndicator",
+      describes: "The tick beside the chosen option, a lucide Check shown only on the selected row. It is how the selection is told in the list without a colour, alongside aria-selected. data-slot=\"select-item-indicator\".",
+    },
+  ]}
+/>
+
+<CompositionTree
+  name="select"
+  tree={[
+    {
+      part: "Select",
+      cardinality: "1",
+      note: "data-slot=\"select\", the trigger, role=\"combobox\", one tab stop",
+      children: [
+        {
+          part: "Select.Value",
+          cardinality: "1",
+          note: "data-slot=\"select-value\", data-placeholder when nothing chosen",
+        },
+        {
+          part: "Select.Icon",
+          cardinality: "1",
+          note: "data-slot=\"select-icon\", lucide ChevronsUpDown, aria-hidden",
+        },
+        {
+          part: "Select.Popup",
+          cardinality: "1",
+          note: "data-slot=\"select-popup\", portalled, role=\"listbox\", raised card",
+          children: [
+            {
+              part: "Select.Item",
+              cardinality: "1..n",
+              note: "data-slot=\"select-item\", role=\"option\", aria-selected; one per option",
+              children: [
+                {
+                  part: "Select.ItemIndicator",
+                  cardinality: "0..1",
+                  note: "data-slot=\"select-item-indicator\", lucide Check, on the selected row only",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ]}
+/>
+
+The parts above are identified by `data-slot` and are styleable from outside; none of them is an export, and there is no way to render an item outside the popup or the popup outside the root. The item's text sits in a `Select.ItemText` carrying `data-slot="select-item-text"`, which Base UI also reads for its type-to-find, and it is named here rather than left for someone to find in the DOM. There is no colour prop and no status slot: the selection is the tick and `aria-selected`, not a tint, because a select is on neither axis.
+
+## Examples
+
+### Choosing from a list
+
+The case the control was built for. The list is a set of fictional timezones long enough that laying it flat would cost more space than it is worth, so it is folded behind a trigger, and the example holds its own state because the control is controlled. Open it and read the list in greyscale: the chosen option is marked by a tick and the moving highlight is a neutral surface, neither of them a colour on either axis.
+
+<ComponentPreview name="select-choosing-from-a-list" kind="example" align="start" />
+
+### With a placeholder
+
+A select before anything is chosen. The trigger shows its placeholder in the muted ink rather than a value, and the point worth checking is that the placeholder reads as a prompt and not as a chosen option: it never appears in the list and cannot be selected. The options are a fictional set of reminder frequencies, not a clinical schedule or a dose, because an opsinjs example must never be mistakable for somebody's own data.
+
+<ComponentPreview name="select-with-a-placeholder" kind="example" align="start" />
+
+## Content guidelines
+
+Keep the option labels short, parallel and in sentence case, and name the value each option sets rather than an instruction to the reader. Order them the way the reader thinks about them rather than the way the data is stored: a list of frequencies runs shortest to longest, and reversing it to match a database column is the list nobody can scan. Do not change a label's wording between screens for the same option, because a reader who learnt that this control offers "Once a week" should not meet "Weekly" meaning the same thing elsewhere.
+
+Write the placeholder as a prompt, not as an option. "Choose a timezone" tells the reader what to do; a placeholder that reads like a real value, such as a plausible timezone, is a trap, because a reader cannot tell whether it is a default they have accepted or a blank they still have to fill. When one option is the sensible starting point, set it as the value instead of leaving the trigger empty, so the reader begins with a real choice rather than a prompt dressed as one.
+
+<DoDont>
+  <DoDont.Do>
+    **A placeholder of "Choose a timezone" with parallel labels: "Lisbon", "Berlin", "Tokyo".** The prompt tells the reader what to do, and each option names one value in the same grammar, so the list reads as one set and the trigger reads as unfilled until a real choice is made.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **A placeholder that reads "Lisbon" while nothing is actually chosen.** The reader cannot tell whether Lisbon is a default they have accepted or a blank they still have to fill, so the trigger lies about its own state. If one option is the sensible start, set it as the value instead.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility
+
+Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. At `alpha`, accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+
+**Checked, by `pnpm run check:a11y`:**
+
+- **No status colour, no colour literal, no ramp step.** The control draws only the neutral chrome roles, so it carries no `data-status`, reads no clinical vocabulary, and cannot mix the two axes. The gate reads every element and would fail the build on a colour drawn from either axis or on a raw colour value, and there is neither here.
+- **No px type size, no oversized radius.** The trigger and the options use the `body` semantic step rather than a pixel size, and the popup uses `rounded-opsin-lg` rather than an off-ramp radius, so a reader who has turned their text size up gets a larger control instead of a pinned one.
+- **A 44pt target floor.** The trigger and each option floor their hit area at `--opsin-target-minimum` in rem, so the pressable region survives and grows with the reader's text size rather than pinning at a device pixel.
+
+**Argued, and true of the implementation, but not yet measured:**
+
+- **The trigger is one tab stop with the WAI-ARIA listbox keyboard.** Base UI renders the trigger as a combobox, the popup as a listbox and each option as a `role="option"` with `aria-selected`, and the open, move and choose sequence follows the pattern rather than a bespoke one. Whether it reads cleanly to a screen reader has not been heard.
+- **The trigger has an accessible name.** `label` is required and applied as the trigger's `aria-label`, so a screen-reader user hears what the control chooses before its value; a missing or empty `label` raises a development warning rather than rendering an unnamed control.
+- **The selection is not told by colour alone.** The chosen option carries a Check glyph and `aria-selected`, and the placeholder is the measured muted ink switched on by `data-placeholder` rather than a faded value, so both survive greyscale.
+- **The focus ring is carried in the trigger's own class list.** A project installed without the product stylesheet keeps the ring rather than losing it silently.
+
+**Not checked at all, and listed rather than omitted:**
+
+- Every contrast pair: the foreground ink on the background surface at the trigger, the foreground ink on the card surface in the popup, the muted placeholder ink, and the hairline against each ground. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring.
+- What the popup draws under `forced-colors: active`, where its material shadow and both surfaces are replaced by the platform's own pair, and there is no `prefers-contrast: more` rule. None of this has been put in front of a machine or a high contrast user, and the primitive's own type-to-find has not been checked against a screen reader's type-to-find.
+
+<KeyboardTable
+  name="select"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Moves focus onto the trigger",
+      notes: "The trigger is the one tab stop. A disabled select is skipped entirely.",
+    },
+    {
+      keys: "Shift + Tab",
+      action: "Moves focus back off the trigger",
+      notes: "The control is a single stop in reverse too, so focus leaves it rather than stepping into the list.",
+    },
+    {
+      keys: "Enter, Space, Arrow Down, Arrow Up",
+      action: "Opens the list from the trigger",
+      notes: "The list opens with the highlight on the chosen option, or on the first enabled option when nothing is chosen.",
+    },
+    {
+      keys: "Arrow Down, Arrow Up",
+      action: "Moves the highlight through the open list",
+      notes: "The highlight skips disabled options. It does not wrap past the ends of the list.",
+    },
+    {
+      keys: "Home, End",
+      action: "Moves the highlight to the first or last option",
+      notes: "Bound by the underlying listbox. Both skip disabled options.",
+    },
+    {
+      keys: "Enter",
+      action: "Chooses the highlighted option and closes the list",
+      notes: "The trigger takes focus again and shows the chosen value.",
+    },
+    {
+      keys: "Escape",
+      action: "Closes the list without choosing",
+      notes: "The value is left as it was, and focus returns to the trigger.",
+    },
+    {
+      keys: "Type a letter",
+      action: "Jumps to the next option whose label starts with what was typed",
+      notes: "Base UI's own type-to-find. It has not yet been checked against a screen reader's separate type-to-find.",
+    },
+  ]}
+/>
+
+<ContrastReport component="select" />
+
+## API reference
+
+<PropsTable name="SelectProps" />
+
+`value` and `onValueChange` make this a controlled component with no internal selection state: the caller stores the chosen value and passes it back, and a value left empty or matching no option shows the placeholder. `label` is required, because a combobox with no accessible name is a defect the type system cannot otherwise prevent, and `placeholder` is a prompt shown on the empty trigger rather than an option that can be chosen. `options` is the list, each a value, a visible label and an optional `disabled` flag; keeping the labels short and parallel is a content rule the type cannot enforce.
+
+## Related
+
+<RelatedComponents name="select" />
+
+**Easily confused with**
+
+- [RadioGroup](./radio-group.mdx) shows every option at once and is the better control under about seven options, where a flat set is easier to scan than a list behind a trigger. A select earns its place only once the list is long enough to be worth folding away.
+- [SegmentedControl](./segmented-control.mdx) sets a parameter of one view from a small set of options laid out flat on a single row. A select is for a longer list and a choice the reader opens rather than sees.
+- [ReadingInput](./reading-input.mdx) is the control for a clinical value with a range and a meaning. A select chooses a plain option and formats nothing.
+
+**Used by**
+
+- No pattern, recipe or screen composes it yet. It is a neutral form primitive a product wires to its own state and its own options.

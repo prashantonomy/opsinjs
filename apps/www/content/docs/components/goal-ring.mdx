@@ -1,39 +1,278 @@
 ---
-title: "GoalRing"
-description: "Progress towards a daily goal, drawn as a closing ring."
-status: considered
+title: GoalRing
+description: A ring that shows how far a reading has come towards a goal the product set, paired with a text twin that states every figure, and rewarding no streak.
+status: alpha
 kind: component
 since: "unreleased"
-category: "health-data-display"
+category: health-data-display
 aliases: ["activity ring", "close your rings", "daily goal"]
+governedBy: ["two-colour-axes", "category-identity", "numbers-units-precision", "motion-in-health-ui"]
 ---
 
-{/* GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts (status: considered).
-    Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`.
-    Rationale: content/docs/project/decisions/0008-considered-components-resolve.mdx.
-    Source hash d310e86cfa0e. */}
+## Status
 
-<PageTemplate kind="component" status="considered" category="health-data-display" />
-
-<StubNotice name="goal-ring" status="considered">
-  **GoalRing is not built, and it has no specification.** The name is recorded in
-  the catalogue so that this address answers instead of returning a 404.
-  The reason is not that the component is coming.
+<StubNotice
+  name="goal-ring"
+  status="alpha"
+  questions={[
+    "No contrast pair has been measured. The fill is a category -accent role drawn straight onto the ground the host provides, and the track is the neutral border hairline against that same ground; whether the fill reads against the track, and the track against its background, at the non-text floor has been argued from the roles rather than checked by a machine. This component sets no surface of its own, so both strokes sit on whatever the host paints behind them rather than on the matching -surface the token contract tunes against.",
+    "Nobody has listened to the ring in a screen reader. The graphic carries role=\"img\" with an accessible name and the visible label, readout and progress sentence repeat every fact, but whether hearing the ring's label and then the same three lines again reads as thorough or as a stammer has been reasoned about rather than heard.",
+    "The refusal to reward a streak is a design decision the code keeps and no gate enforces. Nothing in the interface tracks a run of met goals or fires on a closed ring, but a product could compose a streak counter beside the ring and undo the whole point. The page argues the incentive; no lint rule on a consumer's own code catches it.",
+    "No named reviewer has signed this page off. Group J of the safety review checklist asks for a reviewer name and a date, and there is neither here, so read every claim below as unattributed until that changes.",
+  ]}
+>
+  <code className="text-sm">goal-ring</code> is implemented and installable. It
+  is <strong className="font-medium">alpha</strong>: it works and it is
+  documented, the API may change in any release without a deprecation cycle, and
+  it is not for a production health surface yet.
 </StubNotice>
 
-## What this name refers to
+GoalRing draws how far a reading has come towards a goal the product set, as a ring, with the same fact stated in words beside it. It counts steps against a step goal, water against a water goal, whatever the product supplies, and it asserts one thing only: this value is this far towards that goal.
 
-Progress towards a daily goal, drawn as a closing ring.
+The design decision that shapes the whole component is what it leaves out. The roster declined goal rings for years because the pattern they come from turns progress into a game, with a streak that must not break and a celebration when the ring closes, and that is the wrong incentive for a reader managing a condition rather than training for one. So this ring closes and stops. It tracks no streak, fires nothing when it fills, reproaches nothing when it does not, and animates nothing on first paint. It is a picture of a position against a goal, and the words carry the rest.
 
-## Why it is not on the roster
+## Preview
 
-Goal rings are strongly associated with one platform's fitness product, and the pattern rewards streaks. That is the wrong incentive for a reader managing a condition rather than training for one.
+Check that the ring draws the fill in the category tint while the track stays neutral, so the one colour on the surface says what the ring counts rather than how urgent it is. Read the words beneath it: the label, the value against the goal, and a plain progress sentence that neither congratulates nor scolds. Turn the text size up and the ring holds its size while the words wrap, and nothing is truncated.
 
-## What to use instead
+<ComponentPreview name="goal-ring" />
 
-Use [ScoreDial](./score-dial.mdx) or [MetricTile](./metric-tile.mdx) instead.
+## Installation
 
-Do not generate code against this page. It documents an absence. The
-machine-readable list of every component id and its status is at
-`/r/index.json`, and the [status matrix](./index.mdx) shows the same rows for
-a human reader.
+<ComponentInstall
+  name="goal-ring"
+  unbuilt={false}
+  importPath="@/components/ui/goal-ring"
+/>
+
+GoalRing has no dependency beyond the shared substrate every component installs. It draws its own SVG ring, composes no other component and is built on no Base UI primitive, because a static picture with a text twin needs none of them. It renders no icon, so it does not pull in `lucide-react` either.
+
+## Usage
+
+```tsx
+import { GoalRing } from "@/components/ui/goal-ring"
+```
+
+```tsx
+<GoalRing
+  label="Steps today"
+  value={6200}
+  goal={8000}
+  unit="steps"
+  category="activity"
+/>
+```
+
+## When to use it
+
+<WhenToUse
+  use={[
+    "Showing a single reading against a goal the product set, where a reader wants to see at a glance how far along they are and the goal is the product's own rather than a clinical target.",
+    "A daily count that resets, such as steps, active minutes or water, where the ring is a friendly picture of progress and the words carry the exact figures.",
+    "Any place a product owns both the goal and the words for it, and where progress is genuinely progress rather than a reading that needs a clinical range to read at all.",
+  ]}
+  avoid={[
+    { case: "You are showing a composite number somebody's product calculated, with named bands it falls in. That is a score against a scale, not progress against a goal, and a ring around a score reads it as a mark out of a maximum.", instead: "score-dial" },
+    { case: "You are showing one reading on its own, with its unit and when it was taken, and there is no goal to measure it against.", instead: "metric-tile" },
+    { case: "You are showing a reading against a reference range, where the meaning is which band it falls in rather than how far along a target it is.", instead: "range-bar" },
+  ]}
+/>
+
+The distinction that matters most is the first one. A ring and a dial look alike and mean different things: a dial places a number the product calculated between two bounds and names the band it falls in, while a ring shows how much of a goal is done. The moment there is a scale with named ranges and a verdict attached, the component is a [ScoreDial](./score-dial.mdx), because a ring has no band vocabulary and drawing a score as a ring invites a reader to read it as a mark out of the top.
+
+The second and third exclusions keep the ring from standing in for a plain reading. A reading with no goal is a [MetricTile](./metric-tile.mdx), and a reading whose meaning is which reference band it lands in is a [RangeBar](./range-bar.mdx). A ring is only right when there is a goal, the product owns it, and being part-way there is the thing worth showing.
+
+## Clinical meaning
+
+**What it asserts.** GoalRing asserts exactly one thing: this value is this far towards a goal the product set, in these words. The fraction it draws is arithmetic over two numbers the product supplied, the value and the goal, and nothing more. It says nothing about what the reading means for the reader, nothing about a cause, and nothing about what to do next.
+
+**What it must never be read as.** It is not a diagnosis, not a verdict on the reader and not a target opsinjs chose. A full ring means the product's goal was met, never that the reader is well, and an open ring means the goal is part-done, never that anything is wrong. It rewards no streak and stages no celebration, because a person managing a condition is owed information about their day rather than praise for a good one or blame for a missed one. The words "normal" and "abnormal" appear in no state it draws, as they appear nowhere in opsinjs, and [Reference ranges and normal](../health/reference-ranges.mdx) carries the argument.
+
+**Which colour axis it may use.** The category axis, and only the category axis. The fill may take the identity tint of the kind of thing the ring counts, an activity ring in the activity colour, so a reader with several rings can tell them apart, and that colour answers what the ring is about and never how urgent it is. It may never use the status axis: progress towards a goal is not a clinical status, so no element carries `data-status` and the fill and the track are never both coloured with a verdict. Putting an identity colour and an urgency colour on one surface is the collision [The two colour axes](../health/two-colour-axes.mdx) exists to prevent, and a ring given no category draws neutral rather than borrowing a colour.
+
+**Who owns the goal and the words.** The consuming product, always. GoalRing ships no default goal, no default label and no clinical vocabulary of any kind. The goal arrives as a prop because a target is a thing somebody chose for somebody, and shipping a goal inside a component library would be shipping a clinical decision to every product that installed it. The only thing this component supplies is the shape of the picture and the category colour read from the token layer.
+
+## Anatomy
+
+<Anatomy
+  name="goal-ring"
+  parts={[
+    {
+      name: "GoalRing",
+      describes: "The root, a stacked column holding the ring above its words. Carries no colour of its own and no axis attribute. No fixed height: at 200% text the ring holds its size while the words wrap rather than clipping a line.",
+      prop: "className",
+    },
+    {
+      name: "GoalRing.Ring",
+      describes: "The SVG graphic, carrying role=\"img\" and the accessible name that repeats the label, the readout and the progress sentence in one utterance. It is never focusable and never in the tab order, and it is neither a meter nor a progressbar, because it has no value semantics of its own to offer.",
+      prop: "value",
+    },
+    {
+      name: "GoalRing.Track",
+      describes: "The whole ring, always fully drawn in the neutral border role, so the goal's extent is visible whether or not there is a reading to place on it. It never takes a category or a status colour. Under forced colours it maps to CanvasText to stay visible.",
+    },
+    {
+      name: "GoalRing.Fill",
+      describes: "The arc from the top, its length the fraction of the goal reached. Carries data-category for the identity tint and never data-status, so it is on the category axis alone. Drawn only when there is progress with length, so an absent or zero reading shows the bare track. Nothing animates it on first paint.",
+      prop: "category",
+    },
+    {
+      name: "GoalRing.Value",
+      describes: "The readout, the real value against the goal in the reader's locale, with the unit after it. It always prints the true numbers, so a value past the goal shows its figure here even though the arc has stopped at full.",
+      prop: "value",
+    },
+    {
+      name: "GoalRing.Derivation",
+      describes: "The progress sentence, derived from the value and the goal and nothing else. It names the fraction reached in plain words, states a met goal as a fact and no reading yet as a fact, and never celebrates or reproaches.",
+    },
+  ]}
+/>
+
+<CompositionTree
+  name="goal-ring"
+  tree={[
+    {
+      part: "GoalRing",
+      cardinality: "1",
+      note: "data-slot=\"goal-ring\", a div. Neither data-status nor data-category.",
+      children: [
+        {
+          part: "GoalRing.Ring",
+          cardinality: "1",
+          note: "an svg, role=\"img\", focusable=\"false\", with the accessible name. Carries no data-slot of its own; it holds the track and the fill.",
+          children: [
+            {
+              part: "GoalRing.Track",
+              cardinality: "1",
+              note: "data-slot=\"goal-ring-track\", a circle in the neutral border role. No axis attribute.",
+            },
+            {
+              part: "GoalRing.Fill",
+              cardinality: "0..1",
+              note: "data-slot=\"goal-ring-fill\", a circle. data-category=\"<name>\" for the tint, never data-status. Absent when there is no progress with length.",
+            },
+          ],
+        },
+        {
+          part: "GoalRing.Value",
+          cardinality: "1",
+          note: "data-slot=\"goal-ring-value\". The readout. A sibling data-slot=\"goal-ring-label\" sits above it and data-slot=\"goal-ring-derivation\" below.",
+        },
+      ],
+    },
+  ]}
+/>
+
+The parts are `data-slot` attributes rather than exports. There is no `GoalRing.Fill` you can import, and the ring is not composable: the fill and the words are decided by the `value`, `goal` and `label` you pass rather than by how a caller nests children, and there is no way to hand it a ring without its text twin.
+
+## Examples
+
+### Progress towards a goal
+
+The case GoalRing was built for. A fictional step count sits part-way towards a daily step goal the product set, and the fill carries the activity identity tint while the track stays neutral. The numbers are synthetic and carry no clinical meaning, because an opsinjs example must never be mistakable for a reading. Read the words: the value against the goal, then a plain sentence naming how far along it is, with nothing that congratulates a closed ring or scolds an open one.
+
+<ComponentPreview name="goal-ring-progress-to-a-goal" kind="example" align="start" />
+
+### No reading yet
+
+The honest empty state. With `value` set to null, nothing has been measured, so the ring is drawn empty and the words say so rather than showing a value of zero. An empty ring that meant zero and an empty ring that meant "nothing measured" would be the same picture telling two different truths, and here the words are what keep them apart. The goal and the label are the product's own.
+
+<ComponentPreview name="goal-ring-no-reading-yet" kind="example" align="start" />
+
+## Content guidelines
+
+Write the label as the reader's own name for what the ring counts, "Steps today" rather than an internal metric code, and keep the unit in the reader's words. Let the goal be the product's, and never phrase the surrounding copy as a challenge: the ring shows progress towards a target somebody set, not a test the reader is passing or failing. When the goal is met, say so plainly and stop; when it is not, name the progress and stop.
+
+Never turn the ring into a reward. Do not add a streak counter beside it, do not fire a celebration when it fills, and do not imply that a missed goal is a lapse. A reader managing a condition is owed the number and nothing else, and the moment the ring starts keeping score of good days it has become the pattern the roster declined for years.
+
+<DoDont>
+  <DoDont.Do>
+    **"Steps today", "6,200 of 8,000 steps", "That is 78 out of every 100 towards the goal the app set."** Names what the ring counts, prints the real figures against the product's goal, and states the progress as a fact the reader can act on or ignore.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **"Great job! 3 day streak, keep it up!" beside a closed ring.** It rewards a run of met goals, celebrates the close, and turns a reading into a game, which is the exact incentive the roster cited when it declined goal rings for a health surface.
+  </DoDont.Dont>
+</DoDont>
+
+<DoDont>
+  <DoDont.Do>
+    **An empty ring with "no reading yet" when nothing has been measured.** The picture and the words agree that there is no reading, and neither implies a value of zero.
+  </DoDont.Do>
+  <DoDont.Dont>
+    **An empty ring labelled "0 of 8,000" when no reading has arrived.** It renders an absent reading as a real zero, which tells the reader they made no progress when in truth nothing was measured.
+  </DoDont.Dont>
+</DoDont>
+
+## Accessibility
+
+Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. At `alpha`, accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+
+**Checked, by `pnpm run check:a11y`:**
+
+- **No status colour, and no element on both axes.** The ring carries no `data-status` and reads no clinical vocabulary, and the fill carries `data-category` alone. The gate reads every element and fails the build on one that carries both axes or on a colour drawn outside the two shared axes and the neutral roles, and there is neither here.
+- **No raw colour literal and no ramp step.** The track is the neutral border role, the fill is a category `-accent` role, and every text colour is a semantic role. No hex, no palette utility and no numbered step appears in the file.
+- **No px type size.** The label, the readout and the sentence are the `subheadline`, `title2` and `footnote` semantic steps rather than pixel sizes, so a reader who has turned their text size up gets a larger ring and larger words.
+
+**Argued, and true of the implementation, but not yet measured:**
+
+- **Every fact is in words as well as in the ring.** The graphic carries `role="img"` with an accessible name that names the label, the readout and the progress, and the same three lines render visibly beside it. A reader who cannot parse the arc loses the picture and keeps every number.
+- **The ring is not interactive.** Nothing takes focus, answers a key or a pointer, or animates on first paint. It is a static picture, so there is no keyboard contract to honour, and `motion-in-health-ui` is satisfied by drawing the fill where the reading sits rather than sweeping to it.
+- **The three states stay three.** A finite value draws a fill, null draws an empty ring that says "no reading yet", and a broken value says "not available", so an absent reading is never rendered as a zero.
+
+**Not checked at all, and listed rather than omitted:**
+
+- Every contrast pair: the fill against the track, the track against the host ground, and each line of text against it. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring. The fill is a `-accent` role and the track a `-line` role, and this component sets no surface of its own, so both are painted on whatever ground the host provides rather than the matching `-surface` the token contract tunes against.
+- How the ring and its repeated text twin play for a screen reader user, and whether repeating the label and the three lines reads as thorough or as a stammer. It has been reasoned about and not listened to.
+- What the ring draws under `forced-colors: active`, where the fill maps to Highlight and the track to CanvasText. None of this has been put in front of a machine or a high contrast user.
+
+<KeyboardTable
+  name="goal-ring"
+  rows={[
+    {
+      keys: "Tab",
+      action: "Skips the whole component",
+      notes: "The ring is a labelled image, not a control. Nothing here is focusable, and a tab stop that does nothing is a stop a keyboard user pays for on every screen it appears on.",
+    },
+    {
+      keys: "Shift + Tab",
+      action: "Skips the whole component",
+      notes: "Same in reverse. A GoalRing never appears in the focus order in either direction.",
+    },
+    {
+      keys: "Arrow keys",
+      action: "Nothing",
+      notes: "Deliberately. There is nothing to select, move or change; the ring is a picture and the words are static text.",
+    },
+  ]}
+/>
+
+<ContrastReport component="goal-ring" />
+
+## API reference
+
+<PropsTable name="GoalRingProps" />
+
+The two load-bearing props are `value` and `goal`. `value` is the reading, and it is typed `number | null` on purpose: null is the no-reading state, an empty ring with words that say so, and it is never drawn as a value of zero. A value that is not a finite number is a third state again, a reading that arrived broken, and it is announced rather than drawn. `goal` is the product's target, and opsinjs ships none and never invents one, because a goal is a decision somebody made for somebody. A goal of zero or less is not a target a fraction can be taken against, so the ring is drawn empty and the words say the progress cannot be shown.
+
+`category` is the only colour the component takes, and it is the category axis alone: it tints the fill with the identity colour of the kind of thing the ring counts, so a reader with several rings can tell them apart, and it never says how urgent anything is. There is deliberately no `status` prop, because progress towards a goal is not a clinical verdict. `unit` is printed after the numbers in the readout and is never abbreviated by this component, and `label` names what the ring counts in the reader's own words.
+
+## Related
+
+<RelatedComponents name="goal-ring" />
+
+**Easily confused with**
+
+- [ScoreDial](./score-dial.mdx) draws a composite number against a scale and names the band it falls in. A ring shows how much of a goal is done, with no scale and no bands, so the two look alike and mean different things.
+- [MetricTile](./metric-tile.mdx) shows one reading on its own, with its unit and when it was taken, where a ring needs a goal to measure the reading against.
+- [RangeBar](./range-bar.mdx) shows a reading against a reference range, where the meaning is which band it lands in rather than how far along a target it is.
+
+**Used by**
+
+- No pattern, recipe or screen composes it yet. It is a display primitive that a product places on its own dashboards and daily summaries.
+
+**Governed by**
+
+- [The two colour axes](../health/two-colour-axes.mdx) is why the fill takes a category tint and the ring never carries a status colour.
+- [Category identity](../health/category-identity.mdx) is why the fill's colour says what the ring counts rather than how urgent it is.
+- [Numbers, units and precision](../health/numbers-units-precision.mdx) is why the readout prints the real value and goal in the reader's locale with the unit after them.
+- [Motion in health UI](../health/motion-in-health-ui.mdx) is why nothing counts up or sweeps on first paint and the fill is drawn where the reading sits.

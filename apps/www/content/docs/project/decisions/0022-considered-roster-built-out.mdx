@@ -1,0 +1,112 @@
+---
+title: "ADR 0022. The considered roster is built out to alpha"
+description: The rows that were reserved as considered are now implemented at alpha, so the considered roster is emptied rather than kept as a standing set of declined names. The stub mechanism from ADR 0008 remains for any future considered id.
+status: stable
+kind: project
+owner: core
+reviewed: 2026-09-19
+reviewer: engineering
+reviewEvery: 6m
+aliases: ["build the considered roster", "considered to alpha", "roster build out"]
+---
+
+<PageTemplate kind="project" />
+
+## Status
+
+**Accepted and implemented.** Accepted 2026-09-19. Every row that carried
+`status: considered` has been implemented at `alpha`, moved from the `CONSIDERED`
+array to the `SHIPPED` array in `registry/catalogue.ts`, given a hand-written page,
+and had its generated stub replaced. The `CONSIDERED` array is now empty.
+
+## Context
+
+[ADR 0008](./0008-considered-components-resolve.mdx) decided that a considered id
+answers at its guessable URL with a generated stub rather than a 404, so that an
+agent asking "do you have a Tooltip" gets a definitive answer instead of silence.
+That decision was about what a *declined* name does. It did not decide that any
+particular name stays declined for ever, and it said so: its own closing note
+anticipated a smaller roster over time.
+
+The roster held twenty-three names. Some were declined on product-scope grounds
+(a generic Badge, a Toast, a Tooltip on a phone-first system), some because Base UI
+already ships the primitive unchanged (Select, Checkbox, Tabs), and a handful on
+clinical-safety grounds (a Questionnaire that could carry a validated instrument, a
+SymptomPicker one step from a symptom checker, a DoseTracker whose data drives
+dosing). The reasons were real, and they were written down. What changed is a
+product decision to widen the component set so that a consumer building a health
+app reaches an opsinjs component rather than a bare Base UI primitive, with the
+tokens, the accessibility floor and the two-colour-axes discipline already applied.
+
+## Decision
+
+**Build every considered row as a proper alpha component, and empty the roster.**
+
+- Each row moves from `CONSIDERED` to `SHIPPED` with `status: alpha`, in the same
+  change as its `registry/bases/base/<id>.tsx`, its examples, and its hand-written
+  page. The three move together, as [ADR 0009](./0009-default-export-is-a-demo.mdx)
+  and the release process require.
+- The components delegated to Base UI are built as thin themed wrappers, the same
+  shape as the already-shipped Sheet, Dialog, Field and SegmentedControl. opsinjs
+  adds tokens, an accessible name, a target floor and a focus ring, and nothing the
+  primitive already does well.
+- **The clinically sensitive names are built as presentation only.** A
+  Questionnaire renders questions the product owns and scores nothing. A
+  SymptomPicker records a selection from a list the product owns and checks,
+  triages and diagnoses nothing. A DoseTracker shows the log the product supplies
+  and advises on a missed dose nothing. opsinjs ships no instrument, no vocabulary,
+  no schedule, no threshold and no default clinical text, so the safety hazard the
+  roster named stays with the product and its regulatory pathway, where it always
+  was. The reason a name was declined is preserved on its page as the boundary the
+  component holds, rather than deleted as though it never applied.
+
+## Consequences
+
+- **ADR 0008 is amended, not reversed.** Its mechanism stands: a future considered
+  id still gets a generated stub at its guessable URL, still absent from the sidebar
+  and the sitemap, still present in search and `/r/index.json`. What changed is that
+  the roster is empty today, so the mechanism has nothing to render for now.
+- **The components overview and the catalogue header describe two rosters, one of
+  which is empty.** `<StatusMatrix>` renders the considered roster with no rows, and
+  the prose that framed considered as "most of the catalogue" is corrected to say
+  the roster is empty and the mechanism is retained.
+- **One eval changed meaning.** `considered-is-an-answer` pinned Toast as the proof
+  that a declined name answers rather than 404s. Toast is now built, so the task is
+  updated to assert Toast is installable, and the demonstration of the considered
+  mechanism moves to the ADR record and to the generator, which still runs for any
+  future declined name. `considered-has-no-example` was already stale once BodyMap
+  shipped, and it is corrected in the same pass.
+- **A wider surface to keep honest.** Twenty-three more components carry the same
+  obligations as the rest of the roster: real Anatomy, CompositionTree and
+  KeyboardTable data, an accessibility section that lists what has not been measured
+  rather than omitting it, and `a11yDate: null` until a real review happens. None of
+  them is presented as more finished than it is.
+
+## Alternatives considered
+
+**Keep the roster and build nothing.** Rejected by the product decision above. The
+roster was an honest answer to "we have not built this", and the honest answer is
+now that we have.
+
+**Build the Base UI wrappers but leave the clinically sensitive names declined.**
+Rejected because the safety concern is addressed by the presentation-only boundary,
+not by absence. A product that wants a symptom multi-select will build one whether
+or not opsinjs ships it, and an opsinjs component that ships the accessibility floor
+and refuses to diagnose is safer than a bespoke one that does neither. The boundary
+is documented on each page and in the Clinical meaning section rather than left to a
+missing component to imply.
+
+**Promote them to `beta` or `stable`.** Rejected. None has had an accessibility or
+a clinical review, and [the release phases](../release-phases.mdx) reserve those
+levels for measured work. `alpha` is the honest ceiling.
+
+## Revisiting this
+
+Revisit a specific component if a review finds that its presentation-only boundary
+cannot hold in practice, in which case the answer is a tighter API or a documented
+warning, not a return to the roster. Revisit the roster mechanism only if it is ever
+non-empty again.
+
+<LastUpdated />
+
+<Reviewed />

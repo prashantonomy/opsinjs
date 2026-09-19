@@ -40,6 +40,38 @@ export type GeneratedPropsTable = Record<string, GeneratedProp>
 
 /** Keyed by the exported interface name: `StatusPillProps`. */
 export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
+  "AccordionProps": {
+    "items": {
+      type: "AccordionSection[]",
+      description: "The sections, in the order they appear. Each is a value, a header title, the panel content, and an optional `disabled` flag. An empty array renders nothing and raises a development warning, because an accordion with no sections has nothing to disclose.",
+      required: true,
+    },
+    "multiple": {
+      type: "boolean",
+      description: "Whether more than one section may be open at once. Left off, opening a section closes the others, which suits a small screen where a stack of open panels would grow past the fold. Set it when the sections are independent and a reader may want several open together. Defaults to `false`.",
+      required: false,
+    },
+    "defaultValue": {
+      type: "string[]",
+      description: "The sections open on first render, by their `value`, when the accordion manages its own open state. Use this for an uncontrolled accordion; for a controlled one, use `value` and `onValueChange` instead. Omitted, every section starts closed.",
+      required: false,
+    },
+    "value": {
+      type: "string[]",
+      description: "The sections that are open, by their `value`, when the caller controls the open state. Pass it together with `onValueChange`. A `value` here that matches no section's `value` simply opens nothing, so a stale entry is harmless rather than a crash.",
+      required: false,
+    },
+    "onValueChange": {
+      type: "(value: string[]) => void",
+      description: "Called with the new list of open section values when the reader opens or closes a section. The caller stores it and passes it back as `value`; with `value` set and this omitted, the accordion cannot change and reads as fixed.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. Width, margin and place in a layout belong here. It is the one route by which colour can reach an accordion, and the two-colour-axes rule applies to it in full: an accordion takes neither a status nor a category tint. A class you pass wins over the root's own where the two conflict, because it is merged last.",
+      required: false,
+    },
+  },
   "AlertBannerProps": {
     "status": {
       type: "ClinicalStatus",
@@ -126,6 +158,28 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     "className": {
       type: "string",
       description: "Merged onto the root. For layout only, such as a margin in a stack. A category or status colour passed here is refused by the design rather than by code: the chrome is neutral, and tinting a person from either health axis is the bug the two-axes rule names.",
+      required: false,
+    },
+  },
+  "BadgeProps": {
+    "children": {
+      type: "ReactNode",
+      description: "The badge's content: a count, a short word, or a small icon-and-count pair. Keep it to a few characters. A badge is a label attached to something else, not a sentence, and long content in a pill wraps into an unreadable lozenge.",
+      required: true,
+    },
+    "variant": {
+      type: "\"soft\" | \"outline\"",
+      description: "Visual weight only, and both weights are neutral. `soft` is a filled muted chip; `outline` is a hairline chip that sits lighter. Neither takes a status or a category colour, because a Badge is on neither axis. Defaults to `soft`.",
+      required: false,
+    },
+    "srLabel": {
+      type: "string",
+      description: "What a screen reader should announce in place of, or alongside, the visible content. Give the bare number a noun, \"3 unread\", so a reader does not hear a lone \"3\" with no idea what it counts. Set it to an empty string to hide a purely decorative badge, one whose count is already spoken beside it, from the accessibility tree. Omitted, the visible content is what is announced.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. Placement, margin and the space around the badge belong here. It is the one route by which colour can reach a Badge, and the two-colour-axes rule applies to it in full: a badge takes neither a status nor a category tint. A class you pass wins over the chip's own where the two conflict, because it is merged last.",
       required: false,
     },
   },
@@ -374,6 +428,80 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: false,
     },
   },
+  "CheckboxProps": {
+    "label": {
+      type: "string",
+      description: "Required. The visible words beside the box, and the box's accessible name. The label wraps the box, so its text names the control through a native relationship rather than through `aria-label`, and a reader hears what they are choosing. There is no default, because a checkbox with no words asks a reader to agree to something they cannot see, and a missing or empty label raises a development warning.",
+      required: true,
+    },
+    "checked": {
+      type: "boolean | \"indeterminate\"",
+      description: "Whether the box is ticked. `true` is ticked, `false` is not, and the string `\"indeterminate\"` is the mixed state, neither ticked nor unticked, which a parent box uses to say that some but not all of what it stands for is on. Omitted, the box is uncontrolled and manages its own ticked state from an unticked start; pass a boolean to control it and store the value yourself.",
+      required: false,
+    },
+    "onCheckedChange": {
+      type: "(checked: boolean) => void",
+      description: "Called when the reader toggles the box, with the box's new ticked state as a boolean. A box that was mixed reports `true` when the reader ticks it. The caller stores the value and passes it back as `checked`; this component keeps no state of its own once `checked` is supplied.",
+      required: false,
+    },
+    "indeterminate": {
+      type: "boolean",
+      description: "An alternative way to put the box in the mixed state, for a caller that keeps `checked` as a plain boolean and tracks \"mixed\" separately. It is the same state `checked=\"indeterminate\"` sets, and either route reaches it; when both are given, `indeterminate` wins. Defaults to `false`.",
+      required: false,
+    },
+    "disabled": {
+      type: "boolean",
+      description: "Whether the box ignores interaction. A disabled box drops to the muted ink rather than being faded with opacity, so it stays readable while reading as unavailable, and it takes no focus and answers no key. Defaults to `false`.",
+      required: false,
+    },
+    "description": {
+      type: "string",
+      description: "Optional supporting guidance shown beneath the label, such as what ticking the box will do. It sits outside the label and is tied to the box with `aria-describedby`, so a screen reader announces it as a description after the name rather than as part of the name. Keep it to a short line.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. Placement, margin and the space around the checkbox belong here. It is the one route by which colour can reach the component, and the two-colour-axes rule applies to it in full: a checkbox takes neither a status nor a category tint. A class you pass wins over the root's own where the two conflict, because it is merged last.",
+      required: false,
+    },
+  },
+  "ComboboxProps": {
+    "items": {
+      type: "ComboboxItem[]",
+      description: "The items to search, in the order they appear before any typing narrows them. Each item is a `{ value, label }` pair: the label is what is searched, shown in the list and written into the input once chosen, and the value is what `value` matches and what `onValueChange` reports. opsinjs ships none of these, because the list a health product searches is the product's to own and keep current, not the presentation layer's to guess.",
+      required: true,
+    },
+    "value": {
+      type: "string | null",
+      description: "The currently chosen value, matching one item's `value`, or `null` when nothing is chosen. This is a controlled component with no internal selection state, so the caller stores the value and passes it back. A non-null value that matches no item is treated as nothing chosen, and a development warning names it.",
+      required: true,
+    },
+    "onValueChange": {
+      type: "(value: string | null) => void",
+      description: "Called with the new value when the reader chooses an item, or with `null` when the selection is cleared. The caller stores it and passes it back as `value`; the control keeps no state of its own.",
+      required: true,
+    },
+    "label": {
+      type: "string",
+      description: "Required. The accessible name for the input, applied as its `aria-label`, so a screen-reader user hears what the field searches before they type. Name the thing being chosen, \"Medication\" rather than the current text. There is no default, because a guessed name would describe the wrong thing on most screens.",
+      required: true,
+    },
+    "placeholder": {
+      type: "string",
+      description: "The text shown in the empty input before the reader types. Keep it a short instruction such as \"Search medications\". It is a prompt, not a value, so it is never chosen and never reported. Omitted, the input is blank until typed into.",
+      required: false,
+    },
+    "emptyMessage": {
+      type: "string",
+      description: "The line shown inside the popup when the typed text matches no item. Keep it short and useful, such as \"No matches. Check the spelling.\" Omitted, a plain fallback line is shown so a reader is never left staring at a blank popup.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the field box. Width, margin and place in a layout belong here. A class you pass wins over the box's own where the two conflict, because it is merged last. It is the one route by which colour can reach the control, and the two-colour-axes rule applies to it in full: a combobox takes neither a status nor a category tint.",
+      required: false,
+    },
+  },
   "ConsentSheetProps": {
     "consentId": {
       type: "string",
@@ -542,6 +670,28 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: false,
     },
   },
+  "DoseTrackerProps": {
+    "entries": {
+      type: "DoseEntry[]",
+      description: "The doses to draw, in the order they appear. Each is a medicine name, an ISO instant, one of the four states and an optional note. An empty array renders nothing and warns in development, because a tracker with no entries is a log of a day nobody recorded.",
+      required: true,
+    },
+    "now": {
+      type: "string",
+      description: "The instant every entry's time is measured against, as an ISO 8601 string with an offset, in the same form as an entry's `time`. Required, and forwarded straight to RelativeTime: a component that read the clock itself would be impure and would make one list of doses disagree with itself across a minute boundary. Read the clock once where the screen is rendered, with `new Date().toISOString()`, and pass the same value here and to every other timestamp on the screen.",
+      required: true,
+    },
+    "label": {
+      type: "string",
+      description: "An optional accessible name for the list, applied as `aria-label`, so a screen-reader user hears what the list is before its entries. Name the log, such as \"Today's doses\", rather than describing a single row. Omitted, the list has no name of its own and relies on the heading or region around it to say what it is.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root list. Width, margin and place in a layout belong here. It is the one route by which colour can reach the component, and the two-colour-axes rule applies to it in full: a dose log takes neither a status nor a category tint. A class you pass wins over the list's own where the two conflict, because it is merged last.",
+      required: false,
+    },
+  },
   "EmptyStateProps": {
     "reason": {
       type: "\"nothing-yet\" | \"no-matches\" | \"nothing-left\" | \"not-enough\" | \"could-not-load\"",
@@ -646,6 +796,43 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     "className": {
       type: "string",
       description: "Merged onto the root. Field lays its own parts out in a column and leaves the space BETWEEN fields to the form, which is the only place that knows how many there are.",
+      required: false,
+    },
+  },
+  "GoalRingProps": {
+    "label": {
+      type: "string",
+      description: "What the ring counts, in the reader's language: \"Steps today\", \"Water\", the product's own name for the thing, not an internal code. Required, because a ring with no label is a coloured arc a reader cannot name.",
+      required: true,
+    },
+    "value": {
+      type: "number | null",
+      description: "The reading. `null` renders the no-reading state, an empty ring with words that say nothing has been measured yet. That is not a value of zero: zero is a real reading on a goal a person has not started against, and an absent reading is not a reading at all. A value that is not a finite number is a third state again, a reading that arrived broken, and it is announced rather than drawn.",
+      required: true,
+    },
+    "goal": {
+      type: "number",
+      description: "The target the product set, on the value's own scale. opsinjs ships no default goal and never invents one: a goal is a target somebody chose for somebody, and this component does not know the reader. A goal of zero or less, or one that is not a finite number, is not a goal a fraction can be taken against, so the ring is drawn empty and the words say the progress cannot be shown.",
+      required: true,
+    },
+    "unit": {
+      type: "string",
+      description: "The unit the value and the goal are counted in, in the reader's language, such as \"steps\" or \"ml\". Optional: a goal that is a plain count needs none. It is printed after the numbers in the readout and never abbreviated by this component, because opsinjs does not own the reader's units.",
+      required: false,
+    },
+    "category": {
+      type: "HealthCategory",
+      description: "Tints the ring's fill with the identity colour of the kind of thing it counts, so a reader with several rings can tell them apart. It is the category axis and only the category axis: it says what the ring is about, never how urgent it is. Given none, the ring is drawn in a neutral tone. A value outside the known categories has no ramp, so it is refused with a development warning and the ring falls back to neutral rather than losing its fill silently.",
+      required: false,
+    },
+    "locale": {
+      type: "string",
+      description: "BCP 47 locale for every number. Omitted, the reader's own environment decides.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root, and a class passed here wins over the component's own where the two conflict. That includes `truncate`, `sr-only`, a zeroed type size and any fixed height. The label, the readout and the progress sentence are mandatory content that no prop of this component removes, and a class that clips or hides them is the one way left to remove them anyway. The ring's own accessible name would survive; the words a sighted reader needs would not.",
       required: false,
     },
   },
@@ -760,6 +947,23 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: false,
     },
   },
+  "MenuProps": {
+    "trigger": {
+      type: "ReactElement",
+      description: "The button that opens the menu. It is the caller's own element, and Base UI merges the open behaviour and the `aria-haspopup` and `aria-expanded` state onto it, so it must be a single focusable element such as a button, not a string or a fragment. The system's own Button and IconButton are both fit for this. There is no default, because a menu with no trigger cannot be opened.",
+      required: true,
+    },
+    "items": {
+      type: "MenuAction[]",
+      description: "The actions, in the order they appear in the list. Each action is a visible label, an optional `onClick`, an optional `disabled` flag and an optional `separatorBefore`. A menu with no actions has nothing to open and a menu with a single action is a button that has not admitted it, so both raise a development warning. Keep a safety-relevant or destructive command out of here entirely: it belongs on the screen as a button, with a Dialog to confirm it, because a reader cannot weigh a command they cannot see.",
+      required: true,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the popup. Width and a wider minimum belong here. A class you pass wins over the popup's own where the two conflict, because it is merged last. It is the one route by which colour can reach the control, and the two-colour-axes rule applies to it in full: a menu takes neither a status nor a category tint, and there is no destructive red to reach for either.",
+      required: false,
+    },
+  },
   "MetricTileProps": {
     "label": {
       type: "string",
@@ -844,6 +1048,161 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     "className": {
       type: "string",
       description: "Merged onto the root with `tailwind-merge`, and a class passed here wins where the two conflict. That includes `truncate` and a fixed height, either of which can take digits off the end of a reading at 200% text. This component sets neither and never shortens a number on its own.",
+      required: false,
+    },
+  },
+  "NumberFieldProps": {
+    "label": {
+      type: "string",
+      description: "Required. The accessible name for the field, applied as `aria-label` on the input, so a screen-reader user hears what the number counts before its value. Name the thing being counted, \"Number of copies\" rather than \"Number\", and keep it the count itself rather than a unit or a measurement. There is no default, because a guessed name would describe the wrong thing on most screens, and a missing or empty value raises a development warning.",
+      required: true,
+    },
+    "value": {
+      type: "number | null",
+      description: "The current value, or `null` when the field is empty. This is a controlled component with no internal value state: the caller stores the number and passes it back, so clearing the input reports `null` and the caller decides what an empty count means.",
+      required: true,
+    },
+    "onValueChange": {
+      type: "(value: number | null) => void",
+      description: "Called with the new value when the reader types, steps with a button, or steps with the arrow keys, and with `null` when the field is cleared. The caller stores it and passes it back as `value`; the field keeps no value of its own.",
+      required: true,
+    },
+    "min": {
+      type: "number",
+      description: "The smallest value the reader can reach. The decrement button disables itself at this bound and the field will not step below it. Omitted, there is no lower bound. This is a count's floor, such as zero copies, and never a clinical range: the field holds no reference range and reaches no verdict about the number it carries.",
+      required: false,
+    },
+    "max": {
+      type: "number",
+      description: "The largest value the reader can reach. The increment button disables itself at this bound and the field will not step above it. Omitted, there is no upper bound.",
+      required: false,
+    },
+    "step": {
+      type: "number",
+      description: "How far one press of a button or one arrow key moves the value. Defaults to `1`, which is the right amount for a count. Set it to match the smallest change the count is measured in, such as `1` for whole copies.",
+      required: false,
+    },
+    "disabled": {
+      type: "boolean",
+      description: "Whether the whole field is unavailable. A disabled field drops its buttons to the muted ink and takes no typing, and it stays on screen so the reader can see the count is there but not theirs to change right now. Defaults to `false`.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. Width, margin and place in a layout belong here. It is the one route by which colour can reach the field, and a NumberField takes neither a status nor a category tint, so the two-colour-axes rule applies to it in full. A class you pass wins over the root's own where the two conflict, because it is merged last.",
+      required: false,
+    },
+  },
+  "PopoverProps": {
+    "trigger": {
+      type: "ReactNode",
+      description: "The visible content of the button that opens the panel: a word, an icon, or a short icon-and-word pair. This component supplies the accessible button itself, with its target floor, its focus ring and the `aria-expanded` state the primitive manages, so pass the label rather than a control of your own. A whole button passed here would nest one button inside another, which is invalid.",
+      required: true,
+    },
+    "children": {
+      type: "ReactNode",
+      description: "What the panel holds: a short note, a couple of options, or a small form fragment. Keep it small. A popover floats and is dismissed by leaving it, so anything large enough to need its own scroll or a thumb-friendly layout is a Sheet, and anything that must be answered before the reader carries on is a Dialog.",
+      required: true,
+    },
+    "title": {
+      type: "string",
+      description: "The accessible name of the panel, rendered as a visible heading and wired to the panel's `aria-labelledby`. The panel is a `role=\"dialog\"`, so a panel with real content owes a name: without one a screen-reader user is told a dialog has opened and nothing about what it is. Omit it only for a panel whose content is itself its heading, and a missing title raises a development warning.",
+      required: false,
+    },
+    "open": {
+      type: "boolean",
+      description: "Whether the panel is open. Optional: omitted, the popover is uncontrolled and owns its own open state, opening on a press of the trigger and closing on Escape or a press outside. Passed, the product owns the state and must update it through `onOpenChange`.",
+      required: false,
+    },
+    "onOpenChange": {
+      type: "(open: boolean) => void",
+      description: "Called with the state the popover wants to be in, on every open and close. Pair it with `open` to take the state over; on its own, alongside the uncontrolled default, it is a notification the product can listen to without storing anything.",
+      required: false,
+    },
+    "side": {
+      type: "PopoverSide",
+      description: "Which edge of the trigger the panel is anchored to before collision handling. The primitive flips it to the opposite edge when there is not room, so this is the preference rather than a guarantee. Defaults to `bottom`, which is where a panel opened by a thumb is least likely to be hidden under it.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the panel. Width and the space around the content belong here. A class you pass wins over the panel's own where the two conflict, because it is merged last. It is the one route by which colour can reach the panel, and the two-colour-axes rule applies to it in full: a popover takes neither a status nor a category tint.",
+      required: false,
+    },
+  },
+  "ProgressProps": {
+    "label": {
+      type: "string",
+      description: "The accessible name for the bar, and the visible label beside it. Required: a bare bar with no name is a percentage with no subject, so a reader hears \"45 percent\" with no idea what is 45 percent done. Name the task, \"Uploading photos\" rather than \"Progress\". Base UI wires this label to the progressbar, so it is what a screen reader reads before the value.",
+      required: true,
+    },
+    "value": {
+      type: "number | null",
+      description: "How far through the task, from 0 to `max`. Pass `null` for a task that is running with no known shape, which draws the indeterminate state rather than a guessed fraction. A number outside 0 to `max` is clamped by Base UI to the nearer bound and a development warning names it, because a bar drawn past its own end asserts a position it does not have.",
+      required: true,
+    },
+    "max": {
+      type: "number",
+      description: "The value that counts as complete. Defaults to 100, so a `value` is read as a percentage unless you set another ceiling, such as the number of steps in a form. The lower bound is fixed at 0.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. Width, margin and place in a layout belong here. A class you pass wins over the component's own where the two conflict, because it is merged last. It is the one route by which colour can reach the bar, and the two-colour-axes rule applies to it in full: a progress bar takes neither a status nor a category tint.",
+      required: false,
+    },
+  },
+  "QuestionnaireProps": {
+    "title": {
+      type: "string",
+      description: "The questionnaire's name, in the product's own words. Supplied as the group's accessible name and shown as the title, so a screen-reader user hears what the set is before its first question. Optional, because a product may name the set in the surrounding page instead; when it is omitted the form carries no name of its own, and a development warning suggests supplying one.",
+      required: false,
+    },
+    "questions": {
+      type: "QuestionnaireQuestion[]",
+      description: "The questions, in the order they are asked. Each is an id, a prompt and a control the product composes. The shell renders them as a list and never reads an answer from a control, so it can neither total nor grade them. An empty array renders nothing and warns in development, because a questionnaire with no questions is a shell around nothing.",
+      required: true,
+    },
+    "onComplete": {
+      type: "() => void",
+      description: "Called when the reader completes the set, which is when the form is submitted. It is told that the reader finished and nothing else: no answers, no total and no reading, because the shell scores nothing. The product reads its own controls and does its own scoring off this component. Omitted, submit is still cancelled so a stray Return key cannot reload the page.",
+      required: false,
+    },
+    "showProgress": {
+      type: "boolean",
+      description: "Shows a \"Question N of M\" readout above the list that names where the reader is as focus moves through the questions. It is a plain ordinal count of position, not a health value, so it is drawn as quiet text and never coloured. Defaults to `false`.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root form. Width, margin and place in a layout belong here. It is the one route by which colour can reach the shell, and the two colour axes rule applies to it in full: a questionnaire takes neither a status nor a category tint. A class you pass wins where it conflicts, because it is merged last.",
+      required: false,
+    },
+  },
+  "RadioGroupProps": {
+    "options": {
+      type: "RadioGroupOption[]",
+      description: "The options, in the order they appear. Two or more: a group offering one option is not a choice, and a group offering none has nothing to render. Each option is a value, a visible label, an optional `description` line and an optional `disabled` flag.",
+      required: true,
+    },
+    "value": {
+      type: "string",
+      description: "The currently chosen value, matching one option's `value`. This is a controlled component with no internal selection state, so a `value` that matches no option renders the list with nothing chosen, and a development warning names it.",
+      required: true,
+    },
+    "onValueChange": {
+      type: "(value: string) => void",
+      description: "Called with the new value when the reader chooses a different option. The caller stores it and passes it back as `value`; the group keeps no state of its own.",
+      required: true,
+    },
+    "label": {
+      type: "string",
+      description: "Required. The name of the choice, rendered as a visible legend above the list and wired to the radiogroup with `aria-labelledby`, so a sighted reader and a screen-reader user meet the same name. Name the thing being chosen, \"Reminder style\" rather than \"Standard, Quiet, None\". There is no default, because a guessed name would describe the wrong thing on most screens.",
+      required: true,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root group. Width, margin and place in a layout belong here. A class you pass wins over the group's own where the two conflict, because it is merged last. It is the one route by which colour can reach the group, and the two-colour-axes rule applies to it in full: a radio group takes neither a status nor a category tint.",
       required: false,
     },
   },
@@ -1148,6 +1507,43 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: false,
     },
   },
+  "ScaleInputProps": {
+    "label": {
+      type: "string",
+      description: "Required. What is being rated, applied as the `aria-label` on the radiogroup so a screen-reader user hears the question before its points. Name the thing the reader is rating, \"Comfort right now\" rather than \"1 to 10\". There is no default, because a guessed name would describe the wrong thing on most screens, and a radiogroup with no accessible name is a set of radios a reader cannot place.",
+      required: true,
+    },
+    "points": {
+      type: "number",
+      description: "How many points the scale has, supplied by the product from whichever instrument it uses. The points are numbered 1 to `points`. There is no default: opsinjs ships no scale length of its own, because the number of points is part of what makes a rating comparable over time and belongs to the product. Fewer than two points is not a scale, and it renders nothing with a development warning.",
+      required: true,
+    },
+    "value": {
+      type: "number | null",
+      description: "The chosen point, from 1 to `points`, or `null` for no answer yet. This is a controlled component with no internal selection state: the product stores the value and passes it back. `null` draws the scale with nothing chosen rather than defaulting to a middle point, so an unanswered scale is honestly empty and the product can tell it from any real rating. A number outside 1 to `points` draws nothing chosen and warns in development.",
+      required: true,
+    },
+    "onValueChange": {
+      type: "(value: number) => void",
+      description: "Called with the point the reader chose, from 1 to `points`. The product stores it and passes it back as `value`; the scale keeps no state of its own and derives nothing from the number.",
+      required: true,
+    },
+    "minLabel": {
+      type: "string",
+      description: "The word for the low end of the scale, supplied by the product, shown under the first point and read to a screen-reader user as part of that point. Omit it for a bare numeric scale with no end words. opsinjs ships no anchor words, because the end words belong to the product's instrument.",
+      required: false,
+    },
+    "maxLabel": {
+      type: "string",
+      description: "The word for the high end of the scale, supplied by the product, shown under the last point and read to a screen-reader user as part of that point. Omit it for a bare numeric scale with no end words.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. Width, margin and place in a layout belong here. It is the one route by which colour can reach the scale, and the two-colour-axes rule applies to it in full: a rating scale takes neither a status nor a category tint, because a self-report is on neither axis. A class you pass wins over the root's own where the two conflict, because it is merged last.",
+      required: false,
+    },
+  },
   "ScoreDialProps": {
     "label": {
       type: "string",
@@ -1215,6 +1611,28 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: false,
     },
   },
+  "ScrollAreaProps": {
+    "children": {
+      type: "ReactNode",
+      description: "The content the region scrolls over. It is ordinary content, and any colour it carries is the caller's to keep off both colour axes; this component adds none of its own.",
+      required: true,
+    },
+    "maxHeight": {
+      type: "string",
+      description: "A CSS length that caps the viewport's height, such as `\"16rem\"`. This is what gives the region something to overflow, so a vertical scroll area needs either this or a height class merged through `className`. Given neither, the region grows to fit its content and never scrolls, and a development warning names the omission. Use a length that grows with the reader's text, a rem rather than a pixel count, so the region does not clip its content at 200% text.",
+      required: false,
+    },
+    "orientation": {
+      type: "\"vertical\" | \"horizontal\" | \"both\"",
+      description: "Which axes may scroll. `vertical` is the common case and the default; `horizontal` is for a wide row such as a set of cards; `both` shows both rails and a corner where they meet. A value outside the three is treated as `vertical`, the case that needs nothing from its container, and a development warning names the mistake.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. The region's width, its border and rounding, and the height that bounds it when `maxHeight` is not used all belong here. It is unrestricted, so it is the one route by which colour can reach the region, and the two-colour-axes rule applies to it in full: a scroll area takes neither a status nor a category tint. A class you pass wins over the root's own where the two conflict, because it is merged last.",
+      required: false,
+    },
+  },
   "SegmentedControlProps": {
     "options": {
       type: "SegmentedControlOption[]",
@@ -1249,6 +1667,43 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     "className": {
       type: "string",
       description: "Merged onto the root track. Width, margin and place in a layout belong here. A class you pass wins over the track's own where the two conflict, because it is merged last.",
+      required: false,
+    },
+  },
+  "SelectProps": {
+    "options": {
+      type: "SelectOption[]",
+      description: "The options, in the order they appear in the list. Each option is a value, a visible label and an optional `disabled` flag. A select with no options has nothing to open, and a select with a single option is not a choice, so both raise a development warning.",
+      required: true,
+    },
+    "value": {
+      type: "string",
+      description: "The currently chosen value, matching one option's `value`. This is a controlled component with no internal selection state, so the caller stores the value and passes it back. Left empty or set to a value that matches no option, the trigger shows the placeholder, and a non-empty value that matches nothing raises a development warning.",
+      required: false,
+    },
+    "onValueChange": {
+      type: "(value: string) => void",
+      description: "Called with the new value when the reader chooses a different option. The caller stores it and passes it back as `value`; the control keeps no state of its own.",
+      required: true,
+    },
+    "label": {
+      type: "string",
+      description: "Required. The accessible name for the trigger, applied as its `aria-label`, so a screen-reader user hears what the control chooses before its value. Name the thing the select sets, \"Timezone\" rather than the current value. There is no default, because a guessed name would describe the wrong thing on most screens.",
+      required: true,
+    },
+    "placeholder": {
+      type: "string",
+      description: "The text shown in the trigger when nothing is chosen. It is a prompt, not an option, so it never appears in the list and cannot be chosen. Keep it a short instruction such as \"Choose a timezone\". Omitted, the trigger is blank until a value is set.",
+      required: false,
+    },
+    "disabled": {
+      type: "boolean",
+      description: "Whether the whole control is unavailable. A disabled select drops to the muted ink, does not open, and is skipped by the Tab key. Defaults to `false`.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the trigger. Width, margin and place in a layout belong here. A class you pass wins over the trigger's own where the two conflict, because it is merged last. It is the one route by which colour can reach the control, and the two-colour-axes rule applies to it in full: a select takes neither a status nor a category tint.",
       required: false,
     },
   },
@@ -1353,6 +1808,48 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: false,
     },
   },
+  "SliderProps": {
+    "label": {
+      type: "string",
+      description: "Required. The accessible name for the control, shown as the visible label above the track and wired to the thumb's input by Base UI, so a screen-reader user hears what the slider sets before its value. Name the preference the slider adjusts, \"Screen brightness\" rather than a bare number. There is no default, because a guessed name would describe the wrong thing on most screens, and a slider with no name is a control a reader cannot place.",
+      required: true,
+    },
+    "value": {
+      type: "number",
+      description: "The current value, matching a point between `min` and `max`. This is the controlled value: the caller stores it and passes it back, and the control keeps no value of its own. It is a single number, because this is a single-thumb slider for one coarse preference, not a range.",
+      required: false,
+    },
+    "onValueChange": {
+      type: "(value: number) => void",
+      description: "Called with the new number as the reader drags, steps or presses the track. The caller stores it and passes it back as `value`.",
+      required: false,
+    },
+    "min": {
+      type: "number",
+      description: "The lowest value the thumb can reach, and the origin the steps count from. Defaults to 0.",
+      required: false,
+    },
+    "max": {
+      type: "number",
+      description: "The highest value the thumb can reach. Should differ from `min`. Defaults to 100, the fuzzy nought to a hundred range a coarse preference usually wants.",
+      required: false,
+    },
+    "step": {
+      type: "number",
+      description: "The granularity the thumb snaps to. A larger step makes a coarser control, which is honest for a preference nobody needs to the unit. Defaults to 1.",
+      required: false,
+    },
+    "disabled": {
+      type: "boolean",
+      description: "Whether the control ignores input. A disabled slider still shows its value and stays readable; the knob flattens into the muted surface and the cursor reads as not allowed. Defaults to false.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. Width, margin and place in a layout belong here. It is the one route by which colour can reach a slider, and the two-colour-axes rule applies to it in full: a slider takes neither a status nor a category tint. A class you pass wins over the root's own where the two conflict, because it is merged last.",
+      required: false,
+    },
+  },
   "SourceCitationProps": {
     "source": {
       type: "ReactNode",
@@ -1377,6 +1874,23 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     "className": {
       type: "string",
       description: "Merged onto the root. Width, margin and place in a layout belong here: they are decisions of the surface the citation stands on rather than of the citation. It is also the one hole in this component's refusal to carry a colour, and the component says so rather than pretending otherwise: a utility from either axis passed through here reaches the root, and in development it raises a warning naming what to use instead.",
+      required: false,
+    },
+  },
+  "SpinnerProps": {
+    "label": {
+      type: "string",
+      description: "The accessible name for the wait, required and read aloud. It is applied as the `aria-label` on the `role=\"status\"` region and rendered as a visually hidden copy inside it, so a screen reader announces the wait with a name rather than a bare \"busy\". Name what is being waited for where the screen has the room, \"Loading your readings\" rather than the bare \"Loading\", so a reader hears which part of the page is not ready yet. There is no default, because a guessed name would describe the wrong wait on most screens.",
+      required: true,
+    },
+    "size": {
+      type: "\"sm\" | \"md\"",
+      description: "Visual weight only, and both weights are neutral. `sm` is a ring beside a line of text; `md` is a ring that anchors a small in-place wait on its own. Both are sized in `em`, so the ring scales with the surrounding text rather than pinning at a fixed size. Defaults to `md`.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. Placement, margin and the space around the spinner belong here, and it is the one route by which colour can reach the ring: the ring draws in `currentColor`, so a class such as `[color:var(--muted-foreground)]` sets the quiet neutral tone on a plain surface. The two-colour-axes rule applies to a class you pass in full: a spinner takes neither a status nor a category tint, because a wait is on neither axis. A class you pass wins over the root's own where the two conflict, because it is merged last.",
       required: false,
     },
   },
@@ -1446,6 +1960,70 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: true,
     },
   },
+  "SwitchProps": {
+    "label": {
+      type: "string",
+      description: "Required. The accessible name and the visible words for the control, applied as the switch's `aria-labelledby` so a screen-reader user hears what the toggle sets before its state. Name the setting the switch turns on, \"Larger text\" rather than \"On\". There is no default, because a guessed name would describe the wrong thing on most screens, and a missing or empty label raises a development warning rather than rendering an unnamed control.",
+      required: true,
+    },
+    "checked": {
+      type: "boolean",
+      description: "Whether the switch is on. This is a controlled component with no internal state, so the caller holds the boolean, applies the effect the switch names, and passes the new value straight back through `onCheckedChange`.",
+      required: true,
+    },
+    "onCheckedChange": {
+      type: "(checked: boolean) => void",
+      description: "Called with the new boolean when the reader flips the switch. The caller commits the change straight away, because a switch takes effect on the flip rather than on a later submit, and passes the result back as `checked`.",
+      required: true,
+    },
+    "description": {
+      type: "string",
+      description: "An optional helper line under the label, for a sentence that says what the setting does or what turning it on will change. It is read to assistive technology as the switch's description rather than part of its name, so the name stays the label alone. Keep it to one plain sentence; a paragraph belongs above the control, not inside it.",
+      required: false,
+    },
+    "disabled": {
+      type: "boolean",
+      description: "Whether the switch cannot be changed. A disabled switch keeps its current position and its label so the reader can still see the setting and its state, drops the track to a quieter weight, and takes no focus and no key. Defaults to `false`.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root row. Width, margin and place in a layout belong here. A class you pass wins over the row's own where the two conflict, because it is merged last. It is the one route by which colour can reach the row, and the two-colour-axes rule applies to it in full: a switch takes neither a status nor a category tint.",
+      required: false,
+    },
+  },
+  "SymptomPickerProps": {
+    "label": {
+      type: "string",
+      description: "Required. The accessible name for the group, the question the list answers, applied as `aria-label` on the group so a screen-reader user hears what they are choosing from before its options. Name the question in the reader's own words, such as \"Which of these apply to you right now?\". There is no default, because a guessed name would describe the wrong thing on most screens.",
+      required: true,
+    },
+    "options": {
+      type: "SymptomOption[]",
+      description: "The options, in the order they appear, supplied by the product. Each is a value, a visible label and an optional `disabled` flag. opsinjs ships none of these: the list is the product's controlled vocabulary and the product owns it. An empty list renders nothing and warns in development.",
+      required: true,
+    },
+    "value": {
+      type: "string[]",
+      description: "The currently ticked values, one entry per chosen option. This is a controlled component with no selection state of its own, so the caller stores the array and passes it back. A value that matches no option is kept in the array untouched and named by a development warning, rather than being dropped silently.",
+      required: true,
+    },
+    "onValueChange": {
+      type: "(value: string[]) => void",
+      description: "Called with the new array of ticked values when the reader ticks or unticks a row. The caller stores it and passes it back as `value`.",
+      required: true,
+    },
+    "searchable": {
+      type: "boolean",
+      description: "Shows a filter input above the list that narrows the visible rows by a case-insensitive match on their label. It is a convenience over a long list and is kept separate from the selection: filtering hides no ticked value and changes nothing the caller holds. Defaults to `false`, where every option is always visible.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. Width, margin and place in a layout belong here. A class you pass wins over the root's own where the two conflict, because it is merged last. It is the one route by which colour can reach the picker, and the two-colour-axes rule applies to it in full: a symptom picker takes neither a status nor a category tint.",
+      required: false,
+    },
+  },
   "TabBarProps": {
     "items": {
       type: "TabBarItem[]",
@@ -1505,6 +2083,33 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: false,
     },
   },
+  "TabsProps": {
+    "items": {
+      type: "TabsItem[]",
+      description: "The tabs, in the order they appear. Two or more: a single tab is not a choice, and a set with none has nothing to draw. Each item is a value, a visible label, the panel it reveals, and an optional `disabled` flag. A count below two raises a development warning and still renders, so the mistake is visible rather than silent.",
+      required: true,
+    },
+    "value": {
+      type: "string",
+      description: "The value of the active tab, matching one item's `value`. This is a controlled component with no internal selection state, so a `value` that matches no item renders the row with no tab active, and a development warning names it.",
+      required: true,
+    },
+    "onValueChange": {
+      type: "(value: string) => void",
+      description: "Called with the new value when the reader chooses a different tab. The caller stores it and passes it back as `value`; the component keeps no state of its own.",
+      required: true,
+    },
+    "label": {
+      type: "string",
+      description: "Optional accessible name for the tab list, applied as `aria-label`. A tab list where every tab has a visible label reads without one, so this is not required, but naming what the tabs switch between, \"Reading detail\" rather than \"tabs\", helps a screen-reader user who lands on the list before its tabs. There is no default, because a guessed name would describe the wrong thing on most screens.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the root. Width, margin and place in a layout belong here. A class you pass wins over the root's own where the two conflict, because it is merged last.",
+      required: false,
+    },
+  },
   "TermGlossaryProviderProps": {
     "glossary": {
       type: "readonly GlossaryEntry[]",
@@ -1544,6 +2149,78 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
       required: false,
     },
   },
+  "TextareaProps": {
+    "value": {
+      type: "string",
+      description: "The current text, for a controlled box. Pass it with `onChange` and the caller owns the value; pass `defaultValue` instead and the box owns it. Passing both makes the box controlled and the default is ignored, which is the native element's own rule rather than one this component adds.",
+      required: false,
+    },
+    "defaultValue": {
+      type: "string",
+      description: "The starting text for an uncontrolled box, which then keeps its own value. Use this when the caller does not need every keystroke, only the final text read off the form on submit.",
+      required: false,
+    },
+    "onChange": {
+      type: "ChangeEventHandler<HTMLTextAreaElement>",
+      description: "Called on every edit with the change event, so the caller can store the new value and pass it back as `value`. Read the text from `event.target.value`. Omitted, the box is uncontrolled.",
+      required: false,
+    },
+    "onBlur": {
+      type: "FocusEventHandler<HTMLTextAreaElement>",
+      description: "Called when focus leaves the box, the natural moment to validate a note without nagging on every keystroke. Field owns the message; this is only the event.",
+      required: false,
+    },
+    "placeholder": {
+      type: "string",
+      description: "A short hint shown in the empty box, in the muted ink. It is not a label and never a substitute for one: it disappears the moment a reader types, so the name of the field has to live in a real label or `aria-label`. Use it for an example of the kind of thing to write, not for the question itself.",
+      required: false,
+    },
+    "rows": {
+      type: "number",
+      description: "The resting height in text rows. It sets how tall the empty box looks before anyone drags it; the reader can still resize it on the vertical axis, and the target floor keeps it tappable however short they make it. Defaults to three, enough to read as a place for a sentence or two rather than a single line.",
+      required: false,
+    },
+    "disabled": {
+      type: "boolean",
+      description: "Whether the box cannot be edited. A disabled box takes the muted surface and the not-allowed cursor, so it reads as unavailable while its text stays legible, rather than being faded with opacity. Defaults to `false`.",
+      required: false,
+    },
+    "required": {
+      type: "boolean",
+      description: "Whether the box must be filled before the form is submitted. It sets the native `required` attribute; the visible marking of an optional or required field, and the message when an empty box is submitted, are Field's to own.",
+      required: false,
+    },
+    "invalid": {
+      type: "boolean",
+      description: "Whether the current text has not passed validation. It sets `aria-invalid` and nothing on the colour axis: a form error is not a clinical status, so the border stays the neutral role and the message that says what to fix belongs to Field, in words rather than in a hue. Defaults to `false`.",
+      required: false,
+    },
+    "name": {
+      type: "string",
+      description: "The form field name, submitted with the text. It also serves, with `id`, as one of the signals that the box has been given an accessible name, so a named field does not raise the unlabelled warning.",
+      required: false,
+    },
+    "id": {
+      type: "string",
+      description: "The element id, the hook a real `<label htmlFor>` points at to name the box for assistive technology. Inside a Field the field supplies this; standalone it is one of the two honest ways to label the box, the other being `aria-label`.",
+      required: false,
+    },
+    "autoComplete": {
+      type: "string",
+      description: "The autofill token the browser may use to prefill the box, such as `\"off\"` for a note nobody should have suggested to them. It maps straight to the native `autocomplete` attribute.",
+      required: false,
+    },
+    "maxLength": {
+      type: "number",
+      description: "The most characters the box will accept. Pair it with a visible count near the box so a reader is not stopped mid-word by a limit they could not see coming, because the native attribute silently refuses the next keystroke.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the box. Width, margin and place in a layout belong here. It is also the one route by which colour can reach the box, and the two-colour-axes rule applies to it in full: a note field takes neither a status nor a category tint. A class you pass wins over the box's own where the two conflict, because it is merged last.",
+      required: false,
+    },
+  },
   "TimelineEntryProps": {
     "when": {
       type: "string",
@@ -1578,6 +2255,75 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     "className": {
       type: "string",
       description: "Merged onto the root list item with `tailwind-merge`, last, so a conflicting class passed here wins. The entry's own chrome is neutral by design; a class that tints it is the caller's decision and the two colour axes gate reads the component source rather than a caller override.",
+      required: false,
+    },
+  },
+  "ToastProps": {
+    "children": {
+      type: "ReactNode",
+      description: "What the toast system wraps. Anything rendered here sits inside the provider, so a child may call `Toast.useToastManager()` and push a toast from an event handler. This is not the toast: it is the screen the toast confirms an action on, and a toast is added imperatively rather than placed in this tree.",
+      required: true,
+    },
+    "position": {
+      type: "ToastPosition",
+      description: "Where the stack sits on the screen. Defaults to `bottom-right`, which keeps confirmations near a thumb and clear of the top of the screen where a product's own header and any standing message live. A toast enters from the edge it rests on.",
+      default: "\"bottom-right\"",
+      required: false,
+    },
+    "limit": {
+      type: "number",
+      description: "How many toasts show at once before the oldest are held back. Defaults to three, which is Base UI's own default and about as many as a reader can take in from a self-dismissing surface. A larger number does not make a stack of transient messages more readable; it makes more of them miss.",
+      default: "3",
+      required: false,
+    },
+    "timeout": {
+      type: "number",
+      description: "How long, in milliseconds, a toast stays before it dismisses itself. Defaults to five seconds. A value of `0` stops a toast dismissing on its own, which turns it into a standing surface. That is the shape this component is not for: a message that stays because the reader must act on it is an AlertBanner, and a standing explanation is a Callout. Passing `0` raises a development warning.",
+      default: "5000",
+      required: false,
+    },
+    "label": {
+      type: "string",
+      description: "The accessible name of the region the toasts render into, announced before a screen-reader user reaches the stack. It takes a prop, and defaults to English, for the reason the whole system gives about a reader-facing word: a product whose readers do not read English can translate it rather than shipping a region nobody can name.",
+      default: "\"Notifications\"",
+      required: false,
+    },
+    "closeLabel": {
+      type: "string",
+      description: "The accessible name of each toast's close control, which is one of the two reader-facing words this component owns. It exists so the word can be translated; the default is English, which is the residual gap listed on the page rather than described as solved.",
+      default: "\"Dismiss\"",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the viewport. The place the stack sits beyond its position, and a width other than the default measure, belong here. A class passed here wins over the viewport's own where the two conflict, because it is merged last, and the two-colour-axes rule applies to it in full: a toast takes neither a status nor a category tint.",
+      required: false,
+    },
+  },
+  "TooltipProps": {
+    "content": {
+      type: "ReactNode",
+      description: "The label the tooltip shows, and the whole of its content. Keep it to a phrase: a tooltip is a supplementary note, not a paragraph, and a long one is a block of text that belongs on the surface. It must be information a reader can do without, because a touch reader never sees it: a phone has no hover, so anything essential goes in the layout where every reader meets it. Required, because a tooltip with no content is a description that announces nothing.",
+      required: true,
+    },
+    "children": {
+      type: "ReactElement",
+      description: "The trigger, rendered in place rather than wrapped. Whatever element the caller passes becomes the control the tooltip is attached to, keeping its own role, its own focus ring and its own target floor. It must be focusable, because focus is the only way a keyboard reader reaches the tooltip: pass a button, a link or another control, never a bare span of text. An icon-only trigger still needs its own accessible name through `aria-label`, because the tooltip is a description and not a name.",
+      required: true,
+    },
+    "side": {
+      type: "\"top\" | \"bottom\" | \"left\" | \"right\"",
+      description: "Which edge of the trigger the popup prefers. Base UI flips to the opposite edge when the preferred one would push the popup off screen, so this is a preference rather than a guarantee. Defaults to `top`, which is the edge least likely to sit under a thumb reaching for the control.",
+      required: false,
+    },
+    "delay": {
+      type: "number",
+      description: "How long the pointer must rest on the trigger before the tooltip opens, in milliseconds. It does not delay the keyboard, where focus opens the tooltip at once, because a reader who has deliberately moved focus to a control is not resting a pointer by accident. Defaults to 600, which is long enough that a pointer passing across the control does not flash the label.",
+      required: false,
+    },
+    "className": {
+      type: "string",
+      description: "Merged onto the popup surface. Placement offsets, a wider measure and the space around the label belong here. It is the one route by which colour can reach the popup, and the two-colour-axes rule applies to it in full: a tooltip takes neither a status nor a category tint. A class you pass wins over the surface's own where the two conflict, because it is merged last.",
       required: false,
     },
   },
@@ -1701,8 +2447,10 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
 
 /** Interface name to the file it is exported from, relative to apps/www. */
 export const PROPS_SOURCES: Record<string, string> = {
+  "AccordionProps": "registry/bases/base/accordion.tsx",
   "AlertBannerProps": "registry/bases/base/alert-banner.tsx",
   "AvatarProps": "registry/bases/base/avatar.tsx",
+  "BadgeProps": "registry/bases/base/badge.tsx",
   "BodyMapProps": "registry/bases/base/body-map.tsx",
   "ButtonProps": "registry/bases/base/button.tsx",
   "CalloutProps": "registry/bases/base/callout.tsx",
@@ -1711,43 +2459,64 @@ export const PROPS_SOURCES: Record<string, string> = {
   "CardHeaderProps": "registry/bases/base/card.tsx",
   "CardProps": "registry/bases/base/card.tsx",
   "CareCardProps": "registry/bases/base/care-card.tsx",
+  "CheckboxProps": "registry/bases/base/checkbox.tsx",
+  "ComboboxProps": "registry/bases/base/combobox.tsx",
   "ConsentSheetProps": "registry/bases/base/consent-sheet.tsx",
   "DialogProps": "registry/bases/base/dialog.tsx",
   "DisclaimerNoteProps": "registry/bases/base/disclaimer-note.tsx",
   "DividerProps": "registry/bases/base/divider.tsx",
+  "DoseTrackerProps": "registry/bases/base/dose-tracker.tsx",
   "EmptyStateProps": "registry/bases/base/empty-state.tsx",
   "FieldControlProps": "registry/bases/base/field.tsx",
   "FieldProps": "registry/bases/base/field.tsx",
+  "GoalRingProps": "registry/bases/base/goal-ring.tsx",
   "IconButtonProps": "registry/bases/base/icon-button.tsx",
   "LinkProps": "registry/bases/base/link.tsx",
   "LogSheetProps": "registry/bases/base/log-sheet.tsx",
+  "MenuProps": "registry/bases/base/menu.tsx",
   "MetricTileProps": "registry/bases/base/metric-tile.tsx",
+  "NumberFieldProps": "registry/bases/base/number-field.tsx",
+  "PopoverProps": "registry/bases/base/popover.tsx",
+  "ProgressProps": "registry/bases/base/progress.tsx",
+  "QuestionnaireProps": "registry/bases/base/questionnaire.tsx",
+  "RadioGroupProps": "registry/bases/base/radio-group.tsx",
   "RangeBarProps": "registry/bases/base/range-bar.tsx",
   "RangeLegendProps": "registry/bases/base/range-legend.tsx",
   "ReadingInputProps": "registry/bases/base/reading-input.tsx",
   "RelativeTimeProps": "registry/bases/base/relative-time.tsx",
   "ResultCardProps": "registry/bases/base/result-card.tsx",
+  "ScaleInputProps": "registry/bases/base/scale-input.tsx",
   "ScoreDialProps": "registry/bases/base/score-dial.tsx",
+  "ScrollAreaProps": "registry/bases/base/scroll-area.tsx",
   "SegmentedControlProps": "registry/bases/base/segmented-control.tsx",
+  "SelectProps": "registry/bases/base/select.tsx",
   "SheetContentProps": "registry/bases/base/sheet.tsx",
   "SheetDescriptionProps": "registry/bases/base/sheet.tsx",
   "SheetProps": "registry/bases/base/sheet.tsx",
   "SkeletonProps": "registry/bases/base/skeleton.tsx",
+  "SliderProps": "registry/bases/base/slider.tsx",
   "SourceCitationProps": "registry/bases/base/source-citation.tsx",
+  "SpinnerProps": "registry/bases/base/spinner.tsx",
   "StatusPillProps": "registry/bases/base/status-pill.tsx",
   "StepperProps": "registry/bases/base/stepper.tsx",
   "SurfaceProps": "registry/bases/base/surface.tsx",
+  "SwitchProps": "registry/bases/base/switch.tsx",
+  "SymptomPickerProps": "registry/bases/base/symptom-picker.tsx",
   "TabBarProps": "registry/bases/base/tab-bar.tsx",
   "TableProps": "registry/bases/base/table.tsx",
+  "TabsProps": "registry/bases/base/tabs.tsx",
   "TermGlossaryProviderProps": "registry/bases/base/term.tsx",
   "TermProps": "registry/bases/base/term.tsx",
+  "TextareaProps": "registry/bases/base/textarea.tsx",
   "TimelineEntryProps": "registry/bases/base/timeline-entry.tsx",
+  "ToastProps": "registry/bases/base/toast.tsx",
+  "TooltipProps": "registry/bases/base/tooltip.tsx",
   "TrendSparklineProps": "registry/bases/base/trend-sparkline.tsx",
   "ValueProps": "registry/bases/base/value.tsx",
   "VisuallyHiddenProps": "registry/bases/base/visually-hidden.tsx",
 }
 
 export const PROPS_META: { interfaces: number; props: number } = {
-  interfaces: 44,
-  props: 311,
+  interfaces: 67,
+  props: 450,
 }
