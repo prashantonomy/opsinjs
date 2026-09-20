@@ -628,19 +628,6 @@ lint rule is the only real gate on a `<Term id>` that names a `plain-only` entry
 the component can only render the sentence the call site wrote and warn that the entry says
 its clinical word should not reach a reader, and that rule does not exist either.
 
-## Cost
-
-No bundle size has been measured for Term, so nothing is printed here. The figure comes from a
-real build weighing the code that actually ships, none has been taken, and inventing a number to
-fill the heading is exactly what the honesty rules forbid. Bundle cost is a stable-phase gate
-rather than a beta one, so it is measured once the shipping build is the one being weighed and
-not before. When it is taken it will not be a pure formatter's figure: Term carries a
-`"use client"` boundary over the whole file, including the inline presentation that does not need
-one, and that cost is described in the anatomy and will become a real number here only when a
-build produces it.
-
-<BundleSize name="term" />
-
 ## Related
 
 <RelatedComponents name="term" />

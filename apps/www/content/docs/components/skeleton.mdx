@@ -504,18 +504,6 @@ stylesheet this component carries. That sheet ships on every instance rather tha
 `href`, so a screen full of skeletons still carries it once. See
 [Server and client components](../handbook/server-and-client-components.mdx).
 
-## Cost
-
-<BundleSize name="skeleton" />
-
-No size has been measured, so none is shown, and inventing one is out of the question.
-Bundle cost is read from a real build, it is a stable-phase gate rather than a beta one, and
-none has been taken for this component. Skeleton being a server component with no client
-runtime of its own does not excuse the figure: the shipped stylesheet, the shape map and the
-line-count repair still ship as source and still have a real, unmeasured size, and a caller
-composing many skeletons on one screen pays for the stylesheet once rather than once per
-instance, which a bundle figure would need to say rather than assume.
-
 ## Related
 
 <RelatedComponents name="skeleton" />

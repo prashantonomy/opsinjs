@@ -80,7 +80,6 @@ shared substrate a copied component carries with it is listed under
 | --- | --- | --- | --- |
 | `absoluteUrl` | function | `lib/routes.ts` | Turn a root-relative path into a full URL on the canonical origin. |
 | `accessibilityPath` | function | `lib/routes.ts` | - |
-| `accessibilitySectionFor` | function | `lib/status.ts` | The H2 that carries a component's accessibility contract. |
 | `agentRoutes` | const | `lib/routes.ts` | - |
 | `aliasesFor` | function | `lib/catalogue.ts` | The exact array a page's `aliases` frontmatter must contain. |
 | `aliasIndex` | function | `lib/catalogue.ts` | alias → the id or page it resolves to. |
@@ -114,9 +113,11 @@ shared substrate a copied component carries with it is listed under
 | `cn` | function | `lib/utils.ts` | Join and de-duplicate class names, resolving Tailwind conflicts last-wins. |
 | `COLLAPSE_THRESHOLD` | const | `lib/color/cvd.ts` | The minimum Lc at which two swatches shown side by side are still telling two different colours apart. |
 | [`ColorInput`](../api/ColorInput.mdx) | type | `lib/color/apca.ts` | Anything the contrast functions accept: an sRGB triple, an OKLCH object, or a CSS colour string (`#0b6bcb`, `oklch(0.62 0.17 15)`, `rgb(11 107 203)`). |
+| `COMPONENT_OPTIONAL_SECTIONS` | const | `lib/status.ts` | The sections a shipped component page may leave out. |
 | `COMPONENT_SECTIONS_BY_STATUS` | const | `lib/status.ts` | THE COMPONENT PAGE ANATOMY, status-gated. |
 | `componentPath` | function | `lib/routes.ts` | A component specification page, by catalogue id. |
-| `componentSections` | function | `lib/status.ts` | The sections required for a component page at a given status and category. |
+| `componentRequiredSections` | function | `lib/status.ts` | The sections a component page at this status and category must actually carry: the outline above with the optional five taken out. |
+| `componentSections` | function | `lib/status.ts` | The full ordered outline for a component page at a given status and category: the canonical order, and the set of headings the page is allowed to carry. |
 | `compositeOver` | function | `lib/color/oklch.ts` | Composite a translucent `foreground` at `alpha` over an opaque `backdrop`, source-over, and return the opaque colour a reader actually sees. |
 | `CONTRAST_USE_LABELS` | const | `lib/color/apca.ts` | - |
 | [`ContrastCheck`](../api/ContrastCheck.mdx) | interface | `lib/color/derive.ts` | - |

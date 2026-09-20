@@ -77,7 +77,7 @@ import { fileURLToPath, pathToFileURL } from "node:url"
    `registry/catalogue.ts` imports the same module the same way, in its
    `import type { HealthCategory, Status } from "../lib/status.ts"`. */
 import {
-  accessibilitySectionFor,
+  COMPONENT_OPTIONAL_SECTIONS,
   componentSections,
   isStatus,
   SECTION_OUTLINES,
@@ -793,15 +793,30 @@ const OUTLINE_POLICY: Record<string, "exact" | "fixed" | "header" | "free"> = {
 }
 
 /**
- * H2s that are conditional rather than required. "Clinical meaning" is present
- * if and only if the component's category begins with `health-`, and the
- * anatomy contract enforces both directions.
+ * H2s a page may leave out. Everything else its outline names is required.
  *
- * `component` is deliberately absent: `componentSections(status, category)`
- * already drops "Clinical meaning" for a non-`health-` category, and OUT010
- * below is what reports the two directions with a message worth reading.
+ * A conditional heading is still ordered and still allowed: it keeps its place
+ * in the outline, so OUT002 and OUT003 go on reading `outline` and only OUT001
+ * reads this. That is the whole of the required-plus-optional split on this
+ * side, and it is why the five component sections here needed one assignment
+ * rather than a second outline table.
+ *
+ * The component list is imported rather than retyped. `<PageTemplate>` reads
+ * the same array at render time, and two enforcers that disagree about which
+ * heading may be missing produce a page nobody can write: this script would
+ * pass it and `next build` would throw on it.
+ *
+ * "Clinical meaning" is not here, although it too can be absent. It is
+ * conditional on the component's category rather than on the author's
+ * judgement, `componentSections(status, category)` has already dropped it for a
+ * non-`health-` category by the time this set is read, and OUT010 below is what
+ * reports both directions with a message worth reading. Listing it here would
+ * make it merely optional on a health component, which is the opposite of the
+ * rule.
  */
-const CONDITIONAL_HEADINGS: Record<string, string[]> = {}
+const CONDITIONAL_HEADINGS: Record<string, string[]> = {
+  component: [...COMPONENT_OPTIONAL_SECTIONS],
+}
 
 /**
  * Kinds whose template contains placeholder headings, where only a named subset
@@ -1131,7 +1146,7 @@ function checkFrontmatter(
  * Headings that are legitimately written two ways.
  *
  * This table is a deliberate copy of the one in
- * `components/docs/page-template.tsx:74-81`, and the two must stay identical:
+ * `components/docs/page-template.tsx`, and the two must stay identical:
  * that file runs during `next build` and throws, this one runs in `pnpm check`
  * and can name a line. A page that satisfies one and fails the other is a page
  * nobody can write. The table cannot be shared through `lib/status.ts` without
@@ -1140,9 +1155,6 @@ function checkFrontmatter(
  */
 const HEADING_ALIASES: Record<string, string[]> = {
   "when to use it": ["when to use"],
-  accessibility: ["accessibility requirements"],
-  "accessibility requirements": ["accessibility"],
-  "research and rationale": ["research & rationale", "research"],
   "approved / rejected": ["approved and rejected"],
   "why (evidence)": ["why"],
 }
@@ -1223,10 +1235,16 @@ function checkOutline(
   /* THE OUTLINE. For every kind but `component` it is the template's H2 list.
      For `component` it is status-gated and comes from the same table
      <PageTemplate> throws on, because a component page's outline is a function
-     of its release phase: `planned` has "Proposed API" and "Accessibility
-     requirements", `alpha` replaces them with "Usage", "Examples", "API
-     reference" and "Accessibility". A single template cannot express that, and
-     a page cannot satisfy two enforcers that disagree about it. */
+     of its release phase: `planned` has "Proposed API" and no "Usage",
+     "Examples" or "API reference", because there is nothing yet to use, show or
+     document. A single template cannot express that, and a page cannot satisfy
+     two enforcers that disagree about it.
+
+     What the outline is NOT is the list of headings the page must carry. Five
+     of a shipped component's sections are in CONDITIONAL_HEADINGS above and may
+     be left out; the outline still fixes where they go if they are there. So
+     OUT001 below runs on the outline minus the conditional set, while OUT002
+     and OUT003 run on the whole outline. */
   let outline: string[] | undefined
   let outlineSource: string
   if (kind === "component") {
@@ -1269,13 +1287,19 @@ function checkOutline(
   }
 
   /* Heading aliases, mirroring <PageTemplate>. Two enforcers that disagree
-     about whether "## Accessibility" and "## Accessibility requirements" are
-     the same section produce a page nobody can write: this script would demand
-     one spelling and `next build` would throw on the other. So a component
-     page's headings are folded onto their canonical section name here, and
-     every check below runs on the folded list. Nothing is loosened - the
-     canonical section must still be present, in the right place, and a heading
-     that folds onto nothing is still OUT002.
+     about whether two spellings are the same section produce a page nobody can
+     write: this script would demand one and `next build` would throw on the
+     other. So a component page's headings are folded onto their canonical
+     section name here, and every check below runs on the folded list. Nothing
+     is loosened - the canonical section must still be present, in the right
+     place, and a heading that folds onto nothing is still OUT002.
+
+     The accessibility section used to need folding of its own, because it was
+     spelled "Accessibility requirements" at `planned` and "Accessibility"
+     afterwards. It is now spelled "Accessibility" at every status, which is
+     also why rule code OUT013 no longer exists. That code is retired and is
+     not to be reused: a code that turns up in a commit message, a review
+     comment or a contributor's notes has to keep meaning what it meant.
 
      Only `component` is folded. The other eleven kinds keep the byte-exact
      matching they have always had. */
@@ -1285,13 +1309,6 @@ function checkOutline(
       for (const candidate of headingCandidates(section))
         canonicalOf.set(candidate, section)
     }
-    /* Both spellings of section 14 resolve at every status; the canonical one
-       for THIS status is the one the outline already asked for. */
-    const a11y = normaliseHeading(accessibilitySectionFor(status as Status))
-    const a11ySection = outline.find((section) =>
-      headingCandidates(section).includes(a11y)
-    )
-    if (a11ySection) canonicalOf.set(a11y, a11ySection)
   }
   const folded =
     kind === "component"
@@ -1301,31 +1318,6 @@ function checkOutline(
       : present
   const foldedSet = new Set(folded)
 
-  /* OUT013 - section 14 is spelled by its status, and only by its status.
-     Folding the two spellings above is what stops a page failing OUT001 and
-     OUT002 for one heading, but it must not make the spelling optional: the
-     section is "Accessibility requirements" at `planned`, because at that
-     status it is a bar the implementation has to clear, and "Accessibility"
-     from `alpha` onwards, when there is something measured to report. That
-     distinction is the whole reason `accessibilitySectionFor()` exists, and
-     <PageTemplate> cannot enforce it - it accepts either spelling at every
-     status by design, because a runtime throw is the wrong place to argue
-     about a word. This is the right place. */
-  if (kind === "component") {
-    const canonicalA11y = accessibilitySectionFor(status as Status)
-    const spellings = headingCandidates(canonicalA11y)
-    for (const heading of present) {
-      const key = normaliseHeading(heading)
-      if (!spellings.includes(key)) continue
-      if (key === normaliseHeading(canonicalA11y)) continue
-      fail(
-        "OUT013",
-        file,
-        `"## ${heading}" carries this component's accessibility contract, but at status: ${status} that section is spelled "## ${canonicalA11y}". accessibilitySectionFor() in lib/status.ts owns the name - "Accessibility requirements" at planned, "Accessibility" from alpha onwards - because at planned it is a bar to clear and afterwards it is a result to report.`
-      )
-    }
-  }
-
   const required =
     REQUIRED_HEADINGS[kind] ??
     outline.filter((heading) => !conditional.has(heading))
@@ -1334,7 +1326,9 @@ function checkOutline(
       fail(
         "OUT001",
         file,
-        `missing "## ${heading}". The outline for kind: ${kind} is fixed - see ${outlineSource}.`
+        kind === "component"
+          ? `missing "## ${heading}". It is required for a component at status: ${status}, and only ${[...conditional].map((section) => `"${section}"`).join(", ")} may be left out - see ${outlineSource}. Write the section, or, if there is genuinely nothing to say yet, say that in prose under the heading rather than dropping it.`
+          : `missing "## ${heading}". The outline for kind: ${kind} is fixed - see ${outlineSource}.`
       )
     }
   }
@@ -1351,15 +1345,18 @@ function checkOutline(
           "OUT002",
           file,
           kind === "component"
-            ? `"## ${heading}" is not part of the outline for a component at status: ${status}. The outline is ${outline.map((section) => `"${section}"`).join(" -> ")}. Use an H3 inside an existing section, or move the page to the status whose outline has it.`
+            ? `"## ${heading}" is not part of the outline for a component at status: ${status}. The outline is ${outline.map((section) => (conditional.has(section) ? `"${section}" (optional)` : `"${section}"`)).join(" -> ")}. Optional sections may be omitted; this one is not in the outline at all. Use an H3 inside an existing section, or move the page to the status whose outline has it.`
             : `"## ${heading}" is not part of the outline for kind: ${kind}. Use an H3 inside an existing section, or change the page's kind.`
         )
       }
     }
   }
 
-  /* Order. Only the headings the contract names are ordered; a guide's own task
-     sections may appear between them. */
+  /* Order, as a subsequence rather than an equality. `expected` is the outline
+     narrowed to the sections this page actually carries, so leaving out an
+     optional one is not an ordering defect; what is present still has to run in
+     outline order. Only the headings the contract names are ordered either way,
+     so a guide's own task sections may appear between them. */
   const ordering = REQUIRED_HEADINGS[kind] ?? outline
   const ordered = folded.filter((heading) => ordering.includes(heading))
   const expected = ordering.filter((heading) => foldedSet.has(heading))

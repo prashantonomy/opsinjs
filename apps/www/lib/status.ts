@@ -476,17 +476,59 @@ export const OUTLINE_IS_EXACT: Record<Exclude<Kind, "component">, boolean> = {
 }
 
 /**
+ * The outline every shipped component page is held to. `alpha`, `beta`,
+ * `stable` and `deprecated` all point at this one array on purpose. They named
+ * different outlines once, which is why a page could not change release phase
+ * without a content edit, and that coupling is what this array removes: a page
+ * that satisfies this outline satisfies it at every one of those phases, so
+ * moving a page between them is a frontmatter change and nothing else.
+ */
+const SHIPPED_SECTIONS: string[] = [
+  "Status",
+  "Preview",
+  "Installation",
+  "Usage",
+  "When to use it",
+  "Clinical meaning",
+  "Anatomy",
+  "Examples",
+  "States",
+  "Content guidelines",
+  "Motion",
+  "Accessibility",
+  "Data attributes",
+  "CSS variables",
+  "Tokens",
+  "API reference",
+  "Related",
+]
+
+/**
  * THE COMPONENT PAGE ANATOMY, status-gated.
  *
- * Sections 1 (header) and 22 (footer) are generated from frontmatter and never
- * appear as an H2, so they are not listed. Everything else is, in page order.
+ * The page header and the page footer are generated from frontmatter and never
+ * appear as an H2, so neither is listed here. Everything a reader scrolls past
+ * is, in page order.
  *
- * At each status the listed sections are the WHOLE page. The others are
- * omitted, not left empty. A heading with nothing under it is worse than an
- * absent heading, and `<PageTemplate kind="component">` fails the build either
- * way. `## Clinical meaning` is included here but is mandatory only for a
- * `health-*` category and forbidden outside one; `assert-ia.mts` checks both
- * directions, which is why it is listed separately below.
+ * This array is the ORDER and the ALLOWED SET, not the required set. A page may
+ * leave out any section named in `COMPONENT_OPTIONAL_SECTIONS` below, and
+ * `componentRequiredSections()` is the list that must actually be present. What
+ * is present has to appear in the order given here, as a subsequence: sections
+ * may be skipped, never reshuffled. A heading with nothing under it is worse
+ * than an absent heading, and both enforcers fail the build on an empty one.
+ *
+ * `## Clinical meaning` is listed here but is mandatory only for a `health-*`
+ * category and forbidden outside one, which is a category gate rather than an
+ * omission the author chooses; `CATEGORY_GATED_SECTIONS` below is the rule and
+ * `assert-ia.mts` checks both directions.
+ *
+ * `## Accessibility` is spelled that way at every status, and the section
+ * changes meaning rather than name: at `planned` it is the bar the
+ * implementation has to clear, and once the component ships it is the set of
+ * results being reported. One spelling, because a reader scanning a page for
+ * the accessibility contract should not have to know the release phase before
+ * they know what to look for, and because two spellings gave every enforcer an
+ * alias table to keep in step.
  *
  * `considered` is the short one, and it is a real outline rather than an empty
  * list. Those pages are not authored: `emitConsideredStub()` in
@@ -508,83 +550,48 @@ export const COMPONENT_SECTIONS_BY_STATUS: Record<Status, string[]> = {
     "Anatomy",
     "Proposed API",
     "Content guidelines",
-    "Accessibility requirements",
-    "Related",
-  ],
-  alpha: [
-    "Status",
-    "Preview",
-    "Installation",
-    "Usage",
-    "When to use it",
-    "Clinical meaning",
-    "Anatomy",
-    "Examples",
-    "Content guidelines",
     "Accessibility",
-    "API reference",
     "Related",
   ],
-  beta: [
-    "Status",
-    "Preview",
-    "Installation",
-    "Usage",
-    "When to use it",
-    "Clinical meaning",
-    "Anatomy",
-    "Examples",
-    "States",
-    "Content guidelines",
-    "Motion",
-    "Accessibility",
-    "Data attributes",
-    "CSS variables",
-    "Tokens",
-    "API reference",
-    "Cost",
-    "Related",
-  ],
-  stable: [
-    "Status",
-    "Preview",
-    "Installation",
-    "Usage",
-    "When to use it",
-    "Clinical meaning",
-    "Anatomy",
-    "Examples",
-    "States",
-    "Content guidelines",
-    "Motion",
-    "Accessibility",
-    "Data attributes",
-    "CSS variables",
-    "Tokens",
-    "API reference",
-    "Cost",
-    "Related",
-    "Research and rationale",
-  ],
-  deprecated: [
-    "Status",
-    "Preview",
-    "Installation",
-    "Usage",
-    "When to use it",
-    "Clinical meaning",
-    "Anatomy",
-    "Content guidelines",
-    "Accessibility",
-    "API reference",
-    "Related",
-  ],
+  alpha: SHIPPED_SECTIONS,
+  beta: SHIPPED_SECTIONS,
+  stable: SHIPPED_SECTIONS,
+  deprecated: SHIPPED_SECTIONS,
   considered: [
     "What this name refers to",
     "Why it is not on the roster",
     "What to use instead",
   ],
 }
+
+/**
+ * The sections a shipped component page may leave out.
+ *
+ * Write one where the answer has been worked out and leave it out where it has
+ * not. Omitting one is not a defect. Inventing content for one is: a `## Motion`
+ * section that says motion has not been specified teaches a reader nothing that
+ * its absence did not already tell them, and a `## Tokens` table nobody filled
+ * in is a claim the component consumes tokens somebody chose. Five headings is
+ * also the whole difference between the shortest component page in the corpus
+ * and the longest, so making them optional is what lets both sit at the same
+ * release phase without either being rewritten.
+ *
+ * This is the only list. `scripts/assert-ia.mts` reads it as its
+ * `CONDITIONAL_HEADINGS.component` and `components/docs/page-template.tsx` reads
+ * it at render time, so the build-time and runtime enforcers cannot disagree
+ * about which headings are allowed to be missing. There is no `planned`
+ * equivalent: that outline is ten sections and every one of them is required.
+ *
+ * A section here is optional, not unordered. It still has to appear in its
+ * `COMPONENT_SECTIONS_BY_STATUS` position when it appears at all.
+ */
+export const COMPONENT_OPTIONAL_SECTIONS: readonly string[] = [
+  "States",
+  "Motion",
+  "Data attributes",
+  "CSS variables",
+  "Tokens",
+]
 
 /**
  * Sections whose presence depends on the component's category rather than on
@@ -597,17 +604,11 @@ export const CATEGORY_GATED_SECTIONS: {
 }[] = [{ section: "Clinical meaning", requiredForCategoryPrefix: "health-" }]
 
 /**
- * The H2 that carries a component's accessibility contract. It is named
- * "Accessibility requirements" at `planned`, because at that status it is a bar
- * the implementation must clear rather than a set of results, and
- * "Accessibility" from `alpha` onwards, when there is something to measure.
- * Mandatory at every status; never delegated upstream.
+ * The full ordered outline for a component page at a given status and category:
+ * the canonical order, and the set of headings the page is allowed to carry.
+ * Some of what comes back is optional, so do not use this as the missing-heading
+ * check. `componentRequiredSections()` is that.
  */
-export function accessibilitySectionFor(status: Status): string {
-  return status === "planned" ? "Accessibility requirements" : "Accessibility"
-}
-
-/** The sections required for a component page at a given status and category. */
 export function componentSections(status: Status, category: string): string[] {
   const base = COMPONENT_SECTIONS_BY_STATUS[status]
   return base.filter((section) => {
@@ -615,4 +616,20 @@ export function componentSections(status: Status, category: string): string[] {
     if (!gate) return true
     return category.startsWith(gate.requiredForCategoryPrefix)
   })
+}
+
+/**
+ * The sections a component page at this status and category must actually
+ * carry: the outline above with the optional five taken out. This is what an
+ * enforcer reports as missing, and it is deliberately a filter over
+ * `componentSections()` rather than a second hand-written table, so the two can
+ * never name a heading the other does not.
+ */
+export function componentRequiredSections(
+  status: Status,
+  category: string
+): string[] {
+  return componentSections(status, category).filter(
+    (section) => !COMPONENT_OPTIONAL_SECTIONS.includes(section)
+  )
 }

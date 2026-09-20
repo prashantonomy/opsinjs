@@ -932,18 +932,6 @@ Render it inside `Sheet.Content`, as the demo above does, and the popup gains an
 the dialog. There is at most one, and when the caller renders none the popup carries no
 `aria-describedby` at all, which is the honest absence the Accessibility section describes.
 
-## Cost
-
-<BundleSize name="sheet" />
-
-Bundle cost is measured from a real build, and no build has measured this component yet.
-Measuring it is a stable-phase gate rather than a beta one, so the table above is the honest
-answer today: no figure, and a script named beside it rather than a number typed by hand. Sheet
-pulls in `@base-ui/react`'s drawer module for the whole of its behaviour and `lucide-react` for
-the close glyph, and both travel with every consumer regardless of how many detents a product
-configures or whether it is ever dragged. Inventing a figure here would be a number nobody
-measured standing in for one that was, which is exactly what this table exists to refuse.
-
 ## Related
 
 <RelatedComponents name="sheet" />

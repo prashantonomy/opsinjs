@@ -866,22 +866,6 @@ that matters here is handled inside the component, and the Escape refusal is the
 of it. A second parameter that only sometimes matters is a second parameter people copy
 without reading.
 
-## Cost
-
-No bundle size has been measured for this component. A real figure comes out of a
-production build, none has been taken, and inventing one is forbidden, which is exactly
-what this section exists to prevent; bundle cost is a stable-phase gate rather than a
-beta one, so the figure below stays absent until a build produces it. What can be said
-without a measurement is the shape of the cost: Dialog carries `"use client"`, so
-importing it puts a client boundary on the page that renders it, and it composes
-[Surface](./surface.mdx) and [Button](./button.mdx) while importing `@base-ui/react`'s
-`Dialog` and `AlertDialog` primitives together with `lucide-react`'s close glyph. A
-project that already installs Surface and Button for another component adds the dialog
-contract and those two dependencies, though how much that is stays unmeasured until a
-build reports it.
-
-<BundleSize name="dialog" />
-
 ## Related
 
 <RelatedComponents name="dialog" />

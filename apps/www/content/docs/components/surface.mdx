@@ -648,18 +648,6 @@ the wrong depth is the failure the whole renaming exists to prevent, and it is i
 The children are still rendered, because Surface is a wrapper and dropping it would take a
 reader's own data off the screen in order to report a styling mistake.
 
-## Cost
-
-<BundleSize name="surface" />
-
-No size has been measured yet. Bundle cost comes from a real build of the registry item,
-not an estimate, and [the release phases](../project/release-phases.mdx) make that
-measurement a `stable` gate rather than a `beta` one, so its absence here is not a gap this
-promotion is meant to close. Surface has no runtime dependency of its own, only `cn` and
-the `MaterialRung` type, both of which travel with every registry item, so whatever figure
-eventually lands here is close to the floor a zero-dependency server component can reach.
-Inventing a figure ahead of that measurement would be worse than leaving it unmeasured.
-
 ## Related
 
 <RelatedComponents name="surface" />

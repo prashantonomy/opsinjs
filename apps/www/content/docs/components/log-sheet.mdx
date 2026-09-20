@@ -740,20 +740,6 @@ not afterwards told that it holds input nobody has saved.
 There is no `fields` prop, no `values` schema, no `saveOnEnter`, and no way to make the save
 action anything other than the last thing in the tab order.
 
-## Cost
-
-No bundle size has been measured for this component. A real figure comes from a production build,
-none has been taken, and inventing one is forbidden, which is exactly what this section exists to
-prevent. Bundle cost is a stable-phase gate rather than a beta one, so the figure below stays
-absent until a build produces it. What can be said without a measurement is the shape of the
-cost: LogSheet carries `"use client"`, so importing it forces a client boundary on the page that
-renders it, and it composes [Sheet](./sheet.mdx), [Field](./field.mdx) and [Button](./button.mdx)
-while importing no npm package of its own, so a project that already installs those three adds the
-capture contract and little else, though how much that is stays unmeasured until a build reports
-it.
-
-<BundleSize name="log-sheet" />
-
 ## Related
 
 <RelatedComponents name="log-sheet" />

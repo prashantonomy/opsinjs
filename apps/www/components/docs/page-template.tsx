@@ -2,7 +2,8 @@ import { isValidElement, type ReactNode } from "react"
 import type { TOCItemType } from "fumadocs-core/toc"
 
 import {
-  accessibilitySectionFor,
+  COMPONENT_OPTIONAL_SECTIONS,
+  componentRequiredSections,
   componentSections,
   OUTLINE_IS_EXACT,
   SECTION_OUTLINES,
@@ -67,15 +68,12 @@ interface Problem {
 }
 
 /**
- * Headings that are legitimately written two ways. "Research and rationale" and
- * "Research & rationale" are the same section; failing a build over an
- * ampersand teaches authors to fight the tool instead of using it.
+ * Headings that are legitimately written two ways. "Approved / Rejected" and
+ * "Approved and rejected" are the same section; failing a build over a
+ * conjunction teaches authors to fight the tool instead of using it.
  */
 const ALIASES: Record<string, string[]> = {
   "when to use it": ["when to use"],
-  accessibility: ["accessibility requirements"],
-  "accessibility requirements": ["accessibility"],
-  "research and rationale": ["research & rationale", "research"],
   "approved / rejected": ["approved and rejected"],
   "why (evidence)": ["why"],
 }
@@ -157,8 +155,26 @@ export function PageTemplate({
       ? componentSections(status, categoryKnown ? category : "health-")
       : SECTION_OUTLINES[kind]
 
+  /* Sections this page may leave out. Two different reasons land in one set,
+     and the set is only ever read by the missing-heading loop below, so a
+     section in it is still ordered and still allowed.
+
+     COMPONENT_OPTIONAL_SECTIONS is the authored choice: five sections a shipped
+     component writes where the answer has been worked out and omits where it
+     has not. assert-ia.mts reads the same array as its CONDITIONAL_HEADINGS, so
+     a page cannot pass one enforcer and fail the other.
+
+     "Clinical meaning" is here for the other reason: it is mandatory on a
+     `health-` component and forbidden elsewhere, and with no category prop we
+     cannot tell which. Failing a page for a heading whose requirement we cannot
+     see would make the absent prop the defect. assert-ia.mts reads the
+     frontmatter directly and has no such blind spot, so nothing goes
+     unchecked. */
   const optional = new Set<string>()
-  if (kind === "component" && !categoryKnown) optional.add("Clinical meaning")
+  if (kind === "component") {
+    for (const section of COMPONENT_OPTIONAL_SECTIONS) optional.add(section)
+    if (!categoryKnown) optional.add("Clinical meaning")
+  }
 
   const headings = (toc ?? [])
     .filter((item) => item.depth === 2)
@@ -168,22 +184,12 @@ export function PageTemplate({
   /**
    * Whether an H2 the outline does not name is a problem.
    *
-   * `component` is exact unless the outline is EMPTY. `componentSections()`
-   * returns `[]` at `considered` (ADR 0008: those pages are generated and thin
-   * by design), and an empty allowed-set makes every heading UNEXPECTED, which
-   * put a developer error dump naming repo paths above the fold on all 36 of
-   * them in production. An empty outline is the absence of a contract, not a
-   * contract that forbids everything.
-   *
-   * Nothing is unguarded by this. assert-ia.mts checks `considered` pages
-   * against CONSIDERED_COMPONENT_HEADINGS in both directions, before it
-   * resolves an outline at all, precisely because `componentSections()` returns
-   * `[]`. The comment in assert-ia.mts calls that branch "the same gate on the
-   * authoring side". The fix belongs here rather than in lib/status.ts: giving
-   * `considered` a non-empty outline there would collide with that gate.
+   * `component` is always exact. Every status resolves to a non-empty outline,
+   * so the allowed set is never empty, and a heading outside it is an invention
+   * rather than a section. This does not make the outline a checklist: the five
+   * sections in `optional` above are inside the allowed set and may be absent.
    */
-  const exact =
-    kind === "component" ? expected.length > 0 : OUTLINE_IS_EXACT[kind]
+  const exact = kind === "component" ? true : OUTLINE_IS_EXACT[kind]
 
   const problems: Problem[] = []
 
@@ -244,9 +250,6 @@ export function PageTemplate({
     if (exact) {
       const allowed = new Set(expected.flatMap(candidatesFor))
       if (kind === "component") {
-        // Both spellings of section 14 are allowed at any status; the canonical
-        // one for this status is what assert-ia asks for.
-        allowed.add(normalize(accessibilitySectionFor(status)))
         allowed.add("clinical meaning")
       }
       for (const heading of present) {
@@ -263,7 +266,7 @@ export function PageTemplate({
   }
 
   if (problems.length > 0) {
-    const message = buildMessage(path, kind, status, expected, problems)
+    const message = buildMessage(path, kind, status, expected, optional, problems)
     const lenient = process.env.OPSINJS_PAGE_TEMPLATE === "warn"
 
     if (problems.some((problem) => problem.fatal) && !lenient) {
@@ -308,7 +311,20 @@ export function PageTemplate({
             kind,
             status,
             category: category ?? null,
-            requiredSections: expected,
+            /* Two lists, because an agent that reads only one gets the wrong
+               answer from either. `requiredSections` is what the page must
+               carry; `optionalSections` is what it may carry and may equally
+               leave out, so a missing one is not a gap worth reporting. Both
+               appear in `outline` order. */
+            requiredSections:
+              kind === "component"
+                ? componentRequiredSections(
+                    status,
+                    categoryKnown ? category : "health-"
+                  )
+                : expected,
+            optionalSections:
+              kind === "component" ? [...COMPONENT_OPTIONAL_SECTIONS] : [],
             exactOutline: exact,
           }),
         }}
@@ -323,6 +339,7 @@ function buildMessage(
   kind: Kind,
   status: Status,
   expected: string[],
+  optional: Set<string>,
   problems: Problem[]
 ): string {
   return [
@@ -337,17 +354,14 @@ function buildMessage(
         `    - ${problem.kind.toUpperCase()} "${problem.section}": ${problem.detail}`
     ),
     "",
-    // An empty outline must not print as a heading followed by nothing: that
-    // reads as "this page may have no sections at all", which is the opposite
-    // of what an absent outline means.
-    ...(expected.length > 0
-      ? [
-          `  A "${kind}" page at status "${status}" has exactly these H2 sections, in this order:`,
-          ...expected.map((section, index) => `    ${index + 1}. ## ${section}`),
-        ]
-      : [
-          `  lib/status.ts declares no outline for a "${kind}" page at status "${status}", so there is no list to print here. Fix the outline before fixing the page.`,
-        ]),
+    // The list an author will read to fix the page, so it says which of the
+    // sections they are actually on the hook for. Printing all of them
+    // unmarked sent people off to write a Motion section nobody asked for.
+    `  A "${kind}" page at status "${status}" has these H2 sections, in this order:`,
+    ...expected.map(
+      (section, index) =>
+        `    ${index + 1}. ## ${section}${optional.has(section) ? " (optional)" : ""}`
+    ),
     "",
     "  Fix it by copying the template rather than editing headings by hand:",
     `    apps/www/content/_templates/${kind}.mdx`,

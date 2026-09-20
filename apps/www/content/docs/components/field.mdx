@@ -699,17 +699,6 @@ already declares; this file adds no hook, no state and no handler, so a directiv
 only pull the wrapper into a bundle it does not need to be in. A product's own form does have
 state and handlers, so it is a client component, and importing Field into it works unchanged.
 
-## Cost
-
-<BundleSize name="field" />
-
-Bundle cost is measured from a real production build, and none has been taken for any opsinjs
-component yet, so there is no figure to print here. Measuring it is a stable-phase gate rather
-than a beta one, and a number nobody measured would be worse than the honest blank the
-generator prints. When a build does measure it, the figure will fold in the two runtime
-dependencies this component installs, `@base-ui/react` for the field primitive and
-`lucide-react` for the error glyph, alongside Field's own file.
-
 ## Related
 
 <RelatedComponents name="field" />
