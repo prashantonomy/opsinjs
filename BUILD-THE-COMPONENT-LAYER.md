@@ -43,15 +43,14 @@ Each of these is a contradiction between two things the repo already asserts. No
 
 In order. Do not summarise from filenames, and do not answer from recall. Several of these contradict older Next.js, fumadocs and shadcn knowledge.
 
-1. `/Users/taramaa/opsinjs/AGENTS.md` (116 lines). §2 (two root layouts, never `app/layout.tsx`), §4 (fumadocs 16 / fumadocs-mdx 15 API shapes), §5 (dependencies deliberately absent).
-2. `/Users/taramaa/opsinjs/apps/www/AGENTS.md` (81 lines).
-3. `/Users/taramaa/opsinjs/CLAUDE.md` (83 lines) is the working protocol. **One line in it is now wrong; see below.**
+1. `AGENTS.md` (116 lines). §2 (two root layouts, never `app/layout.tsx`), §4 (fumadocs 16 / fumadocs-mdx 15 API shapes), §5 (dependencies deliberately absent).
+2. `apps/www/AGENTS.md` (81 lines).
+3. `CLAUDE.md` (83 lines) is the working protocol. **One line in it is now wrong; see below.**
 4. All eight ADRs in `apps/www/content/docs/project/decisions/`: `0001-base-ui-not-radix`, `0002-shadcn-registry-distribution`, `0003-two-colour-axes`, `0004-lyra-docs-chrome`, `0005-no-lang-segment-yet`, `0006-generated-not-authored`, `0007-two-root-layouts`, `0008-considered-components-resolve`.
 5. `skills/opsinjs/SKILL.md` and the four files in `skills/opsinjs/rules/`: `never-invent.md`, `status-and-colour.md`, `tokens-not-values.md`, `registry.md`. The doctrine, compressed.
-6. `.rawres/00-INDEX.md`, then `.rawres/03-registry-and-distribution-spec.md`, `.rawres/05-build-strategy.md`, `.rawres/07-foundation-stack-decision.md`.
-7. `apps/www/lib/status.ts` in full. It is the executable clinical vocabulary, and it outranks every MDX page.
-8. `apps/www/content/docs/components/anatomy-of-a-component-page.mdx` is the 22-section page contract, including its status-gating table (`planned` renders 1,2,3,4,6,7,8,9,12,14,20,22; `alpha` adds 5, 10, 18; `beta` adds 11, 13, 15, 16, 17, 19).
-9. The spec for whatever you are about to build: `apps/www/content/docs/components/<id>.mdx`.
+6. `apps/www/lib/status.ts` in full. It is the executable clinical vocabulary, and it outranks every MDX page.
+7. `apps/www/content/docs/components/anatomy-of-a-component-page.mdx` is the 22-section page contract, including its status-gating table (`planned` renders 1,2,3,4,6,7,8,9,12,14,20,22; `alpha` adds 5, 10, 18; `beta` adds 11, 13, 15, 16, 17, 19).
+8. The spec for whatever you are about to build: `apps/www/content/docs/components/<id>.mdx`.
 
 **The one override.** `AGENTS.md` §1 says "Nothing is built … Do not 'finish' them by writing an implementation", and `CLAUDE.md` line 9 says "This repo is a documentation site for a design system whose components do not exist yet. Your job is almost never to write a component." Those were true and are superseded by this brief. Update both in your first commit to describe the current phase. Keep every other rule intact, and keep the honesty vocabulary (`<NotBuiltYet>`, `<StubNotice>`, `<NoDataYet>`, `<Todo>`). You still need it for everything you have not built.
 

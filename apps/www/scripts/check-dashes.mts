@@ -22,7 +22,7 @@
  *
  * WHAT IS NOT SCANNED, and why each one is off the list rather than exempt.
  * `node_modules`, `.next`, `.source`, `.turbo`, `.git`, `dist`, `coverage` and
- * the lockfiles are not bytes this repository wrote. `audits`, `.rawres` and
+ * the lockfiles are not bytes this repository wrote. `audits` and
  * `.playwright-mcp` are dated records of what the site did at a moment in time,
  * and rewriting a record falsifies it. Generated output under `lib/generated`,
  * `registry/generated` and the rest IS scanned: a hit there means a dash
@@ -63,9 +63,32 @@ if (!Number.isFinite(NODE_MAJOR) || NODE_MAJOR < 24) {
 import { type Dirent, readdirSync, readFileSync } from "node:fs"
 import { join, relative, sep } from "node:path"
 import { fileURLToPath } from "node:url"
+import { execSync } from "node:child_process"
 
 const APP_DIR = fileURLToPath(new URL("../", import.meta.url))
 const ROOT_DIR = join(APP_DIR, "..", "..")
+
+/**
+ * Directories git ignores, each collapsed to one entry. Skipping them keeps the
+ * scan to what the repository actually tracks, so a working-tree artefact that is
+ * never published is never read, and none of them has to be named in this file.
+ */
+const IGNORED_DIRS: Set<string> = (() => {
+  try {
+    const listed = execSync(
+      "git ls-files --others --ignored --exclude-standard --directory",
+      { cwd: ROOT_DIR, encoding: "utf8" },
+    )
+    return new Set(
+      listed
+        .split("\n")
+        .filter((line) => line.endsWith("/"))
+        .map((line) => join(ROOT_DIR, line.replace(/\/+$/, ""))),
+    )
+  } catch {
+    return new Set<string>()
+  }
+})()
 
 /**
  * The two banned code points, as escapes.
@@ -92,7 +115,6 @@ const SKIPPED_DIRS = new Set([
   "coverage",
   /* Captured evidence. Dated records of what the site did; rewriting one falsifies it. */
   "audits",
-  ".rawres",
   ".playwright-mcp",
 ])
 
@@ -171,7 +193,7 @@ function walk(dir: string, out: string[]): void {
   for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
     const full = join(dir, entry.name)
     if (entry.isDirectory()) {
-      if (SKIPPED_DIRS.has(entry.name)) continue
+      if (SKIPPED_DIRS.has(entry.name) || IGNORED_DIRS.has(full)) continue
       walk(full, out)
     } else if (entry.isFile() && isScanned(entry.name)) {
       out.push(full)

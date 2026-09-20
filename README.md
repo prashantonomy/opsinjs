@@ -50,7 +50,6 @@ apps/www          the documentation site (Next.js 16 App Router + fumadocs)
 packages/*        reserved and empty. Nothing is published to npm today, and
                   components never will be (ADR 0002: distribution is copy-in)
 skills/opsinjs    the Agent Skill: rules an assistant must follow to use opsinjs
-.rawres           the research that produced the architecture decisions
 ```
 
 ## Commands

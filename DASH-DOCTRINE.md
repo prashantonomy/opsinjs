@@ -1,6 +1,6 @@
 # The dash doctrine
 
-**Destined for `AGENTS.md` §12.** Repo root: `/Users/taramaa/opsinjs`. Every path below is
+**Destined for `AGENTS.md` §12.** Every path below is
 repo-relative from `apps/www` unless it starts with a repo-root name (`AGENTS.md`,
 `skills/`, `audits/`). This document is written to be executed literally by parallel
 workers holding disjoint file sets. Where it says **decided**, there is no second option
@@ -176,7 +176,7 @@ Path rules. See §8 for the reasoning.
 - `node_modules/**`, `.git/**`, `.next/**`, `.turbo/**`, `.source/**`,
   `apps/www/.source/**`
 - `pnpm-lock.yaml` and any other lockfile, and any vendored dependency
-- `audits/**`, `.playwright-mcp/**`, `.rawres/**`
+- `audits/**`, `.playwright-mcp/**`
 - Existing git history and commit messages already written. New commit messages are in
   scope.
 
@@ -1933,7 +1933,7 @@ either not those characters, or not ours to rewrite.
 
 ### 8.3 Captured evidence. Never edited.
 
-`audits/**` · `.playwright-mcp/**` · `.rawres/**`. These are dated records of what the site
+`audits/**` · `.playwright-mcp/**`. These are dated records of what the site
 did at a moment in time. Rewriting a record falsifies it. Excluded from the sweep and from
 the gate.
 
