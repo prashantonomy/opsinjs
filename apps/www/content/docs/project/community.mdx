@@ -15,7 +15,7 @@ aliases: [where to ask, support, get help, discussions]
 | You have | Take it to |
 | --- | --- |
 | A question about how to do something | A discussion on the repository |
-| A page that is wrong, unclear or out of date | The report-a-problem control at the foot of that page |
+| A page that is wrong, unclear or out of date | An issue, naming the page path |
 | A bug in code or in this site | An issue, with a reproduction |
 | An idea for a component | [Proposing a component](../handbook/contributing/proposing-a-component.mdx) |
 | A concern that a component or a piece of guidance could cause harm | An issue, marked as a **safety concern**, in public |
@@ -27,15 +27,18 @@ project.
 
 <Todo>
 Four of those six rows end at a repository that is not public yet: the
-discussion, the two kinds of issue, and the report-a-problem control at the foot
-of every page, which opens a prefilled issue on that same repository. The fifth,
+discussion and the three kinds of issue. The fifth,
 [Security](./security.mdx), carries a note of its own for a related reason.
-Private reporting has nowhere to land either. That leaves [Proposing a
-component](../handbook/contributing/proposing-a-component.mdx), a page on this
-site, as the only row you can act on
-today. Opening the repository is what turns the rest of this table from an
-intention into a route. Remove this note when it is open, and check that the
-report-a-problem control and the "Edit this page" links point at it.
+Private reporting has nowhere to land either. That leaves
+[Proposing a component](../handbook/contributing/proposing-a-component.mdx), a
+page on this site, as the only row you can act on today. Opening the repository
+is what turns the rest of this table from an intention into a route. There is
+also no report-a-problem control anywhere on this site, which is the shortcut
+the first three rows would otherwise offer: `<Feedback>` is written in
+`components/docs/meta.tsx` and registered as an MDX tag, and no page and no
+route renders it, so it needs wiring in as well as a public repository behind
+it. Remove this note when both are done, and check that the "Edit this page"
+links point at the repository.
 </Todo>
 
 ## What to expect

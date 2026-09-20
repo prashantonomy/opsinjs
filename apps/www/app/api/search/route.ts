@@ -51,13 +51,14 @@
  * "the API is not stable yet", which was the smaller of the two warnings and
  * the only one an agent was being given.
  *
- * A page with no phase at all gets no release sentence. That is 342 of the 402
+ * A page with no phase at all gets no release sentence. That is every page in the
  * pages, and a doctrine page indexed with a phase word was always indexing a
  * claim about prose as though it were a claim about code.
  */
 
 import { createFromSource } from "fumadocs-core/search/server"
 
+import { REVIEW_FLOOR_NOTICE } from "@/lib/status"
 import { source } from "@/lib/source"
 import { implementedComponents } from "@/app/_machine/contracts"
 import { metaOf, sectionOf } from "@/app/_machine/corpus"
@@ -85,11 +86,26 @@ export const { GET } = createFromSource(source, {
       })
     }
 
+    /* THE IMPLEMENTATION CHECK STAYS OUTERMOST AND THE PHASE WORD DECIDES THE
+       WORDING INSIDE IT. Those are two different questions and swapping them
+       breaks one of them either way. `implementedComponents()` is a directory
+       listing and is the only thing that can answer "is there code", which is
+       why it guards the outside; a phase word is a claim somebody typed.
+       But `deprecated` means still installable, so a deprecated component is
+       always in the built set, and hardcoding "shipped" in this branch left
+       the `deprecated` branch below unreachable and indexed a component on its
+       way out as though it were the recommended one. Retiring a component is a
+       frontmatter change and nothing else, so the search index has to follow a
+       frontmatter change. The `deprecated` branch below still earns its place:
+       it catches the id whose source has since been deleted, which is a
+       different sentence again. */
     if (id && implementedComponents().includes(id)) {
       contents.push({
         heading: undefined,
         content:
-          "Release status: shipped. Installable from the registry. No accessibility review and no clinical review; not for a production health surface.",
+          meta.status === "deprecated"
+            ? "Release status: deprecated. Still installable; its page names the replacement."
+            : `Release status: shipped. Installable from the registry. ${REVIEW_FLOOR_NOTICE}`,
       })
     } else if (meta.status === "planned") {
       contents.push({
@@ -100,7 +116,7 @@ export const { GET } = createFromSource(source, {
       contents.push({
         heading: undefined,
         content:
-          "Release status: deprecated. Still installable; its page names the replacement.",
+          "Release status: deprecated. Not implemented; its page names the replacement.",
       })
     }
 

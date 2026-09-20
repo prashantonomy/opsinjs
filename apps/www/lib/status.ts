@@ -3,9 +3,20 @@
  *
  * `source.config.ts` declares the same two enums for frontmatter validation and
  * cannot export them, because fumadocs-mdx refuses any export from a source
- * config that is not a collection. This file is therefore the runtime copy,
- * and `assert-ia.mts` asserts the two agree. If you add a status or a kind,
- * add it in both places in the same commit.
+ * config that is not a collection. This file is therefore the runtime copy.
+ *
+ * NOTHING HOLDS THE TWO IN STEP, AND THIS COMMENT USED TO SAY OTHERWISE. It
+ * claimed `assert-ia.mts` asserts the two agree. It does not. FM004 validates
+ * frontmatter against `content/_templates/frontmatter.schema.json`, which is a
+ * third copy of the same vocabulary, and no check anywhere reads
+ * `source.config.ts` at all. So the words are written down three times and
+ * kept in step by hand, and the FM004 message in `scripts/assert-ia.mts` is
+ * the only nudge that exists. If you add a status or a kind, add it in all
+ * three places in the same commit: here, `source.config.ts`, and the schema.
+ * Enforcement would be a small script that lifts the `z.enum(...)` array
+ * literals out of `source.config.ts` and diffs them against `STATUSES` and
+ * `KINDS`. That is worth doing, and it is not done, so do not read this file
+ * as guarded.
  *
  * Everything that renders a release phase, gates a section, or asks "what
  * headings does this page need" reads from here. Nothing re-declares it.
@@ -36,11 +47,33 @@
  *
  * THREE PHASES, AND THEY ANSWER ONE QUESTION: is there code, and is it on its
  * way out. They say nothing about whether the code has been reviewed, because
- * none of it has. `STATUS_META.shipped.summary` below carries that fact to
- * every chip on the site, and it is one of six places the same sentence is
- * written down; the others are `siteSummary()`, `docsSentence()`,
- * `/r/index.json`, the `<StatusMatrix>` preamble and the `<StubNotice>` on
- * every component page.
+ * none of it has. `REVIEW_FLOOR_NOTICE` below is that fact as one string, and
+ * `STATUS_META.shipped.summary` ends with it, so every chip on the site
+ * carries it.
+ *
+ * THE OLD CARRIER LIST NAMED SIX PLACES AND THE SENTENCE LIVES IN MORE THAN
+ * TEN. Counting them was the mistake. An editor who revised the six that were
+ * listed and stopped left the others promising something slightly different,
+ * which is how one review floor becomes four. The count is therefore gone and
+ * the constant is here instead. Two carriers reuse it verbatim,
+ * `STATUS_META.shipped` and the `unreviewed` field in
+ * `app/r/index.json/route.ts`, and `app/api/search/route.ts` composes it into
+ * a longer indexed line. The rest cannot reuse it, because they are
+ * mid-paragraph in prose written for a reader: "none of them has had an
+ * accessibility review" and "none of it has been through an independent
+ * accessibility review" are the same floor in the grammar each paragraph
+ * needs. Those are restatements on purpose. To find every one of them before
+ * you change the floor, run
+ * `grep -rn "accessibility review" app lib components scripts content`, which
+ * stays accurate in a way a list in this comment does not. SAFE001 in
+ * `scripts/assert-ia.mts` holds the per-page copy, in authored MDX, on all 60
+ * component pages.
+ *
+ * Several files still label themselves "SAFETY CARRIER 3", "4" or "6" in a
+ * comment. Those numbers come from the old list of six and they are kept
+ * because a number that appears in a review comment should keep meaning what
+ * it meant. Read them as names, not as an enumeration: there is no carrier 7
+ * to look for and the numbered ones are not all of them.
  */
 export const STATUSES = ["planned", "shipped", "deprecated"] as const
 
@@ -64,8 +97,10 @@ export interface StatusMeta {
    * `shipped` carries the review floor, and it carries it because the chip is
    * the shortest surface on the site that appears beside every component. If
    * you shorten that sentence you delete the only warning a reader gets from
-   * the chrome, so shorten it only together with the other five carriers listed
-   * in the block above.
+   * the chrome. It ends with `REVIEW_FLOOR_NOTICE` rather than restating it,
+   * so the floor cannot be shortened here without editing the constant, which
+   * is the point of the constant. Edit the constant and you still have to walk
+   * the restatements the block above tells you how to find.
    */
   summary: string
 }
@@ -75,6 +110,28 @@ export interface StatusMeta {
  * catalogue row. Display order is `STATUSES` order; there is no `order` field
  * left to disagree with it.
  */
+/**
+ * THE REVIEW FLOOR, AS ONE STRING.
+ *
+ * `shipped` means the source installs. It means nothing about whether anybody
+ * checked the source, and nobody has: no component in this catalogue has had
+ * an accessibility review and none has had a clinical review. This sentence is
+ * the whole of what replaced the old alpha-to-beta gradient, so it can be
+ * moved and it cannot be softened away.
+ *
+ * Both halves are load-bearing and neither survives alone. "No review" without
+ * "not for production" reads as a caveat somebody will weigh against a
+ * deadline, and "not for production" without "no review" reads as a maturity
+ * note about the API. SAFE001 in `scripts/assert-ia.mts` requires both halves
+ * on every component page for the same reason.
+ *
+ * It is a plain string because that is the only shape this module allows: no
+ * imports, no JSX, no non-erasable syntax, since `scripts/*.mts` run under
+ * plain node and import this file directly.
+ */
+export const REVIEW_FLOOR_NOTICE =
+  "No accessibility review and no clinical review. Not for a production health surface."
+
 export const STATUS_META: Record<Status, StatusMeta> = {
   planned: {
     label: "Planned",
@@ -82,8 +139,7 @@ export const STATUS_META: Record<Status, StatusMeta> = {
   },
   shipped: {
     label: "Shipped",
-    summary:
-      "Installable source. No accessibility review and no clinical review. Not for a production health surface.",
+    summary: `Installable source. ${REVIEW_FLOOR_NOTICE}`,
   },
   deprecated: {
     label: "Deprecated",
@@ -94,7 +150,18 @@ export const STATUS_META: Record<Status, StatusMeta> = {
 /** Statuses in display order. */
 export const STATUS_ORDER: readonly Status[] = STATUSES
 
-/** True when a page at this status must carry a not-implemented marker. */
+/**
+ * True when a page at this status must carry a not-implemented marker.
+ *
+ * Called by `<StubNotice>` in `components/docs/stub.tsx`, which emits the
+ * marker, and by the "use this instead" pointer in `components/docs/
+ * guidance.tsx`. Both used to test `status === "planned"` inline. Which phase
+ * earns the marker is a decision about the vocabulary, so it is taken here
+ * once rather than re-taken at each call site, where a fourth phase would be
+ * missed. It is not used against `CatalogueRow` in `app/_machine`, whose
+ * `status` is typed as a bare `string`; widening this signature to fit would
+ * give up the exhaustiveness `Status` buys everywhere else.
+ */
 export function isNotImplemented(status: Status): boolean {
   return status === "planned"
 }

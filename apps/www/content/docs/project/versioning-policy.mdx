@@ -120,9 +120,26 @@ diffs](../registry/upgrades-and-diffs.mdx) sets that habit out in full.
 **In the documentation.** There is one published copy of every page and it
 describes the current version. The site keeps no per-version archive, so there
 is no older copy to land on and nothing that warns you that you have. Changing
-the URL of a page is treated as a breaking change to the documentation and is
-handled with a redirect rather than a broken link, because the `.md` twins and
-`/llms.txt` are addresses that programs have already stored.
+the URL of a page is a breaking change for programs, because the `.md` twins and
+`/llms.txt` are addresses that a crawler or an agent has already stored. What
+this site does about that today is nothing: `next.config.mjs` defines rewrites
+and no redirects, so a page that moves or goes away returns a 404 rather than
+sending you on. Five addresses have already gone that way, removed when the
+release phases were cut to three: `/registry/version-stamps`,
+`/project/proposals`, `/project/migration`,
+`/project/decisions/0008-considered-components-resolve` and
+`/project/decisions/0022-considered-roster-built-out`. Their subjects are now at
+[Upgrades and diffs](../registry/upgrades-and-diffs.mdx), [Proposing a
+component](../handbook/contributing/proposing-a-component.mdx), this page, and
+[ADR 0023](./decisions/0023-three-release-phases.mdx) for both records. Until a
+redirect map exists, re-resolve a stored address against
+[`/llms.txt`](/llms.txt) when it stops answering.
+
+<Todo>
+Add an `async redirects()` block to `apps/www/next.config.mjs` covering those
+five paths, and make adding one a step in any change that moves a page, so that
+the paragraph above can promise a redirect instead of describing a 404.
+</Todo>
 
 **In the changelog.** [Every release](./changelog/index.mdx) has an entry, written
 as prose rather than as a list of commit subjects, and the breaking parts are at

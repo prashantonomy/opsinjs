@@ -17,12 +17,18 @@ a placeholder for that reason. It is the address the deprecation process points
 at from day one, so that the first deprecation has somewhere to appear and does
 not arrive as a surprise in a changelog entry.
 
-<NoDataYet script="scripts/build-registry.mts" />
+<NoDataYet what="The deprecation list" script="scripts/build-registry.mts">
+No script produces it yet. `scripts/build-registry.mts` reads
+`registry/catalogue.ts` and emits `/r`, and it has no deprecation projection, so
+nothing here fills itself in.
+</NoDataYet>
 
 When it has rows, each carries: the deprecated thing, its replacement, the
 version that deprecated it, the version that will remove it, and one sentence
-saying why. The list is generated from the catalogue, so a component marked
-deprecated in the source appears here without anybody remembering to add it.
+saying why. Today a row is written by hand, in the same change that sets the
+catalogue row to `deprecated`: a pull request that does one without the other is
+incomplete, and reviewing for it is the only thing standing in for a generator.
+Projecting the rows out of the catalogue is the better answer and is not built.
 
 ## What being on this list means
 

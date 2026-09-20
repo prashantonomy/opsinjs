@@ -1,6 +1,6 @@
 ---
 title: Catalogue
-description: Every component id the system has declared, with its category, status, aliases and page.
+description: Every component id the system has declared, with its category, its release phase and the search synonyms that reach it.
 kind: reference
 full: true
 reviewed: 2026-09-02
@@ -20,17 +20,22 @@ namespace.
 
 This is the answer to "does opsinjs have one of these". It is deliberately the
 most boring page on the site and the one most worth trusting: every id the system
-will ever resolve appears here, including the ones with no implementation and no
-page, and nothing appears here that is not declared in the catalogue file.
+will ever resolve appears here, and nothing appears here that is not declared in
+the catalogue file. Every id declared today is implemented, installable and
+documented, so there is no row on this page without a page behind it. A row for
+something specified and not yet built would still appear, with its phase saying
+so.
 
-**Six columns.** *Id* is the kebab-case name used in a URL, a registry item and a
-CLI command. *Name* is the PascalCase name used in prose and in code. *Category*
-groups it, and a category beginning `health-` carries extra obligations, namely a
-clinical contract section and at least one governing doctrine page. *Status* is
-one of the three [release phases](../../project/release-phases.mdx), and every
-row reads `shipped` today. *Aliases* are
-the search synonyms, which is how "lab result" and "blood pressure" find their
-way to the right row. *Page* links to the specification, where one exists.
+**Five columns.** *Component* is the kebab-case id, which is the same string used
+in a URL, in a registry item and in a CLI command, and it is also the docs URL
+segment for that component's page. *Category* groups it, and a category beginning
+`health-` carries extra obligations, namely a clinical contract section and at
+least one governing doctrine page. *Status* is one of the three
+[release phases](../../project/release-phases.mdx), and every row reads `shipped`
+today. *Since* is the version an id first shipped under, and no version has been
+cut yet, so every row reads `unreleased` and the column distinguishes nothing.
+*Search synonyms* are the aliases, which is how "lab result" and "blood pressure"
+find their way to the right row.
 
 **What is deliberately excluded.** Parts of compound components are not catalogue
 entries, so a dialog's panel is documented on the dialog page, not as its own id.

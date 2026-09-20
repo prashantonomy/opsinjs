@@ -25,8 +25,15 @@ does.
    under `registry/bases/`, or the emitting script. The authority for what is generated
    is the `check:generated` script in `apps/www/package.json`, not a prose copy of the
    list.
-3. Check the page's `kind` frontmatter. It determines the headings exactly. Do not add
-   a heading the outline for that `kind` does not have, and do not drop one it does.
+3. Check the page's `kind` frontmatter. It fixes the headings and the order they come
+   in. On most kinds the outline is exact: do not add a heading it does not have, and
+   do not drop one it does. Two kinds are not exact. On a `kind: component` page the
+   outline is required plus optional, and the five sections in
+   `COMPONENT_OPTIONAL_SECTIONS` (`apps/www/lib/status.ts`) may be left out; omitting
+   one is not a defect, inventing content to fill it is. A `kind: guide` page requires
+   only the four headings in `REQUIRED_HEADINGS.guide`
+   (`apps/www/scripts/assert-ia.mts`) and names its own task sections between them. An
+   optional section still sits in its canonical position when it does appear.
 
 ## Prose bar
 
@@ -115,10 +122,11 @@ do not fix it.
 ## Definition of done for a page
 
 Correct frontmatter (`kind` is mandatory everywhere, `status` only on a component page) ·
-exactly the headings its `kind` prescribes · relative MDX links, never absolute `/docs/` ·
-every component id matched against the catalogue · every claim either generated, cited, or
-marked as opinion · and nothing anywhere that implies a component has been built when it
-has not. A component page reads `shipped` only once its file under `registry/bases/base/`
+the headings its `kind` prescribes, in canonical order, with that kind's optional
+sections left out rather than filled with invented prose · relative MDX links, never
+absolute `/docs/` · every component id matched against the catalogue · every claim
+either generated, cited, or marked as opinion · and nothing anywhere that implies a
+component has been built when it has not. A component page reads `shipped` only once its file under `registry/bases/base/`
 renders at `/view/base/base-lyra/component/<id>` and `pnpm typecheck`, `pnpm lint` and
 `pnpm check` all pass; the page's `status` and its `registry/catalogue.ts` row move
 together, in one commit. `status` exists only on a `kind: component` page.

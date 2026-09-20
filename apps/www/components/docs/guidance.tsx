@@ -13,6 +13,7 @@ import {
   CLINICAL_STATUSES,
   CLINICAL_STATUS_META,
   isClinicalStatus,
+  isNotImplemented,
   STATUS_META,
   type ClinicalStatus,
 } from "@/lib/status"
@@ -694,7 +695,7 @@ function InsteadPointer({
     return <>Use {destination} instead.</>
   }
 
-  if (target.status === "planned") {
+  if (isNotImplemented(target.status)) {
     return (
       <>
         The nearest name is {destination}, and it is planned: specified in full,

@@ -182,6 +182,7 @@ no entrance animation carrying meaning.
 
 <StubNotice
   name="results-screen"
+  status="shipped"
   issue="prashantonomy/opsinjs#0"
   questions={[
     "What does the screen render when a reference range exists for the test but not for this person's age or sex?",
@@ -190,11 +191,13 @@ no entrance animation carrying meaning.
     "What is shown when the result arrives before the summary sentence that explains it has been written?",
   ]}
 >
-Nothing here is a new component. The preview above arranges parts that already ship
-into the composition this page specifies, so the three screen-level checks have
-something rendered to run against. The screen as a stable, shippable surface is
-still under review: the composition, its refusals and its accessibility bar are the
-proposal, and the questions below have to be answered before it ships. Do not
-generate product code against this page. The only thing that exists is a
-documentation specimen under `registry/screens/`, which is not served from `/r`.
+Everything on this page renders. Nothing here is a new component: the preview above
+arranges parts that already ship into the composition this page specifies, so the
+three screen-level checks have something real to run against. What is unproven is
+the composition rather than the components. The arrangement, its refusals and its
+accessibility bar are a proposal, the questions below are still open, and no
+opsinjs component has had an accessibility review or a clinical review. Do not put
+this screen in front of a patient. Do copy its refusals, because those are the part
+worth carrying into product code. The specimen lives under `registry/screens/` and
+is not served from `/r`, so there is no `shadcn add` for it.
 </StubNotice>

@@ -27,10 +27,10 @@
  * And it publishes TWO status tallies, both of them over COMPONENT PAGES
  * ONLY. `componentCounts` is taken over the component pages this response
  * carries and `corpusComponentCounts` over every component page in the
- * corpus, so neither sums to `included` or to `total` any more: 342 of the
- * 402 pages declare no release phase, because the word answers a question
+ * corpus, so neither sums to `included` or to `total` any more: every page
+ * that is not a component declares no release phase, because the word answers a question
  * about code and only a component page documents any. Counting a phase over
- * the whole corpus would have put `"undefined": 342` in a published tally.
+ * the whole corpus would have put a large `"undefined"` bucket in a published tally.
  * Two tallies rather than one, because a single tally taken over the pages
  * that fit, sitting next to `total`, is read as the corpus figure and is not
  * one: it under-reports every phase by whatever the budget dropped.

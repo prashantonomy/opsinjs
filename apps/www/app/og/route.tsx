@@ -20,7 +20,7 @@
  * with one filled chip for `shipped` and outlines for everything else.
  *
  * MOST CARDS NOW CARRY NO CHIP AT ALL. A release phase belongs to a component
- * page, and `lib/routes.ts` omits an absent status from the query, so the 342
+ * page, and `lib/routes.ts` omits an absent status from the query, so the
  * pages that are not components send none and the chip below is simply not
  * drawn. That is the truthful card for a doctrine page: it documents a rule,
  * and a rule is not shipped.

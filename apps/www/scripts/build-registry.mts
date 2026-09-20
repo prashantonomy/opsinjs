@@ -721,8 +721,17 @@ function emitCatalogueJson(
         "GENERATED FILE - DO NOT EDIT. Source: registry/catalogue.ts, projected through lib/catalogue.ts. Generator: scripts/build-registry.mts (`pnpm run generate`). Gate: `pnpm check:generated`. Consumed by the /r routes, the llms shards and the generated catalogue reference page. It exists as JSON rather than being imported from the TypeScript because the route handlers, the llms shards and any external tool all need the same rows without loading the app's module graph. `generatedAt` carries the source hash rather than a build time, because this file is guarded by a byte-for-byte drift gate.",
       generatedAt: hash,
       sourceHash: hash,
+      /* `shipped` counts the rows whose phase is `shipped`, and it has to be
+         counted rather than taken as `rows.length`. The two are the same
+         number today only because every row in the catalogue reads `shipped`,
+         so the shortcut published a true figure under a name that would start
+         lying with the first `planned` or `deprecated` row. Nothing reads this
+         field yet, which is exactly why it would have gone wrong quietly:
+         `--check` compares this file against what this generator writes, so a
+         generator and its output agree just as happily on a wrong value as on
+         a right one. */
       counts: {
-        shipped: rows.length,
+        shipped: rows.filter((row) => row.status === "shipped").length,
         implemented: builtNames.size,
       },
       categories,

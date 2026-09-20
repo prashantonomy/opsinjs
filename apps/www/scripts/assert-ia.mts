@@ -972,7 +972,7 @@ function checkFrontmatter(
      things this function knows without it are checked. `status` is NOT one of
      them any more: it is required on a component page and forbidden everywhere
      else, and FM014 below is the rule that knows the difference. Asserting it
-     here would fail 342 correct pages the moment the schema went missing. */
+     here would fail every non-component page the moment the schema went missing. */
   if (!schema) {
     if (!kind) fail("FM002", file, "frontmatter is missing `kind`", 1)
     return
@@ -1043,7 +1043,7 @@ function checkFrontmatter(
      line to a handbook chapter is told to remove it by the same rule that told
      the component author to add it.
 
-     The word used to sit on all 402 pages and mean two different things. On a
+     The word used to sit on every page and mean two different things. On a
      component page it answered a question about code. Everywhere else it meant
      "this prose is finished", which is a different claim wearing the same word,
      and it was the claim that published `status: stable` on 262 pages while the
@@ -1376,8 +1376,23 @@ function checkOutline(
          carry it. Both halves are required, because either half alone is a
          half-truth: "no review" without "not for production" reads as a
          caveat, and "not for production" without "no review" reads as a
-         maturity note. */
-      const block = (notice?.[0] ?? "").split(/\s+/).join(" ")
+         maturity note.
+
+         JSX COMMENTS ARE CUT OUT BEFORE THE MATCH, and that is not tidiness.
+         A JSX comment, the brace-slash-star form MDX allows in a body,
+         renders nothing and reaches no reader, and until it was stripped the
+         sentence sitting inside one satisfied this rule on a page that
+         showed a reader no warning at all. It takes one author
+         commenting the paragraph out mid-edit and forgetting. The build
+         stayed green and the page lost the only thing on it that carries
+         risk. Only `stripCode()`'s own fenced blocks were being removed here,
+         and `stripCode()` is shared with roughly fifteen other checks that do
+         want comment text, so the strip is done on this one string rather
+         than in the helper. */
+      const block = (notice?.[0] ?? "")
+        .replace(/\{\/\*[\s\S]*?\*\/\}/g, " ")
+        .split(/\s+/)
+        .join(" ")
       if (
         !/no accessibility review and no clinical review/i.test(block) ||
         !/not for a production health surface/i.test(block)
@@ -2019,6 +2034,15 @@ function checkCatalogue(
   const ids = new Set(catalogue.map((row) => row.name))
   const bySlug = new Map(pages.map((page) => [page.slug, page]))
 
+  /* CAT008, CAT012 and CAT013 are missing from the family below, and the gap
+     is deliberate. All three went out with the `considered` machinery and all
+     three are retired. Do not reuse them. The reasoning is the one written out
+     beside OUT013 further up this file: a rule code turns up in a commit
+     message, in a review comment and in a contributor's notes, and it has to
+     keep meaning there what it meant when it was written. A new catalogue rule
+     takes the next free number after the highest ever issued, which is why the
+     one added below is CAT015 and not CAT008. */
+
   /* The catalogue against the frozen roster (contracts C1 and C2). */
   const missingFromCatalogue = KNOWN_IDS.filter((id) => !ids.has(id))
   if (missingFromCatalogue.length > 0) {
@@ -2045,6 +2069,40 @@ function checkCatalogue(
     (page) => asText(page.frontmatter.kind) === "component"
   )
   const componentSlugs = new Set(componentPages.map((page) => page.slug))
+
+  /* CAT015 - a row and its page must name the same release phase.
+     CAT007 below asks only whether the page exists. Nothing asked whether the
+     two agree, and the coverage that used to catch a mismatch was an accident:
+     each of the six old phases named a different outline, so a page whose
+     phase had drifted from its row usually tripped OUT001 or OUT002 on a
+     heading. `shipped` and `deprecated` now share one outline in
+     `lib/status.ts`, so that accident is gone and the invariant is unheld.
+
+     It is an error rather than a warning because a drifted pair publishes two
+     different answers about the same component and nothing reconciles them:
+     the page, its `.md` twin and the `x-opsinjs-status` header read the
+     frontmatter, while `/r/<id>.json`, `/r/index.json` and the status matrix
+     read the row. An agent that asks the machine surface and a reader who
+     opens the page are then told different things about whether the component
+     is on its way out, which is the one phase distinction that changes what
+     somebody should do. CLAUDE.md already states that the two move in one
+     commit; this is that sentence with a build behind it. */
+  const componentPageBySlug = new Map(
+    componentPages.map((page) => [page.slug, page])
+  )
+  for (const row of catalogue) {
+    const page = componentPageBySlug.get(`components/${row.name}`)
+    if (!page) continue
+    const rowStatus = row.status ?? "planned"
+    const pageStatus = asText(page.frontmatter.status)
+    if (pageStatus !== rowStatus) {
+      fail(
+        "CAT015",
+        rel(page.file),
+        `this page declares \`status: ${pageStatus ? pageStatus : "(none)"}\` and its catalogue row in registry/catalogue.ts declares \`status: "${rowStatus}"\`. The page, its .md twin and the x-opsinjs-status header follow the frontmatter; /r/${row.name}.json, /r/index.json and the status matrix follow the row. Move both in the same commit.`
+      )
+    }
+  }
 
   /* Every catalogue id must have a page. */
   for (const row of catalogue) {

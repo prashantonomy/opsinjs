@@ -3,7 +3,7 @@ import Link from "next/link"
 import { CircleDashed, FlaskConical, Ban, Hammer } from "lucide-react"
 
 import { docsPath, routes, site } from "@/lib/routes"
-import type { Status } from "@/lib/status"
+import { isNotImplemented, type Status } from "@/lib/status"
 import { cn } from "@/lib/utils"
 import { StatusBadge } from "./status"
 
@@ -221,7 +221,13 @@ export function StubNotice({
   children,
   className,
 }: StubNoticeProps) {
-  const isPlanned = status === "planned"
+  /* `isNotImplemented()` rather than a bare `status === "planned"`. The
+     helper's whole job, per its docblock in lib/status.ts, is to say which
+     phase has to carry a not-implemented marker, and the marker below is the
+     marker it is talking about. Which phase earns it is a decision about the
+     vocabulary, so it belongs in the module that owns the vocabulary and not
+     re-taken here, where a fourth phase would be missed. */
+  const isPlanned = isNotImplemented(status)
 
   /*
    * Spread an object, never `isPlanned ? … : undefined`. An attribute whose
@@ -281,8 +287,17 @@ export function StubNotice({
 
         {questions && questions.length > 0 ? (
           <div>
+            {/* "before it ships" is true at `planned` and is a lie on the
+                other 60 pages, where the chip beside this heading says
+                Shipped. A reader who meets "questions this has to answer
+                before it ships" on installable code reads the questions as
+                hypothetical and discounts them, and they are the opposite:
+                they are open safety questions on source that installs today.
+                The heading has to say which of the two it is. */}
             <p className="m-0 mb-1 font-medium text-foreground">
-              Questions this component has to answer before it ships
+              {isPlanned
+                ? "Questions this component has to answer before it ships"
+                : "Open questions this component has not answered"}
             </p>
             <ul className="m-0 list-disc pl-5 text-muted-foreground">
               {questions.map((q) => (
@@ -306,7 +321,9 @@ export function StubNotice({
           <Link
             href={docsPath("handbook", "contributing", "proposing-a-component")}
           >
-            Propose a change to this specification
+            {isPlanned
+              ? "Propose a change to this specification"
+              : "Propose a change to this component"}
           </Link>
         </p>
       </div>

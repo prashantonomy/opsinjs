@@ -199,8 +199,6 @@ export function StatusLegend({ className }: { className?: string }) {
 export interface SectionProgressProps {
   /** Restrict the count to one catalogue category prefix, e.g. `health-`. */
   category?: string
-  /** Override the counts entirely, for a section the catalogue does not model. */
-  counts?: Partial<Record<Status, number>>
   className?: string
 }
 
@@ -212,21 +210,20 @@ export interface SectionProgressProps {
  * The counts come from the catalogue, not from a number somebody typed, so this
  * line cannot become quietly wrong the way a hand-maintained "we have this many
  * components" sentence always does.
+ *
+ * THERE IS NO `counts` OVERRIDE, AND THERE MUST NOT BE ONE AGAIN. It existed
+ * for a section the catalogue does not model, and the two pages that used it,
+ * the recipes and screens indexes, hand-typed phase tallies for pages that are
+ * no longer allowed to carry a phase at all. A prop whose only purpose is to
+ * supply a number the catalogue cannot check is the hand-maintained sentence
+ * this component was written to replace.
  */
-export function SectionProgress({
-  category,
-  counts,
-  className,
-}: SectionProgressProps) {
+export function SectionProgress({ category, className }: SectionProgressProps) {
   const entries = category
     ? getCatalogue().filter((entry) => entry.category.startsWith(category))
     : getCatalogue()
 
-  const resolved: { status: Status; count: number }[] = counts
-    ? STATUS_ORDER.map((status) => ({ status, count: counts[status] ?? 0 }))
-    : statusCounts(entries)
-
-  const shown = resolved.filter((row) => row.count > 0)
+  const shown = statusCounts(entries).filter((row) => row.count > 0)
 
   if (shown.length === 0) {
     return (
@@ -272,7 +269,14 @@ export interface StatusMatrixProps {
 
 /**
  * Every catalogue row in one table: id, what it is, category, release phase,
- * last accessibility review, search synonyms.
+ * search synonyms.
+ *
+ * There is no accessibility-review column and there must not be one. This
+ * comment used to promise one, from the days of a per-row `a11yDate`, and a
+ * column of dates on a site whose whole safety position is that nothing has
+ * been reviewed is the single most misleading thing this table could grow.
+ * The one honest statement about review is the sentence above the facets, and
+ * it is about the catalogue rather than about any row.
  *
  * Filtering is done in CSS, not JavaScript. The facet controls are real radio
  * inputs and non-matching rows are hidden with `:has()`, which means the matrix
@@ -347,15 +351,19 @@ ${categories
 @media print { .opsin-matrix tbody tr { display: table-row !important; } .opsin-matrix fieldset { display: none; } }
 `}</style>
 
-      {/* SAFETY CARRIER 5, and the one carrier that belongs in chrome. It is a
-          statement about the catalogue rather than about any one page, so it
-          has no authored home: the overview page renders the matrix and owns
-          no per-row prose to hang it on. It is unconditional on purpose. Tying
-          it to a phase count would silence it the day the roster changed
-          shape, which is the failure the five other carriers were written to
-          prevent. The per-page version of this sentence lives in authored MDX
-          inside <StubNotice> and is held by SAFE001; this one is not gated,
-          because a React string is a string a reviewer reads in the diff. */}
+      {/* THE UNREVIEWED SENTENCE, and this is the one place it belongs in
+          chrome. It is a statement about the catalogue rather than about any
+          one page, so it has no authored home: the overview page renders the
+          matrix and owns no per-row prose to hang it on. It is unconditional
+          on purpose. Tying it to a phase count would silence it the day the
+          roster changed shape, which is the failure every restatement of this
+          sentence was written to prevent. The canonical wording is
+          `REVIEW_FLOOR_NOTICE` in lib/status.ts; this one is restated because
+          it is about sixty rows rather than about one component, and the
+          grammar differs for that reason. The per-page version lives in
+          authored MDX inside <StubNotice> and is held by SAFE001. This one is
+          not gated, because a React string is a string a reviewer reads in
+          the diff. */}
       <p
         data-opsinjs-unreviewed=""
         className="m-0 text-sm text-muted-foreground"
@@ -366,38 +374,61 @@ ${categories
         a production health surface.
       </p>
 
-      <fieldset className="m-0 flex flex-wrap items-baseline gap-1 border-0 p-0">
-        <legend className="sr-only">Filter by release phase</legend>
-        <span className="mr-1 text-xs text-muted-foreground">Phase</span>
-        <input
-          type="radio"
-          name="opsin-matrix-phase"
-          id="opsin-phase-all"
-          defaultChecked
-        />
-        <label
-          htmlFor="opsin-phase-all"
-          className="cursor-pointer border border-border px-2 py-0.5 text-xs"
-        >
-          All {entries.length}
-        </label>
-        {phases.map((phase) => (
-          <span key={phase} className="contents">
-            <input
-              type="radio"
-              name="opsin-matrix-phase"
-              id={`opsin-phase-${phase}`}
-            />
-            <label
-              htmlFor={`opsin-phase-${phase}`}
-              title={STATUS_META[phase].summary}
-              className="cursor-pointer border border-border px-2 py-0.5 text-xs"
-            >
-              {STATUS_META[phase].label}
-            </label>
-          </span>
-        ))}
-      </fieldset>
+      {/* THE PHASE FACET IS RENDERED ONLY WHEN THERE IS A CHOICE TO MAKE.
+          Every row in the catalogue reads `shipped` today, so `phases` has
+          one entry, and the control was an "All 60" button beside a "Shipped"
+          button that showed the same sixty rows. That is a click spent
+          learning that a control does nothing, on the two pages where the
+          roster is supposed to be legible at a glance.
+
+          This is a count, not a deletion, and the difference is the whole
+          reason it is written this way. The markup below is intact and
+          `phases` is computed from the rows, so the first `planned` or
+          `deprecated` row to land brings the facet back on its own with no
+          commit here. Deleting it would have meant remembering to write it
+          again on the day it mattered, which is the day nobody remembers.
+
+          The category facet below is NOT gated the same way, because
+          categories genuinely vary and the control is genuinely useful. The
+          unreviewed sentence above is not gated either, and must never be:
+          silencing a safety statement when the roster changes shape is the
+          failure the review floor is repeated everywhere to prevent. Hiding
+          a redundant control and hiding a warning are not the same
+          decision. */}
+      {phases.length > 1 ? (
+        <fieldset className="m-0 flex flex-wrap items-baseline gap-1 border-0 p-0">
+          <legend className="sr-only">Filter by release phase</legend>
+          <span className="mr-1 text-xs text-muted-foreground">Phase</span>
+          <input
+            type="radio"
+            name="opsin-matrix-phase"
+            id="opsin-phase-all"
+            defaultChecked
+          />
+          <label
+            htmlFor="opsin-phase-all"
+            className="cursor-pointer border border-border px-2 py-0.5 text-xs"
+          >
+            All {entries.length}
+          </label>
+          {phases.map((phase) => (
+            <span key={phase} className="contents">
+              <input
+                type="radio"
+                name="opsin-matrix-phase"
+                id={`opsin-phase-${phase}`}
+              />
+              <label
+                htmlFor={`opsin-phase-${phase}`}
+                title={STATUS_META[phase].summary}
+                className="cursor-pointer border border-border px-2 py-0.5 text-xs"
+              >
+                {STATUS_META[phase].label}
+              </label>
+            </span>
+          ))}
+        </fieldset>
+      ) : null}
 
       <fieldset className="m-0 flex flex-wrap items-baseline gap-1 border-0 p-0">
         <legend className="sr-only">Filter by category</legend>

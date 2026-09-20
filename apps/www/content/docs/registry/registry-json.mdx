@@ -68,7 +68,7 @@ schema's own.
 | `items[].type` | Yes | What kind of thing it is, one of the types listed below |
 | `items[].title` | Yes | Human-readable. PascalCase in opsinjs, the same string as the exported component. That is `ResultCard`, not "Result card" |
 | `items[].description` | Yes | One sentence. In opsinjs this is the plain-English definition written for the patient, not the engineer |
-| `items[].files` | For anything with code | Path, type and target per file. **No `content`** in the catalog, as the rule below explains. Absent only on a considered entry, and the considered roster is empty |
+| `items[].files` | For anything with code | Path, type and target per file. **No `content`** in the catalog, as the rule below explains. Absent only on a `planned` entry, which carries no source to install, and there is none today |
 | `items[].dependencies` | No | npm packages the item needs |
 | `items[].registryDependencies` | No | Other items it needs, by name or by URL. opsinjs names them namespaced, `@opsinjs/status-pill` |
 | `items[].categories` | No | Free-form grouping used by search |

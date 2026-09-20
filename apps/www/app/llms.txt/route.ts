@@ -50,7 +50,7 @@ export function GET(): Response {
      component page the phase said whether code existed, and everywhere else
      it said somebody considered the prose finished. Now that the word is
      component-only, the honest version of that tally would read "60 shipped"
-     beside 402 pages, which is true and nearly worthless. `siteSummary()`
+     beside the whole corpus, which is true and nearly worthless. `siteSummary()`
      above already states how many components are implemented, names them,
      and says what `shipped` is not a promise of. */
 
@@ -100,7 +100,8 @@ export function GET(): Response {
     "",
     "## Reading this site as a machine",
     "",
-    "- Append `.md` to any documentation URL to get that page as processed markdown, with its frontmatter: imports stripped, headings with explicit ids, code and tables as markdown. Documentation components are NOT rendered to prose. A stub notice arrives as `<StubNotice … />`, attributes and all. Those attributes are the content; the values behind them are published separately at `/r/index.json` and under Reference.",
+    "- Append `.md` to any documentation URL to get that page as processed markdown, with its frontmatter: imports stripped, headings with explicit ids, code and tables as markdown. Documentation components are NOT rendered to prose. For most of them the attributes are the content and the values behind them are published separately at `/r/index.json` and under Reference.",
+    "- `<StubNotice>` is the exception, and on a component page it is the element to read. It is a paired element, never self-closing, and the prose between its opening and closing tags is text an author wrote which survives into the `.md` twin word for word. That prose is where the page states whether the component has been reviewed. Every component page carries one, and every one of them says the source installs and has had no accessibility review and no clinical review.",
     `- [The whole corpus in one file](${absoluteUrl("/llms-full.txt")}) is size-capped, and it names every page it had to drop. ${shardCoverage}`,
     ...Object.values(SHARDS).map(
       (shard) =>

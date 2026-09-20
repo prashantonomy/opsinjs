@@ -19,7 +19,9 @@
  * repeated sixty times; the root-level one is the full invariant sentence,
  * because it is written once and is the first thing a parser reaches. Both
  * are flat text rather than derived from `status`, which is the whole point:
- * the phase word collapsed and this sentence must not collapse with it.
+ * the phase word collapsed and this sentence must not collapse with it. The
+ * row-level string is `REVIEW_FLOOR_NOTICE` from `lib/status.ts`, reused
+ * verbatim, so a row here and a status chip on a page cannot drift apart.
  *
  * The `aliases` published here are the same namespace declared once in
  * `registry/catalogue.ts`, which is what keeps a reader's search synonyms and
@@ -43,6 +45,7 @@ import {
   componentDocsUrl,
   componentMarkdownUrl,
 } from "@/app/_machine/registry-payload"
+import { REVIEW_FLOOR_NOTICE } from "@/lib/status"
 
 export const dynamic = "force-static"
 
@@ -58,8 +61,7 @@ export function GET(): Response {
       description: row.description,
       category: row.category,
       status: row.status,
-      notice:
-        "No accessibility review and no clinical review. Not for a production health surface.",
+      notice: REVIEW_FLOOR_NOTICE,
       implemented: files.length > 0,
       since: row.since,
       owner: row.owner,

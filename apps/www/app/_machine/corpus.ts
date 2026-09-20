@@ -22,10 +22,22 @@
  * browser is not in the string. Verified against fumadocs-mdx 15.4.0.
  *
  * That is survivable, and this module is built around it rather than pretending
- * otherwise. The attributes are themselves machine-readable, every page carries
- * `notImplementedNotice()` in plain prose so the one fact that must not be
- * missed is never inside a tag, and `jsxNotice()` tells the reader what the
- * remaining elements are and where their data lives.
+ * otherwise. The attributes are themselves machine-readable, a page with no
+ * code behind it carries `notImplementedNotice()` in plain prose, and
+ * `jsxNotice()` tells the reader what the remaining elements are and where
+ * their data lives.
+ *
+ * `notImplementedNotice()` IS NOT ON EVERY PAGE AND THIS BLOCK USED TO SAY IT
+ * WAS. It returns null the moment `registry/__index__.ts` has source behind
+ * the id, which is all 60 component pages today, so on exactly the pages
+ * where a warning matters most it emits nothing. The fact that must not be
+ * missed on those pages is a different fact: that the code installs and has
+ * had no accessibility review and no clinical review. It lives in the MDX
+ * children an author wrote inside `<StubNotice>`, which is the one part of a
+ * documentation component that `getText("processed")` keeps, and SAFE001 in
+ * `scripts/assert-ia.mts` is what holds it there. So the twin does carry it,
+ * in the body rather than in a notice, and `jsxNotice()` below has to say so
+ * rather than tell a reader that the prose of these elements lives elsewhere.
  *
  * To render the vocabulary to prose instead, `source.config.ts` would need
  * `includeProcessedMarkdown: { output: "function" }` and every call site would
@@ -223,7 +235,7 @@ export interface PageMeta {
   title: string
   description?: string
   /**
-   * OPTIONAL, AND ABSENT ON 342 OF THE 402 PAGES. Only a `kind: component`
+   * OPTIONAL, AND ABSENT ON EVERY PAGE THAT IS NOT A COMPONENT. Only a `kind: component`
    * page carries a release phase; everywhere else the word used to mean "this
    * prose is finished" and is gone. It used to be filled in with `"planned"`
    * when the page declared none, which published "this has not been built"
@@ -542,7 +554,7 @@ export function notImplementedNotice(page: CorpusPage): string | null {
  * which of these headers the reader is entitled to expect, and it is the
  * header `scripts/check-llms.mts` uses to tell a per-page build from an older
  * system-scoped one. `x-opsinjs-status` used to do that job, which worked only
- * while every page carried a phase. Now that 342 of them do not, an absent
+ * while every page carried a phase. Now that only a component page does, an absent
  * `x-opsinjs-status` means "this page is not a component", and taking that for
  * "this build is old" would have made the check silently stop comparing.
  *
@@ -579,6 +591,14 @@ export function pageHeaders(page: CorpusPage): Record<string, string> {
 const JSX_ELEMENT = /<[A-Z][A-Za-z0-9]*[\s/>]/
 
 /**
+ * `<StubNotice>` is the one documentation component whose children are read
+ * rather than its attributes, so the notices below have to single it out.
+ * Neither regular expression is global, so neither carries a `lastIndex`
+ * between calls and both are safe to reuse on every page.
+ */
+const STUB_NOTICE_ELEMENT = /<StubNotice[\s/>]/
+
+/**
  * A one-line explanation of the JSX elements the reader is about to meet.
  *
  * Emitted only when there are some. It exists because an agent that finds
@@ -587,17 +607,43 @@ const JSX_ELEMENT = /<[A-Z][A-Za-z0-9]*[\s/>]/
  * missing, and both are wrong. The third reading, that the element is a named
  * view onto data that is published separately and can be fetched, is the useful
  * one, so it is stated.
+ *
+ * `<StubNotice>` GETS A SECOND PARAGRAPH, because the first one is false about
+ * it and this notice is injected into the single-page twin, which is how a
+ * page is very often read. "Their attributes are the content" and "the data
+ * simply does not live in the prose" are true of the self-closing,
+ * generated-table elements and are the exact opposite of true here: the
+ * children of `<StubNotice>` are authored prose, they survive
+ * `getText("processed")`, and they are where all 60 component pages state
+ * that the code installs and has had no accessibility review and no clinical
+ * review. An agent that took the first paragraph at its word would skip the
+ * one element on the page it must not skip.
  */
 export function jsxNotice(body: string): string | null {
   if (!JSX_ELEMENT.test(body)) return null
-  return [
+  const lines = [
     "> Elements written as `<PascalCase … />` below are opsinjs documentation",
     "> components. Their attributes are the content: the values they render are",
     "> generated from `tokens/*.json` and `registry/catalogue.ts` and are",
     `> published separately at ${SITE_URL}/r/index.json and under the Reference`,
-    "> section. Nothing is missing from this page. The data simply does not",
-    "> live in the prose.",
-  ].join("\n")
+    "> section.",
+  ]
+  if (STUB_NOTICE_ELEMENT.test(body)) {
+    lines.push(
+      "> `<StubNotice>` IS THE EXCEPTION, AND IT IS THE ONE TO READ. It is a",
+      "> paired element rather than a self-closing one, and the text between",
+      "> its opening and closing tags is prose an author wrote, reproduced",
+      "> below word for word. That prose is where this page says whether the",
+      "> component has been reviewed. Read the children, not only the",
+      "> attributes.",
+    )
+  } else {
+    lines.push(
+      "> Nothing is missing from this page. The data simply does not live in",
+      "> the prose.",
+    )
+  }
+  return lines.join("\n")
 }
 
 /**
@@ -639,6 +685,10 @@ export async function renderPageInBundle(page: CorpusPage): Promise<string> {
 /**
  * The paragraph a concatenated corpus file states once, instead of repeating
  * `jsxNotice` under every page.
+ *
+ * It carries the `<StubNotice>` carve-out unconditionally, because a bundle
+ * always contains component pages and therefore always contains the element.
+ * There is nothing to test for.
  */
 export function jsxPreamble(): string {
   return [
@@ -647,6 +697,9 @@ export function jsxPreamble(): string {
     "figures they render are generated from `tokens/*.json` and",
     "`registry/catalogue.ts` and are published separately under the Reference",
     `section and at ${SITE_URL}/r/index.json.`,
+    "`<StubNotice>` is the exception: it is a paired element, and the prose",
+    "between its tags is authored text reproduced here word for word, stating",
+    "whether that component has been reviewed. Read its children.",
   ].join(" ")
 }
 

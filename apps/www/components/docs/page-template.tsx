@@ -154,7 +154,7 @@ export function PageTemplate({
      `status` is what the outline is resolved against and must always be a
      real phase. `statusProp` is what the page actually declared, and it is
      what the machine-readable contract publishes, because `null` is the
-     honest answer for the 342 pages that declare nothing. */
+     honest answer for every page that declares nothing. */
   const status: Status = statusProp ?? "planned"
   const categoryKnown = category !== undefined
   const isHealthComponent = Boolean(category?.startsWith("health-"))
