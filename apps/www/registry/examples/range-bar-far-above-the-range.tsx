@@ -8,7 +8,7 @@
  * comfortable bar in the everyday case is compressed towards the left as the
  * track stretches to reach the reading on the right. The band shrinking to a
  * narrow strip is the honest picture of a number that really is a long way
- * outside its range; widening the band to look normal would draw a scale nobody
+ * outside its range; widening the band to look ordinary would draw a scale nobody
  * chose.
  *
  * THE STATUS IS OMITTED ON PURPOSE. This example is about layout, not

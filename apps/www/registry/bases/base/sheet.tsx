@@ -930,7 +930,7 @@ export function Sheet({
                        surface: it spends `SLIDE_TIMING` on a two-property
                        transition of transform and padding-bottom, and it does NOT
                        take `SLIDE`, so `transition-transform` is never on the
-                       element to contest that property setter. Under normal motion
+                       element to contest that property setter. When motion is allowed
                        the `motion-safe` override runs transform and padding-bottom
                        together on the sheet spring, so the footer rides up on
                        expand; under reduced motion that override is inert and

@@ -1902,7 +1902,7 @@ export const PROPS_TABLES: Record<string, GeneratedPropsTable> = {
     },
     "label": {
       type: "string",
-      description: "Overrides the default word for this level. Use it for translation, or for a product whose readers use different language. It may not change the meaning, and it may not be an empty string. A banned word in `label` raises OPSIN-0006 once in development. The list is `BANNED_WORDS` in the substrate (\"normal\", \"healthy\", \"good\" and the rest), matched case-insensitively on word boundaries. The component renders the label anyway, because the product owns its copy; the warning names the word and its replacement so the copy can be fixed at source.",
+      description: "Overrides the default word for this level. Use it for translation, or for a product whose readers use different language. It may not change the meaning, and it may not be an empty string. A banned word in `label` raises OPSIN-0006 once in development. The list is `BANNED_WORDS` in the substrate, matched case-insensitively on word boundaries. The component renders the label anyway, because the product owns its copy; the warning names the word and its replacement so the copy can be fixed at source.",
       required: false,
     },
     "size": {

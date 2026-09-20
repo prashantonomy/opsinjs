@@ -168,7 +168,7 @@ export interface StatusPillProps {
    * meaning, and it may not be an empty string.
    *
    * A banned word in `label` raises OPSIN-0006 once in development. The list is
-   * `BANNED_WORDS` in the substrate ("normal", "healthy", "good" and the rest),
+   * `BANNED_WORDS` in the substrate,
    * matched case-insensitively on word boundaries. The component renders the
    * label anyway, because the product owns its copy; the warning names the word
    * and its replacement so the copy can be fixed at source.
@@ -262,11 +262,11 @@ export function StatusPill({
      word still renders: this is a presentation layer, and warning is the whole
      of what it is entitled to do about the caller's own words. But
      `<StatusPill status="steady" label="Normal" />` renders reference-ranges.mdx's
-     own Don't verbatim, and a reader who sees "Normal" on three rows and nothing
-     on the fourth has been told they are abnormal. The test is case-insensitive
-     and on word boundaries so "Normalise" is left alone, `warnOnce` deduplicates
-     so a column of fifty pills warns once, and the whole block is dead code in
-     production. */
+     own Don't verbatim, and a reader who sees that word on three rows and
+     nothing on the fourth has been told the fourth reading is the one outside
+     the range. The test is case-insensitive and on word boundaries so
+     "Normalise" is left alone, `warnOnce` deduplicates so a column of fifty
+     pills warns once, and the whole block is dead code in production. */
   if (isDevelopment() && label !== undefined && label.trim() !== "") {
     for (const row of BANNED_WORDS) {
       const escaped = row.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
