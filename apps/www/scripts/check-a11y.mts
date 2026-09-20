@@ -26,8 +26,9 @@
  *
  * ── WHAT THE STATIC HALF CAN SEE, AND WHAT IT CANNOT ─────────────────────────
  *
- * It reads one file at a time, as text. It does not build a module graph, it
- * does not evaluate anything, and it never sees the rendered DOM. Being exact
+ * It reads one file at a time, as text, with a single bounded exception named
+ * under A11Y001 below. It does not build a module graph, it does not evaluate
+ * anything, and it never sees the rendered DOM. Being exact
  * about that boundary is the point: a check that over-promises is worse than one
  * that does not exist, because the promise is what stops somebody writing the
  * check that would have caught the defect.
@@ -44,10 +45,15 @@
  *   - that the word is visible. A status word inside an `sr-only` span satisfies
  *     A11Y001 and violates the contract; colour-independence needs a *visible*
  *     word, and only a browser or a person can tell the difference.
- *   - anything across an import. A component that composes StatusPill inherits
- *     its four carriers, and this check neither follows that import nor credits
- *     it; where composition is plausible it downgrades the finding to a warning
- *     and says so rather than guessing.
+ *   - most things across an import, with one bounded exception. A component that
+ *     composes StatusPill inherits its four carriers. For the A11Y001 status
+ *     surface only, when a file stamps `data-status` and composes a child under
+ *     `@/registry/base-lyra/ui`, this check reads that one child as text and
+ *     credits the delegation when the child is itself a proven carrier, meaning
+ *     it reads CLINICAL_STATUS_META and imports lucide. It is a single hop and
+ *     never recurses, so no module graph is built. A composition it cannot
+ *     resolve, or one whose child is not itself a carrier, is downgraded to a
+ *     warning and said out loud rather than guessed at.
  *   - anything computed. A class name assembled from a variable, a colour read
  *     from a prop, or a size chosen at runtime is invisible here.
  *   - a status word that is assembled rather than written. A11Y002 reads two
@@ -979,6 +985,57 @@ function statusColourPattern(levels: string[]): RegExp {
   )
 }
 
+/**
+ * Follow a delegating file's registry imports one hop, and report whether any
+ * of them is itself a proven status carrier.
+ *
+ * The single-file rule cannot see where a word or a glyph went once a component
+ * hands the job to a child, so the escape hatch below warns rather than fails
+ * whenever a file both stamps `data-status` and composes another registry
+ * component, on the understanding that a human then confirms the child carries
+ * the word and the glyph. This does that confirmation in code for the one
+ * delegation the rig can fully vouch for. The child sits under
+ * `@/registry/base-lyra/ui`, which the tsconfig maps to `registry/bases/base`,
+ * and it has already been read and held to the whole contract by this same run.
+ * When such a child both reads CLINICAL_STATUS_META and imports lucide-react it
+ * is a self-sufficient carrier of a word and a distinct glyph. StatusPill is
+ * that child. A parent that composes it is delegating to a surface already
+ * proven rather than hiding a status carried by colour alone.
+ *
+ * This is one hop and no more. It resolves the alias, reads the child, and
+ * blanks the child's comments the way every other test here does, so a sentence
+ * in the child that merely names CLINICAL_STATUS_META cannot stand in for the
+ * child reading it. It never recurses, so it builds no module graph and cannot
+ * loop. A child that does not resolve, cannot be read, or does not itself carry
+ * both a word source and a glyph source returns false, and the caller keeps its
+ * warning. The only effect this can have is to clear a warning the rig can now
+ * prove is safe. It can never turn a clean file into a failing one, and it
+ * never credits a delegate it has not read and checked.
+ */
+function delegatesStatusToProvenCarrier(code: string): boolean {
+  const specifier = /from\s+["']@\/registry\/base-lyra\/ui\/([^"']+)["']/g
+  let match: RegExpExecArray | null
+  while ((match = specifier.exec(code)) !== null) {
+    const name = match[1]
+    if (name === undefined) continue
+    const base = join(REGISTRY_DIR, "bases", "base", name)
+    for (const candidate of [`${base}.tsx`, `${base}.ts`]) {
+      if (!exists(candidate)) continue
+      let childSource: string
+      try {
+        childSource = readFileSync(candidate, "utf8")
+      } catch {
+        continue
+      }
+      const childCode = withoutComments(childSource)
+      const childReadsMeta = /\bCLINICAL_STATUS_META\b/.test(childCode)
+      const childImportsLucide = /from\s+["']lucide-react["']/.test(childCode)
+      if (childReadsMeta && childImportsLucide) return true
+    }
+  }
+  return false
+}
+
 function checkStatusCarriers(
   file: string,
   source: string,
@@ -999,10 +1056,18 @@ function checkStatusCarriers(
      PRESCRIBES: an AlertBanner tints its own surface from the status axis and
      renders a StatusPill inside for the word and the glyph. Under the narrowed
      rule that component was a hard error with no repair available except
-     deleting the rule. That is how a gate dies. One file cannot tell the
-     difference, so it says so, at warning severity, and `--strict` is what
-     makes a warning fail. */
+     deleting the rule. That is how a gate dies.
+
+     The repair the earlier note called for is now in place: rather than leave
+     every such file to a human eye under a permanent warning, the rule follows
+     the one import it can vouch for. When the composed child under
+     `@/registry/base-lyra/ui` is itself a proven carrier, the delegation is
+     confirmed in code and the file clears. When it cannot resolve the child, or
+     the child is not itself a carrier, one file still cannot tell the
+     difference, so it says so at warning severity, and `--strict` is what makes
+     a warning fail. */
   const composesRegistry = /from\s+["']@\/registry\/[^"']+\/ui\/[^"']+["']/.test(code)
+  const delegationProven = composesRegistry && delegatesStatusToProvenCarrier(code)
 
   /* Anything that stamps the attribute, reads the vocabulary, or paints the
      colour is a status surface and owes all four carriers. */
@@ -1010,15 +1075,22 @@ function checkStatusCarriers(
 
   for (const element of stamped) {
     if (readsMeta && importsLucide) break
+    /* The delegation, proven. The file stamps the status and renders the word
+       and the glyph through a child under `@/registry/base-lyra/ui`. That child
+       has been read one hop and confirmed to carry both, so the surface is not a
+       colour alone and the rule clears rather than leaning on a human eye. */
+    if (delegationProven) break
     const line = lineAt(starts, element.index)
     if (composesRegistry) {
       warn(
         "A11Y001",
         file,
         "This element carries `data-status`, and this file reads neither " +
-          "CLINICAL_STATUS_META nor a lucide icon. It does import another registry " +
-          "component, so the word and the icon may be delegated to that one - this " +
-          "check reads a single file and cannot follow the import. Confirm by eye " +
+          "CLINICAL_STATUS_META nor a lucide icon. It composes another registry " +
+          "component, so the word and the icon may be delegated to that one. This " +
+          "check followed the imports under `@/registry/base-lyra/ui` one hop and " +
+          "none of those children is itself a carrier that reads CLINICAL_STATUS_META " +
+          "and imports lucide, so it cannot confirm the delegation. Confirm by eye " +
           "that the surface renders a word and a distinct glyph, not a colour alone.",
         line,
       )

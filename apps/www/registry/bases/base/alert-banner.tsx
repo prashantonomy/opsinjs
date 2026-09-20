@@ -39,13 +39,16 @@
  * THE WORD AND THE GLYPH ARE DELEGATED TO StatusPill, WHICH IS WHY THIS FILE
  * DRAWS NO STATUS OF ITS OWN. It paints the fill, the ink and the boundary of a
  * status surface, and then renders a pill inside the heading for the level's
- * word and its distinct silhouette. `scripts/check-a11y.mts` reports one
- * A11Y001 WARNING for this file for that reason: it reads one file at a time,
- * it can see `data-status` and a status fill here and no `CLINICAL_STATUS_META`
- * and no lucide import, and it cannot follow the import to find where the word
- * went. Its own comment names this component as the shape the escape hatch
- * exists for. The check is right to say it cannot tell; the repair is a check
- * that can follow an import, not a second copy of the four words in this file.
+ * word and its distinct silhouette. `scripts/check-a11y.mts` used to report an
+ * A11Y001 WARNING for this file for that reason: it reads one file at a time, it
+ * could see `data-status` and a status fill here and no `CLINICAL_STATUS_META`
+ * and no lucide import, and it did not follow the import to find where the word
+ * went. That repair is now in place. For the A11Y001 status surface the check
+ * follows the one import it can vouch for, reading the child under
+ * `@/registry/base-lyra/ui` one hop, and it clears this file because StatusPill
+ * is itself a proven carrier that reads `CLINICAL_STATUS_META` and imports
+ * lucide. The delegation is confirmed in code rather than by a second copy of
+ * the four words in this file.
  *
  * WHY THE PILL SITS INSIDE THE HEADING. The specification requires the level's
  * word to be in the heading so that grayscale, colour-vision deficiency and
