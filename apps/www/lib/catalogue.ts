@@ -3,9 +3,8 @@
  *
  * The catalogue file is data. This file is everything that asks a question of
  * it: the status matrix, the sidebar chips, `/r/index.json`, `llms.txt`, the
- * roadmap, the search-synonym index, and the "considered, not implemented"
- * answer. Nothing outside this module reads the raw arrays, so a change to the
- * catalogue's shape lands in one place.
+ * roadmap and the search-synonym index. Nothing outside this module reads the
+ * raw arrays, so a change to the catalogue's shape lands in one place.
  *
  * Relative `.ts` imports and erasable syntax only: `scripts/build-registry.mts`
  * and `scripts/assert-ia.mts` import this under plain `node`.
@@ -15,7 +14,6 @@ import {
   CATALOGUE,
   CATALOGUE_CATEGORIES,
   CATALOGUE_CATEGORY_LABELS,
-  CONSIDERED,
   RESERVED_ALIASES,
   SHIPPED,
 } from "../registry/catalogue.ts"
@@ -29,23 +27,17 @@ import { STATUS_ORDER } from "./status.ts"
 export type { CatalogueCategory, CatalogueEntry }
 export { CATALOGUE_CATEGORIES, CATALOGUE_CATEGORY_LABELS }
 
-/** Every row, shipped then considered. */
+/** Every row. */
 export function getCatalogue(): CatalogueEntry[] {
   return CATALOGUE
 }
 
 /**
- * The 24 rows on the roster: the ids opsinjs has committed to, each with a
- * hand-written page. Not a claim about code. Read `implemented` in
+ * Every catalogue row. Not a claim about code. Read `implemented` in
  * `/r/index.json`, or `toIndexRow`'s `isBuilt` argument, for that.
  */
 export function getShipped(): CatalogueEntry[] {
   return SHIPPED
-}
-
-/** The rows that were considered and deliberately left off the roster. */
-export function getConsidered(): CatalogueEntry[] {
-  return CONSIDERED
 }
 
 export function getEntry(id: string): CatalogueEntry | undefined {
@@ -55,15 +47,8 @@ export function getEntry(id: string): CatalogueEntry | undefined {
 /**
  * True when `/docs/components/<id>` resolves to a page.
  *
- * EVERY catalogue id does, considered ones included. This used to exclude
- * `considered`, on the assumption that a row decided against had no address.
- * That assumption was true before ADR 0008 and has not been true since:
- * `pnpm generate` writes a stub for each of the 36, precisely "so that this
- * address answers instead of returning a 404". The stale answer was visible,
- * because `<StatusMatrix>` and `<ComponentsList>` ask this question to decide
- * whether to link a row: all 36 rendered as inert grey text, or linked to the
- * index, while the page that says why the name was declined sat one click away
- * and unreachable from the table that named it.
+ * Every catalogue id does: a row and a hand-written page arrive in the same
+ * commit, so there is no row without an address.
  *
  * It is therefore the same predicate as `isKnownId` today, and deliberately kept
  * separate: they answer different questions and will diverge the moment an id
@@ -120,21 +105,6 @@ export function statusCounts(
     status,
     count: entries.filter((entry) => entry.status === status).length,
   })).filter((row) => row.count > 0)
-}
-
-/**
- * "4 stable · 2 beta · 61 planned", the honest one-line summary every section
- * index carries. Written with the counts rather than a percentage on purpose: a
- * percentage invites rounding, and rounding is how a system ends up claiming to
- * be 98% complete.
- */
-export function progressSummary(
-  entries: CatalogueEntry[] = CATALOGUE,
-  labels: Record<Status, string>
-): string {
-  return statusCounts(entries)
-    .map((row) => `${row.count} ${labels[row.status].toLowerCase()}`)
-    .join(" · ")
 }
 
 /* ── aliases: the search-synonym namespace ──────────────────────────────── */
@@ -235,9 +205,9 @@ export function searchCatalogue(
 
 /**
  * Validate a doctrine page's `implements` list. Every entry must be a real
- * catalogue id, shipped or considered. This is the check that would have
- * caught `implements: [alert-banner, care-card, toast]` before `toast` was on
- * the roster.
+ * catalogue id. This is the check that would have caught
+ * `implements: [alert-banner, care-card, toast]` before `toast` was on the
+ * roster.
  */
 export function unknownImplementsIds(ids: string[]): string[] {
   return ids.filter((id) => !isKnownId(id))
@@ -265,8 +235,6 @@ export interface CatalogueIndexRow {
   dependencies?: string[]
   /** Other opsinjs components this one composes, by bare catalogue id. */
   registryDependencies?: string[]
-  useInstead?: string[]
-  why?: string
 }
 
 /**
@@ -306,10 +274,8 @@ export function toIndexRow(
     since: entry.since,
     aliases: entry.aliases,
     implemented: isBuilt(entry.name),
-    docs: entry.status === "considered" ? null : docsUrl(entry.name),
+    docs: docsUrl(entry.name),
     dependencies: entry.dependencies,
     registryDependencies: entry.registryDependencies,
-    useInstead: entry.useInstead,
-    why: entry.why,
   }
 }

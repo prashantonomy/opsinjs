@@ -93,7 +93,7 @@ export interface UnresolvedReason {
   /**
    * `unknown` means the id is not in the catalogue at all. It is a real 404.
    */
-  reason: "not-built" | "considered" | "unknown"
+  reason: "not-built" | "unknown"
   status: Status | null
   message: string
 }
@@ -101,11 +101,10 @@ export interface UnresolvedReason {
 /**
  * Explain an empty lookup.
  *
- * Three distinct answers, and the distinction is the point. "Planned, not
+ * Two distinct answers, and the distinction is the point. "Specified, not
  * built" is a specification an agent may read and must not generate against.
- * "Considered" is a decision with an alternative named. "Unknown" is the only
- * one that is genuinely a mistake. Separating the three is what stops an agent
- * treating a deliberate absence as a gap it should fill.
+ * "Unknown" is the only one that is genuinely a mistake. Separating the two is
+ * what stops an agent treating a deliberate absence as a gap it should fill.
  */
 export function explainUnresolved(name: string): UnresolvedReason {
   const entry = getEntry(name)
@@ -115,15 +114,6 @@ export function explainUnresolved(name: string): UnresolvedReason {
       reason: "unknown",
       status: null,
       message: `"${name}" is not in the opsinjs catalogue under any status. Check the spelling against the components overview.`,
-    }
-  }
-  if (entry.status === "considered") {
-    return {
-      name,
-      reason: "considered",
-      status: entry.status,
-      message:
-        `${entry.name} was considered and deliberately left off the roster. ${entry.why ?? ""} Use ${(entry.useInstead ?? []).join(" or ")} instead.`.trim(),
     }
   }
   return {
@@ -136,9 +126,8 @@ export function explainUnresolved(name: string): UnresolvedReason {
 
 /**
  * True only when a base component for this name is on disk, which a catalogue
- * row alone is not. A `considered` id and a specified-but-unbuilt id both
- * answer false, and so does a built id asked for at a base that does not
- * carry it.
+ * row alone is not. A specified-but-unbuilt id answers false, and so does a
+ * built id asked for at a base that does not carry it.
  */
 export function isBuilt(
   lookup: RegistryLookup,

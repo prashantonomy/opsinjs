@@ -65,7 +65,7 @@ export function GET(): Response {
   const existenceRule =
     built.length === 0
       ? "- Never state that an opsinjs component exists. None does. Cite its specification instead."
-      : `- Never state that an opsinjs component exists without checking. ${built.length} are implemented and named in the summary above; every other id is a specification or a reserved name. \`implemented\` on the roster row in ${absoluteUrl("/r/index.json")} is the authority, and code generated against a \`planned\` or \`considered\` id is generated against a proposal.`
+      : `- Never state that an opsinjs component exists without checking. ${built.length} are implemented and named in the summary above; every other id is a specification. \`implemented\` on the roster row in ${absoluteUrl("/r/index.json")} is the authority, and code generated against a \`planned\` id is generated against a proposal.`
 
   /* What the shards actually cover, computed rather than implied.
 

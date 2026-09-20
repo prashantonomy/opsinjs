@@ -652,12 +652,10 @@ function cataloguePage(): PageSpec {
     | { items?: Array<Record<string, unknown>> }
     | undefined
   const items = Array.isArray(data?.items) ? data.items : []
-  const shipped = items.filter((item) => item.status !== "considered")
-  const considered = items.filter((item) => item.status === "considered")
 
   const shippedTable = table(
     ["Component", "Category", "Status", "Since", "Search synonyms"],
-    shipped.map((item) => [
+    items.map((item) => [
       code(item.name),
       cell(item.category),
       cell(item.status),
@@ -666,21 +664,11 @@ function cataloguePage(): PageSpec {
     ]),
   )
 
-  const consideredTable = table(
-    ["Component", "Category", "Why it is not on the roster", "Reach for instead"],
-    considered.map((item) => [
-      code(item.name),
-      cell(item.category),
-      cell(item.why ?? item.description),
-      cell(Array.isArray(item.useInstead) ? item.useInstead.join(", ") : ""),
-    ]),
-  )
-
   return {
     slug: "catalogue",
     title: "Catalogue",
     description:
-      "Every component opsinjs specifies and every component it has deliberately only considered, with status, category and search synonyms.",
+      "Every component opsinjs specifies, with status, category and search synonyms.",
     howItIsGenerated: [
       "Source: `registry/catalogue.ts`. Script: `scripts/build-registry.mts`, then",
       "`scripts/build-reference.mts`. Command: `pnpm run generate`.",
@@ -690,11 +678,6 @@ function cataloguePage(): PageSpec {
       "from there by the sidebar chips, the status matrix, `llms.txt` and every `/r`",
       "payload. That is what keeps a reader and an agent from getting different answers",
       "to the same question.",
-      "",
-      "**Considered** rows are answers, not gaps. A component listed as considered is",
-      "one opsinjs has thought about and is not shipping yet, and saying so at a",
-      "guessable address is more useful to a person or an agent than a 404 that invites",
-      "them to invent an API.",
     ].join("\n"),
     body:
       items.length === 0
@@ -706,10 +689,6 @@ function cataloguePage(): PageSpec {
             "## Specified",
             "",
             shippedTable || "<NoDataYet script=\"scripts/build-registry.mts\" />",
-            "",
-            "## Considered",
-            "",
-            consideredTable || "<NoDataYet script=\"scripts/build-registry.mts\" />",
           ].join("\n"),
   }
 }

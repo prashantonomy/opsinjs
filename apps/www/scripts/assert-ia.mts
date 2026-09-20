@@ -23,7 +23,7 @@
  * that is untrue or unreachable: a missing required section, a dangling
  * reference, an unknown component tag, a page nothing links to. A warning is a
  * weaker signal that needs a human: a page with no `implements`, an unusually
- * long description, a considered component with no address yet. CI runs the
+ * long description, a component page with no doctrine governing it. CI runs the
  * default mode; the nightly job runs --strict.
  */
 
@@ -88,43 +88,23 @@ const APP_DIR = fileURLToPath(new URL("../", import.meta.url))
 const DOCS_DIR = join(APP_DIR, "content", "docs")
 const TEMPLATES_DIR = join(APP_DIR, "content", "_templates")
 
-/* ADR 0008. The complete outline for a `considered` component page - the only
-   kind of page in the corpus that is generated rather than authored. There is no
-   _templates/considered.mdx to check it against, because a contributor never
-   writes one of these by hand: `emitConsideredStub()` in
-   scripts/build-registry.mts generates each page from its catalogue row.
-
-   Read from lib/status.ts rather than retyped. This list used to be a literal
-   here, from the days when `componentSections("considered", …)` returned an
-   empty array and there was nothing to read; it returns the three headings now,
-   and a second copy of a three-item list is exactly the kind of duplicate that
-   diverges in the commit nobody reviews. The category argument is empty on
-   purpose - no section in the considered outline is category-gated, so no
-   category can filter one out.
-
-   The emptiness guard is not defensive padding. An empty outline would make
-   every loop below vacuous, and this gate would pass 36 pages while checking
-   nothing at all. */
-const CONSIDERED_COMPONENT_HEADINGS = componentSections("considered", "")
-if (CONSIDERED_COMPONENT_HEADINGS.length === 0) {
-  throw new Error(
-    'assert-ia: componentSections("considered", …) returned no sections, so the ' +
-      "considered-component outline check would pass every page without reading it. " +
-      "COMPONENT_SECTIONS_BY_STATUS.considered in lib/status.ts is the source; see ADR 0008."
-  )
-}
-
 /* ================================================================== *
  * FROZEN CONTRACTS                                                    *
  * ================================================================== */
 
 /**
- * The 24 component ids opsinjs specifies (contract C1). Kebab-case in paths and
- * in the catalogue, PascalCase in prose. This list is the fallback used when
- * registry/catalogue.ts cannot be imported, and it is also compared against the
- * catalogue so that a silent divergence is reported rather than tolerated.
+ * EVERY ID OPSINJS HAS EVER CATALOGUED, frozen as contracts C1 and C2: the
+ * twenty-four of the first wave, then the thirty-six that followed. Kebab-case
+ * in paths and in the catalogue, PascalCase in prose.
+ *
+ * It is an allowlist and a fallback, and IT IS NOT A STATUS. Nothing about a
+ * name's position in this array says whether the component is built, specified
+ * or withdrawn. Read `registry/catalogue.ts` for that, which is the one file
+ * that records a release phase. The array is frozen so that a rename is a
+ * visible edit here rather than a silent drift, and it is compared against the
+ * catalogue in both directions so that a divergence is reported.
  */
-const SHIPPED_IDS = [
+const KNOWN_IDS = [
   "result-card",
   "range-bar",
   "score-dial",
@@ -149,15 +129,6 @@ const SHIPPED_IDS = [
   "skeleton",
   "button",
   "field",
-]
-
-/**
- * The considered roster (contract C2): components opsinjs has thought about and
- * is deliberately not shipping. They are catalogue rows and legitimate targets
- * for `implements`. They exist so that an agent asking about one gets
- * "considered, not implemented" instead of a 404 it fills by inventing an API.
- */
-const CONSIDERED_IDS = [
   "questionnaire",
   "symptom-picker",
   "dose-tracker",
@@ -900,19 +871,18 @@ interface CatalogueRow {
   status?: string
   category?: string
   aliases?: string[]
-  useInstead?: string[]
   usedIn?: string[]
-  why?: string
 }
 
 /**
  * The rows as AUTHORED, imported from registry/catalogue.ts, or null when that
  * file is absent, throws, or exports nothing array-shaped.
  *
- * It is its own function because two checks want different copies of the same
- * table. Most of them want the copy the site actually serves, which is the
- * generated JSON `loadCatalogue()` prefers; CAT012 wants the file a reader
- * would have to edit to fix what it reports. See the comment on that rule.
+ * It is its own function because two callers want different copies of the same
+ * table. `loadCatalogue()` falls back to it when the generated JSON is absent
+ * or unparseable, so the gate degrades to the authored file rather than
+ * switching itself off; CAT014 reads it directly, because `usedIn` lives only
+ * in the authored file and never in the generated JSON.
  */
 async function importAuthoredCatalogue(): Promise<CatalogueRow[] | null> {
   const file = join(APP_DIR, "registry", "catalogue.ts")
@@ -923,8 +893,8 @@ async function importAuthoredCatalogue(): Promise<CatalogueRow[] | null> {
       unknown
     >
     /* `CATALOGUE` first, and it was missing. registry/catalogue.ts exports
-       `CATALOGUE` (uppercase), `SHIPPED`, `CONSIDERED` and `RESERVED_ALIASES`,
-       and none of the names below matched. This branch therefore silently found
+       `CATALOGUE` (uppercase), `SHIPPED` and `RESERVED_ALIASES`, and none of
+       the names below matched. This branch therefore silently found
        nothing and fell through to the frozen roster, which carries NO aliases.
        CAT005 and CAT006 would then have quietly stopped checking anything the
        moment lib/generated/catalogue.json was deleted or corrupted, and a
@@ -951,29 +921,6 @@ async function importAuthoredCatalogue(): Promise<CatalogueRow[] | null> {
   return null
 }
 
-/**
- * Every component id with a real renderable behind it, read from the authored
- * source directory rather than from `registry/__index__.ts`, which is
- * generated and can be a regeneration behind the files it indexes.
- *
- * Empty when the directory cannot be read at all. Callers treat that as "no
- * opinion" rather than "nothing is built": reporting sixty components as
- * unbuilt because a path moved would be the loudest possible false claim in a
- * repository whose whole discipline is not claiming things.
- */
-function builtComponentIds(): Set<string> {
-  const dir = join(APP_DIR, "registry", "bases", "base")
-  try {
-    return new Set(
-      readdirSync(dir)
-        .filter((name) => name.endsWith(".tsx") || name.endsWith(".ts"))
-        .map((name) => name.replace(/\.tsx?$/, ""))
-    )
-  } catch {
-    return new Set()
-  }
-}
-
 async function loadCatalogue(): Promise<{
   rows: CatalogueRow[]
   source: string
@@ -996,11 +943,10 @@ async function loadCatalogue(): Promise<{
   if (authored) return { rows: authored, source: "registry/catalogue.ts" }
 
   return {
-    rows: [
-      ...SHIPPED_IDS.map((name) => ({ name, status: "planned" })),
-      ...CONSIDERED_IDS.map((name) => ({ name, status: "considered" })),
-    ],
-    source: "the frozen roster in assert-ia.mts (no catalogue could be read)",
+    rows: KNOWN_IDS.map((name) => ({ name, status: "planned" })),
+    source:
+      "the frozen roster in assert-ia.mts (no catalogue could be read, so every " +
+      "id is reported as planned, which is the phase that claims least)",
   }
 }
 
@@ -1126,7 +1072,7 @@ function checkFrontmatter(
     }
   }
 
-  if (kind === "component" && asText(front.status) !== "considered") {
+  if (kind === "component") {
     const category = asText(front.category) ?? ""
     if (
       category.startsWith("health-") &&
@@ -1188,49 +1134,6 @@ function checkOutline(
   const present = page.headings
   const presentSet = new Set(present)
   const status = asText(page.frontmatter.status)
-
-  /* ADR 0008 - the second status gate. A `considered` component page is not a
-     specification and must not be checked as one: it exists so that a guessed
-     URL answers instead of 404-ing, and it carries the notice, what the name
-     refers to, why it is not on the roster, and the alternative. Nothing else.
-     Holding it to the `planned` outline would demand a Proposed API and an
-     Accessibility bar for a component nobody has designed - which is exactly
-     the padding-into-substance the ADR rejects. `<PageTemplate>` enforces the
-     same three-heading outline at render time; this is the same gate on the
-     authoring side, and both read it from lib/status.ts.
-
-     This runs BEFORE the outline is resolved even though the resolved outline
-     is now these same three headings, and the ordering is deliberate. Falling
-     through would put a considered page through the machinery a specification
-     page needs and this one has no part of - the heading aliases, the
-     conditional sections, and the section-14 rule that insists a component page
-     spell its accessibility heading by its status. A page with three headings
-     and no accessibility section would be failed by a rule that is right about
-     every other component page and wrong about this one. Returning here also
-     means the message a contributor reads names ADR 0008, which is the document
-     that decides what belongs on one of these pages. */
-  if (kind === "component" && status === "considered") {
-    for (const heading of CONSIDERED_COMPONENT_HEADINGS) {
-      if (!presentSet.has(heading)) {
-        fail(
-          "OUT001",
-          file,
-          `missing "## ${heading}". A considered component page carries exactly ${CONSIDERED_COMPONENT_HEADINGS.map((h) => `"${h}"`).join(", ")} - see ADR 0008.`
-        )
-      }
-    }
-    const allowedConsidered = new Set(CONSIDERED_COMPONENT_HEADINGS)
-    for (const heading of present) {
-      if (!allowedConsidered.has(heading)) {
-        fail(
-          "OUT002",
-          file,
-          `"## ${heading}" is not part of a considered component page. These pages are thin by design - see ADR 0008.`
-        )
-      }
-    }
-    return
-  }
 
   /* THE OUTLINE. For every kind but `component` it is the template's H2 list.
      For `component` it is status-gated and comes from the same table
@@ -1774,24 +1677,6 @@ function checkHardcodedDocsPaths(): void {
  * ------------------------------------------------------------------ */
 
 function checkMetaTrees(pages: ParsedPage[]): void {
-  /* ADR 0008. Basenames of the generated `considered` component pages, which are
-     resolvable routes that are deliberately absent from the sidebar. */
-  const consideredComponentPages = new Set(
-    pages
-      .filter(
-        (page) =>
-          asText(page.frontmatter.kind) === "component" &&
-          asText(page.frontmatter.status) === "considered"
-      )
-      .map(
-        (page) =>
-          page.file
-            .replace(/\.mdx$/, "")
-            .split(sep)
-            .pop() ?? ""
-      )
-  )
-
   const bySlug = new Map(pages.map((page) => [page.slug, page]))
 
   const visit = (dir: string): void => {
@@ -1870,27 +1755,6 @@ function checkMetaTrees(pages: ParsedPage[]): void {
       if (!rest && listed.length > 0) {
         for (const child of children) {
           if (child.name === "index") continue
-
-          /* ADR 0008 - the one deliberate exception to the orphan rule, and it
-             runs in both directions. A `considered` component page must NOT be
-             in the sidebar: thirty-six reserved names would swamp a navigation
-             tree that describes a system with no components in it. But it must
-             still resolve, so it is a real page at a guessable URL, reachable
-             through search, the .md twins and /r/index.json. Listing one is the
-             error here; omitting one is correct. */
-          if (
-            consideredComponentPages.has(child.name) &&
-            dirSlug === "components"
-          ) {
-            if (names.has(child.name)) {
-              fail(
-                "IA001",
-                rel(join(dir, child.raw)),
-                `is listed in components/meta.json, but a considered component page is deliberately absent from the sidebar - see ADR 0008. Remove it from meta.json; it stays resolvable without being listed.`
-              )
-            }
-            continue
-          }
 
           if (names.has(child.name)) continue
           fail(
@@ -2067,27 +1931,25 @@ function checkCatalogue(
   const ids = new Set(catalogue.map((row) => row.name))
   const bySlug = new Map(pages.map((page) => [page.slug, page]))
 
-  /* The catalogue against the frozen rosters (contracts C1 and C2). */
-  const missingFromCatalogue = SHIPPED_IDS.filter((id) => !ids.has(id))
+  /* The catalogue against the frozen roster (contracts C1 and C2). */
+  const missingFromCatalogue = KNOWN_IDS.filter((id) => !ids.has(id))
   if (missingFromCatalogue.length > 0) {
     warn(
       "CAT009",
       "registry/catalogue.ts",
-      `the frozen roster of 24 specified components names ${missingFromCatalogue.length} id${
+      `the frozen roster of every catalogued id names ${missingFromCatalogue.length} id${
         missingFromCatalogue.length === 1 ? "" : "s"
       } the catalogue read from ${source} does not contain: ${missingFromCatalogue.join(", ")}.`
     )
   }
-  const unexpected = [...ids].filter(
-    (id) => !SHIPPED_IDS.includes(id) && !CONSIDERED_IDS.includes(id)
-  )
+  const unexpected = [...ids].filter((id) => !KNOWN_IDS.includes(id))
   if (unexpected.length > 0) {
     warn(
       "CAT009",
       "registry/catalogue.ts",
       `the catalogue contains ${unexpected.length} id${
         unexpected.length === 1 ? "" : "s"
-      } that are in neither frozen roster: ${unexpected.join(", ")}. The rosters are contracts C1 and C2; growing them is a decision, not an edit.`
+      } that the frozen roster of every catalogued id does not name: ${unexpected.join(", ")}. The roster is contracts C1 and C2; growing it is a decision, not an edit.`
     )
   }
 
@@ -2096,9 +1958,8 @@ function checkCatalogue(
   )
   const componentSlugs = new Set(componentPages.map((page) => page.slug))
 
-  /* Every shipped id must have a page. */
+  /* Every catalogue id must have a page. */
   for (const row of catalogue) {
-    if (row.status === "considered") continue
     if (!componentSlugs.has(`components/${row.name}`)) {
       fail(
         "CAT007",
@@ -2106,149 +1967,6 @@ function checkCatalogue(
         `\`${row.name}\` is in the catalogue as ${row.status ?? "planned"} but content/docs/components/${row.name}.mdx does not exist. A component only exists if it carries a specification.`
       )
     }
-  }
-
-  /* Considered ids must resolve to something. */
-  const catchAll = [
-    join(
-      APP_DIR,
-      "app",
-      "(chrome)",
-      "(docs)",
-      "docs",
-      "components",
-      "[id]",
-      "page.tsx"
-    ),
-    join(APP_DIR, "app", "(docs)", "docs", "components", "[id]", "page.tsx"),
-  ].some((file) => exists(file))
-  const unaddressed = catalogue
-    .filter((row) => row.status === "considered")
-    .filter((row) => !componentSlugs.has(`components/${row.name}`) && !catchAll)
-    .map((row) => row.name)
-  if (unaddressed.length > 0) {
-    warn(
-      "CAT008",
-      "registry/catalogue.ts",
-      `${unaddressed.length} considered component${unaddressed.length === 1 ? " has" : "s have"} no address of ${unaddressed.length === 1 ? "its" : "their"} own: neither a components/<id>.mdx page nor a catch-all route resolves ${unaddressed.join(", ")}. They are listed in the generated catalogue page and in /r, so an agent that reads either gets an answer; a reader who guesses the URL gets a 404. Addendum B19 asks for one mechanism to be chosen and recorded in an ADR.`
-    )
-  }
-
-  /* CAT012 - `useInstead` must name a real component, and ought to name one
-     that has code.
-
-     A considered row is a deliberate no, and `useInstead` is the whole of its
-     usefulness: it is the sentence lib/registry.ts hands an agent that asks for
-     the component ("... Use X or Y instead."), and the column the generated
-     catalogue table prints for a reader who has just been told no. Nothing
-     anywhere checked it. Six edges pointed at ids with no code behind them, so
-     the answer to "you cannot have a slider" was "use the number field", which
-     is also a specification - a redirect from one unbuilt thing to another,
-     phrased as help. They were fixed by hand, and nothing would have caught
-     the seventh.
-
-     ERROR when the target is not a catalogue id at all, or is the row's own
-     name. That is the treatment CAT001 gives `implements:` naming a stranger
-     and CAT004 gives an unresolvable `usedIn`: a dangling reference into the
-     one namespace, which sends its reader nowhere and cannot be right.
-
-     WARN when the target is a real id with no renderable. CAT008 is the
-     precedent - a considered component with no address of its own is reported
-     rather than enforced - and the asymmetry is the same. There are honest
-     cases: a row whose only sensible alternative is itself unbuilt has nothing
-     better to say, and failing the build would push an author into deleting
-     `useInstead` or inventing a worse alternative, which is a downgrade
-     disguised as a green gate. Naming it keeps the state visible instead.
-
-     Read from registry/catalogue.ts, not from the copy `loadCatalogue()`
-     preferred: `useInstead` is authored, the fix is always in the authored
-     file, and reporting a defect that the named file does not contain sends
-     the reader hunting for a line that is not there. Drift between the two
-     copies is check:generated's job and is caught there. When the authored
-     file cannot be read the loaded rows are used instead, so the rule degrades
-     to checking the served copy rather than switching itself off. */
-  const useInsteadRows = authored ?? catalogue
-  const useInsteadSource = authored ? "registry/catalogue.ts" : source
-  const useInsteadIds = new Set(useInsteadRows.map((row) => row.name))
-  const builtIds = builtComponentIds()
-  for (const row of useInsteadRows) {
-    for (const target of row.useInstead ?? []) {
-      if (target === row.name) {
-        fail(
-          "CAT012",
-          useInsteadSource,
-          `\`${row.name}\` names itself in \`useInstead\`. A reader told to use \`${row.name}\` instead of \`${row.name}\` has been sent back to the page that just refused them.`
-        )
-        continue
-      }
-      if (!useInsteadIds.has(target)) {
-        fail(
-          "CAT012",
-          useInsteadSource,
-          `\`${row.name}\` says \`useInstead: ${target}\`, and \`${target}\` is not a catalogue id. The alternative offered to somebody who has just been told no must be a component this system actually names - the catalogue is the only namespace.`
-        )
-        continue
-      }
-      if (builtIds.size > 0 && !builtIds.has(target)) {
-        warn(
-          "CAT012",
-          useInsteadSource,
-          `\`${row.name}\` says \`useInstead: ${target}\`, and \`${target}\` has no file under registry/bases/base/. The redirect points from one specification to another, so a reader who follows it still has nothing to install. Name a built component, or say in \`why\` what to reach for outside opsinjs.`
-        )
-      }
-    }
-  }
-
-  /* CAT013 - a considered row a built page points at must carry a `why`.
-
-     A built page's `<WhenToUse>` avoid list sends the reader elsewhere with an
-     `instead:` id, and the catalogue rule at registry/catalogue.ts requires that
-     id to be one of the 24 built components. So a built page that wants to point
-     at something opsinjs deliberately did not build (a toast, a native select, a
-     plain link) points at the considered row instead, and guidance.tsx prints
-     that row's own `why` inline on the page the reader is already on rather than
-     sending them one more hop. That inline sentence is the whole repair: it is
-     the honest answer, stated where the reader stands. If the considered row has
-     no `why`, the renderer falls back to the old redirect and the loop the fix
-     closed reopens. This gate makes the field the fix depends on impossible to
-     drop.
-
-     It deliberately does NOT fail on the two-node cycle itself. The catalogue's
-     own rule forces every `useInstead` to name a built id, so a built page
-     pointing at a considered row that points back is structural and unavoidable,
-     and a gate firing on all fourteen of those on every build would be noise
-     rather than a signal. What matters is not that the pointer loops, but that
-     the page the reader lands on states the reason, so the reason is what is
-     gated. Do not add a cycle check here later.
-
-     Reported against the authored catalogue for the same reason CAT012 is: `why`
-     is authored in registry/catalogue.ts, so that is where the fix goes. */
-  const whyByName = new Map(useInsteadRows.map((row) => [row.name, row]))
-  const blankWhyTargets = new Map<string, Set<string>>()
-  for (const page of componentPages) {
-    const id = page.slug.replace(/^components\//, "")
-    if (builtIds.size > 0 && !builtIds.has(id)) continue
-    const insteadPattern = /instead:\s*"([^"]+)"/g
-    let insteadMatch: RegExpExecArray | null
-    while ((insteadMatch = insteadPattern.exec(page.body)) !== null) {
-      const target = insteadMatch[1] as string
-      if (builtIds.size > 0 && builtIds.has(target)) continue
-      const row = whyByName.get(target)
-      if (!row) continue
-      const why = typeof row.why === "string" ? row.why.trim() : ""
-      if (why.length > 0) continue
-      const pointers = blankWhyTargets.get(target) ?? new Set<string>()
-      pointers.add(id)
-      blankWhyTargets.set(target, pointers)
-    }
-  }
-  for (const [target, pointers] of blankWhyTargets) {
-    const from = [...pointers].sort().join(", ")
-    fail(
-      "CAT013",
-      useInsteadSource,
-      `\`${target}\` is a considered row that the built page${pointers.size === 1 ? "" : "s"} ${from} point${pointers.size === 1 ? "s" : ""} at with \`instead: "${target}"\`, and it carries no \`why\`. The page renders that \`why\` inline as the honest answer for a reader who has just been told to reach for something opsinjs did not build; with the field blank the reader is sent back around the redirect the pointer was meant to end. Give \`${target}\` a \`why\` that names what to reach for.`
-    )
   }
 
   /* implements -> a real catalogue id, and the reverse. */
@@ -2273,7 +1991,7 @@ function checkCatalogue(
         fail(
           "CAT001",
           rel(page.file),
-          `\`implements: ${id}\` is not a catalogue id. Every entry must name a real component, shipped or considered - the catalogue is the only namespace.`
+          `\`implements: ${id}\` is not a catalogue id. Every entry must name a real component; the catalogue is the only namespace.`
         )
         continue
       }
@@ -2436,27 +2154,23 @@ function checkCatalogue(
      header comment admitted the gap: "nothing in assert-ia.mts compares the two".
      Now something does.
 
-     For every screen, recipe or pattern that names a shipped component in
+     For every screen, recipe or pattern that names a component in
      `implements`, both halves of the reverse index must record that page: the
      catalogue row's `usedIn`, which is what /r and llms.txt serve, and the
      component page's own frontmatter `usedIn`, which is what search reads.
-     Considered rows are exempt on purpose. A considered component has no page of
-     its own to carry the field and no `usedIn` to fill, so its absence from the
-     index is correct rather than stale.
+     Every catalogue row is in scope; there is no exempt row.
 
      A warning, not an error, the same split CAT006 and CAT011 use for the
      catalogue-versus-page alias disagreement: the default gate surfaces the
      drift for a human to reconcile while the nightly --strict run fails on it.
      The `usedIn` field lives only in the authored catalogue.ts, never in the
      generated JSON the rest of checkCatalogue reads, so this reads `authored`
-     the way CAT012 does. With no authored copy there is nothing to compare
-     against and the check stays silent. */
+     directly. With no authored copy there is nothing to compare against and
+     the check stays silent. */
   if (authored) {
     const authoredUsedIn = new Map<string, string[]>()
-    const consideredRows = new Set<string>()
     for (const row of authored) {
       authoredUsedIn.set(row.name, row.usedIn ?? [])
-      if (row.status === "considered") consideredRows.add(row.name)
     }
     const pageUsedIn = new Map<string, string[]>()
     for (const page of componentPages) {
@@ -2487,7 +2201,6 @@ function checkCatalogue(
         list.includes(usage) || (bareUnambiguous && list.includes(bareUsage))
       for (const id of asArray(page.frontmatter.implements)) {
         if (!ids.has(id)) continue /* CAT001 has already failed this id. */
-        if (consideredRows.has(id)) continue
         if (!records(authoredUsedIn.get(id) ?? [])) {
           warn(
             "CAT014",

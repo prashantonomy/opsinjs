@@ -11,8 +11,8 @@
  * and a `docs` sentence that says which of the two it is, converts that silent
  * failure into a definitive answer in either direction. That was the whole
  * reason these routes existed before any component did, and it is still the
- * reason the reserved names are served now that some ids install real source:
- * the answer an assistant must not have to guess at is "no", and it is only
+ * reason every catalogued id is served now that ids install real source: the
+ * answer an assistant must not have to guess at is "no", and it is only
  * trustworthy if "yes" comes from the same place.
  *
  * Every payload below therefore asks `getBuiltFiles(...)` what source actually
@@ -119,22 +119,14 @@ export function componentIndexUrl(): string | undefined {
 function docsSentence(row: CatalogueRow, files: RegistryItemFile[]): string {
   const url = componentDocsUrl(row.name) ?? componentIndexUrl() ?? SITE_URL
 
-  if (row.status === "considered") {
-    return [
-      `${row.title} is on the considered roster: the name is reserved and the id resolves,`,
-      `but no specification has been written and no code exists.`,
-      `Build it yourself, or open a proposal. See ${url}`,
-    ].join(" ")
-  }
-
   /* `planned` has two shapes, and they need two sentences rather than one
      sentence with a patched clause.
 
      A row keeps `status: "planned"` until its page has been rewritten from a
      specification into documentation, and source can land under
      `registry/bases/<base>/` before that rewrite happens. No row is in that
-     window today, because the catalogue holds `alpha` and `considered` rows and
-     nothing else. The window is nevertheless a real state of this repository,
+     window today, because every catalogue row is built. The window is
+     nevertheless a real state of this repository,
      and it is where the failure lives: in it the single old sentence
      contradicted itself twice, opening "is NOT IMPLEMENTED" and going on to say
      "there are no files to install yet", beside a payload that shipped some. So
@@ -160,8 +152,8 @@ function docsSentence(row: CatalogueRow, files: RegistryItemFile[]): string {
     ].join(" ")
   }
 
-  /* This branch takes a row that is neither `considered` nor `planned` and has
-     source behind it. Today that is every `alpha` id. The CLI has just written
+  /* This branch takes a row that is not `planned` and has source behind it.
+     Today that is every catalogue row. The CLI has just written
      this component into somebody's project, so a bare `Title is documented at
      url` line is the one moment where saying nothing costs something: the
      reader has the code and no statement about how much they may rely on it.
@@ -355,7 +347,7 @@ export function serveRegistryItem(
         didYouMean: suggestNames(name),
         roster: absoluteUrl("/r/index.json"),
         catalog: absoluteUrl("/r/registry.json"),
-        hint: "Every id opsinjs has claimed appears in the roster, whether it is specified or merely considered. If it is not there, it does not exist and must not be invented.",
+        hint: "Every id opsinjs has claimed appears in the roster. If it is not there, it does not exist and must not be invented.",
       },
       { status: 404 }
     )

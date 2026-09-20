@@ -19,9 +19,9 @@ const generator = createGenerator({
 })
 
 /**
- * Release phase. Drives <StatusBadge>, the status gating in <PageTemplate>, and
- * the roster split: `considered` rows exist in the catalogue and in
- * <StatusMatrix> without necessarily owning a hand-written page.
+ * Release phase. Drives <StatusBadge>, the status gating in <PageTemplate> and
+ * the phase column in <StatusMatrix>. The list mirrors `Status` in
+ * lib/status.ts; the two are checked against each other by assert-ia.
  */
 const statusEnum = z.enum([
   "stable",

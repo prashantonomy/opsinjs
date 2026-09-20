@@ -1,6 +1,5 @@
 import Link from "next/link"
 
-import { getConsidered } from "@/lib/catalogue"
 import { builtComponentCount } from "@/lib/registry"
 import { agentRoutes, registryRoutes, routes } from "@/lib/routes"
 
@@ -37,46 +36,23 @@ export default function NotFound() {
         <p className="mt-4 leading-relaxed text-pretty text-muted-foreground">
           That is a real answer, not a redirect to the home page. If you
           followed a link from somewhere on this site, it is a bug and worth
-          reporting. Otherwise it is almost always one of three things.
+          reporting. Otherwise it is almost always one of two things.
         </p>
 
         <ol className="mt-8 space-y-5">
           <li>
             <h2 className="font-medium">
-              You asked for a component that is only <em>considered</em>.
-            </h2>
-            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              {getConsidered().length} component ideas were considered and left
-              off the roster. Each one still answers at its canonical address
-              under the component catalogue, with the reason it was refused and
-              what to use instead. If a considered id brought you here, it was
-              therefore the address that was wrong rather than the name. The
-              catalogue is the definitive list of what is built, what is
-              specified and what was set aside.
-            </p>
-            <p className="mt-2 text-sm">
-              <Link
-                className="underline underline-offset-4"
-                href={routes.docs("components")}
-              >
-                Component catalogue and status matrix
-              </Link>
-            </p>
-          </li>
-
-          <li>
-            <h2 className="font-medium">
               You asked for a component that does not exist at all.
             </h2>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-              {builtComponentCount()} components are implemented, at alpha, and
-              installable from this origin&rsquo;s registry; the rest of the
-              roster is a specification or a name that was considered and
-              refused. An id in neither group has no page, no specification and
-              no roadmap entry. If an assistant told you such a component exists
-              and sent you here, the honest answer is that it does not. The
-              machine-readable catalogue at the foot of this page, not the
-              assistant, is the authority on which group any name is in.
+              {builtComponentCount()} components are implemented and
+              installable from this origin&rsquo;s registry. None of them has
+              had an accessibility review or a clinical review. An id that names
+              none of them has no page, no specification and no roadmap entry.
+              If an assistant told you such a component exists and sent you
+              here, the honest answer is that it does not. The machine-readable
+              catalogue at the foot of this page, not the assistant, is the
+              authority on which names exist.
             </p>
             <p className="mt-2 text-sm">
               <Link

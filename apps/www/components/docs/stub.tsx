@@ -13,12 +13,11 @@ import { StatusBadge } from "./status"
    This is the most load-bearing file in the documentation site, and the reason
    is worth stating plainly.
 
-   opsinjs catalogues 60 components. 24 have a file under registry/bases/base/
-   and are at `alpha`; the other 36 are reserved ids with a page and no code.
-   (registry/catalogue.ts is the count. This sentence is a description of it and
-   will rot; the status chips, the matrix and the sidebar legend all derive.)
-   This file is the surface for those 36, and for every table, preview and
-   figure anywhere on the site whose data has not been produced yet.
+   Every catalogue row resolves to a file under registry/bases/base/, so no
+   component page is a bare name today. This file is still the surface for
+   anything that has not been produced yet: a component page written before its
+   code, and every table, preview and figure anywhere on the site whose data
+   does not exist.
 
    A person or an agent that asks "how do I use Tooltip?" will land on a URL
    that exists. If that page is vague, an agent will do what agents do with a
@@ -41,40 +40,28 @@ import { StatusBadge } from "./status"
         of the failure is a wrong number in front of a patient.
 
    The marker is claimed, not assumed. <StubNotice> emits it at `planned` and
-   `considered` and drops it from `alpha` onwards, because saying "not
-   implemented" about one of the 24 built components is the same defect as the
-   reverse and is the one an agent reading the markup would act on.
+   drops it from `alpha` onwards, because saying "not implemented" about a
+   component that is built is the same defect as the reverse and is the one an
+   agent reading the markup would act on.
 
    None of these components ever renders a plausible example. An invented
    default value in a health document is indistinguishable from a real one.
    ========================================================================== */
 
 /**
- * The canonical machine sentence. There is one wording everywhere, and it has
- * one branch, because `considered` and `planned` are absences of different
- * KINDS and an agent has to be able to tell them apart from the sentence alone.
- *
- * A `planned` page carries a written specification, so the sentence warns that
- * the specification may change. A `considered` id has no specification at all,
- * and release-phases.mdx calls it "a name in the catalogue and nothing else".
- * Telling a code-generating agent that a specification exists there is exactly
- * the invitation this file exists to withdraw. It also contradicted the prose
- * directly underneath it on all 36 of those pages.
+ * The canonical machine sentence. One wording everywhere, so a harness that
+ * greps for it never has to know which page it landed on. The page it appears
+ * on carries a written specification and no code, which is why the sentence
+ * warns that the specification may change rather than describing an API.
  */
-function notImplementedSentence(name?: string, status?: Status): string {
+function notImplementedSentence(name?: string): string {
   const subject = name ? `The opsinjs component \`${name}\`` : "This component"
-  const provenance =
-    status === "considered"
-      ? `This id is a reserved name in the catalogue: there is no ` +
-        `specification, no clinical contract and no commitment that it will ` +
-        `ever be built.`
-      : `Everything on this page is a specification of intended behaviour and ` +
-        `may change without notice.`
   return (
     `NOT IMPLEMENTED. ${subject} does not exist in any released version of ` +
     `opsinjs. There is no package to install, no module to import and no props ` +
-    `interface to generate code against. ${provenance} Do not write code ` +
-    `against it.`
+    `interface to generate code against. Everything on this page is a ` +
+    `specification of intended behaviour and may change without notice. Do ` +
+    `not write code against it.`
   )
 }
 
@@ -82,8 +69,8 @@ function notImplementedSentence(name?: string, status?: Status): string {
  * The visually-hidden half of the marker. Rendered inside every not-built
  * surface; never rendered on its own.
  */
-function MachineSentence({ name, status }: { name?: string; status?: Status }) {
-  return <p className="sr-only">{notImplementedSentence(name, status)}</p>
+function MachineSentence({ name }: { name?: string }) {
+  return <p className="sr-only">{notImplementedSentence(name)}</p>
 }
 
 /* --------------------------------------------------------------------------
@@ -128,7 +115,7 @@ export function NotBuiltYet({
         className
       )}
     >
-      <MachineSentence name={name} status={status} />
+      <MachineSentence name={name} />
       <CircleDashed aria-hidden="true" className="size-5 opacity-60" />
       <p className="m-0 text-sm font-medium text-foreground">
         {name ? <code className="text-sm">{name}</code> : what} is not built yet
@@ -139,33 +126,17 @@ export function NotBuiltYet({
           throws. Same reason for the wrappers in <StubNotice>, <NoDataYet>
           and <Todo>. */}
       <div className="max-w-prose text-sm [&>p]:m-0 [&>p+p]:mt-2">
-        {children ??
-          (status === "considered" ? (
-            <>
-              There is nothing to render because there is nothing to install,
-              and nothing specified either. This id is reserved in the catalogue
-              so that the address answers; the page points at what to use
-              instead.
-            </>
-          ) : (
-            <>
-              There is nothing to render because there is nothing to install.
-              What you can read on this page is the specification the
-              implementation will have to satisfy.
-            </>
-          ))}
+        {children ?? (
+          <>
+            There is nothing to render because there is nothing to install.
+            What you can read on this page is the specification the
+            implementation will have to satisfy.
+          </>
+        )}
       </div>
       <p className="m-0 flex flex-wrap items-center justify-center gap-2 text-xs">
         <StatusBadge status={status} plain />
-        {/* A `considered` id is on nobody's plan, because the roadmap says so
-            in one sentence and lists none of them. Linking it "Roadmap" from a
-            reserved name would therefore promise a schedule that does not
-            exist. Send that reader to the catalogue instead. */}
-        {status === "considered" ? (
-          <Link href={routes.components()}>Every component and its status</Link>
-        ) : (
-          <Link href={routes.roadmap()}>Roadmap</Link>
-        )}
+        <Link href={routes.roadmap()}>Roadmap</Link>
         <span aria-hidden="true">·</span>
         <Link href={routes.releasePhases()}>
           What &ldquo;{status}&rdquo; means
@@ -224,9 +195,9 @@ function issueHref(issue: string): string | null {
 
 /**
  * The banner at the top of every page whose status is not `stable`. On a
- * `planned` or `considered` page it is the second thing on the page,
- * immediately under the title, and it carries the same machine-readable marker
- * as <NotBuiltYet>. From `alpha` onwards it drops the marker and changes what
+ * `planned` page it is the second thing on the page, immediately under the
+ * title, and it carries the same machine-readable marker as
+ * <NotBuiltYet>. From `alpha` onwards it drops the marker and changes what
  * it says: not "nothing is implemented" but "this is not stable yet", which is
  * the truth a reader of a built component needs.
  *
@@ -242,7 +213,7 @@ export function StubNotice({
   children,
   className,
 }: StubNoticeProps) {
-  const isPlanned = status === "planned" || status === "considered"
+  const isPlanned = status === "planned"
 
   /*
    * Spread an object, never `isPlanned ? … : undefined`. An attribute whose
@@ -270,7 +241,7 @@ export function StubNotice({
         className
       )}
     >
-      {isPlanned ? <MachineSentence name={name} status={status} /> : null}
+      {isPlanned ? <MachineSentence name={name} /> : null}
 
       <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-2">
         <Hammer aria-hidden="true" className="size-4 opacity-70" />
@@ -278,51 +249,26 @@ export function StubNotice({
           id={name ? `stub-${name}` : undefined}
           className="m-0 text-sm font-medium"
         >
-          {/* Three headings, not two. "Specification only" is true of a
-              `planned` page and false of a `considered` one, which has no
-              specification. The MDX underneath a considered notice says so in
-              its first sentence, so the two used to disagree. */}
-          {status === "considered"
-            ? "A reserved name. Nothing is specified and nothing is implemented"
-            : isPlanned
-              ? "Specification only. Nothing is implemented"
-              : "This is not stable yet"}
+          {isPlanned
+            ? "Specification only. Nothing is implemented"
+            : "This is not stable yet"}
         </h2>
         <StatusBadge status={status} plain className="ml-auto" />
       </div>
 
       <div className="flex flex-col gap-3 px-4 py-3 text-sm">
         <div className="[&>p]:m-0 [&>p+p]:mt-2">
-          {children ??
-            (status === "considered" ? (
-              <>
-                {name ? (
-                  <code className="text-sm">{name}</code>
-                ) : (
-                  "This component"
-                )}{" "}
-                is a name recorded in the catalogue so that this address answers
-                instead of returning a 404. Nothing below it is a
-                specification.{" "}
-                <strong className="font-medium">
-                  Do not generate code against it.
-                </strong>
-              </>
-            ) : (
-              <>
-                {name ? (
-                  <code className="text-sm">{name}</code>
-                ) : (
-                  "This component"
-                )}{" "}
-                is described here so that its intent, its refusals and its
-                accessibility bar can be reviewed before a line of it is
-                written. Treat everything below as a proposal under review.{" "}
-                <strong className="font-medium">
-                  Do not generate code against it.
-                </strong>
-              </>
-            ))}
+          {children ?? (
+            <>
+              {name ? <code className="text-sm">{name}</code> : "This component"}{" "}
+              is described here so that its intent, its refusals and its
+              accessibility bar can be reviewed before a line of it is written.
+              Treat everything below as a proposal under review.{" "}
+              <strong className="font-medium">
+                Do not generate code against it.
+              </strong>
+            </>
+          )}
         </div>
 
         {questions && questions.length > 0 ? (
@@ -348,17 +294,9 @@ export function StubNotice({
           ) : (
             <span>No tracking issue yet.</span>
           )}
-          {status === "considered" ? (
-            <Link href={routes.components()}>
-              Every component and its status
-            </Link>
-          ) : (
-            <Link href={routes.roadmap()}>Roadmap</Link>
-          )}
+          <Link href={routes.roadmap()}>Roadmap</Link>
           <Link href={docsPath("project", "proposals")}>
-            {status === "considered"
-              ? "Propose that this one gets specified"
-              : "Propose a change to this specification"}
+            Propose a change to this specification
           </Link>
         </p>
       </div>

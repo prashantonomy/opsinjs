@@ -643,15 +643,12 @@ function resolveInstead(entry: WhenToUseAvoid): ResolvedInstead {
  * The one line under a prohibition that says what to reach for.
  *
  * It resolves the id rather than printing it. An `instead` that names a row
- * with no code behind it is not a mistake. Some of the most useful redirections
- * on this site point at a name that was considered and declined, and saying so
- * is more useful than pretending the name is a component. Rendering it as a
- * bare "Use `tooltip` instead" IS a mistake: the reader installs nothing, finds
- * nothing, and concludes the documentation is wrong about its own system. So
- * the status is named and the destination is still linked. For a considered
- * row the reason itself is printed inline, taken from the row's own `why`, so
- * the reader learns why the name was declined and what to reach for without a
- * round trip to a page that would only point back here.
+ * with no code behind it is not a mistake: a specification is a real answer to
+ * "what should I use", and saying so is more useful than pretending the name
+ * is installable. Rendering it as a bare "Use `tooltip` instead" IS a mistake:
+ * the reader installs nothing, finds nothing, and concludes the documentation
+ * is wrong about its own system. So the phase the roster records is named in
+ * the sentence and the destination is still linked.
  */
 function InsteadPointer({
   entry,
@@ -688,25 +685,6 @@ function InsteadPointer({
 
   if (built) {
     return <>Use {destination} instead.</>
-  }
-
-  if (target.status === "considered") {
-    if (target.why) {
-      return (
-        <>
-          The nearest name is {destination}, and it was considered and declined
-          and there is no code behind it today. {target.why}
-        </>
-      )
-    }
-    return (
-      <>
-        The nearest name is {destination}, and it was considered and declined:
-        there is no code behind it and none planned. Its page carries the reason
-        and names what to reach for in turn. Read that before you design around
-        the gap.
-      </>
-    )
   }
 
   if (target.status === "planned") {

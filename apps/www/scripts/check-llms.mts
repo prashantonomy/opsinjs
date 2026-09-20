@@ -507,9 +507,9 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
        THE HEADER ON THE SAME RESPONSE IS NOW COMPARED TOO, and this paragraph
        used to explain why it could not be. The reasoning was that a docs twin's
        URL is the system rather than one registry item, so `x-opsinjs-implemented`
-       read `true` on every page while any component was built - including the
-       36 `considered` ones - and asserting it against the frontmatter would
-       have failed 36 correct pages.
+       read `true` on every page while any component was built, including the
+       pages of components that had no code, and asserting it against the
+       frontmatter would have failed every one of those correct pages.
 
        That stopped being true when `pageHeaders()` in app/_machine/corpus.ts
        started answering per page: a twin that documents a component or a screen
@@ -524,9 +524,9 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
        guessing. It is sent on every twin and only by the per-page path, so its
        absence means the running build predates that change and its
        `x-opsinjs-implemented` is still the old system-scoped `true`. Comparing
-       that value would produce exactly the 36 false failures the old paragraph
+       that value would produce exactly the false failures the old paragraph
        was right to avoid, so it is reported once, as a warning naming the
-       build, rather than as 36 defects that are not in the source. */
+       build, rather than as a defect per page that is not in the source. */
     const rosterImplemented = new Map(
       items
         .filter((item) => typeof item.name === "string")
@@ -623,7 +623,7 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
           `send${systemScopedTwins.length === 1 ? "s" : ""} no \`x-opsinjs-status\` header, so ` +
           "the build being served predates the per-page machine headers and its " +
           "`x-opsinjs-implemented` is still the system-scoped answer - `true` on every twin, " +
-          "including the considered components that have no code. The header was not compared " +
+          "including any page whose subject has no code. The header was not compared " +
           "against the pages, because on this build it is not a claim about them. Rebuild the " +
           "site and run this again to check it.",
       )

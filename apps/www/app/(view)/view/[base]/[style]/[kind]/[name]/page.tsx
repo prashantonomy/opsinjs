@@ -78,10 +78,8 @@ const VIEW_KIND_NOUN: Record<ViewKind, string> = {
  * say because nobody has ever specified this name.
  */
 interface UnbuiltFrame {
-  /** The real release phase, never a default. */
-  status: Status
-  /** Replaces the generic empty-state prose when the roster says something better. */
-  detail?: string
+  /** The release phase the roster records, when there is one. */
+  status?: Status
 }
 
 /**
@@ -91,40 +89,30 @@ interface UnbuiltFrame {
  * lookup:
  *
  * - `component` is answered by `registry/catalogue.ts`, through
- *   `explainUnresolved()`. It already separates the three answers this route
- *   needs, and for a `considered` id it carries the reason and the alternative,
- *   which is the opposite message from "planned" and must not be flattened into
- *   it.
+ *   `explainUnresolved()`. It already separates a specified-but-unbuilt id from
+ *   an id nobody has ever catalogued, which is the distinction this route
+ *   needs.
  * - `example` comes from the generated registry index, which is the whole
  *   roster: an example exists because a file exists under `registry/examples/`,
  *   so there is no such thing as a specified-but-unbuilt example and a miss is
  *   a 404. The caller has already tried that lookup, so a miss arrives here as
  *   `null`.
  * - `screen` is specified in the documentation corpus as a page under
- *   `content/docs/screens/`, and nothing else declares one. Its frontmatter
- *   `status` is the status, so this route never has to guess at one.
+ *   `content/docs/screens/`, and nothing else declares one. A screen page
+ *   carries no release phase; the empty state names the screen and says
+ *   nothing about a phase.
  */
 function describeUnbuilt(kind: ViewKind, name: string): UnbuiltFrame | null {
   if (kind === "component") {
     const unresolved = explainUnresolved(name)
     if (unresolved.reason === "unknown" || unresolved.status === null)
       return null
-    return {
-      status: unresolved.status,
-      /* A `considered` id is a decision rather than a gap, and the catalogue
-         already holds the sentence that says so. That sentence gives the reason
-         it was refused and what to use instead. A reader sent here by a stale
-         link is owed that, not the generic "the implementation will have to
-         satisfy it" copy, which would describe an implementation nobody intends
-         to write. */
-      detail:
-        unresolved.reason === "considered" ? unresolved.message : undefined,
-    }
+    return { status: unresolved.status }
   }
 
   if (kind === "screen") {
     const page = getPage(["screens", name])
-    return page ? { status: page.data.status } : null
+    return page ? {} : null
   }
 
   return null
@@ -220,8 +208,7 @@ export default async function ViewPage(
          * The honest empty state, and the reason this route was worth shipping
          * before a single component existed. It names the component and states
          * the status the roster actually records for it, which is never a
-         * default, because `considered` and `planned` mean opposite things and
-         * the chip is the first thing read. It also points at the
+         * default. It also points at the
          * specification, and emits the machine-readable not-implemented marker,
          * so an agent that follows a preview URL is told plainly that there is
          * nothing to render, instead of getting a blank iframe it will read as
@@ -231,9 +218,7 @@ export default async function ViewPage(
           name={name}
           what={VIEW_KIND_NOUN[kind]}
           status={unbuilt?.status}
-        >
-          {unbuilt?.detail}
-        </NotBuiltYet>
+        />
       )}
     </main>
   )

@@ -115,8 +115,8 @@ export interface PageTemplateProps {
    * generated page passes its real status, and registry/catalogue.ts is where
    * those live. The default therefore only ever catches a page that forgot to
    * declare one. `planned` is what that page should be held to: it claims the
-   * least about the code while still resolving to a real outline, where
-   * `considered` resolves to an empty one and would check nothing at all.
+   * least about the code while still resolving to a real outline, so a page
+   * that forgot its status is still checked against something.
    */
   status?: Status
   /**

@@ -1,6 +1,6 @@
 ---
 title: Catalogue
-description: Every component id the system has declared, with its category, status, aliases and page. Shipped and considered ids both appear.
+description: Every component id the system has declared, with its category, status, aliases and page.
 status: stable
 kind: reference
 full: true
@@ -8,7 +8,7 @@ owner: core
 reviewed: 2026-09-02
 reviewer: engineering
 reviewEvery: 3m
-aliases: [component list, considered components, does opsinjs have]
+aliases: [component list, does opsinjs have]
 ---
 
 <PageTemplate kind="reference" />
@@ -32,13 +32,6 @@ clinical contract section and at least one governing doctrine page. *Status* is
 one of the six [release phases](../../project/release-phases.mdx). *Aliases* are
 the search synonyms, which is how "lab result" and "blood pressure" find their
 way to the right row. *Page* links to the specification, where one exists.
-
-**Considered rows are the important ones.** A row with `status: considered` is a
-name we have reserved, with no specification and no implementation. It exists so
-that asking about it returns a definite negative and a pointer at the alternative
-rather than a 404 that invites a program to invent an API.
-[ADR 0008](../../project/decisions/0008-considered-components-resolve.mdx)
-records exactly how those ids resolve and why the answer is not a catch-all route.
 
 **What is deliberately excluded.** Parts of compound components are not catalogue
 entries, so a dialog's panel is documented on the dialog page, not as its own id.
@@ -111,9 +104,5 @@ registry, not here.
 | `slider` | actions-and-forms | alpha | unreleased | range input, drag to set |
 | `combobox` | actions-and-forms | alpha | unreleased | autocomplete, typeahead, search select |
 | `scroll-area` | layout | alpha | unreleased | scroller, overflow container |
-
-## Considered
-
-<NoDataYet script="scripts/build-registry.mts" />
 
 {/* opsinjs:generated:end */}

@@ -32,7 +32,7 @@ import { agentRoutes, registryRoutes, routes } from "@/lib/routes"
  * inventing an API. A 404 is the one response that invites exactly that: ask an
  * assistant for `SymptomPicker`, let it hit a dead URL, and it will cheerfully
  * write you a component. So this page answers the question instead of
- * shrugging. It says what the three real causes are and where the definitive
+ * shrugging. It says what the two real causes are and where the definitive
  * answer for each one lives.
  */
 export default function NotFound() {
@@ -52,43 +52,28 @@ export default function NotFound() {
         <p className="nf-lede">
           That is a real answer, not a redirect to the home page. If you followed
           a link from somewhere on this site, it is a bug and worth reporting.
-          Otherwise it is almost always one of three things.
+          Otherwise it is almost always one of two things.
         </p>
 
         <ol className="nf-list">
           <li>
-            <h2>
-              You asked for a component under a name that has moved on.
-            </h2>
+            <h2>You asked for a component that does not exist at all.</h2>
             <p>
-              Every component idea opsinjs once merely <em>considered</em> has
-              since been built to at least alpha, so the considered roster is
-              empty today. Each of those names now answers at its canonical
-              address under the component catalogue as a real component page. So
-              if a name you remember as set aside brought you here, it was the
-              address that was wrong rather than the name. The catalogue is the
-              definitive list of what is built and at what status.
+              Every component in the catalogue is implemented and installable
+              from this origin&rsquo;s registry, and none of them has had an
+              accessibility review or a clinical review. An id that names none
+              of them has no page, no specification and no roadmap entry. If an
+              assistant told you such a component exists and sent you here, the
+              honest answer is that it does not. The machine-readable catalogue
+              at the foot of this page, not the assistant, is the authority on
+              which components exist, and the catalogue linked below carries
+              the count.
             </p>
             <p>
               <Link href={routes.docs("components")}>
                 Component catalogue and status matrix
               </Link>
-            </p>
-          </li>
-
-          <li>
-            <h2>You asked for a component that does not exist at all.</h2>
-            <p>
-              Sixty components are implemented and installable from this
-              origin&rsquo;s registry, twenty-five at beta and thirty-five at
-              alpha, and the considered roster is empty. An id that names none of
-              these has no page, no specification and no roadmap entry. If an
-              assistant told you such a component exists and sent you here, the
-              honest answer is that it does not. The machine-readable catalogue
-              at the foot of this page, not the assistant, is the authority on
-              which components exist and at what status.
-            </p>
-            <p>
+              {" · "}
               <Link href={routes.docs("project", "roadmap")}>Roadmap</Link>
               {" · "}
               <Link href={routes.docs("project", "state-of-the-system")}>

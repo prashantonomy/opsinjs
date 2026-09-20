@@ -274,10 +274,9 @@ export function ComponentSource({
      bury the one the reader needs to know about. */
   const body =
     source == null ? (
-      /* The phase reaches <NotBuiltYet> because its visually-hidden sentence
-         differs at `considered`, where there is no specification, from what it
-         says at `planned`, where there is one. Reading it off the catalogue
-         rather than accepting it as a prop keeps a page from asserting one. */
+      /* The phase reaches <NotBuiltYet> so the empty state's chip prints the
+         phase the roster records. Reading it off the catalogue rather than
+         accepting it as a prop keeps a page from asserting one. */
       <NotBuiltYet
         name={name}
         status={getEntry(name)?.status}

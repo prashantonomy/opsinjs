@@ -55,14 +55,7 @@ breaks only in a minor release with a documented migration, and none of it has
 been through an accessibility or clinical review. Nothing here belongs on a
 production health surface yet.
 
-The considered roster is empty. Every name once reserved has been built out to at
-least `alpha`, recorded in
-[ADR 0022](./project/decisions/0022-considered-roster-built-out.mdx). The
-reserved-name mechanism from
-[ADR 0008](./project/decisions/0008-considered-components-resolve.mdx) still
-stands, so a future `considered` id would answer at its guessable URL with a short
-generated page rather than a 404, but nothing occupies it today. And the
-**specification** is still the part that is hardest to retrofit: every component
+The **specification** is the part that is hardest to retrofit: every component
 page states what the component asserts about a person's health, what it must
 never be read as, which colour axis it may use, who owns its thresholds, and the
 accessibility bar it has to clear.
@@ -150,8 +143,8 @@ Beyond that:
 - **[Recipes](./recipes/index.mdx)** is task-first. "Show a value against a
   reference range" is a recipe; `RangeBar` is a component.
 - **[Components](./components/index.mdx)** has the sixty implemented components
-  and their specifications. Every catalogue name has been built out, so the
-  considered roster is empty and each row now points at code.
+  and their specifications. Every catalogue name has been built out, so each row
+  points at code.
 - **[Screens](./screens/index.mdx)** is the assembly, and it is where to go if
   you want to see the system working rather than read about it. The
   [diabetes medicines app](./screens/diabetes-medicines-app.mdx) is a whole

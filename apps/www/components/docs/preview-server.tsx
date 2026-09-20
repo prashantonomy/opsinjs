@@ -64,11 +64,10 @@ function resolvesToARender(
  *
  * Resolved here for the same reason `built` is: the phase is a fact about
  * registry/catalogue.ts, and `lib/catalogue` must not cross into a client
- * module. Only the resolved word crosses, and it matters because <NotBuiltYet>
- * says something different at `considered` from what it says at `planned`.
- * There is no specification at `considered`, and at `planned` there is one. An
- * id that is not a catalogue row (an example, a screen) resolves to nothing
- * and the surface falls back to its own default.
+ * module. Only the resolved word crosses, and it is what the empty state's
+ * chip prints, so a page cannot assert a phase its row does not record. An id
+ * that is not a catalogue row (an example, a screen) resolves to nothing and
+ * the surface falls back to its own default.
  */
 function phaseOf(name: string | undefined): Status | undefined {
   return name ? getEntry(name)?.status : undefined

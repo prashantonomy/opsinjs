@@ -39,10 +39,9 @@
  * Implementation is not a phase: it is whether `registry/__index__.ts` has
  * source behind the id, which is what `implementedComponents()` answers and
  * what `/r/index.json` publishes. So the claim is made only on a component
- * page, where it can be checked against the built set. The
- * `planned`/`considered` wording mirrors `notImplementedNotice()` in
- * `app/_machine/corpus.ts` rather than being a second opinion about which
- * phases have code. Doctrine pages get their phase and no implementation claim
+ * page, where it can be checked against the built set. The `planned` wording
+ * mirrors `notImplementedNotice()` in `app/_machine/corpus.ts` rather than
+ * being a second opinion about which phases have code. Doctrine pages get their phase and no implementation claim
  * in either direction, because a prose page is not a thing that ships.
  */
 
@@ -87,7 +86,7 @@ export const { GET } = createFromSource(source, {
             ? `Release status: ${meta.status}. Implemented and installable from the registry.`
             : `Release status: ${meta.status}. Implemented and installable from the registry; the API is not stable yet.`,
       })
-    } else if (meta.status === "planned" || meta.status === "considered") {
+    } else if (meta.status === "planned") {
       contents.push({
         heading: undefined,
         content: `Release status: ${meta.status}. Not implemented.`,

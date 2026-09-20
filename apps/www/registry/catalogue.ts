@@ -3,8 +3,8 @@
  *
  * Everything downstream reads this file and nothing re-declares it: the status
  * matrix, the sidebar chips, `/r/index.json`, `/r/registry.json`, `llms.txt`,
- * the roadmap, and the "considered, not implemented" answer an agent gets when
- * it asks about a component that will never have a hand-written page.
+ * and the roadmap. An id that has no row here has no page and no registry item,
+ * and the routes answer with a 404 rather than with a guess.
  *
  * ────────────────────────────────────────────────────────────────────────────
  * THIS FILE OWNS THE ENTIRE ALIAS NAMESPACE.
@@ -41,11 +41,7 @@
  * phase is a promise of full stability: at alpha the API may change in any
  * release without a deprecation cycle, at beta it breaks only in a minor release
  * with a documented migration, and none of it has been through an accessibility
- * or clinical review. The considered roster is empty: every name it once held has
- * been built out to `alpha`, recorded in ADR 0022. A future `considered` row
- * still gets a generated stub page at its guessable URL under ADR 0008, so the
- * address answers instead of returning a 404. That mechanism simply has nothing
- * to render for now.
+ * or clinical review.
  *
  * `planned` means specified in full, with no code. See `lib/status.ts`. It is
  * still a legal status and pages elsewhere in the corpus use it, but no row in
@@ -181,8 +177,7 @@ export interface CatalogueEntry {
    * file hard-codes on a Surface, counts as painted here even though Surface
    * does the painting: the component chose the rung, so the pair is one a reader
    * of this component asks about. Every component paints text
-   * or a boundary, so every built row names `neutral` at least. Leave the field
-   * off a `considered` row: it has no code and no page to carry a report.
+   * or a boundary, so every built row names `neutral` at least.
    */
   contrastScopes?: string[]
   /**
@@ -207,37 +202,10 @@ export interface CatalogueEntry {
    * `@opsinjs/` when it serves the item, which is what makes shadcn resolve the
    * dependency against this registry instead of against ui.shadcn.com.
    *
-   * Every id must be a real catalogue `name`. A dependency on a `considered`
-   * row is a dependency on something that will never exist.
+   * Every id must be a real catalogue `name`. A dependency on an id with no row
+   * here is a dependency on something that does not exist.
    */
   registryDependencies?: string[]
-  /**
-   * Considered rows only: why it is not on the shipped roster. This is what an
-   * agent gets back instead of a 404, and it is the reason the considered
-   * roster is in the catalogue at all. Plain prose, no markdown: it is rendered
-   * as MDX on the generated stub page AND as a text node in the status matrix,
-   * and a link written here shows up as literal brackets in the second.
-   */
-  why?: string
-  /**
-   * Considered rows only: what to reach for instead, and EVERY ID HERE MUST BE
-   * ONE OF THE 25 BUILT ONES.
-   *
-   * `emitConsideredStub` in `scripts/build-registry.mts` turns each id into a
-   * link on the stub page, so naming another `considered` row resolves. It
-   * hands the reader a second page that also says "not built, use something
-   * else". That is the dead end this roster exists to prevent: the point of the
-   * row is that the answer ends here. `tabs` and `segmented-control` used to
-   * name each other, which sent an agent round in a circle, and four other rows
-   * pointed one hop into the unbuilt set.
-   *
-   * When no built component is the honest answer, OMIT THE FIELD rather than
-   * naming an unbuilt id. The generator then says there is no direct
-   * replacement and points at the catalogue, and `why` above carries the real
-   * answer. For the rows delegated to Base UI, that answer is Base UI's own
-   * component, which is not ours to list here.
-   */
-  useInstead?: string[]
 }
 
 /**
@@ -1529,25 +1497,10 @@ export const SHIPPED: CatalogueEntry[] = [
 ]
 
 /**
- * THE CONSIDERED ROSTER. Empty today.
- *
- * A considered row is a name the catalogue has recorded and declined to build,
- * with no hand-written page. What it has is a row here, a row in the status
- * matrix, a row in `/r/index.json`, and a definitive machine-readable answer at
- * a guessable URL saying "considered, not planned, not implemented. Do not
- * generate code against this", with `useInstead` naming what to reach for.
- *
- * That last property is the whole point. An agent that gets a 404 for a component
- * name will invent an API and ship it; an agent that gets a considered row will
- * not. The roster is empty right now, because every name it once held has been
- * built out to `alpha` (see ADR 0022). The mechanism stays for the next declined
- * name: add a row here with a `why` and, where an honest built alternative exists,
- * a `useInstead`, and `scripts/build-registry.mts` generates its stub page again.
+ * Every catalogue row. Both names are exported and both are kept: `SHIPPED` is
+ * what the rows are, and `CATALOGUE` is the name twenty call sites import.
  */
-export const CONSIDERED: CatalogueEntry[] = []
-
-/** Every catalogue row, shipped first, then considered. */
-export const CATALOGUE: CatalogueEntry[] = [...SHIPPED, ...CONSIDERED]
+export const CATALOGUE: CatalogueEntry[] = SHIPPED
 
 /**
  * RESERVED ALIASES are synonyms that belong to a doctrine or content page

@@ -145,10 +145,7 @@ export function siteSummary(): string {
      denominator somebody has to remember to change is a denominator that
      rots. */
   const rows = getCatalogue().rows
-  /* `shipped` is the catalogue's own word for "more than a reserved name":
-     every row that is not `considered` has a written specification page. */
-  const specified = rows.filter((row) => row.shipped).length
-  const reserved = rows.length - specified
+  const specified = rows.length
   const builtSet = new Set(built)
   const builtRows = rows.filter((row) => builtSet.has(row.name))
   /* Derived, not asserted. "They are all alpha" is true today and is exactly
@@ -187,22 +184,18 @@ export function siteSummary(): string {
 
   /* What everything else on the roster is. Deleting this clause once the
      specified set is covered would trade one omission for another: it is the
-     only sentence here that tells a reader the `considered` ids and the screen
-     pages have no code. */
+     only sentence here that tells a reader the screen pages have no code. */
   const remainder =
     specified > 0 && built.length >= specified
       ? [
-          reserved > 0
-            ? `The other ${reserved} ids in the catalogue are \`considered\`: reserved names, recorded so the URL answers with something better than a 404, with no specification and no code behind them.`
-            : "Every id in the catalogue is implemented; none is merely reserved.",
+          "Every id in the catalogue is implemented.",
           "The screen pages are specimens; none of them is implemented either.",
         ]
       : [
-          "Every other component page is either a specification or a `considered`",
-          "id. A specification carries intent, when not to use it (naming the",
-          "alternative), the clinical contract, the proposed anatomy and API, and",
-          "the accessibility bar the implementation must clear. A `considered` id",
-          "is a reserved name with no specification and no code.",
+          "Every other component page is a specification. A specification",
+          "carries intent, when not to use it (naming the alternative), the",
+          "clinical contract, the proposed anatomy and API, and the",
+          "accessibility bar the implementation must clear.",
         ]
 
   return [
@@ -367,16 +360,6 @@ export interface CatalogueRow {
   /** e.g. `health-data-display`, `surfaces`, `feedback`. */
   category: string
   status: string
-  /**
-   * `true` for every id that is more than a reserved name. An id qualifies
-   * when it has a written specification page behind it, whether or not that
-   * page's component has been built yet. It is NOT an implementation flag:
-   * `implemented` on the roster row answers that, from the registry index.
-   * Defaulted from `status !== "considered"` when the catalogue row does not
-   * declare it, which is the same rule stated twice; no count is written down
-   * here, because a count in a comment is a count nobody updates.
-   */
-  shipped: boolean
   since?: string
   owner?: string
   a11yDate?: string
@@ -417,7 +400,6 @@ const KNOWN_ROW_KEYS = new Set([
   "description",
   "category",
   "status",
-  "shipped",
   "since",
   "owner",
   "a11yDate",
@@ -449,8 +431,6 @@ function normaliseRow(input: unknown): CatalogueRow | null {
         : "No description in the catalogue yet.",
     category: typeof row.category === "string" ? row.category : "uncategorised",
     status,
-    shipped:
-      typeof row.shipped === "boolean" ? row.shipped : status !== "considered",
     since: typeof row.since === "string" ? row.since : undefined,
     owner: typeof row.owner === "string" ? row.owner : undefined,
     a11yDate: typeof row.a11yDate === "string" ? row.a11yDate : undefined,

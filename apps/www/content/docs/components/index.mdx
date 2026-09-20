@@ -1,6 +1,6 @@
 ---
 title: Components
-description: Every component opsinjs has specified, every component it has deliberately not specified yet, and the status of each are listed together so nobody has to guess whether something exists.
+description: Every component opsinjs has specified, with the status of each, listed in one table so nobody has to guess whether something exists.
 status: stable
 kind: reference
 since: "unreleased"
@@ -9,7 +9,7 @@ icon: Boxes
 
 <PageTemplate kind="reference" />
 
-**Every component on the shipped roster is implemented and installable.** Each has a
+**Every component in the catalogue is implemented and installable.** Each has a
 file under `registry/bases/base/`, a registry item the shadcn CLI copies into a project,
 and a page that documents the cases it refuses as carefully as the ones it serves. Every
 one is `alpha` or `beta`, and no further: none has been through an independent
@@ -20,28 +20,20 @@ from the component name.
 
 That is what this page is for. The failure it exists to prevent is an agent, or a
 developer in a hurry, inferring an API from a plausible name and shipping it into a
-product that shows people their own health data. A definitive answer at a guessable URL,
-whether the component is built or a name the catalogue has recorded and declined, is
-worth more than a 404, and far more than an invented answer.
+product that shows people their own health data. A definitive answer at a guessable URL
+is worth more than a 404, and far more than an invented answer.
 
 <SectionProgress />
 
-Two rosters, one table. **Shipped** ids have code, a registry item and a hand-written
-page. **Considered** ids are recorded in the catalogue with a category and a reason and
-have neither code nor a specification; their address answers with a generated stub
-carrying that reason rather than a 404. The considered roster is empty today: every name
-it once held has been built out to `alpha`, recorded in
-[ADR 0022](../project/decisions/0022-considered-roster-built-out.mdx), and the stub
-mechanism remains for any future declined name. Filter by category or status, or search
-the synonyms: `normal range`, `kpi`, `gauge`, `not medical advice`, `ago`.
+Every id in the catalogue has code, a registry item and a hand-written page. Filter by
+category or status, or search the synonyms: `normal range`, `kpi`, `gauge`, `not medical
+advice`, `ago`.
 
-<StatusMatrix rosters={["shipped", "considered"]} />
+<StatusMatrix />
 
 **Status is a promise about change, not a quality score.** `alpha` means the code exists
 and is documented, and the API may move in any release without a deprecation cycle.
-`beta` means it breaks only in a minor release with a documented migration. `considered`
-means the catalogue has recorded a name and declined to build it, with the reason written
-down; no id carries that status today.
+`beta` means it breaks only in a minor release with a documented migration.
 [Release phases](../project/release-phases.mdx) has the full ladder, which sets out what
 each phase promises about semver, accessibility and the registry.
 
@@ -71,7 +63,7 @@ it is the component the rest of the system is arranged around.
 
 ## How this is generated
 
-The table above is not hand-maintained. Both rosters come from `registry/catalogue.ts`,
+The table above is not hand-maintained. Every row comes from `registry/catalogue.ts`,
 the single declaration of every component id, its category, its status and its alias
 namespace. `scripts/build-registry.mts` reads it and writes `lib/generated/catalogue.json`
 and `public/r/index.json`; `<StatusMatrix>` renders that JSON and `<SectionProgress>`

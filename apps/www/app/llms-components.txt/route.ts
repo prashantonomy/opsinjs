@@ -11,10 +11,9 @@
  * documented is the API installed. Some are specifications with nothing to
  * install behind them. A specification carries intent, when not to use it and
  * what to reach for instead, the clinical contract, the proposed anatomy and
- * API, and the accessibility bar an implementation has to clear. Some are
- * reserved names on the considered roster, kept so the URL answers with
- * something better than a 404. A page that is not built says so in a NOT
- * IMPLEMENTED notice of its own, directly above the API it sketches.
+ * API, and the accessibility bar an implementation has to clear. A page that
+ * is not built says so in a NOT IMPLEMENTED notice of its own, directly above
+ * the API it sketches.
  *
  * No count belongs in this comment. The shard is assembled per build from the
  * registry, so a number typed here would be wrong on the day the next

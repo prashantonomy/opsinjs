@@ -42,9 +42,8 @@ import { cn } from "@/lib/utils"
    it.
 
    SERVER-ONLY BY DESIGN. Everything here reads registry/catalogue.ts through
-   lib/catalogue.ts, which is a real, populated array: sixty rows resolve to a
-   file under registry/bases/base/, twenty-five at beta and thirty-five at
-   alpha, and the considered roster is empty. The matrix and the card index read
+   lib/catalogue.ts, which is a real, populated array: every row resolves to a
+   file under registry/bases/base/. The matrix and the card index read
    each row's phase from the row rather than from a sentence somebody maintained.
    Do not add "use client" to this file, and do
    not import it from a client component: it would drag the whole catalogue into
@@ -132,9 +131,9 @@ export function StatusBadge({
    -------------------------------------------------------------------------- */
 
 /**
- * The release phases that mean there is code to install. `planned` and
- * `considered` mean there is not; `deprecated` means there still is, which is
- * the whole reason it is a separate phase from the two that are empty.
+ * The release phases that mean there is code to install. `planned` means there
+ * is not; `deprecated` means there still is, which is the whole reason it is a
+ * separate phase from the one that is empty.
  */
 const IMPLEMENTED_PHASES: readonly Status[] = [
   "stable",
@@ -168,13 +167,11 @@ export function StatusLegend({ className }: { className?: string }) {
     >
       <p className="m-0 leading-snug text-muted-foreground">
         {built} of the {rows.length} catalogued components are built and
-        installable. The rest are specifications: a page marked planned or
-        considered has no code behind it.
+        installable. The rest are specifications: a page marked planned has no
+        code behind it.
       </p>
       <ul className="m-0 flex list-none flex-wrap gap-1 p-0">
-        {(
-          ["stable", "beta", "alpha", "planned", "considered"] as const
-        ).map((phase) => (
+        {(["stable", "beta", "alpha", "planned"] as const).map((phase) => (
           <li key={phase} className="m-0">
             <StatusBadge status={phase} plain />
           </li>
@@ -260,10 +257,7 @@ export function SectionProgress({
    -------------------------------------------------------------------------- */
 
 export interface StatusMatrixProps {
-  /**
-   * Override the rows. Omit it and the whole catalogue is used, shipped and
-   * considered together. That mix is the point of the page it lives on.
-   */
+  /** Override the rows. Omit it and the whole catalogue is used. */
   rows?: CatalogueEntry[]
   /** Restrict to one category prefix. */
   category?: string
@@ -272,8 +266,8 @@ export interface StatusMatrixProps {
 }
 
 /**
- * Every component and every considered row in one table: id, what it is,
- * category, release phase, last accessibility review, search synonyms.
+ * Every catalogue row in one table: id, what it is, category, release phase,
+ * last accessibility review, search synonyms.
  *
  * Filtering is done in CSS, not JavaScript. The facet controls are real radio
  * inputs and non-matching rows are hidden with `:has()`, which means the matrix
@@ -282,11 +276,8 @@ export interface StatusMatrixProps {
  * NOT reimplemented here: the site search already indexes every row's aliases,
  * and a second, worse search box beside it would send people to the wrong one.
  *
- * The `considered` rows are the reason this table matters more than it looks.
- * They have no page, so the only answer an agent gets when it asks about
- * `toast` is their name here, which carries the reason and the alternative.
- * That answer is a definitive "no, and here is what to use instead" rather than
- * a 404 it would fill in by inventing an API.
+ * It is the one place a reader or an agent can see the whole namespace at once,
+ * which is what stops either of them guessing at a name opsinjs does not have.
  */
 export function StatusMatrix({
   rows,
@@ -465,14 +456,6 @@ ${categories
                 </th>
                 <td className="py-2 pr-3 text-muted-foreground">
                   {row.description}
-                  {row.why ? (
-                    <span className="block pt-1 text-xs">
-                      Not on the roster: {row.why}
-                      {row.useInstead?.length ? (
-                        <> Use {row.useInstead.join(" or ")} instead.</>
-                      ) : null}
-                    </span>
-                  ) : null}
                 </td>
                 <td className="py-2 pr-3 whitespace-nowrap">
                   {CATALOGUE_CATEGORY_LABELS[row.category]}
@@ -502,8 +485,6 @@ ${categories
 export interface ComponentsListProps {
   /** Restrict to one category prefix, e.g. `health-` or `health-input`. */
   category?: string
-  /** Show considered rows too. Off by default: they have no page to link to. */
-  includeConsidered?: boolean
   className?: string
 }
 
@@ -514,13 +495,10 @@ export interface ComponentsListProps {
  */
 export function ComponentsList({
   category,
-  includeConsidered = false,
   className,
 }: ComponentsListProps) {
   const entries = getCatalogue().filter(
-    (entry) =>
-      (!category || entry.category.startsWith(category)) &&
-      (includeConsidered || entry.status !== "considered")
+    (entry) => !category || entry.category.startsWith(category)
   )
 
   if (entries.length === 0) {

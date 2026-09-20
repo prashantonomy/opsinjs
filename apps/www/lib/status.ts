@@ -530,15 +530,12 @@ const SHIPPED_SECTIONS: string[] = [
  * they know what to look for, and because two spellings gave every enforcer an
  * alias table to keep in step.
  *
- * `considered` is the short one, and it is a real outline rather than an empty
- * list. Those pages are not authored: `emitConsideredStub()` in
- * `scripts/build-registry.mts` generates each one from its catalogue row with
- * exactly these three headings, which is the whole of what ADR 0008 allows a
- * page for a component nobody has designed. Leaving the entry out would make
- * `componentSections("considered", …)` empty, and the machine-readable page
- * contract `<PageTemplate>` emits would then tell an agent that a considered
- * page is entitled to no sections at all. Yet the page in front of it has
- * three. Keep this list and the generator in step.
+ * `considered` is a dead entry and is on its way out with the phase itself.
+ * Nothing carries that status: no catalogue row, no page, and no generator
+ * writes one. It is still keyed here only because `Status` still lists the
+ * word and this table is a `Record<Status, string[]>`, so removing one without
+ * the other would not compile. Both go together in the commit that shrinks the
+ * vocabulary; do not write a page against this outline in the meantime.
  */
 export const COMPONENT_SECTIONS_BY_STATUS: Record<Status, string[]> = {
   planned: [

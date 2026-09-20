@@ -178,14 +178,13 @@ shared substrate a copied component carries with it is listed under
 | `getAllPages` | function | `lib/source.ts` | Every page in the corpus. The input to the sitemap, llms.txt and the shards. |
 | `getByCategory` | function | `lib/catalogue.ts` | - |
 | `getByStatus` | function | `lib/catalogue.ts` | - |
-| `getCatalogue` | function | `lib/catalogue.ts` | Every row, shipped then considered. |
-| `getConsidered` | function | `lib/catalogue.ts` | The rows that were considered and deliberately left off the roster. |
+| `getCatalogue` | function | `lib/catalogue.ts` | Every row. |
 | `getEntry` | function | `lib/catalogue.ts` | - |
 | `getPage` | function | `lib/source.ts` | One page by its slug segments, or undefined. |
 | `getPagesInSection` | function | `lib/source.ts` | Pages under one top-level section, in tree order. |
 | `getPageTree` | function | `lib/source.ts` | The page tree the docs layout renders. |
 | `getRegistryEntry` | function | `lib/registry.ts` | Resolve one entry, or null. |
-| `getShipped` | function | `lib/catalogue.ts` | The 24 rows on the roster: the ids opsinjs has committed to, each with a hand-written page. |
+| `getShipped` | function | `lib/catalogue.ts` | Every catalogue row. |
 | `getToken` | function | `lib/tokens.ts` | - |
 | `getTokens` | function | `lib/tokens.ts` | - |
 | `grouped` | function | `lib/tokens.ts` | Tokens grouped for a table: namespace → group → tokens, in emit order. |
@@ -247,7 +246,6 @@ shared substrate a copied component carries with it is listed under
 | [`Preset`](../api/Preset.mdx) | interface | `lib/preset.ts` | A theme as a person describes it. What `encodePreset` takes and `decodePreset` returns. |
 | `PRESET_PREFIX` | const | `lib/preset.ts` | - |
 | `presetBrandColor` | function | `lib/preset.ts` | The brand colour a preset describes, as an `oklch()` string the colour engine can parse. |
-| `progressSummary` | function | `lib/catalogue.ts` | "4 stable · 2 beta · 61 planned", the honest one-line summary every section index carries. |
 | `RADIUS_VALUES` | const | `lib/preset.ts` | `--opsin-radius-base` in px. Index 3 (14px) is the product default. |
 | [`Ramp`](../api/Ramp.mdx) | type | `lib/color/derive.ts` | - |
 | `RAMP_LIGHTNESS` | const | `lib/color/derive.ts` | - |

@@ -365,12 +365,10 @@ export interface ComponentPreviewProps {
    * The catalogue row's release phase, resolved on the server alongside
    * `built` and never passed by a page.
    *
-   * It reaches <NotBuiltYet>, whose visually-hidden sentence differs between
-   * `considered` and `planned`: a `planned` id has a written specification and
-   * the sentence warns that it may change, a `considered` id has none and the
-   * sentence must not imply one. Without this the empty state on all 36
-   * `considered` component pages announced a specification the page itself
-   * denies two paragraphs above.
+   * It reaches <NotBuiltYet>, which prints it on the chip and in the "what
+   * this word means" link. Resolving it from the catalogue rather than
+   * accepting it as a prop is what stops a page claiming a phase its row does
+   * not record.
    */
   phase?: Status
 }
@@ -624,12 +622,10 @@ export interface IframePreviewProps {
    * The catalogue row's release phase, resolved on the server alongside
    * `built` and never passed by a page.
    *
-   * It reaches <NotBuiltYet>, whose visually-hidden sentence differs between
-   * `considered` and `planned`: a `planned` id has a written specification and
-   * the sentence warns that it may change, a `considered` id has none and the
-   * sentence must not imply one. Without this the empty state on all 36
-   * `considered` component pages announced a specification the page itself
-   * denies two paragraphs above.
+   * It reaches <NotBuiltYet>, which prints it on the chip and in the "what
+   * this word means" link. Resolving it from the catalogue rather than
+   * accepting it as a prop is what stops a page claiming a phase its row does
+   * not record.
    */
   phase?: Status
 }

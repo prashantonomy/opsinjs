@@ -93,7 +93,7 @@ export const SECTIONS: SectionDescriptor[] = [
        no way to check a number against anything. So it names the two fields
        that do carry the answer instead. */
     blurb:
-      "Every component opsinjs has claimed, in one list. Some have real source behind them and install from /r/<id>.json; the rest are specifications, or names reserved so the URL answers with something better than a 404. A specification page states intent, when not to use it, the clinical contract, the API and the accessibility bar. Each entry's `status`, and `implemented` in /r/index.json, say which kind you are reading.",
+      "Every component opsinjs has claimed, in one list. Some have real source behind them and install from /r/<id>.json; the rest are specifications. A specification page states intent, when not to use it, the clinical contract, the API and the accessibility bar. Each entry's `status`, and `implemented` in /r/index.json, say which kind you are reading.",
   },
   {
     id: "screens",
@@ -189,7 +189,7 @@ export const SHARDS = {
     title: "Components and screens",
     sections: ["components", "screens"],
     blurb:
-      "Every component page and every screen specimen is here: the built components, the specifications and the reserved names, each carrying its own status. Read this before answering a question about what opsinjs provides.",
+      "Every component page and every screen specimen is here: the built components and the specifications, each carrying its own status. Read this before answering a question about what opsinjs provides.",
   },
   health: {
     file: "/llms-health.txt",
@@ -482,8 +482,7 @@ export function renderFrontmatter(page: CorpusPage): string {
      `/r/docs.json` page record now decide with it. A health doctrine page, a
      token reference or an ADR is not an unimplemented anything; stamping
      `implemented: false` on one asserts something false about a page that is
-     real today. A `considered` id still gets `implemented: false`, which is the
-     correct answer for it. */
+     real today. */
   const implemented = pageImplemented(page)
   if (implemented !== undefined) lines.push(`implemented: ${implemented}`)
   lines.push("---")
@@ -514,13 +513,9 @@ export function renderFrontmatter(page: CorpusPage): string {
 export function notImplementedNotice(page: CorpusPage): string | null {
   const meta = metaOf(page)
   if (meta.kind !== "component" && meta.kind !== "screen") return null
-  if (meta.status !== "planned" && meta.status !== "considered") return null
-  const verb =
-    meta.status === "considered"
-      ? "is on the considered roster and has no specification page yet"
-      : "is a specification and has not been implemented"
+  if (meta.status !== "planned") return null
   return [
-    `> NOT IMPLEMENTED. "${meta.title}" ${verb}.`,
+    `> NOT IMPLEMENTED. "${meta.title}" is a specification and has not been implemented.`,
     "> Do not generate code against the API sketched below, and do not tell a",
     `> reader that it exists. The definitive machine answer is at ${SITE_URL}/r/index.json.`,
   ].join("\n")
@@ -532,9 +527,9 @@ export function notImplementedNotice(page: CorpusPage): string | null {
  * `x-opsinjs-status` is always sent, and is always the page's own status.
  * `/r/<id>.json` has always sent it; the twin route did not, which left an
  * agent doing `HEAD /docs/components/toast.md` holding a single system-scoped
- * `x-opsinjs-implemented: true` with nothing to qualify it. For a reserved name
- * with no code that is not ambiguity, it is a wrong answer to the only question
- * the header exists to answer.
+ * `x-opsinjs-implemented: true` with nothing to qualify it. For a page whose
+ * subject has no code that is not ambiguity, it is a wrong answer to the only
+ * question the header exists to answer.
  *
  * `x-opsinjs-implemented` is overridden whenever `pageImplemented()` has an
  * answer for this page, exactly as `/r/<id>.json` overrides it. A guide, a
@@ -744,11 +739,10 @@ export function bundleHeader(
  *
  * These files are size-capped and truncated at a page boundary, so what gets
  * dropped is the tail. In plain alphabetical order that tail was `metric-tile`
- * through `value`, which is thirteen of the twenty-four built components and
- * includes every one an agent reaching for a health readout would want. The
- * head meanwhile kept two-kilobyte `considered` stubs for names that have no
- * code at all. The shard the site nominates as the authority on "what opsinjs
- * provides" was spending its budget on reserved names.
+ * through `value`, and it included every page an agent reaching for a health
+ * readout would want, while the head kept pages with no code behind them. The
+ * shard the site nominates as the authority on "what opsinjs provides" was
+ * spending its budget on the wrong half.
  *
  * This does not make the file complete; it makes what survives the useful half.
  * The budget itself is a separate, human decision, and `truncationNotice` now
