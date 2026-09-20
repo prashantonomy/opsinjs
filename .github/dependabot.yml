@@ -1,0 +1,41 @@
+# Dependabot configuration for opsinjs.
+# Keeps the pnpm monorepo dependencies and the GitHub Actions workflows
+# current. Dependabot reads pnpm-lock.yaml at the repository root for the
+# npm ecosystem, so a single "/" directory covers the whole workspace.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:00"
+      timezone: "Europe/London"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+    groups:
+      # Roll minor and patch bumps into one pull request to keep review
+      # volume down. Major bumps stay separate so each one gets its own read.
+      npm-minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:00"
+      timezone: "Europe/London"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    groups:
+      actions-minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
