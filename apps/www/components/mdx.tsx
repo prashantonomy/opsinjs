@@ -47,7 +47,6 @@ import {
   LastUpdated,
   PromptRecipe,
   RegistryItem,
-  VersionNotice,
 } from "./docs/meta"
 import { MotionCurve, MotionDemo } from "./docs/motion"
 import { PageTemplate } from "./docs/page-template"
@@ -69,7 +68,6 @@ import {
 import {
   ComponentsList,
   SectionProgress,
-  SinceBadge,
   StatusBadge,
   StatusLegend,
   StatusMatrix,
@@ -159,7 +157,6 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
 
     // ---- Status, release phase and the catalogue ---------------------------
     StatusBadge,
-    SinceBadge,
     StatusMatrix,
     SectionProgress,
     ComponentsList,
@@ -236,7 +233,6 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
 
     // ---- Page furniture -----------------------------------------------------
     BrowserSupport,
-    VersionNotice,
     RegistryItem,
     Figure,
     PromptRecipe,

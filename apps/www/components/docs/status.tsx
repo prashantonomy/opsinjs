@@ -19,8 +19,8 @@ import {
 import { cn } from "@/lib/utils"
 
 /* ==========================================================================
-   status.tsx defines <StatusBadge>, <SinceBadge>, <StatusLegend>,
-   <SectionProgress>, <StatusMatrix>, <ComponentsList>.
+   status.tsx defines <StatusBadge>, <StatusLegend>, <SectionProgress>,
+   <StatusMatrix>, <ComponentsList>.
 
    THREE AXES THAT ARE CONSTANTLY CONFUSED, AND ONLY ONE OF THEM IS HERE.
 
@@ -52,7 +52,7 @@ import { cn } from "@/lib/utils"
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   <StatusBadge> and <SinceBadge>
+   <StatusBadge>
    -------------------------------------------------------------------------- */
 
 export interface StatusBadgeProps {
@@ -124,33 +124,6 @@ export function StatusBadge({
     >
       {body}
     </Link>
-  )
-}
-
-export interface SinceBadgeProps {
-  /** The version this was introduced in, or "unreleased". */
-  since?: string
-  className?: string
-}
-
-/** Version introduced. `unreleased` is the honest answer at scaffold. */
-export function SinceBadge({ since, className }: SinceBadgeProps) {
-  if (!since) return null
-  const unreleased = since === "unreleased"
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center align-middle font-mono text-[0.6875rem] leading-5 text-muted-foreground",
-        className
-      )}
-      title={
-        unreleased
-          ? "Not in any release. There is no version of opsinjs that contains this."
-          : `Introduced in ${since}`
-      }
-    >
-      {unreleased ? "unreleased" : `since ${since}`}
-    </span>
   )
 }
 

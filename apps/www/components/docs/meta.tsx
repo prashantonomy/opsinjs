@@ -9,20 +9,14 @@ import {
 import { usePathname } from "next/navigation"
 import { CircleAlert } from "lucide-react"
 
-import {
-  apiRoutes,
-  docsPath,
-  editUrl,
-  issueUrl,
-  registryRoutes,
-} from "@/lib/routes"
+import { apiRoutes, editUrl, issueUrl, registryRoutes } from "@/lib/routes"
 import { cn } from "@/lib/utils"
 import { CopyButton } from "./copy"
 import { NoDataYet } from "./stub"
 
 /* ==========================================================================
-   meta.tsx holds <BrowserSupport>, <VersionNotice>, <LastUpdated>, <Figure>,
-   <PromptRecipe>, <EvalResult>, <RegistryItem>, <Feedback>.
+   meta.tsx holds <BrowserSupport>, <LastUpdated>, <Figure>, <PromptRecipe>,
+   <EvalResult>, <RegistryItem>, <Feedback>.
 
    The page furniture: provenance, support, and the two components that exist
    because opsinjs is read by agents. Those two are <PromptRecipe> and
@@ -99,55 +93,6 @@ export function Figure({ caption, children, className }: FigureProps) {
         </figcaption>
       ) : null}
     </figure>
-  )
-}
-
-/* --------------------------------------------------------------------------
-   <VersionNotice>
-   -------------------------------------------------------------------------- */
-
-export interface VersionNoticeProps {
-  /** The version this page documents. */
-  version: string
-  /** The current version. */
-  latest?: string
-  /** Where the current page lives. */
-  latestSlug?: string
-  className?: string
-}
-
-/**
- * Warns a reader who has landed on an archived version.
- *
- * Search engines and models keep old URLs alive far longer than a project keeps
- * them accurate, and somebody following a two-year-old answer into a health
- * design system's docs should be told before they read a threshold that has
- * since changed.
- */
-export function VersionNotice({
-  version,
-  latest,
-  latestSlug,
-  className,
-}: VersionNoticeProps) {
-  if (!latest || latest === version) return null
-  return (
-    <aside
-      role="note"
-      data-status="watch"
-      className={cn("not-prose my-4 border-l-4 p-3 text-sm", className)}
-      style={{
-        borderColor: "var(--opsin-status-watch-line, var(--border))",
-        background: "var(--opsin-status-watch-surface, var(--muted))",
-        color: "var(--opsin-status-watch-ink, var(--foreground))",
-      }}
-    >
-      You are reading the documentation for {version}. The current version is{" "}
-      {latest}.{" "}
-      {latestSlug ? (
-        <a href={docsPath(latestSlug)}>Read the current page</a>
-      ) : null}
-    </aside>
   )
 }
 
