@@ -2785,7 +2785,7 @@ function emitErrorCodesRegion(errors: ErrorTable): string {
   const example = [
     "```text",
     `[opsinjs] ${first.code} (${first.severity}): ${first.message}`,
-    `  → https://opsinjs.dev/docs/${first.docs}`,
+    `  → https://opsinjs.pensievelabs.org/docs/${first.docs}`,
     "```",
   ].join("\n")
 

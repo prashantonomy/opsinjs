@@ -15,7 +15,7 @@ usedIn: [choose-a-component, sharing-with-a-clinician, trend-review, trend-with-
 <StubNotice
   name="trend-sparkline"
   status="beta"
-  issue="opsinjs/opsinjs#0"
+  issue="prashantonomy/opsinjs#0"
   questions={[
     "`window` is a display string, so the component is never told how long the period is and lays the readings out across the extent of the series it was given. Two sparklines side by side are therefore only comparable when their series cover the same span, and nothing checks that. A duration prop would close it; the specification does not have one.",
     "This component does not meet the definition of done in Accessible charts, which requires a data-table twin for every chart on the same surface. There is no slot, prop or part for one, so the twin is the caller's to place beside it and nothing checks that they did. That is a known, required gap rather than an untested one.",

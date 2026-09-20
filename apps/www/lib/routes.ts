@@ -34,8 +34,8 @@ export const site = {
    * their own absolute URLs instead of pointing every OG card and every
    * llms.txt entry at production.
    */
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://opsinjs.dev",
-  github: "https://github.com/opsinjs/opsinjs",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://opsinjs.pensievelabs.org",
+  github: "https://github.com/prashantonomy/opsinjs",
   npmScope: "@opsinjs",
   /** The registry namespace a consumer adds to their components.json. */
   registryNamespace: "@opsinjs",

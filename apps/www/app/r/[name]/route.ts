@@ -2,7 +2,7 @@
  * GET /r/<name>.json serves one registry item at the default base and style.
  *
  * This is the URL the `@opsinjs` namespace resolves to: a project with
- * `"@opsinjs": "https://opsinjs.dev/r/{name}.json"` in its components.json
+ * `"@opsinjs": "https://opsinjs.pensievelabs.org/r/{name}.json"` in its components.json
  * reaches exactly here when somebody runs `shadcn add @opsinjs/range-bar`.
  *
  * Aliases resolve. `/r/gauge.json` returns the `range-bar` item, with its

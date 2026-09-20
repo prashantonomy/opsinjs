@@ -289,7 +289,7 @@ async function main(): Promise<void> {
         `capture-registry: nothing is listening at ${base}, so no screenshots were taken.`,
         "",
         "  Start the site first:  pnpm run build && pnpm start",
-        "  Or point at another origin:  pnpm run capture -- --base https://opsinjs.dev",
+        "  Or point at another origin:  pnpm run capture -- --base https://opsinjs.pensievelabs.org",
         "",
         "  Exiting 0.",
       ].join("\n"),

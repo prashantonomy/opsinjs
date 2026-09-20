@@ -12,7 +12,7 @@ aliases: ["@opsinjs", registries config, compose registries, private registry]
 
 A namespace is a short name for a registry URL, declared once in your project so
 that every command afterwards can be short. `@opsinjs/result-card` instead of
-`https://opsinjs.dev/r/result-card.json`.
+`https://opsinjs.pensievelabs.org/r/result-card.json`.
 
 It is a convenience, and it is also the mechanism that lets a project pull from
 several registries at once without ambiguity about which `button` is meant. Those
@@ -23,7 +23,7 @@ registries can be your company's internal one, a third-party one and opsinjs.
 ```json title="components.json"
 {
   "registries": {
-    "@opsinjs": "https://opsinjs.dev/r/{name}.json"
+    "@opsinjs": "https://opsinjs.pensievelabs.org/r/{name}.json"
   }
 }
 ```
@@ -43,7 +43,7 @@ knowing about the other.
 ```json title="components.json"
 {
   "registries": {
-    "@opsinjs": "https://opsinjs.dev/r/{name}.json",
+    "@opsinjs": "https://opsinjs.pensievelabs.org/r/{name}.json",
     "@acme": "https://design.acme.internal/r/{name}.json",
     "@private": {
       "url": "https://registry.acme.com/{name}.json",

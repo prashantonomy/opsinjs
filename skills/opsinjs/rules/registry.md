@@ -17,13 +17,13 @@ Check for this, in `components.json`:
 ```json
 {
   "registries": {
-    "@opsinjs": "https://opsinjs.dev/r/{name}.json"
+    "@opsinjs": "https://opsinjs.pensievelabs.org/r/{name}.json"
   }
 }
 ```
 
 If it is absent, say so and offer the one-line addition before the install
-command - not after it, and not as a footnote. `opsinjs.dev` is the canonical
+command - not after it, and not as a footnote. `opsinjs.pensievelabs.org` is the canonical
 host and is not registered yet, so point the entry at whichever host is actually
 serving `/r` - a local `pnpm dev` on port 4000 while that is all there is - and
 say which one you used. The `{name}` placeholder and the `/r/{name}.json` path
@@ -94,7 +94,7 @@ instead.
 
 ## The MCP server
 
-`npx shadcn@latest mcp` pointed at `https://opsinjs.dev/r/registry.json` gives an
+`npx shadcn@latest mcp` pointed at `https://opsinjs.pensievelabs.org/r/registry.json` gives an
 agent the catalogue directly, including status and category for every item. That
 is the right tool for "what components exist" - better than scraping the
 documentation, and it stays correct as the catalogue changes.

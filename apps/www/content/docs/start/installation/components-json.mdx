@@ -45,20 +45,21 @@ only one you have to make by hand:
 ```json title="components.json"
 {
   "registries": {
-    "@opsinjs": "https://opsinjs.dev/r/{name}.json"
+    "@opsinjs": "https://opsinjs.pensievelabs.org/r/{name}.json"
   }
 }
 ```
 
 `{name}` is substituted by the CLI, so `@opsinjs/result-card` resolves to
-`https://opsinjs.dev/r/result-card.json`. The URL is guessable on purpose: an
+`https://opsinjs.pensievelabs.org/r/result-card.json`. The URL is guessable on
+purpose: an
 agent that knows a component id can fetch its registry item without discovering an
 index first.
 
 Two safety notes about this line, because a registry entry is a remote code
 source:
 
-- **`opsinjs.dev` is the only canonical registry host.** Anything else serving
+- **`opsinjs.pensievelabs.org` is the only canonical registry host.** Anything else serving
   `@opsinjs` is not us. The canonical domain, npm scope and registry URL are
   published in [Official resources](../../project/official-resources.mdx)
   precisely so impersonation is checkable.
@@ -129,7 +130,7 @@ whatever value it wrote for you rather than copying this one over it.
     "hooks": "@/hooks"
   },
   "registries": {
-    "@opsinjs": "https://opsinjs.dev/r/{name}.json"
+    "@opsinjs": "https://opsinjs.pensievelabs.org/r/{name}.json"
   }
 }
 ```

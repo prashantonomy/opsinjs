@@ -14,7 +14,7 @@ usedIn: [choose-a-component, daily-log-screen, health-metric-card, onboarding-sc
 <StubNotice
   name="card"
   status="beta"
-  issue="opsinjs/opsinjs#0"
+  issue="prashantonomy/opsinjs#0"
   questions={[
     "A card that is a link may hold no other interactive element, and that exclusion is stated rather than enforced. TypeScript cannot see interactivity in a `ReactNode`, and a runtime walk of the children cannot see inside another component. Such a walk would catch a raw `<button>` and miss every wrapped one, which is worse than catching nothing. Does this become an error code with a gate that reads examples and screens, or does it stay a rule the documentation keeps?",
     "Nested cards are announced no differently from unnested ones, and this component neither counts the nesting nor adds a role. A server component has no context to count with, and counting in a client component would put a boundary on the most-used component in the system to answer a question about taste. How deep is acceptable is still unanswered.",

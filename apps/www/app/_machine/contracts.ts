@@ -43,20 +43,22 @@ import pkg from "@/package.json"
 /**
  * Canonical origin, no trailing slash. Matches the `@opsinjs` registry entry
  * already written into `components.json`
- * (`https://opsinjs.dev/r/{name}.json`), so the registry URL an agent reads
- * out of a consuming project and the URL this app serves cannot drift.
+ * (`https://opsinjs.pensievelabs.org/r/{name}.json`), so the registry URL an
+ * agent reads out of a consuming project and the URL this app serves cannot
+ * drift.
  *
  * Overridable for preview deployments. Every route below is statically
  * rendered, so this is baked at build time. Set it in the build environment,
  * not at request time.
  *
- * THE DEFAULT DOES NOT RESOLVE. `dig opsinjs.dev` returns no record, so every
- * absolute URL built from this constant is a name the project intends to own
- * rather than a URL an agent can fetch. Those URLs appear in `llms.txt`, in
- * the four shards, in every `/r` payload, in each `.md` twin's frontmatter, in
- * the sitemap and in the feed. Set `NEXT_PUBLIC_SITE_URL` to the origin that
- * actually serves the build, and do not treat the fallback as a contract until
- * the domain exists.
+ * THE DEFAULT DOES NOT RESOLVE YET. `opsinjs.pensievelabs.org` is the subdomain
+ * that will be attached to the Vercel deployment, and it is not live until that
+ * attachment happens, so every absolute URL built from this constant is a name
+ * the project intends to own rather than a URL an agent can fetch today. Those
+ * URLs appear in `llms.txt`, in the four shards, in every `/r` payload, in each
+ * `.md` twin's frontmatter, in the sitemap and in the feed. Set
+ * `NEXT_PUBLIC_SITE_URL` to the origin that actually serves the build, and do
+ * not treat the fallback as a contract until the domain is attached.
  */
 /**
  * NOTE FOR THE SEQUENTIAL FINISH: `app/_shared/site.ts` (the human-facing
@@ -68,7 +70,7 @@ import pkg from "@/package.json"
  * other's file landing first.
  */
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://opsinjs.dev"
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://opsinjs.pensievelabs.org"
 ).replace(/\/+$/, "")
 
 /** Prefix the canonical origin onto a root-relative path. */
@@ -223,20 +225,20 @@ export function siteSummary(): string {
 /**
  * The repository these routes link to.
  *
- * THIS REPOSITORY DOES NOT EXIST YET, in exactly the sense `SITE_URL` above
- * does not resolve: `github.com/opsinjs/opsinjs` is a name the project intends
- * to own, not a page anybody can open today. The constant is written down here
- * rather than in the four routes that link to it so that publishing the
- * repository is one edit, and so that nobody has to discover the fact by
- * following a link.
+ * THIS REPOSITORY IS NOT PUBLIC YET, in a sense close to how `SITE_URL` above
+ * does not resolve yet: `github.com/prashantonomy/opsinjs` exists, but while it
+ * is private only collaborators can open it, so it is not a page just anybody
+ * can reach today. The constant is written down here rather than in the four
+ * routes that link to it so that publishing the repository is one edit, and so
+ * that nobody has to discover the fact by following a link.
  *
  * It matters most on `/api/feedback`, whose whole answer to "we do not store
  * your report" is a pre-filled issue URL built from these two segments. Until
- * the repository is real that link is a promise rather than a destination.
+ * the repository is public that link is a promise rather than a destination.
  * That is why that route also echoes the report back in the response body, so
  * the reader still holds what they typed.
  */
-export const GITHUB_OWNER = "opsinjs"
+export const GITHUB_OWNER = "prashantonomy"
 export const GITHUB_REPO = "opsinjs"
 export const GITHUB_URL = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}`
 export const GITHUB_NEW_ISSUE_URL = `${GITHUB_URL}/issues/new`

@@ -442,7 +442,7 @@ export interface MetricTileProps {
   category?: HealthCategory
   /**
    * The category glyph, supplied by the product. opsinjs ships no category icon
-   * set. [category identity](https://opsinjs.dev/docs/health/category-identity)
+   * set. [category identity](https://opsinjs.pensievelabs.org/docs/health/category-identity)
    * says an icon is governed separately. So this is a slot rather than a
    * lookup, and a tile with no icon is a complete tile.
    *
