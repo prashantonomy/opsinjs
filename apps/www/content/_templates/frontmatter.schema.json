@@ -4,7 +4,11 @@
   "title": "opsinjs documentation page frontmatter",
   "description": "The machine-readable form of the frontmatter contract enforced by apps/www/source.config.ts. Where the two disagree, source.config.ts is what the build runs.",
   "type": "object",
-  "required": ["title", "description", "kind"],
+  "required": [
+    "title",
+    "description",
+    "kind"
+  ],
   "additionalProperties": false,
   "properties": {
     "title": {
@@ -25,7 +29,11 @@
     },
     "status": {
       "type": "string",
-      "enum": ["planned", "shipped", "deprecated"],
+      "enum": [
+        "planned",
+        "shipped",
+        "deprecated"
+      ],
       "description": "Release phase. Required on a `kind: component` page and forbidden on every other kind. Drives <StatusBadge> and the section gating in <PageTemplate>: a section required at the declared status must be present or the build fails."
     },
     "kind": {
@@ -52,7 +60,9 @@
     },
     "aliases": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Search synonyms are what a reader or an agent would actually type. Indexed by fumadocs, emitted into llms.txt and /r/index.json. Globally unique across the corpus; the namespace is declared once in registry/catalogue.ts."
     },
     "reviewed": {
@@ -62,40 +72,64 @@
     },
     "reviewer": {
       "type": "string",
-      "enum": ["design", "engineering", "clinical", "content"],
-      "description": "The discipline that signed the last review. Printed by <Reviewed>."
+      "enum": [
+        "design",
+        "engineering",
+        "clinical",
+        "content"
+      ],
+      "description": "The discipline accountable for the next read-through of this page. It is an assignment, not an attestation: no page carries a sign-off, and <Reviewed> deliberately does not print it."
     },
     "reviewEvery": {
       "type": "string",
-      "enum": ["3m", "6m", "12m", "never"],
+      "enum": [
+        "3m",
+        "6m",
+        "12m",
+        "never"
+      ],
       "description": "Freshness SLA. check-freshness.mts reports expiry; it does not fail the build."
     },
     "implements": {
       "type": "array",
-      "items": { "type": "string" },
-      "description": "Doctrine page → the catalogue ids that implement this rule. Every entry must be a real catalogue id; assert-ia enforces the reverse direction too."
+      "items": {
+        "type": "string"
+      },
+      "description": "Doctrine page \u2192 the catalogue ids that implement this rule. Every entry must be a real catalogue id; assert-ia enforces the reverse direction too."
     },
     "governedBy": {
       "type": "array",
-      "items": { "type": "string" },
-      "description": "Component page → the doctrine pages that govern it. Mandatory when category starts with 'health-'."
+      "items": {
+        "type": "string"
+      },
+      "description": "Component page \u2192 the doctrine pages that govern it. Mandatory when category starts with 'health-'."
     },
     "usedIn": {
       "type": "array",
-      "items": { "type": "string" },
-      "description": "Component → the recipes and screens that use it. The reverse index; assert-ia checks both directions."
+      "items": {
+        "type": "string"
+      },
+      "description": "Component \u2192 the recipes and screens that use it. The reverse index; assert-ia checks both directions."
     },
     "links": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "doc": { "type": "string" },
-        "api": { "type": "string" }
+        "doc": {
+          "type": "string"
+        },
+        "api": {
+          "type": "string"
+        }
       }
     },
     "evidence": {
       "type": "string",
-      "enum": ["cited", "opinion", "mixed"],
+      "enum": [
+        "cited",
+        "opinion",
+        "mixed"
+      ],
       "description": "Mandatory on kind: health. 'cited' requires a real, checkable source. Never invent a citation, statistic, DOI or date. An honest 'opinion' is always the better answer."
     }
   }

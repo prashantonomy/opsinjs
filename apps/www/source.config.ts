@@ -82,6 +82,11 @@ export const docs = defineDocs({
        */
       aliases: z.array(z.string()).optional(),
       reviewed: z.string().optional(),
+      /**
+       * The discipline accountable for the NEXT read-through. An assignment,
+       * never an attestation: nothing in this corpus carries a sign-off, and
+       * `<Reviewed>` does not print this field for that reason.
+       */
       reviewer: z
         .enum(["design", "engineering", "clinical", "content"])
         .optional(),

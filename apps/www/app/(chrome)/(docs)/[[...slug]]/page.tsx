@@ -82,14 +82,15 @@ export default async function Page(props: PageProps<"/[[...slug]]">) {
                 `<Reviewed />` is authored bare on every page that ends with it,
                 and the component falls back to "Not yet reviewed." when it is
                 given no date. Nothing bound one, so 114 pages printed that
-                sentence directly under frontmatter declaring a real review
-                date and a real discipline. The spread goes LAST so a page that
-                passes an explicit prop still wins.
+                sentence under frontmatter that carried a real date. The spread
+                goes LAST so a page that passes an explicit prop still wins.
+                `reviewer` is deliberately NOT bound: it names the discipline
+                that owes the next read-through, not one that has signed
+                anything off. See the comment on the component.
               */
               Reviewed: (props: ReviewedProps) => (
                 <Reviewed
                   date={page.data.reviewed}
-                  by={page.data.reviewer}
                   every={page.data.reviewEvery}
                   path={page.url}
                   {...props}

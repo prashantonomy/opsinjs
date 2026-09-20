@@ -23,16 +23,25 @@ them:
 | Field | What it means |
 | --- | --- |
 | `reviewed` | The ISO date somebody last **re-read** the page against the system |
-| `reviewer` | Which discipline reviewed it: `design`, `engineering`, `clinical` or `content` |
-| `reviewEvery` | How long that review stands before it expires: `3m`, `6m`, `12m` or `never` |
+| `reviewer` | Which discipline owes the **next** read-through: `design`, `engineering`, `clinical` or `content` |
+| `reviewEvery` | How long the last read-through stands before it expires: `3m`, `6m`, `12m` or `never` |
 
-`<Reviewed />` prints all three at the foot of the page, so a reader can see the
-age of what they are reading without opening a file. There were two more fields
-here until recently, `owner` and `a11yDate`. Both are gone: `owner` asked the
-same question as `reviewer` without a closed list of answers and collected six
-spellings for four disciplines, and `a11yDate` held the same stamped date on
-seventy-seven pages, which records a bulk edit and not a review. Accountability
-lives in `reviewer`, which is validated and printed.
+`<Reviewed />` prints the date and the cadence at the foot of the page, so a
+reader can see the age of what they are reading without opening a file.
+
+**It does not print `reviewer`, and it must not be made to.** That field is an
+assignment and not an attestation. Twenty pages name `clinical`, twelve of them
+safety patterns including the alert escalation ladder and the result disclosure
+rules, and no clinician has read any of them. A footer saying "last reviewed by
+clinical" would be the single most dangerous sentence this corpus could print.
+When a real sign-off exists it needs a field that records that it happened,
+because this one records who is next.
+
+There were two more fields here until recently, `owner` and `a11yDate`. Both
+are gone: `owner` asked the same question as `reviewer` without a closed list
+of answers and collected six spellings for four disciplines, and `a11yDate`
+held the same stamped date on seventy-seven pages, which records a bulk edit
+and not a review.
 
 ## The cadence, by page kind
 
@@ -116,13 +125,13 @@ here.** It converts the only honest freshness signal on the site into decoration
 A page that is out of date and says so is more useful than a page that is out of
 date and claims to have been checked last week.
 
-This repository has done it, twice. Of the 345 pages that carry a `reviewed`
-date, 255 carry one date and another 83 carry a second, so two bulk edits
-account for 338 of them. The `a11yDate` field deleted alongside `owner` was the
+This repository has done it, twice. Of the 343 pages that carry a `reviewed`
+date, 255 share one date and another 81 share a second, so two bulk edits
+account for 336 of them. The `a11yDate` field deleted alongside `owner` was the
 same story on a smaller scale, one stamped date across seventy-seven pages. So
-read a `reviewed` date here as the weaker claim it is, and when the next review
-comes round, re-read the page rather than repeating the edit that made this
-paragraph necessary.
+read a `reviewed` date here as the weaker claim it is: somebody passed over the
+page on that day. When the next one comes round, re-read the page rather than
+repeating the edit that made this paragraph necessary.
 
 ## If you are reading a stale page
 

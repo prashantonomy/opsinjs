@@ -308,10 +308,8 @@ export function ResearchNote({
    -------------------------------------------------------------------------- */
 
 export interface ReviewedProps {
-  /** ISO date of the last review. */
+  /** ISO date the page was last read through against the system. */
   date?: string
-  /** The discipline that reviewed it. Discipline, not a person. */
-  by?: "design" | "engineering" | "clinical" | "content"
   /** The freshness SLA declared in frontmatter. */
   every?: "3m" | "6m" | "12m" | "never"
   /** The page path, used to stamp printed copies. */
@@ -320,15 +318,27 @@ export interface ReviewedProps {
 }
 
 /**
- * The review provenance block that ends every health, accessibility, pattern
- * and project page.
+ * The freshness block that ends every health, accessibility, pattern and
+ * project page.
  *
  * A health page with no review date is a page nobody has to maintain. The
  * `every` value is a promise with an expiry, and `scripts/check-freshness.mts`
  * reports the ones that have passed it. That report is the difference between
  * a review policy and a review.
+ *
+ * IT DELIBERATELY DOES NOT PRINT `reviewer`, AND MUST NOT BE MADE TO.
+ *
+ * `reviewer` names the discipline accountable for the NEXT read-through. It is
+ * not an attestation and no page has ever carried one. Printing it as "last
+ * reviewed by clinical" would put a clinical sign-off on the foot of the alert
+ * escalation ladder, the result disclosure rules and the medication and
+ * symptom intake patterns, and no clinician has read any of them. The date is
+ * printed because a read-through did happen on it; the discipline is not,
+ * because the discipline named is the one that owes the next one. When a real
+ * review by a named discipline exists, it needs a field that records that it
+ * happened, not this one.
  */
-export function Reviewed({ date, by, every, path, className }: ReviewedProps) {
+export function Reviewed({ date, every, path, className }: ReviewedProps) {
   return (
     <p
       data-reviewed=""
@@ -339,12 +349,9 @@ export function Reviewed({ date, by, every, path, className }: ReviewedProps) {
       )}
     >
       {date ? (
-        <>
-          Last reviewed {date}
-          {by ? ` by ${by}` : ""}.
-        </>
+        <>Last read through against the system on {date}.</>
       ) : (
-        <>Not yet reviewed.</>
+        <>Not yet read through.</>
       )}{" "}
       {every && every !== "never" ? (
         <>
