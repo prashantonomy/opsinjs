@@ -198,14 +198,21 @@ interface PageSpec {
  * Note what a from-scratch header loses: the shipped pages carry `owner`,
  * `reviewed`, `reviewer`, `reviewEvery` and `aliases` in their frontmatter and
  * this header writes none of them, so a regenerated page needs those restored
- * by hand before check-freshness can see it again.
+ * by hand before check-freshness can see it again. It deliberately does not
+ * write `status:`, because a reference page is not a component and is not
+ * allowed one.
  */
 function defaultHeader(spec: PageSpec): string {
   return [
     "---",
     `title: ${yamlString(spec.title)}`,
     `description: ${yamlString(spec.description)}`,
-    "status: stable",
+    /* No `status:` line, and that is the contract rather than an omission. A
+       release phase now belongs to a `kind: component` page and to nothing
+       else, and FM014 in scripts/assert-ia.mts fails the build on a
+       documentation page that declares one. This header used to write
+       `status: stable`, which was a claim that the prose was finished wearing
+       the word that answers whether code exists. */
     "kind: reference",
     "full: true",
     "---",
@@ -949,7 +956,7 @@ function apiPage(symbol: ExportedSymbol, file: string): string {
       symbol.summary ??
         `The ${symbol.kindWord} ${symbol.name}, exported from ${symbol.file}.`,
     )}`,
-    "status: stable",
+    /* No `status:` line: see `defaultHeader()` above. */
     "kind: reference",
     "---",
     "",

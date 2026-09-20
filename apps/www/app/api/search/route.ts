@@ -41,8 +41,19 @@
  * what `/r/index.json` publishes. So the claim is made only on a component
  * page, where it can be checked against the built set. The `planned` wording
  * mirrors `notImplementedNotice()` in `app/_machine/corpus.ts` rather than
- * being a second opinion about which phases have code. Doctrine pages get their phase and no implementation claim
- * in either direction, because a prose page is not a thing that ships.
+ * being a second opinion about which phases have code.
+ *
+ * AND THE STABILITY HALF IS NO LONGER CONDITIONAL, because there is no phase
+ * left for it to be conditional on. `stable` is gone from the vocabulary, and
+ * the three that remain say whether there is code and whether it is on its way
+ * out. Nothing in the catalogue has had an accessibility review or a clinical
+ * review, so the installable branch says that flat rather than hedging it as
+ * "the API is not stable yet", which was the smaller of the two warnings and
+ * the only one an agent was being given.
+ *
+ * A page with no phase at all gets no release sentence. That is 342 of the 402
+ * pages, and a doctrine page indexed with a phase word was always indexing a
+ * claim about prose as though it were a claim about code.
  */
 
 import { createFromSource } from "fumadocs-core/search/server"
@@ -75,26 +86,21 @@ export const { GET } = createFromSource(source, {
     }
 
     if (id && implementedComponents().includes(id)) {
-      /* The stability half is conditional on the status rather than stated
-         flat. "The API is not stable yet" is true of every built component
-         today and would be a false sentence, indexed on the surface an agent
-         queries first, on the day one of them is promoted. */
       contents.push({
         heading: undefined,
         content:
-          meta.status === "stable"
-            ? `Release status: ${meta.status}. Implemented and installable from the registry.`
-            : `Release status: ${meta.status}. Implemented and installable from the registry; the API is not stable yet.`,
+          "Release status: shipped. Installable from the registry. No accessibility review and no clinical review; not for a production health surface.",
       })
     } else if (meta.status === "planned") {
       contents.push({
         heading: undefined,
-        content: `Release status: ${meta.status}. Not implemented.`,
+        content: "Release status: planned. Not implemented.",
       })
-    } else if (meta.status !== "stable") {
+    } else if (meta.status === "deprecated") {
       contents.push({
         heading: undefined,
-        content: `Release status: ${meta.status}.`,
+        content:
+          "Release status: deprecated. Still installable; its page names the replacement.",
       })
     }
 

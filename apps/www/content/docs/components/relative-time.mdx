@@ -1,7 +1,7 @@
 ---
 title: RelativeTime
 description: When something happened, written the way people say it in phrases like "3 days ago". The exact date and time are always in reach, and explicit words appear when the product's own staleness boundary has been passed.
-status: beta
+status: shipped
 kind: component
 since: "unreleased"
 category: health-formatting
@@ -16,7 +16,7 @@ reviewer: engineering
 
 <StubNotice
   name="relative-time"
-  status="beta"
+  status="shipped"
   issue="prashantonomy/opsinjs#0"
   questions={[
     "The component does not tick, and it does not read the clock: `now` is required and comes from the caller. A surface left open for an hour therefore still shows the phrase it was rendered with. The exact date is in the accessibility tree and in print at every age, and it comes onto the screen beside the phrase once the reading is older than a day; within a day the phrase alone is on screen, which is what recency asks for. That narrows the question without closing it. Whether such a surface should also get an opt-in client wrapper that re-renders is open, and the answer decides whether a phrase as fine as '3 minutes ago' should be rendered on one at all.",

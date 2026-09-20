@@ -47,14 +47,17 @@ export default async function Page(props: PageProps<"/[[...slug]]">) {
         {/*
           PageTemplate is the contract enforcer. A page declares its `kind` in
           frontmatter, the kind fixes its headings, and on a component page the
-          declared `status` fixes which of those headings are required. The
-          outline lives in `COMPONENT_SECTIONS_BY_STATUS` in `lib/status.ts`
-          and no count is repeated here, because a number in a comment about a
-          list in another file is the duplication this contract exists to
-          avoid. Handing it the table of contents is what lets it check the
-          page it is wrapping instead of trusting the author, and a missing
-          required section fails the build rather than shipping a heading with
-          three sentences under it.
+          declared `status` fixes which of those headings are required: a page
+          at `planned` owes one outline and a page with code behind it owes
+          the longer one, part of which is optional. Both outlines live in
+          `COMPONENT_SECTIONS_BY_STATUS` in `lib/status.ts`, and no count is
+          repeated here, because a number in a comment about a list in another
+          file is the duplication this contract exists to avoid. `status` is
+          absent on every page that is not a component, and PageTemplate falls
+          back to the outline that claims least. Handing it the table of
+          contents is what lets it check the page it is wrapping instead of
+          trusting the author, and a missing required section fails the build
+          rather than shipping a heading with three sentences under it.
         */}
         <PageTemplate
           kind={page.data.kind}
@@ -120,8 +123,9 @@ export async function generateMetadata(
    * once, and gets you one image per page for the trouble. A single `/og`
    * endpoint driven by the frontmatter is less code and, more usefully, means
    * the status badge on the social card comes from the same field the page
-   * header renders. A component that goes from `planned` to `alpha` updates its
-   * card without anybody remembering to.
+   * header renders. A component that goes from `planned` to `shipped` updates
+   * its card without anybody remembering to, and a page that declares no phase
+   * at all sends none, so its card carries no chip.
    *
    * The URL is built by `ogUrl` in lib/routes rather than assembled here, for
    * the same reason every other path is: one place knows the shape.

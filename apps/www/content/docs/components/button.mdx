@@ -1,7 +1,7 @@
 ---
 title: Button
 description: A control you press to make something happen. It is the least clinical component in the system, and its page sets the pattern every other component page follows.
-status: beta
+status: shipped
 kind: component
 since: "unreleased"
 category: actions-and-forms
@@ -15,7 +15,7 @@ reviewer: engineering
 
 <StubNotice
   name="button"
-  status="beta"
+  status="shipped"
   questions={[
     "opsinjs has no destructive colour role, and Button refuses to borrow one from the clinical status axis. So `destructive` is separated from `secondary` by the ink of its boundary rather than by weight. That boundary is now drawn in `--foreground`, which measures at least 15.9:1 against both surfaces in both themes, so the outline itself is visible. What nobody has tested is whether a visible outline is warning enough for a destructive action, or whether a destructive action belongs behind a confirmation Dialog rather than in a variant at all.",
     "Interaction states are specified as OKLCH derivations of the role a component already uses, and no script derives them yet. The four state fills are authored by hand in `app/product.css` rather than emitted by `scripts/build-tokens.mts`, so a consumer who retunes a surface role does not retune its states along with it. The values are measured, and press is a distinct fill from hover on every variant. What stays open is the light neutral pair: press tops out at 1.21:1 against `--background` and 1.26:1 against `--card`, because both surfaces sit so close to white that no opaque step below them can climb higher without reading as a different fill. The question is whether that ceiling means the light theme needs a carrier for press other than a fill.",

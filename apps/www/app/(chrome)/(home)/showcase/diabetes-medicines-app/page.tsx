@@ -308,7 +308,7 @@ export default function MedicinesAppShowcasePage() {
                   </p>
                 </Panel>
                 <Panel>
-                  <h3 className="font-medium">The components are at alpha</h3>
+                  <h3 className="font-medium">The components are unreviewed</h3>
                   <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                     The API may change in any release with no deprecation cycle,
                     and none of it has been through an accessibility or clinical

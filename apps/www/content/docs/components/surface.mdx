@@ -1,7 +1,7 @@
 ---
 title: Surface
 description: The primitive behind every panel, sheet and card in the system. It decides how solid or translucent a layer looks, and guarantees that whatever sits on it stays readable.
-status: beta
+status: shipped
 kind: component
 since: "unreleased"
 category: surfaces
@@ -15,7 +15,7 @@ reviewer: engineering
 
 <StubNotice
   name="surface"
-  status="beta"
+  status="shipped"
   questions={[
     "The translucent case, which is the one this component exists for, has not been measured. Every published materials figure is text against a rung's opaque fallback; nothing measures the tint composited at its published floor over the darkest and the lightest tone the theme can produce, and `minScrimOpacity` is published alongside that measurement rather than derived from it.",
     "Whether `prefers-contrast: more` belongs in this component at all. It is answered here before it is answered in the token layer, which is where Increased contrast says the answer belongs, and what happens to a component that has already shipped its own is unsettled. The colour half is unmeasured as well: the edge widens and keeps its published alpha, and nobody has checked the result against the non-text floor.",

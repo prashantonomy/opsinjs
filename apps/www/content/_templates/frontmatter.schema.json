@@ -4,7 +4,7 @@
   "title": "opsinjs documentation page frontmatter",
   "description": "The machine-readable form of the frontmatter contract enforced by apps/www/source.config.ts. Where the two disagree, source.config.ts is what the build runs.",
   "type": "object",
-  "required": ["title", "description", "status", "kind"],
+  "required": ["title", "description", "kind"],
   "additionalProperties": false,
   "properties": {
     "title": {
@@ -25,16 +25,8 @@
     },
     "status": {
       "type": "string",
-      "enum": [
-        "stable",
-        "beta",
-        "alpha",
-        "planned",
-        "deprecated",
-        "considered"
-      ],
-      "default": "planned",
-      "description": "Release phase. Drives <StatusBadge> and the section gating in <PageTemplate>: a section required at the declared status must be present or the build fails."
+      "enum": ["planned", "shipped", "deprecated"],
+      "description": "Release phase. Required on a `kind: component` page and forbidden on every other kind. Drives <StatusBadge> and the section gating in <PageTemplate>: a section required at the declared status must be present or the build fails."
     },
     "kind": {
       "type": "string",
@@ -91,7 +83,7 @@
     "implements": {
       "type": "array",
       "items": { "type": "string" },
-      "description": "Doctrine page → the catalogue ids that implement this rule. Every entry must be a real catalogue id, shipped or considered; assert-ia enforces the reverse direction too."
+      "description": "Doctrine page → the catalogue ids that implement this rule. Every entry must be a real catalogue id; assert-ia enforces the reverse direction too."
     },
     "governedBy": {
       "type": "array",

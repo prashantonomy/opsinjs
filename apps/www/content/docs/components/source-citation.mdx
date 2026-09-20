@@ -1,7 +1,7 @@
 ---
 title: SourceCitation
 description: Where a piece of health information came from, in plain words, with an optional link to the fuller citation and an optional date it was last checked.
-status: alpha
+status: shipped
 kind: component
 since: "unreleased"
 reviewed: 2026-09-20
@@ -16,7 +16,7 @@ usedIn: [diabetes-medicines-app, results-screen]
 
 <StubNotice
   name="source-citation"
-  status="alpha"
+  status="shipped"
   questions={[
     "The missing-source case prints one English admission line and warns in development, following DisclaimerNote. Is a printed admission the right output for a value whose provenance went missing, or should a product refuse to render the value at all before it reaches this component? The line is English with no translation seam, so a product shipping in another language renders an English admission on the day it is meant to be read, and the component cannot know that has happened.",
     "Rule 2 asks that provenance sit in the value's accessible name, not only beside the value. This component renders the provenance as visible text near the value, and it does not associate the two programmatically, so a screen-reader user who reaches the value on its own does not hear where it came from. Whether the component should own that association, and how, is unresolved.",

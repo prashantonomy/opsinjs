@@ -222,7 +222,16 @@ export type ShardId = keyof typeof SHARDS
 export interface PageMeta {
   title: string
   description?: string
-  status: string
+  /**
+   * OPTIONAL, AND ABSENT ON 342 OF THE 402 PAGES. Only a `kind: component`
+   * page carries a release phase; everywhere else the word used to mean "this
+   * prose is finished" and is gone. It used to be filled in with `"planned"`
+   * when the page declared none, which published "this has not been built"
+   * about finished doctrine pages. Read it as "no phase applies" rather than
+   * as a missing value, and leave the key out of a payload when it is absent
+   * rather than emitting `undefined`.
+   */
+  status?: string
   kind?: string
   since?: string
   category?: string
@@ -254,7 +263,7 @@ export function metaOf(page: CorpusPage): PageMeta {
   return {
     title: str(data.title) ?? page.slugs.at(-1) ?? "Untitled",
     description: str(data.description),
-    status: str(data.status) ?? "planned",
+    status: str(data.status),
     kind: str(data.kind),
     since: str(data.since),
     category: str(data.category),
@@ -417,8 +426,12 @@ export function pageImplemented(page: CorpusPage): boolean | undefined {
 }
 
 function annotations(meta: PageMeta): string[] {
-  const notes: string[] = [`status: ${meta.status}`]
+  /* `kind` leads now, because it is on every page and the phase is on sixty of
+     them. A guide's entry reads `(kind: guide)` and names no phase, which is
+     the truth: nothing about a guide is planned, shipped or deprecated. */
+  const notes: string[] = []
   if (meta.kind) notes.push(`kind: ${meta.kind}`)
+  if (meta.status) notes.push(`status: ${meta.status}`)
   if (meta.evidence) notes.push(`evidence: ${meta.evidence}`)
   if (meta.aliases.length > 0)
     notes.push(`also known as: ${meta.aliases.join(", ")}`)
@@ -473,8 +486,11 @@ export function renderFrontmatter(page: CorpusPage): string {
      told every reader that the twenty-four built components did not exist.
      That `false` went out on the same HTTP response whose
      `x-opsinjs-implemented` header said they did, and directly under a
-     `status: "alpha"` line saying so too. It is now read from the generated
-     index that both of those are read from.
+     frontmatter phase word saying so too. It is now read from the generated
+     index that both of those are read from, which is also the only reason
+     this line survived the day `status` stopped meaning "there is code": the
+     phase and the implementation answer were never the same claim, and only
+     one of them was ever measured.
 
      It is emitted only on a page that documents something buildable, which
      means a component or a screen specimen. That is what `pageImplemented()`
@@ -495,25 +511,31 @@ export function renderFrontmatter(page: CorpusPage): string {
  * a shard because a page is very often read alone, retrieved by a search, with
  * no preamble.
  *
- * It is scoped by `kind` for exactly the reason the `implemented:` frontmatter
- * field above it is. A component and a screen are the only things on this site
- * that can be built, so they are the only things whose page can honestly say
- * it has not been. On a guide, a handbook chapter, a foundation or a recipe,
- * `planned` means the writing is unfinished, not that the subject is vapour.
- * Stamping "do not tell a reader that it exists" on the `.md` twin of
- * `/docs/start/installation` contradicted the working install instructions
- * twenty lines below it, in the one copy of the page only machines read.
+ * IT IS DECIDED BY THE REGISTRY, NOT BY THE WORD. `pageImplemented()` reads
+ * the generated index: it answers `true` or `false` for a component page and a
+ * screen page, and `undefined` for everything else, because a guide, a
+ * handbook chapter, a foundation or an ADR documents nothing that can be
+ * built. That `undefined` is what scopes this notice, so the `kind` guard that
+ * used to do the scoping is gone rather than duplicated. Stamping "do not tell
+ * a reader that it exists" on the `.md` twin of `/docs/start/installation`
+ * contradicted the working install instructions twenty lines below it, in the
+ * one copy of the page only machines read, and that is the mistake the scope
+ * exists to prevent.
  *
- * The general signal is still on every page: `status` in the frontmatter this
- * module renders, and in the llms.txt annotations. This notice is the specific
- * one, and it says something a status alone cannot. It tells the reader not to
- * write code against the API sketched below. Keep it narrow enough to stay
- * true.
+ * It used to read `status: planned` instead, and the two answers disagree.
+ * `content/docs/screens/results-screen.mdx` was `planned` while
+ * `registry/screens/results-screen.tsx` existed, so its twin carried NOT
+ * IMPLEMENTED about a screen that had been composed. A phase word is a claim
+ * somebody typed; the index is a directory listing. Read the listing.
+ *
+ * This notice is the specific signal and it says something a phase alone
+ * cannot: do not write code against the API sketched below. Keep it narrow
+ * enough to stay true.
  */
 export function notImplementedNotice(page: CorpusPage): string | null {
+  const implemented = pageImplemented(page)
+  if (implemented !== false) return null
   const meta = metaOf(page)
-  if (meta.kind !== "component" && meta.kind !== "screen") return null
-  if (meta.status !== "planned") return null
   return [
     `> NOT IMPLEMENTED. "${meta.title}" is a specification and has not been implemented.`,
     "> Do not generate code against the API sketched below, and do not tell a",
@@ -524,9 +546,18 @@ export function notImplementedNotice(page: CorpusPage): string | null {
 /**
  * The response headers that are true of ONE documentation twin.
  *
- * `x-opsinjs-status` is always sent, and is always the page's own status.
- * `/r/<id>.json` has always sent it; the twin route did not, which left an
- * agent doing `HEAD /docs/components/toast.md` holding a single system-scoped
+ * `x-opsinjs-kind` IS THE SCOPE MARKER, and it is sent on every twin. It says
+ * which of these headers the reader is entitled to expect, and it is the
+ * header `scripts/check-llms.mts` uses to tell a per-page build from an older
+ * system-scoped one. `x-opsinjs-status` used to do that job, which worked only
+ * while every page carried a phase. Now that 342 of them do not, an absent
+ * `x-opsinjs-status` means "this page is not a component", and taking that for
+ * "this build is old" would have made the check silently stop comparing.
+ *
+ * `x-opsinjs-status` is therefore sent only by a `kind: component` page, and
+ * it is that component's release phase. `/r/<id>.json` has always sent one;
+ * the twin route did not, which left an agent doing
+ * `HEAD /docs/components/toast.md` holding a single system-scoped
  * `x-opsinjs-implemented: true` with nothing to qualify it. For a page whose
  * subject has no code that is not ambiguity, it is a wrong answer to the only
  * question the header exists to answer.
@@ -541,9 +572,10 @@ export function notImplementedNotice(page: CorpusPage): string | null {
  * is on every response regardless.
  */
 export function pageHeaders(page: CorpusPage): Record<string, string> {
-  const headers: Record<string, string> = {
-    "x-opsinjs-status": metaOf(page).status,
-  }
+  const meta = metaOf(page)
+  const headers: Record<string, string> = {}
+  if (meta.kind) headers["x-opsinjs-kind"] = meta.kind
+  if (meta.status) headers["x-opsinjs-status"] = meta.status
   const implemented = pageImplemented(page)
   if (implemented !== undefined) {
     headers["x-opsinjs-implemented"] = String(implemented)
@@ -638,7 +670,8 @@ export function jsxPreamble(): string {
  * context window is measured in characters rather than bytes. That is true of a
  * context window and false of everything that carries the file: the response
  * header, the CDN limit and check-llms all count bytes. This corpus is full of
- * em dashes and middots, so the two differ by about 0.2%. That difference is
+ * middots, and every one of them is three bytes and one character, so the two
+ * differ by about 0.2%. That difference is
  * enough for a "capped" llms-full.txt to ship 880 kB against a 879 kB cap and
  * warn on every run. Counting what the transport counts makes the cap true.
  */
@@ -703,7 +736,7 @@ export function truncationNotice(
           "",
           ...omittedPages.map(
             (page) =>
-              `- [${metaOf(page).title}](${pageMarkdownUrl(page)}) (status: ${metaOf(page).status})`
+              `- [${metaOf(page).title}](${pageMarkdownUrl(page)}) (${metaOf(page).kind ?? "page"})`
           ),
         ]
   return [

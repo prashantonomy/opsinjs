@@ -63,9 +63,9 @@ import { fileURLToPath, pathToFileURL } from "node:url"
 
 /* THE OUTLINE TABLE, READ FROM THE SAME PLACE <PageTemplate> READS IT.
    A component page's outline depends on its `status` as well as its `kind`, so
-   it cannot be derived from a single template file: the moment one page reaches
-   `alpha`, a template-derived outline demands "Proposed API" while
-   <PageTemplate> demands "Usage", and no page edit satisfies both. Both
+   it cannot be derived from a single template file: the moment one page ships,
+   a template-derived outline demands "Proposed API" while <PageTemplate>
+   demands "Usage", and no page edit satisfies both. Both
    enforcers now read lib/status.ts, which is also what
    content/_templates/component.mdx implements - and the template is checked
    against it below (OUT012) so it cannot rot unnoticed.
@@ -968,9 +968,13 @@ function checkFrontmatter(
   const kind = asText(front.kind)
   const status = asText(front.status)
 
+  /* No schema file means the JSON contract could not be read, so only the two
+     things this function knows without it are checked. `status` is NOT one of
+     them any more: it is required on a component page and forbidden everywhere
+     else, and FM014 below is the rule that knows the difference. Asserting it
+     here would fail 342 correct pages the moment the schema went missing. */
   if (!schema) {
     if (!kind) fail("FM002", file, "frontmatter is missing `kind`", 1)
-    if (!status) fail("FM002", file, "frontmatter is missing `status`", 1)
     return
   }
 
@@ -1029,6 +1033,36 @@ function checkFrontmatter(
         )
       }
     }
+  }
+
+  /* FM014: WHICH PAGES OWE A RELEASE PHASE, IN BOTH DIRECTIONS.
+     `status` cannot be required by the JSON schema, because the schema sees one
+     page's fields and not the rule that binds two of them together. It is
+     required here instead, and the other direction is checked in the same
+     place so that the two halves cannot drift apart: an author who adds the
+     line to a handbook chapter is told to remove it by the same rule that told
+     the component author to add it.
+
+     The word used to sit on all 402 pages and mean two different things. On a
+     component page it answered a question about code. Everywhere else it meant
+     "this prose is finished", which is a different claim wearing the same word,
+     and it was the claim that published `status: stable` on 262 pages while the
+     components those pages describe had been through no review at all. */
+  if (kind === "component" && status === undefined) {
+    fail(
+      "FM014",
+      file,
+      "a component page must declare `status`: planned, shipped or deprecated. It is the only page kind where the word answers a question about code rather than about prose, and /r, the .md twin and the search shard all read it.",
+      1
+    )
+  }
+  if (kind !== "component" && status !== undefined) {
+    fail(
+      "FM014",
+      file,
+      "`status` is only for kind: component. On a documentation page the word used to mean 'this prose is finished', which is a different claim wearing the same word, and it is gone. Delete the line.",
+      1
+    )
   }
 
   for (const dateField of ["reviewed", "a11yDate"]) {
@@ -1279,22 +1313,24 @@ function checkOutline(
      "Nothing is built", which was a description of the corpus rather than of
      the check, and it stopped being true the day the first component shipped.
 
-     `alpha` is held to the same requirement for a different reason. Promotion
-     sheds <NotBuiltYet> and <Todo> and nothing else: <StubNotice> survives it
-     and gains its real phase, where it stops saying "nothing is implemented"
-     and starts saying "this is not stable yet, and here is what is still open".
-     That was a convention 23 of the 24 built pages kept and no check enforced,
-     which is how the one page with the most unmeasured questions came to be the
-     one publishing no machine-readable marker at all. A page's prose is not
-     what /r, the markdown twins or the search shards read. */
-  if (kind === "component" && (status === "planned" || status === "alpha")) {
+     A COMPONENT PAGE WITH CODE BEHIND IT IS HELD TO THE SAME REQUIREMENT, for
+     a different reason. Promotion sheds <NotBuiltYet> and <Todo> and nothing
+     else: <StubNotice> survives it and gains its real phase, where it stops
+     saying "nothing is implemented" and starts saying "installable, and not
+     reviewed". That was a convention 23 of the 24 built pages kept and no
+     check enforced, which is how the one page with the most unmeasured
+     questions came to be the one publishing no machine-readable marker at
+     all. A page's prose is not what /r, the markdown twins or the search
+     shards read. The rule now covers every phase rather than naming two of
+     three, so adding a fourth phase could not quietly exempt a page. */
+  if (kind === "component") {
     if (!/<StubNotice[\s/>]/.test(stripCode(page.body))) {
       fail(
         "C6001",
         file,
         status === "planned"
           ? "a component page at status: planned must render <StubNotice> under ## Status. Without it the page reads as documentation for something that exists."
-          : 'a component page at status: alpha must render <StubNotice status="alpha"> under ## Status. Promotion sheds <NotBuiltYet> and <Todo>; <StubNotice> stays and carries the phase and the open safety questions, which are still open at alpha.'
+          : 'a component page must render <StubNotice status="shipped"> under ## Status. Promotion sheds <NotBuiltYet> and <Todo>; <StubNotice> stays, carries the phase, and carries the open safety questions, which are still open on every component in this catalogue.'
       )
     }
   }

@@ -24,8 +24,10 @@ import { cn } from "@/lib/utils"
 
    THREE AXES THAT ARE CONSTANTLY CONFUSED, AND ONLY ONE OF THEM IS HERE.
 
-     RELEASE PHASE   stable · beta · alpha · planned · deprecated · considered
-                     How finished the CODE is. A property of opsinjs. This file.
+     RELEASE PHASE   planned · shipped · deprecated
+                     Whether there is CODE, and whether it is on its way out.
+                     A property of opsinjs, and of a component page only.
+                     This file.
 
      CLINICAL STATUS steady · watch · attention · urgent
                      How urgent a READING is. A property of somebody's data.
@@ -40,6 +42,13 @@ import { cn } from "@/lib/utils"
    teach a reader that the two vocabularies are one, which is the single most
    damaging thing this site could do to somebody who then ships a product with
    it.
+
+   AND `shipped` IS NOT A REVIEW. It says the source installs. No component in
+   this catalogue has had an accessibility review or a clinical review, which
+   is why `STATUS_META.shipped.summary` says so and why that sentence is the
+   chip's title and its aria-label. The chip is the smallest carrier of that
+   fact and it is on every component page, so do not trade the sentence for a
+   shorter one that fits a tooltip better.
 
    SERVER-ONLY BY DESIGN. Everything here reads registry/catalogue.ts through
    lib/catalogue.ts, which is a real, populated array: every row resolves to a
@@ -61,25 +70,26 @@ export interface StatusBadgeProps {
   className?: string
 }
 
+/**
+ * Three phases, three shapes, no hue. A dashed border for `planned`, because
+ * the outline of a thing that is not there is the right picture; a solid
+ * neutral fill for `shipped`; a strike-through for `deprecated`. A reader
+ * printing this site in greyscale can still tell them apart, which is the same
+ * rule the product's own status pills follow.
+ */
 const PHASE_CLASS: Record<Status, string> = {
-  stable:
-    "border-foreground/25 bg-foreground/[0.06] text-foreground dark:bg-foreground/10",
-  beta: "border-foreground/20 bg-muted text-muted-foreground dark:bg-muted/50",
-  alpha:
-    "border-foreground/15 bg-muted/60 text-muted-foreground dark:bg-muted/40",
   planned:
     "border-dashed border-foreground/30 bg-transparent text-muted-foreground",
+  shipped: "border-foreground/20 bg-muted text-muted-foreground dark:bg-muted/50",
   deprecated:
     "border-foreground/30 bg-foreground/[0.04] text-muted-foreground line-through decoration-1",
-  considered:
-    "border-dotted border-foreground/25 bg-transparent text-muted-foreground",
 }
 
 /**
  * The release phase of a page or a catalogue row. Always a word, never a bare
  * colour: the docs chrome inherits the same colour-independence rule the
  * product does, because a reviewer printing this site in greyscale still has to
- * be able to tell `stable` from `planned`.
+ * be able to tell `shipped` from `planned`.
  */
 export function StatusBadge({
   status: requested,
@@ -131,33 +141,28 @@ export function StatusBadge({
    -------------------------------------------------------------------------- */
 
 /**
- * The release phases that mean there is code to install. `planned` means there
- * is not; `deprecated` means there still is, which is the whole reason it is a
- * separate phase from the one that is empty.
- */
-const IMPLEMENTED_PHASES: readonly Status[] = [
-  "stable",
-  "beta",
-  "alpha",
-  "deprecated",
-]
-
-/**
  * Rendered in the docs sidebar footer. A reader meets status chips before they
  * meet the page that explains them, so the legend is permanently on screen.
  *
  * The first line COUNTS the catalogue rather than restating it. What was here
  * before said "nothing is built yet" on all 400 pages, and went on saying it
  * through the run that built twenty-four components. It said so beside their
- * own alpha badges and their own working install commands. A sentence about how
+ * own phase chips and their own working install commands. A sentence about how
  * much exists, maintained by hand, in chrome that renders everywhere, is a
  * falsehood with a delay fuse. Do not put a number in this JSX.
+ *
+ * The chip list is `STATUS_ORDER` rather than a hand-typed array for the same
+ * reason. It used to name four of the six phases, so the legend explaining the
+ * vocabulary silently left two of it out. Reading the vocabulary is what makes
+ * that impossible.
  */
 export function StatusLegend({ className }: { className?: string }) {
   const rows = getCatalogue()
-  const built = rows.filter((row) =>
-    IMPLEMENTED_PHASES.includes(row.status)
-  ).length
+  /* Everything that is not `planned` has code. `deprecated` still installs,
+     which is the whole reason it is a separate phase from the empty one, so
+     testing for the one phase that means "no code" is the form that cannot
+     forget a phase. */
+  const built = rows.filter((row) => row.status !== "planned").length
 
   return (
     <div
@@ -171,7 +176,7 @@ export function StatusLegend({ className }: { className?: string }) {
         code behind it.
       </p>
       <ul className="m-0 flex list-none flex-wrap gap-1 p-0">
-        {(["stable", "beta", "alpha", "planned"] as const).map((phase) => (
+        {STATUS_ORDER.map((phase) => (
           <li key={phase} className="m-0">
             <StatusBadge status={phase} plain />
           </li>
@@ -200,7 +205,7 @@ export interface SectionProgressProps {
 }
 
 /**
- * "35 alpha · 25 beta" on a section index. Honesty as a feature: a
+ * "60 shipped" on a section index. Honesty as a feature: a
  * reader arriving at Components should learn in one line how much of it is
  * real, without opening a page to find out.
  *

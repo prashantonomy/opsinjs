@@ -56,9 +56,11 @@ export default function OfficialPage() {
             of ours. If you find a package by this name today, whoever published
             it is not us. Do not install it, and please report it. The
             components that do exist are installed as source from the registry
-            URL below and from no other origin. Every one of them is at{" "}
-            <Mono>alpha</Mono> and carries no version number: nothing here has
-            been released. This paragraph will change the day something is, and
+            URL below and from no other origin. Every one of them is{" "}
+            <Mono>shipped</Mono> and carries no version number, and{" "}
+            <Mono>shipped</Mono> means only that the source installs: nothing
+            here has been released, and nothing here has had an accessibility
+            review or a clinical review. This paragraph will change the day something is, and
             the release will be announced in the changelog with a version and a
             date.
           </p>

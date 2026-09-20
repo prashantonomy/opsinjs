@@ -35,7 +35,6 @@ import {
   SHARDS,
   allPages,
   groupBySection,
-  metaOf,
   renderIndexEntry,
 } from "@/app/_machine/corpus"
 
@@ -45,15 +44,15 @@ export function GET(): Response {
   const pages = allPages()
   const groups = groupBySection(pages)
 
-  const counts: Record<string, number> = {}
-  for (const page of pages) {
-    const status = metaOf(page).status
-    counts[status] = (counts[status] ?? 0) + 1
-  }
-  const tally = Object.entries(counts)
-    .sort((a, b) => b[1] - a[1])
-    .map(([status, count]) => `${count} ${status}`)
-    .join(" · ")
+  /* THERE IS NO PHASE TALLY HERE ANY MORE, and its absence is the point.
+     This line used to read "402 pages (262 stable · 73 planned · 36 alpha ·
+     31 beta)", which mixed two different claims under one word: on a
+     component page the phase said whether code existed, and everywhere else
+     it said somebody considered the prose finished. Now that the word is
+     component-only, the honest version of that tally would read "60 shipped"
+     beside 402 pages, which is true and nearly worthless. `siteSummary()`
+     above already states how many components are implemented, names them,
+     and says what `shipped` is not a promise of. */
 
   /* The existence rule is the one line in this file an assistant is most
      likely to lift verbatim into a system prompt, so it is computed from the
@@ -97,7 +96,7 @@ export function GET(): Response {
     "",
     siteSummary(),
     "",
-    `Docs version ${DOCS_VERSION}. Corpus compiled ${GENERATED_AT}. ${pages.length} pages${tally ? ` (${tally})` : ""}.`,
+    `Docs version ${DOCS_VERSION}. Corpus compiled ${GENERATED_AT}. ${pages.length} pages.`,
     "",
     "## Reading this site as a machine",
     "",

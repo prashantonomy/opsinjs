@@ -111,10 +111,21 @@ export function componentIndexUrl(): string | undefined {
  * tries to install it. The two halves are "this does not exist yet" and "this
  * exists and here is how far you may lean on it".
  *
- * Every branch below is chosen on the PAYLOAD where it can be, and on
- * `row.status` only for the part status actually decides. A sentence about
- * whether files were written must never be derived from a phase word, and a
- * sentence about stability must never be typed as a constant.
+ * THREE BRANCHES. Two of them are `planned`, split by whether the payload
+ * carries files, and the third is everything with source behind it. Every one
+ * is chosen on the PAYLOAD where it can be, and on `row.status` only for the
+ * part a phase actually decides: a sentence about whether files were written
+ * must never be derived from a phase word.
+ *
+ * THE THIRD BRANCH IS SAFETY CARRIER 4. It used to read "its documentation
+ * page is `alpha` rather than `stable`, so the API may still change", which
+ * was the whole of the warning and which said nothing at all once `stable`
+ * left the vocabulary. The sentence is now flat, and what it states is the
+ * thing the reader most needs and is least likely to find on their own: the
+ * code the CLI has just written into their project has been through no
+ * accessibility review and no clinical review. This is the only carrier of
+ * that sentence that reaches somebody who never opened the site, so do not
+ * shorten it here to match a shorter one elsewhere.
  */
 function docsSentence(row: CatalogueRow, files: RegistryItemFile[]): string {
   const url = componentDocsUrl(row.name) ?? componentIndexUrl() ?? SITE_URL
@@ -152,21 +163,22 @@ function docsSentence(row: CatalogueRow, files: RegistryItemFile[]): string {
     ].join(" ")
   }
 
-  /* This branch takes a row that is not `planned` and has source behind it.
-     Today that is every catalogue row. The CLI has just written
-     this component into somebody's project, so a bare `Title is documented at
-     url` line is the one moment where saying nothing costs something: the
-     reader has the code and no statement about how much they may rely on it.
-     The caveat is read off `row.status` rather than typed, so the day a row is
-     promoted the sentence stops making it. */
-  if (files.length > 0 && row.status !== "stable") {
+  /* A row that has source behind it. Today that is every catalogue row. The
+     CLI has just written this component into somebody's project, so a bare
+     `Title is documented at url` line is the one moment where saying nothing
+     costs something: the reader has the code in their tree and no statement
+     about how much they may rely on it. */
+  if (files.length > 0) {
     return [
-      `${row.title} installs real source, and its documentation page is \`${row.status}\` rather than \`stable\`,`,
-      `so the API may still change. Read the page at ${url} before you depend on it.`,
-      `It names the clinical contract and the accessibility bar this component has to clear.`,
+      `${row.title} installs real source. It has had no accessibility review and no`,
+      `clinical review, so it is not for a production health surface.`,
+      `Read the page at ${url} before you depend on it; it names the clinical contract`,
+      `and the accessibility bar this component has to clear.`,
     ].join(" ")
   }
 
+  /* Deprecated, with nothing left to install. The row survives so that the id
+     answers rather than 404s, and the page is where the replacement is named. */
   return `${row.title} is documented at ${url}`
 }
 

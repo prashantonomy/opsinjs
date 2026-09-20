@@ -137,23 +137,19 @@ export function siteSummary(): string {
      because this is the one payload that has no per-item rows to carry the
      answer instead.
 
-     Every number below is read off the catalogue. The first version of this
-     paragraph typed "24 specified components" as a literal; it was true on the
-     day it was written and became a self-contradiction the moment the
-     twenty-fourth component landed, shouting that most of the system was
-     unbuilt one line above a computed sentence saying all of it was. A
-     denominator somebody has to remember to change is a denominator that
-     rots. */
+     Every number below is read off the catalogue. An earlier version of this
+     paragraph typed the count of specified components as a literal; it was
+     true on the day it was written and became a self-contradiction the moment
+     the next component landed, shouting that most of the system was unbuilt
+     one line above a computed sentence saying all of it was. A denominator
+     somebody has to remember to change is a denominator that rots.
+
+     What is NOT computed is the review sentence at the bottom. It is flat
+     text because it is flat truth, and because a sentence derived from a
+     phase word would have gone quiet the moment the phase words collapsed,
+     which is exactly what happened to the one that used to sit there. */
   const rows = getCatalogue().rows
   const specified = rows.length
-  const builtSet = new Set(built)
-  const builtRows = rows.filter((row) => builtSet.has(row.name))
-  /* Derived, not asserted. "They are all alpha" is true today and is exactly
-     the kind of sentence that stops being true on the first promotion. */
-  const allAlpha =
-    builtRows.length === built.length &&
-    builtRows.every((row) => row.status === "alpha")
-
   const roster =
     built.length === 1
       ? `only one component is implemented: ${built[0]}.`
@@ -184,12 +180,17 @@ export function siteSummary(): string {
 
   /* What everything else on the roster is. Deleting this clause once the
      specified set is covered would trade one omission for another: it is the
-     only sentence here that tells a reader the screen pages have no code. */
+     only sentence here that tells a reader the screen pages have no code.
+
+     The covered branch says "most of them" rather than "none of them" because
+     two screens are composed and the rest are not, and the claim is not worth
+     computing: a screen has no catalogue row, so it would need its own count
+     off the registry index to say a number nobody asked for. */
   const remainder =
     specified > 0 && built.length >= specified
       ? [
           "Every id in the catalogue is implemented.",
-          "The screen pages are specimens; none of them is implemented either.",
+          "The screen pages are specimens; most of them are not implemented either.",
         ]
       : [
           "Every other component page is a specification. A specification",
@@ -202,9 +203,17 @@ export function siteSummary(): string {
     ...opening,
     ...lede,
     ...remainder,
-    allAlpha
-      ? "Every implemented component is `alpha`: its API may change in any release without a deprecation cycle."
-      : "Read `status` on a roster row before you depend on that component's API.",
+    /* SAFETY CARRIER 3, AND THE FIRST FILE A MODEL READS. This is not a
+       hedge and it is not conditional on anything, because the fact it states
+       is not conditional on anything: no opsinjs component has been through
+       either review, and collapsing the release phases into `shipped` took
+       away the only gradient that used to hint at it. An unconditional
+       sentence is also the only kind that cannot be argued into silence by a
+       later promotion. Five other surfaces carry the same sentence; the list
+       is at the top of lib/status.ts. Do not shorten this one on its own. */
+    "No opsinjs component has had an accessibility review or a clinical review.",
+    "`shipped` means the source installs, and it does not mean either review",
+    "has happened. Do not put one on a production health surface.",
     "Pages carry a machine-readable status, and `/r/index.json` carries",
     "`implemented` per id. Do not generate code against a proposed API and do",
     "not describe an unimplemented component as shipping. The tokens, the",
@@ -312,7 +321,7 @@ export function provenance(): {
     notice:
       count === 0
         ? "No opsinjs component is implemented yet. Every entry is a specification. Do not generate code against a proposed API."
-        : `${count} opsinjs component${count === 1 ? " is" : "s are"} implemented. Every other entry is a specification or a reserved name, not code. Check \`implemented\` on the roster row, or \`meta.opsinjs.implemented\` on the item, before you assume a component exists, and never generate code against a proposed API.`,
+        : `${count} opsinjs component${count === 1 ? " is" : "s are"} implemented, and none of them has had an accessibility review or a clinical review, so none of them is for a production health surface. Every other entry is a specification or a reserved name, not code. Check \`implemented\` on the roster row, or \`meta.opsinjs.implemented\` on the item, before you assume a component exists, and never generate code against a proposed API.`,
   }
 }
 

@@ -520,13 +520,21 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
        anything, which makes it the copy most worth checking and the copy whose
        staleness would be least visible.
 
-       `x-opsinjs-status` is how this tells the two scopes apart rather than
+       `x-opsinjs-kind` is how this tells the two scopes apart rather than
        guessing. It is sent on every twin and only by the per-page path, so its
        absence means the running build predates that change and its
        `x-opsinjs-implemented` is still the old system-scoped `true`. Comparing
        that value would produce exactly the false failures the old paragraph
        was right to avoid, so it is reported once, as a warning naming the
-       build, rather than as a defect per page that is not in the source. */
+       build, rather than as a defect per page that is not in the source.
+
+       IT USED TO BE `x-opsinjs-status` THAT DID THIS, and that worked only for
+       as long as every page carried a release phase. Once the phase became a
+       component-only field, an absent `x-opsinjs-status` stopped meaning "old
+       build" and started meaning "not a component", so the scope test would
+       have quietly excused every page it was supposed to check. A marker that
+       says which page this is has to be on every page; a marker that says what
+       phase it is in cannot be. They are two headers for that reason. */
     const rosterImplemented = new Map(
       items
         .filter((item) => typeof item.name === "string")
@@ -565,9 +573,9 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
         )
       }
 
-      /* The third surface. `x-opsinjs-status` first, as the scope marker: see
+      /* The third surface. `x-opsinjs-kind` first, as the scope marker: see
          the paragraph above. */
-      const scope = twin.headers.get("x-opsinjs-status")
+      const scope = twin.headers.get("x-opsinjs-kind")
       if (scope === null) {
         systemScopedTwins.push(name)
         continue
@@ -609,7 +617,7 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
     if (headerMissing.length > 0) {
       fail(
         `${headerMissing.length} component twin${headerMissing.length === 1 ? "" : "s"} ` +
-          `carr${headerMissing.length === 1 ? "ies" : "y"} \`x-opsinjs-status\` but no ` +
+          `carr${headerMissing.length === 1 ? "ies" : "y"} \`x-opsinjs-kind\` but no ` +
           `\`x-opsinjs-implemented\`: ${headerMissing.slice(0, 10).join(", ")}` +
           `${headerMissing.length > 10 ? `, and ${headerMissing.length - 10} more` : ""}. ` +
           "`pageHeaders()` omits the header only when the page documents nothing buildable, so a " +
@@ -620,7 +628,7 @@ async function liveChecks(base: string, slugs: string[]): Promise<void> {
     if (systemScopedTwins.length > 0) {
       warn(
         `${systemScopedTwins.length} component twin${systemScopedTwins.length === 1 ? "" : "s"} ` +
-          `send${systemScopedTwins.length === 1 ? "s" : ""} no \`x-opsinjs-status\` header, so ` +
+          `send${systemScopedTwins.length === 1 ? "s" : ""} no \`x-opsinjs-kind\` header, so ` +
           "the build being served predates the per-page machine headers and its " +
           "`x-opsinjs-implemented` is still the system-scoped answer - `true` on every twin, " +
           "including any page whose subject has no code. The header was not compared " +

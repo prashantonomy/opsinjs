@@ -22,15 +22,11 @@ const generator = createGenerator({
  * Release phase. Drives <StatusBadge>, the status gating in <PageTemplate> and
  * the phase column in <StatusMatrix>. The list mirrors `Status` in
  * lib/status.ts; the two are checked against each other by assert-ia.
+ *
+ * Three words, and they answer one question: is there code, and is it on its
+ * way out. The phase says nothing about whether the code has been reviewed.
  */
-const statusEnum = z.enum([
-  "stable",
-  "beta",
-  "alpha",
-  "planned",
-  "deprecated",
-  "considered",
-])
+const statusEnum = z.enum(["planned", "shipped", "deprecated"])
 
 /**
  * Page kind. This is the contract that fixes a page's headings: `kind` fully
@@ -56,7 +52,27 @@ export const docs = defineDocs({
   dir: "content/docs",
   docs: {
     schema: pageSchema.extend({
-      status: statusEnum.default("planned"),
+      /**
+       * OPTIONAL HERE, AND REQUIRED ON A COMPONENT PAGE BY FM014 IN
+       * `scripts/assert-ia.mts`. The two halves are deliberately split.
+       *
+       * This field used to read `.default("planned")`, and a schema-level
+       * default is not a convenience: zod writes it into `page.data.status`
+       * for every page that omits the field, before any reader runs. So a
+       * documentation page that declares no phase would arrive at
+       * `app/_machine/corpus.ts`, at `/r/docs.json` and at the `.md` twin
+       * carrying `planned`, which reads as "this thing has not been built"
+       * about a doctrine page that is finished and real. Deleting the reader's
+       * own `?? "planned"` without deleting this default changes nothing and
+       * no gate notices. Both went together.
+       *
+       * The requirement direction cannot live here either, because a zod
+       * schema on one field cannot see `kind` without a `.superRefine()` that
+       * changes the inferred type of `page.data` at all seventeen read sites.
+       * FM014 sees both fields, names the file, and says which way it is
+       * wrong. That is the better place for it.
+       */
+      status: statusEnum.optional(),
       kind: kindEnum,
       since: z.string().optional(),
       category: z.string().optional(),

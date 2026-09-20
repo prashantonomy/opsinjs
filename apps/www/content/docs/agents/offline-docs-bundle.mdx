@@ -1,7 +1,6 @@
 ---
 title: Offline docs bundle
 description: The whole documentation corpus as one versioned JSON file, for agents and tools that run without network access.
-status: stable
 kind: guide
 aliases: ["/r/docs.json", offline, air-gapped, bundle]
 reviewed: 2026-09-20
@@ -58,7 +57,10 @@ in front of it.
   truncationNote?: string  // present only when truncated
   sections: Array<{…}>     // the sixteen sidebar groups
   shards: Array<{…}>       // where to fetch what was dropped
-  counts: Record<string, number>   // pages per status, of the included pages
+  componentCounts: Record<string, number>        // component pages per phase,
+                                   // of the included pages
+  corpusComponentCounts: Record<string, number>  // the same, over the whole
+                                   // corpus
   conventions: {…}         // the twin, catalog, roster and search URLs
   pages: Array<{
     url: string            // canonical page URL
@@ -67,7 +69,8 @@ in front of it.
     section: string
     title: string
     description: string
-    status: string         // stable | beta | alpha | considered | …
+    status?: string        // planned | shipped | deprecated. Component pages
+                           // only; absent on every other kind
     kind: string           // component | health | foundation | …
     evidence?: string      // health pages declare this
     aliases: string[]
@@ -91,9 +94,12 @@ A page inside the bundle also omits the per-page block quote that a standalone
 twin carries about those tags, so nothing in a page body explains them; this
 paragraph is the explanation.
 
-`counts` tallies the pages this response carried, not the corpus. It sums to
-`included` rather than to `total`, which is easy to misread when the two sit
-next to each other.
+`componentCounts` tallies the component pages this response carried and
+`corpusComponentCounts` tallies every component page in the corpus. Neither
+sums to `included` or to `total`, and that is not an off-by-one: a release
+phase belongs to a component, so 342 of the 402 pages declare none and are
+counted in neither tally. Read `corpusComponentCounts` for a question about
+opsinjs and `componentCounts` for a question about this response.
 
 The bundle carries the documentation, not the code. Component source lives in
 the registry items. `/r/<name>.json` is the item for one of the sixty built

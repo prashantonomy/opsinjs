@@ -13,8 +13,8 @@
  * found in a screen reader's list of links, and none of that survives being
  * reimplemented as a button with a click handler. The specification's anatomy
  * says "a real <button>, or an <a> only when it navigates" and this file
- * implements the first half; the second half belongs to `link`, which is on the
- * considered roster and is not this component wearing a different tag.
+ * implements the first half; the second half belongs to `link`, which is a
+ * separate component and is not this one wearing a different tag.
  *
  * The refusal is enforced rather than only typed. `render` and `nativeButton`
  * are Base UI's own props and are absent from `ButtonProps`, which stops a

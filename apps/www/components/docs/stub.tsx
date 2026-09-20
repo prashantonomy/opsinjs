@@ -40,7 +40,7 @@ import { StatusBadge } from "./status"
         of the failure is a wrong number in front of a patient.
 
    The marker is claimed, not assumed. <StubNotice> emits it at `planned` and
-   drops it from `alpha` onwards, because saying "not implemented" about a
+   drops it at every other phase, because saying "not implemented" about a
    component that is built is the same defect as the reverse and is the one an
    agent reading the markup would act on.
 
@@ -194,16 +194,24 @@ function issueHref(issue: string): string | null {
 }
 
 /**
- * The banner at the top of every page whose status is not `stable`. On a
- * `planned` page it is the second thing on the page, immediately under the
- * title, and it carries the same machine-readable marker as
- * <NotBuiltYet>. From `alpha` onwards it drops the marker and changes what
- * it says: not "nothing is implemented" but "this is not stable yet", which is
- * the truth a reader of a built component needs.
+ * The banner at the top of every component page. On a `planned` page it is the
+ * second thing on the page, immediately under the title, and it carries the
+ * same machine-readable marker as <NotBuiltYet>. Once there is code it drops
+ * the marker and changes what it says.
+ *
+ * WHAT IT SAYS ONCE THERE IS CODE IS "Installable. Not reviewed." It used to
+ * read "This is not stable yet", which was a sentence about a gradient: alpha,
+ * beta, stable, and the reader's job was to work out how far along that line
+ * they were. There is no gradient any more. A component either installs or it
+ * does not, and none of them has been through an accessibility review or a
+ * clinical review. "Not stable yet" would now be the only thing left on the
+ * page implying a ladder that was taken down, and it names the smaller of the
+ * two risks: an API that moves costs a developer an afternoon, and an
+ * unreviewed health component costs somebody else something worse.
  *
  * The questions list survives promotion. A component page with no open safety
- * questions is either finished or has not been thought about, and shipping an
- * alpha is not the same as answering them.
+ * questions is either finished or has not been thought about, and shipping is
+ * not the same as answering them.
  */
 export function StubNotice({
   name,
@@ -251,7 +259,7 @@ export function StubNotice({
         >
           {isPlanned
             ? "Specification only. Nothing is implemented"
-            : "This is not stable yet"}
+            : "Installable. Not reviewed."}
         </h2>
         <StatusBadge status={status} plain className="ml-auto" />
       </div>

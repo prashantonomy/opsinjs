@@ -8,16 +8,22 @@
  * cards cannot drift apart as pages are added.
  *
  * A DELIBERATE ABSENCE OF COLOUR. The release phases this card shows are
- * planned, alpha, beta, stable and deprecated, and it would be natural for the
- * card to colour them the way a status is coloured elsewhere on this site. It
- * does not. Clinical status owns that vocabulary across steady, watch,
- * attention and urgent, where `unknown` is the absence of an assertion rather
- * than a fifth level. Reusing that vocabulary for "this component is in beta"
- * would teach the reader to read a colour that means "somebody needs to do
+ * planned, shipped and deprecated, and it would be natural for the card to
+ * colour them the way a status is coloured elsewhere on this site. It does
+ * not. Clinical status owns that vocabulary across steady, watch, attention
+ * and urgent, where `unknown` is the absence of an assertion rather than a
+ * fifth level. Reusing that vocabulary for "this component is shipped" would
+ * teach the reader to read a colour that means "somebody needs to do
  * something about their own health" as "a library is not finished". That is
  * the never-mix-the-axes rule applied to the system's own marketing surface,
  * and it is worth more here than a livelier picture: the card is greyscale,
- * with one filled chip for `stable` and outlines for everything else.
+ * with one filled chip for `shipped` and outlines for everything else.
+ *
+ * MOST CARDS NOW CARRY NO CHIP AT ALL. A release phase belongs to a component
+ * page, and `lib/routes.ts` omits an absent status from the query, so the 342
+ * pages that are not components send none and the chip below is simply not
+ * drawn. That is the truthful card for a doctrine page: it documents a rule,
+ * and a rule is not shipped.
  *
  * Fonts are the runtime default. No font is fetched at request time, so the
  * card cannot fail because a font CDN did.
@@ -51,7 +57,7 @@ export function GET(request: Request): Response {
   const section = clip(params.get("section"), 40)
   const status = clip(params.get("status"), 20).toLowerCase()
 
-  const filled = status === "stable"
+  const filled = status === "shipped"
 
   return new ImageResponse(
     <div

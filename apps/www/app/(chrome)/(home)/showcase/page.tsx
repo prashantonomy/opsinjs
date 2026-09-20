@@ -79,9 +79,10 @@ export default function ShowcasePage() {
           </p>
           <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
             opsinjs has no published packages, and every component that is
-            implemented is at alpha: the API may change in any release without a
-            deprecation cycle, and none of it is ready for a production health
-            surface. Nothing can have shipped to real readers on that, so an
+            implemented is unreviewed: the API may change in any release
+            without a deprecation cycle, none of it has been through an
+            accessibility review or a clinical review, and none of it is ready
+            for a production health surface. Nothing can have shipped to real readers on that, so an
             entry on this page today would be a fiction. It would be a fiction
             on the page whose entire purpose is evidence.
           </p>

@@ -1,7 +1,7 @@
 ---
 title: Link
 description: The control that takes the reader somewhere else, and the one place the system decides how a navigation link looks so a banner's action and a card's action match.
-status: beta
+status: shipped
 kind: component
 since: "unreleased"
 category: actions-and-forms
@@ -15,7 +15,7 @@ reviewer: engineering
 
 <StubNotice
   name="link"
-  status="beta"
+  status="shipped"
   questions={[
     "The `render` slot substitutes the product's own router link, but it has never been measured against a router that renders its own focus behaviour. Link carries its focus ring in its class list, and a router element that also draws one, or that strips the className it is handed, could leave the reader with two rings or none. Nothing has been run against Next or React Router here.",
     "No contrast pair for the three emphases has been measured. `inline` and `secondary` inherit the surrounding ink, and `action` on a neutral ground draws a boundary that was carried over from the card action recipe rather than measured on the surfaces Link now sits on. Whether the ladder holds in greyscale is argued, not tested.",

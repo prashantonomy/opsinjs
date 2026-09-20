@@ -1,7 +1,7 @@
 ---
 title: RangeLegend
 description: The key that names the tones a RangeBar draws, so a reader learns in one place what the reference range band and each status colour mean. It sits with its bar and asserts nothing on its own.
-status: alpha
+status: shipped
 kind: component
 since: "unreleased"
 category: health-data-display
@@ -16,7 +16,7 @@ reviewer: engineering
 
 <StubNotice
   name="range-legend"
-  status="alpha"
+  status="shipped"
   questions={[
     "Nothing here has been measured. No contrast pair has been checked by a machine, and three are known to need it: each status swatch fill against the ground the host provides, the neutral band swatch's hairline against that same ground, and the status glyph ink against it. This component sets no surface of its own, so every swatch is painted on the host's background rather than on the matching -surface the token contract tunes against.",
     "The binding to a RangeBar is a convention rather than a gate. The interface takes only the band definitions and a className and takes no bar reference, so nothing in the code stops a caller placing the legend on a different screen from the bars it names, which is the failure the roster cited when it declined a floating legend. The page argues the placement; no lint rule enforces it.",

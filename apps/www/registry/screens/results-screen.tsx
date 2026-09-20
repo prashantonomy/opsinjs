@@ -14,7 +14,7 @@
  * already shows; DisclaimerNote
  * closes the surface; and Card is present because CareCard is built on it, which
  * is the honest way it enters a screen rather than lifting a third surface of its
- * own. Every one is at beta today. source-citation has since been built out too,
+ * own. Every one is installable today. source-citation has since been built out too,
  * yet provenance stays a plain paragraph here, the way the shipped ResultCard
  * demo already renders it.
  *

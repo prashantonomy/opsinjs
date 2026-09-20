@@ -108,15 +108,22 @@ function textOf(node: ReactNode): string {
 export interface PageTemplateProps {
   kind: Kind
   /**
-   * The page's release phase. Only `component` gates its outline on it.
+   * The page's release phase, and ABSENT ON EVERY PAGE THAT IS NOT A
+   * COMPONENT. Only `component` gates its outline on it, and only a component
+   * page is allowed to declare it; FM014 in `scripts/assert-ia.mts` fails the
+   * build in both directions.
    *
-   * The default is `planned` because it is the CONSERVATIVE answer, not the
-   * common one. No component page sits at `planned` today, because every
-   * generated page passes its real status, and registry/catalogue.ts is where
-   * those live. The default therefore only ever catches a page that forgot to
-   * declare one. `planned` is what that page should be held to: it claims the
-   * least about the code while still resolving to a real outline, so a page
-   * that forgot its status is still checked against something.
+   * The outline falls back to `planned` because it is the CONSERVATIVE
+   * answer, not the common one: it claims the least about the code while
+   * still resolving to a real outline, so a component page that forgot its
+   * phase is still checked against something. A handbook chapter never
+   * reaches that fallback, because a non-component kind reads its outline
+   * from `SECTION_OUTLINES` and never looks at the phase at all.
+   *
+   * The fallback is for the OUTLINE ONLY. The page contract published below
+   * emits the declared value or `null`, so a doctrine page no longer tells an
+   * agent it is `planned` when what is true is that the word does not apply
+   * to it.
    */
   status?: Status
   /**
@@ -137,12 +144,18 @@ export interface PageTemplateProps {
 
 export function PageTemplate({
   kind,
-  status = "planned",
+  status: statusProp,
   category,
   toc,
   path,
   children,
 }: PageTemplateProps) {
+  /* Two names for one input, because they answer two different questions.
+     `status` is what the outline is resolved against and must always be a
+     real phase. `statusProp` is what the page actually declared, and it is
+     what the machine-readable contract publishes, because `null` is the
+     honest answer for the 342 pages that declare nothing. */
+  const status: Status = statusProp ?? "planned"
   const categoryKnown = category !== undefined
   const isHealthComponent = Boolean(category?.startsWith("health-"))
 
@@ -309,7 +322,7 @@ export function PageTemplate({
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             kind,
-            status,
+            status: statusProp ?? null,
             category: category ?? null,
             /* Two lists, because an agent that reads only one gets the wrong
                answer from either. `requiredSections` is what the page must

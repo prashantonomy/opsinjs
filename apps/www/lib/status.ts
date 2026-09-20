@@ -19,16 +19,32 @@
    RELEASE PHASE
    ──────────────────────────────────────────────────────────────────────────── */
 
-export const STATUSES = [
-  "stable",
-  "beta",
-  "alpha",
-  "planned",
-  "deprecated",
-  "considered",
-] as const
+/**
+ * A RELEASE PHASE IS NEVER PAINTED, AND THERE IS NOW NOTHING HERE TO PAINT IT
+ * WITH.
+ *
+ * `components/docs/status.tsx` tints the phase chip from a neutral greyscale
+ * map and tells the three phases apart by border style and by the word.
+ * That is the never-mix rule applied to the system's own chrome: a release
+ * phase is not a clinical status, and painting "Planned" in the colour that
+ * means "a person should act" teaches a reader to misread the one palette
+ * where misreading costs something. Do not wire a phase into a hue, a pill, a
+ * token or a chart series. `StatusMeta` used to carry an unread `tone` field
+ * against the day somebody wanted the other thing, and carrying it was the
+ * invitation. There is no field here to wire one to, and that absence is the
+ * enforcement.
+ *
+ * THREE PHASES, AND THEY ANSWER ONE QUESTION: is there code, and is it on its
+ * way out. They say nothing about whether the code has been reviewed, because
+ * none of it has. `STATUS_META.shipped.summary` below carries that fact to
+ * every chip on the site, and it is one of six places the same sentence is
+ * written down; the others are `siteSummary()`, `docsSentence()`,
+ * `/r/index.json`, the `<StatusMatrix>` preamble and the `<StubNotice>` on
+ * every component page.
+ */
+export const STATUSES = ["planned", "shipped", "deprecated"] as const
 
-/** The release phase of a page or a catalogue entry. */
+/** The release phase of a component page or a catalogue entry. */
 export type Status = (typeof STATUSES)[number]
 
 export function isStatus(value: unknown): value is Status {
@@ -40,112 +56,47 @@ export function isStatus(value: unknown): value is Status {
 export interface StatusMeta {
   /** The word shown on the badge. */
   label: string
-  /** One sentence a reader can act on, shown in the status legend and on hover. */
-  summary: string
   /**
-   * What this phase PROMISES, in the wording the versioning policy is written
-   * against. Nothing renders it: `<StatusBadge>` shows `label` and `summary`,
-   * and `project/release-phases.mdx` states the same commitments in its own
-   * prose. So this is the source a reviewer checks that page against, not a
-   * string the page interpolates. Change a promise here and edit that page in
-   * the same commit, because nothing will do it for you.
-   */
-  promise: string
-  /** Sort order for the status matrix and the section-progress counts. */
-  order: number
-  /**
-   * Whether a page at this status may show a working example. TWO phases may
-   * not, for two different reasons: `planned`, which is a specification with no
-   * code behind it, and `considered`, which was declined and never had any. The
-   * other four all have something real to render.
-   */
-  canDemonstrate: boolean
-  /**
-   * UNREAD, AND IT HAS TO STAY THAT WAY.
+   * One sentence a reader can act on. It is the chip's `title` and its
+   * `aria-label`, so it reaches a sighted reader and a screen reader alike, and
+   * it is the label in the `<StatusMatrix>` phase facet.
    *
-   * Nothing in this repository or in a consuming project reads this field.
-   * `components/docs/status.tsx` tints the release-phase badge from a neutral
-   * greyscale map and distinguishes the phases by border style and by the word,
-   * deliberately: a release phase is not a clinical status, and painting
-   * "Alpha" in the colour that means "a person should act" teaches a reader to
-   * misread the one palette where misreading costs something. Do not wire this
-   * into a badge, a pill, a token or a chart series. It is still declared only
-   * because dropping a member from an interface that ships into consumer
-   * projects through `shadcn add` is a versioning decision rather than a tidy-up.
+   * `shipped` carries the review floor, and it carries it because the chip is
+   * the shortest surface on the site that appears beside every component. If
+   * you shorten that sentence you delete the only warning a reader gets from
+   * the chrome, so shorten it only together with the other five carriers listed
+   * in the block above.
    */
-  tone: ClinicalStatus | "unknown"
+  summary: string
 }
 
 /**
- * Ordered most-finished first. `order` is what `<StatusMatrix>` sorts on and
- * what `<SectionProgress>` counts in.
+ * The three phases, keyed by the word that appears in frontmatter and in a
+ * catalogue row. Display order is `STATUSES` order; there is no `order` field
+ * left to disagree with it.
  */
 export const STATUS_META: Record<Status, StatusMeta> = {
-  stable: {
-    label: "Stable",
-    summary: "Finished. Safe to build on.",
-    promise:
-      "The JavaScript API, the rendered DOM, the data-* attributes and the CSS custom properties are all covered by semver. A breaking change requires a major version and a migration guide.",
-    order: 0,
-    canDemonstrate: true,
-    tone: "steady",
-  },
-  beta: {
-    label: "Beta",
-    summary: "Complete and in use, but the surface may still move.",
-    promise:
-      "Feature-complete and accessibility-reviewed. The API may change in a minor version with a deprecation notice and at least one release of overlap.",
-    order: 1,
-    canDemonstrate: true,
-    tone: "steady",
-  },
-  alpha: {
-    label: "Alpha",
-    summary: "Usable, incomplete, and expected to change.",
-    promise:
-      "It works and it is documented. The API may change in any release without a deprecation cycle. Not for a production health surface.",
-    order: 2,
-    canDemonstrate: true,
-    tone: "watch",
-  },
   planned: {
     label: "Planned",
-    summary: "Specified in full. Not implemented. There is no code.",
-    promise:
-      "The page you are reading is a specification: what it is for, when not to use it, what it asserts clinically, its proposed anatomy and API, and the accessibility bar the implementation must clear. Nothing has been built. Do not generate code against it.",
-    order: 3,
-    canDemonstrate: false,
-    tone: "attention",
+    summary: "Specified in full. There is no code. Do not generate against it.",
+  },
+  shipped: {
+    label: "Shipped",
+    summary:
+      "Installable source. No accessibility review and no clinical review. Not for a production health surface.",
   },
   deprecated: {
     label: "Deprecated",
-    summary: "Still works. Being removed. A replacement is named.",
-    promise:
-      "It keeps working until the removal version stated on its page. Every deprecated entry names its replacement and its removal version, and the Deprecations page under Project lists them together.",
-    order: 4,
-    canDemonstrate: true,
-    tone: "watch",
-  },
-  considered: {
-    label: "Considered",
-    summary:
-      "Looked at, decided against for now, with the reason written down.",
-    promise:
-      "There is no specification, no code and no plan. There IS a catalogue row and a short generated page at the component's own address, saying why the name was declined and what to reach for instead. The address answers rather than 404s, which is the whole point of keeping the row. A considered entry is a decision, not a backlog item.",
-    order: 5,
-    canDemonstrate: false,
-    tone: "unknown",
+    summary: "Still works, being removed, and its page names the replacement.",
   },
 }
 
 /** Statuses in display order. */
-export const STATUS_ORDER: Status[] = [...STATUSES].sort(
-  (a, b) => STATUS_META[a].order - STATUS_META[b].order
-)
+export const STATUS_ORDER: readonly Status[] = STATUSES
 
 /** True when a page at this status must carry a not-implemented marker. */
 export function isNotImplemented(status: Status): boolean {
-  return status === "planned" || status === "considered"
+  return status === "planned"
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -476,12 +427,12 @@ export const OUTLINE_IS_EXACT: Record<Exclude<Kind, "component">, boolean> = {
 }
 
 /**
- * The outline every shipped component page is held to. `alpha`, `beta`,
- * `stable` and `deprecated` all point at this one array on purpose. They named
+ * The outline every component page with code behind it is held to. `shipped`
+ * and `deprecated` both point at this one array on purpose. The phases named
  * different outlines once, which is why a page could not change release phase
  * without a content edit, and that coupling is what this array removes: a page
- * that satisfies this outline satisfies it at every one of those phases, so
- * moving a page between them is a frontmatter change and nothing else.
+ * that satisfies this outline satisfies it at both phases, so retiring a
+ * component is a frontmatter change and nothing else.
  */
 const SHIPPED_SECTIONS: string[] = [
   "Status",
@@ -530,12 +481,12 @@ const SHIPPED_SECTIONS: string[] = [
  * they know what to look for, and because two spellings gave every enforcer an
  * alias table to keep in step.
  *
- * `considered` is a dead entry and is on its way out with the phase itself.
- * Nothing carries that status: no catalogue row, no page, and no generator
- * writes one. It is still keyed here only because `Status` still lists the
- * word and this table is a `Record<Status, string[]>`, so removing one without
- * the other would not compile. Both go together in the commit that shrinks the
- * vocabulary; do not write a page against this outline in the meantime.
+ * There are two outlines and three phases, because `deprecated` documents code
+ * that still installs and therefore owes a reader everything `shipped` owes
+ * them plus the replacement. Only `planned` gets the shorter one, and it is
+ * shorter for a reason a reader can check: a specification cannot report
+ * measured results, so it has no `## Examples`, no `## Data attributes` and no
+ * `## API reference`, and it carries `## Proposed API` instead.
  */
 export const COMPONENT_SECTIONS_BY_STATUS: Record<Status, string[]> = {
   planned: [
@@ -550,15 +501,8 @@ export const COMPONENT_SECTIONS_BY_STATUS: Record<Status, string[]> = {
     "Accessibility",
     "Related",
   ],
-  alpha: SHIPPED_SECTIONS,
-  beta: SHIPPED_SECTIONS,
-  stable: SHIPPED_SECTIONS,
+  shipped: SHIPPED_SECTIONS,
   deprecated: SHIPPED_SECTIONS,
-  considered: [
-    "What this name refers to",
-    "Why it is not on the roster",
-    "What to use instead",
-  ],
 }
 
 /**

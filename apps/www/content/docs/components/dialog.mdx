@@ -1,7 +1,7 @@
 ---
 title: Dialog
 description: A window that opens over the page and waits for an answer. It takes your keyboard and your attention until you deal with it, and gives them back where it found them.
-status: beta
+status: shipped
 kind: component
 since: "unreleased"
 category: surfaces
@@ -15,7 +15,7 @@ reviewer: engineering
 
 <StubNotice
   name="dialog"
-  status="beta"
+  status="shipped"
   questions={[
     "`sheetBelow` is gone. The specification asked for the dialog to become a Sheet below a width, and a Sheet is draggable and dismissible by design. An alert dialog nobody may dismiss on a laptop would therefore have become dismissible with a thumb on a phone. The shape moved and the behaviour did not. On a phone the dialog now floats inset on all four sides rather than docking to the bottom edge, so it no longer borrows a sheet's silhouette; the open question is whether that inset panel is the right answer on a phone, or whether the honest answer is that some of these questions should never have been dialogs at all.",
     "Escape on an alert dialog does not close it, and a refused press now moves focus to the popup so the labelled, described container is announced again, which means the reader hears the question rather than nothing. But `patterns/alert-escalation.mdx` asks for the reason to be announced, and the title is the question, not the reason. That re-announcement is also the behaviour every screen reader is expected to produce from a focus move onto a labelled, described container, and nobody in this repository has yet put a screen reader on it. So the question narrows: does an alert dialog owe somebody who presses Escape the reason the key was refused, over and above the question they are being asked, and how do we come to trust an announcement we have described but not heard?",

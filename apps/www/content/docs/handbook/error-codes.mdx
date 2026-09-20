@@ -1,7 +1,6 @@
 ---
 title: Error codes
 description: Every development-mode warning opsinjs will emit, its stable code, what causes it, and the page that prevents it happening again.
-status: planned
 kind: handbook
 aliases: [warning codes, dev warnings, OPSIN error, console warning, what does this warning mean]
 reviewEvery: 12m
@@ -14,14 +13,14 @@ reviewed: 2026-09-20
 
 ## The short version
 
-<StubNotice status="alpha">
+<StubNotice status="shipped">
   These codes fire. `warnOnce()` ships in `lib/opsinjs.ts`, and several of the
   built components call it, raising `OPSIN-0001`, `0002`, `0003`, `0004`, `0010`,
   `0011`, `0012`, `0013`, `0016` and `0021`. The rest of the table is allocated
   and has no caller yet.
   What is not stable is the channel rather than the codes: message wording,
   severity and which component raises which code all move while the components
-  are at `alpha`. The code a message carries does not.
+  are unreviewed. The code a message carries does not.
 </StubNotice>
 
 Every development-mode warning opsinjs emits carries a stable code, a sentence
