@@ -46,9 +46,9 @@ has ever been true of a rendered element, because no component exists yet.
 are left standing rather than rewritten: "because no component exists yet" here,
 and the aside under [Alternatives considered](#alternatives-considered) placing
 this decision "at a moment when none of the components that would use the names
-exists". Sixty components are now implemented, twenty-five at `beta` and
-thirty-five at `alpha`, and two of them resolve these names in code. `surface.tsx` imports the `MaterialRung` union from
-the shared substrate, keys its translucency table off it so that adding a rung
+exists". Sixty components are now implemented and every catalogue row reads
+`shipped`, and two of them resolve these names in code. `surface.tsx` imports
+the `MaterialRung` union from the shared substrate, keys its translucency table off it so that adding a rung
 breaks the build rather than defaulting, and carries a table of the three retired
 names that can be told apart. That table maps `base` to `canvas`, `panel` to
 `raised` and `chrome` to `overlay`, by job and not by position, so that a caller

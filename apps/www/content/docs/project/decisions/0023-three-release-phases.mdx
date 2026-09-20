@@ -1,0 +1,190 @@
+---
+title: "ADR 0023. Three release phases, and only a component page carries one"
+description: The phase vocabulary becomes planned, shipped and deprecated, and status leaves every page that is not a component, because four of the six old words described states nothing was in.
+kind: project
+reviewed: 2026-09-20
+reviewer: engineering
+reviewEvery: 12m
+aliases: [three release phases, planned shipped deprecated, why alpha was removed, why beta was removed, why status left the documentation pages]
+---
+
+<PageTemplate kind="project" />
+
+## Status
+
+**Accepted.** 2026-09-20. `STATUSES` in `lib/status.ts` and the mirrored enum in
+`source.config.ts` hold three values. All sixty rows in `registry/catalogue.ts` read
+`shipped`. Every documentation page that is not `kind: component` carries no `status`
+field at all.
+
+## Context
+
+The enum held six words: `planned`, `considered`, `alpha`, `beta`, `stable` and
+`deprecated`. Counted against the tree on the day this was written, here is what each of
+them was actually describing.
+
+Sixty catalogue rows, thirty-five at `alpha` and twenty-five at `beta`, and nothing at
+any other value. `deprecated` had never described a row, because nothing has been
+removed from this system yet. `considered` had described no row since the roster behind
+it was built out, and it had no path back to describing one, because the product
+decision that emptied it was a decision to build rather than to decline. Of four hundred
+and four documentation pages, sixty were `kind: component` and every one of those sixty
+was `alpha` or `beta`. The remaining three hundred and forty-four carried a `status` that
+meant something else entirely: two hundred and sixty-four `stable`, seventy-three
+`planned`, and seven pages of accessibility, content and screen prose at `alpha` or
+`beta`.
+
+Three defects sat on top of those counts.
+
+**The split between `alpha` and `beta` claimed a difference nobody had measured.** The
+`beta` promise said a component was feature-complete and accessibility-reviewed.
+Twenty-five rows made that claim. No component in this catalogue has had an
+accessibility review, and none has had a clinical review either, so no row could keep
+it. A promise nothing can keep is worse than no promise, because a reader who trusts it
+stops asking.
+
+**`status` meant two unrelated things.** On a component page it said how released the
+code was. On the other three hundred and forty-four it said whether the prose was
+finished. A reader who learned the phase promises from
+[release phases](../release-phases.mdx) then met two hundred and sixty-four `stable`
+pages on which none of those promises applied, because no page of prose is covered by
+semver.
+
+**`considered` cost a full vocabulary entry to describe nothing.** It held an enum
+member, a generator that wrote stub pages, three assertions in `assert-ia.mts`, a badge
+branch, a page outline of its own and two decision records.
+
+Blueprint is the system this was measured against, and Blueprint runs no maturity ladder
+at all. Its only status signal is `@deprecated` on a single prop or API, read out of a
+TSDoc comment and rendered next to that member. There is no component-level maturity
+badge, no status field in its docs tooling, and no documentation page anywhere in it
+that tells the reader how finished the page is. That is not an argument for copying
+Blueprint wholesale, because it documents nothing it has not built and we publish
+specifications for things that do not exist. It is evidence that the ladder was ours to
+justify, and that four of the six rungs could not be.
+
+## Decision
+
+**Three values: `planned`, `shipped` and `deprecated`. `status` is frontmatter on a
+`kind: component` page and on nothing else.**
+
+- `planned` is a catalogue row with a written specification and no code. Design against
+  it. Do not generate code against it.
+- `shipped` is a row whose component is implemented and installable from
+  `/r/<id>.json`. It says the code exists. It says nothing about review.
+- `deprecated` is a row that still works, is on its way out, and names its replacement.
+- `stable`, `beta`, `alpha` and `considered` are gone from `STATUSES` and from the zod
+  enum in `source.config.ts`. Every `Record<Status, ...>` in `lib/status.ts` lost those
+  keys, which is how the compiler found the call sites.
+
+**Sixty pages declare a phase and every other page declares none.** What a documentation
+page owes a reader about its own incompleteness is carried by `<NotBuiltYet>`,
+`<StubNotice>`, `<NoDataYet>` and `<Todo>`, each of which names the specific gap instead
+of labelling a whole page with a word borrowed from software releases.
+
+**One component outline, seventeen sections, twelve of them required.** `States`,
+`Motion`, `Data attributes`, `CSS variables` and `Tokens` are optional: a page carries
+them where it has something to say and leaves them out where it does not, and when it
+carries one it still carries it in outline order. `Cost` is deleted rather than made
+optional, because no size, no render cost and no bundle figure was ever measured for any
+of the sixty, so the heading could only ever hold an estimate presented as a
+measurement.
+
+**`shipped` never means reviewed, and the page says so rather than the word.** Merging
+`alpha` and `beta` removed the only signal a reader had between "this works" and
+"somebody checked this", so the replacement had to be at least as visible. Every
+`kind: component` page renders `<StubNotice status="shipped">` whose text states that
+the component has had no accessibility review and no clinical review and is not for a
+production health surface. It is authored MDX rather than rendered chrome because
+`app/_machine/corpus.ts` builds every `.md` twin from the processed page text: a
+sentence moved into a React component reaches a human on the rendered page and
+disappears from all sixty twins, from every `llms-*.txt` shard, from `/r/docs.json` and
+from the offline bundle, which is exactly where an agent reads this page. `SAFE001` in
+`assert-ia.mts` holds it, per page and not keyed to the phase, and it is one of six
+places the same fact is written down.
+
+**ADR 0008 and ADR 0022 are withdrawn and deleted, not superseded.** Both described the
+`considered` vocabulary. The numbers 0008, 0018 to 0020 and 0022 are never reused.
+
+## Consequences
+
+- **Two records left the tree at the project owner's explicit instruction.** The
+  alternative of a superseding banner was put to the owner and declined. A superseded
+  page keeps teaching its vocabulary to every reader and to every program that fetches
+  the `.md` twin, neither of which can tell a live record from a historical one by
+  reading it. The rule on the [decisions index](./index.mdx) saying a record is never
+  deleted is amended in the same change, because keeping that rule beside two deletions
+  would be a contradiction on the page that defines the process. Git history is the
+  archive, the reasoning worth keeping from both records is in the Context above, and
+  the numbers are burned.
+- **`status` outside a component page is now a build failure, not a style note.**
+  `assert-ia.mts` treats the field as required on a `kind: component` page and forbidden
+  on every other kind, so a page cannot quietly reacquire one.
+- **The machine surface changed shape, and a consumer parsing it will notice.** The
+  `x-opsinjs-status` response header is sent by a component page and by nothing else, so
+  its absence now means "this is not a component" rather than "this page has no phase".
+  An `llms.txt` entry leads with `kind` and names a phase on sixty entries out of the
+  corpus. The `status:` line in a `.md` twin's front-note appears on those same sixty.
+- **This is a breaking change for every consumer project.** ADR
+  [0010](./0010-shared-code-ships-with-every-item.mdx) ships `lib/status.ts` byte for
+  byte into every project that ran `shadcn add`, and the copy is embedded in
+  `registry/__index__.ts`. Removing a member of the `Status` union changes a file those
+  projects own, and it belongs in a changelog entry that does not exist yet, which is a
+  reason to write that entry first.
+- **Nothing ranks components any more.** Sixty rows share one value, so
+  [the roster](../../components/index.mdx) cannot sort by maturity and sorts by category
+  and id instead. The review column it used to print held the same two words in all
+  sixty cells; one sentence above the table carries that fact at a sixtieth of the
+  space.
+- **`planned` and `deprecated` have zero rows today, and that is not the `considered`
+  case.** `considered` went because the product decided to build rather than to decline,
+  so nothing will occupy it again without a new decision. `planned` is the state every
+  future proposal passes through between a reviewed specification and a built component.
+  `deprecated` is the first word this system needs the day it removes anything. Neither
+  carries a generator, a stub mechanism or a record of its own, so neither costs what
+  `considered` cost.
+- **Seven pages that were `alpha` or `beta` and are not components lost the field with
+  the rest**: five accessibility pages, one content page and one screen page. Their
+  accessibility claims were never governed by a release phase. They are governed by the
+  measured tables and by the gaps those pages list, which is where a reader should have
+  been looking.
+
+## Alternatives considered
+
+**Keep `alpha` and `beta`, and add a separate review field.** Rejected. The distinction
+those two words carried is exactly "has this been reviewed", and the honest answer is
+the same for all sixty. A field would record that answer once per row where a sentence
+records it once per page, and the sentence is the one that survives into the twins.
+Revisit this the day the answer stops being uniform.
+
+**Supersede 0008 and 0022 instead of deleting them.** Rejected, and this was the closest
+call, because a reversed record is normally the most useful page in this folder. These
+two are unlike the usual case: their subject is a word rather than a mechanism with a
+successor. Keeping them keeps the word in search, in the twins and in `llms.txt`, where
+an agent that fetches one cannot tell that the vocabulary it teaches is gone.
+
+**Two values, `shipped` and `deprecated`.** Rejected. It is close to Blueprint's answer
+and it does not fit what this repository publishes. A specification page for something
+unbuilt needs a word, and if the enum does not carry one the page will reach for a
+sentence of prose instead, which nothing can check. `planned` costs one enum member and
+one row in one table.
+
+**Rename `stable` to `shipped` and leave the other five alone.** Rejected. It renames
+the problem. Two hundred and sixty-four pages of prose would still carry a release phase
+promising semver over something semver cannot cover, and the `alpha` and `beta` promise
+would still be unkeepable.
+
+## Revisiting this
+
+Revisit when the first version is cut. Nothing here has been published under a version
+number yet, and a real version number is what makes `deprecated` checkable: a row can
+then name a removal version and a script can assert that the removal happened.
+
+Revisit `shipped` itself the first time a component passes an accessibility review. At
+that point there genuinely are two kinds of shipped component, the distinction is
+measured rather than asserted, and a second word may earn its cost. Adding a word for a
+reviewed tier is worth doing when there is something to put in it, and not before.
+
+<LastUpdated />
+
+<Reviewed />

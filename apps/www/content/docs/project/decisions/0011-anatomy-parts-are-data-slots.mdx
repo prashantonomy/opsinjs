@@ -26,7 +26,7 @@ systems.
 Read as an export list, the trees across the sixty specifications come to well
 over a hundred exported compound parts, and the system has acquired a
 composition API that nobody designed and no page documents. Read as nothing at
-all, the anatomy section is decoration and the `beta` composition tree has no
+all, the anatomy section is decoration and the composition tree has no
 data behind it.
 
 The same specifications also say, repeatedly, that composition is the hazard
@@ -82,7 +82,8 @@ and `data-ending-style`, and they do not count against this list.
 ## Consequences
 
 - **Three generated widgets document one answer.** `<CompositionTree>`,
-  `<DataAttributesTable>` and `<CssVariablesTable>` all appear at `beta` and all
+  `<DataAttributesTable>` and `<CssVariablesTable>` all appear on a shipped page
+  that documents them, and all
   describe the same tree, from the same source, rather than three hand-written
   descriptions that can disagree.
 - **The parts are versioned surface.** Removing a `data-slot`, renaming a part or
@@ -120,7 +121,7 @@ hazard rather than the selling point.
 
 **No stable contract at all: style through props.** Rejected. It moves every
 styling decision into the interface, which then grows one prop per part per
-property, and it makes the `beta` data-attribute and CSS-variable tables
+property, and it makes the data-attribute and CSS-variable tables
 undocumentable, because there would be nothing to document. It also fails the
 audience test: a consumer who has copied the source can already edit it, and the
 prop only helps the consumer who has not.

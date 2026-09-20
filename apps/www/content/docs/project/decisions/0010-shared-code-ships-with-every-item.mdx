@@ -159,9 +159,7 @@ the wrong shape.
 **Rewrite imports at generation time**, emitting a relative `./status` into the
 shipped copy. Rejected: the emitted file would then differ from the reviewed
 file. `<ComponentSource>` would show one thing and the consumer would receive
-another, and the version stamp described at
-[Version stamps](../../registry/version-stamps.mdx) would be stamped on text that
-nobody in this repository has read.
+another, so the source a reviewer approved would not be the source anybody runs.
 
 **Duplicate the small parts into each component.** Rejected above, and worth
 restating as the reason this record exists at all: the cost is not the bytes, it

@@ -45,10 +45,11 @@ additional server.
 
 ## Consequences
 
-- **Consumers own the code.** Upgrades are diffs, not version bumps, which is why
-  [Version stamps](../../registry/version-stamps.mdx) exists: every emitted file
-  carries a comment naming the component and the version it was copied at, so a
-  stale copy can be identified.
+- **Consumers own the code.** Upgrades are diffs, not version bumps, and nothing
+  in a copied file records where it came from. Commit the files `shadcn add`
+  writes, in their own commit, so a later `--diff` has something to compare
+  against. [Upgrades and diffs](../../registry/upgrades-and-diffs.mdx) is the
+  full procedure.
 - **Fixes do not propagate.** A security or safety fix reaches only the people who
   come back for it. [Security](../security.mdx) advisories are therefore written
   for someone patching their own copy by hand, and that is a permanent cost of
