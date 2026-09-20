@@ -124,20 +124,24 @@ export interface CatalogueEntry {
   description: string
   category: CatalogueCategory
   status: Status
-  /** Version this entry was introduced in. `"unreleased"` until something ships. */
+  /**
+   * The version this entry was introduced in. `"unreleased"` on all sixty rows
+   * and it stays that way until a version is cut, so today it distinguishes
+   * nothing. It is kept anyway, because it is the only slot in the published
+   * row shaped to hold a version, and six machine surfaces already carry it:
+   * `app/r/index.json/route.ts`, `app/_machine/registry-payload.ts`,
+   * `app/_machine/contracts.ts`, `lib/catalogue.ts`,
+   * `scripts/build-registry.mts` and the Since column that
+   * `scripts/build-reference.mts` writes into the generated catalogue table.
+   * That is the blast radius of deleting it, and two of those surfaces are
+   * JSON a consumer's tooling parses. The namesake page frontmatter field was
+   * deleted; this one is a different field and is not.
+   */
   since: string
   /** Search synonyms. Globally unique. Copied verbatim into page frontmatter. */
   aliases: string[]
   /** The discipline that reviews this component's specification. */
   owner: "design" | "engineering" | "clinical" | "content"
-  /**
-   * Date of the last accessibility review, ISO 8601. `null` on every row,
-   * because no accessibility review has happened. It has not happened for the
-   * twenty-five built components either. Rendering a date here that nobody
-   * produced would be the exact dishonesty this file exists to avoid, so the
-   * matrix prints "not yet reviewed" rather than a placeholder.
-   */
-  a11yDate: string | null
   /**
    * Doctrine pages that govern this component, by page id. Mandatory for every
    * `health-*` category. These are ids, not paths. `lib/routes.ts` turns them
@@ -232,7 +236,6 @@ export const SHIPPED: CatalogueEntry[] = [
       "a1c",
     ],
     owner: "clinical",
-    a11yDate: null,
     governedBy: [
       "two-colour-axes",
       "reference-ranges",
@@ -271,7 +274,6 @@ export const SHIPPED: CatalogueEntry[] = [
       "gauge bar",
     ],
     owner: "clinical",
-    a11yDate: null,
     governedBy: [
       "two-colour-axes",
       "reference-ranges",
@@ -299,7 +301,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["dial", "ring", "gauge", "score", "index", "bmi"],
     owner: "design",
-    a11yDate: null,
     governedBy: [
       "reference-ranges",
       "risk-and-statistics",
@@ -323,7 +324,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["sparkline", "trend", "over time", "mini chart", "line chart", "chart", "graph"],
     owner: "clinical",
-    a11yDate: null,
     governedBy: [
       "trends-and-change",
       "numbers-units-precision",
@@ -359,7 +359,6 @@ export const SHIPPED: CatalogueEntry[] = [
       "tile",
     ],
     owner: "design",
-    a11yDate: null,
     governedBy: [
       "category-identity",
       "clinical-interaction-guidelines",
@@ -398,7 +397,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["chip", "status chip", "status badge", "status label", "traffic light"],
     owner: "clinical",
-    a11yDate: null,
     governedBy: [
       "clinical-status-semantics",
       "two-colour-axes",
@@ -428,7 +426,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["history item", "event list", "activity feed"],
     owner: "design",
-    a11yDate: null,
     governedBy: ["uncertainty-and-staleness", "trends-and-change"],
     registryDependencies: ["relative-time", "status-pill"],
     usedIn: ["daily-log-screen", "diabetes-medicines-app"],
@@ -443,7 +440,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["key", "chart legend", "band legend"],
     owner: "design",
-    a11yDate: null,
     governedBy: ["reference-ranges", "two-colour-axes"],
     dependencies: ["lucide-react"],
     usedIn: ["trends-screen"],
@@ -468,7 +464,6 @@ export const SHIPPED: CatalogueEntry[] = [
       "banner",
     ],
     owner: "clinical",
-    a11yDate: null,
     governedBy: [
       "two-colour-axes",
       "clinical-status-semantics",
@@ -508,7 +503,6 @@ export const SHIPPED: CatalogueEntry[] = [
       "advice",
     ],
     owner: "clinical",
-    a11yDate: null,
     governedBy: [
       "two-colour-axes",
       "clinical-status-semantics",
@@ -545,7 +539,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["glossary term", "jargon", "plain word", "definition", "plain english", "tooltip term"],
     owner: "content",
-    a11yDate: null,
     governedBy: ["who-this-is-for", "clinical-interaction-guidelines"],
     usedIn: [
       "ask-users-for/ethnicity",
@@ -574,7 +567,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["consent", "permission", "opt in", "data sharing", "agree"],
     owner: "clinical",
-    a11yDate: null,
     governedBy: ["consent-and-disclosure", "clinical-interaction-guidelines", "crisis-and-self-harm", "regulatory-context"],
     dependencies: ["lucide-react"],
     registryDependencies: ["sheet", "button"],
@@ -600,7 +592,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["disclaimer", "not medical advice", "legal note", "small print", "safety note"],
     owner: "clinical",
-    a11yDate: null,
     governedBy: [
       "regulatory-context",
       "clinical-interaction-guidelines",
@@ -638,7 +629,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["citation", "evidence link", "reviewed by"],
     owner: "content",
-    a11yDate: null,
     governedBy: ["data-provenance-and-device-accuracy", "evidence-and-references"],
     registryDependencies: ["link"],
     usedIn: ["diabetes-medicines-app", "results-screen"],
@@ -654,7 +644,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["log", "diary", "journal", "daily entry", "capture", "quick entry", "bottom sheet entry"],
     owner: "design",
-    a11yDate: null,
     governedBy: [
       "numbers-units-precision",
       "unit-systems",
@@ -694,7 +683,6 @@ export const SHIPPED: CatalogueEntry[] = [
       "unit switch",
     ],
     owner: "engineering",
-    a11yDate: null,
     governedBy: ["numbers-units-precision", "unit-systems", "uncertainty-and-staleness"],
     dependencies: ["lucide-react"],
     registryDependencies: ["field"],
@@ -723,7 +711,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["pain map", "anatomy diagram", "where does it hurt"],
     owner: "design",
-    a11yDate: null,
     governedBy: ["two-colour-axes"],
     contrastScopes: ["neutral"],
   },
@@ -738,7 +725,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["number", "unit", "format a number", "numeric display", "figure", "format", "formatted number"],
     owner: "content",
-    a11yDate: null,
     governedBy: [
       "numbers-units-precision",
       "unit-systems",
@@ -778,7 +764,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["time ago", "timestamp", "last updated", "date display", "ago", "freshness", "staleness"],
     owner: "content",
-    a11yDate: null,
     governedBy: ["uncertainty-and-staleness", "numbers-units-precision"],
     usedIn: [
       "choose-a-component",
@@ -804,7 +789,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["data table", "grid", "rows and columns"],
     owner: "engineering",
-    a11yDate: null,
     usedIn: ["trends-screen"],
     contrastScopes: ["neutral"],
   },
@@ -817,7 +801,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["counter", "label chip"],
     owner: "design",
-    a11yDate: null,
     usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
   },
@@ -832,7 +815,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["material", "glass", "blur", "elevation", "layer", "translucency", "vibrancy"],
     owner: "design",
-    a11yDate: null,
     usedIn: [
       "choose-a-component",
       "daily-log-screen",
@@ -853,7 +835,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["panel", "container", "content box", "box", "tile group"],
     owner: "design",
-    a11yDate: null,
     dependencies: ["lucide-react"],
     registryDependencies: ["surface"],
     usedIn: [
@@ -877,7 +858,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["bottom sheet", "drawer", "side panel", "slide over", "modal sheet", "detent"],
     owner: "design",
-    a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
     registryDependencies: ["surface", "button"],
     usedIn: [
@@ -901,7 +881,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["modal", "alert dialog", "confirm", "popup"],
     owner: "engineering",
-    a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
     registryDependencies: ["surface", "button"],
     usedIn: ["alert-escalation", "consent-flow", "diabetes-medicines-app"],
@@ -918,7 +897,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["admonition", "note box", "info box", "tip", "note", "aside"],
     owner: "content",
-    a11yDate: null,
     usedIn: [
       "alert-escalation",
       "choose-a-component",
@@ -948,7 +926,6 @@ export const SHIPPED: CatalogueEntry[] = [
       "blank slate",
     ],
     owner: "content",
-    a11yDate: null,
     registryDependencies: ["button", "link"],
     usedIn: [
       "choose-a-component",
@@ -974,7 +951,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["loading placeholder", "shimmer", "ghost", "loading state", "placeholder"],
     owner: "design",
-    a11yDate: null,
     usedIn: [
       "choose-a-component",
       "daily-log-screen",
@@ -995,7 +971,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["segmented buttons", "toggle group"],
     owner: "design",
-    a11yDate: null,
     dependencies: ["@base-ui/react"],
     usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
@@ -1010,7 +985,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["bottom navigation", "nav bar"],
     owner: "design",
-    a11yDate: null,
     dependencies: ["lucide-react"],
     registryDependencies: ["surface"],
     usedIn: ["diabetes-medicines-app"],
@@ -1025,7 +999,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["wizard", "step indicator", "multi step"],
     owner: "design",
-    a11yDate: null,
     dependencies: ["lucide-react"],
     usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
@@ -1039,7 +1012,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["cta", "action", "submit", "primary button"],
     owner: "engineering",
-    a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
     usedIn: [
       "consent-and-permissions",
@@ -1065,7 +1037,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["anchor", "hyperlink"],
     owner: "engineering",
-    a11yDate: null,
     registryDependencies: ["button"],
     usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
@@ -1088,7 +1059,6 @@ export const SHIPPED: CatalogueEntry[] = [
       "hint",
     ],
     owner: "engineering",
-    a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
     usedIn: [
       "ask-users-for/contact-details",
@@ -1124,7 +1094,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["glyph button", "round button"],
     owner: "design",
-    a11yDate: null,
     dependencies: ["lucide-react"],
     registryDependencies: ["button"],
     usedIn: ["diabetes-medicines-app"],
@@ -1139,7 +1108,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["toggle"],
     owner: "engineering",
-    a11yDate: null,
     dependencies: ["@base-ui/react"],
     usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
@@ -1153,7 +1121,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["tick box", "multi select"],
     owner: "engineering",
-    a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
     usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
@@ -1167,7 +1134,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["radio buttons", "single choice"],
     owner: "engineering",
-    a11yDate: null,
     dependencies: ["@base-ui/react"],
     usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
@@ -1181,7 +1147,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["dropdown", "picker"],
     owner: "engineering",
-    a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
     usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral", "materials"],
@@ -1195,7 +1160,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["stepper input", "quantity input"],
     owner: "engineering",
-    a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
     usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
@@ -1209,7 +1173,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["long text", "notes input"],
     owner: "engineering",
-    a11yDate: null,
     usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
   },
@@ -1223,7 +1186,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["separator", "rule"],
     owner: "design",
-    a11yDate: null,
     usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
   },
@@ -1237,7 +1199,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["profile picture", "initials", "user image"],
     owner: "design",
-    a11yDate: null,
     dependencies: ["lucide-react"],
     contrastScopes: ["neutral"],
   },
@@ -1250,7 +1211,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["sr only", "screen reader only", "clip"],
     owner: "engineering",
-    a11yDate: null,
     usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
   },
@@ -1264,7 +1224,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["activity ring", "close your rings", "daily goal"],
     owner: "design",
-    a11yDate: null,
     governedBy: [
       "two-colour-axes",
       "category-identity",
@@ -1282,7 +1241,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["pain scale", "rating scale", "likert"],
     owner: "clinical",
-    a11yDate: null,
     governedBy: [
       "clinical-interaction-guidelines",
       "numbers-units-precision",
@@ -1300,7 +1258,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["medication", "pill tracker", "dose", "adherence tracker"],
     owner: "clinical",
-    a11yDate: null,
     governedBy: [
       "clinical-interaction-guidelines",
       "uncertainty-and-staleness",
@@ -1321,7 +1278,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["survey", "assessment", "phq", "screening form"],
     owner: "clinical",
-    a11yDate: null,
     governedBy: [
       "clinical-interaction-guidelines",
       "regulatory-context",
@@ -1339,7 +1295,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["symptoms", "how are you feeling", "symptom checker"],
     owner: "clinical",
-    a11yDate: null,
     governedBy: [
       "clinical-interaction-guidelines",
       "regulatory-context",
@@ -1358,7 +1313,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["snackbar", "transient message", "notification toast"],
     owner: "design",
-    a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
     contrastScopes: ["neutral", "materials"],
   },
@@ -1371,7 +1325,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["progress bar", "completion"],
     owner: "design",
-    a11yDate: null,
     dependencies: ["@base-ui/react"],
     contrastScopes: ["neutral"],
   },
@@ -1384,7 +1337,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["loader", "busy indicator", "activity indicator"],
     owner: "design",
-    a11yDate: null,
     contrastScopes: ["neutral"],
   },
   {
@@ -1396,7 +1348,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["hover label"],
     owner: "engineering",
-    a11yDate: null,
     dependencies: ["@base-ui/react"],
     contrastScopes: ["neutral", "materials"],
   },
@@ -1409,7 +1360,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["anchored panel", "flyout"],
     owner: "engineering",
-    a11yDate: null,
     dependencies: ["@base-ui/react"],
     contrastScopes: ["neutral", "materials"],
   },
@@ -1422,7 +1372,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["dropdown menu", "context menu", "overflow menu"],
     owner: "engineering",
-    a11yDate: null,
     dependencies: ["@base-ui/react"],
     usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral", "materials"],
@@ -1436,7 +1385,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["tab list", "view switcher"],
     owner: "engineering",
-    a11yDate: null,
     dependencies: ["@base-ui/react"],
     contrastScopes: ["neutral"],
   },
@@ -1449,7 +1397,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["disclosure", "expander", "collapsible"],
     owner: "engineering",
-    a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
     usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral"],
@@ -1463,7 +1410,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["range input", "drag to set"],
     owner: "engineering",
-    a11yDate: null,
     dependencies: ["@base-ui/react"],
     contrastScopes: ["neutral"],
   },
@@ -1476,7 +1422,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["autocomplete", "typeahead", "search select"],
     owner: "engineering",
-    a11yDate: null,
     dependencies: ["@base-ui/react", "lucide-react"],
     usedIn: ["diabetes-medicines-app"],
     contrastScopes: ["neutral", "materials"],
@@ -1490,7 +1435,6 @@ export const SHIPPED: CatalogueEntry[] = [
     since: "unreleased",
     aliases: ["scroller", "overflow container"],
     owner: "engineering",
-    a11yDate: null,
     dependencies: ["@base-ui/react"],
     contrastScopes: ["neutral"],
   },

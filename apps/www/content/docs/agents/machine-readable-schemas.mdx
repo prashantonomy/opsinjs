@@ -75,8 +75,10 @@ alongside the four has already got it wrong.
 ## The catalogue
 
 `registry/catalogue.ts` is the single source of truth for component identity:
-id, title, plain-English description, category, status, `since`, aliases, owner
-and the last accessibility-review date. Every id in it resolves somewhere. That
+id, title, plain-English description, category, status, `since`, aliases and the
+reviewing discipline. It records no accessibility review date and has no field for
+one, because no component has had a review to record. Every id in it resolves
+somewhere. That
 rule is enforced by `scripts/assert-ia.mts` rather than by convention.
 
 It is also the sole owner of the **alias namespace**. Aliases are search

@@ -452,9 +452,6 @@ ${categories
               <th scope="col" className="py-2 pr-3 font-medium">
                 Phase
               </th>
-              <th scope="col" className="py-2 pr-3 font-medium">
-                A11y reviewed
-              </th>
               <th scope="col" className="py-2 font-medium">
                 Also known as
               </th>
@@ -486,9 +483,6 @@ ${categories
                 </td>
                 <td className="py-2 pr-3">
                   <StatusBadge status={row.status} plain />
-                </td>
-                <td className="py-2 pr-3 whitespace-nowrap text-muted-foreground">
-                  {row.a11yDate ?? "Not yet"}
                 </td>
                 <td className="py-2 text-xs text-muted-foreground">
                   {row.aliases.length ? row.aliases.join(", ") : "none"}

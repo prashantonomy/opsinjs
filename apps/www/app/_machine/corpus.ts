@@ -233,14 +233,11 @@ export interface PageMeta {
    */
   status?: string
   kind?: string
-  since?: string
   category?: string
   aliases: string[]
-  owner?: string
   reviewed?: string
   reviewer?: string
   reviewEvery?: string
-  a11yDate?: string
   implements: string[]
   governedBy: string[]
   usedIn: string[]
@@ -265,14 +262,11 @@ export function metaOf(page: CorpusPage): PageMeta {
     description: str(data.description),
     status: str(data.status),
     kind: str(data.kind),
-    since: str(data.since),
     category: str(data.category),
     aliases: strings(data.aliases),
-    owner: str(data.owner),
     reviewed: str(data.reviewed),
     reviewer: str(data.reviewer),
     reviewEvery: str(data.reviewEvery),
-    a11yDate: str(data.a11yDate),
     implements: strings(data.implements),
     governedBy: strings(data.governedBy),
     usedIn: strings(data.usedIn),
@@ -471,12 +465,10 @@ export function renderFrontmatter(page: CorpusPage): string {
   put("section", sectionOf(page).title)
   put("status", meta.status)
   put("kind", meta.kind)
-  put("since", meta.since)
   put("category", meta.category)
   put("evidence", meta.evidence)
   put("reviewed", meta.reviewed)
   put("reviewer", meta.reviewer)
-  put("a11yDate", meta.a11yDate)
   putList("aliases", meta.aliases)
   putList("implements", meta.implements)
   putList("governedBy", meta.governedBy)

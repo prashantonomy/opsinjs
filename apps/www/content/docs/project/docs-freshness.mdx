@@ -1,8 +1,7 @@
 ---
 title: Docs freshness
-description: Every page has a review cadence, a reviewer discipline and an owner. An expired page is reported by CI, not discovered by a reader.
+description: Every page has a review cadence and a reviewer discipline. An expired page is reported by CI, not discovered by a reader.
 kind: project
-owner: core
 reviewed: 2026-09-02
 reviewer: engineering
 reviewEvery: 12m
@@ -18,7 +17,7 @@ found in minutes; a paragraph that stopped being true two releases ago reads
 exactly as authoritative as it did when it was written, and in a health system it
 is read by somebody making a decision about how to present a number to a patient.
 
-So every page here carries four fields in its frontmatter, and a script checks
+So every page here carries three fields in its frontmatter, and a script checks
 them:
 
 | Field | What it means |
@@ -26,11 +25,14 @@ them:
 | `reviewed` | The ISO date somebody last **re-read** the page against the system |
 | `reviewer` | Which discipline reviewed it: `design`, `engineering`, `clinical` or `content` |
 | `reviewEvery` | How long that review stands before it expires: `3m`, `6m`, `12m` or `never` |
-| `owner` | The team accountable for the next review |
-| `a11yDate` | Where a page makes an accessibility claim, when that claim was last checked |
 
-`<Reviewed />` prints the first three at the foot of the page, so a reader can see
-the age of what they are reading without opening a file.
+`<Reviewed />` prints all three at the foot of the page, so a reader can see the
+age of what they are reading without opening a file. There were two more fields
+here until recently, `owner` and `a11yDate`. Both are gone: `owner` asked the
+same question as `reviewer` without a closed list of answers and collected six
+spellings for four disciplines, and `a11yDate` held the same stamped date on
+seventy-seven pages, which records a bulk edit and not a review. Accountability
+lives in `reviewer`, which is validated and printed.
 
 ## The cadence, by page kind
 
@@ -43,7 +45,7 @@ disagrees with it, the script is right and this page is the thing to correct.
 | --- | --- | --- | --- |
 | `health` | 6 months | `clinical` | Doctrine that shapes what a patient is told |
 | `accessibility` | 6 months | `engineering` | Claims that are tested and can regress |
-| `project` | 6 months | `core` | Policy and status pages, which describe a system that is still moving |
+| `project` | 6 months | `engineering` | Policy and status pages, which describe a system that is still moving |
 | `content` | 12 months | `content` | Language guidance changes slowly |
 | `component` | 12 months | `design` | The implementation moves, but a component page moves with it in the same commit |
 | `foundation` | 12 months | `design` | Token changes arrive through the generated tables, which the drift gate checks every build |
@@ -89,10 +91,9 @@ by how far past due they are so the worst is at the top. `--json` prints the
 same three sets plus the totals, and `--strict` exits non-zero when anything is
 overdue.
 
-`owner` is read into every row but is not what the tables group by, so do not
-expect a per-team digest from this script. The grouping is by state, which is
-what somebody clearing a backlog needs. Grouping the JSON by owner is a `jq`
-away if you want the digest.
+The tables group by state and by nothing else, so do not expect a per-team
+digest from this script. State is what somebody clearing a backlog needs. If you
+want the digest, group the `--json` output by `reviewer` with `jq`.
 
 It runs both places, differently. On a pull request it is advisory and
 `continue-on-error`, because a page expiring is not a reason to block somebody
@@ -115,19 +116,13 @@ here.** It converts the only honest freshness signal on the site into decoration
 A page that is out of date and says so is more useful than a page that is out of
 date and claims to have been checked last week.
 
-## Owners
-
-`owner` is a team slug, not a person: people leave and pages do not. The
-disciplines are the four in the schema: `design`, `engineering`, `clinical` and
-`content`. `core` is added for the project pages, which the maintainers own
-collectively.
-
-<Todo>
-The corpus currently contains several owner slugs that predate this rule.
-`design-system`, `opsinjs-docs` and `core` are all in use for overlapping things.
-Normalise them to the five above, then have `check-freshness.mts` fail on an
-unrecognised owner rather than silently grouping under it.
-</Todo>
+This repository has done it, twice. Of the 345 pages that carry a `reviewed`
+date, 255 carry one date and another 83 carry a second, so two bulk edits
+account for 338 of them. The `a11yDate` field deleted alongside `owner` was the
+same story on a smaller scale, one stamped date across seventy-seven pages. So
+read a `reviewed` date here as the weaker claim it is, and when the next review
+comes round, re-read the page rather than repeating the edit that made this
+paragraph necessary.
 
 ## If you are reading a stale page
 

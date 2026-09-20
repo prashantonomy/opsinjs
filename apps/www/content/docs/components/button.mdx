@@ -3,7 +3,6 @@ title: Button
 description: A control you press to make something happen. It is the least clinical component in the system, and its page sets the pattern every other component page follows.
 status: shipped
 kind: component
-since: "unreleased"
 category: actions-and-forms
 aliases: [cta, action, submit, primary button]
 usedIn: [consent-and-permissions, consent-flow, daily-log-entry, daily-log-screen, diabetes-medicines-app, empty-and-first-use, forms/error-summaries, forms/question-pages, health-metric-card, onboarding-and-first-run, onboarding-screen]
@@ -403,7 +402,8 @@ separation is what `beta` promises.
 - **At 200% text the label wraps and the button grows.** There is no fixed height and no
   `truncate`; the height floor is a rem, so it grows too. That is a fact about the source
   you can check by reading it. No attributed check at 200% has been recorded against this
-  page. The frontmatter carries no `reviewer` and no `a11yDate`.
+  page. The `reviewer` in its frontmatter records who last read the page, not who last
+  opened it in a browser at 200%.
 - **Motion is two things, and only one of them needs an argument.** The colour transition
   on every variant takes `--opsin-duration-fast`, which the product stylesheet collapses
   to 1ms under `prefers-reduced-motion`, so its reduced behaviour arrives from the token

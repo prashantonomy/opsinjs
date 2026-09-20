@@ -74,7 +74,6 @@ export const docs = defineDocs({
        */
       status: statusEnum.optional(),
       kind: kindEnum,
-      since: z.string().optional(),
       category: z.string().optional(),
       /**
        * Search synonyms. Indexed by fumadocs, emitted into llms.txt and
@@ -82,13 +81,11 @@ export const docs = defineDocs({
        * declared once in registry/catalogue.ts; pages reference it.
        */
       aliases: z.array(z.string()).optional(),
-      owner: z.string().optional(),
       reviewed: z.string().optional(),
       reviewer: z
         .enum(["design", "engineering", "clinical", "content"])
         .optional(),
       reviewEvery: z.enum(["3m", "6m", "12m", "never"]).optional(),
-      a11yDate: z.string().optional(),
       /** Doctrine page → the catalogue ids that implement it. */
       implements: z.array(z.string()).optional(),
       /** Component page → the doctrine pages that govern it. */

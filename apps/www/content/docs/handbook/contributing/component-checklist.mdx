@@ -4,7 +4,6 @@ description: The definition of done across design, code, tokens, tests, accessib
 kind: handbook
 aliases: [definition of done, component checklist, ship criteria, release checklist]
 reviewEvery: 12m
-owner: design-system
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -74,7 +73,8 @@ checklist where everything is equally important is a checklist nobody reads.
   targets](../../foundations/space/density-and-touch.mdx).
 - Readable and operable at 200% text.
 - Every motion has a defined `prefers-reduced-motion` fallback that is observable.
-- `a11yDate` set in frontmatter.
+- `reviewed` and `reviewer: design` set in frontmatter, on the day somebody ran
+  the checks above rather than on the day the page was edited.
 
 ### Documentation
 
@@ -129,8 +129,8 @@ checklist where everything is equally important is a checklist nobody reads.
 - **The contrast check covers token pairs, not rendered pixels.** A component
   whose text sits on a translucent material needs the scrim rules too; see
   [The contrast floor](../../foundations/materials/the-contrast-floor.mdx).
-- **`a11yDate` expiring does not fail the build**, it appears in the freshness
-  report. That means it is easy to let slide. See [Docs
+- **A `reviewed` date expiring does not fail the build**, it appears in the
+  freshness report. That means it is easy to let slide. See [Docs
   freshness](../../project/docs-freshness.mdx).
 
 ## Related

@@ -1065,16 +1065,12 @@ function checkFrontmatter(
     )
   }
 
-  for (const dateField of ["reviewed", "a11yDate"]) {
-    const value = asText(front[dateField])
-    if (value !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-      fail(
-        "FM012",
-        file,
-        `\`${dateField}: ${value}\` is not an ISO date (YYYY-MM-DD)`,
-        1
-      )
-    }
+  /* One date field left. `a11yDate` was the other, and it went with the
+     frontmatter property: a single review date stamped across seventy-eight
+     pages in one pass recorded nothing that happened. */
+  const reviewedValue = asText(front.reviewed)
+  if (reviewedValue !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(reviewedValue)) {
+    fail("FM012", file, `\`reviewed: ${reviewedValue}\` is not an ISO date (YYYY-MM-DD)`, 1)
   }
 
   const description = asText(front.description)

@@ -273,7 +273,6 @@ interface CatalogueRow {
   since?: string
   aliases?: string[]
   owner?: string
-  a11yDate?: string | null
   governedBy?: string[]
   usedIn?: string[]
   [key: string]: unknown

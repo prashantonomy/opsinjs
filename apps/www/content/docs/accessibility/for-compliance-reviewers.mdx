@@ -2,7 +2,6 @@
 title: For compliance reviewers
 description: A curated twenty-minute path through the evidence, written to be printed and to be honest about what has not been evaluated.
 kind: accessibility
-a11yDate: 2026-09-02
 reviewed: 2026-09-20
 reviewer: design
 reviewEvery: 6m
@@ -115,9 +114,9 @@ documentation is trustworthy.
 ## Measured results
 
 <NoDataYet what="The conformance evaluation record" script="scripts/build-registry.mts">
-Nothing generates a conformance number on this site. `a11yDate` is `null` on
-every row of `registry/catalogue.ts`, and `<A11yReport>` takes its counts as
-props rather than reading a measurement, so there is no evaluation to publish and
+Nothing generates a conformance number on this site. No row of
+`registry/catalogue.ts` records an accessibility review, and `<A11yReport>` takes
+its counts as props rather than reading a measurement, so there is no evaluation to publish and
 none is invented here.
 </NoDataYet>
 
@@ -130,8 +129,8 @@ published on [Contrast conformance](./contrast-conformance.mdx).
 - **No conformance evaluation of any kind has been performed.** No third-party
   audit, no internal audit, no assistive technology testing.
 - **No component-level conformance data exists.** Sixty components ship, twenty-five
-  at `beta` and thirty-five at `alpha`, and not one of them has been evaluated:
-  `a11yDate` is `null` on every catalogue row. Code existing is not evidence, and
+  at `beta` and thirty-five at `alpha`, and not one of them has been evaluated. No
+  catalogue row records a review. Code existing is not evidence, and
   nothing here treats it as evidence.
 - **`prefers-contrast` is unimplemented,** which is a real gap against
   SC 1.4.11-adjacent expectations in high-contrast operating-system modes; see

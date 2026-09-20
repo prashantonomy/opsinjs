@@ -2,7 +2,6 @@
 title: Keyboard and focus
 description: The global keyboard contract every opsinjs component inherits, and the focus rules that a health screen breaks most often.
 kind: accessibility
-a11yDate: 2026-09-02
 reviewed: 2026-09-02
 reviewer: engineering
 reviewEvery: 6m
@@ -127,8 +126,8 @@ than a measurement, and aggregating the tables would not make it one.
   handling is a dismissal that can be refused, and it returns focus to the
   trigger. `Button` warns in development when it is handed the positive
   `tabIndex` the table above bans. None of it has been walked with a keyboard
-  by anyone, no automated check presses a key, and `a11yDate` is `null` on
-  every catalogue row. The table above is the contract every component must
+  by anyone, no automated check presses a key, and no accessibility review is
+  recorded for any component in the catalogue. The table above is the contract every component must
   meet, and it is still not a report of tested behaviour.
 - **There is no shipped skip link or landmark helper.**
 - **Focus-restoration behaviour after destructive actions is specified in prose

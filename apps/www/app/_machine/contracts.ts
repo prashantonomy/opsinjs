@@ -371,7 +371,6 @@ export interface CatalogueRow {
   status: string
   since?: string
   owner?: string
-  a11yDate?: string
   aliases: string[]
   governedBy: string[]
   usedIn: string[]
@@ -411,7 +410,6 @@ const KNOWN_ROW_KEYS = new Set([
   "status",
   "since",
   "owner",
-  "a11yDate",
   "aliases",
   "governedBy",
   "usedIn",
@@ -442,7 +440,6 @@ function normaliseRow(input: unknown): CatalogueRow | null {
     status,
     since: typeof row.since === "string" ? row.since : undefined,
     owner: typeof row.owner === "string" ? row.owner : undefined,
-    a11yDate: typeof row.a11yDate === "string" ? row.a11yDate : undefined,
     aliases: toStringArray(row.aliases),
     governedBy: toStringArray(row.governedBy),
     usedIn: toStringArray(row.usedIn),

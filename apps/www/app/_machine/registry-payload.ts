@@ -227,7 +227,6 @@ function opsinjsMeta(
       style,
       since: row.since,
       owner: row.owner,
-      a11yDate: row.a11yDate,
       aliases: row.aliases,
       governedBy: row.governedBy,
       usedIn: row.usedIn,

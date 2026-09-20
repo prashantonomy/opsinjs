@@ -195,10 +195,10 @@ interface PageSpec {
  * ever deleted and regenerated, which is the documented recovery route, so the
  * blocks still have to be true.
  *
- * Note what a from-scratch header loses: the shipped pages carry `owner`,
- * `reviewed`, `reviewer`, `reviewEvery` and `aliases` in their frontmatter and
- * this header writes none of them, so a regenerated page needs those restored
- * by hand before check-freshness can see it again. It deliberately does not
+ * Note what a from-scratch header loses: the shipped pages carry `reviewed`,
+ * `reviewer`, `reviewEvery` and `aliases` in their frontmatter and this header
+ * writes none of them, so a regenerated page needs those restored by hand
+ * before check-freshness can see it again. It deliberately does not
  * write `status:`, because a reference page is not a component and is not
  * allowed one.
  */

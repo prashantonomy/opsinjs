@@ -46,10 +46,6 @@
       ],
       "description": "Fully determines the page's headings. Pick the template that matches."
     },
-    "since": {
-      "type": "string",
-      "description": "The version that introduced this. Use \"unreleased\" while nothing has shipped."
-    },
     "category": {
       "type": "string",
       "description": "Catalogue category. A category beginning with 'health-' makes the Clinical meaning section and the governedBy field mandatory."
@@ -59,7 +55,6 @@
       "items": { "type": "string" },
       "description": "Search synonyms are what a reader or an agent would actually type. Indexed by fumadocs, emitted into llms.txt and /r/index.json. Globally unique across the corpus; the namespace is declared once in registry/catalogue.ts."
     },
-    "owner": { "type": "string", "description": "Who reviews this page." },
     "reviewed": {
       "type": "string",
       "format": "date",
@@ -74,11 +69,6 @@
       "type": "string",
       "enum": ["3m", "6m", "12m", "never"],
       "description": "Freshness SLA. check-freshness.mts reports expiry; it does not fail the build."
-    },
-    "a11yDate": {
-      "type": "string",
-      "format": "date",
-      "description": "Date of the last accessibility review, printed in the page header."
     },
     "implements": {
       "type": "array",

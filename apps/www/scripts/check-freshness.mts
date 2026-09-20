@@ -80,7 +80,6 @@ interface PageRow {
   kind: string
   status: string
   reviewer?: string
-  owner?: string
   reviewed?: string
   cadence: string
   dueOn?: string
@@ -182,7 +181,6 @@ function main(): void {
       kind,
       status: front.status ?? "unset",
       reviewer: front.reviewer,
-      owner: front.owner,
       reviewed: front.reviewed,
       cadence,
       state: "current",

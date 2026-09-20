@@ -13,10 +13,9 @@
  * for somebody who copied the source into their own repository to find out that
  * the thing they copied has moved.
  *
- * Entries are dated from frontmatter (`reviewed`, falling back to `since` when
- * it is an ISO date). An undated entry is still published, sorted after the
- * dated ones, because a visible entry with no timestamp is better than a
- * silently dropped release note. While the changelog is empty the feed is valid
+ * Entries are dated from the frontmatter `reviewed` date. An undated entry is
+ * still published, sorted after the dated ones, because a visible entry with
+ * no timestamp is better than a silently dropped release note. While the changelog is empty the feed is valid
  * and says so in its description, rather than 404ing and looking broken.
  */
 
@@ -57,7 +56,7 @@ function toRfc822(value: string | undefined): string | undefined {
 
 function entryDate(page: CorpusPage): string | undefined {
   const meta = metaOf(page)
-  return toRfc822(meta.reviewed) ?? toRfc822(meta.since)
+  return toRfc822(meta.reviewed)
 }
 
 function isChangelogEntry(page: CorpusPage): boolean {

@@ -5,7 +5,6 @@ kind: handbook
 icon: GitPullRequest
 aliases: [how to contribute, contribution guide, submitting a change, proposing something]
 reviewEvery: 12m
-owner: design-system
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -59,12 +58,13 @@ Every change needs one review. Some need more:
 - **Anything that changes a colour token or a contrast pair** means the
   generated contrast report must be regenerated and committed.
 - **Anything user-visible in a component** needs an accessibility review,
-  recorded as `a11yDate`.
+  recorded by setting `reviewed` and `reviewer: design` on the day it happened.
 - **Any wording that appears on screen** needs a content review.
 
-The frontmatter carries all four, which is what makes
-[Docs freshness](../../project/docs-freshness.mdx) able to report expiry rather
-than guess at it.
+One pair of frontmatter fields carries all four, `reviewed` and `reviewer`, which
+is what makes [Docs freshness](../../project/docs-freshness.mdx) able to report
+expiry rather than guess at it. There is no second date field: a review is a
+review whoever signed it.
 
 ### Generated files
 

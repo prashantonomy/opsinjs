@@ -63,7 +63,6 @@ export function GET(): Response {
       implemented: files.length > 0,
       since: row.since,
       owner: row.owner,
-      a11yDate: row.a11yDate,
       aliases: row.aliases,
       governedBy: row.governedBy,
       usedIn: row.usedIn,
