@@ -19,8 +19,8 @@ it. [State of the system](../state-of-the-system.mdx) is the page that says what
 that means in practice.
 
 <Todo>
-Sixty components were built after 0.0.0, twenty-five at `beta` and thirty-five at
-`alpha`, and no entry on this page records them. Until one is written, this
+Sixty components were built after 0.0.0 and no entry on this page records them.
+Until one is written, this
 changelog understates what the project contains and State of the system is the
 page to read instead. Writing the entry needs a version number to file it under,
 and every catalogue row is still `since: unreleased`. The number is therefore the
@@ -48,15 +48,29 @@ That matters particularly for the surfaces the
 [versioning policy](../versioning-policy.mdx) covers beyond the JavaScript API:
 the rendered DOM, the `data-*` attributes and the CSS custom properties.
 
+**A changed clinical default leads the entry, on its own line, labelled
+`SAFETY`.** Not in a bullet list with the refactors, and not below the fold. The
+change this rule is about is a presentation change: a status word, a default
+rounding or unit, a colour pairing, an aria announcement, or the wording of an
+uncertainty or staleness note. opsinjs owns no clinical threshold and an entry
+must never read as though it does. What it owns is how a value someone else
+decided is shown to a patient, and changing that changes what a person believes
+about their own health. This is a rule rather than a convention because of how
+the code is distributed. A consumer who copied the file does not receive the
+change when it ships. They receive it when they next copy the file, which may
+be never. The entry is the only thing that can tell them a safety change is
+sitting upstream waiting.
+
 ## What belongs somewhere else
 
 **A deprecation** appears here when it happens and lives on
 [Deprecations](../deprecations.mdx) until it is removed, so that the current list
 is one page rather than an archaeology exercise across entries.
 
-**A change needing more than a paragraph to migrate through** gets a
-[migration guide](../migration/index.mdx), linked from the entry. Entries stay
-readable; guides get as long as they need to be.
+**A change needing more than a paragraph to migrate through** gets a written
+guide, linked from the entry. The
+[versioning policy](../versioning-policy.mdx) says which four kinds of change
+earn one. Entries stay readable; guides get as long as they need to be.
 
 **The reasoning behind a change**, where it is architectural, belongs in a
 [decision record](../decisions/index.mdx). An entry says what changed; a record

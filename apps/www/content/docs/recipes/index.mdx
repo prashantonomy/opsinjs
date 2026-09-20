@@ -39,10 +39,9 @@ and produces one composed thing. A pattern spans several screens and describes a
 sequence of decisions.
 
 <Callout title="The parts install; the recipes are still specifications">
-Most of the components a recipe names are at `alpha`. They are installable, and
-free to change their API in any release. The considered roster is empty now, so a
-recipe rarely names a part with no code behind it, though the considered mechanism
-stays available for any future reservation. Each recipe's **What you need** table
+Every component a recipe names is `shipped`. They are installable, and
+free to change their API in any release, and none of them has been reviewed.
+Each recipe's **What you need** table
 carries the current status of every part, and that table is the thing to trust; no
 recipe restates a count in prose. What a recipe itself contains is a **specification of
 the build**, not a transcript of one: it tells you what to assemble and why, and
@@ -68,12 +67,11 @@ the one you need.
 
 Two conventions are worth knowing before you read one:
 
-**A recipe's `status` is the status of the thing it builds, not of the prose.**
-All seven recipes are `planned`: however finished the writing is, and however
-much of the component roster is now installable, no recipe has been assembled
-and reviewed end to end as a working example. The per-part statuses in **What
-you need** are the ones that tell you what will compile. Only this overview page
-is `stable`.
+**A recipe carries no status of its own.** Only a component page does. However
+finished the writing is, and however much of the component roster is now
+installable, no recipe has been assembled and reviewed end to end as a working
+example, and each says so in its own `<Todo>` or `<StubNotice>`. The per-part
+statuses in **What you need** are the ones that tell you what will compile.
 
 **Recipes name components; they never define behaviour.** If a recipe seems to
 be inventing a rule, it is quoting one. The rule lives in
@@ -160,11 +158,11 @@ what you just built, without looking anything up:
 ## Troubleshooting
 
 **"The recipe uses a component that does not exist."** Check its chip in **What
-you need**. An `alpha` chip means the code is there and the install command on
-the component's own page will fetch it. No recipe shows a `considered` chip today,
-because the considered roster is empty. Were one to appear it would mean a reserved
-name with nothing behind it yet, and you would reach for a deliberate substitute
-rather than invent an API that happens to share the name.
+you need**. A `shipped` chip means the code is there and the install command on
+the component's own page will fetch it. No recipe shows a `planned` chip today.
+Were one to appear it would mean a specification with nothing behind it yet, and
+you would reach for a deliberate substitute rather than invent an API that
+happens to share the name.
 
 **"The recipe and a component page disagree."** The component page wins on the
 component's own API and anatomy; the doctrine page wins on the rule. Recipes are

@@ -303,7 +303,9 @@ export function StubNotice({
             <span>No tracking issue yet.</span>
           )}
           <Link href={routes.roadmap()}>Roadmap</Link>
-          <Link href={docsPath("project", "proposals")}>
+          <Link
+            href={docsPath("handbook", "contributing", "proposing-a-component")}
+          >
             Propose a change to this specification
           </Link>
         </p>

@@ -40,7 +40,7 @@ export const metadata: Metadata = {
  * redundant the moment the tree stopped opening to four hundred rows. The six
  * nav links and the theme switch are in the global footer. The status legend
  * moved to `/start/reading-these-docs`, which is the page that explains what
- * the six statuses mean rather than a strip of chips with no room to say it.
+ * the three statuses mean rather than a strip of chips with no room to say it.
  *
  * `tabs={false}` keeps that promise structural. fumadocs' Layout Tabs would
  * split the ten sections into top-level tabs and show one at a time, so

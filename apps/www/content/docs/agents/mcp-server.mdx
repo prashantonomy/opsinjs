@@ -97,9 +97,9 @@ component. If your assistant invents one, that is the failure mode the
 ## What the server can and cannot do here
 
 <Callout>
-**All sixty built items carry source; the considered roster is empty.** `add`
-against a built id writes real files. Against a `considered` id, were the roster
-to carry one, it would resolve the item and find nothing to write. That is the
+**All sixty built items carry source.** `add`
+against a built id writes real files. Against a `planned` id it would resolve the
+item and find nothing to write. That is the
 correct behaviour and not a broken configuration. `meta.opsinjs.implemented` on
 the item is the discriminator, and it is worth checking before you conclude
 anything from an empty result.
@@ -107,8 +107,8 @@ anything from an empty result.
 
 | The server can | The server cannot |
 | --- | --- |
-| List every item with its status and `implemented` flag | Install a `considered` id, because the item resolves and carries no files |
-| Install the source of all sixty built items, exported prop interfaces included | Promise that a `beta` or `alpha` API survives the next release |
+| List every item with its status and `implemented` flag | Install an id the catalogue does not list |
+| Install the source of all sixty built items, exported prop interfaces included | Promise that a shipped API survives the next release, or that anybody has reviewed it |
 | Install the theme preset, which is real CSS | Fetch a documentation example on its own. The examples are not published as registry items |
 | Search across opsinjs and your other registries | Enforce the clinical rules. That is the [skill](./agent-skill.mdx) |
 
@@ -131,11 +131,6 @@ Ask the assistant to list opsinjs items. A non-empty list of names, each with a
 `status`, means the namespace resolved. An empty list means `components.json`
 was not read or the namespace is misspelled.
 
-### The negative answer is a real answer
-
-Ask about a considered component. "Considered, not implemented" is a pass;
-a confident API is a fail.
-
 </Steps>
 
 ## Troubleshooting
@@ -151,9 +146,8 @@ quick way to isolate the problem. It will not rescue an item whose
 `registryDependencies` name other opsinjs items; those need the block whichever
 form you use.
 
-**It lists items but `add` writes nothing.** Check the id first. For a
-`considered` id that is correct. See the callout above. For one of the sixty
-built ids it is a real fault: the item carries files, so an empty write means the
+**It lists items but `add` writes nothing.** Check the id first. For one of the
+sixty built ids it is a real fault: the item carries files, so an empty write means the
 fetch failed, the CLI resolved a different registry, or the aliases in
 `components.json` do not name a directory it can write to.
 

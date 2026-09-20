@@ -91,15 +91,13 @@ declares an `evidence` value rather than leaving the reader to guess.
 **Component identity.** `value-against-a-range` checks that the component for
 the most common health-UI task resolves and says when *not* to use it. The other
 three check the honesty contract in both directions, because it can now fail
-either way. `considered-has-no-example` asks for a working `BodyMap` snippet and
-asserts the page refuses to supply one. The task is pinned to the catalogue row
-as well as to the page, so promoting `body-map` turns the task red rather than
-leaving it measuring nothing. `alpha-is-real-and-unstable` asks how far
-`ResultCard` can be trusted and asserts the page names the import path that
-resolves *and* says the API may move without a deprecation cycle: presenting a
-built component as settled fails it, and so does still calling it unbuilt.
-`considered-is-an-answer` checks that a reserved name resolves to a definite
-negative rather than to a 404.
+either way. `body-map-is-built` asks for a working `BodyMap` snippet and asserts
+the page supplies one, pinned to the catalogue row as well as to the page.
+`alpha-is-real-and-unstable` asks how far `ResultCard` can be trusted and asserts
+the page names the import path that resolves *and* says the API may move in any
+release: presenting a built component as settled fails it, and so does still
+calling it unbuilt. `toast-is-built` checks the same for the id that spent
+longest unbuilt.
 
 **Getting it installed.** `install-path`, `which-registry` and
 `tokens-not-values` check that the mechanical route from documentation to
@@ -114,10 +112,10 @@ the statement that opsinjs is not a medical device.
 particular corpus-wide failure loud. Before the component layer was built, every
 page in the corpus said that nothing was implemented; the repair that changed
 that is exactly the kind of work a later edit can quietly undo, page by page or
-wholesale. `the-shipped-roster-is-not-empty` pins the component index to its two
-rosters and to a built id in the catalogue. `status-pill-is-built`,
+wholesale. `the-shipped-roster-is-not-empty` pins the component index to its
+rendered roster and to a built id in the catalogue. `status-pill-is-built`,
 `trend-sparkline-is-built`, `alert-banner-is-built` and `metric-tile-is-built`
-each pin one built component to its catalogue row, its `status: alpha`
+each pin one built component to its catalogue row, its `status`
 frontmatter and an unwrappable marker in its body, so a regression has to defeat
 all three to go unnoticed. `the-install-command-is-real` pins the sixty-second
 entry point to the one command that works. They fail together, which is the
@@ -129,7 +127,7 @@ against the corpus overstating rather than understating. Nothing is published to
 npm, the decision to publish has not been made, and
 [the package page](../packages/opsinjs-react.mdx) has to keep saying so while
 the components it names remain installable by another route entirely. An agent
-that reads `alpha` as a release reaches for `npm install` next, so this is the
+that reads `shipped` as a release reaches for `npm install` next, so this is the
 failure adjacent to every task above it.
 
 ### Scoring
@@ -186,7 +184,7 @@ slot renders the honest absence rather than a number.
 
 <EvalResult task="value-against-a-range" />
 
-<EvalResult task="considered-is-an-answer" />
+<EvalResult task="toast-is-built" />
 
 <EvalResult task="never-mix-the-axes" />
 

@@ -21,7 +21,7 @@ reviewer: engineering
     "The same reading logged twice within minutes is either a duplicate to merge or a real second measurement, and this component cannot tell, because it has no slot key and no view of the rest of the log. Does that stay entirely the product's problem, or does the entry need to carry something that lets the product decide?",
     "Daily logging names six states. They are draft, saving, queued offline, conflict, failed, and the empty first use. LogSheet expresses one of them, through `onDiscard`. The other five happen after `onSave` returns, on a surface this component cannot see. Where do they belong?",
     "The component ships six strings of its own, and `timeLabel` is the only override. The six are the time control's label, the two guidance sentences it can render, and the three words of the discard question. Every other string in the sheet is the product's. Where does a component's own copy go when the product is not in English? Sheet has the same open question and they want the same answer.",
-    "Nothing here has been measured in a browser. The `autoFocus` that moves focus to the discard question, the keyboard-safe inset under the save action, and the platform picker's reading of `min` on the time control are all argued from source rather than observed. That is the honest ceiling for `alpha`, and it means the first three things to measure are already named.",
+    "Nothing here has been measured in a browser. The `autoFocus` that moves focus to the discard question, the keyboard-safe inset under the save action, and the platform picker's reading of `min` on the time control are all argued from source rather than observed. That is the honest ceiling until somebody measures it, and it means the first three things to measure are already named.",
   ]}
 >
   <code className="text-sm">log-sheet</code> is implemented and installable.
@@ -446,8 +446,7 @@ move toward a figure it has not reached yet.
 ## Accessibility
 
 Three of these are checked by a gate on every commit. The rest are arguments, and they are
-labelled as such: `beta` promises that accessibility is claimed only where it has been
-checked, with the gaps listed rather than left out. Nothing on this page has been measured in
+labelled as such: a component page claims accessibility only where it has been checked, with the gaps listed rather than left out. Nothing on this page has been measured in
 a browser.
 
 **Checked, by `pnpm run check:a11y` on every commit:**

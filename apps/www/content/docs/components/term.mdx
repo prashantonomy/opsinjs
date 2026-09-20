@@ -157,7 +157,7 @@ is the bigger question the rule actually asks, which is whether the visible text
 plain wording with the clinical spelling as the annotation rather than the other way around.
 That is a change to the component's shape and to `policy.rule` together, so it is recorded
 here and at the top of `term.tsx` rather than settled quietly, and it is the first thing to
-decide before this component leaves beta.
+decide before this component is depended on.
 
 <SafetyCallout severity="attention" evidence="opinion">
 A definition that drifts into advice is the failure mode of this component, and it is not
@@ -377,8 +377,7 @@ text, and it arrives already written.
 ## Accessibility
 
 Some of this is checked by a gate on every pull request and every push to `main`. Most of it
-is argued, and it is labelled as such: `beta` promises that accessibility is claimed only
-where it has been checked, with the gaps listed rather than left out.
+is argued, and it is labelled as such: a component page claims accessibility only where it has been checked, with the gaps listed rather than left out.
 
 **Checked, by `node scripts/check-a11y.mts` on every pull request and every push to `main`.
 There is no commit hook in this repository, and a sentence that implied one would be

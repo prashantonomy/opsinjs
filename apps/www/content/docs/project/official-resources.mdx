@@ -61,11 +61,11 @@ without writing anything. Read that list before you let it write: a presentation
 component has no business landing outside the directories your
 `components.json` names.
 
-What the files themselves will not tell you is where they came from.
-[Version stamps](../registry/version-stamps.mdx) are one comment naming the item
-and the version at the top of every emitted file. They are specified on that
-page and are **not emitted**, so provenance today rests on the URL you fetched
-from, which is why the row above matters.
+What the files themselves will not tell you is where they came from. Nothing in
+an emitted file names its origin, so provenance rests on the URL you fetched
+from, which is why the row above matters, and on your own history: commit the
+files `shadcn add` writes, in their own commit, so a later `--diff` has
+something to compare against.
 
 ### Check the diff, not the download
 

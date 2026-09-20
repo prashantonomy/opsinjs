@@ -22,9 +22,6 @@ separate documentation site for machines. The twin is the same page, and it
 cannot fall out of date with the human version because it is produced from the
 same source at the same time.
 
-The site also offers this to people: every page has a **Copy page** control with
-Copy Markdown, View as `.md`, and open-in-assistant options. Same content.
-
 ## Processed markdown, not source
 
 This is the part that matters and the part most sites get wrong.
@@ -58,9 +55,8 @@ Three consequences worth knowing:
   than errors to report.
 - **Frontmatter is rebuilt, not copied through.** The twin carries the authored
   fields plus `url`, `source` and `section`, so a page read in isolation still
-  knows where it came from. `status` is the field to trust: for a built
-  component it reads `beta` or `alpha`, and `considered` marks a reserved name
-  were the roster ever to hold one. One field is not
+  knows where it came from. On a component page `status` is the field to trust,
+  and it reads `shipped` for a built component. One field is not
   authored at all: a component page or a screen specimen documents something
   buildable, and its twin also carries `implemented`, read from the generated
   index rather than from the MDX, so no edit to the page can contradict it. A
@@ -71,7 +67,7 @@ Three consequences worth knowing:
   `/r/index.json`, which is where that field is generated and where it is
   guaranteed current.
 
-## The version stamp
+## The docs version header
 
 Every twin response carries the docs version on the `x-opsinjs-docs-version`
 header. It is a header and not a frontmatter key, which matters more than it
@@ -95,8 +91,8 @@ the scope is worth reading off a table rather than inferring:
 A component or screen twin overrides `x-opsinjs-implemented` with its own
 subject's answer, exactly as `/r/<id>.json` does, so `HEAD` on a component's
 `.md` reports that one component's source status rather than the system's. A
-reserved name would return `false` there even though the count beside it is not
-zero, though every catalogue id is built today so every component twin
+A `planned` id would return `false` there even though the count beside it is not
+zero, and every catalogue id is built today so every component twin
 returns `true`. Every other page names nothing buildable, whether
 it is a guide, a handbook chapter or a doctrine page, so the header keeps its
 system value there, which answers "is anything implemented" rather than "is
@@ -147,10 +143,12 @@ Either one means you have raw source or the HTML page rather than the twin.
 
 ### The status is present
 
-Every component page's twin carries `status` in frontmatter. The value is
-`beta` or `alpha` for a built component, and every component is built today. If
-a twin omits `status` altogether, that is a bug worth reporting: it is the field
-that stops an agent generating against something that does not exist.
+Every component page's twin carries `status` in frontmatter, and the value is
+`shipped` for a built component. If
+a component twin omits `status` altogether, that is a bug worth reporting: it is
+the field that stops an agent generating against something that does not exist. A
+twin for any other kind of page carries no `status`, which is correct rather than
+a gap.
 
 </Steps>
 

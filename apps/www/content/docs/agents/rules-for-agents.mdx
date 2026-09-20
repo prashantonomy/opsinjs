@@ -72,25 +72,26 @@ answer from its prior.
 
 Before emitting `import { RangeBar } from …`, check the catalogue. Also check
 `/r/index.json`, which answers the same question in a field rather than in
-prose. Every id resolves. All sixty carry `"implemented": true`, twenty-five at
-`"status": "beta"` and thirty-five at `"status": "alpha"`: the registry item
+prose. Every id resolves. All sixty carry `"implemented": true` and
+`"status": "shipped"`: the registry item
 carries its source, and the right output installs it from the registry this
-project has configured and says what `beta` or `alpha` costs. The considered
-roster is empty today, because every reserved name has been built to at least
-`alpha`. Were an id ever `"implemented": false` at `"status": "considered"`, it
-would be a reserved name with no specification and no code, and the right output
-would be a refusal that names the status and stops.
+project has configured and says what `shipped` costs. No opsinjs component has
+had an accessibility review or a clinical review. `shipped` means the source
+installs, and it does not mean either review has happened. Nothing here is for a
+production health surface. Were an id ever `"implemented": false` at
+`"status": "planned"`, it would be a specification with no code, and the right
+output would be a refusal that names the status and stops.
 
 What is wrong for either is an import from a package. There is no published
 opsinjs package, so `@opsinjs/react` never resolves and an install that copies
 source into the project is the only shape that works.
 
 ```txt
-RangeBar is implemented in opsinjs, at status: alpha. Its source is served as a
-registry item and is copied into the project rather than imported from a
-package. Alpha means the API may change in any release without a deprecation
-cycle, so read the installed source instead of guessing the props, and do not
-put it on a production health surface yet.
+RangeBar is implemented in opsinjs, at status: shipped. Its source is served as
+a registry item and is copied into the project rather than imported from a
+package. Shipped means the API may change in any release, and it does not mean
+anybody has reviewed it, so read the installed source instead of guessing the
+props, and do not put it on a production health surface.
 ```
 
 ### Use the status vocabulary
@@ -185,10 +186,10 @@ to render the mixed pair.
 
 ### Do not invent a component, a prop or a variant
 
-If a name is only in the considered roster, it has no implementation and no
-API. The considered roster is empty today, but the moment a reserved name lands
-there, inventing an API for it produces code that compiles against nothing and
-a reviewer who believes the feature exists.
+If a name is only in the catalogue at `planned`, it has no implementation and no
+API. No component sits there today, but the moment one does, inventing an API for
+it produces code that compiles against nothing and a reviewer who believes the
+feature exists.
 
 ### Do not assume a registry is configured
 
@@ -213,20 +214,19 @@ generated contrast tables.
 
 ## Gotchas
 
-**An `alpha` API reference is real and still moving.** An implemented
+**A `shipped` API reference is real and still moving.** An implemented
 component page carries its prop interface under **API reference**, generated
 from the same source the registry serves, so it is accurate on the day you read
-it and carries no promise past that: `alpha` changes without a deprecation
-cycle. Read the source you installed rather than a cached interface, and record
-the version you took in the commit that installed it. Nothing writes a version
-stamp into the file yet, so that commit is the only record a later upgrade can
-be measured against.
+it and carries no promise past that: a `shipped` API may change in any release.
+Read the source you installed rather than a cached interface, and record
+the commit you took it from, because that commit is the only record a later
+upgrade can be measured against.
 
 **A resolved id is not a built id.** Getting an answer is not evidence that
-something exists. Read the `status` field; a `considered` id means "we have
-thought about it and decided nothing". The considered roster is empty today, so
-every id resolves to a built component, but the mechanism stays for the next
-reserved name.
+something exists. Read the `status` field. `shipped` means code exists and the
+API may change. It does not mean reviewed. `planned` means a specification and
+nothing to install. Every id resolves today, and the field is still the thing to
+read.
 
 **The docs chrome is not the product theme.** Class names and colours visible in
 this site's HTML belong to a shadcn style used for documentation. Copying them

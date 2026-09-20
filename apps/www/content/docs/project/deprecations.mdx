@@ -43,15 +43,16 @@ treat a deprecated row as absent.
 
 Read [Versioning policy](./versioning-policy.mdx) for the full process, and the
 [changelog](./changelog/index.mdx) for what actually happened in each release. If a
-deprecation needs more than a paragraph to migrate through, it gets a
-[migration guide](./migration/index.mdx) rather than a longer changelog entry.
+deprecation needs more than a paragraph to migrate through, it gets a written
+guide rather than a longer changelog entry, and
+[Versioning policy](./versioning-policy.mdx) says which kinds of change earn
+one.
 
 The other half of this is knowing which version your copy came from, because that
 is what tells you whether a deprecation applies to code already sitting in your
-repository. A [version stamp](../registry/version-stamps.mdx) is the intended
-answer, one comment at the top of every emitted file. It is specified
-rather than emitted, so for now that answer has to come from your own version
-control or from the note you left when you copied the file.
+repository. Nothing in the file answers that, so the answer has to come from
+your own version control: commit the files `shadcn add` writes, in their own
+commit, so a later `--diff` has something to compare against.
 
 <LastUpdated />
 

@@ -22,8 +22,8 @@ their blood-pressure reading it is a defect with a clinical shape.
 opsinjs is built on the assumption that this will happen, and tries to make the
 failure impossible rather than unlikely. The strategy has three parts:
 
-1. **Every guessable URL answers.** A component that is merely *considered* still
-   resolves, and the answer says "considered, not implemented" in a form a
+1. **Every guessable URL answers.** A component that is only specified still
+   resolves, and the answer says "planned, not implemented" in a form a
    machine can read. A 404 is what an agent fills with an invention; a definite
    negative is not.
 2. **Every page has a machine twin.** Add `.md` to any docs URL and you get the
@@ -92,18 +92,18 @@ Fetch [the offline bundle](./offline-docs-bundle.mdx) once and carry it.
 
 ## The one rule that matters most
 
-Sixty components are built and installable, twenty-five at `beta` and thirty-five
-at `alpha`, and the considered roster is empty today, so an agent's first job is
+Every catalogue row is implemented and installable, and none has been reviewed,
+so an agent's first job is
 to read the status a surface reports before it writes anything. The surface is
 arranged so that it can, without guessing: every id resolves, and the answer
 carries the distinction in a field.
 
-For a built id the correct behaviour is to install it from the registry and to
-say that a pre-stable status, `beta` or `alpha`, means the API may change in any
-release without a deprecation cycle. Installing copies the source into the
+For a `shipped` id the correct behaviour is to install it from the registry and
+to say that the API may change in any release and that no accessibility review
+and no clinical review has happened. Installing copies the source into the
 project, because there is no published opsinjs package to import. For a
-`considered` id the correct behaviour is to say that the name is reserved, that
-there is no code and no specification, and stop. No id sits there today, so that
+`planned` id the correct behaviour is to describe the specification, refuse to
+emit an import, and stop. No id sits there today, so that
 rule currently guards the mechanism rather than a live entry. Inventing a name
 that does not exist, or refusing one that ships, are the two failures this whole
 surface exists to prevent. Both are stated in full, as testable rules, in
@@ -136,12 +136,6 @@ at the top means you have raw MDX from somewhere else.
 `/llms.txt` should contain fully qualified URLs. A relative URL in an index is
 useless to a client that fetched it from somewhere else.
 
-### The registry answers for something that does not exist
-
-Ask for a component from the considered roster. You should get a definite
-"considered, not implemented" answer rather than a 404. That behaviour is the
-point of the whole design.
-
 </Steps>
 
 ## Troubleshooting
@@ -152,9 +146,9 @@ twin.
 
 **The MCP server sees no components.** That is a real fault. All sixty built
 items list source files, and the per-item payloads at `/r/<name>.json` carry
-that source inline. The considered roster is empty today, so every id the server
-lists resolves to real files, and there are no metadata-only reserved names to
-mistake for a fault. An inventory that is empty across the board means something
+that source inline, so every id the server lists resolves to real files and
+there is no metadata-only entry to mistake for a fault. An inventory that is
+empty across the board means something
 is broken: check that `components.json` carries the `@opsinjs` entry in the
 `{name}` template form and that the fetch is not being blocked.
 

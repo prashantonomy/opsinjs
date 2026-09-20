@@ -29,10 +29,10 @@ The target is three taps from the screen the person was on: open, enter, save.
 
 ## What you need
 
-The components this entry flow composes are all at `alpha`: the code exists and
-installs, the API may change in any release without a deprecation cycle, and
-none of it has been through an accessibility or a clinical review. The considered
-roster is empty now, so every part below installs, the stepped and segmented
+The components this entry flow composes are all `shipped`: the code exists and
+installs, the API may change in any release, and
+none of it has been through an accessibility or a clinical review. Every part
+below installs, the stepped and segmented
 entry in the last row included. Composing them into the flow is still yours to do.
 
 | Part | Component | Status | What it does here |
@@ -217,12 +217,12 @@ often pulse: one reading, one save, one timestamp. Do not split it into three
 entries. A systolic without its diastolic is not usable.
 
 **A value on a scale rather than a number.** Pain, mood, fatigue.
-[ScaleInput](../components/scale-input.mdx) now ships at alpha for this. Prefer its
+[ScaleInput](../components/scale-input.mdx) now ships for this. Prefer its
 labelled set of options over a free slider, because a slider invites false
 precision on a scale that has none.
 
 **A dose or a medication taken.** [DoseTracker](../components/dose-tracker.mdx)
-now ships at alpha. Adherence data is more sensitive than most measurements and
+now ships. Adherence data is more sensitive than most measurements and
 needs an explicit consent conversation. See
 [Ask for consent before collecting](./consent-before-collection.mdx).
 

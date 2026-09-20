@@ -30,17 +30,15 @@ larger half. [Introduction](../index.mdx).
 
 ### Can I use it today?
 
-In a prototype, yes. All sixty catalogued components are implemented and
-installable, twenty-five at `beta` and thirty-five at `alpha`, and their registry
-items carry the whole of their source; the considered roster is empty, so no
-catalogue entry is specification-only any more. Two things decide whether that is
-any use to you yet. There is no npm package and there never will be one, because
-opsinjs is copied in as source through the shadcn CLI. And
+In a prototype, yes. Every catalogue row is implemented and installable, and
+their registry items carry the whole of their source. Two things decide whether
+that is any use to you yet. There is no npm package and there never will be one,
+because opsinjs is copied in as source through the shadcn CLI. And
 `opsinjs.pensievelabs.org`, the canonical host, is not serving, so `@opsinjs`
-resolves only against a registry you point it at yourself. At `alpha` the API will
-change without a deprecation, and nothing in the system has been through an
-accessibility audit, so none of it belongs in front of a patient.
-[Release phases](../project/release-phases.mdx) defines what each rung promises.
+resolves only against a registry you point it at yourself. A `shipped` API may
+change in any release, and no opsinjs component has had an accessibility review
+or a clinical review, so none of it belongs in front of a patient.
+[Release phases](../project/release-phases.mdx) defines what each status promises.
 
 ### Is it free, and can I use the guidance without the code?
 
@@ -100,8 +98,8 @@ also keeps a single behaviour vocabulary.
 
 You take the change deliberately, with a diff, or you never take it. Copied source
 means no silent updates and no upgrade you did not ask for; the cost is that
-improvements do not arrive on their own. Every emitted file carries a version
-stamp so tooling can tell you what has changed since the version you have.
+improvements do not arrive on their own. Diff the registry item against the copy
+in your tree to see what has moved.
 [Upgrading](./installation/upgrading.mdx).
 
 ### Do I need a React framework, or will plain React do?
@@ -189,28 +187,29 @@ Variables is specified, but there is no published file, kit or plugin.
 
 Three ways, all first-class: append `.md` to any documentation URL for processed
 markdown; fetch `llms.txt` or one of its per-pillar shards; or point a shadcn MCP
-client at the registry. The Copy Page control at the top of every page does the
-first one for you. [Agents](../agents/index.mdx).
+client at the registry. [Agents](../agents/index.mdx).
 
 ### Why does a page exist for a component that is not built?
 
 Because the alternative is a 404, and a 404 is the input from which an agent
-invents an API. A page that exists, says `considered`, and carries a
+invents an API. A page that exists, says `planned`, and carries a
 machine-readable not-implemented marker at a guessable URL is a definitive
-negative answer. Anything outside the component catalogue says `planned`
-instead. That is the single most important thing this site does for a machine
-reader.
+negative answer. No component sits at `planned` today, so the mechanism is
+currently idle, and it is the thing that keeps the first specification written
+after this sentence from being read as code. That is the single most important
+thing this site does for a machine reader.
 [Reading these docs](./reading-these-docs.mdx#for-agents).
 
 ## Contributing and governance
 
 ### How do I propose a component, or argue with a specification?
 
-Proposals go through a public board with a maturity ladder, so a proposal has a
-visible state rather than sitting in an issue queue. Arguing with a specification
-is more valuable than proposing a new one: the specifications are under review
-now, while changing them is still cheap.
-[Proposals](../project/proposals.mdx) and [Community](../project/community.mdx).
+A proposal is a document answering eight questions, not a pull request, and
+arguing with an existing specification is usually more valuable than writing a
+new one. [Proposing a
+component](../handbook/contributing/proposing-a-component.mdx) has the questions
+and the four reasons a proposal is normally declined;
+[Community](../project/community.mdx) says where to take it.
 
 ## Verify it worked
 
@@ -234,9 +233,9 @@ how this page grows.
 **The answer here contradicts a component page.** The component page wins. This
 page is a summary; the specification is the contract.
 
-**You have a question that is really a bug report.** Use the feedback control at
-the foot of any page. It arrives prefilled with the page path and the docs
-version, which is most of what makes a report actionable.
+**You have a question that is really a bug report.** Open a docs issue and name
+the page path in it. [Community](../project/community.mdx) says where to file
+it.
 
 ## Next
 

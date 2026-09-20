@@ -47,11 +47,12 @@ is copy-in through a shadcn registry, decided in
 [ADR 0002](./project/decisions/0002-shadcn-registry-distribution.mdx). There _is_
 a registry. Sixty components are implemented and served from `/r/<name>.json`,
 and `npx shadcn add @opsinjs/<name>` writes their source into a shadcn-initialised
-project and compiles. Thirty-five are `alpha` and twenty-five are `beta`: at
-`alpha` the API may change in any release with no deprecation cycle, at `beta` it
-breaks only in a minor release with a documented migration, and none of it has
-been through an accessibility or clinical review. Nothing here belongs on a
-production health surface yet.
+project and compiles. Every catalogue row is implemented and installable, and
+every one of them is `shipped`: the API may change in any release, and each
+change carries a changelog entry. No opsinjs component has had an accessibility
+review or a clinical review. `shipped` means the source installs, and it does not
+mean either review has happened. Nothing here is for a production health
+surface.
 
 The **specification** is the part that is hardest to retrofit: every component
 page states what the component asserts about a person's health, what it must
@@ -59,9 +60,9 @@ never be read as, which colour axis it may use, who owns its thresholds, and the
 accessibility bar it has to clear.
 
 If you are an agent: read `status` on the page, or `implemented` on the row in
-`/r/index.json`, and do not generalise from one page to the next. `alpha` and
-`beta` both mean you may generate against the published API, provided you say it
-is unstable. `planned` is a definitive negative answer, not a gap. Do not
+`/r/index.json`, and do not generalise from one page to the next. `shipped`
+means you may generate against the published API, provided you say it may move.
+`planned` is a definitive negative answer, not a gap. Do not
 generate an implementation from a proposed API. See
 [Reading these docs](./start/reading-these-docs.mdx#for-agents).
 
@@ -164,10 +165,10 @@ scrolling back:
 
 1. **What is the one thing opsinjs will never do for you?** Decide what a health
    value means. It renders your product's decision; it does not make it.
-2. **What can you install today?** Sixty components, as copied source from the
-   registry, thirty-five at `alpha` and twenty-five at `beta`. That is not a
-   package, and not anything you should put in front of a patient yet. Every page
-   says which it is in machine-readable form.
+2. **What can you install today?** Every component in the catalogue, as copied
+   source from the registry. That is not a package, and not anything you should
+   put in front of a patient yet, because none of it has been reviewed. Every
+   page says so in machine-readable form.
 3. **Why are there two kinds of colour?** Because "which measurement is this" and
    "how worried should I be" are different questions, and one palette cannot
    answer both without ambiguity.
@@ -184,13 +185,13 @@ deliberately small, deliberately uninteractive specimen for one series.
 density-first system.
 
 **"The component page I want returned a specification, not code."** Check its
-`status`. Sixty component pages are `alpha` or `beta` and describe code you can
-install; other pages in the corpus are `planned` specifications, and returning one
-of those rather than inventing an API is working as designed. See
+`status`. Every component page reads `shipped` and describes code you can
+install. A page that reads `planned` is a specification, and returning it rather
+than inventing an API is working as designed. See
 [Reading these docs](./start/reading-these-docs.mdx#for-agents).
 
 **"I cannot find the rule that governs a component."** Every component page lists
-its `governedBy` doctrine pages in the header, and every doctrine page lists the
+its `governedBy` doctrine pages in its frontmatter, and every doctrine page lists the
 components that implement it. The link exists in both directions on purpose.
 
 ## Next

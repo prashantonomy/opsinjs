@@ -161,11 +161,10 @@ cells are left empty rather than filled by assumption.
 
 {/* Generated from `implements`. Do not restate the list by hand. */}
 
-`questionnaire` is a `considered` component rather than a shipped one, and this
-page is a large part of the reason: an instrument that can elicit a disclosure
-needs a specified response pathway before it needs a React component. If it is
-built, its specification will require a risk-response slot that cannot be left
-empty.
+`questionnaire` ships, and this page is the constraint on using it here: an
+instrument that can elicit a disclosure needs a specified response pathway before
+it needs a React component, and the component supplies no such pathway. It has
+no risk-response slot, so the product owns that slot and owns testing it.
 
 ## What this does not cover
 

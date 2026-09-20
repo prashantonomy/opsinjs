@@ -457,8 +457,7 @@ read.
 ## Accessibility
 
 Some of this is enforced by a gate on every pull request and every push to `main`. The rest
-is argued, and it is labelled as such: `beta` promises that accessibility is claimed only
-where it has been checked, with the gaps listed rather than left out. Nothing here has been
+is argued, and it is labelled as such: a component page claims accessibility only where it has been checked, with the gaps listed rather than left out. Nothing here has been
 through a review with a disabled user, and the components overview says as much above
 its table, for all sixty.
 
@@ -704,7 +703,7 @@ that is not a number. `ReadingInputChange` carries the segments, the unit, the r
 every box, what the reader did, and what a unit switch did to the numbers.
 
 **`onUnitChange` is gone.** It was a mode enum of `"convert" | "clear"` wearing a React
-handler's name, with no stated default, and two `stable` pages
+handler's name, with no stated default, and two pages
 ([Units and numeric entry](../patterns/forms/units-and-numeric-entry.mdx) and
 [Capture a daily log entry](../recipes/daily-log-entry.mdx)) already required *convert*. So
 conversion is not a mode: it happens whenever `tokens/units.json` owns the factor, the entry

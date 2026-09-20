@@ -116,7 +116,7 @@ export interface PageActionsProps {
    * page has the slug "components/range-bar". Omit on the docs index.
    */
   slug?: string
-  /** The docs version stamp, carried into the model prompt. */
+  /** The docs version, carried into the model prompt. */
   version?: string
   className?: string
 }

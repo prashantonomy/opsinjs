@@ -195,8 +195,8 @@ and `CareCard` rather than as a separate component, so that it inherits the same
 announcement and contrast contract as every other alert and does not drift into a
 bespoke screen that no audit covers. That specification includes its suppression
 behaviour, which hides every other alert on the screen. What ships today falls
-short of that in one specific respect. Both components are at `alpha`, and
-neither can see a sibling, let alone silence one, so rule 4 is the caller's to
+short of that in one specific respect. Neither component can see a sibling, let
+alone silence one, so rule 4 is the caller's to
 implement and the caller's to test on every screen that can reach this path. Rule
 4 therefore belongs in product code with a named owner rather than in an
 assumption that a component is holding it.

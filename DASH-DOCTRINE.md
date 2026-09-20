@@ -809,7 +809,6 @@ construction in product UI. The documentation has been breaking its own doctrine
 | `content/docs/foundations/materials/the-ladder.mdx:36-38` | blur | `None` |
 | `content/docs/handbook/migrating-from-shadcn.mdx:47,48` | the opsinjs component | `No equivalent` |
 | `content/docs/handbook/migrating-from-shadcn.mdx:75,76` | the shadcn variable | `No shadcn equivalent` |
-| `content/docs/project/proposals.mdx:39` | a state label | `Not yet triaged` |
 | `content/docs/project/state-of-the-system.mdx:46`, `content/docs/theming/index.mdx:104` | use it? | `Not applicable` |
 
 **The `css-variables.mdx` row is a correction.** Two of the three source drafts said that

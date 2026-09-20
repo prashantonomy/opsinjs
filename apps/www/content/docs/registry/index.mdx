@@ -25,11 +25,10 @@ real cost and the cost is usually described less clearly than the benefit.
 
 <Callout>
 All sixty ids carry real `files` with `content`. That content is the component
-itself plus the shared substrate, `lib/opsinjs.ts` and `lib/status.ts`. The
-considered roster is empty, so every id resolves to installable source and each
-carries `meta.opsinjs.implemented: true`. The considered-stub mechanism still
-exists for any future reserved name, and a name's `implemented` flag stays
-visible in `/r/index.json`.
+itself plus the shared substrate, `lib/opsinjs.ts` and `lib/status.ts`. Every id
+resolves to installable source and each carries
+`meta.opsinjs.implemented: true`. A `planned` id would omit `files` and report
+`implemented: false`, and that flag stays visible in `/r/index.json` either way.
 </Callout>
 
 ## What you get
@@ -61,8 +60,7 @@ Three costs, stated plainly.
 **You do not get updates automatically.** Copied code is your code. An
 improvement here does not reach you until you deliberately take it. That is the
 entire point and it is also the largest ongoing cost, which is why
-[Upgrades and diffs](./upgrades-and-diffs.mdx) and
-[Version stamps](./version-stamps.mdx) both exist and are not optional reading.
+[Upgrades and diffs](./upgrades-and-diffs.mdx) is not optional reading.
 
 **You inherit the maintenance.** A security fix in a copied file is your job.
 There is no `npm audit` line that tells you a component you copied has a
@@ -70,9 +68,9 @@ problem.
 
 **Drift is invisible without help.** Two teams in one company copy the same
 component in different months and now have two different components with one
-name. [Version stamps](./version-stamps.mdx) are the specified answer and are
-not emitted yet, so until they are, the thing that makes drift visible is your
-own record of what you took and when.
+name. Nothing in the file makes that visible, so what does is your own record of
+what you took and when: commit the files `shadcn add` writes, in their own
+commit, so a later `--diff` has something to compare against.
 
 ## The shape of the registry
 
@@ -149,15 +147,15 @@ You should get a `name`, a `homepage` and an `items` array.
 npx shadcn@latest search @opsinjs
 ```
 
-Sixty items, and every one of them is implemented now that the considered roster
-is empty. `implemented` in `/r/index.json` records that for each. An error naming
+Sixty items, every one of them implemented. `implemented` in `/r/index.json`
+records that for each. An error naming
 the namespace means `components.json` was not read.
 
 ### `add` behaves honestly
 
 Add any component and you get its source: the component file plus `lib/opsinjs.ts`
 and `lib/status.ts`, in the directories your `components.json` aliases name. Every
-id resolves to files today. Were a future reserved name added, the CLI should
+id resolves to files today. Were a `planned` id added, the CLI should
 resolve the item and report that there is nothing to write, rather than creating
 an empty file.
 
@@ -165,8 +163,8 @@ an empty file.
 
 ## Troubleshooting
 
-**`add` wrote nothing.** The considered roster is empty, so every id carries
-files today and an empty write points at your `components.json` instead. Confirm
+**`add` wrote nothing.** Every id carries
+files today, so an empty write points at your `components.json` instead. Confirm
 its `aliases`, and check `implemented` for that name in `/r/index.json`.
 
 **`@opsinjs` is not found.** Missing or malformed `registries` block. The `{name}`
@@ -189,5 +187,5 @@ surfaces instead.
 - [Namespaces](./namespaces.mdx) shows how to configure `@opsinjs` and compose
   registries.
 - [registry.json](./registry-json.mdx) is the catalog, annotated field by field.
-- [Version stamps](./version-stamps.mdx) covers the fork problem, and the
-  smallest thing that helps.
+- [Upgrades and diffs](./upgrades-and-diffs.mdx) covers the fork problem, and
+  the habit that makes it tractable.

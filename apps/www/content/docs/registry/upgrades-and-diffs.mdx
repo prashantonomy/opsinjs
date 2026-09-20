@@ -2,7 +2,7 @@
 title: Upgrades and diffs
 description: How to take an update to code you own and have already edited, without either losing your changes or silently keeping a bug.
 kind: guide
-aliases: [upgrade, update components, three-way merge, --diff]
+aliases: [upgrade, update components, three-way merge, --diff, fork problem, file provenance]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -20,18 +20,33 @@ seriously rather than discovering during an incident. The good news is that it
 is a merge problem, and merge problems have known tools. The bad news is that
 nothing will tell you an upgrade exists unless you build the habit of asking.
 
+### Which version do I have?
+
+There is no lockfile here, because there is no dependency to lock. Nothing in an
+installed file records where it came from, and no tool can reconstruct it after
+the fact. The record that exists is your own commit history, so make it carry
+the answer: **run `add` in its own commit, with nothing else in the diff, and put
+the item name and the date in the message. Your own changes go in the next
+commit.** That one habit is the provenance of every copied file you own. It
+gives a later three-way merge a base to work from, it tells a reviewer which
+hunks arrived from upstream and which are yours, and it is the only thing a
+colleague can read a year from now to find out what you took.
+
+`npx shadcn@latest add @opsinjs/<item> --diff` is a different question and not a
+substitute. It tells you how your file differs from upstream *today*. It cannot
+tell you which upstream you started from, so it cannot separate a local edit
+from an upstream change you have not taken yet. The commit answers where you
+started; the diff answers where you have drifted to.
+
 ## The upgrade loop
 
 <Steps>
 
 ### Find out what changed
 
-Read the [changelog](../project/changelog/index.mdx). The specified shortcut is
-a version stamp in the file itself, so it can name the version it came from. It
-is not emitted yet, and [Version stamps](./version-stamps.mdx) explains what
-blocks it; until it lands, the changelog and your own record of what you
-installed are the whole answer. Do this before touching anything; an upgrade you
-cannot describe is one you cannot review.
+Read the [changelog](../project/changelog/index.mdx), then read the commit that
+installed the file. Those two are the whole answer. Do this before touching
+anything; an upgrade you cannot describe is one you cannot review.
 
 ### Diff before you fetch
 
@@ -78,11 +93,9 @@ and the result is a merge with conflicts you resolve rather than a choice betwee
 two whole files.
 
 This only works if you can identify and obtain the version you originally
-copied, and today nothing in the file tells you which that was. The commit that
-ran `add` is the only record, which is why committing the install on its own is
-the first habit below. It is also the entire argument for the specified
-[version stamp](./version-stamps.mdx), and for opsinjs serving historical items
-rather than only the latest.
+copied, and nothing in the file tells you which that was. The commit that ran
+`add` is the record, which is why it earns a commit of its own. It is also the
+argument for opsinjs serving historical items rather than only the latest.
 
 ```bash
 git merge-file --diff3 mine.tsx base.tsx theirs.tsx
@@ -93,9 +106,9 @@ git merge-file --diff3 mine.tsx base.tsx theirs.tsx
 Four habits that make the difference between a system that can be updated and
 one that quietly ossifies.
 
-**Commit the install.** `add` in its own commit, with the item name and the
-version in the message and nothing else in the diff. Then your changes in a
-second commit. Now a future upgrade has a clean base.
+**Commit the install.** In its own commit, as set out under
+[Which version do I have?](#which-version-do-i-have) above. It is first here
+because the other three are recoverable without it and nothing recovers it.
 
 **Keep local changes small and marked.** A comment saying *why* the local change
 exists survives a merge; a silent divergence does not, and the next person will
@@ -141,9 +154,9 @@ own deliberate local changes.
 
 ### The install is recorded
 
-Your commit should name the item and the version you took, because the file will
-not: nothing emits a version stamp yet. That record is what the next upgrade's
-three-way merge needs, and reconstructing it afterwards is guesswork.
+Your commit should name the item and the date you took it, because the file will
+not. That record is what the next upgrade's three-way merge needs, and
+reconstructing it afterwards is guesswork.
 
 ### Your local change is still there
 
@@ -162,17 +175,15 @@ over installed files.
 commit-the-install-separately habit, which makes this recoverable by
 construction.
 
-**I cannot tell which version I originally copied.** No installed file carries a
-stamp today, so unless your commit history says, there is nothing in the file to
-read. Diff against the current upstream and accept that this one is archaeology.
+**I cannot tell which version I originally copied.** Nothing in the file says,
+so unless your commit history does, there is nothing to read. Diff against the
+current upstream and accept that this one is archaeology.
 
 **Upgrading one component pulled in three others.** `registryDependencies`.
 Composition is explicit, and this is what explicit looks like.
 
 ## Next
 
-- [Version stamps](./version-stamps.mdx) covers the mechanism this page would
-  depend on, and what is blocking it.
 - [Changelog](../project/changelog/index.mdx) says what actually changed.
 - [Versioning policy](../project/versioning-policy.mdx) says what a version
   number is allowed to imply.

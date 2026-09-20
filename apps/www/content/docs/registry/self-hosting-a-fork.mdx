@@ -86,7 +86,7 @@ the environment. Never commit a token into `components.json`.
 ## Fork the repository
 
 If you need the token source, the generators and the documentation site, fork
-the whole thing. Four things to do immediately, before anyone else clones it.
+the whole thing. Three things to do immediately, before anyone else clones it.
 
 **Change the identity.** Registry `name`, `homepage`, the namespace, the preset
 prefix and the site URL. A fork that still says `opsinjs.pensievelabs.org` will confuse your
@@ -98,14 +98,6 @@ other direction, and the same reasoning applies to you.
 the parts that make the system self-checking. A fork that keeps the tokens and
 drops the checks has kept the values and lost the guarantee, and it will drift
 within one release.
-
-**Emit a version stamp.** There is nothing upstream to keep, because opsinjs
-specifies the stamp and does not yet write one, for the reasons on
-[Version stamps](./version-stamps.mdx). A fork is nevertheless not blocked by
-either of them: your catalogue rows can carry real versions, and you own the
-generator that emits the files. One comment naming your registry, the item and
-the version is how your own developers will later work out which version a
-copied file came from.
 
 **Record the divergence.** One page in your own docs listing everything you
 changed and why. This is the single highest-value artefact of a fork and it is
@@ -197,7 +189,5 @@ only.
 
 - [Upgrades and diffs](./upgrades-and-diffs.mdx) is the consumer-side version of
   the same problem.
-- [Version stamps](./version-stamps.mdx) covers the specified mechanism that
-  would make both tractable, and why a fork can ship it before opsinjs does.
 - [Contributing](../handbook/contributing/index.mdx) is for a change that
   belongs upstream instead.

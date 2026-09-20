@@ -153,7 +153,7 @@ export const SECTIONS: SectionDescriptor[] = [
     id: "registry",
     title: "Registry & distribution",
     blurb:
-      "Shipping as a shadcn-spec registry: namespaces, registry.json, preset codes, version stamps and upgrade diffs.",
+      "Shipping as a shadcn-spec registry: namespaces, registry.json, preset codes and upgrade diffs.",
   },
   {
     id: "reference",

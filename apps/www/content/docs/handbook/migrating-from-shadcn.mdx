@@ -120,9 +120,10 @@ The generated, authoritative list is in
 - **shadcn's `Badge` has no status semantics**, so an existing `Badge` used as a
   label is not a `StatusPill`. Mapping it will attach a clinical meaning to a
   category label.
-- **A copied component keeps its version stamp.** After migration you will have
-  files from two systems; the stamps are how you tell. See
-  [Version stamps](../registry/version-stamps.mdx).
+- **Nothing in a copied file says which system it came from.** After migration
+  you will have files from two, and only your own history tells them apart:
+  commit the files `shadcn add` writes, in their own commit, so a later `--diff`
+  has something to compare against.
 - **Your custom `--radius` will not produce the opsinjs shape.** opsinjs derives
   a radius ladder and uses `corner-shape` where supported; see
   [Squircle](../foundations/shape/squircle.mdx).

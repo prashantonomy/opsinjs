@@ -271,7 +271,7 @@ export const KNOWN_BASES = ["base"] as const
 export const KNOWN_STYLES = ["base-lyra"] as const
 
 /* ------------------------------------------------------------------ *
- * Version stamp
+ * Docs version
  * ------------------------------------------------------------------ */
 
 /** Version of the docs app that produced this payload. */

@@ -52,10 +52,11 @@ reference range to understand it**. If you cannot answer the first question, you
 do not yet have a component decision to make. You have a clinical rules
 question, and the answer belongs in your product, not in the UI.
 
-The components below are the full display roster, and every one of them is at
-`beta`: the code exists and installs, and at beta it breaks only in a minor
-release with a documented migration. None of it has been through an accessibility
-or a clinical review. Read the fourth column before you install anything. The
+The components below are the full display roster, and every one of them is
+`shipped`: the code exists and installs, and the API may change in any release.
+No opsinjs component has had an accessibility review or a clinical review.
+Nothing here is for a production health surface. Read the fourth column before
+you install anything. The
 wrong choice compiles exactly as well as the right one.
 
 | What you have | Component | Status | Why not the obvious alternative |
@@ -195,7 +196,7 @@ and there is no context in a consumer app that disambiguates it.
 ## Variations
 
 **The datum is a set of answers to questions.** A symptom questionnaire, a mood
-scale, a medication schedule. These now have components at `alpha`:
+scale, a medication schedule. These now have components:
 [Questionnaire](../components/questionnaire.mdx),
 [SymptomPicker](../components/symptom-picker.mdx),
 [ScaleInput](../components/scale-input.mdx),
@@ -212,7 +213,7 @@ component's own page from [Components](../components/index.mdx) until it is.
 **The datum came from a device.** Then it carries provenance: which device, at
 what accuracy, and under what conditions. The display has to be able to show it.
 [SourceCitation](../components/source-citation.mdx) is the component for exactly
-this, now at `alpha`.
+this, and it ships.
 
 **The datum is a comparison against the reader's own history**, not against a
 population range. That is a trend, not a result: go to
@@ -227,8 +228,8 @@ next action; see
 
 ## Related
 
-- **[Components](../components/index.mdx)** is the full matrix, including every
-  considered row, filterable by category and status.
+- **[Components](../components/index.mdx)** is the full matrix, filterable by
+  category.
 - **[The two colour axes](../health/two-colour-axes.mdx)** is the rule the
   fourth column of the table keeps referring to, in full.
 - **[Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx)**

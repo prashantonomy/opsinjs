@@ -44,7 +44,7 @@ const SHAPE = {
     helpful: "boolean, for kind: page-feedback",
     comment: `free text, up to ${LIMITS.comment} characters`,
     query: "the search term, for kind: zero-result-search",
-    docsVersion: "optional; the version stamp the reader was on",
+    docsVersion: "optional; the docs version the reader was on",
   },
 } as const
 

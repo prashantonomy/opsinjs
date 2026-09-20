@@ -51,10 +51,11 @@ dependency, three consequences follow that a package would not have.
 - **They own it now.** Their edits are theirs. Never rewrite an installed
   component wholesale to "bring it up to date" - that is how someone's
   accessibility fix from three months ago silently disappears. Use the diff path.
-- **Every emitted file carries a version stamp**, a comment naming the item and
-  the version it came from. Do not strip it. It is the only way to answer "what
-  has changed since the version I copied", which is the question every upgrade
-  starts with.
+- **Nothing in an emitted file records where it came from.** There is no
+  lockfile and no stamp. Tell people to run `add` in its own commit naming the
+  item and the date, and to put their own changes in the next one. That commit
+  is the only answer to "what has changed since the version I copied", which is
+  the question every upgrade starts with.
 - **The registry is the machine surface.** `https://opsinjs.pensievelabs.org/r/registry.json`
   is the catalogue - it is what the shadcn MCP server reads, and it lists every
   component with status and category. Prefer it over guessing a component name
@@ -111,5 +112,4 @@ documentation, and it stays correct as the catalogue changes.
 - `/docs/registry/namespaces.md` - registering `@opsinjs`, composing registries
 - `/docs/registry/registry-item-json.md` - the item schema, field by field
 - `/docs/registry/upgrades-and-diffs.md` - upgrading source you own
-- `/docs/registry/version-stamps.md` - the fork problem and the stamp that solves it
 - `/docs/agents/mcp-server.md` - client configuration

@@ -22,63 +22,43 @@ agent can parse them without a heuristic.
 This page teaches the conventions once. It is the shortest way to make the rest of
 the site predictable.
 
-## Read the page header first
-
-The block under the title is generated from frontmatter, and it carries more
-information than it looks like it does:
-
-- **The status chip** is the release phase. Everything below depends on it.
-- **`category`** is where it sits in the catalogue. A category beginning
-  `health-` triggers extra mandatory sections on the page and extra review
-  requirements.
-- **The review line** says when the page was last read and which discipline read
-  it. An old date is a warning, and
-  [Docs freshness](../project/docs-freshness.mdx) explains what happens when one
-  expires. It is a record of a reading, not of an accessibility evaluation:
-  nothing in this system has had one of those.
-- **`governedBy`** has the doctrine pages that constrain this component. Follow
-  them before you use it in anything clinical.
-- **Copy page** is the split button that hands you this page as markdown, or a
-  link to an AI tool with the page loaded.
-
 ## Understand the status vocabulary
 
-Six values, and they mean the same thing on every page and in every machine
-surface. This is the vocabulary the sidebar chips, the search results, the
-catalogue JSON and `llms.txt` all share.
+Three values, and they mean the same thing on the page, in the catalogue JSON and
+in `llms.txt`.
 
 <StatusLegend />
 
 | Status | What it promises |
 | --- | --- |
-| `stable` | The documented behaviour will not change without a major version and a migration note. |
-| `beta` | Shape is settled, details may still move. Safe to build on with a changelog subscription. |
-| `alpha` | Being designed in the open. Expect breaking changes without ceremony. |
 | `planned` | A specification with no implementation. There is nothing to install. |
-| `deprecated` | Still documented, with a named replacement and a removal version. |
-| `considered` | Evaluated and not built. It exists as a catalogue row so the question has an answer. |
+| `shipped` | Installable source. The API may change in any release, with a changelog entry. |
+| `deprecated` | Still installs, with a named replacement and a named removal version. |
 
-No component page is `planned` or `considered` today. Sixty components are built,
-twenty-five at `beta` and thirty-five at `alpha`. `planned` is still a live value,
-and pages elsewhere on the site carry it. The recipes, the patterns and the five
-screen specimens are all `planned`. So read the chip rather than assuming which
-side of the line a page is on. The count in the legend above is derived from
-`registry/catalogue.ts`; this paragraph is not, so trust the legend.
+`status` appears only on a `kind: component` page, and every one of them reads
+`shipped`. No other page carries the field, because on a page about colour or
+consent it was describing the prose rather than anything you could install. The
+legend above counts `registry/catalogue.ts` live, so trust it over any number
+typed into a sentence.
+
+No opsinjs component has had an accessibility review or a clinical review.
+`shipped` means the source installs, and it does not mean either review has
+happened. Nothing here is for a production health surface.
 
 ### For agents
 
 Three rules, and they are the difference between this site being useful to you and
 being dangerous.
 
-1. **Read the page's `status`; it is the whole answer.** At `planned` or
-   `considered` there is no implementation, and the page exists so that you do
+1. **Read the page's `status`; it is the whole answer.** At `planned` there is
+   no implementation, and the page exists so that you do
    not have to guess: the API on it is a specification under review. Do not emit
    an implementation of it, do not import from it, and do not tell a user it is
    available. Those pages carry a `data-opsinjs-not-implemented` marker and a
    visually-hidden sentence saying so, in both the HTML and the `.md` twin, and
-   the marker is *absent* from `alpha` onwards. At `alpha` there is real code and
-   a real install command, and the honest caveat to pass on is that the API may
-   change in any release without a deprecation cycle.
+   the marker is *absent* from `shipped`. At `shipped` there is real code and
+   a real install command, and the honest caveats to pass on are that the API may
+   change in any release and that nothing has been reviewed.
 2. **Every page has a markdown twin.** Append `.md` to any documentation URL and
    you get the processed markdown. That is JSX resolved into text, not raw MDX.
    The corpus is also published as `llms.txt` with per-pillar shards. See
@@ -94,11 +74,11 @@ The full contract, including the machine-readable schemas, is in
 
 A page's `kind` fixes its headings. The five you will meet most often:
 
-- **`component`** is a twenty-two section anatomy, status-gated. Below `alpha`
+- **`component`** is a seventeen section anatomy, status-gated. At `planned`
   you get intent, when *not* to use it, the clinical contract, the proposed
   anatomy and API, the content rules and the accessibility requirements; the
   sections that need a build to be truthful are *omitted*, not left empty. Those
-  are examples, states, the props table and bundle size. From `alpha` those
+  are usage, examples and the props table. At `shipped` those
   sections appear, generated from the code, and any whose source has still not
   been measured renders `<NoDataYet>` rather than a number.
   [Anatomy of a component page](../components/anatomy-of-a-component-page.mdx)
@@ -155,10 +135,10 @@ them is typed by an author, and a regression fails the build.
 
 You can read this site fluently if you can answer these without looking:
 
-1. **What does each badge entitle you to?** `planned` and `considered`: a
+1. **What does each status entitle you to?** `planned`: a
    specification, and no code, no working install command and no import path.
-   `alpha`: code you can install, an API that may move under you without notice,
-   and no accessibility or clinical review behind it.
+   `shipped`: code you can install, an API that may move under you in any
+   release, and no accessibility or clinical review behind it.
 2. **Where does a number in a table come from?** A generator, named on the page.
    If a table renders the `<NoDataYet>` placeholder, its source is
    empty and the page is telling you so rather than inventing a value.
@@ -167,9 +147,10 @@ You can read this site fluently if you can answer these without looking:
 ## Troubleshooting
 
 **A section you expected is missing from a component page.** It is gated by
-status. Sections that require a build to be truthful are omitted below `alpha`
-rather than rendered empty, because an empty heading reads as a documentation gap
-and an omitted one reads as what it is.
+status, or it is one of the five a shipped page may leave out. A section that
+would need a build to be truthful is omitted at `planned` rather than rendered
+empty, because an empty heading reads as a documentation gap and an omitted one
+reads as what it is.
 
 **A table shows a placeholder instead of data.** That is the `<NoDataYet>` placeholder, and it names the
 script that will fill it. It is deliberately loud; a silently empty
@@ -181,7 +162,7 @@ say which. Numeric formatting is canonical in
 language is canonical in
 [Plain-English A to Z](../content/plain-english-a-z.mdx). If you find a genuine
 contradiction that is not covered by a canonicality declaration, that is a bug.
-Report it from the feedback control at the foot of the page.
+Report it as a docs issue; [Community](../project/community.mdx) says where.
 
 **A page you found through search has an old review date.** Review dates are
 published rather than hidden precisely so you can weigh them. See
@@ -190,7 +171,7 @@ published rather than hidden precisely so you can weigh them. See
 ## Next
 
 - [Anatomy of a component page](../components/anatomy-of-a-component-page.mdx) is
-  the twenty-two section contract, taught once and never repeated.
+  the seventeen section contract, taught once and never repeated.
 - [Rules for agents](../agents/rules-for-agents.mdx) is the machine-facing
   version of this page.
 - [Release phases](../project/release-phases.mdx) says what each status

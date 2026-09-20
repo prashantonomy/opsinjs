@@ -1,6 +1,6 @@
 ---
 title: Upgrading
-description: Taking updates on code you own. Diffs, dry runs, three-way merges, and what a version stamp is for.
+description: Taking updates on code you own. Diffs, dry runs, three-way merges, and how to know which version you started from.
 kind: guide
 reviewed: 2026-09-20
 reviewer: engineering
@@ -22,13 +22,10 @@ a clinical status renders is a genuine hazard. But it only holds if upgrading is
 survivable, and this page is how opsinjs intends to make it so.
 
 <Callout title="There is code, but no released version to upgrade from">
-  The sixty implemented components, twenty-five at `beta` and thirty-five at
-  `alpha`, all carry `since: unreleased`. So there is no earlier version of
-  anything to move off,
+  Every catalogue row is implemented and installable, and nothing has been
+  released. So there is no earlier version of anything to move off,
   no changelog entry to read, and no diff to run. The mechanics below are the
-  intended contract rather than a path anybody has walked. Emitted files carry
-  no [version stamp](../../registry/version-stamps.mdx) either, which is what
-  would otherwise tell you which version you have.
+  intended contract rather than a path anybody has walked.
   [Troubleshooting](../troubleshooting.mdx#nothing-is-published-yet).
 </Callout>
 
@@ -75,11 +72,10 @@ change to new code is more reliable than reasoning about a merge. It also makes
 you re-justify the edit, which is often useful on its own.
 
 **You have edited it heavily.** Treat it as a three-way merge between the version
-you started from, your current file, and the new one. A
-[version stamp](../../registry/version-stamps.mdx) in the file header is what
-would tell you the first of those three, and it is not emitted yet. That base
-therefore comes from your own version control today, or from the note you wrote
-in the pull request that installed the file. Write that note.
+you started from, your current file, and the new one. Nothing in the file tells
+you the first of those three, so that base comes from your own version control:
+commit the files `shadcn add` writes, in their own commit, so a later `--diff`
+has something to compare against.
 
 If you find yourself doing a heavy merge repeatedly on the same component, the
 divergence is telling you something. Either your change belongs upstream, or
@@ -97,19 +93,6 @@ avoidable source of upgrade pain:
 - **Anything carrying a generated-file header.** If a file says it is generated, an
   upgrade will overwrite it, and the polite warning in the header is the only notice
   you get.
-
-## Understand what a version means
-
-opsinjs's semantic versioning covers more surface than a typical component library,
-because more of its surface is public: the JavaScript API, the rendered DOM
-structure, the `data-*` attributes, and the CSS custom property names. A change to
-any of those is a breaking change and gets a major version.
-
-The practical consequence: if you style opsinjs components from your own CSS by
-selecting on a data attribute, you are using a supported API and it will not move
-under you within a major version. That is deliberate. In a copy-in system, styling
-from outside is a legitimate integration strategy rather than a hack.
-[Versioning policy](../../project/versioning-policy.mdx).
 
 ## Verify it worked
 
@@ -145,8 +128,6 @@ current version cleanly and record it this time.
 
 ## Next
 
-- [Version stamps](../../registry/version-stamps.mdx) says what is in a stamp
-  and what it lets tooling do.
 - [Versioning policy](../../project/versioning-policy.mdx) says what semver
   covers here, which is more than you expect.
 - [Upgrades and diffs](../../registry/upgrades-and-diffs.mdx) covers the

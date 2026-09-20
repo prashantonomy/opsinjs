@@ -39,7 +39,8 @@ unanswerable one is usually the context, so please include:
 2. **What you tried**, including which docs page you were reading. If the docs
    sent you the wrong way, that is a docs bug and worth reporting on its own.
 3. **The versions.** Which registry URL you installed a component from, and when
-   you copied it, because the emitted source carries no version stamp yet.
+   you copied it, because nothing in the emitted source records where it came
+   from.
 4. **What "correct" would look like.** For anything clinical the right answer
    depends on what the number means for the person reading it, and we cannot
    guess that.

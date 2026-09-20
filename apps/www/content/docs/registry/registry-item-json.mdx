@@ -22,12 +22,10 @@ opsinjs serves one at `/r/<name>.json`, and one per style at
 
 <Callout>
 All sixty items carry real `files`, each with `content`: the component source
-plus the shared substrate, `lib/opsinjs.ts` and `lib/status.ts`. The considered
-roster is empty, so every item that resolves is a built component. The
-considered-stub mechanism still exists for any future entry: a name placed on
-that roster would omit `files` entirely rather than carry an empty array, and
-would report `implemented: false`. The field to read is
-`meta.opsinjs.implemented`, on the item itself or flattened into
+plus the shared substrate, `lib/opsinjs.ts` and `lib/status.ts`. Every item that
+resolves is a built component. A `planned` id would omit `files` entirely rather
+than carry an empty array, and would report `implemented: false`. The field to
+read is `meta.opsinjs.implemented`, on the item itself or flattened into
 `/r/index.json`.
 </Callout>
 
@@ -46,7 +44,7 @@ would report `implemented: false`. The field to read is
   "meta": {
     "opsinjs": {
       "implemented": true,
-      "status": "alpha",
+      "status": "shipped",
       "category": "health-data-display",
       "base": "base",
       "style": "base-lyra",
@@ -72,10 +70,9 @@ would report `implemented: false`. The field to read is
 
 `meta.opsinjs` is abridged above: the served object also carries `aliases`,
 `governedBy`, `usedIn` and the three URLs `docs`, `markdown` and `catalogue`, so
-an item read on its own can find its own documentation. Were a name ever placed
-on the considered roster, it would serve the same envelope with
-`implemented: false`, a `why` sentence, and no `files` and no
-`registryDependencies` at all. The roster is empty today, so no item does.
+an item read on its own can find its own documentation. A `planned` id would
+serve the same envelope with `implemented: false`, a `why` sentence, and no
+`files` and no `registryDependencies` at all. No item does today.
 
 ## Field by field
 
@@ -89,11 +86,11 @@ on the considered roster, it would serve the same envelope with
 | `dependencies` | npm packages | Kept as small as possible, and omitted rather than sent empty; a health component that pulls a charting library is a design failure |
 | `devDependencies` | npm dev packages | Unused |
 | `registryDependencies` | Other items, by name or full URL | Composition is explicit, and namespaced. `result-card` names `@opsinjs/status-pill` rather than inlining it |
-| `files` | The code, with `path`, `type`, `target` and `content` | Present on all sixty items; a considered entry would omit them entirely, but the considered roster is empty |
+| `files` | The code, with `path`, `type`, `target` and `content` | Present on all sixty items; a `planned` id would omit them entirely |
 | `cssVars` | `theme`, `light`, `dark` objects | Used by themes; components contribute none |
 | `css` | Raw CSS to merge into the stylesheet | Avoided, for the reasons given below |
 | `meta` | Free-form | Where opsinjs puts `implemented`, `status`, `category`, `since` and the page URLs |
-| `docs` | A note shown after install | The title and docs URL for an implemented item; the reserved-roster explanation for the rest |
+| `docs` | A note shown after install | The title and docs URL for an implemented item; the not-implemented explanation for the rest |
 | `categories` | Grouping for search | Mirrors the catalogue category |
 
 ### `files`
@@ -210,6 +207,4 @@ file declares a `target`. Otherwise the CLI has nowhere to put anything.
 
 - [Upgrades and diffs](./upgrades-and-diffs.mdx) covers taking a newer item over
   code you have edited.
-- [Version stamps](./version-stamps.mdx) is how you know which item version your
-  file came from.
 - [Presets](../theming/presets.mdx) covers the theme-only item in practice.

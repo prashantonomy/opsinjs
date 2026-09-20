@@ -245,9 +245,7 @@ function liftIndex(
  * `content/docs/project/` is one directory because that is where these pages
  * belong on disk: they are all about how opsinjs is run. In the sidebar they are
  * two different questions. "What is coming, and what has been decided" is
- * Roadmap. "What changed, and does it break me" is Changelog, and the migration
- * guides belong with it because a migration guide is what a breaking changelog
- * entry links to.
+ * Roadmap. "What changed, and does it break me" is Changelog.
  */
 function splitProject(project: Folder): {
   roadmap: { index?: Item; children: Node[] }
@@ -255,7 +253,6 @@ function splitProject(project: Folder): {
 } {
   let roadmapIndex: Item | undefined
   let changelog: Folder | undefined
-  let migration: Folder | undefined
   const governance: Node[] = []
 
   for (const child of project.children) {
@@ -266,10 +263,6 @@ function splitProject(project: Folder): {
     }
     if (child.type === "folder" && leaf === "changelog") {
       changelog = child
-      continue
-    }
-    if (child.type === "folder" && leaf === "migration") {
-      migration = child
       continue
     }
     governance.push(child)
@@ -283,7 +276,7 @@ function splitProject(project: Folder): {
     roadmap: { index: roadmapIndex, children: governance },
     changelog: {
       index: lifted.index,
-      children: [...lifted.rest, ...(migration ? [migration] : [])],
+      children: lifted.rest,
     },
   }
 }

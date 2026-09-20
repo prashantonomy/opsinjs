@@ -10,23 +10,23 @@ usedIn: [read-a-lab-result]
 ---
 
 {/*
-  TEMPLATE for kind: component. The 22-section anatomy, status-gated.
+  TEMPLATE for kind: component. The 17-section anatomy, status-gated.
 
   At `status: planned` the sections below are the whole page. The rest are
   OMITTED, not left empty: a heading with nothing under it is worse than an
   absent heading, and <PageTemplate kind="component"> fails the build either way.
 
-  What each later status ADDS, so you know what you are signing up for:
-    alpha   ## Usage · ## Examples · ## API reference
-    beta    ## States · ## Motion · ## Data attributes · ## CSS variables ·
-            ## Tokens · ## Cost
-    stable  ## Research and rationale (already required if this is a health
-            component)
+  What `shipped` and `deprecated` ADD, so you know what you are signing up for:
+    required     ## Usage · ## Examples · ## API reference
+    optional     ## States · ## Motion · ## Data attributes ·
+                 ## CSS variables · ## Tokens
+  An optional section is written where the answer has been worked out and left
+  out where it has not. `## Proposed API` is the `planned` stand-in for
+  `## API reference`, and the two never both appear.
 
-  Sections 1 (header) and 22 (footer) are generated from frontmatter and are
-  never hand-written: the H1, status and since badges, category, the last
-  accessibility-review date, the base/style switcher, Copy Page, the registry
-  changelog, Edit this page, <LastUpdated />, <Feedback /> and prev/next.
+  The H1 and the one-sentence definition under it come from `title` and
+  `description` and are never hand-written. Nothing else around the sections is
+  generated: there is no header strip and no footer.
 
   Category: `category` beginning with `health-` makes ## Clinical meaning and
   the `governedBy` frontmatter MANDATORY, and their absence elsewhere is

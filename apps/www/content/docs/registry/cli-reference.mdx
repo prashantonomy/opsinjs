@@ -154,21 +154,17 @@ exits with a readable message rather than a stack trace.
   issue="prashantonomy/opsinjs#0"
   questions={[
     "Is check-theme a standalone binary or a subcommand of a larger tool?",
-    "Should the version-stamp reader work on any repository, or only one with a components.json?",
+    "Should doctor work on any repository, or only one with a components.json?",
     "What is the exit code when a theme passes WCAG 2.2 and fails APCA?",
   ]}
 />
 
-Three jobs `npx shadcn` genuinely does not do, and they are the only justified
+Two jobs `npx shadcn` genuinely does not do, and they are the only justified
 scope:
 
 **`check-theme`** validates a theme's contrast in CI. Specified in
 [Validating your theme](../theming/validating-your-theme.mdx) and shipped by
 [`@opsinjs/color`](../packages/opsinjs-color.mdx).
-
-**`stamps`** reads the version stamps in a project's copied files and reports
-what has changed upstream since each one. See
-[Version stamps](./version-stamps.mdx).
 
 **`doctor`** checks the CSS import order, confirms the generated token layer
 loaded, and confirms no element carries both colour axes. All three are real

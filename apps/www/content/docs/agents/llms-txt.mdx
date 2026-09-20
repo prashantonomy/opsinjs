@@ -53,20 +53,20 @@ Each entry carries the page title, its one-sentence description, and its search
 aliases, because an alias is what a model was actually thinking of. Sections
 match the sidebar's sixteen groups.
 
-The status of each page is included too, and it is the most load-bearing field
-in the file. Sixty component ids are built, twenty-five `beta` and thirty-five
-`alpha`, and the considered roster is empty today. A built id has source in the
-registry item and an API that may still move without a deprecation cycle, and a
-`considered` id, were the roster to carry one, would be a reserved name with
-nothing behind it. An index that did not separate the two would be an invitation
-to import the wrong ones. Each entry is one line, and the tail in brackets
-carries the status, the kind and the aliases:
+A component page's status is included too, and it is the most load-bearing field
+in the file. Sixty component ids are built, and a built id has source in the
+registry item and an API that may change in any release. No opsinjs component has
+had an accessibility review or a clinical review. `shipped` means the source
+installs, and it does not mean either review has happened. An index that did not
+carry the field at all would be an invitation to import a specification. Each
+entry is one line, and the tail in brackets carries the status where there is
+one, the kind and the aliases:
 
 ```txt
 ## Components
 
-- [Card](https://opsinjs.pensievelabs.org/components/card): A bounded group of related content with a border and consistent padding is the ordinary box that most of a screen is made of. (status: beta · kind: component · also known as: panel, container, box, tile group, content box)
-- [Select](https://opsinjs.pensievelabs.org/components/select): Choosing one option from a list. (status: alpha · kind: component · also known as: dropdown, picker)
+- [Card](https://opsinjs.pensievelabs.org/components/card): A bounded group of related content with a border and consistent padding is the ordinary box that most of a screen is made of. (status: shipped · kind: component · also known as: panel, container, box, tile group, content box)
+- [Select](https://opsinjs.pensievelabs.org/components/select): Choosing one option from a list. (status: shipped · kind: component · also known as: dropdown, picker)
 ```
 
 ## The size budget
@@ -150,17 +150,17 @@ twin, or take the shard that covers its section, remembering that eight of the
 sixteen sections have no shard at all.
 
 **A page's aliases are missing from the index.** Aliases come from frontmatter.
-A page with none contributes none. That is a documentation gap, reportable
-through the feedback control at the foot of the page.
+A page with none contributes none. That is a documentation gap, reportable as a
+docs issue.
 
 **The index is stale after I added a page.** It is generated at build time.
 Rebuild, or in development restart. `pnpm run generate` does not rebuild the
 index on its own.
 
 **I want an index of only the built components.** Filter the Components section
-on `status: beta` or `status: alpha`; there are sixty in total, and the
-considered roster is empty today. `/r/index.json` answers the same question in a
-field named `implemented` and is cheaper to parse than a text index.
+on `status: shipped`; there are sixty in total. `/r/index.json` answers the same
+question in a field named `implemented` and is cheaper to parse than a text
+index.
 
 ## Next
 

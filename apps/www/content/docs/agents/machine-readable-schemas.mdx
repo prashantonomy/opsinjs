@@ -40,34 +40,31 @@ are build tools rather than clients:
 
 ## The status vocabulary
 
-Six values, closed, and used identically by frontmatter, the catalogue, the
-registry and this site's chrome:
+Three values, closed, and used identically by a component page's frontmatter,
+the catalogue and the registry:
 
 ```ts
 type Status =
-  | "stable"      // shipped, supported, changes go through deprecation
-  | "beta"        // shipped, API may still move
-  | "alpha"       // shipped, expect breakage without a deprecation cycle
   | "planned"     // specified, not implemented. No component sits here today
-  | "deprecated"  // shipped, being removed
-  | "considered"  // thought about, decided nothing, no implementation
+  | "shipped"     // installable source. The API may change in any release
+  | "deprecated"  // installable source, on its way out, with a named replacement
 ```
 
-`beta`, `alpha` and `considered` are the ones a machine must handle correctly.
-Between them, `beta` and `alpha` account for every component id today, because
-the considered roster is empty: a built id, whether `beta` or `alpha`, means
-there is source in the registry item and an API that may still move without a
-deprecation cycle, and `considered` means a catalogue row and nothing else, were
-the roster ever to carry one. `planned` is a specification you may read and must
-not generate against. That status is still live on documentation pages, and no
-component carries it today. Handle all six anyway: the vocabulary is closed, not
-fixed, and a client that only knows the values it saw once will misread the day
-one of them moves.
+`shipped` covers every component id today. It means installable source and a
+changing API, and it makes no claim about accessibility or clinical safety,
+because no opsinjs component has had a review of either kind. `planned` is a
+specification you may read and must not generate against. Handle all three
+anyway: the vocabulary is closed, not fixed, and a client that only knows the
+values it saw once will misread the day one of them moves.
+
+`status` appears on a `kind: component` page and on a catalogue row, and nowhere
+else. A documentation page carries no status at all, so a tool that reads one
+from a page about colour or consent is reading a field that does not exist.
 
 The clinical status levels are a **different, unrelated** four-value vocabulary,
 and the four are `steady`, `watch`, `attention` and `urgent`. Confusing the two
 is a real failure mode worth guarding against in any tool you write. One
-describes a documentation page's maturity; the other describes a person's health
+describes whether a component's code exists; the other describes a person's health
 data. The clinical vocabulary also has a fifth token stem, `unknown`, which is
 the absence of an assertion rather than a fifth level; a schema that ranks it
 alongside the four has already got it wrong.
@@ -113,11 +110,11 @@ model.
 
 ### Check `status` and `implemented` on every read
 
-Sixty items are built, twenty-five `beta` and thirty-five `alpha`, and the
-considered roster is empty. `status` tells you how stable a thing is;
-`implemented` tells you whether there is source to install, which is the question
+Every catalogue row is implemented and installable, and none has been reviewed.
+`status` tells you whether code exists, not whether it is safe; `implemented`
+tells you whether there is source to install, which is the question
 most tools are actually asking. A tool that ignores either will behave, next
-year, as though half-built components were finished, or it will refuse to install
+year, as though a specification were a component, or it will refuse to install
 a component that ships.
 
 ### Treat aliases as input, not as output
@@ -142,10 +139,10 @@ curl -s https://opsinjs.pensievelabs.org/r/index.json | head -30
 ```
 
 You should get JSON with one entry per catalogue row, each carrying a `status`
-and an `implemented` flag. Because the considered roster is empty today, every
-entry reports `implemented: true`. Confirm you read the flag rather than
-inferring it from the URL: a build that ever lists a `considered` row would
-report `implemented: false` for it, and that is the field a tool must check.
+and an `implemented` flag. Every entry reports `implemented: true` today. Confirm
+you read the flag rather than inferring it from the URL: the first `planned` row
+after this sentence will report `implemented: false`, and that is the field a
+tool must check.
 
 ## Troubleshooting
 

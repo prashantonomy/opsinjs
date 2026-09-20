@@ -14,10 +14,9 @@ aliases: [start here, five minute map, where do I begin]
 ## Overview
 
 This site is large, and most of it is doctrine rather than code. That is
-deliberate, and it stayed true after the code arrived: sixty components are built,
-twenty-five at beta and thirty-five at alpha, and the tokens, the rules and the
-accessibility contract are still the part with the longest useful life. This page
-is the map.
+deliberate, and it stayed true after the code arrived: every catalogue row is
+implemented and installable, and the tokens, the rules and the accessibility
+contract are still the part with the longest useful life. This page is the map.
 
 <SectionProgress />
 
@@ -69,12 +68,11 @@ are on tells you what you can expect from it:
 - **Foundations.** [Foundations](../foundations/index.mdx) says what a token
   *means*: colour, material, motion, type, space, shape. Real today, and the
   layer every implemented component reads from.
-- **Components.** [Components](../components/index.mdx) lists sixty catalogued
-  ids, and all sixty are built: twenty-five at `beta` and thirty-five at `alpha`.
-  Each carries a written specification and shipped code, which the page shows side
-  by side. The considered roster is empty today, so no id is a reserved name with
-  no code behind it. Every component page names its intent, when *not* to use it,
-  its clinical contract, its API, and the accessibility bar it must clear.
+- **Components.** [Components](../components/index.mdx) lists every catalogued
+  id, and every one of them is implemented and installable. Each carries a written
+  specification and shipped code, which the page shows side by side. Every
+  component page names its intent, when *not* to use it, its clinical contract,
+  its API, and the accessibility bar it must clear.
 - **Recipes and screens.** [Recipes](../recipes/index.mdx) covers task-first
   assemblies: components plus tokens plus copy rules, in one scroll. The five
   [Screens](../screens/index.mdx) specimens are specifications; none has been
@@ -94,12 +92,11 @@ copy-in, decided in
 [ADR 0002](../project/decisions/0002-shadcn-registry-distribution.mdx). Every
 installation page says so at the top.
 
-Everything built is still pre-release: at `alpha` the API may change in any release
-with no deprecation cycle, at `beta` it is more settled but not yet guaranteed, and
-none of it has been through an accessibility or a clinical review. The considered
-roster is empty today. The machine-readable marker a `considered` id would carry, a
-statement that there is no implementation, still exists for any future entry, so an
-agent reading such a page gets a definite answer rather than a plausible blank.
+Everything built is still pre-release. No opsinjs component has had an
+accessibility review or a clinical review. `shipped` means the source installs,
+and it does not mean either review has happened. Nothing here is for a production
+health surface. The API of a `shipped` component may change in any release, and
+every change carries a changelog entry.
 
 The useful consequence is that both layers are reviewable *now*, while they are
 still cheap to change. If an API looks wrong to you, that is the most valuable
@@ -134,10 +131,9 @@ canonical in
 [Numbers, units and precision](../health/numbers-units-precision.mdx). The other
 page links to it rather than restating it, and a build check enforces that.
 
-**A link took you to a page that shows no code.** Read its status chip. `alpha`
-and `beta` both mean there is code and an install command. `considered` would mean
-a reserved name with nothing behind it, a definite answer rather than a missing
-page, though the considered roster is empty today. See
+**A link took you to a page that shows no code.** Read its `status`. `shipped`
+means there is code and an install command. `planned` means a specification and
+no implementation, which is a definite answer rather than a missing page. See
 [Reading these docs](./reading-these-docs.mdx#for-agents).
 
 ## Next

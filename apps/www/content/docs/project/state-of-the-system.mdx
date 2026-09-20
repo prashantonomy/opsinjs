@@ -14,22 +14,21 @@ aliases: [what exists, is it ready, production ready, current state]
 
 **As of the date at the foot of this page, opsinjs is a documentation site, a set
 of design tokens, and sixty React components you can install as registry
-source. Twenty-five are at `beta` and thirty-five are at `alpha`. No component
+source. Every catalogue row is implemented and installable. No component
 ships as an npm package and none is meant to. Distribution is registry copy-in, decided in
-[ADR 0002](./decisions/0002-shadcn-registry-distribution.mdx). Nothing here is
-`stable`, nothing has been independently audited for accessibility, and no
-component has been through a clinical review.**
+[ADR 0002](./decisions/0002-shadcn-registry-distribution.mdx). No opsinjs
+component has had an accessibility review or a clinical review. `shipped` means
+the source installs, and it does not mean either review has happened. Nothing
+here is for a production health surface.**
 
 That paragraph is the first thing on this page because almost every other page on
 this site is written as though the whole system were finished. A component page
 describes an anatomy, an API and an accessibility bar in the present tense,
 because a specification written in the conditional is unreadable. The marker that
-tells you which you are reading is the `status` in the page's frontmatter:
-`alpha` and `beta` both mean the code exists, with `alpha` free to move its API
-in any release without a deprecation cycle and `beta` breaking only in a minor
-release with a documented migration; `considered` means a reserved name with no
-code behind it, which no catalogue row is today. This page is where the plain
-version of that lives.
+tells you which you are reading is the `status` in a component page's
+frontmatter. Every component is `shipped`, which means the code exists and the
+API may change in any release. No other kind of page carries the field at all.
+This page is where the plain version of that lives.
 
 ## What exists today
 
@@ -40,7 +39,7 @@ version of that lives.
 | Design tokens (`tokens/*.json`) | Authored: two colour axes, six material rungs, spring easings, type, space and shape scales | **Yes**, as values. Names may change before 1.0 |
 | Generated tables and measured contrast | Produced by scripts from those tokens; empty wherever the source is empty | **Yes**, for the presets described. Not for a theme you derived |
 | Component pages (60) | Written as specifications; for all sixty they now also describe shipped code | **Yes** to design against, and to review an implementation against |
-| React components | **60: twenty-five at `beta`, thirty-five at `alpha`**, under `registry/bases/base/`. The considered roster is empty, so every catalogue id resolves to built code | **Yes** to prototype and evaluate, knowing an `alpha` API may move without a deprecation cycle. **No** for a production health surface |
+| React components | **60, all `shipped`**, under `registry/bases/base/`, so every catalogue id resolves to built code | **Yes** to prototype and evaluate, knowing a `shipped` API may move in any release and that none has been reviewed. **No** for a production health surface |
 | `@opsinjs/*` npm packages | **None published** | No |
 | Registry endpoints under `/r` | Serve the catalogue, and the full source of all sixty implemented items | **Yes.** The item shape follows the upstream shadcn specification and moves with it |
 | CLI | Does not exist and is not planned first, because `npx shadcn` already does the job | Not applicable |
@@ -67,20 +66,17 @@ the documentation. See [Agents and automation](../agents/index.mdx).
 
 **4. The component pages.** A component page tells you what the component
 asserts, what it must never be read as, its anatomy and API, and the
-accessibility bar it has to clear. All sixty pages are now at `beta` or `alpha`,
-so each describes code you can install and read, and the page is the right place
+accessibility bar it has to clear. All sixty pages describe code you can install
+and read, and the page is the right place
 to check an implementation against. Read `status` rather than inferring how far a
-component has settled: `beta` breaks only in a minor release with a documented
-migration, `alpha` may move its API in any release, and neither is `stable`. It
+component has settled: `shipped` means the API may change in any release and that
+nobody has reviewed it. It
 is in the frontmatter, in the `.md` twin and in `/r/index.json`, so a program
 never has to guess.
 
 ## What will break
 
 - **Token names before 1.0.** Values are stable in intent; identifiers are not.
-- **Any future considered entry.** The catalogue has no `status: considered` rows
-  today. The reservation mechanism remains, so a future reserved name would carry
-  no commitment and could be specified, dropped, or change shape entirely.
 - **The category members.** The status axis is closed at four levels and will not
   grow. The category axis is expected to change as real products bring real
   subjects. See [Category palettes](../theming/category-palettes.mdx).

@@ -1,8 +1,8 @@
 /**
  * GET /r/docs.json returns the offline bundle.
  *
- * Every page of the corpus as processed markdown, in one JSON document, with a
- * version stamp. It exists for the agent that has a registry configured and no
+ * Every page of the corpus as processed markdown, in one JSON document, with the
+ * docs version. It exists for the agent that has a registry configured and no
  * general web access: `llms-full.txt` is the same corpus as prose, this is the
  * same corpus as data, addressable by URL, section and status without parsing.
  *

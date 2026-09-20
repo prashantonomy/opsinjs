@@ -5,7 +5,7 @@ kind: project
 reviewed: 2026-09-02
 reviewer: engineering
 reviewEvery: 12m
-aliases: [semver, breaking change policy, upgrade safety]
+aliases: [semver, breaking change policy, upgrade safety, migration guide, breaking change guide]
 ---
 
 <PageTemplate kind="project" />
@@ -55,7 +55,8 @@ time.
   variables share a cascade with ours on this site and are not part of the
   system. [ADR 0004](./decisions/0004-lyra-docs-chrome.mdx) explains why they
   look different on purpose.
-- **Alpha components**, which are exempt by definition. See
+- **A `shipped` component's API**, which may change in any release with a
+  changelog entry rather than a deprecation cycle. See
   [Release phases](./release-phases.mdx).
 
 ## Before 1.0
@@ -95,9 +96,14 @@ deprecation.
 
 ### It is removed
 
-In the release named when it was deprecated, with a changelog entry and, where
-the change is more than a rename, a
-[migration guide](./migration/index.mdx).
+In the release named when it was deprecated, with a changelog entry. A change
+that a reader cannot act on from a paragraph gets a written guide as well, and
+in practice that means one of four things: the rendered DOM moved, so
+stylesheets and end-to-end selectors move with it; a `data-*` attribute or a CSS
+custom property was renamed, which no type checker will catch; a clinical
+contract changed, which is a reason to re-run a safety review rather than a code
+edit; or the upgrade cannot be done in one step and the intermediate state has
+to be described. No release has needed one yet.
 
 </Steps>
 
@@ -105,13 +111,11 @@ the change is more than a rename, a
 
 **In the code you own. This is the weak link today.** An out-of-date copy of
 a component in your repository does not announce itself the way a version range
-in a lockfile does. The intended answer is a
-[version stamp](../registry/version-stamps.mdx): one comment at the top of every
-emitted file naming the item and the version it was copied at, so that a tool or
-a person can diff a copy against its origin. **Nothing emits it yet**, and that
-page says why. Until it does, the only record of which version you copied is the
-one you write down yourself. A note in the pull request that installed it is
-enough, and it is worth doing.
+in a lockfile does. Nothing in the file records where it came from, so the only
+record of which version you copied is the one you write down yourself: run
+`shadcn add` in its own commit naming the item and the date, and put your own
+changes in the next one. [Upgrades and
+diffs](../registry/upgrades-and-diffs.mdx) sets that habit out in full.
 
 **In the documentation.** There is one published copy of every page and it
 describes the current version. The site keeps no per-version archive, so there

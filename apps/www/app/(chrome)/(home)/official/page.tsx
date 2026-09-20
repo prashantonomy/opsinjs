@@ -144,10 +144,11 @@ export default function OfficialPage() {
               scheme are all reasons to stop.
             </p>
             <p>
-              <strong>Check the version stamp in the file.</strong> Every
-              emitted file will carry a comment naming the component and the
-              version it came from, so a file in your repository can be traced
-              back to a release rather than to “sometime last year”.
+              <strong>Check your own commit history.</strong> Nothing in an
+              emitted file names where it came from, so run the install in its
+              own commit naming the item and the date. That commit is what lets
+              a file in your repository be traced back to a release rather than
+              to “sometime last year”.
             </p>
             <p>
               <strong>Check the licence.</strong> The code is MIT and the

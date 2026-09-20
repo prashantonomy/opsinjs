@@ -28,22 +28,22 @@ health* and what happens when it is wrong; a prop table does not answer either.
 
 ## How it works
 
-### The maturity ladder
+### The three release phases
 
-Nothing arrives as `stable`. Every component climbs:
+Every component arrives the same way:
 
-`considered` → `planned` → `alpha` → `beta` → `stable`
+`planned` → `shipped` → `deprecated`
 
-- **`considered`** is a row in the catalogue with a name, a one-line definition
-  and a reason. No page, no code. Anyone can propose one.
 - **`planned`** is a full specification page: intent, when not to use it naming
   the alternative, the clinical contract, the proposed anatomy, the proposed API
   and the accessibility bar. Still no code. No id sits at `planned` today,
-  because all sixty have code, twenty-five at `beta` and thirty-five at `alpha`.
-- **`alpha`** means code exists. The API will change.
-- **`beta`** means the API is settled; the measured numbers are being filled in.
-- **`stable`** means all 22 sections of the component anatomy render, and semver
-  applies.
+  because every catalogue row is implemented and installable.
+- **`shipped`** means code exists, it installs, and the API may change in any
+  release. No opsinjs component has had an accessibility review or a clinical
+  review. `shipped` means the source installs, and it does not mean either review
+  has happened. Nothing here is for a production health surface.
+- **`deprecated`** means the code still installs, a replacement is named, and a
+  removal version is named.
 
 What each phase promises is set out in [Release
 phases](../../project/release-phases.mdx). The important consequence for a
@@ -103,13 +103,13 @@ on any diff. See [ADR
   absence.
 - **Do not copy NHS or other Crown-copyright text.** Cite it; write your own.
   See [Licence and attribution](../../project/licence-and-attribution.mdx).
-- **Do not add a component because a competitor has one.** The catalogue has a
-  `considered` roster precisely so that "we thought about it and decided not to"
-  is a recordable answer.
+- **Do not add a component because a competitor has one.** A recorded decision
+  not to build something is a real outcome, and saying so in a proposal costs
+  nothing.
 - **Do not hand-edit a generated file.** It will be overwritten and the diff
   will fail CI.
-- **Do not add a page without a `status` and a `kind`.** The build will reject
-  it, and the rejection is deliberate.
+- **Do not add a page without a `kind`**, or a component page without a
+  `status`. The build will reject either, and the rejection is deliberate.
 
 ## Gotchas
 

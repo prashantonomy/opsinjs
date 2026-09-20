@@ -10,10 +10,10 @@ icon: Boxes
 **Every component in the catalogue is implemented and installable.** Each has a
 file under `registry/bases/base/`, a registry item the shadcn CLI copies into a project,
 and a page that documents the cases it refuses as carefully as the ones it serves. Every
-one is `alpha` or `beta`, and no further: none has been through an independent
+one is `shipped`, and no further: none has been through an independent
 accessibility or clinical review, none is ready for a production health surface, and each
 page lists what has not been measured rather than implying it has been. That status is on
-every page in prose, in a badge, and in a machine-readable marker, at a URL you can guess
+every component page in prose and in machine-readable form, at a URL you can guess
 from the component name.
 
 That is what this page is for. The failure it exists to prevent is an agent, or a
@@ -29,11 +29,11 @@ advice`, `ago`.
 
 <StatusMatrix />
 
-**Status is a promise about change, not a quality score.** `alpha` means the code exists
-and is documented, and the API may move in any release without a deprecation cycle.
-`beta` means it breaks only in a minor release with a documented migration.
-[Release phases](../project/release-phases.mdx) has the full ladder, which sets out what
-each phase promises about semver, accessibility and the registry.
+**Status is a promise about change, not a quality score.** `shipped` means the code
+exists and is documented, and the API may move in any release. It says nothing about
+whether anybody has reviewed it, and nobody has.
+[Release phases](../project/release-phases.mdx) sets out what the three phases promise
+about semver, the page's own outline and the registry.
 
 **Category does two jobs.** It groups the sidebar, and it is load-bearing: any category
 beginning with `health-` makes the **Clinical meaning** section and the `governedBy`
@@ -54,7 +54,7 @@ If you are choosing a component, the decision table in
 component that displays it. Reading that table is faster than reading every page.
 If you are writing or reviewing one of these pages, read
 [Anatomy of a component page](./anatomy-of-a-component-page.mdx); it publishes the
-22-section contract once so you fill in a template instead of inventing a structure. If
+seventeen-section contract once so you fill in a template instead of inventing a structure. If
 you are here to judge whether opsinjs is worth building on, read
 [RangeBar](./range-bar.mdx): it carries the most detailed clinical contract in the set and
 it is the component the rest of the system is arranged around.

@@ -76,7 +76,7 @@ import { Tooltip } from "@/components/ui/tooltip"
   ]}
 />
 
-The exclusion that matters is the first, and it is the reason this component sat on the considered roster for so long. A tooltip is invisible on a touch screen, so anything it carries that a reader needs to act is a barrier for the readers who cannot reach it. The test to apply before reaching for a tooltip is simple: if the control cannot be used without the label, the label is not supplementary and does not belong in a tooltip. Put it on the surface, in a [Callout](./callout.mdx) or beside the control, where a thumb finds it.
+The exclusion that matters is the first, and it is the reason this component was left unbuilt for so long. A tooltip is invisible on a touch screen, so anything it carries that a reader needs to act is a barrier for the readers who cannot reach it. The test to apply before reaching for a tooltip is simple: if the control cannot be used without the label, the label is not supplementary and does not belong in a tooltip. Put it on the surface, in a [Callout](./callout.mdx) or beside the control, where a thumb finds it.
 
 The second and third exclusions keep a tooltip from standing in for two components that keep their content in the reading order. A [Term](./term.mdx) attaches a plain-English meaning to a clinical word without leaving the sentence and never removes that meaning from the accessibility tree, which is exactly what a tooltip would do. A [Field](./field.mdx) carries a hint that is part of the control and read with it. A tooltip is the right tool only when the content is genuinely optional and the control already names itself.
 
@@ -176,7 +176,7 @@ Never put the one fact a control cannot be used without in a tooltip. If the ico
 
 ## Accessibility
 
-Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. At `alpha`, accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user, and the largest limit, that a touch reader never sees a tooltip, is a property of the platform rather than a defect to fix, which is why the whole component is built around carrying nothing essential.
+Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. Accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user, and the largest limit, that a touch reader never sees a tooltip, is a property of the platform rather than a defect to fix, which is why the whole component is built around carrying nothing essential.
 
 **Checked, by `pnpm run check:a11y`:**
 

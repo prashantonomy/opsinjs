@@ -1,116 +1,93 @@
 ---
 title: Release phases
-description: The five statuses are planned, alpha, beta, stable and deprecated, with exactly what each one promises.
+description: The three statuses are planned, shipped and deprecated, with exactly what each one promises and what none of them promises.
 kind: project
-reviewed: 2026-09-02
+reviewed: 2026-09-20
 reviewer: engineering
 reviewEvery: 12m
-aliases: [status badge meaning, what planned means, maturity, phases]
+aliases: [status badge meaning, what planned means, what shipped means, phases]
 ---
 
 <PageTemplate kind="project" />
 
-## One vocabulary, five values
+## One vocabulary, three values
 
-Every page on this site carries a status badge, and every catalogue row carries
-the same word. There are five values, they are ordinal, and they are defined
-once:
+A `kind: component` page carries a `status` in its frontmatter, and the row for
+that component in `registry/catalogue.ts` carries the same word. Those are the
+only two places the word appears. No other page has a status, because on a page
+about colour or consent the field was describing the prose rather than anything
+a reader could install.
 
-```text
-planned → alpha → beta → stable
-                   ↘ deprecated
-```
-
-The word is not a mood. It determines which sections a component page is required
-to render, what the versioning policy promises about the code, and whether you
-should be writing production code against it today.
+| Phase | It exists as | What the API promises | Should you use it |
+| --- | --- | --- | --- |
+| `planned` | A written specification, no code | Nothing. The proposed API is a sketch | Design against it. Do not code against it |
+| `shipped` | Installable source in the registry | It may change in any release, with a changelog entry | Yes, if you can take an undeclared migration |
+| `deprecated` | Installable source, on its way out | Frozen, with a named replacement and a named removal version | No, for anything new |
 
 <Callout>
 **Do not confuse this with clinical status.** The four clinical levels are
 steady, watch, attention and urgent, and they describe a person's data. These
-five describe our software. The collision is unfortunate and it is why the
+three describe our software. The collision is unfortunate and it is why the
 [system glossary](../reference/system-glossary.mdx) lists both words separately.
 </Callout>
 
-## What each phase promises
+## What `shipped` does not mean
 
-| Phase | It exists as | API stability | Should you use it |
-| --- | --- | --- | --- |
-| `planned` | A written specification | None. The proposed API is a sketch | Design against it. Do not code against it |
-| `alpha` | Working code, incomplete | Breaks in any release | Only in a prototype |
-| `beta` | Working code, complete surface | Breaks only in a minor, with a note | Yes, if you can take a documented migration |
-| `stable` | Working code under the full policy | [Semver](./versioning-policy.mdx) | Yes |
-| `deprecated` | Working code, on its way out | Frozen; removal announced | No, for anything new |
+No opsinjs component has had an accessibility review or a clinical review.
+`shipped` means the source installs, and it does not mean either review has
+happened. Nothing here is for a production health surface.
 
-### `planned`
+This is the whole reason there is no fourth word between `shipped` and
+`deprecated`. A phase ladder with a rung above `shipped` would have implied that
+some components had climbed it, and none has. Each component page says what has
+been checked on that component and what has only been argued, in its own
+`## Accessibility` section and its own `<StubNotice>`, and that per-component
+statement is the thing to read before you depend on anything. A single word in
+frontmatter cannot carry it.
 
-A real specification with no implementation: intent, when *not* to use it naming
-the alternative, the clinical contract, the proposed anatomy, the proposed API,
-and the accessibility bar the implementation must clear. The page renders its
-header, a stub notice, a disabled preview and install block, when-to-use, the
-clinical meaning, the anatomy, the proposed API, the content guidelines, the
-accessibility requirements and the related components. It omits the sections
-that would require code to exist, rather than leaving them empty.
+## What each phase requires of the page
 
-Every `planned` page emits a machine-readable not-implemented marker, so an agent
-reading this site can tell a specification from a component without parsing
+`planned` owes ten sections: Status, Preview, Installation, When to use it,
+Clinical meaning for a `health-*` category, Anatomy, Proposed API, Content
+guidelines, Accessibility and Related. The sections that would need code to be
+truthful are **omitted, not left empty**. An empty heading is a promise nobody
+kept; an absent heading is an accurate description of a component that does not
+exist. Every `planned` page also carries `<NotBuiltYet>`, the machine-readable
+marker that lets an agent tell a specification from a component without parsing
 English.
 
-**To reach `alpha`:** it is implemented, it renders, and it has an example.
+`shipped` and `deprecated` owe the same seventeen sections, five of which are
+optional. They point at one outline on purpose: retiring a component is then a
+frontmatter change and nothing else, rather than a content edit nobody has time
+for. [Anatomy of a component page](../components/anatomy-of-a-component-page.mdx)
+has the full table and says which five are optional.
 
-### `alpha`
+`<PageTemplate>` fails the build when a required section is missing, so the
+status is a claim the build enforces rather than a label somebody set once.
 
-Code exists. The API will change without a deprecation. The page gains usage, its
-examples and a generated props table. Accessibility is claimed only where it has
-been checked, and the gaps are listed rather than omitted.
+## Moving between them
 
-**To reach `beta`:** the API surface is complete, the states matrix renders, the
-data attributes and CSS variables are documented and generated, and the
-component's keyboard table exists.
+A page reaches `shipped` in the commit that gives it code. The component's file
+under `registry/bases/base/` renders, `pnpm typecheck`, `pnpm lint` and
+`pnpm check` pass, `<NotBuiltYet>` and every `<Todo>` come off the page, and the
+page's `status` and its catalogue row move together in that one commit. Nothing
+is half-promoted, because the two sources of the word would then disagree and a
+reader would have no way to tell which one was stale.
 
-### `beta`
+A page reaches `deprecated` when the replacement exists. A deprecated page names
+that replacement, the version that deprecated it and the version that will
+remove it, and it appears on the [deprecations](./deprecations.mdx) list from the
+day it is marked. Nothing is removed without at least one release carrying the
+deprecation first.
 
-The surface is complete and we expect to keep it, but we will still break it in a
-minor release if we find something wrong. Every such break carries a changelog
-entry and a migration note. Everything except the accessibility audit and the
-bundle-size budget is in place.
+## What a documentation page carries instead
 
-**To reach `stable`:** the accessibility bar on its page is met and measured, the
-contrast pairs it uses pass the published floor in both themes, its bundle cost
-is generated, and it has shipped in at least one real product.
-
-### `stable`
-
-All twenty-two sections of the component page render, every generated table has
-real data behind it, and the full [versioning policy](./versioning-policy.mdx)
-applies. That policy covers the DOM it renders, the `data-*` attributes it emits
-and the CSS custom properties it exposes.
-
-### `deprecated`
-
-Still works, still documented, no longer recommended. A deprecated page names its
-replacement, the version that deprecated it and the version that will remove it,
-and it appears on the [deprecations](./deprecations.mdx) list from the day it is
-marked. Nothing is removed without at least one release carrying the deprecation.
-
-## Why the page gates on the status
-
-`<PageTemplate>` fails the build when a section required at the declared status
-is missing. A component cannot be marked `stable` and quietly omit its
-accessibility section, and a `planned` page cannot rot into twenty-two headings
-with three sentences under each. The status is therefore a claim the build
-enforces, not a label somebody set once.
-
-## Statuses on documentation pages
-
-Pages that are not about a component use the same five words, with the obvious
-reading: `stable` means we stand behind this text and have re-read it on the
-cadence its kind sets. `planned` describes the page's *subject*, not the state of
-its writing. A recipe, a pattern or a screen specimen sits at `planned` while
-nobody has assembled the thing it describes, however finished the prose is, and
-it carries a `<Todo>` for each gap it knows about rather than implying there are
-none. [Docs freshness](./docs-freshness.mdx) covers the other half of the
-question, which is how recently a `stable` page was actually re-read.
+A page that is not about a component states its own freshness rather than a
+phase. `reviewed`, `reviewer` and `reviewEvery` are the fields, and
+[Docs freshness](./docs-freshness.mdx) is how they are enforced. A recipe, a
+pattern or a screen specimen describing something nobody has assembled says so in
+a `<Todo>` or a `<StubNotice>` on the page, which names the specific gap rather
+than hiding it behind a word that meant six different things.
 
 <LastUpdated />
 

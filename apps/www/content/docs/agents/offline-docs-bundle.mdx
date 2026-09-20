@@ -19,7 +19,7 @@ reachable.
 
 `/r/docs.json` is one request that returns as much of the corpus as fits inside
 a size budget: the processed markdown of each page it carries, that page's
-frontmatter, and the version stamp identifying the build it came from. It is
+frontmatter, and the docs version identifying the build it came from. It is
 capped, and today it is truncated. The response says so about itself. `total`,
 `included`, `omitted`, `truncated` and `truncationNote` are top-level fields,
 and reading them is the difference between vendoring a corpus and vendoring a
@@ -123,14 +123,14 @@ carries moves as the corpus grows, so two bundles at the same version are the
 same text and two at different versions may not even be the same pages.
 
 <Callout>
-The most important field on every page in this bundle is `status`. A built
-component reads `beta` or `alpha`, the source is in its registry item, and today
-that covers every component: twenty-five are at `beta` and thirty-five at
-`alpha`. A `considered` entry would be a reserved name with nothing behind it,
-and the considered roster is empty right now because every name has been built
-to at least `alpha`. An agent working from a stale bundle a year from now must
-be able to discover that the world has moved. The version stamp is how it finds
-out, and `status` is what will have changed.
+The most important field on a component page in this bundle is `status`. A built
+component reads `shipped` and the source is in its registry item, and today that
+covers every component. No opsinjs component has had an accessibility review or a
+clinical review. `shipped` means the source installs, and it does not mean either
+review has happened. Nothing here is for a production health surface. An agent
+working from a stale bundle a year from now must be able to discover that the
+world has moved. The docs version is how it finds out, and `status` is what will
+have changed.
 </Callout>
 
 ## Using it in an air-gapped build
@@ -177,10 +177,11 @@ the rest.
 
 ### A known page is present with its status
 
-Look up a component page and confirm it carries a `status`: `beta` or `alpha`
-for a built component, since all sixty are built and the considered roster is
-empty. A page present with no `status` is a bug worth reporting. A page absent
-altogether is usually the cap. Check `omitted` before reporting anything.
+Look up a component page and confirm it carries a `status`, which reads
+`shipped` for a built component. A component page present with no `status` is a
+bug worth reporting, and a page that is not a component carries none by design. A
+page absent altogether is usually the cap. Check `omitted` before reporting
+anything.
 
 ### The page bodies are under `markdown`
 

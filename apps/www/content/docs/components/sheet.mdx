@@ -21,7 +21,7 @@ usedIn: [alert-escalation, consent-and-permissions, consent-flow, daily-log-entr
     "The close control's label and the grabber's accessible name are the two words the sheet ships of its own, and there is no prop that translates either. Every other string in a sheet is the product's. Where does a component's own copy go when the product is not in English?",
     "The software-keyboard handling is Base UI's `VirtualKeyboardProvider` plus a padded viewport. It has not been exercised on a device with a software keyboard and a visual viewport, so the claim that the primary action is never covered is argued rather than observed.",
     "`onOpenChange` reports which route a close arrived by, so a product can ask before discarding unsaved input. Nothing in opsinjs shows that confirmation. It would be a Dialog opening from a Sheet, which this page calls a composition error. What is the shape of the answer?",
-    "Nothing in this component has been measured in a browser. Everything claimed below is argued from its own source and from Base UI's, which is the honest ceiling for `alpha`. Given that ceiling, what gets measured first: the hit areas, the keyboard behaviour on a real device, or the scroll chaining on iOS?",
+    "Nothing in this component has been measured in a browser. Everything claimed below is argued from its own source and from Base UI's, which is the honest ceiling until somebody measures it. Given that ceiling, what gets measured first: the hit areas, the keyboard behaviour on a real device, or the scroll chaining on iOS?",
   ]}
 >
   <code className="text-sm">sheet</code> is implemented and installable.
@@ -505,7 +505,7 @@ withhold, never something Sheet does to a number that has already arrived.
 ## Accessibility
 
 Some of this is checked by a gate and the rest is an argument. They are separated below because
-`beta` promises that accessibility is claimed only where it has been checked, with the gaps
+a component page claims accessibility only where it has been checked, with the gaps
 listed rather than left out.
 
 **Checked, by `pnpm run check:a11y` on every pull request and every push to `main`:**

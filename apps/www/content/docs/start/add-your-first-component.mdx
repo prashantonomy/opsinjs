@@ -25,7 +25,8 @@ it, that is here too, at the bottom.
   there will not be one, and `opsinjs.pensievelabs.org` is not serving yet, so
   `@opsinjs` resolves only once you point it at a host that is serving.
   [components.json](./installation/components-json.mdx) has the entry. The
-  component is `alpha`: the API will change without a deprecation, so use it in
+  component is `shipped`: the API may change in any release, and it has had no
+  accessibility review and no clinical review, so use it in
   a prototype and not in front of a patient.
 </Callout>
 
@@ -80,6 +81,14 @@ Three checks, in order of how much they tell you:
    The pill must still say which level it is, in words and by its icon. If it does
    not, the token layer loaded but the component is being used wrongly. Colour
    is never the only carrier of clinical status.
+
+<Todo>
+Nobody has walked this path end to end against a published registry host. Every
+step below was verified against a local registry server, so what is unverified is
+the one thing a reader cannot substitute for themselves: that `@opsinjs` resolves,
+that the item fetches over the network, and that the file `shadcn add` writes is
+byte for byte the file this repository serves.
+</Todo>
 
 ## Troubleshooting
 

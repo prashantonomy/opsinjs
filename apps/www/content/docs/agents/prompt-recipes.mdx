@@ -25,13 +25,14 @@ it, prepend the six rules from
 [Rules for agents](./rules-for-agents.mdx) to each one.
 
 <Callout>
-All sixty catalogue entries have source behind them: twenty-five at `beta` and
-thirty-five at `alpha`. The considered roster is empty, because every name once
-reserved has been built to at least `alpha`. So the correct outcome of every
-recipe below depends on the status of the id it lands on. For a built id the
-assistant may install the component and write against it. Were an id ever
-`considered` again, it should describe the specification and refuse to emit an
-import, because code produced for a `considered` id is fiction however plausible
+Every catalogue row is implemented and installable, and none has been reviewed.
+So the correct outcome of every
+recipe below depends on the status of the id it lands on. For a `shipped` id the
+assistant may install the component and write against it, provided it also says
+that the API may change in any release and that no accessibility review and no
+clinical review has happened. For a `planned` id it should describe the
+specification and refuse to emit an import, because code produced for a
+specification is fiction however plausible
 it looks. Checking the status before reading the code is the cheapest way to
 catch it.
 </Callout>
@@ -41,7 +42,7 @@ catch it.
 <PromptRecipe
   title="Inventory first"
   prompt="Using the opsinjs registry, list every component whose category begins with health-, with its status. Do not write any code."
-  expects="A list of component ids and titles, each marked `beta` or `alpha`. No imports, no JSX, no invented components."
+  expects="A list of component ids and titles, each marked `shipped`. No imports, no JSX, no invented components."
 />
 
 Separating discovery from generation is the single highest-value habit. A model
@@ -147,9 +148,9 @@ output; constraints the model is improvising around produce variety.
 **The assistant follows the rules at first and drifts.** Attention decays over a
 long session. Re-anchor before each generation step, or split the work.
 
-**It refuses too much.** Read the status before calling it over-caution. The
-considered roster is empty today, so every catalogue id is built at `beta` or
-`alpha`, and refusing to emit component code for one means the rules have been
+**It refuses too much.** Read the status before calling it over-caution. Every
+catalogue id is built and `shipped`, so refusing to emit component code for one
+means the rules have been
 applied without the catalogue in context. Supply the inventory step's output. If
 it also refuses to *describe* the specification, the prompt has been read as a
 request for code.
