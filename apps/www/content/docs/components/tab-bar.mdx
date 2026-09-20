@@ -10,44 +10,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="tab-bar"
   status="shipped"
   questions={[
-    "No contrast pair has been measured for the current-destination treatment against the overlay material. The current destination is told apart by a heavier label, a top indicator bar in the foreground ink and a lift from the muted role to the foreground role, and whether that reads as current in greyscale rests on a lightness change and a boundary rather than on a measurement taken on the surfaces the bar sits on.",
-    "Nobody has listened to this bar in a screen reader. It renders a nav landmark with an accessible name and a list of destinations, and the current one carries aria-current=\"page\"; whether a real assistive technology announces the landmark, the item count and the current state in the register a reader expects has not been checked.",
-    "The safe area is padded with env(safe-area-inset-bottom), which resolves to a real value only once the product sets viewport-fit=cover on its viewport meta. That has not been tested on a notched device, so whether the bar clears the home indicator on hardware rather than in a simulator is unverified.",
-    "Forced colours and prefers-contrast: more are unhandled. The indicator is drawn in the foreground ink and the current state is a lightness lift, and a forced-colours palette replaces both with the platform's own colours, so whether the current destination survives that mode has not been tested.",
-    "Bar height and content clearance at 200% text with a fixed-position bar are unmeasured, so whether a screen's own bottom padding still clears a bar that has grown taller has not been checked.",
+    "No contrast pair has been measured for the current-destination treatment against the overlay material, so whether it reads as current in greyscale is unverified.",
+    "Nobody has listened to this bar in a screen reader, so whether the landmark, the item count and the current state are announced is unchecked.",
+    "Forced colours and prefers-contrast: more are unhandled, and whether the current destination survives a palette that replaces both carriers has not been tested.",
   ]}
 >
-  <code className="text-sm">tab-bar</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">tab-bar</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-TabBar is the persistent bar of top-level destinations at the foot of a phone screen. It
-moves the reader between whole sections of an app, one of which is current at any moment,
-and it is reachable by the thumb on the small mobile surface a bottom bar belongs to.
-
-It is presentational, and application navigation is the product's decision. The bar
-reports which destination the reader chose through `onValueChange` and shows the
-product's answer back through `value`, so what a choice actually does, and whether it
-changes the address bar, stays with the app that renders it. That split is the whole
-reason a design system can ship a bar at all without shipping a router.
-
 ## Preview
-
-A four-destination bar with one destination current. The thing worth checking is that
-the current destination is marked without a colour doing the work, so read it in
-greyscale: the current item carries a heavier label, a short indicator bar along its top
-edge and a lift from the muted ink to the foreground ink, and underneath all three it
-carries `aria-current="page"`. Check too that every destination is at least a 44pt
-target on both axes.
 
 <ComponentPreview name="tab-bar" />
 
@@ -60,11 +37,6 @@ target on both axes.
   dependencies={["lucide-react"]}
   registryDependencies={["surface"]}
 />
-
-The bar is built on [Surface](./surface.mdx) at the `overlay` rung, which is where its
-material, translucency and hairline come from, so installing it pulls in `surface`. The
-`lucide-react` dependency is for the demo icons only: the component takes each icon as a
-node, so your own icon set works without it.
 
 ## Usage
 
@@ -90,31 +62,15 @@ import { TabBar } from "@/components/ui/tab-bar"
 
 <WhenToUse
   use={[
-    "Moving between two to five top-level sections of a phone app, where the destinations are peers and the reader expects a persistent bar at the foot of the screen.",
-    "Keeping the whole set of destinations in view so the reader always knows where they are and can reach any section in one tap.",
-    "A bar the reader returns to constantly, which is why it stays pinned rather than folding away behind a control they have to open.",
+    "Moving between two to five top-level sections of a phone app, where the destinations are peers.",
+    "Keeping the whole set of destinations in view, so any section is one tap away.",
   ]}
   avoid={[
-    { case: "Switching between views that live inside one screen and share its space, rather than moving between whole top-level destinations.", instead: "tabs" },
-    { case: "Setting one parameter of a single view, such as a chart's day, week or month window, where nothing navigates.", instead: "segmented-control" },
-    { case: "Offering more than five destinations, or hiding a further list behind a \"More\" tab, because a persistent bar reads as one glanceable set and an overflow buries what it holds.", instead: "menu" },
+    { case: "Switching between views that live inside one screen and share its space.", instead: "tabs" },
+    { case: "Setting one parameter of a single view, such as a chart's day or week window.", instead: "segmented-control" },
+    { case: "More than five destinations, or a \"More\" tab, which buries a safety relevant action.", instead: "menu" },
   ]}
 />
-
-The exclusion that matters most is the first, and it is a question about what the choice
-moves the reader between. TabBar moves between whole destinations, each its own screen
-with its own address. [Tabs](./tabs.mdx) switch between views that occupy the same space
-within a single screen, and [SegmentedControl](./segmented-control.mdx) sets one
-parameter of a view that stays put. If the choice stays inside one screen, it is not a
-tab bar.
-
-The second thing to hold firm is the count. Two to five destinations is the range a
-persistent bar can carry and still be read at a glance, and the bar warns in development
-outside it rather than growing an overflow. This is not only a layout preference. A
-safety relevant action, such as reporting a severe reading or reaching help, must never
-be hidden behind a "More" tab or any overflow the bar could sprout, because an action a
-reader cannot see is an action they cannot take in the moment they need it. If the
-sections outgrow five, the fix is the app's information architecture, not a longer bar.
 
 ## Anatomy
 
@@ -123,22 +79,22 @@ sections outgrow five, the fix is the app's information architecture, not a long
   parts={[
     {
       name: "TabBar",
-      describes: "A nav element rendered inside a Surface at the overlay rung; the Surface is the root and the nav nests within it. Carries data-slot=\"tab-bar\" and the accessible name from label. It draws only neutral chrome, the overlay material and a hairline, and carries neither data-status nor data-category, because a destination is not a reading.",
+      describes: "A nav element inside an overlay Surface, named by label. Neutral chrome only, with no status or category axis.",
       prop: "label",
     },
     {
       name: "TabBar.Item",
-      describes: "One destination. It is an anchor when the item's href is set and a button otherwise. The current destination carries aria-current=\"page\" and is marked without colour alone, by a heavier label, a top indicator bar and a lift from the muted ink to the foreground ink. data-slot=\"tab-bar-item\". Each item floors its target at the 44pt minimum on both axes.",
+      describes: "One destination. An anchor when href is set, a button otherwise. Floors its target at the 44pt minimum.",
       prop: "items",
     },
     {
       name: "TabBar.ItemIcon",
-      describes: "The destination's icon, an aria-hidden wrapper around the node you pass, because the label carries the accessible name. data-slot=\"tab-bar-item-icon\".",
+      describes: "The destination's icon, aria-hidden, because the label carries the accessible name.",
       prop: "items",
     },
     {
       name: "TabBar.ItemLabel",
-      describes: "The destination's visible words and the item's accessible name. data-slot=\"tab-bar-item-label\".",
+      describes: "The destination's visible words, and the item's accessible name.",
       prop: "items",
     },
   ]}
@@ -150,28 +106,20 @@ sections outgrow five, the fix is the app's information architecture, not a long
     {
       part: "Surface",
       cardinality: "1",
-      note: "rung=\"overlay\", data-slot=\"surface\"; supplies the material and the hairline. The product positions the whole bar through className, which merges onto this root.",
+      note: "rung=\"overlay\"; supplies the material and the hairline, and takes className",
       children: [
         {
           part: "TabBar",
           cardinality: "1",
-          note: "the nav element, data-slot=\"tab-bar\", aria-label from label; wraps a role=\"list\" list of destinations",
+          note: "the nav element, aria-label from label, wrapping a role=\"list\" list",
           children: [
             {
               part: "TabBar.Item",
               cardinality: "2..5",
-              note: "an anchor when href is set, otherwise a button; data-slot=\"tab-bar-item\", aria-current=\"page\" on the current one",
+              note: "anchor or button; aria-current=\"page\" on the current one",
               children: [
-                {
-                  part: "TabBar.ItemIcon",
-                  cardinality: "1",
-                  note: "data-slot=\"tab-bar-item-icon\", aria-hidden",
-                },
-                {
-                  part: "TabBar.ItemLabel",
-                  cardinality: "1",
-                  note: "data-slot=\"tab-bar-item-label\"",
-                },
+                { part: "TabBar.ItemIcon", cardinality: "1", note: "aria-hidden" },
+                { part: "TabBar.ItemLabel", cardinality: "1" },
               ],
             },
           ],
@@ -181,94 +129,59 @@ sections outgrow five, the fix is the app's information architecture, not a long
   ]}
 />
 
-The parts are identified by `data-slot` and are styleable from outside; none is an
-export, and there is no way to render a destination without the bar. The current
-destination is marked three ways so that none is load-bearing alone: `aria-current="page"`
-for assistive technology, a heavier label and an ink lift for a sighted reader, and a
-short indicator bar along the top edge for greyscale and for a reader stylesheet that
-strips fills. That indicator is a decorative `aria-hidden` span drawn in the foreground
-ink; it deliberately has no `data-slot`, because the closed set is `tab-bar`,
-`tab-bar-item`, `tab-bar-item-icon` and `tab-bar-item-label`, and this bar does not mint
-a fifth.
-
 ## Examples
 
 ### Four destinations
 
-The primary case: a bar of four peer destinations, each an icon over a one-word label,
-with one current. Choosing a destination reports its key through onValueChange, which
-the surrounding screen stores and passes back. Read it in greyscale to confirm the
-current destination is legible without a colour.
+Four peer destinations, each an icon over a one-word label, with one current.
+`onValueChange` reports the chosen key, which the screen passes back as
+`value`. Read it in greyscale.
 
 <ComponentPreview name="tab-bar-four-destinations" kind="example" align="start" />
 
 ### Destinations as links
 
-The same bar with an href on each destination, so it is built from anchors and a
-product router can act on the navigation. It is pinned to the foot of a framed scroll
-container here, which is how a product positions it through className, and the
-safe-area padding along the bottom is the part that clears a phone's home indicator.
+An `href` on each item builds the bar from anchors, so a product router acts on
+the navigation. Pinned through `className`, with safe-area padding clearing the
+home indicator.
 
 <ComponentPreview name="tab-bar-with-links" kind="example" align="start" />
 
 ## Content guidelines
 
-Keep the labels short, parallel and in sentence case: one noun each, naming the section
-rather than instructing the reader, so the bar reads as one set of peers. Pair each with
-an icon that reinforces the word rather than replacing it, because an icon alone leaves
-a reader guessing and a label alone in a cramped bar is easy to miss. Do not change a
-destination's wording between screens, because a reader who learnt that this bar has
-"Trends" should not meet "Charts" meaning the same section elsewhere.
-
-Hold the bar to the destinations a reader needs constantly, and keep any safety
-relevant action out on a surface where it is always visible rather than folded into the
-bar or an overflow it might grow. Order the destinations the way the reader moves
-through the app, with the home or default section first, and do not reorder them
-between visits, because a bar whose stops move is a bar nobody can build muscle memory
-for.
+One short noun per destination, in sentence case, paired with an icon that
+reinforces the word rather than replacing it. Do not change a destination's
+wording or its position between visits. Order from the default section outward,
+and keep any safety relevant action on a visible surface instead.
 
 <DoDont>
   <DoDont.Do>
-    **"Home" · "Trends" · "Learn" · "Settings"** Four peer sections, each a single noun
-    with a matching icon, ordered from the default screen outward, so the bar reads at
-    a glance and each tap lands where the reader expects.
+    **"Home", "Trends", "Learn", "Settings"** Four peer nouns, ordered from the default screen outward.
   </DoDont.Do>
   <DoDont.Dont>
-    **"Home" · "Trends" · "Learn" · "Settings" · "More"** A fifth stop that hides
-    everything the bar could not fit, including whatever safety action got squeezed
-    out, so the reader cannot see the action they need until they open a menu they did
-    not know held it.
+    **"More"** as a fifth stop, hiding whatever the bar could not fit, including a safety action.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-The bar is a navigation landmark: it renders a `<nav>` with an accessible name from
-`label`, so a screen-reader user can jump to it and hear what it navigates before its
-destinations. `label` is required, because a nav with no name is one of several unnamed
-landmarks a reader has to tell apart by trial. A missing or empty `label` raises a
-development warning rather than rendering an unnamed landmark.
+**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
+token, no type size is in `px`, and no banned word appears anywhere.
 
-Each destination is its own tab stop, which is the opposite of
-[SegmentedControl](./segmented-control.mdx). A segmented control is a radiogroup and one
-tab stop, because its options set one parameter and a reader arrows between them. A tab
-bar is navigation, where every destination is a peer a reader should be able to reach
-directly, so Tab steps through them and the current one carries `aria-current="page"`.
-That attribute, not any pixel, is what tells assistive technology which section the
-reader is in.
+**Argued from the source, not measured.**
 
-The current state is carried three ways so none stands alone: `aria-current="page"` for
-assistive technology, a heavier label and a lift from the muted ink to the foreground
-ink for a sighted reader, and a short indicator bar for greyscale and for a reader
-stylesheet that strips fills. Each destination floors its target at
-`--opsin-target-minimum` in rem on both axes, so a 44pt region survives and grows with
-the reader's text size rather than pinning at a device pixel, and the focus ring is
-carried in the item's own class list rather than left to the product stylesheet. What is
-not yet checked is listed rather than left out, and it matches the open questions at the
-top of this page: no contrast pair has been measured for the current treatment against
-the overlay material; nobody has listened to the bar in a screen reader; the safe-area
-padding has not been tested on a notched device; and there is no `forced-colors` or
-`prefers-contrast: more` rule.
+- A `nav` landmark named by `label`. An empty `label` raises a development
+  warning rather than rendering an unnamed landmark.
+- Every destination is its own tab stop, unlike a segmented control's single
+  roving stop, because each one should be reachable directly.
+- The current state has three carriers: `aria-current="page"`, a heavier label
+  in the foreground ink, and a top indicator bar.
+- Each destination floors its target at `--opsin-target-minimum` in rem, so
+  44pt survives and grows with the reader's text size.
+
+**Not checked by any gate.** Contrast for the current treatment on the overlay
+material, screen-reader behaviour, and the safe-area padding on real hardware.
+Nor `forced-colors`, `prefers-contrast: more`, or bar height at 200% text.
 
 <KeyboardTable
   name="tab-bar"
@@ -276,27 +189,27 @@ padding has not been tested on a notched device; and there is no `forced-colors`
     {
       keys: "Tab",
       action: "Moves focus to the next destination",
-      notes: "Each destination is its own tab stop, because a tab bar is navigation and every destination is independently reachable, unlike a radiogroup with one roving stop.",
+      notes: "Each destination is its own tab stop, not a roving one.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves focus to the previous destination",
-      notes: "Focus steps back through the destinations one at a time, in reverse order.",
+      notes: "Focus steps back one destination at a time, in reverse order.",
     },
     {
       keys: "Enter",
       action: "Activates the focused destination",
-      notes: "On an anchor destination this follows the href, which is native behaviour; on a button destination it reports the key through onValueChange.",
+      notes: "An anchor follows its href; a button reports the key through onValueChange.",
     },
     {
       keys: "Space",
       action: "Activates a button destination",
-      notes: "A button destination is activated by Space as well as Enter. An anchor destination follows Enter only, which is native anchor behaviour, so Space does not activate a link.",
+      notes: "Native anchor behaviour, so Space does not activate a link destination.",
     },
     {
       keys: "Home, End",
       action: "Not bound",
-      notes: "The bar adds no roving-focus keys, so Home and End keep the browser's default. Every destination is a plain tab stop reachable with Tab, so there is no roving focus for these keys to move.",
+      notes: "The bar adds no roving-focus keys, so the browser default stands.",
     },
   ]}
 />
@@ -307,32 +220,13 @@ padding has not been tested on a notched device; and there is no `forced-colors`
 
 <PropsTable name="TabBarProps" />
 
-`value` makes this a controlled component with no internal selection state: the caller
-stores the current destination's key and passes it back, and a `value` that matches no
-item renders the bar with nothing current and raises a development warning.
-`onValueChange` is optional, because a bar built from links can leave navigation to the
-`href` alone, but a bar built from buttons needs it to report the reader's choice.
-`label` is required because a navigation landmark with no accessible name is a defect
-the type system cannot otherwise prevent.
+`value` makes this controlled, with no internal selection state, and a `value`
+matching no item renders nothing current and warns in development.
+`onValueChange` is optional, because a bar of links can leave navigation to the
+`href`. `label` is required: an unnamed navigation landmark is a defect.
 
 ## Related
 
-<RelatedComponents name="tab-bar" />
-
-**Easily confused with**
-
-- [Tabs](./tabs.mdx) switch between views that occupy the same space inside one screen.
-  TabBar moves between whole top-level destinations. If the choice stays inside one
-  screen, it is tabs.
-- [SegmentedControl](./segmented-control.mdx) sets one parameter of a single view rather
-  than navigating. If nothing moves the reader to another section, it is a segmented
-  control.
-- [Menu](./menu.mdx) is a list of actions opened from a button. TabBar's destinations
-  are always visible, which is the point of a persistent bar, so a set of stops a reader
-  has to open a control to see is a menu, not a tab bar.
-
-**Used by**
-
-- No pattern, recipe or screen composes it yet. It is built to sit at the foot of an app
-  shell, and assembling that shell is a product's to make rather than something the
-  corpus ships today.
+- [Tabs](./tabs.mdx) switch between views sharing one screen's space. If the choice stays inside one screen, it is tabs.
+- [SegmentedControl](./segmented-control.mdx) sets one parameter of a view that stays put, so nothing navigates.
+- [Menu](./menu.mdx) is a list of actions opened from a button. A tab bar's destinations are always visible.

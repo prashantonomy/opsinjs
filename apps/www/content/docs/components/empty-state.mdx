@@ -10,40 +10,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="empty-state"
   status="shipped"
-  issue="prashantonomy/opsinjs#0"
   questions={[
-    "May an empty state carry a primary action when the reader cannot actually take it yet, such as while waiting for a device to sync or waiting for a laboratory? The component allows one and has no opinion, which means the decision is currently nobody's.",
-    "Is an illustration ever appropriate on a health empty state? The component treats one as decoration and drops it before it drops a word, but whether a picture helps or hurts beside an absence of somebody's own data has not been researched here.",
-    "A view that becomes empty should be announced once, politely. This component deliberately mounts no live region, opsinjs ships no announcement helper, and what the surrounding region should do instead is still specified nowhere. The filter example writes one caller's half out by hand; that is a demonstration, not a specification.",
-    "The contrast pairs and the hit-area floor have not been measured for this component. Both forms of an action now render the same neutral pair, bg-card with the body foreground, so the recommended step reads at one weight whichever prop the caller passed, and neither transport is the one to prefer for a contrast reason. The href form is still the one to reach for where a destination exists, because it stays server-rendered and gives the reader a real link to open or copy. That pair is argued from the tokens rather than measured here. Its accessibility section below says which claims are checked by a gate, which are only argued, and which cannot be made.",
+    "Whether an empty state may carry a primary action the reader cannot yet take, such as during a device sync.",
+    "Whether an illustration ever helps beside an absence of somebody's own health data has not been researched here.",
+    "A view that becomes empty should be announced once, but this component mounts no live region and nothing says what the region does.",
   ]}
 >
-  <code className="text-sm">empty-state</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">empty-state</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Empty states are where a product either explains itself or looks broken. In a health
-product there is a third possibility, and it is the one to design against: implying that
-empty means fine. Everything in this component follows from that. Most of all, it writes no
-sentence about the reader's data, and says so out loud when nobody supplied one.
-
 ## Preview
-
-Three of the five reasons: the two empties that are hardest to keep apart, and the error
-state that must never be mistaken for either. They stack on a narrow surface and sit side by
-side once there is room. In the first the reader can fix the emptiness themselves. In the
-second the product has declined to draw something and owes an explanation of what it is
-waiting for. The third is a load that did not complete, which says the readings are safe
-rather than gone and offers a way to try again. Nothing on any card is cheerful about the
-absence, and none invents a number.
 
 <ComponentPreview name="empty-state" />
 
@@ -77,36 +58,18 @@ import { EmptyState } from "@/components/ui/empty-state"
 
 <WhenToUse
   use={[
-    "A surface that has no content because the reader has not added any yet, and the fastest useful thing is to say so and offer the first step.",
-    "A filter or search that matched nothing, where the reader needs to know it was the filter and not the data.",
-    "A view that cannot yet draw what it exists to draw, such as a trend with too few readings or a comparison with only one thing to compare.",
+    "Nothing added yet, where the fastest help is the first step.",
+    "A filter or search that matched nothing, where the reader must know it was the filter, not the data.",
+    "A view that cannot yet draw honestly, such as a trend with too few readings.",
   ]}
   avoid={[
-    { case: "The content is loading and will arrive shortly, so the layout should be preserved rather than replaced.", instead: "skeleton" },
-    { case: "The whole view failed and needs a prominent notice that something went wrong, rather than one surface reporting in place that it could not load, which is this component's could-not-load reason.", instead: "alert-banner" },
+    { case: "The content is loading and will arrive shortly.", instead: "skeleton" },
+    { case: "The whole view failed, rather than one surface that could not load.", instead: "alert-banner" },
     { case: "There is content, but it needs a caveat.", instead: "callout" },
-    { case: "The reader must give permission before anything can be shown.", instead: "consent-sheet" },
-    { case: "A single value is missing inside an otherwise full surface.", instead: "value" },
+    { case: "Permission is needed before anything can be shown.", instead: "consent-sheet" },
+    { case: "One value is missing inside a full surface.", instead: "value" },
   ]}
 />
-
-The first exclusion is the one that produces the worst experience when it goes wrong. An
-empty state shown during loading tells the reader there is nothing there, and a proportion of
-them will leave before the data arrives and conclude the app lost their readings. The
-[Skeleton](./skeleton.mdx) page states the same rule from the other side: never put a
-skeleton where a value may not turn up, because the honest resolution of that load is this
-component.
-
-The five reasons are not decoration on a single empty. `nothing-yet` and `no-matches` look
-identical on screen and are opposites underneath. In one the data does not exist. In the
-other it does, and a control is hiding it. `not-enough` is the one that carries a safety
-obligation, because it is what a view renders when it has decided that drawing something
-would be dishonest. That obligation is scoped. `not-enough` carries it for a surface with no
-chart at all, and a series too short to plot inside a chart card is
-[TrendSparkline](./trend-sparkline.mdx)'s own refusal, stated in the card rather than by a
-whole-surface empty state. `could-not-load` is the one that is not about the reader's data at all: a
-fetch tried and failed, so the readings are safe rather than gone, and it is the only reason
-that draws a marker of its own and requires a way to try again.
 
 ## Anatomy
 
@@ -115,391 +78,106 @@ that draws a marker of its own and requires a way to try again.
   parts={[
     {
       name: "EmptyState",
-      describes: "The root. It takes colour from neither axis, because an empty state is not a clinical level and not a category. It establishes a container so the parts below can respond to the space they were given rather than to the viewport.",
+      describes: "The root, coloured by neither axis: an absence is not a level or a category.",
       prop: "reason",
     },
     {
       name: "EmptyState.Illustration",
-      describes: "Rendered only when one is supplied. aria-hidden and inert, dropped in print, and dropped again once the content area it is given falls below 17rem. Because a container query measures the content box rather than the padded surface, that threshold sits below the width a phone leaves inside the padded box and above what a narrow embedded card leaves, so the picture is present on a phone and leaves only inside a narrow card, and it goes before any word does.",
+      describes: "Optional. aria-hidden, inert, hidden in print and below a 17rem content area.",
       prop: "illustration",
     },
     {
       name: "EmptyState.ErrorFlag",
-      describes: "Shown only for reason=\"could-not-load\", rendered before the title: the words \"Could not load\" beside an aria-hidden icon, in neutral ink with a neutral boundary. It carries neither colour axis, because a failed fetch is neither a clinical level nor a kind of measurement, so the error is told apart from an absence by the word and the icon and never by a tint.",
+      describes: "could-not-load only: \"Could not load\" beside an aria-hidden icon, in neutral ink.",
       prop: "reason",
     },
     {
       name: "EmptyState.Title",
-      describes: "What is not here, as a real heading from h2 to h6 at the level the surrounding page needs. The level is the page's; the appearance is this component's. Always rendered: a blank title says that none was supplied rather than emitting a heading with no name.",
+      describes: "What is not here, as a real h2 to h6. A blank title says so.",
       prop: "title",
     },
     {
       name: "EmptyState.Body",
-      describes: "Why, in one or two sentences, as a paragraph. Always rendered: with no children it says there is nothing here and the app does not say why, rather than substituting a sentence nobody wrote. false from a && branch, an empty array, a whitespace string and a bare number all count as no children.",
+      describes: "Why, as a paragraph. With no children it admits the app does not say why.",
       prop: "children",
     },
     {
       name: "EmptyState.Action",
-      describes: "The one next step. A Link with emphasis=\"action\" when the action has an href, a neutral Button when it has an onSelect, and both carry the same recommended treatment, so the form the caller chooses changes the semantics and not the prominence. Rendered only when the action can actually do something.",
+      describes: "The one next step: a Link for an href, a neutral Button for an onSelect.",
       prop: "action",
     },
     {
       name: "EmptyState.ErrorNoRetry",
-      describes: "The admission shown when could-not-load was given no usable action. Rather than fake a control with nothing behind it, the surface says in a line of its own that no way back was offered, the same kind of admission the missing title and the missing body make. It renders between the action and the secondary, and never a digit.",
+      describes: "could-not-load with no usable action: admits no way back was offered.",
       prop: "action",
     },
     {
       name: "EmptyState.Secondary",
-      describes: "A quieter alternative for a reader who cannot take the primary one, in the same two forms. It is not a second primary action and does not belong here on its own.",
+      describes: "A quieter alternative, same two forms. Never a second primary, never alone.",
       prop: "secondary",
     },
   ]}
 />
 
-<CompositionTree
-  name="empty-state"
-  tree={[
-    {
-      part: "EmptyState",
-      cardinality: "1",
-      note: "data-slot=\"empty-state\"; a container, a column, and no colour from either axis",
-      children: [
-        {
-          part: "EmptyState.Illustration",
-          cardinality: "0..1",
-          note: "data-slot=\"empty-state-illustration\", aria-hidden and inert",
-        },
-        {
-          part: "EmptyState.ErrorFlag",
-          cardinality: "0..1",
-          note: "data-slot=\"empty-state-error-flag\", could-not-load only, before the title; a word and an aria-hidden icon in neutral ink with a neutral boundary, taking neither colour axis",
-        },
-        {
-          part: "EmptyState.Title",
-          cardinality: "1",
-          note: "data-slot=\"empty-state-title\", an h2 through h6, never empty",
-        },
-        {
-          part: "EmptyState.Body",
-          cardinality: "1",
-          note: "data-slot=\"empty-state-body\"; present even when no copy was supplied",
-        },
-        {
-          part: "EmptyState.Action",
-          cardinality: "0..1",
-          note: "data-slot=\"empty-state-action\", wrapping an <a> or a Button",
-        },
-        {
-          part: "EmptyState.ErrorNoRetry",
-          cardinality: "0..1",
-          note: "data-slot=\"empty-state-error-no-retry\", shown when could-not-load was given no usable action",
-        },
-        {
-          part: "EmptyState.Secondary",
-          cardinality: "0..1",
-          note: "data-slot=\"empty-state-secondary\", wrapping an <a> or a Button",
-        },
-      ],
-    },
-  ]}
-/>
-
-The parts are `data-slot` names, not exports. There is no `EmptyState.Title` to import and no
-way to render one without the others. That is what keeps the title, the reason and the body
-from drifting apart into three components that each tell a different half of the story.
-
-`EmptyState.Action` is a wrapper carrying the slot, with the control inside it. That is not
-tidiness: [Button](./button.mdx) stamps its own `data-slot="button"`, and one element cannot
-carry two slot names. Style the wrapper, and the control keeps the treatment its own
-component owns.
-
-`reason` renders nothing for the four empties and a neutral word with an icon for
-`could-not-load`. It is required because the four empties need four different sentences, one
-of them a safety statement, and because the fifth reason is an error that must not be taken
-for an absence. For the four empties it stays invisible, since a component that turned a
-reason into a sentence would be writing that sentence about somebody else's data; for
-`could-not-load` it draws its own marker in neither axis of colour, so a load that did not
-complete never reads as an empty list.
-
 ## Examples
 
 ### A filter matched nothing
 
-The reason a reader can be actively misled by. A list that goes blank after a filter looks
-exactly like a list that has nothing in it, so the body names the filter as the cause and the
-action removes it. This is also the example that crosses the client boundary: `onSelect` is a
-function, and functions do not travel from a server component.
-
-It is longer than an empty state needs to be because it carries the two things this component
-will not do on the caller's behalf, and this is the one case that needs both. The first is the
-announcement [Empty and first use](../patterns/empty-and-first-use.mdx) requires on a filter
-change: a polite live region, owned by the list rather than by the empty state, mounted from
-the start so nothing is missed and written once per activation rather than once per render.
-The second is focus. Clearing the filter unmounts the empty state, and the empty state
-contains the control the reader pressed. Without a deliberate move, focus therefore falls to
-`<body>` and a screen-reader user's cursor is thrown to the top of the document. The restored
-list takes it instead.
+`reason="no-matches"` with an `onSelect` that clears the filter. The list owns the
+live region and moves focus when the control unmounts.
 
 <ComponentPreview name="empty-state-a-filter-matched-nothing" kind="example" align="start" />
 
 ### What happens when nobody wrote the body
 
-The first card is the component refusing to help. There is no default sentence for an empty
-health surface, so the omission is stated rather than filled. The second is the same component
-with two sentences. That is the entire fix, and it is why the first also logs a development
-warning naming the reason it was given. They stack on a narrow surface and sit side by side
-once there is room for both.
+The first card has no `children`, so it admits the app does not say why and
+warns. The second has two sentences.
 
 <ComponentPreview name="empty-state-no-copy-supplied" kind="example" align="start" />
 
 ### An illustration, and what it is not allowed to do
 
-Cover the picture and the empty state still says what is absent, why, and what to do about
-it. That is the test. The component keeps it out four ways. The picture is out of the
-accessibility tree, out of the tab order with `inert`, off paper, and out of the layout once
-the content area it is given falls below 17rem.
-
-**The illustration is `aria-hidden` and `inert` in the rendered DOM**, which you can check
-in the frame below rather than take on trust. The drop threshold is a different kind of claim.
-The picture carries `@max-[17rem]:hidden`, a container query that reads the padded content box
-rather than the surface, so the width it measures is what is left after the root's `px-4` is
-taken off. A 390px phone leaves 308px inside that box and a 360px phone 278px, both above the
-17rem threshold, so the picture stays; a 300px embedded card leaves 266px and loses it. A
-browser resize pass at those three widths confirms the picture is present on the two phones and
-gone in the narrow card. The earlier 20rem threshold was measured against the same content box,
-where a 390px phone already falls to 308px, so its true crossover was a 402px viewport and it
-dropped the picture on every phone the system is built for. Whether it leaves in print is a
-further gap, because that is a media query and no capture has produced a printed page. The
-accessibility section says which of these a standing gate covers.
+`illustration` is `aria-hidden` and `inert`, hidden in print and below 17rem.
+Cover it and the state still reads whole.
 
 <ComponentPreview name="empty-state-with-an-illustration" kind="example" align="start" />
 
-## States
-
-EmptyState has no interaction states of its own. The root is a plain container:
-no hover, focus, pressed or disabled treatment on the title, the body or the
-illustration, and none of the three is ever a control. `EmptyState.Action` and
-`EmptyState.Secondary` are the exception, because each wraps a
-[Link](./link.mdx) or a [Button](./button.mdx): the hover, focus, pressed and
-disabled states a reader meets there belong to those components and are
-documented on their own pages rather than repeated here.
-
-The five data states the system defines (see [Data
-states](../foundations/data-states.mdx)) do not divide evenly across `reason`.
-Three of the five reason values carry Empty, one carries Partial, and one
-carries Error; the remaining two data states are not this component's to render
-at all.
-
-| Data state | What EmptyState renders |
-| --- | --- |
-| Error | `reason="could-not-load"`: the neutral "Could not load" marker before the title, a title and body that say the request did not complete rather than that a reading is missing, a mandatory action, and, when no usable action was given, a visible line admitting no way back was offered rather than a silent control. |
-| Loading | Nothing. EmptyState is never the right surface while a request is still in flight; the [Skeleton](./skeleton.mdx) preserves the layout instead, and mounting an empty state during a load is the confusion the exclusion list in "When to use it" names first. |
-| Empty | `reason="nothing-yet"`, `"no-matches"` or `"nothing-left"`: a title, a body naming what is absent and why, and at most one action. None of the three draws a marker of its own; the difference between "never existed", "hidden by a filter" and "used up and gone" lives entirely in the words the caller writes. |
-| Partial | `reason="not-enough"`: the same title-and-body shape, except the body is a safety statement rather than an explanation, stating the rule a view is waiting for and how far off it is, because there is data, only not enough of it for this view to be honest. |
-| Stale | Nothing. A stale value is real and present, so the surface it belongs to has content to show and is never empty; staleness is `staleAfterHours` on [MetricTile](./metric-tile.mdx), not a reason this component accepts. |
-
 ## Content guidelines
 
-Say what is not here, then why, then what to do. Never use an empty state to be cheerful about
-an absence: *No results. Great news!* is a clinical claim the product cannot make, because a
-reader with no results has an empty list, not a clean bill of health. The same goes for *all
-clear*, *nothing to report* and *you are all caught up*: each one turns a gap in the data into
-a statement about the person.
-
-For `not-enough`, state the rule and the gap. The reader is not being told off; they are being
-told what the view is waiting for. This is the one reason whose body is not an explanation but
-a safety statement, and it is the one most often left empty. The sentence carries three facts
-and no more: how many readings there are, how many a trend needs, and the window they are
-counted over. [TrendSparkline](./trend-sparkline.mdx) states the too-short case in that same
-shape, so a reader who meets the refusal in a chart card and again on a bare surface meets one
-sentence built the same way.
-
-For `could-not-load`, say the system failed to load, never that the reading is missing. A
-request that did not complete is a fact about the network or the service, not about the
-person, so the words point at the load and offer a way to try again. Do not let the copy imply
-the reading itself is gone or that an absence is a result: *No readings* on a failed fetch
-tells the reader a falsehood about their own record.
-
-This component ships no copy about the reader, and that is a deliberate constraint rather than
-an unfinished job. There is no default body, no default disclaimer, no default emergency
-number, no threshold and no default reassurance, because opsinjs does not know which product
-it is in, what that product is regulated as, or where its reader is. The four reader-facing
-strings in the file are admissions or statements about the system, never a sentence about the
-reader: an EmptyState given no body renders a plain line saying there is nothing here and the
-app does not say why, one given a blank title says the screen has no heading, the error state
-carries the words "Could not load", and an error left with no way back says so in a line of
-its own. All of them are written for the reader rather than the developer. An author who sees
-one fixes it, and a reader who sees one has at least not been told something untrue.
-
-The guard behind the body line is wider than a missing prop, because that is not how a body
-actually goes missing. `{rows.length > 0 && "…"}` passes `false` when the list is empty, and
-`{items.length && "…"}` passes the number `0`; without the guard the first renders an empty
-paragraph and the second renders a bare digit on a screen that is meant to explain an absence.
-Both are treated as no body, both warn in development, and the digit is refused rather than
-printed. Zero, none and unknown are three different things, and an absence is never a number.
+Say what is not here, then why, then what to do. For `not-enough`, state the
+rule and the gap. For `could-not-load`, say the load failed, not that the reading is
+missing. See
+[Error and empty messages](../content/error-and-empty-messages.mdx).
 
 <DoDont>
   <DoDont.Do>
-    **"No readings yet. Once you add your first blood pressure reading, you will see it here,
-    with the range your product compares it against. [Add a reading]"** Names the absence, says
-    what will change it, offers one action. It also attributes the range rather than calling
-    it the reader's.
+    **"No readings yet. Add your first and it will be here. [Add a reading]"**
+    Names the absence, one action.
   </DoDont.Do>
   <DoDont.Dont>
-    **"Nothing to see here! 🎉"** Cheerful about missing health data, no explanation, and
-    nothing to do. It reads as reassurance and it is not reassurance about anything.
+    **"Nothing to see here!"** Cheerful about missing health data, no
+    explanation, nothing to do.
   </DoDont.Dont>
 </DoDont>
-
-A range is a comparison somebody chose, not a fact about the reader, so *your range* is the
-one phrasing to avoid even in a sentence about a reading that does not exist yet. [Reference
-ranges](../health/reference-ranges.mdx) requires every band to name its owner, whether a
-laboratory, a device maker or a clinician. An empty state is where the habit is easiest to
-lose, because there is no number on screen to make the omission obvious.
-
-<DoDont>
-  <DoDont.Do>
-    **"Not enough readings for a trend yet. We draw one once there are enough for the line to
-    mean something, and there are not yet. [Add a reading]"** The rule, the gap, and no
-    implication that the reader has done anything wrong.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **An empty chart area with the axes drawn.** It looks like something broke, and readers
-    who interpret it as *your values are zero* are not being unreasonable.
-  </DoDont.Dont>
-</DoDont>
-
-Fill in the actual window from the metric's own `minimumWindow`, which the consuming product
-declares and [TrendSparkline](./trend-sparkline.mdx) reads. There is no number in the exemplar
-above and none in this component, because opsinjs ships no thresholds for any metric in any
-population. See [ADR 0012](../project/decisions/0012-synthetic-example-data.mdx). A day count
-or a reading count written here would be a clinical rule with no owner and no date, and a
-threshold in a Do block is a threshold somebody copies.
-
-## Motion
-
-EmptyState uses no motion. It does not animate when it mounts, and none of its
-parts, not the illustration, the title, the body or either action, transitions
-when `reason` or the content changes; a caller who swaps `reason` on a mounted
-EmptyState replaces the rendered content in place with no transition of any
-kind. That is deliberate: an empty state's job is to state an absence plainly,
-and animating an admission that there is nothing here would spend motion on the
-one moment it is least suited to draw attention to itself. No part of the file
-declares a transition token.
-
-Because it declares no transition, there is nothing for `prefers-reduced-motion`
-to reduce. The illustration's appearance and disappearance across the
-`@max-[17rem]` container-query boundary is a layout change rather than a motion
-effect: the picture is present, or it is gone, with no cross-fade, resize or
-other animation carrying it between the two.
 
 ## Accessibility
 
-Some of these are checked by a gate on every commit. The rest are arguments, and they are
-labelled as such: a component page claims accessibility only where it has been checked, with the gaps listed rather than left out.
+**Checked by `pnpm run check:a11y` on every commit.** No banned word in copy or
+identifiers, no `px` type size, every colour a bridged role.
 
-**Checked, by `pnpm run check:a11y` on every commit:**
+**Argued from the source, not measured.**
 
-- **No banned word reaches copy or an identifier.** The static rig reads every string literal
-  and every JSX text node in this file against the generated list from `tokens/glossary.json`
-  plus the six from [Reference ranges](../health/reference-ranges.mdx), and then reads the
-  identifiers as well. The four reader-facing strings this component ships are the missing
-  body, the missing title, the "Could not load" marker and the line an error shows when it
-  carries no way back. They pass the same gate a product's own copy would.
-- **No type size in `px`, no raw colour, no numbered ramp step.** Every size is one of the
-  eleven semantic steps and every colour is a bridged role, so a reader's own text size
-  reaches the whole component and both themes are somebody's measured decision.
-- **Nothing that resolves to nothing under the product theme.** `bg-secondary`,
-  `bg-destructive` and the rest of the docs-chrome palette are refused by the same gate, which
-  is what stops a component looking correct in review and arriving colourless in the product.
+- Neither colour axis is used, so there is nothing to mix.
+- `titleLevel` renders a real `h2` to `h6`, default `2`. Check it against the
+  page outline.
+- The `href` action is an anchor floored at `var(--opsin-target-minimum, 2.75rem)`
+  on both axes.
+- It mounts no live region. The emptied region announces once and moves focus,
+  as the filter example does.
 
-**Argued, and true of the implementation, but not yet measured:**
-
-- **Neither colour axis is used at all.** An empty state is not a clinical level and not a
-  category, so the never-mix rule is satisfied by having nothing to mix. This bullet sits here
-  rather than above because the gate cannot substantiate it. `checkAxisConflict` fails an
-  element carrying *both* axes; it is equally quiet about a component that uses one and about
-  a component that uses none. The rendered tree carries only `data-slot`, which is true by
-  inspection and not by measurement.
-- **The title is a real heading.** `titleLevel` renders `h2` through `h6` and defaults to `2`.
-  There is no way for this component to know the outline of the screen it lands on, so the
-  default is a starting point and not an answer. Check it, the way you would check any
-  heading. A blank `title` renders a visible line saying none was supplied, and warns, rather
-  than emitting an empty heading nothing but a screen reader would notice.
-- **The `href` action is a real control with its own target floor.** It is an anchor, it is
-  announced as a link, and it carries `min-block-size` *and* `min-inline-size` of
-  `var(--opsin-target-minimum, 2.75rem)`. That value is a rem, so it grows with the reader's
-  text size rather than pinning at 44 device pixels, and it has a fallback so the floor does
-  not silently vanish in a project that installed this file without `tokens.generated.css`. An
-  action with neither a destination nor a handler renders nothing at all and warns.
-- **Nothing depends on colour**, controls included. The state is carried by the words: no
-  tint, no icon standing in for a sentence, no legend. The recommended action and the quieter
-  alternative differ by the size of the box, a boundary and the step of the type rather than
-  by hue, so both survive greyscale, and no card action is brand-filled on either transport.
-  The quieter alternative is underlined in both of its forms, so it is identifiable as a
-  control without relying on a hover fill that a touch user never sees and a low-vision reader
-  may not resolve.
-- **The layout stacks by construction**, because it is a single column at every width. The
-  body is capped at the tight measure so a centred paragraph does not lose the reader's return
-  sweep.
-- **Print renders the title and the body.** An empty section in a printed summary still says
-  why it is empty, which is what stops a reader concluding the printer dropped a page.
-- **It mounts no live region, and the caller has to.** A view that becomes empty should be
-  announced once, politely, and that announcement belongs to the region that changed rather
-  than to the component inside it. A `role="status"` here would speak on every keystroke of a
-  search field and speak twice wherever the caller had already done the right thing. What that
-  leaves the caller holding is real work, and opsinjs ships no helper for it: [Screen
-  readers](../accessibility/screen-readers.mdx) lists the absent announcement helper as a
-  known gap. The filter example above is the caller's half written out by hand. That half is a
-  permanently mounted polite region owned by the list, written once per activation, plus a
-  deliberate focus move to the restored list, because clearing the filter unmounts the button
-  the reader pressed.
-
-**Not yet checked at all, and listed rather than omitted:**
-
-- Contrast for the title, the body and both action treatments against the card surface they
-  land on, in both themes. `<ContrastReport component="empty-state">` below lists the measured
-  neutral token pairs this component draws its colour from, the body text, the secondary text
-  and the hairline boundary against the page in both themes. Those are the token pairs the
-  component uses, not a measurement of the component itself, so the specific pairings against
-  the card surface are argued from the tokens and are not among the rows below.
-- **Both transports of `action` render the same pair.** The `href` form renders
-  [Link](./link.mdx) `emphasis="action"` and the `onSelect` form renders
-  [Button](./button.mdx) `variant="secondary"`, and both take the same neutral pair, `bg-card`
-  with the body foreground, because both resolve to the one card action recipe in
-  `button.tsx`. So the two transports cannot drift, the recommended step reads at one weight
-  whether the caller passed `href` or `onSelect`, and neither form is the one to prefer for a
-  contrast reason. That pair is argued from the tokens rather than measured here: the neutral
-  rows below are text against the page, and the action's pairing against the card surface is
-  not one of them.
-- The 44×44 hit area, survival at 1.3× and usability at 200% are the layout half of the
-  accessibility rig. It runs only in the nightly workflow, where a browser is installed at job
-  time, and it has not been run against this component.
-- `prefers-contrast` and `forced-colors` are not implemented anywhere in opsinjs yet, so no
-  increased-contrast claim can currently be made by anyone, here or elsewhere.
-- **The print drop needs a printed page, and no capture has produced one.** `aria-hidden`
-  and `inert` are in the rendered DOM and can be read off the preview above, and the container
-  drop has been checked by a one-off browser resize pass but by no standing gate, as the bullet
-  below records. The print rule cannot be read off anything: the
-  illustration carries `print:hidden` so a printed summary shows the title and the body and
-  nothing else, but that is a media query, and the nightly layout half does not print a page,
-  so it is not on a path to being measured by the rig as it stands.
-- **Whether the illustration leaves inside a narrow container.** The picture carries
-  `@max-[17rem]:hidden`, a *container* query rather than a media query, and a container query of
-  type `inline-size` reads the padded content box, so the width it measures is what is left
-  after the root's `px-4`. A one-off browser resize pass reads 308px inside that box at a 390px
-  phone and 278px at a 360px phone, both above 17rem so the picture stays, and 266px inside a
-  300px embedded card, below it so the picture goes. That is a hand check, not a standing gate:
-  the rig runs no container-resize check, so a regression here would pass every commit, which is
-  why this still sits under what a gate does not cover. The earlier 20rem threshold read against
-  the same content box, where a 390px phone already falls to 308px, so its true crossover was a
-  402px viewport and it dropped the picture on every phone.
-- Whether 17rem is the right threshold for dropping the illustration. It is a judgement about a
-  picture nobody has studied, not a measurement of what serves the reader; it is set to clear
-  the padded box on a phone and drop inside a narrow card, and no theme step falls in the band
-  between the two, so it is a bespoke value. The threshold is written in `rem` so that it can
-  follow a reader who has raised their root font size, which is behaviour this component expects
-  of a container query and has not measured in any engine.
+**Not checked by any gate.** Contrast of title, body and both actions against the
+card surface. Also the 44 by 44 hit area, 1.3x and 200% text, `prefers-contrast`,
+`forced-colors`, the print drop and the 17rem container drop.
 
 <KeyboardTable
   name="empty-state"
@@ -507,151 +185,48 @@ labelled as such: a component page claims accessibility only where it has been c
     {
       keys: "Tab",
       action: "Moves focus to the action, then to the quieter alternative",
-      notes: "The empty state itself is not focusable, and neither the illustration, the title nor the body is in the focus order. An empty state with no action has no tab stop at all, which is correct: there is nothing to do.",
+      notes: "Nothing else is focusable. No action means no tab stop.",
     },
     {
       keys: "Shift + Tab",
-      action: "Moves focus backwards through the same two controls",
-      notes: "The reverse order matches the visual order because the two controls are rendered in that order in the DOM and neither is repositioned by CSS.",
+      action: "Moves focus back through the same controls",
+      notes: "Reverse order matches visual order.",
     },
     {
       keys: "Enter",
       action: "Activates whichever control has focus",
-      notes: "On the href form it follows the destination; on the onSelect form it calls the handler. There is never a destructive default, because this component has no destructive treatment and no way to ask for one.",
+      notes: "href follows the destination, onSelect calls the handler.",
     },
     {
       keys: "Space",
-      action: "Activates the onSelect form of a control, and does nothing on the href form",
-      notes: "That difference is the platform's distinction between a button and a link, and this component does not paper over it. It does not scroll the page when it activates.",
+      action: "Activates the onSelect form only",
+      notes: "The platform's button and link distinction. No page scroll.",
     },
     {
       keys: "After activation",
-      action: "Nothing this component does. Where focus lands is the caller's",
-      notes: "An onSelect that fixes the emptiness usually unmounts the empty state, and with it the control holding focus, which drops focus to <body>. The component cannot move focus for you: it does not know what replaced it. Move focus to the restored content, the way the filter example does. The href form is unaffected because navigation takes focus with it.",
+      action: "The caller's, not this component's",
+      notes: "An onSelect that unmounts the state drops focus to body. Move it.",
     },
   ]}
 />
 
 <ContrastReport component="empty-state" />
 
-## Data attributes
-
-<DataAttributesTable
-  name="empty-state"
-  rows={[
-    { attribute: "data-slot", condition: "On the root, always", value: "empty-state" },
-    { attribute: "data-slot", condition: "On the illustration wrapper, only when illustration is supplied", value: "empty-state-illustration" },
-    { attribute: "data-slot", condition: "On the error marker, only when reason is could-not-load", value: "empty-state-error-flag" },
-    { attribute: "data-slot", condition: "On the heading, always", value: "empty-state-title" },
-    { attribute: "data-slot", condition: "On the paragraph, always", value: "empty-state-body" },
-    { attribute: "data-slot", condition: "On the action wrapper, only when action renders a control", value: "empty-state-action" },
-    { attribute: "data-slot", condition: "On the refusal line, only when reason is could-not-load and no usable action was given", value: "empty-state-error-no-retry" },
-    { attribute: "data-slot", condition: "On the secondary wrapper, only when secondary renders a control", value: "empty-state-secondary" },
-  ]}
-/>
-
-EmptyState carries none of the other three attributes in the vocabulary. There is
-no `data-status`, because an absence is not a clinical level; no `data-category`,
-because it is not a kind of measurement; and no `data-opsinjs-value`, because it
-never renders a reader's own number and refuses one outright on the rare body
-that resolves to a bare digit. The eight `data-slot` values above, most of them
-conditional on which parts actually render, are the only hook this component
-offers a rule of your own.
-
-## CSS variables
-
-<CssVariablesTable name="empty-state" />
-
-EmptyState exposes no custom property of its own for a consumer to set. Its
-colours are the semantic neutral roles listed under Tokens below, read straight
-from the token layer rather than through a component-scoped variable, so there
-is nothing of its own to override here. The one custom property the file reads
-directly is `--opsin-measure-tight`, consumed with a `45ch` fallback to cap the
-width of the centred body and refusal paragraphs, and that variable belongs to
-the type scale rather than to this component. To recolour any part, write a rule
-against its `data-slot`.
-
-## Tokens
-
-<TokenTable component="empty-state" />
-
-These are the tokens EmptyState actually reads, generated from its source by
-`scripts/build-tokens.mts` rather than listed by hand. Because neither colour
-axis applies to an absence, the rows are drawn entirely from the neutral scope:
-the foreground and border roles behind the title, the body, the error marker and
-the card-action recipe its two actions resolve through, together with the type
-and spacing steps each part sets. EmptyState never reads a category token and a
-status token onto one element, because it never reads either onto any element,
-which is the two-axis rule holding by having nothing on either axis to mix.
-
 ## API reference
 
 <PropsTable name="EmptyStateProps" />
 
-`reason` and `title` are the two required props. `titleLevel` is an addition to the
-specification rather than a substitute for anything on it: the accessibility requirement asks
-for "a real heading at the level the surrounding page needs", and `title: string` on its own
-has no way to say which level that is.
-
-The five reason values are written into `EmptyStateProps` as a union rather than exported as
-a named `EmptyReason` type. A registry file has three public exports. They are the props
-interface, the component and the zero-prop demo, so a caller who needs the union names it as
-`EmptyStateProps["reason"]`. The specification writes it as an export; that difference is
-recorded here rather than resolved in favour of a wider surface.
-
-Four things are checked at runtime as well as typed, because this file ships as source into
-JavaScript projects where a type is advice: a blank `title`, a body that renders no text, a
-body that is only a number, and an action with no label or with nothing to do. Each renders
-the honest fallback or nothing at all, and each warns in development once per distinct
-offender rather than on every render. A warning channel that repeats is one somebody switches
-off. None of them is an `OPSIN-` code: those describe mistakes a consumer makes with the
-clinical API, they are a versioned contract generated from `tokens/errors.json`, and a
-component may not mint one.
+`reason` and `title` are required. There is no exported `EmptyReason` type, so
+name the union `EmptyStateProps["reason"]`. A blank `title`, a body with no
+text or only a number, and an action with nothing to do each render a fallback and
+warn once. A `secondary` with no `action` also warns.
 
 ## Related
 
-<RelatedComponents name="empty-state" />
-
-**Easily confused with**
-
-- [Skeleton](./skeleton.mdx) is for content that is coming. Showing an empty state while
-  loading is the most damaging confusion in this pair.
-- [AlertBanner](./alert-banner.mdx) is the page-level surface for something that went wrong: a
-  notice that speaks for the whole view. EmptyState now owns the in-place failure of a single
-  data surface through `reason="could-not-load"`, which reports the failure where the missing
-  thing would have been and offers a way to try again. Reach for the banner when the whole
-  screen is affected, and for `could-not-load` when one surface could not load while the rest
-  of the screen stands.
+- [Skeleton](./skeleton.mdx) is for content that is coming. An empty state
+  shown while loading is the worst confusion.
+- [AlertBanner](./alert-banner.mdx) speaks for the whole view. `could-not-load`
+  reports one surface's failure in place.
 - [Callout](./callout.mdx) is a note beside content that exists.
-- [TrendSparkline](./trend-sparkline.mdx) draws the too-short refusal itself inside a chart
-  card, so it does not defer there. It defers to this component only when the surface has no
-  chart at all, and then `not-enough` carries the refusal in the shared sentence shape.
-
-**Used by**
-
-- [Choose a component](../recipes/choose-a-component.mdx) routes an absence, which is not a
-  zero, to this component from its decision table.
-- [Consent flow](../screens/consent-flow.mdx) reaches for it on the declined branch, to name
-  what still works without the data the reader withheld.
-- [Daily log screen](../screens/daily-log-screen.mdx) shows a day with no reading logged yet
-  as an honest absence rather than a zero.
-- [Daily logging](../patterns/daily-logging.mdx) draws the log before its first entry exists.
-- [Empty and first use](../patterns/empty-and-first-use.mdx) uses it for the first-use
-  surface, shown empty after loading with one action to begin.
-- [Onboarding and first run](../patterns/onboarding-and-first-run.mdx) uses it on first run,
-  before the reader has added anything.
-- [Onboarding screen](../screens/onboarding-screen.mdx) opens on it, before there is any
-  reading to show.
-- [Results screen](../screens/results-screen.mdx) uses it for a results surface with nothing
-  measured yet.
-- [Trend review](../patterns/trend-review.mdx) defers to it when a trend has too few readings
-  to draw honestly.
-- [Trends screen](../screens/trends-screen.mdx) shows it for a window that contains no
-  readings, where a chart would mislead.
-
-**Governed by**
-
-- [Data states](../foundations/data-states.mdx) covers empty, loading, error, stale and
-  partial, defined once for every data surface.
-- [Error and empty messages](../content/error-and-empty-messages.mdx)
-- [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx)
+- [TrendSparkline](./trend-sparkline.mdx) draws the too-short refusal in a chart
+  card. `not-enough` carries it with no chart.

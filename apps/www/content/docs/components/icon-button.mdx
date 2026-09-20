@@ -10,46 +10,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="icon-button"
   status="shipped"
   questions={[
-    "No contrast pair has been measured for the glyph against each variant's fill, or for the focus ring, on the two surfaces this control sits on in both themes. IconButton inherits Button's neutral scope and inherits Button's own unmeasured pairs along with it, so nothing here has been gated.",
-    "Nobody has listened to this control in a real screen reader. It sets the accessible name twice, once as aria-label on the button and once as a visually hidden text node inside it, and whether that reads as one clean name or as a repeated one has not been checked with assistive technology.",
-    "The component cannot enforce that its glyph is understood, and no comprehension testing has been done on any icon. Whether an icon alone is ever clear enough for a given action stays a product question this component can only flag, never answer.",
-    "Neither the 44pt square target nor the separation between adjacent icon buttons in a toolbar has been measured for this component. The floor is asserted through Button and by a class here, and verified by nobody until the nightly layout job runs.",
-    "Forced colours and prefers-contrast are unhandled, inherited from Button. A quiet icon button carries only ink to mark it as a control, so whether it survives a forced-colours palette that replaces author ink has not been tested.",
+    "No contrast pair has been measured for the glyph against any variant's fill or for the focus ring, and Button's own unmeasured pairs are inherited.",
+    "Nobody has listened to this control in a screen reader, so whether the name set twice reads as one name or two is unheard.",
+    "Forced colours and prefers-contrast are unhandled, inherited from Button, and a quiet icon button carrying only ink may not survive a palette that replaces author ink.",
   ]}
 >
-  <code className="text-sm">icon-button</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">icon-button</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-IconButton is the shipped Button with its label taken off the screen and made
-mandatory. It composes [Button](./button.mdx) rather than rebuilding it, so the
-real button element, the 44pt target floor, the focus ring and the four variants
-all come from one place, and the only thing this component adds is a square shape
-and a rule: an icon-only control must carry a name, and this one cannot ship
-without it.
-
-The rule is the whole reason it exists as its own component. Every design system
-that offered an icon-only mode on its button ended up with unnamed controls in
-production, announced as "button" and nothing else and invisible to voice
-control. Here the name is a required prop, a missing one raises a development
-warning, and there is no way to render the control with the label removed.
-
 ## Preview
-
-Three of the four variants as icon-only controls, each carrying an accessible name you
-cannot see but a screen reader and a voice-control user can. The thing worth
-checking is that each control reads as pressable without a word inside it, and
-that at the 44pt square floor the glyph sits centred rather than crowded, because
-an icon lost in padding is the first sign the square shape did not take.
 
 <ComponentPreview name="icon-button" />
 
@@ -62,10 +37,6 @@ an icon lost in padding is the first sign the square shape did not take.
   dependencies={["lucide-react"]}
   registryDependencies={["button"]}
 />
-
-Installing it pulls in [Button](./button.mdx), because IconButton is a
-composition of it rather than a control of its own, and `lucide-react` for the
-glyphs the examples draw.
 
 ## Usage
 
@@ -87,30 +58,16 @@ import { Search } from "lucide-react"
 
 <WhenToUse
   use={[
-    "A control in a dense toolbar or a card header where a universally understood glyph, such as a close cross or a search magnifier, stands in for a word that would not fit.",
-    "A repeated action in a list or a table row, where the same labelled button on every row would crowd the content out.",
-    "A secondary control beside a labelled primary, where the icon shortens a row whose context the reader has already taken in.",
+    "A dense toolbar or card header where a universally understood glyph, such as a close cross, stands in for a word that would not fit.",
+    "A repeated action in a list or table row, where a labelled button on every row would crowd the content out.",
+    "A secondary control beside a labelled primary, where the reader has already taken in the row's context.",
   ]}
   avoid={[
-    { case: "There is room for a word. An icon alone is rarely as clear as a short verb, so a labelled button is the safer control almost everywhere.", instead: "button" },
-    { case: "The control turns something on or off, where a glyph reads as a state to interpret rather than an action to take.", instead: "switch" },
-    { case: "You were about to supply the icon's meaning through a hover tooltip. A tooltip is a supplement for a control that already has a name, not the name itself, and there is no hover on a phone.", instead: "tooltip" },
+    { case: "There is room for a word. A short verb is clearer than a glyph, so a labelled button is safer almost everywhere.", instead: "button" },
+    { case: "The control turns something on or off, where a glyph reads as a state to interpret rather than an action.", instead: "switch" },
+    { case: "You were about to supply the icon's meaning through a hover tooltip. A tooltip supplements a name, and there is no hover on a phone.", instead: "tooltip" },
   ]}
 />
-
-The first exclusion is the one that matters, and it is the one products ignore.
-An icon is a guess the reader has to make, and a short verb is not. So the
-default control is a labelled [Button](./button.mdx), and an icon button earns
-its place only where a word genuinely will not fit: a toolbar of six controls, a
-header with a single close cross, a table row repeated forty times. Everywhere
-else, the space you are saving is smaller than the meaning you are spending, and
-the labelled button is the honest choice.
-
-Quiet is the variant that tempts most and reads least here. With no fill and no
-boundary, a quiet icon button is a bare glyph, and a bare glyph is only a control
-if the reader already knows it is one. Keep quiet for a toolbar or a header where
-the surrounding chrome says plainly that these are controls, and reach for
-`secondary`, which keeps a boundary, anywhere a reader might meet the glyph cold.
 
 ## Anatomy
 
@@ -119,169 +76,82 @@ the surrounding chrome says plainly that these are controls, and reach for
   parts={[
     {
       name: "IconButton",
-      describes: "The root. A thin wrapper carrying data-slot=\"icon-button\" that identifies the composition and adds no styling of its own. It takes no consumer input: className is forwarded to the composed Button, not to this wrapper. It exists because the composed Button owns data-slot=\"button\" on the pressable element, so the control's own slot lives here instead.",
+      describes: "The root: a wrapper span carrying data-slot=\"icon-button\" and no styling. className goes to the composed Button, not here.",
     },
     {
       name: "Button",
-      describes: "The pressable element, a composed Button rendered as a real button. Square at the 44pt floor, and carrying the variant's fill, ink, boundary and focus ring, all inherited rather than redeclared. data-slot=\"button\".",
+      describes: "The pressable element, a composed Button. Square at the 44pt floor, with fill, ink, boundary and focus ring inherited.",
       prop: "variant",
     },
     {
       name: "IconButton.Icon",
-      describes: "The glyph, and the only visible content. Always decorative and always hidden from assistive technology, nested inside Button's own aria-hidden icon slot and sized so any child svg tracks the type step. data-slot=\"icon-button-icon\".",
+      describes: "The glyph and the only visible content. Always aria-hidden, inside Button's icon slot, with any child svg at 1em.",
       prop: "icon",
     },
     {
       name: "IconButton.Name",
-      describes: "The accessible name, a visually hidden text node carrying label. The same string is also set as aria-label on the button, so the name reaches assistive technology two ways and cannot be styled away. data-slot=\"icon-button-name\".",
+      describes: "The accessible name, a visually hidden text node carrying label. The same string is also aria-label on the button.",
       prop: "label",
     },
   ]}
 />
 
-<CompositionTree
-  name="icon-button"
-  tree={[
-    {
-      part: "IconButton",
-      cardinality: "1",
-      note: "data-slot=\"icon-button\"; a wrapper span with no styling of its own",
-      children: [
-        {
-          part: "Button",
-          cardinality: "1",
-          note: "data-slot=\"button\"; a real button element, square at --opsin-target-minimum, aria-label set from label",
-          children: [
-            {
-              part: "IconButton.Icon",
-              cardinality: "1",
-              note: "data-slot=\"icon-button-icon\", aria-hidden by inheritance, inside Button's button-icon slot",
-            },
-            {
-              part: "IconButton.Name",
-              cardinality: "1",
-              note: "data-slot=\"icon-button-name\", visually hidden with sr-only, inside Button's button-label slot",
-            },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
-The parts are `data-slot` attributes, not exports. There is no `IconButton.Name`
-to import and no prop that removes it, which is what makes "the name cannot be
-taken off" a fact about the DOM rather than a plea in prose.
-
-The root slot sitting on a wrapper rather than on the button is deliberate and
-worth knowing. IconButton composes the shipped Button, which pins its own
-`data-slot="button"` after it spreads the caller's props, so the pressable
-element cannot carry `data-slot="icon-button"`. Rather than rebuild Button to
-reclaim the slot, the component wraps it in a span that carries the slot and
-nothing else. Style the button through `data-slot="button"` or through
-`className`; the wrapper is identity, not a styling hook.
-
-**The name is set two ways on purpose.** `aria-label` on the button is the
-accessible name a browser computes, and the visually hidden `IconButton.Name`
-node is a fallback: it survives a translation pipeline that drops the attribute,
-and it keeps the name in the DOM as real text for tools that read content. Both
-carry the same string, so a screen reader announces the label once, from the
-attribute, and never twice.
 
 ## Examples
 
 ### A toolbar of icon buttons
 
-The case the component is for. A header row where each control is a glyph a
-reader of this kind of surface already knows, so the words would be noise rather
-than help. Each button still carries a full accessible name, distinct from its
-neighbours, because a toolbar of icon buttons is precisely where an unnamed one
-disappears. The labels name fictional actions, so nothing here reads as a control
-over somebody's own data.
+A header row where each glyph is one the reader already knows. Each control
+still carries a distinct `label`, because a toolbar is where an unnamed icon
+button disappears.
 
 <ComponentPreview name="icon-button-toolbar" kind="example" align="start" />
 
 ### Icon buttons in a list row
 
-Repeated row actions are the other place an icon button earns its keep: a labelled
-Edit and Remove on every row would crowd the reading out, and the glyphs shrink
-them to the margin. Each name carries its row's context, so a voice-control user
-saying "edit the morning example reading" reaches one control rather than every
-Edit at once, which is the discipline an icon button in a list demands.
+Repeated row actions, where a labelled Edit and Remove on every row would crowd
+the reading out. Each `label` carries its row's context, so a voice-control user
+reaches one control.
 
 <ComponentPreview name="icon-button-list-row" kind="example" align="start" />
 
 ## Content guidelines
 
-The label is the whole of the message for a reader who does not see the glyph, so
-it does the work the missing word would have done. Name the action and its
-object, "Close the reading details" rather than "Close", in sentence case and
-without terminal punctuation, so it survives being read out of context and a
-voice-control user can say what they mean.
-
-Choose a glyph the audience already knows, and let the glyph and the name agree.
-A magnifier means search, a cross means close, a plus means add, and a reader who
-meets one of those spends no guess on it. A novel or clever glyph spends a guess
-the reader may not have, and when the guess is wrong the accessible name is the
-only thing left carrying the action, which is a name they cannot see.
+The label is the whole message for a reader who does not see the glyph. Name
+the action and its object, in sentence case, without terminal punctuation.
+Choose a glyph the audience already knows, and let the glyph and the name
+agree: a magnifier means search, a cross means close.
 
 <DoDont>
   <DoDont.Do>
-    **`label="Close the reading details"`** with a cross glyph. The name is a
-    verb and its object, so it reads well aloud and a voice user can target it.
+    **`label="Close the reading details"`** with a cross glyph. A verb and its
+    object reads well aloud.
   </DoDont.Do>
   <DoDont.Dont>
     **`label="button"`, or no label at all.** A screen reader announces "button"
-    and nothing else, and a voice user has nothing to say to reach it.
-  </DoDont.Dont>
-</DoDont>
-
-<DoDont>
-  <DoDont.Do>
-    **A magnifier for search, a cross for close, a plus for add.** The glyph and
-    the name say the same thing, so the reader who sees one and the reader who
-    hears the other arrive at the same action.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A glyph the reader has to decode**, carrying meaning nothing else on the
-    surface supports. The icon becomes decoration and the whole action rests on a
-    name most readers never read.
+    and nothing else.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-IconButton is a real `button` element, because it composes one: Return and Space
-activation, the control's role, and the tab stop all come from the platform
-through [Button](./button.mdx) rather than from handlers somebody had to remember
-to write. There is no prop that changes the tag.
+**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
+token, no type size is in `px`, and no banned word appears anywhere.
 
-The accessible name is the point of the component. It is set as `aria-label` on
-the button and, as a fallback that survives a stripped attribute, as a visually
-hidden text node inside it, so a screen-reader user hears the label rather than
-"button" and a voice-control user can say it to target the control. A missing or
-whitespace-only `label` raises a development warning, because it is the exact
-failure the component exists to prevent and the type system alone cannot catch a
-`label` that is present but empty. The glyph is `aria-hidden`, so it is never
-announced as a second, pictorial name.
+**Argued from the source, not measured.**
 
-The target is a 44pt square. Button floors both axes at `--opsin-target-minimum`
-already, and this component keeps the width equal to the height and removes the
-horizontal padding, so the pressable region is square rather than a wide box with
-a glyph adrift in it. The floor is a rem, so it grows with the reader's text size
-rather than pinning at a device pixel. Separation between adjacent icon buttons is
-the caller's, because a control cannot see its neighbours, and a toolbar of them
-owes each control `--opsin-target-separation` so two glyphs set close together do
-not share a hit area.
+- A real `button` element through [Button](./button.mdx), so Return, Space,
+  the role and the tab stop come from the platform.
+- The name is `aria-label` on the button and a visually hidden text node inside
+  it. A missing or whitespace-only `label` raises a development warning.
+- The glyph is `aria-hidden`, so it is never announced as a second, pictorial
+  name.
+- The target is a 44pt square in rem, with horizontal padding removed.
+  Separation between neighbours is the caller's, at `--opsin-target-separation`.
 
-What is not yet checked is listed rather than left out, and it matches the open
-questions above. No contrast pair has been measured for the glyph against any
-variant's fill or for the focus ring, and IconButton inherits Button's neutral
-scope and Button's own unmeasured pairs with it. Nobody has listened to the
-control in a screen reader, so whether the doubled name reads as one name or two
-is argued from how browsers compute it rather than heard. Forced colours and
-`prefers-contrast: more` are unhandled, inherited from Button, and a quiet icon
-button that leans on ink alone is the most exposed of the variants there.
+**Not checked by any gate.** Contrast on every variant and the focus ring, the
+44pt square and its separation, the doubled name in a screen reader, and forced
+colours.
 
 <KeyboardTable
   name="icon-button"
@@ -289,22 +159,22 @@ button that leans on ink alone is the most exposed of the variants there.
     {
       keys: "Tab",
       action: "Moves focus to the icon button",
-      notes: "One tab stop for the whole control. The glyph and its hidden name are parts of it, not stops in it.",
+      notes: "One tab stop for the whole control. The glyph and name are parts, not stops.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves focus back out, to whatever precedes it",
-      notes: "Reverse order matches the visual order. This component never moves focus of its own accord.",
+      notes: "Reverse order matches the visual order. The component never moves focus of its own accord.",
     },
     {
       keys: "Enter",
       action: "Activates the button",
-      notes: "The platform's own behaviour on a real button element, inherited from Button; nothing here intercepts it.",
+      notes: "Platform behaviour on a real button element, inherited from Button. Nothing here intercepts it.",
     },
     {
       keys: "Space",
       action: "Activates the button",
-      notes: "And does not scroll the page, because a focused button consumes the key. This is a reason to compose a button element rather than to rebuild one.",
+      notes: "Consumed by the focused button, so the page does not scroll.",
     },
   ]}
 />
@@ -315,40 +185,17 @@ button that leans on ink alone is the most exposed of the variants there.
 
 <PropsTable name="IconButtonProps" />
 
-`icon` and `label` are both required, and that is the shape of the whole
-component: a glyph a reader sees and a name they do not, neither optional. The
-surface stops there on purpose. `variant` and `size` mirror
-[Button](./button.mdx) so the two controls stay in step, and `variant` defaults
-to `secondary` rather than `quiet` because a bordered control is easier to
-recognise as one when there is no word inside it. `onClick`, `disabled` and
-`className` are forwarded to the composed button unchanged.
-
-There is no `busy`, no `busyLabel`, no `fullWidth`, no `iconPosition` and no
-`type`. An icon-only control has no label to hold steady while it works, so a busy
-state would hide both the glyph and the name; reach for a labelled Button where a
-busy state matters. **IconButton takes neither a category nor a status, and its
-`className` and `style` must not resolve either axis:** it makes no clinical
-statement, so a fill or a boundary drawn from `--opsin-status-*` or
-`--opsin-category-*` would put a clinical vocabulary on a control that has none.
+`icon` and `label` are both required. `variant` defaults to `secondary`, not
+`quiet`, because a bordered control is easier to recognise without a word inside
+it. There is no `busy`, `busyLabel`, `fullWidth`, `iconPosition` or `type`.
+`className` must never resolve a `--opsin-status-*` or `--opsin-category-*`
+role, because an IconButton carries no clinical axis.
 
 ## Related
 
-<RelatedComponents name="icon-button" />
-
-**Easily confused with**
-
-- [Button](./button.mdx) is the labelled control this one defers to, and the
-  confusion that costs most: an icon button saves space, a labelled button saves
-  the reader a guess, and the guess is usually worth more than the space.
-- [Switch](./switch.mdx) turns something on or off, where a glyph reads as a state
-  to interpret rather than an action to take. An icon button acts; it does not
-  hold a setting.
-- [Tooltip](./tooltip.mdx) is reached for to reveal an icon's meaning on hover, but
-  a tooltip is a supplement to a name and never the name itself, and there is no
-  hover on a phone.
-
-**Used by**
-
-- No pattern, recipe or screen composes it yet. It was built for dense toolbars,
-  card headers and repeated row actions, and placing it on one of those surfaces
-  is a product's to make rather than something the corpus ships today.
+- [Button](./button.mdx) is the labelled control this one defers to. The guess
+  it saves the reader usually outweighs the space.
+- [Switch](./switch.mdx) turns something on or off. An icon button acts and does
+  not hold a setting.
+- [Tooltip](./tooltip.mdx) supplements a name and is never the name itself, and
+  there is no hover on a phone.

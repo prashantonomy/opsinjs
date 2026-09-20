@@ -47,20 +47,23 @@ frontmatter cannot carry it.
 
 ## What each phase requires of the page
 
-`planned` owes ten sections: Status, Preview, Installation, When to use it,
-Clinical meaning for a `health-*` category, Anatomy, Proposed API, Content
-guidelines, Accessibility and Related. The sections that would need code to be
-truthful are **omitted, not left empty**. An empty heading is a promise nobody
+`planned` owes eight sections: Preview, Installation, When to use it, Clinical
+meaning for a `health-*` category, Anatomy where the component has more than one
+part, Proposed API, Accessibility and Related. The sections that would need code
+to be truthful are **omitted, not left empty**. An empty heading is a promise nobody
 kept; an absent heading is an accurate description of a component that does not
 exist. Every `planned` page also carries `<NotBuiltYet>`, the machine-readable
 marker that lets an agent tell a specification from a component without parsing
 English.
 
-`shipped` and `deprecated` owe the same seventeen sections, five of which are
+`shipped` and `deprecated` owe the same fourteen sections, five of which are
 optional. They point at one outline on purpose: retiring a component is then a
 frontmatter change and nothing else, rather than a content edit nobody has time
 for. [Anatomy of a component page](../components/anatomy-of-a-component-page.mdx)
-has the full table and says which five are optional.
+has the full table and says which five are optional. At every phase the page is
+short: `<StubNotice>` opens it above the first H2 with the review floor and at
+most three open questions, and `assert-ia` rule LEAN001 fails the build when the
+body passes a thousand words, or twelve hundred and fifty on a `health-*` page.
 
 `<PageTemplate>` fails the build when a required section is missing, so the
 status is a claim the build enforces rather than a label somebody set once.

@@ -11,40 +11,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="metric-tile"
   status="shipped"
-  issue="prashantonomy/opsinjs#0"
   questions={[
-    "There is no `trend` prop and no embedded sparkline, which is a departure from the specification's part tree. TrendSparkline's caption is mandatory and visible, and a tile has no room for it; a line through somebody's readings with nothing saying what it is cannot be shipped. Whether a tile should ever draw one, or whether the part tree should lose it, is a decision above this page.",
-    "`value` is `number | null` rather than `number | string | null`. A compound reading is a pair rather than a number and therefore has no home here, and the current answer is two tiles or a surface that can show both. Nothing enforces that, and nothing tells a caller who tries.",
-    "`now` is a required prop the specification does not have. The tile cannot read the clock without making a grid of eight disagree with itself across a minute boundary, and RelativeTime refuses to. Whether every component that renders a time should take it, or whether a screen should carry one instant for all of them, is unsettled across the system rather than on this page.",
-    "The instant rule and the staleness verdict are both computed here as well as inside RelativeTime, because RelativeTime publishes neither and a component cannot read another component's internals. The two copies accept, refuse and decide identically as of this commit; the first version of this file did not, and a timestamp one accepted and the other refused put a reading on screen with no date beside it. One shared parser in the substrate is the repair. Until it lands, a reader is the only thing holding the two copies together.",
-    "The tile names the moment a reading belongs to and defaults to the measurement word. `event` lets the product pick another moment, but every event word names when rather than where the number came from, so there is still no provenance prop, and nothing here can tell a device reading from a laboratory result from a figure somebody typed. All three are therefore announced the same way. [Data provenance and device accuracy](../health/data-provenance-and-device-accuracy.mdx) names this component and asks for the provenance class in plain words next to the value; this component does not carry it. Whether it should take one, or come off that page's list until it does, is a decision above this page.",
-    "There is no masking affordance, so a reading on a shared screen cannot be obscured without the layout moving. [On-screen privacy](../health/on-screen-privacy.mdx) names this component as well. `Value` owns the digits and has no mask either, so this is a system-wide gap surfacing here rather than one this component introduced.",
-    "Contrast has not been measured for this component in either theme, and its behaviour at 200% text has not been observed. That behaviour is reasoned from the source. The Accessibility section below says which claims a gate holds up and which are only argued.",
+    "There is no mask, no reveal and no sensitivity prop, and Value owns the digits and has none either.",
+    "event names when a reading happened, never where it came from, so a device estimate and a laboratory result sound alike, with no provenance prop.",
+    "The instant rule and the staleness verdict are computed here and again inside RelativeTime, and only a reader keeps the two in step.",
   ]}
 >
-  <code className="text-sm">metric-tile</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">metric-tile</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-The tile is the component most likely to be over-used, because a dashboard of numbers looks
-productive and costs nothing to build. Most of its specification is about what a tile is not
-allowed to do without a larger surface behind it, and most of the implementation is about
-refusing to fill a silence the product left on purpose.
-
 ## Preview
-
-Two tiles, because the pair is what is worth seeing: the same three claims, one of them with
-a reading and one with none at all. Open it under the product theme, turn the text size up,
-and look at it in greyscale. The label, the number, the unit and the date should all still be
-there, because none of them is carried by colour.
 
 <ComponentPreview name="metric-tile" />
 
@@ -79,92 +60,42 @@ import { MetricTile } from "@/components/ui/metric-tile"
 
 <WhenToUse
   use={[
-    "A dashboard or summary grid where several measurements must be visible at once and the reader is scanning, not reading.",
-    "A measurement whose current value the reader already understands and which needs no explanation to be useful, such as their own resting heart rate or their own weight.",
-    "An entry point: a tile that opens the result in full when tapped.",
+    "A summary grid where several measurements are visible at once and the reader scans.",
+    "A measurement the reader already understands, such as their resting heart rate.",
+    "An entry point: a tile that opens the full result via href.",
   ]}
   avoid={[
-    { case: "The reader may be seeing this measurement for the first time and needs it explained.", instead: "result-card" },
-    { case: "The value only makes sense against a reference range, and the range will not fit.", instead: "range-bar" },
-    { case: "The number is a composite score whose derivation must be disclosed.", instead: "score-dial" },
-    { case: "You need to show how the value has moved rather than what it is now. This component draws no line at all.", instead: "trend-sparkline" },
-    { case: "A whole surface has no reading to show yet. One cell of a grid whose neighbours carry readings is still a tile, and says its absence in words rather than sending the reader away.", instead: "empty-state" },
+    { case: "The reader is seeing this measurement for the first time and needs it explained.", instead: "result-card" },
+    { case: "The value only makes sense against a reference range that will not fit.", instead: "range-bar" },
+    { case: "A whole surface has no reading yet. One empty cell in a grid is still a tile.", instead: "empty-state" },
+    { case: "You need to show how the value has moved. This draws no line.", instead: "trend-sparkline" },
     { case: "The value is still loading and the grid would otherwise reflow.", instead: "skeleton" },
   ]}
 />
 
-A tile that cannot be opened is a dead end. If a reader glances at a number, wonders what it
-means, and has nowhere to go, the tile has raised a question the product refuses to answer.
-Every clinical tile should lead to a [ResultCard](./result-card.mdx) or an equivalent
-surface, which is what `href` is for.
-
 ## Clinical meaning
 
-**What it asserts.** When there is a reading, that this measurement had this value, in this
-unit, at this time. Three claims, all of which must be on the tile: a number without a unit
-is ambiguous, and a number without a time is undated, which for health data is the same as
-being wrong. `label`, `value` and `now` are always required, and `measuredAt` is required
-beside a reading, where an instant this component cannot locate in time renders nothing at
-all rather than a number a reader would take for today's. When `value` is `null` there is no
-measurement to date, so the third claim is withheld and `measuredAt` is `null`: a tile that
-named a measurement time above "no reading yet" would claim a moment nobody took a reading. A
-tile with no reading therefore asserts one thing and not three, that nothing has been
-measured, and it says nothing about when anyone last looked, because the component holds no
-such datum and will not invent one. This is the same line [Value](./value.mdx) draws, that
-zero is a reading and absence is not: a reading of nought is a measurement with a time, an
-absence is neither, and the tile keeps them apart by dating the first and dropping the time
-line under the second rather than pairing "no reading yet" with a moment nobody measured.
+**Asserts.** With a reading, that this measurement had this value, in this unit, at
+this time, so `measuredAt` is required beside one. An absence is not a reading of zero.
 
-**Where the number came from, and why the tile cannot say.** The tile names the moment a
-reading belongs to and defaults to *Measured*. `event` now lets the product choose another
-moment, but every moment word names when, not where the number came from, and there is still
-no provenance prop, so a figure that a device estimated, or that somebody typed in from
-memory, is announced in exactly the words a laboratory result gets. Until that is closed, do
-not route a figure nobody measured through `measuredAt`: the tile will assert a provenance
-the product never claimed. This is one of
-the two obligations on this page's list of governors that the component does not meet. The
-other is the missing masking affordance, and both are listed above rather than left to be
-discovered.
+**Never read as.** A current reading, unless it is one. Past the product's boundary the
+tile mutes and says so in words, as
+[Uncertainty and staleness](../health/uncertainty-and-staleness.mdx) requires.
 
-**What it must never be read as.** A current reading, unless it is one. The single most
-common failure of health dashboards is a tile showing a number from six weeks ago in exactly
-the typography of one taken this morning. Past the product's staleness boundary the whole
-tile mutes and the timestamp says *may be out of date* in words. The treatment is a tone
-change and a sentence rather than a small grey date, which is what
-[Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx) requires.
+**Colour axis.** Category, on the icon and the label only. Status appears as an embedded
+[StatusPill](./status-pill.mdx), never the tile's background, so no element carries
+both ([The two colour axes](../health/two-colour-axes.mdx)).
 
-**Which colour axis it may use.** The **category** axis, on the icon and the label, so a
-reader can find the sleep tiles among the heart tiles in a grid of eight. The **status**
-axis appears only as an embedded [StatusPill](./status-pill.mdx), never as the tile's
-background. No element on a tile carries both, so there is no OPSIN-0001 for this component
-to raise. The never-mix rule is a check on an element, not on a props object.
+**Thresholds.** None. `staleAfterHours` has no default, because opsinjs holds no boundary
+for any measurement. Omitted, there is no stale treatment. The tile derives no level:
+`status` is the product's, under
+[Clinical status semantics](../health/clinical-status-semantics.mdx). Pair `attention` or
+`urgent` with an `href`, because nothing here enforces it.
 
-**Who owns the staleness boundary.** The product, and only the product. What counts as an
-old reading is clinical and differs completely from one measurement to the next, and opsinjs
-holds no such number for any measurement in any population. It holds none as a default, none
-in an example, and none as an illustration in this paragraph, because a number written down
-anywhere is a number somebody copies. `staleAfterHours` has no default and will not get one.
-Omitted, there is no stale treatment at all, which is the honest output when nobody has said
-what stale means here.
-
-**Who assigns the level.** The product, and nothing here derives one. There is no comparison
-of a value against anything in this component's source, because it has no range, no
-threshold and no reader.
-
-**A level and a destination belong together, and nothing here enforces it.**
-[Clinical status semantics](../health/clinical-status-semantics.mdx) says of `attention`
-that there is always a named action; a tile has no room for a sentence, so on a tile the
-action is the tile. `status` can nevertheless be set on a tile with no `href`, and nothing
-warns. Pairing them is the product's to remember. A check for it belongs in the shared
-warning channel, which this component cannot add a code to on its own.
-
-<SafetyCallout severity="attention" evidence="opinion">
-A grid of status-coloured tiles is a heat map of somebody's body, and it is least readable at
-the moment it matters most. Colour a tile for what the reading is *about*; put how much
-attention it needs in a pill, with the word in it, on the one or two tiles the product has
-actually said something about. Filling the rest with a reassuring level is inventing
-verdicts. See [Alarm fatigue](../health/alarm-fatigue.mdx).
-</SafetyCallout>
+**Provenance and masking.** There is no provenance prop and no mask, so do not route a
+figure nobody measured through `measuredAt`.
+[Data provenance](../health/data-provenance-and-device-accuracy.mdx) and
+[On-screen privacy](../health/on-screen-privacy.mdx) name this component, and neither is met.
 
 ## Anatomy
 
@@ -173,382 +104,107 @@ verdicts. See [Alarm fatigue](../health/alarm-fatigue.mdx).
   parts={[
     {
       name: "MetricTile",
-      describes: "The root. An <a> when href is set and a plain container otherwise: one tab stop with an href and none without, which is what the keyboard table below says too. Carries neither axis: the surface stays neutral at every status. Holds the corner, the target floor, the focus ring and the print boundary.",
+      describes: "The root: an <a> with href, a container without. Carries neither axis.",
       prop: "href",
     },
     {
+      name: "Surface",
+      describes: "One level down, the card rung supplies the material.",
+    },
+    {
       name: "MetricTile.Header",
-      describes: "The icon and the label on one row. Not a heading element: a grid of eight tiles would put eight headings into the rotor between the reader and whatever they came for.",
+      describes: "Icon and label on one row. Not a heading element.",
     },
     {
       name: "MetricTile.Icon",
-      describes: "The product's own glyph, tinted from the category axis and hidden from assistive technology because the label beside it says the same thing in words. Rendered only when you pass one. opsinjs ships no category icon set, and category identity governs icons separately.",
+      describes: "The product's glyph, category-tinted and aria-hidden, only when passed.",
       prop: "icon",
     },
     {
       name: "MetricTile.Label",
-      describes: "What was measured, in the reader's words. Tinted from the category axis and carrying data-category. Loses its tint with the rest of the tile when the reading is past its staleness boundary.",
+      describes: "What was measured, in the reader's words. Carries data-category, and mutes when stale.",
       prop: "label",
     },
     {
       name: "MetricTile.Affordance",
-      describes: "A trailing chevron at the end of the header row, rendered only when href is set, so a reader can see the tile is a door before touching it. Hidden from assistive technology, because the link's own accessible name already says where it goes and an announced glyph would only repeat it. Carries neither colour axis: \"this opens\" is not a category and not a status. A static tile has none.",
+      describes: "A trailing aria-hidden chevron, only with href.",
       prop: "href",
     },
     {
       name: "MetricTile.Reading",
-      describes: "Holds one Value. The tile passes size=\"display\" and does not expose it, because a tile whose reading is not the largest thing on it is a composition error rather than a variant. The size the reader sees is chosen from the state by Value, not by the tile: a reading is the one display-size element on the tile, while an absence drops to the headline step in the muted foreground, because an absence is a sentence rather than a number and must never be the loudest thing on a dashboard.",
+      describes: "One Value at display size, the loudest thing here. An absence drops to muted headline.",
       prop: "value",
     },
     {
       name: "MetricTile.Time",
-      describes: "Holds one RelativeTime whose event word the tile forwards, defaulting to \"measured\", after the reading and before any level, on the natural baseline. Nothing pins it to the foot of the tile: give one tile in a row a label that wraps to two lines and its date sits a line below its neighbours'. It shows the relative phrase and the reading's exact date and time on screen by default, and names the offset only when no timeZone prop was given because a named IANA zone is already the reader's own clock, and the longer line wraps inside this slot rather than widening the tile. Carries the staleness words when a boundary was supplied and the reading is past it, or when the age could not be checked at all. It carries the moment word the event prop names, whatever the origin of the number. When there is no reading this part is dropped rather than dated, because a tile with no value has no measurement time to name, so measuredAt is null beside an absence.",
+      describes: "One RelativeTime: event word, exact date, staleness words. Dropped when value is null.",
       prop: "measuredAt",
     },
-  ]}
-/>
-
-<CompositionTree
-  name="metric-tile"
-  tree={[
     {
-      part: "MetricTile",
-      cardinality: "1",
-      note: "data-slot=\"metric-tile\"; <a> with the target floor on both axes when href is set",
-      children: [
-        {
-          part: "Surface",
-          cardinality: "1",
-          note: "rung=\"card\"; the material only. The stale treatment is on the parts and not on this root, so a className from outside cannot merge it away and the pill cannot inherit it",
-          children: [
-            {
-              part: "MetricTile.Header",
-              cardinality: "1",
-              note: "data-slot=\"metric-tile-header\"",
-              children: [
-                {
-                  part: "MetricTile.Icon",
-                  cardinality: "0..1",
-                  note: "data-slot=\"metric-tile-icon\"; data-category=\"<category>\"; aria-hidden",
-                },
-                {
-                  part: "MetricTile.Label",
-                  cardinality: "1",
-                  note: "data-slot=\"metric-tile-label\"; data-category=\"<category>\"",
-                },
-                {
-                  part: "MetricTile.Affordance",
-                  cardinality: "0..1",
-                  note: "data-slot=\"metric-tile-affordance\"; aria-hidden; present only when href is set",
-                },
-              ],
-            },
-            {
-              part: "MetricTile.Reading",
-              cardinality: "1",
-              note: "data-slot=\"metric-tile-reading\"",
-              children: [
-                {
-                  part: "Value",
-                  cardinality: "1",
-                  note: "data-slot=\"value\"; data-opsinjs-value=\"<reading>\"; size=\"display\" always, and Value renders a reading at display but drops an absence to the headline step in the muted foreground",
-                },
-              ],
-            },
-            {
-              part: "MetricTile.Time",
-              cardinality: "0..1",
-              note: "data-slot=\"metric-tile-time\"; absent entirely when value is null",
-              children: [
-                {
-                  part: "RelativeTime",
-                  cardinality: "1",
-                  note: "data-slot=\"relative-time\"; event forwarded, default \"measured\"",
-                },
-              ],
-            },
-            {
-              part: "StatusPill",
-              cardinality: "0..1",
-              note: "data-slot=\"status-pill\"; data-status=\"<level>\"; absent entirely when no status was assigned; given describes only on a tile with no href, where nothing else names its subject",
-            },
-          ],
-        },
-      ],
+      name: "StatusPill",
+      describes: "The product's level, embedded last, after the time line, and absent when no status was assigned.",
+      prop: "status",
     },
   ]}
 />
-
-The parts above are identified by `data-slot` and are styleable from outside. None of them is
-an export: there is no `MetricTile.Reading` component, no way to render a label without a
-reading, and no prop that removes the timestamp.
-
-**There is no sparkline, and that is the one real departure from the part tree above.** The
-specification asked for a `trend` array drawn small, decorative, hidden from assistive
-technology. [TrendSparkline](./trend-sparkline.mdx) shipped with a mandatory, visible
-caption and a `role="img"` plot named by it, because a line through somebody's readings is a
-claim that a pattern exists and the sentence beside it is the only part that says which
-pattern. Those two cannot both hold on one element. That left two honest options. One is a
-tile big enough to carry a real caption, which is a card, and the other is no trend at all.
-This is the second: the tile is a number, a unit and a date, and the reader taps through to
-the surface that can draw a line and explain it. A product that wants a line in a grid cell
-composes TrendSparkline in its own layout at a size where the caption fits, which is what
-the sparkline's own row-of-tiles example shows.
-
-**`Surface` is in the tree because it is in the DOM.** The tile does not paint its own
-material; it sits on the `card` rung like every other card-shaped thing in the system, so a
-product that re-tunes the ladder re-tunes tiles with it.
 
 ## Examples
 
 ### A summary grid
 
-The arrangement the component exists for. Every tint is category, so a reader can find the
-one they want without reading six labels; exactly one tile carries a status, and it carries
-it as a pill with the word in it. The other five say nothing about urgency because the
-product has said nothing about them.
+Every tint is category. Exactly one tile carries a `status`, as a pill with the word in
+it. The others say nothing about urgency.
 
 <ComponentPreview name="metric-tile-a-summary-grid" kind="example" align="start" />
 
 ### No boundary was supplied
 
-The same measurement three hours old and five weeks old, with nothing said about when a
-reading of this kind stops being current. Most dashboards are actually in that state. Both
-tiles are set identically, and nothing about the older one says it is older except the date
-`RelativeTime` prints. That is the argument for supplying the boundary, and for taking it
-from somebody who knows what was measured.
+Two readings, three hours and five weeks old, with no `staleAfterHours`. Only the printed
+date marks the older one.
 
-The muted treatment itself is described on this page and demonstrated by none of its
-previews. Showing it takes a number of hours; opsinjs holds none for any measurement in any
-population; and the version of this example that carried one taught the idea better and
-shipped a boundary into every repository that installed it. In a worked example a number is
-read as a recommendation whatever the caption beside it says.
-
-<DoDont>
-  <DoDont.Do>
-    **A five-week-old reading with the whole tile muted** and *may be out of date* beside the
-    date. The age of the reading is as visible as the reading.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **The same reading set exactly like this morning's**, with the date in small grey type
-    and the same verdict on both tiles. The reader compares it with today's number and draws a
-    conclusion from two things that are not comparable.
-  </DoDont.Dont>
-</DoDont>
-
-<ComponentPreview
-  name="metric-tile-no-boundary-supplied"
-  kind="example"
-  align="start"
-  caption="This preview is the Don't, not a specimen to copy. Both tiles are set identically apart from the printed date, so the five-week-old reading looks exactly like this morning's."
-/>
+<ComponentPreview name="metric-tile-no-boundary-supplied" kind="example" align="start" />
 
 ## States
 
-An interactive tile is a link, so its interaction states are a link's. Hovering it or reaching
-it with the keyboard underlines the label, keyboard focus draws the two-pixel offset ring the
-component declares in its own class, and a press shifts the whole tile down one pixel, which is
-the one acknowledgement a one-handed tap on a touch screen can show. There is no disabled state,
-because a tile with nowhere to go is a static readout rather than a disabled link, and a static
-tile (one set with no `href`) carries none of these states at all.
-
-Three of the five data states are the composing grid's to supply and two are the tile's own.
-Loading belongs to a [Skeleton](./skeleton.mdx) the layout swaps in so the grid keeps its
-shape, and a system error belongs to the [EmptyState](./empty-state.mdx) the surface shows in
-place of a tile. What the tile owns is the empty reading and the stale one, because those are
-the two a dashboard most often draws as though they were fresh.
-
 | Data state | What MetricTile renders |
 | --- | --- |
-| Error | Two behaviours, handled apart. A `measuredAt` this component cannot locate in time beside a reading, whether it is malformed, carries no offset, or is `null` next to a real value, is refused: the tile renders nothing at all and reports it once in development, because a number with a date it cannot stand behind is worse than no number. A `value` that is present but is not a finite number falls to the absence branch, where [Value](./value.mdx) shows its own not-available wording and reports it rather than this tile raising a second complaint. A system-level fetch error is the grid's to draw as an [EmptyState](./empty-state.mdx). |
-| Loading | None of its own. A reading still arriving is covered by a [Skeleton](./skeleton.mdx) the composing grid swaps in so the layout holds its shape, which is where "when to use it" sends you. The tile takes no loading prop and shows no spinner. |
-| Empty | `value={null}` is the no-reading state, and it is not a reading of zero. The label stays, [Value](./value.mdx) drops the absence to the headline step in the muted foreground so it is never the loudest thing in a grid, and the time line is dropped because there is no measurement to date, so `measuredAt` is `null` here. |
-| Partial | No state of its own. A reading is present in full or absent entirely, because `value` is a number or `null` and a compound reading is two measurements that take two tiles. Optional parts a caller leaves out, a status, a category tint or an icon, are simply not rendered, which is composition rather than a partial reading. |
-| Stale | Past the product's `staleAfterHours` the label, any icon and the reading mute to the muted foreground and the time line adds *may be out of date* in words, so the state survives greyscale and print. The muting sits on the parts and not the root, so the embedded [StatusPill](./status-pill.mdx) keeps the verdict the product assigned. When the age cannot be checked at all the tile treats the reading as possibly out of date rather than asserting it is current. With no `staleAfterHours` there is no stale treatment, which is the honest output when nobody has said what stale means for this measurement. |
+| Error | A `measuredAt` the tile cannot locate beside a reading is refused, and nothing renders. |
+| Empty | `value={null}` keeps the label, drops the time line, and is not zero. |
+| Stale | Past `staleAfterHours` the parts mute and the time line adds *may be out of date*. |
 
 ## Content guidelines
 
-Labels are two or three words in the reader's vocabulary. Write *resting heart rate*, not
-*RHR*, and not *HeartRateResting*. Units are displayed as symbols and spoken in full, which
-`Value` does from the unit table; a symbol the table does not hold is shown as written rather
-than pronounced by guesswork. Never abbreviate the measurement into an acronym the reader has
-to learn before they can use your dashboard.
-
-There is no room for explanation on a tile, so the tile must not raise a question it cannot
-answer. If the number needs a caveat, the caveat belongs on the surface the tile opens. If
-there is no such surface, the caveat means the reading does not belong on a tile.
+Labels are two or three words in the reader's vocabulary: *resting heart rate*, not *RHR*.
+A caveat belongs on the surface the tile opens.
 
 <DoDont>
   <DoDont.Do>
-    **"Resting heart rate"**, with the unit beside the number and the recency in the tile.
-    Named in full, so nothing has to be learnt before the grid can be read.
+    **"Resting heart rate"**, with the unit beside the number and the recency on the tile.
   </DoDont.Do>
   <DoDont.Dont>
-    **"RHR"** with a bare number. An acronym the reader may not know, no unit to say which
-    system the digits belong to, and no way to tell whether this is from today or from March.
+    **"RHR"** with a bare number: an unknown acronym, no unit and no date.
   </DoDont.Dont>
 </DoDont>
 
-## Motion
-
-MetricTile declares no transition and no animation, so there is nothing for
-`prefers-reduced-motion` to reduce. The one movement it makes is the press cue on a linked
-tile, a single one-pixel downward shift under `:active` that carries no transition of its own
-and so lands in one frame rather than easing. The hover and focus underline on the label is a
-change of state and not a travel, and it declares no transition either. The tile consumes no
-token from `tokens/motion.json`, which means re-tuning a spring or a duration there changes
-nothing it renders.
-
-A health value is never animated on first paint here, and that is a rule rather than an
-oversight. There is no count-up on the number and no sweep across the tile, because a figure
-that counts up has shown, for every frame of the count, a number that was not true, which is
-what [Motion in health UI](../health/motion-in-health-ui.mdx) forbids. When a reading changes
-while the tile is on screen the tile re-renders to the new figure with no motion at all, so
-nothing on it moves to announce a change that its words and its date already carry.
-
 ## Accessibility
 
-Some of this is checked by a gate on every commit. The rest is argument, and it is labelled
-as such: a component page claims accessibility only where it has been checked, with
-the gaps listed rather than left out.
+**Checked by `pnpm run check:a11y` on every commit.**
 
-**Checked, by `pnpm run check:a11y` on every commit:**
+- No element carries both `data-status` and `data-category`.
+- No type size in pixels, no colour literal.
+- No staleness number ships in the component or its examples.
 
-- **Neither axis lands on one element.** The static rig fails the build on any element
-  carrying both `data-status` and `data-category`, and on any element resolving a category
-  colour and a status colour through the same CSS property. The icon and the label carry
-  `data-category` and no status; the pill carries `data-status` and no category; the root
-  carries neither.
-- **No status is drawn here at all.** This file paints no status colour, reads no status
-  word and stamps no `data-status`. Every one of those belongs to the embedded
-  [StatusPill](./status-pill.mdx), which owes the word, the glyph and the colour together.
-- **No type size in pixels, and no colour literal.** Every size comes from the eleven-step
-  ramp and every colour from a role token, so the tile scales with the reader's own text
-  size and re-derives itself for dark mode.
-- **No staleness number ships, anywhere.** A threshold-shaped name given a numeric literal
-  under `registry/bases`, `registry/examples` and `registry/screens` fails the build. The
-  build checks those three directories and no others, so the same name in `lib/` or `app/`
-  is unchecked. The exemption that lets an `EXAMPLE_`-prefixed constant carry a number
-  deliberately does not open for a staleness prop: renaming a boundary does not stop it
-  being one. Neither this component, nor its demo, nor either of its examples carries one,
-  which is why the muted stale treatment appears in no preview on this page.
+**Argued from the source, not measured.**
 
-**Argued, and true of the implementation, but not yet measured:**
+- A linked tile's accessible name runs label, reading, time, level, joined by visually
+  hidden commas.
+- `Value` speaks *kilograms* for *kg*, so visible and accessible names can diverge, a
+  WCAG 2.5.3 risk.
+- A static tile has no accessible name, so the pill takes `describes` there.
+- Staleness is never tone alone: muting and words share one parse.
 
-- **An interactive tile is one link and one tab stop**, with the whole tile as the target and
-  the 44pt floor carried on both axes in `rem`, so it grows when the reader raises their text
-  size. Nothing this component renders inside it is focusable: the pill is a `span`, the icon
-  wrapper is `aria-hidden`, the trailing chevron is an `aria-hidden` span, and there is no
-  second control. The `icon` slot takes a node from
-  the caller, though, and a control passed there would be focusable inside an `aria-hidden`
-  subtree. A control there is a second tab stop in a one-stop component, and it is missing
-  from the accessibility tree. The prop says it must not be interactive and nothing checks
-  that, so the claim above is scoped to what the component controls. See
-  [Target size and motor](../accessibility/target-size-and-motor.mdx).
-- **A linked tile is visibly a control before anyone touches it.** At rest it carries a
-  trailing chevron a static tile does not, so a reader scanning a list on a phone can tell a
-  door from a plain readout with no pointer and no keyboard, and the cue survives touch, dark
-  theme, greyscale and print. Hovering the tile or reaching it with the keyboard underlines
-  the label, the same answer [Card](./card.mdx) gives on the surface the two share; keyboard
-  focus also draws the two-pixel offset ring the component declares in its own class rather
-  than borrowing one from a product stylesheet it was not installed with; and a press shifts
-  the whole tile down one pixel, which is the one acknowledgement a one-handed tap on a touch
-  screen can show. The chevron is decorative and hidden from assistive technology, so the
-  link's accessible name is unchanged: it stays the label, the reading, the time and any
-  level, in that order.
-- **Its accessible name is a whole sentence.** A link takes its name from its content, and
-  the parts are separated by visually-hidden commas, so the first tile of the second example
-  above is announced *Example measurement, 14 steps, Measured 3 hours ago, on 6 April 2026
-  at 06:00 UTC, Watch* rather than as a run of fragments. `RelativeTime` always appends the
-  exact date and time, and names the offset only when no `timeZone` was given, because a
-  named IANA zone is already the reader's own clock; a sighted reader now sees this on screen
-  as well rather than only in the name, and the reader's locale decides the word order. A tile
-  with a status therefore announces five clauses and not three. A tile with no reading
-  announces its label and the absence sentence and stops, because there is no instant and no
-  measurement word to read after them.
-- **The unit as it is written on screen is not in that name**, and this is a constraint
-  rather than a claim. `Value` hides the symbol from assistive technology and substitutes the
-  spoken form, so a tile whose visible text is *kg* is named *kilograms*, and a link whose
-  visible label has no substring in common with its accessible name is a WCAG 2.2 SC 2.5.3
-  failure. It does not bite in anything shipped here only because *steps* is both the symbol
-  and the spoken form. This component offers no repair: there is no `aria-label` escape, and
-  an `aria-label` would replace the whole sentence rather than mend one clause of it.
-  `Value`'s own documentation assigns the duty to whoever makes a reading tappable, which is
-  this component, so it is recorded here rather than left for a product using *kg*, *mmHg* or
-  *%* to discover.
-- **A static tile has no accessible name of its own**, and this is a real gap rather than an
-  omission. Composing one would mean this component formatting the number itself, or minting
-  ids for `aria-labelledby`, which needs a hook and a client boundary. Its content is in the
-  same order and says the same words; it is not a single object in the rotor. Pass `href`
-  where you can. The embedded `StatusPill` is given `describes` in that variant and not in
-  the linked one, so the level keeps a subject either way: inside a link the label is already
-  in the same name, and outside one the pill carries the label itself rather than floating in
-  the reading order as a level with nothing attached to it.
-- **Staleness is never carried by tone alone.** The tone and the words are two verdicts
-  reached in two files, and they agree because they are the same expression on the same
-  parse: this component reads an instant with the pattern, the field checks and the
-  `Date.UTC` round trip `RelativeTime` uses, and compares elapsed milliseconds against the
-  threshold multiplied out exactly as `RelativeTime` does. An earlier version of this file
-  diverged on both, and a timestamp one accepted and the other refused produced a fully
-  greyed tile with no words in it. That is tone alone, which is the state the doctrine
-  forbids. Because the words are the carrier, the state survives greyscale, increased
-  contrast and a black-and-white printout. The duplication itself is an open question above,
-  not a solved problem.
-- **The muted treatment is carried by the parts, not by the tile's root.** That is what stops
-  a `className` from outside deleting it, because `tailwind-merge` files an opsin type step
-  and an opsin colour in one conflict group and keeps whichever arrives last. It is also what
-  keeps the muting off the `StatusPill`: a verdict the product assigned is not withdrawn
-  because the reading has aged.
-- **Reading order matches visual order**: label, reading, time, status, because per
-  D8 the level closes the reading order, after the instant it qualifies. Nothing is
-  re-arranged by CSS against the DOM.
-- **Nothing animates.** No count-up, no entrance transition, no pulse. A number that counts
-  up has displayed, for every frame of the count, a figure that is not true. See
-  [Motion in health UI](../health/motion-in-health-ui.mdx).
-- **No live region is mounted.** When a reading changes on screen the tile says nothing on
-  the caller's behalf; only [AlertBanner](./alert-banner.mdx) is entitled to interrupt.
-
-**Not yet checked at all, and listed rather than omitted:**
-
-- Contrast for the label, the reading, the unit, the category tint and the muted stale
-  treatment, as this tile composes them, in both themes and under increased contrast. The
-  token pairs the tile draws its colour from are now measured under the `category`,
-  `materials` and `neutral` scopes it declares in `registry/catalogue.ts`, and the report
-  below lists them. That is a measurement of those token pairs and not of this tile: the
-  specific combinations it assembles, a category ink and a status tint each sitting on the
-  `card` material with the muted treatment over them, are not measured as a set, so they stay
-  on this list. Both `prefers-contrast: more` and `forced-colors: active` are now answered,
-  and neither has
-  been measured here. Surface draws the tile's edge as an outline rather than a fill or a
-  box-shadow, so under forced colours the browser keeps that outline and repaints it in
-  `CanvasText` while it drops everything a background carries, and the tile's boundary does
-  not depend on a colour the mode removes. Under `prefers-contrast: more` Surface widens the
-  same edge. This component declares no forced-colours border of its own: the boundary is
-  Surface's to draw and the tile only leans on it. Nobody has opened the result under a real
-  Windows contrast theme, which is why both stay on this list rather than moving to the
-  checked one.
-- Behaviour at 200% text. The tile sets no fixed height, no `truncate` and no
-  `whitespace-nowrap`, and `Value` keeps the number and its unit together with a no-break
-  space. The behaviour has nevertheless not been observed at that size, and `className` can
-  override every one of those from outside. The grid in the first example does not reflow
-  under this site's own 200% control either: Tailwind's breakpoints are `rem` inside a media
-  query, and `rem` there resolves against the document's initial font size rather than the
-  root element's computed one, so the columns stay put while the type doubles.
-- Print. The exact date shows on screen by default now, so it is in the printed output too
-  rather than reaching paper by a print-only rule, and the tile declares `print:border` so
-  its boundary does not depend on a background the browser drops. Its forced-colours sibling
-  is a separate mechanism argued from the same premise: forced colours keeps Surface's edge
-  outline and repaints it in `CanvasText`, whereas print needs the tile's own `print:border`
-  because a printer keeps that outline but draws it in the rung's screen edge colour, which is
-  invisible on white paper. Whether that reads as a
-  boundary on paper has not been looked at, and the docs site's own print rules do not travel
-  with the component. It prints as a tile and not as the plain list the specification asks
-  for: turning a grid into a list is a decision about the grid, which a tile cannot see.
-- Masking a reading on a shared screen. There is no mask, no reveal and no sensitivity prop,
-  so a reading cannot be obscured without the layout moving.
-  [On-screen privacy](../health/on-screen-privacy.mdx) names this component. `Value` owns the
-  digits and has no mask either, so the open question is where masking belongs rather than
-  what this component should add on its own.
+**Not checked by any gate.** Contrast as the tile composes it, `prefers-contrast: more`,
+`forced-colors`, 200% text, print, and masking on a shared screen.
 
 <KeyboardTable
   name="metric-tile"
@@ -556,22 +212,22 @@ the gaps listed rather than left out.
     {
       keys: "Tab",
       action: "Moves to the tile, when it has an href",
-      notes: "One tab stop for the whole tile, not one per part. A tile with a label, a reading, a pill and a timestamp is one stop. A tile with no href is not focusable at all and is skipped.",
+      notes: "One stop for the whole tile, none without an href.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves backwards to the tile",
-      notes: "Reverse order matches the visual order exactly, because the DOM order is the visual order and nothing is re-arranged by CSS.",
+      notes: "DOM order is visual order.",
     },
     {
       keys: "Enter",
       action: "Follows the link",
-      notes: "Only when href is set. The tile is a link rather than a button because it navigates; there is no destructive action a tile can take.",
+      notes: "Only when href is set.",
     },
     {
       keys: "Space",
       action: "Scrolls the page",
-      notes: "A link does not activate on Space, and this component does not make it. A product that needs Space to activate needs a button. A control that navigates should not be one.",
+      notes: "A link does not activate on Space.",
     },
   ]}
 />
@@ -585,194 +241,40 @@ the gaps listed rather than left out.
   rows={[
     {
       attribute: "data-slot",
-      condition: "On the root, always. It is an <a> when href is set and a plain container otherwise",
-      value: "metric-tile",
-    },
-    {
-      attribute: "data-slot",
-      condition: "On the header row and the reading, always; on the time line only when there is a reading to date",
-      value: "metric-tile-header | metric-tile-reading | metric-tile-time",
-    },
-    {
-      attribute: "data-slot",
-      condition: "On the icon only when you pass one; on the label always; on the trailing chevron only when href is set",
-      value: "metric-tile-icon | metric-tile-label | metric-tile-affordance",
-    },
-    {
-      attribute: "data-slot",
-      condition: "On the embedded parts the tile composes: the reading's Value always, the time line's RelativeTime when there is a reading, and the level's StatusPill when a status is set",
-      value: "value | relative-time | status-pill",
+      condition: "On the root and every part; icon, affordance and time only when rendered",
+      value: "metric-tile, metric-tile-header, metric-tile-icon, metric-tile-label, metric-tile-affordance, metric-tile-reading, metric-tile-time",
     },
     {
       attribute: "data-category",
-      condition: "On the icon and the label, when a known category is passed. The root, the reading, the time line and the pill never carry it",
+      condition: "On the icon and the label only, when a known category is passed",
       value: "sleep | heart | activity | nutrition | mind | labs",
     },
     {
       attribute: "data-status",
-      condition: "On the embedded StatusPill only, and only when a status is set. This component stamps no status of its own",
+      condition: "On the embedded StatusPill only, when a status is set. The tile stamps none",
       value: "steady | watch | attention | urgent",
     },
     {
       attribute: "data-opsinjs-value",
-      condition: "On the embedded Value, which the tile always composes, in the reading state and the absence state alike",
-      value: "The unrounded number, or an empty string when there is no reading",
+      condition: "On the embedded Value, always",
+      value: "The unrounded number, or an empty string with no reading",
     },
   ]}
 />
-
-The tile carries its own `data-slot` on the root and on each part, so a rule of your own reaches
-the header, the label, the reading or the time line without an export. It stamps `data-category`
-on the icon and the label alone, which is the one axis the tile's own surface may carry, and it
-stamps no `data-status` anywhere: the level lives on the embedded [StatusPill](./status-pill.mdx),
-which owes the word, the glyph and the colour together, so `data-status` rides on that pill and
-never on the tile. `data-opsinjs-value` belongs to [Value](./value.mdx), holding the unrounded
-number a product scrapes or styles by, and an empty string beside an absence rather than a zero.
-The two axes stay on two elements here by construction, because a category attribute and a status
-attribute never land on one node.
-
-## CSS variables
-
-<CssVariablesTable name="metric-tile" />
-
-MetricTile exposes no custom property of its own for a consumer to set. Its colours are the
-semantic token roles listed under Tokens below, the category ink on the icon and label and the
-muted foreground on a stale reading, read straight from the token layer rather than through a
-component-scoped variable, so there is nothing of its own to override here. It does read two
-token roles directly by name, the corner shape it shares with every card and the target-minimum
-floor that keeps a linked tile tappable, and both are roles it consumes rather than variables it
-declares. To restyle any part, write a rule against its `data-slot`.
-
-## Tokens
-
-<TokenTable component="metric-tile" />
-
-These are the tokens the tile actually reads, generated from its source by
-`scripts/build-tokens.mts` rather than listed by hand. They are the category ink roles for the
-icon and the label, the muted foreground for a stale reading, the `card` material and its rung,
-the spacing steps that set the rhythm between the parts, and the type steps for the label and the
-time line. A health component never reads a category token and a status token onto one element,
-which is why no status role appears among the tile's own tokens: the level's colour belongs to
-the embedded StatusPill, and a row here that paired a category tint with a status tint on one
-element would be the two-axis defect this table exists to expose.
 
 ## API reference
 
 <PropsTable name="MetricTileProps" />
 
-Five props must be passed and none has a default: `label`, `value`, `measuredAt`, `now` and
-`precision`. `label` and `value` are two of the tile's three claims, and `measuredAt` is the
-third when there is a reading, dating it. It is typed `string | null` rather than a plain
-string, because a tile whose `value` is `null` has no measurement to date and passes `null`
-there. The compiler still asks for the prop, so a caller cannot forget the instant beside a
-reading and ship an undated number, and `null` is the honest answer beside an absence. `now`
-is the instant the age is measured against, read once where the screen is rendered and passed
-to every tile on it. A component that read the clock itself would let a grid of eight
-disagree with itself across a minute boundary. `precision` is required so that a TypeScript
-caller cannot forget it and ship the raw digits an arithmetic result carries. The specification asks for no default
-float rendering anywhere, and a required prop puts that in the compiler rather than in a
-development warning alone.
-
-Two departures from the specification's proposed API are in that table rather than hidden
-behind it. **`value` is `number | null`**, not `number | string | null`: every number a
-reader sees goes through [Value](./value.mdx), which formats it, resolves the spoken form of
-the unit and keeps absence apart from zero, and a pre-formatted string is a number somebody
-has already rounded with no spoken unit behind it. A compound reading is two measurements
-and takes two tiles. **There is no `trend`**, for the reason set out under Anatomy. `now`,
-`timeZone`, `showOffset`, `event`, `precision`, `locale`, `icon`, `render` and `className` are
-additions: `now`
-and `timeZone` are forced by `RelativeTime`, which owns the timestamp, so `timeZone` puts the
-reading on the reader's own wall clock without a caller reaching past the tile, and the
-offset label then drops because a named zone is already the reader's own clock; `showOffset`
-also reaches `RelativeTime`, and `showOffset={false}` drops that same offset label for a
-reading the reader's own device took, where the zone cannot differ from the reader's and a
-label like "UTC+1" would only puzzle them, and the tile forwards it rather than deciding it
-because it cannot tell where the number came from; `event` names which moment the timestamp
-belongs to and defaults to *measured*, reaching `RelativeTime` as well, and because it names
-the moment and never the origin, the provenance gap stays open; `precision`
-and `locale` come from
-[Numbers, units and precision](../health/numbers-units-precision.mdx); and `icon` from
-opsinjs shipping no category icon set. The demo and the examples on this page pass
-`locale="en-GB"` so their captured dates read day first, the order
-[Numbers, dates and time](../content/numbers-dates-and-time.mdx) mandates. The prop stays
-optional: a product passes its own BCP 47 tag, and with none set the date follows the runtime
-locale rather than a house default. A demo that set no locale would capture whatever order the
-build machine's locale spells.
-
-Three props a reader may go looking for are absent, and each absence is a gap rather than a
-decision: there is no provenance prop, so the tile asserts measurement it cannot verify;
-there is no masking prop; and there is no way to require a destination beside a level that
-asks for action. All three are recorded under Status with what closing them would take.
-
-`ClinicalStatus` and `HealthCategory` are declared once, in the substrate, and imported from
-`@/lib/opsinjs` rather than from this component.
+A `measuredAt` this component cannot locate beside a reading is refused: nothing renders,
+and development reports it once. `label`, `value`, `measuredAt`, `now` and `precision` are
+required with no default. `value` is `number | null`, so a compound reading takes two
+tiles. Read `now` once per screen and pass it to every tile.
 
 ## Related
 
-<RelatedComponents name="metric-tile" />
-
-**Easily confused with**
-
-- [ResultCard](./result-card.mdx) is the same data with room to explain itself. If it needs
-  three lines of plain English, it is a card.
-- [Value](./value.mdx) is the formatting primitive inside the tile. A tile is a Value plus a
-  label, a time and a surface.
-- [Card](./card.mdx) is a different component. A tile is not a small Card, and it has a
-  fixed internal contract of its own.
-- [StatusPill](./status-pill.mdx) appears inside a tile, never as its background.
-- [TrendSparkline](./trend-sparkline.mdx) is the component a tile does *not* embed. A line
-  needs a caption, and a tile has no room for one.
-
-**Used by**
-
-- [Alert escalation](../patterns/alert-escalation.mdx) raises a rung on the status the tile
-  already carries in its pill.
-- [Choose a component](../recipes/choose-a-component.mdx) is the decision path that lands on a
-  tile when the data is one current reading.
-- [Daily log screen](../screens/daily-log-screen.mdx) lays out the day's readings as a grid of
-  tiles.
-- [Empty and first use](../patterns/empty-and-first-use.mdx) is where the tile has to render
-  each kind of nothing before there is a reading.
-- [Build a health metric card](../recipes/health-metric-card.mdx) builds one dashboard
-  measurement around a tile in all five data states.
-- [Offline and stale data](../patterns/offline-and-stale-data.mdx) leans on the tile's
-  staleness verdict when a number can no longer be vouched for.
-- [Results screen](../screens/results-screen.mdx) reads a single result as number, meaning and
-  next step.
-- [Trend review](../patterns/trend-review.mdx) shows the latest reading in the tile beside the
-  change over time, which the tile does not draw itself.
-- [Trends screen](../screens/trends-screen.mdx) places several metrics side by side, each one a
-  tile.
-
-**Governed by**
-
-Every health page that names `metric-tile` in its own `implements` list, so the two
-directions match. Two of them set an obligation this component does not meet, and they are
-listed with the rest rather than dropped. An incomplete list of governors hides a gap
-instead of merely being untidy.
-
-- [Category identity](../health/category-identity.mdx)
-- [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx)
-- [Clinical status semantics](../health/clinical-status-semantics.mdx) is met for the pill;
-  the named action a level implies is not required beside it.
-- [Data provenance and device accuracy](../health/data-provenance-and-device-accuracy.mdx)
-  is **not met**, though less so than before: the tile no longer prints a measurement time
-  beside an absence, and the moment word is the `event` prop rather than a fixed *Measured*.
-  What is still missing is the provenance class in plain words. The five events name the
-  moment a reading belongs to, not where the number came from, so a device estimate, a
-  laboratory result and a figure typed from memory are still announced alike, and there is no
-  provenance prop.
-- [Numbers, units and precision](../health/numbers-units-precision.mdx)
-- [On-screen privacy](../health/on-screen-privacy.mdx) is **not met**: there is no masking
-  affordance.
-- [Reference ranges](../health/reference-ranges.mdx) is met by refusal: a tile has no range,
-  draws no band, and compares the value with nothing.
-- [Trends and change](../health/trends-and-change.mdx) is met by refusal: the tile draws no
-  line and takes no trend.
-- [The two colour axes](../health/two-colour-axes.mdx)
-- [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx)
-- [Unit systems](../health/unit-systems.mdx)
-
-Nothing checks that this list and those `implements` lists agree. `scripts/assert-ia.mts`
-does not read `governedBy` in either direction, and the catalogue row carries a third,
-shorter copy of the same field, so the three are kept in step by hand.
+- [ResultCard](./result-card.mdx) is the same data with room to explain itself.
+- [Value](./value.mdx) is the formatting primitive inside the tile.
+- [Card](./card.mdx) is a different component, not a bigger tile.
+- [StatusPill](./status-pill.mdx) is the level inside a tile, never its background.
+- [TrendSparkline](./trend-sparkline.mdx) is not embedded, because a line needs a caption.

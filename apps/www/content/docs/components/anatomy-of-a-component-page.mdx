@@ -1,8 +1,8 @@
 ---
 title: Anatomy of a component page
-description: The seventeen sections a shipped component page has, the ten a planned one has, which are optional, and why the order is deliberate. This contract is taught once so no page has to invent a structure.
+description: The fourteen sections a shipped component page may carry, the eight it must, and the word budget it fits inside.
 kind: handbook
-aliases: [page contract, page template, seventeen sections, documentation structure]
+aliases: [page contract, page template, lean component page, documentation structure]
 reviewed: 2026-09-20
 reviewer: engineering
 ---
@@ -11,74 +11,57 @@ reviewer: engineering
 
 ## The short version
 
-Every page under Components is the same page. A page with code behind it has
-seventeen sections in a fixed order, five of which it may leave out, and the
-order is fixed whether or not a section appears.
-`<PageTemplate kind="component" />` asserts the required sections exist and
-**fails the build** when one is missing, so a page cannot rot into seventeen
-headings with three sentences under each.
+A shipped page is fourteen sections in a fixed order: eight required, five optional, one
+gated on category. `<PageTemplate kind="component" />` and `assert-ia` both **fail the
+build** on a missing required section, an unknown one, or one out of order.
 
-A `planned` page is ten sections long:
-Status · Preview · Installation · When to use it · Clinical meaning (health
-categories only) · Anatomy · Proposed API · Content guidelines · Accessibility ·
-Related. Everything a specification cannot honestly report is **omitted, not left
-empty**. An empty heading is a promise you have not kept; an absent heading is an
-accurate description of a component that does not exist. No component sits at
-`planned` today: all sixty are `shipped`, so every component page in the corpus
-renders the longer outline.
+Rule LEAN001 fails the build when the body passes 1,000 words, or 1,250 on a `health-*`
+page. The lean page keeps every contract and drops every argument, and
+[ADR 0024](../project/decisions/0024-the-component-page-is-lean.mdx) records what was cut.
 
-The literal skeleton lives at `content/_templates/component.mdx` and is republished with
-every other template on
-[Documentation templates](../handbook/contributing/documentation-templates.mdx). Start
-from it. Never start from a blank file, and never start from another component's page.
-That is how a clinical contract gets copied onto a component it does not apply to.
+Start from `content/_templates/component.mdx` or [Button](./button.mdx). Never start from
+a blank file, and never from a health component's page for a component that is not one,
+because that copies a clinical contract onto something it does not govern.
 
 ## How it works
 
-### The seventeen sections
+### What opens the page
 
-Numbered in the order `SHIPPED_SECTIONS` in `lib/status.ts` gives them, which is
-the order a page must present them in. A section marked optional may be left out
-entirely; when it appears it appears in this position.
+There is no `## Status` heading. `<StubNotice status="shipped">` sits above `## Preview`,
+first after the definition, and carries at most three open safety questions, one sentence
+each. SAFE001 requires its two sentences in authored MDX, never a generated string: no
+accessibility review and no clinical review, and not for a production health surface.
+C6001 fails the build when the notice is missing or sits below a heading. The H1 and the
+definition come from `title` and `description`, never from MDX.
+
+### The fourteen sections
+
+`SHIPPED_SECTIONS` in `lib/status.ts` fixes the numbering, which is the order a page must
+present. Five are optional: Anatomy, States, Content guidelines, Data attributes and CSS
+variables. Each earns its place by the test in its row and keeps this position when it
+appears. Omitting one is not a defect; inventing content to fill it is.
 
 | # | Section | Written or generated | Required | What it is for |
 | --- | --- | --- | --- | --- |
-| 1 | Status | written from props | always | `<StubNotice>` naming the release phase, what has and has not been reviewed, and the safety questions still open. At `planned` it also carries the not-implemented marker |
-| 2 | Preview | generated | always | `<ComponentPreview>` at a base and style, with theme, density and text-size switches |
-| 3 | Installation | generated | always | `<ComponentInstall>` renders CLI and manual tabs built from the registry item, never typed by hand. The manual tab hosts `<ComponentSource>`, which resolves the id against the generated registry index and renders the component file's real bytes. That is the only place source appears on a page, and it is why no section owns it separately |
-| 4 | Usage | written | always | The import line and the minimal JSX. Two code blocks, zero prose |
-| 5 | When to use it | written | always | Two lists. Every entry in the *not* list names the component to use instead |
-| 6 | Clinical meaning | written | health categories only | Required when `category` starts with `health-`, and forbidden when it does not |
-| 7 | Anatomy | written + generated | always | Labelled parts over the render, plus the part hierarchy |
-| 8 | Examples | written | always | One H3 per variation: the rule, then the demonstration |
-| 9 | States | generated | optional | Interaction states and the five data states as one matrix |
-| 10 | Content guidelines | written | always | What to write inside the component, with `<DoDont>` pairs |
-| 11 | Motion | generated | optional | Which motion tokens it consumes and what each degrades to under reduced motion |
-| 12 | Accessibility | written + generated | always | What has been checked and what has only been argued, labelled apart. Never delegated upstream |
-| 13 | Data attributes | generated | optional | The state machine as a documented styling contract |
-| 14 | CSS variables | generated | optional | Per selector, never a global dump |
-| 15 | Tokens | generated | optional | Token, what it controls, what else uses it |
-| 16 | API reference | generated | always | `<PropsTable>` from a named exported interface |
-| 17 | Related | generated + written | always | Easily confused with, used by, governed by |
+| 1 | Preview | generated | always | `<ComponentPreview>` and nothing else |
+| 2 | Installation | generated | always | `<ComponentInstall>` alone. Its manual tab hosts `<ComponentSource>`, the only place source appears |
+| 3 | Usage | written | always | The import line and the minimal JSX. Two code blocks, zero prose |
+| 4 | When to use it | written | always | `<WhenToUse>` alone: at most four cases for, five against, one line each. Every *against* names the component to use instead |
+| 5 | Clinical meaning | written | health categories only | What it asserts, what it must never be read as, which colour axis reaches which element, who owns the thresholds, one or two sentences each. Required when `category` starts with `health-`, forbidden otherwise |
+| 6 | Anatomy | written | optional | `<Anatomy>` where the component has two or more parts, one line each. `<CompositionTree>` only where the tree nests below the root's children |
+| 7 | Examples | written + generated | always | One H3 per example: a sentence or two on what it shows and which prop drives it, then the preview |
+| 8 | States | written | optional | The five data states as a table, on a component that displays a reading. Left out where most rows would say not applicable |
+| 9 | Content guidelines | written | optional | One `<DoDont>` pair, on a component that renders copy the product writes |
+| 10 | Accessibility | written + generated | always | What a gate checks, what is argued from the source, what nothing checks, labelled apart. Then the keyboard table and the contrast report. Never delegated upstream |
+| 11 | Data attributes | written | optional | The styling contract, where the component stamps more than `data-slot` |
+| 12 | CSS variables | generated | optional | Where the component declares a custom property of its own |
+| 13 | API reference | generated | always | `<PropsTable>` from a named exported interface, plus a few sentences at most for a default or refusal the table cannot carry |
+| 14 | Related | written | always | Two to five one-line bullets naming what the component is confused with, each pointing at the alternative |
 
-A `planned` page swaps section 16 for `## Proposed API`, the intended interface
-written out as a specification and marked do-not-generate-against, and drops
-sections 4, 8 and the five optional ones. The two API sections must never both be
-present: a hand-written interface next to a generated one is an invitation to
-trust the wrong one.
-
-The five optional sections are the whole difference between the shortest and the
-longest component page in the corpus. Write one where the answer has been worked
-out and leave it out where it has not. A `## Motion` section saying motion has
-not been specified teaches a reader nothing its absence did not already tell
-them.
-
-### What surrounds the sections
-
-The H1 and the one-sentence definition under it are rendered by the docs route
-from the page's `title` and `description`, so they are never typed as MDX. That
-is the entire generated frame. There is no generated header strip and no
-generated footer.
+A `planned` page is eight sections: Preview, Installation, When to use it, Clinical
+meaning (health categories only), Anatomy (optional), Proposed API, Accessibility and
+Related. `## Proposed API` replaces `## API reference`, written as a specification and
+marked do-not-generate-against, and the two never both appear.
 
 <Todo>
 The page header is specified to carry more than it renders. The status badge, the
@@ -91,142 +74,94 @@ specified and absent from every component page. Either build the header and the
 footer, or delete the components that promise them.
 </Todo>
 
-### Why the order is what it is
+### Why the order
 
-Installation is section 3, above every word of safety prose. That is deliberate and it was
-argued about. A developer who came to copy an install command will scroll two screens and
-leave whether or not the safety material is above it; putting the command first means they
-find it, and it means the safety material sits where someone reading rather than skimming
-will actually reach it. Burying the install command does not make anybody read the clinical
-contract. It just makes the page feel hostile.
-
-**When to use it** is section 5, because it is the section that prevents the most
-expensive mistake. That mistake is reaching for
-[AlertBanner](./alert-banner.mdx) when the situation calls for
-[Callout](./callout.mdx). Every entry on the *not* side names an alternative. A prohibition
-without a destination is not guidance; it is a dead end that the reader resolves by
-ignoring you.
-
-**Clinical meaning** is section 6 rather than an appendix because for a health component it
-is the specification. What the component asserts about a person, what it must never be read
-as, which colour axis it may use and who owns the thresholds are not decoration around the
-API. They are constraints on it.
-
-**Accessibility** is section 12 and it is mandatory at every status, including `planned`,
-where it is written as the bar the implementation must clear rather than as results already
-achieved. It is never delegated to a general accessibility page. A per-component keyboard
-table that says "see the accessibility section" is how keyboard support goes missing.
-
-### Where the research goes
-
-There is no separate research heading. Why a component is designed the way it is
-belongs in a `<ResearchNote>` inside the clinical or the accessibility material,
-next to the claim it supports, with `evidence` declared every time. `cited` means
-a real, checkable source; `opinion` means a considered judgement with no study
-behind it. There is no third option, and an honest `opinion` is always better
-than a plausible invention. Keeping the note beside its claim is what stops a
-rationale section becoming the place arguments go to avoid being checked.
+Installation is section 2 so a developer who came for the install command finds it at
+once, with only the notice above it. **When to use it** is section 4 because the
+expensive mistake is reaching for [AlertBanner](./alert-banner.mdx) when the situation
+calls for [Callout](./callout.mdx), so every entry on the *against* side names an
+alternative.
 
 ### What is generated
 
-Half the table above says *generated*, and that is the rule that keeps these pages true.
-Prop tables, token tables, data-attribute tables, CSS-variable tables, measured contrast
-and the source of every example are produced by `scripts/*.mts` from the
-registry and the token sources. Documentation contains **names**, not code and not
-measured numbers. CI regenerates everything and fails on a diff, so a page cannot drift
-away from the thing it documents without somebody noticing.
+Prop tables, CSS-variable tables, contrast reports and example source come from
+`scripts/*.mts`. A page carries **names**, not code and not measured numbers, and CI fails
+on a regeneration diff.
 
 ## Do this
 
-- **Fill in the template.** Copy `content/_templates/component.mdx`, change the
-  frontmatter, and write the sections it leaves for you.
-- **Write the definition for the patient, not the engineer.** The one-sentence
-  `description` is the hardest line on the page and it is the one that ends up in search
-  results, in `llms.txt` and under the H1. *One test result with the number, where it sits
-  against its reference range and what to do next* is a definition. *A card component for
-  results* is a restatement of the name.
-- **Name an alternative in every prohibition.** `avoid` entries take an `instead`, and the
-  value is a catalogue id, so it is checked.
-- **Declare `governedBy` for every `health-*` component**, and make sure the doctrine page
-  lists the component back. `assert-ia` checks both directions; a rule that governs nothing
-  is a rule nobody has to follow.
+- **Fill in the template**, or copy [Button](./button.mdx) and replace every fact.
+- **Write the definition for the patient, not the engineer.** That one-sentence
+  `description` ends up in search results, in `llms.txt` and under the H1.
+- **Name an alternative in every prohibition.** An `avoid` entry takes an `instead`, and
+  the value is a checked catalogue id.
+- **Declare `governedBy` on every `health-*` component**, and have the doctrine page list
+  it back. `assert-ia` checks both directions.
 - **Take aliases from the catalogue.** `registry/catalogue.ts` owns the alias namespace.
-  Add a synonym there, then reference it here.
-- **Say what the component refuses to do.** A specification that only describes success is
-  half a specification. What does it render when the reference range is unknown? When the
-  reading is thirty days old? When the value is implausible? Those answers belong on the
-  page before the code exists, because they are the answers that get skipped once it does.
-- **Write a Related bullet as a sentence.** Section 17 takes the linked page as its
-  subject and a verb from the closed table, so it reads
-  `- [Button](./button.mdx) is the reference page.` rather than a link with a gloss
-  hung off it. The link text stays the page title, the gloss keeps its wording and its
-  lower-case first letter, the item ends in a full stop, and no colon stands between
-  the link and its gloss.
-  [Documentation templates](../handbook/contributing/documentation-templates.mdx) has
-  the verb table in full, and the same shape governs a `- **Bold term**` bullet.
+- **Say what the component refuses, in one line.** What it renders when the range is
+  unknown, what it will not derive, what it must never be read as.
+- **Link doctrine rather than restating it.** One sentence and a link to
+  [Two colour axes](../health/two-colour-axes.mdx) beats a paraphrase that drifts.
+- **Write a Related bullet as a sentence**, subject first, verb from the closed table in
+  [Documentation templates](../handbook/contributing/documentation-templates.mdx):
+  `- [Link](./link.mdx) is for navigation.`
 
 ## Not this
 
+- **Do not write an essay under a heading.** A section is a component call or a short
+  paragraph. Doctrine goes on the page that owns it, reasoning in the commit message.
 - **Do not leave a heading empty**, and do not write *TODO: fill this in*. Omit the
-  section, or if the gap is real and must be tracked, use `<Todo>`. It registers the gap
-  in the build's coverage report, so incompleteness is measured rather than hidden.
+  section, or use `<Todo>` when the gap is real and must be tracked.
 - **Do not paste code into MDX.** `<ComponentSource>` and `<ComponentInstall>` resolve a
-  name against the registry and render the real thing. A hand-copied snippet is wrong the
-  first time the source changes and nothing tells you.
-- **Do not state a measured number you did not generate.** No contrast
-  ratios, no percentages of users. `<NoDataYet>` is the honest rendering of a table whose
-  source is empty, and it names the script that will fill it.
-- **Do not invent a citation.** Not a study, not a statistic, not a DOI, not a date. Mark
-  it `evidence: opinion` and move on. See
+  name against the registry and render the real thing.
+- **Do not state a measured number you did not generate.** No contrast ratios, no
+  invented percentages. `<NoDataYet>` is the honest rendering of a table with no source.
+- **Do not invent a citation.** Not a study, not a statistic, not a DOI, not a date. See
   [Evidence and references](../health/evidence-and-references.mdx).
-- **Do not add a section this contract does not have.** `assert-ia` compares your headings
-  against the outline for the page's `kind` and fails on an unexpected one as well as on a
-  missing one. If a page genuinely needs something the contract lacks, change the contract.
-  Then every page gets it.
-- **Do not give a non-health component a clinical meaning.** [Card](./card.mdx) is a box.
-  The moment a box carries a verdict about somebody's blood pressure, the verdict is
-  invisible to review.
+- **Do not add a section this contract does not have.** A page that genuinely needs one
+  changes `lib/status.ts` and the template together.
+- **Do not give a non-health component a clinical meaning.** [Card](./card.mdx) is a box,
+  and a verdict hidden inside a box escapes review.
+- **Do not grow the notice.** Three open questions, one sentence each. The rest stay in git
+  history, still open.
 
 ## Gotchas
 
 **Links are relative.** Write `[Two colour axes](../health/two-colour-axes.mdx)`. fumadocs
-resolves it through `createRelativeLink`. An absolute site link is banned, with no exception
-left, because the day a locale segment appears they all break at once and nothing tells you
-which. The corpus is rooted, so an absolute link is also shorter than it looks: it is
-`/health/two-colour-axes`, one rename away from being wrong everywhere.
+resolves it through `createRelativeLink`. An absolute site link is banned with no
+exception.
 
-**The MDX vocabulary is closed.** Only the tags listed in this contract exist. Content
-authors use them and never define one; an unknown JSX tag fails the build rather than
-rendering as an unknown HTML element that silently swallows its children.
+**The MDX vocabulary is closed.** Only the tags in this contract exist. Content authors
+never define one; an unknown JSX tag fails the build.
 
 **Component ids are kebab-case in every path, frontmatter field and prop; PascalCase only
 in prose.** `range-bar` in `usedIn`, `RangeBar` in a sentence.
 
-**British spelling in prose, American in code.** `colour`, `behaviour`, `visualisation` in
-what a reader reads; `color`, `ColorScale`, `--color-*` wherever a language or a browser
-forces it. The seam is real and it is the only place these two live together.
+**British spelling in prose, American in code.** `colour` and `behaviour` in what a reader
+reads; `color`, `ColorScale` and `--color-*` in code.
 
 **`aliases` are globally unique**, not unique per page. If two pages claim `gauge`, the
-build fails, and it fails on the second page rather than the wrong one. Check the catalogue
-before you add one.
+build fails on the second page rather than the wrong one.
 
-**A `planned` page is a specification, not a placeholder.** If you cannot answer what the
-component asserts, what it refuses, how it composes and what it must never be read as, the
-component is not ready for a page. It belongs in a proposal with a one-line reason, where
-an honest *not yet* costs nothing.
+**The word budget counts everything in the body.** JSX props, keyboard rows and code
+blocks count too. A page over budget has a section arguing rather than stating.
+
+**A `planned` page is a specification, not a placeholder.** If you cannot say what the
+component asserts, what it refuses, how it composes and what it must never be read as, it
+is not ready for a page.
 
 ## Related
 
-- [Components overview](./index.mdx) has the full roster and how a row is read.
-- [Button](./button.mdx) is the reference page. It sets the anatomy every other component
-  page follows, which is why the least clinical component in the set is documented first.
-- [RangeBar](./range-bar.mdx) has the fullest clinical contract, and the best example of
-  what section 6 is for.
+- [Components overview](./index.mdx) has the full roster.
+- [Button](./button.mdx) is the exemplar every page follows.
+- [RangeBar](./range-bar.mdx) has the fullest clinical contract, and the best section 5.
+- [ADR 0024](../project/decisions/0024-the-component-page-is-lean.mdx) explains what was
+  cut and why.
 - [Documentation templates](../handbook/contributing/documentation-templates.mdx) covers
-  every page skeleton, republished verbatim.
+  every page skeleton.
 - [Component checklist](../handbook/contributing/component-checklist.mdx) is the definition
-  of done, of which this page is one line.
+  of done.
 - [Proposing a component](../handbook/contributing/proposing-a-component.mdx) shows how a
-  new id gets into the catalogue in the first place.
+  new id reaches the catalogue.
 - [Release phases](../project/release-phases.mdx) says what `planned`, `shipped` and
   `deprecated` each promise.

@@ -10,41 +10,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="link"
   status="shipped"
   questions={[
-    "The `render` slot substitutes the product's own router link, but it has never been measured against a router that renders its own focus behaviour. Link carries its focus ring in its class list, and a router element that also draws one, or that strips the className it is handed, could leave the reader with two rings or none. Nothing has been run against Next or React Router here.",
-    "No contrast pair for the three emphases has been measured. `inline` and `secondary` inherit the surrounding ink, and `action` on a neutral ground draws a boundary that was carried over from the card action recipe rather than measured on the surfaces Link now sits on. Whether the ladder holds in greyscale is argued, not tested.",
-    "On a status tint the tinted arm brings no neutral ink so the level's own ink shows through, and an `action` link takes a boundary whose colour the caller supplies per level. That per-level boundary colour has not been measured against the four tints in either theme.",
+    "The render slot is untested against Next or React Router, so a router element that draws its own focus ring, or strips className, could leave two rings or none.",
+    "No contrast pair for the three emphases has been measured, and whether the ladder holds in greyscale without hue is argued, not tested.",
+    "On a status tint an action link takes a per-level boundary colour the caller supplies, and that colour has not been measured against the four tints in either theme.",
   ]}
 >
-  <code className="text-sm">link</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">link</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Link is the other half of Button. Button refuses `href` on principle and says, on its own
-page, that a control which produces a new URL is a link. This is the component that
-sentence points at. Between the two, the system's anatomy rule, a real button element or
-an anchor only when it navigates, is implemented in full: Button owns the first clause and
-Link the second.
-
-It exists because six components used to each ship their own raw anchor with its own class
-string, and the treatments drifted. A banner's action and a card's action rendered with
-different focus rings, underline offsets and target heights on the same screen. Link is the
-one place a navigation link's appearance is decided, so those treatments now agree.
-
 ## Preview
-
-Three emphases on a neutral ground: an underline inside a sentence, a bordered action, and
-a quieter one beside it. The thing worth checking is whether the ladder reads as a ladder
-without colour doing the work, because it differs by a box and a boundary rather than by
-hue, and whether each rung takes the focus ring on keyboard focus.
 
 <ComponentPreview name="link" />
 
@@ -56,10 +36,6 @@ hue, and whether each rung takes the focus ring on keyboard focus.
   importPath="@/components/ui/link"
   registryDependencies={["button"]}
 />
-
-Link pulls in Button, because its `action` and `secondary` emphases share Button's card
-action recipe. Installing Link installs Button with it, so the anchor and the handler form
-of the same action cannot drift.
 
 ## Usage
 
@@ -73,85 +49,27 @@ import { Link } from "@/components/ui/link"
 </Link>
 ```
 
-Every use names three things and defaults none of the ones that matter. `href` is where it
-goes, and it is required, because a link with no destination is a button. `emphasis` is the
-weight, and it is required, because there is no sensible default weight and a guessed one is
-a decision nobody made. The label is the accessible name, so write it to read on its own out
-of a screen reader's list of links.
-
 ## When to use it
 
 <WhenToUse
   use={[
     "Navigation to another page or view, written in the reader's own words for the destination.",
-    "A card's or a banner's primary action when it produces a new URL, as the action emphasis, so it can be opened in a new tab, copied, and found in a screen reader's list of links.",
-    "A quieter secondary action beside that primary one, as the secondary emphasis, which differs by a smaller box and no boundary rather than by colour.",
-    "A reference inside a sentence that opens a source or a related page, as the inline emphasis, underlined and reflowing with the paragraph around it.",
+    "A card's or a banner's primary action when it produces a new URL, as the action emphasis.",
+    "A quieter secondary action beside that primary one, as the secondary emphasis, which differs by a smaller box and no boundary.",
+    "A reference inside a sentence that opens a source or a related page, as the inline emphasis, underlined and reflowing with the paragraph.",
   ]}
   avoid={[
-    { case: "The control does something rather than going somewhere: saving a reading, submitting a form, confirming a decision. Button is always a real button element and refuses href, so an action that does not produce a URL stays a button.", instead: "button" },
-    { case: "The whole card is the destination and the entire surface should be one target. The card carries its own wrapper anchor, and wrapping it in a Link would move its data-slot onto a foreign root.", instead: "card" },
+    { case: "The control does something rather than going somewhere: saving a reading, submitting a form, confirming a decision. Button refuses href.", instead: "button" },
+    { case: "The whole card is the destination and the entire surface should be one target. Card carries its own wrapper anchor.", instead: "card" },
   ]}
 />
-
-The first exclusion is the one that gets ignored, and it is the mirror of Button's. Button
-is always a real button element and refuses `href`, because a link that navigates can be
-opened in a new tab, copied, and found in a screen reader's link list, and none of that
-survives a button with a click handler. The same line drawn the other way is why Link
-refuses to be an action that merely does something: if pressing it produces no new URL, it
-is a button however it is styled.
-
-The defect Link exists to close is two link treatments on one card. A ResultCard used to
-render its primary action as a bordered, button-shaped anchor and its secondary action as an
-underlined one, and because each of six components spelled its own anchor by hand, the two
-did not even agree with the same action on a neighbouring banner. Reaching for Link for both
-means one focus ring, one underline offset and one target floor across every navigation link
-on the screen.
-
-## Anatomy
-
-<Anatomy
-  name="link"
-  parts={[
-    {
-      name: "Link",
-      describes: "The root. A real anchor element with an href, unless a render slot replaces it with the product's own router link. Carries the emphasis's class list, the focus ring and data-slot=\"link\". The action and secondary emphases floor the target in both axes; the inline emphasis does not, because it sits in a line of body text and SC 2.5.8 exempts an inline target. Never a button, and never a div with a click handler.",
-      prop: "emphasis",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="link"
-  tree={[
-    {
-      part: "Link",
-      cardinality: "1",
-      note: "data-slot=\"link\"; a real anchor with an href, or the product's router element when render is passed",
-    },
-  ]}
-/>
-
-Link is a single element, and its `data-slot` is `link` and nothing else. It emits no
-`data-status` and no `data-category`, because a link is on neither colour axis: it carries
-no reading and no measurement, so nothing about it should ever be coloured by what a value
-means or by how urgent it is. Style it from outside through `data-slot` or `className` if you
-need to.
-
-The `render` slot is the escape hatch, and it follows the pattern Field.Control uses. A
-product on Next or React Router passes its router's own link element, and Link keeps its
-contract on it: the emphasis classes, the `data-slot` and the target floor are merged onto
-the element the product supplied, and Link's own attributes win where they meet the router
-element's. Without it Link renders a plain anchor, which reloads the whole page on every
-client-side app that does not route through it.
 
 ## Examples
 
 ### Each emphasis
 
-The weight is a required prop rather than a default, so each call states which of the three
-it wants. `action` is a card's primary action, `secondary` the quiet one beside it, and
-`inline` a link that sits inside a sentence.
+`emphasis` is required and has no default. `inline` sits inside a sentence,
+`action` is a card's primary action and `secondary` is the quiet one beside it.
 
 ```tsx
 <p>
@@ -173,9 +91,9 @@ it wants. `action` is a card's primary action, `secondary` the quiet one beside 
 
 ### Routing through the product's own link
 
-Pass the product's router link as `render` so navigation stays client-side. Link merges its
-classes, its `data-slot` and its target floor onto the element you give it, and replaces its
-children with the label you pass to Link.
+Pass the router link as `render` so navigation stays client-side. Link merges
+its classes, its `data-slot` and its target floor onto that element and replaces
+its children with the label.
 
 ```tsx
 import NextLink from "next/link"
@@ -186,179 +104,55 @@ import { Link } from "@/components/ui/link"
 </Link>
 ```
 
-## States
-
-Link is interactive, an anchor a reader points to and clicks, and its states differ by
-which emphasis is rendered rather than being one behaviour for all three, and no state
-is claimed for a variant that does not carry it. Every emphasis draws a focus ring in
-its own class list,
-`focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring`, for
-the reason the Accessibility section below gives: the product theme already outlines
-every focused element, but a project installed without that theme should not lose the
-ring silently. `action` and `secondary` add a hover fill, `hover:bg-muted`, from the same
-card action recipe Button's handler form shares, so resting a pointer over either reads
-as a pressable box rather than as static text. `inline` carries no hover class of its
-own, because the underline is already its resting state and there is no quieter form for
-hover to lift it out of. The one-pixel press, `active:translate-y-px`, belongs to
-`inline` alone: the card action recipe behind `action` and `secondary` never declares it,
-so a boxed link gives no positional feedback on press beyond the hover fill it is already
-showing. Link has no disabled state, because an anchor is not a control Base UI can
-disable, and a destination a product does not want followed is a link the product should
-not render, rather than one drawn in place and dimmed. Link asserts no `:visited` rule of
-its own either: nothing in its class list touches that pseudo-class, so a reader who has
-already opened the destination meets whichever colour the browser or the product
-stylesheet gives a visited anchor, if either gives one, which is a fact about the
-surrounding page rather than a behaviour this component owns.
-
-Link carries no reading, so most of the five canonical
-[data states](../foundations/data-states.mdx) describe a value it never holds rather
-than a gap in the implementation.
-
-| Data state | What Link renders |
-| --- | --- |
-| Error | Nothing of its own. `href` is required rather than defaulted, so a destination that cannot be resolved is a Link the caller does not render, not one rendered pointing nowhere. |
-| Loading | Nothing of its own. A destination not yet known is a Link not yet rendered; the surface composing it shows a Skeleton in its place until the `href` exists to pass in. |
-| Empty | Not a state Link can reach silently. `children` is required and is the accessible name a screen reader's link list depends on, so there is no route to a Link with a destination and no label. |
-| Partial | No partial form. A Link is one destination and one label together, and there is no state where it renders one without the other. |
-| Stale | None of its own. Link carries no timestamp and no measurement; a reading old enough to doubt is wrapped in [RelativeTime](./relative-time.mdx) beside the link, not signalled by the link itself. |
-
 ## Content guidelines
 
-Link text names the destination, in sentence case, without terminal punctuation. The reader
-should be able to read the link alone, out of a screen reader's list of links, and know
-where it goes.
-
-Never *click here*, *read more*, *learn more*, or a bare *here*. Each forces the reader back
-up the page to reconstruct what the link is about, and each is useless in a link list where
-the surrounding sentence is gone. Write the destination into the words: *read how this
-measurement is worked out*, not *read more*.
+Link text names the destination, in sentence case, without terminal punctuation.
+Write it to read alone, out of a screen reader's list of links. Never *click
+here*, *read more*, *learn more* or a bare *here*: each sends the reader back up
+the page to reconstruct what the link is about. A link that opens in a new tab
+says so in its own text; opsinjs does not add that word.
 
 <DoDont>
   <DoDont.Do>
-    **"See your results"** · **"Read about this measurement"** · **"Find a nearby clinic"**
-    Each names where it goes and survives being read out of context.
+    **"See your results"** names where it goes and survives being read out of context.
   </DoDont.Do>
   <DoDont.Dont>
-    **"Click here"** · **"Read more"** · **"here"** A reader hearing *link, here* three
-    times in a list has learnt nothing about any of them.
+    **"Click here"** heard three times in a link list tells the reader nothing about any of them.
   </DoDont.Dont>
 </DoDont>
 
-## Motion
-
-Link declares no motion. None of the three emphases names a `transition`, a `duration`
-or an `ease` utility anywhere in `link.tsx`: the one-pixel press on `inline`,
-`active:translate-y-px`, is an instantaneous position change rather than an animated
-one, and the hover fill `action` and `secondary` borrow from the card action recipe,
-`hover:bg-muted`, swaps in on the same frame it fires because that recipe carries no
-transition class beside it either. Link reads no token from `tokens/motion.json`, so
-there is nothing here for `prefers-reduced-motion` to reduce, and no reduced-motion
-branch to write. A future revision that adds a transition to the hover fill or the press
-would need to name the duration and easing token it took and quote that token's own
-reduced-motion fallback here; nothing does that today, so this section makes no such
-claim.
-
 ## Accessibility
 
-Some of this is checked by a gate on every commit. Most of it is argued, and the things
-nobody has measured are named rather than left out.
+**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
+token, no type size is in `px`, and no banned word appears anywhere.
 
-Link renders a real anchor with an `href`, which is what makes it reachable by keyboard,
-openable in a new tab, and present in a screen reader's list of links. A button with a
-click handler has none of those, which is the whole reason the two are separate components.
-When the `render` slot substitutes a router link, that element must still render an anchor
-with an `href` for the same guarantees to hold.
+**Argued from the source, not measured.**
 
-The focus ring is carried in Link's own class list rather than left to the product
-stylesheet, for the reason Card gives: the product theme gives every focused element an
-outline, but a project that ran the install without that stylesheet would otherwise lose the
-ring silently. Whether a router element that draws its own focus behaviour leaves the reader
-with two rings or none has not been tested, and it is listed as an open question above.
+- A real anchor with an `href`, so it is keyboard reachable, opens in a new tab
+  and appears in a screen reader's list of links.
+- Every emphasis carries its own focus ring in its class list, so a project
+  installed without the product stylesheet keeps it.
+- `action` and `secondary` floor the target at `--opsin-target-minimum` in both
+  axes. `inline` does not, because SC 2.5.8 exempts an inline target.
+- `inline` carries `wrap-anywhere` and an em-based underline offset, so a long
+  label reflows and the rule stays clear of descenders at 200% text.
 
-The `action` and `secondary` emphases floor the target at `--opsin-target-minimum` in both
-axes, so a 44pt pressable region survives in a project installed without the product
-stylesheet. The `inline` emphasis does not, and this is the one exception, named rather than
-hidden: SC 2.5.8 exempts an inline target, and a 44pt floor on a link that sits in a line of
-body text would inflate that line to roughly twice the height of the ones around it and open
-a gap in the paragraph. The `inline` form instead carries `wrap-anywhere`, so a long compound
-label reflows with the paragraph instead of widening the document, and its underline offset
-grows with the type rather than sitting at a fixed distance, so at 200% text the rule stays
-clear of the descenders.
-
-A link that opens in a new tab or context should say so in its own text, because a reader
-using assistive technology gets no warning from the tab change alone. opsinjs does not add
-that word for you: it is the product's to write, in the product's language.
-
-The neutral pairs Link draws its ink, its boundary and its card fill from are measured, and
-they are shown below. What is not yet measured is the per-emphasis and per-level boundary
-contrast, which the open question in the status note above records; the rows here are the
-neutral scope alone.
+**Not checked by any gate.** Contrast for the three emphases and for the
+per-level boundary on a status tint. Whether the ladder holds in greyscale, and
+whether a router element passed as `render` doubles or drops the focus ring.
 
 <ContrastReport component="link" />
-
-## Data attributes
-
-Link emits exactly one data attribute, on the root, whichever form the root takes. When
-`render` is not passed the root is Link's own `<a href>`; when it is, the same
-`data-slot` is merged onto the router element the product supplied, alongside `href` and
-Link's own attributes, which win where they meet the router element's. There is no
-second data attribute anywhere in the source.
-
-<DataAttributesTable
-  name="link"
-  rows={[
-    {
-      attribute: "data-slot",
-      condition: "On the root, always, whether Link rendered its own anchor or merged itself onto the router element passed as render",
-      value: "link",
-    },
-  ]}
-/>
-
-Link carries neither `data-status` nor `data-category`, because a link sits on neither
-colour axis: it holds no reading and no clinical level, and colouring it by category or
-by urgency is the exact collision the two-axis rule exists to prevent. There is no
-`data-opsinjs-value` either, for the same reason: nothing rendered here is a
-measurement. `data-slot="link"` is the one hook a product has for a rule of its own,
-whether that rule targets a plain anchor or the router element Link merged onto.
-
-## CSS variables
-
-<CssVariablesTable name="link" />
-
-Link exposes no custom property of its own. Its ink, its fill and its boundary are the
-semantic roles the card action recipe reads for `action` and `secondary`, `--foreground`
-for the neutral ink, `--card` and `--muted` for the fill and its hover swap, and
-`--border` for the boundary, listed under Tokens below. The one place a raw custom
-property appears in the file is inside the card action recipe's target floor,
-`min-h-(--opsin-target-minimum,2.75rem)`, and that is a token being read with a literal
-fallback for a project installed without the generated stylesheet, not a property Link
-declares. To recolour any emphasis, write a rule against `[data-slot="link"]` rather
-than reaching for a variable this file does not set.
-
-## Tokens
-
-<TokenTable component="link" />
-
-These are the tokens Link actually reads, resolved from the source by
-`scripts/build-tokens.mts` rather than listed by hand, so the table cannot drift from
-what the component consumes. They are the neutral chrome roles the card action recipe
-shares with Button, `--foreground`, `--card`, `--muted` and `--border`, together with
-the `--opsin-target-minimum` floor and the type step each emphasis sets. Link never
-reads a category token and never reads a status token onto its own element, because it
-sits on neither colour axis, and a row here naming one would be the defect the two-axis
-rule exists to catch.
 
 ## API reference
 
 <PropsTable name="LinkProps" />
 
+`href` and `emphasis` are both required, with no default for either. `ground`
+defaults to `neutral` and is inert for `inline`. When `render` is passed, Link's
+own `href`, `data-slot` and attributes win over the router element's, and the
+two class lists are joined.
+
 ## Related
 
-<RelatedComponents
-  name="link"
-  confusedWith={[
-    { id: "button", reason: "The control that does something rather than going somewhere. Button refuses href; if pressing it produces no new URL, it is a button." },
-    { id: "card", reason: "When the whole surface is the destination. Card carries its own wrapper anchor so the entire card is one target, rather than a Link inside it." },
-  ]}
-/>
+- [Button](./button.mdx) does something rather than going somewhere. It refuses `href`, so an action with no new URL stays a button.
+- [Card](./card.mdx) carries its own wrapper anchor when the whole surface is the destination, rather than a Link inside it.

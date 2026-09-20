@@ -10,44 +10,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="card"
   status="shipped"
-  issue="prashantonomy/opsinjs#0"
   questions={[
-    "A card that is a link may hold no other interactive element, and that exclusion is stated rather than enforced. TypeScript cannot see interactivity in a `ReactNode`, and a runtime walk of the children cannot see inside another component. Such a walk would catch a raw `<button>` and miss every wrapped one, which is worse than catching nothing. Does this become an error code with a gate that reads examples and screens, or does it stay a rule the documentation keeps?",
-    "Nested cards are announced no differently from unnested ones, and this component neither counts the nesting nor adds a role. A server component has no context to count with, and counting in a client component would put a boundary on the most-used component in the system to answer a question about taste. How deep is acceptable is still unanswered.",
-    "The accessible name of a link card is its whole text content, because Card cannot know which part of a card is its name. Where the content is long that name is long. Should the component offer a way to name the link, or is the honest answer that a card with that much in it is not a link?",
+    "A link card may hold no other interactive element, but the rule is stated, not enforced: TypeScript and a runtime walk both miss wrapped controls.",
+    "Nested cards are announced no differently from unnested ones, and how deep is acceptable is unanswered.",
+    "A link card's accessible name is its whole text content; whether Card should offer a way to name the link is open.",
   ]}
 >
-  <code className="text-sm">card</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">card</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Card is the most-used component in any design system and the one that most often becomes a
-dumping ground. Its specification is short on purpose: a Card is a boundary and some padding,
-and every feature added to it is a feature that makes it harder to say what it means.
-
-The one thing that changed on the way from specification to implementation is the default
-rung, and it changed because the specification was written in a vocabulary the tokens no
-longer use. It is set out under [Anatomy](#anatomy) rather than buried in a changelog.
-
 ## Preview
-
-Two cards with identical content, the comfortable default beside the same card at
-`density="compact"`, so the density prop reads as a difference rather than as a
-percentage. The demo takes `radius-lg` at phone width and the `radius-md` default above it,
-because shape.json publishes the larger corner for a card that is nearly the width of the
-screen, and the radius is a decision of the layout the card sits in rather than a prop the
-card owns. There is no number in it, no status pill and no category tint. A Card holding a
-value, a coloured pill and a paragraph is a [ResultCard](./result-card.mdx) drawn without any
-of a ResultCard's guarantees, and a preview that showed one would teach the mistake this
-component's boundary exists to prevent.
 
 <ComponentPreview name="card" />
 
@@ -60,11 +37,6 @@ component's boundary exists to prevent.
   dependencies={["lucide-react"]}
   registryDependencies={["surface"]}
 />
-
-[Surface](./surface.mdx) is installed with it and is where the material comes from. Card's one
-npm dependency is `lucide-react`, for the trailing chevron a link card carries as its resting
-affordance. A card that is not a link draws nothing from outside the shared substrate that
-travels with every registry item.
 
 ## Usage
 
@@ -93,53 +65,8 @@ import { Card } from "@/components/ui/card"
     { case: "The content is a single measurement in a dashboard grid.", instead: "metric-tile" },
     { case: "You need a layer that sits over scrolling content and must stay readable.", instead: "surface" },
     { case: "You want a border for a piece of advisory prose.", instead: "callout" },
-    { case: "There is nothing in it yet.", instead: "empty-state" },
   ]}
 />
-
-The first three exclusions are the ones that decide whether a health product's clinical
-contracts hold. A `Card` containing a number, a coloured pill and a paragraph looks exactly
-like a `ResultCard` and carries none of its guarantees. That card has no staleness treatment,
-no attribution and no axis discipline, and nothing in review will catch it. This is why Card
-has no `status` prop, no `variant` and no `color`: the prop surface offers no way to express a
-clinical meaning. It is not a wall. `className` is merged onto the root, and the static
-accessibility rig reads `registry/**` and never a consumer's project, so a card tinted from
-the status axis by a class name is a thing somebody can write and nothing in this system will
-see. That gap is also the honest answer to why ResultCard exists rather than being a Card
-with conventions.
-
-Category ink follows the same logic. Category colour says what kind of measurement a
-number is, and it belongs to the measurement surfaces: ResultCard, RangeBar, MetricTile and
-ScoreDial each take a `category` and tint a label with it, and TrendSparkline tints its line.
-Card has
-no category axis, and that absence is deliberate rather than an oversight. Card carries
-content whose meaning it cannot know, so it has no honest colour to reach for. The two
-axes stay apart wherever they appear. Category colour and status colour never meet on one
-element, and status never travels as colour alone, because it always carries a word and,
-where there is room, an icon. When a card seems to want a category colour, the measurement
-wants a measurement surface. Put a ResultCard or a MetricTile inside the Card and let that
-surface carry the category, so the tint means what it says and the Card stays the neutral
-box it is.
-
-### Choosing the rung
-
-The default is `card`, and most cards should stay there. The decision table on
-[Choosing a layer](../foundations/materials/choosing-a-layer.mdx) moves it in exactly two
-directions:
-
-| The card is | Rung | Why |
-| --- | --- | --- |
-| resting on the page, not tappable | `card` | nothing is lifted, so nothing should look lifted |
-| a link, or tappable | `card` | tapping is an affordance, not a depth |
-| being dragged, or lifted | `raised` | it is an object, and an object may look lifted |
-| part of the page rather than a block on it | `canvas` | there is no boundary worth drawing |
-
-Never above `raised`. `sheet`, `overlay` and `scrim` composite what is behind them, and
-`tokens/material.json` is explicit that a health value may not sit on one: a number a reader
-is trying to read must not sit over a moving backdrop. A card on a translucent rung is also
-the second blur in a stack of two, which the same file caps at three for the whole screen. The
-component warns in development and renders anyway. A composition mistake is not a reason to
-take somebody's content off the screen.
 
 ## Anatomy
 
@@ -148,34 +75,30 @@ take somebody's content off the screen.
   parts={[
     {
       name: "Card",
-      describes: "The root. A div, or an a element when href is set, or the product's own router link element when a render slot is passed alongside href. Carries the corner and the print boundary. When it is a link it also carries the 44px floor on both axes and the focus ring, on whichever element navigates. Sets no minimum width beyond that floor and no position: where a card sits is the screen's decision.",
+      describes: "The root: a div, or an anchor when href is set. Carries the corner and the print boundary.",
       prop: "href",
     },
     {
-      name: "card-link-row",
-      describes: "Present only when href is set, and it wraps the Header, Body and Footer below. A two-column row inside the material that lays the content against a trailing chevron, so a link card is recognisable as a link at rest, on touch, in dark theme, in greyscale and in print. The chevron is aria-hidden, because the anchor is already named by its whole text content. A static card has no such row and the parts below sit directly in the material.",
-    },
-    {
       name: "Card.Header",
-      describes: "Optional. A real exported part, because the consumer supplies its content: Card.Header, not a data-slot alone.",
+      describes: "Optional. An exported part; the consumer supplies its content.",
     },
     {
       name: "Card.Title",
-      describes: "The slot the caller's own heading element goes into. Sets the appearance and resets the element's font and margin, so the heading level carries outline meaning and no visual weight.",
+      describes: "Holds the caller's own heading element and resets its font and margin.",
       prop: "title",
     },
     {
       name: "Card.Description",
-      describes: "Optional supporting line under the title. A paragraph, so it takes text or inline content rather than a block element.",
+      describes: "Optional supporting line under the title. A paragraph, so inline content only.",
       prop: "description",
     },
     {
       name: "Card.Body",
-      describes: "Optional. The content, with no contract of its own. A card that knew what was inside it would be a different component.",
+      describes: "Optional. The content, with no contract of its own.",
     },
     {
       name: "Card.Footer",
-      describes: "Optional. Actions or metadata, laid out in a row that wraps, with the published minimum separation between adjacent targets and no density scaling on that gap.",
+      describes: "Optional. Actions or metadata in a wrapping row, separated by the target minimum.",
     },
   ]}
 />
@@ -186,55 +109,30 @@ take somebody's content off the screen.
     {
       part: "Card",
       cardinality: "1",
-      note: 'data-slot="card"; a <div>, or an <a> when href is set, or the product\'s own router link element when render is passed alongside href',
       children: [
         {
           part: "Surface",
           cardinality: "1",
-          note: 'data-slot="surface"; the material, and where the card padding lives. Its scrim and edge render between it and the content, and its backdrop is absent on every rung a card may use; all three are on Surface\'s own page',
           children: [
             {
               part: "Surface.Content",
               cardinality: "1",
-              note: 'data-slot="surface-content"; holds the parts, directly on a static card and inside the link row on a link card',
               children: [
                 {
                   part: "card-link-row",
                   cardinality: "0..1",
-                  note: 'data-slot="card-link-row"; present only when href is set. A two-column grid whose content cell holds the parts below against a trailing aria-hidden chevron. A static card has no such row and the parts are Surface.Content\'s direct children',
                   children: [
                     {
                       part: "Card.Header",
                       cardinality: "0..1",
-                      note: 'data-slot="card-header"',
                       children: [
-                        {
-                          part: "Card.Title",
-                          cardinality: "1",
-                          note: 'data-slot="card-title"; holds the caller\'s heading element',
-                        },
-                        {
-                          part: "Card.Description",
-                          cardinality: "0..1",
-                          note: 'data-slot="card-description"',
-                        },
-                        {
-                          part: "children",
-                          cardinality: "0..n",
-                          note: "the header's own children prop, rendered after the description. No data-slot, no constraint on what it holds. That makes it the one place a link card can quietly acquire a nested control",
-                        },
+                        { part: "Card.Title", cardinality: "1" },
+                        { part: "Card.Description", cardinality: "0..1" },
+                        { part: "children", cardinality: "0..n" },
                       ],
                     },
-                    {
-                      part: "Card.Body",
-                      cardinality: "0..1",
-                      note: 'data-slot="card-body"',
-                    },
-                    {
-                      part: "Card.Footer",
-                      cardinality: "0..1",
-                      note: 'data-slot="card-footer"',
-                    },
+                    { part: "Card.Body", cardinality: "0..1" },
+                    { part: "Card.Footer", cardinality: "0..1" },
                   ],
                 },
               ],
@@ -246,261 +144,58 @@ take somebody's content off the screen.
   ]}
 />
 
-**Header** holds a title and optional supporting elements. **Body** is the content.
-**Footer** holds actions or metadata. All three are optional; a Card with only a body is the
-common case and should not require ceremony. `<Card>` around a paragraph is a complete,
-correct card.
-
-Card is one of exactly three components in the system that export real compound parts, and
-the test it passes is narrow: the consumer supplies the content of three ordered slots, and
-no prop could carry them. `Card.Header`, `Card.Body` and `Card.Footer` are exported functions
-assigned onto `Card` after their declarations, so `Card.Header` and `CardHeader` are the same
-function. Everything else in the tree is a `data-slot`, which is enough to style and not
-enough to take apart. `Card.Title` and `Card.Description` arrive as props on the header for
-the same reason in reverse: a prop can carry them, so a compound export would be ceremony.
-
-`Card.Title` renders whichever heading level the surrounding page needs, because the page
-passes the element: `title={<h3>Recent readings</h3>}`. A card that hard-codes its own level
-produces a document outline that jumps from h1 to h3, or a screen of eleven h2s, depending on
-which mistake the library made. A card that takes the level as a number is the same mistake
-with an extra prop. The slot resets the passed element's font and margins to its own, so the
-same title looks identical under an h2 and under an h4: the level is in the outline, never in
-the type size. Pass a plain string instead and the title is styled text with no place in the
-outline, which is a legitimate choice for a card nobody needs to navigate to.
-
-### The default rung is `card`, and the specification said `raised`
-
-The proposed API on this page defaulted `rung` to `"raised"`, and that default has been
-corrected rather than implemented. It was written in the rung vocabulary this system retired
-in [ADR 0014](../project/decisions/0014-material-rung-names.mdx), where `raised` was the name
-for the rung a resting block of content sits on. On the ladder the tokens publish, `raised` is
-one rung higher: `tokens/material.json` gives it a drop shadow and describes it as "menus,
-popovers, tooltips, a dragged card", while the rung named `card` is "the default home for a
-health value", opaque and *deliberately shadowless*, because "a grid of shadowed cards on a
-phone reads as clutter, and the shadow is doing work a 1px boundary does better and cheaper".
-
-Taking the old word literally would have put a shadow under every resting card in the system.
-Translate the rung names by job, never by position, and read
-[the material ladder](../foundations/materials/the-ladder.mdx) before mapping an older design
-file: three of the retired names are also current names and two of them moved.
-
-"Products may move a card down the ladder, never off it" survives the correction and still
-means what it says.
-
-A card that is a link is the only interactive shape here, so the six interaction states are
-its to account for, and a card with no `href` is not a control and has none of them. Its rest
-is not empty: the trailing chevron marks it as a link before a pointer or a finger arrives.
-Hover adds the title underline, and only adds it, because touch has no hover and the chevron
-already carries the affordance. Press is the one-pixel downward shift the anchor takes on
-`:active`, instant and untransitioned, the same acknowledgement [Button](./button.mdx) ships.
-Focus is the `focus-visible` ring the component declares on its own root rather than borrowing
-from a stylesheet it was not installed with. There is no disabled state, because a card is not
-a control a product switches off, and a destination a reader may not follow is a card without
-an `href` rather than a faded one. There is no selected state, because a card records no
-choice; a surface that persists one is a control, not this. There is no loading state, because
-Card holds content rather than fetching it, so a product that is waiting renders a
-[Skeleton](./skeleton.mdx) in the card's place. One thing is missing and it is worth naming:
-neither press nor hover shifts the fill. The fill belongs to Surface and is written as an
-inline custom property on Surface's own root, and an inline style beats any rule an ancestor
-sets, so no `:active` or `:hover` on Card's anchor can reach it. The transform is the honest
-press cue that remains.
-
 ## Examples
 
 ### The whole card as one link
 
-The only interactive shape a Card has. Tab through it: each card is one stop, not one per
-line. Hover it: the title underlines, because a whole-card link with no affordance on its
-text leaves a reader guessing which part of it is the link. Note what is not in it. A card
-that is a link holds no buttons, because a reader cannot tell what tapping the gap between
-two of them will do, and a keyboard user reaches a control nested inside a control.
+`href` makes the card one anchor and one tab stop. The chevron marks it at
+rest, the title underlines on hover, and it holds no buttons.
 
 <ComponentPreview name="card-as-a-link" kind="example" align="start" />
 
 ### Cards on a sheet, and the rung that stays put
 
-A translucent rung may never contain another translucent rung. The sheet is the layer; the
-cards on it stay opaque on the `card` rung, bounded by a line. Two stacked blurs cost twice
-as much, composite against each other rather than against the page, and produce a surface
-whose contrast floor nobody has measured. The floor is published per rung, not per stack.
-
-The cards nested on the sheet take the concentric radius, the sheet's own `radius-xl` corner
-minus the `space-5` padding between them and floored at `radius-xs`, so the corners nest
-rather than cut across each other. That is shape.json's concentricity rule. The example
-writes the value out from those two tokens by hand, because the emitted `--opsin-radius-inner`
-tokens describe a box inside a card and there is none for a card inside a sheet.
+The sheet is the layer; the cards on it stay on the `card` rung, since a
+translucent rung never contains another.
 
 <ComponentPreview name="card-on-a-sheet" kind="example" align="start" />
 
-## States
-
-Card's interaction states apply only when `href` is set, because a card with no `href` is not
-a control and has none of them. Rest is not empty even so: the trailing chevron marks a link
-card as tappable before a pointer or a finger arrives. Hover adds the title underline and
-nothing else, because touch has no hover and the chevron already carries the affordance. Press
-is the one-pixel downward shift the anchor takes on `:active`, instant and untransitioned, the
-same acknowledgement [Button](./button.mdx) ships. Focus is the `focus-visible` ring the
-component declares on its own root. There is no disabled state, because a card is not a control
-a product switches off: a destination a reader may not follow is a card with no `href` rather
-than a faded one. There is no selected state, because a card records no choice, and no loading
-state, because Card holds content rather than fetching it.
-
-None of the five canonical data states belong to Card itself. `Card.Body` "has no contract of
-its own", so a card cannot represent a state that belongs to the content placed inside it
-rather than to the boundary around it.
-
-| Data state | What Card renders |
-| --- | --- |
-| Error | Nothing of its own. Card fetches nothing and holds no data of its own, so an error belongs to whatever is placed inside it. |
-| Loading | Nothing of its own, for the same reason. A product waiting on content renders a [Skeleton](./skeleton.mdx) in the card's place rather than asking Card to represent the wait. |
-| Empty | Nothing of its own. A card with nothing worth bounding is a decision made before this component is reached, which is why [When to use it](#when-to-use-it) points a reader with nothing yet to show at `empty-state` instead. |
-| Partial | Nothing of its own. Card renders whichever children it is given, complete or partial, and has no way to tell the two apart. |
-| Stale | Nothing of its own. Staleness is a property of a measurement, and Card carries no measurement; a `ResultCard` placed inside one is where a stale reading would be marked. |
-
 ## Content guidelines
 
-A card holds one idea. If the title needs *and* in it, it is two cards. Titles are noun
-phrases in sentence case, not sentences and not questions.
-
-Do not use a card as a decorative frame for a single line of text: a boundary with nothing
-to bound reads as a control the reader is meant to do something with.
-
-Card ships no copy of its own. It has no default title, no empty-state text and no label
-anywhere. Every word inside one is the product's, which means every word inside one is the
-product's to check against [Plain-English A to Z](../content/plain-english-a-z.mdx). The
-component cannot help here, and a component that supplied a friendly default would be putting
-words a clinician never saw onto a health surface.
+A card holds one idea. If the title needs *and* in it, it is two cards. Titles
+are noun phrases in sentence case. Card ships no copy, so every word inside is
+the product's, checked against
+[Plain-English A to Z](../content/plain-english-a-z.mdx).
 
 <DoDont>
   <DoDont.Do>
     **"Recent readings"** as a card title, with the readings inside it.
   </DoDont.Do>
   <DoDont.Dont>
-    **"Recent readings and upcoming appointments"** in one card. Two subjects sharing a
-    boundary means the boundary tells the reader nothing.
+    **"Recent readings and upcoming appointments"** in one card. The boundary
+    then tells the reader nothing.
   </DoDont.Dont>
 </DoDont>
-
-<DoDont>
-  <DoDont.Do>
-    **A card whose whole surface is a link, containing text and no other controls.**
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A clickable card with two buttons inside it.** The reader cannot tell what tapping the
-    gap between them will do, and neither can a keyboard user.
-  </DoDont.Dont>
-</DoDont>
-
-<DoDont>
-  <DoDont.Do>
-    **A short title and a short line under it, when the card is a link.** Everything inside
-    the link is read out as the link's name.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A paragraph inside a link card.** The accessible name becomes the paragraph, and a
-    reader listening to a list of cards hears three sentences before the next one starts.
-  </DoDont.Dont>
-</DoDont>
-
-## Motion
-
-Card declares no transition anywhere in its class list. The one state change that moves
-anything, the press acknowledgement on a link card, is `active:translate-y-px`: an
-instantaneous transform rather than an eased animation, matching the timing a press asks for,
-which is that the acknowledgement lands with the touch rather than catching up to it. Hover's
-title underline and the `focus-visible` ring are both instant state changes as well, drawn the
-moment the state applies rather than transitioned into place. So there is nothing here for
-`prefers-reduced-motion` to reduce: a reader who has asked for less motion sees exactly the same
-card as a reader who has not, because no part of it was ever animated to begin with.
 
 ## Accessibility
 
-Some of this is checked by a gate on every commit and the rest is an argument. They are
-separated below because a component page claims accessibility only where it has been checked, with the gaps listed rather than left out.
+**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
+token, no type size is in `px`, and no banned word appears.
 
-**Checked, by `pnpm run check:a11y` on every commit:**
+**Argued from the source, not measured.**
 
-- **Every colour is a token, and the chrome-only names are rejected by name.** The static rig
-  fails the build on a hex literal, an `oklch()`, a Tailwind palette colour or a numbered ramp
-  step anywhere in `registry/**`, and separately on a fixed list of the roles, radii and
-  variables that exist in `app/globals.css` and not in `app/product.css`. That list is a
-  denylist of the names already known to be chrome-only, which is not the same thing as
-  proving that every token a component reaches for resolves under the product theme: a name
-  outside the list that resolved in one stylesheet and not the other would pass silently. The
-  muted foreground on the description, the border it grows for print, and the focus ring on
-  a link card are the three colours Card paints of its own. Everything else is Surface's
-  material.
-- **No `px` font size, and no banned word** in copy or in an identifier. Card ships no default
-  product copy, and that means no title, no empty-state text and no label. It is not wordless
-  even so, and the rule reads what is there: the development warning about a translucent rung,
-  and the demo strings in the file `shadcn add` hands to a consumer. So the clean result is a
-  result about text that exists rather than a pass over an empty file.
+- A card is not a landmark or a region: no role and no name unless it is a
+  link.
+- The heading level is the page's; the title slot resets font and margin, so
+  the level is outline only.
+- A link card is one control, with a rem floor of `--opsin-target-minimum` on
+  both axes and its own `focus-visible` ring.
+- The edge survives greyscale, `forced-colors` and print, where a real border
+  appears.
 
-**Argued, and true of the implementation, but not yet measured:**
-
-- **A card is not a landmark or a region.** It has no role, no name and no place in the
-  accessibility tree unless it is a link, and giving every card a region role would fill the
-  rotor with entries that mean nothing. A card becomes a region when a product decides it has
-  a heading worth navigating to, which is a decision about that screen and not about this
-  component.
-- **The title's heading level is set by the page**, so the document outline stays continuous.
-  The slot resets the element's own font and margins, so choosing `h4` over `h3` changes the
-  outline and nothing visual. That is what makes it safe to choose correctly.
-- **A card that is a link is one control.** One tab stop, a floor of
-  `--opsin-target-minimum` on both axes carried by the component rather than by the product
-  stylesheet's attribute backstop, and a focus ring declared in the component for the same
-  reason: a card whose ring depends on a file it was not installed with is a card that loses
-  it silently. Both axes because the backstop sets both. A card is usually far wider than
-  its floor, and a link card dropped into a narrow column is not. The floor is a rem, so it
-  grows when a reader raises their text size instead of pinning at 44 device pixels.
-- **The boundary is not conveyed by colour alone.** The rung draws a hairline edge as well as
-  a fill, and the edge is a lightness difference that survives greyscale. Under
-  `prefers-contrast: more` Surface thickens it from the hairline width to the emphasis width.
-- **Padding does not collapse at 200% text.** Every step is a rem, so the padding scales with
-  the root font size rather than holding its pixel value while the type grows. The most
-  common Dynamic Type failure in any system is a card that keeps its height and clips its
-  content.
-- **Print renders the boundary as a rule.** Surface draws the edge as an outline, which a
-  printer keeps as a mechanism but inks in the rung's own edge colour, and for the default
-  `card` rung that is a near-white hairline no reader can see on paper. A printout is how a
-  reading most often reaches a clinician, so the card grows a real border at print time
-  through `print:border print:border-border`, whose colour the theme's print block redeclares
-  as printable ink; that is the line a reader on paper actually sees.
-- **The boundary survives `forced-colors: active`.** Surface draws the card's edge as an
-  outline, and forced colours keeps an outline while recolouring it to `CanvasText`, so a card
-  stays a bounded block on a Windows contrast theme without this file adding a thing. This is
-  Card's answer through Surface, not a border Card grows: the rest of the system has no
-  forced-colours rule of its own yet, so a screen made of Cards keeps its grouping while a
-  screen made of anything else may not.
-- **Nested cards are announced no differently from unnested ones.** That is a reason to avoid
-  nesting rather than a reason to add roles, and this component adds none.
-- **A link card is recognisable as a link at rest.** The root carries a trailing chevron,
-  aria-hidden because the anchor is already named by its whole text content, so the cue
-  survives touch, dark theme, greyscale and print. The title underlines on hover and on
-  focus, and a press shifts the whole card down by one pixel, each an addition to the resting
-  chevron rather than the only signal.
-
-**Not yet checked at all, and listed rather than omitted:**
-
-- The 44px floor on a link card, and the separation between two targets in a footer. Both are
-  declared in the component and neither has a published measurement on this page. The layout
-  half of the rig is not blind to this component. It enumerates every built registry entry,
-  so `card`, `card-as-a-link` and `card-on-a-sheet` are all in its nightly target list, and it
-  measures the hit area against the floor and checks for overflow at 1×, 1.3× and 200%. What
-  is missing is a recorded result, so treat the floor as declared rather than demonstrated.
-- Contrast for the description's muted foreground against the card's fill, and for the focus
-  ring against the `card`, `canvas` and `raised` fills a link card may sit on. These exact
-  pairings have not been isolated and measured as a set. The `<ContrastReport>` below is
-  neither empty nor a measurement of this component. It renders the measured token pairs in
-  the scopes Card draws its colour from, which are `neutral` for the muted foreground and the
-  hairline, and `materials` for the rungs a card may sit on. The ring's own pairs are defined
-  in `scripts/check-contrast.mts` but are not in the committed measurement yet, so the table
-  carries no ring row. Read the rows as the ingredients this component is built out of, not as
-  a verdict on the composition above.
-- The exclusion between `href` and interactive children. It is a rule, not a gate. See the
-  [Status](#status) section for why a runtime check would be worse than none.
-- Behaviour when a reader's own stylesheet strips backgrounds and shadows. The print border
-  answers the printed case; the reader-stylesheet case has not been looked at.
+**Not checked by any gate.** The 44px floor, the footer separation, the
+description and focus ring contrast pairs, the `href` exclusion, and reader
+stylesheets.
 
 <KeyboardTable
   name="card"
@@ -508,178 +203,47 @@ separated below because a component page claims accessibility only where it has 
     {
       keys: "Tab",
       action: "Moves to the card, when the card is a link",
-      notes: "One stop per card, never one per line inside it. A card that is not a link is not focusable and does not appear in the tab order at all. A card is a boundary, and a tab stop that does nothing is a stop a keyboard user pays for on every row of a list.",
+      notes: "One stop per card. A card without href is not focusable.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves backwards to the card",
-      notes: "Reverse order matches the visual order, because a card is a single element in the flow and adds no order of its own.",
+      notes: "Reverse order matches visual order.",
     },
     {
       keys: "Enter",
       action: "Follows the link, on a card that has an href",
-      notes: "The root is a real anchor, so this is the browser's behaviour rather than a handler. A card with no href has no keyboard behaviour to describe.",
+      notes: "The root is a real anchor, so this is browser behaviour.",
     },
     {
       keys: "Space",
       action: "Scrolls the page",
-      notes: "A link activates on Enter and not on Space, and this is the one place the shared baseline does not apply. If your card must respond to Space it is a button, and a button that contains a heading and a paragraph is a different component from this one.",
+      notes: "A link activates on Enter, not Space.",
     },
   ]}
 />
 
 <ContrastReport component="card" />
 
-## Data attributes
-
-<DataAttributesTable
-  name="card"
-  rows={[
-    { attribute: "data-slot", condition: "Always, on the root", value: "card" },
-    { attribute: "data-slot", condition: "On the link row, present only when href is set", value: "card-link-row" },
-    { attribute: "data-slot", condition: "On Card.Header, when it is rendered", value: "card-header" },
-    { attribute: "data-slot", condition: "On the title element inside Card.Header", value: "card-title" },
-    { attribute: "data-slot", condition: "On the description paragraph inside Card.Header, present only when description is set", value: "card-description" },
-    { attribute: "data-slot", condition: "On Card.Body, when it is rendered", value: "card-body" },
-    { attribute: "data-slot", condition: "On Card.Footer, when it is rendered", value: "card-footer" },
-  ]}
-/>
-
-There is no `data-status` and no `data-category` on any part of this component, and both
-absences are the same refusal the props already make. A `data-status` on a card that holds no
-clinical meaning would be a hook for the exact mistake `href` and Anatomy already argue against,
-and a `data-category` would identify a measurement Card cannot see. There is no
-`data-opsinjs-value` for the same reason: Card renders no measurement of its own, so it has no
-number to expose. The material Card composes stamps its own `data-slot="surface"`, documented
-on [Surface](./surface.mdx#data-attributes) rather than repeated here, because that attribute is
-Surface's to emit and not Card's.
-
-## CSS variables
-
-<CssVariablesTable name="card" />
-
-Card sets no custom property of its own. Every colour it shows, the muted foreground on the
-description, the hairline edge, the focus ring, is a semantic token role read straight from the
-token layer and listed under [Tokens](#tokens) below, and the fill a card shows is written as an
-inline custom property on [Surface's](./surface.mdx) own root rather than on Card's. A consumer
-who wants to retint a card retints the token role, not a variable this component invented for
-the purpose.
-
-## Tokens
-
-<TokenTable component="card" />
-
-`--opsin-target-minimum` and `--opsin-target-separation` are the two tokens a link card's own
-class list names directly, the floor on both axes and the gap the footer holds even when
-`density="compact"` tightens everything around it. `--opsin-corner-shape` and the `radius-md`
-step choose the corner, and the ring colour comes from the same `ring` role every focusable
-element in the system uses. None of them is a category token or a status token, and that is
-consistent with the rest of this page: a component with no `category` prop and no `status` prop
-reads no category token and no status token onto one element, so the two-axis rule holds here
-by having nothing to hold apart.
-
 ## API reference
-
-### Card
 
 <PropsTable name="CardProps" />
 
-`rung` defaults to `"card"`, for the reasons under [Anatomy](#anatomy). Its six members are documented at [MaterialRung](../reference/api/MaterialRung.mdx), and they are the token names: a rung is only a rung because a `--opsin-material-<rung>-*` property resolves for it. `density` chooses between two
-multipliers on Tailwind's density-scaled spacing scale, and not between two steps of the fixed
-`--opsin-space-*` scale. The comfortable padding is five times `--spacing`, borrowed from the
-step `tokens/space.json` publishes as a card's inner padding on a phone, and compact is 0.875
-of it, which is the multiplier `tokens/space.json` publishes for the compact density. At the
-default density comfortable renders 20px, the same value the fixed step 5 publishes, and it
-sits on the 4px grid. Compact leaves that grid at every density, and so does a comfortable
-card once a denser document density shrinks `--spacing`, which is the one exception
-`tokens/space.json` rules[0] names to the 4px guarantee. `--spacing` is the product theme's
-own, and the document's density attribute moves it again.
-That second movement is the point of using the scaled scale here. A reader who asks their
-whole interface for a denser layout gets one inside a card too, and the two controls multiply.
-
-There is no `status`, no `variant` and no `color`. A Card that could be tinted by clinical
-status would be a `ResultCard` with none of its obligations, which is the exact failure the
-component boundary exists to prevent. There is no `category` either, and that refusal is worth
-stating because [category identity](../health/category-identity.mdx) names `card` among the
-components it governs: a category tint identifies a family of measurements, and a plain Card
-holds no measurement to identify. A surface that needs the category axis is the one under a
-ResultCard or a MetricTile, and those two components own that decision rather than inheriting
-it from here. There is no `as` prop and no general polymorphism: the root is a `div`, or an
-`a` when `href` is set, and a card that needs to be some other element contains that thing
-rather than becoming it. The one exception is `render`, and it reshapes only the anchor. When
-`href` is set, passing the product's own router link element as `render` makes that element the
-card root in place of the plain `<a>`, so a linked card navigates client-side rather than
-reloading the whole page. That element still carries the card's `data-slot="card"`, its shape,
-the 44px floor on both axes and the `group/card` hover relationship, and the card's own
-attributes win over the router element's while the two class lists are joined, so a routed card
-renders identically to a plain-anchor one. It takes the element itself and not the function
-form other slots accept, and it means nothing without `href`: a `render` passed with no `href`,
-or one that is not a React element, warns once in development and the card falls back to the
-plain anchor. This is the same escape hatch `Link` offers, and the anchor is the only half of
-it a card borrows, because the whole card is the target and so the element is the card rather
-than a control inside it. Wrapping the card in a `Link` instead would move `data-slot` onto a
-foreign root and put an action link's box around a whole card.
-
-`href` is a rule the type cannot state. A card that is a link may hold no other interactive
-element, and `children` is a `ReactNode`. Interactivity is not in its type, and a runtime
-walk would catch a raw `<button>` and miss every wrapped one. It is documented, it is in the
-examples by omission, and it is an open question on this page.
-
-### Card.Header
+`rung` defaults to `card`, not `raised`, and never goes above `raised`: a
+translucent rung warns in development and renders. `render` takes the router's
+link element itself, not a function, and does nothing without `href`. There is
+no `status`, `variant`, `color` or `category`.
 
 <PropsTable name="CardHeaderProps" />
 
-### Card.Body
-
 <PropsTable name="CardBodyProps" />
-
-### Card.Footer
 
 <PropsTable name="CardFooterProps" />
 
-The footer's gap is the one measurement in the card that does not move with density.
-`--opsin-target-separation` is the published minimum between two adjacent controls, and a
-footer with two buttons in it is the case it was published for: padding may tighten when
-somebody asks for a denser interface, and the distance between two things a thumb has to hit
-may not. The footer reads that token directly rather than a spacing step that happens to hold
-the same value today, so a retune of the published minimum moves every card footer with it and
-no gate has to notice.
-
 ## Related
 
-<RelatedComponents name="card" />
-
-**Easily confused with**
-
-- [ResultCard](./result-card.mdx) is a Card with a clinical contract. If it contains a health
-  value, it is not a plain Card.
-- [CareCard](./care-card.mdx) is a Card whose subject is an instruction with an author.
-- [MetricTile](./metric-tile.mdx) has a fixed internal contract for a grid, and it is not a
-  small Card.
-- [Surface](./surface.mdx) is the layer beneath. Card is a Surface with padding and a boundary.
-- [Callout](./callout.mdx) covers bounded advisory prose, which is a different thing from a
-  group of content.
-
-**Used by**
-
-- [Choose a component](../recipes/choose-a-component.mdx), the recipe that picks between the
-  surfaces, Card among them, when content needs a plain bounded box.
-- [Daily log screen](../screens/daily-log-screen.mdx), which groups each day's readings into a
-  bounded block on the log.
-- [Build a health metric card](../recipes/health-metric-card.mdx), the worked example this
-  component was drawn for.
-- [Onboarding screen](../screens/onboarding-screen.mdx), which boxes each step a new reader is
-  walked through.
-- [Results screen](../screens/results-screen.mdx), which lays out the day's results as a column
-  of bounded blocks.
-- [Trends screen](../screens/trends-screen.mdx), which wraps each chart and its label in one
-  block.
-
-**Governed by**
-
-- [The material ladder](../foundations/materials/the-ladder.mdx)
-- [Choosing a layer](../foundations/materials/choosing-a-layer.mdx)
-- [Layering, elevation and z-index](../foundations/layering-and-elevation.mdx)
-- [Spacing scale](../foundations/space/spacing-scale.mdx)
-- [Radius scale](../foundations/shape/radius-scale.mdx)
-- [ADR 0014. The material rung names are the token names](../project/decisions/0014-material-rung-names.mdx)
+- [ResultCard](./result-card.mdx) is a Card with a clinical contract, and any card holding a health value.
+- [CareCard](./care-card.mdx) is a Card whose subject is an authored instruction.
+- [MetricTile](./metric-tile.mdx) has a fixed grid contract; it is not a small Card.
+- [Surface](./surface.mdx) is the layer beneath; Card is a Surface with padding and a boundary.
+- [Callout](./callout.mdx) is bounded advisory prose, not grouped content.

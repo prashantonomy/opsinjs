@@ -11,36 +11,21 @@ governedBy: [numbers-units-precision, unit-systems, clinical-interaction-guideli
 usedIn: [ask-users-for/height-and-weight, choose-a-component, daily-log-screen, daily-logging, diabetes-medicines-app, forms/units-and-numeric-entry, health-metric-card, onboarding-screen, results-screen, sharing-with-a-clinician, trend-review, trends-screen, value-against-a-range]
 ---
 
-## Status
-
 <StubNotice
   name="value"
   status="shipped"
   questions={[
-    "The spoken unit forms in tokens/units.json are British English, and the component now substitutes them only when the reader's language is English and leaves the symbol audible otherwise. What stays undecided is whether a per-language spoken form belongs in the token file, in the product, or in neither.",
-    "`size` has two values, `inherit` and `display`. At `display` the number takes `title1` and the unit takes `title3`, and the scale's largest step, `largeTitle`, is set by no component in the system. Whether a hero value should move up to `largeTitle` stays open, because that answer changes every hero number in MetricTile, ResultCard, ScoreDial and RangeBar at once rather than on this page alone.",
-    "Contrast has not been measured for this component, and its behaviour at 200% text has not been observed at all. That behaviour is reasoned from the source, and nothing has looked at it in either theme. The Accessibility section below says which claims a gate holds up, which are only argued, and which are known defects that nobody has fixed.",
+    "Whether a per-language spoken unit form belongs in tokens/units.json, in the product, or in neither, given that only an English reader hears words today.",
+    "Whether a hero value should move from title1 up to largeTitle, an answer that changes every hero number in MetricTile, ResultCard, ScoreDial and RangeBar at once.",
+    "Whether the muted absence at the display size clears contrast, and how the value behaves at 200% text, since neither has been looked at in either theme.",
   ]}
 >
-  <code className="text-sm">value</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">value</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Value is the smallest component in the system and the one with the widest blast radius. Every
-number a reader sees passes through it, which means a formatting decision made here is made
-everywhere. A formatting bug here is wrong everywhere too.
-
 ## Preview
-
-One reading at both weights, a reading of zero, no reading at all, and that same absence at the
-hero size. The last row is why the demo has five: an absence at `display` is set as a sentence
-rather than as a value, so it drops to the headline step in the muted role instead of inheriting
-the number's weight, and the emptiest tile on a screen is never the loudest one. Open it under
-the product theme and turn the text size up. Two things are worth checking by eye: that the
-number and its unit never come apart, and that the absence never looks like a layout fault.
 
 <ComponentPreview name="value" />
 
@@ -66,7 +51,7 @@ import { Value } from "@/components/ui/value"
 
 <WhenToUse
   use={[
-    "Any number displayed to a reader that has a unit, a precision, or both. In a health product that is very nearly all of them.",
+    "Any number displayed to a reader that has a unit, a precision, or both.",
     "Inside other components: the reading in a MetricTile, the number beside a RangeBar tick, the score in a ScoreDial.",
     "Anywhere the same measurement appears on more than one screen and must look identical on all of them.",
   ]}
@@ -79,119 +64,35 @@ import { Value } from "@/components/ui/value"
   ]}
 />
 
-The last exclusion is easy to miss, and no figure is printed here to illustrate it. A risk
-percentage is a number this component can format and a claim it cannot make safely on its own:
-a percentage with no population, no time window and no baseline is precisely what
-[Risk and statistics](../health/risk-and-statistics.mdx) rules out, and an example of one
-printed in the course of arguing against it is still a number on a page, and it outlives the
-argument around it. Risk needs framing, a denominator and a comparison, and it needs them from
-a component that owns the framing rather than from the one that owns the digits.
-
 ## Clinical meaning
 
-**What it asserts.** That this quantity has this magnitude in this unit, to this precision.
-The precision is a claim: `1000.2` and `1000.20` say different things about how the
-measurement was made, and displaying the second when you have the first is a small, systematic
-lie that accumulates.
+**Asserts.** That this quantity has this magnitude in this unit, to this
+precision. `1000.2` and `1000.20` say different things about how the
+measurement was made.
 
-**What it must never be read as.** A judgement. Value carries no status, no colour and no
-band. It renders numbers, and numbers on their own mean nothing without the context supplied
-by the surface around them.
+**Never read as.** A judgement. Value carries no status and no band, and a
+number on its own means nothing without the context the surface around it
+supplies.
 
-**Which colour axis it may use.** Neither. Value inherits the text colour of its context for
-a reading, and takes the muted theme role only when an absence or failure renders at the
-`display` size, so the emptiest tile on a screen is never the loudest. The muted role is
-chrome rather than status or category, so neither axis enters the number. A component that
-could tint a number by status would put the two axes into the smallest, most-repeated element
-in the system, where they would be impossible to police.
+**Colour axis.** Neither. A reading inherits the text colour of its context. An
+absence at `display` takes the muted theme role, which is chrome rather than
+status or category.
 
-**Precision comes from the measurement.** Not from the display, not from the storage type,
-and not from what looks tidy. A weight measured to the nearest 100 g is displayed to one
-decimal place, and a device reporting 1000.2481 kg is displayed as 1000.2. Showing the extra
-digits claims an accuracy the instrument does not have. See
-[Numbers, units and precision](../health/numbers-units-precision.mdx), which is canonical for
-this across the whole system.
+**Thresholds.** None here, and none in `tokens/units.json`, which holds no
+reference range, no plausibility bound and no default precision. Precision
+belongs to the metric, so `precision` is required. See
+[Numbers, units and precision](../health/numbers-units-precision.mdx) and
+[Reference ranges](../health/reference-ranges.mdx).
 
-**`precision` means decimal places, and it means that everywhere in opsinjs.** This page is
-where the ambiguity was settled, because Value is the element every number passes through and
-a `RangeBar.Tick` renders a Value inside itself. Significant figures were the alternative
-reading and they lose: they make the same metric show a different number of decimal places at
-different magnitudes, which is exactly what rule 2 of the canonical page forbids. That rule
-reads *the same metric is shown to the same number of decimal places every time*. Decimal
-places are also what an instrument's resolution actually is. A scale reads to 100 g whether
-the person on it is light or heavy, and only decimal places can say so.
-
-**`precision` is required, and it has no default anyway.** Precision is a property of the
-metric, not of the unit: blood glucose and cholesterol are both reported in mmol/L and do not
-share a number of decimal places, so a per-unit default would be wrong for one of them on
-every screen. The honest place for the number is the caller, and the honest place for a
-missing one is a compile error. So `precision` is a required prop, and a TypeScript surface
-that forgets it fails to build rather than shipping a raw double to a reader. Nothing is
-defaulted in its place: the digits the caller hands over are the digits Value rounds and pads
-to, and no others.
-
-The type is a guarantee only where TypeScript is enforced. This component also ships as source
-into JavaScript projects, where a required prop is advice rather than a rule, so a caller can
-still reach it with no precision at all. There it rounds nothing and pads nothing, and the
-digits it shows are whatever the double happened to hold. Every IEEE-754 double holds
-`0.1 + 0.2` as `0.30000000000000004`, and seventeen of those digits printed beside somebody's
-own readings assert an accuracy no device has. So when a precision does not arrive and the
-formatter is about to print a fraction nobody asked for, Value says so once in development,
-naming the digits it is about to show. It still shows them: inventing a default would be the
-guess this whole decision refuses, and there is no honest number to fall back on when
-precision belongs to the metric rather than to the unit. A column of long floats is a visible
-prompt to go and find out what the measurement's resolution actually is.
-
-**Zero, absence and failure are three different things.** `0 steps` is a measurement. *No
-reading yet* is an absence. *Not available* is a failure, and it names a number that existed
-and did not survive the trip. Rule 13 of the canonical page names all three and says never
-to collapse them, and the tempting collapse is the last two: a reader told *no reading yet*
-about a result that did exist has been told something untrue about their own record. `null`
-renders the absence, a non-finite number renders the failure and reports itself in
-development, and neither of them ever renders as `0`.
-
-**Units are displayed as symbols and spoken in full.** `mmol/L` is read as *millimoles per
-litre*, `mmHg` as *millimetres of mercury*, `bpm` as *beats per minute*. Without this a screen
-reader improvises, and the improvisation is rarely close.
-
-**The spoken forms come from a token file, not from this component.** They are authored in
-`tokens/units.json` and reach the shipped component through a generated table in
-`@/lib/opsinjs`, so a unit is spoken the same way in every component that renders one and a
-new unit is one row rather than twenty edits. A symbol the table does not hold is rendered
-exactly as written, is left in the accessibility tree unchanged, and carries a development
-warning naming the missing row. That is awkward to listen to, and it is true.
-
-**A unit has three states, and they are not interchangeable.** A symbol says the reading was
-measured in it. `undefined` says nobody supplied one, which for a health number is rarely
-safe, so the component reports OPSIN-0003 in development and asks for it. `null` says the
-number has no unit by design, which is the honest answer for a composite score, a count its
-own label already names, or a ratio, and the component renders the digits alone and warns
-about nothing. The trap is reaching for `null` to quiet OPSIN-0003 on a reading whose unit
-lives somewhere upstream. That hides a missing unit rather than declaring an absent one, and
-it is the one use of `null` this component cannot catch for you.
+**Masking.** [On-screen privacy](../health/on-screen-privacy.mdx) names this
+component among the ones that implement a fixed-width mask. Value has no
+`masked` prop and reserves no width, so a product masking a reading today makes
+the layout move.
 
 <SafetyCallout severity="attention" evidence="opinion" title="The unit table says what a number is measured in. It never says what a number should be.">
-There is no reference range in `tokens/units.json`, no threshold, no plausibility bound, no
-"typical" value and no default precision, for any metric in any population. A build gate
-refuses a unit row carrying one, by key name, with that sentence as its error message.
-
-The narrowing in that sentence is deliberate. The check reads the top-level keys of each row
-in `units[]`, which is where such a key would actually be added and where every one of the
-seventeen refused names would land. It does not walk the rest of the file, so a forbidden name
-nested inside a conversion, or added at the file root, would pass it. That is a real gap in
-the check rather than in the file, it is reported to whoever owns the script, and this page
-describes the gate that exists rather than the one it should be.
-
-The same line rules out one conversion people expect to find there. `mmol/L` to `mg/dL` is
-**not** in the table and never will be: the factor depends on the molar mass of the substance
-being measured, which is a property of the analyte rather than of either unit, so one
-published factor would be applied to glucose, cholesterol and creatinine alike and would be
-wrong for two of them by a multiple. The conversions that *are* there are exact definitions
-rather than measurements, and each one carries the definition it came from. They are
-kilograms to pounds to stone, and Celsius to Fahrenheit. Asked for a conversion the system
-does not own, `convertUnit` returns nothing at all, so a caller has to render *we do not
-have this* rather than a substituted default. See
-[Unit systems](../health/unit-systems.mdx), which states the non-goal directly.
+`mmol/L` to `mg/dL` is refused, because the factor is a property of the analyte
+rather than of either unit. `convertUnit` returns nothing rather than a
+substituted default. See [Unit systems](../health/unit-systems.mdx).
 </SafetyCallout>
 
 ## Anatomy
@@ -201,346 +102,94 @@ have this* rather than a substituted default. See
   parts={[
     {
       name: "Value",
-      describes: "The root, and one accessible unit of meaning. Carries data-opsinjs-value with the reading unrounded, or an empty string when there is none. The reading it publishes is a magnitude with no unit beside it, so nothing may read it as a complete datum. Not focusable, not interactive. It paints no colour for a reading, and takes the muted theme role only when an absence or failure renders at the display size.",
+      describes: "The root, and one accessible unit of meaning. Not focusable, not interactive, and it paints no colour for a reading.",
       prop: "value",
     },
     {
       name: "Value.Number",
-      describes: "The formatted magnitude. Locale-aware separators and digit shaping, rounded once at the point of display, half away from zero. Rendered in tabular figures so a digit changing does not move the ones beside it.",
+      describes: "The formatted magnitude in tabular figures, rounded once at display, half away from zero, with locale-aware separators.",
       prop: "precision",
     },
     {
       name: "Value.Unit",
-      describes: "The symbol as written, with the no-break space that joins it to the number sitting inside this part rather than between the two, so a surface that suppresses the unit suppresses the join with it, which is what a compound reading needs. A symbol that attaches directly to the number carries no space at all, so a percentage stays flush as 98% and a temperature as 37.2°C; the closed set that does this today is % and the two degree symbols. Hidden from assistive technology when the unit table holds a spoken form and the reader's locale is English or unset, in which case that spoken form is read out beside it instead; left visible to it when the table has no spoken form or the reader's language is not English. Not rendered at all in two cases: when the caller declares the quantity dimensionless by passing unit as null, and when the caller passes unitDisplay as \"spoken\" to take the symbol off the screen for a sentence that already prints it once for a pair of bounds, as \"10 to 20 mg/dL\" does, while the spoken words stay in the accessibility tree.",
+      describes: "The symbol as written, carrying the no-break space that joins it to the number inside this part.",
       prop: "unit",
     },
     {
       name: "Value.Spoken",
-      describes: "The unit in words, visually hidden and placed immediately after the symbol so speech reaches the number and the unit as one phrase. It carries select-none, so it is left out of a selection and off the clipboard while it stays in the accessibility tree. It carries lang=\"en\" because the words are English. Present only when the unit table holds a spoken form and the reader's locale is English or unset; without a spoken form, or for a reader whose language is not English, the symbol itself stays audible and this part is not rendered.",
+      describes: "The unit in words, visually hidden and select-none. Present only when the reader's language is English or unset.",
       prop: "unit",
     },
     {
       name: "Value.Absence",
-      describes: "Renders instead of all three when there is no reading, and contains words and nothing else: 'no reading yet' for a reading never taken, 'not available' for a number that arrived broken. No glyph sits in front of the words, because a character in a value slot is either skipped by speech synthesis or read out as punctuation, and either way a reader who is listening is told nothing. At the display size it takes its own type treatment rather than the number's, dropping to the headline step in the muted role, because it is a sentence and not a reading and must not be the loudest thing on a screen.",
+      describes: "Words and no glyph: no reading yet for one never taken, not available for one that arrived broken.",
       prop: "absenceLabel",
     },
   ]}
 />
 
-<CompositionTree
-  name="value"
-  tree={[
-    {
-      part: "Value",
-      cardinality: "1",
-      note: "data-slot=\"value\", data-opsinjs-value=\"<reading>\" or \"\"",
-      children: [
-        {
-          part: "Value.Number",
-          cardinality: "1, when there is a reading",
-          note: "data-slot=\"value-number\"",
-        },
-        {
-          part: "Value.Unit",
-          cardinality: "0 or 1",
-          note: "data-slot=\"value-unit\"; aria-hidden when a spoken form follows it; absent when unit is null or unitDisplay is \"spoken\"",
-        },
-        {
-          part: "Value.Spoken",
-          cardinality: "0 or 1",
-          note: "data-slot=\"value-spoken\"; visually hidden, present when the unit table holds a spoken form and the reader's locale is English or unset",
-        },
-        {
-          part: "Value.Absence",
-          cardinality: "1, when there is not",
-          note: "data-slot=\"value-absence\"",
-        },
-      ],
-    },
-  ]}
-/>
-
-**Number** is the formatted magnitude. **Unit** is its symbol. **Spoken** is the same unit in
-words, for speech and nothing else. **Absence** is what renders in place of the first three
-when there is no value. The parts exist so that surrounding layouts can align numbers on their
-decimal point and give units their own type treatment without splitting the value apart in the
-accessibility tree. At the `display` size the number resolves to `title1` and the unit one step
-down to `title3`, both taken from `tokens/type.json`, and the component names no pixel size
-anywhere.
-
-The number and its unit are never separated in the accessibility tree. A screen reader
-must hear *1000.2 kilograms*, not *1000.2* followed some distance later by *kg*. The visible
-symbol can be taken off the screen with `unitDisplay="spoken"`, for a sentence that already
-prints it once for a pair of bounds, but the spoken words never leave the accessibility tree,
-so no reading is ever spoken bare. The visible parts are held
-together by a no-break space in the markup rather than by a CSS rule, so the join survives
-print and a reader's own text size, and so that the phrase can still wrap between other things
-at 200% instead of pushing the page sideways. The space sits inside the unit part rather than
-between the number and the unit, so the join is removed by removing the symbol and never by a
-rule. A symbol that attaches directly to the number, such as `%` or `°C`, is drawn with no
-space at all and needs none, because it is flush against the number already. A compound reading
-such as a blood pressure relies on the same part: hiding the first segment's unit hides its
-space along with it, so the two numbers meet the solidus evenly.
-
-Selection needs care here. `Value.Spoken` is hidden with `sr-only`, which clips the element
-rather than removing it, so the element stays in the document. Left at that, copying a reading
-out of the page would yield the symbol and then the word, *1000.2 kg kilograms*, rather than
-what is on the screen. So `Value.Spoken` also carries `select-none`, which takes it out of a
-selection and off the clipboard in current browsers while leaving it in the accessibility
-tree, and a copied reading is the symbol alone. This matters more here than it would
-elsewhere, because a reading copied into a message to a clinician is one of the things this
-component exists to serve.
-
-Like every other component here, Value is deliberately not composable. The parts above are
-identified by `data-slot` and are styleable from outside; none of them is an export. A caller
-can take the visible symbol off the screen with `unitDisplay="spoken"`, and a number declared
-dimensionless with `unit={null}` renders alone, but a reading with a unit never reaches speech
-without it: what leaves the screen stays in the accessibility tree, so the number and its unit
-cannot be pulled apart where it matters.
-
 ## Examples
 
 ### Zero is a reading. Absence is not.
 
-All three rows are handed the same unit and the same precision and differ only in the reading:
-one has a number, one has `null`, and one has a number that arrived broken. A nullish default
-collapses the second into the first for free, silently, in a place nobody looks. The third is
-the failure form, and it is the one place on this page a reader can see it. A number that
-existed and did not survive the trip is a failure, not an absence, and telling someone "no
-reading yet" about a result their record does hold says something untrue about their own
-record. That is rule 13 of [Numbers, units and precision](../health/numbers-units-precision.mdx),
-which keeps zero, absence and failure as three states a reader must be able to tell apart.
+Three rows share a unit and a precision and differ only in the reading: a
+number, a `null`, and a number that arrived broken. Rule 13 keeps the three
+apart.
 
 <ComponentPreview name="value-zero-is-not-absence" kind="example" align="start" />
 
 ### One precision makes a column comparable
 
-Four readings of one metric, all at the same precision, aligned by the layout rather than by
-anything inside the value. Nothing splits the number from its unit to achieve it, so a screen
-reader still hears one phrase per row.
-
-An alignment demonstration needs digits of several widths or it demonstrates nothing, so this
-one has three, four, four and five. Every magnitude in it is above eight hundred kilograms
-for exactly that reason. The widths are the subject and the values are only a carrier for
-the widths; none of them is a reading and none of them is a weight anybody could take for
-their own.
+Four readings of one metric at one `precision`, aligned by the layout and by
+tabular figures. Nothing splits the number from its unit to achieve it.
 
 <ComponentPreview name="value-aligned-in-a-column" kind="example" align="start" />
 
 ### What a screen reader is actually given
 
-The same number with six different units, and beside each one the phrase that reaches speech.
-This is the component's whole reason for existing and it is invisible in a screenshot, so the
-example prints it.
-
-The number is 888 on every row because 888 is out of scale in all six units at once: no
-weight, no concentration, no pressure, no rate, no temperature and no proportion in that table
-lands anywhere a reader could act on. It is below a thousand on purpose too, so the left column
-and the right column show the same digits with no grouping separator between them to explain. A
-magnitude that is plausible in even one of the six would be a reading, and this file ships as
-registry source and is captured as an image that outlives the page around it.
+One magnitude with six units, and beside each the phrase that reaches speech.
+This is what `unit` buys, and it is invisible in a screenshot.
 
 <ComponentPreview name="value-spoken-units" kind="example" align="start" />
 
-## States
-
-Value is a pure formatter and a server component, so it has no interaction states of its own.
-It is not focusable, takes no hover, focus, pressed or disabled treatment, and the keyboard
-table below records that Tab skips it. What it does hold apart is the three data conditions its
-doctrine keeps separate: a reading, an absence, and a failure. Loading and staleness belong to
-the surface that composes it, not to the formatter, so the five canonical states from
-[Data states](../foundations/data-states.mdx) resolve mostly to *delegated* here, and the two
-rows that are not delegated are the ones this component exists to keep from collapsing into each
-other.
-
-| Data state | What Value renders |
-| --- | --- |
-| Error | A non-finite reading, meaning NaN or an infinity, is a failure rather than an absence. Value renders the words "not available" in the absence slot and reports the value once in development. It never prints "NaN" beside a reading and never coerces the failure to 0. |
-| Loading | Nothing of its own. Value is a synchronous formatter with no data to fetch, so a surface still waiting on a reading shows its own skeleton and composes Value only once a value exists. |
-| Empty | `value={null}` renders the absence form, the words "no reading yet" by default or the caller's `absenceLabel`, and never 0 and never a blank. At the `display` size the absence drops to the headline step in the muted role, so an empty tile is never the loudest thing on a screen. |
-| Partial | Not applicable. Value formats one scalar reading with no sub-fields, so it is whole or absent with nothing in between. A compound reading such as a blood pressure is two Values composed by the surface, and each one is whole or absent on its own. |
-| Stale | Nothing of its own. Value renders no timestamp and holds no notion of freshness, so *whether a reading is still current* is carried beside it by [RelativeTime](./relative-time.mdx) and by the surface, as [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx) requires. |
-
 ## Content guidelines
 
-Group large numbers with the locale's own separator and never with a hard-coded comma. Use
-the unit symbol most readers will recognise, and prefer the one their clinic uses over the
-one that is technically preferred. Keep the number and its unit on the same line; a unit that
-wraps to the next line changes what a glancing reader thinks they read. Most units sit a space
-away from the number, but a closed set attaches with no space, which is `%`, `°C` and `°F`, so
-a percentage reads as `98%` and a temperature as `37.2°C`.
-[Grammar and mechanics](../content/grammar-and-mechanics.mdx) is where that spacing convention
-lives for prose, and the component follows it.
-
-Use the same precision in both places for any comparison the reader is expected to make. A
-value against a range and a value against last week are both such comparisons. Comparing
-1000.2 with 1000.17 is arithmetic nobody should have to do.
-
-Write the unit symbol exactly as `tokens/units.json` spells it, including its case: `mmol/L`
-has a capital L and `mmHg` has a capital H, and the lookup is exact on purpose. A table that
-guessed which unit somebody meant would one day guess wrong about a concentration. If the
-symbol you need is not there, add it as one row carrying the symbol, the spoken form and the
-plural, rather than passing a string the table has never heard of.
-
-A number that genuinely has no unit takes `null`, never an empty string and never an omitted
-prop. An omission is indistinguishable from the missing unit that OPSIN-0003 exists to catch,
-so leaving the prop out raises that warning rather than declaring the absence, and `null` is
-how a caller says on purpose that this number has no unit.
+A caller's `absenceLabel` is rendered exactly as passed, with no check and no
+warning, so run your own absence copy past the banned-word list. Write a unit
+symbol exactly as `tokens/units.json` spells it, case included. A number that
+has no unit by design takes `null`, never an omitted prop.
 
 <DoDont>
   <DoDont.Do>
-    **"1000.2 kg"** for a device that measures to 100 g. One decimal place, symbol adjacent,
+    **"1000.2 kg"** for a device that measures to 100 g. One decimal place,
     spoken as *1000.2 kilograms*.
   </DoDont.Do>
   <DoDont.Dont>
-    **"1000.2481 kg"** because that is what the device sent. Four decimal places assert a
-    precision the instrument does not have, and it makes an ordinary reading look clinical.
+    **"1000.2481 kg"** because that is what the device sent. Four decimal places
+    assert a precision the instrument lacks.
   </DoDont.Dont>
 </DoDont>
-
-That magnitude is over a tonne on purpose. The argument is about decimal places and survives
-any magnitude at all, so the one written down is the one nobody can read as their own weight.
-Every example this system ships is held to the same rule, because the number is the part that
-gets cropped into a slide deck and the sentence explaining it is the part that does not. See
-[ADR 0012. Example data is synthetic and explicitly unsourced](../project/decisions/0012-synthetic-example-data.mdx).
-
-<DoDont>
-  <DoDont.Do>
-    **"No reading yet"** where a measurement is missing, in words, with nothing in front of them.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"0"** or a blank space. Zero is a real reading for several measurements, and a blank
-    looks like something failed to load rather than something that was never recorded.
-  </DoDont.Dont>
-</DoDont>
-
-## Motion
-
-Value uses no motion. It declares no transition token, it does not animate on first paint, and
-it does not animate when the reading changes. Because it declares no transition, there is
-nothing for `prefers-reduced-motion` to reduce, and there is no reduced-motion fallback to quote
-because there is no motion to fall back from.
-
-That silence is a health decision rather than an oversight. A number that counts up has
-displayed, for every frame of the count, a figure that is not true, so a health value is never
-swept, tweened or counted onto the screen. A surface that wants a new reading noticed does that
-through the layout around the number, or through a component that owns an announcement, rather
-than by moving the digits. If you need a reading to draw the eye, change what sits beside it,
-and leave the number itself still.
 
 ## Accessibility
 
-Some of these are held up by a gate on every commit. The rest are arguments, and they are
-labelled as such: a component page claims accessibility only where it has been checked, with the gaps listed rather than left out. Two of the four lists below are gaps, and
-they are the ones worth reading first.
+**Checked by `pnpm run check:a11y` on every commit.** No `px` type size and no
+hard-coded colour, and the absence copy this component ships goes through the
+banned-word list.
 
-**Checked, by a gate on every commit:**
+**Argued from the source, not measured.**
 
-- **Every unit in the table has a spoken form and a plural.** `node scripts/build-tokens.mts`
-  refuses `tokens/units.json` if a row is missing either, with the reason in the error: a
-  symbol with no spoken form is a symbol a screen reader will improvise, which is the failure
-  this component exists to prevent.
-- **The shipped spoken forms cannot drift from the authored ones.** They are generated into
-  `lib/opsinjs.ts`, which `pnpm run check:generated` diffs byte for byte, so an edit to the
-  copy that ships fails the build rather than quietly disagreeing with the copy that is
-  reviewed.
-- **The unit table cannot acquire a threshold.** The same script refuses a row carrying
-  `low`, `high`, `range`, `typical`, `threshold`, `precision` or any of a dozen siblings.
-  That is an accessibility claim as well as a safety one: a reader is entitled to a number
-  that has not been silently reframed by the layer that formatted it.
-- **No size in px, and no hard-coded colour.** `pnpm run check:a11y` fails the build on a
-  `px` font size, a hex or `rgb()` literal, a Tailwind palette colour and a class that
-  resolves to nothing under the product theme. Value paints no colour on a reading, and one
-  theme role on an absence at `display`, so a reading's meaning still never depends on a
-  colour.
-- **The absence copy this component ships is checked against the banned-word list.** *No
-  reading yet* and *not available* go through the same gate as every other string in
-  `registry/`, in identifiers as well as in copy. A caller-supplied `absenceLabel` does not:
-  it is rendered exactly as it was passed, with no check and no warning, because it is the
-  product's copy and the product owns it. Nothing in opsinjs can see that string, so a phrase
-  that reassures, judges or diagnoses would reach the reader through this component exactly as
-  written. Run your own absence copy past the same list.
+- The symbol is `aria-hidden` and the words sit straight after it, so an English
+  reader hears *1000.2 kilograms* as one phrase.
+- Absence is announced in words, with no decorative glyph for speech synthesis
+  to skip or to read out as punctuation.
+- Digits follow the reader's locale, checked by hand against `de-DE` and
+  `ar-EG`. `select-none` keeps the spoken words off the clipboard.
+- A Value cannot be the only thing naming a control. Symbol and spoken words
+  share no substring, which is WCAG 2.2 SC 2.5.3.
 
-**Argued, and true of the implementation, but not yet measured:**
-
-- **The number and unit form one accessible phrase for an English reader**, with the unit
-  expanded to its spoken form. The symbol is `aria-hidden` and the words sit immediately after
-  it, so speech reaches *1000.2 kilograms* as one run rather than a number and, later, two
-  letters. The substitution runs only when the reader's language is English or unset; for that
-  reader this is the single most valuable thing this component does, and it has been checked by
-  reading the rendered markup rather than by listening to a screen reader.
-- **Absence is announced as absence**, in words, and the words are the whole of what is
-  rendered. Nothing decorative sits in front of them, so there is nothing for speech
-  synthesis to skip and nothing for it to read out as punctuation.
-- **Digits use the reader's locale**, including digit shaping and separators. Verified by hand
-  against `de-DE`, which groups with a full stop, and `ar-EG`, which uses its own digit
-  shapes; the plural of the spoken unit is decided by asking the same formatter what one looks
-  like, so neither locale can fool it. Not covered by a gate.
-- **The value never depends on colour** for any part of its meaning. The absence takes the
-  muted theme role at the `display` size, but it says what it is in words whatever colour it is
-  drawn in, so a reader loses nothing when the colour is gone.
-- **Tabular alignment does not break reading order.** Alignment comes from tabular figures and
-  from the layout around the value, never from splitting the number away from its unit, so the
-  accessibility tree still presents one phrase per reading.
-- **At 200% text the number and unit should stay together and the number should not
-  truncate.** Reasoned from the source rather than seen: the no-break space is what holds the
-  join where the unit takes one, a joined symbol such as `%` or `°C` sits flush against the
-  number with no space to hold, nothing in the component sets an ellipsis, a fixed height or a `px` size, and
-  `whitespace-nowrap` is deliberately absent so the phrase can still wrap between other things
-  instead of pushing the line sideways. Nobody has looked at this component at 200% in either
-  theme. An earlier draft of this page said somebody had, and that was not true. The third
-  list below says what has not been run. One caveat that follows from the API: a `className`
-  you pass wins over the component's own, so a `truncate` or a fixed height passed from
-  outside would override all of the above.
-- **Print renders the value and unit as text** with no reliance on the surrounding surface.
-  The spoken form is visually hidden and does not print, which is correct. A printed page has
-  the symbol.
-- **Copying a reading yields the symbol alone.** `Value.Spoken` carries `select-none`, which
-  removes it from a selection and from the clipboard in current browsers while leaving it in
-  the accessibility tree, so a reading copied into a message to a clinician arrives as
-  *1000.2 kg* rather than *1000.2 kg kilograms*. This sits here rather than among the checked
-  claims because no gate covers selection, and the copy test has not been run in Chromium,
-  Firefox and Safari.
-
-**Not yet checked at all, and listed rather than omitted:**
-
-- The spoken substitution now runs only for an English reader, and the span carries
-  `lang="en"` so a screen reader is told the words are English. What has not been checked is
-  whether a screen reader actually switches voice on a `lang` set on an `sr-only` span, which
-  is a listening test nobody has run. A reader whose language is not English keeps the symbol
-  audible rather than hearing English words in another voice, so the earlier defect is
-  narrowed rather than left open. `tokens/units.json` still has no translations and does not
-  pretend to, and whether a per-language spoken form belongs there is the first question on
-  this page.
-- Contrast. Value paints no colour for a reading and inherits its colour from whatever it is
-  placed on, so a reading contributes no pair of its own. An absence or failure at the
-  `display` size is the exception: it draws the muted-foreground role against the surface the
-  value sits on, which is the lowest-contrast text this component can produce, and that pair
-  has not been measured. The rest of the claim still has to be made by the surface, and no
-  surface has made it yet. `prefers-contrast` and `forced-colors` are not implemented anywhere
-  in opsinjs.
-- The layout half of the accessibility rig has not been run against this component. That half
-  covers survival at 1.3×, and no truncated numeric value at 200%. It is a nightly job and
-  there has not been a night with this component in it.
-- Masking. [On-screen privacy](../health/on-screen-privacy.mdx) names this component among
-  the ones that implement it, and asks that a sensitive value be replaced by a fixed-width
-  mask which occupies the same space as the real one, so nothing reflows when it is revealed.
-  Value has no `masked` prop, reserves no width, and says nothing about privacy anywhere else
-  on this page. A product masking a reading today substitutes its own string and the layout
-  moves. Whether masking belongs here or in the surface that owns the reveal control has not
-  been decided, and until it is, the obligation is assigned and unmet rather than answered.
-
-**Known, and not solved:**
-
-- **A Value must not be the only thing naming a control.** The visible text is the symbol and
-  the accessible text is the word, and the two share no substring, so a button or a link whose
-  entire content is a Value has an accessible name that does not contain its visible label.
-  That is WCAG 2.2 SC 2.5.3, and the practical harm is that a speech-input user asking for
-  what they can see gets no match. This follows from the substitution rather than from
-  anything unbuilt, and the substitution stays: it is right on every surface, and tappable
-  readings are the few. A product that makes a reading tappable owes that control its own
-  accessible name carrying the symbol as written. That is also what the keyboard table below
-  means when it says the tap target is the row around it.
+**Not checked by any gate.** Contrast for the muted absence at `display`,
+behaviour at 200% text, whether a screen reader honours `lang` on a hidden span,
+and masking.
 
 <KeyboardTable
   name="value"
@@ -548,12 +197,12 @@ they are the ones worth reading first.
     {
       keys: "Tab",
       action: "Skips the value",
-      notes: "A value is not focusable and has no keyboard behaviour of its own. That is the contract rather than an omission: a results screen with thirty readings on it would otherwise be thirty tab stops that do nothing.",
+      notes: "Not focusable, by contract. Thirty readings would otherwise be thirty tab stops doing nothing.",
     },
     {
       keys: "Shift + Tab",
       action: "Skips the value",
-      notes: "Same in reverse. A value never appears in the focus order in either direction. If a product makes a reading tappable, the tap target is the row around it and owes its own name and its own 44 by 44.",
+      notes: "Same in reverse. A tappable row owes its own name and its own 44 by 44.",
     },
   ]}
 />
@@ -567,177 +216,31 @@ they are the ones worth reading first.
   rows={[
     {
       attribute: "data-slot",
-      condition: "On the root, always",
-      value: "value",
-    },
-    {
-      attribute: "data-slot",
-      condition: "On the formatted magnitude, when there is a reading",
-      value: "value-number",
-    },
-    {
-      attribute: "data-slot",
-      condition: "On the visible symbol, when a unit is present and unitDisplay is not \"spoken\"",
-      value: "value-unit",
-    },
-    {
-      attribute: "data-slot",
-      condition: "On the visually hidden spoken unit, when the unit table holds a spoken form and the reader's locale is English or unset",
-      value: "value-spoken",
-    },
-    {
-      attribute: "data-slot",
-      condition: "On the absence words, when there is no reading",
-      value: "value-absence",
+      condition: "On the root and every inner part, when that part renders",
+      value: "value, value-number, value-unit, value-spoken, value-absence",
     },
     {
       attribute: "data-opsinjs-value",
       condition: "On the root, always",
-      value: "The unrounded reading, or an empty string when there is no reading (both a null and a non-finite value render the empty string)",
+      value: "The unrounded reading, or an empty string when there is no reading",
     },
   ]}
 />
-
-These are the styling and machine-readable hooks Value emits. It stamps no `data-status` and no
-`data-category`, and that absence is the contract rather than an omission: Value carries neither
-colour axis, so nothing downstream can key a status or a category off the number and reintroduce
-a distinction this component refuses to make. `data-opsinjs-value` publishes the reading
-unrounded, because rounding is a display decision and whatever reads the attribute wants the
-datum, but it is a magnitude with no unit beside it, so nothing may treat it as a complete datum
-on its own. It holds the empty string for both non-states and cannot tell an absence from a
-failure, which is a known limitation reported to the substrate owners; the visible words keep the
-two apart where a reader can see them.
-
-## CSS variables
-
-<CssVariablesTable name="value" />
-
-Value exposes no custom property of its own for a consumer to set. It declares no `--opsin-*`
-variable in an inline style or a companion stylesheet, so there is nothing component-scoped to
-override here. Its colours are the semantic token roles listed under Tokens below, read straight
-from the token layer. The one colour it ever paints, the muted theme role on an absence at the
-`display` size, is read through `var(--muted-foreground)` and spelled as a bracketed `color:`
-property so it survives `twMerge`, and even that role is defined by the theme rather than by this
-component. To recolour any part, write a rule against its `data-slot`.
-
-## Tokens
-
-<TokenTable component="value" />
-
-These are the tokens Value actually reads, generated from its source by `scripts/build-tokens.mts`
-rather than listed by hand. They are type steps and a single chrome colour role: the number
-resolves to `title1` at the `display` size and the unit one step down to `title3`, an absence at
-that size drops to `headline` in the muted-foreground role, and a reading is set in the numeric
-family so a changing digit does not shift the ones beside it. Value reads no category token and no
-status token, and it never puts the two axes onto one element, which for the smallest and
-most-repeated element in the system is where that rule matters most. A row here that named a
-category or a status role would be the bug the two-axis rule exists to catch.
 
 ## API reference
 
 <PropsTable name="ValueProps" />
 
-`unit` has three states, and they are not the same. A string is the symbol the reading was
-measured in. `null` declares a quantity that has no unit by design, and it is how a
-dimensionless number says so: `ScoreDial` renders its Value with `unit={null}`, because a
-composite score is a number that stands for other numbers rather than a quantity in any unit,
-and passing `null` suppresses OPSIN-0003 rather than tripping it. Omitting the prop is the
-third state and the mistake OPSIN-0003 exists to catch. A health number shown with no unit
-beside it is one the reader cannot act on safely, so an omission still raises the warning in
-development and asks for a unit, whereas `null` is the caller stating on purpose that there is
-none.
-
-`unitDisplay` chooses which form of the unit the reader sees. Left unset the symbol is drawn on
-the screen and the words are spoken beside it, which is what every reading does. Passed as
-`spoken` the symbol comes off the screen and only the words remain, for a sentence such as
-`10 to 20 mg/dL` that has already printed the symbol once for a pair of bounds and would repeat
-it on the low bound otherwise. It is never a way to render a unitless number: asked for with no
-unit it raises a development warning rather than dropping the unit, because a number shown with
-no unit is what OPSIN-0003 exists to catch, and `unit={null}` is the only honest spelling of a
-quantity that has none.
-
-There is no `status`, no `color` and no `variant` that changes meaning. A number that needs
-to look different because of what it is worth belongs inside a component that owns that
-judgement.
-
-`locale` is optional, and on a server-rendered surface that option is a trap. The prop doc
-says an omitted `locale` lets the reader's own environment decide, but under server rendering
-there is no reader's environment: the server process's own ICU default formats the first
-paint, and hydration on the client then reformats with the browser's locale. A German-speaking
-reader sees the reading as 1,000.2 on the first paint and as 1.000,2 after hydration, which is
-their reading changing shape in front of them, with a hydration mismatch logged in between.
-Rule 10 of [Numbers, units and precision](../health/numbers-units-precision.mdx) is why this
-is a safety matter and not merely a cosmetic one: a comma decimal read as a grouping separator
-shifts the value by a factor of ten or more. So under server rendering, pass `locale`
-explicitly from the request or from the reader's stored setting, rather than leaving it to an
-environment that is the server's and not the reader's.
-
-The unit table is substrate rather than part of this component's API, and it is shared. A <ApiLink symbol="Unit">Unit</ApiLink> carries a symbol, a spoken form, a plural and what it measures; <ApiLink symbol="UnitConversion">UnitConversion</ApiLink> carries an exact fraction and the definition it came from; <ApiLink symbol="RefusedConversion">RefusedConversion</ApiLink> carries the pairs this system will not publish and why. Alongside them, `UNITS`, `findUnit`, `spokenUnit` and `convertUnit` are exported from `@/lib/opsinjs` for the components that need more than formatting. All of them are generated from `tokens/units.json`; none of them is hand-written, and `convertUnit` returns nothing at all rather than a substituted default when the system does not own the factor.
-
-One trap survives that refusal, and it is named here because the token file names it and the
-function's signature cannot. A temperature and a temperature *difference* do not convert the
-same way: two degrees of change in Celsius is 3.6 degrees of change in Fahrenheit, not 35.6.
-`convertUnit` applies the scale and then the offset unconditionally, which is right for an
-absolute reading and wrong by the offset for a delta, and there is no argument on it that can
-say which you meant. The `basis` string it returns still reads like provenance for whichever
-answer came back. Do not send a change figure through it. Making the distinction expressible,
-rather than only documented, belongs to the substrate module and is reported there.
+`precision` is required and nothing is defaulted in its place, because precision
+belongs to the metric rather than to the unit. `unit={null}` declares a
+dimensionless number. Omitting `unit` raises OPSIN-0003 instead. Under server
+rendering, pass `locale` explicitly, or the server's own ICU default formats the
+first paint and hydration reformats it.
 
 ## Related
 
-<RelatedComponents name="value" />
-
-**Easily confused with**
-
-- [RelativeTime](./relative-time.mdx) covers the same job for points in time. The two share
-  their formatting doctrine and their absence contract.
-- [ReadingInput](./reading-input.mdx) is the entry counterpart. They must agree on precision
-  and units or the reader will type one thing and read back another.
-- [MetricTile](./metric-tile.mdx) is a Value with a label, a time and a surface.
+- [RelativeTime](./relative-time.mdx) does the same job for points in time, and shares the absence contract.
+- [ReadingInput](./reading-input.mdx) is the entry counterpart, so the two must agree on precision and units.
+- [MetricTile](./metric-tile.mdx) is a Value with a label, a time and a surface of its own.
 - [RangeBar](./range-bar.mdx) is a Value with its reference range drawn around it.
-
-**Used by**
-
-- [Choose a component](../recipes/choose-a-component.mdx) routes a plain number with a unit to this component.
-- [Daily log screen](../screens/daily-log-screen.mdx) reads back each saved reading formatted through this component.
-- [Daily logging](../patterns/daily-logging.mdx) shows the returning reader every entry in one formatting, which is this component's.
-- [Build a health metric card](../recipes/health-metric-card.mdx) assembles a labelled reading, and the reading itself is this component.
-- [Onboarding screen](../screens/onboarding-screen.mdx) puts the first genuinely useful figure on screen through this component.
-- [Results screen](../screens/results-screen.mdx) lists many readings and formats every one of them identically through this component.
-- [Sharing with a clinician](../patterns/sharing-with-a-clinician.mdx) renders every figure on the hand-off surface through this component so the clinician reads one formatting.
-- [Trend review](../patterns/trend-review.mdx) prints the current reading and the axis figures through this component.
-- [Trends screen](../screens/trends-screen.mdx) shows the latest reading and its axis labels through this component.
-- [Show a value against a reference range](../recipes/value-against-a-range.mdx) puts the number this component formats beside the range that gives it meaning.
-
-**Governed by**
-
-Ten doctrine pages name this component in their own frontmatter, which is a longer list than
-a formatting primitive looks like it should answer to; the writing rule at the end is an
-eleventh entry of a different kind. That length is the point. Most of what governs a displayed
-number is about everything around the number, and each of those obligations is deferred below
-to a named neighbour rather than to nobody.
-
-- [Numbers, units and precision](../health/numbers-units-precision.mdx) is canonical for
-  precision, rounding, and the three states this component holds apart.
-- [Unit systems](../health/unit-systems.mdx) says which number, which symbol, and why some
-  conversions are refused rather than published.
-- [Reference ranges](../health/reference-ranges.mdx) explains why there is none in the unit
-  table and none in this component. RangeBar owns the comparison.
-- [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx) has the
-  absence contract. Value renders no time at all, so *when it was measured* and *whether it is
-  still current* belong to RelativeTime and to the surface that places them.
-- [Data provenance and device accuracy](../health/data-provenance-and-device-accuracy.mdx)
-  owns the obligation. Value carries no provenance and displays none. The *from your cuff /
-  you entered this* sentence belongs to MetricTile and SourceCitation.
-- [On-screen privacy](../health/on-screen-privacy.mdx) covers masking, which this component
-  does not implement. Listed as a gap under Accessibility rather than answered.
-- [Risk and statistics](../health/risk-and-statistics.mdx) explains why a bare proportion is
-  sent to a component that can frame it rather than formatted here.
-- [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx) has the
-  general rules a number-bearing surface answers to.
-- [Who this is for](../health/who-this-is-for.mdx) covers the reader this formatting is for,
-  and the reason the unit is spoken rather than spelled.
-- [Safety review checklist](../health/safety-review-checklist.mdx) is the operational form of
-  all of the above, run against a screen rather than against a component.
-- [Grammar and mechanics](../content/grammar-and-mechanics.mdx) shows how numbers and units
-  are written in surrounding prose, so the sentence and the component agree.
+- [Callout](./callout.mdx) owns the framing a bare risk proportion needs before it can be shown.

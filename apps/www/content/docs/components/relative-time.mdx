@@ -11,55 +11,25 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="relative-time"
   status="shipped"
-  issue="prashantonomy/opsinjs#0"
   questions={[
-    "The component does not tick, and it does not read the clock: `now` is required and comes from the caller. A surface left open for an hour therefore still shows the phrase it was rendered with. The exact date is in the accessibility tree and in print at every age, and it comes onto the screen beside the phrase once the reading is older than a day; within a day the phrase alone is on screen, which is what recency asks for. That narrows the question without closing it. Whether such a surface should also get an opt-in client wrapper that re-renders is open, and the answer decides whether a phrase as fine as '3 minutes ago' should be rendered on one at all.",
-    "The five event words are English and `locale` does not translate them. A prop that let a product supply its own would also let it relabel `synced` as 'updated', which is the failure this component exists to prevent, so there is not one yet.",
-    "The absolute form names its offset by default, because whether it differs from the reader's zone is a fact about the reader's browser and this component does not run there. A product that knows the reader's zone now supplies it as an IANA `timeZone` and gets the reader's own wall clock with no label, and one that knows the instant came from the reader's own device passes `showOffset={false}` to drop the label. What stays open is the common case: a product that knows neither still gets the offset label, which is noisier than the content guidance asks for but never wrong.",
-    "The muted stale treatment's contrast against the muted fill and the tinted grounds it may also share is not yet measured, and neither is that treatment under increased contrast: Surface answers `contrast-more:` in its own utilities, nothing in relative-time does, and nobody has opened the site under a real Windows contrast theme. The role's own colours are already measured against a neutral ground, and its accessibility section says which claims are checked and which are only argued.",
-    "A consumer needed a word this component does not have. AlertBanner wants to name the instant a product's rules produced a finding, rather than an event that happened to the reader or to the data, and none of the five events is that instant. The obvious candidates 'detected', 'flagged' and 'triggered' are refused at every level by the content doctrine's banned-words table, which reads them as machine register that puts an algorithm between the reader and the reading. So the open decision is not which sixth word to add but whether an instant of that kind belongs on a patient-facing surface at all.",
+    "The component never ticks or reads the clock, so a surface left open for an hour keeps its first phrase; whether an opt-in re-rendering wrapper belongs is open.",
+    "The five event words are English and locale does not translate them, and a prop to supply others would also let a product relabel synced as updated.",
+    "The muted stale treatment is unmeasured against the muted fill, the tinted grounds it may share, and under increased contrast, and no preview renders it.",
   ]}
 >
-  <code className="text-sm">relative-time</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">relative-time</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Relative time is a small kindness that turns into a hazard at the edges. *Two days ago* is
-easier to act on than a date; *fourteen months ago* is not, and a phrase attached to the
-wrong event is false in the most reassuring possible direction. The wrong event is the app's
-last sync rather than the reading's own timestamp.
-
 ## Preview
-
-Five rows across the ladder: minutes, hours, a few days and about a dozen days, and then a
-reading months old. The two recent rows show the phrase on its own, because within a day
-recency is the point; the three older rows show the exact date beside the phrase, because past
-a day a phrase alone starts to cost the reader arithmetic. The date is in the accessibility
-tree and in print for every row, including the two recent ones, and it only comes onto the
-screen once the reading is older than a day. Four of the five keep their zone label; the
-measured row shows the date with no zone because that reading came from the reader's own
-device, where the zone cannot differ from theirs and the label would only be noise. That is
-the one exception to the house rule that an absolute time always carries its zone, and it is
-why the first Do further down, an issued clinic result, still reads "UTC" while this device
-row does not. No row carries a
-staleness threshold, so no row says anything about staleness: opsinjs has no number to put
-there, and in a preview the number is the part that gets copied. The muted stale treatment is
-therefore described on this page and demonstrated by none of its previews.
 
 <ComponentPreview name="relative-time" />
 
 ## Installation
-
-It has no npm dependency and pulls in no other registry item. The phrase and the date come
-from `Intl`, which every runtime this system supports already has.
 
 <ComponentInstall
   name="relative-time"
@@ -99,87 +69,35 @@ import { RelativeTime } from "@/components/ui/relative-time"
   ]}
 />
 
-The third exclusion is a threshold the product chooses. `absoluteAfterDays` is where it goes,
-and it defaults to one day, which is where the content guidance keeps a relative phrase for
-recency and switches to the absolute date beyond about a day. Below the boundary a sighted
-reader sees the phrase alone, and at or above it the exact date is shown beside the phrase so
-nobody has to count backwards from a phrase on its own. The date is in the accessibility tree
-and in print at every age regardless, so this prop moves only what is on screen. It is a
-legibility boundary and not a clinical one: moving it changes only when the date joins the
-phrase, and it can neither add nor remove the staleness note.
-
 ## Clinical meaning
 
-**What it asserts.** That the named event happened at that instant. Where the product has
-supplied a threshold and that threshold has been passed, it also asserts that the product no
-longer considers the associated value current. Nothing else. It does not know what was
-measured, and it has no view about whether the reading is still true.
+**Asserts.** That the named event happened at that instant and, past `staleAfterHours`,
+that the product no longer considers the value current. It does not
+know what was measured. The phrase rounds down at every rung except the minute floor.
+The staleness verdict is computed from the exact elapsed time, never from the phrase, as
+[Numbers, units and precision](../health/numbers-units-precision.mdx) requires of
+threshold comparisons.
 
-**What it must never be read as.** Freshness of the data as a whole. *Synced 5 minutes ago*
-on a dashboard means the app spoke to a server five minutes ago; it does not mean the
-readings are five minutes old. Conflating the two is one of the most common and most
-consequential errors in health dashboards, which is why `event` is required, has no default,
-and is never inferred: the component would have to pick one, and the reassuring pick is the
-wrong one.
+**Never read as.** Freshness of the data. *Synced 5 minutes ago* means the app spoke to
+a server, not that the readings are five minutes old. That is why `event` is required,
+never inferred.
 
-**What it asserts about *now*.** Less than it looks, and it does not find out for itself.
-`now` is a required prop: the component never calls the clock, so the phrase is a statement
-about two instants the caller named, computed once, and it owns no timer to revise it. A
-surface left open for an hour is still showing the phrase it was rendered with. Four things
-keep that a limitation rather than a lie. The `time` element's machine-readable timestamp is
-exact and never moves. The absolute date and time are always in the accessibility tree and
-always in print, and they come onto the screen beside the phrase once the reading is older
-than a day, so what can go out of date is never all that a reader has. And the phrase rounds
-*down* at every
-rung except the minute floor, which rounds up to *1 minute ago*, while the staleness verdict
-is computed from the exact elapsed time rather than from the phrase. Rounding can therefore
-never make a stale reading look fresh. A product whose surface stays open across its own
-boundary re-renders with a fresh `now`.
+**Colour axis.** Neither. The stale treatment is muted text carried by the
+words *may be out of date*, never an amber tint that puts a status onto a fact about the
+clock.
 
-Reading the clock once per screen rather than once per timestamp is worth having for its own
-sake: twenty rows that each ask the runtime what time it is can straddle a minute boundary
-halfway down the list and disagree with one another about a reading they were all rendered
-beside.
+**Thresholds.** Staleness belongs to the product: no default, no per-event default and
+nothing derived from `event`. Omit `staleAfterHours` and no stale treatment renders.
+Supply it and the words appear past the boundary, or wherever it could not be applied, as
+[Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx) asks.
 
-**Which colour axis it may use.** Neither, in any state. The stale treatment is a muted,
-non-status typographic change carried by explicit words. It is never an amber tint, which
-would put a clinical status onto a fact about the clock and leave the reader unable to tell
-that amber from the one that means *needs attention*.
-
-**Staleness is clinical and belongs to the product.** What counts as old differs completely
-between one measurement and the next, and this component cannot see which one it has.
-RelativeTime ships no default threshold, no per-event default and nothing derived from
-`event`; no such number appears in its source, in its demo or in either of its examples. Omit
-`staleAfterHours` and there is no stale treatment at all, which is the honest output when
-nobody has said what old means here. Supply it and the timestamp always says something: past
-the boundary it carries the words, and where the age could not be checked at all it carries
-the same hedged words rather than falling silent, because a stale reading rendered in exactly
-the tone of a fresh one is the first failure
-[Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx) names.
-The age goes unchecked where a threshold did not arrive as a number, and where a `now` could
-not be parsed.
-
-**It de-emphasises the timestamp, and only the timestamp.** The muted treatment reaches the
-`time` element and nothing around it. The doctrine asks for more than that: in the stale
-state the *value* is de-emphasised too and there is a route to refresh it, and neither is
-something a formatter that cannot see the value is able to deliver. A surface that embeds
-this component still owes both. The staleness words are one carrier of that state and not the
-whole of it.
-
-**Precision follows recency.** Minutes for the last hour, hours for the last day, and days
-beyond that, with the exact date shown beside the phrase past a day. Announcing *2 hours and
-14 minutes ago* implies a precision the
-reader neither needs nor believes. The smallest thing the component will say is *1 minute
-ago*: *just now* is forbidden for anything the product cannot vouch for to the minute, and a
-phrase fixed at render time can vouch for nothing finer.
+**Staleness boundary.** The muted treatment reaches the `time` element only. A surface
+embedding it still owes the value's de-emphasis and a route to refresh it.
 
 <SafetyCallout severity="attention" evidence="opinion">
 Never put a sync time where a measurement time belongs. *Synced 2 minutes ago* above a
-reading taken four months ago is two true statements that together mislead completely, and
-it is the reason the event word is not optional. Where a surface needs both facts, render
-both, each with its own event word. See
-[Measured and synced are two different facts](#measured-and-synced-are-two-different-facts)
-below.
+reading taken four months ago is two true statements that together mislead. Render both,
+each with its event word.
 </SafetyCallout>
 
 ## Anatomy
@@ -189,294 +107,87 @@ below.
   parts={[
     {
       name: "RelativeTime",
-      describes: "The root, always a time element carrying the caller's exact timestamp in datetime, so the instant survives copy, export and scraping even when the visible text is a phrase. Not focusable and not interactive.",
+      describes: "The root, always a time element carrying the caller's exact timestamp in datetime. Not focusable and not interactive.",
       prop: "at",
     },
     {
       name: "RelativeTime.Prefix",
-      describes: "Which event this is. The five event words are Measured, Recorded, Received, Synced and Issued. Not optional and never inferred: a bare relative phrase is a fragment the reader completes with whichever assumption suits them.",
+      describes: "The event word: Measured, Recorded, Received, Synced or Issued. Required and never inferred.",
       prop: "event",
     },
     {
       name: "RelativeTime.Relative",
-      describes: "The human phrase, with precision following recency. Present at every past age, and joined by the exact date past the boundary rather than replaced by it; absent for a timestamp in the future, which is a disagreement between two clocks rather than an event that has not happened; and absent when now is not a usable instant, because there is then nothing to measure against.",
+      describes: "The human phrase, precision following recency. Absent for a future timestamp or when now cannot be parsed.",
       prop: "now",
     },
     {
       name: "RelativeTime.Absolute",
-      describes: "The exact date and time. By default it is the wall clock the reading was written in, with the offset named as UTC or UTC+1; pass a timeZone (an IANA name) to put it on the reader's own wall clock with no label, or showOffset set to false to drop the label for a reading from the reader's own device. On screen once the reading is older than absoluteAfterDays, and held off screen while the reading is recent enough that the phrase alone is the point; kept off screen at every age when showAbsolute is set to false, which a dense list whose date is already visible in the row may do. It stays in the accessibility tree and in print always.",
+      describes: "The exact date and time. Always in the accessibility tree and in print; on screen once older than absoluteAfterDays.",
       prop: "showAbsolute",
     },
     {
       name: "RelativeTime.Staleness",
-      describes: "The words 'may be out of date', past the threshold the product supplied. They also appear wherever a supplied threshold could not be applied at all, because silence would render a stale reading in exactly the tone of a fresh one. Absent whenever staleAfterHours is, because nothing in this component knows what old means for a measurement it cannot see.",
+      describes: "The words 'may be out of date', past the threshold or wherever it could not be applied. Absent without one.",
       prop: "staleAfterHours",
     },
   ]}
 />
 
-<CompositionTree
-  name="relative-time"
-  tree={[
-    {
-      part: "RelativeTime",
-      cardinality: "1",
-      note: "<time data-slot=\"relative-time\" datetime=\"…\">, the caller's string unmodified",
-      children: [
-        {
-          part: "RelativeTime.Prefix",
-          cardinality: "1",
-          note: "data-slot=\"relative-time-prefix\"",
-        },
-        {
-          part: "RelativeTime.Relative",
-          cardinality: "0..1",
-          note: "data-slot=\"relative-time-relative\"; present at every past age, absent only for a future or unmeasurable instant",
-        },
-        {
-          part: "RelativeTime.Absolute",
-          cardinality: "1",
-          note: "data-slot=\"relative-time-absolute\"; on screen once older than absoluteAfterDays, otherwise visually hidden, and always in the accessibility tree and in print",
-        },
-        {
-          part: "RelativeTime.Staleness",
-          cardinality: "0..1",
-          note: "data-slot=\"relative-time-staleness\"; past staleAfterHours, or wherever a supplied threshold could not be applied",
-        },
-      ],
-    },
-  ]}
-/>
-
-The parts are `data-slot` names, not exports. There is no `RelativeTime.Absolute` to render
-on its own, and that is the point: every one of them is a way of saying *when*, and a caller
-who could take the absolute date out of the tree while keeping the phrase would have removed
-the only part that is still true tomorrow.
-
-There is no `status` prop, no `color` prop and no variant. The one visual state the component
-has is the muted stale treatment, and it is reached by passing a threshold and exceeding it.
-It is never reached by asking for it directly. Nothing opsinjs ships passes one, so no preview
-on this page renders that state. It is `text-muted-foreground` on the phrase and the absolute
-date rather than on the root, and the event word and the staleness words "may be out of date"
-are deliberately left at full strength, so the phrase that names the state stands out exactly
-when the state changes. Addressing those two slots rather than the root is also a merge-order
-defence and not a style: `cn()` files an opsin type-size class in the same conflict group as a
-colour, so a caller's `className` on the root would otherwise delete the muting and leave a
-stale reading looking fresh.
-
 ## Examples
 
 ### A column of entries
 
-Every row names its event, and an age is read far faster down a column than four dates side
-by side would be. No row passes a staleness threshold. The version that showed one row past a
-boundary taught the idea better and shipped a number opsinjs does not own, and in a worked
-example a number is read as a recommendation whatever the caption beside it says.
+Every row names its `event`, and an age reads faster down a column than four dates
+side by side. No row passes `staleAfterHours`, because a number in a worked example is
+read as a recommendation.
 
 <ComponentPreview name="relative-time-in-a-log-list" kind="example" align="start" />
 
 ### Measured and synced are two different facts
 
-Both lines are true. On its own the second is the most reassuring sentence on the surface,
-and a reader who meets it without the first will carry that reassurance onto a reading taken
-eleven days earlier. The prefix is what keeps them apart.
+Both lines are true. A reader who meets the second without the first carries its
+reassurance onto a reading taken eleven days earlier. The `event` prefix is what keeps
+them apart.
 
 <ComponentPreview name="relative-time-measured-and-synced" kind="example" align="start" />
 
-## States
-
-RelativeTime is a leaf formatter and a server component. It is not focusable, it
-holds no control, and it has no hover, focus, pressed or disabled state, so the
-interaction column of a states matrix is empty by design rather than unfilled. The
-one visual state it owns is the muted stale treatment, and that is reached only by
-supplying a threshold and exceeding it, never by asking for it directly. The rest
-of the canonical data states belong to the surface that composes the timestamp,
-because a formatter runs after the data has arrived and cannot see the fetch that
-produced it.
-
-| Data state | What RelativeTime renders |
-| --- | --- |
-| Error | No error surface of its own. A malformed input is refused instead: an `at` that is not an ISO 8601 timestamp with an offset, or an `event` outside the five, renders nothing at all and warns on the development console rather than showing a plausible-looking guess. An error reaching the data layer belongs to the surface that composed the timestamp. |
-| Loading | Nothing to load. The component is handed a resolved string and renders synchronously in one pass, so a skeleton or a spinner is the concern of the surface fetching the reading. |
-| Empty | No empty state. `at` is required, and a timestamp that cannot be read renders nothing rather than a placeholder. A reading that is absent altogether is shown by the surface around it, which is why [Value](./value.mdx) renders an explicit absence and this component does not. |
-| Partial | The one place it renders part of itself. Where `now` cannot be parsed, or the reading is timestamped in the future, the relative phrase is dropped and the exact date is rendered on its own, because a dated timestamp is never wrong where a computed age would be a guess. |
-| Stale | The component's only visual state. Past `staleAfterHours`, or wherever a supplied threshold could not be applied, the phrase and the exact date recede to `text-muted-foreground` while the event word and the words "may be out of date" stay at the inherited foreground, and `data-slot="relative-time-staleness"` carries those words. It is a muted typographic change, never a status tint. |
-
 ## Content guidelines
 
-Always name the event. *Measured 3 days ago* is a fact; *3 days ago* is a fragment, and the
-reader completes it with whichever assumption is most convenient.
-
-The five words are bare past participles, and each one names a different actor. Choose the
-one that is true, and pick *recorded* over *measured* only when nobody took a reading and
-somebody instead wrote down a figure they believe to be true.
-
-| Word | Who did it | Example |
-| --- | --- | --- |
-| Measured | A device or a clinician took the reading. | *Measured 3 hours ago* |
-| Recorded | The person or the app wrote the figure down, which may be someone typing what they believe a figure was. | *Recorded 3 days ago* |
-| Received | The app got the figure from a source, which is not the person reading the screen. | *Received 13 days ago* |
-| Synced | The app spoke to a server, which says nothing about how old any reading is. | *Synced 2 minutes ago* |
-| Issued | A clinician or a laboratory released the result. | *Issued on 2 November 2025 at 09:00 UTC* |
-
-*Received* names the app and never the reader, so a surface that shows it must make the
-subject explicit in the words around it. A bare *Received 13 days ago* invites a layperson to
-read it as themselves receiving something, which is the reassuring misreading the event word
-exists to prevent. On a result, *received* belongs beside *issued* rather than instead of it:
-the gap between when a laboratory released a result and when the app fetched it is the
-reader's question, and only both words together answer it.
-
-Never write *just now* for anything the product cannot vouch for to the minute, and never
-write *up to date*. That is a judgement about the data, not a statement about the clock.
-Neither string exists in the component, and the smallest phrase it will produce is *1 minute
-ago*.
-
-The component does not say *this morning*, *yesterday* or *last Tuesday*, and the omission is
-deliberate rather than pending. Those are calendar facts in the reader's own time zone, and a
-component that does not run in the reader's browser does not have one: *yesterday* offered
-for anything between 24 and 48 hours old is a calendar claim made from a stopwatch, and it is
-wrong about a reading taken on Monday evening and read on Wednesday morning. Where a product
-knows the reader's zone and wants those words, it writes them itself and keeps the exact
-instant beside them.
-
-The absolute time names its offset by default, as *UTC* or *UTC+1*, because the component
-cannot see the reader's own zone and a reading taken abroad shown as if it were local is the
-error the accessibility bullet below is about. Where the product knows the instant came from
-the reader's own device the zone cannot differ from theirs, and *08:12 UTC+1* then reads as a
-different hour to a layperson who does not decode the label. Pass `showOffset={false}` for
-that case, and leave it on wherever the zone can differ, such as a result issued by a clinic.
+Always name the event: *Measured 3 days ago* is a fact, *3 days ago* is a fragment. The
+five words each name a different actor, so pick the true one. On a result,
+show *received* beside *issued*, never instead of it. It never says *just now*,
+*up to date* or *yesterday*, and its smallest phrase is *1 minute ago*.
 
 <DoDont>
   <DoDont.Do>
-    **"Measured 3 days ago, on 11 March 2026 at 08:12 UTC"** Names the event, uses the human
-    phrase, and past a day keeps the exact time in view beside it where it costs nothing.
+    **"Measured 3 days ago, on 11 March 2026 at 08:12 UTC"** names the event and keeps the
+    exact time beside it.
   </DoDont.Do>
   <DoDont.Dont>
-    **"Updated 2 minutes ago"** above a reading taken four months ago. Both facts are true and
-    together they mislead completely.
+    **"Updated 2 minutes ago"** above a reading taken four months ago. Both facts are true
+    and together they mislead.
   </DoDont.Dont>
 </DoDont>
-
-<DoDont>
-  <DoDont.Do>
-    **"Measured 11 days ago, on 3 March 2026 at 07:45 UTC, may be out of date"**, with the
-    threshold supplied by the product that knows the measurement. The muting falls on the
-    phrase and the absolute date only: "Measured" and "may be out of date" stay at the
-    surrounding foreground, so the word that names the event and the words that name the risk
-    read first while the ageing detail recedes behind them. Past the boundary the exact date is
-    shown beside the phrase rather than replacing it, so even a four-month-old reading carries
-    *on 14 November 2025 at 08:12 UTC* next to its age, and at that distance the date is the
-    half that does the work.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **"11 days ago"** on its own, with no date beside it and no threshold passed. The
-    reader has to do the arithmetic and the design has quietly declined to help.
-  </DoDont.Dont>
-</DoDont>
-
-## Motion
-
-RelativeTime declares no transition, no animation and no timer. It mounts once with
-the phrase it was rendered with and it never changes on its own, so there is
-nothing for `prefers-reduced-motion` to reduce. This is the same decision that
-keeps it out of a live region, because nothing about it moves after it is rendered.
-A timestamp is a health-adjacent fact, and a health value is never animated onto
-the screen on first paint: there is no count-up from a lower number and no sweep of
-the phrase, so the age is present the moment the element renders. A product that
-re-renders the component on an interval with a fresh `now` inherits that stillness,
-and it should not add a transition to soften the change, because a timestamp that
-animates as it updates draws the eye to the clock rather than to the reading.
 
 ## Accessibility
 
-Some of these are held by a gate on every pull request. The rest are arguments about the
-implementation, and they are labelled as such: a component page claims accessibility only where it has been checked, with the gaps listed rather than left out.
+**Checked by `pnpm run check:a11y` on every commit.** No type size is in `px`, every
+colour is a role token, and no banned word appears anywhere.
 
-**Checked, by `node scripts/check-a11y.mts` on every pull request:**
+**Argued from the source, not measured.**
 
-- **No type size in px**, anywhere in the source. A reader who has raised their text size
-  gets a larger timestamp, because every size the component uses is relative.
-- **No raw colour and no ramp step.** The muted stale treatment is `text-muted-foreground`, a
-  role the theme layer remaps for dark mode; a hex value, a Tailwind palette colour or a
-  numbered step fails the build. So does any role that exists only in the documentation
-  chrome and would resolve to nothing in the product.
-- **No banned word**, in reader-facing copy or in an identifier. That covers the five event
-  words and the staleness words, which are the only copy this component owns; the rest of what
-  it emits is punctuation, the connective *on*, and an offset label.
-- **A status colour could not be added quietly.** The same gate fails any file that paints
-  from the status axis without stamping `data-status` and reading both the status vocabulary
-  and a lucide glyph. That is what stops the stale treatment from drifting into an amber tint
-  in some later commit. What it cannot prove is that the word and the glyph reach the
-  surface: it reads source rather than a rendered page, and its own header says so.
+- The exact date is always in the accessibility tree and in print, never behind hover,
+  focus or a disclosure. `showAbsolute` moves it on screen only.
+- Staleness is stated in words, never by the muted tone alone, and the words stay at the
+  surrounding foreground while the phrase recedes.
+- It mounts no live region and owns no timer, so it never announces itself. A product
+  re-rendering it should not add one.
+- No `"use client"`, no effect and no clock read, so hydration is safe by determinism.
+  Pass an explicit `locale` or server and browser may differ.
 
-**Argued, and true of the implementation, but not yet measured:**
-
-- **The absolute date and time are always in the accessibility tree**, not only on hover or
-  focus, and not behind an affordance. A sighted reader sees them on screen once the reading
-  is older than a day, and within a day sees the phrase alone; the date stays in the
-  accessibility tree and in print regardless. `showAbsolute={false}` keeps the date off screen
-  at every age for a dense list whose date is already visible in the row, and even then it
-  stays in the accessibility tree and in print; the prop never decides whether it exists.
-- **The announcement is one phrase** because the connective is the word *on* after a comma
-  rather than a separator character, and the one comma reads on screen and to assistive
-  technology alike. The phrase is *Measured 3 days ago, on 11 March 2026 at 08:12 UTC*.
-- **Staleness is stated in words**, never by the muted tone alone, so it survives greyscale,
-  increased contrast and print. The words themselves are left at the surrounding foreground
-  while the phrase and the date recede, so on a surface whose text is already muted the
-  staleness words sit above that low tone rather than at it, which keeps them visible without
-  reading the caption. This is argued from the source and from nothing else: no preview on this
-  page passes a threshold, so none of them renders the state.
-- **It never announces itself.** The component mounts no live region and owns no timer:
-  nothing about it changes after it is rendered, so there is nothing to interrupt a reader
-  with. A product that re-renders it on an interval inherits that promise and should not
-  wrap it in a live region to compensate.
-- **At 200% text it wraps rather than truncates.** The root is inline, has no fixed height
-  and no width, and nothing in it is shortened to an ellipsis or hidden by an overflow rule.
-  The nightly truncation rig cannot read this claim, because it collects `data-opsinjs-value`
-  elements and this component deliberately stamps none: that attribute marks a measurement a
-  person reads as their own, and an instant is not one, so the claim rests on the source above
-  and has not been read off a rendered page in this run.
-- **Where the locale is resolved, hydration is safe by determinism rather than by suppression.**
-  Rendering on the server and correcting in the browser is what produces a mismatch, so this
-  component does neither: it has no `"use client"`, no effect, no `typeof window` branch and
-  no clock read at all, which is why `now` is required rather than defaulted.
-  `suppressHydrationWarning` was the alternative and is worse: it keeps the server's text and
-  discards the browser's more correct one. The boundary is `locale`, and it is a real one.
-  The prop is optional; an omitted one reaches `Intl` as `undefined`, where it resolves to
-  whichever locale the *runtime* defaults to, so the same props render *11 March 2026* on a
-  server set to en-GB and *March 11, 2026* in a browser that is not. Pass an explicit tag and
-  the characters match. Every snippet and every example on this page passes one. A runtime
-  built without full ICU data could still disagree with a browser about a tag they both
-  accept; that has not been tested here. See
-  [Server and client components](../handbook/server-and-client-components.mdx).
-- **Time zones are explicit.** By default the absolute form names the offset the timestamp
-  was written in, because whether it differs from the reader's own is a fact about the
-  reader's browser, and of the answers available to a component that does not run there the
-  offset with its name is the one that is never wrong. A product that knows the reader's zone
-  supplies it as an IANA `timeZone`, and the reading is then on the reader's own wall clock
-  with no label. A product that knows the instant came from the reader's own device passes
-  `showOffset={false}` to drop the label. A product that knows neither leaves both off and
-  gets the honest offset form.
-- **It is not focusable and has no keyboard behaviour**, because it has nothing to operate.
-  The absolute date is not behind a disclosure precisely so that there is no control to
-  reach.
-
-**Not yet checked at all, and listed rather than omitted:**
-
-- The muted stale treatment sits on `text-muted-foreground`, which the theme aliases to the
-  generated chrome token `--opsin-chrome-muted-foreground` rather than to a raw value authored
-  in `app/product.css`; that token resolves to neutral-600 in light and neutral-300 in dark.
-  Both of those colours are measured under the neutral scope this component declares, so the
-  `<ContrastReport>` below prints their rows against a neutral ground rather than an empty
-  state. What stays unmeasured is the same role against the muted fill and the tinted grounds
-  the treatment may also share, for which the generator emits no pair, and the treatment under
-  increased contrast.
-- The print behaviour is asserted from the source and has not been checked in a real print
-  preview or a PDF export. In that source the absolute date is revealed by a print variant
-  rather than being removed from the accessibility tree.
-- Screen-reader behaviour in any language other than English, which matters more here than
-  elsewhere: `locale` moves the date and the phrase and leaves the five event words in
-  English.
+**Not checked by any gate.** The muted treatment against the muted fill, tinted grounds
+and increased contrast, print output in a real preview, and screen readers in any
+language other than English.
 
 <KeyboardTable
   name="relative-time"
@@ -484,139 +195,33 @@ implementation, and they are labelled as such: a component page claims accessibi
     {
       keys: "Tab",
       action: "Skips the timestamp",
-      notes: "The component is not focusable and has no keyboard behaviour of its own. That is the contract rather than an omission: it holds no control, and a tab stop that does nothing is one a keyboard user passes through on every row of a log.",
+      notes: "Not focusable and no keyboard behaviour: it holds no control.",
     },
     {
       keys: "Shift + Tab",
       action: "Skips the timestamp",
-      notes: "Same in reverse. The exact date is reached by reading, not by operating something, in either direction.",
+      notes: "Same in reverse. The exact date is reached by reading, not operating.",
     },
   ]}
 />
 
 <ContrastReport component="relative-time" />
 
-## Data attributes
-
-<DataAttributesTable
-  name="relative-time"
-  rows={[
-    { attribute: "data-slot", condition: "On the root time element, at every age", value: "relative-time" },
-    { attribute: "data-slot", condition: "On the event word, at every age", value: "relative-time-prefix" },
-    { attribute: "data-slot", condition: "On the relative phrase, present at every past age and absent for a future or unmeasurable instant", value: "relative-time-relative" },
-    { attribute: "data-slot", condition: "On the exact date, in the accessibility tree at every age; on screen once older than absoluteAfterDays, otherwise visually hidden", value: "relative-time-absolute" },
-    { attribute: "data-slot", condition: "On the staleness words, past staleAfterHours or wherever a supplied threshold could not be applied", value: "relative-time-staleness" },
-  ]}
-/>
-
-These are the hooks a surface styles or tests against, transcribed from the
-component source rather than derived. RelativeTime stamps no `data-status` and no
-`data-category`, because it paints from neither colour axis, and the accessibility
-gate refuses any file that paints a status colour without the matching
-`data-status`, which is what stops the stale treatment from drifting into an amber
-tint in a later commit. It stamps no `data-opsinjs-value` either, because that
-attribute marks a measurement a person reads as their own and an instant is not
-one. The exact instant travels instead on the `datetime` attribute of the root
-`time` element, which carries the caller's `at` string unmodified so the instant
-survives copy, export and print even when the visible text is a phrase.
-
-## CSS variables
-
-<CssVariablesTable name="relative-time" />
-
-RelativeTime declares no CSS custom property of its own. It sets no inline `style`,
-and every colour it shows is a semantic token role read straight from the token
-layer rather than a value it defines: the muted stale treatment is the role
-`text-muted-foreground`, which the theme remaps for dark mode, and the roles it
-consumes are the ones listed under Tokens. There is nothing here for a product to
-override through an `--opsin-*` variable, so a surface that needs a different
-treatment restyles the `data-slot` parts rather than reaching for a custom property
-that does not exist.
-
-## Tokens
-
-<TokenTable component="relative-time" />
-
-These are the token roles RelativeTime reads, resolved by `tokensUsedBy` from the
-component source and generated by `scripts/build-tokens.mts` rather than listed by
-hand, so the table cannot drift from what the code actually consumes. The stale
-treatment sits on the chrome role behind `text-muted-foreground`, which the theme
-aliases to a generated token rather than to a raw colour. The component paints from
-neither the category axis nor the status axis, so it never reads a category token
-and a status token onto one element, which is the rule that keeps a colour meaning
-a kind of measurement and a colour meaning how urgent it is from ever landing on
-the same span.
-
 ## API reference
-
-`at`, `event` and `now` are required, and none of them has a default: an instant with no
-offset is not an instant, a phrase with no event is not a fact, and a component that read the
-clock itself would be impure and would read it once per timestamp rather than once per
-screen. `staleAfterHours` is the one prop that changes what the component claims, and leaving
-it out is a legitimate answer rather than a missing configuration. Omit it and no staleness
-treatment is rendered, because nothing here knows what old means for a measurement it cannot
-see. `TimeEvent` is exported alongside the props interface, so a product can type its own
-data against the five events.
-
-Three inputs are refused rather than approximated, and the refusals are not all the same
-shape. An `at` that is not an ISO 8601 timestamp with an offset renders nothing at all, and
-so does an `event` outside the five: there is no instant, or no fact to attach one to, and a
-plausible-looking timestamp drawn from either would be the component asserting something the
-product never said. A `now` that cannot be parsed renders the exact date with no phrase,
-because a dated timestamp is never wrong where a computed age would be a guess. All three
-complain on the console in development, none of them throws, and a reader sees no difference
-between a timestamp this component refused and one that was never passed. That is a cost of
-the first two refusals and is stated here rather than argued away. `absoluteAfterDays={0}` is
-a meaning rather than a mistake: it says the exact date is shown beside the phrase at every
-age, including a reading only minutes old.
-
-`showAbsolute` defaults to true, so the exact date comes onto the screen beside the phrase
-once the reading is older than a day with no configuration, which is the pairing the content
-doctrine asks for beyond about a day; within a day the phrase stands alone on screen. Pass
-`showAbsolute={false}` to keep the date off screen at every age, for a dense list whose date
-is already visible in the
-surrounding row; the date stays in the accessibility tree and in print even then.
 
 <PropsTable name="RelativeTimeProps" />
 
+`at`, `event` and `now` are required with no defaults. An `at` without an offset, or an
+`event` outside the five, renders nothing and warns in development. An unparseable `now`
+renders the date alone. `absoluteAfterDays` defaults to `1`; `0` shows the
+date at every age. `TimeEvent` is exported. Re-render with a fresh
+`now` when a surface outlives its boundary.
+
 ## Related
 
-<RelatedComponents name="relative-time" />
-
-**Easily confused with**
-
-- [Value](./value.mdx) covers quantities rather than instants, and they share their formatting
-  doctrine. They do not share an absence contract: Value renders an explicit absence in
-  words, while `at` here is required and a timestamp that cannot be read renders nothing.
-- [MetricTile](./metric-tile.mdx) embeds a RelativeTime for the age of the reading. It does
-  not inherit the whole of the stale state from it: this component de-emphasises the
-  timestamp and can reach nothing else, so a tile still owes the de-emphasis of the value
-  itself and a route to refresh it.
-- [ResultCard](./result-card.mdx) is where the difference between *measured* and *received*
-  matters most, because both are usually available and only one is relevant.
-
-**Used by**
-
-- [Choose a component](../recipes/choose-a-component.mdx) reaches for it whenever a surface
-  needs to say when a reading was taken.
-- [Daily log screen](../screens/daily-log-screen.mdx) stamps every logged entry with how long
-  ago it was recorded.
-- [Daily logging](../patterns/daily-logging.mdx) dates each entry as the reader adds it, so an
-  old figure never reads as today's.
-- [Build a health metric card](../recipes/health-metric-card.mdx) shows the age of the reading
-  beneath the value.
-- [Offline and stale data](../patterns/offline-and-stale-data.mdx) leans on the staleness
-  treatment to say a cached reading may be out of date.
-- [Results screen](../screens/results-screen.mdx) keeps when a result was issued apart from
-  when the app received it.
-- [Sharing with a clinician](../patterns/sharing-with-a-clinician.mdx) times each shared
-  reading so the clinician sees how fresh it is.
-- [Trend review](../patterns/trend-review.mdx) dates the most recent point in the series.
-- [Trends screen](../screens/trends-screen.mdx) labels the latest reading with its age.
-
-**Governed by**
-
-- [Uncertainty, staleness and missing data](../health/uncertainty-and-staleness.mdx)
-- [Numbers, units and precision](../health/numbers-units-precision.mdx)
-- [Grammar and mechanics](../content/grammar-and-mechanics.mdx) shows how dates and times are
-  written in surrounding prose.
+- [Value](./value.mdx) covers quantities rather than instants, and renders an explicit
+  absence where this component renders nothing.
+- [MetricTile](./metric-tile.mdx) embeds a RelativeTime but still owes the de-emphasis of
+  the value and a route to refresh it.
+- [ResultCard](./result-card.mdx) is where *measured* and *received* both apply and only
+  one is relevant.

@@ -10,32 +10,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="stepper"
   status="shipped"
   questions={[
-    "No contrast pair has been measured. The complete, current and upcoming markers are separated by fill weight and by a check glyph rather than by hue, and the connector changes weight rather than colour, but neither the marker fills against the page nor the muted description ink has been measured against the surfaces this indicator sits on.",
-    "Nobody has listened to this in a screen reader. The current step carries aria-current=\"step\" and also an sr-only \"Current step\", and completed steps carry an sr-only \"Completed\", so whether that reads cleanly or double-announces the current step has not been checked with real assistive technology.",
-    "Forced colours and prefers-contrast: more are unhandled. The three marker states rely on a neutral fill ramp and a check glyph, and a forced-colours theme replaces the fills with the platform's own pair, so whether complete, current and upcoming stay distinguishable in those modes has not been tested.",
-    "Whether a filled marker with a check glyph reads as complete to a first-time reader without a legend, and whether the heavier ring reads as current, has not been validated with real users; the design argues it from shape and the sr-only words rather than from testing.",
+    "No contrast pair has been measured, neither the marker fills against the page nor the muted description ink against the surfaces this indicator sits on.",
+    "Nobody has listened to this in a screen reader, so whether aria-current and the sr-only \"Current step\" double-announce the current step is unchecked.",
+    "Forced colours and prefers-contrast: more are unhandled, so whether complete, current and upcoming stay apart once the platform substitutes its own fills is untested.",
   ]}
 >
-  <code className="text-sm">stepper</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">stepper</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Stepper shows a reader where they are in a fixed, ordered sequence of steps. It marks each step as complete, current or upcoming, and it does one job and no other: it is a read-only picture of progress, not a control the reader operates.
-
-That restraint is deliberate. The sequence itself lives in the product, which decides how many steps there are and which one the reader is on. This component reflects that decision. It has no next, no back and no click target, because a stepper that steers the flow invites a form to put several questions on one screen, and a health form reads best as [one question per page](../patterns/forms/question-pages.mdx).
-
 ## Preview
-
-A four-step flow with one step complete, one current and two upcoming. The thing worth checking is whether the three states are told apart without a colour doing the work, so read it in greyscale: the completed step is a solid marker with a check glyph, the current step is a heavier ring carrying aria-current, and the upcoming steps are faint rings in muted ink.
 
 <ComponentPreview name="stepper" />
 
@@ -47,8 +36,6 @@ A four-step flow with one step complete, one current and two upcoming. The thing
   importPath="@/components/ui/stepper"
   dependencies={["lucide-react"]}
 />
-
-The completed step draws a check glyph from `lucide-react`, which is why installing the component pulls that dependency in. There is no other component to install alongside it.
 
 ## Usage
 
@@ -71,20 +58,16 @@ import { Stepper } from "@/components/ui/stepper"
 
 <WhenToUse
   use={[
-    "Showing a reader where they are in a short, fixed sequence they are already moving through, such as a three or four step account setup, placed beside the current step's own content as a read-only indicator.",
-    "Giving a multi step flow a sense of length and position, so the reader can see how many steps remain without the stepper being the thing they operate.",
-    "Reflecting progress a product already tracks, where each step is genuinely complete, current or still to come and that state comes from the product rather than from this component.",
+    "Showing a reader where they are in a short, fixed sequence, placed beside the current step's own content.",
+    "Giving a multi step flow a sense of length, so the reader sees how many steps remain.",
+    "Reflecting progress the product already tracks, where each step's state comes from the product rather than this component.",
   ]}
   avoid={[
-    { case: "You want the reader to answer several questions on one screen, with a bar of steps across the top standing in for a real form. The pattern that carries a health form is one question per page, and a stepper invites cramming several onto one.", instead: "field" },
-    { case: "The items are really separate views the reader switches between at will, rather than a sequence they progress through in order.", instead: "tabs" },
-    { case: "You need one continuous measure of how far through a single task the reader is, rather than a set of discrete, named steps.", instead: "progress" },
+    { case: "You want several questions on one screen, with a bar of steps standing in for a real form.", instead: "field" },
+    { case: "The items are separate views the reader switches between at will, rather than a sequence taken in order.", instead: "tabs" },
+    { case: "You need one continuous measure of how far through a single task the reader is.", instead: "progress" },
   ]}
 />
-
-The exclusion that matters is the first, and it is the reason this component was left off the roster for so long. A bar of steps across the top of a screen quietly tells a designer that a form may put several questions on one page, and a health form reads best as [one question per page](../patterns/forms/question-pages.mdx), because a reader answering one thing at a time makes fewer mistakes and a screen reader user is never lost among a dozen inputs. Use the stepper to reassure a reader who is already moving one question at a time, and do not use it to justify moving faster.
-
-The second exclusion is about direction. [Tabs](./tabs.mdx) let a reader jump between views in any order and change nothing by choosing one. A stepper shows an ordered sequence with a before and an after, and it changes nothing at all: it only reports. If the reader picks freely, it is tabs; if the reader moves through in order, it is this indicator.
 
 ## Anatomy
 
@@ -93,25 +76,25 @@ The second exclusion is about direction. [Tabs](./tabs.mdx) let a reader jump be
   parts={[
     {
       name: "Stepper",
-      describes: "The root, an ordered list. Renders each step in the order supplied, so the list order is the reading order. Carries data-slot=\"stepper\". It draws only neutral chrome and carries neither data-status nor data-category.",
+      describes: "The root, an ordered list. It draws the steps in the order supplied, and carries no clinical axis.",
       prop: "steps",
     },
     {
       name: "Stepper.Step",
-      describes: "One step, a list item. Its state is derived from its index against current: a step before current is complete, the step at current is current and carries aria-current=\"step\", and a step after current is upcoming. data-slot=\"stepper-step\".",
+      describes: "One step, a list item. Its state comes from its index against current: complete, current or upcoming.",
       prop: "current",
     },
     {
       name: "Stepper.Marker",
-      describes: "The circular mark for a step. A completed step draws a solid marker with an aria-hidden check glyph; a current step draws a heavier ring around its 1-based number; an upcoming step draws a faint ring around its number in muted ink. data-slot=\"stepper-marker\".",
+      describes: "The circular mark. Solid with a check glyph when complete, a heavier ring when current, faint otherwise.",
     },
     {
       name: "Stepper.Label",
-      describes: "The step's words, at the subheadline step, with an sr-only state word beside them (\"Completed\", \"Current step\" or \"Upcoming\") so the state is never colour alone. An optional description rides beneath the label in muted footnote ink. data-slot=\"stepper-label\".",
+      describes: "The step's words, with an sr-only state word beside them and an optional muted description beneath.",
     },
     {
       name: "Stepper.Connector",
-      describes: "The vertical line joining a marker to the next one. It is drawn stronger where the step above it is complete and faint otherwise, so the part of the sequence already passed reads by weight not colour. It is decorative and aria-hidden, and it is omitted after the last step. data-slot=\"stepper-connector\".",
+      describes: "The line to the next marker. Stronger below a complete step, decorative, and omitted after the last.",
     },
   ]}
 />
@@ -122,28 +105,16 @@ The second exclusion is about direction. [Tabs](./tabs.mdx) let a reader jump be
     {
       part: "Stepper",
       cardinality: "1",
-      note: "data-slot=\"stepper\", an ordered list, list order is reading order",
+      note: "an ordered list; list order is reading order",
       children: [
         {
           part: "Stepper.Step",
           cardinality: "2..n",
-          note: "data-slot=\"stepper-step\", a list item; aria-current=\"step\" on the current one",
+          note: "a list item; aria-current=\"step\" on the current one",
           children: [
-            {
-              part: "Stepper.Marker",
-              cardinality: "1",
-              note: "data-slot=\"stepper-marker\"; an aria-hidden check glyph when complete, otherwise the 1-based number",
-            },
-            {
-              part: "Stepper.Label",
-              cardinality: "1",
-              note: "data-slot=\"stepper-label\"; carries an sr-only state word so the state is not colour alone",
-            },
-            {
-              part: "Stepper.Connector",
-              cardinality: "0..1",
-              note: "data-slot=\"stepper-connector\", aria-hidden; omitted after the last step",
-            },
+            { part: "Stepper.Marker", cardinality: "1", note: "a check glyph when complete, otherwise the 1-based number" },
+            { part: "Stepper.Label", cardinality: "1", note: "carries an sr-only state word" },
+            { part: "Stepper.Connector", cardinality: "0..1", note: "aria-hidden; omitted after the last step" },
           ],
         },
       ],
@@ -151,46 +122,59 @@ The second exclusion is about direction. [Tabs](./tabs.mdx) let a reader jump be
   ]}
 />
 
-The parts above are identified by `data-slot` and are styleable from outside; none of them is an export, and there is no way to render a marker without its list. There is deliberately no `Stepper.Indicator`, no click handler and no `href`: the component reports a position and never moves the reader, because moving the reader is the flow's job and not the indicator's.
-
 ## Examples
 
 ### A setup flow in progress
 
-A five-step setup with two steps complete, one current and two still to come. Read it in greyscale to see the three states hold: the completed markers are solid and carry a check glyph, the current step has the heavier ring, and the upcoming steps are faint. The labels name a fictional walkthrough, because an opsinjs example must never be mistakable for somebody's own data.
+Five steps with two complete, one current and two to come, driven by `current`.
+Read it in greyscale: solid markers with a check glyph, a heavier ring, then
+faint rings.
 
 <ComponentPreview name="stepper-setup-flow" kind="example" align="start" />
 
 ### Steps with supporting descriptions
 
-Each step carries a short description beneath its label, in muted footnote ink. Use a description to clarify what a step covers, not to give an instruction the reader must act on, because this indicator cannot be operated.
+Each step's optional `description` rides beneath its label in muted footnote
+ink. Use it to clarify what a step covers, never to give an instruction, because
+this indicator cannot be operated.
 
 <ComponentPreview name="stepper-with-descriptions" kind="example" align="start" />
 
 ## Content guidelines
 
-Keep the labels short, parallel and in sentence case: a word or two each, the same part of speech, so the sequence reads as one set. Name what happens at each step from the reader's side, "Your details" rather than "Collect user data", and let the labels carry no terminal punctuation. Order the steps the way the reader moves through them, because the list order is the order drawn, and a stepper whose order does not match the flow is worse than none.
-
-Write a description only when the label leaves a real question open, and keep it to a clarifying phrase. A stepper reports position, so a description that reads as an instruction ("Enter your postcode now") promises an action the reader cannot take here and belongs on the step's own page instead.
+Keep labels short, parallel and in sentence case, with no terminal punctuation,
+and name what happens from the reader's side. Order them the way the reader
+moves, because list order is draw order. Write a description only when the label
+leaves a real question open.
 
 <DoDont>
   <DoDont.Do>
-    **"Your details" then "Your preferences" then "Review"** Three short, parallel labels in the order the reader moves through them, so the sequence reads at a glance and the current step is obvious.
+    **"Your details" then "Your preferences" then "Review"** reads as one set.
   </DoDont.Do>
   <DoDont.Dont>
-    **"Step 1: fill in everything about yourself" then "Prefs" then "Now check it all and press submit"** Three different lengths and three different grammars, one of them an instruction the indicator cannot carry out, so the set stops reading as a sequence and starts reading as a form.
+    **"Step 1: fill in everything about yourself" then "Prefs"** mixes lengths and grammars.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-The stepper is an ordered list. The root is an `<ol>` and each step is an `<li>`, so a screen reader announces a list of a known length and reads the steps in order, which is the position information the component exists to give. The current step carries `aria-current="step"`, the assistive-technology signal for the item in a set that represents the reader's current position.
+**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
+token, no type size is in `px`, and no banned word appears anywhere.
 
-The state of each step is never carried by colour alone. A completed step draws a solid marker with a check glyph and an sr-only "Completed"; the current step draws a heavier ring and carries both `aria-current="step"` and an sr-only "Current step"; an upcoming step draws a faint ring in muted ink and an sr-only "Upcoming". So a reader in greyscale, a reader with a colour vision deficiency and a reader listening all learn the same three states, from shape, from the words, and from position in the list. The check glyph is `aria-hidden`, because the word "Completed" beside it already carries the meaning and announcing the glyph as well would say it twice.
+**Argued from the source, not measured.**
 
-The component holds no tab stop, because it is read-only and has nothing to operate. This is by design: it reports where the reader is and never moves them, so there is no button, no link and no focusable mark. A reader steps straight past it to the interactive content of the current step, which is where the flow's own controls live.
+- The root is an `<ol>` and each step an `<li>`, so a screen reader announces a
+  list of known length and reads it in order.
+- The current step carries `aria-current="step"`, the signal for the reader's
+  position within a set.
+- State is never colour alone. Each step carries an sr-only "Completed",
+  "Current step" or "Upcoming" beside its shape.
+- The check glyph is `aria-hidden`, and the indicator holds no tab stop because
+  it is read-only and has nothing to operate.
 
-What is not yet checked is listed rather than left out, and it matches the open questions at the top of this page. No contrast pair has been measured for the marker fills against the page or for the muted description ink; nobody has listened to the component in a screen reader, so whether `aria-current` and the sr-only "Current step" announce the current step twice is unverified; and there is no `forced-colors` or `prefers-contrast: more` rule, so a reader in either mode meets whatever the browser substitutes for the neutral fills.
+**Not checked by any gate.** No contrast pair is measured and nobody has
+listened to this in a screen reader. There is no `forced-colors` or
+`prefers-contrast: more` rule.
 
 <KeyboardTable
   name="stepper"
@@ -198,12 +182,12 @@ What is not yet checked is listed rather than left out, and it matches the open 
     {
       keys: "Tab",
       action: "Skips the stepper",
-      notes: "The stepper is a read-only indicator with nothing to operate, so it holds no tab stop. Tab moves straight past it to the next interactive element on the page.",
+      notes: "Nothing to operate, so no tab stop. Focus lands on the next interactive element.",
     },
     {
       keys: "Shift + Tab",
       action: "Skips the stepper",
-      notes: "The indicator is passed in reverse too, so focus moves to the previous interactive element rather than stepping into the list.",
+      notes: "Passed in reverse too, so focus moves to the previous interactive element.",
     },
   ]}
 />
@@ -214,18 +198,13 @@ What is not yet checked is listed rather than left out, and it matches the open 
 
 <PropsTable name="StepperProps" />
 
-`current` is a 0-based index into `steps` and makes this an indicator with no state of its own: the product passes the step the reader is on and the component draws it. A value outside the range, or a non-integer, is truncated and clamped to the nearest real step and raises a development warning, because a progress indicator that renders nothing helps nobody and a step the product did not choose would misreport the reader's position.
+`current` is a 0-based index into `steps`, so the product owns the position and
+the component keeps no state of its own. A value outside the range, or a
+non-integer, is truncated and clamped to the nearest real step and raises a
+development warning.
 
 ## Related
 
-<RelatedComponents name="stepper" />
-
-**Easily confused with**
-
-- [Progress](./progress.mdx) shows one continuous measure of how far through a single task the reader is. A stepper names discrete, ordered steps and marks which one is current, so reach for it when the steps have names and for progress when only the fraction matters.
-- [Tabs](./tabs.mdx) let a reader switch between views in any order and change nothing by choosing one. A stepper shows an ordered sequence with a before and an after, and it changes nothing at all because it only reports.
-- [Field](./field.mdx) is where a question actually lives. A stepper sits beside the fields of the current step and reports position; it never collects an answer.
-
-**Used by**
-
-- No pattern, recipe or screen composes it yet. It is an indicator a product places beside the current step's content, and wiring it to a real flow is a product's to make rather than something the corpus ships today.
+- [Progress](./progress.mdx) is one continuous measure of a single task. Reach for it when only the fraction matters.
+- [Tabs](./tabs.mdx) is for views a reader picks in any order, with no before and no after.
+- [Field](./field.mdx) is where a question actually lives. A stepper reports position and never collects an answer.

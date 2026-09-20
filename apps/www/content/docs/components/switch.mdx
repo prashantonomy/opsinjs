@@ -10,32 +10,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="switch"
   status="shipped"
   questions={[
-    "No contrast pair has been measured. The thumb is the card surface against the bridged primary fill in the on state and against the muted fill in the off state, and a hairline runs around the thumb and the track; whether each of those reads at the non-text floor rests on the roles they use rather than on a figure a machine produced.",
-    "Nobody has listened to this switch in a screen reader. The control renders role=\"switch\", takes its name from the label through aria-labelledby and its helper line through aria-describedby, and announces on or off, and whether that reads usefully in the flow of a settings list has been reasoned about rather than heard.",
-    "The thumb's slide and the track's colour fade are not gated on prefers-reduced-motion. They are short chrome transitions on the flip rather than a health value animating on first paint, so the rule against animating a reading is kept, but whether a reader who has asked for less motion should still see the thumb travel is unresolved.",
-    "Forced colours, prefers-contrast: more and a right-to-left layout are unhandled. The on and off fills are both replaced by the platform's own pair under forced colours, and the thumb travels with a left-to-right transform, so whether the state survives either high-contrast mode or an RTL layout has not been tested.",
+    "No contrast pair has been measured: the card thumb against the primary fill when on, against the muted fill when off, and the hairline round both.",
+    "Nobody has listened to this switch in a screen reader, so whether role=\"switch\" with its label and helper line reads usefully is reasoned, not heard.",
+    "Forced colours, prefers-contrast: more, right-to-left layout and prefers-reduced-motion are unhandled, so the thumb slides and the fills swap untested.",
   ]}
 >
-  <code className="text-sm">switch</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">switch</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Switch is a labelled on-or-off control that takes effect the moment it is flipped. Its home is a single setting a reader turns on or off and sees the result of straight away, and the case it was built for is a preference in a settings list, a "Larger text" toggle that changes the text the instant the thumb slides across.
-
-The design decision that shapes the whole component is that it commits on the flip rather than on a later submit. A switch is not a form value gathered until the reader presses a button: the setting it names is different as soon as the reader moves it, which is why it is controlled only, with the caller holding the boolean, applying the effect, and passing the new value straight back. A value that is proposed and submitted later is a checkbox, and the difference decides which component you reach for.
-
 ## Preview
-
-A single switch with a label and a helper line. The thing worth checking is that the whole row is the target and that the state reads without colour, so try it in greyscale: the thumb sits on the left for off and slides to the right for on, a hairline keeps it legible when the fill is stripped, and underneath both the `aria-checked` state is what a screen reader announces.
 
 <ComponentPreview name="switch" />
 
@@ -47,8 +36,6 @@ A single switch with a label and a helper line. The thing worth checking is that
   importPath="@/components/ui/switch"
   dependencies={["@base-ui/react"]}
 />
-
-The control is built on Base UI's Switch primitive, which is where the `role="switch"`, the single tab stop, the Space and Enter bindings and the `data-checked` and `data-unchecked` attributes come from, so installing it pulls in `@base-ui/react`. It renders no icon and composes no other component.
 
 ## Usage
 
@@ -68,19 +55,14 @@ import { Switch } from "@/components/ui/switch"
 
 <WhenToUse
   use={[
-    "A single setting a reader turns on or off and sees the effect of straight away, such as a Larger text or Reduce motion preference in a settings list.",
-    "A binary state the product commits the moment it changes, where nothing is submitted later and the reader can flip it back as easily as they flipped it.",
-    "One toggle standing on its own, with a clear label naming the setting and, where it helps, a short line saying what turning it on will change.",
+    "A single setting, such as a Larger text preference, that takes effect the moment it is flipped.",
+    "A binary state the product commits straight away, with nothing submitted later and the reader free to flip it back.",
   ]}
   avoid={[
-    { case: "The toggle would record that the reader agreed to something. Consent is a decision with a record, a who and a when, not a setting flipped back as easily as it is set.", instead: "consent-sheet" },
-    { case: "The value is proposed now and submitted later with a form, rather than taking effect the moment it changes.", instead: "checkbox" },
+    { case: "The toggle would record that the reader agreed to something. Consent is a decision with a record.", instead: "consent-sheet" },
+    { case: "The value is proposed now and submitted later with a form.", instead: "checkbox" },
   ]}
 />
-
-The exclusion that matters is the first, and it is the reason this component was kept off the roster for so long. A switch is a setting, and a setting carries no record: it says what the state is now, not who chose it or when, and it is flipped back with a single press. Consent needs all of that, so the moment a toggle would stand for the reader agreeing to a thing, it belongs in a [ConsentSheet](./consent-sheet.mdx), which keeps the decision and the record together. A switch that records consent loses both.
-
-The second exclusion keeps a switch apart from a checkbox, and the test is when the change takes effect. A switch commits on the flip, so the setting is different before the reader does anything else. A [Checkbox](./checkbox.mdx) inside a form proposes a value that the form gathers and submits on the reader's command, so nothing happens until they press submit. If the reader expects to review and submit, it is a checkbox; if the effect is immediate, it is this control.
 
 ## Anatomy
 
@@ -89,27 +71,27 @@ The second exclusion keeps a switch apart from a checkbox, and the test is when 
   parts={[
     {
       name: "Switch",
-      describes: "The root, a label element. Carries data-slot=\"switch\", floors the row at the 44pt target, and is the whole pressable area, so a reader can flip the switch by pressing the words as well as the track. It draws only neutral chrome and the bridged primary role, and carries neither data-status nor data-category.",
+      describes: "The root, a label element floored at the 44pt target. The whole row is pressable.",
       prop: "label",
     },
     {
       name: "Switch.Label",
-      describes: "The visible words and the switch's accessible name, applied to the control through aria-labelledby so the name is the label alone. data-slot=\"switch-label\".",
+      describes: "The visible words and the accessible name, applied to the control through aria-labelledby.",
       prop: "label",
     },
     {
       name: "Switch.Description",
-      describes: "The optional helper line under the label, read to assistive technology as the control's description through aria-describedby rather than as part of its name. Rendered only when description is set. data-slot=\"switch-description\".",
+      describes: "The optional helper line, read as the control's description through aria-describedby.",
       prop: "description",
     },
     {
       name: "Switch.Control",
-      describes: "The track, a Base UI Switch.Root rendering role=\"switch\" with aria-checked. Muted in the off state and the bridged primary fill in the on state, with a hairline on both so the shape survives a stripped fill. data-slot=\"switch-control\", with data-checked or data-unchecked, and data-disabled when it is disabled.",
+      describes: "The track, a Base UI Switch.Root with role=\"switch\" and aria-checked. Muted when off, primary fill when on.",
       prop: "checked",
     },
     {
       name: "Switch.Thumb",
-      describes: "The disc that slides, a Base UI Switch.Thumb. It sits left for off and right for on, so the state is carried by position as well as by the track's fill. data-slot=\"switch-thumb\", inheriting data-checked and data-unchecked from the control.",
+      describes: "The disc that slides: left for off, right for on, so position carries the state too.",
     },
   ]}
 />
@@ -120,22 +102,22 @@ The second exclusion keeps a switch apart from a checkbox, and the test is when 
     {
       part: "Switch",
       cardinality: "1",
-      note: "data-slot=\"switch\", a label element, one 44pt row and the whole target",
+      note: "data-slot=\"switch\", the whole target",
       children: [
         {
           part: "Switch.Label",
           cardinality: "1",
-          note: "data-slot=\"switch-label\", names the control through aria-labelledby",
+          note: "data-slot=\"switch-label\"",
         },
         {
           part: "Switch.Description",
           cardinality: "0..1",
-          note: "data-slot=\"switch-description\", the control's aria-describedby; only when description is set",
+          note: "data-slot=\"switch-description\", only when description is set",
         },
         {
           part: "Switch.Control",
           cardinality: "1",
-          note: "data-slot=\"switch-control\", role=\"switch\", aria-checked",
+          note: "data-slot=\"switch-control\", role=\"switch\"",
           children: [
             {
               part: "Switch.Thumb",
@@ -149,76 +131,57 @@ The second exclusion keeps a switch apart from a checkbox, and the test is when 
   ]}
 />
 
-The parts above are identified by `data-slot` and are styleable from outside; none of them is an export, and there is no way to render the track without the row. Base UI's Switch also renders a visually hidden `<input>` beside the track, which carries a form value when the switch is given a `name`. This component passes no `name`, so that input submits nothing; it is out of the tab order and changes nothing a reader meets, and it is named here rather than left for someone to find in the DOM.
-
-There is no `Switch.Indicator` and no icon slot. The on state is the track's fill and the thumb's position, not a separate mark, and adding a tick beside the thumb would be a second carrier for a state the fill and `aria-checked` already carry.
-
 ## Examples
 
 ### A setting that applies now
 
-The case the switch was built for. The reader turns "Larger text" on and the change is committed straight away rather than gathered for a later submit, which is the whole difference between a switch and a checkbox. There is no helper line here, because the label alone says what the setting does. The preference is fictional and non-clinical, because an opsinjs example must never be mistakable for somebody's own data.
+`checked` and `onCheckedChange` commit "Larger text" on the flip, not on a later
+submit. No helper line, because the label alone says what the setting does.
 
 <ComponentPreview name="switch-a-setting-that-applies-now" kind="example" align="start" />
 
 ### A setting with a helper line
 
-The same control with a short line under its label. The description says what turning the switch on will change, and it is read to assistive technology as the control's description rather than as part of its name, so the accessible name stays the label alone. Keep the helper to one plain sentence; a paragraph belongs above the control, not inside it.
+`description` adds one sentence under the label saying what turning the switch on
+changes. It is read as the description, so the accessible name stays the label.
 
 <ComponentPreview name="switch-with-a-description" kind="example" align="start" />
 
 ## Content guidelines
 
-Name the setting the switch turns on, not its state and not an instruction. "Larger text" reads at a glance and stays true whichever way the switch is flipped, while "On" says nothing about what is on and "Turn on larger text" reads as a button rather than a setting. Keep the label to a few words in sentence case, and let it carry no terminal punctuation.
-
-Use the helper line for what the setting does, not to repeat the label. A line such as "Increases the text size across the app" earns its place; a line that says "Makes the text larger" beside a "Larger text" label is noise. Never write a clinical reading, a threshold or a unit into a switch or its helper, because a switch sets a preference and asserts nothing about a measurement.
-
-<DoDont>
-  <DoDont.Do>
-    **A switch labelled "Larger text", committed on the flip.** The setting
-    changes the moment the reader turns it on, which is what a switch promises,
-    and the label names the setting rather than its state.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A switch labelled "I agree" that records consent.** Consent is a decision
-    with a record, not a setting flipped back as easily as it is set, so it
-    belongs in a [ConsentSheet](./consent-sheet.mdx) where the who and the when
-    are kept. A switch loses both.
-  </DoDont.Dont>
-</DoDont>
+Name the setting the switch turns on, not its state: *Larger text*, never *On* or
+*Turn on larger text*. Sentence case, a few words, no full stop. The helper line
+says what the setting does; it never repeats the label or carries a reading, a
+threshold or a unit.
 
 <DoDont>
   <DoDont.Do>
-    **A switch for a preference that applies straight away, held in the caller's
-    state.** The control is controlled, the caller commits the change on the
-    flip, and the state the switch shows is the state the product is in.
+    **"Larger text"** names the setting and stays true whichever way the switch is flipped.
   </DoDont.Do>
   <DoDont.Dont>
-    **A switch for a value the reader submits with a form.** A value that is
-    proposed now and gathered until submit is a [Checkbox](./checkbox.mdx)
-    inside a field, not a switch that has already taken effect.
+    **"I agree"** records consent, which belongs in a [ConsentSheet](./consent-sheet.mdx).
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. Accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+**Checked by `pnpm run check:a11y` on every commit.** Only neutral chrome and the
+bridged primary fill, so no status colour or colour literal, no type size in `px`,
+and no banned word.
 
-**Checked, by `pnpm run check:a11y`:**
+**Argued from the source, not measured.**
 
-- **No status colour, no colour literal, no ramp step.** The switch draws only the neutral chrome roles and the bridged primary fill, so it carries no `data-status`, reads no clinical vocabulary, and cannot mix the two axes. The gate reads every element and would fail the build on a colour drawn from either axis or on a raw colour value, and there is neither here.
-- **No px type size, no banned word.** The label is the `body` step and the helper line the `footnote` step rather than pixel sizes, so a reader who has turned their text size up gets a larger row, and no reading-facing copy or identifier reaches for a word the glossary bans.
+- The root is a label element, so words and track are one pressable region
+  floored at `--opsin-target-minimum` in rem.
+- `aria-checked` reflects the caller's boolean, the thumb sits left for off and
+  right for on, and a hairline survives a stripped fill.
+- The label and helper are type steps, so the row grows with the reader's text size.
+- The role, the single tab stop and the Space and Enter bindings come from
+  Base UI's Switch.
 
-**Argued, and true of the implementation, but not yet measured:**
-
-- **The whole row is the target.** The root is a label element, so the words and the track are one pressable region, and the row floors its height at `--opsin-target-minimum` in rem. That it clears 44 by 44 in a real browser is the layout half of the check, which has not been run for this component.
-- **The state has two carriers and survives greyscale.** `aria-checked` reflects the caller's boolean, the thumb sits left for off and right for on, and a hairline keeps the thumb legible when the fill is stripped, so the state is never told by colour alone. This is true of the code and has not been heard in a screen reader.
-- **At 200% text the row grows with the text.** The label and helper are type steps and the gaps are space tokens, so the whole row scales rather than clipping.
-
-**Not checked at all, and listed rather than omitted:**
-
-- Every contrast pair: the card thumb against the primary fill in the on state and against the muted fill in the off state, and the hairline around the thumb and the track. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring.
-- What the switch draws under `forced-colors: active` and `prefers-contrast: more`, where the fills are replaced by the platform's own pair, and how the thumb travels under a right-to-left layout, where it should slide the other way. And `prefers-reduced-motion` is not honoured: the thumb's slide and the track's fade run whether or not the reader has asked for less motion.
+**Not checked by any gate.** Every contrast pair, the 44 by 44 target in a real
+browser, `forced-colors: active`, `prefers-contrast: more`, right-to-left thumb
+travel, and `prefers-reduced-motion`, which the slide and the fade do not honour.
 
 <KeyboardTable
   name="switch"
@@ -226,49 +189,67 @@ Some of this is enforced by a gate on every pull request and every push to `main
     {
       keys: "Tab",
       action: "Moves focus onto the switch",
-      notes: "The switch is a single tab stop. A disabled switch is skipped rather than focused.",
+      notes: "A single tab stop. A disabled switch is skipped.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves focus back off the switch",
-      notes: "The control is one stop in reverse too, so focus leaves it rather than stepping through its parts.",
+      notes: "One stop in reverse too.",
     },
     {
       keys: "Space",
       action: "Flips the switch",
-      notes: "The change is committed on the flip, and onCheckedChange fires with the new boolean.",
+      notes: "onCheckedChange fires with the new boolean.",
     },
     {
       keys: "Enter",
       action: "Flips the switch",
-      notes: "Base UI's Switch binds Enter as well as Space, so either key toggles the focused control.",
+      notes: "Base UI binds Enter as well as Space.",
     },
     {
       keys: "Arrow keys",
       action: "Nothing",
-      notes: "A switch is a single on-or-off control, so there is nothing to move focus between. Use Space or Enter to flip it.",
+      notes: "Nothing to move focus between.",
     },
   ]}
 />
 
 <ContrastReport component="switch" />
 
+## Data attributes
+
+<DataAttributesTable
+  name="switch"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On the root and every inner part",
+      value: "switch, switch-label, switch-description, switch-control, switch-thumb",
+    },
+    {
+      attribute: "data-checked / data-unchecked",
+      condition: "On the control and the thumb, one or the other",
+      value: "Present with no value; reflects checked",
+    },
+    {
+      attribute: "data-disabled",
+      condition: "On the control while disabled",
+      value: "Present with no value",
+    },
+  ]}
+/>
+
 ## API reference
 
 <PropsTable name="SwitchProps" />
 
-`checked` and `onCheckedChange` make this a controlled component with no internal state: the caller holds the boolean, applies the effect the moment the switch is flipped, and passes the new value straight back. `label` is required because a switch with no accessible name is a defect the type system cannot otherwise prevent, and a missing or empty label raises a development warning rather than rendering an unnamed control. `description` is an optional helper line read as the control's description rather than as part of its name, and `disabled` keeps the switch visible and labelled while refusing focus and every key.
+`checked` and `onCheckedChange` make this a controlled component with no internal
+state. `label` is required: a missing or empty label raises a development warning.
+`disabled` keeps the switch visible and labelled while refusing focus and every
+key. `className` is merged onto the root row and must carry neither colour axis.
 
 ## Related
 
-<RelatedComponents name="switch" />
-
-**Easily confused with**
-
-- [Checkbox](./checkbox.mdx) proposes a value that a form gathers and submits on the reader's command. A switch commits on the flip. If the reader expects to review and submit, it is a checkbox.
-- [ConsentSheet](./consent-sheet.mdx) records a decision with a who and a when. A switch is a setting with no record, flipped back as easily as it is set, so a toggle that would stand for consent is a consent sheet instead.
-- [SegmentedControl](./segmented-control.mdx) chooses one of a small set of mutually exclusive options. A switch is the two-state case where the choice is on or off and the label names the setting rather than the options.
-
-**Used by**
-
-- No pattern, recipe or screen composes it yet. It is a neutral control a product drops into its own settings list and wires to its own preference state.
+- [Checkbox](./checkbox.mdx) proposes a value a form submits later. A switch commits on the flip.
+- [ConsentSheet](./consent-sheet.mdx) records a decision with a who and a when. A switch keeps no record.
+- [SegmentedControl](./segmented-control.mdx) chooses one of several options. A switch is the two-state case.

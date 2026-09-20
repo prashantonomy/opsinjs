@@ -369,7 +369,7 @@ function buildMessage(
     "",
     // The list an author will read to fix the page, so it says which of the
     // sections they are actually on the hook for. Printing all of them
-    // unmarked sent people off to write a Motion section nobody asked for.
+    // unmarked sent people off to write a States section nobody asked for.
     `  A "${kind}" page at status "${status}" has these H2 sections, in this order:`,
     ...expected.map(
       (section, index) =>

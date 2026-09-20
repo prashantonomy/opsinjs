@@ -500,9 +500,26 @@ export const OUTLINE_IS_EXACT: Record<Exclude<Kind, "component">, boolean> = {
  * without a content edit, and that coupling is what this array removes: a page
  * that satisfies this outline satisfies it at both phases, so retiring a
  * component is a frontmatter change and nothing else.
+ *
+ * THE PAGE IS LEAN, AND THIS LIST IS SHORT BECAUSE OF IT. ADR 0024 is the
+ * record. A developer comes to a component page to see the component, install
+ * it, copy the usage, check the props, and learn the one thing this system adds
+ * to a shadcn-style page, which is when not to reach for it. The seventeen
+ * section anatomy this replaced carried a Status heading, a States matrix, a
+ * Motion section, a Tokens table and a CSS variables table on top of that, and
+ * the corpus it produced ran past a quarter of a million words across sixty
+ * pages, which nobody read. Blueprint documents a component in a few hundred
+ * words and a props table, and that is the density these pages now aim at.
+ *
+ * The Status heading is gone and nothing honest went with it: `<StubNotice>`
+ * still opens every component page, above the first H2, and still carries the
+ * review floor and the open safety questions. Motion and Tokens are gone; a
+ * reduced-motion fact that matters is one bullet under Accessibility. Anatomy,
+ * States, Content guidelines, Data attributes and CSS variables stay in the
+ * outline and are optional, so a single-part component with no authored copy
+ * is never made to invent a section to satisfy a checklist.
  */
 const SHIPPED_SECTIONS: string[] = [
-  "Status",
   "Preview",
   "Installation",
   "Usage",
@@ -512,11 +529,9 @@ const SHIPPED_SECTIONS: string[] = [
   "Examples",
   "States",
   "Content guidelines",
-  "Motion",
   "Accessibility",
   "Data attributes",
   "CSS variables",
-  "Tokens",
   "API reference",
   "Related",
 ]
@@ -525,8 +540,9 @@ const SHIPPED_SECTIONS: string[] = [
  * THE COMPONENT PAGE ANATOMY, status-gated.
  *
  * The page header and the page footer are generated from frontmatter and never
- * appear as an H2, so neither is listed here. Everything a reader scrolls past
- * is, in page order.
+ * appear as an H2, so neither is listed here, and neither is `<StubNotice>`,
+ * which sits above the first H2 with no heading of its own. Everything else a
+ * reader scrolls past is, in page order.
  *
  * This array is the ORDER and the ALLOWED SET, not the required set. A page may
  * leave out any section named in `COMPONENT_OPTIONAL_SECTIONS` below, and
@@ -552,19 +568,18 @@ const SHIPPED_SECTIONS: string[] = [
  * that still installs and therefore owes a reader everything `shipped` owes
  * them plus the replacement. Only `planned` gets the shorter one, and it is
  * shorter for a reason a reader can check: a specification cannot report
- * measured results, so it has no `## Examples`, no `## Data attributes` and no
- * `## API reference`, and it carries `## Proposed API` instead.
+ * measured results, so it has no `## Usage`, no `## Examples`, no
+ * `## Data attributes` and no `## API reference`, and it carries
+ * `## Proposed API` instead.
  */
 export const COMPONENT_SECTIONS_BY_STATUS: Record<Status, string[]> = {
   planned: [
-    "Status",
     "Preview",
     "Installation",
     "When to use it",
     "Clinical meaning",
     "Anatomy",
     "Proposed API",
-    "Content guidelines",
     "Accessibility",
     "Related",
   ],
@@ -573,32 +588,33 @@ export const COMPONENT_SECTIONS_BY_STATUS: Record<Status, string[]> = {
 }
 
 /**
- * The sections a shipped component page may leave out.
+ * The sections a component page may leave out.
  *
- * Write one where the answer has been worked out and leave it out where it has
- * not. Omitting one is not a defect. Inventing content for one is: a `## Motion`
- * section that says motion has not been specified teaches a reader nothing that
- * its absence did not already tell them, and a `## Tokens` table nobody filled
- * in is a claim the component consumes tokens somebody chose. Five headings is
- * also the whole difference between the shortest component page in the corpus
- * and the longest, so making them optional is what lets both sit at the same
- * release phase without either being rewritten.
+ * Write one where there is something to say and leave it out where there is
+ * not. Omitting one is not a defect. Inventing content for one is: an Anatomy
+ * section on a component with one part draws a tree with one node, a States
+ * matrix on a control that carries no reading says "not applicable" five
+ * times, and a Content guidelines section on a component that renders no
+ * authored copy has nothing to approve or reject. Data attributes earns its
+ * place only when the component stamps something beyond `data-slot`, and CSS
+ * variables only when it declares a custom property of its own.
  *
  * This is the only list. `scripts/assert-ia.mts` reads it as its
  * `CONDITIONAL_HEADINGS.component` and `components/docs/page-template.tsx` reads
  * it at render time, so the build-time and runtime enforcers cannot disagree
- * about which headings are allowed to be missing. There is no `planned`
- * equivalent: that outline is ten sections and every one of them is required.
+ * about which headings are allowed to be missing. It applies at every phase:
+ * Anatomy is the one member the `planned` outline also carries, and a
+ * specification may leave it out for the same reason a shipped page may.
  *
  * A section here is optional, not unordered. It still has to appear in its
  * `COMPONENT_SECTIONS_BY_STATUS` position when it appears at all.
  */
 export const COMPONENT_OPTIONAL_SECTIONS: readonly string[] = [
+  "Anatomy",
   "States",
-  "Motion",
+  "Content guidelines",
   "Data attributes",
   "CSS variables",
-  "Tokens",
 ]
 
 /**

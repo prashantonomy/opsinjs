@@ -10,32 +10,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="textarea"
   status="shipped"
   questions={[
-    "No contrast pair has been measured. The box is neutral chrome throughout, the body ink and the muted placeholder against the background, and the neutral border around it, and whether each reads at the text and non-text floors has been argued from the roles rather than checked by a machine.",
-    "Nobody has listened to the box in a screen reader. The three ways to name it, a Field label, an aria-label, or an id with a real label, are reasoned about rather than heard, and whether an unnamed box is caught in practice rests on a development warning that only fires in development.",
-    "Validity is carried by aria-invalid and nothing on the colour axis, on purpose, because a form error is not a clinical status. Whether a standalone invalid box is noticeable enough with only aria-invalid and the neutral border, before Field places a visible message, has not been tested with a real reader.",
-    "Forced colours and prefers-contrast: more are unhandled, and the resize handle the browser draws is the platform's own. Whether the box stays legible and the vertical resize stays usable in those modes, and whether maxLength refusing a keystroke in silence needs more than the footnote a consumer writes, has not been checked.",
+    "Whether the body ink, the muted placeholder and the neutral border clear the text and non-text contrast floors is argued from the roles, not measured.",
+    "Nobody has heard the box in a screen reader, so whether an unnamed box is caught rests on a development warning that only fires in development.",
+    "Whether a standalone invalid box is noticeable with only aria-invalid and the neutral border, before Field places a visible message, has not been tested with a reader.",
   ]}
 >
-  <code className="text-sm">textarea</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">textarea</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Textarea is a multi-line text box for a free-text note a reader writes in their own words, such as a line about how a day went or a question for a clinician to read later. It is a native `<textarea>` element with the opsinjs border, radius, type step, padding and focus ring pulled onto it, and nothing more.
-
-The design decision that shapes the whole component is that it is the native element rather than a Base UI primitive. Base UI ships no textarea, because a multi-line box has no roving focus, no popup and no composite behaviour for a primitive to own. What the raw element lacks is the tokens: left to the browser it draws a grey box in the system font at a pixel size, off every scale the rest of the system keeps. So this component is the native control wearing the tokens, which is why it stays a server component with no state of its own.
-
 ## Preview
-
-One box with a label above it. The thing worth checking is that the box wears the same border, radius and type step as the input beside it rather than the browser's grey default, and that it resizes on the vertical axis but not the horizontal one, so it can grow for a longer note without breaking the column it sits in.
 
 <ComponentPreview name="textarea" />
 
@@ -46,8 +35,6 @@ One box with a label above it. The thing worth checking is that the box wears th
   unbuilt={false}
   importPath="@/components/ui/textarea"
 />
-
-Textarea has no dependency beyond the shared substrate every component installs. It renders a native element, composes no other component, is built on no Base UI primitive and ships no JavaScript of its own, because a text box has no behaviour to hydrate.
 
 ## Usage
 
@@ -67,101 +54,71 @@ import { Textarea } from "@/components/ui/textarea"
 
 <WhenToUse
   use={[
-    "Collecting a free-text note the reader writes in their own words, such as how a day went, a side effect in their own phrasing, or a question for a clinician to read later.",
-    "A field where the answer runs to a sentence or more, so a single-line box would hide the start of what the reader typed as it scrolled.",
-    "The control inside a Field for any long-answer question, where the field owns the label, the hint and the error and the box is simply where the text goes.",
+    "Collecting a free-text note the reader writes in their own words, such as how a day went.",
+    "A question whose answer runs to a sentence or more, where a single-line box would hide the start.",
+    "The control inside a Field for a long-answer question, where the field owns the label and the error.",
   ]}
   avoid={[
-    { case: "The answer is a single short line, such as a name or a place, where a one-line input reads and validates more cleanly than a box sized for a paragraph.", instead: "field" },
-    { case: "The reader is entering a measurement with a unit, such as a blood pressure or a weight, which needs the number formatted and the unit shown rather than free text.", instead: "reading-input" },
-    { case: "The reader is choosing from a fixed set of answers rather than writing one, which is a select or a radio group inside a field, not a text box.", instead: "field" },
+    { case: "The answer is a single short line, such as a name or a place.", instead: "field" },
+    { case: "The reader is entering a measurement with a unit, which needs the number formatted and the unit shown.", instead: "reading-input" },
+    { case: "The reader is choosing from a fixed set of answers rather than writing one.", instead: "field" },
   ]}
 />
-
-The exclusion that matters is the second, and it is a question about what the reader is entering. A note is prose the reader owns, and opsinjs formats none of it: it stores and shows back exactly the characters typed. A measurement is not prose. It has a number, a unit and a precision the product owns, and typing it into a free-text box loses all three, so a reading belongs in [ReadingInput](./reading-input.mdx), which shows the unit beside the number and keeps the formatting the same everywhere.
-
-The first exclusion keeps a note field from standing in for a plain input. A textarea sized for a paragraph around a one-word answer wastes the space and invites a reader to write more than the question wants. A single-line answer belongs in a [Field](./field.mdx) with an input, which reads as a question with one line to answer rather than a box waiting for an essay.
-
-## Anatomy
-
-<Anatomy
-  name="textarea"
-  parts={[
-    {
-      name: "Textarea",
-      describes: "The whole component, a single native textarea element. It carries data-slot=\"textarea\" and draws only the neutral chrome roles: the background fill, the neutral border, the body ink and the muted placeholder. It carries neither data-status nor data-category, so it is on neither colour axis, and invalid sets aria-invalid rather than a colour. It resizes on the vertical axis only, and its target floor keeps it tappable however short it is dragged.",
-      prop: "rows",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="textarea"
-  tree={[
-    {
-      part: "Textarea",
-      cardinality: "1",
-      note: "data-slot=\"textarea\", a native textarea. Neither data-status nor data-category. aria-invalid when invalid is set; named by a Field label, an aria-label, or an id with a matching label.",
-    },
-  ]}
-/>
-
-Textarea is a single element, so there is no part tree to nest and no composable slot to fill. What a caller controls is the text through `value` or `defaultValue`, the resting height through `rows`, the ceiling through `maxLength`, and how the box is named for assistive technology. There is deliberately no character-count part and no toolbar: a live count is content a product places beside the box in its own words, and a formatting toolbar would make a rich-text editor of a plain note field, which is a different component with a different accessibility contract.
 
 ## Examples
 
 ### A notes field
 
-The case Textarea was built for, standalone rather than inside a Field. It names itself with `aria-label`, so a screen-reader user hears the prompt before the empty box, and the placeholder is an example of the kind of thing to write rather than the prompt itself. The prompt and the placeholder are fictional and carry no reading, because an opsinjs example must never be mistakable for somebody's own note.
+The case Textarea was built for, standalone rather than inside a Field. `aria-label`
+carries the prompt, and the placeholder shows the kind of answer wanted rather than
+repeating the question.
 
 <ComponentPreview name="textarea-a-notes-field" kind="example" align="start" />
 
 ### With a character limit
 
-A box with a ceiling. `maxLength` caps the text, and the footnote below states the limit in words, because the native attribute refuses the next keystroke in silence and a reader stopped mid-word with no warning has been let down by the box. This box names itself the other honest way, with a real `<label htmlFor>` pointed at its `id`.
+`maxLength` caps the text, and the footnote states the limit in words, because the
+native attribute refuses the next keystroke in silence. This box is named by a real
+`<label htmlFor>` pointed at its `id`.
 
 <ComponentPreview name="textarea-with-a-character-limit" kind="example" align="start" />
 
 ## Content guidelines
 
-Put the question in a label, never only in the placeholder. A placeholder is grey by design and disappears the moment a reader types, so a box whose name lives only there loses it for the very reader who needs it most, the one part way through a long note who has forgotten what it was for. Use the placeholder for an example of the kind of answer, such as a short phrase, and let the label or `aria-label` carry the question.
-
-When the field has a length limit, say so in words near the box before the reader reaches it, rather than letting `maxLength` refuse a keystroke in silence. State the limit as a plain sentence, and if the product shows a running count, count down to the ceiling rather than up from zero, so the number a reader watches is the room they have left.
+Put the question in a label or `aria-label`, never only in the placeholder, which is
+grey and vanishes the moment a reader types. Use the placeholder for an example of the
+answer. State a length limit in words before the reader reaches it, and count down to
+the ceiling rather than up from zero.
 
 <DoDont>
   <DoDont.Do>
-    **A label reading "Anything you want to add?" with a placeholder of "A
-    sentence or two is plenty."** The question sits in the label where it stays,
-    and the placeholder only shows the shape of an answer, so a reader part way
-    through the note still knows what it is for.
+    **Label "Anything you want to add?", placeholder "A sentence or two is plenty."**
   </DoDont.Do>
   <DoDont.Dont>
-    **No label, with "Anything you want to add?" as the placeholder.** The
-    question vanishes the moment the reader types, a screen reader meets a box
-    with no name, and a reader who pauses has nothing left to remind them what
-    they were answering.
+    **No label, the question in the placeholder.** It vanishes on the first keystroke.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. Accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+**Checked by `pnpm run check:a11y` on every commit.** The box draws only neutral chrome
+roles, so no status colour, colour literal or ramp step reaches it, and the type is the
+`body` step rather than a pixel size.
 
-**Checked, by `pnpm run check:a11y`:**
+**Argued from the source, not measured.**
 
-- **No status colour, no colour literal, no ramp step.** The box draws only the neutral chrome roles, so it carries no `data-status`, reads no clinical vocabulary, and cannot mix the two axes. The gate reads every element and would fail the build on a colour drawn from either axis or on a raw colour value, and there is neither here.
-- **No px type size, and a 44pt target floor.** The text is the `body` semantic step rather than a pixel size, so it grows with the reader's text size, and the box floors its height at `--opsin-target-minimum` in rem, so a box dragged short stays tappable and the floor grows with the text too.
+- The box needs an accessible name and invents none. A Field label, an `aria-label`,
+  or an `id` with a real `<label htmlFor>` gives it one.
+- With none of `aria-label`, `id` or `name` present, a development warning names the
+  gap rather than shipping an unnamed box.
+- `invalid` sets `aria-invalid` and leaves the border neutral, because a form error is
+  not a clinical status. The message is [Field](./field.mdx)'s to place.
+- The focus ring rides in the box's own classes, so a project without the product
+  stylesheet keeps it. Height floors at `--opsin-target-minimum`.
 
-**Argued, and true of the implementation, but not yet measured:**
-
-- **The box needs an accessible name, and the component will not invent one.** Inside a Field the field's label names it; standalone, `aria-label` or an `id` with a real `<label htmlFor>` does. When none of `aria-label`, `id` or `name` is present a development warning names the gap rather than shipping an unnamed box.
-- **Validity is not carried by colour.** `invalid` sets `aria-invalid` and leaves the border on the neutral role, because a form error is not a clinical status. The message that says what to fix is [Field](./field.mdx)'s to place, in words beside the label, which a reader can read whether or not they see a colour.
-- **The focus ring is carried in the box's own classes.** A project installed without the product stylesheet keeps the ring, and a disabled box takes the muted surface and the not-allowed cursor rather than an opacity wash, so its text stays legible while it reads as unavailable.
-
-**Not checked at all, and listed rather than omitted:**
-
-- Every contrast pair: the body ink and the muted placeholder against the background, and the neutral border around the box. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring.
-- What the box draws under `forced-colors: active` and `prefers-contrast: more`, where the border and the browser's own resize handle are replaced by the platform's pair. None of this has been put in front of a machine or a high contrast user.
+**Not checked by any gate.** Every contrast pair, and what the box draws under
+`forced-colors: active` and `prefers-contrast: more`, including the browser's own
+resize handle.
 
 <KeyboardTable
   name="textarea"
@@ -169,22 +126,22 @@ Some of this is enforced by a gate on every pull request and every push to `main
     {
       keys: "Tab",
       action: "Moves focus into the box",
-      notes: "The box is one tab stop. Once focused, typing edits the text; the box does not trap Tab, so a second Tab moves focus out to the next control rather than inserting a tab character.",
+      notes: "One tab stop. The box does not trap Tab, so a second Tab moves out.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves focus back out of the box",
-      notes: "The box is a single stop in reverse too, so focus leaves it rather than stepping through anything inside.",
+      notes: "A single stop in reverse too, so focus leaves rather than stepping inside.",
     },
     {
       keys: "Enter",
       action: "Inserts a line break",
-      notes: "A textarea is multi-line, so Enter adds a new line rather than submitting the form. This is the native behaviour and the reason a long note belongs here rather than in a single-line input.",
+      notes: "Native multi-line behaviour, so Enter adds a line rather than submitting.",
     },
     {
       keys: "Arrow keys, Home, End",
       action: "Move the cursor through the text",
-      notes: "Standard text editing: the arrows move the caret by character and line, and Home and End move to the start and end of the current line. These are the browser's own bindings, not ones this component adds.",
+      notes: "The browser's own text editing bindings, not ones this component adds.",
     },
   ]}
 />
@@ -195,17 +152,14 @@ Some of this is enforced by a gate on every pull request and every push to `main
 
 <PropsTable name="TextareaProps" />
 
-The load-bearing choice is `value` against `defaultValue`: pass `value` with `onChange` and the box is controlled and the caller owns the text, or pass `defaultValue` and the box owns it and the caller reads it off the form on submit. `invalid` is the one to read carefully, because it sets `aria-invalid` and nothing else: it draws no colour, since a form error is not a clinical status, and the visible message belongs to [Field](./field.mdx). `aria-label`, `id` and `name` are the three routes to an accessible name, and a box with none of them raises a development warning rather than shipping unnamed.
+`value` with `onChange` makes the box controlled; `defaultValue` leaves it owning its
+own text. `rows` sets the resting height and defaults to three. `invalid` sets
+`aria-invalid` and draws no colour. `className` is merged last and must resolve no
+`--opsin-status-*` or `--opsin-category-*` role.
 
 ## Related
 
-<RelatedComponents name="textarea" />
-
-**Easily confused with**
-
-- [Field](./field.mdx) with an input is the control for a single-line answer, such as a name or a place. A textarea is sized for a paragraph, so reaching for it around a one-word answer wastes the space and invites more than the question wants.
-- [ReadingInput](./reading-input.mdx) is the control for a measurement with a unit. It formats the number and shows the unit beside it, which a free-text box cannot do, so a reading never belongs in a textarea.
-
-**Used by**
-
-- No pattern, recipe or screen composes it yet. It is a neutral form primitive a product drops into its own long-answer fields, most often as the control inside a [Field](./field.mdx).
+- [Field](./field.mdx) with an input is the control for a single-line answer, such as a
+  name or a place.
+- [ReadingInput](./reading-input.mdx) is the control for a measurement with a unit,
+  which a free-text box cannot format.

@@ -10,42 +10,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="segmented-control"
   status="shipped"
   questions={[
-    "No contrast pair has been measured for the selected segment against the track, or for the track's hairline. Whether the selected segment reads as selected in greyscale rests on a lightness lift and a boundary rather than on colour, and that is argued from the roles it uses rather than measured on the two surfaces this control sits on.",
-    "Nobody has listened to this control in a screen reader. The radiogroup announces its name and then each option as a radio that is checked or not, and whether \"radiogroup\" is the register a reader expects for a row that looks like a set of buttons has not been checked with real assistive technology.",
-    "Home and End are not bound, because the underlying RadioGroup primitive disables them, so a reader who reaches for End to jump to the last window gets the browser's default instead. Whether a segmented control owes Home and End as well as the Arrow keys is unresolved.",
-    "Forced colours and `prefers-contrast: more` are unhandled. The selected segment is lifted by a neutral fill and a hairline, and a forced-colours theme replaces both with the platform's own pair, so whether the selection survives that mode has not been tested.",
+    "No contrast pair has been measured for the selected segment against the track or for its hairline, so greyscale legibility is argued rather than measured.",
+    "Nobody has listened to this control in a screen reader, so whether \"radiogroup\" is the register a reader expects for a button-like row is unchecked.",
+    "Forced colours and `prefers-contrast: more` are unhandled, so whether the selected segment still reads as selected in those modes is untested.",
   ]}
 >
-  <code className="text-sm">segmented-control</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">segmented-control</code> is shipped: it installs as
+  source and the API may change in any release. It has had no accessibility
+  review and no clinical review, so it is not for a production health surface.
 </StubNotice>
 
-SegmentedControl is a row of mutually exclusive options where exactly one is chosen at a
-time. Its home is switching a single view between a small set of windows, and the case it
-was built for is a chart's day, week or month range, where all the options are worth showing
-at once rather than folding into a menu.
-
-The design decision that shapes the whole component is that it is one tab stop. A reader
-arrowing along a row of options expects Tab to pass the row, not to stop on each option in
-it, so the control is a radio group: the group takes the single tab stop, and the Arrow keys
-move a roving focus between the options inside it.
-
 ## Preview
-
-A three-option row with one segment chosen. The thing worth checking is whether the options
-read as siblings and the chosen one is lifted without a colour doing the work, so read it in
-greyscale: the selection is carried by the card surface lifting the segment off the muted
-track and by a hairline around it, and underneath both by `aria-checked` rather than by any
-pixel at all.
 
 <ComponentPreview name="segmented-control" />
 
@@ -57,10 +36,6 @@ pixel at all.
   importPath="@/components/ui/segmented-control"
   dependencies={["@base-ui/react"]}
 />
-
-The control is built on Base UI's RadioGroup and Radio primitives, which is where the single
-tab stop, the roving focus and the Arrow keys come from, so installing it pulls in
-`@base-ui/react`.
 
 ## Usage
 
@@ -85,30 +60,16 @@ import { SegmentedControl } from "@/components/ui/segmented-control"
 
 <WhenToUse
   use={[
-    "Switching a single view between a small set of mutually exclusive windows, such as a chart's day, week or month range, where all the options are worth showing at once.",
+    "Switching one view between a small set of mutually exclusive windows, such as a chart's day, week or month range.",
     "Choosing one setting from two to five short, comparable options that fit on one row and read as siblings.",
-    "A choice the reader changes often and wants the whole set of in front of them, rather than one option hidden behind a control they have to open.",
+    "A choice the reader changes often and wants the whole set in front of them.",
   ]}
   avoid={[
-    { case: "The options open different views with their own content, so choosing one swaps what the reader is looking at rather than setting a parameter of it.", instead: "tabs" },
-    { case: "There are more than about five options, or the labels are long, so the row will not fit on one line and cannot be read as one set.", instead: "field" },
-    { case: "The control performs an action rather than setting a value, such as saving a reading or confirming a decision.", instead: "button" },
+    { case: "The options open different views with their own content, so choosing one swaps what the reader is looking at.", instead: "tabs" },
+    { case: "There are more than about five options, or the labels are long, so the row will not fit one line.", instead: "field" },
+    { case: "The control performs an action rather than setting a value, such as saving a reading.", instead: "button" },
   ]}
 />
-
-The exclusion that matters is the first, and it is a question about what the choice does.
-A segmented control sets a parameter of one view: the chart stays the chart, and the option
-chosen changes the window it is drawn for, which is a single-select input and so a
-radiogroup. [Tabs](./tabs.mdx) swap between distinct panels of content, each with its own
-material, which is a different pattern with a different keyboard contract. If choosing an
-option replaces what is on the surface, it is tabs; if it changes one setting of what stays
-on the surface, it is this control.
-
-The second exclusion is the honest limit of the form. A segmented control has to fit on one
-row and be read as one set, so once the options pass about five, or the labels grow past a
-word or two, a [Field](./field.mdx) with a select is the control that still works. Reaching
-for a segmented control there produces a row that wraps or scrolls sideways, and a wrapped
-segmented control is no longer one legible set of siblings.
 
 ## Anatomy
 
@@ -117,17 +78,17 @@ segmented control is no longer one legible set of siblings.
   parts={[
     {
       name: "SegmentedControl",
-      describes: "The root. A radiogroup rendered by Base UI's RadioGroup on its Composite primitive, so the whole control is one tab stop with a roving focus. Carries data-slot=\"segmented-control\", role=\"radiogroup\" and the accessible name from label. It draws only neutral chrome, a muted track and a hairline, and carries neither data-status nor data-category.",
+      describes: "The root. A radiogroup on Base UI's Composite primitive, so the whole control is one tab stop.",
       prop: "options",
     },
     {
       name: "SegmentedControl.Segment",
-      describes: "One option, a Base UI Radio rendered as a span with role=\"radio\" and aria-checked. The selected segment is lifted with the card surface and a hairline rather than by colour alone, and a disabled segment drops to the muted ink and is skipped by the Arrow keys. data-slot=\"segmented-control-segment\", with data-checked or data-unchecked, and data-disabled when it is disabled.",
+      describes: "One option, a Base UI Radio with role=\"radio\" and aria-checked. A disabled segment drops to muted ink.",
       prop: "value",
     },
     {
       name: "SegmentedControl.Label",
-      describes: "The option's words, the visible label and part of what a screen reader reads for the option. data-slot=\"segmented-control-label\".",
+      describes: "The option's words, the visible label and part of what a screen reader reads for the option.",
     },
   ]}
 />
@@ -138,18 +99,14 @@ segmented control is no longer one legible set of siblings.
     {
       part: "SegmentedControl",
       cardinality: "1",
-      note: "data-slot=\"segmented-control\", role=\"radiogroup\", one roving tab stop",
+      note: "role=\"radiogroup\", one roving tab stop",
       children: [
         {
           part: "SegmentedControl.Segment",
           cardinality: "2..n",
-          note: "data-slot=\"segmented-control-segment\", role=\"radio\", aria-checked; one per option",
+          note: "role=\"radio\", aria-checked; one per option",
           children: [
-            {
-              part: "SegmentedControl.Label",
-              cardinality: "1",
-              note: "data-slot=\"segmented-control-label\"",
-            },
+            { part: "SegmentedControl.Label", cardinality: "1" },
           ],
         },
       ],
@@ -157,86 +114,52 @@ segmented control is no longer one legible set of siblings.
   ]}
 />
 
-The parts above are identified by `data-slot` and are styleable from outside; none of them is
-an export, and there is no way to render a segment without the group. Each Radio also renders
-a visually hidden `<input type="radio">` beside its span, which Base UI uses to carry a form
-value. This control passes no `name`, so that input submits nothing; it is `aria-hidden` and
-out of the tab order, so it changes nothing a reader meets, and it is named here rather than
-left for someone to find in the DOM.
-
-There is no `SegmentedControl.Indicator` and no icon slot. The selected state is the segment's
-own surface and boundary, not a separate mark, and adding a tick beside the label would be a
-second carrier for a state the fill and `aria-checked` already carry.
-
 ## Examples
 
 ### Switching a chart window
 
-The case the control was built for. The three options set the window of one chart rather than
-swapping between three charts, which is why it is a radiogroup and not a set of tabs: choosing
-a window keeps the reader looking at the same view and changes the range it is drawn for. The
-chart here is a placeholder box with no reading in it, because an opsinjs example must never be
-mistakable for somebody's own data.
+The three options set the window of one chart rather than swapping between three
+charts, which is why it is a radiogroup. The chart is a placeholder with no
+reading in it.
 
 <ComponentPreview name="segmented-control-switching-a-chart-window" kind="example" align="start" />
 
 ## Content guidelines
 
-Keep the labels short, parallel and in sentence case: one or two words each, the same part of
-speech, so the row reads as one set of siblings. Name the value the option sets, not an
-instruction to the reader, and let the options carry no terminal punctuation.
-
-Order the options the way the reader thinks about them rather than the way the data is stored:
-a day, week and month window runs shortest to longest, and reversing it to match a database
-column is the row nobody can scan. Do not change a label's wording between screens for the
-same option, because a reader who learnt that this control offers "Week" should not meet "7
-days" and "Weekly" meaning the same window elsewhere.
+Keep the labels short, parallel and in sentence case, one or two words each, so
+the row reads as siblings. Name the value the option sets, not an
+instruction, and give it no terminal punctuation. Order them the way the reader
+thinks, shortest to longest, and keep one wording across screens.
 
 <DoDont>
   <DoDont.Do>
-    **"Day" · "Week" · "Month"** Three parallel windows, each a single word, ordered shortest
-    to longest, so the set reads at a glance and the choice is obvious.
+    **"Day" · "Week" · "Month"** Three parallel windows, one word each, ordered
+    shortest to longest.
   </DoDont.Do>
   <DoDont.Dont>
-    **"Today" · "This week's readings" · "Show me the month"** Three different lengths and
-    three different grammars, so the row no longer reads as one set and the labels compete with
-    each other rather than sitting as siblings.
+    **"Today" · "This week's readings" · "Show me the month"** Three lengths and
+    three grammars, so the row stops reading as one set.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-The control is a radio group, which is what makes it one tab stop with a roving focus rather
-than one stop per option. Base UI's RadioGroup renders `role="radiogroup"` on its Composite
-primitive, each segment is a Radio rendering `role="radio"` with `aria-checked`, and selection
-follows focus, which is the WAI-ARIA radio group pattern rather than a bespoke one nobody has
-tested. The single tab stop is the contract this control exists to keep, and it is the reason
-it is not built by composing the shipped [Button](./button.mdx): Base UI's `useButton` stamps
-a tab index on every control it renders, so a row of four Buttons would be four tab stops.
+**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
+token and no type size is in `px`.
 
-The radiogroup needs an accessible name, and `label` is required for it. It is applied as the
-group's `aria-label`, so a screen-reader user hears what the row selects before its options.
-Without it a reader hears a set of radios with no idea what they set, so a missing or empty
-`label` raises a development warning rather than rendering an unnamed group.
+**Argued from the source, not measured.**
 
-The selected state is carried three ways so none of them stands alone: `aria-checked` for
-assistive technology, the card surface lifting the segment off the muted track for a sighted
-reader, and a hairline around the selected segment for greyscale and for a reader stylesheet
-that strips fills. A disabled segment drops to the measured muted ink rather than being faded
-with opacity, so it stays readable while reading as unavailable, and the Arrow keys skip it.
+- A radio group, so the row is one tab stop with a roving focus rather than one
+  stop per option.
+- `label` is required and applied as the group's `aria-label`. A missing one
+  raises a development warning rather than rendering an unnamed group.
+- Selection is carried three ways: `aria-checked`, the card surface lifting the
+  segment off the track, and a hairline.
+- The focus ring sits in the segment's own classes, and each segment floors its
+  target at `--opsin-target-minimum` in rem.
 
-The focus ring is carried in the segment's own class list rather than left to the product
-stylesheet, for the reason [Link](./link.mdx) gives: a project installed without that
-stylesheet would otherwise lose the ring silently. Each segment floors its target at
-`--opsin-target-minimum` in rem on the vertical axis, so a 44pt pressable region survives and
-grows with the reader's text size rather than pinning at a device pixel.
-
-What is not yet checked is listed rather than left out, and it matches the open questions at
-the top of this page. No contrast pair has been measured for the selected segment against the
-track or for the track's hairline; nobody has listened to the control in a screen reader;
-Home and End are not bound, because the RadioGroup primitive disables them, so they keep the
-browser's default; and there is no `forced-colors` or `prefers-contrast: more` rule, so a
-reader in either mode meets whatever the browser substitutes.
+**Not checked by any gate.** No contrast pair measured, no screen reader run,
+Home and End unbound, and no `forced-colors` or `prefers-contrast: more` rule.
 
 <KeyboardTable
   name="segmented-control"
@@ -244,22 +167,22 @@ reader in either mode meets whatever the browser substitutes.
     {
       keys: "Tab",
       action: "Moves focus into the control, onto the selected segment",
-      notes: "The whole group is one tab stop. If no option is selected, the first enabled segment takes the stop; a disabled segment never does.",
+      notes: "The group is one tab stop. A disabled segment never takes it.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves focus back out of the control",
-      notes: "The group is a single stop in reverse too, so focus leaves the row rather than stepping back through each option.",
+      notes: "One stop in reverse too, so focus leaves the whole row.",
     },
     {
       keys: "Arrow Right, Arrow Down",
       action: "Moves to the next segment and selects it",
-      notes: "Selection follows focus. It wraps from the last segment to the first and skips disabled segments. Under a right-to-left layout, Arrow Left and Arrow Right swap.",
+      notes: "Selection follows focus. It wraps, skips disabled segments and mirrors under right-to-left.",
     },
     {
       keys: "Arrow Left, Arrow Up",
       action: "Moves to the previous segment and selects it",
-      notes: "It wraps from the first segment to the last and skips disabled segments.",
+      notes: "Wraps from the first segment to the last and skips disabled segments.",
     },
     {
       keys: "Space",
@@ -269,12 +192,12 @@ reader in either mode meets whatever the browser substitutes.
     {
       keys: "Enter",
       action: "Does nothing",
-      notes: "The primitive cancels Enter on a radio, so a segmented control at the foot of a form does not submit it by accident. A segment is chosen with the Arrow keys or Space.",
+      notes: "The primitive cancels Enter, so a form is never submitted by accident.",
     },
     {
       keys: "Home, End",
       action: "Not bound",
-      notes: "The underlying RadioGroup does not enable Home and End, so they keep the browser's default behaviour. Whether the control should bind them is an open question above.",
+      notes: "The RadioGroup primitive disables them, so the browser's default applies.",
     },
   ]}
 />
@@ -285,30 +208,16 @@ reader in either mode meets whatever the browser substitutes.
 
 <PropsTable name="SegmentedControlProps" />
 
-`value` and `onValueChange` make this a controlled component with no internal selection state:
-the caller stores the chosen value and passes it back, and a `value` that matches no option
-renders the row with nothing chosen and raises a development warning. `label` is required
-because a radiogroup with no accessible name is a defect the type system cannot otherwise
-prevent.
+`value` and `onValueChange` make this controlled, with no internal selection
+state. A `value` matching no option renders the row with nothing chosen and
+raises a development warning. `label` is required, because a radiogroup with no
+accessible name is a defect the type system cannot otherwise prevent.
 
 ## Related
 
-<RelatedComponents name="segmented-control" />
-
-**Easily confused with**
-
-- [Tabs](./tabs.mdx) swap between distinct panels of content, each with its own material. A
-  segmented control sets a parameter of one view that stays on the surface. If choosing an
-  option replaces what is shown, it is tabs.
-- [Field](./field.mdx) with a select is the control for a choice too large or too wordy to sit
-  on one row. Once the options pass about five, or the labels grow past a word or two, a select
-  is the honest form.
-- [Button](./button.mdx) performs an action rather than setting a value. A row of buttons is
-  also the wrong build for this control, because each would be its own tab stop.
-
-**Used by**
-
-- No pattern, recipe or screen composes it yet. It was built to switch a
-  [TrendSparkline](./trend-sparkline.mdx) between its day, week and month windows, and wiring
-  the two together on a surface is a product's to make rather than something the corpus ships
-  today.
+- [Tabs](./tabs.mdx) swap between distinct panels of content. This control sets a
+  parameter of one view that stays.
+- [Field](./field.mdx) with a select is the control for a choice too large or too
+  wordy for one row.
+- [Button](./button.mdx) performs an action rather than setting a value, and
+  every button in a row is its own tab stop.

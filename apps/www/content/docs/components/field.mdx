@@ -10,38 +10,20 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="field"
   status="shipped"
-  issue="prashantonomy/opsinjs#0"
   questions={[
-    "The two English words Field ships are “required” and “optional”, and no prop translates them. Every other string in the component comes from the product. Does the marker become a `ReactNode` prop, does it move to a locale object, or does a product override it through the `data-slot`?",
-    "An error is added to the control's description and marks it invalid; it is not announced while focus is elsewhere, because Field mounts no live region. A form of ten fields that fails on submit therefore says nothing until the reader arrives at each field. The pattern that closes this is an error summary at the top of the form. Who owns it, and does Field need to expose the ids it generated so a summary can link to them?",
+    "Field ships required and optional with no prop to translate them, and whether a prop or a locale object fixes that is open.",
+    "Field mounts no live region, so an error is silent until focus reaches it. Whether Field exposes its generated ids to an error summary is open.",
   ]}
 >
-  <code className="text-sm">field</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">field</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Field is where the accessibility of every form in a product is decided, once. If the wrapper
-guarantees a visible label and a programmatic association, a product cannot ship an unlabelled
-input by accident; if it does not, one will appear within a month.
-
 ## Preview
-
-Three fields, showing the three states that decide whether this component is worth having: a
-field with guidance, a field whose exception is marked in words, and a field with an error.
-The last one is the one to look at, and what matters is what has *not* happened. The hint is
-still there under the label, alongside the error, because a reader who has just got something
-wrong still needs the sentence that would have prevented it.
-
-Turn the text size up while you are there. Nothing truncates: the label wraps, the field grows
-and the error takes the lines it needs.
 
 <ComponentPreview name="field" />
 
@@ -53,10 +35,6 @@ and the error takes the lines it needs.
   importPath="@/components/ui/field"
   dependencies={["@base-ui/react", "lucide-react"]}
 />
-
-Two packages and no opsinjs component. Base UI's `field` primitive is what owns the id
-relationships; `lucide-react` supplies the one glyph the error carries. Both are listed on the
-catalogue row, so `shadcn add` installs them.
 
 ## Usage
 
@@ -74,25 +52,18 @@ import { Field } from "@/components/ui/field"
 
 <WhenToUse
   use={[
-    "Every input in the system. A control without a Field around it is a control without a guaranteed label.",
-    "Any place a control needs a hint, an error, or both, wired to it correctly rather than merely placed nearby.",
+    "Every input in the system, where a Field is the label guarantee.",
+    "Any control needing a hint or error wired to it, not merely placed nearby.",
     "As the base for purpose-built inputs, the way ReadingInput is built.",
   ]}
   avoid={[
-    { case: "You are collecting a measurement with a unit and a plausible range.", instead: "reading-input" },
-    { case: "The control is an action rather than an input.", instead: "button" },
-    { case: "You need several related inputs captured in one quick interaction.", instead: "log-sheet" },
-    { case: "You are showing a value rather than collecting one.", instead: "value" },
-    { case: "The whole form's errors need summarising at the top after a failed submit.", instead: "alert-banner" },
+    { case: "A measurement with a unit and a plausible range.", instead: "reading-input" },
+    { case: "The control is an action, not an input.", instead: "button" },
+    { case: "Several related inputs are captured in one interaction.", instead: "log-sheet" },
+    { case: "You are showing a value, not collecting one.", instead: "value" },
+    { case: "A failed form's errors need summarising at the top.", instead: "alert-banner" },
   ]}
 />
-
-The last exclusion points at a pattern rather than a component, and it is the one that matters
-most for this component's real limits. A long form that fails validation needs an error summary
-at the top, with each entry linking to its field; per-field errors alone leave a keyboard user
-hunting. Field mounts no live region, so they also leave a screen-reader user with nothing
-said at all until they reach each field in turn. See
-[Error summaries](../patterns/forms/error-summaries.mdx).
 
 ## Anatomy
 
@@ -101,32 +72,32 @@ said at all until they reach each field in turn. See
   parts={[
     {
       name: "Field",
-      describes: "The root. Owns every id relationship, and carries data-invalid, data-touched, data-dirty, data-filled, data-focused and data-disabled so a product can style the states without tracking them. When invalid it draws a left rule in the plain foreground role, a border rather than a shadow, so the mark survives forced colours and print.",
+      describes: "The root. Owns every id relationship and draws the invalid left rule.",
       prop: "validateOn",
     },
     {
       name: "Field.Label",
-      describes: "A real <label for> pointing at the control's generated id, so the accessible name comes from a native label relationship rather than an aria-label. Body size at the emphasis weight; it wraps rather than truncating.",
+      describes: "A real label element against the generated control id.",
       prop: "label",
     },
     {
       name: "Field.Optionality",
-      describes: "The word required or optional, in brackets, rendered INSIDE the label so it joins the accessible name. Absent when optionality is none. Distinguished by weight, never by colour.",
+      describes: "The word required or optional, joining the accessible name.",
       prop: "optionality",
     },
     {
       name: "Field.Hint",
-      describes: "Guidance before the mistake. Its id is registered into the control's aria-describedby, so it is announced on focus rather than found by chance. Set at body size, not smaller.",
+      describes: "Guidance before the mistake, announced on focus through aria-describedby.",
       prop: "hint",
     },
     {
       name: "Field.Control",
-      describes: "The control, supplied by the product. The only part of Field that is a real export. Receives the generated id, the description list and aria-invalid; carries the 44px hit-area floor, and when invalid an inset emphasis shadow of its own, while the root's left rule marks the same state where a shadow cannot survive.",
+      describes: "The product's control and the only real export. Takes aria-invalid and the target floor.",
       prop: "children",
     },
     {
       name: "Field.Error",
-      describes: "The message, with a CircleAlert glyph set at 1.25em beside it. Its id joins aria-describedby alongside the hint rather than replacing it, and it is removed from the list when it unmounts. It carries no status colour, deliberately, and the invalid state is marked by structure, the left rule on the root, rather than by the error's weight or colour alone.",
+      describes: "The message and its CircleAlert glyph, never replacing the hint.",
       prop: "error",
     },
   ]}
@@ -172,342 +143,69 @@ said at all until they reach each field in turn. See
   ]}
 />
 
-**Label** is always visible and always persistent, with no prop to hide it. **Hint** is guidance
-shown before anything goes wrong. **Control** is the input. **Error** replaces nothing: it
-appears in addition to the hint, because a reader who has made a mistake still needs the
-guidance that would have prevented it. It sits between the hint and the control rather than
-after it, which is the order GOV.UK and the NHS use, so that a software keyboard or an
-autocomplete strip rising over the bottom of a phone cannot cover the sentence saying what to
-fix. The order the control announces does not move with it: a description is placed by the
-order its id registered rather than by where the element sits, and the hint still registers
-before the error, so a screen reader still hears the hint and then the error. **Optionality**
-marks whichever of required or optional is the exception in this form.
-
-Field's own spacing is fixed, and the density control above the preview does not move it. Every
-gap inside a Field is an `--opsin-space-*` step, which is a rem that stays put; density moves
-Tailwind's `--spacing` and nothing else. So the switch is not broken on this page. It has
-nothing here to act on. The space density is meant to change is the space *between* fields,
-which the form owns, and neither the target floor nor the type steps shrink when somebody asks
-for compact.
-
-The relationships are the component. `Field.Control` is associated with `Field.Label` through a
-real label relationship, and with `Field.Hint` and `Field.Error` through a description
-relationship, generated rather than typed. Hand-wired ids are where accessible forms rot.
-
-**`Field.Control` is a real export, and it is one of only three in the system.** Everywhere
-else in opsinjs a part is internal structure named by `data-slot`, because the content arrives
-as a prop. A control cannot: it has a type, a name, an `autocomplete` token, an `inputmode`, a
-value and a change handler, and no single prop carries that. So the slot is a component, and
-`render` puts the same generated id, the same `aria-describedby` and the same invalid state
-onto an element opsinjs does not ship, such as a `textarea`, a `select`, or a control from
-somewhere else entirely.
-
-**`Field.Optionality` is nested inside the label, and the specification's tree drew it as a
-sibling.** This is the one place the implementation departs from the part tree, and it is a
-deliberate departure rather than a slip. As a sibling the marker is a phrase near the label; as
-a child it is part of the accessible name, so a screen-reader user hears *Example note,
-optional* at the moment a sighted reader sees it, rather than meeting a stray word and having
-to work out which field it belongs to. Only the nested version meets the requirement the
-tree exists to serve, which is to mark it in text.
-
-There is no `Field.Legend`, and no symbol to explain. The marker is a word, so the sentence a
-form usually needs above its fields is about the form rather than about the marker: *we need
-all of these unless the field says otherwise*. That claim is the caller's to make, because no
-single Field knows how many others there are.
-
 ## Examples
 
 ### The error keeps the hint
 
-The same field before and after. Almost every hand-rolled form swaps one for the other,
-because the markup is simpler and the column is shorter. The result is that at the exact
-moment a reader has got something wrong, the sentence that would have told them the right
-shape disappears.
+`error` adds a sentence beside the hint rather than replacing it.
 
 <ComponentPreview name="field-error-keeps-the-hint" kind="example" align="start" />
 
 ### Marking the exception
 
-Four fields, three of them needed and one not, so the optional one is the one that carries a
-marker. The reverse form puts a marker on every field except one. It says the same thing four
-times and leaves the reader counting asterisks to work out which field is the odd one. See
-[Required and optional](../patterns/forms/required-and-optional.mdx).
+One optional field among three needed ones, marked by `optionality="optional"`.
+See [Required and optional](../patterns/forms/required-and-optional.mdx).
 
 <ComponentPreview name="field-marking-the-exception" kind="example" align="start" />
 
 ### A control opsinjs does not ship
 
-`render` on `Field.Control` puts the whole wiring onto a `textarea` and a `select`. Neither
-needed an id written by hand, and both are labelled and described by the same mechanism a plain
-text input uses.
+`render` on `Field.Control` puts the whole wiring onto a `textarea` and a
+`select`.
 
 <ComponentPreview name="field-with-another-control" kind="example" align="start" />
 
 ### Validating on submit
 
-The default `validateOn` is `submit-then-change`, and on its own it does almost nothing. Base UI
-gates its submit mode on a flag only its own `<Form>` sets, so inside a plain `<form>` a control
-is checked on Enter in a text input and at no other moment. `Field.Form` is that primitive,
-re-exported with a `data-slot`, and wrapping the fields in it is what makes the default fire when
-the reader presses submit. Leave a field empty, press Save, and the browser's own fallback
-message appears in the error slot, then clears on the next change. A shipped product passes
-`error` with its own words instead, because that marks the control invalid directly and never
-goes through a validation mode at all; this example exists to prove the default is not inert and
-to make the case for reaching past it.
+The default `validateOn` fires on submit only inside `Field.Form`, where an
+empty field on Save shows the browser's own message. Pass `error` instead.
 
 <ComponentPreview name="field-validating-on-submit" kind="example" align="start" />
 
-## States
-
-Field is interactive: it wraps a native control, and Base UI stamps that control's real
-interaction states onto the root and the control as data attributes, rather than leaving a
-product to track them by hand. `data-invalid` is the one Field's own prop reaches: it is
-forced true whenever `error` is a non-empty string, and it is also true whenever the control's
-own constraint validation does not pass under the active `validateOn` mode. `data-invalid` is
-what draws the left rule on the root and the inset emphasis shadow, plus the forced-colors
-dashed border, on the control. `data-focused` follows the control's real focus, and Field paints
-nothing of its own for it: the ring a focused control shows is the product stylesheet's ordinary
-`:focus-visible` treatment rather than a style this file writes. `data-disabled` follows the
-control's native `disabled` attribute, because Field ships no `disabled` prop of its own; the
-only route in is the attribute a caller puts directly on the element passed as `children`.
-`data-touched`, `data-dirty`, `data-filled` and `data-valid` are also stamped on the root and the
-control, recording in turn whether the control has been blurred once, whether its value has
-moved from its default, whether it currently holds one, and whether it currently meets its own
-constraints; none of the four changes what Field paints, and a product that wants to style by
-one writes its own rule against the `data-slot`. There is no hover or pressed treatment anywhere
-in this file, because the control Field wraps is whatever native element the product supplied,
-and it keeps that element's own platform affordances rather than taking on Field's.
-
-The five data states below describe a value a surface fetches and displays, and Field sits one
-layer under that: it wires a label, a hint and an error to a control the reader types into, and
-it fetches nothing itself. Its own `error` prop is a validation message, forced by the product
-or by a constraint the control did not meet, and it must not be read as the Error state below: a
-field whose own constraint does not pass has not lost a fetch.
-
-| Data state | What Field renders |
-| --- | --- |
-| Error | Nothing of its own. `error` marks the control invalid and adds a sentence to its description, which is a validation message rather than a report that a fetch did not complete. A control whose own options or data have not arrived is a concern for whatever populates `children`, not for Field. |
-| Loading | Nothing. Field renders its label, its hint and whatever `children` currently is on the same render, with no fetch of its own to wait on. A control still waiting on data, such as an option list that has not arrived yet, carries its own loading treatment inside `children`. |
-| Empty | Not a state Field marks on its own. An empty control is a control with nothing typed into it, which the absence of `data-filled` already records, and Field renders the label and the hint exactly as it would around any value. |
-| Partial | Applies across several Fields, not to one on its own. Two Fields side by side, one holding a value and one not, are two independent components, and neither reports the other's absence; a compound reading that needs to say "half of this pair is missing" is [ReadingInput](./reading-input.mdx)'s job, built on top of Field. |
-| Stale | None. Staleness describes a stored value shown back to a reader, and Field is where a value is typed rather than where it is shown again. A stale reading is [Value](./value.mdx)'s or [ResultCard](./result-card.mdx)'s concern once the entry becomes a record. |
-
 ## Content guidelines
 
-Labels are nouns naming what goes in the field, in sentence case, with no trailing colon.
-Hints show the shape of a valid answer rather than restating a rule. *For example, 1985* tells a
-reader what to type; reciting the permitted range only repeats, in prose, the check the field is
-already doing, and leaves the reader to work the shape out from it. A hint is a single sentence
-and takes no full stop. A hint that shows a separator has to sit over a control whose keyboard
-can type that separator, so a hint of the shape *27 3 1985* over an `inputMode="numeric"` control
-asks for a space the number pad has no key for. A whole date is three answers, not one, and
-belongs in three labelled fields rather than a single string. See the
-[date-of-birth pattern](../patterns/ask-users-for/date-of-birth.mdx).
-
-A hint on a health input must not carry a threshold, a plausibility bound, or a number that
-could be read as somebody's result. A figure written into a hint is copied into a screenshot,
-and a plausible-looking one is then indistinguishable from a reading. opsinjs owns nobody's
-ranges, and an example is exactly where a range that owns nothing gets in. Where a hint has to
-show a number at all, use one nobody would act on, the way the demo above uses *14*. See
-[Synthetic example data](../project/decisions/0012-synthetic-example-data.mdx).
-
-Errors say what went wrong and how to fix it, in the second person, without blame. Never
-*invalid*, never *error*, never *you must*. Field supplies no default error text and never
-will: a message that says what to do about a particular field is a message only the product can
-write. What it does supply, when you omit `error` and the control fails a constraint of its
-own, is the browser's message. That message is not opsinjs copy, is not held to any of this,
-and is the reason to pass `error` rather than rely on it.
-
-Field ships exactly two words of its own, *(required)* and *(optional)*, and no others. That is
-worth knowing before a translation project starts, because there is currently no prop that
-changes them.
+Labels are nouns in sentence case with no colon. Hints show the shape of a valid
+answer, never a number a reader could read as a result. Errors say what to fix,
+without blame.
 
 <DoDont>
   <DoDont.Do>
-    **"Day · Month · Year, three numeric fields under one Date of birth question · Enter a date in
-    the past."** Three answers in three labelled fields, so the keypad each one raises can type
-    every character the field asks for, and an error that says what to do. See
-    [Date of birth](../patterns/ask-users-for/date-of-birth.mdx).
+    **"Date of birth" over three labelled fields, error "Enter a date in the past".**
   </DoDont.Do>
   <DoDont.Dont>
-    **"DOB* · Invalid input."** An abbreviation, a required marker with no legend, and an
-    error that tells the reader nothing except that they have failed.
+    **"DOB*" with "Invalid input."** An abbreviation, an unexplained symbol, no fix.
   </DoDont.Dont>
 </DoDont>
-
-<DoDont>
-  <DoDont.Do>
-    **A visible label above the field, staying visible while typing.**
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A placeholder used as the label.** It disappears the moment the reader starts typing,
-    which is exactly when they need it, it fails contrast at almost every implementation, and
-    it leaves the field unlabelled for some assistive technology.
-  </DoDont.Dont>
-</DoDont>
-
-## Motion
-
-Field declares no transition, no animation and no easing anywhere in `field.tsx`, and it imports
-nothing from `tokens/motion.json`. The left rule, the inset shadow and the forced-colors dashed
-border that mark an invalid field all appear the instant `data-invalid` changes, with no
-duration and nothing to ease, because a CSS attribute selector switching a declaration on or off
-is not a transition in the first place. There is therefore nothing here for
-`prefers-reduced-motion` to reduce: a reader who asks for less motion sees exactly the same
-instant change everyone else does. Base UI's own focus, touched, dirty, filled and validity
-attributes are the same kind of instant flip, driven by a keystroke or a blur rather than by a
-timer, so none of them is a candidate for a reduced-motion rule either.
 
 ## Accessibility
 
-Some of this is checked by a gate in CI, some is delegated to Base UI and can be read
-in its source, and some is an argument. They are separated below because a component page claims accessibility only where it has been checked, with the gaps listed rather than left
-out. A component that delegates its central promise and does not say so is one nobody can
-audit.
+**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
+token and no type size is in `px`. No banned word appears in a string literal,
+in JSX text or an identifier.
 
-**Checked, by `pnpm run check:a11y` on every pull request:** it runs in CI, on `pull_request`
-and on a push to `main`. There is no pre-commit hook, so a commit that is never pushed is never
-checked.
+**Argued from the source, not measured.**
 
-- **Every colour is a token, and none of them resolves to nothing under the product theme.**
-  The static rig fails the build on a hex literal, an `oklch()`, a Tailwind palette colour, a
-  numbered ramp step, and on the chrome-only roles that exist in `app/globals.css` and not in
-  `app/product.css`. That last one caught the first draft of this component: the obvious colour
-  for an error message is the docs chrome's danger role, and it paints nothing at all under
-  `/view`.
-- **No `px` font size**, so every step in this component scales with the reader's own text
-  size. See [Dynamic type](../foundations/typography/dynamic-type.mdx).
-- **No banned word** in a string literal, in JSX text, or in an identifier segment. That is the
-  gate's real scope and it is narrower than the sentence usually written here: it does not read
-  comments, by a deliberate decision the script argues for, and this component's prop doc
-  comments are comments. The generator then publishes them into the props table below. A
-  banned word introduced there would reach a reader unchecked.
+- A real `label` element against a generated id, and descriptions that leave
+  `aria-describedby` on unmount.
+- `aria-invalid` lands on the control rather than the wrapper.
+- Errors carry no colour. A glyph, the words and the left rule mark the state, a
+  border forced colours keeps.
+- The control reads `--opsin-target-minimum` on both axes. Nothing truncates at
+  200% text.
 
-**Delegated to Base UI's `field` primitive, and verifiable in its source rather than by us:**
-
-- **The label is a real `<label for>`** against an id the primitive generates, so the
-  accessible name comes from a native label relationship. Not `aria-label`, which cannot be
-  seen, and not a placeholder, which cannot survive typing.
-- **The hint and the error are joined to the control by a description relationship**, and each
-  one *removes* its id again when it unmounts. That is the half hand-rolled forms get wrong: an
-  `aria-describedby` still pointing at a message that has gone describes the control with
-  nothing. Note where it happens: the ids are registered in a layout effect, so
-  `aria-describedby` is absent from the server-rendered markup and appears on hydration. The
-  label relationship and `aria-invalid` are both in the first paint; the description is not.
-- **`aria-invalid` lands on the control**, not on the wrapper, whenever the field's computed
-  validity is false. The `error` prop forces that state, and a failed native constraint also
-  produces it.
-
-**Argued, and true of the implementation, but not yet measured:**
-
-- **Errors are never carried by colour, because they carry no colour at all.** A form error is
-  not a clinical status: the red that means *this reading needs a decision* is not available to
-  say *check that number*, and lending it out would cost the status axis the meaning the whole
-  system is built on. See [The two colour axes](../health/two-colour-axes.mdx). What is left is
-  a glyph, the left rule down the invalid field, an emphasis shadow on the control and the
-  words. That is what the requirement asked for anyway, reached from the other direction. Weight
-  is not one of the carriers against the label: `headline` and `body` are the same 17px step at
-  two weights, and the label already takes the heavier one, so a heavier error reads as heavier
-  than the hint but exactly as heavy as the field name directly above it. Weight tells the error
-  from the hint, never from the label. Count three rather than four on paper: the emphasis
-  shadow on the control is a `box-shadow`, which forced-colors mode drops, and which the docs
-  site's own print rules in `app/globals.css` set to `none`. Under forced colours, where the
-  ring is gone, the control's own border turns dashed to stand in for it, so the control still
-  marks which input failed and not merely that the field did; on paper no such stand-in fires
-  and the shadow is simply absent. The left rule, by contrast, is a
-  real border rather than a shadow, so forced colours recolours it to the system ink and keeps
-  it, and the printer draws it, which is why it stands with the glyph and the words as the three
-  carriers that survive on paper. A consumer gets no better on the shadow, because that
-  stylesheet does not travel with `shadcn add` and `field.tsx` sets no `print:` variant, so on
-  paper the shadow is at the mercy of the consuming app. Either way the shadow is the one
-  carrier that cannot be counted on. The glyph, the rule and the words can, and they are the
-  three that carry the meaning where the shadow is gone. It is not an `outline`
-  instead because the control's outline is already spent on `:focus-visible`, and a focused
-  invalid field would then show one state or the other. The glyph is deliberately
-  not the triangle: that shape belongs to the `attention` level, and four distinct silhouettes
-  only work as a vocabulary if nothing else borrows one.
-- **Required and optional are marked in text, inside the label**, so the marker is part of the
-  accessible name. No asterisk, and therefore no legend to miss.
-- **The control clears the 44px target floor, on both axes.** The product stylesheet now floors
-  every text entry control, `select` and `textarea` among them, with `--opsin-target-minimum`,
-  so inside an app that has wired the theme a hand-rolled input beside a Field is already
-  protected. Field applies the same token to the control itself so the floor survives `shadcn
-  add` into an app that installed the component and not the theme. That token is a rem value, which grows
-  with the reader's text size rather than staying at 44 physical pixels. It reads the token
-  rather than declaring it, and the token lives in a stylesheet that `shadcn add` does not
-  ship, so the declaration carries the same `2.75rem` fallback the product stylesheet writes;
-  without it the floor would quietly become `auto` in an app that had not wired the token
-  sheet. The inline axis is set as well as the block one, because a caller who narrows the
-  control would otherwise get a target below the floor on that axis and no warning.
-  `className="w-8"` for a two-digit entry is one such narrowing. Argued from the CSS, not
-  measured, and deliberately without a figure: the width that utility resolves to depends on
-  `--spacing`, which the product theme sets differently from the documentation chrome, so
-  any number written here would be right in one document and wrong in the other. The
-  hit-area check runs in nightly, against a browser.
-  See [Target size and motor](../accessibility/target-size-and-motor.mdx).
-- **Nothing truncates at 200% text.** The label wraps, the hint wraps, the error wraps and the
-  field grows; there is no fixed height anywhere in the component and no `text-overflow`. The
-  error's glyph is aligned to the first line rather than centred, so a three-line message does
-  not leave it floating. Checked by eye at 200% in both themes; not yet by a machine.
-- **Field itself never moves focus and never takes it.** Field has no focus management: an error
-  appearing does not pull focus out of the control the reader is typing in, and nothing in this
-  file fires on a keystroke. `Field.Form` is the exception, and it is Base UI's Form rather than
-  Field: on submit it moves focus to the first invalid control and selects its text, so the reader
-  is put straight into the field to fix. See the
-  [Validating on submit](#validating-on-submit) example.
-
-**Not yet checked at all, and listed rather than omitted:**
-
-- **An error is not announced while focus is elsewhere.** It is in the control's description, so
-  it is read when the control receives focus. A reader who blurs a field and moves on hears
-  nothing. Field mounts no live region on the caller's behalf, deliberately: ten fields would be
-  ten polite regions all speaking at once when a submit fails, which is the flooding the rule
-  exists to prevent. The pattern that closes the gap is an error summary at the top of the form,
-  and it is open on this page whether Field should expose its generated ids so a summary can
-  link to them.
-- **The hint and error text roles have not been measured on this surface.** The hint takes the
-  muted foreground role and the error takes the plain one; both are theme roles rather than
-  values, so they inherit whatever the theme's own measurements say, and nothing on this page
-  has measured that pair against this control. The control's own boundary is not measured on its
-  own either, but it now resolves to the same neutral ladder step the card hairline resolves to,
-  and that step is measured. The control is filled with the page's own
-  `--background`, so the `border-input` hairline is the only thing that says a box is there.
-  WCAG 2.2 SC 1.4.11 puts a 3:1 floor on the boundary of a control, as
-  [Contrast conformance](../accessibility/contrast-conformance.mdx) records in its non-text
-  section. The input role was raised to `--opsin-chrome-border`'s neutral step, so it inherits
-  the card hairline pair's figures: that pair measures WCAG 4.52 against the page and 4.72
-  against a card in light, and 4.19 in dark. No pair measures `--opsin-chrome-input` on its own
-  yet, so a drift in the input role alone would pass every gate. The dark figure is published in
-  full with its shortfall named rather than hidden. It clears the 3:1 WCAG floor, and it does not reach the APCA Lc 45 non-text floor,
-  where it measures a magnitude of 28.72, because a 1px hairline on a near-black page reaches
-  no neutral ladder step that would. `forced-colors` is no longer unimplemented across opsinjs:
-  Surface answers `contrast-more:` in its own utilities and draws its edge as an outline that
-  forced colours keeps. What nobody has yet done is open the site under a real Windows contrast
-  theme, which is still the substance of the gap, so the increased-contrast claim is not yet
-  one this page can make.
-- **`autocomplete` and `inputmode` are required by the contract and set by nobody.** Field
-  cannot supply them: the right token depends on what is being asked for, and a guess would fill
-  somebody's postcode into a field asking for something else. Nothing enforces it either, and
-  the examples on this page are not the demonstration. Every text input in them sets
-  `autocomplete="off"`, which is the opt-out of the win the requirement names, and the one
-  `select` sets nothing at all because a select has no autofill token to opt out of. That is
-  the right call for these fields and the wrong thing to copy: they collect nothing real, and a
-  token like `bday` on a field called *Example measurement* would be a made-up answer to a
-  made-up question. `inputmode` is set on the numeric and decimal inputs, where it means
-  something, and omitted on the free-text note, on the time whose *09:15* needs a colon a number
-  pad has no key for, and on the `select`, where in each case the default keyboard is the right
-  one or there is nothing to opt out of. So
-  what a real token looks like is not shown here; it is at
-  [Autocomplete and input types](../patterns/forms/autocomplete-and-input-types.mdx).
-- **Field cannot tell whether a control is inside it.** If a caller puts something in `children`
-  that does not participate in the field context, the label points at nothing and the component
-  reports no error. That is the one failure mode of the wiring guarantee, and it is a structural
-  one rather than a bug.
-- **The disabled-and-invalid combination is unusual and undertested.** Base UI keeps an
-  app-controlled invalid state on a disabled field but withholds `aria-invalid`, matching
-  `:disabled` not taking part in constraint validation. Field ships no `disabled` prop; the
-  native attribute on the control is the only route in, and disabled fields should be avoided in
-  favour of fields that explain what is missing.
+**Not checked by any gate.** Announcing an error while focus is elsewhere, the
+hint and error text roles, `forced-colors` on Windows, `autocomplete`, and
+whether `children` contains a control.
 
 <KeyboardTable
   name="field"
@@ -515,22 +213,22 @@ checked.
     {
       keys: "Tab",
       action: "Moves focus to the control",
-      notes: "Field adds no tab stop of its own. The label, the optionality marker, the hint and the error are not focusable and never receive focus, so a form of six fields is six stops rather than twenty-four.",
+      notes: "Only the control is focusable.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves focus back out of the control",
-      notes: "Reverse order matches the visual order, because there is exactly one focusable element per Field and it is where the DOM puts it.",
+      notes: "Reverse order matches visual order.",
     },
     {
       keys: "Enter",
       action: "Asks the control to check itself, and submits an enclosing form",
-      notes: "Base UI commits the control's own constraint validation on Enter in a text input. Whatever the result, focus does not move and nothing is announced on the keystroke that produced it.",
+      notes: "Focus does not move and nothing is announced.",
     },
     {
       keys: "Escape",
       action: "Nothing",
-      notes: "Listed rather than omitted. An error message is not a popup, so there is nothing here for Escape to close. Field does not swallow the key either, so a sheet or dialog around the form still closes on it.",
+      notes: "Not a popup. The key reaches a dialog.",
     },
   ]}
 />
@@ -539,190 +237,35 @@ checked.
 
 ## Data attributes
 
-Field renders one `data-slot` per part, plus the interaction-state attributes Base UI reads
-straight off `@base-ui/react/field`, and neither the status axis nor the category axis appears
-anywhere in this file.
-
 <DataAttributesTable
   name="field"
   rows={[
     {
       attribute: "data-slot",
-      condition: "On the root, always.",
-      value: "field",
-    },
-    {
-      attribute: "data-slot",
-      condition: "On the label, always.",
-      value: "field-label",
-    },
-    {
-      attribute: "data-slot",
-      condition: "On the optionality marker, nested inside the label. Absent when optionality is \"none\".",
-      value: "field-optionality",
-    },
-    {
-      attribute: "data-slot",
-      condition: "On the hint, when hint is a non-empty string.",
-      value: "field-hint",
-    },
-    {
-      attribute: "data-slot",
-      condition: "On the error element, when error is a non-empty string or when the control's own constraint does not currently pass.",
-      value: "field-error",
-    },
-    {
-      attribute: "data-slot",
-      condition: "On the control, always.",
-      value: "field-control",
-    },
-    {
-      attribute: "data-slot",
-      condition: "On Field.Form, Base UI's own Form primitive re-exported with a data-slot and nothing else added. Not one of Field's parts; present only where a product mounts it around a set of fields.",
-      value: "field-form",
+      condition: "Root, label and control always; optionality, hint and error only when that part renders; Field.Form where mounted.",
+      value: "field, field-label, field-optionality, field-hint, field-error, field-control, field-form",
     },
     {
       attribute: "data-invalid",
-      condition: "On the root and on the control, whenever the field's computed validity is false: forced by a non-empty error, or by the control's own constraint not currently passing.",
+      condition: "On the root and control, when error is non-empty or a constraint fails.",
       value: "Present with no value when invalid; absent otherwise",
     },
   ]}
 />
 
-Base UI stamps `data-touched`, `data-dirty`, `data-filled`, `data-focused`, `data-valid` and
-`data-disabled` on the root and on the control alongside `data-invalid`, and they pass through
-untouched: whether the control has been blurred once, whether its value has moved from its
-default, whether it currently holds one, whether it currently has focus, whether it currently
-meets its own constraints, and whether the native `disabled` attribute is set. None of the six
-changes what Field paints; a product that wants to style by one writes its own rule against a
-`data-slot`. Field carries neither `data-status` nor `data-category`, at any value of any prop,
-because it asserts no clinical level and belongs to no measurement category, so neither axis has
-anything to attach to. It carries no `data-opsinjs-value` either: Field wraps a control rather
-than rendering a reading of its own, and a control built to expose one, such as
-`ReadingInput.Segment`, is where that attribute appears.
-
-## CSS variables
-
-<CssVariablesTable name="field" />
-
-Field declares no custom property of its own; the generator finds nothing to tabulate and says
-so rather than inventing a row. It reads two token variables directly with `var()`, rather than
-through a Tailwind colour utility, each carrying its own fallback so the value stays defined in
-a consuming app that has not wired the token sheet: `--opsin-target-minimum` sets the target
-floor on both axes of the control, and `--opsin-border-emphasis` sets the width of the invalid
-left rule and the invalid shadow. Neither is declared here, only read, so neither is a property
-Field owns; a product that wants to change one changes the token, not this component. Every
-colour Field paints, the label's foreground, the hint's muted foreground, and the control's
-border and background, is a semantic token role read the same way, listed under Tokens below.
-
-## Tokens
-
-<TokenTable component="field" />
-
-These are the tokens `scripts/build-tokens.mts` resolves from Field's real imports, not a list
-kept by hand, so the table above cannot drift from what the component actually reads. They are
-chrome and type roles throughout: the foreground and muted-foreground roles that colour the
-label, the hint and the error; the background and border-input roles that draw the control; the
-body and headline type steps, set at the same size and different weights so the label and the
-error read at one size; the spacing steps that lay the parts out and clear the invalid rule's
-indent; and the target-minimum and border-emphasis roles, read directly with `var()` rather than
-through a Tailwind colour utility. None of them is a category token and none of them is a status
-token: Field reads neither axis onto any element, which is the same no-status-colour argument
-the Accessibility section above makes in full.
-
 ## API reference
 
 <PropsTable name="FieldProps" />
 
-`label` is required and there is no `hideLabel`. That is the whole component in one prop: every
-other guarantee on this page follows from a name existing, being visible, and being attached by
-a mechanism nobody has to remember. An empty string is refused with a development warning and
-no substitute is invented. A made-up name would silence the audit that would otherwise catch
-it.
-
-`error` is the product's own sentence, and its presence is what marks the control invalid. It
-never removes the hint, and an empty string is ignored with a warning rather than producing a
-control announced as invalid with nothing to say about why. The warning fires once, not once
-per render. Omit the prop entirely and the field falls back to the browser's message if and
-when the control fails a constraint of its own; read the next paragraph before relying on
-that, because *if and when* is narrower than it sounds. The fallback exists because
-`aria-invalid` with no description is worse than a message in the wrong tone, not because the
-message is good.
-
-`validateOn` governs when the control's *own* constraints are checked. It does not gate the
-`error` prop, because a message the product passed in is a message the product has already
-decided to show. It takes two values, `"blur"` and `"submit-then-change"`, which are the two Base
-UI can tell apart: blur maps to Base UI's `onBlur`, and the submit value to its `onSubmit`, which
-validates on submit and then re-validates on change. A third value, a bare `"submit"`, was
-removed. Base UI has no mode that checks on submit and then refuses to look again, so `"submit"`
-only ever resolved to the same thing as `"submit-then-change"` and offered a distinction the
-runtime could not keep. The mode that still cannot be expressed is the one that leaves a
-corrected field marked invalid until the next submit. See
-[Validation timing](../patterns/forms/validation-timing.mdx).
-
-**The submit value needs Base UI's `<Form>` around the fields, and `Field.Form` is that Form
-re-exported so a product has a documented way to mount it.** Base UI's submit mode is not "the
-browser submitted the form": it is gated on a flag that only Base UI's own form primitive sets,
-and the default value of that flag is permanently false. So in a plain `<form onSubmit={…}>` the
-control's own constraints are checked on Enter in a text input and at no other moment, and the
-un-styled fallback error almost never appears. This is the strongest reason to pass `error`: it
-applies the invalid state directly and goes through no validation mode at all. The
-[Validating on submit](#validating-on-submit) example above mounts `Field.Form` and shows the
-default `validateOn` firing on submit, which no example did before. Field cannot warn a product
-that sets a submit mode without a `Field.Form` ancestor, because it is a server component with no
-hook in which to read the surrounding context.
-
-`optionality` defaults to `"none"`, because marking both required and optional is the same as
-marking neither. It renders one of two English words and there is no prop to translate them;
-that is a real gap and it is open at the top of this page.
+`label` is required and there is no `hideLabel`. An empty `label` or `error` is
+refused with a development warning. Without a `Field.Form` ancestor the default
+`validateOn` checks on Enter alone.
 
 <PropsTable name="FieldControlProps" />
 
-`Field.Control` forwards every native input attribute unchanged and adds `render`, which
-replaces the element while keeping the wiring. It sets no `autocomplete` and no `inputmode` of
-its own, on purpose. There is no `id` prop worth reaching for either: the id is generated and
-matched to the label, and passing one by hand is how the two start to disagree.
-
-`Field.Form` is Base UI's own `<Form>`, re-exported with a `data-slot` and nothing else added. It
-is not one of Field's parts, so the claim above that `Field.Control` is one of only three parts in
-the system shipped as a real export is about Field's parts and stands unchanged. Reach for
-`Field.Form` when the default `validateOn` needs to fire on submit, which is what the
-[Validating on submit](#validating-on-submit) example shows.
-
-Field is a **server component**. Every Base UI part it composes carries its own `"use client"`,
-so the state, the effects and the id generation happen inside the boundary the primitive
-already declares; this file adds no hook, no state and no handler, so a directive here would
-only pull the wrapper into a bundle it does not need to be in. A product's own form does have
-state and handlers, so it is a client component, and importing Field into it works unchanged.
-
 ## Related
 
-<RelatedComponents name="field" />
-
-**Easily confused with**
-
 - [ReadingInput](./reading-input.mdx) is a Field with a unit and a plausibility contract.
-- [LogSheet](./log-sheet.mdx) is where several Fields are captured together, with a ceiling
-  on how many.
-- [Callout](./callout.mdx) is for guidance about a whole form rather than about one control.
-- [AlertBanner](./alert-banner.mdx) is for the summary at the top of a form that has failed,
-  which is the pattern per-field errors cannot replace.
-- `checkbox`, `radio-group`, `select`, `combobox`, `switch`, `textarea` are the controls that
-  sit inside a Field. Each is built and has a page of its own. See the
-  [roster](./index.mdx).
-
-**Used by**
-
-- [Capture a daily log entry](../recipes/daily-log-entry.mdx)
-- [Ask for consent before collecting](../recipes/consent-before-collection.mdx)
-- [Daily log screen](../screens/daily-log-screen.mdx)
-- [Daily logging](../patterns/daily-logging.mdx) captures each reading through a Field, so every entry carries a visible label and its error.
-- [Onboarding and first run](../patterns/onboarding-and-first-run.mdx) collects a person's first details through Fields before any reading is taken.
-- [Onboarding screen](../screens/onboarding-screen.mdx) puts those Fields on the first screen a person sees.
-
-**Governed by**
-
-- [Question pages](../patterns/forms/question-pages.mdx)
-- [Validation timing](../patterns/forms/validation-timing.mdx)
-- [Required and optional](../patterns/forms/required-and-optional.mdx)
-- [For developers](../accessibility/for-developers.mdx)
+- [LogSheet](./log-sheet.mdx) captures several Fields together.
+- [Callout](./callout.mdx) is guidance about a whole form, not one control.
+- [AlertBanner](./alert-banner.mdx) is the summary at the top of a failed form.

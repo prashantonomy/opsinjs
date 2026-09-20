@@ -9,32 +9,21 @@ category: feedback
 aliases: ["snackbar", "transient message", "notification toast"]
 ---
 
-## Status
-
 <StubNotice
   name="toast"
   status="shipped"
   questions={[
-    "No contrast pair has been measured. The toast is the card material with a hairline and the overlay rung's shadow, the title is the full foreground and the description the muted role, and the close control is muted at rest and foreground on hover; whether each of those pairs clears the text and non-text floors has been argued from the roles rather than checked by a machine.",
-    "Nobody has listened to a toast in a screen reader. Base UI renders the viewport as a polite live region with its own name and each toast as a labelled dialog, but whether a self-dismissing confirmation is announced in full before it leaves, and whether the polite register is the right one for a save, has been reasoned about rather than heard.",
-    "The timing is unmeasured. Five seconds is the default a toast stays, and nobody has checked it against a reader who reads slowly, uses a switch device, or is partway through another task when it appears. A toast that leaves before it is read is a confirmation nobody received.",
-    "Forced colours and prefers-contrast: more are unhandled. The lift is a shadow and the edge is a hairline, and a forced-colours theme drops the shadow and substitutes its own border, so whether the toast still reads as a surface lifted off the page in that mode has not been tested.",
+    "Whether a self-dismissing confirmation is announced in full before it leaves has been reasoned about from the Base UI roles rather than heard in a screen reader.",
+    "Whether the default five seconds is long enough for a reader who reads slowly, uses a switch device, or is partway through another task is unmeasured.",
+    "Whether the title, the description and the close control clear the text and non-text contrast floors has been argued from the roles rather than measured.",
   ]}
 >
-  <code className="text-sm">toast</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">toast</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Toast is a brief, self-dismissing confirmation of the reader's own action. "Saved" is the whole of it: a note that the action they took has landed, shown for a few seconds at the edge of the screen and then gone, drawn as quiet neutral chrome rather than as a status.
-
-The design decision that shapes the whole component, and the reason it was left unbuilt for so long, is that a message which removes itself is the wrong shape for anything about someone's health. The reader who most needs a piece of information is the one most likely to miss it, so a Toast carries a confirmation of an action the reader themselves took and never a reading, a result, an alert, or anything a reader must not miss. What must be seen goes on a surface that stays.
-
 ## Preview
-
-A button that pushes one "Saved" toast into the corner of the screen. The thing worth checking is that the toast reads as a calm acknowledgement rather than as a status, so read it in greyscale: it draws only the card material and a hairline, carries no colour on either axis, and confirms the action without reaching a verdict about it. Press the button more than once to see the stack hold at its limit.
 
 <ComponentPreview name="toast" />
 
@@ -46,8 +35,6 @@ A button that pushes one "Saved" toast into the corner of the screen. The thing 
   importPath="@/components/ui/toast"
   dependencies={["@base-ui/react", "lucide-react"]}
 />
-
-The toast system is built on Base UI's Toast provider, viewport and manager, which is where the queue, the polite live region, the F6 shortcut and the dialog role on each toast come from, so installing it pulls in `@base-ui/react`. The close control carries the lucide `X` glyph, so it also pulls in `lucide-react`.
 
 ## Usage
 
@@ -77,20 +64,16 @@ function Screen() {
 
 <WhenToUse
   use={[
-    "Confirming an action the reader themselves took, such as a note saved, a reminder set or a change applied, where the confirmation is welcome but not something they must see.",
-    "Acknowledging a background action that completed, such as a sync finishing, where the reader benefits from knowing it happened and loses nothing if they miss it.",
-    "Offering a brief, optional way to reverse the action they took, such as an Undo on a delete, that the reader may act on within a few seconds or ignore.",
+    "Confirming an action the reader took, such as a note saved or a reminder set, where missing it costs nothing.",
+    "Acknowledging a background action that completed, such as a sync finishing, which the reader loses nothing by missing.",
+    "Offering a brief optional way to reverse the action, such as an Undo the reader may take or ignore.",
   ]}
   avoid={[
-    { case: "The message is a reading, a result, or anything about the reader's health that they must not miss. A surface that removes itself will be gone by the time the reader who most needs it looks back.", instead: "alert-banner" },
-    { case: "The message needs the reader's attention now and stays until they have dealt with it, such as a warning about a connection or a value.", instead: "alert-banner" },
-    { case: "The information is a standing explanation, a note or a caveat that belongs on the surface for as long as the reader is reading it.", instead: "callout" },
+    { case: "The message is a reading, a result, or anything about the reader's health they must not miss.", instead: "alert-banner" },
+    { case: "The message needs attention now and stays until the reader has dealt with it.", instead: "alert-banner" },
+    { case: "The information is a standing explanation, note or caveat that belongs on the surface while they read.", instead: "callout" },
   ]}
 />
-
-The exclusion that matters is the first, and it is the reason this component exists on such a tight leash. A toast is defined by the fact that it leaves on its own, and that single property makes it safe for a confirmation and unsafe for anything else. A confirmation the reader misses costs nothing, because the action still happened and the state is still true on the surface behind the toast. A reading the reader misses is a reading they never saw at all, so a number, a result or a level of urgency belongs on a surface that stays, which is an [AlertBanner](./alert-banner.mdx) when it needs attention now and a [Callout](./callout.mdx) when it is a standing note.
-
-The second and third exclusions are the same rule stated for time rather than content. If the message has to stay until the reader deals with it, it is not transient and a toast is the wrong container: the self-dismiss that makes a toast a toast is exactly what would let the message slip away before it was handled. Reach for a surface that persists, and let the toast keep its one honest job of saying "done" and then leaving.
 
 ## Anatomy
 
@@ -99,150 +82,80 @@ The second and third exclusions are the same rule stated for time rather than co
   parts={[
     {
       name: "Toast",
-      describes: "The region. Renders Base UI's Toast.Provider, which holds the queue, and a fixed Toast.Viewport, which the queue renders into. It renders its children inside the provider, so a child can call Toast.useToastManager() to push a toast. It draws only neutral chrome and carries neither data-status nor data-category.",
+      describes: "The region. Renders Base UI's provider and a fixed viewport, and mounts children inside so they can push a toast.",
       prop: "position",
     },
     {
       name: "Toast.Viewport",
-      describes: "The live region the stack sits in. data-slot=\"toast-viewport\", role=\"region\", aria-live=\"polite\", with the accessible name from label, and reachable with F6. It does not capture pointer events itself, so a press over the empty area falls through to the page beneath.",
+      describes: "The live region the stack sits in: role=\"region\", aria-live=\"polite\", named by label, reachable with F6.",
       prop: "label",
     },
     {
       name: "Toast.Item",
-      describes: "One toast, a Base UI Toast.Root. data-slot=\"toast\", role=\"dialog\" labelled by its title, one per queued toast up to the limit. It is the card material with a hairline and the overlay rung's shadow, so it reads as a surface lifted a little off the page, and it carries data-starting-style and data-ending-style for the enter and leave transition.",
+      describes: "One toast, role=\"dialog\" labelled by its title. Card material, hairline and overlay shadow, so it reads as lifted.",
     },
     {
       name: "Toast.Title",
-      describes: "The confirmation itself, a short line such as \"Saved\". data-slot=\"toast-title\", the full foreground at the callout step. Drawn only when the pushed toast carries a title.",
+      describes: "The confirmation itself, such as \"Saved\". The full foreground, drawn only when the pushed toast carries one.",
     },
     {
       name: "Toast.Description",
-      describes: "An optional second line with a little more detail. data-slot=\"toast-description\", the muted role at the footnote step. Drawn only when the pushed toast carries a description.",
+      describes: "An optional second line of detail. The muted role at the footnote step.",
     },
     {
       name: "Toast.Action",
-      describes: "An optional control that reverses or follows up the action, such as Undo. data-slot=\"toast-action\", a quiet text control with a 44px hit area. Drawn only when the pushed toast carries actionProps.",
+      describes: "An optional quiet text control such as Undo, drawn when the pushed toast carries actionProps.",
     },
     {
       name: "Toast.Close",
-      describes: "The dismiss control, an icon button carrying the lucide X with the accessible name from closeLabel. data-slot=\"toast-close\", floored at the 44px target on both axes, muted at rest and foreground on hover.",
+      describes: "The dismiss control, a lucide X named by closeLabel, floored at the 44px target on both axes.",
       prop: "closeLabel",
     },
   ]}
 />
 
-<CompositionTree
-  name="toast"
-  tree={[
-    {
-      part: "Toast",
-      cardinality: "1",
-      note: "renders Toast.Provider and the viewport; children mount inside the provider",
-      children: [
-        {
-          part: "children",
-          cardinality: "1..n",
-          note: "the screen the toast confirms an action on; a child calls useToastManager()",
-        },
-        {
-          part: "Toast.Viewport",
-          cardinality: "1",
-          note: "data-slot=\"toast-viewport\", role=\"region\", aria-live=\"polite\", F6-reachable",
-          children: [
-            {
-              part: "Toast.Item",
-              cardinality: "0..limit",
-              note: "data-slot=\"toast\", role=\"dialog\"; one per queued toast",
-              children: [
-                {
-                  part: "Toast.Title",
-                  cardinality: "0..1",
-                  note: "data-slot=\"toast-title\"",
-                },
-                {
-                  part: "Toast.Description",
-                  cardinality: "0..1",
-                  note: "data-slot=\"toast-description\"",
-                },
-                {
-                  part: "Toast.Action",
-                  cardinality: "0..1",
-                  note: "data-slot=\"toast-action\"; present when the toast carries actionProps",
-                },
-                {
-                  part: "Toast.Close",
-                  cardinality: "1",
-                  note: "data-slot=\"toast-close\"",
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ]}
-/>
-
-The parts are identified by `data-slot` and are styleable from outside; none of them is an export, and a toast is never assembled by hand. A toast is pushed imperatively instead, through `useToastManager().add()`, because the decision to show one is made in an event handler after an action resolves rather than in the render tree. The title, description and action are each drawn only when the pushed toast carries one, so an empty element is never announced, and the close control is always present so every toast has a way out that does not depend on the timer.
-
-There is deliberately no colour prop and no `severity`. A toast is a neutral acknowledgement on neither axis, and a status a reader must act on does not belong on a surface that erases itself, so the moment a confirmation wants a colour it wants a different component.
-
 ## Examples
 
 ### A save confirmation
 
-The case Toast was built for. A button pushes a "Saved" toast that stays a few seconds and then leaves, which is the right shape for an acknowledgement and the wrong shape for anything the reader must not miss. The words are a fictional confirmation and name nothing measured, because an opsinjs example must never be mistakable for a reading.
+A button pushes a "Saved" toast that stays a few seconds and then leaves. The words are fictional and name nothing measured.
 
 <ComponentPreview name="toast-a-save-confirmation" kind="example" align="start" />
 
 ### With an action
 
-A confirmation that offers one way to take it back. The toast says a note was removed and carries an Undo action, so a reader who acted by mistake has a moment to reverse it before the toast dismisses itself. The action is a quiet text control beside the message rather than a filled button, because a toast is a confirmation and its action is a second thought a reader may not take. Undo here only closes the toast, because an example owns no real note to restore.
+`actionProps` adds one quiet control beside the message, so a reader who removed a note by mistake can reverse it. Here Undo only closes the toast.
 
 <ComponentPreview name="toast-with-an-action" kind="example" align="start" />
 
 ## Content guidelines
 
-Keep a toast to the fact of the action, in the past tense and a word or two: "Saved", "Reminder set", "Note removed". A toast is read in the corner of the eye while the reader is doing something else, so it names what happened and then stops, and the detail that does not fit belongs on the surface behind it rather than in a line nobody has time to read before it leaves. Never write a clinical word, a reading or a level of urgency into a toast, because a surface that removes itself cannot carry anything the reader must not miss.
-
-Give the action a verb that says what it does, "Undo" or "View", and make it optional in the true sense: the reader loses nothing by letting the toast leave without pressing it. If the reader has to act, a toast is the wrong container, because the timer will take the choice away.
+Keep a toast to the fact of the action, past tense, a word or two: "Saved", "Reminder set", "Note removed". Never write a clinical word, a reading or a level of urgency into one. Give an action a verb, and make it safe to ignore.
 
 <DoDont>
   <DoDont.Do>
-    **"Saved" with an optional "Undo".** The toast confirms the action the reader
-    took, stays neutral chrome, and offers a way back that costs nothing to
-    ignore. If the reader looks away, the action still happened and the state is
-    still true on the surface behind it.
+    **"Saved" with an optional "Undo".** The action still happened if the reader looks away.
   </DoDont.Do>
   <DoDont.Dont>
-    **A toast reading a reading, or one the reader must answer.** A number, a
-    result or a level of urgency on a surface that dismisses itself is a message
-    the reader who most needs it is most likely to miss. That is an AlertBanner
-    if it needs attention now and a Callout if it is a standing note, and either
-    stays on the surface where a toast would have left.
+    **A toast carrying a number, a result or an urgency.** Whoever needs it most misses it.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. Accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+**Checked by `pnpm run check:a11y` on every commit.**
 
-**Checked, by `pnpm run check:a11y`:**
+- No colour on either axis: only neutral chrome roles and the card material, so no `data-status` and no colour literal.
+- No `px` type size, so the toast grows with the reader's text size rather than pinning.
 
-- **No status colour, no colour literal, no ramp step.** The toast draws only the neutral chrome roles and the card material, so it carries no `data-status`, reads no clinical vocabulary, and cannot mix the two axes. The gate reads every element and would fail the build on a colour drawn from either axis or on a raw colour value, and there is neither here.
-- **No px type size and an opsinjs radius.** The title, description, action and close all take one of the eleven semantic type steps, and the surface rounds at `rounded-opsin-lg`, so a reader who has turned their text size up gets a larger toast rather than a pinned one.
+**Argued from the source, not measured.**
 
-**Argued, and true of the implementation, but not yet measured:**
+- The viewport is `role="region"` with `aria-live="polite"` and its name from `label`, so a confirmation is announced without stealing focus.
+- Each toast is a labelled dialog. Tab moves between its controls and Escape dismisses it, so nobody waits on the timer.
+- The close control floors its hit area at `--opsin-target-minimum` in rem, so 44px survives a larger text size.
+- Under `prefers-reduced-motion` the travel is pinned and only the opacity crossfade is kept.
 
-- **The viewport is a polite live region with a name.** Base UI renders it as `role="region"` with `aria-live="polite"` and the accessible name from `label`, and it is reachable with F6, so a screen-reader user is told a confirmation appeared without it stealing focus. Whether the polite register and the default five-second life read well together has been reasoned about rather than heard.
-- **Each toast is a labelled dialog.** The close control and any action are ordinary focusable controls inside it, Tab moves between them, and Escape dismisses the focused toast, so a reader is never trapped waiting on the timer.
-- **The interactive controls clear the target floor.** The close control floors its hit area at `--opsin-target-minimum` on both axes and the action floors its height, both in rem, so a 44px pressable region survives and grows with the reader's text size rather than pinning at a device pixel.
-- **The enter and leave transition respects `prefers-reduced-motion`.** Under the query the travel is pinned to its resting value and only the opacity crossfade is kept, so the toast still announces itself by appearing rather than arriving from nowhere.
-
-**Not checked at all, and listed rather than omitted:**
-
-- Every contrast pair: the title and description against the card material, the close control's two states, and the overlay shadow that lifts the surface. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring.
-- What the toast draws under `forced-colors: active`, where the shadow is dropped and the hairline is replaced by the platform's own pair. None of this has been put in front of a machine or a high contrast user, and the timing has not been checked against a reader who reads slowly.
+**Not checked by any gate.** Every contrast pair, what the toast draws under `forced-colors: active`, and whether five seconds suits a slow reader.
 
 <KeyboardTable
   name="toast"
@@ -250,12 +163,12 @@ Some of this is enforced by a gate on every pull request and every push to `main
     {
       keys: "F6",
       action: "Moves focus to the toast viewport",
-      notes: "A global shortcut from Base UI, so a keyboard user can reach the stack without tabbing through the whole page to find it.",
+      notes: "A Base UI global shortcut, so the stack is reachable without tabbing the page.",
     },
     {
       keys: "Tab",
       action: "Moves between the controls in the focused toast",
-      notes: "A toast with both a close control and an action has two stops; a toast with only a close control has one. Focus stays within the toast while it is focused.",
+      notes: "Two stops with an action, one without. Focus stays in the toast.",
     },
     {
       keys: "Shift + Tab",
@@ -265,12 +178,12 @@ Some of this is enforced by a gate on every pull request and every push to `main
     {
       keys: "Enter, Space",
       action: "Activates the focused control",
-      notes: "Presses the close control or the action, whichever has focus. Both are native buttons.",
+      notes: "The close control or the action, both native buttons.",
     },
     {
       keys: "Escape",
       action: "Dismisses the focused toast",
-      notes: "So a reader is never left waiting on the auto-dismiss timer to clear a toast they have already read.",
+      notes: "So a reader never waits on the auto-dismiss timer.",
     },
   ]}
 />
@@ -281,17 +194,9 @@ Some of this is enforced by a gate on every pull request and every push to `main
 
 <PropsTable name="ToastProps" />
 
-`children` is the screen the toast confirms an action on, and it mounts inside the provider so a child can call `useToastManager().add()`. `position` and `limit` place and cap the stack, and `timeout` sets how long a toast stays: passing `0` stops it dismissing itself, which turns a transient confirmation into a standing surface and raises a development warning, because a message that must persist is an AlertBanner or a Callout rather than a toast. `label` and `closeLabel` are the two reader-facing words this component owns, taken as props so they can be translated; both default to English, which is the residual gap listed above rather than described as solved.
+`position` defaults to `bottom-right`, `limit` to three and `timeout` to 5000ms. Passing `timeout={0}` stops every toast dismissing itself and raises a development warning, because a message that must persist is an AlertBanner or a Callout. `label` and `closeLabel` are props so they can be translated, and both default to English.
 
 ## Related
 
-<RelatedComponents name="toast" />
-
-**Easily confused with**
-
-- [AlertBanner](./alert-banner.mdx) is the component for a message that needs the reader's attention now and stays until they have dealt with it. A toast leaves on its own, so anything a reader must not miss belongs on the banner, which persists and can carry a status.
-- [Callout](./callout.mdx) sets a standing note, tip or caveat apart on the surface for as long as the reader is reading it. A toast is the opposite in time: it acknowledges an action and then removes itself.
-
-**Used by**
-
-- No pattern, recipe or screen composes it yet. It is a feedback primitive a product wraps around its own screens so an action taken anywhere inside can confirm itself.
+- [AlertBanner](./alert-banner.mdx) is for a message that needs attention now and stays until the reader deals with it.
+- [Callout](./callout.mdx) sets a standing note or caveat apart for as long as the reader is on the surface.

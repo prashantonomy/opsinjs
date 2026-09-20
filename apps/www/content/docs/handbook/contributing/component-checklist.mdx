@@ -80,11 +80,15 @@ checklist where everything is equally important is a checklist nobody reads.
 
 - **Enforced:** every section required at the declared status is present.
   `PageTemplate` fails the build otherwise.
+- **Enforced:** the body is inside the word budget. `assert-ia` rule LEAN001 fails
+  the build past a thousand words, or twelve hundred and fifty on a `health-*`
+  page.
 - **Enforced:** the "when not to use" list names an alternative for every entry.
 - **Enforced:** `governedBy` is present when the category starts with `health-`,
   and the named doctrine pages list this component in `implements`.
-- Content guidelines written, with approved and rejected phrasing.
-- A `CompositionTree` for any compound component.
+- Content guidelines written, with one approved and one rejected phrasing, where
+  the component renders copy the product writes.
+- An `Anatomy` section for any component with two or more parts.
 - Aliases added to `registry/catalogue.ts`.
 
 ### Safety
@@ -138,7 +142,7 @@ checklist where everything is equally important is a checklist nobody reads.
 - [Proposing a component](./proposing-a-component.mdx) is the stage before this
   one.
 - [Anatomy of a component page](../../components/anatomy-of-a-component-page.mdx)
-  covers the seventeen sections and what each status requires.
+  covers the lean outline and what each status requires.
 - [Release phases](../../project/release-phases.mdx) says what each status
   promises.
 - [Safety review checklist](../../health/safety-review-checklist.mdx) is the

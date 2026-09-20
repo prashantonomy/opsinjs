@@ -10,7 +10,13 @@ usedIn: [read-a-lab-result]
 ---
 
 {/*
-  TEMPLATE for kind: component. The 17-section anatomy, status-gated.
+  TEMPLATE for kind: component. The lean anatomy, status-gated. ADR 0024.
+
+  A component page is read the way a Blueprint page is read: see it, install
+  it, copy the usage, check the props, and learn when not to reach for it. Aim
+  at a few hundred words. Every section is a component call or a short
+  paragraph, never an essay; the doctrine a page used to restate lives on the
+  Health, Accessibility and Foundations pages and is linked, not repeated.
 
   At `status: planned` the sections below are the whole page. The rest are
   OMITTED, not left empty: a heading with nothing under it is worse than an
@@ -18,11 +24,17 @@ usedIn: [read-a-lab-result]
 
   What `shipped` and `deprecated` ADD, so you know what you are signing up for:
     required     ## Usage · ## Examples · ## API reference
-    optional     ## States · ## Motion · ## Data attributes ·
-                 ## CSS variables · ## Tokens
-  An optional section is written where the answer has been worked out and left
-  out where it has not. `## Proposed API` is the `planned` stand-in for
-  `## API reference`, and the two never both appear.
+    optional     ## States · ## Content guidelines · ## Data attributes ·
+                 ## CSS variables
+  ## Anatomy is optional at every phase: write it for a component with two or
+  more parts a developer can target through data-slot, and leave it out for a
+  component that is one element. `## Proposed API` is the `planned` stand-in
+  for `## API reference`, and the two never both appear.
+
+  There is no ## Status heading. <StubNotice> opens the page, above the first
+  H2, and it must say in authored MDX that the component has had no
+  accessibility review and no clinical review and is not for a production
+  health surface; assert-ia rule SAFE001 fails the build otherwise.
 
   The H1 and the one-sentence definition under it come from `title` and
   `description` and are never hand-written. Nothing else around the sections is
@@ -35,8 +47,6 @@ usedIn: [read-a-lab-result]
 
 <PageTemplate kind="component" />
 
-## Status
-
 <StubNotice
   name="component-name"
   issue="prashantonomy/opsinjs#0"
@@ -45,7 +55,11 @@ usedIn: [read-a-lab-result]
     "What does it render when the reference range is unknown?",
     "Who owns the thresholds, and how does the component refuse to guess?",
   ]}
-/>
+>
+  <code className="text-sm">component-name</code> is a specification. There is
+  no code, so do not generate against it. It has had no accessibility review
+  and no clinical review, so it is not for a production health surface.
+</StubNotice>
 
 ## Preview
 
@@ -58,9 +72,10 @@ usedIn: [read-a-lab-result]
 ## When to use it
 
 {/*
-  Both lists are mandatory and every entry in the 'not' list must name the
-  component or pattern to reach for instead. This is the section shadcn has none
-  of, and it is what stops an agent choosing AlertBanner when it needs Callout.
+  Both lists are mandatory and every entry in the 'not' list names the
+  component to reach for instead. One line per entry. This is the section
+  shadcn has none of, and it is what stops an agent choosing AlertBanner when
+  it needs Callout.
 */}
 
 <WhenToUse
@@ -74,17 +89,25 @@ usedIn: [read-a-lab-result]
 
 ## Clinical meaning
 
-{/* health-* categories only. Delete this whole section otherwise. */}
+{/* health-* categories only. Delete this whole section otherwise. Four short
+    facts, each one to two sentences, with links to the pages in `governedBy`. */}
 
-State what this component asserts about a person's health, what it must never be
-read as, which colour axis it may use, and who owns the thresholds. Link to every
-page in `governedBy`.
+**Asserts.** What this component states about a person's health, and nothing more.
+
+**Never read as.** A diagnosis, a verdict or advice from a clinician.
+
+**Colour axis.** Which of the [two colour axes](../health/two-colour-axes.mdx) may reach which element.
+
+**Thresholds.** The consuming product owns them. The component derives no level and holds no default range.
 
 ## Anatomy
 
-<Anatomy name="component-name" />
-
-<CompositionTree name="component-name" />
+<Anatomy
+  name="component-name"
+  parts={[
+    { name: "ComponentName", describes: "The root. One sentence on what it carries.", prop: "variant" },
+  ]}
+/>
 
 ## Proposed API
 
@@ -102,25 +125,14 @@ export interface ComponentNameProps {
 }
 ```
 
-## Content guidelines
-
-What to write inside the component: label patterns, length limits, and approved
-against rejected phrasing.
-
-<DoDont>
-  <DoDont.Do>Approved phrasing, and why it is approved.</DoDont.Do>
-  <DoDont.Dont>Rejected phrasing, and the harm it does.</DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
 {/*
   At `planned` this is the BAR THE IMPLEMENTATION MUST CLEAR, written as
   requirements rather than as results. Once the component ships, the same
-  heading carries the results instead. The heading is spelled "Accessibility"
-  at every status so a reader can find it without knowing the phase. Never
-  delegate it upstream and never leave it out. Accessibility is mandatory at
-  every status.
+  heading carries the results instead: three short labelled groups, checked by
+  a gate, argued from the source, and not measured, then the keyboard table
+  and the contrast report. Never delegate it upstream and never leave it out.
 */}
 
 <KeyboardTable name="component-name" />
@@ -129,4 +141,4 @@ against rejected phrasing.
 
 ## Related
 
-<RelatedComponents name="component-name" />
+- [OtherComponent](./other-component.mdx) is the one people reach for by mistake, and this is why it is different.

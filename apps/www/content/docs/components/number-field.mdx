@@ -10,32 +10,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="number-field"
   status="shipped"
   questions={[
-    "No contrast pair has been measured. The group hairline, the neutral stepper glyphs and the input ink all sit against the background the host provides, and the disabled ink drops to the muted role; whether each reads at the non-text and text floors has been argued from the roles it uses rather than checked by a machine.",
-    "Nobody has listened to this field in a screen reader. Base UI names the input a spinbutton and stamps each button 'Increase' and 'Decrease' with an aria-controls pointing at the input, but whether a reader meets a named number with two named steppers in the order and register they expect has been reasoned about rather than heard.",
-    "The steppers disable themselves at min and max, and that disabled state is drawn with the muted ink and no other carrier. Whether a reader can tell a bound-disabled button from an available one without colour, and whether reaching a bound is announced at all, has not been tested with assistive technology.",
-    "Forced colours and prefers-contrast: more are unhandled. The group hairline, the button hover and the focus ring are all replaced by the platform's own pair under forced colours, and whether the three parts still read as one control in that mode has not been checked.",
+    "No contrast pair has been measured: the hairline, the stepper glyphs, the input ink and the muted disabled ink are argued from their roles, not checked.",
+    "Nobody has heard the field in a screen reader, so whether a named spinbutton with two named steppers arrives in the expected order is reasoned, not tested.",
+    "A stepper disabled at a bound is drawn in muted ink alone, and whether reaching a bound is announced to assistive technology has not been tested.",
   ]}
 >
-  <code className="text-sm">number-field</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">number-field</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-NumberField is a single number a reader types directly or steps up and down with two buttons. Its home is a plain quantity or a count, the number of copies to print or the number of people sharing an entry, where nudging the value one at a time is as natural as typing it.
-
-The decision that shapes the whole component is that it is not a clinical control. A number a reader walks up one press at a time is the wrong shape for a measurement, which is read off a device and typed in whole. This field holds no unit, no reference range and no clinical vocabulary of any kind. It counts, and when the number means something a clinician would recognise the control is [ReadingInput](./reading-input.mdx) instead.
-
 ## Preview
-
-A bounded count with the decrement and increment buttons flanking the number. The thing worth checking is that the three parts read as one neutral control rather than three loose boxes, so read it in greyscale: the group is a hairline frame, the buttons carry a muted hover and the number is centred, and no colour is doing any work. Step the value to either bound and the button for that direction disables itself.
 
 <ComponentPreview name="number-field" />
 
@@ -47,8 +36,6 @@ A bounded count with the decrement and increment buttons flanking the number. Th
   importPath="@/components/ui/number-field"
   dependencies={["@base-ui/react", "lucide-react"]}
 />
-
-The field is built on Base UI's NumberField primitive, which is where the single tab stop, the arrow-key stepping, the self-disabling buttons and the named spinbutton come from, so installing it pulls in `@base-ui/react`. The two stepper glyphs are `Minus` and `Plus` from `lucide-react`.
 
 ## Usage
 
@@ -71,19 +58,15 @@ import { NumberField } from "@/components/ui/number-field"
 
 <WhenToUse
   use={[
-    "A plain quantity or count a reader sets, such as the number of copies to print or the number of people sharing an entry, where the number carries no clinical meaning.",
-    "A value the reader wants to nudge one at a time as readily as type, so two steppers beside the input save a full retype for a small change.",
-    "A bounded count where a floor and a ceiling keep the reader inside a range the product owns, with the buttons disabling themselves at each bound.",
+    "A plain quantity or count with no clinical meaning, such as the number of copies to print.",
+    "A value the reader nudges one at a time as readily as types it.",
+    "A bounded count where a floor and a ceiling the product owns keep the reader inside a range.",
   ]}
   avoid={[
-    { case: "It is a clinical measurement, such as a blood pressure or a glucose reading, which carries a unit, needs an out-of-range warning the product owns, and is typed in whole rather than stepped up from a default.", instead: "reading-input" },
-    { case: "The number is typed once and never nudged, such as a year or a reference code, so the steppers only get in the way and a plain labelled control is calmer.", instead: "field" },
+    { case: "It is a clinical measurement, which carries a unit, needs an out-of-range warning and is typed in whole.", instead: "reading-input" },
+    { case: "The number is typed once and never nudged, such as a year or a reference code.", instead: "field" },
   ]}
 />
-
-The exclusion that matters is the first, and it is what keeps this component off the clinical surface. A stepper invites a reader to walk a number up from a default, which is exactly the wrong gesture for a measurement: nobody arrives at their blood pressure by pressing plus. So a health reading is a [ReadingInput](./reading-input.mdx), which carries the unit beside the number, takes an out-of-range warning the product writes, and holds a compound reading as one named group. A NumberField carries none of that, because a count needs none of it.
-
-The other case worth naming is a value on a continuous track, where the position in a range matters more than the exact number. That is a [Slider](./slider.mdx)'s job, and the roster declined a slider for readings, so a health reading on a track is neither this component's to hold nor a slider's. Where a count genuinely wants stepping and a sensible `step`, a NumberField is the control that stays; where a reading wants a track, the answer is not this component and not a slider but a number typed in whole through ReadingInput.
 
 ## Anatomy
 
@@ -92,25 +75,25 @@ The other case worth naming is a value on a continuous track, where the position
   parts={[
     {
       name: "NumberField",
-      describes: "The root. Base UI's NumberField.Root, which owns the value, the bounds, the step and the keyboard contract. Carries data-slot=\"number-field\". It draws no chrome of its own and carries neither data-status nor data-category, so it is on neither colour axis. The className prop is merged here.",
+      describes: "The root, Base UI's NumberField.Root. Owns value, bounds, step and the keyboard contract. On neither colour axis.",
       prop: "value",
     },
     {
       name: "number-field-group",
-      describes: "The hairline frame that holds the three controls as one object, Base UI's NumberField.Group. data-slot=\"number-field-group\", a neutral rounded border with the background fill.",
+      describes: "The hairline frame, Base UI's NumberField.Group, holding the three controls as one object.",
     },
     {
       name: "number-field-decrement",
-      describes: "The step-down button, Base UI's NumberField.Decrement, rendering a real button with aria-label=\"Decrease\" and an aria-controls pointing at the input. It holds a lucide Minus glyph, floors its target at 44px, carries the focus ring, and disables itself at min. data-slot=\"number-field-decrement\".",
+      describes: "A real button named Decrease with a Minus glyph. Floors its target at 44px and disables itself at min.",
     },
     {
       name: "number-field-input",
-      describes: "The number itself, Base UI's NumberField.Input, rendering the spinbutton input. The accessible name from label is applied here as aria-label. Centred, tabular-nums, body type step. data-slot=\"number-field-input\".",
+      describes: "The spinbutton input. label is applied here as aria-label. Centred, tabular-nums, body type step.",
       prop: "label",
     },
     {
       name: "number-field-increment",
-      describes: "The step-up button, Base UI's NumberField.Increment, rendering a real button with aria-label=\"Increase\" and an aria-controls pointing at the input. It holds a lucide Plus glyph, floors its target at 44px, carries the focus ring, and disables itself at max. data-slot=\"number-field-increment\".",
+      describes: "A real button named Increase with a Plus glyph. Floors its target at 44px and disables itself at max.",
     },
   ]}
 />
@@ -121,27 +104,27 @@ The other case worth naming is a value on a continuous track, where the position
     {
       part: "NumberField",
       cardinality: "1",
-      note: "data-slot=\"number-field\", the root; owns value, bounds, step and the keyboard contract",
+      note: "the root",
       children: [
         {
           part: "number-field-group",
           cardinality: "1",
-          note: "data-slot=\"number-field-group\", the hairline frame",
+          note: "the hairline frame",
           children: [
             {
               part: "number-field-decrement",
               cardinality: "1",
-              note: "data-slot=\"number-field-decrement\", button, aria-label \"Decrease\", disables at min",
+              note: "disables at min",
             },
             {
               part: "number-field-input",
               cardinality: "1",
-              note: "data-slot=\"number-field-input\", the spinbutton; aria-label from label",
+              note: "the spinbutton",
             },
             {
               part: "number-field-increment",
               cardinality: "1",
-              note: "data-slot=\"number-field-increment\", button, aria-label \"Increase\", disables at max",
+              note: "disables at max",
             },
           ],
         },
@@ -150,62 +133,59 @@ The other case worth naming is a value on a continuous track, where the position
   ]}
 />
 
-The parts above are identified by `data-slot` and are styleable from outside; none of them is an export, and there is no way to render a stepper without the group. There is deliberately no scrub area. Base UI offers one, a label the reader drags across with the pointer to change the value, and it is left out because it is a pointer-only affordance with no keyboard or touch equivalent, so a field that relied on it would hide a way to change the number from anyone not using a mouse. The buttons and the arrow keys are the two routes this field ships, and both work for a touch reader and a keyboard reader alike.
-
 ## Examples
 
 ### A quantity
 
-The case NumberField was built for. The reader sets how many copies to print, stepping one at a time with the buttons or typing the number in. The count is a fictional quantity with no unit and no reference range, because an opsinjs example must never be mistakable for somebody's own reading.
+A reader sets how many copies to print, stepping with the buttons or typing.
+`label` names the count, which is fictional and carries no unit.
 
 <ComponentPreview name="number-field-a-quantity" kind="example" align="start" />
 
 ### With bounds
 
-A count held between a floor and a ceiling. `min` and `max` fix the range and `step` sets how far one press moves the value, so the decrement button disables itself at the floor and the increment button disables itself at the ceiling. The bounds here are the count's own, how many people can share one entry, rather than a clinical range: the field holds no reference range and reaches no verdict.
+`min` and `max` fix the range and `step` sets how far one press moves. The
+decrement button disables at the floor and the increment button at the ceiling.
 
 <ComponentPreview name="number-field-with-bounds" kind="example" align="start" />
 
 ## Content guidelines
 
-Name the count itself in `label`, the thing being counted rather than a bare "Number" or a unit. "Number of copies" tells a screen-reader user what the value means before they hear it; "Number" leaves them with a figure and no noun. Keep the name the same wherever the same count appears, so a reader who learnt this field counts "copies" does not meet "prints" meaning the same thing elsewhere.
-
-Choose `step` to match the smallest change the count is really measured in, which for a whole count is `1`, and set `min` and `max` only where a real floor and ceiling exist. A bound the count does not actually have is a bound the reader hits for no reason, and a `step` finer than the count is measured in gives the buttons a value nobody wanted. When you say a count has no upper limit, do not invent a `max` to be safe; leave it off, and the increment button never disables.
+Name the thing being counted in `label`: *Number of copies*, never a bare
+*Number* or a unit. Set `step` to the smallest change the count is measured in,
+`1` for a whole count. Set `min` and `max` only where a real floor and ceiling
+exist. A count with no upper limit takes no `max`.
 
 <DoDont>
   <DoDont.Do>
-    **`label="Number of copies"`, `step={1}`, `min={1}`.** The name says what is
-    counted, the step matches whole copies, and the floor is a real one the count
-    cannot go below, so every press lands on a value the reader meant.
+    **`label="Number of copies"`, `step={1}`, `min={1}`.** Names the count, steps
+    by whole copies, floors at a real bound.
   </DoDont.Do>
   <DoDont.Dont>
-    **`label="Systolic"`, `step={1}`, with a min and max around a reading.** That
-    is a clinical measurement dressed as a count. It invites the reader to press a
-    blood pressure up from a default, carries no unit beside the number, and holds
-    a range this component must never own. It is a [ReadingInput](./reading-input.mdx).
+    **`label="Systolic"` with a min and max around a reading.** A measurement
+    dressed as a count. It is a [ReadingInput](./reading-input.mdx).
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. Accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+**Checked by `pnpm run check:a11y` on every commit.** No status colour, colour
+literal or ramp step, no `px` type size, and a 44px target floor on each stepper.
 
-**Checked, by `pnpm run check:a11y`:**
+**Argued from the source, not measured.**
 
-- **No status colour, no colour literal, no ramp step.** The field draws only the neutral chrome roles, so it carries no `data-status`, reads no clinical vocabulary, and cannot mix the two axes. The gate reads every element and would fail the build on a colour drawn from either axis or on a raw colour value, and there is neither here.
-- **No px type size, and a 44px target floor.** The input's number is the `body` semantic step rather than a pixel size, and each stepper floors its hit area at `--opsin-target-minimum` in rem on both axes, so a reader who has turned their text size up gets a larger field with pressable buttons rather than a pinned one.
+- The input is a spinbutton on one tab stop, stepped by arrows, Page keys,
+  Home and End.
+- Each stepper carries an `aria-label`, Increase or Decrease, and an
+  `aria-controls` pointing at the input. Each disables itself at its bound.
+- `label` is applied as the input's `aria-label`. A missing or empty `label`
+  raises a development warning.
+- The focus ring is in each button's and the input's own class list, so a
+  project without the product stylesheet keeps it.
 
-**Argued, and true of the implementation, but not yet measured:**
-
-- **The control is one tab stop with a real keyboard contract.** Base UI renders the input as a spinbutton, steps it with the Up and Down arrows, jumps with Page Up and Page Down, and snaps to the bounds with Home and End, so a keyboard reader changes the value without ever reaching for the buttons.
-- **The buttons are named and wired.** Each stepper carries an `aria-label`, "Increase" or "Decrease", and an `aria-controls` pointing at the input, so a screen-reader user meets two named controls rather than two anonymous icons, and each disables itself at its bound so a reader cannot press past `min` or `max`.
-- **The accessible name is required.** `label` is applied as the input's `aria-label`, and a missing or empty `label` raises a development warning rather than rendering an unnamed spinbutton.
-- **The focus ring travels with the component.** It is carried in each button's and the input's own class list rather than left to the product stylesheet, so a project installed without that stylesheet keeps the ring.
-
-**Not checked at all, and listed rather than omitted:**
-
-- Every contrast pair: the group hairline against the ground, the stepper glyphs against the button fill, the input ink against its background, and the muted disabled ink at a bound. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring.
-- What the field draws under `forced-colors: active`, where the hairline, the hover and the focus ring are all replaced by the platform's own pair, and whether reaching a bound is announced to a screen reader at all.
+**Not checked by any gate.** Every contrast pair, including the muted disabled
+ink at a bound, is unmeasured. The `forced-colors: active` rendering and whether
+a screen reader announces reaching a bound are untested.
 
 <KeyboardTable
   name="number-field"
@@ -213,27 +193,27 @@ Some of this is enforced by a gate on every pull request and every push to `main
     {
       keys: "Tab",
       action: "Moves focus into the field, onto the input",
-      notes: "The input is one tab stop. The buttons are reachable with Tab too, but the value can be set entirely from the input with the arrow keys, so a reader need never leave it.",
+      notes: "The buttons are reachable with Tab too.",
     },
     {
       keys: "Arrow Up, Arrow Down",
       action: "Steps the value up or down by step",
-      notes: "Works while the input has focus, so the reader steps without moving to a button. It stops at max going up and min going down.",
+      notes: "Stops at max going up, min going down.",
     },
     {
       keys: "Page Up, Page Down",
       action: "Steps by a larger amount",
-      notes: "Base UI's large step, for moving a bounded count across its range quickly rather than one at a time.",
+      notes: "Base UI's large step, for crossing a bounded range quickly.",
     },
     {
       keys: "Home, End",
       action: "Jumps to min or max",
-      notes: "Only where that bound is set. With no min or max there is nothing to jump to, so the keys keep the browser's default.",
+      notes: "Only where that bound is set.",
     },
     {
       keys: "Enter",
       action: "Commits the typed value",
-      notes: "Inside a form it also submits, the same as any text input, so a NumberField at the foot of a form behaves as a reader expects.",
+      notes: "Inside a form it also submits, the same as any text input.",
     },
   ]}
 />
@@ -244,18 +224,17 @@ Some of this is enforced by a gate on every pull request and every push to `main
 
 <PropsTable name="NumberFieldProps" />
 
-`value` and `onValueChange` make this a controlled component with no internal value state: the caller stores the number, or `null` when the field is empty, and passes it back. `label` is required because a spinbutton with no accessible name is a defect the type system cannot otherwise prevent. `min`, `max` and `step` shape the count and its stepping, and they are the count's own bounds rather than a clinical range: the field holds no reference range and reaches no verdict about the number it carries.
+`value` and `onValueChange` make this a controlled component with no internal
+value state. The caller stores the number, or `null` when the field is empty.
+`label` is required, because a spinbutton needs an accessible name. A `min`
+above `max` raises a development warning. `min`, `max` and `step` are the
+count's own bounds, never a clinical range.
 
 ## Related
 
-<RelatedComponents name="number-field" />
-
-**Easily confused with**
-
-- [ReadingInput](./reading-input.mdx) is the control for a clinical measurement. It carries the unit beside the number, takes an out-of-range warning the product owns, and holds a compound reading as one named group. A NumberField counts and carries none of that, so the moment the number is a reading, it is ReadingInput.
-- [Field](./field.mdx) with a numeric control is the plainer choice for a number typed once and not nudged, such as a year or a reference code. It draws no steppers, so it does not invite a reader to walk the value up and down.
-- [Slider](./slider.mdx) is the shape for a value on a continuous track, where position in a range matters more than the exact number. The roster declined a slider for readings, so a health value on a track is a number typed in whole rather than dragged.
-
-**Used by**
-
-- No pattern, recipe or screen composes it yet. It is a neutral counting primitive that a product drops into its own forms and settings.
+- [ReadingInput](./reading-input.mdx) is the control for a clinical measurement,
+  with a unit and an out-of-range warning.
+- [Field](./field.mdx) with a numeric control is plainer for a number typed once
+  and never nudged.
+- [Slider](./slider.mdx) is for a value on a continuous track, where position
+  matters more than the exact number.

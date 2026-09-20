@@ -33,15 +33,17 @@ section is generated, it is marked.
 
 ### `component`
 
-The full seventeen-section anatomy, taught once on [Anatomy of a component
-page](../../components/anatomy-of-a-component-page.mdx). The sections that
-render are **gated by status**: at `planned` the page shows Status, Preview,
-Installation, When to use it, Clinical meaning (`health-*` only), Anatomy,
-Proposed API, Content guidelines, Accessibility and Related.
-`shipped` adds Usage, Examples and API reference, and may also carry States,
-Motion, Data attributes, CSS variables and Tokens where they have been written.
-`deprecated` owes the same outline as `shipped`.
-Sections not required at the declared status are **omitted, not left empty**.
+The lean anatomy, taught once on [Anatomy of a component
+page](../../components/anatomy-of-a-component-page.mdx). `<StubNotice>` opens
+the page above the first H2, and there is no Status heading. The sections that
+render are **gated by status**: at `planned` the page shows Preview,
+Installation, When to use it, Clinical meaning (`health-*` only), Anatomy
+(optional), Proposed API, Accessibility and Related. `shipped` adds Usage,
+Examples and API reference, and may also carry States, Content guidelines, Data
+attributes and CSS variables where there is something to say. `deprecated` owes
+the same outline as `shipped`. Sections not required at the declared status are
+**omitted, not left empty**, and the body is held to a thousand words, or twelve
+hundred and fifty on a `health-*` page.
 
 ### `foundation`
 
@@ -112,8 +114,9 @@ between are yours.
 ## Do this
 
 - **Copy the template file for your kind.** `content/_templates/<kind>.mdx`.
-- **Fill every section.** A section with one sentence under it is a signal that
-  either the page or the kind is wrong.
+- **Fill every section.** On every kind but `component`, a section with one
+  sentence under it is a signal that either the page or the kind is wrong. On a
+  component page one sentence is often the whole answer.
 - **Use `<Todo>` for a genuine gap.** It is counted in the build's coverage
   report, which is the point: incompleteness is measured rather than hidden.
 - **Use the closed MDX vocabulary.** The tags listed in the component anatomy
@@ -173,7 +176,7 @@ between are yours.
 
 - [Contributing](./index.mdx) has the routes in and what each has to clear.
 - [Anatomy of a component page](../../components/anatomy-of-a-component-page.mdx)
-  is the seventeen-section contract in full.
+  is the component page contract in full.
 - [Code style](./code-style.mdx) has the conventions that apply inside the
   templates.
 - [Reading these docs](../../start/reading-these-docs.mdx) covers the same

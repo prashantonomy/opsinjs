@@ -9,44 +9,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="scroll-area"
   status="shipped"
   questions={[
-    "No contrast pair has been measured for the thumb. The rail is the muted-foreground role against whatever ground the region sits on, and whether it clears the 3:1 non-text floor for a control has been argued from the role rather than checked by a machine on the two surfaces this component is dropped onto.",
-    "Nobody has scrolled this region with a screen reader or a switch device. The viewport is one tab stop that scrolls with the arrow keys, but whether a reader is told they have entered a scrollable region, and whether the rail's fade-in leaves them a visible handle to aim at, has been reasoned about rather than heard or watched.",
-    "The behaviour at 200% text and under browser zoom has not been tested. The region is bounded by a caller-supplied height, and whether the content inside it stays reachable when the reader enlarges the text, rather than clipping against a ceiling set for one text size, is the exact failure this component exists to avoid and the exact thing not yet measured.",
-    "Forced colours and prefers-contrast: more are unhandled. The transparent track and the muted-foreground thumb are both replaced by the platform's own pair under forced colours, and whether the rail stays visible and grabbable in that mode has not been checked.",
+    "No contrast pair has been measured for the thumb against the surfaces it rides over, at the 3:1 non-text floor for a control.",
+    "Nobody has scrolled this region with a screen reader or a switch device, so whether a reader is told they entered a scrollable region is unknown.",
+    "Behaviour at 200% text and under browser zoom is untested, and a height ceiling that clips is the exact failure this component exists to avoid.",
   ]}
 >
-  <code className="text-sm">scroll-area</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">scroll-area</code> is shipped: it installs as source
+  and the API may change in any release. It has had no accessibility review and
+  no clinical review, so it is not for a production health surface.
 </StubNotice>
 
-ScrollArea is a bounded region whose overflow scrolls, drawn with a thin neutral scrollbar in
-place of the platform's default one. Its job is to keep a long stretch of content reachable
-inside a box that is shorter than the content, such as a list, a card body or a wide row of
-panels, on a page that still scrolls on its own.
-
-The design decision that shapes the whole component is that it is for a bounded inner region
-and never for the page. A custom scrollbar that replaces the browser's own is a frequent cause
-of content becoming unreachable once a reader turns their text size up to 200%, because the
-region's height was set for one text size and does not grow with the reader's. So the page
-keeps its native scroll, and this component is reached for only where a single card or panel
-has to hold more than it can show.
-
 ## Preview
-
-A fictional list longer than its box, bounded to a height so it scrolls, with the thin neutral
-rail appearing as the reader scrolls. The thing worth checking is that the rail is quiet
-neutral chrome rather than a coloured bar and that the content stays reachable, so read it in
-greyscale: the track is transparent, the thumb is the muted-foreground role, and neither
-carries a status or a category.
 
 <ComponentPreview name="scroll-area" />
 
@@ -58,10 +35,6 @@ carries a status or a category.
   importPath="@/components/ui/scroll-area"
   dependencies={["@base-ui/react"]}
 />
-
-The region is built on Base UI's ScrollArea primitive, which is where the scrollable viewport,
-its keyboard tab stop and the measured thumb come from, so installing it pulls in
-`@base-ui/react`. It composes no other opsinjs component and renders no icon.
 
 ## Usage
 
@@ -83,29 +56,15 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 
 <WhenToUse
   use={[
-    "Bounding one card, panel or list to a fixed height on a surface, where the content inside it is longer than the box and the page around it still scrolls on its own.",
-    "A wide row of cards or a table that has to scroll sideways inside its column without pushing the whole page wider.",
-    "Any single block whose height you want to hold steady on the surface, as long as the content stays reachable from the keyboard and grows with the reader's text.",
+    "Bounding one card, panel or list to a height where its content is longer than the box.",
+    "A wide row of cards or a table that scrolls sideways inside its column.",
+    "Holding one block's height steady on a surface that still scrolls natively.",
   ]}
   avoid={[
-    { case: "Wrapping the whole page or the primary reading column. A custom scrollbar there is the frequent cause of content becoming unreachable at 200% text, and the browser's own scroll already does the job and grows with the reader.", instead: "the browser's own page scroll", href: "../accessibility/text-resizing-and-zoom.mdx" },
-    { case: "A small block of content that already fits without scrolling, wrapped in a scroll area on the chance it might grow. The empty rail is chrome nobody needs and a bounded height that clips at larger text.", instead: "card" },
+    { case: "Wrapping the whole page or the reading column, where a bounded height clips content at 200% text.", instead: "the browser's own page scroll", href: "../accessibility/text-resizing-and-zoom.mdx" },
+    { case: "A small block that already fits, wrapped on the chance that it might grow.", instead: "card" },
   ]}
 />
-
-The exclusion that matters is the first, and it is the reason this name spent so long off the
-roster. The single most damaging thing a scroll container does is replace the page's own
-scroll. A reader who enlarges their text to 200% expects the page to grow and reflow, and a
-region pinned to a height set for the smaller text clips the content against a ceiling instead,
-which is a way to make the page's own words unreachable. So the page keeps the browser's native
-scroll, and this component is set inside it for one bounded block at a time. If the thing that
-has to scroll is the page, the answer is to change nothing and let the browser scroll it.
-
-The second exclusion keeps the region from being reached for out of habit. A block that already
-fits does not need a scroll area, and wrapping it in one adds a rail with nothing to do and a
-height that will clip the block once its content or the reader's text grows. A plain
-[Card](./card.mdx) holds the content and grows with it, which is the calmer default until the
-content genuinely outgrows the box.
 
 ## Anatomy
 
@@ -114,26 +73,26 @@ content genuinely outgrows the box.
   parts={[
     {
       name: "ScrollArea",
-      describes: "The root. A Base UI ScrollArea.Root that groups the parts and takes the region's width, border and rounding. It draws only neutral chrome and carries neither data-status nor data-category. data-slot=\"scroll-area\".",
+      describes: "The root. Takes the region's width, border and rounding, and draws neutral chrome on neither colour axis.",
       prop: "className",
     },
     {
       name: "ScrollArea.Viewport",
-      describes: "The scrollable element. Base UI gives it overflow: scroll and a tab stop when there is more to see, so it is reachable and scrollable from the keyboard. maxHeight is applied here, and the focus ring is carried here. data-slot=\"scroll-area-viewport\".",
+      describes: "The scrollable element. Base UI gives it overflow scroll and a tab stop. maxHeight and the focus ring land here.",
       prop: "maxHeight",
     },
     {
       name: "ScrollArea.Scrollbar",
-      describes: "The rail for one axis, one per scrolling axis. Its track is transparent, so it does not box the content in a second border, and it fades in on hover and while scrolling rather than sitting as a fixed line. data-slot=\"scroll-area-scrollbar\", with data-orientation and data-hovering or data-scrolling.",
+      describes: "The rail for one axis. Its track is transparent, and it fades in on hover and while scrolling.",
       prop: "orientation",
     },
     {
       name: "ScrollArea.Thumb",
-      describes: "The grabbable handle inside a scrollbar. Base UI sizes its length from the ratio of content to viewport; this component fills the cross axis and paints it the muted-foreground role, a low-emphasis neutral on neither colour axis. data-slot=\"scroll-area-thumb\".",
+      describes: "The grabbable handle. Base UI sizes its length, and this component paints it the muted-foreground role.",
     },
     {
       name: "ScrollArea.Corner",
-      describes: "The small square where a vertical and a horizontal rail meet, drawn only when orientation is both. It draws no fill of its own. data-slot=\"scroll-area-corner\".",
+      describes: "The square where two rails meet, drawn only when orientation is both. It draws no fill.",
     },
   ]}
 />
@@ -144,125 +103,72 @@ content genuinely outgrows the box.
     {
       part: "ScrollArea",
       cardinality: "1",
-      note: "data-slot=\"scroll-area\", the root; neither data-status nor data-category",
+      note: "The root; neither data-status nor data-category",
       children: [
         {
           part: "ScrollArea.Viewport",
           cardinality: "1",
-          note: "data-slot=\"scroll-area-viewport\", overflow: scroll, one tab stop, carries the focus ring",
+          note: "One tab stop, carries the focus ring",
         },
         {
           part: "ScrollArea.Scrollbar",
           cardinality: "1..2",
-          note: "data-slot=\"scroll-area-scrollbar\", one per scrolling axis; transparent track",
+          note: "One per scrolling axis; transparent track",
           children: [
             {
               part: "ScrollArea.Thumb",
               cardinality: "1",
-              note: "data-slot=\"scroll-area-thumb\", the muted-foreground handle",
+              note: "The muted-foreground handle",
             },
           ],
         },
         {
           part: "ScrollArea.Corner",
           cardinality: "0..1",
-          note: "data-slot=\"scroll-area-corner\", drawn only when orientation is both",
+          note: "Drawn only when orientation is both",
         },
       ],
     },
   ]}
 />
 
-The parts above are identified by `data-slot` and are styleable from outside; none of them is
-an export, and there is no way to render a scrollbar without its region. The rail and thumb are
-kept deliberately plain, because a scroll area's whole promise is that the content stays
-reachable, and a heavier rail competing with the content works against that promise rather than
-for it.
-
 ## Examples
 
 ### A long list
 
-The case the component was built for. The list is longer than its box, so the box scrolls and
-the rail appears, while the page around it would keep its own native scroll. Every row is a
-fictional saved item rather than a reading, because an opsinjs example must never be mistakable
-for somebody's own data.
+The list outruns its box, so `maxHeight` bounds the region and the rail appears
+while the page around it keeps its native scroll.
 
 <ComponentPreview name="scroll-area-a-long-list" kind="example" align="start" />
 
 ### In a card
 
-The shape the component is meant for: one bounded panel that holds more than it can show, with
-a heading that stays fixed above the region so only the body scrolls. The card here is a plain
-neutral surface, and the copy inside it is fictional, so the example shows the layout without
-standing in for anyone's own content.
+One bounded panel with a heading fixed above the region, so `maxHeight` makes
+only the card body overflow and scroll.
 
 <ComponentPreview name="scroll-area-in-a-card" kind="example" align="start" />
 
-## Content guidelines
-
-Bound the region to a height that leaves the content reachable rather than one that looks tidy
-at a single text size. Set `maxHeight` in a unit that grows with the reader, a rem rather than a
-pixel count, so the region enlarges with the text instead of clipping it, and prefer a height
-that shows a few whole rows so a reader can tell at a glance that there is more below.
-
-Do not reach for a scroll area to shorten a page. A long page is not a defect to be boxed away,
-and folding it into a scrolling window hides content from a reader who scans, from find-in-page,
-and from a reader at larger text. If a page is too long, cut it or split it into sections a
-reader can navigate, and let the browser scroll what remains.
-
-<DoDont>
-  <DoDont.Do>
-    **A card body bounded to `maxHeight="16rem"` inside a page that scrolls on its
-    own.** The panel holds a fixed place on the surface, the content inside it
-    stays reachable from the keyboard, and the region grows with the reader's
-    text rather than clipping it.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **The whole page wrapped in a scroll area with a fixed pixel height.** The
-    browser's own scroll is replaced by one that does not grow with the text, so
-    at 200% the page's own words are trapped below a ceiling the reader cannot
-    move. Leave the page to scroll natively instead.
-  </DoDont.Dont>
-</DoDont>
-
 ## Accessibility
 
-Some of this is enforced by a gate on every pull request and every push to `main`, and the rest
-is argued and labelled as such. Accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with
-a disabled user.
+**Checked by `pnpm run check:a11y` on every commit.**
 
-**Checked, by `pnpm run check:a11y`:**
+- No status colour, no colour literal, no ramp step. The region draws only
+  neutral chrome and carries no `data-status`.
+- No `px` type size and no oversized radius, so the chrome scales with the text.
 
-- **No status colour, no colour literal, no ramp step.** The region draws only the neutral
-  chrome roles, so it carries no `data-status`, reads no clinical vocabulary, and cannot mix the
-  two axes. The gate reads every element and would fail the build on a colour drawn from either
-  axis or on a raw colour value, and there is neither here.
-- **No px type size, no oversized radius.** Any text inside the region is the caller's, and the
-  component's own chrome uses the space and radius tokens rather than pixels, so it scales with
-  the reader's text.
+**Argued from the source, not measured.**
 
-**Argued, and true of the implementation, but not yet measured:**
+- Base UI gives the viewport `overflow: scroll` and a tab stop when there is
+  more to see, so a keyboard reader reaches it.
+- Nothing traps focus. The viewport is one ordinary tab stop, and its focus ring
+  shows which region the reader entered.
+- `overscroll-contain` hands the scroll back to the page at the region's end, so
+  a reader is never stuck inside it.
+- A rem-based `maxHeight` grows with the reader's text; a pixel-based one clips.
 
-- **The viewport is keyboard-scrollable.** Base UI renders the viewport with `overflow: scroll`
-  and gives it a tab stop when there is more to see, so a keyboard reader reaches the region and
-  scrolls it with the arrow keys. Nothing custom traps focus: the viewport is one ordinary tab
-  stop a reader passes through, and the focus ring on it shows which region they have entered.
-- **The content is not trapped.** The region scrolls its own overflow and, through
-  `overscroll-contain`, hands the scroll back to the page once it reaches its end, so a reader is
-  never stuck inside it.
-- **At larger text the region grows with the content when `maxHeight` is a rem.** The height
-  ceiling is the caller's to set, and a rem-based one enlarges with the text; a pixel-based one
-  would clip, which is why the content guidance names the unit.
-
-**Not checked at all, and listed rather than omitted:**
-
-- The thumb's contrast against the surfaces it rides over, at the non-text floor for a control.
-  `scripts/check-contrast.mts` has not been run for this component, which is why the report below
-  is empty rather than reassuring.
-- What the rail draws under `forced-colors: active`, and whether the fade-in leaves a screen-
-  reader or switch user a handle to aim at. None of this has been put in front of a machine or a
-  disabled user.
+**Not checked by any gate.** The thumb's contrast, what the rail draws under
+`forced-colors: active`, and whether the fade-in leaves a switch user a handle to
+aim at.
 
 <KeyboardTable
   name="scroll-area"
@@ -270,59 +176,68 @@ a disabled user.
     {
       keys: "Tab",
       action: "Moves focus onto the viewport when it is scrollable",
-      notes: "The region is one tab stop, not one per rail. When there is nothing to scroll, Base UI drops the tab stop so a reader does not land on a region that does nothing.",
+      notes: "One tab stop for the region. Base UI drops it when there is nothing to scroll.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves focus back out of the viewport",
-      notes: "The region is a single stop in reverse too, so focus leaves it rather than stepping through the rails.",
+      notes: "A single stop in reverse too, so focus does not step through the rails.",
     },
     {
       keys: "Arrow keys",
       action: "Scroll the focused viewport",
-      notes: "The viewport scrolls by a step in the pressed direction, along whichever axes the region allows. This is the browser's own scroll behaviour on a focused scroll container, not a bespoke one.",
+      notes: "The browser's own behaviour on a focused scroll container, along the allowed axes.",
     },
     {
       keys: "Page Up, Page Down",
       action: "Scroll the focused viewport by a page",
-      notes: "The browser's default for a focused scroll container. It is the browser's behaviour rather than a key this component binds.",
+      notes: "The browser's default, not a key this component binds.",
     },
     {
       keys: "Home, End",
       action: "Scroll to the start or end of the focused viewport",
-      notes: "Again the browser's default on a scroll container, not a binding this component adds.",
+      notes: "Again the browser's default on a scroll container.",
     },
   ]}
 />
 
 <ContrastReport component="scroll-area" />
 
+## Data attributes
+
+<DataAttributesTable
+  name="scroll-area"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On the root and every inner part, always",
+      value: "scroll-area, scroll-area-viewport, scroll-area-scrollbar, scroll-area-thumb, scroll-area-corner",
+    },
+    {
+      attribute: "data-orientation",
+      condition: "On a scrollbar, set by Base UI",
+      value: "vertical or horizontal",
+    },
+    {
+      attribute: "data-hovering, data-scrolling",
+      condition: "On a scrollbar while hovered or while the region scrolls",
+      value: "What the rail's fade-in is keyed to",
+    },
+  ]}
+/>
+
 ## API reference
 
 <PropsTable name="ScrollAreaProps" />
 
-`maxHeight` is the load-bearing prop: it is what gives the region something to overflow, so a
-vertical scroll area needs either it or a height class through `className`, and given neither
-the region grows to fit its content and a development warning names the omission. Set it in a
-rem so the region grows with the reader's text rather than clipping at a pixel ceiling.
-`orientation` chooses which axes may scroll and defaults to `vertical`; `both` adds a second
-rail and the corner where they meet. `className` is the one route by which colour can reach the
-region, and the two-colour-axes rule applies to it in full.
+`maxHeight` gives the region something to overflow, so set it in a rem rather
+than a pixel count. Given neither it nor a height class, the region grows to fit
+and a development warning names the omission. `className` is the one route by
+which colour reaches the region, and the two-colour-axes rule applies in full.
 
 ## Related
 
-<RelatedComponents name="scroll-area" />
-
-**Easily confused with**
-
-- [Card](./card.mdx) draws a bounded surface but does not scroll: it grows with its content. A
-  scroll area is what a card body becomes once its content outgrows the height you want to hold.
-- [Sheet](./sheet.mdx) is an overlay that slides in and owns its own scroll inside. A scroll
-  area is an inline region on the surface, not a layer over it.
-- [Table](./table.mdx) may be wrapped in a scroll area to let a wide table scroll sideways inside
-  its column, but the table is the content and the scroll area is only the box around it.
-
-**Used by**
-
-- No pattern, recipe or screen composes it yet. It is a neutral layout primitive that a product
-  wraps around its own long lists and card bodies where the content outgrows the box.
+- [Card](./card.mdx) draws a bounded surface but grows with its content rather
+  than scrolling it.
+- [Sheet](./sheet.mdx) is an overlay owning its own scroll, not an inline region.
+- [Table](./table.mdx) is content a scroll area may wrap to scroll sideways.

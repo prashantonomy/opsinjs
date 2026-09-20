@@ -9,32 +9,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="tabs"
   status="shipped"
   questions={[
-    "No contrast pair has been measured for the active tab against the row, for the tab-list rail, or for the indicator bar against the ground behind it. Whether the active tab reads as active in greyscale rests on an ink lift, a heavier label and a neutral bar rather than on colour, and that is argued from the roles it uses rather than measured on the surfaces this control sits on.",
-    "Nobody has listened to this control in a screen reader. Base UI renders the WAI-ARIA tabs pattern, a tablist of tabs each controlling a tabpanel, but whether the roving focus, the manual activation and the panel association read the way a reader expects has not been checked with real assistive technology.",
-    "Manual activation is the chosen model, so the Arrow keys move the highlight without swapping the panel and Enter or Space commits the choice. Whether that is the register a reader expects here, rather than selection following focus, has been reasoned about rather than tested with someone who navigates by keyboard.",
-    "Forced colours and prefers-contrast: more are unhandled. The active tab is lifted by a neutral ink change and a chrome indicator bar, and a forced-colours theme replaces both with the platform's own pair, so whether the selection survives that mode has not been tested.",
+    "No contrast pair has been measured: the active tab against the row, the tab-list rail, or the indicator bar against its ground.",
+    "Nobody has listened to this control in a screen reader, so the roving focus and the panel association are untested.",
+    "Forced colours and prefers-contrast: more are unhandled, so whether the selection survives the platform's own pair has not been tested.",
   ]}
 >
-  <code className="text-sm">tabs</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">tabs</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Tabs switches between distinct panels of content that occupy the same space, showing one panel at a time and letting the reader pick which through a row of tabs. Its home is a screen where two or three bodies of content compete for one region and only one is worth showing at once, an "Overview" and a "History" of the same subject being the case it was built for.
-
-The design decision that shapes the whole component, and the one that keeps it apart from [SegmentedControl](./segmented-control.mdx), is what choosing a tab does. A segmented control sets a parameter of one view that stays on the surface. Tabs swap the content: choosing a tab replaces the panel underneath with a different panel that has its own material. The two controls look alike and behave differently, so the question to ask before reaching for either is whether the choice changes a setting of what stays on screen, which is a segmented control, or replaces what is on screen, which is this.
-
 ## Preview
-
-A three-tab row with one panel shown. The thing worth checking is that choosing a tab swaps the whole panel rather than adjusting a single view, and that the active tab reads as active without a colour doing the work, so read it in greyscale: the active tab is carried by an ink lift from the muted role to the foreground role, a heavier label, and a neutral indicator bar, and underneath all three by `aria-selected` rather than by any pixel at all.
 
 <ComponentPreview name="tabs" />
 
@@ -46,8 +35,6 @@ A three-tab row with one panel shown. The thing worth checking is that choosing 
   importPath="@/components/ui/tabs"
   dependencies={["@base-ui/react"]}
 />
-
-The control is built on Base UI's Tabs primitive, which is where the single tab stop, the roving focus, the Arrow keys, Home and End, and the panel association come from, so installing it pulls in `@base-ui/react`. It composes no other opsinjs component and renders no icon.
 
 ## Usage
 
@@ -72,20 +59,16 @@ import { Tabs } from "@/components/ui/tabs"
 
 <WhenToUse
   use={[
-    "Switching between two or three distinct panels of content that share one region, where each panel is its own body of material and only one is worth showing at a time.",
-    "Folding secondary views of one subject behind their own tab, such as an overview, a history and a set of notes, so the region stays uncluttered and the reader opens the view they want.",
-    "A set of views a reader moves between often and expects to find in a familiar bar, where the panel content is what changes rather than a parameter of a single view.",
+    "Two or three distinct panels share one region and only one is worth showing at a time.",
+    "Folding secondary views of one subject, such as an overview, a history and notes, behind their own tabs.",
+    "Views a reader moves between often and expects to find in a familiar bar.",
   ]}
   avoid={[
-    { case: "The choice sets one parameter of a single view that stays on the surface, such as a chart's day, week or month window, rather than swapping the content.", instead: "segmented-control" },
-    { case: "The choice is a small set of exclusive options taken as a form input, where the answer is a value the reader submits rather than a panel they read.", instead: "radio-group" },
-    { case: "The panels are steps in a sequence the reader works through in order, where progress and a next action matter more than free movement between them.", instead: "stepper" },
+    { case: "The choice sets one parameter of a view that stays on the surface, such as a chart's week window.", instead: "segmented-control" },
+    { case: "The choice is a small set of exclusive options taken as a form input, submitted as a value.", instead: "radio-group" },
+    { case: "The panels are steps in a sequence, where progress and a next action matter most.", instead: "stepper" },
   ]}
 />
-
-The exclusion that matters is the first, and it is a question about what the choice does. Tabs replace the panel; a [SegmentedControl](./segmented-control.mdx) adjusts a view that stays put. If choosing an option keeps the reader looking at the same thing and changes one setting of it, it is a segmented control, and the keyboard contract differs to match: a segmented control is a radiogroup where selection follows focus, and Tabs is a tablist where the reader arrows to a tab and then commits with Enter or Space. Reaching for Tabs to switch a chart's window gives the reader a panel swap where they expected a redraw.
-
-The second and third exclusions keep Tabs from standing in for an input or a flow. A small set of exclusive options taken as a form answer is a [RadioGroup](./radio-group.mdx), because the reader is choosing a value to submit rather than a panel to read. A set of panels worked through in order, where the point is progress and a next action, is a [Stepper](./stepper.mdx), because Tabs offer free movement between panels and say nothing about sequence.
 
 ## Anatomy
 
@@ -94,26 +77,26 @@ The second and third exclusions keep Tabs from standing in for an input or a flo
   parts={[
     {
       name: "Tabs",
-      describes: "The root. A Base UI Tabs.Root rendered on its Composite primitive, so the list is one tab stop with a roving focus. Carries data-slot=\"tabs\" and the controlled value. It draws only neutral chrome and carries neither data-status nor data-category.",
+      describes: "The root, a Base UI Tabs.Root on Composite. The list is one tab stop with roving focus.",
       prop: "value",
     },
     {
       name: "Tabs.List",
-      describes: "The row that holds the tabs, a Base UI Tabs.List rendering role=\"tablist\". It is position: relative so the indicator can be placed against it, and it carries a hairline rail along its bottom edge. data-slot=\"tabs-list\", with the accessible name from label when one is passed.",
+      describes: "The row holding the tabs, role=\"tablist\", relative for the indicator, with a hairline rail on its bottom edge.",
       prop: "label",
     },
     {
       name: "Tabs.Tab",
-      describes: "One tab, a Base UI Tabs.Tab rendering a button with role=\"tab\" and aria-selected. The active tab lifts its ink to the foreground role and its label to a heavier weight, and a disabled tab drops to the muted ink and is skipped by the Arrow keys. data-slot=\"tabs-tab\", with data-active when it is the active tab and data-disabled when it is disabled.",
+      describes: "One tab, a button with role=\"tab\" and aria-selected. Active lifts ink and weight; disabled drops to muted.",
       prop: "items",
     },
     {
       name: "Tabs.Indicator",
-      describes: "The active underline, a Base UI Tabs.Indicator rendering a span pinned to the bottom of the list. It rides under the active tab, sized and placed from the CSS variables Base UI writes onto it, and drawn in the chrome primary ink so it is neutral and on neither colour axis. data-slot=\"tabs-indicator\". Decorative: aria-selected on the tab is the carrier a screen reader reads.",
+      describes: "The active underline, pinned to the list bottom in chrome primary ink. Decorative; aria-selected is the carrier.",
     },
     {
       name: "Tabs.Panel",
-      describes: "One panel, a Base UI Tabs.Panel rendering role=\"tabpanel\" associated with its tab. It is the next tab stop after the list, so it carries the same focus ring. data-slot=\"tabs-panel\", one per item, shown only while its tab is active.",
+      describes: "One panel per item, role=\"tabpanel\" tied to its tab, shown only while that tab is active.",
       prop: "items",
     },
   ]}
@@ -125,91 +108,84 @@ The second and third exclusions keep Tabs from standing in for an input or a flo
     {
       part: "Tabs",
       cardinality: "1",
-      note: "data-slot=\"tabs\", the controlled root, one roving tab stop for the list",
+      note: "the controlled root",
       children: [
         {
           part: "Tabs.List",
           cardinality: "1",
-          note: "data-slot=\"tabs-list\", role=\"tablist\"",
+          note: "role=\"tablist\"",
           children: [
             {
               part: "Tabs.Tab",
               cardinality: "2..n",
-              note: "data-slot=\"tabs-tab\", role=\"tab\", aria-selected; one per item",
+              note: "role=\"tab\", aria-selected; one per item",
             },
             {
               part: "Tabs.Indicator",
               cardinality: "1",
-              note: "data-slot=\"tabs-indicator\", decorative, rides under the active tab",
+              note: "decorative",
             },
           ],
         },
         {
           part: "Tabs.Panel",
           cardinality: "2..n",
-          note: "data-slot=\"tabs-panel\", role=\"tabpanel\"; one per item, only the active one shown",
+          note: "role=\"tabpanel\"; one per item, only the active shown",
         },
       ],
     },
   ]}
 />
 
-The parts above are identified by `data-slot` and are styleable from outside; none of them is an export, and there is no way to render a tab without the list or a panel without its tab, because the data-driven `items` prop keeps the tab, its label and its panel together as one object. The dotted names in the tree are the Base UI parts this wrapper composes, not symbols a consumer imports.
-
-There is deliberately no icon slot on a tab and no close affordance. A tab names a panel and switches to it; an icon beside a short label competes with the word, and a closable tab is a different pattern with its own state to own, which this component does not grow into.
-
 ## Examples
 
 ### Switching between panels
 
-The case Tabs was built for. Three panels of content share one region, and choosing a tab swaps the whole panel underneath rather than redrawing a single view for a different setting. That is the line between Tabs and a segmented control, and it is the thing to watch: the panel under the row is replaced, not adjusted. Every panel is fictional prose with no reading in it, because an opsinjs example must never be mistakable for somebody's own data.
+Three panels share one region, from `items`. Choosing a tab swaps the whole
+panel, not one setting of a view.
 
 <ComponentPreview name="tabs-switching-panels" kind="example" align="start" />
 
 ### Tabs in a card
 
-Where tabs most often live: a single card whose header names a subject and whose body carries two views of it, one shown at a time. The tab row sits at the top of the body and the panel fills the space below it, so choosing a tab swaps the body content without the card around it moving. The card is drawn with plain neutral chrome so the example stands on the tab wrapper alone.
+The card header names the subject and `items` fills its body, so a tab swaps the
+body without the card moving.
 
 <ComponentPreview name="tabs-in-a-card" kind="example" align="start" />
 
 ## Content guidelines
 
-Keep the tab labels short, parallel and in sentence case: one or two words each, the same part of speech, so the row reads as one set of siblings. Name the panel each tab reveals, "History" rather than "Show history", and let the labels carry no terminal punctuation. Order the tabs the way the reader thinks about the subject rather than the way the data is stored, and put the panel a reader wants first at the start of the row so it is the one shown by default.
-
-Do not use tabs to hide content a reader needs to see together. Tabs are for views that are genuinely alternatives, where reading one does not require reading another at the same time, so a comparison that only makes sense side by side belongs on one panel rather than split across two. Do not change a label's wording between screens for the same panel, because a reader who learnt that this card offers "Notes" should not meet "Comments" meaning the same panel elsewhere.
+Keep tab labels short, parallel and in sentence case: one or two words, the same
+part of speech, no terminal punctuation. Do not use tabs to hide content a reader
+needs together, such as a side by side comparison.
 
 <DoDont>
   <DoDont.Do>
-    **"Overview" · "History" · "Notes"** Three parallel panels, each a single
-    word naming what the tab reveals, ordered so the panel a reader wants first
-    sits first, so the row reads at a glance and the choice is obvious.
+    **"Overview" · "History" · "Notes"** name what each tab reveals, in one grammar.
   </DoDont.Do>
   <DoDont.Dont>
-    **"Overview" · "Click for the full history" · "Notes and comments"** Three
-    different lengths and three different grammars, so the row no longer reads as
-    one set and one label instructs the reader rather than naming its panel.
+    **"Overview" · "Click for the full history"** mixes grammars, and one label instructs.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. Accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+**Checked by `pnpm run check:a11y` on every commit.** The row draws neutral
+chrome with no colour literal and no ramp step. No `px` type size, and each tab
+floors its target at `--opsin-target-minimum`.
 
-**Checked, by `pnpm run check:a11y`:**
+**Argued from the source, not measured.**
 
-- **No status colour, no colour literal, no ramp step.** The control draws only the neutral chrome roles, so it carries no `data-status`, reads no clinical vocabulary, and cannot mix the two axes. The gate reads every element and would fail the build on a colour drawn from either axis or on a raw colour value, and there is neither here.
-- **No px type size, and a 44pt target floor.** Each tab's text is the `headline` semantic step rather than a pixel size, and each tab floors its target at `--opsin-target-minimum` in rem on the vertical axis, so a pressable region survives and grows with the reader's text size rather than pinning at a device pixel.
+- Base UI's Tabs renders the WAI-ARIA pattern: a tablist of tabs, each with
+  `aria-selected`, controlling a tabpanel.
+- Activation is manual. Arrow keys move the highlight and Enter or Space commits.
+- Three sighted carriers plus `aria-selected` mark the active tab, so the
+  selection survives greyscale.
+- The focus ring sits in the component's own classes, not the product
+  stylesheet.
 
-**Argued, and true of the implementation, but not yet measured:**
-
-- **The tabs pattern is Base UI's, not a bespoke one.** Base UI's Tabs renders `role="tablist"`, each tab a `role="tab"` with `aria-selected` that `aria-controls` its `role="tabpanel"`, the list is one tab stop with a roving focus moved by the Arrow keys, and the panel is the next tab stop. Activation is manual: the Arrow keys move the highlight and Enter or Space commits the choice, which is the recommended pattern when a panel swap is not free.
-- **The active state has three sighted carriers plus the semantic one.** The ink lift, the heavier label and the indicator bar all key off `aria-selected`, so no single one is load-bearing and the selection survives greyscale and a reader stylesheet that strips fills.
-- **The focus ring is carried in the component's own classes.** Both the tabs and the active panel carry the ring rather than leaving it to the product stylesheet, so a project installed without that stylesheet does not lose it silently.
-
-**Not checked at all, and listed rather than omitted:**
-
-- Every contrast pair: the active tab's ink against the row, the tab-list rail, and the indicator bar against the ground behind it. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring.
-- What the control draws under `forced-colors: active` and `prefers-contrast: more`, where the ink change and the indicator bar are both replaced by the platform's own pair. None of this has been put in front of a machine or a high contrast user.
+**Not checked by any gate.** Every contrast pair for the active ink, the rail
+and the indicator bar, plus `forced-colors: active` and `prefers-contrast: more`.
 
 <KeyboardTable
   name="tabs"
@@ -217,32 +193,32 @@ Some of this is enforced by a gate on every pull request and every push to `main
     {
       keys: "Tab",
       action: "Moves focus into the tab list, onto the active tab",
-      notes: "The whole list is one tab stop. A second Tab from the list moves focus to the active panel, which is the next stop, rather than to the next tab.",
+      notes: "One tab stop for the list. The active panel is the next stop.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves focus back out of the tab list",
-      notes: "The list is a single stop in reverse too, so focus leaves the row rather than stepping back through each tab.",
+      notes: "One stop in reverse too, so focus leaves the row.",
     },
     {
       keys: "Arrow Right, Arrow Down",
       action: "Moves the highlight to the next tab",
-      notes: "It moves focus without activating the panel, wraps from the last tab to the first, and skips disabled tabs. Under a right-to-left layout, Arrow Left and Arrow Right swap.",
+      notes: "No panel swap. Wraps around, skips disabled tabs, mirrored under right-to-left.",
     },
     {
       keys: "Arrow Left, Arrow Up",
       action: "Moves the highlight to the previous tab",
-      notes: "It wraps from the first tab to the last and skips disabled tabs, again without swapping the panel.",
+      notes: "Wraps to the last tab, skips disabled tabs, swaps no panel.",
     },
     {
       keys: "Home, End",
       action: "Moves the highlight to the first or last tab",
-      notes: "Both skip disabled tabs, and neither swaps the panel on its own.",
+      notes: "Both skip disabled tabs and neither swaps the panel.",
     },
     {
       keys: "Enter, Space",
       action: "Activates the highlighted tab and shows its panel",
-      notes: "Activation is manual: the Arrow keys move the highlight and one of these commits it, so a panel swap only happens when the reader asks for it.",
+      notes: "The commit step of manual activation.",
     },
   ]}
 />
@@ -253,18 +229,12 @@ Some of this is enforced by a gate on every pull request and every push to `main
 
 <PropsTable name="TabsProps" />
 
-`value` and `onValueChange` make this a controlled component with no internal selection state: the caller stores the active value and passes it back, and a `value` that matches no item renders the row with no tab active and raises a development warning. `items` carries each tab's value, its visible label and the panel it reveals as one object, so a tab can never be rendered without its panel or a panel without its tab. `label` is optional because every tab has a visible label, but naming the list helps a screen-reader user who lands on it before its tabs.
+`value` and `onValueChange` make this controlled, with no internal selection
+state. A `value` matching no item renders no active tab and warns in
+development. `items` holds each tab's value, label and panel together.
 
 ## Related
 
-<RelatedComponents name="tabs" />
-
-**Easily confused with**
-
-- [SegmentedControl](./segmented-control.mdx) sets a parameter of one view that stays on the surface, such as a chart's window. Tabs swap the panel for a different one. If choosing an option keeps the reader looking at the same thing, it is a segmented control.
-- [TabBar](./tab-bar.mdx) moves the reader between whole sections of an app from a persistent bar, and each destination is its own tab stop because it is navigation. Tabs switch panels within one region and the list is a single tab stop.
-- [Stepper](./stepper.mdx) moves through panels that are steps in a sequence, where progress and a next action matter. Tabs offer free movement between panels and say nothing about order.
-
-**Used by**
-
-- No pattern, recipe or screen composes it yet. It is a neutral primitive that a product drops into a card or a region of its own to fold two or three views of one subject behind their tabs.
+- [SegmentedControl](./segmented-control.mdx) is for a parameter of one view that stays put, such as a chart's window.
+- [TabBar](./tab-bar.mdx) is navigation between whole sections of an app, each destination its own tab stop.
+- [Stepper](./stepper.mdx) is for panels that are steps in a sequence, where order matters.

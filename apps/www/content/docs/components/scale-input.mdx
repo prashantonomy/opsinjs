@@ -10,32 +10,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="scale-input"
   status="shipped"
   questions={[
-    "No contrast pair has been measured. The chosen point is the primary fill on the primary foreground ink, and the resting points are the card surface with a border hairline, and none of those pairs has been put in front of check-contrast.mts against the two grounds this scale is dropped onto. This component sets no surface of its own, so every point is painted on whatever ground the host provides rather than on a matching -surface the token contract tunes against.",
-    "Nobody has listened to this scale in a screen reader. The row announces its name and then each point as a radio that is checked or not, and the two end words are folded into the first and last point's accessible name, and whether that reads as a scale a reader can place themselves on, rather than as a bare list of numbers, has been reasoned about rather than heard.",
-    "The keyboard model is inherited from Base UI's RadioGroup and not yet argued for a scale specifically. Home and End are not bound, so a reader who reaches for End to jump to the far point gets the browser default, and whether a ten point scale owes Home and End as well as the Arrow keys is unresolved.",
-    "No named reviewer has signed this page off. Group J of the safety review checklist asks for a reviewer name and a date, and there is neither here, so read every claim below as unattributed until that changes.",
+    "No contrast pair has been measured, and the scale sets no surface of its own, so points are painted on the host's ground.",
+    "Nobody has heard this scale in a screen reader, so whether the folded end words read as a scale is unknown.",
+    "No named reviewer has signed this page off, so read every claim here as unattributed.",
   ]}
 >
-  <code className="text-sm">scale-input</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">scale-input</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-ScaleInput is a row of numbered points for a self-report the product reads: the reader taps one point to say where they sit between two ends. Its home is a single question a product asks over and over so a reader can watch it move, a comfort rating or a mood rating being the shape it was built for, where the same scale on Monday and on Friday is the whole value.
-
-The design decision that shaped the whole component is that opsinjs ships no scale of its own. A rating is comparable over time only when its number of points and its end words stay fixed, and those belong to whichever validated instrument the product has chosen. So the reader is rating something the product names, across as many points as the product passes, between end words the product supplies. opsinjs contributes the chrome and the keyboard behaviour and nothing a clinician would recognise.
-
 ## Preview
-
-A five point scale with a word at each end and one point chosen. The thing worth checking is that the chosen point is lifted by the neutral primary fill rather than by a status colour, so read it in greyscale: the answer is still plainly the answer, because a rating is a self-report and not a verdict the component reached. Turn the text size up and every point holds the target floor while the row wraps rather than shrinking a point below it.
 
 <ComponentPreview name="scale-input" />
 
@@ -47,8 +36,6 @@ A five point scale with a word at each end and one point chosen. The thing worth
   importPath="@/components/ui/scale-input"
   dependencies={["@base-ui/react"]}
 />
-
-The scale is built on Base UI's RadioGroup and Radio primitives, which is where the single tab stop, the roving focus and the Arrow keys come from, so installing it pulls in `@base-ui/react`. It composes no other opsinjs component and carries no registry dependency.
 
 ## Usage
 
@@ -71,30 +58,37 @@ import { ScaleInput } from "@/components/ui/scale-input"
 
 <WhenToUse
   use={[
-    "Capturing one self-report on a scale the product's instrument defines, such as a rating a reader gives about themselves between two ends, where the number of points and the end words come from the product.",
-    "A single question the product asks repeatedly so the reader can watch their own answer move over time, where the same points and the same end words each time are the whole point.",
-    "A rating that has a low end and a high end the reader places themselves between, rather than a set of unordered choices, so the row of numbers reads as a scale.",
+    "One self-report on a scale the product's instrument defines, with the points and end words from the product.",
+    "A single question asked repeatedly with the same points and end words, so the reader can watch their answer move.",
+    "A rating with a low end and a high end the reader places themselves between, rather than unordered choices.",
   ]}
   avoid={[
-    { case: "The answer is free text in the reader's own words rather than a point on a scale, such as a note about how they feel.", instead: "textarea" },
-    { case: "The options are a fixed set of labelled choices that are not a scale, such as a reminder style, where no end word or ordering applies.", instead: "radio-group" },
-    { case: "You are building a multi-question instrument where several rated items add up under one heading, rather than a single rating.", instead: "questionnaire" },
+    { case: "The answer is free text in the reader's own words, not a point on a scale.", instead: "textarea" },
+    { case: "The options are a fixed set of labelled choices with no end word and no ordering.", instead: "radio-group" },
+    { case: "A multi-question instrument where several rated items add up under one heading.", instead: "questionnaire" },
   ]}
 />
 
-The distinction that matters most is the last one. A ScaleInput captures one rating; a validated instrument is usually several rated items under one heading with a defined way of reading them together, and opsinjs ships no dedicated questionnaire component today. Build such an instrument from a [Field](./field.mdx) per item, each holding whatever control the item needs, and keep the reading of the items together in the product where the instrument's own rules live. A ScaleInput is one item of that, never the whole of it.
-
-The other two exclusions are about the shape of the answer. If the reader answers in their own words, the control is a [Textarea](./textarea.mdx), because a scale cannot hold a sentence. If the choices are a fixed set that has no low end and no high end, the control is a [RadioGroup](./radio-group.mdx), because numbering unordered options as a scale invents an ordering the product did not mean.
-
 ## Clinical meaning
 
-**What it asserts.** ScaleInput asserts exactly one thing: the reader chose this point on a scale the product defined. It records a self-report and hands it straight back through `onValueChange`. It adds no total, no band, no verdict and no interpretation on top of the number, because what a rating means is the product's to say, in the product's own words, on the product's own surfaces.
+**Asserts.** The reader chose this point on a scale the product defined. The value
+goes back through `onValueChange`, with no total, band, verdict or
+interpretation added.
 
-**What it must never be read as.** It is not a score, not a measurement and not a reading the component produced. The number is what the reader said about themselves, so it must never be dressed up as a result opsinjs derived. A high point at the far end is a high self-report and nothing more: whether it matters is a clinical judgement this component does not make and must not appear to make. It never diagnoses, triages or advises, and [Who this is for](../health/who-this-is-for.mdx) is why a layperson rating themselves is owed a plain scale rather than a clinical register.
+**Never read as.** A score, a measurement or a result opsinjs derived. A far point is
+a high self-report. Whether it matters is a clinical judgement this component does not
+make and must not appear to make. It never diagnoses, triages or advises. See
+[Who this is for](../health/who-this-is-for.mdx).
 
-**Which colour axis it may use.** Neither. A rating is a self-report, not a level of urgency and not a kind of measurement, so the scale carries neither `data-status` nor `data-category` and draws only neutral chrome. The chosen point is lifted by the neutral primary role, the same emphasis a ticked checkbox uses, deliberately not by the clinical status axis: painting a far point as urgent would put the component's own verdict on the reader's answer, which is the collision [The two colour axes](../health/two-colour-axes.mdx) exists to prevent. If a product decides a rating matters, it says so on a separate status surface with the word and the glyph that surface carries, never by tinting the point the reader pressed.
+**Colour axis.** Neither. The scale writes neither `data-status` nor `data-category`,
+and the chosen point takes the neutral primary fill. Never tint the point the reader
+pressed. A product that decides a rating matters says so on its own status surface. See
+[The two colour axes](../health/two-colour-axes.mdx).
 
-**Who owns the thresholds and the words.** The consuming product, always. ScaleInput ships no anchor words, no default number of points, no scale, no scoring and no default text of its own. The point count arrives through `points` and the end words through `minLabel` and `maxLabel`, because the instrument those belong to is a clinical decision the product makes, and shipping a scale inside a component library would be shipping that decision to every product that installed it. [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx) and [Numbers, units and precision](../health/numbers-units-precision.mdx) set out why the number and its meaning stay with the product.
+**Thresholds.** None. The point count arrives through `points` and the end words
+through `minLabel` and `maxLabel`. opsinjs ships no scale, no anchor words and no
+scoring. See [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx)
+and [Numbers, units and precision](../health/numbers-units-precision.mdx).
 
 ## Anatomy
 
@@ -103,26 +97,26 @@ The other two exclusions are about the shape of the answer. If the reader answer
   parts={[
     {
       name: "ScaleInput",
-      describes: "The root, a radiogroup rendered by Base UI's RadioGroup on its Composite primitive, so the whole scale is one tab stop with a roving focus. Carries data-slot=\"scale-input\", role=\"radiogroup\" and the accessible name from label. Draws colour from neither axis and carries neither data-status nor data-category.",
+      describes: "The root, a Base UI RadioGroup with role radiogroup and one roving tab stop, named by label.",
       prop: "label",
     },
     {
       name: "ScaleInput.Track",
-      describes: "The row that holds the points, a plain flex row that wraps rather than scrolling sideways. data-slot=\"scale-input-track\". It carries no role of its own: the radiogroup semantics live on the root and the point semantics on each point.",
+      describes: "The row of points. It wraps rather than scrolling sideways and carries no role.",
       prop: "points",
     },
     {
       name: "ScaleInput.Point",
-      describes: "One point, a Base UI Radio rendered with role=\"radio\" and aria-checked, floored at a 44pt target on both axes. The chosen point is lifted by the neutral primary fill rather than by a status colour, and a disabled point drops to the muted ink and is skipped by the Arrow keys. data-slot=\"scale-input-option\", with data-checked or data-unchecked.",
+      describes: "One point, a Base UI Radio with role radio and aria-checked, floored at a 44pt target.",
       prop: "value",
     },
     {
       name: "ScaleInput.PointLabel",
-      describes: "The point's number, the visible label and the primary part of what a screen reader reads for the point. data-slot=\"scale-input-option-label\".",
+      describes: "The point's number: the visible label and most of what a screen reader reads.",
     },
     {
       name: "ScaleInput.Anchor",
-      describes: "One of the two end words, drawn under the first and last point in the muted ink. data-slot=\"scale-input-anchor\". Present only when the product supplies minLabel or maxLabel. Each end word is also folded into its point's accessible name, so a screen reader hears the number and the end word together.",
+      describes: "One end word, under the first or last point in muted ink, folded into that point's accessible name.",
       prop: "minLabel",
     },
   ]}
@@ -134,22 +128,19 @@ The other two exclusions are about the shape of the answer. If the reader answer
     {
       part: "ScaleInput",
       cardinality: "1",
-      note: "data-slot=\"scale-input\", role=\"radiogroup\", one roving tab stop. Neither data-status nor data-category.",
       children: [
         {
           part: "ScaleInput.Track",
           cardinality: "1",
-          note: "data-slot=\"scale-input-track\", a flex row that wraps.",
           children: [
             {
               part: "ScaleInput.Point",
               cardinality: "2..n",
-              note: "data-slot=\"scale-input-option\", role=\"radio\", aria-checked; one per point, numbered 1 to points.",
+              note: "role radio, aria-checked; one per point, numbered 1 to points.",
               children: [
                 {
                   part: "ScaleInput.PointLabel",
                   cardinality: "1",
-                  note: "data-slot=\"scale-input-option-label\", the number.",
                 },
               ],
             },
@@ -158,65 +149,64 @@ The other two exclusions are about the shape of the answer. If the reader answer
         {
           part: "ScaleInput.Anchor",
           cardinality: "0..2",
-          note: "data-slot=\"scale-input-anchor\". The end words, present only when minLabel or maxLabel is supplied.",
+          note: "Only when minLabel or maxLabel is supplied.",
         },
       ],
     },
   ]}
 />
 
-The parts above are identified by `data-slot` and are styleable from outside; none of them is an export, and there is no way to render a point without the group. The number of points is decided by the `points` prop rather than by how a caller nests children, so a consumer names a shape as `ScaleInputProps["value"]` rather than importing a fourth symbol.
-
 ## Examples
 
 ### A rating with end words
 
-The shape a product reaches for when it asks the reader to place themselves between two poles: ten points with a word at each end. The label, the point count and the end words all arrive as props, because opsinjs ships none of them. Read the row in greyscale and the chosen point is still the answer, lifted by the neutral primary fill rather than by a status colour.
+Ten points with a word at each end. `label`, `points`, `minLabel` and `maxLabel`
+arrive as props.
 
 <ComponentPreview name="scale-input-rating-with-anchors" kind="example" align="start" />
 
 ### No answer yet
 
-The honest empty state, before the reader has answered. `value` is `null`, so the scale draws with no point chosen rather than defaulting to a middle point the reader never picked. This is why the value is `number | null` and not a plain number: a scale that guessed a starting answer would hand the product a reading nobody gave, so an unanswered scale stays empty until it is answered.
+`value` is `null`, so the scale draws with no point chosen rather than defaulting to
+a middle point the reader never picked.
 
 <ComponentPreview name="scale-input-no-answer-yet" kind="example" align="start" />
 
 ## Content guidelines
 
-Write the `label` as the thing being rated in the reader's words, "Comfort right now" rather than "1 to 10", because it is the accessible name a screen-reader user hears before the points and the only place the question is stated. Keep the end words short and opposite, a low end and a high end the reader places themselves between, and take both from the instrument the product uses rather than inventing them at the call site, so the scale means the same thing on every screen it appears on.
-
-Never write a verdict into an end word. A word names one end of the scale; it does not tell the reader what their answer says about them. Keep the number of points fixed for a given question across the whole product, because a reader who rated themselves on a ten point scale last week cannot compare that to a five point scale this week, and a scale whose length drifts is a scale that measures nothing over time.
+Write `label` as the thing being rated in the reader's words, "Comfort right now"
+rather than "1 to 10". It is the accessible name and the only place the question is
+stated. Take the end words from the product's instrument, short and opposite, never
+a verdict. Keep the point count fixed across the product.
 
 <DoDont>
   <DoDont.Do>
-    **`label="Comfort right now"`, ten points, `minLabel="Not at all"` and `maxLabel="Completely"`, all from the product's instrument.** The question is named, the ends are short and opposite, and the whole scale comes from the product, so the same reader's answers line up week to week.
+    **`label="Comfort right now"` with end words from the product's instrument.** Named question, fixed ends, so answers compare over time.
   </DoDont.Do>
   <DoDont.Dont>
-    **A scale with no `label`, end words invented at the call site, and a point count that changes between screens.** A screen-reader user meets a nameless set of radios, the ends mean something different on the next screen, and last week's answer cannot be compared to this week's.
+    **No `label`, invented end words, a point count that drifts between screens.** Nameless radios whose answers cannot be compared.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. Accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+**Checked by `pnpm run check:a11y` on every commit.**
 
-**Checked, by `pnpm run check:a11y`:**
+- One tab stop with a roving focus: `role="radiogroup"` on the root, `role="radio"`
+  and `aria-checked` on each point, and selection follows focus.
+- No element takes colour from both axes. This file writes neither.
+- No shipped scale, and every colour is a semantic token role.
 
-- **The scale is one tab stop with a roving focus.** Base UI's RadioGroup renders `role="radiogroup"` on its Composite primitive, each point is a Radio rendering `role="radio"` with `aria-checked`, and selection follows focus, which is the WAI-ARIA radio group pattern rather than a bespoke one. A row of separate buttons would be one tab stop per point, which is the contract this control exists to refuse.
-- **No element takes colour from both axes.** The gate reads every JSX element and fails on one carrying both `data-category` and `data-status`. This file writes neither, so a mixture cannot arise, and the chosen point is the neutral primary role rather than a status colour.
-- **No shipped scale and no raw colour literal.** The point count and the end words arrive as props, no scale, threshold or default word is written into the component or its examples, and every colour is a semantic token role.
+**Argued from the source, not measured.**
 
-**Argued, and true of the implementation, but not yet measured:**
+- Every point floors its hit area at `--opsin-target-minimum` in rem, and the row
+  wraps rather than shrinking a point.
+- The focus ring is in the point's own classes, so a project without the product
+  stylesheet keeps it.
+- The first and last point's accessible names fold in `minLabel` and `maxLabel`.
 
-- **Every point clears the target floor.** Each point floors its hit area at `--opsin-target-minimum` in rem on both axes, so a 44pt target survives and grows with the reader's text size rather than pinning at a device pixel, and the row wraps rather than shrinking a point below the floor to stay on one line.
-- **The focus ring is carried in the component's own classes.** A project installed without the product stylesheet keeps the ring, because it is written into the point's class list rather than left to a sheet that might be absent.
-- **The end words are in the accessible name of their points.** The first point's accessible name folds in `minLabel` and the last point's folds in `maxLabel`, so a screen-reader user hears the number and the end word together rather than a bare number at each end.
-
-**Not checked at all, and listed rather than omitted:**
-
-- Every contrast pair: the chosen point's primary fill on its foreground ink, and the resting point's card surface and border hairline, against the two grounds this scale is dropped onto. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring, and this component sets no surface of its own, so each pair is painted on whatever ground the host provides.
-- How the row plays for a screen-reader user, and whether folding the end words into the first and last point's name reads as a scale rather than a list of numbers. It has been reasoned about and not listened to.
-- Whether the scale owes Home and End as well as the Arrow keys. The underlying RadioGroup does not bind them, so they keep the browser default, and no reader has been asked whether a ten point scale needs a jump to each end.
+**Not checked by any gate.** Every contrast pair on the host's ground, how the row
+plays in a screen reader, and whether the scale owes Home and End.
 
 <KeyboardTable
   name="scale-input"
@@ -224,22 +214,22 @@ Some of this is enforced by a gate on every pull request and every push to `main
     {
       keys: "Tab",
       action: "Moves focus into the scale, onto the chosen point",
-      notes: "The whole row is one tab stop. If no point is chosen, the first point takes the stop; a disabled point never does.",
+      notes: "One tab stop. Unanswered, the first point takes it; a disabled point never does.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves focus back out of the scale",
-      notes: "The row is a single stop in reverse too, so focus leaves the scale rather than stepping back through each point.",
+      notes: "A single stop in reverse too, so focus leaves the scale.",
     },
     {
       keys: "Arrow Right, Arrow Down",
       action: "Moves to the next point and selects it",
-      notes: "Selection follows focus. It wraps from the last point to the first. Under a right-to-left layout, Arrow Left and Arrow Right swap.",
+      notes: "Selection follows focus. Wraps last to first. Arrow Left and Right swap in right-to-left.",
     },
     {
       keys: "Arrow Left, Arrow Up",
       action: "Moves to the previous point and selects it",
-      notes: "It wraps from the first point to the last.",
+      notes: "Wraps from the first to the last.",
     },
     {
       keys: "Space",
@@ -249,42 +239,43 @@ Some of this is enforced by a gate on every pull request and every push to `main
     {
       keys: "Enter",
       action: "Does nothing",
-      notes: "The primitive cancels Enter on a radio, so a scale at the foot of a form does not submit it by accident. A point is chosen with the Arrow keys or Space.",
+      notes: "The primitive cancels Enter, so the scale does not submit a form.",
     },
     {
       keys: "Home, End",
       action: "Not bound",
-      notes: "The underlying RadioGroup does not enable Home and End, so they keep the browser's default behaviour. Whether the scale should bind them is an open question above.",
+      notes: "The RadioGroup does not enable them, so they keep the browser default.",
     },
   ]}
 />
 
 <ContrastReport component="scale-input" />
 
+## Data attributes
+
+<DataAttributesTable
+  name="scale-input"
+  rows={[
+    {
+      attribute: "data-checked, data-unchecked",
+      condition: "On each point, stamped by the Base UI Radio",
+      value: "One of the two, by whether the point is the chosen one",
+    },
+  ]}
+/>
+
 ## API reference
 
 <PropsTable name="ScaleInputProps" />
 
-`points` and the two end words are the whole of what a product supplies, and none of them has a default: opsinjs ships no scale length and no anchor words, because those belong to the instrument the product uses. A `points` below two renders nothing and warns in development, because a rating with one point is not a scale.
-
-`value` and `onValueChange` make this a controlled component with no internal selection state. `value` is `number | null`: a whole number from 1 to `points` for a chosen point, or `null` for no answer yet, which draws the scale empty rather than defaulting to a middle point. A number outside that range renders nothing chosen and warns in development. `label` is required, because a radiogroup with no accessible name is a defect the type system cannot otherwise prevent.
+`points` has no default, and fewer than two renders nothing with a development
+warning. `value` is `number | null`: `null` draws nothing chosen, and a number
+outside 1 to `points` renders nothing chosen and warns. `label` is required: a
+radiogroup with no accessible name is a defect the types cannot prevent.
 
 ## Related
 
-<RelatedComponents name="scale-input" />
-
-**Easily confused with**
-
-- [RadioGroup](./radio-group.mdx) is the control for a fixed set of labelled choices that are not a scale, where no end word or ordering applies. Numbering unordered options as a scale invents an ordering the product did not mean.
-- [Textarea](./textarea.mdx) is the control for an answer in the reader's own words, which a scale cannot hold.
-- [Questionnaire](./questionnaire.mdx) is the name recorded for a multi-question instrument, which opsinjs does not ship today. A ScaleInput is one rated item of such an instrument, never the whole of it.
-
-**Used by**
-
-- No pattern, recipe or screen composes it yet. Wiring a rating into a product's own instrument, and reading the answer, is a product's to make rather than something the corpus ships today.
-
-**Governed by**
-
-- [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx) is why the scale records a self-report and derives nothing from it.
-- [Numbers, units and precision](../health/numbers-units-precision.mdx) is why the point count and its meaning stay with the product rather than the component.
-- [Who this is for](../health/who-this-is-for.mdx) is why a layperson rating themselves is owed a plain scale rather than a clinical register.
+- [RadioGroup](./radio-group.mdx) is for a fixed set of labelled choices with no low end and no high end.
+- [Textarea](./textarea.mdx) is for an answer in the reader's own words, which a scale cannot hold.
+- [Questionnaire](./questionnaire.mdx) is the name recorded for a multi-question instrument opsinjs does not ship.
+- [Field](./field.mdx) is the wrapper each rated item of a multi-question instrument sits in.

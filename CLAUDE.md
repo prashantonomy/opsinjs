@@ -37,9 +37,16 @@ does.
 
 ## Prose bar
 
-Aim at the density of ui.shadcn.com and the NHS service manual. Concretely, for every
-required heading: at least one paragraph a working developer or designer would be glad
-to have read. No filler, no "this section describes…", no lorem ipsum, no `TODO: write
+A `kind: component` page is lean by contract (`AGENTS.md` §13): a few hundred words
+of component calls and short paragraphs, `<StubNotice>` above the first H2 with at
+most three one-sentence open questions, and `assert-ia` rule LEAN001 fails the build
+past 1,000 words (1,250 on a `health-*` page). On a component page, cut argument and
+keep facts; link the doctrine page rather than restating it; copy the shape of
+`content/docs/components/button.mdx`.
+
+Every other kind aims at the density of ui.shadcn.com and the NHS service manual.
+Concretely, for every required heading: at least one paragraph a working developer or
+designer would be glad to have read. No filler, no "this section describes…", no lorem ipsum, no `TODO: write
 this` (use `<Todo>`, which is counted). When a rule has an exception, name the exception.
 When you say "don't", name what to do instead.
 
@@ -74,7 +81,8 @@ in any release, and it has had no accessibility review and no clinical review, s
 for a production health surface. Write that in the page's own MDX rather than reaching for
 a generated string, because the `.md` twins are built from page text, and `assert-ia` rule
 SAFE001 fails the build on a component page that drops it. Its open safety questions are
-still open. `<NoDataYet>` stays wherever a generator genuinely has no source data: a
+still open: the notice carries at most three of them, one sentence each, and the rest are
+in git history rather than answered. `<NoDataYet>` stays wherever a generator genuinely has no source data: a
 shipped page whose contrast pairs have not been measured must say so rather than print a
 table nobody produced. The MDX
 vocabulary is **closed**: only the tags listed in the anatomy contract exist, `assert-ia`

@@ -1350,12 +1350,28 @@ function checkOutline(
         "C6001",
         file,
         status === "planned"
-          ? "a component page at status: planned must render <StubNotice> under ## Status. Without it the page reads as documentation for something that exists."
+          ? "a component page at status: planned must render <StubNotice> above the first H2. Without it the page reads as documentation for something that exists."
           : status === "deprecated"
-            ? 'a component page at status: deprecated must render <StubNotice status="deprecated"> under ## Status. A component on its way out is the one a reader is most likely to meet through an old link, so the page that names the replacement is the last page that may drop the marker.'
-            : 'a component page must render <StubNotice status="shipped"> under ## Status. Promotion sheds <NotBuiltYet> and <Todo>; <StubNotice> stays, carries the phase, and carries the open safety questions, which are still open on every component in this catalogue.'
+            ? 'a component page at status: deprecated must render <StubNotice status="deprecated"> above the first H2. A component on its way out is the one a reader is most likely to meet through an old link, so the page that names the replacement is the last page that may drop the marker.'
+            : 'a component page must render <StubNotice status="shipped"> above the first H2. Promotion sheds <NotBuiltYet> and <Todo>; <StubNotice> stays, carries the phase, and carries the open safety questions, which are still open on every component in this catalogue.'
       )
     } else {
+      /* THE NOTICE OPENS THE PAGE. The lean outline (ADR 0024) has no Status
+         heading, so the only thing that fixes where the notice sits is this
+         check: it comes before the first H2, where a reader meets it before
+         the preview and before the install command. A notice that has
+         drifted below a heading is one a reader can scroll past without
+         seeing, and the twins and the shards would carry it out of order. */
+      const stripped = stripCode(page.body)
+      const noticeAt = stripped.search(/<StubNotice[\s/>]/)
+      const firstH2 = stripped.search(/^## /m)
+      if (firstH2 !== -1 && noticeAt > firstH2) {
+        fail(
+          "C6001",
+          file,
+          "<StubNotice> must sit above the first H2 of a component page, before ## Preview. The lean outline has no ## Status heading; the notice is the page's opening and it carries the review floor and the open questions."
+        )
+      }
       /* SAFE001. THE REVIEW FLOOR, IN AUTHORED MDX, ON EVERY COMPONENT PAGE.
          Collapsing the phase vocabulary to three words took away the only
          gradient a reader had between "this works" and "somebody checked
@@ -1399,6 +1415,35 @@ function checkOutline(
       ) {
         fail("SAFE001", file, SAFE001_MESSAGE)
       }
+    }
+  }
+
+  /* LEAN001. THE WORD BUDGET, AND WHY IT IS A GATE AND NOT A STYLE NOTE.
+
+     The seventeen-section contract this outline replaced was also written
+     down, and under it the sixty component pages grew to a quarter of a
+     million words, the longest near ten thousand, because every section in a
+     fixed outline reads as a demand and every argument for a decision stayed
+     on the page after the decision was made. ADR 0024 cut the outline and set
+     a budget; this check is what stops the pages regrowing between reviews.
+
+     The count is every whitespace-separated token of the body, JSX and code
+     included, because a reader scrolls past those too and because it is the
+     same count `wc -w` gives a Blueprint page, which is the density these
+     pages aim at. Frontmatter is not counted; it is data. A health- category
+     gets a larger budget because it owes a Clinical meaning section that no
+     other page carries. */
+  if (kind === "component") {
+    const category = asText(page.frontmatter.category) ?? ""
+    const health = category.startsWith("health-")
+    const budget = health ? 1250 : 1000
+    const wordCount = page.body.split(/\s+/).filter(Boolean).length
+    if (wordCount > budget) {
+      fail(
+        "LEAN001",
+        file,
+        `the body is ${wordCount} words and a component page is held to ${budget}${health ? " (a health- category, which owes a Clinical meaning section)" : ""}. A component page is read the way a Blueprint page is read: see it, install it, copy the usage, check the props, learn when not to use it. Cut argument and keep facts; doctrine belongs on a Health, Accessibility or Foundations page and is linked from here, and the reasoning behind a decision belongs in git history. ADR 0024 is the record and components/button.mdx is the exemplar.`
+      )
     }
   }
 

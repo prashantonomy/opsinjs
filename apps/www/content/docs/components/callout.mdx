@@ -10,40 +10,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="callout"
   status="shipped"
-  issue="prashantonomy/opsinjs#0"
   questions={[
-    "The boundary is enforced inside this repository and argued outside it. `check:a11y` fails the build if this component's own source paints a colour from either axis, and that is verified. `className` reaches the root, so a product that passes an axis utility through it has that utility stripped from the class list in every build before it can take effect, and development also warns about it. That closes the class-name route, but not a stylesheet or a `style` attribute the consumer writes. What does real enforcement look like on the consumer's side?",
-    "All three variants share one treatment and differ only by glyph, because the product theme has no non-axis accent to tint with. Is a glyph enough to justify a `variant` prop at all, and does a fourth member start the slide back towards a status vocabulary?",
-    "Nothing here is dismissible, so the 44pt dismiss-control requirement in the specification is unmet by absence rather than satisfied. If a callout ever is dismissible, the control needs a name, a target floor and a memory that outlives the render, and none of the three is designed.",
-    "How many callouts may a surface carry before the set-apart treatment stops setting anything apart? The rule is one, nothing counts them, and a component cannot see its neighbours.",
-    "The root now carries `role=\"note\"` named by its title, so a screen-reader user gets the start, the end and the name a bare element withheld. It was chosen over `role=\"group\"` and over an `aria-labelledby` that would need `useId` and a client boundary this server component keeps out. What is still open: nobody has listened to it in VoiceOver on iOS or TalkBack, and the count question stands, since a screen carrying several callouts now announces a container for each and nothing says how many a reader tolerates before the boundary becomes noise.",
+    "An axis colour passed through className is stripped in every build, but a consumer's own stylesheet or style attribute is not, and nothing checks consumer code.",
+    "The root is a role=\"note\" named by its title, and nobody has listened to it in VoiceOver or TalkBack, or to a screen carrying several.",
+    "Nothing here is dismissible, and a dismiss control would need a name, a 44pt target and a memory that outlives the render, none of them designed.",
   ]}
 >
-  <code className="text-sm">callout</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">callout</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Callout is the component [AlertBanner](./alert-banner.mdx) is most often mistaken for, and the
-mistake runs in one direction: things that should be quiet get promoted to alerts. Having a
-well-specified quiet option is most of the defence.
-
 ## Preview
-
-Three variants, one treatment. The glyph is the only thing `variant` changes: all three
-resolve the same fill, the same ink and the same boundary, so greyscale, a photocopier and
-a colour vision deficiency each take away nothing, because colour was never what told them
-apart. That is read off the source rather than demonstrated here. The preview's switches
-are Theme, Density, Text and Status, and there is no greyscale or colour-vision filter
-among them. [Colour blindness](../foundations/colour/colour-blindness.mdx) has the
-simulator; this component is the case where it has nothing to show.
 
 <ComponentPreview name="callout" />
 
@@ -74,7 +55,7 @@ import { Callout } from "@/components/ui/callout"
   use={[
     "Setting apart a note, a tip or a caveat that helps the reader understand the content around it.",
     "General health information that is true for everybody and is not about this reader's data.",
-    "Explaining a limitation of what is on screen, such as how a figure was worked out, what it does not include, where the data came from.",
+    "Explaining a limitation of what is on screen: how a figure was worked out, what it leaves out, where it came from.",
   ]}
   avoid={[
     { case: "The message is about this reader's data and carries a level of attention.", instead: "status-pill" },
@@ -82,19 +63,8 @@ import { Callout } from "@/components/ui/callout"
     { case: "The reader is being asked to do something by a certain time.", instead: "care-card" },
     { case: "It is the standing statement about what this product is not.", instead: "disclaimer-note" },
     { case: "You are explaining a single word rather than a passage.", instead: "term" },
-    { case: "There is no content yet and the callout is standing in for it.", instead: "empty-state" },
   ]}
 />
-
-The test is whether the message would still be true and still be worth saying if this
-particular reader had never opened the app. If yes, it is a Callout. If it depends on their
-data, it belongs on a component that carries a clinical contract.
-
-That test is also what the API enforces. There is no `status` prop, no `severity` prop and no
-`color` prop, and there is no fourth variant called *warning*. Their absence is the component:
-the moment a Callout can be tinted amber, the product has two ways of saying *attention*, and
-only one of them is counted, reviewed and answerable to
-[the two colour axes](../health/two-colour-axes.mdx).
 
 ## Anatomy
 
@@ -103,300 +73,69 @@ only one of them is counted, reviewed and answerable to
   parts={[
     {
       name: "Callout",
-      describes: "The root, a role=\"note\" region named by its title where there is one, carrying the one neutral treatment every variant shares: an inset fill, a hairline boundary, body ink and the system's default corner. It takes colour from neither axis, and it stamps neither data-status nor data-category.",
+      describes: "The root, a role=\"note\" named by its title. One neutral treatment for every variant, from neither colour axis.",
       prop: "className",
     },
     {
       name: "Callout.Icon",
-      describes: "One distinct glyph per variant, and never one of the four status glyphs. aria-hidden and decorative, sized in em so it grows with the text rather than staying put beside it.",
+      describes: "One distinct glyph per variant, never a status glyph. aria-hidden and sized in em.",
       prop: "variant",
     },
     {
       name: "Callout.Title",
-      describes: "An optional short heading. Rendered as styled text and never as an h1-h6 element, so it stays out of the page's outline; absent from the DOM entirely when no title is passed, and an empty or whitespace-only string counts as no title rather than as an empty one.",
+      describes: "Optional styled text, never an h1 to h6. Absent from the DOM when empty or whitespace.",
       prop: "title",
     },
     {
       name: "Callout.Body",
-      describes: "One short paragraph, at the body type step rather than a smaller one. A text body renders as a p so that adjacent callouts do not fuse into one text run; an element body keeps its wrapper. Nothing follows it: there is no actions slot, and no prop that could add one.",
+      describes: "One short paragraph at the body type step. There is no actions slot.",
       prop: "children",
     },
   ]}
 />
 
-<CompositionTree
-  name="callout"
-  tree={[
-    {
-      part: "Callout",
-      cardinality: "1",
-      note: "data-slot=\"callout\"; role=\"note\", named by the title when there is one; no data-status, no data-category and no data-variant",
-      children: [
-        {
-          part: "Callout.Icon",
-          cardinality: "1",
-          note: "data-slot=\"callout-icon\", aria-hidden; always present, one glyph per variant",
-        },
-        {
-          part: "Callout.Title",
-          cardinality: "0..1",
-          note: "data-slot=\"callout-title\"; rendered only when a title with text in it is passed",
-        },
-        {
-          part: "Callout.Body",
-          cardinality: "1",
-          note: "data-slot=\"callout-body\"",
-        },
-      ],
-    },
-  ]}
-/>
-
-The parts are `data-slot` attributes, not exports. There is no `Callout.Body` to import and no
-way to render one without the root, which is what makes "there is no actions slot" a fact about
-the DOM rather than a request in prose. Style them from outside; you cannot take them apart.
-
-**There is no `data-variant`.** The data-attribute vocabulary is closed at four, and the four
-are `data-slot`, `data-status`, `data-opsinjs-value` and `data-category`. Spending a fifth on
-a distinction whose loss this page describes as losing nothing would be the wrong trade. The
-three variants have one treatment between them, so there is nothing a variant selector would
-let you style that a class on the callout does not.
-
-**There is no actions slot.** A callout that needs a button is asking the reader to do
-something, and an instruction with somebody behind it and a time attached is a
-[CareCard](./care-card.mdx). The three parts above are the whole component.
-
 ## Examples
 
 ### Next to what it explains
 
-One callout per surface, immediately under the thing it annotates, saying a specific and
-checkable thing about it. The rule is the same shape as the escalation budget on the status
-axis: a treatment that means *look here* stops meaning anything once it is the fourth thing
-saying it.
+One callout per surface, directly under the thing it annotates, saying something specific and checkable. `title` names what the reader is about to be told.
 
 <ComponentPreview name="callout-next-to-what-it-explains" kind="example" align="start" />
 
 ### On a card
 
-The fill is the only thing setting a callout apart, so the surface behind it changes how much
-work the boundary is doing. On the page that surface is `bg-background`; on a card it is
-`bg-card`, which the product theme sets to pure white in the light theme. Neither pair is
-measured yet, which is why this is something to look at rather than a claim to read.
-
-A callout on a card also takes the concentric inner radius rather than the card's own, which is
-why the example passes `rounded-opsin-xs`. Equal corners on a box inside a box read as a sticker
-placed on the card rather than as part of it, which `tokens/shape.json` names as the single most
-common shape defect in a health card. The component cannot do this for itself, because it cannot
-see the padding of the box it sits in, so the caller applies the rule at the call site.
+The fill sets the callout apart, so `bg-card` behind it changes how much work the boundary does. The caller passes `rounded-opsin-xs` through `className` for the concentric inner radius.
 
 <ComponentPreview name="callout-on-a-card" kind="example" align="start" />
 
-## States
-
-Callout has no interaction states. It is a server component with no client boundary, so it
-takes no hover, focus, pressed or disabled treatment; `role="note"` gives it a start and an
-end but no `tabindex`, and it is never part of the tab order in either direction.
-
-It has no data states of its own either, for a different reason: it is never handed a reading
-to grade. `variant`, `title` and `children` are copy the caller already has in hand before
-render, so there is no fetch behind this component and nothing here that could be pending,
-missing or incomplete in the sense the five data states describe.
-
-| Data state | What Callout renders |
-| --- | --- |
-| Error | Not applicable. Callout does not detect a data error; a caller who wants to say what happened writes it into the body, and this component renders that sentence exactly as it renders any other. |
-| Loading | Not applicable. Nothing here reads a value, so there is no reading to wait for. |
-| Empty | Not applicable. The body is copy the caller already wrote, not a data source, so there is no populated case for an empty one to differ from. |
-| Partial | Not applicable, for the same reason as Empty: partial describes a reading that arrived incomplete, and Callout never holds a reading. |
-| Stale | Not applicable inside this component. A caller reaches for Callout to say that a reading elsewhere is stale, see [Offline and stale data](../patterns/offline-and-stale-data.mdx), but the component is the message and not the mechanism that would notice the staleness. |
-
 ## Content guidelines
 
-Keep it to a short paragraph. A callout longer than the content it annotates has become the
-content. Write in the same voice as the surrounding text. The box is the emphasis, so the
-words do not need to be.
-
-Do not use a callout to hedge. *This may not be accurate* attached to a number the product
-chose to display is not a caveat, it is an unresolved question about whether the number should
-be there.
-
-The title is optional and it is a title, not a label. *What this average leaves out* names what
-the reader is about to be told; *Note* names the component, which the reader can already see.
-
-**Let the words carry whatever the variant is carrying.** The glyph is `aria-hidden`, so it
-reaches nobody who is not looking at it, and there is no `data-variant` for anything else to
-read: for a screen-reader user, a caveat and a note are the same two paragraphs. *This average
-does not include days when you did not wear the device* is a caveat in its own words and needs
-no lightbulb or asterisk to say so. If a callout only becomes a tip because of the icon in its
-gutter, it is a tip for sighted readers alone. The component cannot check this and does not
-try. It is a rule for the copy, which is why it is here rather than in the API.
+Keep it to a short paragraph in the same voice as the surrounding text. The box is the emphasis, so the words need not be. The title names what the reader is about to be told, not the component. The glyph is `aria-hidden`, so the words must carry whatever the variant carries. Do not use a callout to hedge.
 
 <DoDont>
   <DoDont.Do>
-    **"This average does not include days when you did not wear the device."** A specific,
-    checkable limitation of what is on screen.
+    **"This average does not include days when you did not wear the device."** A specific, checkable limitation.
   </DoDont.Do>
   <DoDont.Dont>
-    **"⚠️ Important: your data may be incomplete."** Warning styling for a non-clinical fact,
-    no specifics, and nothing the reader can do. Those are the exact ingredients of alarm
-    fatigue.
+    **"Important: your data may be incomplete."** Warning register, no specifics, nothing the reader can do.
   </DoDont.Dont>
 </DoDont>
-
-<DoDont>
-  <DoDont.Do>
-    **One callout per surface**, next to the thing it explains.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **Four callouts down one screen.** Set-apart content that is everywhere is not set apart,
-    and the reader reads none of them.
-  </DoDont.Dont>
-</DoDont>
-
-These documentation pages use their own admonition chrome bound to the four clinical status
-words, because a documentation page has no patient and the vocabulary is worth rehearsing in
-front of the people who will implement it. The product component deliberately does not. If that
-reads as inconsistent, it is: it is the one place the docs chrome and the product theme are
-allowed to disagree, and [Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx)
-explains why. It is also a naming collision worth knowing about. The `<Callout>` tag in these
-pages and the `Callout` component you install are different things that share a word.
-
-## Motion
-
-Callout declares no transition and reads no token from `tokens/motion.json`. The fill, the
-boundary and the glyph render in position on first paint and do not move again for the life of
-the render, so there is nothing here for `prefers-reduced-motion` to reduce. That is not a
-placeholder waiting on a later release: a leaf component with no open state, no mount animation
-and no counter has nowhere to put a transition, and giving it one to fill this heading would be
-motion invented to answer a question the component does not ask.
 
 ## Accessibility
 
-Some of this is checked by a gate, including one gate that is doing more for this component
-than it does for most. The rest is argued, and the things nobody has measured are listed rather
-than left out. That separation is the contract every component page holds.
+**Checked by `pnpm run check:a11y` on every commit.**
 
-**Checked, by `pnpm run check:a11y` on every pull request and on every push to `main`:**
-`check:a11y` runs inside `pnpm check` and as its own step in `.github/workflows/ci.yml`. There
-is no commit hook in this repository, so nothing checks a commit that is never pushed.
+- The source cannot paint a colour from either axis, and no status word appears as a whole string literal.
+- Every colour is a role token, no class resolves only in the docs chrome, and no type size is in `px`.
 
-- **This component's source cannot paint a colour from either axis.** A status utility or a
-  status custom property anywhere in `callout.tsx` makes the file a status surface owing a
-  status word, a status glyph and a `data-status`, and it has none of those three carriers, so
-  the run fails with two A11Y001 errors. (It does render three glyphs. They are `Info`,
-  `Lightbulb` and `Asterisk`, and none of them belongs to the status axis, which is the
-  distinction one of those two error messages currently blurs.) That is the closest thing to
-  mechanical enforcement the refusal at the top of this page has, and it was verified by
-  putting a status fill into the file and watching the build stop. It does not reach
-  `className`; see the last section below.
-- **Restating a status word here costs something.** A11Y002 fails the build on any registry
-  file that contains one of the four status words as a whole string literal, or as the first
-  text run inside a JSX element, in the exact casing `CLINICAL_STATUS_META` publishes. A11Y002
-  covers the absence word *Not known* as well, and that word is not a fifth level. The rule is
-  not airtight and `check-a11y.mts` says so in its own header: a shouted `URGENT` is not the
-  published casing, a word mid-sentence is not whole text, and a word placed after a sibling
-  element is invisible to the JSX scan. That last one is exactly how an icon-then-word pill is
-  written. Its own conclusion is that the rule "raises the cost of restating a status word
-  without making it impossible", and this page will not claim more for it than it claims for
-  itself.
-- **Every colour is a role token.** No hex literal, no `oklch()` call, no Tailwind palette
-  colour and no numbered ramp step, so nothing here holds a value that dark mode will not
-  follow.
-- **No class that resolves only in the docs chrome.** `bg-accent` and its siblings are declared
-  in `app/globals.css` and produce no CSS at all under the product theme; the gate fails on
-  them by name, which is what stops a callout that reviews well and renders unstyled.
-- **No type size in `px`**, so the body scales with the reader's own text size. See
-  [Dynamic type](../foundations/typography/dynamic-type.mdx).
-- **No banned word, in copy or in an identifier.**
+**Argued from the source, not measured.**
 
-**Argued, and true of the implementation, but not measured:**
+- The root is `role="note"`, named by its title, with no `aria-live` and no tab stop.
+- All three variants share one fill, ink and boundary, so greyscale takes away nothing.
+- The title is styled text, not a heading, so it never enters the page outline.
+- No fixed height and `min-w-0` with `wrap-break-word` on the body, so 200% text reflows instead of scrolling.
 
-- **It is a note in the reading order.** The root carries `role="note"`, the WAI-ARIA role for
-  content parenthetic or ancillary to the main content, and it is named by its title where there
-  is one. It has no `aria-live`, no `aria-atomic` and no `alert`, so nothing here is announced
-  over what the reader is doing, and nothing here is announced twice. The role supplies the start
-  and the end a plain element withheld, so two adjacent callouts no longer read as one continuous
-  text run. That is a benefit with a cost attached, and the cost is the first item in the next
-  section rather than left off the page.
-- **The variant survives greyscale, because it never depended on colour.** All three variants
-  resolve the same fill, ink and boundary, so there is no hue for greyscale or a colour vision
-  deficiency to remove. What is left is the glyph. The glyph is `aria-hidden`, so it reaches
-  nobody who is not looking at it. Every callout this component ships names its variant in its
-  own words for that reason, and [Content guidelines](#content-guidelines) makes it a rule for
-  callers; but it is a rule about copy, and the component neither checks it nor can.
-  A caller who writes a caveat whose words never say what is being qualified has a caveat that
-  reads as a note to a screen-reader user, and nothing in this repository will catch it.
-- **The title is not a heading.** It renders as styled text rather than as an `h1`-`h6`, so it
-  cannot put a level into an outline it cannot see. If the callout is a section a reader needs
-  to navigate to, it needs a real heading outside it.
-- **At 200% text the callout should grow with its content.** No fixed height, no `truncate`, no
-  overflow container; the glyph is sized in `em`, the type steps are `rem`, and the padding is a
-  multiple of `--spacing`. One thing that argument used to miss: `grid-cols-[auto_1fr]` gives
-  the text track a floor of its own min-content width, so a single unbreakable token such as a
-  long word or a bare URL could widen the grid past a phone viewport and put horizontal scroll
-  on the document, which is the [reflow](../accessibility/text-resizing-and-zoom.mdx) failure
-  and not a truncation one. The source now sets `min-w-0` on both cells in that column and
-  `wrap-break-word` on the body. All of this is still read off the source: the preview above
-  does render this component and its **Text** switch does go to 200%, so the measurement can
-  now be taken on this page. It has not been taken, in either theme, and the phone-width half
-  of it belongs to the nightly layout job rather than to a person scrolling this page.
-- **It is not focusable and adds no tab stop.** There is nothing to operate, so there is
-  nothing in the tab order. That also means the dismiss-control requirement in the
-  specification is unmet by absence rather than satisfied.
-- **Print drops the fill and keeps an outline, in both themes.** A browser drops background
-  colours when it prints, so the boundary is the whole of the treatment on paper, and it steps
-  up from the hairline to the ink role for exactly that reason. The dark theme used to fail
-  here, because `print:border-foreground` resolved to a near-white line on white paper; the
-  theme layer now redeclares the printed palette as ink on paper for the dark selectors too, so
-  the same rules produce a boundary a printer can draw whichever theme the reader started from.
-  The rules are declared and readable in the source, and no printed page has been looked at in
-  either theme.
-
-**Not checked at all, and listed rather than omitted:**
-
-- **Whether the boundary reads well has not been listened to.** The root now carries
-  `role="note"` named by its title, so a screen-reader user gets the start, the end and the name
-  a bare `div` withheld, and two adjacent callouts no longer fuse into one text run. What is
-  unchecked is how that sounds in practice: nobody has heard it in VoiceOver on iOS or in
-  TalkBack, so whether a titled note read aloud twice, first as its name and then as its title
-  paragraph, is a help or a small annoyance is untested. A screen a product fills with callouts
-  now announces a container for each one, and how many announced containers a reader tolerates
-  before the boundary becomes noise is unanswered. It is the open question in the Status section.
-- **`className` is no longer a hole for colour, but it is still a hole.** An axis colour utility
-  passed to the root is filtered out of the class list in every build, before `cn()` runs, so
-  `twMerge` never sees it and `bg-(--opsin-material-inset-tint)` survives: a callout cannot be drawn in a status fill
-  through this prop any more, in production or in development, and development still prints the
-  warning naming what to use instead. What stays open is everything that is not a class name on
-  this prop. A consumer can still reach the element with their own stylesheet or a `style`
-  attribute, and no gate in this repository reads a consumer's code. That is question one on this
-  page, and the class-name half of it is now closed.
-- **Contrast.** The four pairs that decide whether this component reads are body ink on the
-  inset fill (`--opsin-material-inset-tint`), the fill against the page and against a card, and
-  the hairline against the fill, in both themes. None of those four is in
-  `lib/generated/contrast.json`, so no number on this page or in the component's source is a
-  measurement of this component. The `<ContrastReport>` below is not empty. It prints the six
-  neutral token pairs this component draws its colour from, resolved through the callout row's
-  `contrastScopes`, and a scope list says which tokens the component uses. It is not a
-  per-component measurement, and it must not be read as one. The one of those six that comes
-  closest is the neutral hairline against the neutral page, which is advisory-failing in both
-  themes. That is still a different pair from the hairline against the inset fill this component
-  actually paints, and in the dark theme `--border` is a translucent white over whatever is
-  behind it, which the neutral-page reading does not stretch to cover. It is the reason the
-  boundary is never the only thing setting a callout apart on screen, and it is not a figure.
-- **Print, physically, in either theme.** `print:border-foreground` steps the boundary up to
-  the ink role, and the printed palette that ink resolves to is the theme's rather than this
-  component's. `app/product.css` now carries an `@media print` block that redeclares
-  `--foreground` and `--border` as ink on paper across all four theme selectors, the two dark
-  ones included, so a reader printing from the dark theme gets a boundary a printer can draw
-  rather than a near-white line on white. That closes the dark-theme gap this component used to
-  name as unclosable from inside itself, and it does so where it belongs, in the theme layer, so
-  every component gets it at once. What is still open is physical: nobody has sent either theme
-  to a real printer, so the result is right by construction rather than confirmed on paper.
-- **Increased contrast and forced colours.** `prefers-contrast` and `forced-colors` are not
-  implemented anywhere in opsinjs, so nobody can make that claim about any component yet.
-- **How many callouts are too many.** The guidance is one per surface. Nothing counts them, and
-  a component cannot see its neighbours. See [Alarm fatigue](../health/alarm-fatigue.mdx).
+**Not checked by any gate.** How the note sounds in a screen reader, the four contrast pairs it paints, print in either theme, `forced-colors`, and how many callouts are too many.
 
 <KeyboardTable
   name="callout"
@@ -404,129 +143,33 @@ is no commit hook in this repository, so nothing checks a commit that is never p
     {
       keys: "Tab",
       action: "Skips the callout",
-      notes: "There is nothing to operate, so there is no tab stop. A callout adds no tabindex, moves no focus and takes none. If a product puts a link inside the body, that link is the tab stop and the callout is still not one.",
+      notes: "No tab stop. A link inside the body is the stop, not the callout.",
     },
     {
       keys: "Shift + Tab",
       action: "Skips the callout",
-      notes: "Same in reverse. The callout never appears in the focus order in either direction.",
+      notes: "Same in reverse. Never in the focus order.",
     },
     {
       keys: "Escape",
       action: "Does nothing",
-      notes: "There is no dismiss control, so there is nothing for Escape to close. If one is ever added it owes Escape a behaviour, an accessible name that says what it dismisses, and a 44pt target. See Target size and motor.",
+      notes: "There is no dismiss control, so nothing closes.",
     },
   ]}
 />
 
 <ContrastReport component="callout" />
 
-## Data attributes
-
-<DataAttributesTable
-  name="callout"
-  rows={[
-    { attribute: "data-slot", condition: "The root", value: "callout" },
-    { attribute: "data-slot", condition: "The icon", value: "callout-icon" },
-    { attribute: "data-slot", condition: "The title, when a title with text is passed", value: "callout-title" },
-    { attribute: "data-slot", condition: "The body", value: "callout-body" },
-  ]}
-/>
-
-Callout emits exactly the four `data-slot` values named in the anatomy and nothing else. It
-carries no `data-status` and no `data-category`, because the whole of its API refuses both
-axes; no `data-opsinjs-value`, because it never renders a measurement; and no `data-variant`,
-because the vocabulary this system publishes is closed at four names, and a distinction that
-changes no fill, no ink and no boundary was judged not worth a fifth. The four slots are the
-hook a caller's own stylesheet reaches the icon, the title or the body by, without an export to
-import.
-
-## CSS variables
-
-<CssVariablesTable name="callout" />
-
-Callout exposes no custom property of its own. Its fill is `--opsin-material-inset-tint`, its
-ink is `text-foreground` and its boundary is `border-border`, all read straight from the token
-layer rather than through a component-scoped variable, so there is nothing here of its own to
-override. The Tokens section below lists the roles it actually reads; to recolour a part, write
-a rule against its `data-slot`.
-
-## Tokens
-
-<TokenTable component="callout" />
-
-These are the tokens `callout.tsx` actually reads, generated from the source by
-`scripts/build-tokens.mts` rather than listed by hand. They are the neutral fill, ink and
-boundary roles the one shared treatment paints, plus the shape and spacing tokens that size the
-box. Callout never reads a status token and a category token onto the same element, which is
-the two-axis rule this component was built to keep rather than to be an exception to.
-
 ## API reference
 
 <PropsTable name="CalloutProps" />
 
-The variant union is declared in the component file and is not exported. A registry file ships
-exactly three public symbols, and they are the props interface, the component and its zero-prop
-demo. A wrapper that needs to name the three values therefore writes `CalloutProps["variant"]`
-rather than importing a fourth.
-
-What is not in the table is the more useful half of the API: no `status`, no `severity`, no
-`color`, no `variant: "warning"`, no `action`, no `dismissible`, and no way to supply a fill.
-Each of those is a request this component exists to refuse, and the reasoning for every one of
-them is on this page rather than in a changelog.
-
-`className` is the exception, and it is documented as an exception. Its non-colour classes are
-merged onto the root last, so a caller's layout, spacing and radius win wherever they collide
-with the callout's own. A colour from either axis is the one class that does not reach the root:
-it is filtered out of the list before `cn()` runs, in every build, so `twMerge` never deletes
-`bg-(--opsin-material-inset-tint)` in its favour and no callout is ever drawn in a status fill through this prop.
-Development additionally raises a warning naming the component to use instead. The callout still
-renders its paragraph, because taking a paragraph off the screen over a styling mistake would be
-the larger error. It does not go through `warnOnce`, which is keyed on an `OPSIN-` code, because
-`tokens/errors.json` has no entry for a component outside both axes being handed a colour from one
-of them and a component may not mint one. In its place the file keeps a module-local set keyed on
-the offending class list, so the warning prints once per distinct offending class list for the
-life of the module rather than on every render. Two different offending class lists are two
-different mistakes in two different places, and both are reported.
+There is no `status`, `severity`, `color` or `warning` variant, and no `action` or `dismissible`. The variant union is not exported, so a wrapper writes `CalloutProps["variant"]`. An axis colour in `className` is stripped before it reaches the root, and development warns once per offending class list.
 
 ## Related
 
-<RelatedComponents name="callout" />
-
-**Easily confused with**
-
-- [AlertBanner](./alert-banner.mdx) is the clinical, interruptive counterpart. Choosing
-  correctly between these two is the single most valuable decision on a health screen.
-- [StatusPill](./status-pill.mdx) is where a clinical level is stated directly, as a word, a
-  glyph and a colour together. A Callout is the same shape on screen and the opposite claim.
-- [CareCard](./care-card.mdx) is the component to use when there is something to do and
-  somebody asking.
+- [AlertBanner](./alert-banner.mdx) is the clinical, interruptive counterpart and the component Callout is most often mistaken for.
+- [StatusPill](./status-pill.mdx) states a clinical level directly, as a word, a glyph and a colour together.
+- [CareCard](./care-card.mdx) is for when there is something to do and somebody asking.
 - [DisclaimerNote](./disclaimer-note.mdx) is the standing statement about the product itself.
-- [Term](./term.mdx) is for a single word rather than a passage.
-
-**Used by**
-
-- [Alert escalation](../patterns/alert-escalation.mdx) names Callout in its composition
-  as the surface for a note that sits off the ladder entirely, below the ambient first rung.
-- [Choose a component](../recipes/choose-a-component.mdx) sends a would-be alert here
-  whenever nothing clinical is at stake.
-- [Consent and permissions](../patterns/consent-and-permissions.mdx) sets the caveats
-  beside a permission request without raising them to an alert.
-- [Consent flow](../screens/consent-flow.mdx) uses it to qualify a consent step rather
-  than interrupt it.
-- [Empty and first use](../patterns/empty-and-first-use.mdx) carries the tip that orients
-  a reader who has no data yet.
-- [Error summaries](../patterns/forms/error-summaries.mdx) names Callout in its
-  composition as a quiet note beside the form, kept out of the error list rather than mixed
-  into it.
-- [Offline and stale data](../patterns/offline-and-stale-data.mdx) notes that a reading
-  may be out of date, said quietly rather than as an alarm.
-- [Onboarding screen](../screens/onboarding-screen.mdx) explains a screen the reader is
-  seeing for the first time.
-
-**Governed by**
-
-- [The two colour axes](../health/two-colour-axes.mdx) has the argument for why this component
-  stays outside the status axis.
-- [Alarm fatigue](../health/alarm-fatigue.mdx)
-- [Voice and tone](../content/voice-and-tone.mdx)
+- [Term](./term.mdx) explains a single word rather than a passage.

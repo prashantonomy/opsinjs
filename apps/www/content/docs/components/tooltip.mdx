@@ -9,32 +9,21 @@ category: overlay
 aliases: ["hover label"]
 ---
 
-## Status
-
 <StubNotice
   name="tooltip"
   status="shipped"
   questions={[
-    "No contrast pair has been measured. The label is footnote ink on the card fill, and the arrow is the same fill against whatever surface sits behind it; whether each reads at the text and non-text floors has been argued from the roles rather than checked by a machine, which is why the report below is empty rather than reassuring.",
-    "Nobody has listened to a tooltip in a screen reader. Base UI wires the popup to the trigger through aria-describedby, so the label is meant to be announced after the control's own name as a description, and whether that is the register a reader expects, and whether the label is announced at all on a touch screen reader, has been reasoned about rather than heard.",
-    "The rule that a tooltip carries only what a reader can do without is a convention the component keeps and the type system cannot enforce. Nothing stops a caller putting the one fact a control cannot be used without behind a hover a phone reader never triggers. The page argues it; no lint rule on a consumer's own code catches it.",
-    "The arrow is a filled square with no hairline of its own, placed and flipped by Base UI against whichever edge the popup settled on. How it reads on each of the four sides, and what it and the popup draw under forced-colors and prefers-contrast where the fill and the shadow are both replaced, has not been put in front of a machine or a high-contrast reader.",
+    "No contrast pair has been measured: footnote ink on the card fill, and the arrow's fill against whatever surface sits behind it, are argued from the roles only.",
+    "Nobody has listened to a tooltip in a screen reader, so whether the aria-describedby label is announced as a description, or at all on touch, is unheard.",
+    "Nothing stops a caller putting the one fact a control cannot be used without behind a hover a phone reader never triggers; no lint catches it.",
   ]}
 >
-  <code className="text-sm">tooltip</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">tooltip</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Tooltip is a short supplementary label that appears when a pointer rests on a control or a keyboard moves focus to it, and vanishes when either leaves. It is built on Base UI's Tooltip primitive, which owns the hover and focus state, the open delay and the portal, and it draws only the neutral material surface: a card fill with a hairline and the one shadow the material ladder publishes for a floating note.
-
-The decision that shapes the whole component is that a tooltip carries only the label you could delete. opsinjs is a phone-first system, and a phone has no hover: a touch reader never rests a pointer on anything, so a touch reader never sees a tooltip at all. There is no touch gesture that means hover without also meaning activate, so this is a limit to design around rather than a gap to close. Anything a reader needs to use a control goes on the screen, in the layout, where every reader meets it. A tooltip holds the note that is nice to have and safe to miss.
-
 ## Preview
-
-A labelled button with a supplementary note attached. The thing worth checking is that the button already says what it is and the tooltip only adds to it, so read it with the keyboard as well as the pointer: Tab moves focus onto the control and the label appears, and that keyboard path is the one a phone reader does not have. Nothing here is essential, which is the point.
 
 <ComponentPreview name="tooltip" />
 
@@ -46,8 +35,6 @@ A labelled button with a supplementary note attached. The thing worth checking i
   importPath="@/components/ui/tooltip"
   dependencies={["@base-ui/react"]}
 />
-
-The component is built on Base UI's Tooltip primitive, which is where the hover and focus handling, the open delay, the portal and the positioning come from, so installing it pulls in `@base-ui/react`. It mounts its own `Tooltip.Provider` inside, so a single tooltip works with nothing above it in the tree. A product that shows many tooltips on one screen should still hoist a shared provider of its own, so they open on one coordinated timer rather than each on its own.
 
 ## Usage
 
@@ -65,20 +52,16 @@ import { Tooltip } from "@/components/ui/tooltip"
 
 <WhenToUse
   use={[
-    "Expanding an icon-only control's name for a pointer or keyboard reader, where the control already carries that name through aria-label so a reader using assistive technology is not left waiting on a hover.",
-    "Adding a short optional note beside a label that already stands on its own, such as what a setting affects, that a reader can do without.",
-    "Surfacing a value's full form on demand, such as an abbreviation's expansion, where the reading the reader came for is already on the screen.",
+    "Expanding an icon-only control's name for a pointer or keyboard reader, where the control already carries it through aria-label.",
+    "Adding a short optional note beside a label that already stands on its own, such as what a setting affects.",
+    "Surfacing a value's full form on demand, such as an abbreviation's expansion, where the reading is already on screen.",
   ]}
   avoid={[
-    { case: "The label carries something a touch reader needs to use the control. A phone has no hover, so the tooltip never opens for them and the fact goes missing on the device most readers hold. Put it on the surface in words.", instead: "callout" },
-    { case: "You are explaining what a clinical word means. A definition belongs inline in the sentence and in the accessibility tree, not behind a hover a phone reader never triggers.", instead: "term" },
-    { case: "You are attaching a hint to a form control, such as the format a date should take. A field hint is always visible and is read as part of the control.", instead: "field" },
+    { case: "The label carries something a touch reader needs to use the control. A phone has no hover, so the tooltip never opens for them.", instead: "callout" },
+    { case: "You are explaining what a clinical word means. A definition belongs inline in the sentence and in the accessibility tree.", instead: "term" },
+    { case: "You are attaching a hint to a form control, such as a date format. A field hint is always visible and read with the control.", instead: "field" },
   ]}
 />
-
-The exclusion that matters is the first, and it is the reason this component was left unbuilt for so long. A tooltip is invisible on a touch screen, so anything it carries that a reader needs to act is a barrier for the readers who cannot reach it. The test to apply before reaching for a tooltip is simple: if the control cannot be used without the label, the label is not supplementary and does not belong in a tooltip. Put it on the surface, in a [Callout](./callout.mdx) or beside the control, where a thumb finds it.
-
-The second and third exclusions keep a tooltip from standing in for two components that keep their content in the reading order. A [Term](./term.mdx) attaches a plain-English meaning to a clinical word without leaving the sentence and never removes that meaning from the accessibility tree, which is exactly what a tooltip would do. A [Field](./field.mdx) carries a hint that is part of the control and read with it. A tooltip is the right tool only when the content is genuinely optional and the control already names itself.
 
 ## Anatomy
 
@@ -87,22 +70,22 @@ The second and third exclusions keep a tooltip from standing in for two componen
   parts={[
     {
       name: "Tooltip",
-      describes: "The root. It mounts Base UI's Tooltip.Provider and Tooltip.Root, owns the open state, the delay and the portal, and draws only neutral chrome. It carries neither data-status nor data-category, so it is on neither colour axis.",
+      describes: "The root. Owns the open state, the delay and the portal, and draws neutral chrome only.",
       prop: "content",
     },
     {
       name: "Tooltip.Trigger",
-      describes: "The control the tooltip is attached to, rendered in place rather than wrapped: whatever element is passed as children becomes the trigger, keeping its own role, focus ring and target floor. It must be focusable, and an icon-only trigger keeps its own accessible name through aria-label. data-slot=\"tooltip-trigger\".",
+      describes: "The caller's own element, rendered in place. It must be focusable and keep its own aria-label.",
       prop: "children",
     },
     {
       name: "Tooltip.Popup",
-      describes: "The label surface, a small raised card: bg-card with a border-border hairline and the overlay material shadow, the label set at the footnote step. It is portalled out of the trigger's box and positioned against the preferred side, flipping when that side would run off screen. data-slot=\"tooltip-popup\".",
+      describes: "A small raised card at the footnote step, portalled and positioned against the preferred side.",
       prop: "side",
     },
     {
       name: "Tooltip.Arrow",
-      describes: "The small pointer from the popup back to the trigger, a rotated square taking the popup's own card fill with no hairline of its own, so it reads as one material with the popup rather than doubling its edge. Placed and flipped by Base UI against whichever side the popup settled on. data-slot=\"tooltip-arrow\".",
+      describes: "A rotated square in the popup's card fill, with no hairline of its own.",
     },
   ]}
 />
@@ -113,17 +96,17 @@ The second and third exclusions keep a tooltip from standing in for two componen
     {
       part: "Tooltip",
       cardinality: "1",
-      note: "Provider plus root; owns the open state and the portal. Neither data-status nor data-category.",
+      note: "Provider plus root; owns the open state and the portal",
       children: [
         {
           part: "Tooltip.Trigger",
           cardinality: "1",
-          note: "data-slot=\"tooltip-trigger\", the caller's own focusable control rendered in place",
+          note: "data-slot=\"tooltip-trigger\", the caller's own focusable control",
         },
         {
           part: "Tooltip.Popup",
           cardinality: "1",
-          note: "data-slot=\"tooltip-popup\", portalled and positioned against the preferred side",
+          note: "data-slot=\"tooltip-popup\", portalled",
           children: [
             {
               part: "Tooltip.Arrow",
@@ -137,62 +120,59 @@ The second and third exclusions keep a tooltip from standing in for two componen
   ]}
 />
 
-The parts above are identified by `data-slot` and are styleable from outside; none of them is an export, and there is no way to render the popup without the trigger it describes. The trigger is deliberately the caller's own element rather than a button this component adds, because the pressable control keeps its own role, its own name and its own focus ring, and the tooltip only borrows it to hang a description on. That is why `children` must be focusable: an element that cannot take focus never opens the tooltip for a keyboard reader.
-
 ## Examples
 
 ### On an icon button
 
-The case people reach for a tooltip first. Each icon button carries its own name through `aria-label`, so a screen-reader and a voice-control user get the name whether or not a tooltip ever opens, and the tooltip repeats that name visibly for a reader using a pointer or the keyboard. The labels name fictional actions rather than measuring anybody, because an opsinjs example must never be mistakable for a reading.
+Each icon button carries its own name through `aria-label`, and `content` repeats
+it visibly for a pointer or keyboard reader. The labels name fictional actions,
+never a reading.
 
 <ComponentPreview name="tooltip-on-an-icon-button" kind="example" align="start" />
 
 ### A supplementary hint
 
-A hint beside a label that already stands on its own. The setting is named in plain words on the surface, so a touch reader knows what it is without any hover, and the tooltip adds a second, optional sentence for a reader who wants it. This is the honest shape for a tooltip in a phone-first system: the essential label is on screen, and the tooltip holds only the note a reader can do without.
+The setting is named in plain words on the surface, so a touch reader needs no
+hover, and `content` adds one optional sentence for a reader who wants it.
 
 <ComponentPreview name="tooltip-a-supplementary-hint" kind="example" align="start" />
 
 ## Content guidelines
 
-Keep a tooltip to a phrase, in sentence case, with no terminal punctuation unless it is a full sentence. It is a supplementary note, not a paragraph, and a long one is a block of text that belongs on the surface where every reader meets it. Write what the control does or what the value means, never an instruction that only appears on hover, because the reader who most needs the instruction is the touch reader who never sees it.
-
-Never put the one fact a control cannot be used without in a tooltip. If the icon needs a word to be understood, the word goes beside the icon, not behind a hover. When a tooltip repeats an icon-only control's name, keep that name on the control's `aria-label` as well, so the name reaches assistive technology and voice control rather than living only in a popup that opens on hover.
+Keep a tooltip to a phrase, in sentence case, with no terminal punctuation unless
+it is a full sentence. Write what the control does or what the value means, never
+an instruction that only appears on hover.
 
 <DoDont>
   <DoDont.Do>
-    **A note beside a named setting: "Reminders wait until the morning during the
-    hours you set here."** The setting is already labelled on the surface, so the
-    tooltip adds an optional detail a reader can do without and nobody is left
-    behind on a phone.
+    **"Reminders wait until the morning during the hours you set here"** beside a
+    setting already labelled on the surface.
   </DoDont.Do>
   <DoDont.Dont>
     **The only label on an icon-only control, shown on hover alone.** A touch
-    reader with no assistive technology sees a bare glyph and cannot tell what
-    the control does, because a phone has no hover to open the tooltip. Put the
-    word on the surface, or keep it on the control's aria-label as well.
+    reader sees a bare glyph.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. Accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user, and the largest limit, that a touch reader never sees a tooltip, is a property of the platform rather than a defect to fix, which is why the whole component is built around carrying nothing essential.
+**Checked by `pnpm run check:a11y` on every commit.**
 
-**Checked, by `pnpm run check:a11y`:**
+- No status colour, no colour literal and no ramp step, so the component sits on
+  neither colour axis.
+- No `px` type size: the label is the `footnote` step.
 
-- **No status colour, no colour literal, no ramp step.** The popup and the arrow draw only the neutral chrome and material roles, so the component carries no `data-status`, reads no clinical vocabulary, and cannot mix the two axes. The gate reads every element and would fail the build on a colour drawn from either axis or on a raw colour value, and there is neither here.
-- **No px type size.** The label is the `footnote` semantic step rather than a pixel size, so a reader who has turned their text size up gets a larger label rather than a pinned one.
+**Argued from the source, not measured.**
 
-**Argued, and true of the implementation, but not yet measured:**
+- Base UI wires the popup through `aria-describedby`, so the label is a
+  description announced after the control's own name, never a replacement.
+- Focus opens the tooltip, Escape dismisses it, and focus never leaves the
+  trigger.
+- At 200% text the popup grows with the label, capped at the tight measure so it
+  wraps rather than clips.
 
-- **The label is a description, not a name.** Base UI wires the popup to the trigger through `aria-describedby`, so it is announced after the control's own name rather than replacing it. The trigger keeps its own accessible name, which is why an icon-only trigger still needs an `aria-label`.
-- **Focus opens it, Escape dismisses it, and focus never moves.** A keyboard reader reaches the tooltip by focusing the trigger, and Escape closes the label while focus stays on the control, so opening a tooltip never takes a reader out of their place.
-- **At 200% text the popup grows with the text.** The label is sized from the type step and its padding is in space tokens, and the width is capped at the tight measure so a long label wraps into a readable block rather than clipping.
-
-**Not checked at all, and listed rather than omitted:**
-
-- Every contrast pair: the footnote ink against the card fill, and the arrow's fill against the surface behind it. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring.
-- What the popup and the arrow draw under `forced-colors: active` and `prefers-contrast: more`, where the fill and the shadow are both replaced by the platform's own pair, and how the arrow reads on each of the four sides. None of this has been put in front of a machine or a high-contrast reader.
+**Not checked by any gate.** Every contrast pair, and what the popup and arrow
+draw under `forced-colors: active` and `prefers-contrast: more` on each side.
 
 <KeyboardTable
   name="tooltip"
@@ -200,22 +180,22 @@ Some of this is enforced by a gate on every pull request and every push to `main
     {
       keys: "Tab",
       action: "Moves focus onto the trigger and shows the tooltip",
-      notes: "Focus is the keyboard's path to a tooltip, and the only path a reader without a pointer has. There is no open delay on focus: a reader who deliberately moved focus to the control is not resting a pointer by accident.",
+      notes: "No open delay on focus; the keyboard is the only path without a pointer.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves focus off the trigger and hides the tooltip",
-      notes: "The label follows focus, so leaving the control in either direction closes it.",
+      notes: "The label follows focus, so leaving in either direction closes it.",
     },
     {
       keys: "Escape",
       action: "Dismisses the tooltip",
-      notes: "Focus stays on the trigger, so dismissing the label does not take the reader out of their place. The tooltip reopens on the next focus or pointer rest.",
+      notes: "Focus stays on the trigger. It reopens on the next focus or pointer rest.",
     },
     {
       keys: "Enter, Space",
       action: "Activates the underlying control",
-      notes: "The tooltip binds neither key. Whatever the trigger does on Enter or Space is the control's own behaviour, unchanged, because the tooltip only hangs a description on it.",
+      notes: "The tooltip binds neither key; the trigger's own behaviour is unchanged.",
     },
   ]}
 />
@@ -226,18 +206,13 @@ Some of this is enforced by a gate on every pull request and every push to `main
 
 <PropsTable name="TooltipProps" />
 
-`content` is the whole of the label and is required, because a tooltip with nothing to show is a description that announces nothing. `children` is the trigger, and it must be focusable: the caller's own element is rendered in place and becomes the control the tooltip is attached to, so a bare span of text gets no tooltip on the keyboard and an icon-only trigger still needs its own `aria-label`. `side` is a preference that Base UI flips when the popup would run off screen, and `delay` governs the pointer only, because focus opens the tooltip at once.
+`content` is required; an empty one raises a development warning. `children`
+must be focusable, so a bare span gets no tooltip on the keyboard. `side` defaults
+to `top` and Base UI flips it at the screen edge. `delay` defaults to 600 and
+governs the pointer only; focus opens the tooltip at once.
 
 ## Related
 
-<RelatedComponents name="tooltip" />
-
-**Easily confused with**
-
-- [Term](./term.mdx) attaches a plain-English meaning to a clinical word without leaving the sentence, and never removes that meaning from the accessibility tree. A tooltip hides its content until hover or focus, so a definition belongs in Term, not a tooltip.
-- [Field](./field.mdx) carries a hint that is part of a form control and is always visible. A tooltip is optional and appears only on hover or focus, so a hint a reader needs to fill in a field belongs in Field.
-- [Callout](./callout.mdx) sets a piece of information apart on the surface, where every reader meets it. When a note is essential rather than supplementary, it is a Callout and not a tooltip.
-
-**Used by**
-
-- No pattern, recipe or screen composes it yet. It is a neutral primitive that a product attaches to its own icon buttons and labelled controls, keeping anything a reader needs on the surface rather than behind a hover.
+- [Term](./term.mdx) attaches a plain-English meaning to a clinical word inline, and never removes it from the accessibility tree.
+- [Field](./field.mdx) carries a hint that is part of a form control and always visible.
+- [Callout](./callout.mdx) sets essential information apart on the surface, where every reader meets it.

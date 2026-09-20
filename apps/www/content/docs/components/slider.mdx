@@ -9,32 +9,21 @@ category: actions-and-forms
 aliases: ["range input", "drag to set"]
 ---
 
-## Status
-
 <StubNotice
   name="slider"
   status="shipped"
   questions={[
-    "No contrast pair has been measured. The knob is the card surface with a hairline against the primary fill and the muted track, and the focus ring is the ring role against all three; whether each reads at the non-text floor rests on the roles it uses rather than on a machine that measured the knob on the fill and the fill on the track.",
-    "Nobody has listened to this control in a screen reader. Base UI wires the visible label to the thumb's hidden range input, so the input should announce its name, its value and its min and max, but whether the readout beside the label and the spoken value agree in the flow of a real assistive technology has been reasoned about rather than heard.",
-    "The thumb carries no aria-valuetext, so a screen reader speaks the raw number rather than a phrase such as \"about half\". Whether a coarse preference reads better as a bare figure or as a described position is unresolved, and nothing here has set the described form.",
-    "Forced colours and prefers-contrast: more are unhandled. Under forced colours the card knob, the primary fill and the muted track are all replaced by the platform's own pair, and whether the thumb still reads as a distinct object on the track in that mode has not been tested.",
+    "No contrast pair has been measured: the knob against the primary fill and the muted track, and the focus ring against all three.",
+    "Nobody has heard this in a screen reader, and the thumb carries no aria-valuetext, so it speaks a raw number rather than a described position.",
+    "Forced colours and prefers-contrast: more are unhandled, and whether the thumb still reads as a distinct object on the track is untested.",
   ]}
 >
-  <code className="text-sm">slider</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">slider</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Slider sets a single coarse value by dragging a thumb along a track. Its home is a rough, non-clinical preference, such as a brightness level or a fuzzy nought to a hundred sense of "how much", where the exact number does not matter and the gesture of sliding towards more or less is the whole interaction.
-
-The rule that shapes the component is the one thing it must never do. A slider cannot express precision, because the thumb lands on whatever pixel the finger left it on, snapped to a step the control chose. A measurement is a number the person meant, so a reading is typed rather than dragged: use [ReadingInput](./reading-input.mdx) for a measurement with clinical semantics and [NumberField](./number-field.mdx) for a precise quantity with none. This control is for a preference, and the pages below say so more than once on purpose.
-
 ## Preview
-
-A coarse preference with its value read out beside the label. The thing worth checking is that the exact number plainly does not matter: read it in greyscale and notice that the filled portion, the thumb and the track stay legible without a hue doing the work, and that the value beside the label is a rough position rather than a figure anyone would act on.
 
 <ComponentPreview name="slider" />
 
@@ -46,8 +35,6 @@ A coarse preference with its value read out beside the label. The thing worth ch
   importPath="@/components/ui/slider"
   dependencies={["@base-ui/react"]}
 />
-
-The control is built on Base UI's Slider primitive, which is where the drag tracking, the roving value, the keyboard stepping and the hidden range input for assistive technology all come from, so installing it pulls in `@base-ui/react`. It renders no icon and composes no other opsinjs component.
 
 ## Usage
 
@@ -67,19 +54,16 @@ import { Slider } from "@/components/ui/slider"
 
 <WhenToUse
   use={[
-    "Setting a coarse, non-clinical preference such as a brightness level or a fuzzy nought to a hundred amount, where the exact number does not matter and roughly how far along the track is the point.",
-    "A value the reader adjusts by feel rather than by typing, where sliding towards more or less is a more natural gesture than choosing a figure.",
-    "A setting with a small set of stops, where a step snaps the thumb to values the reader can actually mean rather than to a pixel between them.",
+    "A coarse, non-clinical preference such as a brightness level, where the exact number does not matter.",
+    "A value adjusted by feel, where sliding towards more or less beats typing a figure.",
+    "A setting with a small set of stops the reader can actually mean.",
   ]}
   avoid={[
-    { case: "You are capturing a clinical reading or a measurement, such as a blood pressure, a glucose value or a symptom score. A slider turns a value the person meant into a value the pixel chose, which a health surface must not do.", instead: "reading-input" },
-    { case: "You need a precise, non-clinical quantity the reader has in mind, such as a count or an exact amount, where the digits matter.", instead: "number-field" },
+    { case: "You are capturing a clinical reading. A slider turns a value the person meant into a value the pixel chose.", instead: "reading-input" },
+    { case: "You need a precise non-clinical quantity where the digits matter.", instead: "number-field" },
+    { case: "The reader picks one of a small set of named options rather than a point on a continuum.", instead: "segmented-control" },
   ]}
 />
-
-The exclusion that matters is the first, and it is the reason a slider is discouraged so firmly on a health surface. A slider cannot express precision: it has no way for the reader to say "one hundred and eighteen" rather than "about a hundred and twenty", so a reading dragged onto a track is a reading nobody quite meant. A measurement is a number the person meant, so it is typed into a [ReadingInput](./reading-input.mdx), which owns the unit, the parsing and the plausibility checks a reading needs. The moment a value has a clinical meaning, this is the wrong control, and the type system cannot make that call for you because a brightness and a heart rate are both numbers.
-
-The second exclusion keeps a slider from standing in for a precise field. A count of servings or an exact amount the reader has in mind is a [NumberField](./number-field.mdx), where the digits are typed and stay exactly as entered. A slider is for the value nobody needs to the unit, and reaching for one where the digits matter hands the reader a control that cannot hit them.
 
 ## Anatomy
 
@@ -88,33 +72,34 @@ The second exclusion keeps a slider from standing in for a precise field. A coun
   parts={[
     {
       name: "Slider",
-      describes: "The root, a Base UI Slider.Root that groups all the parts and holds the value, min, max and step. Carries data-slot=\"slider\". It draws only neutral chrome and carries neither data-status nor data-category, so it is on neither colour axis.",
+      describes: "The root. Holds value, min, max and step, and sits on neither colour axis.",
       prop: "value",
     },
     {
       name: "Slider.Label",
-      describes: "The visible label above the track, wired to the thumb's hidden input by Base UI's field context so it names the control without a second aria-label. data-slot=\"slider-label\".",
+      describes: "The visible label, wired to the thumb's hidden input so it names the control.",
       prop: "label",
     },
     {
       name: "Slider.Value",
-      describes: "A text readout that mirrors the thumb's value, rendered as an output element beside the label. It is quieter than the label and its figures are tabular so the number does not shift sideways as it changes. data-slot=\"slider-value\".",
+      describes: "A text readout mirroring the value, quieter than the label, with tabular figures.",
     },
     {
       name: "Slider.Control",
-      describes: "The region the pointer acts on. It floors its own height at the target minimum so the thumb is never clipped, and it turns off touch scrolling and text selection so a drag along the track is a drag. data-slot=\"slider-control\".",
+      describes: "The pointer region. Floors its height at the target minimum and blocks touch scrolling.",
     },
     {
       name: "Slider.Track",
-      describes: "The thin muted rail with a hairline, the groove the fill runs along. data-slot=\"slider-track\", drawn with bg-muted and border-border.",
+      describes: "The thin muted rail with a hairline.",
     },
     {
       name: "Slider.Indicator",
-      describes: "The filled portion, from the start of the track to the thumb. It draws the bridged primary role as neutral chrome, so the fill says \"this much\" and never \"this urgent\". data-slot=\"slider-indicator\".",
+      describes: "The filled portion, from the track start to the thumb, in the bridged primary role.",
     },
     {
       name: "Slider.Thumb",
-      describes: "The draggable knob. Its hit area is floored at the 44px target minimum on both axes even though the visible knob is smaller, and it nests a real input type=range for keyboard and assistive technology. data-slot=\"slider-thumb\", with data-dragging while dragged and data-disabled when the slider is disabled.",
+      describes: "The draggable knob. A 44px hit area nesting a real range input.",
+      prop: "disabled",
     },
   ]}
 />
@@ -125,38 +110,19 @@ The second exclusion keeps a slider from standing in for a precise field. A coun
     {
       part: "Slider",
       cardinality: "1",
-      note: "data-slot=\"slider\", Base UI Slider.Root, one value, neither colour axis",
       children: [
-        {
-          part: "Slider.Label",
-          cardinality: "1",
-          note: "data-slot=\"slider-label\", wired to the thumb's input",
-        },
-        {
-          part: "Slider.Value",
-          cardinality: "1",
-          note: "data-slot=\"slider-value\", an output element",
-        },
+        { part: "Slider.Label", cardinality: "1" },
+        { part: "Slider.Value", cardinality: "1" },
         {
           part: "Slider.Control",
           cardinality: "1",
-          note: "data-slot=\"slider-control\", the pointer region",
           children: [
             {
               part: "Slider.Track",
               cardinality: "1",
-              note: "data-slot=\"slider-track\", bg-muted rail",
               children: [
-                {
-                  part: "Slider.Indicator",
-                  cardinality: "1",
-                  note: "data-slot=\"slider-indicator\", bg-primary fill",
-                },
-                {
-                  part: "Slider.Thumb",
-                  cardinality: "1",
-                  note: "data-slot=\"slider-thumb\", 44px hit area, nested input type=range",
-                },
+                { part: "Slider.Indicator", cardinality: "1" },
+                { part: "Slider.Thumb", cardinality: "1" },
               ],
             },
           ],
@@ -166,62 +132,64 @@ The second exclusion keeps a slider from standing in for a precise field. A coun
   ]}
 />
 
-The parts above are identified by `data-slot` and are styleable from outside; none of them is an export, and there is no way to render a thumb without the group. The label and the value sit in a header row above the control, and that row is a plain layout wrapper with no slot of its own, because it carries no state a caller would need to reach. There is deliberately a single thumb and no range form: this control is for one coarse preference, and a two-thumb range is a different component with a different keyboard contract.
-
 ## Examples
 
 ### A coarse preference
 
-The case the control was built for. The slider sets a fictional notification volume from nought to a hundred, with the value read out beside the label so the reader sees roughly how far along the track the thumb sits. The number is synthetic and carries no clinical meaning, because an opsinjs example must never be mistakable for somebody's own reading.
+A fictional notification volume from nought to a hundred, driven by `value` and
+`onValueChange`.
 
 <ComponentPreview name="slider-a-coarse-preference" kind="example" align="start" />
 
 ### With steps
 
-An explicit `min`, `max` and `step`, so the thumb snaps to a small set of stops rather than gliding continuously. A coarse step is honest for a preference nobody needs to the unit: here a fictional map zoom runs from one to nine in twos, so every stop is a value the reader can actually mean, and the readout moves in twos as the thumb does.
+`min`, `max` and `step` snap the thumb to stops: a fictional map zoom running
+from one to nine in twos.
 
 <ComponentPreview name="slider-with-steps" kind="example" align="start" />
 
 ## Content guidelines
 
-Name the preference the slider sets, not the act of sliding: "Screen brightness" reads better than "Drag to set brightness", because the label is the control's accessible name and a screen-reader user hears it before the value. Keep the label to the thing being adjusted so the readout beside it is understood as that thing's amount.
-
-Do not put a unit or a clinical figure in the readout. A slider shows a rough position, so a value with a unit invites the reader to treat it as a measurement, which is exactly what this control cannot deliver. When a number needs a unit or has to be exact, the readout belongs to a [ReadingInput](./reading-input.mdx) or a [NumberField](./number-field.mdx), not to a slider.
+Name the preference, not the gesture: *Screen brightness*, never *Drag to set
+brightness*. The label is the accessible name and is heard before the value. Keep
+units out of the readout, because a unit invites the reader to treat a rough
+position as a measurement.
 
 <DoDont>
   <DoDont.Do>
-    **A named preference, "Screen brightness", with a bare nought to a hundred
-    readout.** The label names the thing adjusted, the value is a rough position,
-    and nothing on the control invites the reader to read it as a measurement.
+    **"Screen brightness"** with a bare nought to a hundred readout names the
+    thing adjusted.
   </DoDont.Do>
   <DoDont.Dont>
-    **A slider labelled "Blood pressure" with a mmHg readout.** It hands a reading
-    to a control that cannot hit a value the person meant, and it dresses a rough
-    position as a measurement. That is a ReadingInput, where the number is typed
-    and the unit and the plausibility checks belong.
+    **"Blood pressure"** with a mmHg readout dresses a rough position as a
+    measurement.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. Accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+**Checked by `pnpm run check:a11y` on every commit.**
 
-**Checked, by `pnpm run check:a11y`:**
+- No status colour, no colour literal and no ramp step: neutral chrome and the
+  bridged `primary` fill only.
+- No `px` type size and no oversized radius, so a larger text size gives a larger
+  control.
+- The thumb's hit area is floored at `--opsin-target-minimum` on both axes, in
+  rem.
 
-- **No status colour, no colour literal, no ramp step.** The control draws only the neutral chrome roles and the bridged `primary` fill, so it carries no `data-status`, reads no clinical vocabulary, and cannot mix the two axes. The gate reads every element and would fail the build on a colour drawn from either axis or on a raw colour value, and there is neither here.
-- **No px type size, no oversized radius.** The label and the readout are the `subheadline` semantic step rather than a pixel size, and the track, knob and thumb use the token radii, so a reader who has turned their text size up gets a larger control instead of a pinned one.
-- **A 44px target on the thumb.** The thumb's hit area is floored at `--opsin-target-minimum` on both axes, in rem, so the pressable region is a comfortable target that grows with the reader's text size even though the visible knob is smaller.
+**Argued from the source, not measured.**
 
-**Argued, and true of the implementation, but not yet measured:**
+- Base UI wires the visible label to the thumb's hidden range input, which
+  announces the name.
+- A missing or empty `label` raises a development warning instead of an unnamed
+  control.
+- The focus ring sits in the thumb's own classes, so a project without the
+  product stylesheet gets one.
+- The `Slider.Value` readout carries the value as text, not only as the thumb's
+  position.
 
-- **The label names the control for assistive technology.** Base UI wires the visible `Slider.Label` to the thumb's hidden range input through its field context, so the input announces the name, and a missing or empty `label` raises a development warning rather than rendering an unnamed control.
-- **The focus ring is carried by the component.** The ring is in the thumb's own classes, keyed off the nested input's `:focus-visible`, so a project installed without the product stylesheet still gets a visible ring on the knob rather than nothing.
-- **The value has a text form.** The `Slider.Value` readout mirrors the thumb's value as text beside the label, so the current position is visible to a sighted reader and not only carried by the thumb's place on the track.
-
-**Not checked at all, and listed rather than omitted:**
-
-- Every contrast pair: the card knob against the primary fill and the muted track, the primary fill against the muted track, and the focus ring against all three. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring.
-- What the control draws under `forced-colors: active`, where the knob, the fill and the track are all replaced by the platform's own pair, and whether a screen reader speaks a useful value phrase rather than a bare figure. None of this has been put in front of a machine or a screen-reader user.
+**Not checked by any gate.** Every contrast pair, the drawing under
+`forced-colors: active`, and whether a screen reader speaks a useful value.
 
 <KeyboardTable
   name="slider"
@@ -229,37 +197,37 @@ Some of this is enforced by a gate on every pull request and every push to `main
     {
       keys: "Tab",
       action: "Moves focus onto the thumb",
-      notes: "The control is one tab stop. Focus lands on the thumb's nested range input, which carries the accessible name from the label.",
+      notes: "One tab stop, on the thumb's nested range input.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves focus back out of the control",
-      notes: "The thumb is a single stop in reverse too, so focus leaves the control rather than stepping through its parts.",
+      notes: "A single stop in reverse too.",
     },
     {
       keys: "Arrow Right, Arrow Up",
       action: "Increases the value by one step",
-      notes: "The step is the `step` prop. Under a right-to-left layout, Arrow Left and Arrow Right swap.",
+      notes: "The `step` prop. A right-to-left layout swaps Left and Right.",
     },
     {
       keys: "Arrow Left, Arrow Down",
       action: "Decreases the value by one step",
-      notes: "The step is the `step` prop, and the value stops at `min`.",
+      notes: "The `step` prop, and the value stops at `min`.",
     },
     {
       keys: "Home",
       action: "Sets the value to the minimum",
-      notes: "Jumps the thumb to the start of the track.",
+      notes: "Jumps the thumb to the start.",
     },
     {
       keys: "End",
       action: "Sets the value to the maximum",
-      notes: "Jumps the thumb to the end of the track.",
+      notes: "Jumps the thumb to the end.",
     },
     {
       keys: "Page Up, Page Down",
       action: "Increases or decreases by a larger step",
-      notes: "The large step is Base UI's default of ten, not the `step` prop, so it moves the thumb further than the Arrow keys.",
+      notes: "Base UI's default of ten, not the `step` prop.",
     },
   ]}
 />
@@ -270,18 +238,15 @@ Some of this is enforced by a gate on every pull request and every push to `main
 
 <PropsTable name="SliderProps" />
 
-`value` and `onValueChange` make this a controlled component with no value of its own: the caller stores the number and passes it back. `label` is required because a control with no accessible name is a defect the type system cannot otherwise prevent, and a missing one raises a development warning. `min`, `max` and `step` set the range and the granularity, and a coarser `step` is the honest choice for a preference nobody needs to the unit. `disabled` still shows the value and keeps it readable rather than fading it out of contrast.
+`value` and `onValueChange` make this controlled, so the caller holds the number.
+`label` is required and a missing one raises a development warning. `min`
+defaults to 0, `max` to 100 and `step` to 1.
 
 ## Related
 
-<RelatedComponents name="slider" />
-
-**Easily confused with**
-
-- [ReadingInput](./reading-input.mdx) captures a clinical measurement by typing, where the unit, the parsing and the plausibility checks live. A slider cannot express the precision a reading needs, so a measurement is never dragged.
-- [NumberField](./number-field.mdx) captures a precise non-clinical quantity the reader types, where the digits matter. A slider is for the value nobody needs to the unit.
-- [SegmentedControl](./segmented-control.mdx) chooses one of a small set of named options that read as siblings. A slider sets a value along a continuum rather than picking a labelled option.
-
-**Used by**
-
-- No pattern, recipe or screen composes it yet. It is a neutral input a product drops onto its own settings surface for a coarse preference, never onto a screen that captures a reading.
+- [ReadingInput](./reading-input.mdx) is where a clinical measurement is typed,
+  with the unit and the plausibility checks.
+- [NumberField](./number-field.mdx) is for a precise non-clinical quantity where
+  the digits matter.
+- [SegmentedControl](./segmented-control.mdx) picks a named option rather than a
+  value along a continuum.

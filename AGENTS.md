@@ -230,3 +230,26 @@ no allowlist for anyone to grow. `DASH-DOCTRINE.md` at the repository root is th
 playbook: the recognition table, twenty-two reframing roles with worked examples, the
 seven meanings a reframe may never change, and the fourteen-point self-check to run on
 your own file before you declare it done.
+
+## 13. Component pages are lean
+
+A component page is read the way a Blueprint page is read: see it, install it, copy
+the usage, check the props, and learn when not to use it. Its outline is the fourteen
+sections in `lib/status.ts`, eight of them required, and `assert-ia` rule LEAN001
+fails the build when the body passes 1,000 words, or 1,250 on a `health-*` page. The
+count is every whitespace-separated token in the body, JSX and code included.
+
+There is no `## Status`. `<StubNotice status="shipped">` opens the page above the
+first H2 with the SAFE001 sentence and at most three one-sentence open questions, and
+C6001 fails the build when it sits anywhere else. Every section is a component call or
+a short paragraph: Preview and Installation are a tag and nothing else, Usage is two
+code blocks, When to use it is the `<WhenToUse>` lists with one line per entry,
+Clinical meaning is four bold-led facts, an example is one or two sentences over its
+preview, Accessibility is a labelled triage of a few lines above the keyboard table and
+the contrast report, and Related is two to five one-line bullets.
+
+Doctrine is linked, never restated. The argument for a decision lives on the Health,
+Accessibility or Foundations page that owns it, and in git history for the long pages
+this replaced. When a page needs more than the budget, the excess belongs on a doctrine
+page or nowhere, and the page links to it. ADR 0024 is the record and
+`content/docs/components/button.mdx` is the exemplar; copy its shape, never its facts.

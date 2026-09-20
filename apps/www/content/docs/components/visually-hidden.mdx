@@ -10,43 +10,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="visually-hidden"
   status="shipped"
   questions={[
-    "Nobody has listened to this component in a screen reader across the common combinations, meaning VoiceOver, NVDA, JAWS and TalkBack, so the claim that its content is announced everywhere is argued from the clip pattern rather than measured.",
-    "The component paints no pixels, so its contrast report is empty by construction rather than by omission. A reviewer should read the empty table as there is nothing here to measure, not as a gap left unfilled.",
-    "Whether the component should refuse or warn when a focusable control is placed inside it is unsettled. Today it renders whatever children it is given, and an always-hidden focusable control is a keyboard trap the component does not prevent.",
+    "Nobody has listened to this component in VoiceOver, NVDA, JAWS or TalkBack, so announcement everywhere is argued from the clip pattern rather than measured.",
+    "Whether the component should refuse or warn when a focusable control sits inside it is unsettled, so an always-hidden keyboard trap is not prevented.",
+    "The contrast report is empty because nothing is painted, so a reviewer must read it as nothing to measure rather than a gap left unfilled.",
   ]}
 >
-  <code className="text-sm">visually-hidden</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">visually-hidden</code> is shipped: it installs as
+  source and the API may change in any release. It has had no accessibility
+  review and no clinical review, so it is not for a production health surface.
 </StubNotice>
 
-A screen reader reads a screen as a stream of words, and a great deal of what a sighted
-reader understands never reaches that stream: an icon-only button is a picture with no
-name, three identical "Read more" links are three identical words with nothing to tell
-them apart, and a figure sitting under a column heading loses the heading the moment it
-is read on its own. VisuallyHidden puts the missing words back into the stream without
-drawing them, so the two readings say the same thing.
-
-It is the `sr-only` pattern that every component in this system already uses internally,
-named once and shipped as a component so a product can reach it in JSX. What it
-deliberately is not is a skip link. A skip link hides until it is focused and then
-appears; this component is always hidden, and the difference is the subject of the
-accessibility section below.
-
 ## Preview
-
-There is nothing to see, and that is the point. The preview renders a line of text with
-a hidden clause spliced into it and a caption naming the words a screen reader adds that
-the eye never receives. Read it with a screen reader, or inspect the span in the
-accessibility tree, to watch the component do its one job.
 
 <ComponentPreview name="visually-hidden" />
 
@@ -57,10 +35,6 @@ accessibility tree, to watch the component do its one job.
   unbuilt={false}
   importPath="@/components/ui/visually-hidden"
 />
-
-It brings nothing with it. The component is a single span, it depends on no other
-opsinjs component and on no npm package, so installing it adds one file and one class
-list.
 
 ## Usage
 
@@ -79,122 +53,71 @@ import { VisuallyHidden } from "@/components/ui/visually-hidden"
 
 <WhenToUse
   use={[
-    "Give an icon-only control an accessible name, by placing the words the icon stands for inside it so a screen reader announces them while the icon carries the meaning for the eye.",
-    "Add context a sighted reader gets from layout but a screen-reader user does not, such as the subject of a repeated \"Read more\" link or the column a lone figure sits beneath.",
-    "Provide a heading or a label for a region that reads clearly to the eye without one, so the structure is in the accessibility tree without being drawn on the surface.",
+    "Give an icon-only control an accessible name, by putting the words the icon stands for inside it.",
+    "Add context a sighted reader gets from layout, such as the subject of a repeated \"Read more\" link.",
+    "Provide a heading or a label for a region that reads clearly to the eye without one.",
   ]}
   avoid={[
     { case: "The content must become visible when it receives focus, which is how a skip link works.", instead: "link" },
-    { case: "You are labelling a form input and want the label together with the hint, the error and the wiring that connects them.", instead: "field" },
-    { case: "The words explain what a piece of jargon means and should be readable by everyone, not only by assistive technology.", instead: "term" },
+    { case: "You are labelling a form input and want the label, the hint and the error wired together.", instead: "field" },
+    { case: "The words explain jargon and should be readable by everyone, not only by assistive technology.", instead: "term" },
   ]}
 />
-
-The line that separates a good use from a misuse is whether a sighted reader would ever
-need the content. If they would, hiding it takes something away, and the answer is a
-visible element instead. This component is for content a sighted reader already has by
-other means, so it fills the gap for a screen-reader user without changing what anyone
-else sees. Never reach for it to hide something from everyone, because the eye and the
-screen reader are not the same audience: content clipped this way is still fully present
-to assistive technology.
-
-## Anatomy
-
-<Anatomy
-  name="visually-hidden"
-  parts={[
-    {
-      name: "VisuallyHidden",
-      describes: "The root and the whole component. A span that clips its children out of sight while leaving them in the accessibility tree, so a screen reader announces them and nothing is painted. It sets no colour, no size, no radius and no boundary. className merges onto it for the rare case a caller has to position it so a control's accessible name composes correctly.",
-      prop: "className",
-    },
-  ]}
-/>
-
-<CompositionTree
-  name="visually-hidden"
-  tree={[
-    {
-      part: "VisuallyHidden",
-      cardinality: "1",
-      note: "data-slot=\"visually-hidden\". A span with no role, no data-status and no data-category. It is not display:none and not the hidden attribute, so its content stays in the accessibility tree and is announced.",
-    },
-  ]}
-/>
-
-That is the whole component. It has one element and one slot, no compound parts and no
-export other than the component itself. There is nothing to assemble, because the clip
-is the entire treatment and the children are the entire content.
 
 ## Examples
 
 ### A name for an icon-only button
 
-The button shows a cross and nothing else, so a sighted reader knows what it does and a
-screen-reader user meets a control with no name. The words go inside a VisuallyHidden
-child, so the button's accessible name becomes the full action while the surface stays a
-plain icon. The icon itself is marked `aria-hidden` so the name is read once rather than
-twice.
+The button shows only a cross, so a screen-reader user meets a control with no
+name. The words inside VisuallyHidden become its accessible name, and the icon
+is `aria-hidden`.
 
 <ComponentPreview name="visually-hidden-a-name-for-an-icon-button" kind="example" align="start" />
 
 ### Context for a repeated link
 
-Every row ends in the same two words, "Read more", which a sighted reader disambiguates
-instantly from the title beside it. A screen reader can list every link on a page with
-no sentence around any of them, so the list becomes three identical links to nowhere in
-particular. Appending the subject inside VisuallyHidden gives each link its own name
-without changing a pixel of the layout.
+Three rows end in the same two words, which a screen reader can list with no
+sentence around them. Appending the subject inside VisuallyHidden names each
+link without changing a pixel.
 
 <ComponentPreview name="visually-hidden-context-for-a-repeated-link" kind="example" align="start" />
 
 ## Content guidelines
 
-Write the hidden words as the words a sighted reader already has, no more and no less.
-For an icon-only control, that is the action the icon stands for, phrased as a control
-would be labelled: "Close the reminders panel", not "Close" alone if the surface holds
-more than one thing to close. For a repeated link, it is the subject the row supplies
-visually, so "Read more" plus " about keeping a daily log" reads as one sentence. Keep
-the leading space when you splice hidden words into visible text, because a screen
-reader concatenates them and "Read moreabout" is the result of forgetting it.
-
-Do not use it to hide a caveat, a source or a status a sighted reader ought to see.
-Provenance, disclaimers and clinical status are content everyone needs, and clipping
-them out of view is how a product ships a screen that looks reassuring and reads as
-something else. If the content matters to a sighted reader, it is visible content, and
-this is the wrong component for it.
+Write the hidden words a sighted reader already has, no more. For an icon-only
+control, name the action in full. Keep the leading space when you splice hidden
+words into visible text, because a screen reader concatenates them. Never hide a
+caveat, a source or a clinical status, because everyone needs those.
 
 <DoDont>
   <DoDont.Do>
-    **"Close the reminders panel"** inside an icon-only button names the action in full, so a screen-reader user hears what a sighted user reads from the cross.
+    **"Close the reminders panel"** names the action a sighted reader takes from the cross.
   </DoDont.Do>
   <DoDont.Dont>
-    **An empty VisuallyHidden, or one holding only "button"**, gives the control no meaning at all, which is worse than the bare icon because now the markup looks labelled and is not.
+    **An empty VisuallyHidden** names nothing, and the markup now looks labelled when it is not.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-The component is announced precisely because it is not `display:none` and not the
-`hidden` attribute. Both of those, and `visibility:hidden` as well, remove content from
-the accessibility tree at the same time as they remove it from view, so none of them can
-carry a screen-reader-only string. This component clips the box to nothing instead,
-which takes the content off the screen and leaves it in the tree, which is the one
-behaviour the job needs.
+**Checked by `pnpm run check:a11y` on every commit.** The component sets no
+colour and no type size, so the gate's token and unit rules pass trivially.
 
-It is not focusable and it is not a tab stop, because it is text. Do not place a
-focusable control inside it. An always-hidden focusable control is a keyboard trap:
-focus moves to a place the reader cannot see, with no visible ring and no way to tell
-where they are. A control that must appear when it is focused is a skip link, which
-reveals itself on focus and is a different pattern built from a focus-driven reveal.
-Keep this component for content that is always hidden, and reach for a link when the
-target has to become visible.
+**Argued from the source, not measured.**
 
-Because the component paints nothing, no type size and no colour applies to it, and
-there is nothing to reflow at 200% text. That is also why its contrast report below is
-empty: there are no rendered pixels to measure, so the empty table means nothing to
-measure here rather than not yet measured. Nobody has yet listened to the component in a
-screen reader, which is the open question above.
+- Content is announced because the span is clipped, not `display:none`,
+  `visibility:hidden` or the `hidden` attribute, each of which removes content
+  from the tree.
+- It is text rather than a control, so it is never focusable and never a tab
+  stop.
+- Do not place a focusable control inside it. Focus would land somewhere the
+  reader cannot see, with no visible ring.
+- The component paints nothing, so no colour or type size applies and there is
+  nothing to reflow at 200% text.
+
+**Not checked by any gate.** Whether a screen reader announces the content
+across VoiceOver, NVDA, JAWS and TalkBack, and whether a caller has hidden a
+focusable control.
 
 <KeyboardTable
   name="visually-hidden"
@@ -202,12 +125,12 @@ screen reader, which is the open question above.
     {
       keys: "Tab",
       action: "Skips the hidden text",
-      notes: "The component is a span with no interactive content of its own, so it is never a tab stop. A focusable control placed inside it keeps its own place in the tab order, which is one reason not to put a control inside always-hidden content.",
+      notes: "Never a tab stop. A control placed inside keeps its own place in the order.",
     },
     {
       keys: "Shift + Tab",
       action: "Skips the hidden text in reverse",
-      notes: "Reverse order matches forward order, because there is nothing here to stop on either way.",
+      notes: "Reverse order matches forward order, because there is nothing to stop on.",
     },
   ]}
 />
@@ -218,29 +141,14 @@ screen reader, which is the open question above.
 
 <PropsTable name="VisuallyHiddenProps" />
 
-`children` is required, because a VisuallyHidden with nothing to announce is a silent
-no-op. Empty children, an empty string, `undefined`, `false` from a conditional, or an
-array of only those, raise a development warning naming the mistake, and the span still
-renders, because a presentation layer reports rather than throws on the render path.
-`className` reaches the span for positioning; a class that makes the content visible
-defeats the component and is a misuse rather than a feature.
+`children` is required, because a VisuallyHidden with nothing to announce is a
+silent no-op. Empty children, an empty string, `undefined` or `false` raise a
+development warning naming the mistake. The span still renders, because a
+presentation layer reports rather than throws. `className` reaches the span for
+positioning, and a class that makes the content visible defeats the component.
 
 ## Related
 
-<RelatedComponents name="visually-hidden" />
-
-**Easily confused with**
-
-- [Link](./link.mdx) names the anchor a skip link is built from, and a skip link becomes
-  visible on focus rather than staying hidden. Reach for that pattern whenever a target
-  must appear when it is focused.
-- [Field](./field.mdx) names a visible input and wires its label, its hint and its error
-  together, where this hides text from view entirely.
-- [Term](./term.mdx) renders a definition every reader can see, where this keeps its
-  content out of sight for assistive technology alone.
-
-**Used by**
-
-- Nothing uses it yet as a registry dependency. Every component that needs the clip
-  inlines the same handful of rules internally, so the utility ships for consumers
-  rather than for the system's own components.
+- [Link](./link.mdx) is the anchor a skip link is built from, and a skip link becomes visible on focus.
+- [Field](./field.mdx) names a visible input and wires its label, its hint and its error together.
+- [Term](./term.mdx) renders a definition every reader can see, not one for assistive technology alone.

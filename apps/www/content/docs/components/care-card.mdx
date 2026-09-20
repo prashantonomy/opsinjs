@@ -11,43 +11,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="care-card"
   status="shipped"
-  issue="prashantonomy/opsinjs#0"
   questions={[
-    "The card renders every pairing of `urgency` and `status` and derives neither from the other. One inconsistent pair would put 'when you next get a chance' over an urgent reading. Should a pair like that raise a development warning, or would warning about it be opsinjs asserting the mapping it has just refused to ship?",
-    "The card reads no clock, so nothing on screen changes when a deadline goes by. Who re-renders, and how does a product notice that a card left open overnight now says 'today' about yesterday?",
-    "At the highest urgency the card may tell somebody to ring for help. It renders a tel: action like any other link and ships no number, no country and no emergency mode. Is a plain link enough for the one instruction that has to work first time?",
-    "Contrast for the two action tones has not been measured for this component. Until it is, its accessibility section says which claims are checked by a gate and which are only argued.",
+    "Whether an inconsistent urgency and status pair should warn, or whether warning would assert the mapping opsinjs refused to ship.",
+    "The card reads no clock, so one left open overnight says today about yesterday, and who re-renders it is undecided.",
+    "An urgent card may say ring for help, yet a tel: action is a plain link with no number and no emergency mode.",
   ]}
 >
-  <code className="text-sm">care-card</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">care-card</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-CareCard is where a health product stops describing and starts asking. That makes
-attribution the whole specification: the reader must always be able to tell whether a
-clinician said this, a rule fired, or the product is guessing. It is also the only card in
-the system that carries two different vocabularies about time and urgency at once, and the
-decision that shapes everything below is that it maps neither onto the other.
-
 ## Preview
-
-The three timings, one under the other, as a controlled comparison rather than a feature
-tour: the three cards carry the same instruction, the same author, the same reason and the
-same action, and the only thing that differs is the timing sentence. All three timings
-render at the same type step, in the same ink, in the same position, with no glyph and no
-coloured rule. That is what makes the claim that urgency lives in words checkable rather
-than something you have to take on trust. Open it in greyscale and nothing is lost, because
-there was never any colour carrying the timing to begin with. The demo ships no deadline:
-`dueBy` and `urgency` are independent inputs, and a fixed calendar date beside a relative
-phrase is a pairing no demo should teach.
 
 <ComponentPreview name="care-card" />
 
@@ -78,125 +56,46 @@ import { CareCard } from "@/components/ui/care-card"
 
 <WhenToUse
   use={[
-    "The reader needs to do something, whether that is to book, repeat, contact, take, stop or prepare, and the product can say what, by when, and who is asking.",
-    "A result, a reading or a change has produced a next step that would otherwise be buried in a paragraph.",
-    "Aftercare, preparation and follow-up instructions that belong to one specific person at one specific moment.",
+    "The reader must do something, and the product can say what, by when and who asks.",
+    "A result or a change produced a next step that would otherwise be buried in a paragraph.",
+    "Aftercare, preparation and follow-up instructions for one person at one moment.",
   ]}
   avoid={[
-    { case: "There is nothing to do; the reader only needs to know something.", instead: "callout" },
-    { case: "The message must interrupt the screen because it has only just become true.", instead: "alert-banner" },
+    { case: "Nothing needs doing, or the content is general information not addressed to this reader.", instead: "callout" },
+    { case: "The message must interrupt because it has only just become true.", instead: "alert-banner" },
     { case: "You only need to label how much attention a result needs.", instead: "status-pill" },
-    { case: "The content is general health information not addressed to this reader.", instead: "callout" },
-    { case: "The instruction is the standard not-medical-advice note that appears by rule on every result.", instead: "disclaimer-note" },
+    { case: "The instruction is the standing not-medical-advice note that appears on every result.", instead: "disclaimer-note" },
     { case: "The reader must respond before they can do anything else.", instead: "dialog" },
   ]}
 />
 
-A CareCard with no verb is not a CareCard. If you cannot write the instruction as *do this
-thing, by this time*, what you have is information, and information belongs in a
-[Callout](./callout.mdx) where it is not dressed up as a demand.
-
-CareCard has no category axis, and that is on purpose. Category ink tells a reader what kind of measurement they are looking at, so it belongs to the surfaces that carry a measurement: ResultCard, RangeBar, MetricTile and TrendSparkline. A care card carries an action rather than a reading, so there is no measurement for a category to be about, and the one axis it does carry is status, which says how much attention the reading that prompted the card needs. A product that wants to show which measurement a next step relates to puts that reading beside the card and never tints the card's heading to do it.
-
 ## Clinical meaning
 
-**What it asserts.** That someone the card names is asking this reader to do this specific
-thing, optionally by a stated date, in response to a stated reason. Four claims, and the
-author is one of them.
+**Asserts.** That the named author asks this reader to do this, optionally by a stated
+date, for a stated reason.
 
-**What it must never be read as.** Advice from a clinician who has assessed this person,
-unless a clinician has assessed this person and the card says so. This is the most important
-sentence on the page. A card that says *repeat this test in 3 months* with no author is
-read as clinical advice, and the product has no way to withdraw a claim it never explicitly
-made. So `attribution` is required, and when it arrives empty the card says in words that it
-does not know who is asking rather than dropping the line. That is an admission the reader
-can act on, and a development warning the author cannot miss.
+**Never read as.** Advice from a clinician who has assessed this reader, unless the card
+says so. `attribution` is required, and an empty one says nobody is named.
 
-**Two vocabularies, and no mapping between them.** `urgency` says *when the reader should do
-the thing this card is asking of them*. `status` says *how much attention the reading that
-prompted the card needs*. Those are different questions with different owners. A clinician
-can call a reading `attention` and still ask for a repeat whenever the reader next has a
-moment; an app with no clinical assessment at all can ask somebody to do something today.
-The card therefore ships no table from one to the other, derives neither from the other in
-either direction, and refuses no combination: all fifteen pairs render, and each of them is
-the product's to justify. A mapping would let a product set one and silently get the other,
-which is the failure this separation exists to prevent.
+**Colour axis.** Status only, and only on the embedded [StatusPill](./status-pill.mdx).
+The category axis never appears, and surface, boundary and heading take none. See
+[The two colour axes](../health/two-colour-axes.mdx).
 
-**The deadline is not derived from the timing either.** `dueBy` is a calendar date the
-product supplies; the timing phrase is a relative one the component writes; nothing compares
-them. A card can therefore say *do this within a week* above a date five weeks out, and it
-renders. Refusing the pair would mean opsinjs deciding which of the two a reader should
-obey, and opsinjs has no basis for that decision any more than it has for mapping `urgency`
-onto `status`. Keeping the two coherent is the product's work. Because `urgency` is optional whenever a
-readable `dueBy` is supplied, the reliable way to do it is to set one of them rather than
-both: the phrase when the deadline is soft, the date when it is real.
+**Thresholds.** None. `urgency` says when to act and `status` says how much attention the
+reading needs. Neither is derived from the other, and all fifteen pairs render. See
+[Clinical status semantics](../health/clinical-status-semantics.mdx),
+[Alarm fatigue](../health/alarm-fatigue.mdx) and
+[Emergency and escalation](../health/emergency-and-escalation.mdx).
 
-**Is a steady CareCard a contradiction?** No. This page has been asking that since it was a
-stub, so here is the answer in full. `steady` describes a reading that is where it was
-expected to be. It does not describe an empty diary. *Book your next check when you next get
-a chance, because everything we have seen is where we expected it* is the commonest care
-instruction there is, and the one products forget to build because they reach for a card
-only when something has gone wrong. Refusing it would push products into inventing a fourth
-urgency for it, which is how a three-value vocabulary quietly becomes a five-value one.
-
-**Which colour axis it may use.** The **status** axis, in exactly one place: an embedded
-[StatusPill](./status-pill.mdx), which carries the word, the glyph, the colour and
-`data-status` together. Nothing else on the card takes a status colour. The surface does not,
-the boundary does not, and the heading rule does not. The **category** axis may not appear at
-all: a card telling somebody to contact their clinic is not a sleep card or a heart card, it
-is an instruction, and tinting it by category makes the instruction look like a topic.
-
-This is a deliberate departure from the specification this page carried at `planned`, which
-put status on the card's heading rule and icon. A rule tinted `urgent` sitting above the
-words *when you next get a chance* gives the reader a colour to read the timing from, and
-the two vocabularies do not map. The colour and the words would therefore be free to
-disagree, with the colour winning. Every departure of this kind is recorded rather than
-quietly taken; this one is the largest on the page.
-
-**Urgency lives in the heading.** *Do this today*, *do this within a week* and *when you
-next get a chance* are phrases inside the heading element, supplied by the component from a
-fixed table of three, so the claim holds whatever copy the product writes. A reader who
-scans only the headings comes away with the right timing, and a reader with no colour
-perception loses nothing. Inside the heading the timing sentence is joined to the instruction by a full stop that only a screen reader hears, so speech reads the two as separate sentences rather than running the deadline into the task name.
-
-**The card does not know what time it is.** The timing words are relative and the card reads
-no clock: it holds no timer, polls nothing, and re-renders on nothing. A card rendered at
-half past eleven at night still says *Do this today* at ten past midnight, and now means a
-different day. Nothing here detects that, and nothing here should. A component that
-escalated its own urgency on a timer would be raising the temperature of somebody's health
-screen on a schedule nobody agreed to. The parts built to survive midnight are the absolute
-ones: `dueBy` renders as a written calendar date, because a date does not drift, and
-`overdue` is a boolean the product supplies rather than a comparison the card performs.
-Working out whether a date is behind somebody needs that person's own time zone, which a
-component rendered on a server does not have. A product that keeps a screen alive across a
-day boundary owns re-rendering it.
-
-**Who owns the rules.** The consuming product. CareCard has no clinical logic, no default
-timings, no library of instructions, and no emergency number.
+**No clock.** *Do this today* still says so after midnight. `overdue` is a product-supplied
+boolean. See
+[Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx).
 
 <SafetyCallout severity="urgent" evidence="opinion">
-At most one urgent surface per screen, and the axis that budget is counted on is the status
-axis, not the timing one: several cards may honestly say *do this today* on the same
-morning, and only one thing on a screen may be `urgent`. An urgent card names an action the
-reader can actually take right now. A card that says *seek medical attention immediately*
-with no number, no link and no next step has transferred the product's anxiety to the reader
-without transferring anything useful. If the instruction is to ring emergency services, say
-the words and give the number for the reader's country. The component ships neither, and
-renders a `tel:` action exactly as it renders any other link.
+At most one `urgent` surface per screen, counted on the status axis. An urgent card names
+a step the reader can take now. If that step is ringing for help, give the number: the
+component ships none.
 </SafetyCallout>
-
-**The one safety-checklist item this component cannot answer.** Item F3 of the
-[safety review checklist](../health/safety-review-checklist.mdx) asks whether the emergency
-path is implemented in full and has been tested this release. For CareCard the answer is no,
-and it will stay no: the component ships no number, no country, no opening hours and no
-emergency mode, and it renders a `tel:` action exactly as it renders any other link. That is
-recorded here as an accepted exception rather than as an open question, because a component
-cannot answer F3 at all. The item is scoped to a screen, and the emergency path belongs to
-the product that assembles one. The owner is the consuming product's clinical owner and the
-reason is that opsinjs does not know the reader's country. No reviewer name and no date are
-recorded against this page, because no clinical review of this component has happened. No
-accessibility review has happened either, and neither will be recorded until one does. See
-[Emergency and escalation](../health/emergency-and-escalation.mdx).
 
 ## Anatomy
 
@@ -205,42 +104,42 @@ accessibility review has happened either, and neither will be recorded until one
   parts={[
     {
       name: "CareCard",
-      describes: "The root: a section element named by its heading, so the card is reachable by region navigation without reading the page around it. Neutral at every status and every category. The surface, the boundary and the heading take no colour from either axis.",
+      describes: "A section named by its heading. No colour from either axis.",
       prop: "heading",
     },
     {
       name: "CareCard.Heading",
-      describes: "The instruction, rendered as the heading element the page's outline needs. It is also the card's accessible name, so it is what a reader hears when they list the regions on a screen. When a timing phrase follows, a visually hidden full stop separates the two inside the heading, so the accessible name is spoken as an instruction and then a deadline, not one run-on clause. A card given no instruction renders no heading element at all. It does not render an empty one, and it does not render one holding the timing phrase on its own, because a demand with no verb is not a CareCard.",
+      describes: "The instruction, and the accessible name.",
       prop: "headingLevel",
     },
     {
       name: "CareCard.Timing",
-      describes: "The urgency in words, inside the heading and after the instruction, from one of three fixed phrases the component owns. All three render identically; only the sentence changes. It is set at the body step, so the timing is never smaller than the reason that qualifies it. An urgency outside the three renders no phrase at all rather than a substituted one.",
+      describes: "One of three fixed phrases inside the heading. Unknown urgency renders none.",
       prop: "urgency",
     },
     {
       name: "CareCard.Attribution",
-      describes: "Who is asking. Never omitted: with no author supplied the slot says so in words rather than disappearing, and set at the same type step as the deadline rather than as a footnote. It sits directly under the instruction, because position rather than size is what tells a reader this line answers who is asking.",
+      describes: "Who is asking. With no author, the slot says so.",
       prop: "attribution",
     },
     {
       name: "StatusPill",
-      describes: "Optional, and the only status-coloured element on the card. It is the only element here carrying data-status, and it carries the word and the glyph with it. Omitted entirely when the product has assigned no status.",
+      describes: "The only status-coloured element, carrying word, glyph and data-status.",
       prop: "status",
     },
     {
       name: "CareCard.Reason",
-      describes: "One sentence saying what prompted the instruction, which is what turns an order into something a reader can evaluate rather than only obey.",
+      describes: "What prompted the instruction.",
       prop: "reason",
     },
     {
       name: "CareCard.Deadline",
-      describes: "Optional. The due date written out in full inside a time element carrying the machine-readable date, plus the words for a date the product has said is behind the reader.",
+      describes: "The due date in a time element, plus words for a passed date.",
       prop: "dueBy",
     },
     {
       name: "CareCard.Actions",
-      describes: "At most two controls, kept apart by --opsin-target-separation and wrapping rather than shrinking. The recommended one is bordered and sits on a larger box, the alternative is bare and underlined, and neither takes a brand fill; the recommended one leads unless the caller flags the second action, which is honoured where it sits rather than reordering controls a reader may already have learnt. Where two controls render, the recommended one also carries a visually-hidden qualifier, because a boundary reaches nobody who cannot see it. Neither control carries a slot of its own. Address them through this group. Extras beyond two are dropped and named in a development warning, and a card whose every action was unusable says so here in one sentence rather than leaving the row empty.",
+      describes: "At most two controls: the recommended bordered, the alternative underlined. Extras drop.",
       prop: "actions",
     },
   ]}
@@ -257,45 +156,19 @@ accessibility review has happened either, and neither will be recorded until one
         {
           part: "Card",
           cardinality: "1",
-          note: "data-slot=\"card\"; supplies the material, the padding, the corner and the print boundary",
+          note: "data-slot=\"card\"",
           children: [
             {
               part: "CareCard.Heading",
               cardinality: "0..1",
-              note: "data-slot=\"care-card-heading\"; h2 to h6, chosen by the caller; absent when the card was given no instruction",
-              children: [
-                {
-                  part: "CareCard.Timing",
-                  cardinality: "0..1",
-                  note: "data-slot=\"care-card-timing\"",
-                },
-              ],
+              note: "data-slot=\"care-card-heading\"; h2 to h6",
+              children: [{ part: "CareCard.Timing", cardinality: "0..1", note: "data-slot=\"care-card-timing\"" }],
             },
-            {
-              part: "CareCard.Attribution",
-              cardinality: "1",
-              note: "data-slot=\"care-card-attribution\"",
-            },
-            {
-              part: "StatusPill",
-              cardinality: "0..1",
-              note: "data-slot=\"status-pill\", data-status=\"<level>\"",
-            },
-            {
-              part: "CareCard.Reason",
-              cardinality: "0..1",
-              note: "data-slot=\"care-card-reason\"",
-            },
-            {
-              part: "CareCard.Deadline",
-              cardinality: "0..1",
-              note: "data-slot=\"care-card-deadline\"; wraps a time element",
-            },
-            {
-              part: "CareCard.Actions",
-              cardinality: "0..1",
-              note: "data-slot=\"care-card-actions\"; 0 to 2 children, each of which is a Button or an anchor styled to match it; one sentence instead, when every action supplied was unusable",
-            },
+            { part: "CareCard.Attribution", cardinality: "1", note: "data-slot=\"care-card-attribution\"" },
+            { part: "StatusPill", cardinality: "0..1", note: "data-slot=\"status-pill\", data-status=\"<level>\"" },
+            { part: "CareCard.Reason", cardinality: "0..1", note: "data-slot=\"care-card-reason\"" },
+            { part: "CareCard.Deadline", cardinality: "0..1", note: "data-slot=\"care-card-deadline\"" },
+            { part: "CareCard.Actions", cardinality: "0..1", note: "data-slot=\"care-card-actions\"; 0 to 2 children" },
           ],
         },
       ],
@@ -303,291 +176,62 @@ accessibility review has happened either, and neither will be recorded until one
   ]}
 />
 
-The parts above are identified by `data-slot` and are styleable from outside. None of them
-is an export: there is no `CareCard.Heading` component, because every one of them takes its
-content from a prop and a compound export would be a second way to build a card that could
-disagree with the first. `Card` is the exception in the tree rather than in the API. It is
-a real composed component, and its own material, padding and print boundary are what the
-CareCard sits in.
-
-A CareCard without an author is a composition error. It does not throw and it does not
-render empty: it renders the instruction, states in words that nobody has been named, and
-warns once in development. Everything else on the list is optional; the author is not.
-
 ## Examples
 
 ### A steady card that still asks for something
 
-The answer to this page's oldest open question, as code. `status="steady"` and
-`urgency="when-convenient"` on one card is not a contradiction. It is the routine follow-up
-that products forget to build. Neither prop is derived from the other, and the card would
-render the same way if the two disagreed harder than this.
+`status="steady"` with `urgency="when-convenient"` is the routine follow-up, not a
+contradiction.
 
 <ComponentPreview name="care-card-steady-and-still-asking" kind="example" align="start" />
 
 ### A deadline the reader is already behind
 
-`dueBy` is a calendar date and renders as one. `overdue` is a boolean the product supplies,
-because working out whether a date has gone by needs the reader's own time zone. The card
-says so in words and does nothing else. There is no colour change, no warning glyph and no
-escalation on a timer. What to do about it is the product's to say, and it says it by
-changing the heading. The example here sets no `urgency`, because the date is the timing, and
-the heading is what the product changed once the date had gone by.
+`dueBy` renders as a written date and `overdue` is a product-supplied boolean. No
+`urgency` is set, because the date is the timing.
 
 <ComponentPreview name="care-card-a-deadline-that-has-passed" kind="example" align="start" />
 
 ### The author is missing
 
-The same instruction twice, with and without an author, so the difference is visible rather
-than argued. The unattributed card is what a reader fills in with the most authoritative
-answer available; the admission is deliberately unlovely, because an author who sees it
-fixes it. Because the instruction is the control variable, both cards carry the same
-heading. The heading is the card's accessible name, so the two regions are named identically
-and a caption above each is what separates them for a reader going through in order. A
-reader picking a region out of a list of landmarks still hears the same name twice, and
-nothing this example can do would change that.
+The same instruction with and without `attribution`. Without one, the card says so.
 
 <ComponentPreview name="care-card-no-author-supplied" kind="example" align="start" />
 
-## States
-
-CareCard is a server component. It holds no state, mounts no hook and reads no clock, so the
-card itself has no hover, focus, pressed or disabled treatment. Its only interactive parts are
-the actions, and each action is a composed [Link](./link.mdx) or [Button](./button.mdx) whose
-focus and press behaviour is that component's rather than this one's. The card is not focusable
-and never becomes disabled: a region a keyboard user would have to step through on every card in
-a list is a cost with no return, so the tab stops belong to the actions alone. The one movement
-anywhere on the card is a one-pixel press cue on those actions, described under Motion below.
-
-The five data states the system defines live in the reading that prompted the instruction, not
-in the card, because a CareCard carries an action rather than a measurement. What it does carry
-is its own admissions: an instruction with no named author renders the author line as words
-saying nobody has been named, an instruction with a next step that could not render says so in
-the place the control would have taken, and neither is left silently blank.
-
-| Data state | What CareCard renders |
-| --- | --- |
-| Error | Nothing of its own. The card states a next step the product has already resolved, so there is no fetch to fail here. A next step that was supplied but could render nothing, because its destination or handler was missing, is reported in words where the control would have sat rather than dropped in silence. |
-| Loading | Nothing. There is no reading to wait on: the surface that owns the reading shows a [Skeleton](./skeleton.mdx) and renders the card once the next step exists. |
-| Empty | The card still renders whatever it was given. A card with no instruction renders no heading, a card with no author renders the author line as an admission in words, and a card asked for an action it could not build says so in place. There is no empty reading, because the card holds no reading. |
-| Partial | The ordinary case, and not an error. Every part except the instruction and the author is optional, so a card with a heading and an author but no reason, deadline, status or action is complete rather than partial: it renders the parts it was given and omits the rest. |
-| Stale | Nothing of its own, because the card reads no clock and cannot detect staleness. A deadline the product has flagged as behind the reader is stated in words when `overdue` is true, and the freshness of the reading that prompted the card is carried beside it by the surface, such as [RelativeTime](./relative-time.mdx), rather than by the card. |
-
 ## Content guidelines
 
-Start with a verb, and let the card supply the timing. The three phrases are the component's
-so that the claim holds on every card in a product; writing *in the next week* into the
-heading as well says the same thing twice and invites the two to disagree after a rewrite.
-
-Attribute in every card, in the reader's words: *your GP surgery asks*, *your clinic's
-automatic reminder*, *this app, based on the range you set*. Say the reason in one sentence.
-A reader who understands why will comply more reliably and worry less than one who has only
-been told.
-
-Never write *you must*, *you need to*, *failure to*, or *it is important that you*. They add
-pressure without adding information, and pressure is the thing this component is most likely
-to over-supply.
-
-Action labels say what activating them does. *Book a repeat test* is an action; *learn more*
-is a link pretending to be one. A telephone action carries the number in its own label, so
-that it is visible as text as well as reachable as a `tel:` link, and so that a reader who
-cannot dial from this device can still read it out.
-
-A reason that compares a reading to a range assumes the range is on screen, and this card
-does not show one. It renders neither the value nor the band it was measured against, so
-*your last reading was outside the range* asks the reader to take an invisible rule on
-trust. That is what [reference ranges](../health/reference-ranges.mdx) rules out. Either
-put the comparison on the [ResultCard](./result-card.mdx) or [RangeBar](./range-bar.mdx)
-beside the card, where the range is visible, and let the reason say what is being asked for;
-or write a reason that does not invoke a comparison at all. The examples on this page take
-the second route.
+Start with a verb and let the card supply timing. Name the author in the reader's words:
+*your GP asks*. Never write *you must*, *you need to*, *failure to* or *it is important
+that you*. A telephone action carries the number in its label. Do not compare a reading to
+a range the card does not show. See [reference ranges](../health/reference-ranges.mdx).
 
 <DoDont>
   <DoDont.Do>
-    **"Book a repeat blood test"**, with *Your clinic asked for a repeat when it last
-    reviewed this* and a due date inside the week the card names. Verb, author, reason,
-    deadline. The card writes *Do this within a week* underneath, in the same type at
-    every level.
+    **"Book a repeat blood test"**, with an author, a reason and a date.
   </DoDont.Do>
   <DoDont.Dont>
-    **"Action required: abnormal result. Please contact your healthcare provider as soon as
-    possible."** No author, a banned word, no reason, and a timing so vague the reader
-    cannot tell whether to phone now or next month.
+    **"Action required: abnormal result. Contact your provider."** No author, a banned
+    word, no reason, no timing.
   </DoDont.Dont>
 </DoDont>
-
-<DoDont>
-  <DoDont.Do>
-    **"This is an automatic reminder from this app, not advice from your clinic."** One
-    sentence that tells the reader exactly how much weight to give it.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **Leaving attribution out because the design looks cleaner without it.** The reader fills
-    the gap with the most authoritative answer available, which is the wrong one. The
-    component will now say so on screen rather than let the gap pass unremarked.
-  </DoDont.Dont>
-</DoDont>
-
-## Motion
-
-CareCard declares no transition. It does not animate when it mounts, it does not animate when a
-prop changes while it is on screen, and it mounts no live region, so it can neither appear with
-movement that implies urgency nor speak over what the reader is doing. That is deliberate: on a
-health surface urgency is carried by the word and never by movement, so a card that slid or
-faded in to be noticed would be leaving to motion a meaning the heading is required to carry.
-The card reads no motion token, so there is nothing here for `prefers-reduced-motion` to reduce.
-
-There is one movement on the card, and it is not an animation. Each action carries a one-pixel
-press cue that shifts the control down while it is held, applied by the composed
-[Button](./button.mdx) and [Link](./link.mdx) as an instantaneous transform with no transition.
-That is exactly the shape `prefers-reduced-motion` asks a press acknowledgement to take, so it
-needs no reduced-motion branch and it comes from the action rather than from a transition this
-card declares.
-
-For a health card the point is stronger than a preference. A value that prompted a next step is
-never animated onto this card: there is no count-up, no sweep and no entrance, because the card
-shows no measurement to animate and because a health value that arrives with movement reads as a
-value that has changed a moment ago. See [Motion in health UI](../health/motion-in-health-ui.mdx).
 
 ## Accessibility
 
-Some of these are checked by a gate on every commit. The rest are arguments, and they are
-labelled as such: a component page claims accessibility only where it has been checked, with the gaps listed rather than left out.
+**Checked by `pnpm run check:a11y` on every commit.** No status colour, no `px` type
+size, no raw colour, and no banned word in copy or in an identifier.
 
-**Checked, by `pnpm run check:a11y` on every commit:**
+**Argued from the source, not measured.**
 
-- **No status colour anywhere on the card.** The static rig fails the build on any file that
-  paints a status colour or stamps `data-status` without also reading `CLINICAL_STATUS_META`
-  and a glyph. This file does none of the three, because the whole status axis on a CareCard
-  is the [StatusPill](./status-pill.mdx) it composes. That pill is checked in turn, on its
-  own file. Said exactly: the rule does not fire here, which is a gate confirming an absence
-  rather than a gate checking an assertion.
-- **No `px` type size and no raw colour.** Every size is a step on the type scale and every
-  colour is a semantic role, so a reader who raises their text size moves the whole card and
-  a theme can be re-derived for dark mode without touching this file.
-- **No class that resolves to nothing in the product.** The rig knows which roles exist only
-  in the documentation chrome and fails on them, which is the defect that looks correct in
-  review because the preview above renders inside this page.
-- **No banned word in copy or in an identifier**, and none of the eight words that can only
-  be about a person in a comment that ships. The comment half of the scan is deliberately
-  narrower than the full union, because a comment about code uses *failed*, *just* and
-  *positive* in their ordinary senses and a rule that reports those is a rule somebody
-  switches off. That is why the claim is made here at the width the rig actually runs at. It
-  covers every string this component owns: three timing phrases, three admissions and one
-  visually-hidden qualifier.
+- The card is a `section` named by `aria-label` from its heading, so entering speaks the
+  instruction.
+- Urgency is text in the heading, with no glyph, colour or rule, so greyscale loses
+  nothing.
+- The card takes no tab stop. Actions carry the 44pt floor from `--opsin-target-minimum`.
+- With two actions, the recommended one carries a visually hidden qualifier.
 
-**Argued, and true of the implementation, but not yet measured:**
-
-- **No category tint on the surface**, and this belongs here rather than in the list above.
-  The axis rule fails an element that resolves *both* axes, so a card painted only from the
-  category axis would pass the rig clean and the gate is not what backs this. What backs it
-  is the file: it names no `--opsin-category-*` role, no `bg-category-*` utility and no
-  `data-category`, and `Card` accepts neither a `status` nor a `category` prop, so there is
-  no element on this card that could take a category colour in the first place.
-- **Urgency is in the text.** The three timings render at the same type step, in the same
-  ink, in the same position, with no glyph and no rule. Nothing about the timing is carried
-  by colour, icon, weight or position, so greyscale, colour-vision deficiency and a text-only
-  rendering lose nothing. The timing sits inside the heading, and a visually hidden full stop
-  separates it from the instruction, so the heading's accessible name is heard as two sentences
-  rather than as one run-on clause: a listener hears the instruction, and then the deadline,
-  rather than the two mashed into one.
-- **The card is a region named by its heading**, so it can be found by region or heading
-  navigation without reading the page. The name comes from `aria-label` rather than
-  `aria-labelledby`, and the cost is stated rather than hidden: pointing at the heading needs
-  an id, generating one needs `useId`, and `useId` is a hook that would make this a client
-  component for the sake of an attribute. A screen reader therefore says the instruction on
-  entering the region and again when it reaches the heading. There is a second cost, and it
-  grows with the screen. Every card is its own region, so a screen carrying several cards puts
-  one landmark per card into the landmark list, each named by a long instruction, and the
-  screen's own top-level landmarks are then harder to find among them. On a screen with more
-  than two or three cards, wrap the list in one named region of its own and treat the cards as
-  its contents, rather than relying on a landmark per card. An `article` element was considered
-  for the card itself, because it stays named and navigable without being a landmark, and it
-  was not adopted: the region is what makes a single card reachable without reading the page
-  around it, which is the case this component was built for.
-- **Reading order is heading, attribution, status, reason, deadline, actions**, and the DOM
-  is in that order. Nothing is re-arranged by CSS. The pill sits immediately before the
-  reason because it qualifies the thing the reason names; the specification's stated order
-  lists the five parts of the tree and does not place it.
-- **One tab stop per action and none for the card.** The card is not focusable. A region a
-  keyboard user has to pass through on every card in a list is a tax with no payment.
-- **The actions carry the 44pt floor** from `--opsin-target-minimum`, which is `rem` and so
-  grows with the reader's text size rather than pinning at 44 device pixels, and they are
-  kept apart by `--opsin-target-separation`, which carries the same `var()` fallback the
-  floor does. A project that installed this file without the token sheet therefore gets a
-  real gap rather than none, which is the adjacent-target case. The row wraps rather than
-  shrinking, so at 200% text the two controls stack and keep their floor. The 44px floor
-  itself is set in both dimensions in the source, so that half holds by construction, though
-  it has not been measured in a browser. The
-  200% behaviour is reasoned from the CSS; nobody has looked at it at 200% in either theme,
-  and the layout half of the rig runs nightly against a deployed URL and has not yet run
-  against this component. See
-  [Target size and motor](../accessibility/target-size-and-motor.mdx).
-- **The leading action is marked in words as well as in its box and boundary.** Where two
-  controls render, the recommended one carries a visually-hidden *the step this card is asking
-  for* after its label. The qualifier is appended rather than substituted, so the visible
-  label is still contained in the accessible name and voice control still matches what is
-  written on the control. Without it the emphasis is a larger box and a boundary and nothing
-  else, and a listener hears two identical links. It is not rendered on a card with one action, where there is nothing to
-  tell it apart from. The flag never reorders the controls, so where a caller flags the
-  second action the position points at the first one and these words are what correct it.
-- **A localised deadline declares its own language.** `locale` formats the date and nothing
-  else. *Due by*, the three timing phrases and the admissions are English whatever it says.
-  The `time` element therefore carries `lang` whenever a locale was supplied, and a card
-  localised into French does not have French words read out in an English voice. Nothing is
-  stamped when no locale was given, because the document's own language is the right answer
-  then and the runtime's default is not. Omitting `locale` does not leave the date
-  unformatted. It is written with the runtime's own default, and because this is a server
-  component that default is the server's language rather than the reader's, so a card that
-  carries a `dueBy` should carry a `locale` as well, and the component warns in development
-  when it does not.
-- **A missing `statusOf` warns where a missing `attribution` also speaks**, and the asymmetry
-  is deliberate rather than an oversight. A card with no author makes a false claim. It reads
-  as advice from a clinician, so the card corrects it on screen. A pill with no subject makes
-  no false claim; it degrades an announcement, and the only repair available to a component
-  would be to invent a subject, which is the substituted default this system refuses
-  everywhere else. So that one is a development warning and a documented hazard, and not a
-  sentence on the card.
-- **A passed deadline is stated in words**, never by a colour change, and the date itself is
-  written out rather than given as a relative phrase. A written date says the same thing to a
-  reader who opened the screen an hour ago.
-- **No motion and no announcement.** There is no entrance animation, no transition and no
-  live region in this file, so the card cannot appear with movement that implies urgency and
-  cannot speak over what the reader is doing. It never moves focus. See
-  [Motion in health UI](../health/motion-in-health-ui.mdx).
-- **Print renders the whole card**, including attribution and deadline. Nothing is hidden at
-  print time, and `Card` grows a real border because a printer drops the fill and the inset
-  edge the material paints. These cards are taken to appointments, and the author is the part
-  that must survive.
-
-**Not yet checked at all, and listed rather than omitted:**
-
-- Contrast for the two action tones against the card, and for the timing phrase against the
-  surface, in both themes. `prefers-contrast: more` is answered, but only by Surface, which
-  [Card](./card.mdx) wraps the whole card material in: Surface widens its edge and opacifies
-  its tint in its own `contrast-more:` utilities, and that reaches this card through the same
-  Surface. Whether either change actually clears a contrast floor, and how the card looks
-  under a real Windows contrast theme or a `prefers-contrast` setting, has not been measured.
-  Forced colours is the other place the boundary is covered: the card's edge survives
-  `forced-colors: active` because Card draws it through Surface as an outline, and forced
-  colours keeps an outline while recolouring it to `CanvasText`, so two adjacent cards stay
-  two bounded blocks. That is Surface's mechanism reaching through Card, not a border Card
-  grows for the mode. Nothing else on a CareCard is adapted for forced colours.
-- Whether "region, then heading" reads as orientation or as duplication. Nobody has listened
-  to this card in a screen reader.
-- The telephone case. A `tel:` action is a plain link and has been reasoned about rather than
-  tested on a phone, which for the one instruction that has to work first time is not enough.
-- The copy this component owns is English, and there is no way to translate it. The three
-  timing phrases and the admissions are fixed strings, and no prop supplies replacements.
-  That is deliberate, because a prop that could relabel *Do this today* could also make it
-  more insistent. Only the deadline follows `locale`. So a reader who cannot read English
-  loses the urgency entirely, by construction, and nobody has designed the way out of that.
-- The two action forms have never been seen next to each other. Every example on this page
-  uses `href`, so nothing here renders the `onSelect` form. The one deliberate difference
-  between them is the underline: an anchor is underlined so it reads and announces as a link,
-  and a Button carrying a fill or a boundary is not. That is the family rule AlertBanner,
-  ResultCard and EmptyState already follow. Whether they land as one family on screen is
-  still an observation nobody has made.
+**Not checked by any gate.** Contrast for the action tones and the timing phrase, and
+forced colours beyond the Card edge. Also the `tel:` action, how "region, then heading"
+sounds, and the English-only phrases.
 
 <KeyboardTable
   name="care-card"
@@ -595,97 +239,43 @@ labelled as such: a component page claims accessibility only where it has been c
     {
       keys: "Tab",
       action: "Moves to the first action, then to the second",
-      notes: "The card itself is not a tab stop. It is a region rather than a control, and a card with no actions has no tab stop at all. That is the right answer for a list of them.",
+      notes: "The card is not a tab stop.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves back through the actions, then out of the card",
-      notes: "The actions are in the DOM in the order they are drawn, including when a caller flags the second one as recommended: the flag changes the emphasis and never the order.",
+      notes: "Actions keep DOM order whichever is recommended.",
     },
     {
       keys: "Enter",
       action: "Activates the focused action",
-      notes: "On the leading action this is the step the card is asking for. No action here is ever destructive: the card has no dismiss, no snooze and no delete, so there is no destructive default to land on.",
+      notes: "No action is destructive: no dismiss, snooze or delete.",
     },
     {
       keys: "Space",
       action: "Activates a focused action that is a button",
-      notes: "An action given `onSelect` is a real button and takes both keys. An action given `href` is a link, where Space scrolls the page. That is the platform's behaviour and this component does not override it.",
+      notes: "An href action is a link, so Space scrolls.",
     },
     {
       keys: "Arrow keys",
       action: "Nothing",
-      notes: "The two actions are two separate tab stops rather than a composite widget, because they are two unrelated next steps and not a set of alternatives to choose between.",
+      notes: "Not a composite widget.",
     },
     {
       keys: "Escape",
       action: "Nothing",
-      notes: "The card is not an overlay. It dismisses nothing, traps nothing and owns no state, so there is nothing for Escape to leave.",
+      notes: "Not an overlay, nothing to leave.",
     },
   ]}
 />
 
 <ContrastReport component="care-card" />
 
-## Data attributes
-
-These are the attributes a product's own stylesheet, a test or a scraper keys on, and they are
-the DOM contract this card holds stable. The card writes no `data-status` of its own: the level
-reaches the screen only through the embedded [StatusPill](./status-pill.mdx), so the one status
-attribute on the card sits on the pill and nowhere else. It writes no `data-category` and no
-`data-opsinjs-value` at all, because a card carries an instruction rather than a kind of
-measurement or a reader's own number, so the two attributes that would tie it to the category
-axis or to a reading are absent by construction. The parts are reached through their `data-slot`
-without an export, which is why none of them is a component of its own.
-
-<DataAttributesTable
-  name="care-card"
-  rows={[
-    {
-      attribute: "data-slot",
-      condition: "On the root section, the composed Card and each part that renders",
-      value: "care-card on the root, card on the material it sits in, care-card-heading when an instruction was supplied, care-card-timing when a timing phrase renders inside the heading, care-card-attribution always because the author line renders its admission when no author was named, care-card-reason when a reason was supplied, care-card-deadline when a readable dueBy renders, and care-card-actions on the actions row or on the sentence that replaces it when a next step was supplied and none could render. The embedded controls stamp their own: link on an action that has an href, button on an action that has an onSelect.",
-    },
-    {
-      attribute: "data-status",
-      condition: "On the embedded StatusPill's root, when a status was supplied. Never on an element this card draws itself.",
-      value: "steady | watch | attention | urgent",
-    },
-  ]}
-/>
-
-## CSS variables
-
-<CssVariablesTable name="care-card" />
-
-CareCard exposes no custom property of its own for a consumer to set. It declares no `--opsin-*`
-variable in an inline style or a companion stylesheet, so there is nothing to list and the table
-above says as much. Where the class list names a token, such as the target floor the actions
-carry from `--opsin-target-minimum` or the gap between two actions from
-`--opsin-target-separation`, the card reads that role from the token layer with a `var()`
-fallback rather than setting a value of its own. Its colours are the semantic token roles listed
-under Tokens, read straight from the token layer, which is the one place a product retunes them.
-
-## Tokens
-
-<TokenTable component="care-card" />
-
-These are the tokens the card actually reads, resolved from its source by
-`scripts/build-tokens.mts` rather than listed by hand, so the table cannot drift from what the
-component consumes. They are the neutral chrome and type roles the card's own surface, heading
-and body take, together with the target roles the actions read. A health component never reads a
-category token and a status token onto one element, which is the two-colour-axes rule at the
-token layer: the card's own surface takes a neutral chrome role at every level, the status
-colour lives inside the embedded [StatusPill](./status-pill.mdx), and no category token appears
-anywhere in the file. A row here that named a category role or a raw ramp step would be the bug
-that rule exists to catch.
-
 ## API reference
 
 <PropsTable name="CareCardProps" />
 
-`CareUrgency` and `CareAction` are exported from the same file. Neither appears in the table
-above, which is generated only from interfaces whose name ends in `Props`.
+`CareUrgency` and `CareAction` are exported from the same file, absent from the table.
 
 ```tsx
 export type CareUrgency = "when-convenient" | "this-week" | "today"
@@ -698,50 +288,12 @@ export interface CareAction {
 }
 ```
 
-An action with an `href` renders as a link and one with `onSelect` renders as a button. They
-share a box and a step, and they differ in one deliberate way: the anchor is underlined so it
-reads and announces as a link, and a Button carrying a fill or a boundary is not. That is the
-family rule AlertBanner, ResultCard and EmptyState already follow. Whether the two land as one
-family has not been checked on screen: no example on this page uses `onSelect`, so the two have
-never been rendered side by side. Given both, the link wins. A destination survives a new tab,
-a copied address and a screen reader's list of links, and a handler does not.
+An `href` action renders a link and an `onSelect` action a button. Given both, the link
+wins. `headingLevel` defaults to 3. A `dueBy` without `locale` warns in development.
 
 ## Related
 
-<RelatedComponents name="care-card" />
-
-**Easily confused with**
-
-- [AlertBanner](./alert-banner.mdx) is an announcement that something has changed, rather
-  than an instruction with a deadline. A banner may contain a link to a CareCard; they are
-  not substitutes.
-- [Callout](./callout.mdx) covers information with no verb and no author. If nobody is asking
-  for anything, it is a callout.
-- [ResultCard](./result-card.mdx) is the measurement that prompted the instruction. Cards
-  often appear in pairs, the result above the instruction.
-- [DisclaimerNote](./disclaimer-note.mdx) is the standing note about what this product is
-  not. It is not an instruction and must not be styled as one.
-
-**Used by**
-
-- [Alert escalation](../patterns/alert-escalation.mdx) is the next step an alert resolves to, once a message has earned the reader's attention.
-- [Ask users for contact details](../patterns/ask-users-for/contact-details.mdx) states the next step once a channel is captured, such as verifying it before any health message relies on it.
-- [Ask users for symptoms](../patterns/ask-users-for/symptoms.mdx) states the instruction that follows recording, since collecting a symptom is not assessing it and the honest next step is a dated action.
-- [Choose a component](../recipes/choose-a-component.mdx) routes any next step written as a verb with a deadline to this component.
-- [Consent and permissions](../patterns/consent-and-permissions.mdx) turns a permission request into a dated instruction the reader can act on.
-- [Empty and first use](../patterns/empty-and-first-use.mdx) shows a CareCard when the honest thing to render is a next step rather than data.
-- [Offline and stale data](../patterns/offline-and-stale-data.mdx) offers the next step, such as reconnecting or re-measuring, when a value can no longer be vouched for.
-- [Onboarding and first run](../patterns/onboarding-and-first-run.mdx) frames the first thing asked of a new reader as one dated instruction rather than a form.
-- [Onboarding screen](../screens/onboarding-screen.mdx) is the specimen screen whose first-run instruction is a CareCard.
-- [Result disclosure](../patterns/result-disclosure.mdx) uses it for the next-step stage of the sequence from notification to number to action.
-- [Results screen](../screens/results-screen.mdx) places it as the "what happens next", read after the number.
-- [Sharing with a clinician](../patterns/sharing-with-a-clinician.mdx) states the export or hand-off action as an instruction with a named author.
-- [Escalate an alert without alarming](../recipes/staged-alert.mdx) points an escalating alert at the instruction while keeping the ladder calm.
-
-**Governed by**
-
-- [The two colour axes](../health/two-colour-axes.mdx)
-- [Clinical status semantics](../health/clinical-status-semantics.mdx)
-- [Alarm fatigue](../health/alarm-fatigue.mdx)
-- [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx)
-- [Emergency and escalation](../health/emergency-and-escalation.mdx)
+- [AlertBanner](./alert-banner.mdx) is an announcement that something changed, not an instruction with a deadline.
+- [Callout](./callout.mdx) covers information with no verb and no author.
+- [ResultCard](./result-card.mdx) is the measurement that prompted the instruction.
+- [DisclaimerNote](./disclaimer-note.mdx) is the standing note about what the product is not, never an instruction.

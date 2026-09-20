@@ -10,37 +10,20 @@ aliases: [loading placeholder, shimmer, loading state, placeholder, ghost]
 usedIn: [choose-a-component, daily-log-screen, empty-and-first-use, offline-and-stale-data, results-screen, trends-screen]
 ---
 
-## Status
-
 <StubNotice
   name="skeleton"
   status="shipped"
-  issue="prashantonomy/opsinjs#0"
   questions={[
-    "Where does the other end of the wait belong? `appearAfterMs` covers the short end and nothing here covers the long one: past the few seconds Data states allows, a skeleton should have become words, and no component in opsinjs owns that threshold yet. Nothing here measured where the line is either.",
-    "Shimmer defaults to on, which is a judgement rather than a finding: the default is on because a motionless rectangle can read as content that already arrived and then stalled. Nobody has watched an anxious reader look at either the moving state or the still one.",
+    "Nothing in opsinjs owns the long end of a wait: past the few seconds Data states allows, a skeleton should have become words, and no threshold is measured.",
+    "Shimmer defaults to on because a motionless rectangle can read as stalled content, and nobody has watched an anxious reader look at either state.",
   ]}
 >
-  <code className="text-sm">skeleton</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">skeleton</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Skeletons are a layout tool that products routinely turn into a truth claim. A grey rounded
-rectangle where a blood pressure reading will be tells the reader that a reading exists, and
-sometimes one does not. Everything unusual about this component follows from refusing that:
-the shape vocabulary has four members and none of them is a measurement, the root says
-nothing to a screen reader, and the appearance delay is CSS rather than a timer so that the
-placeholder is there before the JavaScript is.
-
 ## Preview
-
-The four shapes, which are the whole vocabulary. What is worth looking at is the absence:
-there is no shape at the proportions of a reading and no prop that will produce one. Turn
-the text size up in the preview toolbar and the placeholders grow with it. A skeleton sized
-in pixels reserves the space the content took at 100% and hands the reader a jump at 200%.
 
 <ComponentPreview name="skeleton" />
 
@@ -79,16 +62,6 @@ import { Skeleton } from "@/components/ui/skeleton"
   ]}
 />
 
-The last exclusion matters more than it looks. A button that has been pressed should show
-its own busy state in place, keeping its label and its size; replacing it with a skeleton
-loses the reader's place and the button's meaning at once.
-
-The first exclusion is the one that costs most, and it is a decision made before the request
-returns rather than after. If a reading may not exist, the value's seat must be left empty
-while the request is in flight, because a placeholder there is a promise the data may not be
-able to keep. The second example below shows that case, and [EmptyState](./empty-state.mdx)
-is the surface that catches it.
-
 ## Anatomy
 
 <Anatomy
@@ -96,17 +69,17 @@ is the surface that catches it.
   parts={[
     {
       name: "Skeleton",
-      describes: "The root. aria-hidden and hidden from print, and the element the appearance delay is applied to. It is never focusable and never announced; the polite loading message belongs to the region around it.",
+      describes: "The root. aria-hidden, hidden from print, and the element the appearance delay applies to. Never focusable, never announced.",
       prop: "appearAfterMs",
     },
     {
       name: "Skeleton.Group",
-      describes: "Present only for the text shape, where it stacks the lines so that N of them occupy the height N lines of body text will. A single-shape skeleton has no group.",
+      describes: "Present only for the text shape. Stacks the lines to take the height N lines of body text will.",
       prop: "lines",
     },
     {
       name: "Skeleton.Block",
-      describes: "One placeholder shape, filled from the placeholder-fill role over a hairline from the placeholder-line role. This is the element that carries the shimmer, and the element the shimmer is taken off under prefers-reduced-motion.",
+      describes: "One placeholder shape: placeholder-fill over a placeholder-line hairline. Carries the shimmer, which reduced motion removes.",
       prop: "shape",
     },
   ]}
@@ -142,55 +115,21 @@ is the surface that catches it.
   ]}
 />
 
-**Block** is one placeholder shape. **Group** arranges several to match a known layout.
-**Shimmer** is the optional movement, and it is a preference rather than a part: it has no
-element of its own, because a shimmer that could be addressed separately is a shimmer that
-could be given a second job. The component is deliberately tiny. Everything that makes a
-skeleton good is a decision about what shapes to use and for how long, and neither is
-something a component can decide.
-
-The parts are identified by `data-slot` and are styleable from outside; none of them is an
-export. There is no `Skeleton.Block` to render on its own, which is what stops a caller
-assembling a value-shaped placeholder out of parts the shape vocabulary refuses to give
-them directly. Sizing goes on the root through `className`, and that is expected rather
-than exceptional: the component owns the vocabulary of shapes and the caller owns the
-knowledge of what is coming.
-
 ## Examples
 
 ### A list that is still arriving
 
-Three rows, nine skeleton roots, twelve placeholder blocks, and one announcement. Every
-skeleton root is `aria-hidden`, so the count of blocks is invisible to a screen reader; the
-single polite message sits on the region and is mounted by the caller, because a component
-that announces on the caller's behalf announces once per instance.
-
-Look at where that message sits. It is a sibling of the busy list rather than a child of it,
-because `aria-busy="true"` tells assistive technology to hold off on everything beneath it.
-That includes a live region. A `role="status"` inside the element that is busy is the one
-message the reader does not get. What this static example cannot show is the announcement
-itself: a live region reports mutations, and here the region and its text arrive together in
-the first paint, so a screen reader reads the message in reading order rather than speaking
-it on arrival. See the unmet list under Accessibility.
-
-Every skeleton in it also carries `appearAfterMs`, which is the half of the pattern that
-gets left out. A list that comes back from a warm cache in eighty milliseconds should never
-have shown a placeholder at all, and the threshold sits at the call site because it is a
-fact about a particular request rather than about placeholders in general.
+Three rows of skeletons, each root `aria-hidden`, with one polite `role="status"`
+message mounted by the caller beside the busy list rather than inside it. Every
+skeleton passes `appearAfterMs`, so a warm cache never shows one.
 
 <ComponentPreview name="skeleton-a-loading-list" kind="example" align="start" />
 
 ### A row that may turn out to be empty
 
-The label gets a placeholder because every row has a label. The value's seat gets height and
-no shape, because whether there is a reading is the question the request was sent to answer.
-The panel beside it is one of the answers, and it is the one that catches products out.
-
-This one is a side-by-side of two moments rather than a loading surface, so it deliberately
-mounts no `role="status"` and no `aria-busy`: a screen reader meeting it hears the two
-captions and nothing else. That is a limit of the demonstration and not a second pattern. A
-real implementation of the left-hand panel still owes its region the one polite message the
-example above shows.
+The label gets a placeholder because every row has one. The value's seat gets
+height and no shape, because whether a reading exists is what the request will
+answer.
 
 <ComponentPreview
   name="skeleton-a-row-that-may-be-empty"
@@ -198,228 +137,30 @@ example above shows.
   align="start"
 />
 
-## States
-
-Skeleton has no interaction states of its own. The root carries no click handler, no
-`tabIndex` and no focus ring, and Accessibility below explains why: a placeholder a reader
-could tab to or press would put a stop in their path that vanishes the moment the real
-content lands, which is worse than no stop at all. There is no hover, focus, pressed or
-disabled treatment to describe here because none exists, by design rather than by omission.
-
-The five canonical data states describe a value or a list a component is standing in for,
-and Skeleton is unusual among the catalogue in that it renders for exactly one of them and
-declines the rest on purpose.
-
-| Data state | What Skeleton renders |
-| --- | --- |
-| Error | Nothing. Skeleton has no error rendering of its own. Once a request fails, the surface that composed it removes the skeleton and shows the component that owns the failure, such as [Callout](./callout.mdx). |
-| Loading | The whole of what this component exists for. One of the four shapes, text, line, block or circle, stands in for the footprint of content that has not arrived, hidden from assistive technology, and, when `appearAfterMs` is set, absent until the delay has passed so a fast response never shows one at all. |
-| Empty | Nothing. When to use it, above, names this as the exclusion that costs most: if a reading may not exist, the honest loading treatment leaves the value's seat empty rather than shaped, and the surface resolves into [EmptyState](./empty-state.mdx) once the request answers. |
-| Partial | Nothing that Skeleton itself decides. The component has no notion of a placeholder half filled in: each block is either drawn or it is not. A caller assembling a result that has arrived in parts shows the parts that have arrived and leaves Skeleton over the parts that have not. |
-| Stale | Nothing on its own, though [Offline and stale data](../patterns/offline-and-stale-data.mdx) draws skeletons while a cached view is refreshed rather than freezing the last reading in place. That is a choice the composing surface makes about how to treat a refresh, not a state Skeleton represents or renders any differently for. |
-
-## Content guidelines
-
-A skeleton contains no content, which is the point. The guideline is about the surrounding
-copy: once a wait passes the point where a skeleton is reassuring, replace it with words such
-as *this is taking longer than usual*, because a skeleton that has sat there long enough reads
-as a frozen app rather than as a wait. [Data states](../foundations/data-states.mdx) puts
-that point at a few seconds and then says the number itself is a product decision; opsinjs
-holds no figure of its own, and nobody here has measured one. The component does not do the
-replacement for you and has no prop that would, and the replacement is a
-[Callout](./callout.mdx).
-
-Never place a skeleton where a value will not be. If a reading may not exist, the honest
-loading state resolves into an [EmptyState](./empty-state.mdx), and the loading treatment
-should not have promised otherwise.
-
-<DoDont>
-  <DoDont.Do>
-    **Three text lines and a block where a result card is loading**, resolving into the card
-    at the same size.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A large rounded rectangle where the blood pressure number goes.** It says a number is
-    coming. When the answer is *we have no reading for you*, the product has already implied
-    otherwise.
-  </DoDont.Dont>
-</DoDont>
-
-<DoDont>
-  <DoDont.Do>
-    **No skeleton at all for a wait too short to be worth drawing**, using
-    `appearAfterMs`. The number is yours: [Data states](../foundations/data-states.mdx) says
-    a skeleton below roughly a tenth of a second is worse than nothing, and leaves the choice
-    above that to the request. The examples on this page pass 200 ms, which is one choice for
-    one list and not a figure this system holds.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A skeleton that flashes for one frame on every navigation.** It is noise, it draws the
-    eye, and it makes a fast product feel unstable.
-  </DoDont.Dont>
-</DoDont>
-
-## Motion
-
-Skeleton carries two animations, and reduced motion treats them in opposite ways because they
-mean different things. Neither shows a health value, so the rule that a measurement never
-animates on first paint, with no count-up and no sweep, has nothing to act on here: there is
-no figure to protect from movement, only a shape's arrival and a sheen crossing it.
-
-The first is the appearance delay. When `appearAfterMs` is set, the root fades in from
-`opacity: 0` over `--opsin-duration-fast` (140ms where the token is absent), eased with
-`--opsin-ease-standard` (`cubic-bezier(0.2, 0, 0, 1)` where that token is absent). This is
-timing rather than movement: a reader who asked for less motion did not ask for more
-flashing, so the delay itself survives `prefers-reduced-motion` untouched and only the
-fade's own duration collapses, to 1ms, in the component's own shipped stylesheet. That
-collapse is not the easing token's declared fallback taking effect; `--opsin-ease-standard`'s
-own reduced-motion value is `linear`, and the component does not switch to it, because a
-1ms animation shows no discernible curve regardless of which one is named. What actually
-does the work is `app/product.css` collapsing `--opsin-duration-fast` to the same 1ms below
-its own `@import`, and the component repeats that collapse locally so the guarantee holds
-for a project that installs this file without the rest of opsinjs and falls through to the
-token's literal fallback instead.
-
-The second is the shimmer, on by default, and the one animation a reader watches for the
-whole wait. It is a gradient sheen sweeping across the fill on `--opsin-duration-shimmer`
-(1600ms where the token is absent), eased with the same `--opsin-ease-standard`, and the
-whole rule is declared inside a `prefers-reduced-motion: no-preference` query rather than
-behind a collapsed duration. Under reduce the rule never applies at all and the static tint
-is there from the first frame, which lands on the same outcome as
-`--opsin-duration-shimmer`'s own reduced-motion fallback of 0ms by a different route: the
-token would collapse a duration to zero, and the component instead removes the animation
-declaration entirely, and a sheen that never starts and a sheen with no length look
-identical.
-
-<MotionDemo easing="--opsin-ease-standard" duration="--opsin-duration-shimmer" />
-
-The sweep is bounded on its own terms too, with no help from the preference:
-`animation-iteration-count: 2` stops it at about 3.2 seconds of total movement, under the
-five seconds past which WCAG 2.2 SC 2.2.2 would ask for a pause, stop or hide control that no
-opsinjs component owns, and `animation-fill-mode: both` leaves the block on the static tint
-once the second cycle ends, the same end state `shimmer={false}` gives from the first frame.
-
 ## Accessibility
 
-Some of this is enforced on every commit and the rest is argued. The two lists are kept
-apart on purpose: a component page claims accessibility only where it has been checked, with the gaps named rather than left out.
+**Checked by `pnpm run check:a11y` on every commit.** No status colour can
+reach a skeleton, every colour is a theme role (`bg-placeholder-fill` and
+`border-placeholder-line`), and no type size is in `px`.
 
-**Checked, by `pnpm run check:a11y` on every commit:**
+**Measured by `pnpm run contrast`.** The placeholder line clears the non-text
+floor against the page, a card and the muted ground in both themes; against its
+own fill it sits below Lc 45 in the dark theme, and the fill itself is published
+as advisory.
 
-- **No status colour can reach a skeleton.** The static rig fails the build on any file that
-  paints from the status axis without also reading `CLINICAL_STATUS_META` and a glyph. A
-  skeleton cannot render either, because it is `aria-hidden` and carries no words. So the
-  rule in [Uncertainty and staleness](../health/uncertainty-and-staleness.mdx) that a
-  loading placeholder never shows a status colour is enforced here rather than trusted.
-- **Every colour is a role that exists in the product theme.** `bg-placeholder-fill` and
-  `border-placeholder-line` are among the surface roles `app/product.css` bridges. The gate fails on
-  `bg-secondary`, `bg-accent` and the rest, which resolve to a colour in these docs and to
-  nothing at all at `/view`.
-  [Lyra and the docs chrome](../theming/lyra-and-the-docs-chrome.mdx) covers that difference.
-- **No type size in pixels, anywhere in the file.** That is the whole of what the gate reads:
-  A11Y003 matches an arbitrary `text-[…px]` and a `font-size` declared in px, and nothing
-  else. It does not check that every length in the file is relative, and not every length is.
-  The hairline is Tailwind's `border`, which is one device pixel, and the appearance keyframe
-  carries a duration in milliseconds. What the gate does establish is that no reader's text
-  multiplier is opted out of; whether the layout survives at 200% is a separate question and
-  it is in the unchecked list below.
+**Argued from the source, not measured.**
 
-**Argued, and true of the implementation, but not measured:**
+- The root is `aria-hidden` and the component mounts no live region. One
+  `role="status"` on the region, one message, mounted by the caller.
+- The shimmer is declared inside a `prefers-reduced-motion: no-preference`
+  query, so under reduce it never runs and the static tint remains.
+- The shimmer runs two cycles, about 3.2 seconds, then stops on the static
+  tint, so SC 2.2.2 does not engage. The appearance delay is never suppressed.
+- Nothing is focusable or interactive, and the root is `print:hidden`.
 
-- **Skeletons are hidden from assistive technology.** The root carries `aria-hidden`, so a
-  dashboard with eleven of them is silent. They convey nothing, and announcing eleven of
-  them is worse than silence.
-- **The component mounts no live region, ever.** One `role="status"` on the region, one
-  message such as *loading your results*, and never one per skeleton. That the component
-  refuses to mount it is a fact about the code rather than a claim about what a reader
-  hears: a live region per instance is how a list of six placeholders becomes six
-  interruptions. What is actually announced, and when, is in the unmet list below.
-- **The shimmer is off under `prefers-reduced-motion`**, leaving the static tint behind. The
-  shimmer rule lives inside a `prefers-reduced-motion: no-preference` query in the component's
-  own stylesheet, so the suppression is in the same cascade as the preference and holds on the
-  server-rendered HTML rather than after hydration. Movement across a large area is a genuine
-  trigger for some readers and it carries no information here. See
-  [Reduced motion](../accessibility/reduced-motion.mdx).
-- **The default shimmer is bounded, so SC 2.2.2 (Pause, Stop, Hide) does not engage.** The
-  sweep runs two cycles at the shimmer duration token and then stops on the static tint, which
-  is `animation-iteration-count: 2` at `var(--opsin-duration-shimmer, 1600ms)`: about 3.2
-  seconds of movement, short of the five seconds past which the criterion turns on. There is no
-  pause control and this bullet claims none; the point is that the motion ends on its own
-  before the threshold, and `animation-fill-mode: both` leaves the block at the same static
-  fill a caller gets by passing `shimmer={false}`. The movement is a gradient sweep across the
-  fill rather than an opacity pulse, so the block never loses contrast mid-cycle.
-- **The appearance delay is not motion and is not suppressed.** Under
-  `prefers-reduced-motion` the fade collapses to about a millisecond and `appearAfterMs` is
-  untouched, because a reader who asked for less movement did not ask for more flashing.
-- **Nothing here is focusable or interactive**, so there is no target to measure and no
-  keyboard behaviour to describe. That is the contract rather than an omission.
-- **Print renders nothing.** The root is `print:hidden`. A printed page has no loading state,
-  and a grey rectangle on paper is indistinguishable from a printer fault.
-- **The loading placeholder paints a measured neutral pair, and its boundary clears the
-  non-text floor against every ground but its own fill in the dark theme.** These figures
-  come from the contrast pipeline that `pnpm run contrast` drives, not from `check:a11y`, so
-  they are measured and published but they are not gated by `pnpm check`. The block fills
-  from `--opsin-placeholder-fill` and draws its edge from `--opsin-placeholder-line`, an
-  opaque pair added to the product theme for this shape, in place of the `--muted` over
-  `--border` it used to paint, which sat far below the floor on the light-first page. The
-  pipeline measures each of those two roles against the page, a card and the muted ground,
-  and it measures the boundary against its own fill as `neutral.placeholder-line-on-fill`.
-  The boundary role clears the 3:1 and Lc 45 non-text floor against the page, a card and the
-  muted ground in both themes, because a bounded edge is what lets a loading block read as a
-  shape rather than a solid rectangle. Against its own fill the boundary clears the 3:1
-  non-text ratio in both themes, but in the dark theme it sits below the Lc 45 APCA floor.
-  That one shortfall is stated rather than tuned away, and it is kept in the unmet
-  list below: darkening the boundary to reach Lc 45 on its own fill would push it toward the
-  solid rectangle the pale fill is chosen to avoid. The fill itself is published as advisory
-  and stays deliberately below the floor: a fill dark enough to clear it would be a solid
-  block sitting where a reading is about to land, which is the one thing this component
-  exists to refuse. The measured figures for every pair render in the ContrastReport below
-  rather than being repeated here.
-
-**Not met, or not yet checked, and listed rather than omitted:**
-
-- **The 200% and 1.3× layout claims have not been run.** Every length that decides the size
-  of a placeholder here is an `em` or a `rem`, and that covers the bar heights, the block,
-  the circle and the corner. The widths are percentages, and the two together are the
-  argument for why the shapes should grow with the reader's text rather than hold the space
-  it took at 100%. It is an argument. The rig that would settle it is the layout half of
-  `check-a11y`, which needs Playwright and therefore runs nightly rather than on a commit,
-  and nobody has run it against this component. See
-  [Text resizing and zoom](../accessibility/text-resizing-and-zoom.mdx).
-- **"The resolved content occupies the same space" is half the caller's, and the text shape's
-  half now holds with no precondition on any current browser.** The half that stays the
-  caller's is the one the bullet opens with: every shape other than text takes the height it
-  is given, and the component has no way to know how tall the block or the circle should be.
-  The text shape's half used to carry a precondition and no longer does. Each bar is still
-  `1em` of the inherited font size, but the margin around it is derived from the inherited
-  line box as `calc((1lh - 1em) / 2)`, so a bar plus its two margins is exactly one line of
-  the surrounding text at whatever type step the container sets, with nothing for the caller
-  to declare. A browser without the `lh` unit falls back to the body step's multiplier,
-  `calc((var(--opsin-text-body-leading, 1.294) - 1) * 0.5em)`, which is exact at the body step
-  and close at the others, the old approximation, and that fallback is the only reason this
-  bullet is still in the unmet list rather than out of it. The escape hatch is honest again
-  too: spacing set through `[data-slot="skeleton-block"]` now works, because the value moved
-  from an inline style to a class, and an author rule beats a class on source order without
-  `!important`.
-- **The placeholder boundary sits below the APCA non-text floor against its own fill in the
-  dark theme.** It clears the 3:1 non-text ratio there but falls below the Lc 45 APCA floor
-  on its own fill. This is the one placeholder pair that does not clear both
-  floors, and the met bullet above says why it is published as it stands rather than darkened:
-  a boundary dark enough to reach Lc 45 on its own fill would read as the solid rectangle the
-  pale fill exists to avoid. Whether a darker dark-theme line role is the better answer is a
-  theme decision, not one this component makes.
-- **`prefers-contrast` and `forced-colors` are not implemented anywhere in opsinjs**, so no
-  increased-contrast claim can be made by this component or any other.
-- **Nothing has been measured about what a screen reader announces, and neither example is the
-  case that announces.** The doctrine is settled and the component holds to it: one
-  `role="status"` on the region, one message, mounted by the caller. Two things about the
-  demonstration are not settled. A static example renders its region with the message already
-  inside it. A live region reports mutations, so a region built that way is read in reading
-  order rather than spoken on arrival; the case that announces is a region that is already on
-  the surface when the message is written into it. And a live region nested inside an element
-  carrying `aria-busy="true"` is withheld for as long as that element stays busy, which is why
-  the first example puts the message beside the busy list rather than in it. No screen-reader
-  pass has been run against either example, by anyone, and no result is recorded anywhere.
+**Not checked by any gate.** The 200% and 1.3x layout claims, what a screen
+reader announces, the dark-theme boundary on its own fill, `prefers-contrast`
+and `forced-colors`, and the text rhythm on a browser without the `lh` unit.
 
 <KeyboardTable
   name="skeleton"
@@ -427,126 +168,34 @@ apart on purpose: a component page claims accessibility only where it has been c
     {
       keys: "Tab",
       action: "Skips the skeleton",
-      notes: "There is nothing focusable inside one. A loading placeholder that took a tab stop would put a stop in the reader's path that disappears the moment the content lands, which is worse than no stop at all.",
+      notes: "Nothing inside one is focusable. A stop that vanishes on load is worse than none.",
     },
     {
       keys: "Shift + Tab",
       action: "Skips the skeleton",
-      notes: "Same in reverse. A skeleton never appears in the focus order in either direction, at any shape, with or without the shimmer.",
+      notes: "Same in reverse, at any shape, with or without the shimmer.",
     },
   ]}
 />
 
 <ContrastReport component="skeleton" />
 
-## Data attributes
-
-<DataAttributesTable
-  name="skeleton"
-  rows={[
-    { attribute: "data-slot", condition: "On the root, always.", value: "skeleton" },
-    { attribute: "data-slot", condition: "On the wrapper that stacks the lines, present only when shape resolves to text.", value: "skeleton-group" },
-    { attribute: "data-slot", condition: "On each placeholder shape: one per line inside skeleton-group for the text shape, or the single block for line, block and circle.", value: "skeleton-block" },
-  ]}
-/>
-
-Every part Skeleton draws carries a `data-slot`, which is what makes the parts styleable
-from outside with no export of their own. Neither colour axis reaches this component: there
-is no `data-status` and no `data-category` anywhere in the file, because a skeleton is
-`aria-hidden` and carries no words, so a status colour or a category colour would have
-nothing to attach its meaning to. There is no `data-opsinjs-value` either, for the same
-reason the shape vocabulary has four members and none of them is a measurement: a skeleton
-never renders a reading, rounded or otherwise, so it has no value to expose.
-
-## CSS variables
-
-<CssVariablesTable name="skeleton" />
-
-Skeleton declares no custom property of its own. The one place a value is set directly on
-the root outside its class list is the appearance delay, an inline `animationDelay` in
-milliseconds applied only when `appearAfterMs` resolves to a number greater than zero, which
-is a plain CSS property rather than a `--` custom property and carries no colour. Every colour
-the component paints, the placeholder fill, the placeholder
-line and the shimmer sheen, is a `var()` read straight from a theme-owned role with no
-literal colour fallback, so an install without the opsinjs token sheet drops the gradient
-and keeps the static tint rather than painting an unmeasured neutral. Those roles are listed
-under Tokens rather than here, because they are token consumption and not a property this
-component defines.
-
-## Tokens
-
-<TokenTable component="skeleton" />
-
-These are the token roles Skeleton reads, resolved by `tokensUsedBy` and generated by
-`scripts/build-tokens.mts` rather than listed here by hand, so the table cannot drift from
-what the component actually consumes. They are colour, motion and type roles only: the
-placeholder fill and line the component was re-tuned onto, the two durations and the easing
-Motion above names, and the body leading the text shape's rhythm reads. A skeleton reads
-neither the category axis nor the status axis onto any element, which is the two-axis rule
-holding here in the strongest possible form: there is no clinical colour of either kind for
-this component to mix.
-
 ## API reference
 
 <PropsTable name="SkeletonProps" />
 
-`Skeleton` is a **server component**. It has no state, no timer and no event handler:
-`appearAfterMs` is an `animation-delay` with `animation-fill-mode: backwards` rather than a
-`setTimeout`, which is what lets the placeholder hold the layout open before hydration and
-with JavaScript switched off. The connections where a jump is worst are the connections
-where the script has not arrived. The keyframe that makes that possible ships in the one
-stylesheet this component carries. That sheet ships on every instance rather than only when
-`appearAfterMs` is set, and React hoists it into the document head and de-duplicates it by
-`href`, so a screen full of skeletons still carries it once. See
-[Server and client components](../handbook/server-and-client-components.mdx).
+`Skeleton` is a server component: `appearAfterMs` is a CSS `animation-delay`,
+not a timer, so the placeholder holds the layout before hydration. A `shape`
+outside the four resolves to `text`. `lines` is clamped to 1 to 24. No part is
+exported; style them through `data-slot`.
 
 ## Related
 
-<RelatedComponents name="skeleton" />
-
-**Easily confused with**
-
-- [EmptyState](./empty-state.mdx) is for when nothing is coming. Confusing the two in either
-  direction misleads the reader about whether their data exists.
-- [Spinner](./spinner.mdx) is for waits whose shape is unknown, where a skeleton has no single
-  outline to promise.
-- [Surface](./surface.mdx) is what skeletons frequently sit on, and that pairing is where
-  reduced transparency and reduced motion interact.
-- [Button](./button.mdx) owns its own busy state; never replace a pressed button with a
-  skeleton.
-
-**Used by**
-
-- [Choose a component](../recipes/choose-a-component.mdx) draws the roster it explains, and
-  reserves each specimen's space with a skeleton while the previews load.
-- [Daily log screen](../screens/daily-log-screen.mdx) holds the day's entries behind
-  skeletons until the log resolves, so the sheet does not jump as rows arrive.
-- [Empty and first use](../patterns/empty-and-first-use.mdx) shows a skeleton first, then
-  decides between the content and the empty state once the fetch returns.
-- [Offline and stale data](../patterns/offline-and-stale-data.mdx) draws skeletons while a
-  cached view is refreshed, rather than freezing the last reading in place.
-- [Results screen](../screens/results-screen.mdx) reserves the result cards and range bars
-  with skeletons while the results load.
-- [Trends screen](../screens/trends-screen.mdx) holds the chart and tiles behind skeletons,
-  none of them shaped like a number, until the series arrives.
-
-**Governed by**
-
-- [Data states](../foundations/data-states.mdx)
-- [Reduced motion](../foundations/motion/reduced-motion.mdx)
-- [Interaction states](../foundations/interaction-states.mdx)
-- [Uncertainty and staleness](../health/uncertainty-and-staleness.mdx) has the rule the
-  Accessibility section leans on: a loading placeholder shows no plausible number, no
-  chart-shaped block and no status colour.
-- [Motion in health UI](../health/motion-in-health-ui.mdx) governs the movement. The shimmer
-  is the one thing here a reader watches for the whole wait, so its tempo runs on
-  `--opsin-duration-shimmer` and stops after two cycles: it is tunable, it collapses under
-  reduced motion with every other duration, and it is bounded rather than endless.
-- [Empty and first use](../patterns/empty-and-first-use.mdx) and
-  [Offline and stale data](../patterns/offline-and-stale-data.mdx) cover the two ways a
-  loading state resolves into something other than the content it drew.
-
-Those last four name `skeleton` in their own `implements`, and this page does not carry a
-`governedBy` in its frontmatter, because a non-health component page does not. `check:ia`
-reports that asymmetry as a `CAT003` warning here and on every other component in the same
-position; it is accepted rather than answered, and the list above is the answer in prose.
+- [EmptyState](./empty-state.mdx) is for when nothing is coming. Confusing the
+  two misleads the reader about whether their data exists.
+- [Spinner](./spinner.mdx) is for waits whose shape is unknown, where a skeleton
+  has no single outline to promise.
+- [Surface](./surface.mdx) is what skeletons frequently sit on, and where reduced
+  transparency and reduced motion interact.
+- [Button](./button.mdx) owns its own busy state; never replace a pressed button
+  with a skeleton.

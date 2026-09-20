@@ -9,32 +9,21 @@ category: "feedback"
 aliases: ["loader", "busy indicator", "activity indicator"]
 ---
 
-## Status
-
 <StubNotice
   name="spinner"
   status="shipped"
   questions={[
-    "No contrast pair has been measured. The ring draws in currentColor, so what it reads against depends on the ink it inherits and the ground it sits on, and whether the muted neutral tone clears the non-text floor on a card and on the page has been argued from the roles rather than checked by a machine.",
-    "Nobody has listened to the ring in a screen reader. The root is a role=\"status\" live region carrying the label as both an aria-label and a visually hidden copy, and whether that announces the wait once and by name, rather than twice or as a bare \"busy\", has been reasoned about rather than heard.",
-    "Under prefers-reduced-motion the ring stops to a static partial arc. The wait is still spoken, but whether a stopped arc reads as an ongoing wait to a sighted reader who asked for less motion, or reads instead as a broken graphic, has not been tested with anyone.",
-    "Forced colours and prefers-contrast: more are unhandled. An SVG stroke is left where the author set it under forced colours rather than remapped to a system colour, so unlike the shipped graphics that carry a forced-colors rule, this ring has no such rule and whether it stays visible in that mode is untested.",
+    "No contrast pair has been measured, so whether the muted ring clears the non-text floor on a card and on the page is argued rather than checked.",
+    "Nobody has heard the role=\"status\" region in a screen reader, so whether it announces the wait once by name, rather than twice, is untested.",
+    "Forced colours are unhandled, because the SVG stroke is left where the author set it, and whether the ring stays visible there is untested.",
   ]}
 >
-  <code className="text-sm">spinner</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">spinner</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Spinner is an indeterminate loading indicator: a small ring that turns while a brief, in-place wait resolves. It says nothing about what is arriving or how long it will take, only that something is on its way, and that narrowness is the whole reason it sits so low on the list of things to reach for.
-
-The design decision that shapes the component is that a skeleton is almost always the better answer. A skeleton is the outline of the thing itself, so it says what is arriving; a spinner says only that something is. A spinner earns its place in the few spots where the shape of what is coming is genuinely unknown, or where there is no room to draw an outline at all, and everywhere else the honest indicator is a [Skeleton](./skeleton.mdx).
-
 ## Preview
-
-A ring beside a visible word, in the muted neutral tone the ring takes from its surroundings. The thing worth checking is that the spinner reads as quiet status rather than as a colour on either axis, so read it in greyscale: the ring is neutral ink, it carries no status and no category, and the visible caption is the product's own word for the wait while the ring carries a hidden copy for a screen reader.
 
 <ComponentPreview name="spinner" />
 
@@ -45,8 +34,6 @@ A ring beside a visible word, in the muted neutral tone the ring takes from its 
   unbuilt={false}
   importPath="@/components/ui/spinner"
 />
-
-Spinner has no dependency beyond the shared substrate every component installs. The ring is a pure SVG arc animated by a stylesheet, so it pulls in no icon set and is built on no Base UI primitive: a turning ring needs neither.
 
 ## Usage
 
@@ -65,20 +52,16 @@ import { Spinner } from "@/components/ui/spinner"
 
 <WhenToUse
   use={[
-    "A brief in-place wait whose result has no known shape, such as a short action whose response could take one of a few forms, where a skeleton would have no single outline to promise.",
-    "A spot too small to draw an outline in, such as a single toolbar slot or a compact inline control, where a skeleton has nothing to say and a quiet ring reads as working.",
-    "A wait short enough that a skeleton would flash in and straight back out, where a calm ring is steadier than an outline that barely appears before the content replaces it.",
+    "A brief in-place wait whose result has no known shape, so a skeleton would have no single outline to promise.",
+    "A spot too small to draw an outline in, such as a toolbar slot or a compact inline control.",
+    "A wait short enough that a skeleton would flash in and straight back out.",
   ]}
   avoid={[
-    { case: "The shape of what is arriving is known, so its outline can be drawn: a card, a list, a chart or a block of text. A ring there throws away the shape a skeleton would have shown.", instead: "skeleton" },
-    { case: "The wait belongs to a control performing its own action, such as a submit button saving a reading, where the control already shows that it is working.", instead: "button" },
-    { case: "You can measure how far through a known sequence of steps the reader is, so the wait is determinate rather than indeterminate.", instead: "stepper" },
+    { case: "The shape of what is arriving is known and can be drawn: a card, a list, a chart, a block of text.", instead: "skeleton" },
+    { case: "The wait belongs to a control performing its own action, such as a submit button saving a reading.", instead: "button" },
+    { case: "You can measure how far through a known sequence of steps the reader is, so the wait is determinate.", instead: "stepper" },
   ]}
 />
-
-The exclusion that matters is the first, and it is the reason this component sits so low on the roster. A skeleton is the outline of the thing that has not arrived, so it tells the reader what is coming and roughly how large it will be, and a spinner dropped where that outline could have gone has discarded all of it. So the default indicator across the system is a [Skeleton](./skeleton.mdx), and a spinner is what remains only when there is no shape to draw or no room to draw it in.
-
-The determinate case is worth naming precisely, because it is not what this component is for. A wait you can measure, a download at forty percent or a job three of five steps through, is a determinate wait, and the honest indicator states how far along it is rather than turning forever. For a named sequence of steps that is a [Stepper](./stepper.mdx). For a raw percentage bar it is a progress bar, which opsinjs delegates to Base UI rather than shipping; the reasoning is on the [Progress](./progress.mdx) page. A spinner that stands in for either shows motion where it could have shown position.
 
 ## Anatomy
 
@@ -87,100 +70,70 @@ The determinate case is worth naming precisely, because it is not what this comp
   parts={[
     {
       name: "Spinner",
-      describes: "The root, an inline span carrying data-slot=\"spinner\" and role=\"status\". It is a live region, so a screen reader announces the wait when the spinner mounts, and it carries the accessible name from label as its aria-label. It draws only neutral chrome through currentColor, carries neither data-status nor data-category, and takes no focus and captures no key.",
+      describes: "The root, an inline span with role=\"status\". A live region carrying the accessible name from label.",
       prop: "label",
     },
     {
       name: "Spinner.Ring",
-      describes: "The turning ring, an SVG arc marked data-slot=\"spinner-ring\" and aria-hidden, so the decorative shape is kept out of the accessibility tree. It is a single partial arc in currentColor with a round cap, animated by animate-spin and held still by motion-reduce:animate-none. Its size is set in em by size, so it grows with the surrounding text.",
+      describes: "The turning SVG arc, aria-hidden and drawn in currentColor. Sized in em, held still under reduced motion.",
       prop: "size",
     },
     {
       name: "Spinner.Label",
-      describes: "A visually hidden copy of the name, data-slot=\"spinner-label\", so the live region has text to announce when it mounts and a reader who queries the region hears the wait named rather than an empty status.",
+      describes: "A visually hidden copy of the name, so the live region has text to announce.",
     },
   ]}
 />
-
-<CompositionTree
-  name="spinner"
-  tree={[
-    {
-      part: "Spinner",
-      cardinality: "1",
-      note: "data-slot=\"spinner\", role=\"status\", the accessible name from label. Neither data-status nor data-category. Not focusable.",
-      children: [
-        {
-          part: "Spinner.Ring",
-          cardinality: "1",
-          note: "data-slot=\"spinner-ring\", an aria-hidden SVG arc in currentColor. animate-spin, and motion-reduce:animate-none holds it still.",
-        },
-        {
-          part: "Spinner.Label",
-          cardinality: "1",
-          note: "data-slot=\"spinner-label\", a visually hidden copy of the label text for the live region.",
-        },
-      ],
-    },
-  ]}
-/>
-
-The parts above are identified by `data-slot` and are styleable from outside; none of them is an export, because there is nothing to slot into a spinner and no way to render a ring without its live region. There is deliberately no colour prop and no `Spinner.Track`: the ring is one arc in the ink it inherits, and a second faint track ring would either need a second colour, which puts the component near the axes it stays off, or an opacity wash, which drifts the arc towards its background. The one route by which colour reaches the ring is `className`, and the two-colour-axes rule applies to it in full.
 
 ## Examples
 
 ### A brief wait
 
-The canonical pattern: a ring beside a visible word, for a brief in-place wait whose result has no known shape. The ring turns while the wait resolves and carries its own hidden name for a screen reader, and the visible "Loading" is the caption a sighted reader reads. Both sit in the muted neutral tone, so the spinner reads as quiet status rather than as a colour on either axis. The words are plain rather than clinical vocabulary, because an opsinjs example must never be mistakable for a reading.
+A ring beside a visible word, for a wait with no known shape. `label` names the
+wait for a screen reader while the visible caption carries it for everyone else.
 
 <ComponentPreview name="spinner-a-brief-wait" kind="example" align="start" />
 
 ### Two sizes
 
-The `sm` and `md` sizes side by side. Both are sized in `em`, so each grows with the surrounding text rather than pinning at a fixed size, and the point of showing them together is that neither carries a colour on either axis: read in greyscale they are two quiet rings, and a status pill dropped beside them would still be the only thing on the surface carrying a level.
+`size` sets `sm` and `md` side by side. Each is measured in `em`, so the ring
+grows with the surrounding text rather than pinning at a fixed size.
 
 <ComponentPreview name="spinner-two-sizes" kind="example" align="start" />
 
 ## Content guidelines
 
-Keep a spinner to a brief wait, and name what is being waited for. Where the screen has the room, "Loading your readings" tells a reader which part of the page is not ready in a way that a bare "Loading" does not. If the wait is long enough that a reader will wonder whether anything is happening, a ring is the wrong indicator: a long wait wants either a skeleton that shows what is coming or a determinate indicator that shows how far along it is, because a ring that turns for thirty seconds says nothing new after the first one.
-
-Do not spin where a shape could be shown. A list, a card, a chart and a paragraph all have outlines, so their loading state is a [Skeleton](./skeleton.mdx) that promises the shape rather than a ring that hides it. Reserve the ring for the wait with no shape and no room, and let the visible caption beside it carry the words while the ring carries only the motion.
+Name what is being waited for. "Loading your readings" tells a reader which part
+of the page is not ready, where a bare "Loading" does not. Where the wait runs
+long enough that a reader wonders whether anything is happening, a ring is the
+wrong indicator.
 
 <DoDont>
   <DoDont.Do>
-    **A ring beside "Loading" for a two-second action with no known shape.** The
-    ring shows that work is happening, the caption names the wait, and the whole
-    thing is gone before a reader has time to wonder what is coming, which is the
-    wait a spinner is for.
+    **A ring beside "Loading" for a two-second action with no known shape.**
   </DoDont.Do>
   <DoDont.Dont>
-    **A ring where a list is loading.** The list has an outline, so its loading
-    state is a skeleton of three or four grey rows that tells the reader a list is
-    coming and roughly how long. A ring there throws that shape away and leaves the
-    reader waiting on a turning circle with nothing to expect.
+    **A ring where a list is loading.** The list has an outline, so it wants a skeleton.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. Accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+**Checked by `pnpm run check:a11y` on every commit.**
 
-**Checked, by `pnpm run check:a11y`:**
+- No status colour, no colour literal and no ramp step. The ring draws only in `currentColor`.
+- No `px` size. The ring is set in `em` and the caption in a semantic type step.
 
-- **No status colour, no colour literal, no ramp step.** The ring draws only in `currentColor`, so it carries no `data-status`, reads no clinical vocabulary, and cannot mix the two axes. The gate reads every element and would fail the build on a colour drawn from either axis or on a raw colour value, and there is neither here.
-- **No px size.** The ring is sized in `em` and the visible caption in a semantic type step, so a reader who has turned their text size up gets a larger ring rather than a pinned one.
+**Argued from the source, not measured.**
 
-**Argued, and true of the implementation, but not yet measured:**
+- The root is a `role="status"` live region carrying `label` as its `aria-label` and as a visually hidden copy.
+- The SVG ring is `aria-hidden`, so the decorative motion stays out of the accessibility tree.
+- `label` is required. A missing or empty one raises a development warning rather than rendering an unnamed region.
+- `motion-reduce:animate-none` holds the ring still, and the wait is still carried by the live region and the hidden text.
 
-- **The wait is announced, and the ring is not.** The root is a `role="status"` live region with the `label` as its `aria-label` and a visually hidden copy of the text inside it, so a screen reader announces the wait by name when the spinner mounts. The SVG ring is `aria-hidden`, so the decorative motion is kept out of the accessibility tree.
-- **The label is required.** A spinner with no name announces a wait for something the reader cannot identify, so a missing or empty `label` raises a development warning rather than rendering an unnamed live region.
-- **It stops under reduced motion.** `motion-reduce:animate-none` holds the ring still for a reader who has asked the platform for less movement, and because the wait is carried by the live region and the hidden text rather than by the motion, nothing a reader needs is lost with the ring stopped.
-
-**Not checked at all, and listed rather than omitted:**
-
-- The contrast of the ring against the surfaces it sits on, in either theme. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring.
-- What the ring draws under `forced-colors: active`, where an SVG stroke is left where the author set it rather than remapped to a system colour, and there is no `forced-colors` rule here to remap it. None of this has been put in front of a machine or a high contrast user.
+**Not checked by any gate.** Contrast of the ring against either theme's
+surfaces, what it draws under `forced-colors: active`, and whether a screen
+reader speaks the wait once.
 
 <KeyboardTable
   name="spinner"
@@ -188,17 +141,17 @@ Some of this is enforced by a gate on every pull request and every push to `main
     {
       keys: "Tab",
       action: "Skips the spinner",
-      notes: "A spinner is status, not a control. Nothing here is focusable, and a tab stop that does nothing is a stop a keyboard user pays for on every screen it appears on.",
+      notes: "A spinner is status, not a control. Nothing here is focusable.",
     },
     {
       keys: "Shift + Tab",
       action: "Skips the spinner",
-      notes: "Same in reverse. A spinner never appears in the focus order in either direction.",
+      notes: "Same in reverse. A spinner never appears in the focus order.",
     },
     {
       keys: "Arrow keys",
       action: "Nothing",
-      notes: "There is nothing to select, move or expand. The spinner is a live region that announces a wait and draws a turning ring, and it captures no key.",
+      notes: "There is nothing to select, move or expand. The spinner captures no key.",
     },
   ]}
 />
@@ -209,18 +162,14 @@ Some of this is enforced by a gate on every pull request and every push to `main
 
 <PropsTable name="SpinnerProps" />
 
-`label` is required, and it is the load-bearing prop: it is the accessible name for the wait, applied as the region's `aria-label` and rendered as a visually hidden copy inside it, so the wait is announced by name rather than as a bare "busy". `size` chooses between two neutral weights and nothing else, both sized in `em` so the ring scales with the surrounding text. There is no colour prop, because a spinner is on neither the category axis nor the status axis; colour reaches the ring only through `className`, and the two-colour-axes rule applies to it in full.
+`label` is required and has no default, because a guessed name would describe the
+wrong wait. `size` defaults to `md` and chooses visual weight only. There is no
+colour prop: colour reaches the ring only through `className`, and the
+two-colour-axes rule applies to that class in full.
 
 ## Related
 
-<RelatedComponents name="spinner" />
-
-**Easily confused with**
-
-- [Skeleton](./skeleton.mdx) is the outline of content that has not arrived, so it says what is coming rather than only that something is. It is the default loading indicator across the system, and a spinner is what remains where no shape can be drawn.
-- [Button](./button.mdx) shows its own busy state while it performs an action, and it draws that busy glyph inline rather than composing a Spinner. A wait that belongs to a control belongs on the control.
-- [Progress](./progress.mdx) and a stepped [Stepper](./stepper.mdx) show a determinate wait, how far along a known task the reader is. A spinner is for the indeterminate wait, where there is no position to show.
-
-**Used by**
-
-- No pattern, recipe or screen composes it yet. It is a neutral primitive a product drops into its own brief, shapeless waits, and [Button](./button.mdx) draws its own busy glyph rather than reaching for this one.
+- [Skeleton](./skeleton.mdx) is the outline of content that has not arrived, and it is the default loading indicator here.
+- [Button](./button.mdx) is where a wait belonging to a control lives, and it draws its own busy glyph.
+- [Progress](./progress.mdx) is the determinate bar, delegated to Base UI rather than shipped here.
+- [Stepper](./stepper.mdx) is the determinate wait through a named sequence of steps.

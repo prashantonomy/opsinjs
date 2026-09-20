@@ -11,32 +11,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="range-legend"
   status="shipped"
   questions={[
-    "Nothing here has been measured. No contrast pair has been checked by a machine, and three are known to need it: each status swatch fill against the ground the host provides, the neutral band swatch's hairline against that same ground, and the status glyph ink against it. This component sets no surface of its own, so every swatch is painted on the host's background rather than on the matching -surface the token contract tunes against.",
-    "The binding to a RangeBar is a convention rather than a gate. The interface takes only the band definitions and a className and takes no bar reference, so nothing in the code stops a caller placing the legend on a different screen from the bars it names, which is the failure the roster cited when it declined a floating legend. The page argues the placement; no lint rule enforces it.",
-    "No screen reader user has been asked whether a list of decorative swatches with text labels reads usefully, or whether it should carry an accessible name that points at the bar it explains. The swatches and glyphs carry aria-hidden and the words carry the meaning, but that arrangement has been reasoned about rather than listened to.",
-    "No named reviewer has signed this page off. Group J of the safety review checklist asks for a reviewer name and a date, and there is neither here, so read every claim below as unattributed until that changes.",
+    "No contrast pair has been measured, and every swatch and glyph is painted on the host's ground rather than a surface the token contract tunes against.",
+    "The binding to a RangeBar is a convention rather than a gate, so nothing in the code stops a caller placing the legend away from its bars.",
+    "No screen reader user has been asked whether a list of aria-hidden swatches with text labels reads usefully, or whether it needs an accessible name pointing at its bar.",
   ]}
 >
-  <code className="text-sm">range-legend</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">range-legend</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-RangeLegend is the caption for a RangeBar, written out as a list. It names the tones a bar draws: the neutral band that is the reference range, and each clinical status colour a product may put on a reading. It draws no scale, states no reading and reaches no verdict, so on its own it is at worst useless rather than misleading.
-
-That restraint is the whole design. The roster declined a floating legend because a legend that can be separated from its chart is a legend that will be, and the answer here is that the legend owns no data. It takes the same band definitions you gave the bar, and it belongs in the same container as the bar. Move it somewhere else and it stops being a legend, because there is nothing beside it to be the legend of.
-
 ## Preview
-
-Check that the neutral band swatch is the same colour as a RangeBar's band, that each status swatch is the same colour as that level's tick, and that every status row carries a word and a distinct glyph as well as a colour. Turn the text size up: the swatches hold their size while the words wrap, and nothing is truncated.
 
 <ComponentPreview name="range-legend" />
 
@@ -48,8 +37,6 @@ Check that the neutral band swatch is the same colour as a RangeBar's band, that
   importPath="@/components/ui/range-legend"
   dependencies={["lucide-react"]}
 />
-
-The one dependency is `lucide-react`, for the four status glyphs. The legend does not install or compose RangeBar: it is a sibling key rather than a wrapper, so it carries no registry dependency and you place the two next to each other yourself.
 
 ## Usage
 
@@ -71,30 +58,26 @@ import { RangeLegend } from "@/components/ui/range-legend"
 
 <WhenToUse
   use={[
-    "Beside a stack of RangeBars that share a status vocabulary, where naming each level once under the whole group reads more calmly than repeating a pill on every row.",
-    "As the key to a single RangeBar whose status tones a first time reader has not met before, placed directly beneath the bar in the same container.",
-    "Anywhere a reader needs to learn what the neutral band and the status colours mean before they read the numbers, in the reader's own words that the product owns.",
+    "Beside a stack of RangeBars that share a status vocabulary, naming each level once instead of a pill on every row.",
+    "As the key to a single RangeBar whose status tones a first time reader has not met, directly beneath it.",
+    "Wherever a reader must learn what the neutral band and the status colours mean before reading the numbers.",
   ]}
   avoid={[
-    { case: "You are showing one measurement against its range. The bar already states the reading, the range, the position and whose range it is in a sentence, and a separate key adds nothing.", instead: "range-bar" },
-    { case: "You want to state the level of one specific reading. A legend names the vocabulary rather than a single verdict.", instead: "status-pill" },
+    { case: "You are showing one measurement against its range. The bar already states the reading, the range and the position.", instead: "range-bar" },
+    { case: "You want to state the level of one specific reading. A legend names the vocabulary, never a verdict.", instead: "status-pill" },
     { case: "You are explaining a single clinical term rather than a set of tones.", instead: "term" },
   ]}
 />
 
-The distinction that matters most is the first one. A RangeBar carries its own words: the summary sentence names the reading, the range and the position, and a StatusPill names the level with a word and a glyph. So a legend beside a single bar mostly repeats what is already there. It earns its place only when several bars share one vocabulary, and then it says that vocabulary once instead of many times.
-
-Wherever you use it, keep it in the same container as the bars it names. The legend takes the band definitions you gave those bars, and it is a caption. A caption on the wrong page is not a caption.
-
 ## Clinical meaning
 
-**What it asserts.** RangeLegend asserts exactly one thing: these are the tones the bar beside it draws, and here is what each one means, in these words. It asserts nothing about any particular reading, nothing about a cause, and nothing about what happens next. It is a key, and a key describes the map rather than the territory.
+**Asserts.** Exactly one thing: these are the tones the bar beside it draws, and this is what each one means. It says nothing about any reading, cause or next step.
 
-**What it must never be read as.** It is not a scale, not a diagnosis and not a verdict on the reader. A row that reads "Needs attention" names a tone a product may assign; it does not say that the reader's own result is in that tone. The reading and its level live on the bar, never in the key. The words "normal" and "abnormal" are banned from every row, as they are everywhere in opsinjs, and [Reference ranges and normal](../health/reference-ranges.mdx) carries the whole list and the argument behind it.
+**Never read as.** A scale, a diagnosis or a verdict on the reader. "Needs attention" names a tone a product may assign, not the reader's own result. "Normal" and "abnormal" are banned from every row, and [Reference ranges and normal](../health/reference-ranges.mdx) carries the list.
 
-**Which colour axis it may use.** The status axis, and the neutral reference range band, and nothing else. A row is either the neutral band that the bar draws for the usual range, or one of the four clinical status tones. It may never use the category axis: a category colour identifies what a reading is about, and a legend of range tones is not about identity, so no swatch is category tinted and no element carries `data-category`. Putting an identity colour and an urgency colour in the same key is the collision [The two colour axes](../health/two-colour-axes.mdx) exists to prevent. Status here never travels as colour alone: every status row draws the fill, the level's distinct glyph and the word together, so the level survives greyscale and colour vision deficiency.
+**Colour axis.** The status axis and the neutral reference range band, nothing else. No swatch is category tinted and no element carries `data-category`, because [The two colour axes](../health/two-colour-axes.mdx) never meet on one key. Every status row draws fill, distinct glyph and word together, so the level survives greyscale.
 
-**Who owns the thresholds and the words.** The consuming product, always. RangeLegend ships no band names, no ranges and no levels of its own. The words in every row arrive as props, because the product owns the ranges those words describe, and shipping band names inside a component library would be shipping clinical decisions to every product that installed it. The swatch colours are the two shared axes read straight from the token layer, and they are the only thing this component supplies.
+**Thresholds.** The consuming product owns every word, range and level. RangeLegend ships no band names; the words arrive as props and the swatch colours are all it supplies.
 
 ## Anatomy
 
@@ -103,26 +86,26 @@ Wherever you use it, keep it in the same container as the bars it names. The leg
   parts={[
     {
       name: "RangeLegend",
-      describes: "The root, a list. Takes colour from neither axis and carries no data of its own. No fixed height: at 200% text every row grows and wraps rather than clipping a word.",
+      describes: "The root, a list. Takes colour from neither axis and carries no data of its own.",
       prop: "bands",
     },
     {
       name: "RangeLegend.Item",
-      describes: "One row of the key, a list item. Carries data-status on a status row and neither attribute on the neutral band row, so no element ever carries both axes.",
+      describes: "One row, a list item. Carries data-status on a status row and neither axis attribute on the neutral band row.",
       prop: "tone",
     },
     {
       name: "RangeLegend.Swatch",
-      describes: "The colour chip, the bar's own colour for this tone. The neutral band swatch takes RangeBar's band colours, outlined rather than filled; a status swatch takes RangeBar's tick tone as a fill. Decorative, so it carries aria-hidden; the label carries the meaning. Under forced colours a status fill is stripped, so the swatch gains a CanvasText outline to stay visible.",
+      describes: "The colour chip in the bar's own colour. Outlined for the neutral band, filled for a status.",
     },
     {
       name: "RangeLegend.Label",
-      describes: "The row's word, in the reader's language: the product's own phrasing for the tone. A screen reader announces it, and the optional description beside it, while the swatch and the glyph are hidden from assistive technology.",
+      describes: "The row's word, the product's own phrasing for the tone. The only part a screen reader announces.",
       prop: "label",
     },
     {
       name: "RangeLegend.Glyph",
-      describes: "The status level's distinct lucide shape, drawn on status rows only, in a neutral ink. It is the shape carrier the colour is redundant to, so the four levels stay four distinct shapes in greyscale. Decorative, hidden from the accessibility tree; the word beside it is the level.",
+      describes: "The level's distinct lucide shape, on status rows only, in neutral ink. Decorative; the word is the level.",
     },
   ]}
 />
@@ -133,27 +116,27 @@ Wherever you use it, keep it in the same container as the bars it names. The leg
     {
       part: "RangeLegend",
       cardinality: "1",
-      note: "data-slot=\"range-legend\", a ul. Neither data-status nor data-category.",
+      note: "data-slot=\"range-legend\", a ul. No axis attribute.",
       children: [
         {
           part: "RangeLegend.Item",
           cardinality: "1..n",
-          note: "data-slot=\"range-legend-item\", a li. data-status=\"<level>\" on a status row; no axis attribute on the neutral band row.",
+          note: "data-slot=\"range-legend-item\", a li. data-status=\"<level>\" on a status row only.",
           children: [
             {
               part: "RangeLegend.Swatch",
               cardinality: "1",
-              note: "data-slot=\"range-legend-swatch\", aria-hidden=\"true\". The bar's own colour for this tone. No axis colour of its own beyond the status fill or the neutral band outline.",
+              note: "data-slot=\"range-legend-swatch\", aria-hidden=\"true\".",
             },
             {
               part: "RangeLegend.Glyph",
               cardinality: "0..1",
-              note: "A lucide glyph, aria-hidden=\"true\". Present on a status row, absent on the neutral band row. Carries no data-slot.",
+              note: "A lucide glyph, aria-hidden=\"true\". Status rows only. No data-slot.",
             },
             {
               part: "RangeLegend.Label",
               cardinality: "1",
-              note: "data-slot=\"range-legend-label\". The word. An optional description sits beside it as a plain span with no slot.",
+              note: "data-slot=\"range-legend-label\". The optional description is a plain span with no slot.",
             },
           ],
         },
@@ -162,67 +145,49 @@ Wherever you use it, keep it in the same container as the bars it names. The leg
   ]}
 />
 
-The parts are `data-slot` attributes rather than exports. There is no `RangeLegend.Item` you can import, and the legend is not composable: the rows are decided by the `bands` array you pass rather than by how a caller nests children, and there is no way to hand it a swatch without a label.
-
 ## Examples
 
 ### The legend beside its bar
 
-This is the only correct home for a legend: in the same container as the bars it names, taking the same tones those bars draw. Read the swatches against the ticks above them and they are the same colours. Move this block away from the bars and it stops meaning anything, which is why the component owns no data of its own.
+The only correct home for a legend: the same container as the bars it names, with `bands` holding the same tones those bars draw. The swatches match the ticks above them.
 
 <ComponentPreview name="range-legend-beside-its-bar" kind="example" align="start" />
 
 ### The four levels, named once
 
-The whole tone vocabulary in one key: the neutral usual range band, then the four clinical status levels, each with the product's own word, its distinct glyph and its colour. No swatch is tinted from the category axis, and every status row carries a word and a shape as well as a colour, so the key survives greyscale.
+The whole vocabulary in one key: the neutral band, then the four clinical status levels, each row's `tone` giving it the product's word, its distinct glyph and its colour.
 
 <ComponentPreview name="range-legend-the-four-levels" kind="example" align="start" />
 
 ## Content guidelines
 
-Write each row's label in the reader's words, and make a status row's word the product's own plain phrasing for that level rather than a clinical register. The description is a short second line, not a paragraph: it says who set the range or what the tone means, and it stops. A legend is a key, and a key that runs long stops being scanned.
-
-Never write a verdict on the reader into a row. "Worth watching" names a tone; "your result is poor" names a person, and the banned word list at [Reference ranges and normal](../health/reference-ranges.mdx) is the same here as everywhere. Keep the neutral band's word about the range rather than about the reader: "the usual range", not "fine" or "good".
+Write each label in the reader's words, in the product's plain phrasing rather than a clinical register. The description is a short second line saying who set the range or what the tone means. Keep the neutral band's word about the range, never about the reader.
 
 <DoDont>
   <DoDont.Do>
-    **"The usual range" with a neutral swatch, then "Worth watching" and "Needs attention" each with its own word, glyph and colour.** Names the tones the bar draws, in the reader's words, with the level carried by a shape and a word as well as a colour. Nothing in the key claims anything about the reader's own result.
+    **"The usual range" with a neutral swatch, then "Worth watching" with its own word, glyph and colour.**
   </DoDont.Do>
   <DoDont.Dont>
-    **"Normal" with a green swatch and "Abnormal" with a red one, and no words for the levels between.** It converts a range into a verdict on the person, leans the whole meaning on colour, and uses the two words banned throughout opsinjs for a result about someone's own body.
-  </DoDont.Dont>
-</DoDont>
-
-<DoDont>
-  <DoDont.Do>
-    **A legend placed directly beneath the RangeBars it explains, taking the same tones those bars draw.** The reader learns the vocabulary in one place and reads it straight onto the bars above it.
-  </DoDont.Do>
-  <DoDont.Dont>
-    **A legend in a sidebar, a footer or a separate tab from the bars it describes.** Once the key and the picture are apart, the key names tones the reader cannot see and the picture draws colours the reader was not taught, which is the failure the roster named when it first declined this component.
+    **"Normal" with a green swatch and "Abnormal" with a red one.** A verdict on the person, carried by colour.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. Accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+**Checked by `pnpm run check:a11y` on every commit.**
 
-**Checked, by `pnpm run check:a11y`:**
+- A status row reads its glyph from `CLINICAL_STATUS_META` and prints the word, so colour never carries alone.
+- No element carries both `data-category` and `data-status`; this file writes no category colour.
+- No threshold is shipped and no raw colour literal appears.
 
-- **Colour is never the only carrier of a status.** A status row reads the glyph shape from `CLINICAL_STATUS_META` and prints the word as the label, so the four levels are four distinct shapes and four distinct words rather than one shape in four colours. The gate fails the build on a status colour drawn without a glyph and a word.
-- **No element takes colour from both axes.** The gate reads every JSX element and fails on one carrying both `data-category` and `data-status`. This file writes no category colour and no `data-category` at all, and stamps `data-status` only on a status row, so a mixture cannot arise.
-- **No shipped threshold and no raw colour literal.** Every word in the key arrives as a prop, no range or level is written into the component or its examples, and every colour is a semantic token role from the two shared axes.
+**Argued from the source, not measured.**
 
-**Argued, and true of the implementation, but not yet measured:**
+- Each swatch and glyph carries `aria-hidden`, so a screen reader meets the labels and skips the decoration.
+- Nothing takes focus, answers a key or animates, so `prefers-reduced-motion` has no state to reduce.
+- At 200% text the swatches hold their size while the words wrap, and no ellipsis is set.
+- Under `forced-colors: active` a status fill is stripped and the swatch keeps a `CanvasText` outline.
 
-- **The words are in the accessibility tree; the picture is not.** Each swatch and each glyph carries `aria-hidden`, so a screen reader meets the list of labels and descriptions and skips the decoration. A reader who cannot see the swatches loses the colours and keeps every word.
-- **The legend is not interactive.** Nothing takes focus, answers a key or a pointer, or animates. It is a list of names, so there is no state for `prefers-reduced-motion` to reduce.
-- **At 200% text the rows already stack and wrap.** The swatches hold their size in units independent of the type step while the words wrap beneath, and nothing is truncated and no ellipsis is set anywhere in the file.
-
-**Not checked at all, and listed rather than omitted:**
-
-- Every contrast pair: each status swatch fill against the host ground, the neutral swatch's hairline against it, and the glyph ink against it. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring. The swatches are `-line` roles and the glyph is drawn in a neutral ink, and this component sets no surface of its own, so every one of these pairs is painted on whatever ground the host provides rather than the matching `-surface` the token contract tunes against.
-- How the decorative swatch list plays for a screen reader user, and whether the list should carry an accessible name that points at the bar it explains. It has been reasoned about and not listened to.
-- What the swatches draw under `forced-colors: active`. A status fill is stripped and the swatch keeps a `CanvasText` outline so the chip stays visible, the glyph shape and the word carry the level, and the neutral swatch keeps its border. None of this has been put in front of a machine or a high contrast user.
+**Not checked by any gate.** Every contrast pair against the host ground, how the swatch list reads to a screen reader user, and what forced colours draws.
 
 <KeyboardTable
   name="range-legend"
@@ -230,46 +195,49 @@ Some of this is enforced by a gate on every pull request and every push to `main
     {
       keys: "Tab",
       action: "Skips the whole component",
-      notes: "Nothing here is focusable, and that is the contract rather than an omission. The legend is a list of names, and a tab stop that does nothing is a stop a keyboard user pays for on every screen it appears on.",
+      notes: "Nothing here is focusable. A stop that does nothing is a stop a keyboard user pays for.",
     },
     {
       keys: "Shift + Tab",
       action: "Skips the whole component",
-      notes: "Same in reverse. A RangeLegend never appears in the focus order in either direction.",
+      notes: "Same in reverse. A RangeLegend never appears in the focus order.",
     },
     {
       keys: "Arrow keys",
       action: "Nothing",
-      notes: "Deliberately. There is nothing to select, move or expand; the swatches are decorative and the words are static text.",
+      notes: "Nothing to select, move or expand; the swatches are decorative and the words are static.",
     },
   ]}
 />
 
 <ContrastReport component="range-legend" />
 
+## Data attributes
+
+<DataAttributesTable
+  name="range-legend"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On the root and every named inner part, always",
+      value: "range-legend, range-legend-item, range-legend-swatch, range-legend-label",
+    },
+    {
+      attribute: "data-status",
+      condition: "On a status row's item; absent on the neutral band row",
+      value: "The row's tone: steady, watch, attention or urgent",
+    },
+  ]}
+/>
+
 ## API reference
 
 <PropsTable name="RangeLegendProps" />
 
-`bands` is the whole of the component: an array of rows, each a word, an optional description and an optional tone. Omit a row's `tone` for the neutral reference range band, which is what the bar draws for the usual range and for a reading with no verdict. Set it to a clinical status level to name a tone the product has assigned.
-
-`tone` is typed to the four `ClinicalStatus` levels rather than to `string`, for the same reason RangeBar types its `status`: a legend that accepted a fifth tone would be naming a colour the bar cannot draw. [Clinical status semantics](../health/clinical-status-semantics.mdx) is where those four levels are defined. A value outside the four is refused with a development warning and the row falls back to the neutral band rather than being approximated into a level. An empty `bands` array renders nothing and warns in development, because a legend with no rows is a key to a picture it forgot to name.
+`tone` is typed to the four `ClinicalStatus` levels in [Clinical status semantics](../health/clinical-status-semantics.mdx). A value outside the four is refused with a development warning and the row falls back to the neutral band. An empty `bands` array renders nothing and warns in development.
 
 ## Related
 
-<RelatedComponents name="range-legend" />
-
-**Easily confused with**
-
-- [RangeBar](./range-bar.mdx) renders the bar this legend explains, and it already carries its own summary sentence and status pill, so a single bar rarely needs a separate key.
-- [StatusPill](./status-pill.mdx) names the level of one specific reading, whereas RangeLegend names the whole vocabulary of tones a group of bars shares.
+- [RangeBar](./range-bar.mdx) renders the bar this legend explains, and already carries its own summary sentence and status pill.
+- [StatusPill](./status-pill.mdx) names the level of one specific reading, where RangeLegend names the whole vocabulary a group of bars shares.
 - [Term](./term.mdx) explains one clinical word in place, where a legend names a set of tones.
-
-**Used by**
-
-- [Trends screen](../screens/trends-screen.mdx) places RangeLegend beside a stack of RangeBars that share a status vocabulary.
-
-**Governed by**
-
-- [Reference ranges and normal](../health/reference-ranges.mdx) is why the neutral band names the usual range rather than calling the reader normal.
-- [The two colour axes](../health/two-colour-axes.mdx) is why a swatch is a status tone or the neutral band and never a category tint.

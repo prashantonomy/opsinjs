@@ -10,32 +10,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="accordion"
   status="shipped"
   questions={[
-    "No contrast pair has been measured. The header ink sits on the card surface, the section hairlines and the root border sit on the same surface, and the chevron is the muted ink; whether each reads at the text and non-text floors has been argued from the roles rather than checked by a machine.",
-    "Nobody has listened to this control in a screen reader. Base UI wires aria-expanded and aria-controls between each trigger and its panel and renders the header as an h3 with a button inside, but whether a reader hears a section open and close cleanly, and whether the h3 level suits the page it lands on, has been reasoned about rather than heard.",
-    "The one rule that matters most, that nothing a reader must not miss may live inside a collapsed panel, is a convention the component cannot enforce, because the wrapper cannot read the words a caller places inside it. No audit has checked real content against it, so a safety message wrongly folded into a shut panel would pass every automated gate.",
-    "Forced colours, prefers-contrast: more and prefers-reduced-motion are unhandled beyond what the product stylesheet supplies. The chevron rotation collapses to an instant turn under reduced motion because the duration token does, but the panel mount and unmount, and whether the open section reads as open in a forced-colours theme, have not been tested.",
+    "Nothing a reader must not miss may live in a collapsed panel, but the wrapper cannot read its content, so a folded safety message passes every automated gate.",
+    "Nobody has listened to it in a screen reader, so whether a section opens cleanly and the h3 level suits the host page is unheard.",
+    "No contrast pair has been measured, and forced-colors, prefers-contrast: more and the panel's reduced-motion mount are untested beyond the product stylesheet.",
   ]}
 >
-  <code className="text-sm">accordion</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">accordion</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Accordion is a stack of sections that each expand and collapse, so a long page of headings can be scanned first and read second. Its home is a set of related passages a reader wants an index of before they commit to any one of them, and the case it was built for is a list of questions and answers where the headers are the map and the panels are the detail.
-
-The rule that shapes every use of this component comes before any design decision. A collapsed panel is hidden when the screen loads, so nothing a reader must not miss may live inside one. A safety message, an urgent instruction, a warning about a dose, or a step a reader has to take belongs in a [Card](./card.mdx) or a [Callout](./callout.mdx) that stays open on the surface, never in a panel a reader may never open. The accordion is for content a reader chooses to reach, not for content they must meet whether they reach for it or not.
-
 ## Preview
-
-A short set of questions and answers with the first section open. The thing worth checking is whether the headers read as an index a reader scans before opening any panel, so read it in greyscale: the open section is lifted by nothing more than its revealed content and the turned chevron, and no colour is doing the work. Tab through the headers to confirm each is its own stop.
 
 <ComponentPreview name="accordion" />
 
@@ -47,8 +36,6 @@ A short set of questions and answers with the first section open. The thing wort
   importPath="@/components/ui/accordion"
   dependencies={["@base-ui/react", "lucide-react"]}
 />
-
-The accordion is built on Base UI's Accordion primitive, which is where the open-state management, the `aria-expanded` and `aria-controls` wiring and the header markup come from, so installing it pulls in `@base-ui/react`. The chevron is a single glyph from `lucide-react`, which is the second dependency.
 
 ## Usage
 
@@ -69,20 +56,16 @@ import { Accordion } from "@/components/ui/accordion"
 
 <WhenToUse
   use={[
-    "Giving a reader an index of related sections they can scan first and open one at a time, such as a list of questions and answers where the headers are the map.",
-    "Folding away detail that a reader wants on demand but not on arrival, such as the small print under a summary, as long as none of it is content the reader must not miss.",
-    "Fitting several independent groups of settings onto one small screen, opening more than one at a time with multiple set, where a wall of always-open panels would run past the fold.",
+    "An index of related sections a reader scans first and opens one at a time, such as questions and answers.",
+    "Detail a reader wants on demand but not on arrival, such as small print under a summary.",
+    "Several independent groups of settings on one small screen, opened together with multiple.",
   ]}
   avoid={[
-    { case: "The content is a safety message, an urgent instruction or anything a reader must not miss. A collapsed panel is hidden by default, so a reader may never open it and never meet the message.", instead: "callout" },
-    { case: "The content must always be visible on the surface, not behind a header a reader has to press to reveal it.", instead: "card" },
-    { case: "Choosing a header should swap the whole view for a different one that occupies the same space, rather than reveal detail below the header in place.", instead: "tabs" },
+    { case: "A safety message, an urgent instruction or anything a reader must not miss. A collapsed panel may never be opened.", instead: "callout" },
+    { case: "Content that must always be visible, not behind a header a reader has to press.", instead: "card" },
+    { case: "Choosing a header should swap the whole view for another in the same space, not reveal detail in place.", instead: "tabs" },
   ]}
 />
-
-The first exclusion is the one that matters, and it is not a matter of taste. The measured harm is simple: a reader who never opens a panel never reads what is inside it, so any content that a reader has to meet cannot live in a section that starts closed. When you find yourself reaching for an accordion to tuck away a warning because the screen is busy, the busy screen is the problem to solve, and the warning belongs in a [Callout](./callout.mdx) that stays open. The accordion earns its place only for detail a reader is free to leave folded.
-
-The third exclusion draws the line against [Tabs](./tabs.mdx). Both organise a set of sections, but a tab swaps the whole panel for another that occupies the same space, while an accordion reveals its panel in place, below its header, and can show several at once. If choosing a header replaces what fills the region, it is tabs; if it opens detail underneath the header while the other headers stay put, it is this component.
 
 ## Anatomy
 
@@ -91,26 +74,26 @@ The third exclusion draws the line against [Tabs](./tabs.mdx). Both organise a s
   parts={[
     {
       name: "Accordion",
-      describes: "The root. A single card surface with a hairline that holds the sections, rendered by Base UI's Accordion.Root. Carries data-slot=\"accordion\" and manages open state for the single-open and multi-open cases both. It draws only neutral chrome and carries neither data-status nor data-category.",
+      describes: "Base UI's Accordion.Root: one card surface with a hairline that manages open state. Neutral chrome, neither colour axis.",
       prop: "items",
     },
     {
       name: "Accordion.Item",
-      describes: "One section, a Base UI Accordion.Item grouping a header with its panel. A top hairline divides it from the section above, dropped on the first. data-slot=\"accordion-item\", with data-open when the section is expanded and data-disabled when the item cannot be opened.",
+      describes: "One section, a header with its panel. A top hairline divides it from the section above.",
       prop: "items",
     },
     {
       name: "Accordion.Header",
-      describes: "The heading that labels the section, rendered by Base UI as an h3 so it takes its place in the document outline. Its margin is stripped so the trigger fills the row. data-slot=\"accordion-header\".",
+      describes: "The section's heading, rendered by Base UI as an h3 so it sits in the document outline.",
     },
     {
       name: "Accordion.Trigger",
-      describes: "The button that opens and closes the section, the whole width of the header. It carries aria-expanded and aria-controls, floors its target at 44pt, and holds the title and the chevron. A disabled trigger drops to the muted ink and stays in the tab order. data-slot=\"accordion-trigger\", with data-panel-open when its section is open.",
+      describes: "The full-width button that toggles the section, with aria-expanded, aria-controls, a 44pt target floor, the title and chevron.",
       prop: "value",
     },
     {
       name: "Accordion.Panel",
-      describes: "The revealed content of the section, rendered by Base UI's Accordion.Panel. It is unmounted while the section is closed, so a shut panel costs nothing and its content is not in the tab order. data-slot=\"accordion-panel\", with data-open when it is shown.",
+      describes: "The revealed content, unmounted while closed, so a shut panel costs nothing and leaves the tab order.",
       prop: "content",
     },
   ]}
@@ -122,29 +105,24 @@ The third exclusion draws the line against [Tabs](./tabs.mdx). Both organise a s
     {
       part: "Accordion",
       cardinality: "1",
-      note: "data-slot=\"accordion\", a card surface, single-open unless multiple is set",
       children: [
         {
           part: "Accordion.Item",
           cardinality: "1..n",
-          note: "data-slot=\"accordion-item\"; one per entry in items",
           children: [
             {
               part: "Accordion.Header",
               cardinality: "1",
-              note: "data-slot=\"accordion-header\", an h3",
               children: [
                 {
                   part: "Accordion.Trigger",
                   cardinality: "1",
-                  note: "data-slot=\"accordion-trigger\", a button with aria-expanded; holds the title and chevron",
                 },
               ],
             },
             {
               part: "Accordion.Panel",
               cardinality: "1",
-              note: "data-slot=\"accordion-panel\"; unmounted while closed",
             },
           ],
         },
@@ -153,61 +131,57 @@ The third exclusion draws the line against [Tabs](./tabs.mdx). Both organise a s
   ]}
 />
 
-The parts above are identified by `data-slot` and are styleable from outside; none of them is an export, and there is no way to render a panel without its header. Inside the trigger sit two more slots the tree does not nest: `data-slot="accordion-title"` on the header words, and the chevron glyph, which carries no `data-slot` because it is `aria-hidden` decoration whose open state the trigger's own `aria-expanded` already tells. There is deliberately no `Accordion.Indicator`, because the chevron turning is the section's own state made visible, not a mark to be placed separately.
-
 ## Examples
 
 ### A frequently asked list
 
-The case the accordion was built for. The reader scans the three headers as an index, then opens the one they want. Every question and answer is fictional app copy rather than anything measured, because an opsinjs example must never be mistakable for a reader's own data, and none of it is content a reader would be harmed by leaving closed.
+The reader scans three headers as an index, then opens one. Every question and
+answer is fictional app copy.
 
 <ComponentPreview name="accordion-frequently-asked" kind="example" align="start" />
 
 ### One section open at a time
 
-Single-open mode, which is the default. With `multiple` left off, opening a section closes whichever was open, so a small screen never grows a wall of open panels. Open the third section here and the first closes on its own. Set `multiple` when the sections are independent and a reader may want several open together.
+With `multiple` left off, which is the default, opening the third section closes
+the first on its own.
 
 <ComponentPreview name="accordion-one-open-at-a-time" kind="example" align="start" />
 
 ## Content guidelines
 
-Write headers as a scannable index, not as sentences. A reader reads every header before opening any panel, so each one is a short, parallel label a reader can weigh against its neighbours: a question, a noun phrase, or a setting name, in sentence case and without terminal punctuation. Keep the panel content to the detail the header promises, and do not let a panel grow so long that the reader loses the header it belongs to.
-
-Never fold content a reader must meet into a panel that starts closed. If a section carries a warning, a safety instruction or a step the reader has to take, it does not belong in an accordion at all, because the reader may never open it. Move that content to a [Callout](./callout.mdx) or a [Card](./card.mdx) that stays open on the surface, and keep the accordion for detail the reader is free to leave folded.
+Write headers as a scannable index: a question, a noun phrase or a setting name,
+in sentence case, without terminal punctuation. Never fold a warning or a step the
+reader must take into a panel that starts closed. It belongs in a
+[Callout](./callout.mdx) that stays open.
 
 <DoDont>
   <DoDont.Do>
-    **"When can I reach the team?"** A header written as the question the reader
-    is asking, short enough to scan against its siblings, with the ordinary answer
-    in the panel below it and nothing the reader has to see hidden away.
+    **"When can I reach the team?"** The reader's own question, short enough to
+    scan against its siblings.
   </DoDont.Do>
   <DoDont.Dont>
-    **A panel headed "More" holding "Stop and call your clinician if this reading
-    keeps rising."** An instruction the reader must not miss, folded behind a
-    header they may never press. That belongs in an always-open callout, not in a
-    collapsed panel.
+    **A "More" panel holding "Call your clinician if this reading keeps rising."**
+    An instruction the reader may never open.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. Accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+**Checked by `pnpm run check:a11y` on every commit.** Only neutral chrome roles,
+no colour literal, a 44pt target in rem and no `px` type size.
 
-**Checked, by `pnpm run check:a11y`:**
+**Argued from the source, not measured.**
 
-- **No status colour, no colour literal, no ramp step.** The accordion draws only the neutral chrome roles, so it carries no `data-status`, reads no clinical vocabulary, and cannot mix the two axes. The gate reads every element and would fail the build on a colour drawn from either axis or on a raw colour value, and there is neither here.
-- **A 44pt target and no px type size.** Each trigger floors its pressable region at `--opsin-target-minimum` in rem, and its text is the `headline` semantic step, so both the hit area and the label grow with the reader's text size rather than pinning at a device pixel.
+- Base UI renders each header as an `h3` with a `button`, and wires
+  `aria-expanded` and `aria-controls` between trigger and panel.
+- The chevron is `aria-hidden`. A reader relies on `aria-expanded`, not the glyph.
+- The chevron turns over `--opsin-duration-fast`, which the product stylesheet
+  collapses under `prefers-reduced-motion`.
+- Base UI unmounts a closed panel, so its content leaves the tab order and the
+  accessibility tree.
 
-**Argued, and true of the implementation, but not yet measured:**
-
-- **Each header is its own tab stop, and the panel is wired to it.** Base UI renders the header as an `<h3>` with a `<button>` inside, sets `aria-expanded` on the trigger and `aria-controls` to its panel, and toggles the panel with Enter or Space. The open state a reader relies on is `aria-expanded`, not the chevron, which is `aria-hidden`.
-- **The chevron rotation respects reduced motion for free.** It turns over `--opsin-duration-fast`, which the product stylesheet collapses to an instant inside its own `prefers-reduced-motion` block, so a reader who asked for less motion gets an instant turn with no branch of its own.
-- **A closed section costs nothing.** Base UI unmounts a closed panel, so its content is out of the tab order and out of the accessibility tree until the section is opened, and a reader never tabs into hidden content.
-
-**Not checked at all, and listed rather than omitted:**
-
-- Every contrast pair: the header ink and the chevron against the card surface, and the section hairlines and root border against the same surface. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring.
-- What the accordion draws under `forced-colors: active`, and whether the open section still reads as open when the platform substitutes its own colours. None of this has been put in front of a machine or a high contrast user.
+**Not checked by any gate.** Every contrast pair against the card surface, and
+whether the open section reads as open under `forced-colors: active`.
 
 <KeyboardTable
   name="accordion"
@@ -215,44 +189,68 @@ Some of this is enforced by a gate on every pull request and every push to `main
     {
       keys: "Tab",
       action: "Moves focus to the next header",
-      notes: "Each header is an ordinary tab stop, which is correct for a set of independent disclosures. A disabled header still takes the stop so a reader meets it, and it does not toggle its panel.",
+      notes: "An ordinary tab stop. A disabled header keeps its stop.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves focus to the previous header",
-      notes: "The same in reverse. Focus steps through the headers one at a time in either direction.",
+      notes: "The same in reverse.",
     },
     {
       keys: "Enter, Space",
       action: "Opens or closes the focused section",
-      notes: "The trigger is a native button, so both keys activate it. With multiple off, opening a section closes whichever was open.",
+      notes: "A native button. With multiple off, the open section closes.",
     },
     {
       keys: "Arrow keys",
       action: "Not bound",
-      notes: "Base UI follows the updated APG guidance that removed roving focus from the accordion, so the Arrow keys keep the browser's default and headers are reached with Tab. Whether an accordion owes Arrow navigation as well is an open question above.",
+      notes: "Base UI follows the updated APG guidance, which dropped roving focus.",
     },
   ]}
 />
 
 <ContrastReport component="accordion" />
 
+## Data attributes
+
+<DataAttributesTable
+  name="accordion"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On the root and each part",
+      value: "accordion, accordion-item, accordion-header, accordion-trigger, accordion-title, accordion-panel",
+    },
+    {
+      attribute: "data-open",
+      condition: "On the item and the panel",
+      value: "Present while expanded",
+    },
+    {
+      attribute: "data-panel-open",
+      condition: "On the trigger",
+      value: "Present while its section is open",
+    },
+    {
+      attribute: "data-disabled",
+      condition: "On the item and its trigger",
+      value: "Present while disabled",
+    },
+  ]}
+/>
+
 ## API reference
 
 <PropsTable name="AccordionProps" />
 
-`items` is the whole content of the accordion: each entry is a `value`, a header `title`, the panel `content` and an optional `disabled`. `multiple` decides whether opening a section leaves the others open, and it defaults to `false` so a small screen shows one panel at a time. `value` with `onValueChange` makes the accordion controlled, while `defaultValue` alone lets it manage its own open state; passing `value` without `onValueChange` fixes the accordion open exactly as given, which is occasionally what a static layout wants and usually a mistake.
+`multiple` defaults to `false`. `value` without `onValueChange` fixes the open
+sections exactly as given. An empty `items` array renders nothing and raises a
+development warning, and so does a duplicated `value`.
 
 ## Related
 
-<RelatedComponents name="accordion" />
-
-**Easily confused with**
-
-- [Tabs](./tabs.mdx) swap the whole panel for another that occupies the same space, while an accordion reveals its panel in place and can show several at once. If choosing a header replaces what fills the region, it is tabs.
-- [Card](./card.mdx) holds content that stays open on the surface. When a section must always be visible, it is a card, not a panel a reader has to press a header to reveal.
-- [Callout](./callout.mdx) sets a short piece of information apart where a reader cannot miss it. Anything a reader must meet, a warning or an instruction, belongs in a callout rather than folded into a collapsed accordion panel.
-
-**Used by**
-
-- No pattern, recipe or screen composes it yet. It is a neutral organiser that a product wraps around its own sections, and wiring it into a page is a product's to make rather than something the corpus ships today.
+- [Tabs](./tabs.mdx) swap the whole panel for another, where an accordion reveals
+  detail in place.
+- [Card](./card.mdx) holds content that stays open, with no header to press.
+- [Callout](./callout.mdx) sets apart what a reader cannot miss. A warning never
+  goes in a collapsed panel.

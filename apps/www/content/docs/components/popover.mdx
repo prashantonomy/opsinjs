@@ -9,32 +9,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="popover"
   status="shipped"
   questions={[
-    "No contrast pair has been measured. The panel is bg-card over whatever the host page provides, its edge is the neutral hairline, its arrow is the same card fill, and the trigger is a bordered button on the background surface; whether each reads at the non-text and text floors has been argued from the roles rather than checked by a machine.",
-    "Nobody has listened to a popover in a screen reader. The panel is announced as a role=\"dialog\" named by its title, and the arrow is aria-hidden, but whether a non-modal dialog that the page behind stays live under reads usefully, and whether focus moving into and back out of it is followed, has been reasoned about rather than heard.",
-    "The arrow geometry is argued rather than seen. It is a rotated square that carries the hairline only on the two edges chosen from data-side, and whether those two edges still face outward after the primitive flips the panel to the opposite edge on a collision, and under a right-to-left layout, has not been checked at every side.",
-    "Forced colours and prefers-contrast: more are unhandled. Under forced-colors: active the overlay shadow is dropped and the panel leans entirely on its hairline against the page, and the arrow's fill and border are replaced by the platform's own pair, and none of that has been put in front of a machine or a high-contrast reader.",
+    "Nobody has heard a popover in a screen reader, so whether a non-modal dialog over a live page reads usefully is open.",
+    "No contrast pair has been measured: the card panel, its hairline, the arrow and the trigger are argued from the roles rather than checked.",
+    "Under forced-colors: active the shadow drops and the arrow takes the platform's own pair, and no high-contrast reader has seen it.",
   ]}
 >
-  <code className="text-sm">popover</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">popover</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Popover is a small panel anchored to the control that opened it, floated in a portal so it escapes whatever card or scroll area the trigger sits in. Its home is a short aside a reader can open, read or fill and then dismiss without leaving the page: a note beside a value, a rename field on a list, a couple of options that are not worth a whole screen.
-
-The decision that shapes the whole component is that it is a thin themed wrapper and nothing more. Base UI's Popover is already complete and unopinionated, so opsinjs adds only tokens: the material of the panel, the neutral chrome of the trigger, a 44pt target floor and a focus ring. Every behaviour, the anchoring, the portal, the dismissal, the focus return and the keyboard, is the primitive's, which is why this page names Base UI parts rather than opsinjs inventions wherever a behaviour is described.
-
 ## Preview
-
-A button that opens a short note anchored back to it. The thing worth checking is that the panel floats as a raised card with an arrow to its trigger and carries no colour on either axis, so read it in greyscale: the lift is the overlay material's shadow and a hairline rather than a hue, and the page behind the panel stays live because a popover is non-modal.
 
 <ComponentPreview name="popover" />
 
@@ -46,8 +35,6 @@ A button that opens a short note anchored back to it. The thing worth checking i
   importPath="@/components/ui/popover"
   dependencies={["@base-ui/react"]}
 />
-
-The panel is built on Base UI's Popover primitive, which is where the anchoring, the portal, the dismissal and the keyboard come from, so installing it pulls in `@base-ui/react`. It composes no other opsinjs component and renders no icon, because a themed wrapper over a complete primitive needs neither.
 
 ## Usage
 
@@ -68,20 +55,16 @@ import { Popover } from "@/components/ui/popover"
 
 <WhenToUse
   use={[
-    "A short aside anchored to a control, such as a note explaining a label or a field, that the reader opens, reads and dismisses without leaving the page.",
-    "A couple of options or a small form fragment, such as renaming a list, that is not worth the space or the interruption of a whole screen.",
-    "A place where dismissing without acting is always a valid outcome, because a popover is non-modal and the page behind it stays live.",
+    "A short aside anchored to a control, such as a note explaining a label, that the reader opens, reads and dismisses.",
+    "A couple of options or a small form fragment, such as renaming a list, that is not worth a whole screen.",
+    "Anywhere dismissing without acting is always a valid outcome, because the page behind stays live.",
   ]}
   avoid={[
-    { case: "The reader must answer before they carry on, so dismissing the surface would leave the product guessing on their behalf.", instead: "dialog" },
-    { case: "The content is a large form, or a surface that has to work under a thumb on a phone, so it needs its own scroll and a docked layout.", instead: "sheet" },
-    { case: "You only want to show a short passive label that explains a word, without the reader opening or dismissing anything.", instead: "term" },
+    { case: "The reader must answer before they carry on, so dismissing the surface would leave the product guessing.", instead: "dialog" },
+    { case: "The content is a large form, or needs its own scroll and a docked layout under a thumb on a phone.", instead: "sheet" },
+    { case: "You only want a short passive label that explains a word, with nothing to open or dismiss.", instead: "term" },
   ]}
 />
-
-The exclusion that matters is the first, and it is a question about whether going away is a valid answer. A popover is non-modal: it floats over a page that stays live, and a reader can ignore it and carry on, which is exactly what makes it wrong for a decision. When there is no state of the world in which dismissing the surface is a valid outcome, the surface is a [Dialog](./dialog.mdx), which blocks the page and holds the reader until they answer. If the reader can always leave without answering, it is a popover; if leaving would leave the product guessing, it is a dialog.
-
-The second exclusion is the honest limit of the shape. A popover floats and is dismissed by leaving it, so it has to stay small: once the content is a long form, or needs its own scroll, or has to sit under a thumb on a phone, a [Sheet](./sheet.mdx) is the surface that still works, because it docks to an edge and is built for touch. The third names the one thing a popover is often mistaken for. A [Tooltip](./tooltip.mdx) is a passive hover label, and this is a phone-first system where there is no hover on a phone to open one, so a popover the reader taps open and dismisses does the job a hover label cannot. When all you want is to attach the everyday meaning of a clinical word to a sentence, that is a [Term](./term.mdx), which shows inline without anything to open.
 
 ## Anatomy
 
@@ -90,27 +73,27 @@ The second exclusion is the honest limit of the shape. A popover floats and is d
   parts={[
     {
       name: "Popover",
-      describes: "The root. Base UI's Popover.Root groups the parts and owns the open state, uncontrolled unless open and onOpenChange are passed. It renders no element of its own and carries no data-slot, so it is a grouping rather than a surface, and it draws neither colour axis.",
+      describes: "Base UI's Popover.Root. Owns the open state, uncontrolled unless open and onOpenChange are passed. Renders no element.",
       prop: "open",
     },
     {
       name: "Popover.Trigger",
-      describes: "The button that opens the panel, supplied by this component with its target floor, its focus ring and the aria-expanded the primitive manages. It draws neutral chrome and echoes the open state with a muted surface read from data-popup-open. data-slot=\"popover-trigger\".",
+      describes: "The button this component supplies, with its target floor, focus ring and aria-expanded. Echoes the open state.",
       prop: "trigger",
     },
     {
       name: "Popover.Popup",
-      describes: "The floating panel, a role=\"dialog\" rendered through a portal into a positioner so it escapes overflow and stacking. A raised card, bg-card with a hairline and the overlay material's shadow, capped at a readable measure. data-slot=\"popover-popup\".",
+      describes: "The floating panel, a role=\"dialog\" rendered through a portal. A raised card capped at a readable measure.",
       prop: "children",
     },
     {
       name: "Popover.Title",
-      describes: "The panel's heading, rendered when a title is passed and wired to the panel's aria-labelledby, so a screen-reader user hears what the surface is. data-slot=\"popover-title\".",
+      describes: "The heading, rendered when title is passed and wired to the panel's aria-labelledby.",
       prop: "title",
     },
     {
       name: "Popover.Arrow",
-      describes: "A small card-coloured diamond pointing from the panel back to its trigger, carrying the hairline only on the two edges that face away from the panel, chosen per side from data-side. Decorative and aria-hidden. data-slot=\"popover-arrow\".",
+      describes: "A card-coloured diamond pointing back to the trigger, bordered on the two outward edges. Decorative and aria-hidden.",
     },
   ]}
 />
@@ -121,17 +104,17 @@ The second exclusion is the honest limit of the shape. A popover floats and is d
     {
       part: "Popover",
       cardinality: "1",
-      note: "Base UI Popover.Root, groups the parts, owns the open state, renders no element",
+      note: "Base UI Popover.Root, renders no element",
       children: [
         {
           part: "Popover.Trigger",
           cardinality: "1",
-          note: "data-slot=\"popover-trigger\", a button with aria-expanded",
+          note: "data-slot=\"popover-trigger\"",
         },
         {
           part: "Popover.Popup",
           cardinality: "1",
-          note: "data-slot=\"popover-popup\", role=\"dialog\", portalled and positioned",
+          note: "data-slot=\"popover-popup\", role=\"dialog\"",
           children: [
             {
               part: "Popover.Arrow",
@@ -141,7 +124,7 @@ The second exclusion is the honest limit of the shape. A popover floats and is d
             {
               part: "Popover.Title",
               cardinality: "0..1",
-              note: "data-slot=\"popover-title\", present when title is passed",
+              note: "data-slot=\"popover-title\", optional",
             },
           ],
         },
@@ -150,64 +133,57 @@ The second exclusion is the honest limit of the shape. A popover floats and is d
   ]}
 />
 
-The parts above are identified by `data-slot` and are styleable from outside; none of them is an export, and there is no way to render the panel without the root. The trigger is a button this component supplies rather than a control the caller passes, so `trigger` is the button's visible content and not a control of its own: a whole button handed to it would nest one button inside another. The panel content is `children`, and a small form fragment or a control that closes the panel goes there, closing through `onOpenChange` rather than through a part of its own.
-
 ## Examples
 
 ### Anchored to a button
 
-The case the component was built for. A button opens a small panel of text anchored back to it, the popover is left uncontrolled so the product stores nothing, and a press outside or the Escape key closes it with focus returning to the button. The panel holds an explanation rather than a reading, because a screenshot of an opsinjs example must never be mistakable for somebody's own data.
+A short note anchored to a button, left uncontrolled. A press outside or Escape
+closes it and focus returns to the button.
 
 <ComponentPreview name="popover-anchored-to-a-button" kind="example" align="start" />
 
 ### With a form fragment
 
-A small labelled input inside the panel, with a button that saves and closes. This example takes the open state over with `open` and `onOpenChange`, because it has to close the panel from a control inside it, which is the whole reason both the uncontrolled and controlled paths exist. The field is a plain list name, neutral product state rather than a measurement, because a form fragment in a popover is not the place for a clinical value that needs a range and a verdict.
+A labelled input and a save button. `open` and `onOpenChange` take the state over,
+because a control inside the panel has to close it.
 
 <ComponentPreview name="popover-with-a-form-fragment" kind="example" align="start" />
 
 ## Content guidelines
 
-Keep a popover small and give it a title. The panel is a `role="dialog"`, so its title is the accessible name a screen-reader user hears when it opens, and a panel without one announces that a dialog has opened and nothing about what it is. Name the panel for what it holds rather than for the trigger that opened it, so "How readings are grouped" rather than "More", and keep the body to a sentence or two or a single small fragment. When the content grows past what floats comfortably, that is the signal to move to a sheet rather than to make the popover scroll.
-
-Never put a clinical reading, a reference range or a verdict loose inside a popover. A popover formats nothing and asserts nothing, so a value dropped into it arrives without the range and the words that make it readable, and it sits on a surface a reader dismisses by looking away. A measurement that matters belongs in the component built to carry it with its range and its status, on a surface that stays.
+Give every popover a `title`: the panel is a `role="dialog"`, and the title is
+the name a screen reader announces. Name it for what it holds, keep the body to a
+sentence or two, and never put a clinical reading or verdict loose inside one.
 
 <DoDont>
   <DoDont.Do>
-    **A titled panel with one short paragraph.** "How readings are grouped" over a
-    sentence that explains the two lists. The reader opens it, reads it, and
-    dismisses it, and a screen reader announces the panel by its title.
+    **"How readings are grouped"** over one sentence: titled, short, easily dismissed.
   </DoDont.Do>
   <DoDont.Dont>
-    **A blood pressure reading and its status inside an untitled popover.** It puts
-    a clinical value on a surface a reader dismisses by looking away, with no title
-    to announce it and no range around it, which is a StatusPill or a reading
-    surface rather than a popover, and it drops the accessible name the dialog owes.
+    **A blood pressure reading and its status** in an untitled panel: no name, no range, wrong surface.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. Accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+**Checked by `pnpm run check:a11y` on every commit.**
 
-**Checked, by `pnpm run check:a11y`:**
+- No status colour, no colour literal, no ramp step: only neutral chrome and the
+  `overlay` shadow token.
+- No `px` type size. The body is the `body` step, the title the `headline` step.
+- The trigger's hit area is floored at `--opsin-target-minimum` in rem.
 
-- **No status colour, no colour literal, no ramp step.** The panel, the trigger and the arrow draw only the neutral chrome roles and the `overlay` material's own shadow token, so the component carries no `data-status`, reads no clinical vocabulary, and cannot mix the two axes. The gate reads every element and would fail the build on a colour drawn from either axis or on a raw colour value, and there is none here.
-- **No px type size.** The panel's text is the `body` step, the title is the `headline` step, and the trigger is the `body` step, all semantic rather than pixel sizes, so a reader who has turned their text size up gets a larger popover instead of a pinned one.
-- **A 44pt target floor on the trigger.** The trigger floors its hit area at `--opsin-target-minimum` in rem, so the pressable region survives and grows with the reader's text size rather than pinning at a device pixel.
+**Argued from the source, not measured.**
 
-**Argued, and true of the implementation, but not yet measured:**
+- The panel is a `role="dialog"` named by `aria-labelledby`. A missing title
+  raises a development warning.
+- Focus moves into the panel on open and back to the trigger on close, by Base UI.
+- The arrow is `aria-hidden`.
+- Under `prefers-reduced-motion` the scale is pinned and only the opacity crossfades.
 
-- **The panel is a named dialog.** Base UI renders `role="dialog"` on the panel and wires its `aria-labelledby` to the title, so a screen-reader user hears what the surface is when it opens. A missing title raises a development warning rather than shipping a nameless dialog.
-- **Focus returns to the trigger.** Opening the panel moves focus into it, and closing it, by Escape, by a press outside, or by a control inside, returns focus to the trigger, which is Base UI's own behaviour rather than something this wrapper adds.
-- **The arrow is decorative.** It is `aria-hidden`, so it adds nothing for a screen reader to read, and the panel's role and name carry the meaning instead.
-- **The entrance respects reduced motion.** Under `prefers-reduced-motion` the panel's scale is pinned and only its opacity crossfades, so a reader who asked for less motion gets an instant, equally informative state rather than nothing.
-
-**Not checked at all, and listed rather than omitted:**
-
-- Every contrast pair: the card panel against the host page, the hairline against both, the arrow's fill and border, and the trigger's ink and border against the background. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring.
-- What the component draws under `forced-colors: active`, where the shadow is dropped and the panel leans on its hairline, and where the arrow's fill and border are replaced by the platform's own pair.
-- Whether the arrow's two bordered edges still face outward after the panel flips to the opposite side on a collision, and under a right-to-left layout. This is argued from `data-side` rather than seen at every side.
+**Not checked by any gate.** Every contrast pair, the rendering under
+`forced-colors: active`, and whether the arrow's bordered edges still face outward
+after a collision flip or in right-to-left.
 
 <KeyboardTable
   name="popover"
@@ -215,22 +191,22 @@ Some of this is enforced by a gate on every pull request and every push to `main
     {
       keys: "Tab",
       action: "Moves focus to the trigger",
-      notes: "The trigger is a single tab stop. The panel is not in the tab order until it is open.",
+      notes: "One tab stop. The panel joins the tab order only when open.",
     },
     {
       keys: "Enter, Space",
       action: "Opens the panel from the trigger",
-      notes: "The trigger is a button, so both keys activate it. Focus moves into the panel, onto its first focusable content or, opened by touch, onto the panel itself.",
+      notes: "Focus moves into the panel, onto its first focusable content.",
     },
     {
       keys: "Escape",
       action: "Closes the panel",
-      notes: "Focus returns to the trigger. The page behind was never blocked, because a popover is non-modal.",
+      notes: "Focus returns to the trigger. The page behind was never blocked.",
     },
     {
       keys: "Tab, Shift + Tab",
       action: "Moves through the focusable content in the panel",
-      notes: "Focus is not trapped, because the panel is non-modal, so tabbing past the last control moves on to the next element after the trigger in the document.",
+      notes: "Focus is not trapped. Past the last control it leaves the panel.",
     },
   ]}
 />
@@ -241,18 +217,14 @@ Some of this is enforced by a gate on every pull request and every push to `main
 
 <PropsTable name="PopoverProps" />
 
-`trigger` is the visible content of the button this component supplies, not a control of your own, because the wrapper owns the button so it can carry the target floor, the focus ring and the `aria-expanded` state. `open` and `onOpenChange` are both optional: left off, the popover is uncontrolled and owns its own open state, and passed together they hand the state to the product, which is the path the form example takes so it can close the panel from a control inside it. `title` is effectively required, because the panel is a `role="dialog"` that owes an accessible name, and its absence raises a development warning. `side` is a preference the primitive overrides on a collision, and `className` merges onto the panel and is the one route by which colour can reach it, which the two-colour-axes rule governs in full.
+`trigger` is the button's visible content, not a control of your own; a button
+passed here would nest inside another. `side` defaults to `bottom` and is a
+preference the primitive overrides on a collision. `className` merges onto the
+panel and must resolve neither colour axis.
 
 ## Related
 
-<RelatedComponents name="popover" />
-
-**Easily confused with**
-
-- [Dialog](./dialog.mdx) blocks the page and holds the reader until they answer, for the one decision where dismissing is not a valid outcome. A popover is non-modal and the page stays live, so if the reader can always leave without answering, it is a popover.
-- [Sheet](./sheet.mdx) docks to an edge and is built for touch, for a larger form or a mobile-first surface. A popover floats and stays small, so once the content needs its own scroll it is a sheet.
-- [Tooltip](./tooltip.mdx) is a passive hover label, and this is a phone-first system with no hover, so a popover is opened and dismissed rather than shown on hover.
-
-**Used by**
-
-- No pattern, recipe or screen composes it yet. It is a neutral overlay a product anchors to its own controls, and wiring it onto a surface is a product's to make rather than something the corpus ships today.
+- [Dialog](./dialog.mdx) blocks the page and holds the reader until they answer.
+- [Sheet](./sheet.mdx) docks to an edge and is built for touch and larger forms.
+- [Tooltip](./tooltip.mdx) is a passive hover label, and a phone has no hover.
+- [Term](./term.mdx) shows a word's everyday meaning inline, with nothing to open.

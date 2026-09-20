@@ -10,37 +10,27 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="divider"
   status="shipped"
   questions={[
-    "No contrast pair for the neutral hairline has been measured on the surfaces a divider sits on. It draws border-border, whose token pair is published, but this component's own rendered pixels against a card, a sheet and the page have not been measured.",
-    "Nobody has listened to a divider in a screen reader. The unlabelled form exposes role=\"separator\" with aria-orientation, and the labelled form drops that role and reads its label as ordinary text; neither path has been verified with assistive technology.",
-    "Whether an unlabelled separator should be announced at all, or whether every boundary it draws ought to be carried by structure so the divider can be hidden, is unresolved. The current build keeps role=\"separator\" on the unlabelled form because it costs nothing and lets a reader skip by region.",
+    "The neutral hairline's rendered pixels have not been measured against a card, a sheet or the page, only its token pair is published.",
+    "Nobody has listened to a divider in a screen reader, so neither the separator role nor the labelled form's plain-text label is verified.",
+    "Whether an unlabelled separator should be announced at all, or hidden with every boundary carried by structure, is unresolved.",
   ]}
 >
-  <code className="text-sm">divider</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">divider</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-A divider is the smallest component in the system: a border and a spacing token, drawn as a neutral hairline. It earns a component of its own for one reason only, which is the labelled case. A line with a word centred on it looks like the simplest thing on the page and is the easiest to get wrong, because a screen reader cannot be told a boundary has a name through the role that draws a boundary. So the labelled divider is quietly a different structure, and this page is mostly about that difference and about the colour a divider must never carry.
-
 ## Preview
-
-Check that the plain rule, the labelled rule and the vertical rule are all the same neutral hairline, that the label reads as ordinary text rather than as a heading, and that nothing here is tinted.
 
 <ComponentPreview name="divider" />
 
 ## Installation
 
 <ComponentInstall name="divider" unbuilt={false} importPath="@/components/ui/divider" />
-
-Divider composes nothing and pulls in no dependency. It is a single file that draws a border, so installing it adds only itself.
 
 ## Usage
 
@@ -58,18 +48,16 @@ import { Divider } from "@/components/ui/divider"
 
 <WhenToUse
   use={[
-    "Between two stacked groups of content that are already distinct, to make the seam between them visible without giving either group a surface of its own.",
-    "As a named boundary in a list, with a short label such as \"Earlier\" or \"Today\", where the grouping is already carried by the list structure and the divider is its visible echo.",
-    "As a thin vertical rule between a few inline facts in a row, inside a flex container that gives the rule its height.",
+    "Between two stacked groups that are already distinct, to make the seam visible without giving either group a surface of its own.",
+    "As a named boundary in a list, with a short label such as \"Earlier\" or \"Today\", echoing a grouping the list structure already carries.",
+    "As a thin vertical rule between a few inline facts, inside a flex row that gives the rule its height.",
   ]}
   avoid={[
     { case: "You are grouping content that needs its own background, edge or padding, rather than a line between peers.", instead: "card" },
-    { case: "You are separating layers of the interface by depth, such as a panel above the page, rather than drawing a line between things at the same level.", instead: "surface" },
-    { case: "You are offering a choice between mutually exclusive views and the dividing lines are really the seams between options.", instead: "segmented-control" },
+    { case: "You are separating layers of the interface by depth, such as a panel above the page.", instead: "surface" },
+    { case: "You are offering a choice between mutually exclusive views and the lines are really the seams between options.", instead: "segmented-control" },
   ]}
 />
-
-A divider draws a line and asserts nothing else. It does not create a group, it marks a seam in a group that already exists, so reach for it after the grouping is real rather than instead of making it real. If the line is the only thing telling the two sides apart, the two sides are not yet apart, and a card or a heading is the fix. The vertical form is the one that gets dropped into a layout that gives it no height and then looks broken; put it in a flex row, or give it a height through className, and it draws.
 
 ## Anatomy
 
@@ -78,67 +66,67 @@ A divider draws a line and asserts nothing else. It does not create a group, it 
   parts={[
     {
       name: "Divider",
-      describes: "The root. Neutral and on neither colour axis: no status prop, no category prop, no fill, no radius. An unlabelled divider is this one element, a hairline border on a block that has no other content. Orientation and the spacing around it are the whole treatment.",
+      describes: "The root. A neutral hairline on neither colour axis. Unlabelled, it is one element with role separator.",
       prop: "orientation",
     },
     {
       name: "Divider label",
-      describes: "The optional centred text of a horizontal divider, at the footnote step in the quieter muted ink. Supplying it changes the structure: the root stops being a separator and becomes a flex row of two decorative hairlines with this text between them. A whitespace-only label is treated as none, and a label with a vertical orientation is dropped with a development warning.",
+      describes: "Optional centred text on a horizontal rule, in muted ink. Its presence drops the separator role.",
       prop: "label",
     },
   ]}
 />
 
-<CompositionTree
-  name="divider"
-  tree={[
-    {
-      part: "Divider",
-      cardinality: "1",
-      note: "data-slot=\"divider\". Unlabelled, it is a single element with role=\"separator\" and aria-orientation set to horizontal or vertical. Labelled, it carries no role and holds two aria-hidden hairlines around the label. No data-status, no data-category, no data-opsinjs-value.",
-      children: [
-        {
-          part: "Divider label",
-          cardinality: "0..1",
-          note: "data-slot=\"divider-label\". Present only on a horizontal labelled divider. It is a plain text node a screen reader reads as text, not as a boundary, because a separator cannot carry an accessible name.",
-        },
-      ],
-    },
-  ]}
-/>
-
-That is the whole component. The two named parts are identified by data-slot and are styleable from outside; neither is an export, and the flanking hairlines of the labelled form are decoration with no data-slot of their own. There is no dismiss control and no interactive part, because a line the reader can turn off is a grouping the product would rather they did not see.
-
 ## Examples
 
 ### A labelled boundary in a list
 
-The label marks the seam between today's items and the earlier ones, and it is the visible echo of a grouping the two lists already carry. Turn styles off and the two &lt;ul&gt; elements still separate the items; the divider is what a sighted reader gets on top of that, not instead of it.
+`label` marks the seam between today's items and the earlier ones. The two lists
+carry the grouping on their own; the divider is the visible echo, not the only signal.
 
 <ComponentPreview name="divider-a-labelled-group-boundary" kind="example" align="start" />
 
 ### A vertical rule between inline facts
 
-Three short labels in a row, told apart by a thin vertical hairline that takes its height from the row. The rule draws only because its flex container gives it a cross-axis height; drop the same rule into a block with no height and it collapses to nothing.
+`orientation="vertical"` draws a hairline that takes its height from the flex row
+around it. In a block that gives it no height it collapses to nothing.
 
 <ComponentPreview name="divider-vertical-between-inline-facts" kind="example" align="start" />
 
 ## Content guidelines
 
-Keep a divider label to a short plain noun for the boundary it marks, such as "Earlier", "Today" or "Archived". It is a label, not a heading and not a sentence, so it takes no full stop and no verb. Do not make a divider carry meaning colour can carry better elsewhere: a red line does not mean "urgent" and a blue line does not mean "cardiac", it just reads as a line the reader cannot explain. Most of all, never let a divider be the only thing that separates two groups for a reader who cannot see it. Group the content with a list, a heading or a region first, then add the divider as the visible seam.
+A label is a short plain noun for the boundary it marks: *Earlier*, *Today*,
+*Archived*. It is not a heading and not a sentence, so no verb and no full stop.
+Never let a divider be the only thing separating two groups; group with a list, a
+heading or a region first, then add the line.
 
 <DoDont>
   <DoDont.Do>
-    **A divider between two lists that already carry their own structure.** The seam is visible to a sighted reader and the grouping is real for everyone else, so the line is an echo rather than the only signal.
+    **A divider between two lists** that already carry their own structure, so the line is an echo.
   </DoDont.Do>
   <DoDont.Dont>
-    **A divider dropped between two runs of paragraphs to imply they are separate sections.** A screen reader hears one long run of text with a decorative line it cannot report, so the grouping the line promised never reaches half the readers.
+    **A divider between two runs of paragraphs** to imply sections a screen reader cannot hear.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-A divider is not focusable and captures no key, so most of accessibility here is about what it says to a screen reader rather than about keyboard behaviour. An unlabelled divider exposes role="separator" with aria-orientation, which a reader can use to skip by region. A labelled divider deliberately drops that role, because a separator cannot carry an accessible name, and presents its label as ordinary text with two decorative hairlines that are hidden from assistive technology. The consequence is the one rule to hold onto: a divider is never the only carrier of grouping meaning for a screen reader, so the groups either side of it must be separated by structure as well. Nobody has yet listened to this component in a screen reader, which is why that claim is argued rather than measured.
+**Checked by `pnpm run check:a11y` on every commit.** Every colour is a role
+token, no type size is in `px`, and no banned word appears anywhere.
+
+**Argued from the source, not measured.**
+
+- Not focusable and captures no key, in either orientation and whether or not
+  it is labelled.
+- Unlabelled, the root exposes `role="separator"` with `aria-orientation`, so a
+  reader navigating by region can skip it.
+- Labelled, the root has no role, because a separator cannot carry an accessible
+  name. The label is plain text between two `aria-hidden` hairlines.
+- A divider is never the only carrier of grouping for a screen reader; the groups
+  either side must be separated by structure too.
+
+**Not checked by any gate.** The hairline's contrast on the surfaces it sits on,
+and what a screen reader says for either form.
 
 <KeyboardTable
   name="divider"
@@ -146,12 +134,12 @@ A divider is not focusable and captures no key, so most of accessibility here is
     {
       keys: "Tab",
       action: "Skips the divider",
-      notes: "A divider is not focusable and is not a tab stop, in either orientation and whether or not it is labelled. It carries no keyboard behaviour of its own.",
+      notes: "Not focusable and not a tab stop, in either orientation, labelled or not.",
     },
     {
       keys: "Shift + Tab",
       action: "Skips the divider in reverse",
-      notes: "There is nothing here to focus, so focus moves straight to the interactive element before the divider, matching the visual order.",
+      notes: "Focus moves straight to the interactive element before it, in visual order.",
     },
   ]}
 />
@@ -162,18 +150,14 @@ A divider is not focusable and captures no key, so most of accessibility here is
 
 <PropsTable name="DividerProps" />
 
-orientation defaults to horizontal, the form that needs nothing from its container. A value outside the two known ones is drawn horizontal rather than guessed at, with a development warning. label applies to the horizontal form only: supplied with a vertical orientation it is dropped, again with a warning, because a centred label between two vertical rules has no sound layout. className is the only route by which colour can reach the component, and the two colour axes stay off it.
+`orientation` defaults to `horizontal`; an unknown value is drawn horizontal with
+a development warning. `label` applies to the horizontal form only and is dropped
+with a warning on a vertical rule. A whitespace-only label counts as none.
+`className` is the only route by which colour can reach the component, and both
+colour axes stay off it.
 
 ## Related
 
-<RelatedComponents name="divider" />
-
-**Easily confused with**
-
-- [Card](./card.mdx) groups content by giving it a background, an edge and padding. A divider only draws a line between things that are already grouped.
-- [Surface](./surface.mdx) places a group on its own material at a chosen depth. A divider marks a seam between peers at the same level.
-- [SegmentedControl](./segmented-control.mdx) offers a choice between mutually exclusive views. Its seams look like dividers but they carry a selection, which a divider never does.
-
-**Used by**
-
-- Nothing in the built roster composes Divider yet. It is a leaf that products place directly, so it names no component that uses it.
+- [Card](./card.mdx) groups content by giving it a background, an edge and padding. A divider only draws a line.
+- [Surface](./surface.mdx) places a group on its own material at a chosen depth. A divider marks a seam between peers.
+- [SegmentedControl](./segmented-control.mdx) offers a choice between views. Its seams look like dividers but carry a selection.

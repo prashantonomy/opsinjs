@@ -10,32 +10,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="questionnaire"
   status="shipped"
   questions={[
-    "No contrast pair has been measured. The hairline that separates one question from the next, the title ink, and the muted ink of the progress readout are all painted on whatever ground the host provides rather than a surface this shell sets, and whether each clears the non-text and text floors has been argued from the roles rather than checked by a machine.",
-    "Nobody has listened to this shell in a screen reader. The form takes its accessible name from the title, and the progress readout is an aria-live region that speaks as focus moves, but whether hearing 'Question 2 of 3' announced on every move helps a reader or talks over them has been reasoned about rather than heard.",
-    "The refusal to score is a promise the shell keeps and the type system cannot enforce on a product's own controls. Nothing stops a product wiring a running total into the controls it hands in, or reading the answers back and painting a verdict beside the form. The page argues that scoring belongs off this component; no lint rule on a consumer's code catches it if they do it here.",
-    "No named reviewer has signed this page off. Group J of the safety review checklist asks for a reviewer name and a date, and a shell that renders health questions is exactly the kind of surface a clinical and a regulatory reviewer should read before it carries real ones. There is neither name nor date here yet, so read every claim below as unattributed until that changes.",
+    "No contrast pair has been measured: the hairline, the title ink and the muted progress ink all sit on whatever ground the host provides.",
+    "Nobody has listened to the aria-live progress readout, so whether 'Question 2 of 3' on every focus move helps a reader or talks over them is unheard.",
+    "The refusal to score binds only the shell: nothing stops a product wiring a running total into its own controls, and no lint on consumer code catches it.",
   ]}
 >
-  <code className="text-sm">questionnaire</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">questionnaire</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Questionnaire is the styled shell around a set of questions a product owns. It groups them under one title, gives the group a single accessible name, shows the reader where they are in the set, and tells the product when the reader has reached the end. It holds no question of its own, and it reaches no verdict about any answer.
-
-The design decision that shapes the whole component is the one the roster asked for when it declined the name. A validated instrument is licensed, worded, scored and interpreted by its publisher, and a component that rendered one would invite a product to edit its wording or its scoring, which is a clinical-safety problem rather than an API one. So this shell ships no instrument, no question, no option, no score, no band and no interpretation. Every one of those arrives from the product, and the product does its own scoring off this component, where opsinjs cannot reach it.
-
 ## Preview
-
-A named set of three fictional questions, each with a control the product supplied, and the progress readout turned on. The thing worth checking is that the shell is neutral chrome and nothing in it reads as a status: read it in greyscale, and the title, the separators and the progress line are all quiet, with no colour standing in for a level or a score. Move focus into the second question and the readout reads "Question 2 of 3".
 
 <ComponentPreview name="questionnaire" />
 
@@ -46,8 +35,6 @@ A named set of three fictional questions, each with a control the product suppli
   unbuilt={false}
   importPath="@/components/ui/questionnaire"
 />
-
-Questionnaire has no dependency beyond the shared substrate every component installs. It composes no other component and is built on no Base UI primitive, because a shell that renders the controls it is handed needs none of them. The controls themselves, a Field, a RadioGroup, a ScaleInput or a Textarea, are the product's to install and compose.
 
 ## Usage
 
@@ -71,29 +58,25 @@ import { Questionnaire } from "@/components/ui/questionnaire"
 
 <WhenToUse
   use={[
-    "Gathering answers to a set of questions the product owns, where several separate questions read as one group and the reader works through them in order.",
-    "Any form of a few questions that needs one accessible name, a sense of how far through it the reader is, and a single completion signal, with the product supplying each answer control.",
-    "Rendering the questions of an instrument the product licenses and scores itself, where opsinjs draws the shell and the product keeps every clinical decision on its own side.",
+    "A set of questions the product owns, read as one group and answered in order.",
+    "A short form that needs one accessible name, a progress readout and one completion signal, with the product supplying each control.",
+    "The questions of an instrument the product licenses and scores itself, every clinical decision kept on its side.",
   ]}
   avoid={[
-    { case: "You are asking one question with one answer, such as a single rating or a yes or no. A questionnaire is the shell around several questions, and one question needs no shell.", instead: "field" },
-    { case: "You are collecting a set of symptoms as a multi-select rather than a sequence of separate questions the reader answers one at a time.", instead: "symptom-picker" },
+    { case: "One question with one answer, such as a single rating or a yes or no. A set of one needs no shell.", instead: "field" },
+    { case: "A set of symptoms collected as a multi-select grid rather than a sequence of separate questions.", instead: "symptom-picker" },
   ]}
 />
 
-The exclusion that matters most is the one no `instead` can point at, because there is no component for it: scoring and interpreting the answers. The moment a surface turns a set of answers into a number, a band or a sentence about the reader, that surface is the product's own, built with the product's own logic and the status components, and it belongs well away from this container. Questionnaire renders the questions and signals completion; it never grades what came back, and there is no code path in it that could.
-
-The first exclusion is the honest lower bound of the form. One question is a [Field](./field.mdx), because a shell that groups a set adds nothing around a set of one. The second keeps the shell from swallowing a pattern that reads differently: a grid of symptoms a reader taps on and off is a [SymptomPicker](./symptom-picker.mdx), not a sequence of questions, and forcing it into a question list loses the multi-select shape.
-
 ## Clinical meaning
 
-**What it asserts.** Questionnaire asserts exactly two things: here are the questions to answer, in this order, and here is how far through them you are. Both are about the form rather than the person. It makes no claim about anyone's health, states no reading, computes no score, and reaches no conclusion. The progress count is an ordinal of position in the list, nothing more, and it is drawn as plain text so it can never be mistaken for a value.
+**Asserts.** Two things, both about the form and not the person: these questions, in this order, and how far through them you are. The progress count is an ordinal of position, drawn as plain text.
 
-**What it must never be read as.** It is not a score, not a screening result, not a diagnosis and not triage. A questionnaire on a screen does not mean the product has assessed anything; it means the product has asked. Rendering a validated instrument's wording or its scoring is the product's responsibility and its hazard, never opsinjs's: the shell will draw whatever questions it is handed, so a product that alters a licensed instrument's text or grades it wrongly owns that mistake in full. opsinjs supplies the container and refuses the clinical judgement, which is the line [Regulatory context](../health/regulatory-context.mdx) draws around a presentation layer.
+**Never read as.** A score, a screening result, a diagnosis or triage. A questionnaire on screen means the product has asked, not that it has assessed. The shell draws whatever wording it is handed, so a product that edits or misgrades a licensed instrument owns that hazard in full. [Regulatory context](../health/regulatory-context.mdx) draws that line around a presentation layer.
 
-**Which colour axis it may use.** Neither. A questionnaire states no clinical level and names no category of measurement, so it carries neither `data-status` nor `data-category` and draws only neutral chrome. A result the product computes from the answers is a status surface, and it is built with the status components on the product's own screen, not tinted into this form. Putting a status or a category colour on the shell would be the axis collision [The two colour axes](../health/two-colour-axes.mdx) exists to prevent, and it would also dress a container as though it had reached a verdict.
+**Colour axis.** Neither. The shell states no level and names no category, so it carries neither `data-status` nor `data-category`. A computed result is a status surface on the product's own screen, never tinted into this form. [The two colour axes](../health/two-colour-axes.mdx) forbids the mix.
 
-**Who owns the thresholds and the words.** The product, always. Every question, every option, every word of the title and every piece of scoring arrives from the product or lives entirely on the product's side. opsinjs ships no instrument, no default question, no threshold and no interpretation text, because shipping any of those would be shipping a clinical decision to every product that installed the shell. The container is the only thing this component supplies.
+**Thresholds.** The product, always. opsinjs ships no instrument, no default question, no option, no threshold and no interpretation text. Scoring happens off this component: the shell reads no answer and holds no code path that could grade one. [Evidence and references](../health/evidence-and-references.mdx) is why an instrument's wording and scoring stay with its licensee.
 
 ## Anatomy
 
@@ -102,30 +85,30 @@ The first exclusion is the honest lower bound of the form. One question is a [Fi
   parts={[
     {
       name: "Questionnaire",
-      describes: "The root, a form. Takes its accessible name from the title, intercepts submit so a stray Return key cannot reload the page, and calls onComplete when the reader finishes. Draws only neutral chrome and carries neither data-status nor data-category. No fixed height: at 200% text every question grows and wraps rather than clipping.",
+      describes: "The root form. Named by the title, it cancels submit and calls onComplete. Neutral chrome only.",
       prop: "questions",
     },
     {
       name: "Questionnaire.Title",
-      describes: "The questionnaire's name, in the product's own words, and the form's accessible name. Rendered only when title is supplied; a product may name the set in the surrounding page instead. data-slot=\"questionnaire-title\".",
+      describes: "The set's name and the form's accessible name. Rendered only when title is supplied.",
       prop: "title",
     },
     {
       name: "Questionnaire.Progress",
-      describes: "The 'Question N of M' readout, an aria-live region that names where the reader is as focus moves through the list. A plain ordinal of position, never a health value, so it takes no colour. Rendered only when showProgress is set. data-slot=\"questionnaire-progress\".",
+      describes: "The 'Question N of M' readout, an aria-live region that follows focus. Never coloured.",
       prop: "showProgress",
     },
     {
       name: "Questionnaire.Question",
-      describes: "One question, a list item, separated from the one above it by a hairline. It updates the progress index when focus enters it. data-slot=\"questionnaire-question\", one per question in the set.",
+      describes: "One list item per question, under a hairline. Updates the progress index on focus.",
     },
     {
       name: "Questionnaire.Prompt",
-      describes: "The question as the reader reads it, in the product's own words. The shell shows it and never edits it. data-slot=\"questionnaire-prompt\".",
+      describes: "The question text, in the product's words. Shown, never edited.",
     },
     {
       name: "Questionnaire.Control",
-      describes: "The answer control the product composes, a Field, a RadioGroup, a ScaleInput or a Textarea. The shell renders it untouched, reads no value from it, and reaches no verdict about the answer. data-slot=\"questionnaire-control\".",
+      describes: "The product's answer control, such as a Field or RadioGroup. Rendered untouched, its value never read.",
     },
   ]}
 />
@@ -136,32 +119,32 @@ The first exclusion is the honest lower bound of the form. One question is a [Fi
     {
       part: "Questionnaire",
       cardinality: "1",
-      note: "data-slot=\"questionnaire\", a form. Neither data-status nor data-category.",
+      note: "A form. Neither data-status nor data-category.",
       children: [
         {
           part: "Questionnaire.Title",
           cardinality: "0..1",
-          note: "data-slot=\"questionnaire-title\". Present when title is supplied; it is the form's accessible name.",
+          note: "The form's accessible name, when title is supplied.",
         },
         {
           part: "Questionnaire.Progress",
           cardinality: "0..1",
-          note: "data-slot=\"questionnaire-progress\", aria-live=\"polite\". Present when showProgress is set.",
+          note: "aria-live=\"polite\", when showProgress is set.",
         },
         {
           part: "Questionnaire.Question",
           cardinality: "1..n",
-          note: "data-slot=\"questionnaire-question\", a li; one per question.",
+          note: "One li per question.",
           children: [
             {
               part: "Questionnaire.Prompt",
               cardinality: "1",
-              note: "data-slot=\"questionnaire-prompt\". The question text, product-owned.",
+              note: "Product-owned text.",
             },
             {
               part: "Questionnaire.Control",
               cardinality: "1",
-              note: "data-slot=\"questionnaire-control\". The product's own answer control, rendered untouched.",
+              note: "Rendered untouched.",
             },
           ],
         },
@@ -170,57 +153,48 @@ The first exclusion is the honest lower bound of the form. One question is a [Fi
   ]}
 />
 
-The parts are `data-slot` attributes rather than exports. There is no `Questionnaire.Question` you can import, and the shell is not composable in that direction: the questions come from the `questions` array you pass rather than from how you nest children, and there is no way to hand it a prompt without a control or a control the shell would read. What a product controls is the questions, the title, whether the progress line shows, and the single completion signal.
-
 ## Examples
 
 ### A set of questions
 
-The case the shell was built for. Three separate questions read as one group under a single title, each with a control the product composed, and no colour anywhere reads as a status. The questions and options are invented and generic, never a real validated instrument, and nothing in the example is scored or interpreted, because that would be the product's to do off this component.
+Three invented questions read as one group under a single title, each with a control the product composed. The `questions` array is the whole of the content.
 
 <ComponentPreview name="questionnaire-a-set-of-questions" kind="example" align="start" />
 
 ### Showing progress
 
-The same shell with `showProgress` on. The readout above the list names where the reader is, and it moves with focus: enter the second question and it reads "Question 2 of 3". The count is a plain ordinal of position, drawn as quiet text, so it orients the reader without ever reading as a value or a score.
+`showProgress` turns on the readout above the list. It follows focus, so entering the second question reads "Question 2 of 3".
 
 <ComponentPreview name="questionnaire-showing-progress" kind="example" align="start" />
 
 ## Content guidelines
 
-Write every question and every option in the reader's own words, and let the product own all of that text. Where a question comes from a licensed instrument, render its wording exactly as the publisher licenses it and change nothing, because the shell will draw whatever it is handed and cannot tell an edited item from the original. Keep the title a short name for the set rather than an instruction, and let the progress readout do the work of saying how far through it the reader is.
-
-Never write a score, a band or a sentence about the reader into the shell. If the product computes a result from the answers, that result is a separate surface built with the status components, and it sits after the form rather than inside it. A verdict rendered in the questionnaire would be a clinical judgement opsinjs does not make, dressed as part of a container that exists precisely so it makes none.
+Write every question and option in the reader's own words. Render a licensed instrument's wording exactly as licensed, because the shell cannot tell an edited item from the original. Keep the title a short name for the set, not an instruction.
 
 <DoDont>
   <DoDont.Do>
-    **A product's own questions under one title, each with the control the product composed, with scoring done elsewhere.** The shell groups the questions, names the set, shows the reader's place, and signals completion, and it leaves every clinical decision on the product's side.
+    **The product's own questions under one title**, with scoring done on a separate surface.
   </DoDont.Do>
   <DoDont.Dont>
-    **A running total or a "your result" line rendered inside the questionnaire.** It turns a container into a verdict, puts a clinical judgement in a component that is built to make none, and is the exact hazard the roster named when it declined a component that renders a validated instrument.
+    **A running total or a "your result" line inside the questionnaire.** It turns a container into a verdict.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. Accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+**Checked by `pnpm run check:a11y` on every commit.**
 
-**Checked, by `pnpm run check:a11y`:**
+- No status colour, no category colour, no colour literal and no ramp step: neutral chrome roles only.
+- No `px` type size. Title, prompts and readout are semantic type steps.
 
-- **No status colour, no colour literal, no ramp step.** The shell draws only the neutral chrome roles, so it carries no `data-status`, reads no clinical vocabulary, and cannot mix the two axes. The gate reads every element and would fail the build on a colour drawn from either axis or on a raw colour value, and there is neither here.
-- **No px type size.** The title, the prompts and the progress readout are all semantic type steps rather than pixel sizes, so a reader who has turned their text size up gets a larger form rather than a pinned one.
+**Argued from the source, not measured.**
 
-**Argued, and true of the implementation, but not yet measured:**
+- The title is the form's `aria-labelledby`, and the progress line is `aria-live="polite"`, announced as focus moves.
+- The shell adds no tab stop and steals no key. Every arrow, space and Return belongs to the control it lands in.
+- The one event the shell owns is submit, cancelled so a stray Return cannot reload a half-answered form.
+- At 200% text the questions stack and wrap, and nothing is truncated.
 
-- **The form has one accessible name and the progress readout speaks its changes.** The title is wired as the form's `aria-labelledby`, so a screen-reader user hears what the set is before its first question, and the progress line is an `aria-live="polite"` region so its "Question N of M" text is announced as focus moves. Whether that announcement helps or talks over the reader has been reasoned about rather than heard.
-- **The shell adds no key of its own and steals none.** Tab moves through the product's controls in order, and every arrow, space and return belongs to the control it lands in. The one event the shell owns is submit, which it cancels so a stray Return cannot reload a half-answered form.
-- **At 200% text the questions stack and wrap.** The spacing is in space tokens and the type is in steps, so the whole form scales, and nothing is truncated and no ellipsis is set anywhere in the file.
-
-**Not checked at all, and listed rather than omitted:**
-
-- Every contrast pair: the hairline between questions against the host ground, the title ink against it, and the muted progress ink against it. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring. This shell sets no surface of its own, so each pair is painted on whatever ground the host provides rather than a matching `-surface`.
-- How the aria-live progress readout plays for a screen-reader user, and whether announcing position on every focus move is the right amount of speech or too much. It has been reasoned about and not listened to.
-- What the form draws under `forced-colors: active`, where the hairlines are replaced by the platform's own pair. None of this has been put in front of a machine or a high contrast user.
+**Not checked by any gate.** Every contrast pair against the host ground, how the aria-live readout plays for a screen reader user, and `forced-colors: active`.
 
 <KeyboardTable
   name="questionnaire"
@@ -228,53 +202,54 @@ Some of this is enforced by a gate on every pull request and every push to `main
     {
       keys: "Tab",
       action: "Moves to the next control in the set",
-      notes: "The shell adds no tab stop of its own. Focus moves through the product's controls in document order, and entering a question updates the progress readout to that question.",
+      notes: "No tab stop of its own. Entering a question updates the readout.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves to the previous control",
-      notes: "Same in reverse. The title and the progress readout are not focusable, so focus steps between the answer controls only.",
+      notes: "Same in reverse. The title and the readout are not focusable.",
     },
     {
       keys: "Return",
       action: "Submits the set, which the shell turns into onComplete",
-      notes: "A form submits when the product's submit control is activated or when Return is pressed in a single-line field. The shell cancels the default navigation and calls onComplete, so a stray Return can never reload a half-answered form.",
+      notes: "Default navigation is cancelled, so Return never reloads the form.",
     },
     {
       keys: "Arrow keys, Space",
       action: "Belong to the control in focus",
-      notes: "The shell captures no arrow key and no space. Whether an arrow moves a radio selection or a space toggles a checkbox is the product control's contract, not this shell's.",
+      notes: "The shell captures neither. Each key is the product control's contract.",
     },
   ]}
 />
 
 <ContrastReport component="questionnaire" />
 
+## Data attributes
+
+<DataAttributesTable
+  name="questionnaire"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On the root and every inner part, always",
+      value: "questionnaire, questionnaire-title, questionnaire-progress, questionnaire-question, questionnaire-prompt, questionnaire-control",
+    },
+    {
+      attribute: "data-question-index",
+      condition: "On every question list item, always",
+      value: "The question's zero-based position in the questions array",
+    },
+  ]}
+/>
+
 ## API reference
 
 <PropsTable name="QuestionnaireProps" />
 
-`questions` is the whole of the content: an array of an id, a prompt and a control, in the order the reader answers them. The shell renders each control untouched and reads no value from it, which is what makes it structurally unable to score or interpret the answers. `onComplete` is told that the reader finished and nothing else, because the shell has no answers to give it; a product reads its own controls and does its own scoring on its own side.
-
-`showProgress` turns on the "Question N of M" readout, which is a plain ordinal of position rather than a health value, and `title` supplies the form's accessible name. `title` is optional so a product can name the set in the surrounding page, but a form with no name of its own raises a development warning, because a set of questions a screen-reader user meets unnamed is a set they cannot place.
+`onComplete` is told that the reader finished and nothing else, because the shell reads no answer. Submit is cancelled even when it is omitted. An empty `questions` array renders nothing and warns in development, as does a duplicate `id` or a missing `title`.
 
 ## Related
 
-<RelatedComponents name="questionnaire" />
-
-**Easily confused with**
-
-- [Field](./field.mdx) is one question with one answer. A questionnaire is the shell around several, so a set of one is a Field and needs no shell.
-- [SymptomPicker](./symptom-picker.mdx) collects a set of symptoms as a multi-select grid. A questionnaire is a sequence of separate questions answered one at a time, which is a different shape from tapping items on and off.
-- [LogSheet](./log-sheet.mdx) records repeated readings over time. A questionnaire gathers a one-off set of answers and signals completion; it keeps no history.
-
-**Used by**
-
-- No pattern, recipe or screen composes it yet. It is a shell a product fills with its own questions and controls, and wiring it to a scored instrument on a real surface is the product's to make rather than something the corpus ships today.
-
-**Governed by**
-
-- [Clinical interaction guidelines](../health/clinical-interaction-guidelines.mdx) is why the shell asks in the reader's own words and never turns the asking into advice.
-- [Regulatory context](../health/regulatory-context.mdx) is why a presentation layer renders the questions and refuses the scoring and the interpretation.
-- [Evidence and references](../health/evidence-and-references.mdx) is why any instrument's wording and scoring stay with the product that licenses them rather than being shipped here.
-- [Who this is for](../health/who-this-is-for.mdx) is why the questions are written for a layperson reading about their own health rather than for a clinician.
+- [Field](./field.mdx) is one question with one answer. A set of one needs no shell.
+- [SymptomPicker](./symptom-picker.mdx) collects symptoms as a multi-select grid, not a sequence of separate questions.
+- [LogSheet](./log-sheet.mdx) records repeated readings over time. A questionnaire gathers a one-off set and keeps no history.

@@ -10,32 +10,21 @@ reviewed: 2026-09-20
 reviewer: engineering
 ---
 
-## Status
-
 <StubNotice
   name="checkbox"
   status="shipped"
   questions={[
-    "No contrast pair has been measured for this component's own surfaces. The ticked box is the shared action fill with its paired ink, which is measured where the primary Button uses it, but the unticked box's neutral hairline against the page ground and the muted description ink against that ground have been argued from the roles rather than checked on the two surfaces a checkbox sits on.",
-    "Nobody has listened to the box in a screen reader. The mixed state is announced as aria-checked=\"mixed\", and whether a reader hears the parent box as partly on, and hears the description as guidance after the name rather than folded into it, has been reasoned about rather than heard with real assistive technology.",
-    "The two-glyph treatment of the mixed state, a Check when ticked and a Minus when mixed, is argued to survive greyscale, but it has not been put in front of a colour-vision or low-vision reader to confirm that the dash reads as distinct from the tick at a small size.",
-    "Forced colours and prefers-contrast: more are unhandled. Under forced colours the action fill and the neutral hairline are both replaced by the platform's own pair, and whether the ticked, unticked and mixed boxes stay distinct from one another in that mode has not been tested.",
+    "No contrast pair is measured here: the unticked hairline and the description ink against the page ground are argued, not checked.",
+    "Nobody has listened to the box in a screen reader, so whether aria-checked=\"mixed\" is heard as partly on is reasoned, not heard.",
+    "Forced colours are unhandled: the fill and the hairline both become the platform pair, and whether ticked, unticked and mixed stay distinct is untested.",
   ]}
 >
-  <code className="text-sm">checkbox</code> is implemented and installable.
-  It is <strong className="font-medium">shipped</strong>: the API may change
-  in any release, and every change is in the changelog. It has had no
-  accessibility review and no clinical review, so it is not for a production
-  health surface. The questions below are still open.
+  <code className="text-sm">checkbox</code> is shipped: it installs as source and
+  the API may change in any release. It has had no accessibility review and no
+  clinical review, so it is not for a production health surface.
 </StubNotice>
 
-Checkbox is a single labelled box a reader ticks, unticks, or leaves in a mixed state that is neither. Its home is a lone agreement or a single setting a reader turns on or off, and it carries its own visible label with, when there is one, a line of supporting guidance beneath it.
-
-This is the single box, not a set. A box for choosing any number of options from a list, where a head box reflects and drives its children, is a checkbox group, and this component is one box you compose into that group rather than the group itself. The mixed state is offered here so that a group built from these boxes has a head box to render, and the three-state parent in the examples is a relationship a product wires up by passing `checked="indeterminate"` and handling the change.
-
 ## Preview
-
-A single box with a label and a line of guidance beneath it, ticked so the filled state is what you meet first. The thing worth checking is that the ticked box carries a Check glyph inside the action fill rather than resting on the fill's colour, so read it in greyscale: the tick is still a tick, the box is still filled, and toggling it off leaves a neutral hairline that reads as clearly empty.
 
 <ComponentPreview name="checkbox" />
 
@@ -47,8 +36,6 @@ A single box with a label and a line of guidance beneath it, ticked so the fille
   importPath="@/components/ui/checkbox"
   dependencies={["@base-ui/react", "lucide-react"]}
 />
-
-The box is built on Base UI's Checkbox primitive, which owns the keyboard contract, the hidden form input and the mixed state, so installing it pulls in `@base-ui/react`. It also draws the tick and the mixed dash with lucide's Check and Minus glyphs, so it pulls in `lucide-react`.
 
 ## Usage
 
@@ -68,20 +55,16 @@ import { Checkbox } from "@/components/ui/checkbox"
 
 <WhenToUse
   use={[
-    "A single option a reader turns on or off, such as an optional agreement or one preference, where ticking it opts them into one plain thing.",
-    "Any-number-including-none choices across a short list, where each row is its own box and choosing several, one or none are all valid answers.",
-    "The head of such a list, where a parent box says whether all, some or none of its children are on, using the mixed state for the some case.",
+    "A single option a reader turns on or off, such as an optional agreement.",
+    "Any-number-including-none choices across a short list, where each row is its own box.",
+    "The head of such a list, where a parent box uses the mixed state for the some case.",
   ]}
   avoid={[
-    { case: "The choice is one of several mutually exclusive options, where exactly one must be chosen and choosing one clears the rest. A row of checkboxes lets a reader pick two answers to a one-answer question.", instead: "radio-group" },
-    { case: "The label has to say what a reading means or how urgent it is. A ticked box carries no clinical level, and dressing one up as a status tells that level by a fill with no word and no glyph a reader can rely on.", instead: "status-pill" },
-    { case: "You need the box wired into a form's label, hint, error and validity as one unit rather than standing on its own.", instead: "field" },
+    { case: "Exactly one option must be chosen. Checkboxes let a reader pick two answers to a one-answer question.", instead: "radio-group" },
+    { case: "The label has to say what a reading means or how urgent it is.", instead: "status-pill" },
+    { case: "The box has to join a form's label, hint, error and validity as one unit.", instead: "field" },
   ]}
 />
-
-The exclusion that matters is the first, and it is a question about what the choice permits. A checkbox permits any number of answers, including none, so a set of boxes says "tick every one that applies". A [RadioGroup](./radio-group.mdx) permits exactly one, so choosing a second answer clears the first. Using checkboxes for a one-answer question invites a reader to tick two, and using a radio group for a many-answer question makes them unable to tick the second, so the shape of the answer decides the control rather than how the row looks.
-
-The second exclusion keeps a checkbox off the status axis. A ticked box is filled with the shared action role, the same neutral fill the primary [Button](./button.mdx) uses, and it never carries a category or a status colour. A label that has to mean "steady" or "needs attention" is a [StatusPill](./status-pill.mdx), which draws the colour, the icon and the word together, because a state told by a fill alone is a state some readers cannot read.
 
 ## Anatomy
 
@@ -90,26 +73,26 @@ The second exclusion keeps a checkbox off the status axis. A ticked box is fille
   parts={[
     {
       name: "Checkbox",
-      describes: "The root, a wrapper that holds the label row and the optional description. Carries data-slot=\"checkbox\". It draws only neutral chrome and carries neither data-status nor data-category, so it is on neither colour axis.",
+      describes: "The root wrapper. Neutral chrome only, on neither colour axis.",
       prop: "label",
     },
     {
       name: "Checkbox.Control",
-      describes: "The box itself, a Base UI Checkbox.Root rendered as a span with role=\"checkbox\" and aria-checked, plus a hidden input for a form. The ticked and mixed box is filled with the action role and its paired ink; the unticked box is a neutral hairline on the background. data-slot=\"checkbox-control\", with data-checked, data-unchecked, data-indeterminate and data-disabled.",
+      describes: "The box, a Base UI Checkbox.Root with role=\"checkbox\", aria-checked and a hidden form input.",
       prop: "checked",
     },
     {
       name: "Checkbox.Indicator",
-      describes: "The mark inside the box, a Base UI Checkbox.Indicator that is mounted only while the box is ticked or mixed. It renders a lucide Check when ticked and a lucide Minus when mixed, so the two states differ in glyph as well as in fill. data-slot=\"checkbox-indicator\".",
+      describes: "The mark, mounted only while ticked or mixed: a lucide Check when ticked, a Minus when mixed.",
     },
     {
       name: "Checkbox.Label",
-      describes: "The visible words, wrapping the box so a tap anywhere along the row toggles it and so the words name the box through a native label relationship. data-slot=\"checkbox-label\".",
+      describes: "The visible words. The label element wraps the box, so a tap anywhere on the row toggles it.",
       prop: "label",
     },
     {
       name: "Checkbox.Description",
-      describes: "Optional guidance beneath the label, tied to the box with aria-describedby so it is announced as a description after the name rather than as part of it. data-slot=\"checkbox-description\".",
+      describes: "Optional guidance beneath the label, tied to the box with aria-describedby.",
       prop: "description",
     },
   ]}
@@ -121,90 +104,80 @@ The second exclusion keeps a checkbox off the status axis. A ticked box is fille
     {
       part: "Checkbox",
       cardinality: "1",
-      note: "data-slot=\"checkbox\", the wrapper. Neither data-status nor data-category.",
+      note: "The wrapper",
       children: [
         {
           part: "Checkbox.Control",
           cardinality: "1",
-          note: "data-slot=\"checkbox-control\", role=\"checkbox\", aria-checked; wrapped by the label so the words name it",
+          note: "role=\"checkbox\", wrapped by the label",
           children: [
             {
               part: "Checkbox.Indicator",
               cardinality: "0..1",
-              note: "data-slot=\"checkbox-indicator\", mounted only when ticked or mixed; Check or Minus",
+              note: "Mounted only when ticked or mixed",
             },
           ],
         },
         {
           part: "Checkbox.Label",
           cardinality: "1",
-          note: "data-slot=\"checkbox-label\", wraps the control",
+          note: "Wraps the control",
         },
         {
           part: "Checkbox.Description",
           cardinality: "0..1",
-          note: "data-slot=\"checkbox-description\", present when description is set",
+          note: "Present when description is set",
         },
       ],
     },
   ]}
 />
 
-The parts above are identified by `data-slot` and are styleable from outside; none of them is an export. The `<label>` element wraps the box and the label words rather than the description, which is the one structural choice worth knowing: the words inside the label become the box's accessible name and toggle it on a tap, while the description sits outside as a sibling and is tied to the box with `aria-describedby`, so it is announced as guidance and does not lengthen the name. The indicator has a cardinality of `0..1` on purpose, because Base UI mounts it only while the box is ticked or mixed and there is genuinely no mark in the DOM when the box is empty.
-
 ## Examples
 
 ### An optional agreement
 
-The case the lone box was built for. Ticking it opts the reader into one plain thing, and the line of guidance beneath the label says what that thing does. It is an ordinary preference rather than a consent decision, and it carries no reading, no unit and no clinical vocabulary, because an opsinjs example must never be mistakable for somebody's own data.
+A lone box with `label` and `description`. The description says what ticking does.
 
 <ComponentPreview name="checkbox-an-optional-agreement" kind="example" align="start" />
 
 ### A three-state parent
 
-A parent box over a short list, showing the mixed state so that a set built from these boxes has a head to render. The parent is ticked when every child is ticked, unticked when none is, and mixed when some but not all are, which is the state drawn with a Minus rather than a Check. The relationship is wired up in the example rather than inside the component, because the lone box is one box and knows nothing of a group; a product that wants a real group reaches for a group primitive. The list items are fictional export options with no reading in them.
+The example passes `checked="indeterminate"` when some but not all children are ticked, so the box draws a Minus, not a Check.
 
 <ComponentPreview name="checkbox-a-three-state-parent" kind="example" align="start" />
 
 ## Content guidelines
 
-Write the label as the thing the reader is agreeing to, phrased so that a tick means yes and an empty box means no. "Email me a copy" ticks to opt in; a label phrased as a negative, such as "Do not email me", makes an empty box a double negative nobody can read at a glance. Keep the label to a short line, and put anything longer, such as what ticking the box will do or where the copy is sent, in the `description` rather than swelling the label.
-
-Never write a clinical status word into a checkbox label. "Steady" and "Needs attention" belong in a [StatusPill](./status-pill.mdx), where the word sits beside the colour and the glyph that let a reader who cannot use the colour still read the level. A status word beside a tick is a level told without its carriers, which is the mistake the two axes are kept apart to prevent.
+Phrase the label so a tick means yes. Keep it to a short line and put what ticking does in `description`. A clinical status word is a [StatusPill](./status-pill.mdx), never a label.
 
 <DoDont>
   <DoDont.Do>
-    **"Email me a copy" with a description of what that does.** The label ticks to
-    opt in, reads as a single clear yes, and hands the detail to the description so
-    the choice stays scannable.
+    **"Email me a copy"** ticks to a plain yes, with the detail in the description.
   </DoDont.Do>
   <DoDont.Dont>
-    **"Do not exclude me from reminders" as the label.** A double negative on a box
-    where a tick already means yes leaves the reader working out whether ticking
-    opts them in or out. Phrase the label so a tick is a plain yes.
+    **"Do not exclude me from reminders"** makes an empty box a double negative.
   </DoDont.Dont>
 </DoDont>
 
 ## Accessibility
 
-Some of this is enforced by a gate on every pull request and every push to `main`, and the rest is argued and labelled as such. Accessibility is claimed only where it has been checked, with the gaps listed rather than left out. Nothing here has been through a review with a disabled user.
+**Checked by `pnpm run check:a11y` on every commit.** Only the action role and
+neutral chrome are drawn, no `data-status` is carried, and no type size is in `px`.
 
-**Checked, by `pnpm run check:a11y`:**
+**Argued from the source, not measured.**
 
-- **No status colour, no colour literal, no ramp step.** The box draws only the shared action role and the neutral chrome roles, so it carries no `data-status`, reads no clinical vocabulary, and cannot mix the two axes. The gate reads every element and would fail the build on a colour drawn from either axis or on a raw colour value, and there is neither here.
-- **No px type size.** The label is the `body` step and the description the `footnote` step, so a reader who has turned their text size up gets a larger box and larger words rather than a pinned size.
+- Base UI owns the keyboard contract: Tab focuses, Space toggles, and the mixed
+  state is exposed as `aria-checked="mixed"`.
+- The label wraps the box, so its words are the accessible name and the whole
+  row is the pointer target. An empty `label` warns in development.
+- The description is tied to the box with `aria-describedby`, so it is read
+  after the name.
+- The box is sized in rem and the words are type steps, so the control grows
+  with text size.
 
-**Argued, and true of the implementation, but not yet measured:**
-
-- **The box has a real keyboard contract, delegated to Base UI.** Tab moves focus onto the box, Space toggles it, and the mixed state is exposed as `aria-checked="mixed"` rather than as a third colour. This is the WAI-ARIA checkbox pattern the primitive implements rather than a bespoke one, but it has not been driven with real assistive technology here.
-- **The label names the box and toggles it.** The label wraps the box, so its words are the accessible name and a tap anywhere along the row toggles the box, and the pointer target is the whole row rather than the small box. A missing or empty `label` raises a development warning rather than rendering a box a reader cannot identify.
-- **The description is announced as guidance, not as the name.** It is tied to the box with `aria-describedby` and sits outside the label, so a screen reader reads it after the name rather than folding it in.
-- **At 200% text the box and its words grow together.** The box is sized in rem and its label and description are type steps, so the whole control scales rather than clipping.
-
-**Not checked at all, and listed rather than omitted:**
-
-- Every contrast pair for this component's own surfaces: the neutral hairline of the unticked box against the page ground, and the muted description ink against that ground. `scripts/check-contrast.mts` has not been run for this component, which is why the report below is empty rather than reassuring.
-- What the box draws under `forced-colors: active`, where the action fill and the hairline are both replaced by the platform's own pair, and whether the ticked, unticked and mixed states stay distinct in that mode.
+**Not checked by any gate.** Every contrast pair on the component's own
+surfaces, and what the box draws under `forced-colors: active`.
 
 <KeyboardTable
   name="checkbox"
@@ -212,49 +185,79 @@ Some of this is enforced by a gate on every pull request and every push to `main
     {
       keys: "Tab",
       action: "Moves focus onto the box",
-      notes: "The box is a single tab stop. A disabled box is skipped, because it takes no focus and answers no key.",
+      notes: "One tab stop. A disabled box is skipped.",
     },
     {
       keys: "Shift + Tab",
       action: "Moves focus back off the box",
-      notes: "The box is one stop in reverse too, so focus leaves it rather than pausing on any inner part.",
+      notes: "One stop in reverse too.",
     },
     {
       keys: "Space",
       action: "Toggles the box",
-      notes: "A box is a role=\"checkbox\", so Space is its activator. A box that was mixed becomes ticked, and reports true to onCheckedChange.",
+      notes: "A mixed box becomes ticked and reports true.",
     },
     {
       keys: "Enter",
       action: "Does nothing",
-      notes: "A checkbox is toggled with Space, not Enter, so a checkbox near the foot of a form does not toggle when the reader presses Enter to submit.",
+      notes: "A box at the foot of a form does not toggle on submit.",
     },
     {
       keys: "Pointer on the label",
       action: "Toggles the box",
-      notes: "The label wraps the box, so a tap or click anywhere along the label row toggles it, not only a hit on the small box.",
+      notes: "Anywhere along the row, not only the box.",
     },
   ]}
 />
 
 <ContrastReport component="checkbox" />
 
+## Data attributes
+
+<DataAttributesTable
+  name="checkbox"
+  rows={[
+    {
+      attribute: "data-slot",
+      condition: "On the root and every inner part",
+      value: "checkbox, checkbox-control, checkbox-indicator, checkbox-label, checkbox-description",
+    },
+    {
+      attribute: "data-checked",
+      condition: "On Checkbox.Control while ticked",
+      value: "Set by Base UI",
+    },
+    {
+      attribute: "data-unchecked",
+      condition: "On Checkbox.Control while neither ticked nor mixed",
+      value: "Set by Base UI",
+    },
+    {
+      attribute: "data-indeterminate",
+      condition: "On Checkbox.Control while mixed",
+      value: "Set by Base UI",
+    },
+    {
+      attribute: "data-disabled",
+      condition: "On Checkbox.Control while disabled",
+      value: "Set by Base UI",
+    },
+  ]}
+/>
+
 ## API reference
 
 <PropsTable name="CheckboxProps" />
 
-`label` is required, because a box with no words asks a reader to agree to something they cannot see, and a missing one raises a development warning rather than rendering a bare box. `checked` accepts `true`, `false` or the string `"indeterminate"` for the mixed state, and omitting it leaves the box uncontrolled from an unticked start; `indeterminate` is the alternative route to the mixed state for a caller who keeps `checked` as a plain boolean, and it wins when both are given. `onCheckedChange` reports the new ticked state as a boolean, so a box that was mixed reports `true` when the reader ticks it, and the caller stores that and passes it back.
+`label` is required. `checked`
+accepts `true`, `false` or `"indeterminate"`; omitted, the box is uncontrolled
+from an unticked start. `indeterminate` is the other route to the mixed state
+and wins when both are given. `onCheckedChange` reports a boolean, so a mixed
+box reports `true` when ticked.
 
 ## Related
 
-<RelatedComponents name="checkbox" />
-
-**Easily confused with**
-
-- [RadioGroup](./radio-group.mdx) is the control for a choice where exactly one option can be chosen. A checkbox permits any number of answers including none; a radio group permits one. The shape of the answer, not the look of the row, decides between them.
-- [Switch](./switch.mdx) is the control for turning one thing on or off with an immediate effect, such as a setting that takes hold the moment it flips. A checkbox records a choice that a form or a save commits later, and it has a mixed state a switch does not.
-- [Field](./field.mdx) wires a control to its label, hint, error and validity as one accessible unit. Reach for it when a box has to live inside that machinery rather than stand on its own.
-
-**Used by**
-
-- No pattern, recipe or screen composes it yet. It is a form primitive a product drops into its own agreements, preferences and lists, and the checkbox group it heads is a product's to assemble rather than something the corpus ships today.
+- [RadioGroup](./radio-group.mdx) is for a choice where exactly one option can be chosen.
+- [Switch](./switch.mdx) turns one thing on or off immediately, and has no mixed state.
+- [Field](./field.mdx) wires a control to its label, hint, error and validity as one unit.
+- [StatusPill](./status-pill.mdx) is where a clinical level lives.
